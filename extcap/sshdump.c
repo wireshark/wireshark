@@ -154,7 +154,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 		g_debug("Remote capture command has disabled other options");
 	} else {
 		quoted_iface = g_shell_quote(iface);
-		quoted_filter = (cfilter ? g_shell_quote(cfilter) : "");
+		quoted_filter = g_shell_quote(cfilter ? cfilter : "");
 		if (count > 0)
 			count_str = g_strdup_printf("-c %u", count);
 
