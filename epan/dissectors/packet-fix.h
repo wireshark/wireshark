@@ -1459,7 +1459,7 @@ typedef struct _fix_field {
         { "AK", "PRIOR REFERENCE PRICE" },
         { "AL", "STOPPED SOLD LAST" },
         { "AM", "STOPPED OUT OF SEQUENCE" },
-        { "AN", "OFFICAL CLOSING PRICE" },
+        { "AN", "OFFICIAL CLOSING PRICE" },
         { "AO", "CROSSED AO" },
         { "AP", "FAST MARKET" },
         { "AQ", "AUTOMATIC EXECUTION" },

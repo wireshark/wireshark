@@ -6931,7 +6931,7 @@
    <value enum='AK' description='PRIOR_REFERENCE_PRICE' />
    <value enum='AL' description='STOPPED_SOLD_LAST' />
    <value enum='AM' description='STOPPED_OUT_OF_SEQUENCE' />
-   <value enum='AN' description='OFFICAL_CLOSING_PRICE' />
+   <value enum='AN' description='OFFICIAL_CLOSING_PRICE' />
    <value enum='AO' description='CROSSED_AO' />
    <value enum='AP' description='FAST_MARKET' />
    <value enum='AQ' description='AUTOMATIC_EXECUTION' />
