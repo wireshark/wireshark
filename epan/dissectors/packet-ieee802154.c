@@ -3690,7 +3690,7 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_p_ie_sixp_sfid,
-        { "6TOP Scheduling Fnction ID",                   "wpan.sixpsfid", FT_UINT8, BASE_HEX, NULL, 0x0,
+        { "6TOP Scheduling Function ID",                   "wpan.sixpsfid", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         /*
