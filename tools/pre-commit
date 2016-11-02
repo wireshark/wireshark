@@ -53,6 +53,7 @@ fi
 exit_status=0
 
 COMMIT_FILES=`git diff-index --cached --name-status ${COMMIT_ID} | grep -v "^D" | cut -f2 | grep "\.[ch]$"`
+DIAMETER_FILES=`git diff-index --cached --name-status ${COMMIT_ID} | grep -v "^D" | cut -f2 | grep diameter/`
 
 # Path to filter script in the tools directory
 filter_script=${PWD}/tools/pre-commit-ignore.py
@@ -90,6 +91,11 @@ for FILE in $CHECK_FILES; do
     ./tools/checkfiltername.pl $FILE    || exit_status=1
 
 done
+
+if [ "x$DIAMETER_FILES" != x ]
+then
+	./tools/validate-diameter-xml.sh > /dev/null || exit_status=1
+fi
 
 # If there are whitespace errors, print the offending file names and fail. (from git pre-commit.sample)
 git diff-index --check --cached ${COMMIT_ID}    || exit_status=1

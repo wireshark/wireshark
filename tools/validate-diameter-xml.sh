@@ -24,24 +24,28 @@
 
 if ! type -p sed > /dev/null
 then
-	echo "Sorry, 'sed' is needed to run this program."
-	exit 1
+	echo "'sed' is needed to run $0." 1>&2
+	# Exit cleanly because we don't want pre-commit to fail just because
+	# someone doesn't have the tools...
+	exit 0
 fi
 if ! type -p xmllint > /dev/null
 then
-	echo "Sorry, 'xmllint' is needed to run this program."
-	exit 1
+	echo "'xmllint' is needed to run $0." 1>&2
+	# Exit cleanly because we don't want pre-commit to fail just because
+	# someone doesn't have the tools...
+	exit 0
 fi
 
 # Ideally this would work regardless of our cwd
 if [ ! -r diameter/dictionary.xml ]
 then
-	echo "Couldn't find diameter/dictionary.xml"
+	echo "Couldn't find diameter/dictionary.xml" 1>&2
 	exit 1
 fi
 if [ ! -r diameter/dictionary.dtd ]
 then
-	echo "Couldn't find diameter/dictionary.dtd"
+	echo "Couldn't find diameter/dictionary.dtd" 1>&2
 	exit 1
 fi
 
@@ -59,7 +63,7 @@ do
 done
 
 xmllint --noout --noent --postvalid /tmp/diameter/dictionary.xml &&
-	echo "Diameter dictionary is (mostly) valid XML!"
+	echo "Diameter dictionary is (mostly) valid XML."
 
 rm -rf /tmp/diameter
 
