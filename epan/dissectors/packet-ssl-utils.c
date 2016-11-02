@@ -505,6 +505,7 @@ const value_string ssl_31_alert_level[] = {
 
 const value_string ssl_31_alert_description[] = {
     {   0,  "Close Notify" },
+    {   1,  "End of Early Data" },
     {  10,  "Unexpected Message" },
     {  20,  "Bad Record MAC" },
     {  21,  "Decryption Failed" },
@@ -529,12 +530,14 @@ const value_string ssl_31_alert_description[] = {
     {  86,  "Inappropriate Fallback" },
     {  90,  "User Canceled" },
     { 100, "No Renegotiation" },
+    { 109, "Missing Extension" },
     { 110, "Unsupported Extension" },
     { 111, "Certificate Unobtainable" },
     { 112, "Unrecognized Name" },
     { 113, "Bad Certificate Status Response" },
     { 114, "Bad Certificate Hash Value" },
     { 115, "Unknown PSK Identity" },
+    { 116, "Certificate Required" },
     { 120, "No application Protocol" },
     { 0x00, NULL }
 };
