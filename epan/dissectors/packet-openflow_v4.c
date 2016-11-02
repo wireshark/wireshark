@@ -62,6 +62,7 @@ static int hf_openflow_v4_oxm_mask = -1;
 static int hf_openflow_v4_oxm_mask_etheraddr = -1;
 static int hf_openflow_v4_oxm_mask_ipv4addr = -1;
 static int hf_openflow_v4_oxm_mask_ipv6addr = -1;
+static int hf_openflow_v4_oxm_mask_vlan = -1;
 static int hf_openflow_v4_match_type = -1;
 static int hf_openflow_v4_match_length = -1;
 static int hf_openflow_v4_match_pad = -1;
@@ -1043,6 +1044,10 @@ dissect_openflow_oxm_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_vlan_present, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_vlan_vid, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
+            if (oxm_hm) {
+                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_mask_vlan, tvb, offset, 2, ENC_NA);
+                offset+=2;
+            }
             break;
 
         case OFPXMT_OFB_IP_PROTO:
@@ -4805,6 +4810,11 @@ proto_register_openflow_v4(void)
         { &hf_openflow_v4_oxm_mask_ipv6addr,
             { "Mask", "openflow_v4.oxm.ipv6_mask",
                FT_IPv6, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_mask_vlan,
+            { "Mask", "openflow_v4.oxm.vlan_mask",
+               FT_UINT16, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_match_type,
