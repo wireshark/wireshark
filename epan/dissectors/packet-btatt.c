@@ -901,8 +901,8 @@ static int hf_btatt_ots_flags = -1;
 static int hf_btatt_ots_flags_reserved = -1;
 static int hf_btatt_ots_flags_object_deletion = -1;
 static int hf_btatt_ots_flags_object_creation = -1;
-static int hf_btatt_ots_flags_change_occured_to_the_object_metadata = -1;
-static int hf_btatt_ots_flags_change_occured_to_the_object_contents = -1;
+static int hf_btatt_ots_flags_change_occurred_to_the_object_metadata = -1;
+static int hf_btatt_ots_flags_change_occurred_to_the_object_contents = -1;
 static int hf_btatt_ots_flags_source_of_change = -1;
 static int hf_btatt_ots_action_opcode = -1;
 static int hf_btatt_ots_size = -1;
@@ -1713,8 +1713,8 @@ static const int *hfx_btatt_ots_flags[] = {
     &hf_btatt_ots_flags_reserved,
     &hf_btatt_ots_flags_object_deletion,
     &hf_btatt_ots_flags_object_creation,
-    &hf_btatt_ots_flags_change_occured_to_the_object_metadata,
-    &hf_btatt_ots_flags_change_occured_to_the_object_contents,
+    &hf_btatt_ots_flags_change_occurred_to_the_object_metadata,
+    &hf_btatt_ots_flags_change_occurred_to_the_object_contents,
     &hf_btatt_ots_flags_source_of_change,
     NULL
 };
@@ -14562,13 +14562,13 @@ proto_register_btatt(void)
             FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL}
         },
-        {&hf_btatt_ots_flags_change_occured_to_the_object_metadata,
-            {"Change Occured to the Object Metadata", "btatt.ots.flags.change_occured_to_the_object_metadata",
+        {&hf_btatt_ots_flags_change_occurred_to_the_object_metadata,
+            {"Change Occurred to the Object Metadata", "btatt.ots.flags.change_occurred_to_the_object_metadata",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL}
         },
-        {&hf_btatt_ots_flags_change_occured_to_the_object_contents,
-            {"Change Occured to the Object Contents", "btatt.ots.flags.change_occured_to_the_object_contents",
+        {&hf_btatt_ots_flags_change_occurred_to_the_object_contents,
+            {"Change Occurred to the Object Contents", "btatt.ots.flags.change_occurred_to_the_object_contents",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL}
         },
