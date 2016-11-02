@@ -127,6 +127,7 @@ GNUTLS_VERSION=2.12.19
 # features present in all three versions)
 LUA_VERSION=5.2.4
 PORTAUDIO_VERSION=pa_stable_v19_20111121
+SNAPPY_VERSION=1.1.3
 LZ4_VERSION=r131
 SBC_VERSION=1.3
 #
@@ -185,6 +186,41 @@ uninstall_xz() {
         fi
 
         installed_xz_version=""
+    fi
+}
+
+install_snappy() {
+    if [ "$SNAPPY_VERSION" -a ! -f snappy-$SNAPPY_VERSION-done ] ; then
+        echo "Downloading, building, and installing snappy:"
+        [ -f snappy-$SNAPPY_VERSION.tar.gz ] || curl -L -O https://github.com/google/snappy/releases/download/$SNAPPY_VERSION/snappy-$SNAPPY_VERSION.tar.gz || exit 1
+        gzcat snappy-$SNAPPY_VERSION.tar.gz | tar xf - || exit 1
+        cd snappy-$SNAPPY_VERSION
+        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch snappy-$SNAPPY_VERSION-done
+    fi
+}
+
+uninstall_snappy() {
+    if [ ! -z "$installed_snappy_version" ] ; then
+        echo "Uninstalling snappy:"
+        cd snappy-$installed_snappy_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm snappy-$installed_snappy_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf snappy-$installed_snappy_version
+            rm -rf snappy-$installed_snappy_version.tar.gz
+        fi
+
+        installed_snappy_version=""
     fi
 }
 
@@ -1623,6 +1659,17 @@ install_all() {
         uninstall_lz4 -r
     fi
 
+    if [ ! -z "$installed_snappy_version" -a \
+              "$installed_snappy_version" != "$SNAPPY_VERSION" ] ; then
+        echo "Installed SNAPPY version is $installed_snappy_version"
+        if [ -z "$SNAPPY_VERSION" ] ; then
+            echo "SNAPPY is not requested"
+        else
+            echo "Requested SNAPPY version is $SNAPPY_VERSION"
+        fi
+        uninstall_snappy -r
+    fi
+
     if [ ! -z "$installed_sbc_version" -a \
               "$installed_sbc_version" != "$SBC_VERSION" ] ; then
         echo "Installed SBC version is $installed_sbc_version"
@@ -1996,6 +2043,8 @@ install_all() {
 
     install_portaudio
 
+    install_snappy
+
     install_lz4
 
     install_sbc
@@ -2032,6 +2081,8 @@ uninstall_all() {
         uninstall_geoip
 
         uninstall_portaudio
+
+        uninstall_snappy
 
         uninstall_lz4
 
@@ -2183,6 +2234,7 @@ then
     installed_gnutls_version=`ls gnutls-*-done 2>/dev/null | sed 's/gnutls-\(.*\)-done/\1/'`
     installed_lua_version=`ls lua-*-done 2>/dev/null | sed 's/lua-\(.*\)-done/\1/'`
     installed_portaudio_version=`ls portaudio-*-done 2>/dev/null | sed 's/portaudio-\(.*\)-done/\1/'`
+    installed_snappy_version=`ls snappy-*-done 2>/dev/null | sed 's/snappy-\(.*\)-done/\1/'`
     installed_lz4_version=`ls lz4-*-done 2>/dev/null | sed 's/lz4-\(.*\)-done/\1/'`
     installed_sbc_version=`ls sbc-*-done 2>/dev/null | sed 's/sbc-\(.*\)-done/\1/'`
     installed_geoip_version=`ls geoip-*-done 2>/dev/null | sed 's/geoip-\(.*\)-done/\1/'`
