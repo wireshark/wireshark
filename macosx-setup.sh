@@ -127,6 +127,7 @@ GNUTLS_VERSION=2.12.19
 # features present in all three versions)
 LUA_VERSION=5.2.4
 PORTAUDIO_VERSION=pa_stable_v19_20111121
+LZ4_VERSION=r131
 SBC_VERSION=1.3
 #
 # XXX - they appear to have an unversioned gzipped tarball for the
@@ -184,6 +185,41 @@ uninstall_xz() {
         fi
 
         installed_xz_version=""
+    fi
+}
+
+install_lz4() {
+    if [ "$LZ4_VERSION" -a ! -f lz4-$LZ4_VERSION-done ] ; then
+        echo "Downloading, building, and installing lz4:"
+        [ -f lz4-$LZ4_VERSION.tar.gz ] || curl -L -o lz4-$LZ4_VERSION.tar.gz https://github.com/lz4/lz4/archive/$LZ4_VERSION.tar.gz  || exit 1
+        gzcat lz4-$LZ4_VERSION.tar.gz | tar xf - || exit 1
+        cd lz4-$LZ4_VERSION
+        # CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch lz4-$LZ4_VERSION-done
+    fi
+}
+
+uninstall_lz4() {
+    if [ ! -z "$installed_lz4_version" ] ; then
+        echo "Uninstalling lz4:"
+        cd lz4-$installed_lz4_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm lz4-$installed_lz4_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf lz4-$installed_lz4_version
+            rm -rf lz4-$installed_lz4_version.tar.gz
+        fi
+
+        installed_lz4_version=""
     fi
 }
 
@@ -1576,6 +1612,17 @@ install_all() {
         uninstall_geoip -r
     fi
 
+    if [ ! -z "$installed_lz4_version" -a \
+              "$installed_lz4_version" != "$LZ4_VERSION" ] ; then
+        echo "Installed LZ4 version is $installed_lz4_version"
+        if [ -z "$LZ4_VERSION" ] ; then
+            echo "LZ4 is not requested"
+        else
+            echo "Requested LZ4 version is $LZ4_VERSION"
+        fi
+        uninstall_lz4 -r
+    fi
+
     if [ ! -z "$installed_sbc_version" -a \
               "$installed_sbc_version" != "$SBC_VERSION" ] ; then
         echo "Installed SBC version is $installed_sbc_version"
@@ -1949,6 +1996,8 @@ install_all() {
 
     install_portaudio
 
+    install_lz4
+
     install_sbc
 
     install_geoip
@@ -1983,6 +2032,8 @@ uninstall_all() {
         uninstall_geoip
 
         uninstall_portaudio
+
+        uninstall_lz4
 
         uninstall_sbc
 
@@ -2132,6 +2183,7 @@ then
     installed_gnutls_version=`ls gnutls-*-done 2>/dev/null | sed 's/gnutls-\(.*\)-done/\1/'`
     installed_lua_version=`ls lua-*-done 2>/dev/null | sed 's/lua-\(.*\)-done/\1/'`
     installed_portaudio_version=`ls portaudio-*-done 2>/dev/null | sed 's/portaudio-\(.*\)-done/\1/'`
+    installed_lz4_version=`ls lz4-*-done 2>/dev/null | sed 's/lz4-\(.*\)-done/\1/'`
     installed_sbc_version=`ls sbc-*-done 2>/dev/null | sed 's/sbc-\(.*\)-done/\1/'`
     installed_geoip_version=`ls geoip-*-done 2>/dev/null | sed 's/geoip-\(.*\)-done/\1/'`
     installed_cares_version=`ls c-ares-*-done 2>/dev/null | sed 's/c-ares-\(.*\)-done/\1/'`
