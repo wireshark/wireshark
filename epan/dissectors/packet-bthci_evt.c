@@ -315,6 +315,8 @@ static int hf_bthci_evt_random_number = -1;
 static int hf_bthci_evt_le_num_packets = -1;
 static int hf_bthci_evt_le_meta_subevent = -1;
 static int hf_bthci_evt_le_peer_address_type = -1;
+static int hf_bthci_evt_le_local_rpa = -1;
+static int hf_bthci_evt_le_peer_rpa = -1;
 static int hf_bthci_evt_le_con_interval = -1;
 static int hf_bthci_evt_le_con_latency = -1;
 static int hf_bthci_evt_le_supervision_timeout = -1;
@@ -2098,7 +2100,84 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
         case 0x07: /* LE Data Length Change */
         case 0x08: /* LE Read Local P-256 Public Key Complete */
         case 0x09: /* LE Generate DHKey Complete */
+            break;
+/* TODO */
         case 0x0A: /* LE Enhanced Connection Complete */
+            proto_tree_add_item(tree, hf_bthci_evt_status,                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            status = tvb_get_guint8(tvb, offset);
+            send_hci_summary_status_tap(status, pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle,             tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            connection_handle = tvb_get_letohs(tvb, offset) & 0x0FFF;
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_role,                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_le_peer_address_type,          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, bd_addr);
+            offset = dissect_bd_addr(hf_bthci_evt_le_local_rpa, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            offset = dissect_bd_addr(hf_bthci_evt_le_peer_rpa, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_con_interval,        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g msec)", tvb_get_letohs(tvb, offset)*1.25);
+            offset += 2;
+
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,         tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (number events)");
+            offset += 2;
+
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)", tvb_get_letohs(tvb, offset)*0.01);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_le_master_clock_accuracy,      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            if (!pinfo->fd->flags.visited && status == STATUS_SUCCESS) {
+                wmem_tree_key_t    key[5];
+                guint32            k_interface_id;
+                guint32            k_adapter_id;
+                guint32            k_connection_handle;
+                guint32            k_frame_number;
+                remote_bdaddr_t   *remote_bdaddr;
+                chandle_session_t *chandle_session;
+
+                k_interface_id = bluetooth_data->interface_id;
+                k_adapter_id = bluetooth_data->adapter_id;
+                k_connection_handle = connection_handle;
+                k_frame_number = pinfo->num;
+
+                key[0].length = 1;
+                key[0].key    = &k_interface_id;
+                key[1].length = 1;
+                key[1].key    = &k_adapter_id;
+                key[2].length = 1;
+                key[2].key    = &k_connection_handle;
+                key[3].length = 1;
+                key[3].key    = &k_frame_number;
+                key[4].length = 0;
+                key[4].key    = NULL;
+
+                remote_bdaddr = (remote_bdaddr_t *) wmem_new(wmem_file_scope(), remote_bdaddr_t);
+                remote_bdaddr->interface_id = bluetooth_data->interface_id;
+                remote_bdaddr->adapter_id = bluetooth_data->adapter_id;
+                remote_bdaddr->chandle = connection_handle;
+                memcpy(remote_bdaddr->bd_addr, bd_addr, 6);
+
+                wmem_tree_insert32_array(bluetooth_data->chandle_to_bdaddr, key, remote_bdaddr);
+
+                chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
+                chandle_session->connect_in_frame = k_frame_number;
+                chandle_session->disconnect_in_frame = max_disconnect_in_frame;
+                wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
+            }
+
+            add_opcode(opcode_list, 0x200D, COMMAND_STATUS_NORMAL); /* LE Create Connection */
+            break;
         case 0x0B: /* LE Direct Advertising Report */
 /* TODO */
         default:
@@ -6284,6 +6363,16 @@ proto_register_bthci_evt(void)
           { "Peer Address Type", "bthci_evt.le_peer_address_type",
             FT_UINT8, BASE_HEX, VALS(bthci_cmd_address_types_vals), 0x0,
             NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_local_rpa,
+          { "Local RPA",          "bthci_evt.le_local_rpa",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            "Local Remote Private Address", HFILL}
+        },
+        { &hf_bthci_evt_le_peer_rpa,
+          { "Peer RPA",          "bthci_evt.le_peer_rpa",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            "Peer Remote Private Address", HFILL}
         },
         { &hf_bthci_evt_le_con_interval,
           { "Connection Interval", "bthci_evt.le_con_interval",
