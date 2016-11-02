@@ -434,15 +434,12 @@ static int hf_icmpv6_rpl_opt_metric_hp_object = -1;
 static int hf_icmpv6_rpl_opt_metric_hp_object_reserved = -1;
 static int hf_icmpv6_rpl_opt_metric_hp_object_flags = -1;
 static int hf_icmpv6_rpl_opt_metric_hp_object_hp = -1;
-static int hf_icmpv6_rpl_opt_metric_lt_object = -1;
 static int hf_icmpv6_rpl_opt_metric_lt_object_lt = -1;
-static int hf_icmpv6_rpl_opt_metric_ll_object = -1;
 static int hf_icmpv6_rpl_opt_metric_ll_object_ll = -1;
 static int hf_icmpv6_rpl_opt_metric_lql_object = -1;
 static int hf_icmpv6_rpl_opt_metric_lql_object_res = -1;
 static int hf_icmpv6_rpl_opt_metric_lql_object_val = -1;
 static int hf_icmpv6_rpl_opt_metric_lql_object_counter = -1;
-static int hf_icmpv6_rpl_opt_metric_etx_object = -1;
 static int hf_icmpv6_rpl_opt_metric_etx_object_etx = -1;
 static int hf_icmpv6_rpl_opt_metric_lc_object = -1;
 static int hf_icmpv6_rpl_opt_metric_lc_object_res = -1;
@@ -569,10 +566,7 @@ static gint ett_icmpv6_rpl_metric_flags = -1;
 static gint ett_icmpv6_rpl_metric_nsa_object = -1;
 static gint ett_icmpv6_rpl_metric_ne_object = -1;
 static gint ett_icmpv6_rpl_metric_hp_object = -1;
-static gint ett_icmpv6_rpl_metric_lt_object = -1;
-static gint ett_icmpv6_rpl_metric_ll_object = -1;
 static gint ett_icmpv6_rpl_metric_lql_object = -1;
-static gint ett_icmpv6_rpl_metric_etx_object = -1;
 static gint ett_icmpv6_rpl_metric_lc_object = -1;
 static gint ett_icmpv6_rpl_flag_routing = -1;
 static gint ett_icmpv6_rpl_flag_config = -1;
@@ -2609,33 +2603,17 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                             break;
                             }
                         case RPL_METRIC_LT: /* Link Throughput Object */
-                            {
-                            static const int * metric_lt_flags[] = {
-                                &hf_icmpv6_rpl_opt_metric_lt_object_lt,
-                                NULL
-                            };
-
                             for (; metric_len > 0; metric_len -= 4) {
-                                proto_tree_add_bitmask(metric_constraint_tree, tvb, opt_offset, hf_icmpv6_rpl_opt_metric_lt_object,
-                                                    ett_icmpv6_rpl_metric_lt_object, metric_lt_flags, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_lt_object_lt, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                                 opt_offset += 4;
                             }
                             break;
-                            }
                         case RPL_METRIC_LL: /* Link Latency Object */
-                            {
-                            static const int * metric_ll_flags[] = {
-                                &hf_icmpv6_rpl_opt_metric_ll_object_ll,
-                                NULL
-                            };
-
                             for (; metric_len > 0; metric_len -= 4) {
-                                proto_tree_add_bitmask(metric_constraint_tree, tvb, opt_offset, hf_icmpv6_rpl_opt_metric_ll_object,
-                                                    ett_icmpv6_rpl_metric_ll_object, metric_ll_flags, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_ll_object_ll, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                                 opt_offset += 4;
                             }
                             break;
-                            }
                         case RPL_METRIC_LQL: /* Link Quality Level Object */
                             {
                             static const int * metric_lql_flags[] = {
@@ -2655,19 +2633,11 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                             break;
                             }
                         case RPL_METRIC_ETX: /* ETX Object */
-                            {
-                            static const int * metric_etx_flags[] = {
-                                &hf_icmpv6_rpl_opt_metric_etx_object_etx,
-                                NULL
-                            };
-
                             for (; metric_len > 0; metric_len -= 2) {
-                                proto_tree_add_bitmask(metric_constraint_tree, tvb, opt_offset, hf_icmpv6_rpl_opt_metric_etx_object,
-                                                    ett_icmpv6_rpl_metric_etx_object, metric_etx_flags, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_etx_object_etx, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
                                 opt_offset += 2;
                             }
                             break;
-                            }
                         case RPL_METRIC_LC: /* Link Color Object */
                             proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_lc_object_res, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
                             opt_offset += 1;
@@ -2682,7 +2652,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                                 } else if (metric_constraint_flags & RPL_METRIC_FLAG_R) {
                                     proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_lc_object_counter, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
                                 } else {
-                                    expert_add_info(pinfo, ti_opt_len, &ei_icmpv6_rpl_unknown_metric);
+                                    expert_add_info(pinfo, ti_opt, &ei_icmpv6_rpl_unknown_metric);
                                 }
                                 opt_offset += 2;
                             }
@@ -5571,17 +5541,11 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_rpl_opt_metric_hp_object_hp,
           { "Hop Count", "icmpv6.rpl.opt.metric.hp.object.hp", FT_UINT16, BASE_DEC, NULL, RPL_METRIC_HP_OBJECT_HP,
             "When used as a constraint, the DAG root indicates the maximum number of hops that a path may traverse. When used as a metric, each visited node simply increments the Hop Count field.", HFILL }},
-        { &hf_icmpv6_rpl_opt_metric_lt_object,
-          { "Link Throughput Object", "icmpv6.rpl.opt.metric.lt.object", FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
         { &hf_icmpv6_rpl_opt_metric_lt_object_lt,
-          { "Link Throughput", "icmpv6.rpl.opt.metric.lt", FT_UINT32, BASE_HEX, NULL, 0x0,
+          { "Link Throughput", "icmpv6.rpl.opt.metric.lt.object.lt", FT_UINT32, BASE_DEC, NULL, 0x0,
             "The Throughput metric is the effective bit rate of a link.", HFILL }},
-        { &hf_icmpv6_rpl_opt_metric_ll_object,
-          { "Link Latency Object", "icmpv6.rpl.opt.metric.ll.object", FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
         { &hf_icmpv6_rpl_opt_metric_ll_object_ll,
-          { "Link Latency", "icmpv6.rpl.opt.metric.ll", FT_UINT32, BASE_HEX, NULL, 0x0,
+          { "Link Latency", "icmpv6.rpl.opt.metric.ll.object.ll", FT_UINT32, BASE_DEC, NULL, 0x0,
             "The Latency is encoded in 32 bits in unsigned integer format, expressed in microseconds.", HFILL }},
         { &hf_icmpv6_rpl_opt_metric_lql_object,
           { "Link Quality Level Object","icmpv6.rpl.opt.metric.lql.object", FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -5595,11 +5559,8 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_rpl_opt_metric_lql_object_counter,
           { "Counter", "icmpv6.rpl.opt.metric.lql.object.counter", FT_UINT8, BASE_DEC, NULL, RPL_METRIC_LQL_OBJECT_COUNTER,
             "The Counter represents the number of links with that value.", HFILL }},
-        { &hf_icmpv6_rpl_opt_metric_etx_object,
-          { "ETX Object", "icmpv6.rpl.opt.metric.etx.object", FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
         { &hf_icmpv6_rpl_opt_metric_etx_object_etx,
-          { "ETX", "icmpv6.rpl.opt.metric.etx", FT_UINT16, BASE_HEX, NULL, 0x0,
+          { "ETX", "icmpv6.rpl.opt.metric.etx.object.etx", FT_UINT16, BASE_DEC, NULL, 0x0,
             "The ETX metric is the number of transmissions a node expects to make to a destination in order to successfully deliver a packet.", HFILL }},
         { &hf_icmpv6_rpl_opt_metric_lc_object,
           { "Link Color Object","icmpv6.rpl.opt.metric.lc.object", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -5909,10 +5870,7 @@ proto_register_icmpv6(void)
         &ett_icmpv6_rpl_metric_nsa_object,
         &ett_icmpv6_rpl_metric_ne_object,
         &ett_icmpv6_rpl_metric_hp_object,
-        &ett_icmpv6_rpl_metric_lt_object,
-        &ett_icmpv6_rpl_metric_ll_object,
         &ett_icmpv6_rpl_metric_lql_object,
-        &ett_icmpv6_rpl_metric_etx_object,
         &ett_icmpv6_rpl_metric_lc_object,
         &ett_icmpv6_rpl_flag_routing,
         &ett_icmpv6_rpl_flag_config,
