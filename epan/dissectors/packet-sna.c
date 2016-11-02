@@ -201,6 +201,7 @@ static int hf_sna_gds = -1;
 static int hf_sna_gds_len = -1;
 static int hf_sna_gds_type = -1;
 static int hf_sna_gds_cont = -1;
+static int hf_sna_gds_info = -1;
 
 /* static int hf_sna_xid = -1; */
 static int hf_sna_xid_0 = -1;
@@ -2396,24 +2397,34 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint16		length;
 	int		cont;
 	int		offset = 0;
-	static const int * flags[] = {
-		&hf_sna_gds_len,
-		&hf_sna_gds_cont,
-		&hf_sna_gds_type,
-		NULL
-	};
+	proto_item	*pi;
+	proto_tree	*subtree;
+	gboolean	first_ll = TRUE;
 
 	do {
 		length = tvb_get_ntohs(tvb, offset) & 0x7fff;
 		cont   = (tvb_get_ntohs(tvb, offset) & 0x8000) ? 1 : 0;
 
-		if (length < 2 ) /* escape sequence ? */
+		pi = proto_tree_add_item(tree, hf_sna_gds, tvb, offset, -1, ENC_NA);
+		subtree = proto_item_add_subtree(pi, ett_sna_gds);
+		proto_tree_add_item(subtree, hf_sna_gds_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_sna_gds_cont, tvb, offset, 2, ENC_BIG_ENDIAN);
+		if (length < 2 ) /* escape sequence */
 			return;
-
-		proto_tree_add_bitmask(tree, tvb, offset, hf_sna_gds, ett_sna_gds, flags, ENC_BIG_ENDIAN);
-		offset += length;
-
+		offset += 2;
+		length -= 2;
+		if (first_ll) {
+			proto_tree_add_item(subtree, hf_sna_gds_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			length -= 2;
+			first_ll = FALSE;
+		}
+		if (length > 0) {
+			proto_tree_add_item(subtree, hf_sna_gds_info, tvb, offset, length, ENC_NA);
+			offset += length;
+		}
 	} while(cont);
+	proto_item_set_len(pi, offset);
 	if (tvb_offset_exists(tvb, offset))
 		call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, parent_tree);
 }
@@ -3164,6 +3175,10 @@ proto_register_sna(void)
 		{ &hf_sna_gds_type,
 		  { "Type of Variable", "sna.gds.type", FT_UINT16, BASE_HEX,
 		    VALS(sna_gds_var_vals), 0x0, NULL, HFILL }},
+
+		{ &hf_sna_gds_info,
+		  { "Information", "sna.gds.info", FT_BYTES, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
 
 #if 0
 		{ &hf_sna_xid,
