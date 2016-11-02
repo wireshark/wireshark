@@ -714,7 +714,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         k_cid          = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000);
         k_frame_number = pinfo->num;
 
-        psm_data = wmem_new(wmem_file_scope(), psm_data_t);
+        psm_data = wmem_new0(wmem_file_scope(), psm_data_t);
         if (pinfo->p2p_dir == P2P_DIR_RECV) {
             psm_data->local_cid = BTL2CAP_UNKNOWN_CID;
             psm_data->remote_cid = scid |  0x80000000;
@@ -724,11 +724,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         psm_data->psm  = psm;
         psm_data->local_service = (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE;
-        psm_data->in.mode      = 0;
-        psm_data->in.txwindow  = 0;
         psm_data->in.start_fragments = wmem_tree_new(wmem_file_scope());
-        psm_data->out.mode     = 0;
-        psm_data->out.txwindow = 0;
         psm_data->out.start_fragments = wmem_tree_new(wmem_file_scope());
         psm_data->interface_id = k_interface_id;
         psm_data->adapter_id   = k_adapter_id;
@@ -870,7 +866,7 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         k_cid = scid;
         k_frame_number = pinfo->num;
 
-        psm_data = wmem_new(wmem_file_scope(), psm_data_t);
+        psm_data = wmem_new0(wmem_file_scope(), psm_data_t);
 
         psm_data->local_cid = scid;
         psm_data->remote_cid = BTL2CAP_UNKNOWN_CID;
@@ -878,10 +874,8 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
         psm_data->psm = psm;
         psm_data->local_service = (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE;
         psm_data->in.mode = L2CAP_LE_CREDIT_BASED_FLOW_CONTROL_MODE;
-        psm_data->in.txwindow = 0;
         psm_data->in.start_fragments = wmem_tree_new(wmem_file_scope());
         psm_data->out.mode = L2CAP_LE_CREDIT_BASED_FLOW_CONTROL_MODE;
-        psm_data->out.txwindow = 0;
         psm_data->out.start_fragments = wmem_tree_new(wmem_file_scope());
         psm_data->interface_id = k_interface_id;
         psm_data->adapter_id = k_adapter_id;
