@@ -68,7 +68,7 @@ gboolean ws_strtoi64(const gchar* str, const gchar** endptr, gint64* cint)
 #define DEFINE_WS_STRTOI_BITS(bits) \
 gboolean ws_strtoi##bits(const gchar* str, const gchar** endptr, gint##bits* cint) \
 { \
-	gint64 val; \
+	gint64 val = 0; \
 	if (!ws_strtoi64(str, endptr, &val)) { \
 		/* \
 		 * For ERANGE, return either G_MININT##bits or \
