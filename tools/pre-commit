@@ -94,7 +94,7 @@ done
 
 if [ "x$DIAMETER_FILES" != x ]
 then
-	./tools/validate-diameter-xml.sh > /dev/null || exit_status=1
+    ./tools/validate-diameter-xml.sh > /dev/null || exit_status=1
 fi
 
 # If there are whitespace errors, print the offending file names and fail. (from git pre-commit.sample)
