@@ -1,0 +1,25 @@
+# Typo directly on IANA enterprise-numbers (epan/enterprise-numbers)
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Communcation Communication
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Sofware Software
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Prefered Preferred
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Millenium Millennium
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Absolut Absolute
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 INFOMATION INFORMATION
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Grammer Grammar
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 limted limited
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Ressources Resources
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Sytems Systems
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Softwares Software
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 VERION VERSION
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Goverment Government
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 DEVELOPPEMENT DEVELOPMENT
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Embeded Embedded
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Informations Information
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Developement Development
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 FUNCION FUNCTION
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Comit Commit
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Nam Name
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 serie series
+
+# from file-elf.c
+libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Synopsys Synopsis
