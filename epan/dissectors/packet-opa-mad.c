@@ -200,6 +200,7 @@ static value_string_ext MAD_mgmt_names_ext = VALUE_STRING_EXT_INIT(MAD_mgmt_name
 #define SA_ATTR_ID_MULTIPATH_LID_RECORD            0x0087
 #define SA_ATTR_ID_CABLE_INFO_RECORD               0x0088
 #define SA_ATTR_ID_VF_INFO_RECORD                  0x0089
+#define SA_ATTR_ID_PORTGROUP_TABLE_RECORD          0x008B
 #define SA_ATTR_ID_BUFF_CTRL_TAB_RECORD            0x008C
 #define SA_ATTR_ID_FABRICINFO_RECORD               0x008D
 #define SA_ATTR_ID_QUARANTINED_NODE_RECORD         0x0090
@@ -301,11 +302,12 @@ static const value_string SUBA_Attributes[] = {
     { SA_ATTR_ID_SC_VLNT_MAPTBL_RECORD,           "Attribute (SCtoVLNTMappingTableRecord)" },
     { SA_ATTR_ID_SC_VLT_MAPTBL_RECORD,            "Attribute (SCtoVLTMappingTableRecord)" },
     { SA_ATTR_ID_SC_VLR_MAPTBL_RECORD,            "Attribute (SCtoVLRMappingTableRecord)" },
-    { SA_ATTR_ID_PGROUP_FWDTBL_RECORD,            "Attribute (PGroupForwardTableRecord)" },
+    { SA_ATTR_ID_PGROUP_FWDTBL_RECORD,            "Attribute (PortGroupForwardTableRecord)" },
     { SA_ATTR_ID_MULTIPATH_GUID_RECORD,           "Attribute (MultipathGUIDRecord)" },
     { SA_ATTR_ID_MULTIPATH_LID_RECORD,            "Attribute (MultipathLIDRecord)" },
     { SA_ATTR_ID_CABLE_INFO_RECORD,               "Attribute (CableInfoRecord)" },
     { SA_ATTR_ID_VF_INFO_RECORD,                  "Attribute (VFInfoRecord)" },
+    { SA_ATTR_ID_PORTGROUP_TABLE_RECORD,          "Attribute (PortGroupTableRecord)" },
     { SA_ATTR_ID_BUFF_CTRL_TAB_RECORD,            "Attribute (BufferControlTableRecord)" },
     { SA_ATTR_ID_FABRICINFO_RECORD,               "Attribute (FabricInfoRecord)" },
     { SA_ATTR_ID_QUARANTINED_NODE_RECORD,         "Attribute (QuarantinedNodeRecord)" },
@@ -529,7 +531,6 @@ static const value_string RoutingMode[] = {
     { 0x00, "No change" },
     { 0x01, "Linear routing algorithm" },
     { 0x02, "Hierarchical routing algorithm" },
-    { 0x04, "Dragonfly routing algorithm" },
     { 0, NULL }
 };
 static const value_string AdaptiveRoutingAlgorithm[] = {
@@ -726,6 +727,13 @@ static const value_string SM_SC_VLx[] = {
     { SM_ATTR_ID_SC_VLR_MAPPING_TABLE, "r" },
     { 0, NULL }
 };
+static const value_string GroupTablePosition[] = {
+    { 0, "1-64" },
+    { 1, "65-128" },
+    { 2, "129-192" },
+    { 3, "193-256" },
+    { 0, NULL },
+};
 static const value_string AdaptiveRoutingThreshold[] = {
     { 0, "Default tuning" },
     { 1, "Consumed nearly all of the buffering(or Tags) for a VL (~100%)" },
@@ -766,13 +774,6 @@ static const true_false_string tfs_NeighborFWAuthenBypass = {
 static const true_false_string tfs_SwPortCongSetting_CtrlType = {
     "Credit Starvation",
     "Packet Marketing"
-};
-static const value_string pathrecord_lidlen[] = {
-    { 0, "16 bits" },
-    { 1, "20 bits" },
-    { 2, "24 bits" },
-    { 3, "32 bits" },
-    { 0, NULL }
 };
 static const true_false_string tfs_clear_dont_clear = {
     "Clear",
@@ -822,11 +823,7 @@ static gint ett_mad = -1;
 static gint ett_mad_status = -1;
 static gint ett_mad_attributemod = -1;
 static gint ett_rmpp = -1;
-static gint ett_sm_attribute = -1;
-static gint ett_sa_attribute = -1;
-static gint ett_pm_attribute = -1;
-static gint ett_pa_attribute = -1;
-
+/* Common */
 static gint ett_noticestraps = -1;
 static gint ett_datadetails = -1;
 static gint ett_datadetails_trap259datavalid = -1;
@@ -834,7 +831,7 @@ static gint ett_informinfo = -1;
 static gint ett_classportinfo = -1;
 static gint ett_classportinfo_redirect = -1;
 static gint ett_classportinfo_trap = -1;
-
+/* SM */
 static gint ett_nodedescription = -1;
 static gint ett_nodeinfo = -1;
 static gint ett_switchinfo = -1;
@@ -876,7 +873,6 @@ static gint ett_cableinfo = -1;
 static gint ett_aggregate = -1;
 static gint ett_buffercontroltable = -1;
 static gint ett_buffercontroltable_port = -1;
-static gint ett_fabricinforecord = -1;
 static gint ett_congestioninfo = -1;
 static gint ett_switchcongestionlog = -1;
 static gint ett_switchcongestionlog_entry = -1;
@@ -888,6 +884,7 @@ static gint ett_hficongestionlog_entry = -1;
 static gint ett_hficongestionsetting = -1;
 static gint ett_hficongestioncontroltable = -1;
 static gint ett_hficongestioncontroltable_block = -1;
+/* SA */
 static gint ett_portinforecord_linkdownreason = -1;
 static gint ett_portinforecord_linkdownreason_entry = -1;
 static gint ett_scmappingrecord = -1;
@@ -908,6 +905,8 @@ static gint ett_sctoslmappingtablerecord = -1;
 static gint ett_portgroupforwardingtablerecord = -1;
 static gint ett_vfinforecord = -1;
 static gint ett_quarantinednoderecord = -1;
+static gint ett_fabricinforecord = -1;
+/* PM */
 static gint ett_portstatus = -1;
 static gint ett_portstatus_vl = -1;
 static gint ett_clearportstatus = -1;
@@ -926,6 +925,7 @@ static gint ett_errorportinfo_portrcvconstrainterrorinfo = -1;
 static gint ett_errorportinfo_portrcvswitchrelayerrorinfo = -1;
 static gint ett_errorportinfo_uncorrectableerrorinfo = -1;
 static gint ett_errorportinfo_fmconfigerrorinfo = -1;
+/* PA */
 static gint ett_getgrouplist = -1;
 static gint ett_getgroupinfo = -1;
 static gint ett_getgroupinfoutilstats = -1;
@@ -1164,10 +1164,13 @@ static gint hf_opa_sa_Port = -1;
 static gint hf_opa_sa_reserved14 = -1;
 static gint hf_opa_sa_BlockNum_18b = -1;
 static gint hf_opa_sa_Position = -1;
+static gint hf_opa_sa_Position_16b = -1;
 static gint hf_opa_sa_reserved9 = -1;
+static gint hf_opa_sa_reserved9_16b = -1;
 static gint hf_opa_sa_BlockNum_21b = -1;
 static gint hf_opa_sa_BlockNum_8b = -1;
 static gint hf_opa_sa_BlockNum_16b = -1;
+static gint hf_opa_sa_BlockNum_5b = -1;
 static gint hf_opa_sa_SubscriberLID = -1;
 static gint hf_opa_sa_Enum = -1;
 static gint hf_opa_sa_FromLID = -1;
@@ -1388,7 +1391,7 @@ static gint hf_opa_PortInfo_SAQueuePair = -1;
 static gint hf_opa_PortInfo_NeighborPortNum = -1;
 static gint hf_opa_PortInfo_LinkDownReason = -1;
 static gint hf_opa_PortInfo_NeighborLinkDownReason = -1;
-static gint hf_opa_PortInfo_ClientRegister = -1;
+static gint hf_opa_PortInfo_ClientReregister = -1;
 static gint hf_opa_PortInfo_MulticastPKeyTrapSuppressEnabled = -1;
 static gint hf_opa_PortInfo_Timeout = -1;
 static gint hf_opa_PortInfo_LinkSpeedSupported = -1;
@@ -1651,18 +1654,6 @@ static gint hf_opa_BufferControlTable = -1;
 static gint hf_opa_BufferControlTable_TxOverallSharedLimit = -1;
 static gint hf_opa_BufferControlTable_TxDedicatedLimit = -1;
 static gint hf_opa_BufferControlTable_TxSharedLimit = -1;
-static gint hf_opa_FabricInfoRecord = -1;
-static gint hf_opa_FabricInfoRecord_NumHFIs = -1;
-static gint hf_opa_FabricInfoRecord_NumSwitches = -1;
-static gint hf_opa_FabricInfoRecord_NumInternalHFILinks = -1;
-static gint hf_opa_FabricInfoRecord_NumExternalHFILinks = -1;
-static gint hf_opa_FabricInfoRecord_NumInternalISLs = -1;
-static gint hf_opa_FabricInfoRecord_NumExternalISLs = -1;
-static gint hf_opa_FabricInfoRecord_NumDegradedHFILinks = -1;
-static gint hf_opa_FabricInfoRecord_NumDegradedISLs = -1;
-static gint hf_opa_FabricInfoRecord_NumOmittedHFILinks = -1;
-static gint hf_opa_FabricInfoRecord_NumOmittedISLs = -1;
-static gint hf_opa_FabricInfoRecord_Reserved = -1;
 static gint hf_opa_CongestionInfo = -1;
 static gint hf_opa_CongestionInfo_CongestionInfo = -1;
 static gint hf_opa_CongestionInfo_ControlTableCap = -1;
@@ -1734,22 +1725,8 @@ static gint hf_opa_ServiceRecord_ServiceData = -1;
 static gint hf_opa_ServiceAssociationRecord_ServiceKey = -1;
 static gint hf_opa_ServiceAssociationRecord_ServiceName = -1;
 static gint hf_opa_PathRecord = -1;
-static gint hf_opa_PathRecord_ServiceID = -1;
 static gint hf_opa_PathRecord_DGID = -1;
-static gint hf_opa_PathRecord_DGID_L2_8B = -1;
-static gint hf_opa_PathRecord_DGID_L2_10B = -1;
-static gint hf_opa_PathRecord_DGID_L2_9B = -1;
-static gint hf_opa_PathRecord_DGID_L2_16B = -1;
-static gint hf_opa_PathRecord_DGID_L2_reserved = -1;
-static gint hf_opa_PathRecord_DGID_LIDLen = -1;
-static gint hf_opa_PathRecord_DGID_reserved = -1;
-static gint hf_opa_PathRecord_DGID_SL = -1;
-static gint hf_opa_PathRecord_DGID_DLIDHigh = -1;
-static gint hf_opa_PathRecord_DGID_SLIDHigh = -1;
-static gint hf_opa_PathRecord_DGID_DestGUID = -1;
 static gint hf_opa_PathRecord_SGID = -1;
-static gint hf_opa_PathRecord_SGID_SubnetPrefix = -1;
-static gint hf_opa_PathRecord_SGID_SourceGUID = -1;
 static gint hf_opa_PathRecord_DLID = -1;
 static gint hf_opa_PathRecord_SLID = -1;
 static gint hf_opa_PathRecord_RawTraffic = -1;
@@ -1883,6 +1860,18 @@ static gint hf_opa_QuarantinedNodeRecord_QuarantineReasons = -1;
 static gint hf_opa_QuarantinedNodeRecord_ExpectedNodeDesc = -1;
 static gint hf_opa_QuarantinedNodeRecord_ExpectedNodeGUID = -1;
 static gint hf_opa_QuarantinedNodeRecord_ExpectedPortGUID = -1;
+static gint hf_opa_FabricInfoRecord = -1;
+static gint hf_opa_FabricInfoRecord_NumHFIs = -1;
+static gint hf_opa_FabricInfoRecord_NumSwitches = -1;
+static gint hf_opa_FabricInfoRecord_NumInternalHFILinks = -1;
+static gint hf_opa_FabricInfoRecord_NumExternalHFILinks = -1;
+static gint hf_opa_FabricInfoRecord_NumInternalISLs = -1;
+static gint hf_opa_FabricInfoRecord_NumExternalISLs = -1;
+static gint hf_opa_FabricInfoRecord_NumDegradedHFILinks = -1;
+static gint hf_opa_FabricInfoRecord_NumDegradedISLs = -1;
+static gint hf_opa_FabricInfoRecord_NumOmittedHFILinks = -1;
+static gint hf_opa_FabricInfoRecord_NumOmittedISLs = -1;
+static gint hf_opa_FabricInfoRecord_Reserved = -1;
 /* PM */
 static gint hf_opa_PortStatus = -1;
 static gint hf_opa_PortStatus_PortNumber = -1;
@@ -2700,7 +2689,7 @@ static gint parse_MAD_AttributeModifier(proto_tree *MAD_tree, tvbuff_t *tvb, gin
         case SM_ATTR_ID_HFI_CONGESTION_CONTROL_TABLE: /* NNNN NNNN 0000 0000 0000 0000 PPPP PPPP */
             proto_tree_add_bitmask_list(AttributeModifier_tree, tvb, local_offset, 4, _attribute_modifier_NbP, ENC_BIG_ENDIAN);
             break;
-        case SM_ATTR_ID_PORT_GROUP_TABLE:               /* NNNN NNNN PP00 0000 0000 0000 00AB BBBB */
+        case SM_ATTR_ID_PORT_GROUP_TABLE:           /* NNNN NNNN PP00 0000 0000 0000 00AB BBBB */
             proto_tree_add_bitmask_list(AttributeModifier_tree, tvb, local_offset, 4, _attribute_modifier_NbP3A6B5, ENC_BIG_ENDIAN);
             break;
         default:
@@ -2730,9 +2719,10 @@ static gint parse_MAD_AttributeModifier(proto_tree *MAD_tree, tvbuff_t *tvb, gin
         break;
     case PERFADMN:
     case SUBNADMN:
-    default:
         if (MAD->AttributeModifier)
             expert_add_info(NULL, AttributeModifier_item, &ei_opa_mad_attribute_modifier_error_nonzero);
+        break;
+    default:
         break;
     }
     return local_offset += 4;
@@ -3034,8 +3024,8 @@ static gint parse_NoticesAndTraps(proto_tree *parentTree, tvbuff_t *tvb, gint *o
     gint local_offset = *offset;
     proto_item *NoticesAndTraps_header_item;
     proto_tree *NoticesAndTraps_header_tree;
-    gboolean    isGeneric     = tvb_get_bits8(tvb, local_offset * 8, 1);
-    guint16 trapNumber   = tvb_get_ntohs(tvb, local_offset + 4);
+    gboolean isGeneric = tvb_get_bits8(tvb, local_offset * 8, 1);
+    guint16 trapNumber = tvb_get_ntohs(tvb, local_offset + 4);
 
     if (!parentTree)
         return *offset;
@@ -3085,7 +3075,7 @@ static gint parse_InformInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
-    InformInfo_header_item = proto_tree_add_item(parentTree, hf_opa_InformInfo, tvb, local_offset, 36, ENC_NA);
+    InformInfo_header_item = proto_tree_add_item(parentTree, hf_opa_InformInfo, tvb, local_offset, 40, ENC_NA);
     InformInfo_header_tree = proto_item_add_subtree(InformInfo_header_item, ett_informinfo);
 
     proto_tree_add_item(InformInfo_header_tree, hf_opa_InformInfo_GID, tvb, local_offset, 16, ENC_NA);
@@ -3114,7 +3104,6 @@ static gint parse_InformInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
     local_offset += 3;
     proto_tree_add_item(InformInfo_header_tree, hf_opa_InformInfo_reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(InformInfo_header_tree, hf_opa_InformInfo_RespTimeValue, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    local_offset += 1;
     local_offset += 1;
     proto_tree_add_item(InformInfo_header_tree, hf_opa_reserved8, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
@@ -3368,8 +3357,13 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
     guint p, i, Num_ports, Port_num;
     guint16 active;
 
-    Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
-    Port_num = (MAD->AttributeModifier & 0x000000FF);
+    if (MAD->MgmtClass == SUBNADMN) {
+        Num_ports = 1;
+        Port_num = tvb_get_guint8(tvb, local_offset - 4);
+    } else {
+        Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
+        Port_num = (MAD->AttributeModifier & 0x000000FF);
+    }
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -3468,7 +3462,7 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
         local_offset += 1;
 
         /* Subnet */
-        proto_tree_add_item(PortInfo_header_tree, hf_opa_PortInfo_ClientRegister, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(PortInfo_header_tree, hf_opa_PortInfo_ClientReregister, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(PortInfo_header_tree, hf_opa_PortInfo_MulticastPKeyTrapSuppressEnabled, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(PortInfo_header_tree, hf_opa_PortInfo_Timeout, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         local_offset += 1;
@@ -3686,8 +3680,10 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
 
         proto_tree_add_item(PortInfo_header_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
-        /* 8 Byte Padding offset */
-        local_offset += 8 - (242 % 8);
+        if (Num_ports > 1) {
+            /* 8 Byte Padding offset */
+            local_offset += 8 - (242 % 8);
+        }
     }
 
     return local_offset;
@@ -3795,7 +3791,7 @@ static gint parse_SLtoSCMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gint
 }
 
 /* Parse SCtoSC Mapping Table Attribute  */
-static gint parse_SCMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static gint parse_SCtoSCMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
 {
     gint        local_offset = *offset;
     proto_item *SCtoSCMappingTable_header_item;
@@ -3804,28 +3800,26 @@ static gint parse_SCMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gint *of
     proto_item *tempItemLow;
     proto_tree *tempBlock_tree;
     guint       i, b, i_block, e_block, Num_blocks, Block_num;
-    gboolean    A, B;
+    gboolean    B;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
     if (MAD->MgmtClass == SUBNADMN) {
         Num_blocks = 1;
-        A = FALSE;
         B = FALSE;
         i_block = tvb_get_guint8(tvb, local_offset - 4);
         e_block = tvb_get_guint8(tvb, local_offset - 3);
         Block_num = e_block;
     } else {
         Num_blocks = (MAD->AttributeModifier & 0xFF000000) >> 24;
-        A = (gboolean)((MAD->AttributeModifier & 0x00020000) >> 17);
         B = (gboolean)((MAD->AttributeModifier & 0x00010000) >> 16);
         i_block = (MAD->AttributeModifier & 0x0000FF00) >> 8;
         e_block = (MAD->AttributeModifier & 0x000000FF);
         Block_num = (B ? i_block : e_block);
     }
 
-    SCtoSCMappingTable_header_item = proto_tree_add_item(parentTree, hf_opa_SCtoSCMappingTable, tvb, local_offset, 32 * (A ? 1 : Num_blocks), ENC_NA);
+    SCtoSCMappingTable_header_item = proto_tree_add_item(parentTree, hf_opa_SCtoSCMappingTable, tvb, local_offset, 32 * Num_blocks, ENC_NA);
     SCtoSCMappingTable_header_tree = proto_item_add_subtree(SCtoSCMappingTable_header_item, ett_sctoscmapping);
 
     for (b = Block_num; b < (Block_num + Num_blocks); b++) {
@@ -3839,8 +3833,6 @@ static gint parse_SCMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gint *of
             proto_item_prepend_text(tempItemLow, "     ");
             local_offset += 1;
         }
-        if (A || B)
-            break;
     }
 
     return local_offset;
@@ -3882,7 +3874,6 @@ static gint parse_SCtoVLxMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gin
     proto_item *tempItemHigh;
     proto_tree *tempBlock_tree;
     guint       p, v, Port_num, Num_ports;
-    gboolean    All;
     const gchar *VLx;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
@@ -3891,20 +3882,18 @@ static gint parse_SCtoVLxMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gin
     if (MAD->MgmtClass == SUBNADMN) {
         Num_ports = 1;
         Port_num = tvb_get_guint8(tvb, local_offset - 4);
-        All = FALSE;
         VLx = val_to_str_const(MAD->AttributeID, SA_SC_VLx, "x");
     } else {
         Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
-        All = (gboolean)((MAD->AttributeModifier & 0x00000100) >> 8);
         Port_num = (MAD->AttributeModifier & 0x000000FF);
         VLx = val_to_str_const(MAD->AttributeID, SM_SC_VLx, "x");
     }
 
-    SCtoVLxMappingTable_header_item = proto_tree_add_item(parentTree, hf_opa_SCtoVLxMappingTable, tvb, local_offset, 32 * (All ? 1 : Num_ports), ENC_NA);
+    SCtoVLxMappingTable_header_item = proto_tree_add_item(parentTree, hf_opa_SCtoVLxMappingTable, tvb, local_offset, 32 * Num_ports, ENC_NA);
     proto_item_set_text(SCtoVLxMappingTable_header_item, "SC to VL%s Mapping Table", VLx);
     SCtoVLxMappingTable_header_tree = proto_item_add_subtree(SCtoVLxMappingTable_header_item, ett_sctovlxmappingtable);
 
-    for (p = Port_num; p < (Port_num + (All ? 1 : Num_ports)); p++) {
+    for (p = Port_num; p < (Port_num + Num_ports); p++) {
         tempBlock_tree = proto_tree_add_subtree_format(SCtoVLxMappingTable_header_tree, tvb, local_offset, 32,
             ett_sctovlxmappingtable_block, NULL, "SC to VL%s Mapping Table for Port %u", VLx, p);
 
@@ -3929,7 +3918,6 @@ static gint parse_VLArbitrationTable(proto_tree *parentTree, tvbuff_t *tvb, gint
     proto_item *tempItemLow;
     proto_item *tempItem;
     guint       i, p, Section, Num_ports, Port_num;
-    gboolean    All;
     const gchar *TableType;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
@@ -3939,19 +3927,17 @@ static gint parse_VLArbitrationTable(proto_tree *parentTree, tvbuff_t *tvb, gint
         Num_ports = 1;
         Section = tvb_get_guint8(tvb, local_offset - 3);
         Port_num = tvb_get_guint8(tvb, local_offset - 4);
-        All = FALSE;
     } else {
         Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
         Section = (MAD->AttributeModifier & 0x00FF0000) >> 16;
-        All = (gboolean)((MAD->AttributeModifier & 0x00000100) >> 8);
         Port_num = (MAD->AttributeModifier & 0x000000FF);
     }
     TableType = val_to_str_const(Section, MADAttrModSectionVLarb_short, "Reserved");
 
-    VLArbitrationTable_header_item = proto_tree_add_item(parentTree, hf_opa_VLArbitrationTable, tvb, local_offset, 256 * (All ? 1 : Num_ports), ENC_NA);
+    VLArbitrationTable_header_item = proto_tree_add_item(parentTree, hf_opa_VLArbitrationTable, tvb, local_offset, 256 * Num_ports, ENC_NA);
     VLArbitrationTable_header_tree = proto_item_add_subtree(VLArbitrationTable_header_item, ett_vlarbitrationtable);
 
-    for (p = Port_num; p < (Port_num + (All ? 1 : Num_ports)); p++) {
+    for (p = Port_num; p < (Port_num + Num_ports); p++) {
         VLArbitrationTable_port_tree = proto_tree_add_subtree_format(VLArbitrationTable_header_tree, tvb, local_offset, 256,
             ett_vlarbitrationtable_port, NULL, "%s VL Arbitration Table on Port %u", TableType, p);
 
@@ -3990,7 +3976,6 @@ static gint parse_LinearForwardingTable(proto_tree *parentTree, tvbuff_t *tvb, g
     proto_item *tempItemLow;
     proto_tree *tempBlock_tree;
     guint       b, i, Block_num, Num_blocks;
-    gboolean    All;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -3998,16 +3983,14 @@ static gint parse_LinearForwardingTable(proto_tree *parentTree, tvbuff_t *tvb, g
     if (MAD->MgmtClass == SUBNADMN) {
         Num_blocks = 1;
         Block_num = tvb_get_ntohl(tvb, local_offset - 4) & 0x0003FFFF;
-        All = FALSE;
     } else {
         Num_blocks = (MAD->AttributeModifier & 0xFF000000) >> 24;
-        All = (gboolean)((MAD->AttributeModifier & 0x00040000) >> 18);
         Block_num = (MAD->AttributeModifier & 0x0003FFFF);
     }
 
-    LinearForwardingTable_header_item = proto_tree_add_item(parentTree, hf_opa_LinearForwardingTable, tvb, local_offset, 64 * (All ? 1 : Num_blocks), ENC_NA);
+    LinearForwardingTable_header_item = proto_tree_add_item(parentTree, hf_opa_LinearForwardingTable, tvb, local_offset, 64 * Num_blocks, ENC_NA);
     LinearForwardingTable_header_tree = proto_item_add_subtree(LinearForwardingTable_header_item, ett_linearforwardingtable);
-    for (b = Block_num; b < (Block_num + (All ? 1 : Num_blocks)); b++) {
+    for (b = Block_num; b < (Block_num + Num_blocks); b++) {
         tempBlock_tree = proto_tree_add_subtree_format(LinearForwardingTable_header_tree, tvb, local_offset, 64,
             ett_linearforwardingtable_block, NULL, "Linear Forwarding Table Block %u",  b);
 
@@ -4026,34 +4009,35 @@ static gint parse_MulticastForwardingTable(proto_tree *parentTree, tvbuff_t *tvb
     gint        local_offset = *offset;
     proto_item *MulticastForwardingTable_header_item;
     proto_tree *MulticastForwardingTable_header_tree;
-    proto_item *tempItemLow;
+    proto_item *tempItem;
     proto_tree *tempBlock_tree;
-    guint       b, i, Block_num, Num_blocks;
-    gboolean    All;
+    guint       b, i, Block_num, Num_blocks, Pos;
+    const gchar *Position;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
     if (MAD->MgmtClass == SUBNADMN) {
         Num_blocks = 1;
+        Pos = 0;
         Block_num = tvb_get_ntohl(tvb, local_offset - 4) & 0x001FFFFF;
-        All = FALSE;
     } else {
         Num_blocks = (MAD->AttributeModifier & 0xFF000000) >> 24;
-        All = (gboolean)((MAD->AttributeModifier & 0x00100000) >> 20);
+        Pos = (MAD->AttributeModifier & 0x00C00000) >> 22;
         Block_num = (MAD->AttributeModifier & 0x000FFFFF);
     }
+    Position = val_to_str_const(Pos, GroupTablePosition, "Unknown");
 
-    MulticastForwardingTable_header_item = proto_tree_add_item(parentTree, hf_opa_MulticastForwardingTable, tvb, local_offset, 64 * (All ? 1 : Num_blocks), ENC_NA);
+    MulticastForwardingTable_header_item = proto_tree_add_item(parentTree, hf_opa_MulticastForwardingTable, tvb, local_offset, 64 * Num_blocks, ENC_NA);
     MulticastForwardingTable_header_tree = proto_item_add_subtree(MulticastForwardingTable_header_item, ett_multicastforwardingtable);
-    for (b = Block_num; b < (Block_num + (All ? 1 : Num_blocks)); b++) {
+    for (b = Block_num; b < (Block_num + Num_blocks); b++) {
         tempBlock_tree = proto_tree_add_subtree_format(MulticastForwardingTable_header_tree, tvb, local_offset, 64,
-            ett_multicastforwardingtable_block, NULL, "Multicast Forwarding Table Block %u", b);
+            ett_multicastforwardingtable_block, NULL, "Multicast Forwarding Table Block %u, Ports %s", b, Position);
 
         for (i = 0; i < 8; i++) {
-            tempItemLow = proto_tree_add_item(tempBlock_tree, hf_opa_MulticastForwardingTable_PortMask, tvb, local_offset, 8, ENC_BIG_ENDIAN);
+            tempItem = proto_tree_add_item(tempBlock_tree, hf_opa_MulticastForwardingTable_PortMask, tvb, local_offset, 8, ENC_BIG_ENDIAN);
             local_offset += 8;
-            proto_item_prepend_text(tempItemLow, "%3u: ", i);
+            proto_item_prepend_text(tempItem, "%3u: ", i);
         }
     }
     return local_offset;
@@ -4068,25 +4052,22 @@ static gint parse_PortGroupForwardingTable(proto_tree *parentTree, tvbuff_t *tvb
     proto_item *tempItemLow;
     proto_tree *tempBlock_tree;
     guint       b, i, Block_num, Num_blocks;
-    gboolean    All;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
     if (MAD->MgmtClass == SUBNADMN) {
         Num_blocks = 1;
-        All = FALSE;
         Block_num = tvb_get_ntohl(tvb, local_offset - 4) & 0x0003FFFF;
     } else {
         Num_blocks = (MAD->AttributeModifier & 0xFF000000) >> 24;
-        All = (gboolean)((MAD->AttributeModifier & 0x00040000) >> 18);
         Block_num = (MAD->AttributeModifier & 0x0003FFFF);
     }
 
-    PortGroupForwardingTable_header_item = proto_tree_add_item(parentTree, hf_opa_PortGroupForwardingTable, tvb, local_offset, 64 * (All ? 1 : Num_blocks), ENC_NA);
+    PortGroupForwardingTable_header_item = proto_tree_add_item(parentTree, hf_opa_PortGroupForwardingTable, tvb, local_offset, 64 * Num_blocks, ENC_NA);
     PortGroupForwardingTable_header_tree = proto_item_add_subtree(PortGroupForwardingTable_header_item, ett_portgroupforwardingtable);
 
-    for (b = Block_num; b < (Block_num + (All ? 1 : Num_blocks)); b++) {
+    for (b = Block_num; b < (Block_num + Num_blocks); b++) {
         tempBlock_tree = proto_tree_add_subtree_format(PortGroupForwardingTable_header_tree, tvb, local_offset, 64,
             ett_portgroupforwardingtable_block, NULL, "Port Group Forwarding Table Block %u", b);
 
@@ -4107,28 +4088,29 @@ static gint parse_PortGroupTable(proto_tree *parentTree, tvbuff_t *tvb, gint *of
     proto_tree *PortGroupTable_header_tree;
     proto_item *tempItemLow;
     proto_tree *tempBlock_tree;
-    guint       b, i, Block_num, Num_blocks;
-    gboolean    All;
+    guint       b, i, Block_num, Num_blocks, Pos;
+    const gchar *Position;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
     if (MAD->MgmtClass == SUBNADMN) {
         Num_blocks = 1;
-        All = FALSE;
+        Pos = 0;
         Block_num = tvb_get_guint8(tvb, local_offset - 3) & 0x1F;
     } else {
         Num_blocks = (MAD->AttributeModifier & 0xFF000000) >> 24;
-        All = (gboolean)((MAD->AttributeModifier & 0x00000020) >> 5);
+        Pos = (MAD->AttributeModifier & 0x00C00000) >> 22;
         Block_num = (MAD->AttributeModifier & 0x0000001F);
     }
+    Position = val_to_str_const(Pos, GroupTablePosition, "Unknown");
 
-    PortGroupTable_header_item = proto_tree_add_item(parentTree, hf_opa_PortGroupTable, tvb, local_offset, 64 * (All ? 1 : Num_blocks), ENC_NA);
+    PortGroupTable_header_item = proto_tree_add_item(parentTree, hf_opa_PortGroupTable, tvb, local_offset, 64 * Num_blocks, ENC_NA);
     PortGroupTable_header_tree = proto_item_add_subtree(PortGroupTable_header_item, ett_portgrouptable);
 
-    for (b = Block_num; b < (Block_num + (All ? 1 : Num_blocks)); b++) {
-        tempBlock_tree = proto_tree_add_subtree_format(PortGroupTable_header_tree, tvb, local_offset, 8 * 8,
-            ett_portgrouptable_block, NULL, "Port Group Table Block %u", b);
+    for (b = Block_num; b < (Block_num + Num_blocks); b++) {
+        tempBlock_tree = proto_tree_add_subtree_format(PortGroupTable_header_tree, tvb, local_offset, 64,
+            ett_portgrouptable_block, NULL, "Port Group Table Block %u, Ports %s", b, Position);
 
         for (i = 0; i < 8; i++) {
             tempItemLow = proto_tree_add_item(tempBlock_tree, hf_opa_PortGroupTable_PortMask, tvb, local_offset, 8, ENC_BIG_ENDIAN);
@@ -4160,12 +4142,11 @@ static gint parse_SMInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MA
     local_offset += 4;
     proto_tree_add_item(SMInfo_header_tree, hf_opa_SMInfo_ElapsedTime, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
-    proto_tree_add_item(SMInfo_header_tree, hf_opa_SMInfo_Priority, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(SMInfo_header_tree, hf_opa_SMInfo_ElevatedPriority, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    local_offset += 1;
-    proto_tree_add_item(SMInfo_header_tree, hf_opa_SMInfo_InitialPriority, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(SMInfo_header_tree, hf_opa_SMInfo_SMState, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    local_offset += 1;
+    proto_tree_add_item(SMInfo_header_tree, hf_opa_SMInfo_Priority, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(SMInfo_header_tree, hf_opa_SMInfo_ElevatedPriority, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(SMInfo_header_tree, hf_opa_SMInfo_InitialPriority, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(SMInfo_header_tree, hf_opa_SMInfo_SMState, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    local_offset += 2;
     return local_offset;
 }
 
@@ -4178,19 +4159,17 @@ static gint parse_LedInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, M
     proto_item *tempItemHigh;
     proto_item *tempItemLow;
     guint       p, Port_num, Num_ports;
-    gboolean    All;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
     Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
-    All = (gboolean)((MAD->AttributeModifier & 0x00000100) >> 8);
     Port_num = (MAD->AttributeModifier & 0x000000FF);
 
-    LedInfo_header_item = proto_tree_add_item(parentTree, hf_opa_LedInfo, tvb, local_offset, 8 * (All ? 1 : Num_ports), ENC_NA);
+    LedInfo_header_item = proto_tree_add_item(parentTree, hf_opa_LedInfo, tvb, local_offset, 8 * Num_ports, ENC_NA);
     LedInfo_header_tree = proto_item_add_subtree(LedInfo_header_item, ett_ledinfo);
 
-    for (p = Port_num; p < (Port_num + (All ? 1 : Num_ports)); p++) {
+    for (p = Port_num; p < (Port_num + Num_ports); p++) {
         tempItemHigh = proto_tree_add_item(LedInfo_header_tree, hf_opa_LedInfo_LedMask, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         proto_item_prepend_text(tempItemHigh, "Port %3u: ", p);
         tempItemLow = proto_tree_add_item(LedInfo_header_tree, hf_opa_LedInfo_reserved, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -4244,8 +4223,13 @@ static gint parse_BufferControlTable(proto_tree *parentTree, tvbuff_t *tvb, gint
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
-    Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
-    Port_num = (MAD->AttributeModifier & 0x000000FF);
+    if (MAD->MgmtClass == SUBNADMN) {
+        Num_ports = 1;
+        Port_num = tvb_get_guint8(tvb, local_offset - 4);
+    } else {
+        Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
+        Port_num = (MAD->AttributeModifier & 0x000000FF);
+    }
 
     BufferControlTable_header_item = proto_tree_add_item(parentTree, hf_opa_BufferControlTable, tvb, local_offset, (4 + 32 * 4) * Num_ports, ENC_NA);
     BufferControlTable_header_tree = proto_item_add_subtree(BufferControlTable_header_item, ett_buffercontroltable);
@@ -4267,43 +4251,6 @@ static gint parse_BufferControlTable(proto_tree *parentTree, tvbuff_t *tvb, gint
             proto_item_prepend_text(tempItemLow, "       ");
         }
     }
-    return local_offset;
-}
-static gint parse_FabricInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
-{
-    gint local_offset = *offset;
-    proto_item *FabricInfoRecord_header_item;
-    proto_tree *FabricInfoRecord_header_tree;
-
-    if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
-        return *offset;
-
-    FabricInfoRecord_header_item = proto_tree_add_item(parentTree, hf_opa_FabricInfoRecord, tvb, local_offset, 132, ENC_NA);
-    FabricInfoRecord_header_tree = proto_item_add_subtree(FabricInfoRecord_header_item, ett_fabricinforecord);
-
-    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumHFIs, tvb, local_offset, 4, ENC_BIG_ENDIAN);
-    local_offset += 4;
-    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumSwitches, tvb, local_offset, 4, ENC_BIG_ENDIAN);
-    local_offset += 4;
-    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumInternalHFILinks, tvb, local_offset, 4, ENC_BIG_ENDIAN);
-    local_offset += 4;
-    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumExternalHFILinks, tvb, local_offset, 4, ENC_BIG_ENDIAN);
-    local_offset += 4;
-    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumInternalISLs, tvb, local_offset, 4, ENC_BIG_ENDIAN);
-    local_offset += 4;
-    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumExternalISLs, tvb, local_offset, 4, ENC_BIG_ENDIAN);
-    local_offset += 4;
-    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumDegradedHFILinks, tvb, local_offset, 4, ENC_BIG_ENDIAN);
-    local_offset += 4;
-    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumDegradedISLs, tvb, local_offset, 4, ENC_BIG_ENDIAN);
-    local_offset += 4;
-    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumOmittedHFILinks, tvb, local_offset, 4, ENC_BIG_ENDIAN);
-    local_offset += 4;
-    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumOmittedISLs, tvb, local_offset, 4, ENC_BIG_ENDIAN);
-    local_offset += 4;
-    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_Reserved, tvb, local_offset, 92, ENC_NA);
-    local_offset += 92;
-
     return local_offset;
 }
 
@@ -4423,8 +4370,13 @@ static gint parse_SwitchPortCongestionSetting(proto_tree *parentTree, tvbuff_t *
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
-    Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
-    Port_num = (MAD->AttributeModifier & 0x000000FF);
+    if (MAD->MgmtClass == SUBNADMN) {
+        Num_ports = 1;
+        Port_num = tvb_get_guint8(tvb, local_offset - 4);
+    } else {
+        Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
+        Port_num = (MAD->AttributeModifier & 0x000000FF);
+    }
 
     SwitchPortCongestionSetting_header_item = proto_tree_add_item(parentTree, hf_opa_SwitchPortCongestionSetting, tvb, local_offset, 4 * Num_ports, ENC_NA);
     SwitchPortCongestionSetting_header_tree = proto_item_add_subtree(SwitchPortCongestionSetting_header_item, ett_switchportcongestionsetting);
@@ -4635,7 +4587,7 @@ static gboolean call_SUBM_Parser(proto_tree *parentTree, tvbuff_t *tvb, guint *o
         local_offset = parse_CableInfo(SUBM_Attribute_header_tree, tvb, offset, MAD);
         break;
     case SM_ATTR_ID_SC_SC_MAPPING_TABLE:
-        local_offset = parse_SCMappingTable(SUBM_Attribute_header_tree, tvb, offset, MAD);
+        local_offset = parse_SCtoSCMappingTable(SUBM_Attribute_header_tree, tvb, offset, MAD);
         break;
     case SM_ATTR_ID_SC_SL_MAPPING_TABLE:
         local_offset = parse_SCtoSLMappingTable(SUBM_Attribute_header_tree, tvb, offset, MAD);
@@ -4719,7 +4671,7 @@ static gint parse_Aggregate(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
         local_offset += 2;
         proto_item_set_text(Aggregate_header_item, "Aggregate %u: %s", i + 1, val_to_str(LocalAttributeID, SUBM_Attributes, "Unknown Attribute Type! (0x%02x)"));
 
-        AggregatError = (gboolean)tvb_get_bits(tvb, local_offset*8, 1, ENC_BIG_ENDIAN);
+        AggregatError = (gboolean)tvb_get_bits(tvb, local_offset * 8, 1, ENC_BIG_ENDIAN);
         Aggregate_Error_item = proto_tree_add_item(Aggregate_header_tree, hf_opa_Aggregate_Error, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         if (AggregatError)
             expert_add_info(NULL, Aggregate_Error_item, &ei_opa_aggregate_error);
@@ -4891,7 +4843,8 @@ static gint parse_LinkRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
     local_offset += 1;
     proto_tree_add_item(LinkRecord_header_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
     local_offset += 2;
-    proto_tree_add_item(LinkRecord_header_tree, hf_opa_LinkRecord_ToLID, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset  += 4;
+    proto_tree_add_item(LinkRecord_header_tree, hf_opa_LinkRecord_ToLID, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
 
     return local_offset;
 
@@ -4942,12 +4895,8 @@ static gint parse_ServiceRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *off
 static gint parse_PathRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
 {
     gint local_offset = *offset;
-    proto_item * PathRecord_header_item,
-        *PathRecord_DGID_item,
-        *PathRecord_SGID_item;
-    proto_tree * PathRecord_header_tree,
-        *PathRecord_DGID_tree,
-        *PathRecord_SGID_tree;
+    proto_item * PathRecord_header_item;
+    proto_tree * PathRecord_header_tree;
 
     if (!parentTree) {
         return *offset;
@@ -4956,35 +4905,12 @@ static gint parse_PathRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
     PathRecord_header_item = proto_tree_add_item(parentTree, hf_opa_PathRecord, tvb, local_offset, 64, ENC_NA);
     PathRecord_header_tree = proto_item_add_subtree(PathRecord_header_item, ett_pathrecord);
 
-    proto_tree_add_item(PathRecord_header_tree, hf_opa_PathRecord_ServiceID, tvb, local_offset, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(PathRecord_header_tree, hf_opa_reserved64, tvb, local_offset, 8, ENC_NA);
     local_offset += 8;
-    PathRecord_DGID_item = proto_tree_add_item(PathRecord_header_tree, hf_opa_PathRecord_DGID, tvb, local_offset, 16, ENC_NA);
-    PathRecord_DGID_tree = proto_item_add_subtree(PathRecord_DGID_item, ett_pathrecord_dgid);
-    proto_tree_add_item(PathRecord_DGID_tree, hf_opa_PathRecord_DGID_L2_8B, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(PathRecord_DGID_tree, hf_opa_PathRecord_DGID_L2_10B, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(PathRecord_DGID_tree, hf_opa_PathRecord_DGID_L2_9B, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(PathRecord_DGID_tree, hf_opa_PathRecord_DGID_L2_16B, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(PathRecord_DGID_tree, hf_opa_PathRecord_DGID_L2_reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    local_offset += 1;
-    proto_tree_add_item(PathRecord_DGID_tree, hf_opa_PathRecord_DGID_LIDLen, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(PathRecord_DGID_tree, hf_opa_PathRecord_DGID_reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(PathRecord_DGID_tree, hf_opa_PathRecord_DGID_SL, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    local_offset += 1;
-    proto_tree_add_item(PathRecord_DGID_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
-    local_offset += 2;
-    proto_tree_add_item(PathRecord_DGID_tree, hf_opa_PathRecord_DGID_DLIDHigh, tvb, local_offset, 2, ENC_BIG_ENDIAN);
-    local_offset += 2;
-    proto_tree_add_item(PathRecord_DGID_tree, hf_opa_PathRecord_DGID_SLIDHigh, tvb, local_offset, 2, ENC_BIG_ENDIAN);
-    local_offset += 2;
-    proto_tree_add_item(PathRecord_DGID_tree, hf_opa_PathRecord_DGID_DestGUID, tvb, local_offset, 8, ENC_BIG_ENDIAN);
-    local_offset += 8;
-    PathRecord_SGID_item = proto_tree_add_item(PathRecord_header_tree, hf_opa_PathRecord_SGID, tvb, local_offset, 16, ENC_NA);
-    PathRecord_SGID_tree = proto_item_add_subtree(PathRecord_SGID_item, ett_pathrecord_sgid);
-    proto_tree_add_item(PathRecord_SGID_tree, hf_opa_PathRecord_SGID_SubnetPrefix, tvb, local_offset, 8, ENC_BIG_ENDIAN);
-    local_offset += 8;
-    proto_tree_add_item(PathRecord_SGID_tree, hf_opa_PathRecord_SGID_SourceGUID, tvb, local_offset, 8, ENC_BIG_ENDIAN);
-    local_offset += 8;
-
+    proto_tree_add_item(PathRecord_header_tree, hf_opa_PathRecord_DGID, tvb, local_offset, 16, ENC_NA);
+    local_offset += 16;
+    proto_tree_add_item(PathRecord_header_tree, hf_opa_PathRecord_SGID, tvb, local_offset, 16, ENC_NA);
+    local_offset += 16;
     proto_tree_add_item(PathRecord_header_tree, hf_opa_PathRecord_DLID, tvb, local_offset, 2, ENC_BIG_ENDIAN);
     local_offset += 2;
     proto_tree_add_item(PathRecord_header_tree, hf_opa_PathRecord_SLID, tvb, local_offset, 2, ENC_BIG_ENDIAN);
@@ -5545,6 +5471,43 @@ static gint parse_QuarantinedNodeRecord(proto_tree *parentTree, tvbuff_t *tvb, g
 
     return local_offset;
 }
+static gint parse_FabricInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+{
+    gint local_offset = *offset;
+    proto_item *FabricInfoRecord_header_item;
+    proto_tree *FabricInfoRecord_header_tree;
+
+    if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
+        return *offset;
+
+    FabricInfoRecord_header_item = proto_tree_add_item(parentTree, hf_opa_FabricInfoRecord, tvb, local_offset, 132, ENC_NA);
+    FabricInfoRecord_header_tree = proto_item_add_subtree(FabricInfoRecord_header_item, ett_fabricinforecord);
+
+    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumHFIs, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
+    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumSwitches, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
+    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumInternalHFILinks, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
+    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumExternalHFILinks, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
+    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumInternalISLs, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
+    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumExternalISLs, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
+    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumDegradedHFILinks, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
+    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumDegradedISLs, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
+    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumOmittedHFILinks, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
+    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_NumOmittedISLs, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
+    proto_tree_add_item(FabricInfoRecord_header_tree, hf_opa_FabricInfoRecord_Reserved, tvb, local_offset, 92, ENC_NA);
+    local_offset += 92;
+
+    return local_offset;
+}
 /* Parse RID Field from Subnet Administration Packets. */
 static void parse_RID(proto_tree *SA_header_tree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
 {
@@ -5676,6 +5639,14 @@ static void parse_RID(proto_tree *SA_header_tree, tvbuff_t *tvb, gint *offset, M
         break;
     case SA_ATTR_ID_VF_INFO_RECORD:
         break;
+    case SA_ATTR_ID_PORTGROUP_TABLE_RECORD:
+        proto_tree_add_item(SA_header_tree, hf_opa_sa_Lid, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+        local_offset += 4;
+        proto_tree_add_item(SA_header_tree, hf_opa_sa_Position_16b, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(SA_header_tree, hf_opa_sa_reserved9_16b, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(SA_header_tree, hf_opa_sa_BlockNum_5b, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        local_offset += 2;
+        break;
     case SA_ATTR_ID_QUARANTINED_NODE_RECORD:
         break;
     case SA_ATTR_ID_CONGESTION_INFO_RECORD:
@@ -5721,7 +5692,8 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
     proto_tree *SUBA_Attribute_header_tree = parentTree;
     guint local_offset = *offset;
 
-    if (RMPP->Type == RMPP_ACK || SA_HEADER->AttributeOffset == 0)
+    if (RMPP->Type == RMPP_ACK || SA_HEADER->AttributeOffset == 0 ||
+        (RMPP->PayloadLength <= 20 && RMPP->Type == RMPP_DATA))
         return TRUE;
 
     /* Skim off the RID fields should they be present */
@@ -5750,10 +5722,14 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
         local_offset = parse_PortInfoRecord(SUBA_Attribute_header_tree, tvb, &local_offset, MAD);
         break;
     case SA_ATTR_ID_SL2SC_MAPTBL_RECORD:
+        proto_tree_add_item(SUBA_Attribute_header_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        local_offset += 2;
         local_offset = parse_SLtoSCMappingTable(SUBA_Attribute_header_tree, tvb, &local_offset, MAD);
         break;
     case SA_ATTR_ID_SC_MAPTBL_RECORD:
-        local_offset = parse_SCMappingTable(SUBA_Attribute_header_tree, tvb, &local_offset, MAD);
+        proto_tree_add_item(SUBA_Attribute_header_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        local_offset += 2;
+        local_offset = parse_SCtoSCMappingTable(SUBA_Attribute_header_tree, tvb, &local_offset, MAD);
         break;
     case SA_ATTR_ID_SC2SL_MAPTBL_RECORD:
         proto_tree_add_item(SUBA_Attribute_header_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
@@ -5834,6 +5810,11 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
     case SA_ATTR_ID_VF_INFO_RECORD:
         local_offset = parse_VFInfoRecord(SUBA_Attribute_header_tree, tvb, &local_offset);
         break;
+    case SA_ATTR_ID_PORTGROUP_TABLE_RECORD:
+        proto_tree_add_item(SUBA_Attribute_header_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        local_offset += 2;
+        local_offset = parse_PortGroupTable(SUBA_Attribute_header_tree, tvb, &local_offset, MAD);
+        break;
     case SA_ATTR_ID_QUARANTINED_NODE_RECORD:
         local_offset = parse_QuarantinedNodeRecord(SUBA_Attribute_header_tree, tvb, &local_offset, MAD);
         break;
@@ -5870,9 +5851,8 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
     case SA_ATTR_ID_FABRICINFO_RECORD:
         local_offset = parse_FabricInfoRecord(SUBA_Attribute_header_tree, tvb, &local_offset, MAD);
         break;
-    default: /* (Unknown SubAdministration Attribute!) */
-        /* We've already labeled as unknown in item construction */
-        break;
+    default:
+        return FALSE;
     }
 
     *offset = local_offset;
@@ -8704,9 +8684,17 @@ void proto_register_opa_mad(void)
                 "Position", "opa.sa.position",
                 FT_UINT32, BASE_HEX, NULL, 0xC0000000, NULL, HFILL }
         },
+        { &hf_opa_sa_Position_16b, {
+                "Position", "opa.sa.position",
+                FT_UINT16, BASE_HEX, NULL, 0xC000, NULL, HFILL }
+        },
         { &hf_opa_sa_reserved9, {
                 "Reserved (9 bits)", "opa.sa.reserved",
                 FT_UINT32, BASE_HEX, NULL, 0x3FE00000, NULL, HFILL }
+        },
+        { &hf_opa_sa_reserved9_16b, {
+                "Reserved (9 bits)", "opa.sa.reserved",
+                FT_UINT16, BASE_HEX, NULL, 0x3FE0, NULL, HFILL }
         },
         { &hf_opa_sa_BlockNum_21b, {
                 "BlockNum", "opa.sa.blocknum",
@@ -8719,6 +8707,10 @@ void proto_register_opa_mad(void)
         { &hf_opa_sa_BlockNum_16b, {
                 "BlockNum", "opa.sa.blocknum",
                 FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_opa_sa_BlockNum_5b, {
+                "BlockNum", "opa.sa.blocknum",
+                FT_UINT16, BASE_HEX, NULL, 0x001F, NULL, HFILL }
         },
         { &hf_opa_sa_SubscriberLID, {
                 "SubscriberGID", "opa.sa.subscribergid",
@@ -9462,9 +9454,9 @@ void proto_register_opa_mad(void)
                 FT_UINT8, BASE_HEX, VALS(LinkDownReason), 0x0, NULL, HFILL }
         },
 
-        { &hf_opa_PortInfo_ClientRegister, {
-                "Subnet ClientRegister", "opa.portinfo.clientregister",
-                FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }
+        { &hf_opa_PortInfo_ClientReregister, {
+                "Subnet ClientReregister", "opa.portinfo.clientreregister",
+                FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }
         },
         { &hf_opa_PortInfo_MulticastPKeyTrapSuppressEnabled, {
                 "Subnet Multicast PKey Trap Enabled", "opa.portinfo.multicastpkeytrapenabled",
@@ -10223,19 +10215,19 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_SMInfo_Priority, {
                 "Priority", "opa.sminfo.priority",
-                FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }
+                FT_UINT16, BASE_HEX, NULL, 0xF000, NULL, HFILL }
         },
         { &hf_opa_SMInfo_ElevatedPriority, {
                 "ElevatedPriority", "opa.sminfo.elevatedpriority",
-                FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }
+                FT_UINT16, BASE_HEX, NULL, 0x0F00, NULL, HFILL }
         },
         { &hf_opa_SMInfo_InitialPriority, {
                 "InitialPriority", "opa.sminfo.initialpriority",
-                FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }
+                FT_UINT16, BASE_HEX, NULL, 0x00F0, NULL, HFILL }
         },
         { &hf_opa_SMInfo_SMState, {
                 "SMState", "opa.sminfo.smstate",
-                FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }
+                FT_UINT16, BASE_HEX, NULL, 0x000F, NULL, HFILL }
         },
 
 /***********
@@ -10751,70 +10743,13 @@ void proto_register_opa_mad(void)
                 "Path Record", "opa.pathrecord",
                 FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &hf_opa_PathRecord_ServiceID, {
-                "Service ID", "opa.pathrecord.serviceid",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
-        },
         { &hf_opa_PathRecord_DGID, {
                 "DGID", "opa.pathrecord.dgid",
                 FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-
-        { &hf_opa_PathRecord_DGID_L2_8B, {
-                "8B Support", "opa.pathrecord.dgid.8b",
-                FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }
-        },
-        { &hf_opa_PathRecord_DGID_L2_10B, {
-                "10B Support", "opa.pathrecord.dgid.10b",
-                FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }
-        },
-        { &hf_opa_PathRecord_DGID_L2_9B, {
-                "9B Support", "opa.pathrecord.dgid.9b",
-                FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }
-        },
-        { &hf_opa_PathRecord_DGID_L2_16B, {
-                "16B Support", "opa.pathrecord.dgid.16b",
-                FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
-        },
-        { &hf_opa_PathRecord_DGID_L2_reserved, {
-                "Reserved (4 bits)", "opa.pathrecord.dgid.reserved",
-                FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }
-        },
-        { &hf_opa_PathRecord_DGID_LIDLen, {
-                "LID Length", "opa.pathrecord.dgid.lidlen",
-                FT_UINT8, BASE_DEC, VALS(pathrecord_lidlen), 0xC0, NULL, HFILL }
-        },
-        { &hf_opa_PathRecord_DGID_reserved, {
-                "Reserved (1 bit)", "opa.pathrecord.dgid.reserved",
-                FT_UINT8, BASE_HEX, NULL, 0x20, NULL, HFILL }
-        },
-        { &hf_opa_PathRecord_DGID_SL, {
-                "SL", "opa.pathrecord.dgid.sl",
-                FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }
-        },
-        { &hf_opa_PathRecord_DGID_DLIDHigh, {
-                "DLID High", "opa.pathrecord.dgid.dlidhigh",
-                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
-        },
-        { &hf_opa_PathRecord_DGID_SLIDHigh, {
-                "SLID High", "opa.pathrecord.dgid.slidhigh",
-                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
-        },
-        { &hf_opa_PathRecord_DGID_DestGUID, {
-                "Dest GUID", "opa.pathrecord.dgid.destguid",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
-        },
         { &hf_opa_PathRecord_SGID, {
                 "SGID", "opa.pathrecord.sgid",
                 FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }
-        },
-        { &hf_opa_PathRecord_SGID_SubnetPrefix, {
-                "Subnet Prefix", "opa.pathrecord.sgid.subnetprefix",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
-        },
-        { &hf_opa_PathRecord_SGID_SourceGUID, {
-                "Source GUID", "opa.pathrecord.sgid.sourceguid",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_PathRecord_DLID, {
                 "DLID", "opa.pathrecord.dlid",
@@ -11214,15 +11149,15 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_CableInfoRecord_Lid, {
                 "LID", "opa.cableinforecord.lid",
-                FT_UINT32, BASE_HEX, NULL, 0xFE, NULL, HFILL }
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_CableInfoRecord_Port, {
                 "Port", "opa.cableinforecord.port",
-                FT_UINT8, BASE_HEX, NULL, 0xFE, NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_CableInfoRecord_Length, {
                 "Length", "opa.cableinforecord.length",
-                FT_UINT8, BASE_HEX, NULL, 0xFE, NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0xFE, NULL, HFILL }
         },
         { &hf_opa_CableInfoRecord_reserved, {
                 "Reserved (1 bit)", "opa.cableinforecord.reserved",
@@ -11233,11 +11168,11 @@ void proto_register_opa_mad(void)
                 FT_UINT16, BASE_HEX, NULL, 0xFFF0, NULL, HFILL }
         },
         { &hf_opa_CableInfoRecord_PortType, {
-                "LID", "opa.cableinforecord.porttype",
-                FT_UINT16, BASE_HEX, NULL, 0x000F, NULL, HFILL }
+                "PortType", "opa.cableinforecord.porttype",
+                FT_UINT16, BASE_HEX, VALS(PortType), 0x000F, NULL, HFILL }
         },
         { &hf_opa_CableInfoRecord_Data, {
-                "LID", "opa.cableinforecord.data",
+                "Data", "opa.cableinforecord.data",
                 FT_BYTES, FT_NONE, NULL, 0x0, NULL, HFILL }
         },
 
@@ -13378,10 +13313,6 @@ void proto_register_opa_mad(void)
         &ett_mad_status,
         &ett_mad_attributemod,
         &ett_rmpp,
-        &ett_sm_attribute,
-        &ett_sa_attribute,
-        &ett_pm_attribute,
-        &ett_pa_attribute,
         /* Common */
         &ett_noticestraps,
         &ett_datadetails,
