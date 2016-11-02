@@ -47,6 +47,7 @@ static int hf_openflow_v4_oxm_field_basic = -1;
 static int hf_openflow_v4_oxm_hm = -1;
 static int hf_openflow_v4_oxm_length = -1;
 static int hf_openflow_v4_oxm_experimenter_experimenter = -1;
+static int hf_openflow_v4_oxm_experimenter_value = -1;
 static int hf_openflow_v4_oxm_value = -1;
 static int hf_openflow_v4_oxm_value_etheraddr = -1;
 static int hf_openflow_v4_oxm_value_vlan_present = -1;
@@ -955,6 +956,7 @@ static int
 dissect_openflow_oxm_header_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     guint16 oxm_class;
+    guint8  oxm_length;
 
     /* oxm_class */
     oxm_class = tvb_get_ntohs(tvb, offset);
@@ -973,6 +975,7 @@ dissect_openflow_oxm_header_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=1;
 
     /* oxm_length */
+    oxm_length = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_openflow_v4_oxm_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
 
@@ -980,6 +983,8 @@ dissect_openflow_oxm_header_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         /* uint32_t experimenter; */
         proto_tree_add_item(tree, hf_openflow_v4_oxm_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
+        proto_tree_add_item(tree, hf_openflow_v4_oxm_experimenter_value, tvb, offset, oxm_length - 4, ENC_NA);
+        offset+=(oxm_length - 4);
     }
 
     return offset;
@@ -4730,6 +4735,11 @@ proto_register_openflow_v4(void)
         { &hf_openflow_v4_oxm_experimenter_experimenter,
             { "Experimenter", "openflow_v4.oxm_experimenter.experimenter",
                FT_UINT32, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_experimenter_value,
+            { "Experimenter Value", "openflow_v4.oxm_experimenter.value",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value,
