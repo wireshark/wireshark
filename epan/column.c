@@ -762,7 +762,7 @@ get_custom_field_tooltip (gchar *custom_field, gint occurrence)
         return g_strdup_printf("%s\n%s (%s)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev);
     }
 
-    /* One given occurence */
+    /* One given occurrence */
     return g_strdup_printf("%s\n%s (%s#%d)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev, occurrence);
 }
 

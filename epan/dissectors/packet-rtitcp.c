@@ -119,7 +119,7 @@
 #define NDDS_TRANSPORT_TCPV4_CONTROL_PROTOCOL_ERROR_NO_MATCH_COOKIE                           4
 /* fatal internal processing error (caller is not responsible) */
 #define NDDS_TRANSPORT_TCPV4_CONTROL_PROTOCOL_ERROR_INTERNAL                                  5
-/* the operation should be retried at the first occurence */
+/* the operation should be retried at the first occurrence */
 #define NDDS_TRANSPORT_TCPV4_CONTROL_PROTOCOL_ERROR_RETRY                                     6
 #define NDDS_TRANSPORT_TCP_CONTROL_ERROR_CODE_ATTRIBUTE_BAD_REQUEST_ID                        400
 #define NDDS_TRANSPORT_TCP_CONTROL_ERROR_CODE_ATTRIBUTE_UNKNOWN_ATTRIBUTE_ID                  420

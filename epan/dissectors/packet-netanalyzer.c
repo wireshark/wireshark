@@ -445,7 +445,7 @@ void proto_register_netanalyzer(void)
     { &hf_netanalyzer_gpio,
       { "GPIO event", "netanalyzer.gpio_event",
         FT_NONE, BASE_NONE, NULL, 0x0,
-        "Shows the occurence of an digital switching event", HFILL }
+        "Shows the occurrence of an digital switching event", HFILL }
     },
     { &hf_netanalyzer_gpio_number,
       { "GPIO event on", "netanalyzer.gpio_event.gpio_number",
