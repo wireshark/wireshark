@@ -424,7 +424,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
 
         next_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
-        offset += call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
+        call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
     } else if (fragmented && acl_reassembly) {
         multi_fragment_pdu_t *mfp = NULL;
         gint                  len;
@@ -471,18 +471,27 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_continuation_to, tvb, 0, 0, mfp->first_frame);
                 PROTO_ITEM_SET_GENERATED(item);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " [Continuation to #%u]", mfp->first_frame);
+                if (mfp->last_frame && mfp->last_frame != pinfo->num) {
+                    item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_reassembled_in, tvb, 0, 0, mfp->last_frame);
+                    PROTO_ITEM_SET_GENERATED(item);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
+                }
             }
             if (mfp != NULL && mfp->last_frame == pinfo->num) {
                 next_tvb = tvb_new_child_real_data(tvb, (guint8 *) mfp->reassembled, mfp->tot_len, mfp->tot_len);
                 add_new_data_source(pinfo, next_tvb, "Reassembled BTHCI ACL");
 
-                offset += call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
+                call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
             }
         }
     }
 
-    if (tvb_captured_length_remaining(tvb, offset) > 0)
-        proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_data, tvb, offset, -1, ENC_NA);
+    if (tvb_captured_length_remaining(tvb, offset) > 0) {
+        sub_item = proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_data, tvb, offset, -1, ENC_NA);
+        if (fragmented) {
+            proto_item_append_text(sub_item, " Fragment");
+        }
+    }
 
     if (chandle_session) {
         sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_connect_in, tvb, 0, 0, chandle_session->connect_in_frame);
