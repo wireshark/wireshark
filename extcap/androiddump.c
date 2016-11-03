@@ -696,6 +696,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
     const char            *adb_hcidump_version    = "0017""shell:hcidump --version";
     const char            *adb_ps_droid_bluetooth = "0018""shell:ps droid.bluetooth";
     const char            *adb_ps_bluetooth_app   = "001E""shell:ps com.android.bluetooth";
+    const char            *adb_ps_with_grep       = "0025""shell:ps | grep com.android.bluetooth";
     const char            *adb_tcpdump_help       = "0010""shell:tcpdump -h";
     char                   serial_number[SERIAL_NUMBER_LENGTH_MAX];
     size_t                 serial_number_length;
@@ -982,7 +983,9 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                 return EXIT_CODE_GENERIC;
             }
 
-            if (api_level >= 23) {
+            if (api_level >= 24) {
+                response = adb_send_and_read(sock, adb_ps_with_grep, helpful_packet, sizeof(helpful_packet), &data_length);
+            } else if (api_level >= 23) {
                 response = adb_send_and_read(sock, adb_ps_bluetooth_app, helpful_packet, sizeof(helpful_packet), &data_length);
             }  else
                 response = adb_send_and_read(sock, adb_ps_droid_bluetooth, helpful_packet, sizeof(helpful_packet), &data_length);
@@ -999,7 +1002,11 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                 memset(pid, 0, sizeof(pid));
                 response[data_length] = '\0';
 
-                data_str = strchr(response, '\n');
+                if (api_level >= 24)
+                    data_str = response;
+                else
+                    data_str = strchr(response, '\n');
+
                 if (data_str && sscanf(data_str, "%*s %s", pid) == 1) {
                     g_debug("Android Bluetooth application PID for %s is %s", serial_number, pid);
 
