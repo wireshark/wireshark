@@ -10917,7 +10917,7 @@ static void dof_register(void)
     /* Security mode of operation templates. */
     static uat_field_t secmode_uat_fields[] = {
         UAT_FLD_CSTRING(secmode_list, domain, "Domain", "The domain, coded as hex digits of PDU Security.7."),
-        UAT_FLD_CSTRING(secmode_list, identity, "Group ID", "The group identifer, coded as hex digits of PDU Security.8."),
+        UAT_FLD_CSTRING(secmode_list, identity, "Group ID", "The group identifier, coded as hex digits of PDU Security.8."),
         UAT_FLD_CSTRING(secmode_list, kek, "KEK", "The KEK, coded as hex digits representing the KEK (256-bit)."),
         UAT_END_FIELDS
     };
@@ -10931,7 +10931,7 @@ static void dof_register(void)
     /* Identity secrets. */
     static uat_field_t identsecret_uat_fields[] = {
         UAT_FLD_CSTRING(identsecret_list, domain, "Domain", "The domain, coded as hex digits of PDU Security.7."),
-        UAT_FLD_CSTRING(identsecret_list, identity, "Identity", "The group identifer, coded as hex digits of PDU Security.8."),
+        UAT_FLD_CSTRING(identsecret_list, identity, "Identity", "The group identifier, coded as hex digits of PDU Security.8."),
         UAT_FLD_CSTRING_OTHER(identsecret_list, secret, "Secret", identsecret_chk_cb, "The resolved secret for a given identity, coded as hex digits representing the secret (256-bit)."),
         UAT_END_FIELDS
     };

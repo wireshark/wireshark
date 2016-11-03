@@ -18016,7 +18016,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_volume_guid,
 		{ "Volume GUID", "smb.volume_guid", FT_GUID, BASE_NONE,
-		NULL, 0, "Globally unique identifer for this volume", HFILL }},
+		NULL, 0, "Globally unique identifier for this volume", HFILL }},
 
 	{ &hf_smb_security_blob_len,
 		{ "Security Blob Length", "smb.security_blob_len", FT_UINT16, BASE_DEC,
