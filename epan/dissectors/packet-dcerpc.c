@@ -24,7 +24,13 @@
  */
 
 /* The DCE RPC specification can be found at:
- * http://www.opengroup.org/dce/
+ *
+ *    http://www.opengroup.org/dce/
+ *    https://www2.opengroup.org/ogsys/catalog/c706
+ *
+ * Microsoft extensions can be found at:
+ *
+ *    https://msdn.microsoft.com/en-us/library/jj652470.aspx
  */
 
 #include "config.h"
@@ -486,7 +492,6 @@ static int hf_dcerpc_cn_cancel_count = -1;
 static int hf_dcerpc_cn_status = -1;
 static int hf_dcerpc_cn_deseg_req = -1;
 static int hf_dcerpc_cn_rts_flags = -1;
-static int hf_dcerpc_cn_rts_flags_none = -1;
 static int hf_dcerpc_cn_rts_flags_ping = -1;
 static int hf_dcerpc_cn_rts_flags_other_cmd = -1;
 static int hf_dcerpc_cn_rts_flags_recycle_channel = -1;
@@ -4939,7 +4944,6 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32     i;
     const char *info_str        = NULL;
     static const int * flags[] = {
-        &hf_dcerpc_cn_rts_flags_none,
         &hf_dcerpc_cn_rts_flags_ping,
         &hf_dcerpc_cn_rts_flags_other_cmd,
         &hf_dcerpc_cn_rts_flags_recycle_channel,
@@ -6795,8 +6799,6 @@ proto_register_dcerpc(void)
 
         { &hf_dcerpc_cn_rts_flags,
           { "RTS Flags", "dcerpc.cn_rts_flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_dcerpc_cn_rts_flags_none,
-          {"None", "dcerpc.cn_rts_flags.none", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_NONE, NULL, HFILL }},
         { &hf_dcerpc_cn_rts_flags_ping,
           { "Ping", "dcerpc.cn_rts.flags.ping", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_PING, NULL, HFILL }},
         { &hf_dcerpc_cn_rts_flags_other_cmd,
