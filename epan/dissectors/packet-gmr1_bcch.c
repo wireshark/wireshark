@@ -305,8 +305,8 @@ typedef struct {
 	guint16 MCC;
 	guint16 MNC;
 	guint16 LAC;
-	guint8 MSC_ID;		/* splitted version of LAC */
-	guint16 Spot_Beam_ID;	/* splitted version of LAC */
+	guint8 MSC_ID;		/* split version of LAC */
+	guint16 Spot_Beam_ID;	/* split version of LAC */
 } Seg3A_LAI_t;
 
 typedef struct {

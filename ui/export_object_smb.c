@@ -172,7 +172,7 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
             continue;
         }
         /* 4. data chunk is inside the free chunk */
-        /* -> free chunk is splitted into two */
+        /* -> free chunk is split into two */
         if (chunk_offset>current_free_chunk->start_offset && chunk_end_offset<current_free_chunk->end_offset) {
             new_free_chunk = (free_chunk *)g_malloc(sizeof(free_chunk));
             new_free_chunk->start_offset = chunk_end_offset + 1;

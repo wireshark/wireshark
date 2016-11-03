@@ -3332,7 +3332,7 @@ s7comm_decode_plc_controls_updownload(tvbuff_t *tvb,
             } else if (rosctr == S7COMM_ROSCTR_ACK_DATA) {
                 if (plength > 8) {
                     /* If uploading from a PLC, the response has a string with the length
-                     * of the complete module in bytes, which maybe transferred/splitted into many PDUs.
+                     * of the complete module in bytes, which maybe transferred/split into many PDUs.
                      * On a NC file upload, there are no such fields.
                      */
                     len = tvb_get_guint8(tvb, offset);
@@ -4084,7 +4084,7 @@ s7comm_decode_ud_cpu_alarm_query_response(tvbuff_t *tvb,
         proto_tree_add_item(msg_item_tree, hf_s7comm_data_transport_size, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         /* As with ALARM_S it's only possible to send one alarm description in a single response telegram,
-         * they are splitted into many telegrams. Therefore the complete length field is set to 0xffff.
+         * they are split into many telegrams. Therefore the complete length field is set to 0xffff.
          * To reuse the following dissect-loop, the remaining length is set to zero.
          */
         complete_length = tvb_get_ntohs(tvb, offset);
@@ -5824,7 +5824,7 @@ proto_register_s7comm (void)
           "Length following blocklength string in bytes", HFILL }},
         { &hf_s7comm_data_blockcontrol_upl_lenstring,
         { "Blocklength", "s7comm.param.blockcontrol.upl_lenstring", FT_STRING, BASE_NONE, NULL, 0x0,
-          "Length of the complete uploadblock in bytes, maybe splitted into many PDUs", HFILL }},
+          "Length of the complete uploadblock in bytes, may be split into many PDUs", HFILL }},
         { &hf_s7comm_data_blockcontrol_functionstatus,
         { "Function Status", "s7comm.param.blockcontrol.functionstatus", FT_UINT8, BASE_HEX, NULL, 0x0,
           "0=no error, 1=more data, 2=error", HFILL }},
@@ -5973,7 +5973,7 @@ proto_register_s7comm (void)
           NULL, HFILL }},
         { &hf_s7comm_cpu_alarm_query_completelen,
         { "Complete data length", "s7comm.alarm.query.complete_length", FT_UINT32, BASE_DEC, NULL, 0x0,
-          "Complete data length (with ALARM_S this is 0xffff, as they might be splitted into many telegrams)", HFILL }},
+          "Complete data length (with ALARM_S this is 0xffff, as they might be split into many telegrams)", HFILL }},
         { &hf_s7comm_cpu_alarm_query_datasetlen,
         { "Length of dataset", "s7comm.alarm.query.dataset_length", FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
