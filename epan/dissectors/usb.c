@@ -5597,7 +5597,7 @@ static const value_string usb_products_vals[] = {
     { 0x046dc20c, "WingMan Precision" },
     { 0x046dc20d, "WingMan Attack 2" },
     { 0x046dc20e, "WingMan Formula GP" },
-    { 0x046dc211, "iTouch Cordless Reciever" },
+    { 0x046dc211, "iTouch Cordless Receiver" },
     { 0x046dc212, "WingMan Extreme Digital 3D" },
     { 0x046dc213, "J-UH16 (Freedom 2.4 Cordless Joystick)" },
     { 0x046dc214, "ATK3 (Attack III Joystick)" },
