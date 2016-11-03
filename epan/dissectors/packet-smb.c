@@ -7440,8 +7440,8 @@ static const value_string connect_support_csc_mask_vals[] = {
 	{0, NULL}
 };
 static const true_false_string tfs_connect_support_uniquefilename = {
-	"Client allow to cache share namespaces",
-	"Client NOT allow to cache share namespaces"
+	"Client allowed to cache share namespaces",
+	"Client NOT allowed to cache share namespaces"
 };
 static const true_false_string tfs_connect_support_extended_signature = {
 	"Extended signature",
