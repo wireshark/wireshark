@@ -1567,8 +1567,8 @@ static const value_string cmd_le_scan_types[] = {
 };
 
 static const value_string cmd_le_scan_filter_policy[] = {
-    { 0x00, "Accept all advertisments. Ignore directed advertisements not addressed to this device" },
-    { 0x01, "Ignore advertisments from devices not in the white list only. Ignore directed advertisements not addressed to this device" },
+    { 0x00, "Accept all advertisements. Ignore directed advertisements not addressed to this device" },
+    { 0x01, "Ignore advertisements from devices not in the white list only. Ignore directed advertisements not addressed to this device" },
     { 0, NULL }
 };
 
