@@ -40,7 +40,7 @@ ADDITIONAL_LIST="libnl-3-dev qttools5-dev qttools5-dev-tools libgtk-3-dev \
 		libc-ares-dev libssh-dev libkrb5-dev libqt5svg5-dev lynx libsmi2-dev \
 		portaudio19-dev asciidoc libgcrypt-dev libsbc-dev libgeoip-dev \
 		libgnutls-dev qtmultimedia5-dev liblua5.2-dev libnl-cli-3-dev \
-		libparse-yapp-perl qt5-default cmake libcap-dev libssh-gcrypt-dev \
+		libparse-yapp-perl qt5-default cmake libcap-dev \
 		liblz4-dev libsnappy-dev"
 
 # Check for lsb_release command in $PATH
@@ -59,7 +59,7 @@ trusty)
 	;;
 *)
 	BASIC_LIST="$BASIC_LIST libtool-bin"
-	ADDITIONAL_LIST="$ADDITIONAL_LIST libnghttp2-dev"
+	ADDITIONAL_LIST="$ADDITIONAL_LIST libnghttp2-dev libssh-gcrypt-dev"
 	;;
 esac
 
