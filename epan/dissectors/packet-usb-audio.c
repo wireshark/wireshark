@@ -580,7 +580,7 @@ dissect_ac_if_output_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_
 
 static gint
 dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_, guint8 desc_len)
 {
     gint     offset_start;
     guint8 controlsize;
@@ -627,8 +627,10 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     offset += controlsize;
 
-    proto_tree_add_item(tree, hf_ac_if_fu_ifeature, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset += 1;
+    if(offset < desc_len){
+        proto_tree_add_item(tree, hf_ac_if_fu_ifeature, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+    }
 
     return offset-offset_start;
 }
@@ -856,7 +858,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
                 dissect_ac_if_mixed_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
                 break;
             case AC_SUBTYPE_FEATURE_UNIT:
-                dissect_ac_if_feature_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                dissect_ac_if_feature_unit(tvb, offset, pinfo, desc_tree, usb_conv_info, desc_len);
                 break;
             default:
                 proto_tree_add_expert(desc_tree, pinfo, &ei_usb_audio_undecoded, tvb, offset-3, desc_len);
