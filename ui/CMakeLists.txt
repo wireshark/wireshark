@@ -31,6 +31,7 @@ set(COMMON_UI_SRC
 	export_object.c
 	export_object_dicom.c
 	export_object_http.c
+	export_object_imf.c
 	export_object_smb.c
 	export_object_tftp.c
 	export_pdu_ui_utils.c

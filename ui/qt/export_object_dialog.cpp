@@ -93,6 +93,11 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, ObjectT
         name_ = "HTTP";
         tap_packet_ = eo_http_packet;
         break;
+    case Imf:
+        tap_name_ = "imf_eo";
+        name_ = "IMF";
+        tap_packet_ = eo_imf_packet;
+        break;
     case Smb:
         tap_name_ = "smb_eo";
         name_ = "SMB";

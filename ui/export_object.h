@@ -58,6 +58,8 @@ gboolean eo_dicom_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt 
         const void *data);
 gboolean eo_http_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
         const void *data);
+gboolean eo_imf_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
+        const void *data);
 gboolean eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
         const void *data);
 gboolean eo_tftp_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,

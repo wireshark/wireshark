@@ -30,6 +30,8 @@
 #include <epan/expert.h>
 #include <wsutil/str_util.h>
 
+#include <epan/tap.h>
+
 #include "packet-ber.h"
 #include "packet-http.h"
 #include "packet-imf.h"
@@ -38,6 +40,8 @@
 
 void proto_register_imf(void);
 void proto_reg_handoff_imf(void);
+
+static int imf_eo_tap = -1;
 
 #define PNAME  "Internet Message Format"
 #define PSNAME "IMF"
@@ -692,6 +696,14 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   gboolean last_field = FALSE;
   tvbuff_t *next_tvb;
   struct imf_field *f_info;
+  imf_eo_t *eo_info = NULL;
+
+  if (have_tap_listener(imf_eo_tap)) {
+    eo_info = wmem_new(wmem_packet_scope(), imf_eo_t);
+    /* initialize the eo_info fields in case they are missing later */
+    eo_info->sender_data = "";
+    eo_info->subject_data = "";
+  }
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear(pinfo->cinfo, COL_INFO);
@@ -779,6 +791,15 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s: %s, ", f_info->name,
                         tvb_format_text(tvb, value_offset, end_offset - value_offset - 2));
+
+        /* if sender or subject, store for sending to the tap */
+        if (eo_info && have_tap_listener(imf_eo_tap)) {
+          if (*f_info->hf_id == hf_imf_from) {
+            eo_info->sender_data = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII|ENC_NA);
+          } else if(*f_info->hf_id == hf_imf_subject) {
+            eo_info->subject_data = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII|ENC_NA);
+          }
+        }
       }
 
       if(hf_id == hf_imf_content_type) {
@@ -856,6 +877,15 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
        */
       start_offset = end_offset;
     }
+  }
+
+  if (eo_info && have_tap_listener(imf_eo_tap)) {
+    /* Set payload info */
+    eo_info->payload_len = max_length;
+    eo_info->payload_data = (gchar *) tvb_memdup(wmem_packet_scope(), tvb, 0, max_length);
+
+    /* Send to tap */
+    tap_queue_packet(imf_eo_tap, pinfo, eo_info);
   }
   return tvb_captured_length(tvb);
 }
@@ -1270,6 +1300,9 @@ proto_register_imf(void)
   /* register the fields for lookup */
   for(f = imf_fields; f->name; f++)
     g_hash_table_insert(imf_field_table, (gpointer)f->name, (gpointer)f);
+
+  /* Register for tapping */
+  imf_eo_tap = register_tap("imf_eo"); /* IMF Export Object tap */
 
 }
 

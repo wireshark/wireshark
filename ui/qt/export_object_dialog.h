@@ -57,7 +57,7 @@ class ExportObjectDialog : public WiresharkDialog
     Q_OBJECT
 
 public:
-    enum ObjectType { Dicom, Http, Smb, Tftp };
+    enum ObjectType { Dicom, Http, Imf, Smb, Tftp };
 
     explicit ExportObjectDialog(QWidget &parent, CaptureFile &cf, ObjectType object_type);
     ~ExportObjectDialog();

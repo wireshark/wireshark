@@ -1878,6 +1878,11 @@ void MainWindow::on_actionFileExportObjectsHTTP_triggered()
     new ExportObjectDialog(*this, capture_file_, ExportObjectDialog::Http);
 }
 
+void MainWindow::on_actionFileExportObjectsIMF_triggered()
+{
+    new ExportObjectDialog(*this, capture_file_, ExportObjectDialog::Imf);
+}
+
 void MainWindow::on_actionFileExportObjectsSMB_triggered()
 {
     new ExportObjectDialog(*this, capture_file_, ExportObjectDialog::Smb);

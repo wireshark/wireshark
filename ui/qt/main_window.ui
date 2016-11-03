@@ -180,6 +180,7 @@
      </property>
      <addaction name="actionFileExportObjectsDICOM"/>
      <addaction name="actionFileExportObjectsHTTP"/>
+     <addaction name="actionFileExportObjectsIMF"/>
      <addaction name="actionFileExportObjectsSMB"/>
      <addaction name="actionFileExportObjectsTFTP"/>
     </widget>
@@ -1247,6 +1248,11 @@
   <action name="actionFileExportObjectsHTTP">
    <property name="text">
     <string>&amp;HTTP…</string>
+   </property>
+  </action>
+  <action name="actionFileExportObjectsIMF">
+   <property name="text">
+    <string>&amp;IMF…</string>
    </property>
   </action>
   <action name="actionFileExportObjectsDICOM">
