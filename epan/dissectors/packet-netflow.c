@@ -11757,13 +11757,13 @@ proto_register_netflow(void)
         {&hf_pie_netscaler_icaclientsidertocount,
          {"ICA Clientside RTO Count", "cflow.pie.netscaler.ica-clientside-rto-count",
           FT_UINT16, BASE_DEC, NULL, 0x0,
-          "ICA Clientside retrans timeout occured Count", HFILL}
+          "ICA Clientside retrans timeout occurred Count", HFILL}
         },
         /* netscaler, 5951 / 264 */
         {&hf_pie_netscaler_icaserversidertocount,
          {"ICA Serverside RTO Count", "cflow.pie.netscaler.ica-serverside-rto-count",
           FT_UINT16, BASE_DEC, NULL, 0x0,
-          "ICA Serverside retrans timeout occured Count", HFILL}
+          "ICA Serverside retrans timeout occurred Count", HFILL}
         },
         /* netscaler, 5951 / 265 */
         {&hf_pie_netscaler_ical7clientlatency,

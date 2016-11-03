@@ -631,7 +631,7 @@ enum QuicErrorCode {
     /* A crypto message was received that contained a parameter with too few
        values. */
     QUIC_CRYPTO_MESSAGE_INDEX_NOT_FOUND = 37,
-    /* An internal error occured in crypto processing. */
+    /* An internal error occurred in crypto processing. */
     QUIC_CRYPTO_INTERNAL_ERROR = 38,
     /* A crypto handshake message specified an unsupported version. */
     QUIC_CRYPTO_VERSION_NOT_SUPPORTED = 39,
@@ -731,7 +731,7 @@ static const value_string error_code_vals[] = {
     { QUIC_CRYPTO_MESSAGE_PARAMETER_NOT_FOUND, "A crypto message was received with a mandatory parameter missing" },
     { QUIC_CRYPTO_MESSAGE_PARAMETER_NO_OVERLAP, "A crypto message was received with a parameter that has no overlap with the local parameter" },
     { QUIC_CRYPTO_MESSAGE_INDEX_NOT_FOUND, "A crypto message was received that contained a parameter with too few values" },
-    { QUIC_CRYPTO_INTERNAL_ERROR, "An internal error occured in crypto processing" },
+    { QUIC_CRYPTO_INTERNAL_ERROR, "An internal error occurred in crypto processing" },
     { QUIC_CRYPTO_VERSION_NOT_SUPPORTED, "A crypto handshake message specified an unsupported version" },
 
     { QUIC_CRYPTO_NO_SUPPORT, "There was no intersection between the crypto primitives supported by the peer and ourselves" },

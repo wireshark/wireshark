@@ -3408,7 +3408,7 @@ s7comm_decode_plc_controls_updownload(tvbuff_t *tvb,
             }
             break;
     }
-    /* if an error occured show in info column */
+    /* if an error occurred show in info column */
     if (errorcode > 0) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " -> Errorcode:[0x%04x]", errorcode);
     }
@@ -5833,7 +5833,7 @@ proto_register_s7comm (void)
           "More data of the block/file can be retrieved with another request", HFILL }},
         { &hf_s7comm_data_blockcontrol_functionstatus_error,
         { "Error", "s7comm.param.blockcontrol.functionstatus.error", FT_BOOLEAN, 8, NULL, 0x02,
-          "An error occured", HFILL }},
+          "An error occurred", HFILL }},
 
         /* NC programming functions */
         { &hf_s7comm_data_ncprg_unackcount,
