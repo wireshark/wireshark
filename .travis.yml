@@ -21,6 +21,10 @@ matrix:
   #Exclude autotools build (missing libtool...) with osx
   - os: osx
     env: BUILD_CMAKE=no
+  - os: osx
+    env: CMAKE_GTK_OPTS="-DBUILD_wireshark_gtk=ON"
+  - os: osx
+    env: AUTOTOOLS_GTK_OPTS="--with-gtk=3"
 before_install:
   - echo $TRAVIS_OS_NAME
   - $CC --version
