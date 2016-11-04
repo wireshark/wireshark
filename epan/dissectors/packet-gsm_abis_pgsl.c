@@ -567,8 +567,8 @@ proto_register_abis_pgsl(void)
 			  "Coding Scheme Status", HFILL }
 		},
 		{ &hf_pgsl_codec_rxlev,
-			{ "RxLev", "gsm_abis_pgsl.codec_csy",
-			  FT_UINT8, BASE_DEC, NULL, 0x3f,
+			{ "RxLev", "gsm_abis_pgsl.codec_rxlev",
+			  FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gsm_a_rr_rxlev_vals_ext, 0x3f,
 			  "Receiver Level Measurement", HFILL }
 		},
 		{ &hf_pgsl_codec_parity,
