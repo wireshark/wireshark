@@ -96,6 +96,11 @@ static const value_string pgsl_msg_disc_vals[] = {
 	{ 0, NULL }
 };
 
+static const true_false_string pgsl_q_vals = {
+	"Bad",
+	"Good"
+};
+
 static const value_string pgsl_msg_cause_vals[] = {
 	{ 0, "Frame discarded in CCU, too late" },
 	{ 1, "Frame discarded in CCU, too late or OOM" },
@@ -370,17 +375,17 @@ proto_register_abis_pgsl(void)
 		},
 		{ &hf_pgsl_codec_q,
 			{ "EGPRS Header Quality", "gsm_abis_pgsl.egprs_q",
-			  FT_BOOLEAN, 8, NULL, 0x08,
+			  FT_BOOLEAN, 8, TFS(&pgsl_q_vals), 0x08,
 			  "EGPRS RLC/MAC Header Quality", HFILL }
 		},
 		{ &hf_pgsl_codec_q1,
 			{ "EGPRS Data Block 1 Quality", "gsm_abis_pgsl.egprs_q1",
-			  FT_BOOLEAN, 8, NULL, 0x10,
+			  FT_BOOLEAN, 8, TFS(&pgsl_q_vals), 0x10,
 			  NULL, HFILL }
 		},
 		{ &hf_pgsl_codec_q2,
 			{ "EGPRS Data Block 2 Quality", "gsm_abis_pgsl.egprs_q2",
-			  FT_BOOLEAN, 8, NULL, 0x20,
+			  FT_BOOLEAN, 8, TFS(&pgsl_q_vals), 0x20,
 			  NULL, HFILL }
 		},
 	};
