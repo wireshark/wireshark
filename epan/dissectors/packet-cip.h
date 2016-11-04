@@ -387,11 +387,6 @@ extern int dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, prot
    int offset, int total_len);
 extern int dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
    int offset, int total_len);
-
-extern int dissect_packed_epath(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-   int offset, int total_len);
-extern int dissect_padded_epath(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-   int offset, int total_len);
 extern int dissect_padded_epath_len_usint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
    int offset, int total_len);
 extern int dissect_padded_epath_len_uint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
