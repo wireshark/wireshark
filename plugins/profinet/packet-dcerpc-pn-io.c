@@ -689,6 +689,8 @@ static int hf_pn_io_rs_specifier_sequence = -1;
 static int hf_pn_io_rs_specifier_reserved = -1;
 static int hf_pn_io_rs_specifier_specifier = -1;
 static int hf_pn_io_rs_time_stamp = -1;
+static int hf_pn_io_rs_time_stamp_status = -1;
+static int hf_pn_io_rs_time_stamp_value = -1;
 static int hf_pn_io_rs_minus_error = -1;
 static int hf_pn_io_rs_plus_error = -1;
 static int hf_pn_io_rs_extension_block_type = -1;
@@ -770,6 +772,7 @@ static gint ett_pn_io_rs_event_block = -1;
 static gint ett_pn_io_rs_adjust_block = -1;
 static gint ett_pn_io_rs_event_data_extension = -1;
 static gint ett_pn_io_rs_specifier = -1;
+static gint ett_pn_io_rs_time_stamp = -1;
 static gint ett_pn_io_am_device_identification = -1;
 static gint ett_pn_io_rs_reason_code = -1;
 static gint ett_pn_io_soe_digital_input_current_value = -1;
@@ -2777,7 +2780,7 @@ static const range_string pn_io_rs_block_type[] = {
     /* Following ranges are used for events */
     { 0x0000, 0x0000, "reserved" },
     { 0x0001, 0x3FFF, "Manufacturer specific" },
-    { 0x4000, 0x4000, "Stop observer - RS_StopObserver" },
+    { 0x4000, 0x4000, "Stop observer - Observer Status Observer" },
     { 0x4001, 0x4001, "Buffer observer - RS_BufferObserver" },
     { 0x4002, 0x4002, "Time status observer - RS_TimeStatus" },
     { 0x4003, 0x4003, "System redundancy layer observer - RS_SRLObserver" },
@@ -2804,6 +2807,13 @@ static const value_string pn_io_rs_specifier_specifier[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_rs_time_stamp_status[] = {
+    { 0x0, "TimeStamp related to global synchronized time" },
+    { 0x1, "TimeStamp related to local time" },
+    { 0x2, "TimeStamp related to local (arbitrary timescale) time" },
+    { 0, NULL }
+};
+
 static const value_string pn_io_rs_reason_code_reason[] = {
     { 0x00000000, "Reserved" },
     { 0x00000001, "Observed data status unclear" },
@@ -2813,7 +2823,7 @@ static const value_string pn_io_rs_reason_code_reason[] = {
 };
 
 static const value_string pn_io_rs_reason_code_detail[] = {
-    { 0x00000000, "Reserved" },
+    { 0x00000000, "No Detail" },
     /* 0x0001 - 0xFFFF Reserved */
     { 0, NULL }
 };
@@ -3451,6 +3461,10 @@ dissect_RS_EventDataCommon(tvbuff_t *tvb, int offset,
     guint16     u16RSPlusError;
     proto_item  *sub_item;
     proto_tree  *sub_tree;
+    proto_item  *sub_item_time_stamp;
+    proto_tree  *sub_tree_time_stamp;
+    nstime_t    timestamp;
+    guint16     u16RSTimeStampStatus;
 
     /* RS_AddressInfo */
     offset = dissect_RS_AddressInfo(tvb, offset, pinfo, tree, drep, u16RSBodyLength);
@@ -3473,7 +3487,23 @@ dissect_RS_EventDataCommon(tvbuff_t *tvb, int offset,
     *u16RSBodyLength -= 2;
 
     /* RS_TimeStamp */
-    proto_tree_add_item(tree, hf_pn_io_rs_time_stamp, tvb, offset, 12, ENC_ASCII|ENC_NA);
+    sub_item_time_stamp = proto_tree_add_item(tree, hf_pn_io_rs_time_stamp, tvb, offset, 12, ENC_NA);
+    sub_tree_time_stamp = proto_item_add_subtree(sub_item_time_stamp, ett_pn_io_rs_time_stamp);
+
+    /* RS_TimeStamp.Status */
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree_time_stamp, drep,
+        hf_pn_io_rs_time_stamp_status, &u16RSTimeStampStatus);
+
+    /* RS_TimeStamp.TimeStamp */
+
+    /* Start after from 2 bytes Status */
+    timestamp.secs = (time_t)tvb_get_ntoh48(tvb, offset + 2);
+
+    /* Start after from 4 bytes timestamp.secs */
+    timestamp.nsecs = (int)tvb_get_ntohl(tvb, offset + 8);
+
+    /* Start after from 2 bytes Status and get all 10 bytes */
+    proto_tree_add_time(sub_tree_time_stamp, hf_pn_io_rs_time_stamp_value, tvb, offset + 2, 10, &timestamp);
     *u16RSBodyLength -= 12;
     offset += 12;
 
@@ -3543,6 +3573,10 @@ dissect_RS_EventDataExtension_Data(tvbuff_t *tvb, int offset,
 
     proto_item *sub_item;
     proto_tree *sub_tree;
+    nstime_t timestamp;
+    guint16 u16RSTimeStampStatus;
+    proto_item *sub_item_time_stamp;
+    proto_tree *sub_tree_time_stamp;
 
     switch (*u16RSBlockType) {
     case(0x4000): /* RS_StopObserver */
@@ -3566,28 +3600,38 @@ dissect_RS_EventDataExtension_Data(tvbuff_t *tvb, int offset,
         break;
     case(0x4002): /* RS_TimeStatus */
 
-        /* RS_DomainIdentification */
-        proto_tree_add_item(tree, hf_pn_io_rs_domain_identification, tvb, offset, u8LengthRSDomainIdentification, ENC_ASCII|ENC_NA);
-        offset += u8LengthRSDomainIdentification;
-        *u8RSExtensionBlockLength -= 16;
-
-        /* RS_MasterIdentification */
-        proto_tree_add_item(tree, hf_pn_io_rs_master_identification, tvb, offset, u8LengthRSMasterIdentification, ENC_ASCII|ENC_NA);
-        offset += u8LengthRSMasterIdentification;
-        *u8RSExtensionBlockLength -= 8;
-
-        /* RS_TimeStamp */
-        if (*u8RSExtensionBlockLength > 2)
-        {
-            proto_tree_add_item(tree, hf_pn_io_rs_time_stamp, tvb, offset, 12, ENC_ASCII|ENC_NA);
-            *u8RSExtensionBlockLength -= 12;
-            offset += 12;
-        }
-
         /* Padding 1 + 1 + 16 + 8 = 26  or 1 + 1 + 16 + 8 + 12 = 38 */
         /* Therefore we need 2 byte padding to make the block u32 aligned */
         offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
         *u8RSExtensionBlockLength -= 2;
+
+        /* RS_DomainIdentification */
+        proto_tree_add_item(tree, hf_pn_io_rs_domain_identification, tvb, offset, u8LengthRSDomainIdentification, ENC_NA);
+        offset += u8LengthRSDomainIdentification;
+        *u8RSExtensionBlockLength -= 16;
+
+        /* RS_MasterIdentification */
+        proto_tree_add_item(tree, hf_pn_io_rs_master_identification, tvb, offset, u8LengthRSMasterIdentification, ENC_NA);
+        offset += u8LengthRSMasterIdentification;
+        *u8RSExtensionBlockLength -= 8;
+
+        if (*u8RSExtensionBlockLength > 2)
+        {
+            /* RS_TimeStamp */
+            sub_item_time_stamp = proto_tree_add_item(tree, hf_pn_io_rs_time_stamp, tvb, offset, 12, ENC_NA);
+            sub_tree_time_stamp = proto_item_add_subtree(sub_item_time_stamp, ett_pn_io_rs_time_stamp);
+
+            /* RS_TimeStamp.Status */
+            dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree_time_stamp, drep,
+                hf_pn_io_rs_time_stamp_status, &u16RSTimeStampStatus);
+
+            /* RS_TimeStamp.TimeStamp */
+            timestamp.secs = (time_t)tvb_get_ntoh48(tvb, offset + 2); // Start after from 2 bytes Status
+            timestamp.nsecs = (int)tvb_get_ntohl(tvb, offset + 8);  // Start after from 4 bytes timestamp.secs
+            // Start after from 2 bytes Status and get all 10 bytes
+            proto_tree_add_time(sub_tree_time_stamp, hf_pn_io_rs_time_stamp_value, tvb, offset + 2, 10, &timestamp);
+            offset += 12;
+        }
         break;
     case(0x4003): /* RS_SRLObserver */
         offset = dissect_pn_user_data(tvb, offset, pinfo, tree, *u8RSExtensionBlockLength, "UserData");
@@ -13681,8 +13725,18 @@ proto_register_pn_io (void)
           NULL, HFILL }
     },
     { &hf_pn_io_rs_time_stamp,
-        { "RS_TimeStamp", "pn_io.rs_time_stamp",
-          FT_STRING, BASE_NONE, NULL, 0x0,
+      { "RS_TimeStamp", "pn_io.rs_time_stamp",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_rs_time_stamp_status,
+        { "RS_TimeStamp.Status", "pn_io.rs_time_stamp.status",
+          FT_UINT16, BASE_HEX, VALS(pn_io_rs_time_stamp_status), 0x0003,
+          NULL, HFILL }
+    },
+    { &hf_pn_io_rs_time_stamp_value,
+        { "RS_TimeStamp.Value", "pn_io.rs_time_stamp.value",
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
           NULL, HFILL }
     },
     { &hf_pn_io_rs_minus_error,
@@ -13722,12 +13776,12 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_rs_domain_identification,
         { "RS_DomainIdentification", "pn_io.rs_domain_identification",
-          FT_STRING, BASE_NONE, NULL, 0x0,
+          FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL }
     },
     { &hf_pn_io_rs_master_identification,
         { "RS_MasterIdentification", "pn_io.rs_master_identification",
-          FT_STRING, BASE_NONE, NULL, 0x0,
+          FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL }
     },
     { &hf_pn_io_soe_digital_input_current_value,
@@ -13872,6 +13926,7 @@ proto_register_pn_io (void)
         &ett_pn_io_rs_adjust_block,
         &ett_pn_io_rs_event_data_extension,
         &ett_pn_io_rs_specifier,
+        &ett_pn_io_rs_time_stamp,
         &ett_pn_io_am_device_identification,
         &ett_pn_io_rs_reason_code,
         &ett_pn_io_soe_digital_input_current_value,
