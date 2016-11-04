@@ -54,7 +54,7 @@ end
 --     number of verifyFields() * (1 + number of fields) +
 --     number of verifyResults() * (1 + 2 * number of values)
 --
-local taptests = { [FRAME]=4, [OTHER]=318 }
+local taptests = { [FRAME]=4, [OTHER]=330 }
 
 local function getResults()
     print("\n-----------------------------\n")
@@ -149,6 +149,7 @@ local testfield =
         STRING         = ProtoField.string ("test.basic.string",  "Basic string"),
         BOOLEAN        = ProtoField.bool   ("test.basic.boolean", "Basic boolean", 16, {"yes","no"}, 0x0001),
         UINT16         = ProtoField.uint16 ("test.basic.uint16",  "Basic uint16"),
+        INT24          = ProtoField.int24  ("test.basic.uint24",  "Basic uint24"),
         BYTES          = ProtoField.bytes  ("test.basic.bytes",   "Basic Bytes"),
         UINT_BYTES     = ProtoField.ubytes ("test.basic.ubytes",  "Basic Uint Bytes"),
         OID            = ProtoField.oid    ("test.basic.oid",     "Basic OID"),
@@ -197,6 +198,7 @@ local getfield =
         STRING         = Field.new ("test.basic.string"),
         BOOLEAN        = Field.new ("test.basic.boolean"),
         UINT16         = Field.new ("test.basic.uint16"),
+        INT24          = Field.new ("test.basic.uint24"),
         BYTES          = Field.new ("test.basic.bytes"),
         UINT_BYTES     = Field.new ("test.basic.ubytes"),
         OID            = Field.new ("test.basic.oid"),
@@ -425,6 +427,30 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     addMatchFields(uint16_match_fields, 128)
 
     verifyFields("basic.UINT16", uint16_match_fields)
+
+----------------------------------------
+    testing(OTHER, "Basic int24")
+
+    local int24_match_fields = {}
+
+    execute ("basic-int24", pcall (callTreeAdd, tree, testfield.basic.INT24, tvb_bytes:range(0,3)) )
+    addMatchFields(int24_match_fields, 65280)
+
+    execute ("basic-int24", pcall (callTreeAdd, tree, testfield.basic.INT24, tvb_bytes:range(3,3)) )
+    addMatchFields(int24_match_fields, 98304)
+
+    verifyFields("basic.INT24", int24_match_fields)
+
+----------------------------------------
+    testing(OTHER, "Basic int24-le")
+
+    execute ("basic-int24", pcall (callTreeAddLE, tree, testfield.basic.INT24, tvb_bytes:range(0,3)) )
+    addMatchFields(int24_match_fields, 65280)
+
+    execute ("basic-int24", pcall (callTreeAddLE, tree, testfield.basic.INT24, tvb_bytes:range(3,3)) )
+    addMatchFields(int24_match_fields, 32769)
+
+    verifyFields("basic.INT24", int24_match_fields)
 
 ----------------------------------------
     testing(OTHER, "Basic bytes")
