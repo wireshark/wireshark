@@ -6594,14 +6594,14 @@ proto_register_bthci_evt(void)
             NULL, HFILL }
         },
         { &hf_bthci_evt_le_local_rpa,
-          { "Local RPA",          "bthci_evt.le_local_rpa",
+          { "Local Resolvable Private Address",          "bthci_evt.le_local_rpa",
             FT_ETHER, BASE_NONE, NULL, 0x0,
-            "Local Remote Private Address", HFILL}
+            NULL, HFILL}
         },
         { &hf_bthci_evt_le_peer_rpa,
-          { "Peer RPA",          "bthci_evt.le_peer_rpa",
+          { "Peer Resolvable Private Address",          "bthci_evt.le_peer_rpa",
             FT_ETHER, BASE_NONE, NULL, 0x0,
-            "Peer Remote Private Address", HFILL}
+            NULL, HFILL}
         },
         { &hf_bthci_evt_le_con_interval,
           { "Connection Interval", "bthci_evt.le_con_interval",
