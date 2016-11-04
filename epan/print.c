@@ -378,7 +378,7 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
 
     fputs("      }\n", fh);
     fputs("    }\n", fh);
-    fputs("  }", fh);
+    fputs("  }\n", fh);
 
 }
 
@@ -831,11 +831,17 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
         default:
             dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
             if (dfilter_string != NULL) {
-                if (node->first_child == NULL) {
-                    fputs("\": \"", pdata->fh);
-                    print_escaped_json(pdata->fh, dfilter_string);
-                } else {
-                    fputs("\": {\n", pdata->fh);
+                fputs("\": \"", pdata->fh);
+                print_escaped_json(pdata->fh, dfilter_string);
+                if (node->first_child != NULL) {
+                    fputs("\",\n", pdata->fh);
+                    /* Indent to the correct level */
+                    for (i = -3; i < pdata->level; i++) {
+                        fputs("  ", pdata->fh);
+                    }
+                    fputs("\"", pdata->fh);
+                    print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
+                    fputs("_tree\": {\n", pdata->fh);
                 }
             }
             wmem_free(NULL, dfilter_string);
@@ -1036,21 +1042,15 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
         default:
             dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
             if (dfilter_string != NULL) {
-                if (node->first_child == NULL) {
-                    fputs("\": \"", pdata->fh);
-                    print_escaped_json(pdata->fh, dfilter_string);
-                } else {
-                    fputs("\": \"\",", pdata->fh);
-                }
+                fputs("\": \"", pdata->fh);
+                print_escaped_json(pdata->fh, dfilter_string);
             }
             wmem_free(NULL, dfilter_string);
 
-            if (node->first_child == NULL) {
-                if (node->next == NULL) {
-                    fputs("\"", pdata->fh);
-                } else {
-                    fputs("\",", pdata->fh);
-                }
+            if (node->next == NULL) {
+                fputs("\"", pdata->fh);
+            } else {
+                fputs("\",", pdata->fh);
             }
         }
 
