@@ -81,9 +81,15 @@ static int hf_pgsl_codec_cv_bep = -1;
 static int hf_pgsl_codec_q = -1;
 static int hf_pgsl_codec_q1 = -1;
 static int hf_pgsl_codec_q2 = -1;
+static int hf_pgsl_pacch = -1;
+static int hf_pgsl_ab_rxlev = -1;
+static int hf_pgsl_ab_acc_delay = -1;
+static int hf_pgsl_ab_abi = -1;
+static int hf_pgsl_ab_ab_type = -1;
 
 /* initialize the subtree pointers */
 static int ett_pgsl = -1;
+static int ett_pacch = -1;
 
 static gboolean abis_pgsl_ir = FALSE;
 
@@ -138,6 +144,20 @@ static const value_string pgsl_ir_sign_type_vals[] = {
 	{ 1, "IR Start Indication" },
 	{ 2, "IR Stop Indication" },
 	{ 3, "No IR Information" },
+	{ 0, NULL }
+};
+
+static const value_string pgsl_ab_type_vals[] = {
+	{ 0, "8-bit RACH" },
+	{ 1, "11-bit RACH (TS0)" },
+	{ 2, "11-bit RACH (TS1)" },
+	{ 3, "11-bit RACH (TS2)" },
+	{ 0, NULL }
+};
+
+static const value_string pgsl_ab_abi_vals[] = {
+	{ 0, "Not Valid" },
+	{ 7, "Valid" },
 	{ 0, NULL }
 };
 
@@ -286,6 +306,44 @@ static tvbuff_t *get_egprs_data_block(tvbuff_t *tvb, guint offset_bits,
 	return aligned_tvb;
 }
 
+/* Dissect a P-GSL ACess Burst Message */
+static void
+dissect_pgsl_access_burst(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree,
+			  RlcMacPrivateData_t *rlcmac_data)
+{
+	proto_item *ti;
+	proto_tree *pacch_tree;
+	tvbuff_t *data_tvb;
+	guint rxlev, abtype, abi;
+	guint16 acc_delay;
+
+	ti = proto_tree_add_item(tree, hf_pgsl_pacch, tvb, offset, 5, ENC_NA);
+	pacch_tree = proto_item_add_subtree(ti, ett_pacch);
+
+	proto_tree_add_item_ret_uint(pacch_tree, hf_pgsl_ab_rxlev, tvb, offset++, 1, ENC_NA, &rxlev);
+	/* Access Delay is encoded as 10-bit field with the lowest 8
+	 * bits in the first octet, with the two highest bits in the
+	 * lowest bits of the second octet */
+	acc_delay = tvb_get_guint8(tvb, offset);
+	acc_delay |= tvb_get_bits8(tvb, (offset+1)*8+6, 2) << 8;
+	proto_tree_add_uint(pacch_tree, hf_pgsl_ab_acc_delay, tvb, offset, 2, acc_delay);
+	/* ABI and AB Type are in the same octet as the acc_dely msb's */
+	offset++;
+	proto_tree_add_item_ret_uint(pacch_tree, hf_pgsl_ab_abi, tvb, offset, 1, ENC_NA, &abi);
+	proto_tree_add_item_ret_uint(pacch_tree, hf_pgsl_ab_ab_type, tvb, offset, 1, ENC_NA, &abtype);
+	offset++;
+	/* Update the 'master' item */
+	if (abi) {
+		proto_item_append_text(ti, " Valid, RxLev %u, Delay %u bits, Type %s", rxlev, acc_delay,
+					val_to_str(abtype, pgsl_ab_type_vals, "0x%x"));
+		/* decode actual access burst */
+		data_tvb = tvb_new_subset_length(tvb, offset, 2);
+		call_dissector_with_data(sub_handles[SUB_RLCMAC_UL], data_tvb, pinfo, pacch_tree,
+					 (void *) rlcmac_data);
+	} else
+		proto_item_append_text(ti, " Invalid, RxLev %u", rxlev);
+}
+
 /* Dissect a given (E)GPRS RLC/MAC block */
 static void
 dissect_gprs_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean uplink,
@@ -305,6 +363,13 @@ dissect_gprs_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 	 * incase of EGPRS, once for each header, and
 	 * once for the paylod */
 	switch (rlcmac_data->block_format) {
+	case RLCMAC_PRACH:
+		/* contains information for four access bursts */
+		dissect_pgsl_access_burst(tvb, 0, pinfo, tree, rlcmac_data);
+		dissect_pgsl_access_burst(tvb, 5, pinfo, tree, rlcmac_data);
+		dissect_pgsl_access_burst(tvb, 10, pinfo, tree, rlcmac_data);
+		dissect_pgsl_access_burst(tvb, 15, pinfo, tree, rlcmac_data);
+		break;
 	case RLCMAC_HDR_TYPE_1:
 	case RLCMAC_HDR_TYPE_2:
 	case RLCMAC_HDR_TYPE_3:
@@ -607,9 +672,35 @@ proto_register_abis_pgsl(void)
 			  FT_BOOLEAN, 8, TFS(&pgsl_q_vals), 0x20,
 			  NULL, HFILL }
 		},
+		{ &hf_pgsl_pacch,
+			{ "PACCH", "gsm_abis_pgsl.pacch",
+			  FT_NONE, BASE_NONE, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_pgsl_ab_rxlev,
+			{ "Access Burst Rx Level", "gsm_abis_pgsl.ab.rxlev",
+			  FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gsm_a_rr_rxlev_vals_ext, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_pgsl_ab_acc_delay,
+			{ "Access Burst Access Delay", "gsm_abis_pgsl.ab.acc_delay",
+			  FT_UINT16, BASE_DEC, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_pgsl_ab_abi,
+			{ "Access Burst Indicator", "gsm_abis_pgsl.ab.abi",
+			  FT_UINT8, BASE_DEC, VALS(pgsl_ab_abi_vals), 0x70,
+			  NULL, HFILL }
+		},
+		{ &hf_pgsl_ab_ab_type,
+			{ "Access Burst Type", "gsm_abis_pgsl.ab.type",
+			  FT_UINT8, BASE_DEC, VALS(pgsl_ab_type_vals), 0x0c,
+			  NULL, HFILL }
+		},
 	};
 	static gint *ett[] = {
 		&ett_pgsl,
+		&ett_pacch,
 	};
 	module_t *pgsl_module;
 
