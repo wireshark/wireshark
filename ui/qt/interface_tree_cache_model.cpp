@@ -356,8 +356,8 @@ bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) cons
     if ( device == 0 )
         return false;
 
-    InterfaceTreeColumns col = (InterfaceTreeColumns) index.column();
 #ifdef HAVE_EXTCAP
+    InterfaceTreeColumns col = (InterfaceTreeColumns) index.column();
     if ( device->if_info.type == IF_EXTCAP )
     {
         /* extcap interfaces do not have those settings */
