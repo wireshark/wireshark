@@ -50,7 +50,8 @@ static int hf_eap_identity = -1;
 static int hf_eap_identity_actual_len = -1;
 static int hf_eap_identity_wlan_prefix = -1;
 static int hf_eap_identity_wlan_mcc = -1;
-static int hf_eap_identity_wlan_mcc_mnc = -1;
+static int hf_eap_identity_wlan_mcc_mnc_2digits = -1;
+static int hf_eap_identity_wlan_mcc_mnc_3digits = -1;
 
 static int hf_eap_notification = -1;
 
@@ -565,6 +566,7 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   gchar**     tokens = NULL;
   guint       ntokens = 0;
   gboolean    ret = TRUE;
+  int         hf_eap_identity_wlan_mcc_mnc;
 
   identity = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
 
@@ -601,8 +603,10 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
 
   if (!g_ascii_strncasecmp(tokens[0], tokens[2] + 3, 3)) {
     mcc_mnc = 1000 * mcc + mnc;
+    hf_eap_identity_wlan_mcc_mnc = hf_eap_identity_wlan_mcc_mnc_3digits;
   } else {
-    mcc_mnc = 1000 * mcc + 10 * mnc;
+    mcc_mnc = 100 * mcc + mnc;
+    hf_eap_identity_wlan_mcc_mnc = hf_eap_identity_wlan_mcc_mnc_2digits;
   }
 
   proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_mcc_mnc,
@@ -1368,9 +1372,13 @@ proto_register_eap(void)
       "WLAN Identity Mobile Country Code", "eap.identity.wlan.mcc",
       FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0, NULL, HFILL }},
 
-    { &hf_eap_identity_wlan_mcc_mnc, {
+    { &hf_eap_identity_wlan_mcc_mnc_2digits, {
       "WLAN Identity Mobile Network Code", "eap.identity.wlan.mnc",
-      FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mcc_mnc_codes_ext, 0x0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mcc_mnc_2digits_codes_ext, 0x0, NULL, HFILL }},
+
+    { &hf_eap_identity_wlan_mcc_mnc_3digits, {
+      "WLAN Identity Mobile Network Code", "eap.identity.wlan.mnc",
+      FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mcc_mnc_3digits_codes_ext, 0x0, NULL, HFILL }},
 
     { &hf_eap_identity_actual_len, {
       "Identity Actual Length", "eap.identity.actual_len",
