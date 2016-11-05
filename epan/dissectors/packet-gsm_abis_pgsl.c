@@ -121,6 +121,14 @@ static const value_string pgsl_cs_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string pgsl_ucm_vals[] = {
+	{ 1, "Normal Burst (GSMK CS1/CS2/CS3/CS4)" },
+	{ 2, "Normal Burst (CS1 or MCS1 to MCS9)" },
+	{ 3, "Access Burst (8 bit, Traning Sequence 0)" },
+	{ 4, "Access Burst (8 bit or 11 bit, Training Sequence 0/1/2)" },
+	{ 0, NULL }
+};
+
 static const value_string pgsl_ir_sign_type_vals[] = {
 	{ 0, "IR Update Indication" },
 	{ 1, "IR Start Indication" },
@@ -310,7 +318,7 @@ proto_register_abis_pgsl(void)
 		},
 		{ &hf_pgsl_ucm,
 			{ "Uplink Channel Mode", "gsm_abis_pgsl.ucm",
-			  FT_UINT8, BASE_DEC, NULL, 0xe0,
+			  FT_UINT8, BASE_DEC, VALS(pgsl_ucm_vals), 0xe0,
 			  NULL, HFILL }
 		},
 		{ &hf_pgsl_cs,
