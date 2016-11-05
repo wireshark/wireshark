@@ -2856,7 +2856,7 @@ proto_register_6lowpan(void)
 
     lowpan_context_table = g_hash_table_new_full(lowpan_context_hash, lowpan_context_equal, lowpan_context_free, lowpan_context_free);
 
-    proto_6lowpan = proto_register_protocol("IPv6 over IEEE 802.15.4", "6LoWPAN", "6lowpan");
+    proto_6lowpan = proto_register_protocol("IPv6 over Low power Wireless Personal Area Networks", "6LoWPAN", "6lowpan");
     proto_register_field_array(proto_6lowpan, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_6lowpan = expert_register_protocol(proto_6lowpan);
