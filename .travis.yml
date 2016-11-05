@@ -8,39 +8,35 @@ compiler:
   - clang
   - gcc
 env:
- - BUILD_CMAKE=no
  - BUILD_CMAKE=yes
- - CMAKE_GTK_OPTS="-DBUILD_wireshark_gtk=ON"
- - AUTOTOOLS_GTK_OPTS="--with-gtk=3"
-
+ - BUILD_CMAKE=yes CMAKE_OPTS="-DBUILD_wireshark_gtk=ON"
+ - BUILD_CMAKE=yes CMAKE_OPTS="-DENABLE_PCAP=OFF"
+ - BUILD_CMAKE=yes CMAKE_OPTS="-DENABLE_EXTCAP=OFF"
+ - BUILD_CMAKE=no AUTOTOOLS_OPTS="--with-gtk=3"
 matrix:
   exclude:
-  #Exclude gcc build (Need some work) with osx
+  # Exclude gcc build (Need some work) with osx
   - os: osx
     compiler: gcc
-  #Exclude autotools build (missing libtool...) with osx
+  # Exclude autotools build (missing libtool...) with osx
   - os: osx
-    env: BUILD_CMAKE=no
+    env: BUILD_CMAKE=no AUTOTOOLS_OPTS="--with-gtk=3"
+  # Exclude build with GTK+3
   - os: osx
-    env: CMAKE_GTK_OPTS="-DBUILD_wireshark_gtk=ON"
-  - os: osx
-    env: AUTOTOOLS_GTK_OPTS="--with-gtk=3"
+    env: BUILD_CMAKE=yes CMAKE_OPTS="-DBUILD_wireshark_gtk=ON"
 before_install:
   - echo $TRAVIS_OS_NAME
   - $CC --version
-#macos
+  # macos
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./tools/macos-setup-brew.sh; fi
-#linux
+  # linux
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update -qq; fi
-    #libstdc++-4.8 is needed by Clang to build
+  # libstdc++-4.8 is needed by Clang to build
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get -qq install libstdc++-4.8-dev; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional -qq; fi
-#  - sudo apt-get -qq build-dep wireshark
-#  - sudo apt-get -qq install cmake libgtk-3-0 libglib2.0-0 libgdk-pixbuf2.0-0 libcairo2
-#  - sudo apt-get -qq install qt5-default qttools5-dev qttools5-dev-tools
   - $CC --version
 before_script:
-  if [ ${BUILD_CMAKE} == "yes" ]; then mkdir build && cd build && cmake ${CMAKE_GTK_OPTS} ..; else ./autogen.sh && ./configure ${AUTOTOOLS_GTK_OPTS} ; fi
+  if [ ${BUILD_CMAKE} == "yes" ]; then mkdir build && cd build && cmake ${CMAKE_OPTS} ..; else ./autogen.sh && ./configure ${AUTOTOOLS_OPTS} ; fi
 script:
   - make
