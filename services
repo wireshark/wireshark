@@ -1427,6 +1427,7 @@ puprouter         999/tcp #
 puprouter         999/udp # 
 cadlock2         1000/tcp # 
 cadlock2         1000/udp # 
+webpush          1001/tcp # HTTP Web Push [IESG] [IETF_Chair] 2016-11-01 [RFC-ietf-webpush-protocol-12]
 surf             1010/tcp # surf [Joseph_Geer] [Joseph_Geer]
 surf             1010/udp # surf [Joseph_Geer] [Joseph_Geer]
 exp1             1021/tcp # RFC3692-style Experiment 1 [IESG] [IETF_Chair] [1][RFC4727][RFC6335]
@@ -10965,6 +10966,8 @@ rds-ib          18634/tcp # Reliable Datagram Service [Andy_Grover] [Andy_Grover
 rds-ib          18634/udp # Reliable Datagram Service [Andy_Grover] [Andy_Grover] 2009-02-27
 rds-ip          18635/tcp # Reliable Datagram Service over IP [Andy_Grover] [Andy_Grover] 2009-05-20
 rds-ip          18635/udp # Reliable Datagram Service over IP [Andy_Grover] [Andy_Grover] 2009-05-20
+vdmmesh         18668/tcp # Manufacturing Execution Systems Mesh Communication [Van_Doren_MES] [Edwin_van_de_Burgt] 2016-10-31
+vdmmesh-disc    18668/udp # Manufacturing Execution Systems Mesh Communication [Van_Doren_MES] [Edwin_van_de_Burgt] 2016-10-31
 ique            18769/tcp # IQue Protocol [Avi_Drissman] [Avi_Drissman] 2002-07
 ique            18769/udp # IQue Protocol [Avi_Drissman] [Avi_Drissman] 2002-07
 infotos         18881/tcp # Infotos [Marcel_Dube] [Marcel_Dube] 2004-11
