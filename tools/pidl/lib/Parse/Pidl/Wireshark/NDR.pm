@@ -226,8 +226,10 @@ sub Bitmap($$$$)
 			my $hf_bitname = "hf_$ifname\_$name\_$1";
 
 			$ev =~ s/[()\s]//g;
-			$total_ev += hex($ev);
-			$self->pidl_code("&$hf_bitname,");
+			if (hex($ev) != 0) {
+				$total_ev += hex($ev);
+				$self->pidl_code("&$hf_bitname,");
+			}
 		}
 		$self->pidl_code("NULL");
 		$self->deindent;
@@ -267,18 +269,21 @@ sub Bitmap($$$$)
 
 		$self->{hf_used}->{$hf_bitname} = 1;
 
-		$self->register_hf_field($hf_bitname, field2name($en), $filtername, "FT_BOOLEAN", $e->{ALIGN} * 8, "TFS(&$name\_$en\_tfs)", $ev, "");
+		$ev =~ s/[()\s]//g;
+		if (hex($ev) != 0) {
+			$self->register_hf_field($hf_bitname, field2name($en), $filtername, "FT_BOOLEAN", $e->{ALIGN} * 8, "TFS(&$name\_$en\_tfs)", "( $ev )", "");
 
-		$self->pidl_def("static const true_false_string $name\_$en\_tfs = {");
-		if (defined($self->{conformance}->{tfs}->{$hf_bitname})) {
-			$self->pidl_def("   $self->{conformance}->{tfs}->{$hf_bitname}->{TRUE_STRING},");
-			$self->pidl_def("   $self->{conformance}->{tfs}->{$hf_bitname}->{FALSE_STRING},");
-			$self->{conformance}->{tfs}->{$hf_bitname}->{USED} = 1;
-		} else {
-			$self->pidl_def("   \"$en is SET\",");
-			$self->pidl_def("   \"$en is NOT SET\",");
+			$self->pidl_def("static const true_false_string $name\_$en\_tfs = {");
+			if (defined($self->{conformance}->{tfs}->{$hf_bitname})) {
+				$self->pidl_def("   $self->{conformance}->{tfs}->{$hf_bitname}->{TRUE_STRING},");
+				$self->pidl_def("   $self->{conformance}->{tfs}->{$hf_bitname}->{FALSE_STRING},");
+				$self->{conformance}->{tfs}->{$hf_bitname}->{USED} = 1;
+			} else {
+				$self->pidl_def("   \"$en is SET\",");
+				$self->pidl_def("   \"$en is NOT SET\",");
+			}
+			$self->pidl_def("};");
 		}
-		$self->pidl_def("};");
 	}
 
 	if ($element_count > 0) {

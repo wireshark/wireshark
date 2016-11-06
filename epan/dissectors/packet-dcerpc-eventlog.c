@@ -40,7 +40,6 @@ static gint hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_FAILURE = -1;
 static gint hf_eventlog_eventlogEventTypes_EVENTLOG_AUDIT_SUCCESS = -1;
 static gint hf_eventlog_eventlogEventTypes_EVENTLOG_ERROR_TYPE = -1;
 static gint hf_eventlog_eventlogEventTypes_EVENTLOG_INFORMATION_TYPE = -1;
-static gint hf_eventlog_eventlogEventTypes_EVENTLOG_SUCCESS = -1;
 static gint hf_eventlog_eventlogEventTypes_EVENTLOG_WARNING_TYPE = -1;
 static gint hf_eventlog_eventlogReadFlags_EVENTLOG_BACKWARDS_READ = -1;
 static gint hf_eventlog_eventlogReadFlags_EVENTLOG_FORWARDS_READ = -1;
@@ -149,10 +148,6 @@ static const true_false_string eventlogReadFlags_EVENTLOG_FORWARDS_READ_tfs = {
 static const true_false_string eventlogReadFlags_EVENTLOG_BACKWARDS_READ_tfs = {
    "EVENTLOG_BACKWARDS_READ is SET",
    "EVENTLOG_BACKWARDS_READ is NOT SET",
-};
-static const true_false_string eventlogEventTypes_EVENTLOG_SUCCESS_tfs = {
-   "EVENTLOG_SUCCESS is SET",
-   "EVENTLOG_SUCCESS is NOT SET",
 };
 static const true_false_string eventlogEventTypes_EVENTLOG_ERROR_TYPE_tfs = {
    "EVENTLOG_ERROR_TYPE is SET",
@@ -422,7 +417,6 @@ eventlog_dissect_bitmap_eventlogEventTypes(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	proto_item *item;
 	static const int * eventlog_eventlogEventTypes_fields[] = {
-		&hf_eventlog_eventlogEventTypes_EVENTLOG_SUCCESS,
 		&hf_eventlog_eventlogEventTypes_EVENTLOG_ERROR_TYPE,
 		&hf_eventlog_eventlogEventTypes_EVENTLOG_WARNING_TYPE,
 		&hf_eventlog_eventlogEventTypes_EVENTLOG_INFORMATION_TYPE,
@@ -2195,8 +2189,6 @@ void proto_register_dcerpc_eventlog(void)
 		{ "Eventlog Error Type", "eventlog.eventlogEventTypes.EVENTLOG_ERROR_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_ERROR_TYPE_tfs), ( 0x0001 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_INFORMATION_TYPE,
 		{ "Eventlog Information Type", "eventlog.eventlogEventTypes.EVENTLOG_INFORMATION_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_INFORMATION_TYPE_tfs), ( 0x0004 ), NULL, HFILL }},
-	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_SUCCESS,
-		{ "Eventlog Success", "eventlog.eventlogEventTypes.EVENTLOG_SUCCESS", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_SUCCESS_tfs), ( 0x0000 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlogEventTypes_EVENTLOG_WARNING_TYPE,
 		{ "Eventlog Warning Type", "eventlog.eventlogEventTypes.EVENTLOG_WARNING_TYPE", FT_BOOLEAN, 32, TFS(&eventlogEventTypes_EVENTLOG_WARNING_TYPE_tfs), ( 0x0002 ), NULL, HFILL }},
 	{ &hf_eventlog_eventlogReadFlags_EVENTLOG_BACKWARDS_READ,

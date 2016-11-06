@@ -56,7 +56,6 @@ static gint hf_witness_witness_RegisterEx_client_computer_name = -1;
 static gint hf_witness_witness_RegisterEx_context_handle = -1;
 static gint hf_witness_witness_RegisterEx_flags = -1;
 static gint hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_IP_NOTIFICATION = -1;
-static gint hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_NONE = -1;
 static gint hf_witness_witness_RegisterEx_ip_address = -1;
 static gint hf_witness_witness_RegisterEx_net_name = -1;
 static gint hf_witness_witness_RegisterEx_share_name = -1;
@@ -182,10 +181,6 @@ static int witness_dissect_element_notifyResponse_message_data(tvbuff_t *tvb _U_
 static int witness_dissect_element_notifyResponse_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint32 *type);
 static int witness_dissect_element_notifyResponse_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int witness_dissect_element_notifyResponse_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static const true_false_string witness_RegisterEx_flags_WITNESS_REGISTER_NONE_tfs = {
-   "WITNESS_REGISTER_NONE is SET",
-   "WITNESS_REGISTER_NONE is NOT SET",
-};
 static const true_false_string witness_RegisterEx_flags_WITNESS_REGISTER_IP_NOTIFICATION_tfs = {
    "WITNESS_REGISTER_IP_NOTIFICATION is SET",
    "WITNESS_REGISTER_IP_NOTIFICATION is NOT SET",
@@ -961,7 +956,6 @@ witness_dissect_bitmap_RegisterEx_flags(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	proto_item *item;
 	static const int * witness_witness_RegisterEx_flags_fields[] = {
-		&hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_NONE,
 		&hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_IP_NOTIFICATION,
 		NULL
 	};
@@ -1478,8 +1472,6 @@ void proto_register_dcerpc_witness(void)
 		{ "Flags", "witness.witness_RegisterEx.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_IP_NOTIFICATION,
 		{ "Witness Register Ip Notification", "witness.witness_RegisterEx_flags.WITNESS_REGISTER_IP_NOTIFICATION", FT_BOOLEAN, 32, TFS(&witness_RegisterEx_flags_WITNESS_REGISTER_IP_NOTIFICATION_tfs), ( 0x01 ), NULL, HFILL }},
-	{ &hf_witness_witness_RegisterEx_flags_WITNESS_REGISTER_NONE,
-		{ "Witness Register None", "witness.witness_RegisterEx_flags.WITNESS_REGISTER_NONE", FT_BOOLEAN, 32, TFS(&witness_RegisterEx_flags_WITNESS_REGISTER_NONE_tfs), ( 0x00 ), NULL, HFILL }},
 	{ &hf_witness_witness_RegisterEx_ip_address,
 		{ "Ip Address", "witness.witness_RegisterEx.ip_address", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_witness_witness_RegisterEx_net_name,
