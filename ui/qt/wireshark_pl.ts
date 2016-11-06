@@ -33,22 +33,27 @@
         <translation>Autorzy</translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="170"/>
+        <location filename="about_dialog.ui" line="162"/>
+        <source>Search Authors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="about_dialog.ui" line="177"/>
         <source>Folders</source>
         <translation>Foldery</translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="196"/>
+        <location filename="about_dialog.ui" line="203"/>
         <source>Plugins</source>
         <translation>Wtyczki</translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="213"/>
+        <location filename="about_dialog.ui" line="220"/>
         <source>Keyboard Shortcuts</source>
         <translation>Skróty klawiaturowe</translation>
     </message>
     <message>
-        <location filename="about_dialog.ui" line="230"/>
+        <location filename="about_dialog.ui" line="237"/>
         <source>License</source>
         <translation>Licencja</translation>
     </message>
@@ -526,232 +531,242 @@
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="112"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="451"/>
+        <source>Subevent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="117"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="489"/>
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="117"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="480"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="122"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="521"/>
         <source>Reason</source>
         <translation>Reason</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="122"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="127"/>
         <source>Hardware Error</source>
         <translation>Hardware Error</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="127"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="132"/>
         <source>Occurrence</source>
         <translation>Wystąpienia</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="132"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="137"/>
         <source>Link Control Commands</source>
         <translation>Komendy Kontroli Łącza</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="135"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="140"/>
         <source>0x01</source>
         <translation>0x01</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="156"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="185"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="214"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="243"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="272"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="301"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="330"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="359"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="164"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="196"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="228"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="260"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="292"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="324"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="356"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="388"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="417"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="446"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="475"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="504"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="533"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="420"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="452"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="484"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="516"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="548"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="580"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="161"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="169"/>
         <source>Link Policy Commands</source>
         <translation>Komendy Polityki Łącza</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="164"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="172"/>
         <source>0x02</source>
         <translation>0x02</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="190"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="201"/>
         <source>Controller &amp; Baseband Commands</source>
         <translation>Komendy Kontrolera i Pasma</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="193"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="204"/>
         <source>0x03</source>
         <translation>0x03</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="219"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="233"/>
         <source>Informational Parameters</source>
         <translation>Parametry Informacyjne</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="222"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="236"/>
         <source>0x04</source>
         <translation>0x04</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="248"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="265"/>
         <source>Status Parameters</source>
         <translation>Parametry Statusu</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="251"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="268"/>
         <source>0x05</source>
         <translation>0x05</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="277"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="297"/>
         <source>Testing Commands</source>
         <translation>Komendy Testujące</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="280"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="300"/>
         <source>0x06</source>
         <translation>0x06</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="306"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="329"/>
         <source>LE Controller Commands</source>
         <translation>Komendy Kontrolera LE</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="309"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="332"/>
         <source>0x08</source>
         <translation>0x08</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="335"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="361"/>
         <source>Bluetooth Logo Testing Commands</source>
         <translation>Komendy Bluetooth Logo Testing</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="338"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="364"/>
         <source>0x3E</source>
         <translation>0x3E</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="364"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="393"/>
         <source>Vendor-Specific Commands</source>
         <translation>Komendy producenta</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="367"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="396"/>
         <source>0x3F</source>
         <translation>0x3F</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="393"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="425"/>
         <source>Unknown OGF</source>
         <translation>Nieznany OGF</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="422"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="457"/>
         <source>Events</source>
         <translation>Events</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="509"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="553"/>
         <source>Hardware Errors</source>
         <translation>Hardware Errors</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="552"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="599"/>
         <source>Display filter:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="575"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="622"/>
         <source>All Interfaces</source>
         <translation>Wszystkie interfejsy</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="590"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="637"/>
         <source>All Adapters</source>
         <translation>Wszystkie adaptery</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="617"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="664"/>
         <source>Copy Cell</source>
         <translation>Kopiuj komórkę</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="622"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="669"/>
         <source>Copy Rows</source>
         <translation>Kopiuj wiersze</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="627"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="674"/>
         <source>Copy All</source>
         <translation>Kopiuj wszystko</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="632"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="679"/>
         <source>Save as image</source>
         <translation>Zapisz jako obraz</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="637"/>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="640"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="684"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="687"/>
         <source>Mark/Unmark Row</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="643"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="690"/>
         <source>Ctrl+M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.ui" line="648"/>
+        <location filename="bluetooth_hci_summary_dialog.ui" line="695"/>
         <source>Mark/Unmark Cell</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="362"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="365"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="522"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="528"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="609"/>
         <source>Unknown</source>
         <translation>Nieznany</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="380"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="383"/>
         <source>Adapter %1</source>
         <translation>Adapter %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="468"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="518"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="555"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="589"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="626"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="660"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="471"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="543"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="594"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="614"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="656"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="690"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="727"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="761"/>
         <source>Frame %1</source>
         <translation>Ramka %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="578"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="679"/>
         <source>Pending</source>
         <translation>Pending</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="771"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="875"/>
         <source>Save Table Image</source>
         <translation>Zapisz obraz tabeli</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="773"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="877"/>
         <source>PNG Image (*.png)</source>
         <translation>Obraz PNG (*.png)</translation>
     </message>
@@ -9425,7 +9440,7 @@ text-decoration: underline;
         <translation>Zmiany muszą być zapisane przed próbą scalenia plików.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="212"/>
+        <location filename="main_window_slots.cpp" line="214"/>
         <source>Invalid Display Filter</source>
         <translation>Niepoprawny filtr</translation>
     </message>
@@ -9545,62 +9560,62 @@ text-decoration: underline;
         <translation>Przechwytywanie z %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="200"/>
+        <location filename="main_window_slots.cpp" line="202"/>
         <source> before opening another file</source>
         <translation>przed otwarciem nowego pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="708"/>
+        <location filename="main_window_slots.cpp" line="710"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="799"/>
+        <location filename="main_window_slots.cpp" line="801"/>
         <source>Saving %1</source>
         <translation>Zapisywanie %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="839"/>
+        <location filename="main_window_slots.cpp" line="841"/>
         <source>No interface selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="849"/>
+        <location filename="main_window_slots.cpp" line="851"/>
         <source>Invalid capture filter</source>
         <translation>Niepoprawny filtr przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1097"/>
+        <location filename="main_window_slots.cpp" line="1099"/>
         <source>Clear Menu</source>
         <translation>Wyczyść Menu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1580"/>
+        <location filename="main_window_slots.cpp" line="1582"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Proszę czekać, trwa uruchamianie Wiresharka</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1670"/>
+        <location filename="main_window_slots.cpp" line="1672"/>
         <source> before closing the file</source>
         <translation>przed zapisaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1752"/>
+        <location filename="main_window_slots.cpp" line="1754"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Eksportuj zaznaczony bajty pakietu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1818"/>
+        <location filename="main_window_slots.cpp" line="1820"/>
         <source>No Keys</source>
         <translation>Brak kluczy</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1819"/>
+        <location filename="main_window_slots.cpp" line="1821"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Nie ma żadnych kluczy sesji SSL do zapisu.</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1825"/>
+        <location filename="main_window_slots.cpp" line="1827"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9610,69 +9625,69 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1754"/>
+        <location filename="main_window_slots.cpp" line="1756"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Surowe dane (*.bin *.dat *.raw);;Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1829"/>
+        <location filename="main_window_slots.cpp" line="1831"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Klucze sesji SSL (*.keys *.txt);; Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1967"/>
+        <location filename="main_window_slots.cpp" line="1969"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2377"/>
-        <location filename="main_window_slots.cpp" line="3479"/>
+        <location filename="main_window_slots.cpp" line="2379"/>
+        <location filename="main_window_slots.cpp" line="3481"/>
         <source>Unable to build conversation filter.</source>
         <translation>Nie można stworzyć filtru konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2527"/>
-        <location filename="main_window_slots.cpp" line="2540"/>
+        <location filename="main_window_slots.cpp" line="2529"/>
+        <location filename="main_window_slots.cpp" line="2542"/>
         <source> before reloading the file</source>
         <translation>przed przeładowaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2574"/>
+        <location filename="main_window_slots.cpp" line="2576"/>
         <source>No filter available. Try another </source>
         <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3486"/>
+        <location filename="main_window_slots.cpp" line="3488"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Błąd kompilacji filtru dla tej konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3495"/>
+        <location filename="main_window_slots.cpp" line="3497"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Brak poprzedniego i następnego pakietu w konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3572"/>
+        <location filename="main_window_slots.cpp" line="3574"/>
         <source>No Interface Selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3579"/>
+        <location filename="main_window_slots.cpp" line="3581"/>
         <source> before starting a new capture</source>
         <translation>przed wystartowaniem nowego przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3597"/>
+        <location filename="main_window_slots.cpp" line="3599"/>
         <source> before restarting the capture</source>
         <translation>przed restartem przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3805"/>
+        <location filename="main_window_slots.cpp" line="3807"/>
         <source>Wiki Page for %1</source>
         <translation>Strona Wiki dla %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3806"/>
+        <location filename="main_window_slots.cpp" line="3808"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Strona Wiki Wiresharka jest zarządzania przez społeczność.&lt;/p&gt;&lt;p&gt;Strona którą chcesz wczytać może być wspaniała, niekompletna, błędna lub nie istnieć.&lt;/p&gt;&lt;p&gt;Kontynuować wczytywanie strony Wiki?&lt;/p&gt;</translation>
     </message>
@@ -11449,12 +11464,12 @@ text-decoration: underline;
         <translation>DLT %1</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="806"/>
+        <location filename="../../wireshark-qt.cpp" line="807"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished">Niepoprawny filtr</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="807"/>
+        <location filename="../../wireshark-qt.cpp" line="808"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
