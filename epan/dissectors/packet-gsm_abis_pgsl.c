@@ -177,9 +177,9 @@ static const guint data_block_len_by_mcs[] = {
 /* determine the number of rlc data blocks and their size / offsets */
 static void
 setup_rlc_mac_priv(RlcMacPrivateData_t *rm, gboolean is_uplink,
-	gsize *n_calls, gsize *data_block_bits, gsize *data_block_offsets)
+	guint *n_calls, guint *data_block_bits, guint *data_block_offsets)
 {
-	gsize nc, dbl = 0, dbo[2] = {0,0};
+	guint nc, dbl = 0, dbo[2] = {0,0};
 
 	switch (rm->block_format) {
 	case RLCMAC_HDR_TYPE_3:
@@ -224,12 +224,12 @@ setup_rlc_mac_priv(RlcMacPrivateData_t *rm, gboolean is_uplink,
 /* bit-shift the entire 'src' of length 'length_bytes' by 'offset_bits'
  * and store the reuslt to caller-allocated 'buffer'.  The shifting is
  * done lsb-first, unlike tvb_new_octet_aligned() */
-static void clone_aligned_buffer_lsbf(gsize offset_bits, gsize length_bytes,
+static void clone_aligned_buffer_lsbf(guint offset_bits, guint length_bytes,
 	const guint8 *src, guint8 *buffer)
 {
-	gsize hdr_bytes;
-	gsize extra_bits;
-	gsize i;
+	guint hdr_bytes;
+	guint extra_bits;
+	guint i;
 
 	guint8 c, last_c;
 	guint8 *dst;
@@ -256,14 +256,14 @@ static void clone_aligned_buffer_lsbf(gsize offset_bits, gsize length_bytes,
 
 /* obtain an (aligned) EGPRS data block with given bit-offset and
  * bit-length from the parent TVB */
-static tvbuff_t *get_egprs_data_block(tvbuff_t *tvb, gsize offset_bits,
-	gsize length_bits, packet_info *pinfo)
+static tvbuff_t *get_egprs_data_block(tvbuff_t *tvb, guint offset_bits,
+	guint length_bits, packet_info *pinfo)
 {
 	tvbuff_t *aligned_tvb;
-	const gsize initial_spare_bits = 6;
+	const guint initial_spare_bits = 6;
 	guint8 *aligned_buf;
-	gsize min_src_length_bytes = (offset_bits + length_bits + 7) / 8;
-	gsize length_bytes = (initial_spare_bits + length_bits + 7) / 8;
+	guint min_src_length_bytes = (offset_bits + length_bits + 7) / 8;
+	guint length_bytes = (initial_spare_bits + length_bits + 7) / 8;
 
 	tvb_ensure_bytes_exist(tvb, 0, min_src_length_bytes);
 
@@ -292,8 +292,8 @@ dissect_gprs_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 {
 	dissector_handle_t rlcmac_dissector;
 	tvbuff_t *data_tvb;
-	gsize data_block_bits, data_block_offsets[2];
-	gsize num_calls;
+	guint data_block_bits, data_block_offsets[2];
+	guint num_calls;
 
 	if (uplink)
 		rlcmac_dissector = sub_handles[SUB_RLCMAC_UL];
