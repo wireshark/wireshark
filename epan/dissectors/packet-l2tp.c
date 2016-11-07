@@ -761,7 +761,7 @@ static const value_string cisco_avp_type_vals[] = {
 #define ERICSSON_CRC_ENABLED            5
 #define ERICSSON_STN_NAME               6
 #define ERICSSON_ABIS_LOWER_MODE        7
-#define ERICSSNN_TEI_TO_SC_MAP          8
+#define ERICSSON_TEI_TO_SC_MAP          8
 #define ERICSSON_CHAN_STATUS_LIST       9
 #define ERICSSON_EXT_PROTO_VERSION      10
 #define ERICSSON_CHAN_STATUS_LIST2      11
@@ -775,7 +775,7 @@ static const value_string ericsson_avp_type_vals[] = {
     { ERICSSON_STN_NAME,              "STN Name" },
     { ERICSSON_CRC_ENABLED,           "CRC32 Enabled" },
     { ERICSSON_ABIS_LOWER_MODE,       "Abis Lower Mode" },
-    { ERICSSNN_TEI_TO_SC_MAP,         "TEI to SC Map" },
+    { ERICSSON_TEI_TO_SC_MAP,         "TEI to SC Map" },
     { ERICSSON_CHAN_STATUS_LIST,      "Channel Status List" },
     { ERICSSON_EXT_PROTO_VERSION,     "Extended Protoocl Version" },
     { ERICSSON_CHAN_STATUS_LIST2,     "Channel Status List 2" },
@@ -1853,7 +1853,7 @@ static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         tcg_tvb = tvb_new_subset_length(tvb, offset+3, avp_len-3);
         dissect_l2tp_ericsson_transp_cfg(tcg_tvb, l2tp_avp_tree);
         break;
-    case ERICSSNN_TEI_TO_SC_MAP:
+    case ERICSSON_TEI_TO_SC_MAP:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_tc_num_maps, tvb, offset++, 1, ENC_NA);
         tcg_tvb = tvb_new_subset_length(tvb, offset, avp_len);
         offset += dissect_l2tp_ericsson_tei_sc_map(tcg_tvb, l2tp_avp_tree);
