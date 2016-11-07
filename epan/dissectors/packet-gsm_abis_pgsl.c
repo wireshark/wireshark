@@ -32,6 +32,7 @@
 #include <epan/prefs.h>
 
 #include "packet-gsm_rlcmac.h"
+#include "packet-gsm_a_common.h"
 
 void proto_register_abis_pgsl(void);
 void proto_reg_handoff_abis_pgsl(void);
