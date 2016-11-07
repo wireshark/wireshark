@@ -2281,7 +2281,7 @@ void proto_register_gvsp(void)
 void proto_reg_handoff_gvsp(void)
 {
     dissector_add_for_decode_as_with_preference("udp.port", gvsp_handle);
-    heur_dissector_add("udp", dissect_gvsp_heur, "GigE Vision over UDP", "gvsp_udp", proto_gvsp, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_gvsp_heur, "GigE Vision over UDP", "gvsp_udp", proto_gvsp, HEURISTIC_DISABLE);
 }
 
 /*
