@@ -45,7 +45,7 @@
 #include "extcap.h"
 #endif
 
-const QString InterfaceTreeModel::DefaultNumericValue = tr("default");
+const QString InterfaceTreeModel::DefaultNumericValue = QObject::tr("default");
 
 /**
  * This is the data model for interface trees. It implies, that the index within
