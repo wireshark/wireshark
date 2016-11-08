@@ -1107,7 +1107,17 @@ include(ConfigureChecks.cmake)
 include(TestBigEndian)
 test_big_endian(WORDS_BIGENDIAN)
 
+# Global properties
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+if(ENABLE_CCACHE AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
+	# http://stackoverflow.com/a/24305849/82195
+	find_program(CCACHE_EXECUTABLE ccache)
+	if(CCACHE_EXECUTABLE)
+		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_EXECUTABLE}")
+		set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_EXECUTABLE}")
+	endif()
+endif()
 
 # The top level checkAPIs target, add before subdirectory calls so it's avaiable to all
 add_custom_target(checkAPI)

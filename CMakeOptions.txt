@@ -26,6 +26,7 @@ option(ENABLE_EXTRA_COMPILER_WARNINGS "Do additional compiler warnings (disables
 option(ENABLE_CODE_ANALYSIS "Enable the compiler's static analyzer if possible" OFF)
 option(ENABLE_ASAN "Enable AddressSanitizer (ASAN) for debugging (degrades performance)" OFF)
 option(ENABLE_CHECKHF_CONFLICT "Enable hf conflict check for debugging (start-up may be slower)" OFF)
+option(ENABLE_CCACHE "Speed up compiling and linking using ccache if possible" OFF)
 
 #
 # Leave GTK2 the default on Windows, looks better than GTK3
