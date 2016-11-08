@@ -242,6 +242,7 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
     const gchar *listname = luaL_checkstring(L, WSLUA_ARG_Proto_register_heuristic_LISTNAME);
     const gchar *proto_name = proto->name;
     const int top = lua_gettop(L);
+    gchar *short_name;
 
     if (!proto_name || proto->hfid == -1) {
         /* this shouldn't happen - internal bug if it does */
@@ -255,10 +256,15 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
         return 0;
     }
 
+    short_name = wmem_strconcat(NULL, proto->loname, "_", listname, NULL);
+
     /* verify that this is not already registered */
-    if (find_heur_dissector_by_unique_short_name(proto->loname)) {
+    if (find_heur_dissector_by_unique_short_name(short_name)) {
+        wmem_free(NULL, short_name);
         luaL_error(L, "'%s' is already registered as heuristic", proto->loname);
+        return 0;
     }
+    wmem_free(NULL, short_name);
 
     /* we'll check if the second form of this function was called: when the second arg is
        a Dissector obejct. The truth is we don't need the Dissector object to do this
@@ -318,10 +324,13 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
         lua_pop(L,2); /* pop the lists table and the listname table */
         g_assert(top == lua_gettop(L));
 
+        short_name = wmem_strconcat(NULL, proto->loname, "_", listname, NULL);
+
         /* now register the single/common heur_dissect_lua function */
         /* XXX - ADD PARAMETERS FOR NEW heur_dissector_add PARAMETERS!!! */
-        heur_dissector_add(listname, heur_dissect_lua, proto_name, proto->loname, proto->hfid, HEURISTIC_ENABLE);
+        heur_dissector_add(listname, heur_dissect_lua, proto_name, short_name, proto->hfid, HEURISTIC_ENABLE);
 
+        wmem_free(NULL, short_name);
     } else {
         luaL_argerror(L,3,"The heuristic dissector must be a function");
     }
