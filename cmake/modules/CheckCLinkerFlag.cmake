@@ -41,7 +41,7 @@ MACRO (CHECK_C_LINKER_FLAG _FLAG _RESULT)
       # rather than just complaining and driving on, if it's
       # passed a flag it doesn't handle.
       #
-      set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES} /WX")
+      set(CMAKE_REQUIRED_LIBRARIES "/WX ${CMAKE_REQUIRED_LIBRARIES}")
    elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
       #
       # We'll be running the linker through the compiler driver, so
@@ -49,7 +49,7 @@ MACRO (CHECK_C_LINKER_FLAG _FLAG _RESULT)
       # fail, rather than just complaining and driving on, if it's
       # passed a flag it doesn't handle.
       set(CMAKE_REQUIRED_LIBRARIES
-         "${CMAKE_REQUIRED_LIBRARIES} -Werror=unused-command-line-argument")
+         "-Werror=unused-command-line-argument ${CMAKE_REQUIRED_LIBRARIES}")
    endif()
    message(status "check linker flag - test linker flags: ${_FLAG}")
    check_c_source_compiles("int main() { return 0;}" ${_RESULT})
