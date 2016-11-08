@@ -24,6 +24,7 @@
  * RFC5908.txt (Network Time Protocol (NTP) Server Option)
  * RFC6334.txt (Dual-Stack Lite Option)
  * RFC6603.txt (Prefix Exclude Option)
+ * RFC7598.txt (Configuration of Softwire Address and Port-Mapped Clients)
  * draft-ietf-dhc-dhcpv6-opt-timeconfig-03.txt
  * draft-ietf-dhc-dhcpv6-opt-lifetime-00.txt
  * CL-SP-CANN-DHCP-Reg-I10-130808.pdf
@@ -191,6 +192,23 @@ static int hf_cablelabs_ipv6_server = -1;
 static int hf_cablelabs_docsis_version_number = -1;
 static int hf_cablelabs_interface_id = -1;
 static int hf_cablelabs_interface_id_link_address = -1;
+static int hf_option_s46_rule_flags = -1;
+static int hf_option_s46_rule_reserved_flag = -1;
+static int hf_option_s46_rule_fmr_flag = -1;
+static int hf_option_s46_rule_ea_len = -1;
+static int hf_option_s46_rule_ipv4_pref_len = -1;
+static int hf_option_s46_rule_ipv4_prefix = -1;
+static int hf_option_s46_rule_ipv6_pref_len = -1;
+static int hf_option_s46_rule_ipv6_prefix = -1;
+static int hf_option_s46_br_address = -1;
+static int hf_option_s46_dmr_pref_len = -1;
+static int hf_option_s46_dmr_prefix = -1;
+static int hf_option_s46_v4v6bind_ipv4_address = -1;
+static int hf_option_s46_v4v6bind_ipv6_pref_len = -1;
+static int hf_option_s46_v4v6bind_ipv6_prefix = -1;
+static int hf_option_s46_portparam_offset = -1;
+static int hf_option_s46_portparam_psid_len = -1;
+static int hf_option_s46_portparam_psid = -1;
 
 static gint ett_dhcpv6 = -1;
 static gint ett_dhcpv6_option = -1;
@@ -204,6 +222,7 @@ static gint ett_dhcpv6_dns_domain_search_list_option = -1;
 static gint ett_dhcpv6_nis_domain_name_option = -1;
 static gint ett_dhcpv6_nisp_domain_name_option = -1;
 static gint ett_dhcpv6_bcmcs_servers_domain_search_list_option = -1;
+static gint ett_dhcpv6_s46_rule_flags = -1;
 
 static expert_field ei_dhcpv6_bogus_length = EI_INIT;
 static expert_field ei_dhcpv6_malformed_option = EI_INIT;
@@ -341,6 +360,14 @@ static dissector_handle_t dhcpv6_handle;
 #define OPTION_V6_PCP_SERVER          86 /* RFC 7291 */
 #define OPTION_DHCPV4_MSG             87 /* RFC 7341 */
 #define OPTION_DHCP4_O_DHCP6_SERVER   88 /* RFC 7341 */
+#define OPTION_S46_RULE               89 /* RFC 7598 */
+#define OPTION_S46_BR                 90 /* RFC 7598 */
+#define OPTION_S46_DMR                91 /* RFC 7598 */
+#define OPTION_S46_V4V6BIND           92 /* RFC 7598 */
+#define OPTION_S46_PORTPARAMS         93 /* RFC 7598 */
+#define OPTION_S46_CONT_MAPE          94 /* RFC 7598 */
+#define OPTION_S46_CONT_MAPT          95 /* RFC 7598 */
+#define OPTION_S46_CONT_LW            96 /* RFC 7598 */
 #define OPTION_4RD                    97 /* RFC 7600 */
 #define OPTION_4RD_MAP_RULE           98 /* RFC 7600 */
 #define OPTION_4RD_NON_MAP_RULE       99 /* RFC 7600 */
@@ -479,6 +506,14 @@ static const value_string opttype_vals[] = {
     { OPTION_V6_PCP_SERVER,          "PCP Server" },
     { OPTION_DHCPV4_MSG,             "DHCPv4 Message" },
     { OPTION_DHCP4_O_DHCP6_SERVER,   "DHCP 4o6 Servers Address" },
+    { OPTION_S46_RULE,               "S46 Rule" },
+    { OPTION_S46_BR,                 "S46 BR" },
+    { OPTION_S46_DMR,                "S46 DMR" },
+    { OPTION_S46_V4V6BIND,           "S46 IPv4/IPv6 Address Binding" },
+    { OPTION_S46_PORTPARAMS,         "S46 Port Parameters" },
+    { OPTION_S46_CONT_MAPE,          "S46 MAP-E Container" },
+    { OPTION_S46_CONT_MAPT,          "S46 MAP-T Container" },
+    { OPTION_S46_CONT_LW,            "S46 Lightweight 4over6 Container" },
     { OPTION_4RD,                    "4rd Options" },
     { OPTION_4RD_MAP_RULE,           "4rd Mapping Rule" },
     { OPTION_4RD_NON_MAP_RULE,       "4rd Non-Mapping Rule" },
@@ -776,6 +811,12 @@ typedef struct hopcount_info_t {
     gboolean   relay_message_previously_detected;
 } hopcount_info;
 
+static const int *dhcpv6_s46_rule_flags_fields[] = {
+    &hf_option_s46_rule_reserved_flag,
+    &hf_option_s46_rule_fmr_flag,
+    NULL
+};
+
 static void
 initialize_hopount_info(hopcount_info *hpi) {
   memset(hpi, 0, sizeof(hopcount_info));
@@ -784,6 +825,9 @@ initialize_hopount_info(hopcount_info *hpi) {
 static void
 dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                int off, int eoff, hopcount_info hpi);
+
+static int
+dissect_dhcpv6_s46_ipv6_prefix(tvbuff_t *tvb, int hf, int offset, int prefix_length, proto_tree *tree);
 
 static int
 dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_info *pinfo, tvbuff_t *tvb, int optoff,
@@ -1456,7 +1500,158 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             temp_optlen += subopt_len;
         }
         break;
+    case OPTION_S46_RULE:
+    {
+        guint8 ipv4_pref_len, ipv6_pref_len;
+        int ipv6_pref_len_bytes;
 
+        if (optlen < 8) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_RULE: malformed option");
+            break;
+        }
+
+        /*  0 1 2 3 4 5 6 7
+         * +-+-+-+-+-+-+-+-+
+         * |Reserved     |F|
+         * +-+-+-+-+-+-+-+-+
+         */
+        proto_tree_add_bitmask(subtree, tvb, off, hf_option_s46_rule_flags, ett_dhcpv6_s46_rule_flags, dhcpv6_s46_rule_flags_fields, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_option_s46_rule_ea_len, tvb, off + 1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_option_s46_rule_ipv4_pref_len, tvb, off + 2, 1, ENC_BIG_ENDIAN);
+        ipv4_pref_len = tvb_get_guint8(tvb, off + 2);
+
+        if (ipv4_pref_len > 32) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_RULE: malformed option");
+            break;
+        }
+
+        proto_tree_add_item(subtree, hf_option_s46_rule_ipv4_prefix, tvb, off + 3, 4, ENC_NA);
+        proto_tree_add_item(subtree, hf_option_s46_rule_ipv6_pref_len, tvb, off + 7, 1, ENC_BIG_ENDIAN);
+        ipv6_pref_len = tvb_get_guint8(tvb, off + 7);
+
+        if (ipv6_pref_len > 128) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_RULE: malformed option");
+            break;
+        }
+
+        ipv6_pref_len_bytes =
+            dissect_dhcpv6_s46_ipv6_prefix(tvb, hf_option_s46_rule_ipv6_prefix, off + 8, ipv6_pref_len, subtree);
+
+        temp_optlen = 8 + ipv6_pref_len_bytes;
+        while ((optlen - temp_optlen) > 0) {
+            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
+                                         off+temp_optlen, off + optlen, at_end, protocol, hpi);
+            if (*at_end) {
+                /* Bad option - just skip to the end */
+                temp_optlen = optlen;
+            }
+        }
+    }
+    break;
+    case OPTION_S46_BR:
+        if (optlen != 16) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_BR: malformed option");
+            break;
+        }
+
+        proto_tree_add_item(subtree, hf_option_s46_br_address, tvb, off, 16, ENC_NA);
+        break;
+    case OPTION_S46_DMR:
+    {
+        guint8 dmr_pref_len;
+
+        if (optlen < 1 || optlen > 17) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_DMR: malformed option");
+            break;
+        }
+
+        proto_tree_add_item(subtree, hf_option_s46_dmr_pref_len, tvb, off, 1, ENC_BIG_ENDIAN);
+        dmr_pref_len = tvb_get_guint8(tvb, off);
+
+        if (dmr_pref_len > 128) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_DMR: malformed option");
+            break;
+        }
+
+        dissect_dhcpv6_s46_ipv6_prefix(tvb, hf_option_s46_dmr_prefix, off + 1, dmr_pref_len, subtree);
+    }
+    break;
+    case OPTION_S46_V4V6BIND:
+    {
+        guint8 ipv6_pref_len;
+        int ipv6_pref_len_bytes;
+
+        if (optlen < 5) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_V4V6BIND: malformed option");
+            break;
+        }
+
+        proto_tree_add_item(subtree, hf_option_s46_v4v6bind_ipv4_address, tvb, off, 4, ENC_NA);
+        proto_tree_add_item(subtree, hf_option_s46_v4v6bind_ipv6_pref_len, tvb, off + 4, 1, ENC_BIG_ENDIAN);
+        ipv6_pref_len = tvb_get_guint8(tvb, off + 4);
+
+        if (ipv6_pref_len > 128) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_V4V6BIND: malformed option");
+            break;
+        }
+
+        ipv6_pref_len_bytes =
+            dissect_dhcpv6_s46_ipv6_prefix(tvb, hf_option_s46_v4v6bind_ipv6_prefix, off + 5, ipv6_pref_len, subtree);
+
+        temp_optlen = 5 + ipv6_pref_len_bytes;
+        while ((optlen - temp_optlen) > 0) {
+            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
+                                         off+temp_optlen, off + optlen, at_end, protocol, hpi);
+            if (*at_end) {
+                /* Bad option - just skip to the end */
+                temp_optlen = optlen;
+            }
+        }
+    }
+    break;
+    case OPTION_S46_PORTPARAMS:
+    {
+        guint16 psid;
+        guint8 offset, psid_len;
+
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_PORTPARAMS: malformed option");
+            break;
+        }
+
+        proto_tree_add_item(subtree, hf_option_s46_portparam_offset, tvb, off, 1, ENC_BIG_ENDIAN);
+        offset = tvb_get_guint8(tvb, off);
+
+        if (offset > 15) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_PORTPARAMS: malformed option");
+            break;
+        }
+
+        proto_tree_add_item(subtree, hf_option_s46_portparam_psid_len, tvb, off + 1, 1, ENC_BIG_ENDIAN);
+        psid_len = tvb_get_guint8(tvb, off + 1);
+
+        if (psid_len > 16) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "S46_PORTPARAMS: malformed option");
+            break;
+        }
+
+        psid = tvb_get_ntohs(tvb, off + 2);
+        proto_tree_add_uint(subtree, hf_option_s46_portparam_psid, tvb, off + 2, 2, psid >> (16 - psid_len));
+    }
+    break;
+    case OPTION_S46_CONT_MAPE:
+    case OPTION_S46_CONT_MAPT:
+    case OPTION_S46_CONT_LW:
+        temp_optlen = 0;
+        while ((optlen - temp_optlen) > 0) {
+            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
+                                         off+temp_optlen, off + optlen, at_end, protocol, hpi);
+            if (*at_end) {
+                /* Bad option - just skip to the end */
+                temp_optlen = optlen;
+            }
+        }
+        break;
     case OPTION_IA_NA:
     case OPTION_IA_PD:
         if (optlen < 12) {
@@ -2114,6 +2309,23 @@ dissect_dhcpv6_bulk_leasequery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return tvb_reported_length(tvb);
 }
 
+static int dissect_dhcpv6_s46_ipv6_prefix(tvbuff_t *tvb, int hf, int offset, int prefix_length, proto_tree *tree)
+{
+
+    int bytes_to_process;
+    struct e_in6_addr prefix;
+
+    bytes_to_process = (((prefix_length + 7) & 0xf8) >> 3);
+
+    memset(prefix.bytes, 0, sizeof prefix.bytes);
+    if (bytes_to_process != 0) {
+        tvb_memcpy(tvb, prefix.bytes, offset, bytes_to_process);
+    }
+    proto_tree_add_ipv6(tree, hf, tvb, offset, bytes_to_process, &prefix);
+
+    return bytes_to_process;
+}
+
 void
 proto_register_dhcpv6(void)
 {
@@ -2367,6 +2579,40 @@ proto_register_dhcpv6(void)
           { "Interface-ID", "dhcpv6.cablelabs.interface_id", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_cablelabs_interface_id_link_address,
           { "Link Address", "dhcpv6.cablelabs.interface_id_link_address", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_rule_flags,
+          { "Flags", "dhcpv6.s46_rule.flags", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_rule_reserved_flag,
+          { "Reserved", "dhcpv6.s46_rule.flags.reserved", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0xfe, NULL, HFILL }},
+        { &hf_option_s46_rule_fmr_flag,
+          { "Forwarding Mapping Rule", "dhcpv6.s46_rule.flags.fmr", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01, NULL, HFILL }},
+        { &hf_option_s46_rule_ea_len,
+          { "EA-bit length", "dhcpv6.s46_rule.ea_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_rule_ipv4_pref_len,
+          { "IPv4 prefix length", "dhcpv6.s46_rule.ipv4_pref_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_rule_ipv4_prefix,
+          { "IPv4 prefix", "dhcpv6.s46_rule.ipv4_prefix", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_rule_ipv6_pref_len,
+          { "IPv6 prefix length", "dhcpv6.s46_rule.ipv6_prefix_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_rule_ipv6_prefix,
+          { "IPv6 prefix", "dhcpv6.s46_rule.ipv6_prefix", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_br_address,
+          { "BR address", "dhcpv6.s46_br.address", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_dmr_pref_len,
+          { "IPv6 prefix length", "dhcpv6.s46_dmr.dmr_pref_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_dmr_prefix,
+          { "IPv6 prefix", "dhcpv6.s46_dmr.dmr_prefix", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_v4v6bind_ipv4_address,
+          { "IPv4 Address", "dhcpv6.s46_v4v6bind.ipv4_address", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_v4v6bind_ipv6_pref_len,
+          { "IPv6 prefix length", "dhcpv6.s46_v4v6bind.ipv6_pref_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_v4v6bind_ipv6_prefix,
+          { "IPv6 prefix", "dhcpv6.s46_v4v6bind.ipv6_prefix", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_portparam_offset,
+          { "Offset", "dhcpv6.s46_portparam.offset", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_portparam_psid_len,
+          { "PSID length", "dhcpv6.s46_portparam.psid_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_s46_portparam_psid,
+          { "PSID", "dhcpv6.s46_portparam.psid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
@@ -2382,6 +2628,7 @@ proto_register_dhcpv6(void)
         &ett_dhcpv6_nis_domain_name_option,
         &ett_dhcpv6_nisp_domain_name_option,
         &ett_dhcpv6_bcmcs_servers_domain_search_list_option,
+        &ett_dhcpv6_s46_rule_flags,
     };
 
     static ei_register_info ei[] = {
