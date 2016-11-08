@@ -2702,6 +2702,36 @@ install(
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
 )
 
+# Install icons and other desktop files for Freedesktop.org-compliant desktops.
+if(((BUILD_wireshark AND QT_FOUND) OR BUILD_wireshark_gtk) AND NOT (WIN32 OR APPLE))
+	install(FILES wireshark-mime-package.xml
+		DESTINATION "${CMAKE_INSTALL_DATADIR}/mime/packages"
+		RENAME wireshark.xml
+	)
+	install(FILES wireshark.appdata.xml
+		DESTINATION "${CMAKE_INSTALL_DATADIR}/appdata"
+	)
+	if(BUILD_wireshark AND QT_FOUND)
+		install(FILES wireshark.desktop
+			DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
+	endif()
+	if(BUILD_wireshark_gtk)
+		install(FILES wireshark-gtk.desktop
+			DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
+	endif()
+	foreach(size 16 24 32 48 64 128 256)
+		install(FILES image/wsicon${size}.png
+			DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/${size}x${size}/apps"
+			RENAME wireshark.png)
+		install(FILES image/WiresharkDoc-${size}.png
+			DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/${size}x${size}/mimetypes"
+			RENAME application-wireshark-doc.png)
+	endforeach()
+	install(FILES image/wsicon.svg
+		DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps"
+		RENAME wireshark.svg)
+endif()
+
 install(
 	FILES
 		"${CMAKE_BINARY_DIR}/wireshark.pc"

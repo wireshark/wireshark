@@ -45,11 +45,6 @@ override_dh_auto_install:
 	rm -f debian/*.shlibs
 	rm -rf $(CURDIR)/debian/tmp/usr/share/wireshark/COPYING
 	cp debian/license-text-about-dialog $(CURDIR)/debian/tmp/usr/share/wireshark/ABOUT.GPL
-	# icons conforming to freedesktop.org standards
-	mkdir -p $(CURDIR)/debian/tmp/usr/share/icons/hicolor/scalable/apps/ \
-		$(CURDIR)/debian/tmp/usr/share/mime/packages/
-	install -m 644 image/wsicon.svg $(CURDIR)/debian/tmp/usr/share/icons/hicolor/scalable/apps/wireshark.svg
-	install -m 644 wireshark-mime-package.xml $(CURDIR)/debian/tmp/usr/share/mime/packages/wireshark.xml
 	mkdir -p $(CURDIR)/debian/tmp/etc/wireshark/
 	mv $(CURDIR)/debian/tmp/usr/share/wireshark/init.lua \
 		$(CURDIR)/debian/tmp/etc/wireshark/
