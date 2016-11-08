@@ -1047,7 +1047,7 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
             }
             wmem_free(NULL, dfilter_string);
 
-            if (node->next == NULL) {
+            if (node->next == NULL && node->first_child == NULL) {
                 fputs("\"", pdata->fh);
             } else {
                 fputs("\",", pdata->fh);
