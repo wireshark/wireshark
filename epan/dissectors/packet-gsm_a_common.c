@@ -2170,7 +2170,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
         curr_offset++;
 
-        if (len > 1)
+        if (len != 1 && len != 3)
         {
             expert_add_info(pinfo, tree, &ei_gsm_a_format_not_supported);
         }
