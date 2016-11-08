@@ -1407,6 +1407,7 @@ set(INSTALL_DIRS
 	diameter
 	dtds
 	help
+	profiles
 	radius
 	tpncp
 	wimaxasncp
