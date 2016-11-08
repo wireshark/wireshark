@@ -502,6 +502,7 @@ dissect_bt_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-DHT");
   col_clear(pinfo->cinfo, COL_INFO);
+  col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent DHT Protocol");
 
   return dissect_bencoded_dict(tvb, pinfo, tree, 0, "BitTorrent DHT Protocol");
 }
