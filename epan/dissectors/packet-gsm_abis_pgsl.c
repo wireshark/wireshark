@@ -202,19 +202,6 @@ setup_rlc_mac_priv(RlcMacPrivateData_t *rm, gboolean is_uplink,
 {
 	guint nc, dbl = 0, dbo[2] = {0,0};
 
-	switch (rm->block_format) {
-	case RLCMAC_HDR_TYPE_3:
-	case RLCMAC_HDR_TYPE_2:
-		nc = 2;
-		break;
-	case RLCMAC_HDR_TYPE_1:
-		nc = 3;
-		break;
-	default:
-		nc = 1;
-		break;
-	}
-
 	dbl = data_block_len_by_mcs[rm->mcs];
 
 	switch (rm->block_format) {
