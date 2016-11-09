@@ -153,6 +153,7 @@ dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     flags = tvb_get_letohs(tvb, 8);
 
+    memset(&context, 0, sizeof(context));
     context.previous_protocol_data.bluetooth_data = bluetooth_data;
     context.aa_category            = E_AA_NO_COMMENT;
     context.connection_info_valid  = 0; /* TODO */
