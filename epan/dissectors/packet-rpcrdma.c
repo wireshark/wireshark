@@ -130,6 +130,72 @@ static const value_string rpcordma_err[] = {
     {0, NULL}
 };
 
+static guint get_read_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
+{
+    guint32 value_follows;
+    guint start = offset;
+
+    while (1) {
+        value_follows = tvb_get_ntohl(tvb, offset);
+        offset += 4;
+        if (offset > max_offset)
+            return 0;
+        if (!value_follows)
+            break;
+
+        offset += 20;
+        if (offset > max_offset)
+            return 0;
+    }
+
+    return offset - start;
+}
+
+static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
+{
+    guint32 value_follows, segment_count;
+    guint start = offset;
+
+    while (1) {
+        value_follows = tvb_get_ntohl(tvb, offset);
+        offset += 4;
+        if (offset > max_offset)
+            return 0;
+        if (!value_follows)
+            break;
+
+        segment_count = tvb_get_ntohl(tvb, offset);
+        offset += 4;
+        if (offset > max_offset)
+            return 0;
+        offset += (segment_count * 16);
+        if (offset > max_offset)
+            return 0;
+    }
+
+    return offset - start;
+}
+
+static guint get_reply_chunk_size(tvbuff_t *tvb, guint max_offset, guint offset)
+{
+    guint32 value_follows, segment_count;
+    guint start = offset;
+
+    value_follows = tvb_get_ntohl(tvb, offset);
+    offset += 4;
+    if (offset > max_offset)
+        return 0;
+
+    if (value_follows) {
+        segment_count = tvb_get_ntohl(tvb, offset);
+        offset += segment_count * 16 + 4;
+        if (offset > max_offset)
+            return 0;
+    }
+
+    return offset - start;
+}
+
 static guint parse_list(tvbuff_t *tvb, guint offset, proto_tree *tree,
         int hf_item, const char* msg, gboolean have_position)
 {
@@ -178,45 +244,26 @@ static guint parse_rdma_header(tvbuff_t *tvb, guint offset, proto_tree *tree)
     return offset;
 }
 
-static gboolean
-get_chunk_len(tvbuff_t *tvb, guint offset, guint len, guint num_position_bytes, guint *res)
+static guint get_chunk_lists_size(tvbuff_t *tvb, guint max_offset, guint offset)
 {
-    guint32 arr_len, i, val, temp;
+    guint size, start = offset;
 
-    if (offset + 4 > len)
-        return FALSE;
+    size = get_read_list_size(tvb, max_offset, offset);
+    if (!size)
+        return 0;
+    offset += size;
 
-    arr_len = tvb_get_ntohl(tvb, offset);
-    offset += 4;
+    size = get_write_list_size(tvb, max_offset, offset);
+    if (!size)
+        return 0;
+    offset += size;
 
-    for (i = 0; i < arr_len; i++) {
-        if (offset + 4 > len)
-            return FALSE;
-        val = tvb_get_ntohl(tvb, offset);
-        offset += 4;
+    size = get_reply_chunk_size(tvb, max_offset, offset);
+    if (!size)
+        return 0;
+    offset += size;
 
-        /* xdr_rdma_segment(s) */
-        temp = offset + val * (16 + num_position_bytes);
-        if ((temp > len) || (temp < offset))
-            return FALSE;
-        offset = temp;
-    }
-    DISSECTOR_ASSERT(offset <= len);
-
-    *res = offset;
-    return TRUE;
-}
-
-static gboolean
-get_chunks_len(tvbuff_t *tvb, guint offset, guint len, guint *res)
-{
-    if (!get_chunk_len(tvb, offset, len, 4, res))
-        return FALSE;
-
-    if (!get_chunk_len(tvb, *res, len, 0, res))
-        return FALSE;
-
-    return get_chunk_len(tvb, *res, len, 0, res);
+    return offset - start;
 }
 
 /*
@@ -229,7 +276,7 @@ get_chunks_len(tvbuff_t *tvb, guint offset, guint len, guint *res)
 static gboolean
 packet_is_rpcordma(tvbuff_t *tvb)
 {
-    guint len = tvb_reported_length(tvb);
+    guint size, len = tvb_reported_length(tvb);
     guint32 xid_rpc;
     guint32 xid = tvb_get_ntohl(tvb, 0);
     guint32 msg_type = tvb_get_ntohl(tvb, 12);
@@ -239,8 +286,11 @@ packet_is_rpcordma(tvbuff_t *tvb)
     case RDMA_MSG:
         if (len < MIN_RPCRDMA_MSG_SZ)
             return FALSE;
-        if (!get_chunks_len(tvb, MIN_RPCRDMA_HDR_SZ, len, &offset))
+        offset = MIN_RPCRDMA_HDR_SZ;
+        size = get_chunk_lists_size(tvb, len, offset);
+        if (!size)
             return FALSE;
+        offset += size;
 
         if (offset + 4 > len)
             return FALSE;
@@ -252,8 +302,11 @@ packet_is_rpcordma(tvbuff_t *tvb)
     case RDMA_MSGP:
         if (len < MIN_RPCRDMA_MSGP_SZ)
             return FALSE;
-        if (!get_chunks_len(tvb, MIN_RPCRDMA_HDR_SZ + 8, len, &offset))
+        offset = MIN_RPCRDMA_HDR_SZ + 8;
+        size = get_chunk_lists_size(tvb, len, offset);
+        if (!size)
             return FALSE;
+        offset += size;
 
         if (offset + 4 > len)
             return FALSE;
