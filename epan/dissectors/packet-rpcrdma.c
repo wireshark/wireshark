@@ -293,7 +293,7 @@ dissect_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return 0;
 
     if (!packet_is_rpcordma(tvb))
-        return call_dissector(rpc_handler, tvb, pinfo, tree);
+        return 0;
 
     xid = tvb_get_ntohl(tvb, 0);
 
