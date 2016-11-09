@@ -43,25 +43,37 @@ ADDITIONAL_LIST="libnl-3-dev qttools5-dev qttools5-dev-tools libgtk-3-dev \
 		libparse-yapp-perl qt5-default cmake libcap-dev \
 		liblz4-dev libsnappy-dev"
 
+# Adds package $2 to list variable $1 if the package is found
+add_package() {
+	local list="$1" pkgname="$2"
+
+	# fail if the package is not known
+	[ -n "$(apt-cache show "$pkgname" 2>/dev/null)" ] || return 1
+
+	# package is found, append it to list
+	eval "${list}=\"\${${list}} \${pkgname}\""
+}
+
 # Check for lsb_release command in $PATH
 if ! which lsb_release > /dev/null; then
 	echo "ERROR: lsb_release not found in \$PATH" >&2
 	exit 1;
 fi
 
-rel=$(lsb_release --codename --short)
+# only needed for newer distro versions where "libtool" binary is separated.
+# Debian >= jessie, Ubuntu >= 16.04
+add_package BASIC_LIST libtool-bin
 
-case $rel in
-trusty)
-	# Add trusty specific steps
-	# i.e. there is no libtool-bin package in trusty and other distros.
-	# Avoid install it on those platforms.
-	;;
-*)
-	BASIC_LIST="$BASIC_LIST libtool-bin"
-	ADDITIONAL_LIST="$ADDITIONAL_LIST libnghttp2-dev libssh-gcrypt-dev"
-	;;
-esac
+# Debian >= wheezy-backports, Ubuntu >= 16.04
+add_package ADDITIONAL_LIST libnghttp2-dev ||
+echo "libnghttp2-dev is unavailable" >&2
+
+# libssh-gcrypt-dev: Debian >= jessie, Ubuntu >= 16.04
+# libssh-dev (>= 0.6): Debian >= jessie, Ubuntu >= 14.04
+add_package ADDITIONAL_LIST libssh-gcrypt-dev ||
+add_package ADDITIONAL_LIST libssh-dev ||
+echo "libssh-gcrypt-dev and libssh-dev are unavailable" >&2
+
 
 # Install basic packages
 apt-get install $BASIC_LIST $OPTIONS
