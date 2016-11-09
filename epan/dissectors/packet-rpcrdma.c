@@ -454,17 +454,17 @@ proto_register_rpcordma(void)
         },
         { &hf_rpcordma_vers,
           { "Version", "rpcordma.version",
-            FT_UINT32, BASE_HEX,
+            FT_UINT32, BASE_DEC,
             NULL, 0x0, NULL, HFILL}
         },
         { &hf_rpcordma_flow_control,
           { "Flow Control", "rpcordma.flow_control",
-            FT_UINT32, BASE_HEX,
+            FT_UINT32, BASE_DEC,
             NULL, 0x0, NULL, HFILL}
         },
         { &hf_rpcordma_message_type,
           { "Message Type", "rpcordma.msg_type",
-            FT_UINT32, BASE_HEX,
+            FT_UINT32, BASE_DEC,
             VALS(rpcordma_message_type), 0x0, NULL, HFILL}
         },
         { &hf_rpcordma_reads_count,
@@ -504,27 +504,27 @@ proto_register_rpcordma(void)
         },
         { &hf_rpcordma_rdma_align,
           { "RDMA align", "rpcordma.rdma_align",
-            FT_UINT32, BASE_HEX,
+            FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }
         },
         { &hf_rpcordma_rdma_thresh,
           { "RDMA threshold", "rpcordma.rdma_thresh",
-            FT_UINT32, BASE_HEX,
+            FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }
         },
         { &hf_rpcordma_errcode,
           { "Error code", "rpcordma.errcode",
-            FT_UINT32, BASE_HEX,
+            FT_UINT32, BASE_DEC,
             VALS(rpcordma_err), 0, NULL, HFILL }
         },
         { &hf_rpcordma_vers_low,
           { "Version low", "rpcordma.vers_low",
-            FT_UINT32, BASE_HEX,
+            FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }
         },
         { &hf_rpcordma_vers_high,
           { "Version high", "rpcordma.vers_high",
-            FT_UINT32, BASE_HEX,
+            FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }
         },
     };
