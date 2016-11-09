@@ -153,6 +153,9 @@ static int hf_diameter_3gpp_feature_list_gx_flags_bit25 = -1;
 static int hf_diameter_3gpp_feature_list_gx_flags_bit26 = -1;
 static int hf_diameter_3gpp_feature_list_gx_flags_bit27 = -1;
 static int hf_diameter_3gpp_feature_list_gx_flags_bit28 = -1;
+static int hf_diameter_3gpp_feature_list_gx_flags_bit29 = -1;
+static int hf_diameter_3gpp_feature_list_gx_flags_bit30 = -1;
+static int hf_diameter_3gpp_feature_list_gx_flags_bit31 = -1;
 static int hf_diameter_3gpp_cms_no_gyn_session_serv_not_allowed = -1;
 static int hf_diameter_3gpp_cms_no_gyn_session_serv_allowed = -1;
 static int hf_diameter_3gpp_cms_rating_failed = -1;
@@ -665,8 +668,11 @@ static const int *diameter_3gpp_cx_feature_list_1_fields[] = {
     NULL
 };
 
-/* TS 129 212 V12.9.0 (2015-07) */
+/* TS 129 212 V14.0.0 (2016-09) */
 static const int *diameter_3gpp_gx_feature_list_1_fields[] = {
+    &hf_diameter_3gpp_feature_list_gx_flags_bit31,
+    &hf_diameter_3gpp_feature_list_gx_flags_bit30,
+    &hf_diameter_3gpp_feature_list_gx_flags_bit29,
     &hf_diameter_3gpp_feature_list_gx_flags_bit28,
     &hf_diameter_3gpp_feature_list_gx_flags_bit27,
     &hf_diameter_3gpp_feature_list_gx_flags_bit26,
@@ -2750,6 +2756,21 @@ proto_register_diameter_3gpp(void)
         { &hf_diameter_3gpp_feature_list_gx_flags_bit28,
         { "NBIFOM", "diameter.3gpp.feature_list_gx_flags_bit28",
             FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x10000000,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_gx_flags_bit29,
+        { "TSC", "diameter.3gpp.feature_list_gx_flags_bit29",
+            FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x20000000,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_gx_flags_bit30,
+        { "NetLoc-Untrusted-WLAN", "diameter.3gpp.feature_list_gx_flags_bit30",
+            FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x40000000,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_gx_flags_bit31,
+        { "CondPolicyInfo", "diameter.3gpp.feature_list_gx_flags_bit31",
+            FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x80000000,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_cms_spare_bits,
