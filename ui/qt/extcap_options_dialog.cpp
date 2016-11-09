@@ -184,6 +184,11 @@ void ExtcapOptionsDialog::anyValueChanged()
             if ( ! ((ExtArgText *)*iter)->isValid() )
                 allowStart = false;
         }
+        else if ( dynamic_cast<ExtArgTimestamp *>((*iter)) != NULL)
+        {
+            if ( ! ((ExtArgTimestamp *)*iter)->isValid() )
+                allowStart = false;
+        }
         else
             if ( ! (*iter)->isValid() )
                 allowStart = false;
@@ -464,6 +469,10 @@ void ExtcapOptionsDialog::storeValues()
         else if ( dynamic_cast<ExtArgText *>((*iter)) != NULL)
         {
             value = ((ExtArgText *)*iter)->prefValue();
+        }
+        else if ( dynamic_cast<ExtArgTimestamp *>((*iter)) != NULL)
+        {
+            value = ((ExtArgTimestamp *)*iter)->prefValue();
         }
         else
             value = (*iter)->prefValue();

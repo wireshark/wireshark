@@ -52,7 +52,8 @@ typedef enum {
     EXTCAP_ARG_SELECTOR,
     EXTCAP_ARG_RADIO,
     EXTCAP_ARG_MULTICHECK,
-    EXTCAP_ARG_FILESELECT
+    EXTCAP_ARG_FILESELECT,
+    EXTCAP_ARG_TIMESTAMP
 } extcap_arg_type;
 
 typedef enum {

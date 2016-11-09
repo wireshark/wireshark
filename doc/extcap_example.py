@@ -106,6 +106,7 @@ def extcap_config(interface):
 	args.append ( (6, '--d1test', 'Double 1 Test', 'Long Test Value', 'double', '{default=123.456}'))
 	args.append ( (7, '--d2test', 'Double 2 Test', 'Long Test Value', 'double', '{default= 123,456}'))
 	args.append ( (8, '--password', 'Password', 'Package message password', 'password', '') )
+	args.append ( (9, '--ts', 'Start Time', 'Capture start time', 'timestamp', '') )
 
 	values.append ( (3, "if1", "Remote1", "true" ) )
 	values.append ( (3, "if2", "Remote2", "false" ) )
@@ -243,6 +244,7 @@ if __name__ == '__main__':
 	delay = 0
 	message = ""
 	fake_ip = ""
+	ts = 0
 
 	parser = ArgumentParser(
 		prog="Extcap Example",
@@ -264,6 +266,7 @@ if __name__ == '__main__':
 	parser.add_argument("--remote", help="Demonstrates a selector choice", default="if1", choices=["if1", "if2"] )
 	parser.add_argument("--message", help="Demonstrates string variable", nargs='?', default="" )
 	parser.add_argument("--fake_ip", help="Add a fake sender IP adress", nargs='?', default="127.0.0.1" )
+	parser.add_argument("--ts", help="Capture start time", action="store_true" )
 
 	try:
 		args, unknown = parser.parse_known_args()
@@ -305,6 +308,8 @@ if __name__ == '__main__':
 	fake_ip = args.fake_ip
 	if ( args.fake_ip == None or len(args.fake_ip) < 7 or len(args.fake_ip.split('.')) != 4 ):
 		fake_ip = "127.0.0.1"
+
+	ts = args.ts
 
 	if args.extcap_config:
 		extcap_config(interface)

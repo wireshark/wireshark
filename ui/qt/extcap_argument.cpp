@@ -25,6 +25,7 @@
 #include <QWidget>
 #include <QLabel>
 #include <QLineEdit>
+#include <QDateTimeEdit>
 #include <QIntValidator>
 #include <QDoubleValidator>
 #include <QCheckBox>
@@ -53,6 +54,66 @@
 #include <extcap_parser.h>
 #include <extcap_argument_file.h>
 #include <extcap_argument_multiselect.h>
+
+ExtArgTimestamp::ExtArgTimestamp(extcap_arg * argument) :
+    ExtcapArgument(argument) {}
+
+QWidget * ExtArgTimestamp::createEditor(QWidget * parent)
+{
+    QDateTimeEdit * tsBox;
+    QString storeValue;
+    QString text = defaultValue();
+
+    if ( _argument->pref_valptr && *_argument->pref_valptr)
+    {
+        QString storeValue(*_argument->pref_valptr);
+
+        if ( storeValue.length() > 0 && storeValue.compare(text) != 0 )
+            text = storeValue.trimmed();
+    }
+
+    ts = QDateTime::fromTime_t(text.toInt());
+    tsBox = new QDateTimeEdit(ts, parent);
+    tsBox->setCalendarPopup(true);
+
+    if ( _argument->tooltip != NULL )
+        tsBox->setToolTip(QString().fromUtf8(_argument->tooltip));
+
+    connect(tsBox, SIGNAL(dateTimeChanged(QDateTime)), SLOT(onDateTimeChanged(QDateTime)));
+
+    return tsBox;
+}
+
+void ExtArgTimestamp::onDateTimeChanged(QDateTime t)
+{
+    ts = t;
+    emit valueChanged();
+}
+
+QString ExtArgTimestamp::defaultValue()
+{
+    return QString::number(QDateTime::currentDateTime().toTime_t());
+}
+
+bool ExtArgTimestamp::isValid()
+{
+    bool valid = true;
+
+    if ( value().length() == 0 && isRequired() )
+        valid = false;
+
+    return valid;
+}
+
+QString ExtArgTimestamp::value()
+{
+    return QString::number(ts.toTime_t());
+}
+
+QString ExtArgTimestamp::prefValue()
+{
+    return value();
+}
 
 ExtArgSelector::ExtArgSelector(extcap_arg * argument) :
         ExtcapArgument(argument), boxSelection(0) {}
@@ -687,6 +748,8 @@ ExtcapArgument * ExtcapArgument::create(extcap_arg * argument)
         result = new ExtcapArgumentFileSelection(argument);
     else if ( argument->arg_type == EXTCAP_ARG_MULTICHECK )
         result = new ExtArgMultiSelect(argument);
+    else if ( argument->arg_type == EXTCAP_ARG_TIMESTAMP )
+        result = new ExtArgTimestamp(argument);
     else
     {
         /* For everything else, we just print the label */

@@ -408,6 +408,8 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
             target_arg->arg_type = EXTCAP_ARG_FILESELECT;
         } else if (g_ascii_strcasecmp(param_value, "multicheck") == 0) {
             target_arg->arg_type = EXTCAP_ARG_MULTICHECK;
+        } else if (g_ascii_strcasecmp(param_value, "timestamp") == 0) {
+            target_arg->arg_type = EXTCAP_ARG_TIMESTAMP;
         } else {
             printf("invalid type %s in ARG sentence\n", param_value);
             extcap_free_arg(target_arg);

@@ -47,6 +47,7 @@ Argument type for UI filtering for raw, or UI type for selector:
     fileselect (display a dialog to select a file from the filesystem, value as string)
     multicheck (display a textbox for selecting multiple options, values as strings)
     password (display a textbox with masked text)
+    timestamp (display a calendar)
 
 =item value (options)
 
@@ -83,6 +84,10 @@ Example 3:
 Example 4:
     arg {number=0}{call=--username}{display=Username}{type=string}
     arg {number=1}{call=--password}{display=Password}{type=password}
+
+Example 5:
+    arg {number=0}{call=--start}{display=Start Time}{type=timestamp}
+    arg {number=1}{call=--end}{display=End Time}{type=timestamp}
 
 =head1 Security awareness
 

@@ -31,6 +31,7 @@
 #include <QComboBox>
 #include <QButtonGroup>
 #include <QCheckBox>
+#include <QDateTime>
 
 #include <extcap_parser.h>
 
@@ -205,6 +206,26 @@ private:
     QCheckBox * boolBox;
 
     bool defaultBool();
+};
+
+class ExtArgTimestamp : public ExtcapArgument
+{
+    Q_OBJECT
+
+public:
+    ExtArgTimestamp(extcap_arg * argument);
+    virtual QWidget * createEditor(QWidget * parent);
+
+    virtual bool isValid();
+    virtual QString defaultValue();
+    virtual QString value();
+    virtual QString prefValue();
+
+private Q_SLOTS:
+    void onDateTimeChanged(QDateTime);
+
+private:
+    QDateTime ts;
 };
 
 #endif /* UI_QT_EXTCAP_ARGUMENT_H_ */
