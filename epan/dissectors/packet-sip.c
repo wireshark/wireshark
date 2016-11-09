@@ -4398,7 +4398,7 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gin
     /* Add response code for sending to tap */
     stat_info->response_code = response_code;
 
-    /* Skip past the responce code and possible trailing space */
+    /* Skip past the response code and possible trailing space */
     offset = offset + 3 + 1;
 
     /* Check for diagnostics */
@@ -4409,7 +4409,7 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gin
     /* If we have a SIP diagnostics sub dissector call it */
     if(sip_diag_handle){
         next_tvb = tvb_new_subset_length(tvb, offset, diag_len);
-        call_dissector(sip_diag_handle, next_tvb, pinfo, tree);
+        call_dissector_only(sip_diag_handle, next_tvb, pinfo, tree, NULL);
     }
 }
 
