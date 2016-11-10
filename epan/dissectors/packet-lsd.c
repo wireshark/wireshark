@@ -26,6 +26,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
 
 void proto_register_lsd(void);
@@ -138,7 +139,7 @@ dissect_lsd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   if (pinfo->dst.type != AT_IPv4)
       return FALSE;
 
-  if (g_ntohl((*((const guint32 *)pinfo->dst.data))) != LSD_MULTICAST_ADDRESS)
+  if (pntoh32(pinfo->dst.data) != LSD_MULTICAST_ADDRESS)
       return FALSE;
 
   if (pinfo->destport != LSD_PORT)
