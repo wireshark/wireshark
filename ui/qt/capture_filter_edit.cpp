@@ -220,6 +220,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
             this, SLOT(setFilterSyntaxState(QString,int,QString)));
     connect(syntax_thread, SIGNAL(finished()), syntax_worker_, SLOT(deleteLater()));
     syntax_thread->start();
+    updateBookmarkMenu();
 }
 
 void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
