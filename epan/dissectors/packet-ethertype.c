@@ -84,6 +84,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_JUMBO_LLC,            "Jumbo LLC" },
 	{ ETHERTYPE_HOMEPLUG,             "Homeplug" },
 	{ ETHERTYPE_HOMEPLUG_AV,          "Homeplug AV" },
+	{ ETHERTYPE_MRP,                  "MRP" },
 	{ ETHERTYPE_IEEE_802_1AD,         "802.1ad Provider Bridge (Q-in-Q)" },
 	{ ETHERTYPE_MACSEC,               "802.1AE (MACsec)" },
 	{ ETHERTYPE_IEEE_802_1AH,         "802.1ah Provider Backbone Bridge (mac-in-mac)" },
