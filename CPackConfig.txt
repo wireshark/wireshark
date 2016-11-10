@@ -34,6 +34,9 @@ else()
         set(CPACK_PACKAGE_NAME wireshark)
 endif()
 
+set(CPACK_SOURCE_IGNORE_FILES "build" "/.git/")
+add_custom_target(dist DEPENDS package_source)
+
 set(CPACK_PACKAGE_DESCRIPTION "A set of command line and gui tools to capture and decode traffic")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Packet capturing and decoding")
 set(CPACK_PACKAGE_VENDOR "Wireshark developers")
