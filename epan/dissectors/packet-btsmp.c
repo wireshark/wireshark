@@ -46,6 +46,7 @@ static int hf_btsmp_id_resolving_key = -1;
 static int hf_btsmp_signature_key = -1;
 static int hf_btsmp_bonding_flags = -1;
 static int hf_btsmp_mitm_flag = -1;
+static int hf_btsmp_sc_flag = -1;
 static int hf_btsmp_max_enc_key_size = -1;
 static int hf_btsmp_key_dist_enc = -1;
 static int hf_btsmp_key_dist_id = -1;
@@ -135,9 +136,12 @@ dissect_btsmp_auth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     proto_tree_add_item(st_param, hf_btsmp_bonding_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_item_append_text(ti_param, "%s, ", val_to_str_const(param & 0x03, bonding_flag_vals, "<unknown>"));
     proto_tree_add_item(st_param, hf_btsmp_mitm_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(ti_param, "%s", (param & 0x04) ? "MITM" : "No MITM");
+    proto_item_append_text(ti_param, "%s, ", (param & 0x04) ? "MITM" : "No MITM");
+    proto_tree_add_item(st_param, hf_btsmp_sc_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(ti_param, "%s", (param & 0x08) ? "SC" : "No SC");
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, %s", val_to_str_const(param & 0x03, bonding_flag_vals, "<unknown>"), (param & 0x04) ? "MITM" : "No MITM");
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, %s, %s", val_to_str_const(param & 0x03, bonding_flag_vals, "<unknown>"),
+                    (param & 0x04) ? "MITM" : "No MITM", (param & 0x08) ? "SC" : "No SC");
 
     return offset + 1;
 }
@@ -364,6 +368,11 @@ proto_register_btsmp(void)
         {&hf_btsmp_mitm_flag,
             {"MITM Flag", "btsmp.mitm_flag",
             FT_UINT8, BASE_DEC, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btsmp_sc_flag,
+            {"SC Flag", "btsmp.sc_flag",
+            FT_UINT8, BASE_DEC, NULL, 0x08,
             NULL, HFILL}
         },
         {&hf_btsmp_max_enc_key_size,
