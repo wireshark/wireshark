@@ -104,6 +104,8 @@
 
 #define PACKET_LENGTH 65535
 
+#define SOCKET_SEND_TIMEOUT_MS 500
+
 #define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
 
 enum exit_code {
@@ -251,6 +253,21 @@ static inline int is_specified_interface(char *interface, const char *interface_
     return !strncmp(interface, interface_prefix, strlen(interface_prefix));
 }
 
+static void useSndTimeout(socket_handle_t  sock) {
+#ifdef _WIN32
+    const DWORD socket_timeout = SOCKET_SEND_TIMEOUT_MS;
+
+    setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char *) &socket_timeout, sizeof(socket_timeout));
+#else
+    const struct timeval socket_timeout = {
+        .tv_sec = SOCKET_SEND_TIMEOUT_MS / 1000,
+        .tv_usec = (SOCKET_SEND_TIMEOUT_MS % 1000) * 1000
+    };
+
+    setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &socket_timeout, sizeof(socket_timeout));
+#endif
+}
+
 static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     struct extcap_dumper extcap_dumper;
     int                  encap_ext;
@@ -388,6 +405,8 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
         errmsg_print("ERROR: Cannot open system TCP socket: %s", strerror(errno));
         return INVALID_SOCKET;
     }
+
+    useSndTimeout(sock);
 
     if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
 #if 0
@@ -1527,6 +1546,8 @@ static int capture_android_bluetooth_external_parser(char *interface,
         server.sin_port = GINT16_TO_BE(*bt_local_tcp_port);
         server.sin_addr.s_addr = inet_addr(bt_local_ip);
 
+        useSndTimeout(sock);
+
         if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
             errmsg_print("ERROR: <%s> Please check that adb daemon is running.", strerror(errno));
             closesocket(sock);
@@ -1626,6 +1647,8 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 server.sin_family = AF_INET;
                 server.sin_port = GINT16_TO_BE(*bt_local_tcp_port);
                 server.sin_addr.s_addr = inet_addr(bt_local_ip);
+
+                useSndTimeout(sock);
 
                 if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
                     errmsg_print("ERROR reconnect: <%s> Please check that adb daemon is running.", strerror(errno));
