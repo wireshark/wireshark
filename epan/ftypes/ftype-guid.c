@@ -61,16 +61,13 @@ get_guid(const char *s, e_guid_t *guid)
     }
 
     p = s;
-    g_strlcpy(digits, p, 8);
-    digits[8] = '\0';
+    g_strlcpy(digits, p, 9);
     guid->data1 = (guint32)strtoul(digits, NULL, 16);
     p += 9;
-    g_strlcpy(digits, p, 4);
-    digits[4] = '\0';
+    g_strlcpy(digits, p, 5);
     guid->data2 = (guint16)strtoul(digits, NULL, 16);
     p += 5;
-    g_strlcpy(digits, p, 4);
-    digits[4] = '\0';
+    g_strlcpy(digits, p, 5);
     guid->data3 = (guint16)strtoul(digits, NULL, 16);
     p += 5;
     for (i=0; i < sizeof(guid->data4); i++) {
