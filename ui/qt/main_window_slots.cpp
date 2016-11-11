@@ -3642,9 +3642,9 @@ void MainWindow::on_actionStatisticsProtocolHierarchy_triggered()
     phd->show();
 }
 
-#ifdef HAVE_LIBPCAP
 void MainWindow::on_actionCaptureOptions_triggered()
 {
+#ifdef HAVE_LIBPCAP
     if (!capture_interfaces_dialog_) {
         capture_interfaces_dialog_ = new CaptureInterfacesDialog(this);
 
@@ -3676,8 +3676,10 @@ void MainWindow::on_actionCaptureOptions_triggered()
 
     capture_interfaces_dialog_->raise();
     capture_interfaces_dialog_->activateWindow();
+#endif
 }
 
+#ifdef HAVE_LIBPCAP
 void MainWindow::on_actionCaptureRefreshInterfaces_triggered()
 {
     main_ui_->actionCaptureRefreshInterfaces->setEnabled(false);

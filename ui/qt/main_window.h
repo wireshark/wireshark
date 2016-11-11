@@ -465,8 +465,8 @@ private slots:
     void on_actionGoAutoScroll_toggled(bool checked);
     void resetPreviousFocus();
 
-#ifdef HAVE_LIBPCAP
     void on_actionCaptureOptions_triggered();
+#ifdef HAVE_LIBPCAP
     void on_actionCaptureRefreshInterfaces_triggered();
 #endif
     void on_actionCaptureCaptureFilters_triggered();
