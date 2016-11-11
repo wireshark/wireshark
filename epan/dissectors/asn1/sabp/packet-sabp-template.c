@@ -184,7 +184,7 @@ get_sabp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 
   bit_offset = offset<<3;
   /* Get the length of the sabp packet. offset in bits  */
-  dissect_per_length_determinant(tvb, bit_offset, &asn1_ctx, NULL, -1, &type_length);
+  dissect_per_length_determinant(tvb, bit_offset, &asn1_ctx, NULL, -1, &type_length, NULL);
 
   /*
    * Return the length of the PDU

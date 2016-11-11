@@ -13330,7 +13330,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   #define MSG_TYPE_OFFSET 1
   if (tvb_captured_length(tvb) < RANAP_MSG_MIN_LENGTH) { return FALSE; }
   /* Read the length NOTE offset in bits */
-  offset = dissect_per_length_determinant(tvb, LENGTH_OFFSET<<3, &asn1_ctx, tree, -1, &length);
+  offset = dissect_per_length_determinant(tvb, LENGTH_OFFSET<<3, &asn1_ctx, tree, -1, &length, NULL);
   offset = offset>>3;
   if (length!= (tvb_reported_length(tvb) - offset)){
     return FALSE;

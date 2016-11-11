@@ -181,7 +181,7 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 
 	hfi = (hf_index == -1) ? NULL : proto_registrar_get_nth(hf_index);
 
-	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &type_length);
+	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &type_length, NULL);
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 	end_offset = offset + type_length * 8;
 
@@ -262,7 +262,7 @@ dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, p
 
  */
 guint32
-dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length)
+dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length, gboolean *is_fragmented)
 {
 	guint8 byte;
 	guint32 len;
@@ -273,6 +273,9 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 
 	if(!length){
 		length=&len;
+	}
+	if (is_fragmented) {
+		*is_fragmented = FALSE;
 	}
 
 	/* byte aligned */
@@ -317,16 +320,40 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 					num_bits = 16;
 				}
 				else if (i==1 && val==3) { /* bits 8 and 7 both 1, so unconstrained */
-					*length = 0;
-					dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "10.9 Unconstrained");
-					return offset;
+					if (!is_fragmented) {
+						*length = 0;
+						dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "10.9 Unconstrained");
+						return offset;
+					} else {
+						num_bits = 8;
+						*is_fragmented = TRUE;
+					}
 				}
 			} else {
 				if (str_index < str_length) str[str_index++] = '0';
 			}
 		}
 		str[str_index] = '\0'; /* Terminate string */
-		if((val&0x80)==0 && num_bits==8){
+		if(is_fragmented && *is_fragmented==TRUE){
+			*length = val&0x3f;
+			if (*length>4 || *length==0) {
+				*length = 0;
+				*is_fragmented = FALSE;
+				dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "10.9 Unconstrained unexpected fragment count");
+				return offset;
+			}
+			*length *= 0x4000;
+			if(hf_index!=-1){
+				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
+				if (display_internal_per_fields)
+					proto_item_append_text(pi," %s", str);
+				else
+					PROTO_ITEM_SET_HIDDEN(pi);
+			}
+
+			return offset;
+		}
+		else if((val&0x80)==0 && num_bits==8){
 			*length = val;
 			if(hf_index!=-1){
 				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
@@ -341,7 +368,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		else if (num_bits==16) {
 			*length = val&0x3fff;
 			if(hf_index!=-1){
-				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
+				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-2, 2, *length);
 				if (display_internal_per_fields)
 					proto_item_append_text(pi," %s", str);
 				else
@@ -373,6 +400,22 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		offset+=8;
 		if(hf_index!=-1){
 			pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-2, 2, *length);
+			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+		}
+		return offset;
+	}
+	/* 10.9.3.8.1 */
+	else if (is_fragmented){
+		*length = byte&0x3f;
+		if (*length>4 || *length==0) {
+			*length = 0;
+			dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "10.9 Unconstrained unexpected fragment count");
+			return offset;
+		}
+		*length *= 0x4000;
+		*is_fragmented = TRUE;
+		if(hf_index!=-1){
+			pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
 			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
 		}
 		return offset;
@@ -416,7 +459,7 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 	}
 
 	/* 10.6.2 */
-	offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_normally_small_nonnegative_whole_number_length, &length_determinant);
+	offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_normally_small_nonnegative_whole_number_length, &length_determinant, NULL);
 	switch (length_determinant) {
 		case 0:
 			*length = 0;
@@ -466,7 +509,7 @@ dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto
 {
 	guint32 length;
 
-	offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_GeneralString_length, &length);
+	offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_GeneralString_length, &length, NULL);
 
 	proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, ENC_BIG_ENDIAN);
 
@@ -520,7 +563,7 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 	/* semi-constrained whole number for number of elements */
 	/* each element encoded as 10.9 */
 
-	offset=dissect_per_length_determinant(tvb, offset, actx, parent_tree, hf_per_sequence_of_length, &length);
+	offset=dissect_per_length_determinant(tvb, offset, actx, parent_tree, hf_per_sequence_of_length, &length, NULL);
 
 	hfi = proto_registrar_get_nth(hf_index);
 	if (IS_FT_UINT(hfi->type)) {
@@ -631,7 +674,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	/* xx.x */
 	length=max_len;
 	if (max_len == NO_BOUND) {
-		offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_octet_string_length, &length);
+		offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_octet_string_length, &length, NULL);
 		/* the unconstrained strings are always byte aligned (27.6.3)*/
 		byte_aligned=TRUE;
 	} else if(min_len!=max_len){
@@ -853,7 +896,7 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 	/* 19.6 ub>=64k or unset */
 	if ((max_len >= 65536) || (max_len == NO_BOUND)) {
 		/* no constraint, see 10.9.4.2 */
-		offset=dissect_per_length_determinant(tvb, offset, actx, parent_tree, hf_per_sequence_of_length, &length);
+		offset=dissect_per_length_determinant(tvb, offset, actx, parent_tree, hf_per_sequence_of_length, &length, NULL);
 		goto call_sohelper;
 	}
 
@@ -928,7 +971,7 @@ dissect_per_any_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 
 	DEBUG_ENTRY("dissect_per_any_oid");
 
-	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_object_identifier_length, &length);
+	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_object_identifier_length, &length, NULL);
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 	val_tvb = tvb_new_octet_aligned(tvb, offset, length * 8);
 	/* Add new data source if the offet was unaligned */
@@ -1055,7 +1098,7 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 	header_field_info *hfi;
 
 	/* 12.2.6 b */
-	offset=dissect_per_length_determinant(tvb, offset, actx, tree,hf_per_integer_length, &length);
+	offset=dissect_per_length_determinant(tvb, offset, actx, tree,hf_per_integer_length, &length, NULL);
 	/* gassert here? */
 	if(length>4){
 		dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "too long integer(per_integer)");
@@ -1109,7 +1152,7 @@ dissect_per_integer64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	header_field_info *hfi;
 
 	/* 12.2.6 b */
-	offset=dissect_per_length_determinant(tvb, offset, actx, tree, -1, &length);
+	offset=dissect_per_length_determinant(tvb, offset, actx, tree, -1, &length, NULL);
 	/* gassert here? */
 	if(length>8){
 		dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "too long integer (64b)");
@@ -1598,7 +1641,7 @@ dissect_per_real(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tr
 	tvbuff_t *val_tvb;
 	double val = 0;
 
-	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_real_length, &val_length);
+	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_real_length, &val_length, NULL);
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 	val_tvb = tvb_new_octet_aligned(tvb, offset, val_length * 8);
 	/* Add new data source if the offet was unaligned */
@@ -1677,7 +1720,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		}
 	} else {  /* 22.8 */
 		offset = dissect_per_normally_small_nonnegative_whole_number(tvb, offset, actx, tree, hf_per_choice_extension_index, &choice_index);
-		offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &ext_length);
+		offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &ext_length, NULL);
 
 		idx = -1; cidx = choice_index;
 		for (i=0; choice[i].p_id; i++) {
@@ -1913,7 +1956,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 				continue;
 			}
 
-			offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &length);
+			offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &length, NULL);
 
 			if(i>=num_known_extensions){
 				/* we don't know how to decode this extension */
@@ -2074,9 +2117,10 @@ guint32
 dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb, int *len)
 {
 	/*gint val_start, val_length;*/
-	guint32 length;
+	guint32 length, fragmented_length = 0;
 	header_field_info *hfi;
-	tvbuff_t *out_tvb = NULL;
+	gboolean is_fragmented = FALSE;
+	tvbuff_t *fragmented_tvb, *out_tvb = NULL;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
@@ -2102,14 +2146,34 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		 gboolean extension_present;
 		 offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
-		 if(extension_present){
-			offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_bit_string_length, &length);
-			if(length){
+		if(extension_present){
+		next_fragment1:
+			offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_bit_string_length, &length, &is_fragmented);
+			if(length || fragmented_length){
 				/* align to byte */
 				if (actx->aligned){
 					BYTE_ALIGN_OFFSET(offset);
 				}
-				out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, length);
+				if(is_fragmented){
+					if(fragmented_length==0)
+						fragmented_tvb = tvb_new_composite();
+					tvb_composite_append(fragmented_tvb, tvb_new_octet_aligned(tvb, offset, length));
+					offset += length;
+					fragmented_length += length;
+					goto next_fragment1;
+				}
+				if(fragmented_length){
+					if(length){
+						tvb_composite_append(fragmented_tvb, tvb_new_octet_aligned(tvb, offset, length));
+						offset += length;
+						fragmented_length += length;
+					}
+					tvb_composite_finalize(fragmented_tvb);
+					out_tvb = dissect_per_bit_string_display(fragmented_tvb, 0, actx, tree, hf_index, hfi,
+										 fragmented_length);
+				}
+				else
+					out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, length);
 			}
 			/* XXX: ?? */
 			/*val_start = offset>>3;*/
@@ -2161,14 +2225,34 @@ DEBUG_ENTRY("dissect_per_bit_string");
 			&length, FALSE);
 			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	} else {
-		offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_bit_string_length, &length);
+	next_fragment2:
+		offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_bit_string_length, &length, &is_fragmented);
 	}
-	if(length){
+	if(length || fragmented_length){
 		/* align to byte */
 		if (actx->aligned){
 			BYTE_ALIGN_OFFSET(offset);
 		}
-		out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, length);
+		if(is_fragmented){
+			if(fragmented_length==0)
+				fragmented_tvb = tvb_new_composite();
+			tvb_composite_append(fragmented_tvb, tvb_new_octet_aligned(tvb, offset, length));
+			offset += length;
+			fragmented_length += length;
+			goto next_fragment2;
+		}
+		if(fragmented_length){
+			if(length){
+				tvb_composite_append(fragmented_tvb, tvb_new_octet_aligned(tvb, offset, length));
+				offset += length;
+				fragmented_length += length;
+			}
+			tvb_composite_finalize(fragmented_tvb);
+			out_tvb = dissect_per_bit_string_display(fragmented_tvb, 0, actx, tree, hf_index, hfi,
+								 fragmented_length);
+		}
+		else
+			out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, length);
 	}
 	/* XXX: ?? */
 	/*val_start = offset>>3;*/
@@ -2273,7 +2357,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 					PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		} else {
 			offset = dissect_per_length_determinant(tvb, offset, actx, tree,
-				hf_per_octet_string_length, &length);
+				hf_per_octet_string_length, &length, NULL);
 		}
 
 		if(length){
@@ -2527,7 +2611,7 @@ call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_
 	int len = 0;
 
 	start_offset = offset;
-	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &type_length);
+	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &type_length, NULL);
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 	end_offset = offset + type_length;
 
