@@ -1919,7 +1919,7 @@ tvb_find_guint16(tvbuff_t *tvb, const gint offset, const gint maxlength,
 			return -1;
 		}
 
-		searched_bytes = offset1 - pos + 1;
+		searched_bytes = offset - pos + 1;
 
 		if ((maxlength != -1) && (searched_bytes >= maxlength)) {
 			return -1;
@@ -1937,7 +1937,7 @@ tvb_find_guint16(tvbuff_t *tvb, const gint offset, const gint maxlength,
 		}
 
 		pos = offset1 + 1;
-	} while (pos < maxlength);
+	} while (searched_bytes < maxlength);
 
 	return -1;
 }
