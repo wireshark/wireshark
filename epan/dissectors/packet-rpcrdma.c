@@ -33,6 +33,7 @@
 #include <epan/addr_resolv.h>
 
 #include "packet-infiniband.h"
+#include "packet-iwarp-ddp-rdmap.h"
 
 #define MIN_RPCRDMA_HDR_SZ  16
 #define MIN_RPCRDMA_MSG_SZ  (MIN_RPCRDMA_HDR_SZ + 12)
@@ -53,10 +54,7 @@ void proto_reg_handoff_rpcordma(void);
 void proto_register_rpcordma(void);
 
 static int proto_rpcordma = -1;
-static dissector_handle_t ib_handler;
 static dissector_handle_t rpc_handler;
-static dissector_handle_t rpcordma_handler;
-static int proto_ib = -1;
 
 /* RPCoRDMA Header */
 static int hf_rpcordma_xid = -1;
@@ -93,23 +91,6 @@ static gint ett_rpcordma_write_list = -1;
 static gint ett_rpcordma_write_chunk = -1;
 static gint ett_rpcordma_reply_chunk = -1;
 static gint ett_rpcordma_segment = -1;
-
-/* global preferences */
-static gboolean gPREF_MAN_EN    = FALSE;
-static gint gPREF_TYPE[2]       = {0};
-static const char *gPREF_ID[2]  = {NULL};
-static guint gPREF_QP[2]        = {0};
-static range_t *gPORT_RANGE;
-
-/* source/destination addresses from preferences menu (parsed from gPREF_TYPE[?], gPREF_ID[?]) */
-static address manual_addr[2];
-static void *manual_addr_data[2];
-
-static const enum_val_t pref_address_types[] = {
-    {"lid", "LID", 0},
-    {"gid", "GID", 1},
-    {NULL, NULL, -1}
-};
 
 enum MSG_TYPE {
     RDMA_MSG,
@@ -438,7 +419,6 @@ static guint get_chunk_lists_size(tvbuff_t *tvb, guint max_offset, guint offset)
  * and RDMA_MSGP types, RPC call or RPC reply header follows. We can do this by comparing
  * XID in RPC and RPCoRDMA headers.
  */
-/* msg_type has already been validated */
 static gboolean
 packet_is_rpcordma(tvbuff_t *tvb)
 {
@@ -447,6 +427,9 @@ packet_is_rpcordma(tvbuff_t *tvb)
     guint32 xid = tvb_get_ntohl(tvb, 0);
     guint32 msg_type = tvb_get_ntohl(tvb, 12);
     guint offset;
+
+    if (len < MIN_RPCRDMA_HDR_SZ)
+        return 0;
 
     switch (msg_type) {
     case RDMA_MSG:
@@ -481,35 +464,30 @@ packet_is_rpcordma(tvbuff_t *tvb)
             return FALSE;
         break;
 
-    default:
+    case RDMA_NOMSG:
+    case RDMA_DONE:
+    case RDMA_ERROR:
         break;
+
+    default:
+        return FALSE;
     }
 
     return TRUE;
 }
 
 static int
-dissect_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t *next_tvb;
     proto_item *ti;
     proto_tree *rpcordma_tree;
     guint offset = 0;
+    guint32 msg_type = tvb_get_ntohl(tvb, 12);
     guint32 xid;
-    guint32 msg_type;
     guint32 val;
 
-    if (tvb_reported_length(tvb) < MIN_RPCRDMA_HDR_SZ)
-        return 0;
-
     if (tvb_get_ntohl(tvb, 4) != 1)  /* vers */
-        return 0;
-
-    msg_type = tvb_get_ntohl(tvb, 12);
-    if (msg_type > RDMA_ERROR)
-        return 0;
-
-    if (!packet_is_rpcordma(tvb))
         return 0;
 
     xid = tvb_get_ntohl(tvb, 0);
@@ -596,66 +574,55 @@ dissect_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return offset;
 }
 
-static int
-dissect_rpcordma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        void *data _U_)
+static gboolean
+dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, void *data)
 {
-    return dissect_packet(tvb, pinfo, tree);
+    struct infinibandinfo *info = (struct infinibandinfo *)data;
+
+    if (!info)
+        return FALSE;
+
+    switch (info->opCode) {
+    case RC_SEND_FIRST:
+    case RC_SEND_MIDDLE:
+    case RC_SEND_LAST:
+    case RC_SEND_ONLY:
+    case RC_SEND_LAST_INVAL:
+    case RC_SEND_ONLY_INVAL:
+        break;
+    default:
+        return FALSE;
+    }
+
+    if (!packet_is_rpcordma(tvb))
+        return FALSE;
+    dissect_rpcrdma(tvb, pinfo, tree);
+    return TRUE;
 }
 
 static gboolean
-dissect_rpcordma_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        void *data _U_)
+dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, void *data)
 {
-    conversation_t *conv;
-    conversation_infiniband_data *convo_data = NULL;
+    struct rdmapinfo *info = (struct rdmapinfo *)data;
 
-    if (gPREF_MAN_EN) {
-        /* If the manual settings are enabled see if this fits - in which case we can skip
-           the following checks entirely and go straight to dissecting */
-        if (    (addresses_equal(&pinfo->src, &manual_addr[0]) &&
-                 addresses_equal(&pinfo->dst, &manual_addr[1]) &&
-                 (pinfo->srcport == 0xffffffff /* is unknown */ || pinfo->srcport == gPREF_QP[0]) &&
-                 (pinfo->destport == 0xffffffff /* is unknown */ || pinfo->destport == gPREF_QP[1]))    ||
-                (addresses_equal(&pinfo->src, &manual_addr[1]) &&
-                 addresses_equal(&pinfo->dst, &manual_addr[0]) &&
-                 (pinfo->srcport == 0xffffffff /* is unknown */ || pinfo->srcport == gPREF_QP[1]) &&
-                 (pinfo->destport == 0xffffffff /* is unknown */ || pinfo->destport == gPREF_QP[0]))    )
-            return (dissect_packet(tvb, pinfo, tree) != 0);
-    }
-
-    /* first try to find a conversation between the two current hosts. in most cases this
-       will not work since we do not have the source QP. this WILL succeed when we're still
-       in the process of CM negotiations */
-    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                             PT_IBQP, pinfo->srcport, pinfo->destport, 0);
-
-    if (!conv) {
-        /* if not, try to find an established RC channel. recall Infiniband conversations are
-           registered with one side of the channel. since the packet is only guaranteed to
-           contain the qpn of the destination, we'll use this */
-        conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->dst,
-                                 PT_IBQP, pinfo->destport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
-
-        if (!conv)
-            return FALSE;   /* nothing to do with no conversation context */
-    }
-
-    convo_data = (conversation_infiniband_data *)conversation_get_proto_data(conv, proto_ib);
-
-    if (!convo_data)
+    if (!info)
         return FALSE;
 
-    if ((convo_data->service_id & SID_MASK) != SID_ULP_TCP)
-        return FALSE;   /* the service id doesn't match that of TCP ULP - nothing for us to do here */
+    switch (info->opcode) {
+    case RDMA_SEND:
+    case RDMA_SEND_INVALIDATE:
+        break;
+    default:
+        return FALSE;
+    }
 
-    if (!(value_is_in_range(gPORT_RANGE, (guint32)(convo_data->service_id & SID_PORT_MASK))))
-        return FALSE;   /* the port doesn't match that of RPCoRDMA - nothing for us to do here */
+    if (!packet_is_rpcordma(tvb))
+        return FALSE;
 
-    conv = find_or_create_conversation(pinfo);
-    conversation_set_dissector(conv, rpcordma_handler);
-
-    return (dissect_packet(tvb, pinfo, tree) != 0);
+    dissect_rpcrdma(tvb, pinfo, tree);
+    return TRUE;
 }
 
 void
@@ -773,35 +740,16 @@ proto_register_rpcordma(void)
     /* Register preferences */
     rpcordma_module = prefs_register_protocol(proto_rpcordma, proto_reg_handoff_rpcordma);
 
-    prefs_register_bool_preference(rpcordma_module, "manual_en", "Enable manual settings",
-        "Check to treat all traffic between the configured source/destination as RPCoRDMA",
-        &gPREF_MAN_EN);
-
-    prefs_register_static_text_preference(rpcordma_module, "addr_a", "Address A",
-        "Side A of the manually-configured connection");
-    prefs_register_enum_preference(rpcordma_module, "addr_a_type", "Address Type",
-        "Type of address specified", &gPREF_TYPE[0], pref_address_types, FALSE);
-    prefs_register_string_preference(rpcordma_module, "addr_a_id", "ID",
-        "LID/GID of address A", &gPREF_ID[0]);
-    prefs_register_uint_preference(rpcordma_module, "addr_a_qp", "QP Number",
-        "QP Number for address A", 10, &gPREF_QP[0]);
-
-    prefs_register_static_text_preference(rpcordma_module, "addr_b", "Address B",
-        "Side B of the manually-configured connection");
-    prefs_register_enum_preference(rpcordma_module, "addr_b_type", "Address Type",
-        "Type of address specified", &gPREF_TYPE[1], pref_address_types, FALSE);
-    prefs_register_string_preference(rpcordma_module, "addr_b_id", "ID",
-        "LID/GID of address B", &gPREF_ID[1]);
-    prefs_register_uint_preference(rpcordma_module, "addr_b_qp", "QP Number",
-        "QP Number for address B", 10, &gPREF_QP[1]);
-
-    range_convert_str(&gPORT_RANGE, TCP_PORT_RPCRDMA_RANGE, MAX_TCP_PORT);
-    prefs_register_range_preference(rpcordma_module,
-                                    "target_ports",
-                                    "Target Ports Range",
-                                    "Range of RPCoRDMA server ports"
-                                    "(default " TCP_PORT_RPCRDMA_RANGE ")",
-                                    &gPORT_RANGE, MAX_TCP_PORT);
+    prefs_register_obsolete_preference(rpcordma_module, "manual_en");
+    prefs_register_obsolete_preference(rpcordma_module, "addr_a");
+    prefs_register_obsolete_preference(rpcordma_module, "addr_a_type");
+    prefs_register_obsolete_preference(rpcordma_module, "addr_a_id");
+    prefs_register_obsolete_preference(rpcordma_module, "addr_a_qp");
+    prefs_register_obsolete_preference(rpcordma_module, "addr_b");
+    prefs_register_obsolete_preference(rpcordma_module, "addr_b_type");
+    prefs_register_obsolete_preference(rpcordma_module, "addr_b_id");
+    prefs_register_obsolete_preference(rpcordma_module, "addr_b_qp");
+    prefs_register_obsolete_preference(rpcordma_module, "target_ports");
 }
 
 void
@@ -810,50 +758,19 @@ proto_reg_handoff_rpcordma(void)
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        rpcordma_handler = create_dissector_handle(dissect_rpcordma, proto_rpcordma);
-        heur_dissector_add("infiniband.payload", dissect_rpcordma_heur, "Infiniband RPC over RDMA", "rpcordma_infiniband", proto_rpcordma, HEURISTIC_ENABLE);
-        heur_dissector_add("infiniband.mad.cm.private", dissect_rpcordma_heur, "RPC over RDMA in PrivateData of CM packets", "rpcordma_ib_private", proto_rpcordma, HEURISTIC_ENABLE);
+        heur_dissector_add("infiniband.payload", dissect_rpcrdma_ib_heur, "RPC-over-RDMA on Infiniband",
+                           "rpcrdma_infiniband", proto_rpcordma, HEURISTIC_ENABLE);
+        heur_dissector_add("iwarp_ddp_rdmap", dissect_rpcrdma_iwarp_heur, "RPC-over-RDMA on iWARP",
+                           "rpcrdma_iwarp", proto_rpcordma, HEURISTIC_ENABLE);
 
-        /* allocate enough space in the addresses to store the largest address (a GID) */
-        manual_addr_data[0] = wmem_alloc(wmem_epan_scope(), GID_SIZE);
-        manual_addr_data[1] = wmem_alloc(wmem_epan_scope(), GID_SIZE);
+        /* The following is never used: there are no known implementations, and no specification */
+        heur_dissector_add("infiniband.mad.cm.private", dissect_rpcrdma_ib_heur,
+                           "RPC over RDMA in PrivateData of CM packets",
+                           "rpcordma_ib_private", proto_rpcordma, HEURISTIC_ENABLE);
 
         rpc_handler = find_dissector_add_dependency("rpc", proto_rpcordma);
-        ib_handler = find_dissector_add_dependency("infiniband", proto_rpcordma);
-        proto_ib = dissector_handle_get_protocol_index(ib_handler);
 
         initialized = TRUE;
-    }
-
-    if (gPREF_MAN_EN) {
-        /* the manual setting is enabled, so parse the settings into the address type */
-        gboolean error_occured = FALSE;
-        char *not_parsed;
-        int i;
-
-        for (i = 0; i < 2; i++) {
-            if (gPREF_TYPE[i] == 0) {   /* LID */
-                errno = 0;  /* reset any previous error indicators */
-                *((guint16*)manual_addr_data[i]) = (guint16)strtoul(gPREF_ID[i], &not_parsed, 0);
-                if (errno || *not_parsed != '\0') {
-                    error_occured = TRUE;
-                } else {
-                    set_address(&manual_addr[i], AT_IB, sizeof(guint16), manual_addr_data[i]);
-                }
-            } else {    /* GID */
-                if (!str_to_ip6(gPREF_ID[i], manual_addr_data[i]) ) {
-                    error_occured = TRUE;
-                } else {
-                    set_address(&manual_addr[i], AT_IB, GID_SIZE, manual_addr_data[i]);
-                }
-            }
-
-            if (error_occured) {
-                /* an invalid id was specified - disable manual settings until it's fixed */
-                gPREF_MAN_EN = FALSE;
-                break;
-            }
-        }
     }
 }
 
