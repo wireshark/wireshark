@@ -418,9 +418,7 @@ void MainStatusBar::showCaptureStatistics()
 {
     QString packets_str;
 
-#ifndef HAVE_LIBPCAP
-    Q_UNUSED(cap_session)
-#else
+#ifdef HAVE_LIBPCAP
     /* Do we have any packets? */
     if (cs_fixed_ && cs_count_ > 0) {
         packets_str.append(QString(tr("Packets: %1"))
@@ -472,7 +470,9 @@ void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
 {
     cs_fixed_ = false;
 
-#ifdef HAVE_LIBPCAP
+#ifndef HAVE_LIBPCAP
+    Q_UNUSED(cap_session)
+#else
     if ((!cap_session || cap_session->cf == cap_file_) && cap_file_ && cap_file_->count) {
         cs_count_ = cap_file_->count;
     } else {
@@ -487,7 +487,9 @@ void MainStatusBar::updateCaptureFixedStatistics(capture_session *cap_session)
 {
     cs_fixed_ = true;
 
-#ifdef HAVE_LIBPCAP
+#ifndef HAVE_LIBPCAP
+    Q_UNUSED(cap_session)
+#else
     if (cap_session && cap_session->count) {
         cs_count_ = cap_session->count;
     } else {
