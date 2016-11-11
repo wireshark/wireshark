@@ -173,6 +173,7 @@ static int ett_iso14443_app_data = -1;
 static int ett_iso14443_prot_inf = -1;
 static int ett_iso14443_prot_type = -1;
 static int ett_iso14443_ats_t0 = -1;
+static int ett_iso14443_ats_ta1 = -1;
 static int ett_iso14443_ats_tb1 = -1;
 static int ett_iso14443_ats_tc1 = -1;
 static int ett_iso14443_attr_p1 = -1;
@@ -237,6 +238,13 @@ static int hf_iso14443_fsc = -1;
 static int hf_iso14443_tc1 = -1;
 static int hf_iso14443_tb1 = -1;
 static int hf_iso14443_ta1 = -1;
+static int hf_iso14443_same_d = -1;
+static int hf_iso14443_ds8 = -1;
+static int hf_iso14443_ds4 = -1;
+static int hf_iso14443_ds2 = -1;
+static int hf_iso14443_dr8 = -1;
+static int hf_iso14443_dr4 = -1;
+static int hf_iso14443_dr2 = -1;
 static int hf_iso14443_hist_bytes = -1;
 static int hf_iso14443_attrib_start = -1;
 static int hf_iso14443_pupi = -1;
@@ -261,6 +269,17 @@ static int hf_iso14443_pwr_lvl_ind = -1;
 static int hf_iso14443_wtxm = -1;
 static int hf_iso14443_inf = -1;
 static int hf_iso14443_crc = -1;
+
+static const int *ats_ta1_fields[] = {
+    &hf_iso14443_same_d,
+    &hf_iso14443_ds8,
+    &hf_iso14443_ds4,
+    &hf_iso14443_ds2,
+    &hf_iso14443_dr8,
+    &hf_iso14443_dr4,
+    &hf_iso14443_dr2,
+    NULL
+};
 
 static expert_field ei_iso14443_unknown_cmd = EI_INIT;
 static expert_field ei_iso14443_wrong_crc = EI_INIT;
@@ -653,8 +672,9 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
         offset++;
     }
     if (t0 & HAVE_TA1) {
-        proto_tree_add_item(tree, hf_iso14443_ta1,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                hf_iso14443_ta1, ett_iso14443_ats_ta1,
+                ats_ta1_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         offset++;
     }
     if (t0 & HAVE_TB1) {
@@ -1479,6 +1499,34 @@ proto_register_iso14443(void)
             { "Interface byte TA1", "iso14443.ta1",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
+        { &hf_iso14443_same_d,
+            { "Same D for both directions", "iso14443.same_d", FT_BOOLEAN, 8,
+                TFS(&tfs_required_not_required), 0x80, NULL, HFILL }
+        },
+        { &hf_iso14443_ds8,
+            { "DS=8", "iso14443.ds8", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x40, NULL, HFILL }
+        },
+        { &hf_iso14443_ds4,
+            { "DS=4", "iso14443.ds4", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x20, NULL, HFILL }
+        },
+        { &hf_iso14443_ds2,
+            { "DS=2", "iso14443.ds2", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x10, NULL, HFILL }
+        },
+        { &hf_iso14443_dr8,
+            { "DR=8", "iso14443.dr8", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x04, NULL, HFILL }
+        },
+        { &hf_iso14443_dr4,
+            { "DR=4", "iso14443.dr4", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }
+        },
+        { &hf_iso14443_dr2,
+            { "DR=2", "iso14443.dr2", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }
+        },
         { &hf_iso14443_hist_bytes,
             { "Historical bytes", "iso14443.hist_bytes",
                 FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
@@ -1585,6 +1633,7 @@ proto_register_iso14443(void)
         &ett_iso14443_prot_inf,
         &ett_iso14443_prot_type,
         &ett_iso14443_ats_t0,
+        &ett_iso14443_ats_ta1,
         &ett_iso14443_ats_tb1,
         &ett_iso14443_ats_tc1,
         &ett_iso14443_attr_p1,
