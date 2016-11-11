@@ -169,16 +169,16 @@ static const value_string auth_vals[] = {
 #define OSPF_LSTYPE_ASEXT7      7
 #define OSPF_LSTYPE_EXTATTR     8
 #define OSPF_LSTYPE_BASE        OSPF_LSTYPE_ROUTER
-#define OSPF_V3_LSTYPE_ROUTER                0x2001
-#define OSPF_V3_LSTYPE_NETWORK               0x2002
-#define OSPF_V3_LSTYPE_INTER_AREA_PREFIX     0x2003
-#define OSPF_V3_LSTYPE_INTER_AREA_ROUTER     0x2004
-#define OSPF_V3_LSTYPE_AS_EXTERNAL           0x4005
-#define OSPF_V3_LSTYPE_GROUP_MEMBERSHIP      0x2006
-#define OSPF_V3_LSTYPE_NSSA                  0x2007
-#define OSPF_V3_LSTYPE_LINK                  0x0008
-#define OSPF_V3_LSTYPE_INTRA_AREA_PREFIX     0x2009
-#define OSPF_V3_LSTYPE_OPAQUE_RI             0x800c
+#define OSPF_V3_LSTYPE_ROUTER                1
+#define OSPF_V3_LSTYPE_NETWORK               2
+#define OSPF_V3_LSTYPE_INTER_AREA_PREFIX     3
+#define OSPF_V3_LSTYPE_INTER_AREA_ROUTER     4
+#define OSPF_V3_LSTYPE_AS_EXTERNAL           5
+#define OSPF_V3_LSTYPE_GROUP_MEMBERSHIP      6
+#define OSPF_V3_LSTYPE_NSSA                  7
+#define OSPF_V3_LSTYPE_LINK                  8
+#define OSPF_V3_LSTYPE_INTRA_AREA_PREFIX     9
+#define OSPF_V3_LSTYPE_OPAQUE_RI            12
 
 /* Opaque LSA types */
 #define OSPF_LSTYPE_OP_BASE      8
@@ -293,6 +293,20 @@ static const value_string v3_ls_type_vals[] = {
     {OSPF_V3_LSTYPE_OPAQUE_RI,            "Router Information Opaque-LSA"},
     {0,                                   NULL                           }
 };
+
+static const value_string v3_ls_type_s12_vals[] = {
+    {0, "Link-Local Scoping - Flooded only on originating link"          },
+    {1, "Area Scoping - Flooded only in originating area"                },
+    {2, "AS Scoping - Flooded throughout AS"                             },
+    {3, "Reserved"                                                       },
+    {0, NULL                                                             }
+};
+
+static const true_false_string tfs_v3_ls_type_u = {
+    "Treat the LSA as if it had link-local flooding scope",
+    "Store and flood the LSA as if the type is understood"
+};
+
 
 static const value_string lls_tlv_type_vals[] = {
     {1,                                   "Extended options TLV"         },
@@ -482,7 +496,10 @@ static int *hf_ospf_ls_type_array[] = {
         &hf_ospf_ls_opaque
 };
 
+static int hf_ospf_v3_ls_type_u = -1;
+static int hf_ospf_v3_ls_type_s12 = -1;
 static int hf_ospf_v3_ls_type = -1;
+
 /* OSPF V3 LSA Type */
 static int hf_ospf_v3_ls_router = -1;
 static int hf_ospf_v3_ls_network = -1;
@@ -2743,7 +2760,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     guint8               flags;
 
 
-    ls_type = tvb_get_ntohs(tvb, offset + 2);
+    ls_type = tvb_get_ntohs(tvb, offset + 2) & 0x1FFF;
     ls_length = tvb_get_ntohs(tvb, offset + 18);
     end_offset = offset + ls_length;
 
@@ -2755,8 +2772,10 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_age, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_do_not_age, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_ls_type, tvb,
-                        offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_ls_type_u, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_ls_type_s12, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_ls_type, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+
     if (ospf_v3_ls_type_to_filter(ls_type) != -1) {
         hidden_item = proto_tree_add_item(ospf_lsa_tree,
                                           *hf_ospf_v3_ls_type_array[ospf_v3_ls_type_to_filter(ls_type)], tvb,
@@ -3061,7 +3080,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     default:
         /* unknown LSA type */
         expert_add_info_format(pinfo, type_item, &ei_ospf_lsa_unknown_type,
-                            "Unknown LSA Type 0x%04x",ls_type);
+                            "Unknown LSA Type %u",ls_type);
         offset += ls_length;
         break;
     }
@@ -3338,8 +3357,14 @@ proto_register_ospf(void)
 
         /* OSPFv3 LS Types */
         {&hf_ospf_v3_ls_type,
-         { "LS Type", "ospf.v3.lsa", FT_UINT16, BASE_HEX,
-           VALS(v3_ls_type_vals), 0x0, NULL, HFILL }},
+         { "LS Type", "ospf.v3.lsa", FT_UINT16, BASE_DEC, VALS(v3_ls_type_vals),0x1FFF,
+           NULL, HFILL }},
+        {&hf_ospf_v3_ls_type_u,
+         { "LSA Handling", "ospf.v3.lsa.u", FT_BOOLEAN, 16, TFS(&tfs_v3_ls_type_u),0x8000,
+           NULL, HFILL }},
+        {&hf_ospf_v3_ls_type_s12,
+         { "Flooding Scope", "ospf.v3.lsa.s12", FT_UINT16, BASE_HEX, VALS(v3_ls_type_s12_vals),0x6000,
+           NULL, HFILL }},
 
         {&hf_ospf_v3_ls_router,
          { "Router-LSA", "ospf.v3.lsa.router", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
