@@ -171,7 +171,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_EARLY_DATA                    42
 #define SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS            43
 #define SSL_HND_HELLO_EXT_COOKIE                        44
-#define SSL_HND_HELLO_EXT_NPN                           13712 /* 0x3374 */
+#define SSL_HND_HELLO_EXT_NPN                           13172 /* 0x3374 */
 #define SSL_HND_HELLO_EXT_CHANNEL_ID_OLD                30031 /* 0x754f */
 #define SSL_HND_HELLO_EXT_CHANNEL_ID                    30032 /* 0x7550 */
 #define SSL_HND_HELLO_EXT_RENEGOTIATION_INFO            65281 /* 0xFF01 */
