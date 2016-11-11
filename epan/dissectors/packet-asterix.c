@@ -11412,7 +11412,7 @@ void proto_register_asterix (void)
 
     asterix_handle = register_dissector ("asterix", dissect_asterix, proto_asterix);
 
-    asterix_prefs_module = prefs_register_protocol (proto_asterix, proto_reg_handoff_asterix);
+    asterix_prefs_module = prefs_register_protocol (proto_asterix, NULL);
 
     prefs_register_enum_preference (asterix_prefs_module, "i001_version", "I001 version", "Select the CAT001 version", &global_categories_version[1],  I001_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i002_version", "I002 version", "Select the CAT001 version", &global_categories_version[2],  I002_versions, FALSE);
