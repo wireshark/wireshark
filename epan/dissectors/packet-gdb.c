@@ -98,9 +98,8 @@ dissect_gdb_token(void *tvbparse_data, const void *wanted_data, tvbparse_elem_t 
                     tok->tvb, tok->offset, tok->len, ENC_ASCII|ENC_NA);
             break;
         case GDB_TOK_CHKSUM:
-            /* the spec is not really explicit but it seems that the
-               checksum is big endian */
-            proto_tree_add_checksum(tree, tok->tvb, tok->offset, hf_gdb_chksum, -1, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            proto_tree_add_item(tree, hf_gdb_chksum,
+                    tok->tvb, tok->offset, tok->len, ENC_ASCII|ENC_NA);
             break;
         default:
             break;
@@ -208,8 +207,8 @@ proto_register_gdb(void)
           { "Terminating character", "gdb.end", FT_STRING, BASE_NONE,
               NULL, 0, NULL, HFILL } },
         { &hf_gdb_chksum,
-            { "Checksum", "gdb.chksum", FT_UINT8, BASE_HEX,
-                NULL, 0, NULL, HFILL } }
+          { "Checksum", "gdb.chksum", FT_STRING, BASE_NONE,
+              NULL, 0, NULL, HFILL } }
     };
 
     static gint *ett[] = {
