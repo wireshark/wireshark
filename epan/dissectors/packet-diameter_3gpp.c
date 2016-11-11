@@ -256,6 +256,8 @@ static int hf_diameter_3gpp_ppr_flags_bit0 = -1;
 static int hf_diameter_3gpp_ppr_flags_bit1 = -1;
 static int hf_diameter_3gpp_ppr_flags_bit2 = -1;
 static int hf_diameter_3gpp_ppr_flags_bit3 = -1;
+static int hf_diameter_3gpp_aaa_fail_flags = -1;
+static int hf_diameter_3gpp_aaa_fail_flags_bit0 = -1;
 static int hf_diameter_3gpp_der_flags = -1;
 static int hf_diameter_3gpp_der_flags_bit0 = -1;
 static int hf_diameter_3gpp_der_flags_bit1 = -1;
@@ -325,6 +327,7 @@ static int hf_diameter_3gpp_pua_flags_spare_bits = -1;
 static int hf_diameter_3gpp_nor_flags_spare_bits = -1;
 static int hf_diameter_3gpp_idr_flags_spare_bits = -1;
 static int hf_diameter_3gpp_ppr_flags_spare_bits = -1;
+static int hf_diameter_3gpp_aaa_fail_flags_spare_bits = -1;
 static int hf_diameter_3gpp_der_flags_spare_bits = -1;
 static int hf_diameter_3gpp_dea_flags_spare_bits = -1;
 static int hf_diameter_3gpp_rar_flags_spare_bits = -1;
@@ -349,6 +352,7 @@ static gint diameter_3gpp_pua_flags_ett = -1;
 static gint diameter_3gpp_nor_flags_ett = -1;
 static gint diameter_3gpp_idr_flags_ett = -1;
 static gint diameter_3gpp_ppr_flags_ett = -1;
+static gint diameter_3gpp_aaa_fail_flags_ett = -1;
 static gint diameter_3gpp_der_flags_ett = -1;
 static gint diameter_3gpp_dea_flags_ett = -1;
 static gint diameter_3gpp_rar_flags_ett = -1;
@@ -1735,6 +1739,22 @@ dissect_diameter_3gpp_ppr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     return 4;
 }
 
+/* AVP Code: 1518 AAA-Failure-Indication */
+/* TGPP TS 29.273, v14.0.0 */
+static int
+dissect_diameter_3gpp_aaa_fail_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static const int *flags[] = {
+        &hf_diameter_3gpp_aaa_fail_flags_spare_bits,
+        &hf_diameter_3gpp_aaa_fail_flags_bit0,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_aaa_fail_flags, diameter_3gpp_aaa_fail_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    return 4;
+
+}
+
 /* AVP Code: 1520 DER-Flags */
 static int
 dissect_diameter_3gpp_der_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -2023,6 +2043,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1508 PPR-Flags */
     dissector_add_uint("diameter.3gpp", 1508, create_dissector_handle(dissect_diameter_3gpp_ppr_flags, proto_diameter_3gpp));
+
+    /* AVP Code: 1518 AAA-Failure-Indication */
+    dissector_add_uint("diameter.3gpp", 1518, create_dissector_handle(dissect_diameter_3gpp_aaa_fail_flags, proto_diameter_3gpp));
 
     /* AVP Code: 1520 DER-Flags */
     dissector_add_uint("diameter.3gpp", 1520, create_dissector_handle(dissect_diameter_3gpp_der_flags, proto_diameter_3gpp));
@@ -3370,6 +3393,21 @@ proto_register_diameter_3gpp(void)
             FT_UINT32, BASE_HEX, NULL, 0xFFFFFFF0,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_aaa_fail_flags,
+            { "AAA Failure Indication", "diameter.3gpp.aaa_fail_flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_aaa_fail_flags_bit0,
+            { "AAA Failure", "diameter.3gpp.aaa_fail_flags_bit0",
+              FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
+              NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_aaa_fail_flags_spare_bits,
+            { "Spare", "diameter.3gpp.aaa_fail_flags_spare",
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFE,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_der_flags,
             { "DER Flags", "diameter.3gpp.der_flags",
             FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -3768,6 +3806,7 @@ proto_register_diameter_3gpp(void)
         &diameter_3gpp_nor_flags_ett,
         &diameter_3gpp_idr_flags_ett,
         &diameter_3gpp_ppr_flags_ett,
+        &diameter_3gpp_aaa_fail_flags_ett,
         &diameter_3gpp_der_flags_ett,
         &diameter_3gpp_dea_flags_ett,
         &diameter_3gpp_rar_flags_ett,
