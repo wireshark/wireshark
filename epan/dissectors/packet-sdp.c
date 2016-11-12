@@ -1382,7 +1382,8 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                 return;   /* Invalid */
             }
 
-            transport_info->encoding_name[pt] = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
+            /* String is file scope allocated because transport_info is connection related */
+            transport_info->encoding_name[pt] = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
 
             next_offset =  next_offset + 1;
             offset = next_offset;
@@ -1912,7 +1913,8 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
         transport_info->media_count = -1;
 
         for (n = 0; n < SDP_NO_OF_PT; n++) {
-            transport_info->encoding_name[n] = wmem_strdup(wmem_packet_scope(), UNKNOWN_ENCODING);
+            /* String is file scope allocated because transport_info is connection related */
+            transport_info->encoding_name[n] = wmem_strdup(wmem_file_scope(), UNKNOWN_ENCODING);
         }
         for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++) {
             transport_info->media[n].rtp_dyn_payload = rtp_dyn_payload_new();
