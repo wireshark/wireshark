@@ -1502,10 +1502,12 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 
         for (i = 0; i < num_eid_ref; i++)
         {
-            evaluate_sdnv(tvb, offset, &sdnv_length);
+            if (evaluate_sdnv(tvb, offset, &sdnv_length) < 0)
+                break;
             offset += sdnv_length;
 
-            evaluate_sdnv(tvb, offset, &sdnv_length);
+            if (evaluate_sdnv(tvb, offset, &sdnv_length) < 0)
+                break;
             offset += sdnv_length;
         }
     }
