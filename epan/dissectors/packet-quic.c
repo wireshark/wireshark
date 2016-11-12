@@ -631,6 +631,8 @@ enum QuicErrorCode {
     /* A crypto message was received that contained a parameter with too few
        values. */
     QUIC_CRYPTO_MESSAGE_INDEX_NOT_FOUND = 37,
+    /* A demand for an unsupport proof type was received. */
+    QUIC_UNSUPPORTED_PROOF_DEMAND = 94,
     /* An internal error occurred in crypto processing. */
     QUIC_CRYPTO_INTERNAL_ERROR = 38,
     /* A crypto handshake message specified an unsupported version. */
@@ -687,8 +689,14 @@ enum QuicErrorCode {
     /* Stream frames arrived too discontiguously so that stream sequencer buffer maintains too many gaps. */
     QUIC_TOO_MANY_FRAME_GAPS = 93,
 
+    /* Sequencer buffer get into weird state where continuing read/write will lead
+       to crash. */
+    QUIC_STREAM_SEQUENCER_INVALID_STATE = 95,
+    /* Connection closed because of server hits max number of sessions allowed. */
+    QUIC_TOO_MANY_SESSIONS_ON_SERVER = 96,
+
     /* No error. Used as bound while iterating. */
-    QUIC_LAST_ERROR = 94
+    QUIC_LAST_ERROR = 97
 };
 
 
@@ -789,6 +797,9 @@ static const value_string error_code_vals[] = {
     { QUIC_MULTIPATH_PATH_DOES_NOT_EXIST, "A path is supposed to exist but does not" },
     { QUIC_MULTIPATH_PATH_NOT_ACTIVE, "A path is supposed to be active but is not" },
     { QUIC_TOO_MANY_FRAME_GAPS, "Stream frames arrived too discontiguously so that stream sequencer buffer maintains too many gaps" },
+    { QUIC_UNSUPPORTED_PROOF_DEMAND, "A demand for an unsupport proof type was received" },
+    { QUIC_STREAM_SEQUENCER_INVALID_STATE, "Sequencer buffer get into weird state where continuing read/write will lead to crash" },
+    { QUIC_TOO_MANY_SESSIONS_ON_SERVER, "Connection closed because of server hits max number of sessions allowed" },
     { QUIC_LAST_ERROR, "No error. Used as bound while iterating" },
     { 0, NULL }
 };
@@ -830,6 +841,10 @@ enum QuicRstStreamErrorCode {
   QUIC_PROMISE_VARY_MISMATCH,
   /* Only GET and HEAD methods allowed. */
   QUIC_INVALID_PROMISE_METHOD,
+  // The push stream is unclaimed and timed out.
+  QUIC_PUSH_STREAM_TIMED_OUT,
+  // Received headers were too large.
+  QUIC_HEADERS_TOO_LARGE,
   /* No error. Used as bound while iterating. */
   QUIC_STREAM_LAST_ERROR,
 };
@@ -849,6 +864,8 @@ static const value_string rststream_error_code_vals[] = {
     { QUIC_DUPLICATE_PROMISE_URL, "Can't have more than one active PUSH_PROMISE per URL" },
     { QUIC_PROMISE_VARY_MISMATCH, "Vary check failed" },
     { QUIC_INVALID_PROMISE_METHOD, "Only GET and HEAD methods allowed" },
+    { QUIC_PUSH_STREAM_TIMED_OUT, "The push stream is unclaimed and timed out" },
+    { QUIC_HEADERS_TOO_LARGE, "Received headers were too large" },
     { QUIC_STREAM_LAST_ERROR, "No error. Used as bound while iterating" },
     { 0, NULL }
 };
