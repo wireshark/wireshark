@@ -244,18 +244,42 @@ static const value_string grace_tlv_type_vals[] = {
     {0, NULL}
 };
 
-/* Opaque-LSA - Router Informational Capabilities: TLV Types*/
-#define OPT_RI_TLV       1
-#define DYN_HOSTNAME_TLV 7
+/* http://www.iana.org/assignments/ospf-parameters/ospf-parameters.xhtml#ri-tlv */
 
-#if 0
+/* Opaque-LSA - Router Informational Capabilities: TLV Types*/
+#define OPAQUE_TLV_RI               1
+#define OPAQUE_TLV_RF               2
+#define OPAQUE_TLV_TMG_IP4          3
+#define OPAQUE_TLV_TMG_IP6          4
+#define OPAQUE_TLV_TNCD             5
+#define OPAQUE_TLV_PCED             6
+#define OPAQUE_TLV_DH               7
+#define OPAQUE_TLV_SA               8
+#define OPAQUE_TLV_SLR              9
+#define OPAQUE_TLV_NAT              10
+#define OPAQUE_TLV_SBD              11
+
 /* The Opaque RI LSA TLV types definitions. */
 static const value_string ri_tlv_type_vals[] = {
-    {OPT_RI_TLV,          "Optional Router Informational Capabilities TLV"},
-    {DYN_HOSTNAME_TLV,    "Dynamic Hostname TLV"},
+    {OPAQUE_TLV_RI,                 "Router Informational Capabilities"  },
+    {OPAQUE_TLV_RF,                 "Router Functional Capabilities"     },
+    {OPAQUE_TLV_TMG_IP4,            "TE-MESH-GROUP TLV (IPv4)"           },
+    {OPAQUE_TLV_TMG_IP6,            "TE-MESH-GROUP TLV (IPv6)"           },
+    {OPAQUE_TLV_TNCD,               "TE Node Capability Descriptor"      },
+    {OPAQUE_TLV_PCED,               "PCED"                               },
+    {OPAQUE_TLV_DH,                 "OSPF Dynamic Hostname"              },
+    {OPAQUE_TLV_SA,                 "SR-Algorithm "                      },
+    {OPAQUE_TLV_SLR,                "SID/Label Range "                   },
+    {OPAQUE_TLV_NAT,                "Node Admin Tag "                    },
+    {OPAQUE_TLV_SBD,                "S-BFD Discriminator"                },
     {0, NULL}
 };
-#endif
+
+static const value_string ri_lsa_sa_tlv_type_vals[] = {
+    {0,                             "Shortest Path First"                },
+    {1,                             "Strict Shortest Path First"         },
+    {0, NULL}
+};
 
 static const value_string ls_type_vals[] = {
     {OSPF_LSTYPE_ROUTER,                  "Router-LSA"                   },
@@ -421,7 +445,8 @@ static gint ett_ospf_lsa_oif_tna_stlv = -1;
 static gint ett_ospf_lsa_grace_tlv = -1;
 static gint ett_ospf_lsa_opaque_ri = -1;
 static gint ett_ospf_lsa_ri_tlv = -1;
-static gint ett_ospf_lsa_dyn_hostname_tlv = -1;
+static gint ett_ospf_lsa_dh_tlv = -1;
+static gint ett_ospf_lsa_sa_tlv = -1;
 static gint ett_ospf_lsa_unknown_tlv = -1;
 
 
@@ -552,6 +577,8 @@ static int hf_ospf_v2_options_dc = -1;
 static int hf_ospf_v2_options_o = -1;
 static int hf_ospf_v2_options_dn = -1;
 
+static int hf_ospf_tlv_type_opaque = -1;
+
 static int hf_ospf_ri_options = -1;
 /* OSPF Router Informational Capabilities Options */
 static int hf_ospf_ri_options_grc = -1;
@@ -602,7 +629,8 @@ static int hf_ospf_v3_prefix_option_la = -1;
 static int hf_ospf_v3_prefix_option_mc = -1;
 static int hf_ospf_v3_prefix_option_p = -1;
 static int hf_ospf_dyn_hostname = -1;
-static int hf_ospf_unknown_tlv_txt = -1;
+static int hf_ospf_lsa_sa = -1;
+static int hf_ospf_unknown_tlv = -1;
 static int hf_ospf_v2_grace_tlv = -1;
 static int hf_ospf_v2_grace_period = -1;
 static int hf_ospf_v2_grace_reason = -1;
@@ -2368,40 +2396,51 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
 
         switch(tlv_type) {
 
-        case OPT_RI_TLV:
-            tlv_tree = proto_tree_add_subtree(ri_tree, tvb, offset, tlv_length+4,
-                                    ett_ospf_lsa_ri_tlv, NULL, "RI TLV");
+        case OPAQUE_TLV_RI:
+            tlv_tree = proto_tree_add_subtree_format(ri_tree, tvb, offset, tlv_length+4,
+                                    ett_ospf_lsa_ri_tlv, NULL, "%s", val_to_str_const(tlv_type, ri_tlv_type_vals, "Unknown Opaque RI LSA TLV"));
 
-            proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2,
-                        tlv_type, "Router Informational Capabilities TLV (%u)", tlv_type);
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_type_opaque, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
             dissect_ospf_bitfield(tlv_tree, tvb, offset + 4, &bfinfo_ri_options);
             break;
 
-        case DYN_HOSTNAME_TLV:
-            tlv_tree = proto_tree_add_subtree(ri_tree, tvb, offset, tlv_length+4,
-                                    ett_ospf_lsa_dyn_hostname_tlv, NULL, "Dynamic Hostname TLV");
+        case OPAQUE_TLV_DH:
+            tlv_tree = proto_tree_add_subtree_format(ri_tree, tvb, offset, tlv_length+4,
+                                    ett_ospf_lsa_dh_tlv, NULL, "%s", val_to_str_const(tlv_type, ri_tlv_type_vals, "Unknown Opaque RI LSA TLV"));
 
-            proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2,
-                               tlv_type, "Dynamic Hostname TLV (%u)", tlv_type);
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_type_opaque, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(tlv_tree, hf_ospf_dyn_hostname, tvb, offset+4, tlv_length, ENC_ASCII|ENC_NA);
             break;
 
-        default:
-            tlv_tree = proto_tree_add_subtree(ri_tree, tvb, offset, tlv_length+4,
-                                    ett_ospf_lsa_unknown_tlv, NULL, "Unknown Opaque RI LSA TLV");
+        case OPAQUE_TLV_SA:{
+            int sa_number;
+            tlv_tree = proto_tree_add_subtree_format(ri_tree, tvb, offset, tlv_length+4,
+                                    ett_ospf_lsa_sa_tlv, NULL, "%s", val_to_str_const(tlv_type, ri_tlv_type_vals, "Unknown Opaque RI LSA TLV"));
 
-            proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_length, tvb, offset, 2,
-                               tlv_type, "Unknown TLV (%u)", tlv_type);
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_type_opaque, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
-            proto_tree_add_item(tlv_tree, hf_ospf_unknown_tlv_txt, tvb, offset+4, tlv_length, ENC_ASCII|ENC_NA);
+            for(sa_number = 0; sa_number < tlv_length; sa_number++){
+                proto_tree_add_item(tlv_tree, hf_ospf_lsa_sa, tvb, offset+sa_number+4, 1, ENC_ASCII|ENC_NA);
+            }
+            break;
+            }
+        default:
+            tlv_tree = proto_tree_add_subtree_format(ri_tree, tvb, offset, tlv_length+4,
+                                    ett_ospf_lsa_unknown_tlv, NULL, "%s", val_to_str_const(tlv_type, ri_tlv_type_vals, "Unknown Opaque RI LSA TLV"));
+
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_type_opaque, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+
+            proto_tree_add_item(tlv_tree, hf_ospf_unknown_tlv, tvb, offset+4, tlv_length, ENC_NA);
             break;
 
         }
@@ -3507,6 +3546,10 @@ proto_register_ospf(void)
          { "(ETE) Experimental TE", "ospf.ri.options.ete", FT_BOOLEAN, 8,
            TFS(&tfs_capable_not_capable), OSPF_RI_OPTIONS_ETE, NULL, HFILL }},
 
+        {&hf_ospf_tlv_type_opaque,
+         { "TLV Type", "ospf.tlv_type.opaque", FT_UINT16, BASE_DEC, VALS(ri_tlv_type_vals), 0x0,
+           NULL, HFILL }},
+
         /* An MBZ field for the 24-bits of type field of Opaque RI LSA */
         {&hf_ospf_opaque_lsa_mbz,
          { "MBZ", "ospf.ri.mbz", FT_UINT16, BASE_HEX,
@@ -3631,9 +3674,12 @@ proto_register_ospf(void)
         {&hf_ospf_dyn_hostname,
          { "Dynamic Hostname", "ospf.dynhostname", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-        /* text contained in the Unknown TLV of the Opaque RI LSA */
-        {&hf_ospf_unknown_tlv_txt,
-         { "Text in the Unknown TLV", "ospf.unknown_text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_lsa_sa,
+         { "SR-Algorithm", "ospf.lsa_sa", FT_UINT8, BASE_DEC, VALS(ri_lsa_sa_tlv_type_vals), 0x0, NULL, HFILL }},
+
+        /* the Unknown TLV of the Opaque RI LSA */
+        {&hf_ospf_unknown_tlv,
+         { "Unknown TLV", "ospf.tlv.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         /* OSPF Restart TLVs  */
         {&hf_ospf_v2_grace_tlv,
@@ -3791,7 +3837,8 @@ proto_register_ospf(void)
         &ett_ospf_lsa_mpls_link_stlv_admingrp,
         &ett_ospf_lsa_opaque_ri,
         &ett_ospf_lsa_ri_tlv,
-        &ett_ospf_lsa_dyn_hostname_tlv,
+        &ett_ospf_lsa_dh_tlv,
+        &ett_ospf_lsa_sa_tlv,
         &ett_ospf_lsa_unknown_tlv,
         &ett_ospf_lsa_oif_tna,
         &ett_ospf_lsa_oif_tna_stlv,
