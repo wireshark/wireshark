@@ -1172,6 +1172,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_EARLY_DATA, "early_data" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS, "supported_versions" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_COOKIE, "cookie" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
+    { SSL_HND_HELLO_EXT_PSK_KEY_EXCHANGE_MODES, "psk_key_exchange_modes" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* https://tools.ietf.org/id/draft-agl-tls-nextprotoneg-03.html */
     { SSL_HND_HELLO_EXT_CHANNEL_ID_OLD, "channel_id_old" }, /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-00
        https://twitter.com/ericlaw/status/274237352531083264 */
@@ -1187,7 +1188,7 @@ const value_string tls_hello_ext_server_name_type_vs[] = {
     { 0, NULL }
 };
 
-/* draft-ietf-tls-tls13-15 4.2.5 */
+/* draft-ietf-tls-tls13-18 4.2.7 */
 const value_string tls_hello_ext_psk_ke_mode[] = {
     { 0, "PSK-only key establishment (psk_ke)" },
     { 1, "PSK key establishment with (EC)DHE key establishment (psk_dhe_ke)" },
@@ -5692,6 +5693,40 @@ ssl_dissect_hnd_hello_ext_cookie(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     return offset;
 }
 
+static gint
+ssl_dissect_hnd_hello_ext_psk_key_exchange_modes(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                                 proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    /*
+     * enum { psk_ke(0), psk_dhe_ke(1), (255) } PskKeyExchangeMode;
+     *
+     * struct {
+     *     PskKeyExchangeMode ke_modes<1..255>;
+     * } PskKeyExchangeModes;
+     */
+    guint32 offset_end = offset + ext_len;
+    guint32 ke_modes_length, i;
+
+    if (ext_len < 1) {
+        /* XXX expert info, there must be at least 1 ke mode */
+        return offset;
+    }
+
+    proto_tree_add_item_ret_uint(tree, hf->hf.hs_ext_psk_ke_modes_len, tvb, offset, 1, ENC_NA, &ke_modes_length);
+    offset += 1;
+
+    if (ke_modes_length > offset_end - offset) {
+        ke_modes_length = offset_end - offset;
+        /* XXX expert info: size too large */
+    }
+
+    for (i = 0; i < ke_modes_length; i++) {
+        proto_tree_add_item(tree, hf->hf.hs_ext_psk_ke_mode, tvb, offset, 1, ENC_NA);
+        offset += 1;
+    }
+
+    return offset;
+}
 
 static gint
 ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
@@ -6851,6 +6886,9 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_COOKIE:
             offset = ssl_dissect_hnd_hello_ext_cookie(hf, tvb, ext_tree, offset, ext_len);
+            break;
+        case SSL_HND_HELLO_EXT_PSK_KEY_EXCHANGE_MODES:
+            offset = ssl_dissect_hnd_hello_ext_psk_key_exchange_modes(hf, tvb, ext_tree, offset, ext_len);
             break;
         case SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_draft_version_tls13,

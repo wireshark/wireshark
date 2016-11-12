@@ -171,6 +171,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_EARLY_DATA                    42
 #define SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS            43
 #define SSL_HND_HELLO_EXT_COOKIE                        44
+#define SSL_HND_HELLO_EXT_PSK_KEY_EXCHANGE_MODES        45
 #define SSL_HND_HELLO_EXT_NPN                           13172 /* 0x3374 */
 #define SSL_HND_HELLO_EXT_CHANNEL_ID_OLD                30031 /* 0x754f */
 #define SSL_HND_HELLO_EXT_CHANNEL_ID                    30032 /* 0x7550 */
@@ -761,6 +762,8 @@ typedef struct ssl_common_dissect {
 
         /* TLS 1.3 */
         gint hs_ext_draft_version_tls13;
+        gint hs_ext_psk_ke_modes_len;
+        gint hs_ext_psk_ke_mode;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -896,7 +899,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1,                                         \
+        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1500,6 +1503,16 @@ ssl_common_dissect_t name = {   \
       { "Draft version of TLS 1.3", prefix ".extension.draft_version_tls13", \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
         "Indicate the version of draft supported by client", HFILL }    \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_ke_modes_len,                                   \
+      { "PSK Key Exchange Modes Length", prefix ".handshake.psk_ke_modes_len", \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_psk_ke_mode,                                    \
+      { "PSK Key Exchange Mode", prefix ".handshake.psk_ke_mode",       \
+        FT_UINT8, BASE_DEC, VALS(tls_hello_ext_psk_ke_mode), 0x0,       \
+        "Key exchange modes where the client supports use of PSKs", HFILL } \
     }
 /* }}} */
 
