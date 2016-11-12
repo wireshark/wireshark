@@ -1564,12 +1564,12 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_conl_ccp,
 		  { "CON Connection Point", "gsm_abis_om2000.con_list.cpp",
-		    FT_UINT16, BASE_DEC, NULL, 0x3ff,
+		    FT_UINT16, BASE_DEC, NULL, 0x7ff,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_conl_ci,
 		  { "Contiguity Index", "gsm_abis_om2000.con_list.ci",
-		    FT_UINT8, BASE_DEC, NULL, 0x7,
+		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_conl_tag,
