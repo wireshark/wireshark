@@ -2941,7 +2941,7 @@ get_manuf_name_if_known(const guint8 *addr)
     manuf_key = manuf_key | oct;
 
     manuf_value = (hashmanuf_t *)wmem_map_lookup(manuf_hashtable, &manuf_key);
-    if ((manuf_value == NULL) || (manuf_value->status != HASHETHER_STATUS_UNRESOLVED)) {
+    if ((manuf_value == NULL) || (manuf_value->status == HASHETHER_STATUS_UNRESOLVED)) {
         return NULL;
     }
 
@@ -2955,7 +2955,7 @@ uint_get_manuf_name_if_known(const guint manuf_key)
     hashmanuf_t *manuf_value;
 
     manuf_value = (hashmanuf_t *)wmem_map_lookup(manuf_hashtable, &manuf_key);
-    if ((manuf_value == NULL) || (manuf_value->status != HASHETHER_STATUS_UNRESOLVED)) {
+    if ((manuf_value == NULL) || (manuf_value->status == HASHETHER_STATUS_UNRESOLVED)) {
         return NULL;
     }
 
