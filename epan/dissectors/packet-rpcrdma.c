@@ -516,6 +516,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Parse rpc_rdma_header */
         offset = parse_rdma_header(tvb, offset, rpcordma_tree);
 
+        proto_item_set_len(ti, offset);
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         return call_dissector(rpc_handler, next_tvb, pinfo, tree);
 
@@ -536,6 +537,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         offset = parse_rdma_header(tvb, offset, rpcordma_tree);
 
+        proto_item_set_len(ti, offset);
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         return call_dissector(rpc_handler, next_tvb, pinfo, tree);
 
@@ -563,12 +565,14 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         default:
+            proto_item_set_len(ti, offset);
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             return call_data_dissector(next_tvb, pinfo, tree);
         }
         break;
     }
 
+    proto_item_set_len(ti, offset);
     return offset;
 }
 
