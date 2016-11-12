@@ -251,7 +251,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	return tvb_captured_length(tvb);
 }
 
-gboolean
+static gboolean
 capture_ax25( const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
 	guint8 control;

@@ -5635,7 +5635,7 @@ capture_ieee80211_common(const guchar * pd, int offset, int len,
 /*
  * Handle 802.11 with a variable-length link-layer header.
  */
-gboolean
+static gboolean
 capture_ieee80211(const guchar * pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   return capture_ieee80211_common (pd, offset, len, cpinfo, pseudo_header, FALSE);
@@ -5644,7 +5644,7 @@ capture_ieee80211(const guchar * pd, int offset, int len, capture_packet_info_t 
 /*
  * Handle 802.11 with a variable-length link-layer header and data padding.
  */
-gboolean
+static gboolean
 capture_ieee80211_datapad(const guchar * pd, int offset, int len,
                            capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {

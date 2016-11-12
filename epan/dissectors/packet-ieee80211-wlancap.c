@@ -74,7 +74,7 @@ static dissector_handle_t wlancap_handle;
 static capture_dissector_handle_t wlancap_cap_handle;
 static capture_dissector_handle_t ieee80211_cap_handle;
 
-gboolean
+static gboolean
 capture_wlancap(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint32 length;

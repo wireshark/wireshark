@@ -113,7 +113,7 @@ const value_string chdlc_vals[] = {
   {0,                     NULL}
 };
 
-gboolean
+static gboolean
 capture_chdlc( const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header) {
   if (!BYTES_ARE_IN_FRAME(offset, len, 4))
     return FALSE;

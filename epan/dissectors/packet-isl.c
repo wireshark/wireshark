@@ -91,7 +91,7 @@ static dissector_handle_t tr_handle;
 static capture_dissector_handle_t eth_cap_handle;
 static capture_dissector_handle_t tr_cap_handle;
 
-gboolean
+static gboolean
 capture_isl(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint8 type;

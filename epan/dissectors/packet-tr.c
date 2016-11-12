@@ -247,7 +247,7 @@ int check_for_old_linux(const guchar * pd)
 static void
 add_ring_bridge_pairs(int rcf_len, tvbuff_t*, proto_tree *tree);
 
-gboolean
+static gboolean
 capture_tr(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_) {
 
 	int			source_routed = 0;
