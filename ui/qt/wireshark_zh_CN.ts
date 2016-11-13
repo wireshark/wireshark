@@ -1198,7 +1198,7 @@
         <translation>捕获过滤器</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="303"/>
+        <location filename="capture_filter_edit.cpp" line="304"/>
         <source>Enter a capture filter %1</source>
         <translation>输入捕获过滤器 %1</translation>
     </message>
@@ -1213,38 +1213,38 @@
         <translation>应用此过滤器字符串进行显示。</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="298"/>
+        <location filename="capture_filter_edit.cpp" line="299"/>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
         <translation>多个过滤器已选中。在这里覆盖它们，或者留空以保留。</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="299"/>
+        <location filename="capture_filter_edit.cpp" line="300"/>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
         <translation>&lt;p&gt;您已选择多个不同的捕获过滤器。在这里输入一个过滤器将覆盖它们。不操作将保留它们。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="403"/>
+        <location filename="capture_filter_edit.cpp" line="404"/>
         <source>Save this filter</source>
         <translation>保存此过滤器</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="405"/>
+        <location filename="capture_filter_edit.cpp" line="406"/>
         <source>Remove this filter</source>
         <translation>移除此过滤器</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="407"/>
+        <location filename="capture_filter_edit.cpp" line="408"/>
         <source>Manage Capture Filters</source>
         <translation>管理捕获筛选器</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="540"/>
+        <location filename="capture_filter_edit.cpp" line="541"/>
         <source>Unable to save capture filter settings.</source>
         <translation>无法保存捕获筛选器设置。</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="541"/>
+        <location filename="capture_filter_edit.cpp" line="542"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
         <translation>未能保存您的捕获过滤器文件

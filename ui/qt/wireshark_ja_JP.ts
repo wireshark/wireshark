@@ -1198,7 +1198,7 @@
         <translation>キャプチャフィルタ入力</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="303"/>
+        <location filename="capture_filter_edit.cpp" line="304"/>
         <source>Enter a capture filter %1</source>
         <translation>キャプチャフィルタ %1 を入力</translation>
     </message>
@@ -1213,38 +1213,38 @@
         <translation>このフィルタ文字列を表示に適用します</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="298"/>
+        <location filename="capture_filter_edit.cpp" line="299"/>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
         <translation>複数のフィルタが選択されています。選択を上書きするかあるいは空白のままにしておいてください</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="299"/>
+        <location filename="capture_filter_edit.cpp" line="300"/>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
         <translation>&lt;p&gt;選択したインターフェースには異なるキャプチャフィルタがあります。ここにフィルタを入力すれば上書きされます。なにもしなければそのまま保存します&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="403"/>
+        <location filename="capture_filter_edit.cpp" line="404"/>
         <source>Save this filter</source>
         <translation>このフィルタを保存</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="405"/>
+        <location filename="capture_filter_edit.cpp" line="406"/>
         <source>Remove this filter</source>
         <translation>このフィルタを削除</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="407"/>
+        <location filename="capture_filter_edit.cpp" line="408"/>
         <source>Manage Capture Filters</source>
         <translation>キャプチャフィルタ管理</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="540"/>
+        <location filename="capture_filter_edit.cpp" line="541"/>
         <source>Unable to save capture filter settings.</source>
         <translation>キャプチャフィルタ設定を保存できません</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="541"/>
+        <location filename="capture_filter_edit.cpp" line="542"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
         <translation type="unfinished">キャプチャフィルタファイルを保存できません &quot;%1&quot;: %2.</translation>

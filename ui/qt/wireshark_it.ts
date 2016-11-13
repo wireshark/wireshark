@@ -1200,7 +1200,7 @@
         <translation>Voce del filtro di cattura</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="303"/>
+        <location filename="capture_filter_edit.cpp" line="304"/>
         <source>Enter a capture filter %1</source>
         <translation>Digita un filtro di cattura %1</translation>
     </message>
@@ -1215,38 +1215,38 @@
         <translation>Applica questa stringa di filtro alla visualizzazione.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="298"/>
+        <location filename="capture_filter_edit.cpp" line="299"/>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
         <translation>Più filtri selezionati. Sovrascrivili qui o lascia vuoto per preservarli.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="299"/>
+        <location filename="capture_filter_edit.cpp" line="300"/>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Le interfacce che hai selezionato hanno diversi filtri di cattura. Se digiti un filtro qui, avrà la precedenza su tali filtri. Se lasci vuoto, i filtri saranno preservati.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="403"/>
+        <location filename="capture_filter_edit.cpp" line="404"/>
         <source>Save this filter</source>
         <translation>Salva questo filtro</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="405"/>
+        <location filename="capture_filter_edit.cpp" line="406"/>
         <source>Remove this filter</source>
         <translation>Rimuovi questo filtro</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="407"/>
+        <location filename="capture_filter_edit.cpp" line="408"/>
         <source>Manage Capture Filters</source>
         <translation>Gestisci fltri di cattura</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="540"/>
+        <location filename="capture_filter_edit.cpp" line="541"/>
         <source>Unable to save capture filter settings.</source>
         <translation>Impossibile salvare le impostazioni del filtro di cattura.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="541"/>
+        <location filename="capture_filter_edit.cpp" line="542"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
         <translation>Impossibile salvare il file del filtro di cattura
