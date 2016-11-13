@@ -113,8 +113,8 @@ composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 	}
 	else {
 		/* Use a temporary variable as tvb_memcpy is also checking tvb->real_data pointer */
-		void *real_data = g_malloc(abs_length);
-		tvb_memcpy(tvb, real_data, 0, abs_length);
+		void *real_data = g_malloc(tvb->length);
+		tvb_memcpy(tvb, real_data, 0, tvb->length);
 		tvb->real_data = (const guint8 *)real_data;
 		return tvb->real_data + abs_offset;
 	}
