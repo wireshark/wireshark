@@ -2369,40 +2369,40 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
         switch(tlv_type) {
 
         case OPT_RI_TLV:
-           tlv_tree = proto_tree_add_subtree(ri_tree, tvb, offset, tlv_length+4,
+            tlv_tree = proto_tree_add_subtree(ri_tree, tvb, offset, tlv_length+4,
                                     ett_ospf_lsa_ri_tlv, NULL, "RI TLV");
 
-           proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2,
+            proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2,
                         tlv_type, "Router Informational Capabilities TLV (%u)", tlv_type);
 
-           proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
-           dissect_ospf_bitfield(tlv_tree, tvb, offset + 4, &bfinfo_ri_options);
-           break;
+            dissect_ospf_bitfield(tlv_tree, tvb, offset + 4, &bfinfo_ri_options);
+            break;
 
         case DYN_HOSTNAME_TLV:
-           tlv_tree = proto_tree_add_subtree(ri_tree, tvb, offset, tlv_length+4,
+            tlv_tree = proto_tree_add_subtree(ri_tree, tvb, offset, tlv_length+4,
                                     ett_ospf_lsa_dyn_hostname_tlv, NULL, "Dynamic Hostname TLV");
 
-           proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2,
+            proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2,
                                tlv_type, "Dynamic Hostname TLV (%u)", tlv_type);
 
-           proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
-           proto_tree_add_item(tlv_tree, hf_ospf_dyn_hostname, tvb, offset+4, tlv_length, ENC_ASCII|ENC_NA);
-           break;
+            proto_tree_add_item(tlv_tree, hf_ospf_dyn_hostname, tvb, offset+4, tlv_length, ENC_ASCII|ENC_NA);
+            break;
 
         default:
-           tlv_tree = proto_tree_add_subtree(ri_tree, tvb, offset, tlv_length+4,
+            tlv_tree = proto_tree_add_subtree(ri_tree, tvb, offset, tlv_length+4,
                                     ett_ospf_lsa_unknown_tlv, NULL, "Unknown Opaque RI LSA TLV");
 
-           proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_length, tvb, offset, 2,
+            proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_length, tvb, offset, 2,
                                tlv_type, "Unknown TLV (%u)", tlv_type);
 
-           proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
-           proto_tree_add_item(tlv_tree, hf_ospf_unknown_tlv_txt, tvb, offset+4, tlv_length, ENC_ASCII|ENC_NA);
-           break;
+            proto_tree_add_item(tlv_tree, hf_ospf_unknown_tlv_txt, tvb, offset+4, tlv_length, ENC_ASCII|ENC_NA);
+            break;
 
         }
 
