@@ -3012,6 +3012,17 @@ Don Chirieleison	<donc[AT]mitre.org> {
 
 Harald Welte		<laforge[AT]gnumonks.org> {
 	GSM A-bis over IP dissector
+	GSM A-bis OML dissector
+	GSMTAP dissector
+	GSM SIM/USIM dissector
+	Ericsson extensions to L2TP
+	ip.access extensions to A-bis RSL
+	Ericsson extensions to A-bis RSL
+	Ericsson HDLC dissector
+	Ericsson A-bis TFP dissector
+	Ericsson P-GSL dissector
+	Ericsson TFP dissector
+	Ericsson OM2000 dissector
 }
 
 Chris Costa		<chcosta75[AT]hotmail.com> {
@@ -4327,6 +4338,7 @@ anonsvn			<anonsvn[AT]localhost>
 cff339			<cff339[AT]gmail.com>
 kardam			<netkardam[AT]gmail.com>
 kkoizumi		<kkoizumi46[AT]gmail.com>
+sangodbole		<sanket.godbole[AT]spirent.com>
 Øyvind Rønningstad	<ronningstad[AT]gmail.com>
 Дмитрий Цветцих		<dmitrycvet[AT]gmail.com>
 
