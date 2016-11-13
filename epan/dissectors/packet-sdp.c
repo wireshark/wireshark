@@ -252,7 +252,7 @@ typedef struct {
     const guint8 *media_type[SDP_MAX_RTP_CHANNELS];
     const guint8 *media_port[SDP_MAX_RTP_CHANNELS];
     const guint8 *media_proto[SDP_MAX_RTP_CHANNELS];
-    guint8        media_count;
+    gint8         media_count;
 
     /* MSRP transport info (as set while parsing path attribute) */
     gboolean msrp_transport_address_set;
@@ -323,7 +323,7 @@ static void sdp_dump_transport_info(const transport_info_t* info) {
             }
         DENDENT();
         count = (int)info->media_count;
-        DPRINT2(("media_count=%d", count));
+        DPRINT2(("media_count=%d", count+1));
         DPRINT2(("rtp channels:"));
         DINDENT();
             for (i=0; i <= count; i++) {
@@ -363,9 +363,9 @@ static void sdp_dump_disposable_media_info(const disposable_media_info_t* info) 
         DPRINT2(("connection_type=%s",
                 info->connection_type ? info->connection_type : "NULL"));
         count = (int)info->media_count;
-        DPRINT2(("media_count=%d",count));
+        DPRINT2(("media_count=%d",count+1));
         DINDENT();
-            for (i=0; i < count; i++) {
+            for (i=0; i <= count; i++) {
                 DPRINT2(("media #%d:",i));
                 DINDENT();
                     DPRINT2(("media_type=%s", info->media_type[i] ? info->media_type[i] : "NULL"));
@@ -1761,7 +1761,7 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
     gint8 n, transport_index;
     guint proto_bitmask;
 
-    for (n = 0; (n < media_info->media_count) && (n+start_transport_info_count < SDP_MAX_RTP_CHANNELS); n++)
+    for (n = 0; (n <= media_info->media_count) && (n+start_transport_info_count < SDP_MAX_RTP_CHANNELS); n++)
     {
         transport_index = n+start_transport_info_count;
         if (media_info->media_port[n] != NULL) {
@@ -1905,6 +1905,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     }
 
     memset(&media_info, 0, sizeof(media_info));
+    media_info.media_count=-1;
 
     if (request_frame != 0)
         transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_reqs, request_frame );
@@ -1941,8 +1942,8 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
         (transport_info->sdp_status == SDP_EXCHANGE_ANSWER_ACCEPT))
         return;
 
-    if (transport_info->media_count > 0)
-        start_transport_info_count = transport_info->media_count;
+    if (transport_info->media_count >= 0)
+        start_transport_info_count = transport_info->media_count+1;
 
     DPRINT(("start_transport_info_count=%d", start_transport_info_count));
 
@@ -1991,10 +1992,10 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
                 hf = hf_media;
 
                 /* Increase the count of media channels, but don't walk off the end of the arrays. */
-                if (((transport_info->media_count < 0) && (in_media_description == FALSE)) || (transport_info->media_count < (SDP_MAX_RTP_CHANNELS-1)))
+                if (transport_info->media_count < (SDP_MAX_RTP_CHANNELS-1))
                     transport_info->media_count++;
 
-                if (in_media_description && (media_info.media_count < (SDP_MAX_RTP_CHANNELS-1)))
+                if (media_info.media_count < (SDP_MAX_RTP_CHANNELS-1))
                     media_info.media_count++;
 
                 in_media_description = TRUE;
@@ -2025,26 +2026,6 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
         }
 
         offset = next_offset;
-    }
-
-    if (in_media_description) {
-        /* Increase the count of media channels, but don't walk off the end of the arrays. */
-        /* XXX: I don't know why this was done here - I'm keeping it here in case
-         * removing it causes problems, but it's wrong. transport_info->media_count
-         * is already incremented in the while() loop above. Incrementing it
-         * again here will cause bugs. The name of this is misleading, because
-         * 'transport_info->media_count' is actually an index, not count.
-         * In other words, it's a 0-based number, of the current rtp channel.
-         * So debug printing shows bogus rtp channels get created and then later
-         * removed because luckily it knows they were bogus. But it will cause bugs
-         * because if we're not delaying, then for the SDP_EXCHANGE_ANSWER_ACCEPT
-         * run through this function, it will add new RTP channels at a +1 index,
-         * which will likely cause problems.
-         */
-        if (transport_info->media_count < (SDP_MAX_RTP_CHANNELS-1))
-            transport_info->media_count++;
-        if (media_info.media_count < (SDP_MAX_RTP_CHANNELS-1))
-            media_info.media_count++;
     }
 
 #ifdef DEBUG_CONVERSATION
@@ -2291,6 +2272,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
 
     memset(&media_info, 0, sizeof(media_info));
+    media_info.media_count=-1;
 
     /*
      * As RFC 2327 says, "SDP is purely a format for session
@@ -2392,7 +2374,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 if (local_transport_info.media_count < (SDP_MAX_RTP_CHANNELS-1))
                     local_transport_info.media_count++;
 
-                if (in_media_description && (media_info.media_count < (SDP_MAX_RTP_CHANNELS-1)))
+                if (media_info.media_count < (SDP_MAX_RTP_CHANNELS-1))
                     media_info.media_count++;
 
                 in_media_description = TRUE;
@@ -2431,14 +2413,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         offset = next_offset;
     }
 
-    if (in_media_description) {
-        /* Increase the count of media channels, but don't walk off the end of the arrays. */
-        if (local_transport_info.media_count < (SDP_MAX_RTP_CHANNELS-1))
-            local_transport_info.media_count++;
-        if (media_info.media_count < (SDP_MAX_RTP_CHANNELS-1))
-            media_info.media_count++;
-    }
-
     /* Take all of the collected strings and convert them into something permanent
      * for the life of the capture
      */
@@ -2458,7 +2432,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
 #endif
 
-    for (n = 0; n < local_transport_info.media_count; n++)
+    for (n = 0; n <= local_transport_info.media_count; n++)
     {
         /* Add (s)rtp and (s)rtcp conversation, if available (overrides t38 if conversation already set) */
         /* XXX - This is a placeholder for higher layer protocols that haven't implemented the proper
