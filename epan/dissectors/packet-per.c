@@ -174,32 +174,62 @@ void dissect_per_not_decoded_yet(proto_tree* tree, packet_info* pinfo, tvbuff_t 
 static guint32
 dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, void* type_cb, asn1_cb_variant variant)
 {
-	guint32 type_length, end_offset;
-	tvbuff_t *val_tvb = NULL;
+	guint32 type_length, start_offset, end_offset, fragmented_length = 0, pdu_length, pdu_offset;
+	tvbuff_t *val_tvb = NULL, *pdu_tvb;
 	header_field_info *hfi;
 	proto_tree *subtree = tree;
+	gboolean is_fragmented;
 
 	hfi = (hf_index == -1) ? NULL : proto_registrar_get_nth(hf_index);
 
-	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &type_length, NULL);
-	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
+	start_offset = offset;
+	do {
+		offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &type_length, &is_fragmented);
+		if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
+		if (is_fragmented) {
+			if (fragmented_length == 0) {
+				pdu_tvb = tvb_new_composite();
+			}
+			tvb_composite_append(pdu_tvb, tvb_new_octet_aligned(tvb, offset, 8*type_length));
+			offset += 8*type_length;
+			fragmented_length += type_length;
+		}
+	} while (is_fragmented);
+	if (fragmented_length) {
+		if (type_length) {
+			tvb_composite_append(pdu_tvb, tvb_new_octet_aligned(tvb, offset, 8*type_length));
+			fragmented_length += type_length;
+		}
+		tvb_composite_finalize(pdu_tvb);
+		add_new_data_source(actx->pinfo, pdu_tvb, "Fragmented OCTET STRING");
+		pdu_offset = 0;
+		pdu_length = fragmented_length;
+	} else {
+		pdu_tvb = tvb;
+		pdu_offset = offset;
+		pdu_length = type_length;
+	}
 	end_offset = offset + type_length * 8;
 
 	if (variant==CB_NEW_DISSECTOR) {
-		val_tvb = tvb_new_octet_aligned(tvb, offset, type_length * 8);
-		/* Add new data source if the offet was unaligned */
-		if ((offset & 7) != 0) {
-			add_new_data_source(actx->pinfo, val_tvb, "Unaligned OCTET STRING");
+		if (fragmented_length) {
+			val_tvb = pdu_tvb;
+		} else {
+			val_tvb = tvb_new_octet_aligned(pdu_tvb, pdu_offset, pdu_length * 8);
+			/* Add new data source if the offet was unaligned */
+			if ((pdu_offset & 7) != 0) {
+				add_new_data_source(actx->pinfo, val_tvb, "Unaligned OCTET STRING");
+			}
 		}
 		if (hfi) {
 			if (IS_FT_UINT(hfi->type)||IS_FT_INT(hfi->type)) {
 				if (IS_FT_UINT(hfi->type))
-					actx->created_item = proto_tree_add_uint(tree, hf_index, val_tvb, 0, type_length, type_length);
+					actx->created_item = proto_tree_add_uint(tree, hf_index, val_tvb, 0, pdu_length, pdu_length);
 				else
-					actx->created_item = proto_tree_add_int(tree, hf_index, val_tvb, 0, type_length, type_length);
-				proto_item_append_text(actx->created_item, plurality(type_length, " octet", " octets"));
+					actx->created_item = proto_tree_add_int(tree, hf_index, val_tvb, 0, pdu_length, pdu_length);
+				proto_item_append_text(actx->created_item, plurality(pdu_length, " octet", " octets"));
 			} else {
-				actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, type_length, ENC_BIG_ENDIAN);
+				actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, pdu_length, ENC_BIG_ENDIAN);
 			}
 			subtree = proto_item_add_subtree(actx->created_item, ett_per_open_type);
 		}
@@ -208,7 +238,7 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 	if (type_cb) {
 		switch (variant) {
 			case CB_ASN1_ENC:
-				((per_type_fn)type_cb)(tvb, offset, actx, tree, hf_index);
+				((per_type_fn)type_cb)(pdu_tvb, pdu_offset, actx, tree, hf_index);
 				break;
 			case CB_NEW_DISSECTOR:
 				((dissector_t)type_cb)(val_tvb, actx->pinfo, subtree, NULL);
@@ -217,7 +247,7 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 				break;
 		}
 	} else {
-		actx->created_item = proto_tree_add_expert(tree, actx->pinfo, &ei_per_open_type, tvb, offset>>3, BLEN(offset, end_offset));
+		actx->created_item = proto_tree_add_expert(tree, actx->pinfo, &ei_per_open_type, tvb, start_offset>>3, BLEN(start_offset, end_offset));
 	}
 
 	return end_offset;
