@@ -10983,6 +10983,8 @@ opsec-uaa       19191/tcp # OPSEC UAA [Reuven_Harrison] [Reuven_Harrison]
 opsec-uaa       19191/udp # OPSEC UAA [Reuven_Harrison] [Reuven_Harrison]
 ua-secureagent  19194/tcp # UserAuthority SecureAgent [Reuven_Harrison_2] [Reuven_Harrison_2] 2003-01
 ua-secureagent  19194/udp # UserAuthority SecureAgent [Reuven_Harrison_2] [Reuven_Harrison_2] 2003-01
+cora            19220/tcp # Client Connection Management and Data Exchange Service [Softvise_GmbH] [Ronny_Krüger] 2016-11-10
+cora-disc       19220/udp # Discovery for Client Connection Management and Data Exchange Service [Softvise_GmbH] [Ronny_Krüger] 2016-11-10
 keysrvr         19283/tcp # Key Server for SASSAFRAS [Mark_Valence] [Mark_Valence]
 keysrvr         19283/udp # Key Server for SASSAFRAS [Mark_Valence] [Mark_Valence]
 keyshadow       19315/tcp # Key Shadow for SASSAFRAS [Mark_Valence] [Mark_Valence]
