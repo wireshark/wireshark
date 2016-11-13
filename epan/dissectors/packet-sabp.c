@@ -257,9 +257,6 @@ static guint8 sms_encoding;
 
 #define SABP_PORT 3452
 
-/* desegmentation of sabp over TCP */
-static gboolean gbl_sabp_desegment = TRUE;
-
 /* Dissector tables */
 static dissector_table_t sabp_ies_dissector_table;
 static dissector_table_t sabp_extension_dissector_table;
@@ -1732,7 +1729,7 @@ static int dissect_SABP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-sabp-fn.c ---*/
-#line 99 "./asn1/sabp/packet-sabp-template.c"
+#line 96 "./asn1/sabp/packet-sabp-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1808,34 +1805,6 @@ dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
-static guint
-get_sabp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
-{
-  guint32 type_length;
-  int bit_offset;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-
-  /* Length should be in the 3:d octet */
-  offset = offset + 3;
-
-  bit_offset = offset<<3;
-  /* Get the length of the sabp packet. offset in bits  */
-  dissect_per_length_determinant(tvb, bit_offset, &asn1_ctx, NULL, -1, &type_length, NULL);
-
-  /*
-   * Return the length of the PDU
-   * which is 3 + the length of the length, we only care about length up to 16K
-   * ("n" less than 128) a single octet containing "n" with bit 8 set to zero;
-   * ("n" less than 16K) two octets containing "n" with bit 8 of the first octet set to 1 and bit 7 set to zero;
-   */
-  if (type_length < 128)
-    return type_length+4;
-
-  return type_length+5;
-}
-
-
 static int
 dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -1849,17 +1818,47 @@ dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   sabp_item = proto_tree_add_item(tree, proto_sabp, tvb, 0, -1, ENC_NA);
   sabp_tree = proto_item_add_subtree(sabp_item, ett_sabp);
 
-  dissect_SABP_PDU_PDU(tvb, pinfo, sabp_tree, NULL);
-  return tvb_captured_length(tvb);
+  return dissect_SABP_PDU_PDU(tvb, pinfo, sabp_tree, NULL);
 }
 
 /* Note a little bit of a hack assumes length max takes two bytes and that the length starts at byte 4 */
 static int
 dissect_sabp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  tcp_dissect_pdus(tvb, pinfo, tree, gbl_sabp_desegment, 5,
-                   get_sabp_pdu_len, dissect_sabp, data);
-  return tvb_captured_length(tvb);
+  guint32 type_length, msg_len;
+  guint tvb_length;
+  int bit_offset;
+  gboolean is_fragmented;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+
+  tvb_length = tvb_reported_length(tvb);
+
+  if (tvb_length < 5) {
+    pinfo->desegment_offset = 0;
+    pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+    return tvb_captured_length(tvb);
+  }
+
+  /* Length should be in the 3:d octet */
+  bit_offset = 24;
+  /* Get the length of the sabp packet. Offset in bits */
+  do {
+    bit_offset = dissect_per_length_determinant(tvb, bit_offset, &asn1_ctx, NULL, -1, &type_length, &is_fragmented);
+    bit_offset += 8*type_length;
+    msg_len = (bit_offset + 7) >> 3;
+    if (is_fragmented) {
+      /* Next length field will take 1 or 2 bytes; let's ask for the maximum */
+      msg_len += 2;
+    }
+    if (msg_len > tvb_length) {
+      pinfo->desegment_offset = 0;
+      pinfo->desegment_len = msg_len - tvb_length;
+      return tvb_captured_length(tvb);
+    }
+  } while (is_fragmented);
+
+  return dissect_sabp(tvb, pinfo, tree, data);
 }
 
 /*--- proto_register_sabp -------------------------------------------*/
@@ -2206,7 +2205,7 @@ void proto_register_sabp(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sabp-hfarr.c ---*/
-#line 252 "./asn1/sabp/packet-sabp-template.c"
+#line 251 "./asn1/sabp/packet-sabp-template.c"
   };
 
   /* List of subtrees */
@@ -2263,7 +2262,7 @@ void proto_register_sabp(void) {
     &ett_sabp_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sabp-ettarr.c ---*/
-#line 265 "./asn1/sabp/packet-sabp-template.c"
+#line 264 "./asn1/sabp/packet-sabp-template.c"
   };
 
 
@@ -2340,7 +2339,7 @@ proto_reg_handoff_sabp(void)
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
-#line 296 "./asn1/sabp/packet-sabp-template.c"
+#line 295 "./asn1/sabp/packet-sabp-template.c"
 }
 
 
