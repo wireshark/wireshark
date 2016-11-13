@@ -2165,10 +2165,10 @@ DEBUG_ENTRY("dissect_per_bit_string");
 				if(fragmented_length){
 					if(length){
 						tvb_composite_append(fragmented_tvb, tvb_new_octet_aligned(tvb, offset, length));
-						offset += length;
 						fragmented_length += length;
 					}
 					tvb_composite_finalize(fragmented_tvb);
+					add_new_data_source(actx->pinfo, fragmented_tvb, "Fragmented bitstring tvb");
 					out_tvb = dissect_per_bit_string_display(fragmented_tvb, 0, actx, tree, hf_index, hfi,
 										 fragmented_length);
 				}
@@ -2183,7 +2183,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 			if (value_tvb)
 				*value_tvb = out_tvb;
 			if (len)
-				*len = length;
+				*len = fragmented_length ? fragmented_length : length;
 
 			return offset;
 		 }
@@ -2244,10 +2244,10 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		if(fragmented_length){
 			if(length){
 				tvb_composite_append(fragmented_tvb, tvb_new_octet_aligned(tvb, offset, length));
-				offset += length;
 				fragmented_length += length;
 			}
 			tvb_composite_finalize(fragmented_tvb);
+			add_new_data_source(actx->pinfo, fragmented_tvb, "Fragmented bitstring tvb");
 			out_tvb = dissect_per_bit_string_display(fragmented_tvb, 0, actx, tree, hf_index, hfi,
 								 fragmented_length);
 		}
@@ -2262,7 +2262,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	if (value_tvb)
 		*value_tvb = out_tvb;
 	if (len)
-		*len = length;
+		*len = fragmented_length ? fragmented_length : length;
 
 	return offset;
 }
