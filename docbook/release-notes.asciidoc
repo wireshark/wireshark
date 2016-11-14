@@ -48,6 +48,15 @@ DCERPC crash.
 // Fixed in master-2.2: 3f45798
 // Fixed in master-2.0: cc8e37f
 
+* ws-salink:2016-62[]
++
+DTN infinite loop.
+(ws-buglink:13097[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 63776db
+// Fixed in master-2.2: 14bba92
+// Fixed in master-2.0: be6a10a
+
 The Windows PortableApps packages were susceptible to a
 https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12724[DLL hijacking flaw].
 
@@ -59,7 +68,7 @@ The following bugs have been fixed:
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.2rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-// Left off at 1fd1b98
+// Left off at e1a09b4
 
 * TCP: nextseq incorrect if TCP_MAX_UNACKED_SEGMENTS exceeded & FIN true. (ws-buglink:12579[])
 
@@ -71,9 +80,13 @@ The following bugs have been fixed:
 
 * TCP: Next sequence number off by one when sending payload in SYN packet (e.g. TFO). (ws-buglink:12838[])
 
+* Follow TCP Stream shows duplicate stream data. (ws-buglink:12855[])
+
 * Dissection engine falsely asserts that EIGRP packet's checksum is incorrect. (ws-buglink:12982[])
 
 * IEEE 802.15.4 frames erroneously handed over to ZigBee dissector. (ws-buglink:12984[])
+
+* Capture Filter Bookmark Inactive in Capture Options page. (ws-buglink:12986[])
 
 * CLNP dissector does not parse ER NPDU properly. (ws-buglink:12993[])
 
@@ -99,7 +112,13 @@ The following bugs have been fixed:
 
 * E212: 3 digits MNC are identified as 2 digits long if they end with a 0. (ws-buglink:13092[])
 
+* Dissector skips DICOM command. (ws-buglink:13110[])
+
 * UUID (FT_GUID) filtering isn't working. (ws-buglink:13121[])
+
+* Manufacturer name resolution fail. (ws-buglink:13126[])
+
+* packet-sdp.c allocates transport_info->encoding_name from wrong memory pool. (ws-buglink:13127[])
 
 === New and Updated Features
 
@@ -125,6 +144,8 @@ ANSI IS-637 A
 BGP
 CLNP
 DCERPC
+DICOM
+DTN
 E.212
 EIGRP
 ERF
@@ -140,6 +161,7 @@ OpenFlow
 Profinet I/O
 RTPS
 SCTP
+SDP
 Skype
 SMPP
 SNA
