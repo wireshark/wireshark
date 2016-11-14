@@ -192,6 +192,10 @@ static gint hf_sip_via_received           = -1;
 static gint hf_sip_via_ttl                = -1;
 static gint hf_sip_via_comp               = -1;
 static gint hf_sip_via_sigcomp_id         = -1;
+static gint hf_sip_via_oc                 = -1;
+static gint hf_sip_via_oc_algo            = -1;
+static gint hf_sip_via_oc_validity        = -1;
+static gint hf_sip_via_oc_seq             = -1;
 
 static gint hf_sip_rack_rseq_no           = -1;
 static gint hf_sip_rack_cseq_no           = -1;
@@ -726,7 +730,11 @@ static header_parameter_t via_parameters_hf_array[] =
     {"received",      &hf_sip_via_received},
     {"ttl",           &hf_sip_via_ttl},
     {"comp",          &hf_sip_via_comp},
-    {"sigcomp-id",    &hf_sip_via_sigcomp_id}
+    {"sigcomp-id",    &hf_sip_via_sigcomp_id},
+    {"oc",            &hf_sip_via_oc},
+    {"oc-validity",   &hf_sip_via_oc_validity },
+    {"oc-seq",        &hf_sip_via_oc_seq},
+    {"oc-algo",       &hf_sip_via_oc_algo}
 };
 
 
@@ -6524,6 +6532,26 @@ void proto_register_sip(void)
           { "Sigcomp identifier",  "sip.Via.sigcomp-id",
             FT_STRING, BASE_NONE, NULL, 0x0,
             "SIP Via sigcomp identifier", HFILL}
+        },
+        { &hf_sip_via_oc,
+        { "Overload Control",  "sip.Via.oc",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_sip_via_oc_validity,
+        { "Overload Control Validity",  "sip.Via.oc_validity",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_sip_via_oc_seq,
+        { "Overload Control Sequence",  "sip.Via.oc_seq",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_sip_via_oc_algo,
+        { "Overload Control Algorithm",  "sip.Via.oc_algo",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_sip_p_acc_net_i_acc_type,
            { "access-type", "sip.P-Access-Network-Info.access-type",
