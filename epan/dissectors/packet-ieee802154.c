@@ -269,16 +269,27 @@ static int hf_ieee802154_psie_eb_filter_percent = -1;
 static int hf_ieee802154_psie_eb_filter_percent_prob = -1;
 static int hf_ieee802154_psie_eb_filter_attr_id = -1;
 static int hf_ieee802154_psie_eb_filter_attr_id_bitmap = -1;
-/* Sixtop values */
-static int hf_ieee802154_p_ie_sixp_version = -1;
-static int hf_ieee802154_p_ie_sixp_code = -1;
-static int hf_ieee802154_p_ie_sixp_sfid = -1;
-static int hf_ieee802154_p_ie_sixp_subid = -1;
-static int hf_ieee802154_p_ie_sixp_ncells = -1;
-static int hf_ieee802154_p_ie_sixp_container = -1;
-static int hf_ieee802154_p_ie_sixp_slotoffset = -1;
-static int hf_ieee802154_p_ie_sixp_choffset = -1;
-static int hf_ieee802154_p_ie_sixp_cells_sched = -1;
+static int hf_ieee802154_p_ie_ietf_sub_id = -1;
+static int hf_ieee802154_p_ie_6top_version = -1;
+static int hf_ieee802154_p_ie_6top_type = -1;
+static int hf_ieee802154_p_ie_6top_flags_reserved = -1;
+static int hf_ieee802154_p_ie_6top_code = -1;
+static int hf_ieee802154_p_ie_6top_sfid = -1;
+static int hf_ieee802154_p_ie_6top_seqnum = -1;
+static int hf_ieee802154_p_ie_6top_gab = -1;
+static int hf_ieee802154_p_ie_6top_gba = -1;
+static int hf_ieee802154_p_ie_6top_metadata = -1;
+static int hf_ieee802154_p_ie_6top_cell_options = -1;
+static int hf_ieee802154_p_ie_6top_cell_option_tx = -1;
+static int hf_ieee802154_p_ie_6top_cell_option_rx = -1;
+static int hf_ieee802154_p_ie_6top_cell_option_shared = -1;
+static int hf_ieee802154_p_ie_6top_cell_option_reserved = -1;
+static int hf_ieee802154_p_ie_6top_num_cells = -1;
+static int hf_ieee802154_p_ie_6top_reserved = -1;
+static int hf_ieee802154_p_ie_6top_offset = -1;
+static int hf_ieee802154_p_ie_6top_max_num_cells = -1;
+static int hf_ieee802154_p_ie_6top_slot_offset = -1;
+static int hf_ieee802154_p_ie_6top_channel_offset = -1;
 
 static int proto_zboss = -1;
 static int zboss_direction = -1;
@@ -376,7 +387,12 @@ static gint ett_ieee802154_psie_enh_beacon_flt_bitmap = -1;
 static gint ett_ieee802154_psie_slotframe_link_slotframes = -1;
 static gint ett_ieee802154_zigbee = -1;
 static gint ett_ieee802154_zboss = -1;
-static gint ett_ieee802154_p_ie_sixtop = -1;
+static gint ett_ieee802154_p_ie_6top = -1;
+static gint ett_ieee802154_p_ie_6top_version_type = -1;
+static gint ett_ieee802154_p_ie_6top_seqnum_gab_gba = -1;
+static gint ett_ieee802154_p_ie_6top_cell_options = -1;
+static gint ett_ieee802154_p_ie_6top_cell_list = -1;
+static gint ett_ieee802154_p_ie_6top_cell = -1;
 
 static expert_field ei_ieee802154_invalid_addressing = EI_INIT;
 /* static expert_field ei_ieee802154_invalid_panid_compression = EI_INIT; */
@@ -388,6 +404,8 @@ static expert_field ei_ieee802154_src = EI_INIT;
 static expert_field ei_ieee802154_frame_ver = EI_INIT;
 /* static expert_field ei_ieee802154_frame_type = EI_INIT; */
 static expert_field ei_ieee802154_seqno_suppression = EI_INIT;
+static expert_field ei_ieee802154_p_ie_6top_type = EI_INIT;
+static expert_field ei_ieee802154_p_ie_6top_code = EI_INIT;
 
 static int ieee802_15_4_short_address_type = -1;
 /*
@@ -534,7 +552,7 @@ static const value_string ieee802154_payload_ie_names[] = {
     { IEEE802154_PAYLOAD_IE_ESDU,                     "ESDU IE" },
     { IEEE802154_PAYLOAD_IE_MLME,                     "MLME IE" },
     { IEEE802154_PAYLOAD_IE_VENDOR,                   "Vendor Specific IE" },
-    { IEEE802154_PAYLOAD_IE_IANA_6TOPGROUPID,         "6TOP Group ID" },
+    { IEEE802154_PAYLOAD_IE_IETF,                     "IETF IE" },
     { IEEE802154_PAYLOAD_IE_GID_TERM,                 "Payload Termination IE" },
     { 0, NULL }
 };
@@ -574,6 +592,7 @@ static const value_string ieee802154_psie_names[] = {
     { IEEE802154_MLME_SUBIE_TIMESTAMP_DIFF,           "Timestamp Difference IE"},
     { IEEE802154_MLME_SUBIE_TMCP_SPECIFICATION,       "TMCTP Specification IE" },
     { IEEE802154_MLME_SUBIE_RCC_PHY_OPER_MODE,        "RCC PHY Operating Mode IE" },
+    { IEEE802154_IETF_SUBIE_6TOP,                     "6top IE" },
     { 0, NULL }
 };
 
@@ -583,19 +602,52 @@ static const value_string zboss_direction_names[] = {
     { 0, NULL }
 };
 
-static const value_string ieee802154_sixtop_commands_responses[] = {
-    { SIXTOP_CMD_ADD, "Add Command" },
-    { SIXTOP_CMD_DELETE, "Delete Command" },
-    { SIXTOP_CMD_COUNT, "Count Command" },
-    { SIXTOP_CMD_LIST, "List Command" },
-    { SIXTOP_CMD_CLEAR, "Clear Command" },
-    { SIXTOP_RC_SUCCESS, "Success Response" },
-    { SIXTOP_RC_VER_ERR, "Version Error Response" },
-    { SIXTOP_RC_SFID_ERR, "SFID Error Response" },
-    { SIXTOP_RC_BUSY, "Busy Response" },
-    { SIXTOP_RC_RESET, "Reset Response" },
-    { SIXTOP_RC_ERR, "Error Response" },
+static const value_string ietf_6top_types[] = {
+    { IETF_6TOP_TYPE_REQUEST, "Request" },
+    { IETF_6TOP_TYPE_RESPONSE, "Response" },
+    { IETF_6TOP_TYPE_CONFIRMATION, "Confirmation" },
     { 0, NULL }
+};
+
+static const value_string ietf_6top_command_identifiers[] = {
+    { IETF_6TOP_CMD_ADD, "Add" },
+    { IETF_6TOP_CMD_DELETE, "Delete" },
+    { IETF_6TOP_CMD_STATUS, "Status" },
+    { IETF_6TOP_CMD_LIST, "List" },
+    { IETF_6TOP_CMD_CLEAR, "Clear" },
+    { 0, NULL }
+};
+
+static const value_string ietf_6top_return_codes[] = {
+    { IETF_6TOP_RC_SUCCESS, "SUCCESS" },
+    { IETF_6TOP_RC_ERR_VER, "ERR_VER" },
+    { IETF_6TOP_RC_ERR_SFID, "ERR_SFID" },
+    { IETF_6TOP_RC_ERR_GEN, "ERR_GEN" },
+    { IETF_6TOP_RC_ERR_BUSY, "ERR_BUSY" },
+    { IETF_6TOP_RC_ERR_NORES, "ERR_NORES" },
+    { IETF_6TOP_RC_ERR_RESET, "ERR_RESET" },
+    { IETF_6TOP_RC_ERR, "ERR" },
+    { 0, NULL }
+};
+
+static const value_string ietf_6top_generation_numbers[] = {
+    { 0, "clean" },
+    { 1, "counter" },
+    { 2, "counter" },
+    { 3, "reserved" },
+    { 0, NULL}
+};
+
+static const value_string ietf_6top_cell_options[] = {
+    { 0, "ALL" },
+    { 1, "TX" },
+    { 2, "RX" },
+    { 3, "TX|RX" },
+    { 4, "SHARED" },
+    { 5, "TX|SHARED" },
+    { 6, "RX|SHARED" },
+    { 7, "TX|RX|SHARED" },
+    { 0, NULL}
 };
 
 /* Preferences for 2003 security */
@@ -1823,87 +1875,176 @@ dissect_802154_p_ie_sh_mlme_tsch_slotframe_link(tvbuff_t *tvb, proto_tree *p_inf
 static int
 dissect_ieee802154_6top(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_inf_elem_tree, guint offset, gint pie_length)
 {
-    guint8               sixp_code;
-    guint8               ie_length;
-    tvbuff_t             *payload_tvb;
-    int                  orig_offset = offset;
-    proto_tree *p_inf_elem_tree_sixtop = NULL;
+    const guint8 supported_6p_version = 1;
 
-    sixp_code     = (tvb_get_guint8(tvb, offset + 1) & SIXP_CODE) >> 4;
-    ie_length     = pie_length;
+    guint8     subie;
+    guint8     version;
+    guint8     type;
+    guint8     code;
+    guint8     seqnum;
+    guint8     gab;
+    guint8     gba;
+    int        orig_offset = offset;
+    gboolean   have_cell_list = FALSE;
+    int        i;
+    proto_tree *sixtop_tree = NULL;
+    proto_tree *version_type_tree = NULL;
+    proto_tree *seqnum_gab_gba_tree = NULL;
+    proto_tree *cell_list_tree = NULL;
+    proto_tree *cell_tree = NULL;
+    proto_item *type_item = NULL;
+    proto_item *code_item = NULL;
+    const gchar *code_str = NULL;
+    static const int * cell_options[] = {
+        &hf_ieee802154_p_ie_6top_cell_option_tx,
+        &hf_ieee802154_p_ie_6top_cell_option_rx,
+        &hf_ieee802154_p_ie_6top_cell_option_shared,
+        &hf_ieee802154_p_ie_6top_cell_option_reserved,
+        NULL
+    };
 
-    p_inf_elem_tree_sixtop = proto_tree_add_subtree_format(p_inf_elem_tree, tvb, offset, pie_length, ett_ieee802154_p_ie_sixtop, NULL,
-                "6TOP Message: ");
+    if (pie_length < 5) {
+        return pie_length;
+    }
 
-    proto_item_append_text(p_inf_elem_tree_sixtop, " %s", val_to_str_const(sixp_code, ieee802154_sixtop_commands_responses, "Unknown"));
+    subie = tvb_get_guint8(tvb, offset);
+    version =  tvb_get_guint8(tvb, offset + 1) & IETF_6TOP_VERSION;
 
+    if (subie != IEEE802154_IETF_SUBIE_6TOP || version != supported_6p_version) {
+        return pie_length;
+    }
 
-    proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_subid, tvb, (offset), 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_version, tvb, (offset) + 1, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_code, tvb, (offset) + 1, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_sfid, tvb, (offset) + 2, 1, ENC_LITTLE_ENDIAN);
-    offset += 3;
-    ie_length -= 3;
+    type = (tvb_get_guint8(tvb, offset + 1) & IETF_6TOP_TYPE) >> 4;
+    code = tvb_get_guint8(tvb, offset + 2);
+    seqnum = tvb_get_guint8(tvb, offset + 4) & IETF_6TOP_SEQNUM;
+    gab = (tvb_get_guint8(tvb, offset + 4) & IETF_6TOP_GAB) >> 4;
+    gba = (tvb_get_guint8(tvb, offset + 4) & IETF_6TOP_GBA) >> 6;
 
-    switch (sixp_code){
-        case SIXTOP_CMD_ADD:
-            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_ncells, tvb, (offset), 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_container, tvb, (offset) + 1, 1, ENC_LITTLE_ENDIAN);
-            ie_length -= 2;
+    proto_tree_add_item(p_inf_elem_tree, hf_ieee802154_p_ie_ietf_sub_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+    sixtop_tree = proto_tree_add_subtree_format(p_inf_elem_tree, tvb, offset, pie_length, ett_ieee802154_p_ie_6top, NULL, "6top IE Content");
+    version_type_tree = proto_tree_add_subtree_format(sixtop_tree, tvb, offset + 1, 1, ett_ieee802154_p_ie_6top_version_type, NULL,
+                                                      "Version: %u, Type: %s", version, val_to_str_const(type, ietf_6top_types,"Unknown"));
+    proto_tree_add_item(version_type_tree, hf_ieee802154_p_ie_6top_version, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+    type_item = proto_tree_add_item(version_type_tree, hf_ieee802154_p_ie_6top_type, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(version_type_tree, hf_ieee802154_p_ie_6top_flags_reserved, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+    code_item = proto_tree_add_item(sixtop_tree, hf_ieee802154_p_ie_6top_code, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(sixtop_tree, hf_ieee802154_p_ie_6top_sfid, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
+    seqnum_gab_gba_tree = proto_tree_add_subtree_format(sixtop_tree, tvb, offset + 4, 1, ett_ieee802154_p_ie_6top_seqnum_gab_gba, NULL,
+                                                        "Seqnum: %u, GAB: %u, GBA: %u", seqnum, gab, gba);
+    proto_tree_add_item(seqnum_gab_gba_tree, hf_ieee802154_p_ie_6top_seqnum, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(seqnum_gab_gba_tree, hf_ieee802154_p_ie_6top_gab, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(seqnum_gab_gba_tree, hf_ieee802154_p_ie_6top_gba, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "6top");
+    if (type == IETF_6TOP_TYPE_REQUEST) {
+      code_str = val_to_str_const(code, ietf_6top_command_identifiers,"Unknown");
+      col_add_fstr(pinfo->cinfo, COL_INFO, "6P %s Request", code_str);
+    } else {
+      code_str = val_to_str_const(code, ietf_6top_return_codes,"Unknown");
+      col_add_fstr(pinfo->cinfo, COL_INFO, "6P %s (%s)",
+                   val_to_str_const(type, ietf_6top_types,"Unknown"), code_str);
+    }
+    proto_item_append_text(code_item, " (%s)", code_str);
+
+    offset += 5;
+    pie_length -= 5;
+
+    if (type == IETF_6TOP_TYPE_REQUEST) {
+        switch(code) {
+        case IETF_6TOP_CMD_ADD:
+        case IETF_6TOP_CMD_DELETE:
+            if (pie_length < 4) {
+                break;
+            }
+            proto_tree_add_item(sixtop_tree, hf_ieee802154_p_ie_6top_metadata, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_bitmask(sixtop_tree, tvb, offset + 2, hf_ieee802154_p_ie_6top_cell_options, ett_ieee802154_p_ie_6top_cell_options, cell_options, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sixtop_tree, hf_ieee802154_p_ie_6top_num_cells, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
+            pie_length -= 4;
+            offset += 4;
+            if (pie_length > 0 && (pie_length % 4) == 0) {
+                have_cell_list = TRUE;
+            }
+            break;
+        case IETF_6TOP_CMD_STATUS:
+            if (pie_length < 3) {
+                break;
+            }
+            proto_tree_add_item(sixtop_tree, hf_ieee802154_p_ie_6top_metadata, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_bitmask(sixtop_tree, tvb, offset + 2, hf_ieee802154_p_ie_6top_cell_options, ett_ieee802154_p_ie_6top_cell_options, cell_options, ENC_LITTLE_ENDIAN);
+            pie_length -= 3;
+            offset += 3;
+            break;
+        case IETF_6TOP_CMD_LIST:
+            if (pie_length != 8) {
+                break;
+            }
+            proto_tree_add_item(sixtop_tree, hf_ieee802154_p_ie_6top_metadata, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_bitmask(sixtop_tree, tvb, offset + 2, hf_ieee802154_p_ie_6top_cell_options, ett_ieee802154_p_ie_6top_cell_options, cell_options, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sixtop_tree, hf_ieee802154_p_ie_6top_reserved, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sixtop_tree, hf_ieee802154_p_ie_6top_offset, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sixtop_tree, hf_ieee802154_p_ie_6top_max_num_cells, tvb, offset + 6, 2, ENC_LITTLE_ENDIAN);
+            pie_length -= 8;
+            offset += 8;
+            break;
+        case IETF_6TOP_CMD_CLEAR:
+            if (pie_length < 2) {
+                break;
+            }
+            proto_tree_add_item(sixtop_tree, hf_ieee802154_p_ie_6top_metadata, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            pie_length -= 2;
             offset += 2;
-            while (ie_length > 0){
-                proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_slotoffset, tvb, (offset), 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_choffset, tvb, (offset) + 2, 2, ENC_LITTLE_ENDIAN);
-                ie_length -= 4;
-                offset += 4;
-            }
-            break;
-        case SIXTOP_CMD_DELETE:
-            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_ncells, tvb, (offset), 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_container, tvb, (offset) + 1, 1, ENC_LITTLE_ENDIAN);
-            ie_length -= 2;
-            offset += 2;
-            while (ie_length > 0){
-                proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_slotoffset, tvb, (offset), 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_choffset, tvb, (offset) + 2, 2, ENC_LITTLE_ENDIAN);
-                ie_length -= 4;
-                offset += 4;
-            }
-            break;
-        case SIXTOP_CMD_COUNT:
-            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_container, tvb, (offset), 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
-            break;
-        case SIXTOP_CMD_LIST:
-            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_container, tvb, (offset), 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
-            break;
-        case SIXTOP_CMD_CLEAR:
-            proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_container, tvb, (offset), 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
-            break;
-        case SIXTOP_RC_SUCCESS:
-            if ((ie_length == 0) || (ie_length >= 4)){
-                while (ie_length > 0){
-                    proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_slotoffset, tvb, (offset), 2, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_choffset, tvb, (offset) + 2, 2, ENC_LITTLE_ENDIAN);
-                    ie_length -= 4;
-                    offset += 4;
-                }
-            }
-            else {
-                proto_tree_add_item(p_inf_elem_tree_sixtop, hf_ieee802154_p_ie_sixp_cells_sched, tvb, (offset), 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-            }
             break;
         default:
-            payload_tvb = tvb_new_subset(tvb, (offset) + 3, pie_length - 3, pie_length - 3);
-            call_data_dissector(payload_tvb, pinfo, p_inf_elem_tree_sixtop);
+            /* unsupported command */
+            expert_add_info(pinfo, code_item, &ei_ieee802154_p_ie_6top_code);
+            break;
+        }
+    } else if (type == IETF_6TOP_TYPE_RESPONSE || type == IETF_6TOP_TYPE_CONFIRMATION) {
+        switch(code) {
+        case IETF_6TOP_RC_SUCCESS:
+            if (pie_length > 0) {
+                if (pie_length == 1) {
+                    proto_tree_add_item(sixtop_tree, hf_ieee802154_p_ie_6top_num_cells, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    pie_length -= 1;
+                    offset += 1;
+                } else if ((pie_length % 4) == 0) {
+                    have_cell_list = TRUE;
+                }
+            }
+            break;
+        case IETF_6TOP_RC_ERR_VER:
+        case IETF_6TOP_RC_ERR_SFID:
+        case IETF_6TOP_RC_ERR_GEN:
+        case IETF_6TOP_RC_ERR_BUSY:
+        case IETF_6TOP_RC_ERR_NORES:
+        case IETF_6TOP_RC_ERR_RESET:
+        case IETF_6TOP_RC_ERR:
+            /* They have no other field */
+            break;
+        default:
+            /* unsupported return code */
+            expert_add_info(pinfo, code_item, &ei_ieee802154_p_ie_6top_code);
+            break;
+        }
+    } else {
+        /* unsupported type */
+        expert_add_info(pinfo, type_item, &ei_ieee802154_p_ie_6top_type);
     }
-    return (offset - orig_offset);
-}
 
-/* dissect_ieee802154_6top */
+    if (have_cell_list) {
+        cell_list_tree = proto_tree_add_subtree_format(sixtop_tree, tvb, offset, pie_length, ett_ieee802154_p_ie_6top_cell_list, NULL,
+                                                       "Cell List");
+        for (i = 0; pie_length > 0; pie_length -= 4, offset += 4, i++){
+            cell_tree = proto_tree_add_subtree_format(cell_list_tree, tvb, offset, 4, ett_ieee802154_p_ie_6top_cell, NULL,
+                                                      "Cell [%u]", i);
+            proto_tree_add_item(cell_tree, hf_ieee802154_p_ie_6top_slot_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(cell_tree, hf_ieee802154_p_ie_6top_channel_offset, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
+        }
+    }
+
+    return offset - orig_offset;
+} /* dissect_ieee802154_6top */
 
 /**
  *Subdissector command for the Superframe specification sub-field within the beacon frame.
@@ -2373,7 +2514,7 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
                 offset += dissect_ieee802154_vendor_ie(tvb, pinfo, subtree, offset, pie_length);
                 break;
 
-            case IEEE802154_PAYLOAD_IE_IANA_6TOPGROUPID:
+            case IEEE802154_PAYLOAD_IE_IETF:
                 offset += dissect_ieee802154_6top(tvb, pinfo, subtree, offset, pie_length);
                 break;
 
@@ -3662,36 +3803,91 @@ void proto_register_ieee802154(void)
         { &hf_ieee802154_mlme_ie_data,
         { "Data",                            "wpan.mlme_sub_ie.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-        /* 6TOP header fields*/
-        { &hf_ieee802154_p_ie_sixp_cells_sched,
-        { "Number of scheduled cells",                   "wpan.sixp_sched_cells", FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_ieee802154_p_ie_sixp_choffset,
-        { "Channel Offset",                   "wpan.sixp_ch_offset", FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_ieee802154_p_ie_sixp_slotoffset,
-        { "Slot Offset",                   "wpan.sixp_slotoffset", FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_ieee802154_p_ie_sixp_container,
-        { "Container",                   "wpan.sixp_container", FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_ieee802154_p_ie_sixp_ncells,
-        { "Number of desired cells",                   "wpan.sixpdes_cells", FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_ieee802154_p_ie_sixp_subid,
-        { "6TOP Sub IE ID",                   "wpan.sixpsubieid", FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_ieee802154_p_ie_sixp_version,
-        { "6TOP Version",                   "wpan.sixpversion", FT_UINT8, BASE_HEX, NULL, SIXP_VERSION,
-            NULL, HFILL }},
+        /* IETF IE */
+        { &hf_ieee802154_p_ie_ietf_sub_id,
+        { "Sub-ID", "wpan.ietf_ie.sub_id", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
 
-        { &hf_ieee802154_p_ie_sixp_code,
-        { "6TOP Code",                   "wpan.sixpcode", FT_UINT8, BASE_HEX, NULL, SIXP_CODE,
-            NULL, HFILL }},
+        /* IETF IE - 6top IE */
+        { &hf_ieee802154_p_ie_6top_version,
+        { "6P Version", "wpan.ietf_ie.6top.version", FT_UINT8, BASE_DEC, NULL, IETF_6TOP_VERSION,
+          NULL, HFILL }},
 
-        { &hf_ieee802154_p_ie_sixp_sfid,
-        { "6TOP Scheduling Function ID",                   "wpan.sixpsfid", FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
+        { &hf_ieee802154_p_ie_6top_type,
+          { "Type", "wpan.ietf_ie.6top.type", FT_UINT8, BASE_HEX, VALS(ietf_6top_types), IETF_6TOP_TYPE,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_flags_reserved,
+        { "Reserved", "wpan.ietf_ie.6top.flags.reserved", FT_UINT8, BASE_HEX, NULL, IETF_6TOP_FLAGS_RESERVED,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_code,
+        { "Code",  "wpan.ietf_ie.6top.code", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_sfid,
+        { "SFID (6top Scheduling Fnction ID)", "wpan.ietf_ie.6top.sfid", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_seqnum,
+        { "SeqNum", "wpan.ietf_ie.6top.seqnum", FT_UINT8, BASE_DEC, NULL, IETF_6TOP_SEQNUM,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_gab,
+        { "GAB", "wpan.ietf_ie.6top.gab", FT_UINT8, BASE_DEC, VALS(ietf_6top_generation_numbers), IETF_6TOP_GAB,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_gba,
+        { "GBA", "wpan.ietf_ie.6top.gba", FT_UINT8, BASE_DEC, VALS(ietf_6top_generation_numbers), IETF_6TOP_GBA,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_metadata,
+        { "Metadata", "wpan.ietf_ie.6top.metadata", FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_cell_options,
+          { "Cell Options", "wpan.ietf_ie.6top.cell_options", FT_UINT8, BASE_HEX, VALS(ietf_6top_cell_options), 0x0,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_cell_option_tx,
+        { "Transmit (TX) Cell", "wpan.ietf_ie.6top.cell_option_tx", FT_UINT8, BASE_HEX, NULL, IETF_6TOP_CELL_OPTION_TX,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_cell_option_rx,
+        { "Receive (RX) Cell", "wpan.ietf_ie.6top.cell_option_rx", FT_UINT8, BASE_HEX, NULL, IETF_6TOP_CELL_OPTION_RX,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_cell_option_shared,
+        { "SHARED Cell", "wpan.ietf_ie.6top.cell_option_shared", FT_UINT8, BASE_HEX, NULL, IETF_6TOP_CELL_OPTION_SHARED,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_cell_option_reserved,
+        { "Reserved", "wpan.ietf_ie.6top.cell_option_reserved", FT_UINT8, BASE_HEX, NULL, IETF_6TOP_CELL_OPTION_RESERVED,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_num_cells,
+        { "Number of Cells", "wpan.ietf_ie.6top.num_cells", FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_reserved,
+        { "Reserved", "wpan.ietf_ie.6top.reserved", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_offset,
+        { "Offset", "wpan.ietf_ie.6top.offset", FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_max_num_cells,
+        { "Maximum Number of Requested Cells", "wpan.ietf_ie.6top.max_num_cells", FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_slot_offset,
+        { "Slot Offset", "wpan.ietf_ie.6top.cell.slot_offset", FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+
+        { &hf_ieee802154_p_ie_6top_channel_offset,
+        { "Channel Offset", "wpan.ietf_ie.6top.cell.channel_offset", FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
 
         /*
          * Command Frame Specific Fields
@@ -3912,7 +4108,12 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_psie_slotframe_link_slotframes,
         &ett_ieee802154_zigbee,
         &ett_ieee802154_zboss,
-        &ett_ieee802154_p_ie_sixtop,
+        &ett_ieee802154_p_ie_6top,
+        &ett_ieee802154_p_ie_6top_version_type,
+        &ett_ieee802154_p_ie_6top_seqnum_gab_gba,
+        &ett_ieee802154_p_ie_6top_cell_options,
+        &ett_ieee802154_p_ie_6top_cell_list,
+        &ett_ieee802154_p_ie_6top_cell
     };
 
     static ei_register_info ei[] = {
@@ -3940,6 +4141,10 @@ void proto_register_ieee802154(void)
                 "Bad FCS", EXPFILL }},
         { &ei_ieee802154_seqno_suppression, { "wpan.seqno_supression_invalid",  PI_MALFORMED, PI_WARN,
                 "Sequence Number Suppression invalid for 802.15.4-2003 and 2006", EXPFILL }},
+        { &ei_ieee802154_p_ie_6top_type, { "wpan.ietf_ie.6top.type.unsupported", PI_PROTOCOL, PI_WARN,
+                "Unsupported Type of Message", EXPFILL }},
+        { &ei_ieee802154_p_ie_6top_code, { "wpan.ietf_ie.6top.code.unsupported", PI_PROTOCOL, PI_WARN,
+                "Unsupported Request Command or Return Code", EXPFILL }},
 
     };
 
