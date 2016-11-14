@@ -5824,17 +5824,24 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 
         guint16 at_grp;
         guint16 at_elm;
+        guint32 at_offset = 0;
+        gchar *at_value = "";
 
-        if (is_little_endian)   at_grp = tvb_get_letohs(tvb, offset);
-        else                    at_grp = tvb_get_ntohs(tvb, offset);
+        while(at_offset < vl_max-3) {
+            if (is_little_endian)   at_grp = tvb_get_letohs(tvb, offset+at_offset);
+            else                    at_grp = tvb_get_ntohs(tvb, offset+at_offset);
 
-        if (is_little_endian)   at_elm = tvb_get_letohs(tvb, offset);
-        else                    at_elm = tvb_get_ntohs(tvb, offset);
+            if (is_little_endian)   at_elm = tvb_get_letohs(tvb, offset+at_offset+2);
+            else                    at_elm = tvb_get_ntohs(tvb, offset+at_offset+2);
 
-        proto_tree_add_uint_format(tree, hf_dcm_tag_value_32u, tvb, offset, 4,
-            (at_grp << 16) | at_elm, "%-8.8s%04x,%04x", "Value:", at_grp, at_elm);
+            proto_tree_add_uint_format(tree, hf_dcm_tag_value_32u, tvb, offset+at_offset, 4,
+                (at_grp << 16) | at_elm, "%-8.8s%04x,%04x", "Value:", at_grp, at_elm);
 
-        g_snprintf(*tag_value, MAX_BUF_LEN, "(%04x,%04x)", at_grp, at_elm);
+            at_value = wmem_strdup_printf(wmem_packet_scope(),"%s(%04x,%04x)", at_value, at_grp, at_elm);
+
+            at_offset += 4;
+        }
+        g_snprintf(*tag_value, MAX_BUF_LEN, "%s", at_value);
     }
     else if (strncmp(vr, "FL", 2) == 0)  {      /* Single Float */
 
