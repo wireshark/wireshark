@@ -1630,9 +1630,9 @@ main(int argc, char *argv[])
     }
   }
 
-  if(global_dissect_options.disable_heur_slist) {
+  if(global_dissect_options.enable_heur_slist) {
     GSList *heur_enable;
-    for (heur_enable = global_dissect_options.disable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
+    for (heur_enable = global_dissect_options.enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
     {
       proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE);
     }
