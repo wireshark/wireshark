@@ -4420,7 +4420,7 @@ packet_info *pinfo, proto_tree *tree, guint8 *drep)
         /* level 11 */
         proto_tree_add_bits_item(sub_tree, hf_pn_io_am_location_level_11, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
         bit_offset += 10;
-        offset += 15;
+        offset += bit_offset*8;
         break;
     case (0x02):
         /* Reserved1 */
