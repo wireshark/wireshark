@@ -52,7 +52,7 @@ MAX_PASSES=0
 # Stop the child process if it's running longer than x seconds
 MAX_CPU_TIME=300
 # Stop the child process if it's using more than y * 1024 bytes
-MAX_VMEM=500000
+MAX_VMEM=1000000
 # Stop the child process if its stack is larger than than z * 1024 bytes
 # Windows XP:   2033
 # Windows 7:    2034
