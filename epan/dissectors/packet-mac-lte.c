@@ -46,12 +46,18 @@ static int mac_lte_tap = -1;
 
 static dissector_handle_t rlc_lte_handle;
 static dissector_handle_t lte_rrc_bcch_dl_sch_handle;
+static dissector_handle_t lte_rrc_bcch_dl_sch_nb_handle;
 static dissector_handle_t lte_rrc_bcch_bch_handle;
+static dissector_handle_t lte_rrc_bcch_bch_nb_handle;
 static dissector_handle_t lte_rrc_pcch_handle;
+static dissector_handle_t lte_rrc_pcch_nb_handle;
 static dissector_handle_t lte_rrc_ul_ccch_handle;
+static dissector_handle_t lte_rrc_ul_ccch_nb_handle;
 static dissector_handle_t lte_rrc_dl_ccch_handle;
+static dissector_handle_t lte_rrc_dl_ccch_nb_handle;
 static dissector_handle_t lte_rrc_sbcch_sl_bch_handle;
 static dissector_handle_t lte_rrc_sc_mcch_handle;
+
 
 /* Decoding context */
 static int hf_mac_lte_context = -1;
@@ -3219,10 +3225,20 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Get appropriate dissector handle */
         dissector_handle_t protocol_handle = 0;
         if (p_mac_lte_info->rntiType == SI_RNTI) {
-            protocol_handle = lte_rrc_bcch_dl_sch_handle;
+            if (p_mac_lte_info->nbMode == no_nb_mode) {
+                protocol_handle = lte_rrc_bcch_dl_sch_handle;
+            }
+            else {
+                protocol_handle = lte_rrc_bcch_dl_sch_nb_handle;
+            }
         }
         else {
-            protocol_handle = lte_rrc_bcch_bch_handle;
+            if (p_mac_lte_info->nbMode == no_nb_mode) {
+                protocol_handle = lte_rrc_bcch_bch_handle;
+            }
+            else {
+                protocol_handle = lte_rrc_bcch_bch_nb_handle;
+            }
         }
 
         /* Hide raw view of bytes */
@@ -3240,7 +3256,7 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Dissect PCH PDU */
 static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        proto_item *pdu_ti, int offset, guint8 direction,  mac_lte_tap_info *tap_info)
+                        proto_item *pdu_ti, int offset, mac_lte_info *p_mac_lte_info,  mac_lte_tap_info *tap_info)
 {
     proto_item *ti;
 
@@ -3268,11 +3284,16 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         PROTO_ITEM_SET_HIDDEN(ti);
 
         /* Call it (catch exceptions so that stats will be updated) */
-        call_with_catch_all(lte_rrc_pcch_handle, rrc_tvb, pinfo, tree);
+        if (p_mac_lte_info->nbMode == no_nb_mode) {
+            call_with_catch_all(lte_rrc_pcch_handle, rrc_tvb, pinfo, tree);
+        }
+        else {
+            call_with_catch_all(lte_rrc_pcch_nb_handle, rrc_tvb, pinfo, tree);
+        }
     }
 
     /* Check that this *is* downlink! */
-    if (direction == DIRECTION_UPLINK) {
+    if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
         expert_add_info(pinfo, ti, &ei_mac_lte_pch_pdu);
     }
 }
@@ -5628,10 +5649,20 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Get appropriate dissector handle */
             dissector_handle_t protocol_handle = 0;
             if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
-                protocol_handle = lte_rrc_ul_ccch_handle;
+                if (p_mac_lte_info->nbMode == no_nb_mode) {
+                    protocol_handle = lte_rrc_ul_ccch_handle;
+                }
+                else {
+                    protocol_handle = lte_rrc_ul_ccch_nb_handle;
+                }
             }
             else {
-                protocol_handle = lte_rrc_dl_ccch_handle;
+                if (p_mac_lte_info->nbMode == no_nb_mode) {
+                    protocol_handle = lte_rrc_dl_ccch_handle;
+                }
+                else {
+                    protocol_handle = lte_rrc_dl_ccch_nb_handle;
+                }
             }
 
             /* Hide raw view of bytes */
@@ -7034,7 +7065,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
         case P_RNTI:
             /* PCH PDU */
-            dissect_pch(tvb, pinfo, mac_lte_tree, pdu_ti, offset, p_mac_lte_info->direction, tap_info);
+            dissect_pch(tvb, pinfo, mac_lte_tree, pdu_ti, offset, p_mac_lte_info, tap_info);
             break;
 
         case RA_RNTI:
@@ -9240,10 +9271,15 @@ void proto_reg_handoff_mac_lte(void)
 
     rlc_lte_handle = find_dissector_add_dependency("rlc-lte", proto_mac_lte);
     lte_rrc_bcch_dl_sch_handle = find_dissector_add_dependency("lte_rrc.bcch_dl_sch", proto_mac_lte);
+    lte_rrc_bcch_dl_sch_nb_handle = find_dissector_add_dependency("lte_rrc.bcch_dl_sch.nb", proto_mac_lte);
     lte_rrc_bcch_bch_handle = find_dissector_add_dependency("lte_rrc.bcch_bch", proto_mac_lte);
+    lte_rrc_bcch_bch_nb_handle = find_dissector_add_dependency("lte_rrc.bcch_bch.nb", proto_mac_lte);
     lte_rrc_pcch_handle = find_dissector_add_dependency("lte_rrc.pcch", proto_mac_lte);
+    lte_rrc_pcch_nb_handle = find_dissector_add_dependency("lte_rrc.pcch.nb", proto_mac_lte);
     lte_rrc_ul_ccch_handle = find_dissector_add_dependency("lte_rrc.ul_ccch", proto_mac_lte);
+    lte_rrc_ul_ccch_nb_handle = find_dissector_add_dependency("lte_rrc.ul_ccch.nb", proto_mac_lte);
     lte_rrc_dl_ccch_handle = find_dissector_add_dependency("lte_rrc.dl_ccch", proto_mac_lte);
+    lte_rrc_dl_ccch_nb_handle = find_dissector_add_dependency("lte_rrc.dl_ccch.nb", proto_mac_lte);
     lte_rrc_sbcch_sl_bch_handle = find_dissector_add_dependency("lte_rrc.sbcch_sl_bch", proto_mac_lte);
     lte_rrc_sc_mcch_handle = find_dissector_add_dependency("lte_rrc.sc_mcch", proto_mac_lte);
 }
