@@ -175,7 +175,7 @@ static guint32
 dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, void* type_cb, asn1_cb_variant variant)
 {
 	guint32 type_length, start_offset, end_offset, fragmented_length = 0, pdu_length, pdu_offset;
-	tvbuff_t *val_tvb = NULL, *pdu_tvb;
+	tvbuff_t *val_tvb = NULL, *pdu_tvb = NULL;
 	header_field_info *hfi;
 	proto_tree *subtree = tree;
 	gboolean is_fragmented;
@@ -2150,7 +2150,7 @@ dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	guint32 length, fragmented_length = 0;
 	header_field_info *hfi;
 	gboolean is_fragmented = FALSE;
-	tvbuff_t *fragmented_tvb, *out_tvb = NULL;
+	tvbuff_t *fragmented_tvb = NULL, *out_tvb = NULL;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
