@@ -2330,8 +2330,9 @@ guint32
 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb)
 {
 	gint val_start = 0, val_length;
-	guint32 length = 0;
+	guint32 length = 0, fragmented_length = 0;;
 	header_field_info *hfi;
+	gboolean is_fragmented = FALSE;
 	tvbuff_t *out_tvb = NULL;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
@@ -2386,23 +2387,41 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				if (!display_internal_per_fields)
 					PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		} else {
+		next_fragment:
 			offset = dissect_per_length_determinant(tvb, offset, actx, tree,
-				hf_per_octet_string_length, &length, NULL);
+				hf_per_octet_string_length, &length, &is_fragmented);
 		}
 
-		if(length){
+		if(length || fragmented_length){
 			/* align to byte */
 			if (actx->aligned){
 				BYTE_ALIGN_OFFSET(offset);
 			}
-			out_tvb = tvb_new_octet_aligned(tvb, offset, length * 8);
-			if ((offset & 7) != 0) {
-				add_new_data_source(actx->pinfo, out_tvb, "Unaligned OCTET STRING");
+			if (is_fragmented) {
+				if (fragmented_length == 0)
+					out_tvb = tvb_new_composite();
+				tvb_composite_append(out_tvb, tvb_new_octet_aligned(tvb, offset, length * 8));
+				offset += length * 8;
+				fragmented_length += length;
+				goto next_fragment;
+			}
+			if (fragmented_length) {
+				if (length) {
+					tvb_composite_append(out_tvb, tvb_new_octet_aligned(tvb, offset, length * 8));
+					fragmented_length += length;
+				}
+				tvb_composite_finalize(out_tvb);
+				add_new_data_source(actx->pinfo, out_tvb, "Fragmented OCTET STRING");
+			} else {
+				out_tvb = tvb_new_octet_aligned(tvb, offset, length * 8);
+				if ((offset & 7) != 0) {
+					add_new_data_source(actx->pinfo, out_tvb, "Unaligned OCTET STRING");
+				}
 			}
 		} else {
 			val_start = offset>>3;
 		}
-		val_length = length;
+		val_length = fragmented_length ? fragmented_length : length;
 		offset+=length*8;
 	}
 
