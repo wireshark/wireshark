@@ -204,7 +204,7 @@ void fill_unresolved_ss7pc(const gchar * pc_addr, const guint8 ni, const guint32
 /* Same as get_ether_name with tvb support */
 WS_DLL_PUBLIC const gchar *tvb_get_ether_name(tvbuff_t *tvb, gint offset);
 
-/* get_ether_name returns the logical name if found in ethers files else NULL */
+/* get_ether_name_if_known returns the logical name if found in ethers files else NULL */
 const gchar *get_ether_name_if_known(const guint8 *addr);
 
 /*
