@@ -30,11 +30,18 @@
  * http://www.utf8-chartable.de/
  * and other places
  *
- * While many modern systems default to UTF-8 and handle it well, some do
- * not. The Windows console is a notable example. When adding a glyph below
- * you probably shouldn't stray too far from code page 437 or WGL4:
+ * Please be conservative when adding code points below. While many modern
+ * systems default to UTF-8 and handle it well, some do not. The Windows
+ * console is a notable example. As a general rule you probably shouldn't
+ * stray too far from code page 437 or WGL4:
  * https://en.wikipedia.org/wiki/Code_page_437
  * https://en.wikipedia.org/wiki/Windows_Glyph_List_4
+ *
+ * Hopefully we can dispense with the sequences below and simply encode our
+ * files as UTF 8 at some point. For example gcc has supported UTF 8 since
+ * at least 3.4. Visual C++ on the other hand is much more problematic.
+ * 2015 and later support /source-charset:utf-8, but prior versions appear
+ * to require a UTF 8 BOM.
  */
 
 #define UTF8_DEGREE_SIGN                    "\xc2\xb0"      /*   176 /   0xb0 */
