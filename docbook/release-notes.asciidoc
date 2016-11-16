@@ -8,48 +8,18 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
-* Invalid coloring rules are now disabled instead of discarded. This will
-  provide forward compatibility with a coloring rule change in Wireshark 2.2.
-
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2016-59[]
+* ws-salink:2016-63[]
 +
-AllJoyn crash.
-(ws-buglink:12953[])
+A dissector went awry.
+(ws-buglink:xxxx[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: 7dfaec9
-// Fixed in master-2.2: f44fd03
-// Fixed in master-2.0: a5770b6
-
-* ws-salink:2016-60[]
-+
-OpenFlow crash.
-(ws-buglink:13071[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: d1a7ed1
-// Fixed in master-2.2: 51348a7
-// Fixed in master-2.0: f2a7af8
-
-* ws-salink:2016-61[]
-+
-DCERPC crash.
-(ws-buglink:13072[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 929ad38
-// Fixed in master-2.2: 3f45798
-// Fixed in master-2.0: cc8e37f
-
-* ws-salink:2016-62[]
-+
-DTN infinite loop.
-(ws-buglink:13097[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 63776db
-// Fixed in master-2.2: 14bba92
-// Fixed in master-2.0: be6a10a
+// Fixed in master: xxxx
+// Fixed in master-2.2: xxxx
+// Fixed in master-2.0: xxxx
 
 The following bugs have been fixed:
 
@@ -57,38 +27,7 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.8rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* SMPP schedule_delivery_time displayed wrong in Wireshark 2.1.0. (ws-buglink:12632[])
-
-* Upgrading to latest version uninstalls Microsoft Visual C++ redistributable. (ws-buglink:12712[])
-
-* smpp.message not decoded & not available for export using tshark -T fields -e smpp.message. (ws-buglink:12960[])
-
-* CLNP dissector does not parse ER NPDU properly. (ws-buglink:12993[])
-
-* SNMP trap bindings for NON scalar OIDs. (ws-buglink:13013[])
-
-* BGP LS Link Protection Type TLV (1093) decoding. (ws-buglink:13021[])
-
-* Application crash sorting column for tcp.window_size_scalefactor up and down. (ws-buglink:13023[])
-
-* ZigBee Green Power add key during execution. (ws-buglink:13031[])
-
-* Malformed AMPQ packets for session.expected and session.confirmed fields. (ws-buglink:13037[])
-
-* [IS-637A] SMS - Teleservice layer parameter --> IA5 encoded text is not correctly displayed. (ws-buglink:13065[])
-
-* Field sna.gds is is not of an FT_\{U\}INTn type. (ws-buglink:13084[])
-
-* E212: 3 digits MNC are identified as 2 digits long if they end with a 0. (ws-buglink:13092[])
-
-* Dissector skips DICOM command. (ws-buglink:13110[])
-
-* Manufacturer name resolution fail. (ws-buglink:13126[])
-
-The Windows PortableApps packages were susceptible to a
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12724[DLL hijacking flaw].
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.9rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 === New and Updated Features
 
@@ -107,20 +46,6 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-AllJoyn
-AMPQ
-ANSI IS-637 A
-BGP
-CLNP
-DCERPC
-DICOM
-DTN
-E.212
-OpenFlow
-SMPP
-SNA
-SNMP
-ZigBee
 --sort-and-group--
 
 === New and Updated Capture File Support
