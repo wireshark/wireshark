@@ -68,11 +68,11 @@ The following bugs have been fixed:
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.2rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-// Left off at e1a09b4
-
 * TCP: nextseq incorrect if TCP_MAX_UNACKED_SEGMENTS exceeded & FIN true. (ws-buglink:12579[])
 
 * SMPP schedule_delivery_time displayed wrong in Wireshark 2.1.0. (ws-buglink:12632[])
+
+* Upgrading to latest version uninstalls Microsoft Visual C++ redistributable. (ws-buglink:12712[])
 
 * dmg for OS X does not install man pages. (ws-buglink:12746[])
 
@@ -112,6 +112,10 @@ The following bugs have been fixed:
 
 * E212: 3 digits MNC are identified as 2 digits long if they end with a 0. (ws-buglink:13092[])
 
+* Exception with last unknown Cisco AVP available in a SCCRQ message. (ws-buglink:13103[])
+
+* TShark stalls on FreeBSD if androiddump is present. (ws-buglink:13104[])
+
 * Dissector skips DICOM command. (ws-buglink:13110[])
 
 * UUID (FT_GUID) filtering isn't working. (ws-buglink:13121[])
@@ -119,6 +123,8 @@ The following bugs have been fixed:
 * Manufacturer name resolution fail. (ws-buglink:13126[])
 
 * packet-sdp.c allocates transport_info->encoding_name from wrong memory pool. (ws-buglink:13127[])
+
+* Payload type name for dynamic payload is wrong for reverse RTP channels. (ws-buglink:13132[])
 
 === New and Updated Features
 
@@ -155,6 +161,7 @@ IEEE 802.11
 IP
 ISO-8583
 Kerberos
+L2TP
 LACP
 MAC LTE
 OpenFlow
