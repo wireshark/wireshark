@@ -61,6 +61,8 @@ The following bugs have been fixed:
 
 * SMPP schedule_delivery_time displayed wrong in Wireshark 2.1.0. (ws-buglink:12632[])
 
+* Upgrading to latest version uninstalls Microsoft Visual C++ redistributable. (ws-buglink:12712[])
+
 * smpp.message not decoded & not available for export using tshark -T fields -e smpp.message. (ws-buglink:12960[])
 
 * CLNP dissector does not parse ER NPDU properly. (ws-buglink:12993[])
@@ -77,7 +79,7 @@ The following bugs have been fixed:
 
 * [IS-637A] SMS - Teleservice layer parameter --> IA5 encoded text is not correctly displayed. (ws-buglink:13065[])
 
-* Field sna.gds is is not of an FT_{U}INTn type. (ws-buglink:13084[])
+* Field sna.gds is is not of an FT_\{U\}INTn type. (ws-buglink:13084[])
 
 * E212: 3 digits MNC are identified as 2 digits long if they end with a 0. (ws-buglink:13092[])
 
