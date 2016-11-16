@@ -2319,12 +2319,8 @@ static const value_string getprinter_action_vals[] = {
 	{ DS_PUBLISH, "Publish" },
 	{ DS_UNPUBLISH, "Unpublish" },
 	{ DS_UPDATE, "Update" },
-
-	/* Not sure what the constant values are here */
-
-/*	{ DS_PENDING, "Pending" }, */
-/*	{ DS_REPUBLISH, "Republish" }, */
-
+	{ DS_PENDING, "Pending" },
+	{ DS_REPUBLISH, "Republish" },
 	{ 0, NULL }
 };
 

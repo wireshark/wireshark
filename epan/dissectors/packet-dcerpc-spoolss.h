@@ -547,9 +547,11 @@
 
 /* Printer info level 7 */
 
-#define DS_PUBLISH   1
-#define DS_UPDATE    2
-#define DS_UNPUBLISH 3
+#define DS_PUBLISH	0x00000001
+#define DS_UPDATE	0x00000002
+#define DS_UNPUBLISH	0x00000004
+#define DS_REPUBLISH	0x00000008
+#define DS_PENDING	0x80000000
 
 /* SetJob command values */
 
