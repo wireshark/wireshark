@@ -12,53 +12,14 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2016-58[]
-+
-Profinet I/O long loop.
-(ws-buglink:12851[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: e8022a9
-// Fixed in master-2.2: 4127e39
-// Fixed in master-2.0: N/A
-
-* ws-salink:2016-59[]
-+
-AllJoyn crash.
-(ws-buglink:12953[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 7dfaec9
-// Fixed in master-2.2: f44fd03
-// Fixed in master-2.0: a5770b6
-
-* ws-salink:2016-60[]
-+
-OpenFlow crash.
-(ws-buglink:13071[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: d1a7ed1
-// Fixed in master-2.2: 51348a7
-// Fixed in master-2.0: f2a7af8
-
-* ws-salink:2016-61[]
-+
-DCERPC crash.
-(ws-buglink:13072[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 929ad38
-// Fixed in master-2.2: 3f45798
-// Fixed in master-2.0: cc8e37f
-
 * ws-salink:2016-62[]
 +
-DTN infinite loop.
-(ws-buglink:13097[])
+A dissector went awry.
+(ws-buglink:xxxx[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: 63776db
-// Fixed in master-2.2: 14bba92
-// Fixed in master-2.0: be6a10a
-
-The Windows PortableApps packages were susceptible to a
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12724[DLL hijacking flaw].
+// Fixed in master: xxxx
+// Fixed in master-2.2: xxxx
+// Fixed in master-2.0: xxxx
 
 The following bugs have been fixed:
 
@@ -66,65 +27,7 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.2rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* TCP: nextseq incorrect if TCP_MAX_UNACKED_SEGMENTS exceeded & FIN true. (ws-buglink:12579[])
-
-* SMPP schedule_delivery_time displayed wrong in Wireshark 2.1.0. (ws-buglink:12632[])
-
-* Upgrading to latest version uninstalls Microsoft Visual C++ redistributable. (ws-buglink:12712[])
-
-* dmg for OS X does not install man pages. (ws-buglink:12746[])
-
-* Fails to compile against Heimdal 1.5.3. (ws-buglink:12831[])
-
-* TCP: Next sequence number off by one when sending payload in SYN packet (e.g. TFO). (ws-buglink:12838[])
-
-* Follow TCP Stream shows duplicate stream data. (ws-buglink:12855[])
-
-* Dissection engine falsely asserts that EIGRP packet's checksum is incorrect. (ws-buglink:12982[])
-
-* IEEE 802.15.4 frames erroneously handed over to ZigBee dissector. (ws-buglink:12984[])
-
-* Capture Filter Bookmark Inactive in Capture Options page. (ws-buglink:12986[])
-
-* CLNP dissector does not parse ER NPDU properly. (ws-buglink:12993[])
-
-* SNMP trap bindings for NON scalar OIDs. (ws-buglink:13013[])
-
-* BGP LS Link Protection Type TLV (1093) decoding. (ws-buglink:13021[])
-
-* Application crash sorting column for tcp.window_size_scalefactor up and down. (ws-buglink:13023[])
-
-* ZigBee Green Power add key during execution. (ws-buglink:13031[])
-
-* Malformed AMPQ packets for session.expected and session.confirmed fields. (ws-buglink:13037[])
-
-* Wireshark 2.2.1 crashes when attempting to merge pcap files. (ws-buglink:13060[])
-
-* [IS-637A] SMS - Teleservice layer parameter --> IA5 encoded text is not correctly displayed. (ws-buglink:13065[])
-
-* Field sna.gds is is not of an FT_{U}INTn type. (ws-buglink:13084[])
-
-* Failure to dissect USB Audio feature unit descriptors missing the iFeature field. (ws-buglink:13085[])
-
-* MSISDN not populated/decoded in JSON GTP-C decoding. (ws-buglink:13086[])
-
-* E212: 3 digits MNC are identified as 2 digits long if they end with a 0. (ws-buglink:13092[])
-
-* Exception with last unknown Cisco AVP available in a SCCRQ message. (ws-buglink:13103[])
-
-* TShark stalls on FreeBSD if androiddump is present. (ws-buglink:13104[])
-
-* Dissector skips DICOM command. (ws-buglink:13110[])
-
-* UUID (FT_GUID) filtering isn't working. (ws-buglink:13121[])
-
-* Manufacturer name resolution fail. (ws-buglink:13126[])
-
-* packet-sdp.c allocates transport_info->encoding_name from wrong memory pool. (ws-buglink:13127[])
-
-* Payload type name for dynamic payload is wrong for reverse RTP channels. (ws-buglink:13132[])
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.3rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 === New and Updated Features
 
@@ -143,41 +46,6 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-6LoWPAN
-AllJoyn
-AMPQ
-ANSI IS-637 A
-BGP
-CLNP
-DCERPC
-DICOM
-DTN
-E.212
-EIGRP
-ERF
-GVSP
-IEEE 802.15.4
-IEEE 802.11
-IP
-ISO-8583
-Kerberos
-L2TP
-LACP
-MAC LTE
-OpenFlow
-Profinet I/O
-RTPS
-SCTP
-SDP
-Skype
-SMPP
-SNA
-SNMP
-SPNEGO
-TCP
-USB Audio
-XML
-ZigBee
 --sort-and-group--
 
 === New and Updated Capture File Support
