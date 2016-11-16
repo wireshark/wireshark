@@ -1222,6 +1222,7 @@ set(DISSECTOR_SRC
 	packet-snaeth.c
 	packet-sndcp-xid.c
 	packet-sndcp.c
+	packet-snort.c
 	packet-socketcan.c
 	packet-socks.c
 	packet-soupbintcp.c
@@ -1422,6 +1423,7 @@ set(DISSECTOR_SRC
 set(DISSECTOR_SUPPORT_SRC
 	packet-dcerpc-nt.c
 	usb.c
+	snort-config.c
 	register.c
 )
 source_group(dissector-support FILES ${DISSECTOR_SUPPORT_SRC})

@@ -1243,6 +1243,7 @@ DISSECTOR_SRC = \
 	packet-snaeth.c		\
 	packet-sndcp-xid.c	\
 	packet-sndcp.c		\
+	packet-snort.c		\
 	packet-socketcan.c	\
 	packet-socks.c		\
 	packet-soupbintcp.c	\
@@ -1826,6 +1827,7 @@ DISSECTOR_INCLUDES = \
 # used to generate "register.c").
 DISSECTOR_SUPPORT_SRC =	\
 	packet-dcerpc-nt.c	\
+	snort-config.c		\
 	usb.c			\
 	register.c
 
