@@ -189,6 +189,8 @@ static int hf_tcp_option_echo = -1;
 static int hf_tcp_option_timestamp_tsval = -1;
 static int hf_tcp_option_timestamp_tsecr = -1;
 static int hf_tcp_option_cc = -1;
+static int hf_tcp_option_md5 = -1;
+static int hf_tcp_option_md5_digest = -1;
 static int hf_tcp_option_qs = -1;
 static int hf_tcp_option_exp = -1;
 static int hf_tcp_option_exp_data = -1;
@@ -347,6 +349,7 @@ static gint ett_tcp_opt_rvbd_trpy = -1;
 static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 static gint ett_tcp_opt_echo = -1;
 static gint ett_tcp_opt_cc = -1;
+static gint ett_tcp_opt_md5 = -1;
 static gint ett_tcp_opt_qs = -1;
 static gint ett_mptcp_analysis = -1;
 static gint ett_mptcp_analysis_subflows = -1;
@@ -4355,6 +4358,27 @@ dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
 }
 
 static void
+dissect_tcpopt_md5(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *hidden_item;
+
+    hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_md5, tvb, offset,
+                                         optlen, TRUE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen,
+                             ett_tcp_opt_md5, NULL, "%s", optp->name);
+    col_append_lstr(pinfo->cinfo, COL_INFO, " MD5", COL_ADD_LSTR_TERMINATOR);
+    proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
+                        offset + 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_tcp_option_md5_digest, tvb,
+                        offset + 2, optlen - 2, ENC_NA);
+}
+
+static void
 dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
@@ -5184,7 +5208,7 @@ static const ip_tcp_opt tcpopts[] = {
         NULL,
         OPT_LEN_FIXED_LENGTH,
         TCPOLEN_MD5,
-        NULL
+        dissect_tcpopt_md5
     },
     {
         TCPOPT_SCPS,
@@ -6847,6 +6871,14 @@ proto_register_tcp(void)
           { "TCP CC Option", "tcp.options.cc", FT_BOOLEAN, BASE_NONE,
             NULL, 0x0, NULL, HFILL}},
 
+        { &hf_tcp_option_md5,
+          { "TCP MD5 Option", "tcp.options.md5", FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_md5_digest,
+          { "MD5 digest", "tcp.options.md5.digest", FT_BYTES, BASE_NONE,
+            NULL, 0x0, NULL, HFILL}},
+
         { &hf_tcp_option_qs,
           { "TCP QS Option", "tcp.options.qs", FT_BOOLEAN, BASE_NONE,
             NULL, 0x0, NULL, HFILL}},
@@ -7216,6 +7248,7 @@ proto_register_tcp(void)
         &ett_tcp_opt_rvbd_trpy_flags,
         &ett_tcp_opt_echo,
         &ett_tcp_opt_cc,
+        &ett_tcp_opt_md5,
         &ett_tcp_opt_qs,
         &ett_tcp_analysis_faults,
         &ett_tcp_analysis,
