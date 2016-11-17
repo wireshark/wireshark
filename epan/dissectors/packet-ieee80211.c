@@ -222,7 +222,8 @@ static gboolean enable_decryption = TRUE;
 
 static void
 ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                                  proto_tree *tree, int tagged_parameters_len, int ftype);
+                                  proto_tree *tree, int tagged_parameters_len, int ftype,
+                                  association_sanity_check_t *association_sanity_check);
 
 static tvbuff_t *try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PAIRPDCAP_KEY_ITEM used_key);
 
@@ -4992,6 +4993,7 @@ static expert_field ei_ieee80211_dmg_subtype = EI_INIT;
 static expert_field ei_ieee80211_vht_action = EI_INIT;
 static expert_field ei_ieee80211_mesh_peering_unexpected = EI_INIT;
 static expert_field ei_ieee80211_fcs = EI_INIT;
+static expert_field ei_ieee80211_mismatched_akm_suite = EI_INIT;
 
 /* 802.11ad trees */
 static gint ett_dynamic_alloc_tree = -1;
@@ -8836,7 +8838,7 @@ dissect_ieee80211_extension(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, prot
        */
       if (tagged_parameter_tree_len) {
         tagged_tree = get_tagged_parameter_tree(ext_tree, tvb, offset, tagged_parameter_tree_len);
-        ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree, tagged_parameter_tree_len, EXTENSION_DMG_BEACON);
+        ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree, tagged_parameter_tree_len, EXTENSION_DMG_BEACON, NULL);
       }
       break;
     }
@@ -10526,7 +10528,7 @@ dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 /* 7.3.2.25 RSN information element */
 static int
 dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-               int offset, guint32 tag_len)
+               int offset, guint32 tag_len, association_sanity_check_t *association_sanity_check)
 {
   proto_item *rsn_gcs_item, *rsn_pcs_item, *rsn_akms_item, *rsn_cap_item, *rsn_pmkid_item, *rsn_gmcs_item;
   proto_item *rsn_sub_pcs_item, *rsn_sub_akms_item;
@@ -10615,7 +10617,22 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     {
       proto_tree_add_item(rsn_sub_akms_tree, hf_ieee80211_rsn_akms_80211_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
       proto_item_append_text(rsn_akms_item, " %s", rsn_akms_return(tvb_get_ntohl(tvb, offset)));
-    } else {
+
+      if (association_sanity_check) {
+        guint32 akm_suite = tvb_get_ntohl(tvb, offset);
+        if (akm_suite == 0x000FAC03 || akm_suite == 0x000FAC04 || akm_suite == 0x000FAC09) {
+          /* This is an FT AKM suite */
+          if (association_sanity_check->rsn_first_ft_akm_suite == NULL) {
+            association_sanity_check->rsn_first_ft_akm_suite = rsn_sub_akms_tree->last_child;
+          }
+        } else {
+          /* This is a non-FT AKM suite */
+          if (association_sanity_check->rsn_first_non_ft_akm_suite == NULL) {
+            association_sanity_check->rsn_first_non_ft_akm_suite = rsn_sub_akms_tree->last_child;
+          }
+        }
+      }
+} else {
       proto_tree_add_item(rsn_sub_akms_tree, hf_ieee80211_rsn_akms_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
     }
     offset += 4;
@@ -11062,8 +11079,12 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_mobility_domain(proto_tree *tree, tvbuff_t *tvb, int offset,
-                        guint32 tag_len)
+                        guint32 tag_len, association_sanity_check_t *association_sanity_check)
 {
+  if (association_sanity_check != NULL) {
+    association_sanity_check->association_has_mobility_domain_element = 1;
+  }
+
   if (tag_len < 3) {
     proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, offset, tag_len,
                           "MDIE content length must be at least 3 bytes");
@@ -11405,7 +11426,7 @@ dissect_ric_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     next_ie = tvb_get_guint8(tvb, offset);
     proto_item_append_text(ti, " :(%d:%s)", desc_cnt, val_to_str_ext(next_ie, &tag_num_vals_ext, "Reserved (%d)"));
     /* Recursive call to avoid duplication of code*/
-    offset_r = add_tagged_field(pinfo, sub_tree, tvb, offset, ftype, ids, G_N_ELEMENTS(ids));
+    offset_r = add_tagged_field(pinfo, sub_tree, tvb, offset, ftype, ids, G_N_ELEMENTS(ids), NULL);
     if (offset_r == 0 )/* should never happen, returns a min of 2*/
       break;
     /* This will ensure that the IE after RIC is processed
@@ -11540,7 +11561,7 @@ dissect_channel_switch_wrapper(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   */
   while (tag_len > 0){
     tmp_sublen = tvb_get_guint8(tvb, offset + 1);
-    if(add_tagged_field(pinfo, tree, tvb, offset, 0, ids, G_N_ELEMENTS(ids)) == 0){
+    if(add_tagged_field(pinfo, tree, tvb, offset, 0, ids, G_N_ELEMENTS(ids), NULL) == 0){
       break;
     }
     tag_len -= (tmp_sublen + 2);
@@ -11967,7 +11988,7 @@ dissect_tfs_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
       s_end = offset + len;
       while (s_offset < s_end) {
         /* TODO 1 is interpreted as TAG_SUPP_RATES, fix this! */
-        int tlen = add_tagged_field(pinfo, tree, tvb, s_offset, ftype, ids, G_N_ELEMENTS(ids));
+        int tlen = add_tagged_field(pinfo, tree, tvb, s_offset, ftype, ids, G_N_ELEMENTS(ids), NULL);
         if (tlen==0)
           break;
         s_offset += tlen;
@@ -12042,7 +12063,7 @@ dissect_tfs_response(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
       s_end = offset + len;
       while (s_offset < s_end) {
         /* TODO Element IDs 1 and 2 are misinterpreted! */
-        int tlen = add_tagged_field(pinfo, tree, tvb, s_offset, ftype, ids, G_N_ELEMENTS(ids));
+        int tlen = add_tagged_field(pinfo, tree, tvb, s_offset, ftype, ids, G_N_ELEMENTS(ids), NULL);
         if (tlen==0)
           break;
         s_offset += tlen;
@@ -13746,7 +13767,8 @@ ieee80211_tag_fh_hopping_table(packet_info *pinfo, proto_tree *tree,
 
 int
 add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int ftype,
-                 const guint8 *valid_element_ids, guint valid_element_ids_count)
+                 const guint8 *valid_element_ids, guint valid_element_ids_count,
+                 association_sanity_check_t *association_sanity_check)
 {
   guint32       oui;
   tvbuff_t     *tag_tvb;
@@ -14753,7 +14775,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
                     add_ff_cap_info(rep_tree, tvb, pinfo, 10);
                     offset += 12;
 
-                    ieee_80211_add_tagged_parameters(tvb, offset, pinfo, rep_tree, sub_length - 12, MGT_PROBE_RESP);
+                    ieee_80211_add_tagged_parameters(tvb, offset, pinfo, rep_tree, sub_length - 12, MGT_PROBE_RESP, NULL);
                     offset += (sub_length - 12);
                   }
                   break;
@@ -14932,7 +14954,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       }
       offset += 2;
 
-      offset = dissect_rsn_ie(pinfo, tree, tvb, offset, tag_len);
+      offset = dissect_rsn_ie(pinfo, tree, tvb, offset, tag_len, association_sanity_check);
       break;
 
     case TAG_EXT_SUPP_RATES: /* 7.3.2.14 Extended Supported Rates element (50) */
@@ -15082,7 +15104,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       break;
 
     case TAG_MOBILITY_DOMAIN:
-      dissect_mobility_domain(tree, tvb, offset + 2, tag_len);
+      dissect_mobility_domain(tree, tvb, offset + 2, tag_len, association_sanity_check);
       break;
 
     case TAG_FAST_BSS_TRANSITION:
@@ -16091,13 +16113,14 @@ end_of_tag:
 
 static void
 ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                                  proto_tree *tree, int tagged_parameters_len, int ftype)
+                                  proto_tree *tree, int tagged_parameters_len, int ftype,
+                                  association_sanity_check_t *association_sanity_check)
 {
   int next_len;
   beacon_padding = 0; /* this is for the beacon padding confused with ssid fix */
   while (tagged_parameters_len > 0) {
     /* TODO make callers optionally specify the list of valid IE IDs? */
-    if ((next_len=add_tagged_field (pinfo, tree, tvb, offset, ftype, NULL, 0)) == 0)
+    if ((next_len=add_tagged_field (pinfo, tree, tvb, offset, ftype, NULL, 0, association_sanity_check)) == 0)
       break;
     if (next_len > tagged_parameters_len) {
       /* XXX - flag this as an error? */
@@ -16105,6 +16128,27 @@ ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
     offset                += next_len;
     tagged_parameters_len -= next_len;
+  }
+}
+
+static void
+ieee_80211_do_association_sanity_check(packet_info *pinfo, association_sanity_check_t *sanity_check)
+{
+  /* Given a [re-]association request frame, consider it in its totality and
+     add expert information as appropriate */
+
+  if (sanity_check->association_has_mobility_domain_element) {
+    /* This is an FT association, warn about any non-FT AKM suites */
+    if (sanity_check->rsn_first_non_ft_akm_suite != NULL) {
+      expert_add_info_format(pinfo, sanity_check->rsn_first_non_ft_akm_suite, &ei_ieee80211_mismatched_akm_suite,
+                             "Non-FT AKM suite is prohibited for FT association request");
+    }
+  } else {
+    /* This is a non-FT association, warn about any FT AKM suites */
+    if (sanity_check->rsn_first_ft_akm_suite != NULL) {
+      expert_add_info_format(pinfo, sanity_check->rsn_first_ft_akm_suite, &ei_ieee80211_mismatched_akm_suite,
+                             "FT AKM suite is prohibited for non-FT association request");
+    }
   }
 }
 
@@ -16120,6 +16164,9 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
   proto_tree *tagged_tree;
   int         offset = 0;
   int         tagged_parameter_tree_len;
+
+  association_sanity_check_t association_sanity_check;
+  memset(&association_sanity_check, 0, sizeof(association_sanity_check));
 
   ieee80211_tvb_invalid = FALSE;
 
@@ -16140,7 +16187,8 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
                  tagged_parameter_tree_len);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-          tagged_parameter_tree_len, MGT_ASSOC_REQ);
+          tagged_parameter_tree_len, MGT_ASSOC_REQ, &association_sanity_check);
+      ieee_80211_do_association_sanity_check(pinfo, &association_sanity_check);
       break;
 
 
@@ -16156,7 +16204,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
                  tagged_parameter_tree_len);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-          tagged_parameter_tree_len, MGT_ASSOC_RESP);
+          tagged_parameter_tree_len, MGT_ASSOC_RESP, NULL);
       break;
 
 
@@ -16172,7 +16220,8 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
                  tagged_parameter_tree_len);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-          tagged_parameter_tree_len, MGT_REASSOC_REQ);
+          tagged_parameter_tree_len, MGT_REASSOC_REQ, &association_sanity_check);
+      ieee_80211_do_association_sanity_check(pinfo, &association_sanity_check);
       break;
 
     case MGT_REASSOC_RESP:
@@ -16187,7 +16236,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
                  tagged_parameter_tree_len);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-          tagged_parameter_tree_len, MGT_REASSOC_RESP);
+          tagged_parameter_tree_len, MGT_REASSOC_RESP, NULL);
       break;
 
 
@@ -16198,7 +16247,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
                  tagged_parameter_tree_len);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-          tagged_parameter_tree_len, MGT_PROBE_REQ);
+          tagged_parameter_tree_len, MGT_PROBE_REQ, NULL);
       break;
 
     case MGT_PROBE_RESP:
@@ -16211,7 +16260,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
       tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset, tagged_parameter_tree_len);
-      ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree, tagged_parameter_tree_len, MGT_PROBE_RESP);
+      ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree, tagged_parameter_tree_len, MGT_PROBE_RESP, NULL);
       break;
     }
     case MGT_MEASUREMENT_PILOT:
@@ -16230,7 +16279,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
       tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset, tagged_parameter_tree_len);
-      ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree, tagged_parameter_tree_len, MGT_MEASUREMENT_PILOT);
+      ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree, tagged_parameter_tree_len, MGT_MEASUREMENT_PILOT, NULL);
       break;
     }
     case MGT_BEACON:    /* Dissect protocol payload fields  */
@@ -16245,7 +16294,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
       tagged_parameter_tree_len);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-      tagged_parameter_tree_len, MGT_BEACON);
+      tagged_parameter_tree_len, MGT_BEACON, NULL);
       break;
 
     case MGT_ATIM:
@@ -16260,7 +16309,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
         tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
                                                 tagged_parameter_tree_len);
         ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-                                         tagged_parameter_tree_len, MGT_DISASS);
+                                         tagged_parameter_tree_len, MGT_DISASS, NULL);
       }
       break;
 
@@ -16280,7 +16329,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
             offset,
             tagged_parameter_tree_len);
         ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-        tagged_parameter_tree_len, MGT_AUTHENTICATION);
+        tagged_parameter_tree_len, MGT_AUTHENTICATION, NULL);
       }
       break;
 
@@ -16293,7 +16342,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
         tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
                                                 tagged_parameter_tree_len);
         ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-                                         tagged_parameter_tree_len, MGT_DEAUTHENTICATION);
+                                         tagged_parameter_tree_len, MGT_DEAUTHENTICATION, NULL);
       }
       break;
 
@@ -16313,7 +16362,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
         tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
           tagged_parameter_tree_len);
         ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-          tagged_parameter_tree_len, MGT_ACTION);
+          tagged_parameter_tree_len, MGT_ACTION, NULL);
       }
       break;
     }
@@ -16334,7 +16383,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
         tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
           tagged_parameter_tree_len);
         ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-          tagged_parameter_tree_len, MGT_ACTION_NO_ACK);
+          tagged_parameter_tree_len, MGT_ACTION_NO_ACK, NULL);
       }
       break;
     }
@@ -18614,7 +18663,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       keydes_tree = proto_item_add_subtree(ti, ett_wlan_rsna_eapol_keydes_data);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, keydes_tree,
                                        tvb_reported_length_remaining(tvb, offset),
-                                       -1);
+                                       -1, NULL);
     }
   }
   return tvb_captured_length(tvb);
@@ -18852,7 +18901,7 @@ dissect_data_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       tagged_tree = get_tagged_parameter_tree(tree, tvb, offset,
                                               tagged_parameter_tree_len);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-                                       tagged_parameter_tree_len, -1);
+                                       tagged_parameter_tree_len, -1, NULL);
     }
     break;
   }
@@ -27124,6 +27173,10 @@ proto_register_ieee80211(void)
 
     { &ei_ieee80211_fcs,
       { "wlan.fcs.bad_checksum", PI_MALFORMED, PI_ERROR,
+        NULL, EXPFILL }},
+
+    { &ei_ieee80211_mismatched_akm_suite,
+      { "wlan.rsn.akms.mismatched", PI_PROTOCOL, PI_ERROR,
         NULL, EXPFILL }},
   };
 

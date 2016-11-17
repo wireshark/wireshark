@@ -31,6 +31,12 @@
 extern "C" {
 #endif /* __cplusplus */
 
+typedef struct {
+  int association_has_mobility_domain_element;
+  proto_node *rsn_first_ft_akm_suite;
+  proto_node *rsn_first_non_ft_akm_suite;
+} association_sanity_check_t;
+
 void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                          int offset, gint size);
 int dissect_wifi_p2p_public_action(packet_info *pinfo, proto_tree *tree,
@@ -45,7 +51,8 @@ void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
 int add_tagged_field(packet_info *pinfo, proto_tree *tree,
                             tvbuff_t *tvb, int offset, int ftype,
                             const guint8 *valid_element_ids,
-                            guint valid_element_ids_count);
+                            guint valid_element_ids_count,
+                            association_sanity_check_t *association_sanity_check);
 
 #define MAX_SSID_LEN    32
 #define MAX_PROTECT_LEN 10

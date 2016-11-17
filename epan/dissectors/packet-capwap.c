@@ -2722,7 +2722,7 @@ hf_capwap_msg_element_type_ieee80211_ie_flags, ett_capwap_ieee80211_ie_flags, ie
         offset += 1;
 
         while (offset < offset_end) {
-            offset += add_tagged_field(pinfo, sub_msg_element_type_tree, tvb, offset, 0, NULL, 0);
+            offset += add_tagged_field(pinfo, sub_msg_element_type_tree, tvb, offset, 0, NULL, 0, NULL);
         }
 
         break;
