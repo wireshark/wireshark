@@ -5965,7 +5965,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 
                 calc_item = proto_tree_add_uint(tcp_tree, hf_tcp_checksum_calculated, tvb,
-                                              offset + 16, 2, th_sum);
+                                              offset + 16, 2, in_cksum_shouldbe(th_sum, computed_cksum));
                 PROTO_ITEM_SET_GENERATED(calc_item);
 
                 /* Checksum is valid, so we're willing to desegment it. */
