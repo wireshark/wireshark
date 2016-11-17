@@ -250,18 +250,21 @@ static inline int is_specified_interface(char *interface, const char *interface_
 }
 
 static void useSndTimeout(socket_handle_t  sock) {
+    int res;
 #ifdef _WIN32
     const DWORD socket_timeout = SOCKET_SEND_TIMEOUT_MS;
 
-    setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char *) &socket_timeout, sizeof(socket_timeout));
+    res = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char *) &socket_timeout, sizeof(socket_timeout));
 #else
     const struct timeval socket_timeout = {
         .tv_sec = SOCKET_SEND_TIMEOUT_MS / 1000,
         .tv_usec = (SOCKET_SEND_TIMEOUT_MS % 1000) * 1000
     };
 
-    setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &socket_timeout, sizeof(socket_timeout));
+    res = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &socket_timeout, sizeof(socket_timeout));
 #endif
+    if (res != 0)
+        g_debug("Can't set socket timeout, using default");
 }
 
 static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
