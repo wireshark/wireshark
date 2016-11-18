@@ -24,6 +24,10 @@ done
 #
 WSPATH="$2/Wireshark.app/Contents/MacOS"
 
+if [ ! -d /etc/paths.d ]
+then
+	mkdir -m u=rwx,g=rx,o=rx /etc/paths.d
+fi
 echo $WSPATH > /etc/paths.d/Wireshark
 
 # Setting MANPATH
@@ -31,4 +35,8 @@ echo $WSPATH > /etc/paths.d/Wireshark
 #
 WSMANPATH="$2/Wireshark.app/Contents/Resources/share/man"
 
+if [ ! -d /etc/manpaths.d ]
+then
+	mkdir -m u=rwx,g=rx,o=rx /etc/manpaths.d
+fi
 echo $WSMANPATH > /etc/manpaths.d/Wireshark
