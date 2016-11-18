@@ -565,7 +565,7 @@ void LBMUIMFlowDialog::resetAxes(bool keep_lower)
         left_pos = sp->xAxis2->range().lower;
     }
 
-    double range_ratio = sp->xAxis2->axisRect()->width() / m_node_label_width;
+    double range_ratio = sp->xAxis2->axisRect()->width() / m_node_label_width * sp->axisRect()->rangeZoomFactor(Qt::Horizontal);
     sp->xAxis2->setRange(left_pos, range_ratio + left_pos);
 
     range_ratio = sp->yAxis->axisRect()->height() / (m_one_em * 1.5);
