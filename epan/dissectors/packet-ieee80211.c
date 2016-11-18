@@ -10622,12 +10622,14 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
         guint32 akm_suite = tvb_get_ntohl(tvb, offset);
         if (akm_suite == 0x000FAC03 || akm_suite == 0x000FAC04 || akm_suite == 0x000FAC09) {
           /* This is an FT AKM suite */
-          if (association_sanity_check->rsn_first_ft_akm_suite == NULL) {
+          association_sanity_check->has_ft_akm_suite = TRUE;
+          if (association_sanity_check->rsn_first_ft_akm_suite == NULL && rsn_sub_akms_tree != NULL) {
             association_sanity_check->rsn_first_ft_akm_suite = rsn_sub_akms_tree->last_child;
           }
         } else {
           /* This is a non-FT AKM suite */
-          if (association_sanity_check->rsn_first_non_ft_akm_suite == NULL) {
+          association_sanity_check->has_non_ft_akm_suite = TRUE;
+          if (association_sanity_check->rsn_first_non_ft_akm_suite == NULL && rsn_sub_akms_tree != NULL) {
             association_sanity_check->rsn_first_non_ft_akm_suite = rsn_sub_akms_tree->last_child;
           }
         }
@@ -11082,7 +11084,7 @@ dissect_mobility_domain(proto_tree *tree, tvbuff_t *tvb, int offset,
                         guint32 tag_len, association_sanity_check_t *association_sanity_check)
 {
   if (association_sanity_check != NULL) {
-    association_sanity_check->association_has_mobility_domain_element = 1;
+    association_sanity_check->association_has_mobility_domain_element = TRUE;
   }
 
   if (tag_len < 3) {
@@ -16139,13 +16141,13 @@ ieee_80211_do_association_sanity_check(packet_info *pinfo, association_sanity_ch
 
   if (sanity_check->association_has_mobility_domain_element) {
     /* This is an FT association, warn about any non-FT AKM suites */
-    if (sanity_check->rsn_first_non_ft_akm_suite != NULL) {
+    if (sanity_check->has_non_ft_akm_suite) {
       expert_add_info_format(pinfo, sanity_check->rsn_first_non_ft_akm_suite, &ei_ieee80211_mismatched_akm_suite,
                              "Non-FT AKM suite is prohibited for FT association request");
     }
   } else {
     /* This is a non-FT association, warn about any FT AKM suites */
-    if (sanity_check->rsn_first_ft_akm_suite != NULL) {
+    if (sanity_check->has_ft_akm_suite) {
       expert_add_info_format(pinfo, sanity_check->rsn_first_ft_akm_suite, &ei_ieee80211_mismatched_akm_suite,
                              "FT AKM suite is prohibited for non-FT association request");
     }

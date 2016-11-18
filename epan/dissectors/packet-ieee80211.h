@@ -32,7 +32,9 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct {
-  int association_has_mobility_domain_element;
+  gboolean association_has_mobility_domain_element;
+  gboolean has_ft_akm_suite;
+  gboolean has_non_ft_akm_suite;
   proto_node *rsn_first_ft_akm_suite;
   proto_node *rsn_first_non_ft_akm_suite;
 } association_sanity_check_t;
