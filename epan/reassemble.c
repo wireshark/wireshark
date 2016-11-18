@@ -2212,11 +2212,6 @@ fragment_add_seq_single_work(reassembly_table *table, tvbuff_t *tvb,
 					}
 				}
 				prev_fd->next = NULL;
-				if (new_fh->next == NULL) {
-					old_tvb_data = fragment_delete(table, pinfo, id-frag_number, data);
-					if (old_tvb_data)
-						tvb_free(old_tvb_data);
-				}
 				break;
 			}
 		}
@@ -2230,14 +2225,23 @@ fragment_add_seq_single_work(reassembly_table *table, tvbuff_t *tvb,
 				}
 			}
 			MERGE_FRAG(fh, fd);
-			/* If we've moved a Last packet, change the datalen.
-			 * Second part of this test should be unnecessary. */
-			if (new_fh->flags & FD_DATALEN_SET &&
-			    new_fh->datalen >= frag_number) {
-				fh->flags |= FD_DATALEN_SET;
-				fh->datalen = new_fh->datalen - frag_number;
-				new_fh->flags &= ~FD_DATALEN_SET;
-				new_fh->datalen = 0;
+			if (new_fh != NULL) {
+				/* If we've moved a Last packet, change datalen.
+			         * Second part of this test prob. redundant? */
+				if (new_fh->flags & FD_DATALEN_SET &&
+				    new_fh->datalen >= frag_number) {
+					fh->flags |= FD_DATALEN_SET;
+					fh->datalen = new_fh->datalen - frag_number;
+					new_fh->flags &= ~FD_DATALEN_SET;
+					new_fh->datalen = 0;
+				}
+				/* If we've moved all the fragments,
+				 * delete the old head */
+				if (new_fh->next == NULL) {
+					old_tvb_data = fragment_delete(table, pinfo, id-frag_number, data);
+					if (old_tvb_data)
+						tvb_free(old_tvb_data);
+				}
 			} else {
 			/* Look forward and take off the next (this is
 			 * necessary in some edge cases where max_frags
