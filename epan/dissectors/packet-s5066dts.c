@@ -29,7 +29,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/expert.h>
 #include "packet-tcp.h" /* For tcp_dissect_pdus() */
 #include <epan/crc16-tvb.h>
@@ -955,8 +954,7 @@ static void
 apply_s5066dts_prefs(void)
 {
     /* STANAG 5066 uses the port preference for some heuristics */
-    pref_t *s5066dts_port = prefs_find_preference(prefs_find_module("s5066dts"), "tcp.port");
-    config_s5066dts_port = *s5066dts_port->varp.uint;
+    config_s5066dts_port = prefs_get_uint_value("s5066dts", "tcp.port");;
 }
 
 void proto_register_s5066dts (void)

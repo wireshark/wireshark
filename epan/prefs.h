@@ -623,6 +623,17 @@ WS_DLL_PUBLIC prefs_set_pref_e prefs_set_pref(char *prefarg);
 gboolean prefs_get_preference_obsolete(pref_t *pref);
 prefs_set_pref_e prefs_set_preference_obsolete(pref_t *pref);
 
+/*
+ * Get current  preference uint value. This allows the preference structure
+ * to remain hidden from those that doesn't really need it
+ */
+WS_DLL_PUBLIC guint prefs_get_uint_value(const char *module_name, const char* pref_name);
+
+/*
+ * Get the current range_copy()ed range preference value (so it needs to be freed). This allows the
+ * preference structure to remain hidden from those that doesn't really need it.
+ */
+WS_DLL_PUBLIC range_t* prefs_get_range_value(const char *module_name, const char* pref_name);
 
 /*
  * Returns TRUE if the given device is hidden

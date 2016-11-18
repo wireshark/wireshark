@@ -29,7 +29,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include "packet-tcp.h"
 
 void proto_register_hdfs(void);
@@ -688,8 +687,7 @@ static void
 apply_hdfs_prefs(void)
 {
   /* HDFS uses the port preference to determine request/response */
-  pref_t *hdfs_port = prefs_find_preference(prefs_find_module("hdfs"), "tcp.port");
-  tcp_port = *hdfs_port->varp.uint;
+  tcp_port = prefs_get_uint_value("hdfs", "tcp.port");;
 }
 
 /* registers the protcol with the given names */

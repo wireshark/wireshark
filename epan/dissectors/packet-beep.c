@@ -32,7 +32,6 @@
 #include <stdlib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
@@ -894,8 +893,7 @@ static void
 apply_beep_prefs(void)
 {
   /* Beep uses the port preference to determine client/server */
-  pref_t *beep_port = prefs_find_preference(prefs_find_module("beep"), "tcp.port");
-  global_beep_tcp_port = *beep_port->varp.uint;
+  global_beep_tcp_port = prefs_get_uint_value("beep", "tcp.port");
 }
 
 /* Register all the bits needed with the filtering engine */

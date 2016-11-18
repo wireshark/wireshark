@@ -34,7 +34,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
@@ -1494,8 +1493,7 @@ static void
 apply_iec104_prefs(void)
 {
   /* IEC104 uses the port preference to determine direction */
-  pref_t *iec104_port_pref = prefs_find_preference(prefs_find_module("104apci"), "tcp.port");
-  iec104_port = *iec104_port_pref->varp.uint;
+  iec104_port = prefs_get_uint_value("104apci", "tcp.port");
 }
 
 /* The protocol has two subprotocols: Register APCI */

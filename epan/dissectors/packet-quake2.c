@@ -32,7 +32,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 
 void proto_register_quake2(void);
 void proto_reg_handoff_quake2(void);
@@ -687,8 +686,7 @@ static void
 apply_quake2_prefs(void)
 {
     /* Port preference used to determine client/server */
-    pref_t *quake2_port = prefs_find_preference(prefs_find_module("quake2"), "udp.port");
-    gbl_quake2ServerPort = *quake2_port->varp.uint;
+    gbl_quake2ServerPort = prefs_get_uint_value("quake2", "udp.port");
 }
 
 void

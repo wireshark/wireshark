@@ -25,7 +25,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 
@@ -3398,8 +3397,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 static void
 apply_capwap_prefs(void)
 {
-  pref_t *control_port = prefs_find_preference(prefs_find_module("capwap.data"), "udp.port");
-  global_capwap_data_udp_port = *control_port->varp.uint;
+  global_capwap_data_udp_port = prefs_get_uint_value("capwap.data", "udp.port");
 }
 
 void

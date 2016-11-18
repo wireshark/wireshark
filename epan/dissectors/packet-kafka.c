@@ -29,7 +29,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/proto_data.h>
 #ifdef HAVE_SNAPPY
 #include <snappy-c.h>
@@ -1474,9 +1473,8 @@ dissect_kafka_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 apply_kafka_prefs(void) {
-    pref_t *kafka_ports = prefs_find_preference(prefs_find_module("kafka"), "tcp.port");
-
-    current_kafka_tcp_range = range_copy(*kafka_ports->varp.range);
+    g_free(current_kafka_tcp_range);
+    current_kafka_tcp_range = prefs_get_range_value("kafka", "tcp.port");
 }
 
 void

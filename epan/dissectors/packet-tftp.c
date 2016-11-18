@@ -45,7 +45,6 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/tap.h>
 
 #include "packet-tftp.h"
@@ -92,7 +91,7 @@ static dissector_handle_t tftp_handle;
 void proto_reg_handoff_tftp (void);
 
 /* User definable values */
-static range_t *global_tftp_port_range;
+static range_t *global_tftp_port_range = NULL;
 
 /* minimum length is an ACK message of 4 bytes */
 #define MIN_HDR_LEN  4
@@ -605,9 +604,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 static void
 apply_tftp_prefs(void) {
-  pref_t *tftp_ports = prefs_find_preference(prefs_find_module("tftp"), "udp.port");
-
-  global_tftp_port_range = range_copy(*tftp_ports->varp.range);
+  g_free(global_tftp_port_range);
+  global_tftp_port_range = prefs_get_range_value("tftp", "udp.port");
 }
 
 void

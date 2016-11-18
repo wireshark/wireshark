@@ -29,7 +29,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 
 #include "packet-tcp.h"
 
@@ -139,8 +138,7 @@ static void
 apply_openflow_prefs(void)
 {
     /* Openflow uses the port preference for heuristics */
-    pref_t *openflow_port = prefs_find_preference(prefs_find_module("openflow"), "tcp.port");
-    g_openflow_port = *openflow_port->varp.uint;
+    g_openflow_port = prefs_get_uint_value("openflow", "tcp.port");
 }
 
 /*

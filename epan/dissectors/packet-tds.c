@@ -151,7 +151,6 @@
 #include <epan/show_exception.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
@@ -4225,9 +4224,8 @@ version_convert( gchar *result, guint32 hexver )
 
 static void
 apply_tds_prefs(void) {
-    pref_t *tds_ports = prefs_find_preference(prefs_find_module("tds"), "tcp.port");
-
-    tds_tcp_ports = range_copy(*tds_ports->varp.range);
+    g_free(tds_tcp_ports);
+    tds_tcp_ports = prefs_get_range_value("tds", "tcp.port");
 }
 
 /* Register the protocol with Wireshark */

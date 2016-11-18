@@ -30,7 +30,6 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/proto_data.h>
 
 void proto_register_rsync(void);
@@ -312,8 +311,7 @@ static void
 apply_rsync_prefs(void)
 {
     /* Rsync uses the port preference to determine client/server */
-    pref_t *rsync_port = prefs_find_preference(prefs_find_module("rsync"), "tcp.port");
-    glb_rsync_tcp_port = *rsync_port->varp.uint;
+    glb_rsync_tcp_port = prefs_get_uint_value("rsync", "tcp.port");
 }
 
 /* Register protocol with Wireshark. */

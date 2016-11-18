@@ -30,7 +30,6 @@
 #include <stdlib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/expert.h>
 
 #include <wsutil/strtoi.h>
@@ -705,8 +704,7 @@ static void
 apply_quakeworld_prefs(void)
 {
     /* Port preference used to determine client/server */
-    pref_t *quakeworld_port = prefs_find_preference(prefs_find_module("quakeworld"), "udp.port");
-    gbl_quakeworldServerPort = *quakeworld_port->varp.uint;
+    gbl_quakeworldServerPort = prefs_get_uint_value("quakeworld", "udp.port");
 }
 
 void

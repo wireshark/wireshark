@@ -3786,6 +3786,22 @@ prefs_set_pref(char *prefarg)
     return ret;
 }
 
+guint prefs_get_uint_value(const char *module_name, const char* pref_name)
+{
+    pref_t *pref = prefs_find_preference(prefs_find_module(module_name), pref_name);
+    g_assert(pref != NULL);
+
+    return *pref->varp.uint;
+}
+
+range_t* prefs_get_range_value(const char *module_name, const char* pref_name)
+{
+    pref_t *pref = prefs_find_preference(prefs_find_module(module_name), pref_name);
+    g_assert(pref != NULL);
+
+    return range_copy(*pref->varp.range);
+}
+
 /*
  * Returns TRUE if the given device is hidden
  */

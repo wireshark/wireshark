@@ -25,7 +25,6 @@
 
 #include "epan/packet.h"
 #include "epan/prefs.h"
-#include "epan/prefs-int.h"
 #include "wsutil/report_err.h"
 #include "wsutil/inet_addr.h"
 
@@ -359,9 +358,8 @@ static int dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 static void
 apply_uaudp_prefs(void) {
-    pref_t *ua_ports = prefs_find_preference(prefs_find_module("uaudp"), "udp.port");
-
-    ua_udp_range = range_copy(*ua_ports->varp.range);
+    g_free(ua_udp_range);
+    ua_udp_range = prefs_get_range_value("uaudp", "udp.port");
 
     if (*pref_sys_ip_s) {
         use_sys_ip = ws_inet_pton4(pref_sys_ip_s, &sys_ip);

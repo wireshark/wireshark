@@ -67,7 +67,6 @@
 #include "packet-tcp.h"
 #include "packet-mbtcp.h"
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h> /* For CRC verification */
 #include <epan/proto_data.h>
@@ -1586,22 +1585,16 @@ static void
 apply_mbtcp_prefs(void)
 {
     /* Modbus/RTU uses the port preference to determine request/response */
-    pref_t *tcp_port = prefs_find_preference(prefs_find_module("mbtcp"), "tcp.port");
-    pref_t *udp_port = prefs_find_preference(prefs_find_module("mbudp"), "udp.port");
-
-    global_mbus_tcp_port = *tcp_port->varp.uint;
-    global_mbus_udp_port = *udp_port->varp.uint;
+    global_mbus_tcp_port = prefs_get_uint_value("mbtcp", "tcp.port");
+    global_mbus_udp_port = prefs_get_uint_value("mbudp", "udp.port");
 }
 
 static void
 apply_mbrtu_prefs(void)
 {
     /* Modbus/RTU uses the port preference to determine request/response */
-    pref_t *rtu_tcp_port = prefs_find_preference(prefs_find_module("mbrtu"), "tcp.port");
-    pref_t *rtu_udp_port = prefs_find_preference(prefs_find_module("mbrtu"), "udp.port");
-
-    global_mbus_tcp_rtu_port = *rtu_tcp_port->varp.uint;
-    global_mbus_udp_rtu_port = *rtu_udp_port->varp.uint;
+    global_mbus_tcp_rtu_port = prefs_get_uint_value("mbrtu", "tcp.port");
+    global_mbus_udp_rtu_port = prefs_get_uint_value("mbrtu", "udp.port");
 }
 
 /* Register the protocol with Wireshark */

@@ -82,7 +82,6 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include "packet-x11.h" /* This contains the extern for the X11 value_string_ext
@@ -3461,9 +3460,8 @@ vnc_get_depth(packet_info *pinfo)
 /* Preference callbacks */
 static void
 apply_vnc_prefs(void) {
-    pref_t *vnc_ports = prefs_find_preference(prefs_find_module("vnc"), "tcp.port");
-
-    vnc_tcp_range = range_copy(*vnc_ports->varp.range);
+    g_free(vnc_tcp_range);
+    vnc_tcp_range = prefs_get_range_value("vnc", "tcp.port");
 }
 
 /* Register the protocol with Wireshark */

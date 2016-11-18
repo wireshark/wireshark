@@ -32,7 +32,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 
 void proto_register_gopher(void);
 void proto_reg_handoff_gopher(void);
@@ -203,9 +202,9 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 /* Preference callbacks */
 static void
 gopher_prefs_apply(void) {
-    pref_t *gopher_ports = prefs_find_preference(prefs_find_module("gopher"), "tcp.port");
 
-    gopher_tcp_range = range_copy(*gopher_ports->varp.range);
+    g_free(gopher_tcp_range);
+    gopher_tcp_range = prefs_get_range_value("gopher", "tcp.port");
 }
 
 /* Register the protocol with Wireshark */
