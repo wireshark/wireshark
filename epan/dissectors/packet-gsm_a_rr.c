@@ -1213,7 +1213,8 @@ static int hf_gsm_a_rr_rcc = -1;
 static int hf_gsm_a_rr_implicit_reject_cs = -1;
 static int hf_gsm_a_rr_implicit_reject_ps = -1;
 static int hf_gsm_a_rr_peo_dsc = -1;
-static int hf_gsm_a_rr_c1_delta = -1;
+static int hf_gsm_a_rr_c1_delta_min = -1;
+static int hf_gsm_a_rr_c1_delta_max = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ccch_msg = -1;
@@ -8247,7 +8248,15 @@ static const value_string gsm_a_rr_peo_dsc_vals[] = {
     { 0, NULL }
 };
 
-static const value_string gsm_a_rr_c1_delta_vals[] = {
+static const value_string gsm_a_rr_c1_delta_min_vals[] = {
+    { 0, "3 dB" },
+    { 1, "6 dB" },
+    { 2, "9 dB" },
+    { 3, "12 dB" },
+    { 0, NULL }
+};
+
+static const value_string gsm_a_rr_c1_delta_max_vals[] = {
     { 0, "3 dB" },
     { 1, "6 dB" },
     { 2, "9 dB" },
@@ -8371,7 +8380,9 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, 
 
                             if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_c1_delta_present))
                             {
-                                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_c1_delta, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+                                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_c1_delta_min, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+                                bit_offset += 2;
+                                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_c1_delta_max, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
                                 bit_offset += 3;
                             }
                          }
@@ -14101,9 +14112,14 @@ proto_register_gsm_a_rr(void)
                 FT_UINT8, BASE_DEC, VALS(gsm_a_rr_peo_dsc_vals), 0x00,
                 NULL, HFILL }
             },
-            { &hf_gsm_a_rr_c1_delta,
-              { "C1 DELTA value", "gsm_a.rr.c1_delta",
-                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_c1_delta_vals), 0x00,
+            { &hf_gsm_a_rr_c1_delta_min,
+              { "C1 DELTA MIN value", "gsm_a.rr.c1_delta_min",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_c1_delta_min_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_c1_delta_max,
+              { "C1 DELTA MAX value", "gsm_a.rr.c1_delta_max",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_c1_delta_max_vals), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_reported_timeslots,
