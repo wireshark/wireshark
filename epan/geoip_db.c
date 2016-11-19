@@ -233,9 +233,9 @@ geoip_db_pref_init(module_t *nameres)
     prefs_register_uat_preference(nameres,
             "geoip_db_paths",
             "GeoIP database directories",
-                "Search paths for GeoIP address mapping databases.\n"
-                "Wireshark will look in each directory for files beginning\n"
-                "with \"Geo\" and ending with \".dat\".",
+            "Search paths for GeoIP address mapping databases."
+            " Wireshark will look in each directory for files beginning"
+            " with \"Geo\" and ending with \".dat\".",
             geoip_db_paths_uat);
 }
 

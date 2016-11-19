@@ -1904,8 +1904,8 @@ initialize_vlans(void)
     g_assert(vlan_hash_table == NULL);
     vlan_hash_table = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
 
-    /* Set g_pipxnets_path here, but don't actually do anything
-     * with it. It's used in get_ipxnetbyname() and get_ipxnetbyaddr()
+    /* Set g_pvlan_path here, but don't actually do anything
+     * with it. It's used in get_vlannamebyid()
      */
     if (g_pvlan_path == NULL)
         g_pvlan_path = get_persconffile_path(ENAME_VLANS, FALSE);
@@ -2456,7 +2456,8 @@ addr_resolve_pref_init(module_t *nameres)
 {
     prefs_register_bool_preference(nameres, "mac_name",
             "Resolve MAC addresses",
-            "Resolve Ethernet MAC address to manufacturer names",
+            "Resolve Ethernet MAC addresses to host names from the preferences"
+            " or system's Ethers file, or to a manufacturer based name.",
             &gbl_resolv_flags.mac_name);
 
     prefs_register_bool_preference(nameres, "transport_name",
@@ -2511,21 +2512,17 @@ addr_resolve_pref_init(module_t *nameres)
 
     prefs_register_bool_preference(nameres, "vlan_name",
             "Resolve VLAN IDs",
-            "Resolve VLAN IDs to describing names."
-            " To do so you need a file called vlans in your"
-            " user preference directory. Format of the file is:"
-            "  \"ID<Tab>Name\""
-            " One line per VLAN.",
+            "Resolve VLAN IDs to network names from the preferences \"vlans\" file."
+            " Format of the file is: \"ID<Tab>Name\"."
+            " One line per VLAN, e.g.: 1 Management",
             &gbl_resolv_flags.vlan_name);
 
     prefs_register_bool_preference(nameres, "ss7_pc_name",
-        "Resolve SS7 PCs",
-        "Resolve SS7 Point Codes to describing names."
-        " To do so you need a file called ss7pcs in your"
-        " user preference directory. Format of the file is:"
-        "  \"Network_Indicator<Dash>PC_Decimal<Tab>Name\""
-        " One line per Point Code. e.g.: 2-1234 MyPointCode1",
-        &gbl_resolv_flags.ss7pc_name);
+            "Resolve SS7 PCs",
+            "Resolve SS7 Point Codes to node names from the profiles \"ss7pcs\" file."
+            " Format of the file is: \"Network_Indicator<Dash>PC_Decimal<Tab>Name\"."
+            " One line per Point Code, e.g.: 2-1234 MyPointCode1",
+            &gbl_resolv_flags.ss7pc_name);
 
 }
 

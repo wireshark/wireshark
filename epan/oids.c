@@ -761,12 +761,16 @@ void oid_pref_init(module_t *nameres)
 
     prefs_register_bool_preference(nameres, "load_smi_modules",
                                   "Enable OID resolution",
-                                  "You must restart Wireshark for this change to take effect",
+                                  "Resolve Object IDs to object names from the MIB and PIB"
+                                  " modules defined below."
+                                  " You must restart Wireshark for this change to take effect",
                                   &load_smi_modules);
 
     prefs_register_bool_preference(nameres, "suppress_smi_errors",
                                   "Suppress SMI errors",
-                                  "Some errors can be ignored. If unsure, set to false.",
+                                  "While loading MIB or PIB modules errors may be detected,"
+                                  " which are reported. Some errors can be ignored."
+                                  " If unsure, set to false.",
                                   &suppress_smi_errors);
 
     smi_paths_uat = uat_new("SMI Paths",
@@ -793,8 +797,8 @@ void oid_pref_init(module_t *nameres)
     prefs_register_uat_preference(nameres,
                                   "smi_paths",
                                   "SMI (MIB and PIB) paths",
-                                  "Search paths for SMI (MIB and PIB) modules. You must\n"
-                                  "restart Wireshark for these changes to take effect.",
+                                  "Search paths for SMI (MIB and PIB) modules. You must"
+                                  " restart Wireshark for these changes to take effect.",
                                   smi_paths_uat);
 
     smi_modules_uat = uat_new("SMI Modules",
@@ -821,8 +825,8 @@ void oid_pref_init(module_t *nameres)
     prefs_register_uat_preference(nameres,
                                   "smi_modules",
                                   "SMI (MIB and PIB) modules",
-                                  "List of enabled SMI (MIB and PIB) modules. You must\n"
-                                  "restart Wireshark for these changes to take effect.",
+                                  "List of SMI (MIB and PIB) modules to load. You must"
+                                  " restart Wireshark for these changes to take effect.",
                                   smi_modules_uat);
 
 #else
