@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2016-11-11)
+(last updated 2016-11-18)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -1126,9 +1126,9 @@ Decimal
     Chikong Shue
       alpo!chi&uunet.uu.net
 278
-  Hitachi Cable, Ltd.
-    Takahiro Asai
-      ---none---
+  APRESIA Systems, Ltd. (formerly 'Hitachi Cable, Ltd.')
+    SUGAWARA, Shingo
+      shingo.sugawara.gm&hitachi-metals.com
 279
   Olivetti
     Marco Framba
@@ -70540,8 +70540,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       justo&byintertrade.com
 17747
   Nexagent Ltd.
-    Bruce Aylward
-      baylward&nexagent.com
+    Ian Corrie
+      ian.corrie&hpe.com
 17748
   Card Systems Consulting SRL
     Lucian Ungurean
@@ -144829,8 +144829,8 @@ Decentralization / Helenic Public Administra
       peter.danner&exthex.com
 36312
   Alert Logic, inc.
-    Christopher Church
-      cchurch&alertlogic.com
+    Tom Veronie
+      tveronie&alertlogic.com
 36313
   GL Communications, Inc.
     Alan Revzin
@@ -194626,7 +194626,7 @@ Decentralization / Helenic Public Administra
 48761
   SEYR
     Administrator
-      admin&seyr.me
+      iana-contact&seyr.me
 48762
   AiEmTi LLC
     Pavel Zakharov
@@ -195024,8 +195024,8 @@ Decentralization / Helenic Public Administra
     Eugene Panin
       evgeniy.panin&metinvest-eurasia.com
 48861
-  Aysima Bilisim Teknolojileri
-    Ozkan TOPAL
+  Aysima Bilişim Teknolojileri
+    Özkan TOPAL
       destek&aysima.com
 48862
   Alexson Solutions
@@ -195107,6 +195107,262 @@ Decentralization / Helenic Public Administra
   MTRLC LLC
     Hume Vance
       humev&motorolacable.com
+48882
+  L-TECH Corp. Networks
+    Jong-Suk Jung
+      jsj&ltechnology.co.kr
+48883
+  Universidad de Murcia
+    ATICA - Sección telemática
+      t&um.es
+48884
+  Skyriver
+    John Neubauer
+      jneubauer&skyriver.net
+48885
+  Tsuzuki Denki Co. Ltd.
+    Hiroshi Fujita
+      fujita-h&tsuzuki.co.jp
+48886
+  NPF Sibpeleng Ltd.
+    Alexei Bazlaev
+      lexus&sibpeleng.ru
+48887
+  东方网力科技股份有限公司南京研发中心 (Oriental Network Technology Co., Ltd. Nanjing R & D Center)
+    丁伟 (Ding Wei)
+      dingwei&netposa.com
+48888
+  SSLINK TECHNOLOGY (BEIJING) CO., LTD.
+    Jackie Deng
+      jackie.deng&sslink.com.cn
+48889
+  SilicoWolf (Pty) Ltd.
+    Andrew Broekman
+      technical&silicowolf.com
+48890
+  Huels Unternehmensgruppe
+    Carsten Theißing
+      carsten.theissing&dihug.de
+48891
+  EVN AG
+    IT Benutzerservice
+      ius.lizenzen&evn.at
+48892
+  Administration des services de secours
+    Jerry Jacobini
+      itmgmt&secours.etat.lu
+48893
+  Bornemann AG
+    Johannes Rehm
+      jre&bornemann.net
+48894
+  Banco BPI, SA
+    Jorge Miguel Fernandes Carvalho Pinto
+      jorge.miguel.pinto&bancobpi.pt
+48895
+  Netcompany A/S
+    Aya Nielsen
+      itservices&netcompany.com
+48896
+  Ironwood Physicians, PC
+    Becky House
+      rhouse&ironwoodcrc.com
+48897
+  /ETC - Martin Misuth
+    Martin Misuth
+      etc&ethome.sk
+48898
+  Software Freedom Law Center
+    Daniel Gnoutcheff
+      root&softwarefreedom.org
+48899
+  VoiceOverNet
+    Alexis Fidalgo
+      afidalgo&voiceovernetinc.com
+48900
+  Guaranty Bank and Trust Company
+    Casey Boyd
+      ncc&guarantybankco.com
+48901
+  DOTSENSEI LTD
+    Iliya Bazlyankov
+      iliya&dotsensei.com
+48902
+  Shenzhen Puduan Technology Co., Ltd.
+    Yang Jin
+      yangjin&puduantech.com.cn
+48903
+  Qualvision
+    enjun.zhao
+      enjun.zhao&qualvision.cn
+48904
+  AB Gustaf Kähr
+    Kyllikki Liljegren
+      kyllikki.liljegren&kahrs.se
+48905
+  Falan Energiflis AB
+    Michael Lindström
+      michael&falan.se
+48906
+  EVRY Sweden AB
+    Anders Wadell
+      anders.wadell&evry.com
+48907
+  Ter Hell & Co. GmbH
+    Martin Kroll
+      m.kroll&tergroup.com
+48908
+  girtech srl
+    Claudio Girlanda
+      cgirlanda&girtech.com
+48909
+  SDEL Contrôle Commande
+    Valentin Brehier
+      support.rd&sdelcc.com 
+48910
+  Rheinische Fachhochschule Köln gGmbH
+    Philipp Thomas
+      philipp.thomas&rfh-koeln.de
+48911
+  DS Norden A/S
+    Peter Frost
+      vesselit&ds-norden.com
+48912
+  Thismonkey IT Pty. Ltd.
+    Scott Aitken
+      iana&thismonkey.com
+48913
+  Haussli
+    John Heasley
+      heas&haussli.com
+48914
+  Conductor Inc.
+    Donald Stahl
+      dstahl&conductor.com
+48915
+  SPG International, LLC
+    Dave Bicanic
+      it.tech&spgusa.com
+48916
+  ITS-Network
+    Sven Schertel
+      sven.schertel&schertel.net
+48917
+  CPI Security
+    Steve Butkovich
+      itsoftware&cpisecurity.com
+48918
+  Dothan Hematology & Oncology
+    Tonya Odom
+      tonya&dothanhemonc.com
+48919
+  Bancroft
+    Andre Bodden
+      Andres.Bodden&Bancroft.Org
+48920
+  Identos Inc.
+    Brion Muldoon
+      brion&identos.com
+48921
+  Mercer Bucks Hematology Oncology
+    Stefanie Callahan
+      stefanielcallahan&gmail.com
+48922
+  Thales Australia
+    Jeremy Kerwin
+      jeremy.kerwin&thalesgroup.com.au
+48923
+  icomer
+    choi hyoung tag
+      cht&icomer.com
+48924
+  HIST
+    Joung minsoub
+      mjoung&hist.co.kr
+48925
+  Invite Services
+    Frey Mansikkaniemi
+      iana&accounts.invite.hk
+48926
+  OOO Tsentr Sistem Svyazi
+    Egor Bolshedvorsky
+      info&da-tele.com
+48927
+  Circle B
+    Menno Kortekaas
+      menno&circleb.eu
+48928
+  深圳市视游互动科技有限公司 (Shenzhen City videoseeing Interactive Technology Co., Ltd)
+    Jacky yi
+      yirui&videoseeing.com
+48929
+  DBLabs
+    Yiorgos Adamopoulos
+      adamo&dblabs.com
+48930
+  IFRASS
+    Jeremie Pilette
+      j.pilette&ifrass.fr
+48931
+  Assecor GmbH
+    IT-Support
+      It-support&assecor.de
+48932
+  Secure Systems & Technologies
+    Andrew Harrison
+      andrew.harrison&sst.ws
+48933
+  BIT
+    Teun Vink
+      teun&bit.nl
+48934
+  Vevida
+    Onno Molenkamp
+      onno&vevida.nl
+48935
+  PumpCo Ltd
+    Andrew Lawrenson
+      andy.lawrenson&pumpco.co.uk
+48936
+  OMEGA Ltd
+    Christian Ritter
+      webmaster&omega.ch
+48937
+  Polyconseil SAS
+    Raphaël Barrois
+      iana-oid&polyconseil.fr
+48938
+  Denys Berkovskyy
+    Denys Berkovskyy
+      den.kiev&gmail.com
+48939
+  Vevida
+    Jacco Koning
+      jacco&vevida.com
+48940
+  Controllis
+    Alvaro Gamarra
+      alvaro.gamarra&controllis.com
+48941
+  Schleupen AG
+    Dr. Peter Wenderoth
+      peter.wenderoth&schleupen.de
+48942
+  Synaptics Inc
+    Preetham Nayak
+      preetham.nayak&synaptics.com
+48943
+  Ampetronic Ltd
+    Russell Simpson
+      russell.simpson&ampetronic.co
+48944
+  Lietuvos vyriausiojo archyvaro tarnyba 
+    Vaidotas Ramonas
+      v.ramonas&archyvai.lt
+48945
+  Rundvirke Skog AB
+    Tomas Berg
+      tomas.berg&rundvirkeskog.se
 
 
 End of Document

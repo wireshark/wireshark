@@ -3113,62 +3113,62 @@ for filter files: %2.</source>
         <translation>保存流的内容为</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="511"/>
+        <location filename="follow_stream_dialog.cpp" line="533"/>
         <source>
 [Stream output truncated]</source>
         <translation>[流量输出截断]</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="787"/>
+        <location filename="follow_stream_dialog.cpp" line="809"/>
         <source>No capture file.</source>
         <translation>无捕获文件。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="787"/>
+        <location filename="follow_stream_dialog.cpp" line="809"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation>请确认您已经打开一个捕获文件。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="793"/>
-        <location filename="follow_stream_dialog.cpp" line="799"/>
+        <location filename="follow_stream_dialog.cpp" line="815"/>
+        <location filename="follow_stream_dialog.cpp" line="821"/>
         <source>Error following stream.</source>
         <translation>追踪流错误。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="793"/>
+        <location filename="follow_stream_dialog.cpp" line="815"/>
         <source>Capture file invalid.</source>
         <translation>捕获文件无效。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="799"/>
+        <location filename="follow_stream_dialog.cpp" line="821"/>
         <source>Please make sure you have a %1 packet selected.</source>
         <translation>请确保您已选中一个 %1 分组。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="916"/>
+        <location filename="follow_stream_dialog.cpp" line="938"/>
         <source>Follow %1 Stream (%2)</source>
         <translation>追踪 %1 流 (%2)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="821"/>
+        <location filename="follow_stream_dialog.cpp" line="843"/>
         <source>Error creating filter for this stream.</source>
         <translation>为这个流创建过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="822"/>
+        <location filename="follow_stream_dialog.cpp" line="844"/>
         <source>A transport or network layer header is needed.</source>
         <translation>需要传输层或网络层头部。</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="853"/>
-        <location filename="follow_stream_dialog.cpp" line="865"/>
+        <location filename="follow_stream_dialog.cpp" line="875"/>
+        <location filename="follow_stream_dialog.cpp" line="887"/>
         <source>%Ln total stream(s).</source>
         <translation>
             <numerusform>%Ln 全部流。</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="936"/>
+        <location filename="follow_stream_dialog.cpp" line="958"/>
         <source>File closed.</source>
         <translation>文件关闭。</translation>
     </message>

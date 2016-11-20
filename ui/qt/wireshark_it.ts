@@ -3120,55 +3120,55 @@ per i file di filtro: %2.</translation>
         <translation>Salva il contenuto del flusso come</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="511"/>
+        <location filename="follow_stream_dialog.cpp" line="533"/>
         <source>
 [Stream output truncated]</source>
         <translation>[Flusso di output troncato]</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="787"/>
+        <location filename="follow_stream_dialog.cpp" line="809"/>
         <source>No capture file.</source>
         <translation>Nessun file di cattura.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="787"/>
+        <location filename="follow_stream_dialog.cpp" line="809"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation>Assicurati di avere un file di cattura aperto.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="793"/>
-        <location filename="follow_stream_dialog.cpp" line="799"/>
+        <location filename="follow_stream_dialog.cpp" line="815"/>
+        <location filename="follow_stream_dialog.cpp" line="821"/>
         <source>Error following stream.</source>
         <translation>Errore seguendo il flusso.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="793"/>
+        <location filename="follow_stream_dialog.cpp" line="815"/>
         <source>Capture file invalid.</source>
         <translation>File di cattura non valido.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="799"/>
+        <location filename="follow_stream_dialog.cpp" line="821"/>
         <source>Please make sure you have a %1 packet selected.</source>
         <translation>Assicurati di aver selezionato un pacchetto %1.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="916"/>
+        <location filename="follow_stream_dialog.cpp" line="938"/>
         <source>Follow %1 Stream (%2)</source>
         <translation>Segui flusso %1 (%2)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="821"/>
+        <location filename="follow_stream_dialog.cpp" line="843"/>
         <source>Error creating filter for this stream.</source>
         <translation>Errore nella creazione di un filtro per questo flusso.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="822"/>
+        <location filename="follow_stream_dialog.cpp" line="844"/>
         <source>A transport or network layer header is needed.</source>
         <translation>È necessaria un&apos;intestazione di livello trasporto o rete.</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="853"/>
-        <location filename="follow_stream_dialog.cpp" line="865"/>
+        <location filename="follow_stream_dialog.cpp" line="875"/>
+        <location filename="follow_stream_dialog.cpp" line="887"/>
         <source>%Ln total stream(s).</source>
         <translation>
             <numerusform>%n flusso.</numerusform>
@@ -3176,7 +3176,7 @@ per i file di filtro: %2.</translation>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="936"/>
+        <location filename="follow_stream_dialog.cpp" line="958"/>
         <source>File closed.</source>
         <translation>File chiuso.</translation>
     </message>

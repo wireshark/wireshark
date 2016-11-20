@@ -3125,55 +3125,55 @@ dla plików filtrów: %2.</translation>
         <translation>Zapisz zawartość strumiania jako</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="511"/>
+        <location filename="follow_stream_dialog.cpp" line="533"/>
         <source>
 [Stream output truncated]</source>
         <translation>Obcięto dane strumiania</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="787"/>
+        <location filename="follow_stream_dialog.cpp" line="809"/>
         <source>No capture file.</source>
         <translation>Brak pliku przechwytywania.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="787"/>
+        <location filename="follow_stream_dialog.cpp" line="809"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation>Proszę sprawdzić czy masz otwarty plik przechwytywania.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="793"/>
-        <location filename="follow_stream_dialog.cpp" line="799"/>
+        <location filename="follow_stream_dialog.cpp" line="815"/>
+        <location filename="follow_stream_dialog.cpp" line="821"/>
         <source>Error following stream.</source>
         <translation>Błąd śledzenia strumienia.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="793"/>
+        <location filename="follow_stream_dialog.cpp" line="815"/>
         <source>Capture file invalid.</source>
         <translation>Nieprawidłowy plik przechwytywania.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="799"/>
+        <location filename="follow_stream_dialog.cpp" line="821"/>
         <source>Please make sure you have a %1 packet selected.</source>
         <translation>Proszę sprawdzić czy zaznaczono pakiet %1.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="916"/>
+        <location filename="follow_stream_dialog.cpp" line="938"/>
         <source>Follow %1 Stream (%2)</source>
         <translation>Śledź strumień %1 (%2)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="821"/>
+        <location filename="follow_stream_dialog.cpp" line="843"/>
         <source>Error creating filter for this stream.</source>
         <translation>Błąd tworzenia filtru dla tego strumienia.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="822"/>
+        <location filename="follow_stream_dialog.cpp" line="844"/>
         <source>A transport or network layer header is needed.</source>
         <translation>Potrzebna jest warta trasportowa lub sieciowa nagłówka.</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="853"/>
-        <location filename="follow_stream_dialog.cpp" line="865"/>
+        <location filename="follow_stream_dialog.cpp" line="875"/>
+        <location filename="follow_stream_dialog.cpp" line="887"/>
         <source>%Ln total stream(s).</source>
         <translation>
             <numerusform>%Ln wszystkich strumieni.</numerusform>
@@ -3182,7 +3182,7 @@ dla plików filtrów: %2.</translation>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="936"/>
+        <location filename="follow_stream_dialog.cpp" line="958"/>
         <source>File closed.</source>
         <translation>Plik zamknięty.</translation>
     </message>
