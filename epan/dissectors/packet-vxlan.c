@@ -178,7 +178,7 @@ proto_register_vxlan(void)
         },
         { &hf_vxlan_flags_reserved,
           { "Reserved(R)", "vxlan.flags_reserved",
-            FT_BOOLEAN, 16, NULL, 0x77b7,
+            FT_UINT16, BASE_HEX, NULL, 0x77b7,
             NULL, HFILL,
           },
         },
