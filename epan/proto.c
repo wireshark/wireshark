@@ -5481,6 +5481,7 @@ void
 proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end)
 {
 	field_info *fi;
+	gint length;
 
 	TRY_TO_FAKE_THIS_REPR_VOID(pi);
 
@@ -5490,7 +5491,16 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end)
 
 	end += tvb_raw_offset(tvb);
 	DISSECTOR_ASSERT(end >= fi->start);
-	fi->length = end - fi->start;
+	length = end - fi->start;
+	fi->length = length;
+
+	/*
+	 * You cannot just make the "len" field of a GByteArray
+	 * larger, if there's no data to back that length;
+	 * you can only make it smaller.
+	 */
+	if (fi->value.ftype->ftype == FT_BYTES && length <= (gint)fi->value.value.bytes->len)
+		fi->value.value.bytes->len = length;
 }
 
 int
