@@ -6404,8 +6404,8 @@ isoft-p2p        3501/tcp # iSoft-P2P [David_Walling_2] [David_Walling_2]
 isoft-p2p        3501/udp # iSoft-P2P [David_Walling_2] [David_Walling_2]
 avinstalldisc    3502/tcp # Avocent Install Discovery [Brian_S_Stewart_2] [Brian_S_Stewart_2]
 avinstalldisc    3502/udp # Avocent Install Discovery [Brian_S_Stewart_2] [Brian_S_Stewart_2]
-lsp-ping         3503/tcp # MPLS LSP-echo Port [RFC4379]
-lsp-ping         3503/udp # MPLS LSP-echo Port [RFC4379]
+lsp-ping         3503/tcp # MPLS LSP-echo Port [RFC-ietf-mpls-rfc4379bis-09]
+lsp-ping         3503/udp # MPLS LSP-echo Port [RFC-ietf-mpls-rfc4379bis-09]
 ironstorm        3504/tcp # IronStorm game server [Arnaud_Clermonte] [Arnaud_Clermonte]
 ironstorm        3504/udp # IronStorm game server [Arnaud_Clermonte] [Arnaud_Clermonte]
 ccmcomm          3505/tcp # CCM communications port [Tom_Bougan] [Tom_Bougan]
@@ -8193,6 +8193,7 @@ ifsp             4744/tcp # Internet File Synchronization Protocol [Alex_White] 
 ifsp             4744/udp # Internet File Synchronization Protocol [Alex_White] [Alex_White] 2007-09-12
 fmp              4745/tcp # Funambol Mobile Push [Andrea_Gazzaniga] [Andrea_Gazzaniga] 2007-01
 fmp              4745/udp # Funambol Mobile Push [Andrea_Gazzaniga] [Andrea_Gazzaniga] 2007-01
+intelliadm-disc  4746/udp # IntelliAdmin Discovery [IntelliAdmin_LLC] [Steve_Wiseman] 2016-11-18
 buschtrommel     4747/udp # peer-to-peer file exchange protocol [None] [Tobias_Sturm] 2013-01-14
 profilemac       4749/tcp # Profile for Mac [David_Sinclair] [David_Sinclair] 2006-05
 profilemac       4749/udp # Profile for Mac [David_Sinclair] [David_Sinclair] 2006-05
@@ -9705,6 +9706,7 @@ sttunnel         7471/tcp # Stateless Transport Tunneling Protocol [Bruce_Davie_
 rise             7473/tcp # Rise: The Vieneo Province [Jason_Reskin] [Jason_Reskin] 2007-03
 rise             7473/udp # Rise: The Vieneo Province [Jason_Reskin] [Jason_Reskin] 2007-03
 neo4j            7474/tcp # Neo4j Graph Database [Neo_Technology_Inc] [Julian_Simpson] 2013-02-08
+openit           7478/tcp # IT Asset Management [OpeniT_Inc] [Monette_Maano] 2016-11-17
 telops-lmd       7491/tcp # telops-lmd [David_Spencer] [David_Spencer]
 telops-lmd       7491/udp # telops-lmd [David_Spencer] [David_Spencer]
 silhouette       7500/tcp # Silhouette User [Anthony_Payne] [Anthony_Payne] 2004-02
