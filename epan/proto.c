@@ -5447,6 +5447,21 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 	}
 }
 
+static void
+finfo_set_len(field_info *fi, const gint length)
+{
+	DISSECTOR_ASSERT(length >= 0);
+	fi->length = length;
+
+	/*
+	 * You cannot just make the "len" field of a GByteArray
+	 * larger, if there's no data to back that length;
+	 * you can only make it smaller.
+	 */
+	if (fi->value.ftype->ftype == FT_BYTES && length <= (gint)fi->value.value.bytes->len)
+		fi->value.value.bytes->len = length;
+}
+
 void
 proto_item_set_len(proto_item *pi, const gint length)
 {
@@ -5458,16 +5473,7 @@ proto_item_set_len(proto_item *pi, const gint length)
 	if (fi == NULL)
 		return;
 
-	DISSECTOR_ASSERT(length >= 0);
-	fi->length = length;
-
-	/*
-	 * You cannot just make the "len" field of a GByteArray
-	 * larger, if there's no data to back that length;
-	 * you can only make it smaller.
-	 */
-	if (fi->value.ftype->ftype == FT_BYTES && length <= (gint)fi->value.value.bytes->len)
-		fi->value.value.bytes->len = length;
+	finfo_set_len(fi, length);
 }
 
 /*
@@ -5492,15 +5498,8 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end)
 	end += tvb_raw_offset(tvb);
 	DISSECTOR_ASSERT(end >= fi->start);
 	length = end - fi->start;
-	fi->length = length;
 
-	/*
-	 * You cannot just make the "len" field of a GByteArray
-	 * larger, if there's no data to back that length;
-	 * you can only make it smaller.
-	 */
-	if (fi->value.ftype->ftype == FT_BYTES && length <= (gint)fi->value.value.bytes->len)
-		fi->value.value.bytes->len = length;
+	finfo_set_len(fi, length);
 }
 
 int
