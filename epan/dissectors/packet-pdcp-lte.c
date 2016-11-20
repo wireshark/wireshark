@@ -444,6 +444,13 @@ static const value_string ciphering_algorithm_vals[] = {
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t rohc_handle;
+static dissector_handle_t lte_rrc_ul_ccch;
+static dissector_handle_t lte_rrc_dl_ccch;
+static dissector_handle_t lte_rrc_pcch;
+static dissector_handle_t lte_rrc_bcch_bch;
+static dissector_handle_t lte_rrc_bcch_dl_sch;
+static dissector_handle_t lte_rrc_ul_dcch;
+static dissector_handle_t lte_rrc_dl_dcch;
 
 
 #define SEQUENCE_ANALYSIS_RLC_ONLY  1
@@ -1211,31 +1218,31 @@ static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_lte_info  *p_p
     {
         case Channel_CCCH:
             if (p_pdcp_info->direction == DIRECTION_UPLINK) {
-                rrc_handle = find_dissector("lte_rrc.ul_ccch");
+                rrc_handle = lte_rrc_ul_ccch;
             }
             else {
-                rrc_handle = find_dissector("lte_rrc.dl_ccch");
+                rrc_handle = lte_rrc_dl_ccch;
             }
             break;
         case Channel_PCCH:
-            rrc_handle = find_dissector("lte_rrc.pcch");
+            rrc_handle = lte_rrc_pcch;
             break;
         case Channel_BCCH:
             switch (p_pdcp_info->BCCHTransport) {
                 case BCH_TRANSPORT:
-                    rrc_handle = find_dissector("lte_rrc.bcch_bch");
+                    rrc_handle = lte_rrc_bcch_bch;
                     break;
                 case DLSCH_TRANSPORT:
-                    rrc_handle = find_dissector("lte_rrc.bcch_dl_sch");
+                    rrc_handle = lte_rrc_bcch_dl_sch;
                     break;
             }
             break;
         case Channel_DCCH:
             if (p_pdcp_info->direction == DIRECTION_UPLINK) {
-                rrc_handle = find_dissector("lte_rrc.ul_dcch");
+                rrc_handle = lte_rrc_ul_dcch;
             }
             else {
-                rrc_handle = find_dissector("lte_rrc.dl_dcch");
+                rrc_handle = lte_rrc_dl_dcch;
             }
             break;
 
@@ -2941,9 +2948,16 @@ void proto_reg_handoff_pdcp_lte(void)
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_pdcp_lte_heur, "PDCP-LTE over UDP", "pdcp_lte_udp", proto_pdcp_lte, HEURISTIC_DISABLE);
 
-    ip_handle   = find_dissector_add_dependency("ip", proto_pdcp_lte);
-    ipv6_handle = find_dissector_add_dependency("ipv6", proto_pdcp_lte);
-    rohc_handle = find_dissector_add_dependency("rohc", proto_pdcp_lte);
+    ip_handle           = find_dissector_add_dependency("ip", proto_pdcp_lte);
+    ipv6_handle         = find_dissector_add_dependency("ipv6", proto_pdcp_lte);
+    rohc_handle         = find_dissector_add_dependency("rohc", proto_pdcp_lte);
+    lte_rrc_ul_ccch     = find_dissector_add_dependency("lte_rrc.ul_ccch", proto_pdcp_lte);
+    lte_rrc_dl_ccch     = find_dissector_add_dependency("lte_rrc.dl_ccch", proto_pdcp_lte);
+    lte_rrc_pcch        = find_dissector_add_dependency("lte_rrc.pcch", proto_pdcp_lte);
+    lte_rrc_bcch_bch    = find_dissector_add_dependency("lte_rrc.bcch_bch", proto_pdcp_lte);
+    lte_rrc_bcch_dl_sch = find_dissector_add_dependency("lte_rrc.bcch_dl_sch", proto_pdcp_lte);
+    lte_rrc_ul_dcch     = find_dissector_add_dependency("lte_rrc.ul_dcch", proto_pdcp_lte);
+    lte_rrc_dl_dcch     = find_dissector_add_dependency("lte_rrc.dl_dcch", proto_pdcp_lte);
 }
 
 /*
