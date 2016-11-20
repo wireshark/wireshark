@@ -34,8 +34,18 @@ else()
         set(CPACK_PACKAGE_NAME wireshark)
 endif()
 
-set(CPACK_SOURCE_IGNORE_FILES "build" "/.git/")
-add_custom_target(dist DEPENDS package_source)
+# Directory to copy sources to
+set(WS_SOURCE_DIR "${CMAKE_BINARY_DIR}/source_dir")
+set(CPACK_SOURCE_INSTALLED_DIRECTORIES "${WS_SOURCE_DIR}/;/")
+# dist target that prepares source dir
+add_custom_target(dist
+    COMMAND "${CMAKE_COMMAND}"
+        -DPROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
+        -DGIT_EXECUTABLE="${GIT_EXECUTABLE}"
+        -DWS_SOURCE_DIR="${WS_SOURCE_DIR}"
+        -P "${CMAKE_SOURCE_DIR}/cmake/modules/Dist.cmake"
+    COMMAND "${CMAKE_MAKE_PROGRAM}" package_source
+)
 
 set(CPACK_PACKAGE_DESCRIPTION "A set of command line and gui tools to capture and decode traffic")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Packet capturing and decoding")
