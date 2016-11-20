@@ -357,7 +357,7 @@ dissect_kafka_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     milliseconds = tvb_get_ntoh64(tvb, offset);
     nstime.secs  = milliseconds / 1000;
-    nstime.nsecs = (milliseconds % 1000) * 1000000;
+    nstime.nsecs = ((int)milliseconds % 1000) * 1000000;
 
     proto_tree_add_time(tree, hf_item, tvb, offset, 8, &nstime);
     offset += 8;
