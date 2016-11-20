@@ -2448,7 +2448,7 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
 
-	new_fi = new_field_info(tree, hfinfo, tvb, start, length);
+	new_fi = new_field_info(tree, hfinfo, tvb, start, *lenretval);
 
 	proto_tree_set_string(new_fi, value);
 
