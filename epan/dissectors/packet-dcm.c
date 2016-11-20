@@ -5825,7 +5825,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
         guint16 at_grp;
         guint16 at_elm;
         guint32 at_offset = 0;
-        gchar *at_value = "";
+        const gchar *at_value = "";
 
         while(at_offset < vl_max-3) {
             if (is_little_endian)   at_grp = tvb_get_letohs(tvb, offset+at_offset);
