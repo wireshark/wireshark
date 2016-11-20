@@ -406,6 +406,7 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
             offset += 4;
 
             if (raw) {
+                /* Unzip message and add payload to new data tab */
                 payload = tvb_child_uncompress(tvb, raw, 0, tvb_captured_length(raw));
                 if (payload) {
                     add_new_data_source(pinfo, payload, "Uncompressed Message");
@@ -415,15 +416,14 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                     expert_add_info(pinfo, decrypt_item, &ei_kafka_message_decompress);
                 }
                 offset += tvb_captured_length(raw);
+
+                /* Add to summary */
+                col_append_fstr(pinfo->cinfo, COL_INFO, " [GZIPd message set]");
+                proto_item_append_text(ti, " (GZIPd message set)");
             }
             else {
                 proto_tree_add_bytes(subtree, hf_kafka_message_value, tvb, offset, 0, NULL);
             }
-
-            /* Add to summary */
-            col_append_fstr(pinfo->cinfo, COL_INFO, " [%u bytes GZIPd]", bytes_length);
-            proto_item_append_text(ti, " (%u bytes GZIPd)", bytes_length);
-
             break;
         case KAFKA_COMPRESSION_SNAPPY:
 #ifdef HAVE_SNAPPY
@@ -1234,20 +1234,36 @@ dissect_kafka_api_versions_response_api_versions(tvbuff_t *tvb, packet_info *pin
     proto_item *ti;
     proto_tree *subtree;
     int         offset = start_offset;
+    kafka_api_version_t api_key, min_version, max_version;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_api_versions, &ti,
                                      "API Versions");
 
+    api_key = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(subtree, hf_kafka_api_versions_api_key, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
+    min_version = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(subtree, hf_kafka_api_versions_min_version, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
+    max_version = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(subtree, hf_kafka_api_versions_max_version, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_item_set_len(ti, offset - start_offset);
+    if (max_version != min_version) {
+        /* Range of versions supported. */
+        proto_item_append_text(subtree, " %s (v%d-%d)",
+                               val_to_str_const(api_key, kafka_apis, "unknown"),
+                               min_version, max_version);
+    }
+    else {
+        /* Only one version. */
+        proto_item_append_text(subtree, " %s (v%d)",
+                               val_to_str_const(api_key, kafka_apis, "unknown"),
+                               min_version);
+    }
 
     return offset;
 }
