@@ -6904,8 +6904,8 @@ proto_register_bthci_evt(void)
             NULL, HFILL }
         },
         { &hf_bthci_evt_le_features_reserved,
-            { "Reserved",                                  "bthci_evt.pending_response_delta",
-            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFF00),
+            { "Reserved",                                  "bthci_evt.le_features.reserved",
+            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFF00),
             NULL, HFILL }
         },
         { &hf_bthci_evt_mws_number_of_transports,
