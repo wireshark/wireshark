@@ -1681,7 +1681,7 @@ static const value_string usb_vendors_vals[] = {
     { 0x0d97, "Santa Barbara Instrument Group" },
     { 0x0d98, "Mars Semiconductor Corp." },
     { 0x0d99, "Trazer Technologies, Inc." },
-    { 0x0d9a, "RXT AS" },
+    { 0x0d9a, "RTX AS" },
     { 0x0d9b, "Tat Shing Electrical Co." },
     { 0x0d9c, "Chee Chen Hi-Technology Co., Ltd" },
     { 0x0d9d, "Sanwa Supply, Inc." },
