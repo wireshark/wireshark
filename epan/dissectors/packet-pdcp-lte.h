@@ -38,7 +38,11 @@ typedef enum LogicalChannelType
     Channel_DCCH=1,
     Channel_BCCH=2,
     Channel_CCCH=3,
-    Channel_PCCH=4
+    Channel_PCCH=4,
+    Channel_DCCH_NB=5,
+    Channel_BCCH_NB=6,
+    Channel_CCCH_NB=7,
+    Channel_PCCH_NB=8
 } LogicalChannelType;
 
 typedef enum

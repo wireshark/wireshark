@@ -451,6 +451,13 @@ static dissector_handle_t lte_rrc_bcch_bch;
 static dissector_handle_t lte_rrc_bcch_dl_sch;
 static dissector_handle_t lte_rrc_ul_dcch;
 static dissector_handle_t lte_rrc_dl_dcch;
+static dissector_handle_t lte_rrc_ul_ccch_nb;
+static dissector_handle_t lte_rrc_dl_ccch_nb;
+static dissector_handle_t lte_rrc_pcch_nb;
+static dissector_handle_t lte_rrc_bcch_bch_nb;
+static dissector_handle_t lte_rrc_bcch_dl_sch_nb;
+static dissector_handle_t lte_rrc_ul_dcch_nb;
+static dissector_handle_t lte_rrc_dl_dcch_nb;
 
 
 #define SEQUENCE_ANALYSIS_RLC_ONLY  1
@@ -1243,6 +1250,35 @@ static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_lte_info  *p_p
             }
             else {
                 rrc_handle = lte_rrc_dl_dcch;
+            }
+            break;
+        case Channel_CCCH_NB:
+            if (p_pdcp_info->direction == DIRECTION_UPLINK) {
+                rrc_handle = lte_rrc_ul_ccch_nb;
+            }
+            else {
+                rrc_handle = lte_rrc_dl_ccch_nb;
+            }
+            break;
+        case Channel_PCCH_NB:
+            rrc_handle = lte_rrc_pcch_nb;
+            break;
+        case Channel_BCCH_NB:
+            switch (p_pdcp_info->BCCHTransport) {
+                case BCH_TRANSPORT:
+                    rrc_handle = lte_rrc_bcch_bch_nb;
+                    break;
+                case DLSCH_TRANSPORT:
+                    rrc_handle = lte_rrc_bcch_dl_sch_nb;
+                    break;
+            }
+            break;
+        case Channel_DCCH_NB:
+            if (p_pdcp_info->direction == DIRECTION_UPLINK) {
+                rrc_handle = lte_rrc_ul_dcch_nb;
+            }
+            else {
+                rrc_handle = lte_rrc_dl_dcch_nb;
             }
             break;
 
@@ -2948,16 +2984,23 @@ void proto_reg_handoff_pdcp_lte(void)
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_pdcp_lte_heur, "PDCP-LTE over UDP", "pdcp_lte_udp", proto_pdcp_lte, HEURISTIC_DISABLE);
 
-    ip_handle           = find_dissector_add_dependency("ip", proto_pdcp_lte);
-    ipv6_handle         = find_dissector_add_dependency("ipv6", proto_pdcp_lte);
-    rohc_handle         = find_dissector_add_dependency("rohc", proto_pdcp_lte);
-    lte_rrc_ul_ccch     = find_dissector_add_dependency("lte_rrc.ul_ccch", proto_pdcp_lte);
-    lte_rrc_dl_ccch     = find_dissector_add_dependency("lte_rrc.dl_ccch", proto_pdcp_lte);
-    lte_rrc_pcch        = find_dissector_add_dependency("lte_rrc.pcch", proto_pdcp_lte);
-    lte_rrc_bcch_bch    = find_dissector_add_dependency("lte_rrc.bcch_bch", proto_pdcp_lte);
-    lte_rrc_bcch_dl_sch = find_dissector_add_dependency("lte_rrc.bcch_dl_sch", proto_pdcp_lte);
-    lte_rrc_ul_dcch     = find_dissector_add_dependency("lte_rrc.ul_dcch", proto_pdcp_lte);
-    lte_rrc_dl_dcch     = find_dissector_add_dependency("lte_rrc.dl_dcch", proto_pdcp_lte);
+    ip_handle              = find_dissector_add_dependency("ip", proto_pdcp_lte);
+    ipv6_handle            = find_dissector_add_dependency("ipv6", proto_pdcp_lte);
+    rohc_handle            = find_dissector_add_dependency("rohc", proto_pdcp_lte);
+    lte_rrc_ul_ccch        = find_dissector_add_dependency("lte_rrc.ul_ccch", proto_pdcp_lte);
+    lte_rrc_dl_ccch        = find_dissector_add_dependency("lte_rrc.dl_ccch", proto_pdcp_lte);
+    lte_rrc_pcch           = find_dissector_add_dependency("lte_rrc.pcch", proto_pdcp_lte);
+    lte_rrc_bcch_bch       = find_dissector_add_dependency("lte_rrc.bcch_bch", proto_pdcp_lte);
+    lte_rrc_bcch_dl_sch    = find_dissector_add_dependency("lte_rrc.bcch_dl_sch", proto_pdcp_lte);
+    lte_rrc_ul_dcch        = find_dissector_add_dependency("lte_rrc.ul_dcch", proto_pdcp_lte);
+    lte_rrc_dl_dcch        = find_dissector_add_dependency("lte_rrc.dl_dcch", proto_pdcp_lte);
+    lte_rrc_ul_ccch_nb     = find_dissector_add_dependency("lte_rrc.ul_ccch.nb", proto_pdcp_lte);
+    lte_rrc_dl_ccch_nb     = find_dissector_add_dependency("lte_rrc.dl_ccch.nb", proto_pdcp_lte);
+    lte_rrc_pcch_nb        = find_dissector_add_dependency("lte_rrc.pcch.nb", proto_pdcp_lte);
+    lte_rrc_bcch_bch_nb    = find_dissector_add_dependency("lte_rrc.bcch_bch.nb", proto_pdcp_lte);
+    lte_rrc_bcch_dl_sch_nb = find_dissector_add_dependency("lte_rrc.bcch_dl_sch.nb", proto_pdcp_lte);
+    lte_rrc_ul_dcch_nb     = find_dissector_add_dependency("lte_rrc.ul_dcch.nb", proto_pdcp_lte);
+    lte_rrc_dl_dcch_nb     = find_dissector_add_dependency("lte_rrc.dl_dcch.nb", proto_pdcp_lte);
 }
 
 /*
