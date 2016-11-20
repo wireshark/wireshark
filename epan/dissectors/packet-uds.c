@@ -1013,7 +1013,7 @@ proto_register_uds(void)
             {
                     &hf_uds_tp_suppress_pos_rsp_msg_indification,
                     {
-                            "Suppress reply", "uds.tp.suppress_reply",
+                            "Suppress reply", "uds.tp.suppress_reply.indification",
                             FT_BOOLEAN, 8,
                             NULL, UDS_TP_SUPPRESS_POS_RSP_MSG_INDIFICATION_MASK,
                             NULL, HFILL
