@@ -1924,7 +1924,7 @@ void proto_register_radiotap(void)
 		  "Bitmask indicating which fields are present", HFILL}},
 
 		{&hf_radiotap_present_word,
-		 {"Present flags word", "radiotap.present.flags",
+		 {"Present flags word", "radiotap.present.word",
 		  FT_UINT32, BASE_HEX, NULL, 0x0,
 		  "Word from present flags bitmask", HFILL}},
 
