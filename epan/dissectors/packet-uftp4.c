@@ -2396,19 +2396,19 @@ void proto_register_uftp4(void)
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_uftp_announce_publicmcast_ipv4,
-            { "Public Multicast Address", "uftp4.announce.publicmcast",
+            { "Public Multicast Address", "uftp4.announce.publicmcast.ipv4",
             FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_uftp_announce_publicmcast_ipv6,
-            { "Public Multicast Address", "uftp4.announce.publicmcast",
+            { "Public Multicast Address", "uftp4.announce.publicmcast.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_uftp_announce_privatemcast_ipv4,
-            { "Private Multicast Address", "uftp4.announce.privatemcast",
+            { "Private Multicast Address", "uftp4.announce.privatemcast.ipv4",
             FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_uftp_announce_privatemcast_ipv6,
-            { "Private Multicast Address", "uftp4.announce.privatemcast",
+            { "Private Multicast Address", "uftp4.announce.privatemcast.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_uftp_encinfo,
@@ -2680,7 +2680,7 @@ void proto_register_uftp4(void)
             FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_uftp_fileinfo_ftstamp,
-            { "File Timestamp", "uftp4.fileinfo.tstamp",
+            { "File Timestamp", "uftp4.fileinfo.ftstamp",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_uftp_fileinfo_tstamp,
