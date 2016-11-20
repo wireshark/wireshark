@@ -3378,8 +3378,6 @@ static int decode_bgp_link_node_nlri_common_fields(tvbuff_t *tvb,
                 "Unknown data in Link-State Link NLRI! length = %d bytes", length);
         return dissected_length;
     }
-    if (length < 1)
-        return dissected_length;
 
     tmp_length = decode_bgp_link_node_nlri_tlvs(tvb, tree, offset, pinfo,
                                                 BGP_NLRI_TLV_LOCAL_NODE_DESCRIPTORS);
