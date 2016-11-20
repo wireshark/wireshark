@@ -3911,46 +3911,10 @@ static dcm_uid_t dcm_uid_data[] = {
 #define DCM_ITEM_VALUE_TYPE_STRING  2
 #define DCM_ITEM_VALUE_TYPE_UINT32  3
 
-/* A few function declarations to ensure consistency*/
-
-/* Per object, a xxx_new() and a xxx_get() function. The _get() will create one if specified. */
-
-static dcm_state_t*      dcm_state_new(void);
-static dcm_state_t*      dcm_state_get(packet_info *pinfo, gboolean create);
-
-static dcm_state_assoc_t*   dcm_state_assoc_new (dcm_state_t *dcm_data, guint32 packet_no);
-static dcm_state_assoc_t*   dcm_state_assoc_get (dcm_state_t *dcm_data, guint32 packet_no, gboolean create);
-static dcm_state_pctx_t*    dcm_state_pctx_new  (dcm_state_assoc_t *assoc, guint8 pctx_id);
-static dcm_state_pctx_t*    dcm_state_pctx_get  (dcm_state_assoc_t *assoc, guint8 pctx_id, gboolean create);
-static dcm_state_pdv_t*     dcm_state_pdv_new   (dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset);
-static dcm_state_pdv_t*     dcm_state_pdv_get   (dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset, gboolean create);
-
-/* ToDo: The heuristic one should actually return true/false only */
-static int  dissect_dcm_heuristic   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
-static int  dissect_dcm_main        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_port_static);
-
 /* And from here on, only use unsigned 32 bit values. Offset is always positive number in respect to the tvb buffer start */
 static guint32  dissect_dcm_pdu     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset);
 
 static guint32  dissect_dcm_assoc_detail(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti,   dcm_state_assoc_t *assoc, guint32 offset, guint32 len);
-static void     dissect_dcm_pctx        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_assoc_t *assoc, guint32 offset, guint32 len, const gchar *pitem_prefix, gboolean request);
-static void     dissect_dcm_assoc_item  (tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gchar *pitem_prefix, int item_value_type, gchar **item_value, const gchar **item_description, int *hf_type, int *hf_len, int *hf_value, int ett_subtree);
-static void     dissect_dcm_userinfo    (tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 len, const gchar *pitem_prefix);
-static void dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
-static void dissect_dcm_assoc_role_selection(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
-static void dissect_dcm_assoc_async_negotiation(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
-
-static guint32  dissect_dcm_pdu_data        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_assoc_t *assoc, guint32 offset, guint32 pdu_len, gchar **pdu_data_description);
-static guint32  dissect_dcm_pdv_header      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_assoc_t *assoc, guint32 offset, dcm_state_pdv_t **pdv);
-static guint32  dissect_dcm_pdv_fragmented  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_assoc_t *assoc, guint32 offset, guint32 pdv_len, gchar **pdv_description);
-static guint32  dissect_dcm_pdv_body        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint32 pdv_body_len, gchar **pdv_description);
-
-static guint32  dissect_dcm_tag             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint32 endpos, gboolean is_first_tag, const gchar **tag_description, gboolean *end_of_seq_or_item);
-static guint32  dissect_dcm_tag_open        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint32 endpos, gboolean *is_first_tag);
-static guint32  dissect_dcm_tag_value       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint16 grp, guint16 elm, guint32 vl, guint32 vl_max, const gchar* vr, gchar **tag_value);
-
-static void dcm_set_syntax              (dcm_state_pctx_t *pctx, gchar *xfer_uid, const gchar *xfer_desc);
-static void dcm_export_create_object    (packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state_pdv_t *pdv);
 
 static void
 dcm_init(void)
@@ -3994,17 +3958,6 @@ dcm_cleanup(void)
 }
 
 static dcm_state_t *
-dcm_state_new(void)
-{
-    /* Not much fun. Just create very simple root structure */
-
-    dcm_state_t *ds;
-
-    ds = (dcm_state_t *) wmem_alloc0(wmem_file_scope(), sizeof(dcm_state_t));
-    return ds;
-}
-
-static dcm_state_t *
 dcm_state_get(packet_info *pinfo, gboolean create)
 {
 
@@ -4013,27 +3966,15 @@ dcm_state_get(packet_info *pinfo, gboolean create)
         Return NULL in case of the structure couldn't be created
     */
 
-    conversation_t  *conv=NULL;
-    dcm_state_t     *dcm_data=NULL;
+    conversation_t  *conv;
+    dcm_state_t     *dcm_data;
 
-    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-        pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-
-    if (conv == NULL) {
-        /* Conversation does not exist, create one.
-           Usually set for the first packet already. Probably by dissect-tcp
-        */
-        conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-            pinfo->srcport, pinfo->destport, 0);
-    }
-    else {                      /* conversation exists, try to get data already filled */
-        dcm_data = (dcm_state_t *)conversation_get_proto_data(conv, proto_dcm);
-    }
-
+    conv = find_or_create_conversation(pinfo);
+    dcm_data = (dcm_state_t *)conversation_get_proto_data(conv, proto_dcm);
 
     if (dcm_data == NULL && create) {
 
-        dcm_data = dcm_state_new();
+        dcm_data =  wmem_new0(wmem_file_scope(), dcm_state_t);
         conversation_add_proto_data(conv, proto_dcm, dcm_data);
 
         /*  Mark it as DICOM conversation. Needed for the heuristic mode,
@@ -4075,9 +4016,7 @@ dcm_state_assoc_get(dcm_state_t *dcm_data, guint32 packet_no, gboolean create)
       Return NULL, if Association was not found, based on packet number
   */
 
-    dcm_state_assoc_t *assoc = NULL;
-
-    assoc=dcm_data->first_assoc;
+    dcm_state_assoc_t *assoc = dcm_data->first_assoc;
 
     while (assoc) {
 
@@ -4105,7 +4044,7 @@ dcm_state_pctx_new(dcm_state_assoc_t *assoc, guint8 pctx_id)
 {
     /* Create new presentation context object and initialize the members */
 
-    dcm_state_pctx_t *pctx=NULL;
+    dcm_state_pctx_t *pctx;
 
     pctx = (dcm_state_pctx_t *)wmem_alloc0(wmem_file_scope(), sizeof(dcm_state_pctx_t));
     pctx->id = pctx_id;
@@ -4129,9 +4068,7 @@ dcm_state_pctx_get(dcm_state_assoc_t *assoc, guint8 pctx_id, gboolean create)
 {
     /*  Find or create presentation context object. Return NULL, if Context ID was not found */
 
-    dcm_state_pctx_t *pctx =NULL;
-
-    pctx = assoc->first_pctx;
+    dcm_state_pctx_t *pctx = assoc->first_pctx;
     /*
     static char notfound[] = "not found - click on ASSOC Request";
     static dcm_state_pctx_t dunk = { NULL, NULL, FALSE, 0, notfound, notfound, notfound, notfound, DCM_UNK };
@@ -4155,7 +4092,7 @@ dcm_state_pdv_new(dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset)
 {
     /* Create new PDV object and initialize the members */
 
-    dcm_state_pdv_t *pdv = NULL;
+    dcm_state_pdv_t *pdv;
 
     pdv = (dcm_state_pdv_t *) wmem_alloc0(wmem_file_scope(), sizeof(dcm_state_pdv_t));
     pdv->syntax = DCM_UNK;
@@ -4181,9 +4118,7 @@ dcm_state_pdv_get(dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset, gbo
 {
     /*  Find or create PDV object. Return NULL, if PDV was not found, based on packet number and offset */
 
-    dcm_state_pdv_t *pdv = NULL;
-
-    pdv=pctx->first_pdv;
+    dcm_state_pdv_t *pdv = pctx->first_pdv;
 
     while (pdv) {
         if ((pdv->packet_no == packet_no) && (pdv->offset == offset))
@@ -4211,57 +4146,32 @@ dcm_state_pdv_get_obj_start(dcm_state_pdv_t *pdv_curr)
     return pdv_first;
 }
 
-static const char *
-dcm_pdu2str(guint8 item)
-{
-    const char *s = "";
-    switch (item) {
-    case 1: s = "ASSOC Request"; break;
-    case 2: s = "ASSOC Accept"; break;
-    case 3: s = "ASSOC Reject"; break;
-    case 4: s = "Data"; break;
-    case 5: s = "RELEASE Request"; break;
-    case 6: s = "RELEASE Response"; break;
-    case 7: s = "ABORT"; break;
-    default: break;
-    }
-    return s;
-}
-
-
-static const char *
-dcm_cmd2str(guint16 us)
-{
-    const char *s = "";
-    /* there should be a better way to do this */
-    switch (us) {
-    case 0x0001:  s = "C-STORE-RQ"; break;
-    case 0x8001:  s = "C-STORE-RSP"; break;
-    case 0x0010:  s = "C-GET-RQ"; break;
-    case 0x8010:  s = "C-GET-RSP"; break;
-    case 0x0020:  s = "C-FIND-RQ"; break;
-    case 0x8020:  s = "C-FIND-RSP"; break;
-    case 0x0021:  s = "C-MOVE-RQ"; break;
-    case 0x8021:  s = "C-MOVE-RSP"; break;
-    case 0x0030:  s = "C-ECHO-RQ"; break;
-    case 0x8030:  s = "C-ECHO-RSP"; break;
-    case 0x0100:  s = "N-EVENT-REPORT-RQ"; break;
-    case 0x8100:  s = "N-EVENT-REPORT-RSP"; break;
-    case 0x0110:  s = "N-GET-RQ"; break;
-    case 0x8110:  s = "N-GET-RSP"; break;
-    case 0x0120:  s = "N-SET-RQ"; break;
-    case 0x8120:  s = "N-SET-RSP"; break;
-    case 0x0130:  s = "N-ACTION-RQ"; break;
-    case 0x8130:  s = "N-ACTION-RSP"; break;
-    case 0x0140:  s = "N-CREATE-RQ"; break;
-    case 0x8140:  s = "N-CREATE-RSP"; break;
-    case 0x0150:  s = "N-DELETE-RQ"; break;
-    case 0x8150:  s = "N-DELETE-RSP"; break;
-    case 0x0fff:  s = "C-CANCEL-RQ"; break;
-    default: break;
-    }
-    return s;
-}
+static const value_string dcm_cmd_vals[] = {
+    { 0x0001, "C-STORE-RQ" },
+    { 0x0010, "C-GET-RQ" },
+    { 0x0020, "C-FIND-RQ" },
+    { 0x0021, "C-MOVE-RQ" },
+    { 0x0030, "C-ECHO-RQ" },
+    { 0x0100, "N-EVENT-REPORT-RQ" },
+    { 0x0110, "N-GET-RQ" },
+    { 0x0120, "N-SET-RQ" },
+    { 0x0130, "N-ACTION-RQ" },
+    { 0x0140, "N-CREATE-RQ" },
+    { 0x0150, "N-DELETE-RQ" },
+    { 0x8001, "C-STORE-RSP" },
+    { 0x8010, "C-GET-RSP" },
+    { 0x8020, "C-FIND-RSP" },
+    { 0x8021, "C-MOVE-RSP" },
+    { 0x8030, "C-ECHO-RSP" },
+    { 0x8100, "N-EVENT-REPORT-RSP" },
+    { 0x8110, "N-GET-RSP" },
+    { 0x8120, "N-SET-RSP" },
+    { 0x8130, "N-ACTION-RSP" },
+    { 0x8140, "N-CREATE-RSP" },
+    { 0x8150, "N-DELETE-RSP" },
+    { 0x0FFF, "C-CANCEL-RQ" },
+    { 0, NULL }
+};
 
 static const gchar *
 dcm_rsp2str(guint16 status_value)
@@ -5702,11 +5612,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
     /* Based on the value representation, decode the value of one tag. Returns new offset */
 
     proto_item *pitem = NULL;
-
-    gboolean is_little_endian;
-
-    if (pdv->syntax == DCM_EBE) is_little_endian = FALSE;
-    else                        is_little_endian = TRUE;
+    guint encoding = (pdv->syntax == DCM_EBE) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
 
 
     /* ---------------------------------------------------------------------------
@@ -5753,7 +5659,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
                 g_snprintf(*tag_value, MAX_BUF_LEN, "%s", vals);
             }
         }
-        proto_tree_add_string_format(tree, hf_dcm_tag_value_str, tvb, offset, vl_max, *tag_value, "%-8.8s%s", "Value:", *tag_value);
+        proto_tree_add_string(tree, hf_dcm_tag_value_str, tvb, offset, vl_max, *tag_value);
 
         if (grp == 0x0000 && elm == 0x0902) {
             /* The error comment */
@@ -5764,8 +5670,8 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
              (strncmp(vr, "OW", 2) == 0)) {
         /* Array of Bytes, Float or Words. Don't perform any decoding */
 
-        proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
-            NULL, "%-8.8s%s", "Value:", "(binary)");
+        proto_tree_add_bytes_format_value(tree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
+            NULL, "%s", "(binary)");
 
         g_snprintf(*tag_value, MAX_BUF_LEN, "(binary)");
     }
@@ -5800,14 +5706,13 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 
         if (is_string) {
             vals = tvb_format_text(tvb, offset, (is_padded ? vl_max - 1 : vl_max));
-            proto_tree_add_string_format(tree, hf_dcm_tag_value_str, tvb, offset, vl_max,
-                vals, "%-8.8s%s", "Value:", vals);
+            proto_tree_add_string(tree, hf_dcm_tag_value_str, tvb, offset, vl_max, vals);
 
             g_snprintf(*tag_value, MAX_BUF_LEN, "%s", vals);
         }
         else {
-            proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
-                NULL, "%-8.8s%s", "Value:", "(binary)");
+            proto_tree_add_bytes_format_value(tree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
+                NULL, "%s", "(binary)");
 
             g_snprintf(*tag_value, MAX_BUF_LEN, "(binary)");
         }
@@ -5825,14 +5730,11 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
         const gchar *at_value = "";
 
         while(at_offset < vl_max-3) {
-            if (is_little_endian)   at_grp = tvb_get_letohs(tvb, offset+at_offset);
-            else                    at_grp = tvb_get_ntohs(tvb, offset+at_offset);
+            at_grp = tvb_get_guint16(tvb, offset+at_offset, encoding);
+            at_elm = tvb_get_guint16(tvb, offset+at_offset+2, encoding);
 
-            if (is_little_endian)   at_elm = tvb_get_letohs(tvb, offset+at_offset+2);
-            else                    at_elm = tvb_get_ntohs(tvb, offset+at_offset+2);
-
-            proto_tree_add_uint_format(tree, hf_dcm_tag_value_32u, tvb, offset+at_offset, 4,
-                (at_grp << 16) | at_elm, "%-8.8s%04x,%04x", "Value:", at_grp, at_elm);
+            proto_tree_add_uint_format_value(tree, hf_dcm_tag_value_32u, tvb, offset+at_offset, 4,
+                (at_grp << 16) | at_elm, "%04x,%04x", at_grp, at_elm);
 
             at_value = wmem_strdup_printf(wmem_packet_scope(),"%s(%04x,%04x)", at_value, at_grp, at_elm);
 
@@ -5842,71 +5744,50 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
     }
     else if (strncmp(vr, "FL", 2) == 0)  {      /* Single Float */
 
-        gfloat valf;
+        gfloat valf = tvb_get_ieee_float(tvb, offset, encoding);
 
-        if (is_little_endian) valf = tvb_get_letohieee_float(tvb, offset);
-        else                  valf = tvb_get_ntohieee_float(tvb, offset);
-
-        proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, 4,
-            NULL, "%-8.8s%f", "Value:", valf);
+        proto_tree_add_bytes_format_value(tree, hf_dcm_tag_value_byte, tvb, offset, 4,
+            NULL, "%f", valf);
 
         g_snprintf(*tag_value, MAX_BUF_LEN, "%f", valf);
     }
     else if (strncmp(vr, "FD", 2) == 0)  {      /* Double Float */
 
-        gdouble vald;
+        gdouble vald = tvb_get_ieee_double(tvb, offset, encoding);
 
-        if (is_little_endian) vald = tvb_get_letohieee_double(tvb, offset);
-        else                  vald = tvb_get_ntohieee_double(tvb, offset);
-
-        proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, 8,
-            NULL, "%-8.8s%f", "Value:", vald);
+        proto_tree_add_bytes_format_value(tree, hf_dcm_tag_value_byte, tvb, offset, 8,
+            NULL, "%f", vald);
 
         g_snprintf(*tag_value, MAX_BUF_LEN, "%f", vald);
     }
     else if (strncmp(vr, "SL", 2) == 0)  {          /* Signed Long */
         gint32  val32;
 
-        if (is_little_endian)   val32 = tvb_get_letohl(tvb, offset);
-        else                    val32 = tvb_get_ntohl(tvb, offset);
-
-        proto_tree_add_int_format(tree, hf_dcm_tag_value_32s, tvb, offset, 4,
-            val32, "%-8.8s%d", "Value:", val32);
+        proto_tree_add_item_ret_int(tree, hf_dcm_tag_value_32s, tvb, offset, 4, encoding, &val32);
 
         g_snprintf(*tag_value, MAX_BUF_LEN, "%d", val32);
     }
     else if (strncmp(vr, "SS", 2) == 0)  {          /* Signed Short */
-        gint16  val16;
+        gint32  val32;
 
-        if (is_little_endian)   val16 = tvb_get_letohs(tvb, offset);
-        else                    val16 = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item_ret_int(tree, hf_dcm_tag_value_16s, tvb, offset, 2, encoding, &val32);
 
-        proto_tree_add_int_format(tree, hf_dcm_tag_value_16s, tvb, offset, 2,
-            val16, "%-8.8s%d", "Value:", val16);
-
-        g_snprintf(*tag_value, MAX_BUF_LEN, "%d", val16);
+        g_snprintf(*tag_value, MAX_BUF_LEN, "%d", val32);
     }
     else if (strncmp(vr, "UL", 2) == 0)  {          /* Unsigned Long */
         guint32  val32;
 
-        if (is_little_endian)   val32 = tvb_get_letohl(tvb, offset);
-        else                    val32 = tvb_get_ntohl(tvb, offset);
-
-        proto_tree_add_uint_format(tree, hf_dcm_tag_value_32u, tvb, offset, 4,
-            val32, "%-8.8s%u", "Value:", val32);
+        proto_tree_add_item_ret_uint(tree, hf_dcm_tag_value_32u, tvb, offset, 4, encoding, &val32);
 
         g_snprintf(*tag_value, MAX_BUF_LEN, "%u", val32);
     }
     else if (strncmp(vr, "US", 2) == 0)  {          /* Unsigned Short */
         const gchar *status_message = NULL;
-        guint16     val16;
-
-        if (is_little_endian)   val16 = tvb_get_letohs(tvb, offset);
-        else                    val16 = tvb_get_ntohs(tvb, offset);
+        guint16     val16 = tvb_get_guint16(tvb, offset, encoding);
 
         if (grp == 0x0000 && elm == 0x0100) {
             /* This is a command */
-            g_snprintf(*tag_value, MAX_BUF_LEN, "%s", dcm_cmd2str(val16));
+            g_snprintf(*tag_value, MAX_BUF_LEN, "%s", val_to_str(val16, dcm_cmd_vals, " "));
 
             pdv->command = wmem_strdup(wmem_file_scope(), *tag_value);
         }
@@ -5949,8 +5830,8 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
             }
         }
 
-        pitem = proto_tree_add_uint_format(tree, hf_dcm_tag_value_16u, tvb, offset, 2,
-                    val16, "%-8.8s%s", "Value:", *tag_value);
+        pitem = proto_tree_add_uint_format_value(tree, hf_dcm_tag_value_16u, tvb, offset, 2,
+                    val16, "%s", *tag_value);
 
         if (pdv->is_warning && status_message) {
             expert_add_info(pinfo, pitem, &ei_dcm_status_msg);
@@ -5958,8 +5839,8 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
     }
     /* Invalid VR, can only occur with Explicit syntax */
     else {
-        proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
-            NULL, "%-8.8s%s", "Value:", (vl > vl_max ? "" : "(unknown VR)"));
+        proto_tree_add_bytes_format_value(tree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
+            NULL, "%s", (vl > vl_max ? "" : "(unknown VR)"));
 
         g_snprintf(*tag_value, MAX_BUF_LEN, "(unknown VR)");
     }
@@ -6112,8 +5993,9 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     guint32 len_decoded_remaing = 0;
 
-    gboolean is_little_endian = FALSE;
-    gboolean is_implicit = FALSE;
+    /* Decode the syntax a little more */
+    guint32 encoding = (pdv->syntax == DCM_EBE) ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
+    gboolean is_implicit = (pdv->syntax == DCM_ILE);
     gboolean is_vl_long = FALSE;            /* True for 4 Bytes length fields */
 
     gboolean is_sequence = FALSE;           /* True for Sequence Tags */
@@ -6122,13 +6004,6 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     *tag_description = NULL;                /* Reset description. It's wmem packet scope memory, so not really bad*/
 
     tag_value = (gchar *)wmem_alloc0(wmem_packet_scope(), MAX_BUF_LEN);
-
-    /* Decode the syntax a little more */
-    if (pdv->syntax == DCM_EBE) is_little_endian = FALSE;
-    else                        is_little_endian = TRUE;
-
-    if (pdv->syntax == DCM_ILE) is_implicit = TRUE;
-    else                        is_implicit = FALSE;
 
     offset_tag = offset;
 
@@ -6164,10 +6039,10 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else {
 
-        if (dcm_tag_is_open(pdv, offset_tag, offset, endpos, 2)) return endpos; /* Exit if needed */
+        if (dcm_tag_is_open(pdv, offset_tag, offset, endpos, 2))
+             return endpos; /* Exit if needed */
 
-        if (is_little_endian)   grp = tvb_get_letohs(tvb, offset);
-        else                    grp = tvb_get_ntohs (tvb, offset);
+        grp = tvb_get_guint16(tvb, offset, encoding);
         offset += 2;
         pdv->open_tag.grp = grp;
     }
@@ -6179,10 +6054,10 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else {
 
-        if (dcm_tag_is_open(pdv, offset_tag, offset, endpos, 2)) return endpos;    /* Exit if needed */
+        if (dcm_tag_is_open(pdv, offset_tag, offset, endpos, 2))
+             return endpos;    /* Exit if needed */
 
-        if (is_little_endian)   elm = tvb_get_letohs(tvb, offset);
-        else                    elm = tvb_get_ntohs (tvb, offset);
+        elm = tvb_get_guint16(tvb, offset, encoding);
         offset += 2;
         pdv->open_tag.elm = elm;
     }
@@ -6211,7 +6086,8 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         else {
 
             /* Controlled exit, if VR does not fit. */
-            if (dcm_tag_is_open(pdv, offset_tag, offset_vr, endpos, 2)) return endpos;
+            if (dcm_tag_is_open(pdv, offset_tag, offset_vr, endpos, 2))
+                return endpos;
 
             vr = (gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 2, ENC_ASCII);
             offset += 2;
@@ -6231,7 +6107,8 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 len_decoded_remaing -= 2;
             }
             else {
-                if (dcm_tag_is_open(pdv, offset_tag, offset_vr, endpos, 2)) return endpos;
+                if (dcm_tag_is_open(pdv, offset_tag, offset_vr, endpos, 2))
+                    return endpos;
                 offset += 2;
             }
         }
@@ -6252,9 +6129,9 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else {
 
-        if (dcm_tag_is_open(pdv, offset_tag, offset_vl, endpos, 2)) return endpos;
-        if (is_little_endian)   vl_1 = tvb_get_letohs(tvb, offset);
-        else                    vl_1 = tvb_get_ntohs(tvb, offset);
+        if (dcm_tag_is_open(pdv, offset_tag, offset_vl, endpos, 2))
+            return endpos;
+        vl_1 = tvb_get_guint16(tvb, offset, encoding);
         offset += 2;
         pdv->open_tag.vl_1 = vl_1;
     }
@@ -6266,14 +6143,14 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         else {
 
-            if (dcm_tag_is_open(pdv, offset_tag, offset_vl+2, endpos, 2)) return endpos;
-            if (is_little_endian)       vl_2 = tvb_get_letohs(tvb, offset);
-            else                        vl_2 = tvb_get_ntohs(tvb, offset);
+            if (dcm_tag_is_open(pdv, offset_tag, offset_vl+2, endpos, 2))
+                return endpos;
+            vl_2 = tvb_get_guint16(tvb, offset, encoding);
             offset += 2;
             pdv->open_tag.vl_2 = vl_2;
         }
 
-        if (is_little_endian)   vl = (vl_2 << 16) + vl_1;
+        if (encoding == ENC_LITTLE_ENDIAN)   vl = (vl_2 << 16) + vl_1;
         else                    vl = (vl_1 << 16) + vl_2;
     }
     else {
@@ -6357,15 +6234,15 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!is_item)  {
         if (is_implicit) {
             /* Select header, since no VR is present in implicit syntax */
-            proto_tree_add_string_format(tag_ptree, hf_dcm_tag_vr, tvb, offset_tag, 4, vr, "%-8.8s%s", "VR:", vr);
+            proto_tree_add_string(tag_ptree, hf_dcm_tag_vr, tvb, offset_tag, 4, vr);
         }
         else {
-            proto_tree_add_string_format(tag_ptree, hf_dcm_tag_vr, tvb, offset_vr,  2, vr, "%-8.8s%s", "VR:", vr);
+            proto_tree_add_string(tag_ptree, hf_dcm_tag_vr, tvb, offset_vr,  2, vr);
         }
     }
 
     /* Add length to tag detail */
-    proto_tree_add_uint_format(tag_ptree, hf_dcm_tag_vl, tvb, offset_vl, (is_vl_long ? 4 : 2), vl, "%-8.8s%u", "Length:", vl);
+    proto_tree_add_uint(tag_ptree, hf_dcm_tag_vl, tvb, offset_vl, (is_vl_long ? 4 : 2), vl);
 
 
     /*  ---------------------------------------------------------------
@@ -7041,8 +6918,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     dcm_ptree = proto_item_add_subtree(dcm_pitem, ett_dcm);
 
     pdu_type = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint_format(dcm_ptree, hf_dcm_pdu, tvb, offset, 2,
-        pdu_type, "PDU Type 0x%x (%s)", pdu_type, dcm_pdu2str(pdu_type));
+    proto_tree_add_item(dcm_ptree, hf_dcm_pdu, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     pdu_len = tvb_get_ntohl(tvb, offset);
