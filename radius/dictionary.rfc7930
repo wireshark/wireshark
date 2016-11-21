@@ -1,0 +1,9 @@
+# -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+#
+#        Attributes and values defined in RFC 7930
+#        http://www.ietf.org/rfc/rfc7930.txt
+#
+
+ATTRIBUTE	Response-Length				241.3	integer
+ATTRIBUTE	Original-Packet-Code			241.4	integer
