@@ -3712,6 +3712,14 @@ static int hf_ieee80211_tag_rm_enabled_capabilities_b32 = -1;
 static int hf_ieee80211_tag_rm_enabled_capabilities_b33 = -1;
 static int hf_ieee80211_tag_rm_enabled_capabilities_o5 = -1;
 
+static int hf_ieee80211_tag_20_40_bc = -1;
+static int hf_ieee80211_tag_20_40_bc_information_request = -1;
+static int hf_ieee80211_tag_20_40_bc_forty_mhz_intolerant = -1;
+static int hf_ieee80211_tag_20_40_bc_20_mhz_bss_witdh_request = -1;
+static int hf_ieee80211_tag_20_40_bc_obss_scanning_exemption_request = -1;
+static int hf_ieee80211_tag_20_40_bc_obss_scanning_exemption_grant = -1;
+static int hf_ieee80211_tag_20_40_bc_reserved = -1;
+
 static int hf_ieee80211_tag_power_constraint_local = -1;
 
 static int hf_ieee80211_tag_power_capability_min = -1;
@@ -4898,6 +4906,9 @@ static gint ett_tag_rm_cap2 = -1;
 static gint ett_tag_rm_cap3 = -1;
 static gint ett_tag_rm_cap4 = -1;
 static gint ett_tag_rm_cap5 = -1;
+
+static gint ett_tag_20_40_bc = -1;
+
 static gint ett_tag_tclas_mask_tree = -1;
 
 static gint ett_tag_supported_channels = -1;
@@ -12528,6 +12539,38 @@ dissect_rm_enabled_capabilities_ie(packet_info *pinfo, proto_tree *tree,
 }
 
 static int
+dissect_20_40_bss_coexistence(packet_info *pinfo, proto_tree *tree,
+                              proto_item *ti_len, guint32 tag_len,
+                              tvbuff_t *tvb, int offset)
+{
+
+  static const int *ieee80211_20_40_bss_coexistence_fields[] = {
+    &hf_ieee80211_tag_20_40_bc_information_request,
+    &hf_ieee80211_tag_20_40_bc_forty_mhz_intolerant,
+    &hf_ieee80211_tag_20_40_bc_20_mhz_bss_witdh_request,
+    &hf_ieee80211_tag_20_40_bc_obss_scanning_exemption_request,
+    &hf_ieee80211_tag_20_40_bc_obss_scanning_exemption_grant,
+    &hf_ieee80211_tag_20_40_bc_reserved,
+    NULL
+  };
+
+
+  if (tag_len != 1)
+  {
+    expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "20/40 BSS Coexistence length %u wrong, must = 1", tag_len);
+    return offset;
+  }
+
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_20_40_bc,
+                                    ett_tag_20_40_bc, ieee80211_20_40_bss_coexistence_fields,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+
+  offset += 1;
+
+  return offset;
+}
+
+static int
 dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                          guint32 tag_len, proto_item *ti_len, gboolean vendorspecific)
 {
@@ -15215,6 +15258,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_RM_ENABLED_CAPABILITY: /* RM Enabled Capabilities (70) */
       dissect_rm_enabled_capabilities_ie(pinfo, tree, ti, ti_len, tag_len, tvb, offset+2, tag_end);
+      break;
+
+    case TAG_20_40_BSS_CO_EX: /* 20/40 BSS Coexistence (72) */
+      dissect_20_40_bss_coexistence(pinfo, tree, ti_len, tag_len, tvb, offset+2);
       break;
 
     case TAG_OVERLAP_BSS_SCAN_PAR: /* Overlapping BSS Scan Parameters (74) */
@@ -24187,6 +24234,37 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0xFC,
       "Must be zero", HFILL }},
 
+    /* 20/40 BSS Coexistence */
+    {&hf_ieee80211_tag_20_40_bc,
+     {"20/40 BSS Coexistence Flags", "wlan.20_40_bc",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_20_40_bc_information_request,
+     {"Information Request", "wlan.20_40_bc.information_request",
+      FT_BOOLEAN, 8, NULL, 0x01,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_20_40_bc_forty_mhz_intolerant,
+     {"Forty MHz Intolerant", "wlan.20_40_bc.forty_mhz_intolerant",
+      FT_BOOLEAN, 8, NULL, 0x02,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_20_40_bc_20_mhz_bss_witdh_request,
+     {"20 MHz BSS Witdh Request", "wlan.20_40_bc.20_mhz_bss_witdh_request",
+      FT_BOOLEAN, 8, NULL, 0x04,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_20_40_bc_obss_scanning_exemption_request,
+     {"OBSS Scanning Exemption Request", "wlan.20_40_bc.obss_scanning_exemption_request",
+      FT_BOOLEAN, 8, NULL, 0x08,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_20_40_bc_obss_scanning_exemption_grant,
+     {"OBSS Scanning Exemption Grant", "wlan.20_40_bc.obss_scanning_exemption_grant",
+      FT_BOOLEAN, 8, NULL, 0x10,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_20_40_bc_reserved,
+     {"Reserved", "wlan.20_40_bc.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xE0,
+      "Must be zero", HFILL }},
+
+
     {&hf_ieee80211_tag_power_constraint_local,
      {"Local Power Constraint", "wlan.powercon.local",
       FT_UINT8, BASE_DEC, NULL, 0,
@@ -26955,6 +27033,9 @@ proto_register_ieee80211(void)
     &ett_tag_rm_cap3,
     &ett_tag_rm_cap4,
     &ett_tag_rm_cap5,
+
+    &ett_tag_20_40_bc,
+
     &ett_tag_tclas_mask_tree,
 
     &ett_tag_supported_channels,
