@@ -54,12 +54,6 @@ add_package() {
 	eval "${list}=\"\${${list}} \${pkgname}\""
 }
 
-# Check for lsb_release command in $PATH
-if ! which lsb_release > /dev/null; then
-	echo "ERROR: lsb_release not found in \$PATH" >&2
-	exit 1;
-fi
-
 # only needed for newer distro versions where "libtool" binary is separated.
 # Debian >= jessie, Ubuntu >= 16.04
 add_package BASIC_LIST libtool-bin
