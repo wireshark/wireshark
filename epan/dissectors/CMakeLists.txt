@@ -573,6 +573,7 @@ set(DISSECTOR_SRC
 	packet-fcsb3.c
 	packet-fcsp.c
 	packet-fcswils.c
+	packet-fbzero.c
 	packet-fddi.c
 	packet-fefd.c
 	packet-ff.c

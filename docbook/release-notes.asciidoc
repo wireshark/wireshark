@@ -99,6 +99,7 @@ DirectPlay 8 protocol
 NM protocol
 Netgear Ensemble Protocol
 OBD-II PIDs
+(Facebook) Zero
 --sort-and-group--
 
 === Updated Protocol Support
