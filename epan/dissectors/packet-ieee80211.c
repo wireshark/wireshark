@@ -4327,6 +4327,11 @@ static int hf_ieee80211_vs_mikrotik_subtype = -1;
 static int hf_ieee80211_vs_mikrotik_sublength = -1;
 static int hf_ieee80211_vs_mikrotik_subdata = -1;
 
+static int hf_ieee80211_vs_meru_subitem = -1;
+static int hf_ieee80211_vs_meru_subtype = -1;
+static int hf_ieee80211_vs_meru_sublength = -1;
+static int hf_ieee80211_vs_meru_subdata = -1;
+
 static int hf_ieee80211_rsn_ie_pmkid = -1;
 static int hf_ieee80211_rsn_ie_unknown = -1;
 
@@ -4964,6 +4969,8 @@ static gint ett_ssid_list = -1;
 static gint ett_nintendo = -1;
 
 static gint ett_mikrotik = -1;
+
+static gint ett_meru = -1;
 
 static gint ett_qos_map_set_exception = -1;
 static gint ett_qos_map_set_range = -1;
@@ -10503,6 +10510,42 @@ dissect_vendor_ie_nintendo(proto_item *item _U_, proto_tree *ietree,
   }
 }
 
+static void
+dissect_vendor_ie_meru(proto_item *item _U_, proto_tree *ietree,
+                       tvbuff_t *tvb, int offset, guint32 tag_len,
+                       packet_info *pinfo)
+{
+  guint32 type, length;
+  proto_item *subitem, *ti_len;
+  proto_tree *subtree;
+
+  while (tag_len >= 2) {
+    subitem = proto_tree_add_item(ietree, hf_ieee80211_vs_meru_subitem, tvb, offset, 2, ENC_NA);
+    subtree = proto_item_add_subtree(subitem, ett_meru);
+
+    proto_tree_add_item_ret_uint(subtree, hf_ieee80211_vs_meru_subtype, tvb, offset, 1, ENC_NA, &type);
+    offset += 1;
+    tag_len -= 1;
+
+    ti_len = proto_tree_add_item_ret_uint(subtree, hf_ieee80211_vs_meru_sublength, tvb, offset, 1, ENC_NA, &length);
+    offset += 1;
+    tag_len -= 1;
+
+    if (tag_len < length) {
+      expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag length < Sub Length");
+      length = tag_len;
+    }
+
+    proto_item_append_text(subitem, " (t=%d, l=%d)", type, length);
+    proto_item_set_len(subitem, 2+length);
+
+    proto_tree_add_item(subtree, hf_ieee80211_vs_meru_subdata, tvb, offset, length, ENC_NA);
+    offset += length;
+    tag_len -= length;
+
+  }
+}
+
 /* 802.11-2012 8.4.2.37 QoS Capability element */
 static int
 dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int ftype)
@@ -15139,6 +15182,9 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           break;
         case OUI_MIKROTIK:
           dissect_vendor_ie_mikrotik(ti, tree, tvb, offset, tag_vs_len);
+          break;
+        case OUI_MERU:
+          dissect_vendor_ie_meru(ti, tree, tvb, offset, tag_vs_len, pinfo);
           break;
         default:
           proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
@@ -25897,6 +25943,27 @@ proto_register_ieee80211(void)
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
+    /* Vendor Specific : Meru (Fortinet) */
+    {&hf_ieee80211_vs_meru_subitem,
+     {"Sub IE", "wlan.vs.meru.unknown",
+      FT_NONE, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_meru_subtype,
+     {"Subtype", "wlan.vs.meru.subtype",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_meru_sublength,
+     {"Sublength", "wlan.vs.meru.sublength",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_meru_subdata,
+     {"Subdata", "wlan.vs.meru.subdata",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tsinfo,
      {"Traffic Stream (TS) Info", "wlan.ts_info",
       FT_UINT24, BASE_HEX, NULL, 0,
@@ -27089,7 +27156,10 @@ proto_register_ieee80211(void)
     &ett_ssid_list,
 
     &ett_nintendo,
+
     &ett_mikrotik,
+
+    &ett_meru,
 
     &ett_qos_map_set_exception,
     &ett_qos_map_set_range,
