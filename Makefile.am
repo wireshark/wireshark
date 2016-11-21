@@ -224,6 +224,7 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.meinberg \
 	radius/dictionary.merit \
 	radius/dictionary.meru \
+	radius/dictionary.microsemi \
 	radius/dictionary.microsoft \
 	radius/dictionary.mikrotik \
 	radius/dictionary.motorola \

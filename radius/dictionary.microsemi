@@ -1,0 +1,22 @@
+# -*- text -*-
+#
+#  dictionary.microsemi
+#
+#	As posted to the list by Simon Butcher <simon.butcher@microsemi.com>
+#
+# Version:	$Id: b1a4b3791eb6a29216e80da1d9551666c100e956 $
+#
+
+VENDOR		Microsemi			40676
+
+BEGIN-VENDOR	Microsemi
+
+ATTRIBUTE	Microsemi-User-Full-Name		1	string
+ATTRIBUTE	Microsemi-User-Name			2	string
+ATTRIBUTE	Microsemi-User-Initials			3	string
+ATTRIBUTE	Microsemi-User-Email			4	string
+ATTRIBUTE	Microsemi-User-Group			5	string
+ATTRIBUTE	Microsemi-Fallback-User-Group		6	string
+ATTRIBUTE	Microsemi-Network-Element-Group		7	string
+
+END-VENDOR	Microsemi
