@@ -5787,6 +5787,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                 if (!g_nas_eps_null_decipher ||
                     ((pd != 7) && (pd != 15) &&
                     (((pd&0x0f) != 2) || (((pd&0x0f) == 2) && ((pd&0xf0) > 0) && ((pd&0xf0) < 0x50))))) {
+                    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
                     proto_tree_add_item(nas_eps_tree, hf_nas_eps_ciphered_msg, tvb, offset, len-6, ENC_NA);
                     return tvb_captured_length(tvb);
                 }
