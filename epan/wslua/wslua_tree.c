@@ -429,6 +429,16 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                     }
                     break;
                 case FT_ETHER:
+                    {
+                        Address addr = checkAddress(L,1);
+                        if (addr->type != AT_ETHER) {
+                            luaL_error(L, "Expected MAC address for FT_ETHER field");
+                            return 0;
+                        }
+
+                        item = proto_tree_add_ether(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, (const guint8 *)addr->data);
+                    }
+                    break;
                 case FT_UINT_BYTES:
                 case FT_IPXNET:
                 case FT_GUID:
