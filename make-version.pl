@@ -689,9 +689,11 @@ sub get_config {
 	}
 
 	if (! open(FILE, "<$vconf_file")) {
-		print_diag "Version configuration file $vconf_file not "
-		. "found. Using defaults.\n";
-		return 1;
+		if (! open(FILE, "<$srcdir/$vconf_file")) {
+			print_diag "Version configuration file $vconf_file not "
+			. "found. Using defaults.\n";
+			return 1;
+		}
 	}
 
 	while (<FILE>) {
