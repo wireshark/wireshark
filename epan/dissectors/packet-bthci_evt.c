@@ -427,6 +427,36 @@ static int hf_bthci_evt_vendor_codecs = -1;
 static int hf_bthci_evt_vendor_codecs_item = -1;
 static int hf_bthci_evt_codec_id = -1;
 static int hf_bthci_evt_vendor_codec_id = -1;
+static int hf_bthci_evt_mws_bt_rx_priority_assert_offset = -1;
+static int hf_bthci_evt_mws_bt_rx_priority_assert_jitter = -1;
+static int hf_bthci_evt_mws_bt_rx_priority_deassert_offset = -1;
+static int hf_bthci_evt_mws_bt_rx_priority_deassert_jitter = -1;
+static int hf_bthci_evt_mws_bt_tx_priority_assert_offset = -1;
+static int hf_bthci_evt_mws_bt_tx_priority_assert_jitter = -1;
+static int hf_bthci_evt_mws_bt_tx_priority_deassert_offset = -1;
+static int hf_bthci_evt_mws_bt_tx_priority_deassert_jitter = -1;
+static int hf_bthci_evt_mws_802_rx_priority_assert_offset = -1;
+static int hf_bthci_evt_mws_802_rx_priority_assert_jitter = -1;
+static int hf_bthci_evt_mws_802_rx_priority_deassert_offset = -1;
+static int hf_bthci_evt_mws_802_rx_priority_deassert_jitter = -1;
+static int hf_bthci_evt_mws_802_tx_priority_assert_offset = -1;
+static int hf_bthci_evt_mws_802_tx_priority_assert_jitter = -1;
+static int hf_bthci_evt_mws_802_tx_priority_deassert_offset = -1;
+static int hf_bthci_evt_mws_802_tx_priority_deassert_jitter = -1;
+static int hf_bthci_evt_sync_train_interval = -1;
+static int hf_bthci_evt_sync_train_to = -1;
+static int hf_bthci_evt_secure_connection_host_support = -1;
+static int hf_bthci_evt_authenticated_payload_timeout = -1;
+static int hf_bthci_evt_c192 = -1;
+static int hf_bthci_evt_r192 = -1;
+static int hf_bthci_evt_c256 = -1;
+static int hf_bthci_evt_r256 = -1;
+static int hf_bthci_evt_extended_inquiry_length = -1;
+static int hf_bthci_evt_suggested_max_tx_octets = -1;
+static int hf_bthci_evt_suggested_max_tx_time = -1;
+static int hf_bthci_evt_suggested_max_rx_octets = -1;
+static int hf_bthci_evt_suggested_max_rx_time = -1;
+static int hf_bthci_evt_resolving_list_size = -1;
 
 static const int *hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_encryption,
@@ -2836,6 +2866,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
         case 0x2014: /* LE Set Host Channel Classification */
         case 0x201d: /* LE Receiver Test */
         case 0x201e: /* LE Transmitter Test */
+        case 0x2024: /* LE Write Suggested Default Data Length */
         case 0x2027: /* LE Add Device to Resolving List */
         case 0x2028: /* LE Remove Device From Resolving List */
         case 0x2029: /* LE Clear Resolving List */
@@ -2889,6 +2920,8 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
         case 0x0440: /* Truncated Page Cancel */
         case 0x0445: /* Remote OOB Extended Data Request Reply */
         case 0x0c60: /* Send Keypress Notification */
+        case 0x202B: /* LE Read Peer Resolvable Address */
+        case 0x202C: /* LE Read Local Resolvable Address */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
             offset += 1;
@@ -4332,24 +4365,199 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
         }
 
         case 0x0441: /* Set Connectionless Slave Broadcast */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_lt_addr, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_connectionless_slave_broadcast_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
         case 0x0442: /* Set Connectionless Slave Broadcast Receive */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+
+            proto_tree_add_item(tree, hf_bthci_evt_lt_addr, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
         case 0x0C70: /* Set MWS Signaling */
+            proto_tree_add_item(tree, hf_bthci_evt_mws_bt_rx_priority_assert_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_bt_rx_priority_assert_jitter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_bt_rx_priority_deassert_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_bt_rx_priority_deassert_jitter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_802_rx_priority_assert_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_802_rx_priority_assert_jitter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_802_rx_priority_deassert_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_802_rx_priority_deassert_jitter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_bt_tx_priority_assert_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_bt_tx_priority_assert_jitter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_bt_tx_priority_deassert_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_bt_tx_priority_deassert_jitter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_802_tx_priority_assert_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_802_tx_priority_assert_jitter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_802_tx_priority_deassert_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_mws_802_tx_priority_deassert_jitter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
         case 0x0C77: /* Read Synchronization Train Parameters */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_sync_train_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_sync_train_to, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(tree, hf_bthci_evt_service_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            break;
         case 0x0C78: /* Write Synchronization Train Parameters */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_sync_train_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
         case 0x0C79: /* Read Secure Connections Host Support */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_secure_connection_host_support, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            break;
         case 0x0C7B: /* Read Authenticated Payload Timeout */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_authenticated_payload_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
         case 0x0C7D: /* Read Local OOB Extended Data */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_c192, tvb, offset, 16, ENC_NA);
+            offset += 16;
+
+            proto_tree_add_item(tree, hf_bthci_evt_r192, tvb, offset, 16, ENC_NA);
+            offset += 16;
+
+            proto_tree_add_item(tree, hf_bthci_evt_c256, tvb, offset, 16, ENC_NA);
+            offset += 16;
+
+            proto_tree_add_item(tree, hf_bthci_evt_r256, tvb, offset, 16, ENC_NA);
+            offset += 16;
+
+            break;
         case 0x0C7E: /* Read Extended Page Timeout */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            item = proto_tree_add_item(tree, hf_bthci_evt_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " slots (%g msec)", tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) * 0.625);
+
+            break;
         case 0x0C80: /* Read Extended Inquiry Length */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            item = proto_tree_add_item(tree, hf_bthci_evt_extended_inquiry_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " slots (%g msec)", tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) * 0.625);
+
+            break;
         case 0x2023: /* LE Read Suggested Default Data Length */
-        case 0x2024: /* LE Write Suggested Default Data Length */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_suggested_max_tx_octets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_suggested_max_tx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
         case 0x202A: /* LE Read Resolving List Size */
-        case 0x202B: /* LE Read Peer Resolvable Address */
-        case 0x202C: /* LE Read Local Resolvable Address */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_resolving_list_size, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
         case 0x202F: /* LE Read Maximum Data Length */
-/* TODO */
-            proto_tree_add_expert(tree, pinfo, &ei_event_undecoded, tvb, offset, tvb_captured_length_remaining(tvb, offset));
-            offset += tvb_reported_length_remaining(tvb, offset);
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_suggested_max_tx_octets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_suggested_max_tx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_suggested_max_rx_octets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_suggested_max_rx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
 
             break;
 
@@ -5300,6 +5508,11 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
             proto_tree_add_item(tree, hf_bthci_evt_rssi, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
+
+            break;
+        case 0x57: /* Authenticated Payload Timeout Expired */
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
 
             break;
         case 0xfe: /* Bluetooth Logo Testing */
@@ -7579,6 +7792,156 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_vendor_codec_id,
           { "Codec", "bthci_evt.vendor_codecs.item.codec_id",
             FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_bt_rx_priority_assert_offset,
+          { "Bluetooth Rx Priority Assert Offset", "bthci_evt.mws.bt.rx_priority.assert.offset",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_bt_rx_priority_assert_jitter,
+          { "Bluetooth Rx Priority Assert Jitter", "bthci_evt.mws.bt.rx_priority.assert.jitter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_bt_rx_priority_deassert_offset,
+          { "Bluetooth Rx Priority Deassert Offset", "bthci_evt.mws.bt.rx_priority.deassert.offset",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_bt_rx_priority_deassert_jitter,
+          { "Bluetooth Rx Priority Deassert Jitter", "bthci_evt.mws.bt.rx_priority.deassert.jitter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_bt_tx_priority_assert_offset,
+          { "Bluetooth Tx Priority Assert Offset", "bthci_evt.mws.bt.tx_priority.assert.offset",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_bt_tx_priority_assert_jitter,
+          { "Bluetooth Tx Priority Assert Jitter", "bthci_evt.mws.bt.tx_priority.assert.jitter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_bt_tx_priority_deassert_offset,
+          { "Bluetooth Tx Priority Deassert Offset", "bthci_evt.mws.bt.tx_priority.deassert.offset",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_bt_tx_priority_deassert_jitter,
+          { "Bluetooth Tx Priority Deassert Jitter", "bthci_evt.mws.bt.tx_priority.deassert.jitter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_802_rx_priority_assert_offset,
+          { "802 Rx Priority Assert Offset", "bthci_evt.mws.802.rx_priority.assert.offset",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_802_rx_priority_assert_jitter,
+          { "802 Rx Priority Assert Jitter", "bthci_evt.mws.802.rx_priority.assert.jitter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_802_rx_priority_deassert_offset,
+          { "802 Rx Priority Deassert Offset", "bthci_evt.mws.802.rx_priority.deassert.offset",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_802_rx_priority_deassert_jitter,
+          { "802 Rx Priority Deassert Jitter", "bthci_evt.mws.802.rx_priority.deassert.jitter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_802_tx_priority_assert_offset,
+          { "802 Tx Priority Assert Offset", "bthci_evt.mws.802.tx_priority.assert.offset",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_802_tx_priority_assert_jitter,
+          { "802 Tx Priority Assert Jitter", "bthci_evt.mws.802.tx_priority.assert.jitter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_802_tx_priority_deassert_offset,
+          { "802 Tx Priority Deassert Offset", "bthci_evt.mws.802.tx_priority.deassert.offset",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_mws_802_tx_priority_deassert_jitter,
+          { "802 Tx Priority Deassert Jitter", "bthci_evt.mws.802.tx_priority.deassert.jitter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_sync_train_interval,
+          { "Synchronization Train Interval", "bthci_evt.sync_train_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_sync_train_to,
+          { "Synchronization Train To", "bthci_evt.sync_train_to",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_secure_connection_host_support,
+          { "Secure Connection Host Support", "bthci_evt.secure_connection_host_support",
+            FT_UINT8, BASE_HEX, VALS(evt_enable_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_authenticated_payload_timeout,
+          { "Authenticated Payload Timeout", "bthci_evt.authenticated_payload_timeout",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_c192,
+          { "C 192", "bthci_evt.c192",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_r192,
+          { "R 192", "bthci_evt.r192",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_c256,
+          { "C 256", "bthci_evt.c256",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_r256,
+          { "R 256", "bthci_evt.r256",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_extended_inquiry_length,
+          { "Extended Inquiry Length",        "bthci_evt.extended_inquiry_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_suggested_max_tx_octets,
+          { "Suggested Max Tx Octets",        "bthci_evt.suggested_max_tx_octets",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_suggested_max_tx_time,
+          { "Suggested Max Tx Time",        "bthci_evt.suggested_max_tx_time",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_suggested_max_rx_octets,
+          { "Suggested Max Rx Octets",        "bthci_evt.suggested_max_rx_octets",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_suggested_max_rx_time,
+          { "Suggested Max Rx Time",        "bthci_evt.suggested_max_rx_time",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_resolving_list_size,
+          { "Resolving List Size",        "bthci_evt.resolving_list_size",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         }
     };
