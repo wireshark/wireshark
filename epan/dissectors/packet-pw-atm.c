@@ -291,8 +291,8 @@ number_of_cells(const pwatm_mode_t mode
 		}
 		/*fallthrough*/
 	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
 		*remainder_size = payload_size;
+		DISSECTOR_ASSERT_NOT_REACHED();
 		return 0;
 	}
 
