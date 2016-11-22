@@ -1751,9 +1751,9 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 case 0x7ffa: /* contains exactly one SDU (minus last byte), UM only */
                 case 0x7ffc: /* start of a new SDU, UM only */
                 case 0x7ffd: /* contains exactly one SDU, UM only */
+                    li[num_li].len = 0;
                     if (mode == RLC_UM) {
                         /* valid for UM */
-                        li[num_li].len = 0;
                         break;
                     }
                     /*invalid for AM */
@@ -1769,6 +1769,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                     if (((li[num_li].li > total_len) && !global_rlc_headers_expected)
                         || (li[num_li].li < prev_li)) {
                         /* add malformed LI for investigation */
+                        li[num_li].len = 0;
                         malformed = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
                         expert_add_info(pinfo, malformed, &ei_rlc_li_incorrect_warn);
                         return -1; /* just give up on this */
@@ -1785,9 +1786,9 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                     break;
                 case 0x7c: /* start of a new SDU, UM only */
                 case 0x7d: /* contains exactly one SDU, UM only */
+                    li[num_li].len = 0;
                     if (mode == RLC_UM) {
                         /* valid for UM */
-                        li[num_li].len = 0;
                         break;
                     }
                     /*invalid for AM */
@@ -1804,6 +1805,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                     if (((li[num_li].li > total_len) && !global_rlc_headers_expected)
                         || (li[num_li].li < prev_li)) {
                         /* add malformed LI for investigation */
+                        li[num_li].len = 0;
                         malformed = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
                         expert_add_info_format(pinfo, malformed, &ei_rlc_li_incorrect_mal, "Incorrect LI value 0x%x", li[num_li].li);
                         return -1; /* just give up on this */
