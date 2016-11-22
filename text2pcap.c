@@ -1758,7 +1758,7 @@ parse_options (int argc, char *argv[])
         exit(1);
     }
 
-    if (strcmp(argv[optind], "-")) {
+    if (strcmp(argv[optind], "-") != 0) {
         input_filename = g_strdup(argv[optind]);
         input_file = ws_fopen(input_filename, "rb");
         if (!input_file) {
@@ -1771,7 +1771,8 @@ parse_options (int argc, char *argv[])
         input_file = stdin;
     }
 
-    if (strcmp(argv[optind+1], "-")) {
+    if (strcmp(argv[optind+1], "-") != 0) {
+        /* Write to a file.  Open the file, in binary mode. */
         output_filename = g_strdup(argv[optind+1]);
         output_file = ws_fopen(output_filename, "wb");
         if (!output_file) {
@@ -1780,6 +1781,16 @@ parse_options (int argc, char *argv[])
             exit(1);
         }
     } else {
+        /* Write to the standard output. */
+#ifdef _WIN32
+        /* Put the standard output in binary mode. */
+        if (_setmode(1, O_BINARY) == -1) {
+            /* "Should not happen" */
+            fprintf(stderr, "Cannot put standard output in binary mode: %s\n",
+                    g_strerror(errno));
+            exit(1);
+        }
+#endif
         output_filename = "Standard output";
         output_file = stdout;
     }
