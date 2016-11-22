@@ -115,6 +115,11 @@
 #include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 
+#ifdef _WIN32
+#include <io.h>     /* for _setmode */
+#include <fcntl.h>  /* for O_BINARY */
+#endif
+
 #include <time.h>
 #include <glib.h>
 
