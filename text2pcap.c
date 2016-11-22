@@ -115,6 +115,11 @@
 #include <ws_version_info.h>
 #include <wsutil/inet_addr.h>
 
+#ifdef _WIN32
+#include <io.h>     /* for _setmode */
+#include <fcntl.h>  /* for O_BINARY */
+#endif
+
 #include <time.h>
 #include <glib.h>
 
