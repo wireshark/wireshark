@@ -420,6 +420,13 @@ static int hf_bthci_evt_le_tx_phy = -1;
 static int hf_bthci_evt_le_rx_phy = -1;
 static int hf_bthci_evt_max_adv_data_length = -1;
 static int hf_bthci_evt_num_supported_adv_sets = -1;
+static int hf_bthci_evt_number_of_supported_codecs = -1;
+static int hf_bthci_evt_number_of_supported_vendor_codecs = -1;
+static int hf_bthci_evt_codecs = -1;
+static int hf_bthci_evt_vendor_codecs = -1;
+static int hf_bthci_evt_vendor_codecs_item = -1;
+static int hf_bthci_evt_codec_id = -1;
+static int hf_bthci_evt_vendor_codec_id = -1;
 
 static const int *hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_encryption,
@@ -463,6 +470,7 @@ static gint ett_le_state_subtree = -1;
 static gint ett_le_channel_map = -1;
 static gint ett_le_features = -1;
 static gint ett_le_report = -1;
+static gint ett_codecs = -1;
 static gint ett_mws_transport_layers = -1;
 static gint ett_mws_transport_layers_item = -1;
 static gint ett_mws_to_mws_baud_rates = -1;
@@ -856,6 +864,18 @@ static const value_string event_type_vals[] = {
     { 0x01,  "Connectable directed advertising (ADV_DIRECT_IND)" },
     { 0, NULL }
 };
+
+static const value_string codec_id_vals[] = {
+    { 0x00,  "u-Law log" },
+    { 0x01,  "A-law log" },
+    { 0x02,  "CVSD" },
+    { 0x03,  "Transparent" },
+    { 0x04,  "Linear PCM" },
+    { 0x05,  "mSBC" },
+    { 0xFF,  "Vendor Specific" },
+    { 0, NULL }
+};
+
 
 static const unit_name_string units_number_events = { " (number events)", NULL };
 
@@ -3832,15 +3852,51 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
 
             break;
         case 0x100b: /* Read Local Supported Codecs */
+            {
+            guint8       count;
+            guint8       i_count;
+            proto_tree  *sub_tree;
+            proto_item  *sub_item;
+
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
             status = tvb_get_guint8(tvb, offset);
             send_hci_summary_status_tap(status, pinfo, bluetooth_data);
             offset += 1;
 
-/* TODO: Implement */
-            proto_tree_add_expert(tree, pinfo, &ei_event_undecoded, tvb, offset, tvb_captured_length_remaining(tvb, offset));
-            offset += tvb_reported_length_remaining(tvb, offset);
+            proto_tree_add_item(tree, hf_bthci_evt_number_of_supported_codecs, tvb, offset, 1, ENC_NA);
+            count = tvb_get_guint8(tvb, offset);
+            offset += 1;
 
+            sub_item = proto_tree_add_item(tree, hf_bthci_evt_codecs, tvb, offset, count, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_codecs);
+
+            for (i_count = 0; i_count < count; i_count+= 1) {
+                proto_tree_add_item(sub_tree, hf_bthci_evt_codec_id, tvb, offset, 1, ENC_NA);
+                offset += 1;
+            }
+
+            proto_tree_add_item(tree, hf_bthci_evt_number_of_supported_vendor_codecs, tvb, offset, 1, ENC_NA);
+            count = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            sub_item = proto_tree_add_item(tree, hf_bthci_evt_vendor_codecs, tvb, offset, count, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_codecs);
+
+            for (i_count = 0; i_count < count; i_count+= 1) {
+                proto_tree  *codec_tree;
+                proto_item  *codec_item;
+
+                codec_item = proto_tree_add_none_format(sub_tree, hf_bthci_evt_vendor_codecs_item, tvb, offset, 4, "Item %u", i_count + 1);
+                codec_tree = proto_item_add_subtree(codec_item, ett_codecs);
+
+                proto_tree_add_item(codec_tree, hf_bthci_evt_comp_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(codec_tree, hf_bthci_evt_vendor_codec_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
+
+            }
             break;
 
         case 0x1007: /* Read Country Code */
@@ -7489,6 +7545,41 @@ proto_register_bthci_evt(void)
           { "Number of Supported Advertising Sets", "bthci_evt.num_supported_adv_sets",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_bthci_evt_number_of_supported_codecs,
+          { "Number of Supported Codecs", "bthci_evt.number_of_supported_codecs",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_number_of_supported_vendor_codecs,
+          { "Number of Supported Vendor Codecs", "bthci_evt.number_of_supported_vendor_codecs",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_codecs,
+          { "Vendor Codecs", "bthci_evt.codecs",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_vendor_codecs,
+          { "Vendor Codecs", "bthci_evt.vendor_codecs",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_vendor_codecs_item,
+          { "Item", "bthci_evt.vendor_codecs.item",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_codec_id,
+          { "Codec", "bthci_evt.codec_id",
+            FT_UINT8, BASE_HEX, VALS(codec_id_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_vendor_codec_id,
+          { "Codec", "bthci_evt.vendor_codecs.item.codec_id",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
         }
     };
 
@@ -7512,6 +7603,7 @@ proto_register_bthci_evt(void)
         &ett_le_channel_map,
         &ett_le_features,
         &ett_le_report,
+        &ett_codecs,
         &ett_mws_transport_layers,
         &ett_mws_transport_layers_item,
         &ett_mws_to_mws_baud_rates,
