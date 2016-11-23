@@ -25,6 +25,11 @@
 /* This code is based on the DOCSIS 1.1 specification available at:
  * http://www.cablelabs.com/wp-content/uploads/specdocs/CM-SP-RFIv1.1-C01-050907.pdf
  *
+ * This code was updated to include DOCSIS 3.1 specification details available at:
+ * http://www.cablelabs.com/wp-content/uploads/specdocs/CM-SP-MULPIv3.1-I09-160602.pdf
+ *
+ * Updates are backward compatible with previous DOCSIS spcifications.
+ *
  * DOCSIS Captures can be facilitated using the Cable Monitor Feature
  * available on Cisco Cable Modem Termination Systems :
  * http://www.cisco.com/univercd/cc/td/doc/product/cable/cab_rout/cmtsfg/ufg_cmon.htm
@@ -740,9 +745,6 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           /* Only defragment valid frames with a good FCS */
           if (sent_fcs == fcs)
           {
-            /* Force the packet info field to treat all subsequent fragments as new */
-            pinfo->fd->flags.visited = 0;
-
             fragment_item *frag_msg = NULL;
             frag_msg = fragment_add_seq_check(&docsis_reassembly_table,
                                               tvb, hdrlen, pinfo,
