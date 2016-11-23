@@ -64,9 +64,6 @@ public:
     explicit SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *info = NULL);
     ~SequenceDialog();
 
-signals:
-    void goToPacket(int packet_num);
-
 protected:
     void showEvent(QShowEvent *event);
     void resizeEvent(QResizeEvent *event);

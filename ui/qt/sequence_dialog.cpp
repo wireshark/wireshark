@@ -24,6 +24,7 @@
 
 #include "epan/addr_resolv.h"
 
+#include "file.h"
 #include "wsutil/nstime.h"
 #include "wsutil/utf8_entities.h"
 
@@ -183,7 +184,6 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     connect(sp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(diagramClicked(QMouseEvent*)));
     connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
     connect(sp, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheeled(QWheelEvent*)));
-    connect(this, SIGNAL(goToPacket(int)), seq_diagram_, SLOT(setSelectedPacket(int)));
 
     disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
 }
@@ -522,7 +522,8 @@ void SequenceDialog::on_resetButton_clicked()
 void SequenceDialog::on_actionGoToPacket_triggered()
 {
     if (!file_closed_ && packet_num_ > 0) {
-        emit goToPacket(packet_num_);
+        cf_goto_frame(cap_file_.capFile(), packet_num_);
+        seq_diagram_->setSelectedPacket(packet_num_);
     }
 }
 
@@ -572,7 +573,8 @@ void SequenceDialog::goToAdjacentPacket(bool next)
             }
             sp->yAxis->moveRange(range_offset);
         }
-        emit goToPacket(adjacent_packet);
+        cf_goto_frame(cap_file_.capFile(), adjacent_packet);
+        seq_diagram_->setSelectedPacket(adjacent_packet);
     }
 }
 

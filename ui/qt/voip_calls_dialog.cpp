@@ -537,9 +537,6 @@ void VoipCallsDialog::showSequence()
     }
 
     SequenceDialog *sequence_dialog = new SequenceDialog(parent_, cap_file_, sequence_info_);
-    // XXX This goes away when we close the VoIP Calls dialog.
-    connect(sequence_dialog, SIGNAL(goToPacket(int)),
-            this, SIGNAL(goToPacket(int)));
     sequence_dialog->show();
 }
 
