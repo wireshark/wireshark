@@ -1200,7 +1200,7 @@ static const value_string bthci_cmd_status_vals[] = {
     {0x20, "Unsupported LMP/LL Parameter Value"},
     {0x21, "Role Change Not Allowed"},
     {0x22, "LMP/LL Response Timeout"},
-    {0x23, "LMP Error Transaction Collision"},
+    {0x23, "LMP Error Transaction Collision/LL Procedure Collision"},
     {0x24, "LMP PDU Not Allowed"},
     {0x25, "Encryption Mode Not Acceptable"},
     {0x26, "Link Key cannot be Changed"},

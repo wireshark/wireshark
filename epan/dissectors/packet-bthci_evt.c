@@ -604,7 +604,7 @@ static const value_string evt_code_vals[] = {
     /* Core 4*/
     {0x57, "Authenticated Payload Timeout Expired"},
     /* Other */
-    {0xfe, "Bluetooth Logo Testing"},
+    /*{0xfe, "Bluetooth Logo Testing"}, // According to ESR05 it is not assigned */
     {0xff, "Vendor-Specific"},
     {0, NULL}
 };
@@ -5422,11 +5422,13 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
         case 0x4f: /* Synchronization Train Complete */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
             offset += 1;
 
             break;
         case 0x50: /* Synchronization Train Received */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
             offset += 1;
 
             offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
@@ -5489,6 +5491,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
         case 0x53: /* Truncated Page Complete */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
             offset += 1;
 
             offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
@@ -5513,12 +5516,6 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         case 0x57: /* Authenticated Payload Timeout Expired */
             proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
-
-            break;
-        case 0xfe: /* Bluetooth Logo Testing */
-/* TODO: Implement above cases */
-            proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_undecoded, tvb, offset, tvb_captured_length_remaining(tvb, offset));
-            offset += tvb_reported_length_remaining(tvb, offset);
 
             break;
         case 0xff: /* Vendor-Specific */
