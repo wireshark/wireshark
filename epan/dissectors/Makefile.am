@@ -1819,6 +1819,7 @@ DISSECTOR_INCLUDES = \
 	packet-zep.h		\
 	packet-ziop.h		\
 	read_keytab_file.h	\
+	snort-config.h		\
 	$(GENERATED_HEADER_FILES)	\
 	$(CUSTOM_HEADER_FILES)
 
