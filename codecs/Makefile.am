@@ -30,12 +30,14 @@ lib_LTLIBRARIES = libwscodecs.la
 libwscodecs_la_SOURCES = \
 	codecs.c		\
 	G711a/G711adecode.c	\
-	G711u/G711udecode.c	\
-	G722/G722decode.c	\
-	G726/G726decode.c
+	G711u/G711udecode.c
 
 if HAVE_SBC
 libwscodecs_la_SOURCES += sbc/sbc.c
+endif
+
+if HAVE_SPANDSP
+libwscodecs_la_SOURCES += G722/G722decode.c G726/G726decode.c
 endif
 
 if !HAVE_SPEEXDSP
@@ -45,7 +47,7 @@ endif
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libwscodecs_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
-libwscodecs_la_LIBADD = $(top_builddir)/wsutil/libwsutil.la $(GLIB_LIBS) $(SBC_LIBS)
+libwscodecs_la_LIBADD = $(top_builddir)/wsutil/libwsutil.la $(GLIB_LIBS) $(SBC_LIBS) $(SPANDSP_LIBS)
 
 libwscodecs_la_DEPENDENCIES = $(top_builddir)/wsutil/libwsutil.la
 

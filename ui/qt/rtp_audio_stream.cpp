@@ -252,7 +252,13 @@ void RtpAudioStream::decode()
         }
         last_sequence = rtp_packet->info->info_seq_num;
 
-        double rtp_time = (double)(rtp_packet->info->info_timestamp-start_timestamp)/sample_rate - start_rtp_time;
+        unsigned rtp_clock_rate = sample_rate;
+        if (rtp_packet->info->info_payload_type == PT_G722) {
+            // G.722 sample rate is 16kHz, but RTP clock rate is 8kHz for historic reasons.
+            rtp_clock_rate = 8000;
+        }
+
+        double rtp_time = (double)(rtp_packet->info->info_timestamp-start_timestamp)/rtp_clock_rate - start_rtp_time;
         double arrive_time;
         if (timing_mode_ == RtpTimestamp) {
             arrive_time = rtp_time;
@@ -351,7 +357,7 @@ void RtpAudioStream::decode()
             }
 
             speex_resampler_process_int(audio_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
-            write_buff = (char *) decode_buff;
+            write_buff = (char *) resample_buff;
             write_bytes = out_len * sample_bytes_;
         }
 

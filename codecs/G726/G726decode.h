@@ -1,5 +1,5 @@
 /* G726decode.h
- * Definitions for A-law G.722 codec
+ * Definitions for G.726 codec
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -23,12 +23,19 @@
 #ifndef __CODECS_G726DECODE_H__
 #define __CODECS_G726DECODE_H__
 
-void *codec_g726_init(void);
+void *codec_g726_16_init(void);
+void *codec_g726_24_init(void);
+void *codec_g726_32_init(void);
+void *codec_g726_40_init(void);
+void *codec_aal2_g726_16_init(void);
+void *codec_aal2_g726_24_init(void);
+void *codec_aal2_g726_32_init(void);
+void *codec_aal2_g726_40_init(void);
 void  codec_g726_release(void *ctx);
-int   codec_g726_get_channels(void *ctx);
-int   codec_g726_get_frequency(void *ctx);
-int   codec_g726_decode(void *ctx, const void *input, int inputSizeBytes, void *output,
-        int *outputSizeBytes);
+unsigned codec_g726_get_channels(void *ctx);
+unsigned codec_g726_get_frequency(void *ctx);
+size_t codec_g726_decode(void *ctx, const void *input, size_t inputSizeBytes, void *output,
+        size_t *outputSizeBytes);
 
 #endif /* G726decode.h */
 

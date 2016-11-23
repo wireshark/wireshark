@@ -392,7 +392,7 @@ void RtpPlayerDialog::addRtpStream(struct _rtp_stream_info *rtp_stream)
                      ui->streamTreeWidget->topLevelItemCount(),
                      rtp_stream->packet_count,
                      g_list_length(rtp_stream->rtp_packet_list),
-                     rtp_stream->start_fd->num);
+                     rtp_stream->start_fd ? rtp_stream->start_fd->num : 0);
 }
 
 void RtpPlayerDialog::showEvent(QShowEvent *)

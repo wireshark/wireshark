@@ -32,6 +32,11 @@
 #include "sbc/sbc_private.h"
 #endif
 
+#ifdef HAVE_SPANDSP
+#include "G722/G722decode.h"
+#include "G726/G726decode.h"
+#endif
+
 #ifdef HAVE_PLUGINS
 
 #include <gmodule.h>
@@ -108,7 +113,21 @@ register_all_codecs(void)
 #ifdef HAVE_SPANDSP
     register_codec("g722", codec_g722_init, codec_g722_release,
             codec_g722_get_channels, codec_g722_get_frequency, codec_g722_decode);
-    register_codec("g726", codec_g726_init, codec_g726_release,
+    register_codec("G726-16", codec_g726_16_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("G726-24", codec_g726_24_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("G726-32", codec_g726_32_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("G726-40", codec_g726_40_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("AAL2-G726-16", codec_aal2_g726_16_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("AAL2-G726-24", codec_aal2_g726_24_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("AAL2-G726-32", codec_aal2_g726_32_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("AAL2-G726-40", codec_aal2_g726_40_init, codec_g726_release,
             codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
 #endif
 #ifdef HAVE_SBC

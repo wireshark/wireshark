@@ -1,5 +1,5 @@
 /* G722decode.h
- * Definitions for A-law G.722 codec
+ * Definitions for G.722 codec
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -25,10 +25,10 @@
 
 void *codec_g722_init(void);
 void  codec_g722_release(void *ctx);
-int   codec_g722_get_channels(void *ctx);
-int   codec_g722_get_frequency(void *ctx);
-int   codec_g722_decode(void *ctx, const void *input, int inputSizeBytes, void *output,
-        int *outputSizeBytes);
+unsigned codec_g722_get_channels(void *ctx);
+unsigned codec_g722_get_frequency(void *ctx);
+size_t codec_g722_decode(void *ctx, const void *input, size_t inputSizeBytes, void *output,
+        size_t *outputSizeBytes);
 
 #endif /* G722decode.h */
 

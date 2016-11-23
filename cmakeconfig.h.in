@@ -300,6 +300,9 @@
 /* Define to 1 if you want to playing SBC by standalone BlueZ SBC library */
 #cmakedefine HAVE_SBC 1
 
+/* Define to 1 if you have the spandsp library. */
+#cmakedefine HAVE_SPANDSP 1
+
 /* Define to 1 if you have the `setresgid' function. */
 #cmakedefine HAVE_SETRESGID 1
 

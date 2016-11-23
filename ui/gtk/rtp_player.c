@@ -599,7 +599,13 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 			seq = rp->info->info_seq_num;
 		}
 
-		rtp_time = (double)(rp->info->info_timestamp-start_timestamp)/sample_rate - start_rtp_time;
+		unsigned rtp_clock_rate = sample_rate;
+		if (rp->info->info_payload_type == PT_G722) {
+			// G.722 sample rate is 16kHz, but RTP clock rate is 8kHz for historic reasons.
+			rtp_clock_rate = 8000;
+		}
+
+		rtp_time = (double)(rp->info->info_timestamp-start_timestamp)/rtp_clock_rate - start_rtp_time;
 
 		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp))) {
 			arrive_time = rtp_time;

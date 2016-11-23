@@ -23,10 +23,6 @@ set(WSCODECS_FILES
   codecs.c
   G711a/G711adecode.c
   G711u/G711udecode.c
-  # These are wrapped in "#ifdef HAVE_SPANDSP", which we don't currently
-  # handle or define.
-  # G722/G722decode.c
-  # G726/G726decode.c
   speex/resample.c
 )
 
@@ -50,6 +46,11 @@ set(wscodecs_LIBS
   ${SBC_LIBRARIES}
   wsutil
 )
+
+if(HAVE_SPANDSP)
+  list(APPEND WSCODECS_FILES G722/G722decode.c G726/G726decode.c)
+  list(APPEND wscodecs_LIBS ${SPANDSP_LIBRARIES})
+endif()
 
 add_library(wscodecs ${LINK_MODE_LIB}
   ${WSCODECS_FILES}

@@ -99,8 +99,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2016-10-26"
-$Win32CurrentTag = "2016-10-26"
+$Win64CurrentTag = "2016-11-29"
+$Win32CurrentTag = "2016-11-29"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -119,6 +119,7 @@ $Win64Archives = @{
     "portaudio_v19_2.zip" = "";
     "sbc-1.3-win64ws.zip" = "";
     "snappy-1.1.3-win64ws.zip" = "";
+    "spandsp-0.0.6-win64ws.zip" = "";
     "upx303w.zip" = "";
     "WinSparkle-0.3-44-g2c8d9d3-win64ws.zip" = "";
     "WpdPack_4_1_2.zip" = "";
@@ -141,6 +142,7 @@ $Win32Archives = @{
     "portaudio_v19_2.zip" = "";
     "sbc-1.3-win32ws.zip" = "";
     "snappy-1.1.3-win32ws.zip" = "";
+    "spandsp-0.0.6-win32ws.zip" = "";
     "upx303w.zip" = "";
     "WinSparkle-0.3-44-g2c8d9d3-win32ws.zip" = "";
     "WpdPack_4_1_2.zip" = "";
@@ -191,6 +193,7 @@ $CleanupItems = @(
     "portaudio_v19_2"
     "sbc-1.3-win??ws"
     "snappy-1.1.3-win??ws"
+    "spandsp-0.0.6-win??ws"
     "upx301w"
     "upx303w"
     "user-guide"

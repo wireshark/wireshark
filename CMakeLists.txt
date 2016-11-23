@@ -858,6 +858,10 @@ if(ENABLE_SBC)
 	set(PACKAGELIST ${PACKAGELIST} SBC)
 endif()
 
+if(ENABLE_SPANDSP)
+	set(PACKAGELIST ${PACKAGELIST} SPANDSP)
+endif()
+
 # Capabilities
 if(ENABLE_CAP)
 	set(PACKAGELIST ${PACKAGELIST} CAP SETCAP)
@@ -965,6 +969,9 @@ if(HAVE_LIBNL AND HAVE_AIRPCAP)
 endif()
 if(HAVE_LIBSBC)
 	set(HAVE_SBC 1)
+endif()
+if(SPANDSP_FOUND)
+	set(HAVE_SPANDSP 1)
 endif()
 if(EXTCAP_ANDROIDDUMP_LIBPCAP)
 	set(ANDROIDDUMP_USE_LIBPCAP 1)
@@ -1335,6 +1342,7 @@ endforeach()
 include(FeatureSummary)
 #SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ])
 SET_FEATURE_INFO(SBC "SBC Codec for Bluetooth A2DP stream playing" "www: http://git.kernel.org/cgit/bluetooth/sbc.git" )
+SET_FEATURE_INFO(SPANDSP "Support for G.722 and G.726 codecs in RTP player" "http://www.soft-switch.org/" )
 SET_FEATURE_INFO(LIBSSH "libssh is library for ssh connections and it is needed to build sshdump/ciscodump" "www: https://www.libssh.org/get-it/" )
 
 FEATURE_SUMMARY(WHAT ALL)
@@ -1607,6 +1615,13 @@ if(WIN32)
 				"${_dll_output_dir}"
 		)
 	endif(SBC_FOUND)
+	if (SPANDSP_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${SPANDSP_DLL_DIR}/${SPANDSP_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(SPANDSP_FOUND)
 	if (SMI_FOUND)
 		# Wireshark.nsi wants SMI_DIR which is the base SMI directory
 		get_filename_component(SMI_DIR ${SMI_DLL_DIR} DIRECTORY)

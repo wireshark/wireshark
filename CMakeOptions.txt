@@ -87,6 +87,7 @@ endif()
 # todo Mostly hardcoded
 option(ENABLE_KERBEROS   "Build with Kerberos support" ON)
 option(ENABLE_SBC        "Build with SBC Codec support in RTP Player" ON)
+option(ENABLE_SPANDSP    "Build with G.722/G.726 codecs support in RTP Player" ON)
 # How to install
 set(DUMPCAP_INSTALL_OPTION   "normal" CACHE STRING "Permissions to install")
 set(DUMPCAP_INST_VALS "normal" "suid" "capabilities")
