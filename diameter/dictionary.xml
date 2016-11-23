@@ -5675,7 +5675,54 @@
 			<enum name="SDP Answer" code="1"/>
 		</avp>
 		<avp name="Change-Condition" code="2037" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Integer32"/>
+			<type type-name="Enumerated"/>
+			<enum name="Normal Release" code="0"/>
+			<enum name="Abnormal Release" code="1"/>
+			<enum name="Qos Change" code="2"/>
+			<enum name="Volume Limit" code="3"/>
+			<enum name="Time Limit" code="4"/>
+			<enum name="Serving Node Change" code="5"/>
+			<enum name="Serving Node PLMN Change" code="6"/>
+			<enum name="User Location Change" code="7"/>
+			<enum name="RAT Change" code="8"/>
+			<enum name="UE Time Zone Change" code="9"/>
+			<enum name="Tariff Time Change" code="10"/>
+			<enum name="Service Idled Out" code="11"/>
+			<enum name="Service Specific Time Limit" code="12"/>
+			<enum name="Max Number of Changes in Changing conditions" code="13"/>
+			<enum name="CGI-SAI Change" code="14"/>
+			<enum name="RAI Change" code="15"/>
+			<enum name="ECGI Change" code="16"/>
+			<enum name="TAI Change" code="17"/>
+			<enum name="Service Data Volume Limit" code="18"/>
+			<enum name="Service Data Time Limit" code="19"/>
+			<enum name="Management Intervantion" code="20"/>
+			<enum name="Service Stop" code="21"/>
+			<enum name="User CSG Information Change" code="22"/>
+			<enum name="S-GW Change" code="23"/>
+			<enum name="Change of UE Presence in Presence Reporting Area" code="24"/>
+			<enum name="Proximity alerted" code="25"/>
+			<enum name="Time expired with no renewal" code="26"/>
+			<enum name="Requestor cancellation" code="27"/>
+			<enum name="Maximum number of reports" code="28"/>
+			<enum name="PLMN Change" code="29"/>
+			<enum name="Coverage status change" code="30"/>
+			<enum name="Removal of access" code="31"/>
+			<enum name="Unavailability of access" code="32"/>
+			<enum name="Access change of service data flow" code="33"/>
+			<enum name="Indirect change condition" code="34"/>
+			<enum name="Maximum number of NIDD submissions" code="35"/>
+			<enum name="Change in UE to PE" code="36"/>
+			<enum name="Serving PLMN Rate Control Change" code="37"/>
+			<enum name="APN Rate Control Change" code="38"/>
+			<!-- duplicated 39 values: issue from 32.299, update once it's fixed
+			<enum name="MO exception data counter" code="39"/>
+			<enum name="NIDD Submission Response Receipt" code="39"/>
+			<enum name="NIDD Submission Response Sending" code="40"/>
+			<enum name="NIDD Delivery to UE" code="41"/>
+			<enum name="NIDD Delivery from UE Error" code="42"/>
+			<enum name="NIDD Submission Timeout" code="43"/>
+			-->
 		</avp>
 		<avp name="Change-Time" code="2038" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Time"/>
