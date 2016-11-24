@@ -28,6 +28,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/str_util.h>
 
+#include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
 #include <QDialogButtonBox>
@@ -37,14 +38,21 @@
 
 extern "C" {
 
-// object_list_add_entry and object_list_get_entry are defined in ui/export_object.h
+static void
+object_list_add_entry(void *gui_data, export_object_entry_t *entry) {
+    export_object_list_gui_t *object_list = (export_object_list_gui_t*)gui_data;
 
-void object_list_add_entry(export_object_list_t *object_list, export_object_entry_t *entry) {
-    if (object_list && object_list->eod) object_list->eod->addObjectEntry(entry);
+    if (object_list && object_list->eod)
+        object_list->eod->addObjectEntry(entry);
 }
 
-export_object_entry_t *object_list_get_entry(export_object_list_t *object_list, int row) {
-    if (object_list && object_list->eod) return object_list->eod->objectEntry(row);
+static export_object_entry_t*
+object_list_get_entry(void *gui_data, int row) {
+    export_object_list_gui_t *object_list = (export_object_list_gui_t*)gui_data;
+
+    if (object_list && object_list->eod)
+        return object_list->eod->objectEntry(row);
+
     return NULL;
 }
 
@@ -54,21 +62,94 @@ export_object_entry_t *object_list_get_entry(export_object_list_t *object_list, 
 static void
 eo_reset(void *tapdata)
 {
-    export_object_list_t *object_list = (export_object_list_t *) tapdata;
+    export_object_list_t *tap_object = (export_object_list_t *)tapdata;
+    export_object_list_gui_t *object_list = (export_object_list_gui_t *)tap_object->gui_data;
     if (object_list && object_list->eod) object_list->eod->resetObjects();
 }
 
 } // extern "C"
 
-ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, ObjectType object_type) :
+
+enum {
+    COL_PACKET,
+    COL_HOSTNAME,
+    COL_CONTENT_TYPE,
+    COL_SIZE,
+    COL_FILENAME
+};
+
+enum {
+    export_object_row_type_ = 1000
+};
+
+class ExportObjectTreeWidgetItem : public QTreeWidgetItem
+{
+public:
+    ExportObjectTreeWidgetItem(QTreeWidget *parent, export_object_entry_t *entry) :
+        QTreeWidgetItem (parent, export_object_row_type_),
+        entry_(entry)
+    {
+        // Not perfect but better than nothing.
+        setTextAlignment(COL_SIZE, Qt::AlignRight);
+    }
+    ~ExportObjectTreeWidgetItem() {
+        eo_free_entry(entry_);
+    }
+
+    export_object_entry_t *entry() { return entry_; }
+
+    virtual QVariant data(int column, int role) const {
+        if (!entry_ || role != Qt::DisplayRole) {
+            return QTreeWidgetItem::data(column, role);
+        }
+
+        switch (column) {
+        case COL_PACKET:
+            return QString::number(entry_->pkt_num);
+        case COL_HOSTNAME:
+            return entry_->hostname;
+        case COL_CONTENT_TYPE:
+            return entry_->content_type;
+        case COL_SIZE:
+            return file_size_to_qstring(entry_->payload_len);
+        case COL_FILENAME:
+            return entry_->filename;
+        default:
+            break;
+        }
+        return QTreeWidgetItem::data(column, role);
+    }
+
+    bool operator< (const QTreeWidgetItem &other) const
+    {
+        if (!entry_ || other.type() != export_object_row_type_) {
+            return QTreeWidgetItem::operator< (other);
+        }
+
+        const ExportObjectTreeWidgetItem *other_row = static_cast<const ExportObjectTreeWidgetItem *>(&other);
+
+        switch (treeWidget()->sortColumn()) {
+        case COL_PACKET:
+            return entry_->pkt_num < other_row->entry_->pkt_num;
+        case COL_SIZE:
+            return entry_->payload_len < other_row->entry_->payload_len;
+        default:
+            break;
+        }
+
+        return QTreeWidgetItem::operator< (other);
+    }
+
+private:
+    export_object_entry_t *entry_;
+};
+
+ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, register_eo_t* eo) :
     WiresharkDialog(parent, cf),
     eo_ui_(new Ui::ExportObjectDialog),
     save_bt_(NULL),
     save_all_bt_(NULL),
-    tap_name_(NULL),
-    name_(NULL),
-    tap_packet_(NULL),
-    eo_protocoldata_resetfn_(NULL)
+    eo_(eo)
 {
     QPushButton *close_bt;
 
@@ -80,42 +161,17 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, ObjectT
     eo_ui_->progressBar->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-    export_object_list_.eod = this;
+    eo_gui_data_.eod = this;
 
-    switch (object_type) {
-    case Dicom:
-        tap_name_ = "dicom_eo";
-        name_ = "DICOM";
-        tap_packet_ = eo_dicom_packet;
-        break;
-    case Http:
-        tap_name_ = "http_eo";
-        name_ = "HTTP";
-        tap_packet_ = eo_http_packet;
-        break;
-    case Imf:
-        tap_name_ = "imf_eo";
-        name_ = "IMF";
-        tap_packet_ = eo_imf_packet;
-        break;
-    case Smb:
-        tap_name_ = "smb_eo";
-        name_ = "SMB";
-        tap_packet_ = eo_smb_packet;
-        eo_protocoldata_resetfn_ = eo_smb_cleanup;
-        break;
-    case Tftp:
-        tap_name_ = "tftp_eo";
-        name_ = "TFTP";
-        tap_packet_ = eo_tftp_packet;
-        break;
-    }
+    export_object_list_.add_entry = object_list_add_entry;
+    export_object_list_.get_entry = object_list_get_entry;
+    export_object_list_.gui_data = (void*)&eo_gui_data_;
 
     save_bt_ = eo_ui_->buttonBox->button(QDialogButtonBox::Save);
     save_all_bt_ = eo_ui_->buttonBox->button(QDialogButtonBox::SaveAll);
     close_bt = eo_ui_->buttonBox->button(QDialogButtonBox::Close);
 
-    setWindowTitle(wsApp->windowTitleString(QStringList() << tr("Export") << tr("%1 object list").arg(name_)));
+    setWindowTitle(wsApp->windowTitleString(QStringList() << tr("Export") << tr("%1 object list").arg(proto_get_protocol_short_name(find_protocol_by_id(get_eo_proto_id(eo))))));
 
     if (save_bt_) save_bt_->setEnabled(false);
     if (save_all_bt_) save_all_bt_->setEnabled(false);
@@ -131,46 +187,37 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, ObjectT
 ExportObjectDialog::~ExportObjectDialog()
 {
     delete eo_ui_;
-    export_object_list_.eod = NULL;
+    eo_gui_data_.eod = NULL;
     removeTapListeners();
 }
 
 void ExportObjectDialog::addObjectEntry(export_object_entry_t *entry)
 {
-    QTreeWidgetItem *entry_item;
-    gchar *size_str;
-
     if (!entry) return;
 
-    size_str = format_size(entry->payload_len, format_size_unit_bytes|format_size_prefix_si);
-
-    entry_item = new QTreeWidgetItem(eo_ui_->objectTree);
-    entry_item->setData(0, Qt::UserRole, qVariantFromValue(entry));
-
-    entry_item->setText(0, QString().setNum(entry->pkt_num));
-    entry_item->setText(1, entry->hostname);
-    entry_item->setText(2, entry->content_type);
-    entry_item->setText(3, size_str);
-    entry_item->setText(4, entry->filename);
-    g_free(size_str);
-    // Not perfect but better than nothing.
-    entry_item->setTextAlignment(3, Qt::AlignRight);
+    new ExportObjectTreeWidgetItem(eo_ui_->objectTree, entry);
 
     if (save_all_bt_) save_all_bt_->setEnabled(true);
 }
 
 export_object_entry_t *ExportObjectDialog::objectEntry(int row)
 {
-    QTreeWidgetItem *item = eo_ui_->objectTree->topLevelItem(row);
+    QTreeWidgetItem *cur_ti = eo_ui_->objectTree->topLevelItem(row);
+    ExportObjectTreeWidgetItem *eo_ti = dynamic_cast<ExportObjectTreeWidgetItem *>(cur_ti);
 
-    if (item) return item->data(0, Qt::UserRole).value<export_object_entry_t *>();
+    if (eo_ti) {
+        return eo_ti->entry();
+    }
 
     return NULL;
 }
 
 void ExportObjectDialog::resetObjects()
 {
-    if (eo_protocoldata_resetfn_) eo_protocoldata_resetfn_();
+    export_object_gui_reset_cb reset_cb = get_eo_reset_func(eo_);
+    if (reset_cb)
+        reset_cb();
+
     if (save_bt_) save_bt_->setEnabled(false);
     if (save_all_bt_) save_all_bt_->setEnabled(false);
 }
@@ -178,9 +225,9 @@ void ExportObjectDialog::resetObjects()
 void ExportObjectDialog::show()
 {
     /* Data will be gathered via a tap callback */
-    if (!registerTapListener(tap_name_, &export_object_list_, NULL, 0,
+    if (!registerTapListener(get_eo_tap_listener_name(eo_), &export_object_list_, NULL, 0,
                              eo_reset,
-                             tap_packet_,
+                             get_eo_packet_func(eo_),
                              NULL)) {
         return;
     }
@@ -191,6 +238,8 @@ void ExportObjectDialog::show()
     for (int i = 0; i < eo_ui_->objectTree->columnCount(); i++)
         eo_ui_->objectTree->resizeColumnToContents(i);
 
+    eo_ui_->objectTree->setSortingEnabled(true);
+    eo_ui_->objectTree->sortByColumn(COL_PACKET, Qt::AscendingOrder);
 }
 
 void ExportObjectDialog::accept()
@@ -217,7 +266,13 @@ void ExportObjectDialog::on_objectTree_currentItemChanged(QTreeWidgetItem *item,
 
     if (save_bt_) save_bt_->setEnabled(true);
 
-    export_object_entry_t *entry = item->data(0, Qt::UserRole).value<export_object_entry_t *>();
+    ExportObjectTreeWidgetItem *eo_ti = dynamic_cast<ExportObjectTreeWidgetItem *>(item);
+
+    if (!eo_ti) {
+        return;
+    }
+
+    export_object_entry_t *entry = eo_ti->entry();
     if (entry && !file_closed_) {
         cf_goto_frame(cap_file_.capFile(), entry->pkt_num);
     }
@@ -244,10 +299,15 @@ void ExportObjectDialog::saveCurrentEntry()
     QDir path(wsApp->lastOpenDir());
     QString file_name;
 
-    if (!item) return;
+    ExportObjectTreeWidgetItem *eo_ti = dynamic_cast<ExportObjectTreeWidgetItem *>(item);
+    if (!eo_ti) {
+        return;
+    }
 
-    entry = item->data(0, Qt::UserRole).value<export_object_entry_t *>();
-    if (!entry) return;
+    entry = eo_ti->entry();
+    if (!entry) {
+        return;
+    }
 
     file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Object As" UTF8_HORIZONTAL_ELLIPSIS)),
                                              path.filePath(entry->filename));
@@ -257,7 +317,6 @@ void ExportObjectDialog::saveCurrentEntry()
     }
 }
 
-#define MAXFILELEN  255
 void ExportObjectDialog::saveAllEntries()
 {
     int i;
@@ -280,13 +339,17 @@ void ExportObjectDialog::saveAllEntries()
                                                      save_in_dir.canonicalPath(),
                                                      QFileDialog::ShowDirsOnly);
 
-    if (save_in_path.length() < 1 || save_in_path.length() > MAXFILELEN) return;
+    if (save_in_path.length() < 1 || save_in_path.length() > EXPORT_OBJECT_MAXFILELEN) return;
 
     for (i = 0; (item = eo_ui_->objectTree->topLevelItem(i)) != NULL; i++) {
         int count = 0;
         gchar *save_as_fullpath = NULL;
-        export_object_entry_t *entry = item->data(0, Qt::UserRole).value<export_object_entry_t *>();
+        ExportObjectTreeWidgetItem *eo_ti = dynamic_cast<ExportObjectTreeWidgetItem *>(item);
+        if (!eo_ti) {
+            continue;
+        }
 
+        export_object_entry_t *entry = eo_ti->entry();
         if (!entry) continue;
 
         do {
@@ -295,16 +358,16 @@ void ExportObjectDialog::saveAllEntries()
             g_free(save_as_fullpath);
             if (entry->filename)
                 safe_filename = eo_massage_str(entry->filename,
-                    MAXFILELEN - save_in_path.length(), count);
+                    EXPORT_OBJECT_MAXFILELEN - save_in_path.length(), count);
             else {
                 char generic_name[256];
                 const char *ext;
-                ext = ct2ext(entry->content_type);
+                ext = eo_ct2ext(entry->content_type);
                 g_snprintf(generic_name, sizeof(generic_name),
                     "object%u%s%s", entry->pkt_num, ext ? "." : "",
                     ext ? ext : "");
                 safe_filename = eo_massage_str(generic_name,
-                    MAXFILELEN - save_in_path.length(), count);
+                    EXPORT_OBJECT_MAXFILELEN - save_in_path.length(), count);
             }
             save_as_fullpath = g_build_filename(save_in_path.toUtf8().constData(),
                                                 safe_filename->str, NULL);

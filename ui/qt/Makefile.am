@@ -190,6 +190,7 @@ MOC_HDRS = \
 	endpoint_dialog.h				\
 	expert_info_dialog.h				\
 	export_dissection_dialog.h			\
+	export_object_action.h				\
 	export_object_dialog.h				\
 	export_pdu_dialog.h				\
 	field_filter_edit.h				\
@@ -471,6 +472,7 @@ WIRESHARK_QT_SRC = \
 	enabled_protocols_dialog.cpp			\
 	endpoint_dialog.cpp				\
 	export_dissection_dialog.cpp			\
+	export_object_action.cpp			\
 	export_object_dialog.cpp			\
 	export_pdu_dialog.cpp				\
 	field_filter_edit.cpp				\

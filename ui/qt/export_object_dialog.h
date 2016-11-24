@@ -31,25 +31,22 @@
 #include <epan/packet_info.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <epan/export_object.h>
 
-#include <ui/export_object.h>
+#include <ui/export_object_ui.h>
 
 #include "wireshark_dialog.h"
 
-#include <QMetaType>
-
 class QTreeWidgetItem;
 class QAbstractButton;
-
-Q_DECLARE_METATYPE(export_object_entry_t *)
 
 namespace Ui {
 class ExportObjectDialog;
 }
 
-struct _export_object_list_t {
+typedef struct _export_object_list_gui_t {
     class ExportObjectDialog *eod;
-};
+} export_object_list_gui_t;
 
 
 class ExportObjectDialog : public WiresharkDialog
@@ -57,9 +54,7 @@ class ExportObjectDialog : public WiresharkDialog
     Q_OBJECT
 
 public:
-    enum ObjectType { Dicom, Http, Imf, Smb, Tftp };
-
-    explicit ExportObjectDialog(QWidget &parent, CaptureFile &cf, ObjectType object_type);
+    explicit ExportObjectDialog(QWidget &parent, CaptureFile &cf, register_eo_t* eo);
     ~ExportObjectDialog();
 
 
@@ -81,23 +76,14 @@ private:
     void saveCurrentEntry();
     void saveAllEntries();
 
-    /* When a protocol needs intermediate data structures to construct the
-    export objects, then it must specifiy a function that cleans up all
-    those data structures. This function is passed to export_object_window
-    and called when tap reset or windows closes occurs. If no function is needed
-    a NULL value should be passed instead */
-    typedef void (*eo_protocoldata_reset_cb)(void);
-
     Ui::ExportObjectDialog *eo_ui_;
 
     QPushButton *save_bt_;
     QPushButton *save_all_bt_;
 
     export_object_list_t export_object_list_;
-    const gchar *tap_name_;
-    const gchar *name_;
-    tap_packet_cb tap_packet_;
-    eo_protocoldata_reset_cb eo_protocoldata_resetfn_;
+    export_object_list_gui_t eo_gui_data_;
+    register_eo_t* eo_;
 };
 
 #endif // EXPORT_OBJECT_DIALOG_H

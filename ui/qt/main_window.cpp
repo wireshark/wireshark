@@ -30,6 +30,7 @@
 #include <epan/prefs.h>
 #include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>
+#include <epan/export_object.h>
 
 #include "ui/commandline.h"
 
@@ -54,6 +55,7 @@
 #include "capture_interfaces_dialog.h"
 #endif
 #include "conversation_colorize_action.h"
+#include "export_object_action.h"
 #include "display_filter_edit.h"
 #include "export_dissection_dialog.h"
 #include "file_set_dialog.h"
@@ -347,6 +349,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addDynamicMenus()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addExternalMenus()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initConversationMenus()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initExportObjectsMenus()));
 
     connect(wsApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
@@ -1925,6 +1928,27 @@ void MainWindow::initConversationMenus()
     proto_tree_->colorizeMenu()->addAction(colorize_action);
     connect(this, SIGNAL(fieldFilterChanged(QByteArray)), colorize_action, SLOT(setFieldFilter(QByteArray)));
     connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
+}
+
+void MainWindow::addExportObjectsMenuItem(gpointer data, gpointer user_data)
+{
+    register_eo_t *eo = (register_eo_t*)data;
+    MainWindow *window = (MainWindow*)user_data;
+
+    ExportObjectAction *export_action = new ExportObjectAction(window->main_ui_->menuFileExportObjects, eo);
+    window->main_ui_->menuFileExportObjects->addAction(export_action);
+
+    //initially disable until a file is loaded (then file signals will take over)
+    export_action->setEnabled(false);
+
+    connect(&window->capture_file_, SIGNAL(captureFileOpened()), export_action, SLOT(captureFileOpened()));
+    connect(&window->capture_file_, SIGNAL(captureFileClosed()), export_action, SLOT(captureFileClosed()));
+    connect(export_action, SIGNAL(triggered()), window, SLOT(applyExportObject()));
+}
+
+void MainWindow::initExportObjectsMenus()
+{
+    eo_iterate_tables(addExportObjectsMenuItem, this);
 }
 
 // Titlebar

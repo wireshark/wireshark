@@ -75,6 +75,7 @@ LIBWIRESHARK_SRC = \
 	ex-opt.c		\
 	except.c		\
 	expert.c		\
+	export_object.c		\
 	exported_pdu.c		\
 	plugin_if.c		\
 	filter_expressions.c	\
@@ -218,6 +219,7 @@ LIBWIRESHARK_INCLUDES = \
 	except.h		\
 	exceptions.h		\
 	expert.h		\
+	export_object.h		\
 	exported_pdu.h		\
 	plugin_if.h		\
 	filter_expressions.h	\

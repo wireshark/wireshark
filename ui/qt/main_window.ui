@@ -178,11 +178,6 @@
      <property name="title">
       <string>Export Objects</string>
      </property>
-     <addaction name="actionFileExportObjectsDICOM"/>
-     <addaction name="actionFileExportObjectsHTTP"/>
-     <addaction name="actionFileExportObjectsIMF"/>
-     <addaction name="actionFileExportObjectsSMB"/>
-     <addaction name="actionFileExportObjectsTFTP"/>
     </widget>
     <addaction name="actionFileOpen"/>
     <addaction name="menuOpenRecentCaptureFile"/>
@@ -1245,26 +1240,6 @@
     <string>As JSON…</string>
    </property>
   </action>
-  <action name="actionFileExportObjectsHTTP">
-   <property name="text">
-    <string>&amp;HTTP…</string>
-   </property>
-  </action>
-  <action name="actionFileExportObjectsIMF">
-   <property name="text">
-    <string>&amp;IMF…</string>
-   </property>
-  </action>
-  <action name="actionFileExportObjectsDICOM">
-   <property name="text">
-    <string>&amp;DICOM…</string>
-   </property>
-  </action>
-  <action name="actionFileExportObjectsSMB">
-   <property name="text">
-    <string>&amp;SMB…</string>
-   </property>
-  </action>
   <action name="actionEditCopyDescription">
    <property name="text">
     <string>Description</string>
@@ -2074,11 +2049,6 @@
    </property>
    <property name="toolTip">
     <string>Show or hide the display filter toolbar</string>
-   </property>
-  </action>
-  <action name="actionFileExportObjectsTFTP">
-   <property name="text">
-    <string>&amp;TFTP</string>
    </property>
   </action>
   <action name="actionStatisticsConversations">

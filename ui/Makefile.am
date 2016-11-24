@@ -55,12 +55,7 @@ WIRESHARK_UI_SRC = \
 	console.c		\
 	decode_as_utils.c	\
 	dissect_opts.c		\
-	export_object.c		\
-	export_object_dicom.c	\
-	export_object_http.c	\
-	export_object_imf.c	\
-	export_object_smb.c	\
-	export_object_tftp.c	\
+	export_object_ui.c	\
 	export_pdu_ui_utils.c	\
 	firewall_rules.c	\
 	iface_lists.c		\
@@ -102,7 +97,7 @@ WIRESHARK_UI_INCLUDES = \
 	console.h		\
 	decode_as_utils.h	\
 	dissect_opts.h		\
-	export_object.h		\
+	export_object_ui.h	\
 	export_pdu_ui_utils.h	\
 	last_open_dir.h		\
 	file_dialog.h		\

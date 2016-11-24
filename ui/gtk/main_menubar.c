@@ -34,6 +34,7 @@
 #include <epan/column.h>
 #include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>
+#include <epan/export_object.h>
 
 #include "globals.h"
 #include <epan/color_filters.h>
@@ -821,11 +822,8 @@ static const char *ui_desc_menubar =
 "      <menuitem name='ExportSelectedPacketBytes' action='/File/ExportSelectedPacketBytes'/>\n"
 "      <menuitem name='ExportPDUs' action='/File/ExportPDUs'/>\n"
 "      <menuitem name='ExportSSLSessionKeys' action='/File/ExportSSLSessionKeys'/>\n"
-"      <menu name= 'ExportObjects' action='/File/ExportObjects'>\n"
-"        <menuitem name='HTTP' action='/File/ExportObjects/HTTP'/>\n"
-"        <menuitem name='DICOM' action='/File/ExportObjects/DICOM'/>\n"
-"        <menuitem name='SMB' action='/File/ExportObjects/SMB'/>\n"
-"        <menuitem name='TFTP' action='/File/ExportObjects/TFTP'/>\n"
+"      <menu name= 'ExportObjectsMenu' action='/File/ExportObjects'>\n"
+"        <placeholder name='ExportObjects'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
 "      <menuitem name='Print' action='/File/Print'/>\n"
@@ -1280,10 +1278,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
                                                                                          NULL,                   NULL,           G_CALLBACK(export_pdml_cmd_cb) },
   { "/File/ExportPacketDissections/JSON",       NULL,       "as \"_JSON\" file...",
                                                                                          NULL,                   NULL,           G_CALLBACK(export_json_cmd_cb) },
-  { "/File/ExportObjects/HTTP",           NULL,       "_HTTP",                           NULL,                   NULL,           G_CALLBACK(eo_http_cb) },
-  { "/File/ExportObjects/DICOM",          NULL,       "_DICOM",                          NULL,                   NULL,           G_CALLBACK(eo_dicom_cb) },
-  { "/File/ExportObjects/SMB",            NULL,       "_SMB/SMB2",                            NULL,                   NULL,           G_CALLBACK(eo_smb_cb) },
-  { "/File/ExportObjects/TFTP",            NULL,       "_TFTP",                          NULL,                   NULL,           G_CALLBACK(eo_tftp_cb) },
 
   { "/Edit/Copy",                         NULL,       "Copy",                            NULL,                   NULL,           NULL },
 
@@ -2810,6 +2804,73 @@ menu_hostlist_list(capture_file *cf)
     conversation_table_iterate_tables(add_hostlist_menuitem, &conv_data);
 }
 
+typedef struct {
+    guint merge_id;
+    GtkActionGroup *action_group;
+    int counter;
+} eo_menu_t;
+
+static void
+menu_exportobject_cb(GtkAction *action _U_, gpointer user_data)
+{
+    register_eo_t *eo = (register_eo_t*)user_data;
+
+    exportobject_cb(eo);
+}
+
+static void
+add_export_object_menuitem(gpointer data, gpointer user_data)
+{
+    register_eo_t *eo = (register_eo_t*)data;
+    eo_menu_t *eo_menu_data = (eo_menu_t*)user_data;
+    gchar *action_name;
+    GtkAction *action;
+
+    action_name = g_strdup_printf ("exportobject-%u", eo_menu_data->counter);
+    /*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
+    action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
+                "name", action_name,
+                "label", proto_get_protocol_short_name(find_protocol_by_id(get_eo_proto_id(eo))),
+                "sensitive", TRUE,
+                NULL);
+    g_signal_connect (action, "activate",
+                    G_CALLBACK (menu_exportobject_cb), eo);
+    gtk_action_group_add_action (eo_menu_data->action_group, action);
+    g_object_unref (action);
+
+    gtk_ui_manager_add_ui (ui_manager_main_menubar, eo_menu_data->merge_id,
+                "/Menubar/FileMenu/ExportObjectsMenu/ExportObjects",
+                action_name,
+                action_name,
+                GTK_UI_MANAGER_MENUITEM,
+                FALSE);
+    g_free(action_name);
+    eo_menu_data->counter++;
+}
+
+static void
+menu_export_object_list(void)
+{
+    GtkWidget *submenu_export_object;
+    eo_menu_t eo_data;
+
+    eo_data.merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
+
+    eo_data.action_group = gtk_action_group_new ("exportobject-list-group");
+
+    submenu_export_object = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjects");
+    if(!submenu_export_object){
+        g_warning("menu_export_object_list: No submenu_exportobject_list found, path= /Menubar/FileMenu/ExportObjects");
+    }
+
+    gtk_ui_manager_insert_action_group (ui_manager_main_menubar, eo_data.action_group, 0);
+    g_object_set_data (G_OBJECT (ui_manager_main_menubar),
+                     "exportobject-list-merge-id", GUINT_TO_POINTER (eo_data.merge_id));
+
+    eo_data.counter = 0;
+    eo_iterate_tables(add_export_object_menuitem, &eo_data);
+}
+
 static void
 menu_conversation_display_filter_cb(GtkAction *action _U_, gpointer data)
 {
@@ -3253,6 +3314,7 @@ menus_init(void)
         menu_dissector_filter(&cfile);
         menu_conversation_list(&cfile);
         menu_hostlist_list(&cfile);
+        menu_export_object_list();
 
         /* Add additional entries which may have been introduced by dissectors and/or plugins */
         ws_menubar_external_menus();
@@ -4396,7 +4458,7 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportPacketDissections", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSelectedPacketBytes", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSSLSessionKeys", FALSE);
-        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjects", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjectsMenu", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportPDUs", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", FALSE);
     } else {
@@ -4415,7 +4477,7 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportPacketDissections", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSelectedPacketBytes", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSSLSessionKeys", TRUE);
-        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjects", TRUE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjectsMenu", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportPDUs", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", TRUE);
     }
@@ -4441,7 +4503,7 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
                          capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSSLSessionKeys",
                          capture_in_progress);
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjects",
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjectsMenu",
                          capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set",
                          !capture_in_progress);

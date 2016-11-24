@@ -1,4 +1,4 @@
-/* export_object.c
+/* export_object_ui.c
  * Common routines for tracking & saving objects found in streams of data
  * Copyright 2007, Stephen Fisher (see AUTHORS file)
  *
@@ -39,7 +39,7 @@
 
 #include <ui/alert_box.h>
 
-#include "export_object.h"
+#include "export_object_ui.h"
 
 gboolean
 eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gboolean show_err)
@@ -100,89 +100,6 @@ eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gbool
     }
 
     return TRUE;
-}
-
-
-#define HINIBBLE(x)     (((x) >> 4) & 0xf)
-#define LONIBBLE(x)     ((x) & 0xf)
-#define HEXTOASCII(x)   (((x) < 10) ? ((x) + '0') : ((x) - 10 + 'a'))
-#define MAXFILELEN      255
-
-static GString *eo_rename(GString *gstr, int dupn)
-{
-    GString *gstr_tmp;
-    gchar *tmp_ptr;
-    GString *ext_str;
-
-    gstr_tmp = g_string_new("(");
-    g_string_append_printf (gstr_tmp, "%d)", dupn);
-    if ( (tmp_ptr = strrchr(gstr->str, '.')) != NULL ) {
-        /* Retain the extension */
-        ext_str = g_string_new(tmp_ptr);
-        gstr = g_string_truncate(gstr, gstr->len - ext_str->len);
-        if ( gstr->len >= (MAXFILELEN - (strlen(gstr_tmp->str) + ext_str->len)) )
-            gstr = g_string_truncate(gstr, MAXFILELEN - (strlen(gstr_tmp->str) + ext_str->len));
-        gstr = g_string_append(gstr, gstr_tmp->str);
-        gstr = g_string_append(gstr, ext_str->str);
-        g_string_free(ext_str, TRUE);
-    }
-    else {
-        if ( gstr->len >= (MAXFILELEN - strlen(gstr_tmp->str)) )
-            gstr = g_string_truncate(gstr, MAXFILELEN - strlen(gstr_tmp->str));
-        gstr = g_string_append(gstr, gstr_tmp->str);
-    }
-    g_string_free(gstr_tmp, TRUE);
-    return gstr;
-}
-
-GString *
-eo_massage_str(const gchar *in_str, gsize maxlen, int dupn)
-{
-    gchar *tmp_ptr;
-    /* The characters in "reject" come from:
-     * http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx.
-     * Add to the list as necessary for other OS's.
-     */
-    const gchar *reject = "<>:\"/\\|?*"
-        "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a"
-    "\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14"
-    "\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
-    GString *out_str;
-    GString *ext_str;
-
-    out_str = g_string_new("");
-
-    /* Find all disallowed characters/bytes and replace them with %xx */
-    while ( (tmp_ptr = strpbrk(in_str, reject)) != NULL ) {
-        out_str = g_string_append_len(out_str, in_str, tmp_ptr - in_str);
-        out_str = g_string_append_c(out_str, '%');
-        out_str = g_string_append_c(out_str, HEXTOASCII(HINIBBLE(*tmp_ptr)));
-        out_str = g_string_append_c(out_str, HEXTOASCII(LONIBBLE(*tmp_ptr)));
-        in_str = tmp_ptr + 1;
-    }
-    out_str = g_string_append(out_str, in_str);
-    if ( out_str->len > maxlen ) {
-        if ( (tmp_ptr = strrchr(out_str->str, '.')) != NULL ) {
-            /* Retain the extension */
-            ext_str = g_string_new(tmp_ptr);
-            out_str = g_string_truncate(out_str, maxlen - ext_str->len);
-            out_str = g_string_append(out_str, ext_str->str);
-            g_string_free(ext_str, TRUE);
-        }
-        else
-            out_str = g_string_truncate(out_str, maxlen);
-    }
-    if ( dupn != 0 )
-        out_str = eo_rename(out_str, dupn);
-    return out_str;
-}
-
-const char *
-ct2ext(const char *content_type)
-{
-    /* TODO: Map the content type string to an extension string.  If no match,
-     * return NULL. */
-    return content_type;
 }
 
 /*

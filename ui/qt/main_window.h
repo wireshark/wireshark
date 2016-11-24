@@ -292,6 +292,8 @@ private slots:
 
     void initViewColorizeMenu();
     void initConversationMenus();
+    static void addExportObjectsMenuItem(gpointer data, gpointer user_data);
+    void initExportObjectsMenus();
 
     // in main_window_slots.cpp
     /**
@@ -387,11 +389,6 @@ private slots:
     void on_actionFileExportAsPDML_triggered();
     void on_actionFileExportAsJSON_triggered();
     void on_actionFileExportPacketBytes_triggered();
-    void on_actionFileExportObjectsDICOM_triggered();
-    void on_actionFileExportObjectsHTTP_triggered();
-    void on_actionFileExportObjectsIMF_triggered();
-    void on_actionFileExportObjectsSMB_triggered();
-    void on_actionFileExportObjectsTFTP_triggered();
     void on_actionFilePrint_triggered();
 
     void on_actionFileExportPDU_triggered();
@@ -489,6 +486,7 @@ private slots:
     void on_actionAnalyzePAFOrNotSelected_triggered();
 
     void applyConversationFilter();
+    void applyExportObject();
 
     void on_actionAnalyzeEnabledProtocols_triggered();
     void on_actionAnalyzeDecodeAs_triggered();

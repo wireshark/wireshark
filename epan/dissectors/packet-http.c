@@ -43,6 +43,7 @@
 #include <epan/to_str.h>
 #include <epan/req_resp_hdrs.h>
 #include <epan/proto_data.h>
+#include <epan/export_object.h>
 
 #include <wsutil/base64.h>
 #include "packet-http.h"
@@ -349,6 +350,34 @@ static gboolean check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb,
 static dissector_table_t port_subdissector_table;
 static dissector_table_t media_type_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
+
+
+static gboolean
+http_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+{
+	export_object_list_t *object_list = (export_object_list_t *)tapdata;
+	const http_eo_t *eo_info = (const http_eo_t *)data;
+	export_object_entry_t *entry;
+
+	if(eo_info) { /* We have data waiting for us */
+		/* These values will be freed when the Export Object window
+		 * is closed. */
+		entry = g_new(export_object_entry_t, 1);
+
+		entry->pkt_num = pinfo->num;
+		entry->hostname = g_strdup(eo_info->hostname);
+		entry->content_type = g_strdup(eo_info->content_type);
+		entry->filename = g_path_get_basename(eo_info->filename);
+		entry->payload_len = eo_info->payload_len;
+		entry->payload_data = (guint8 *)g_memdup(eo_info->payload_data, eo_info->payload_len);
+
+		object_list->add_entry(object_list->gui_data, entry);
+
+		return TRUE; /* State changed - window should be redrawn */
+	} else {
+		return FALSE; /* State unchanged - no window updates needed */
+	}
+}
 
 /* --- HTTP Status Codes */
 /* Note: The reference for uncommented entries is RFC 2616 */
@@ -3688,11 +3717,11 @@ proto_register_http(void)
 	 * Register for tapping
 	 */
 	http_tap = register_tap("http"); /* HTTP statistics tap */
-	http_eo_tap = register_tap("http_eo"); /* HTTP Export Object tap */
 	http_follow_tap = register_tap("http_follow"); /* HTTP Follow tap */
 
 	register_follow_stream(proto_http, "http_follow", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
 							tcp_port_to_display, follow_tvb_tap_listener);
+	http_eo_tap = register_export_object(proto_http, http_eo_packet, NULL);
 }
 
 /*

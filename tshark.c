@@ -85,6 +85,7 @@
 #include "ui/ui_util.h"
 #include "ui/decode_as_utils.h"
 #include "ui/cli/tshark-tap.h"
+#include "ui/cli/tap-exportobject.h"
 #include "ui/tap_export_pdu.h"
 #include "ui/dissect_opts.h"
 #include "register.h"
@@ -396,6 +397,8 @@ print_usage(FILE *output)
   fprintf(output, "  --capture-comment <comment>\n");
   fprintf(output, "                           add a capture comment to the newly created\n");
   fprintf(output, "                           output file (only for pcapng)\n");
+  fprintf(output, "  --export-objects <protocol>,<destdir> save exported objects for a protocol to\n");
+  fprintf(output, "                           a directory named \"destdir\"\n");
 
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
@@ -538,6 +541,7 @@ main(int argc, char *argv[])
     {"version", no_argument, NULL, 'v'},
     LONGOPT_CAPTURE_COMMON
     LONGOPT_DISSECT_COMMON
+    {"export-objects", required_argument, NULL, LONGOPT_EXPORT_OBJECTS},
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;
@@ -1282,6 +1286,15 @@ main(int argc, char *argv[])
       if (!dissect_opts_handle_opt(opt, optarg))
           return 1;
       break;
+    case LONGOPT_EXPORT_OBJECTS:   /* --export-objects */
+      if (strcmp("help", optarg) == 0) {
+        fprintf(stderr, "tshark: The available export object types for the \"--export-objects\" option are:\n");
+        eo_list_object_types();
+        return 0;
+      }
+      if (!eo_tap_opt_add(optarg))
+        return 1;
+      break;
     default:
     case '?':        /* Bad flag - print usage message */
       switch(optopt) {
@@ -1571,6 +1584,9 @@ main(int argc, char *argv[])
      have a tap filter with one of MATE's late-registered fields as part
      of the filter.  We can now process all the "-z" arguments. */
   start_requested_stats();
+
+  /* We can also enable specified taps for export object */
+  start_exportobjects();
 
   /* At this point MATE will have registered its field array so we can
      check if the fields specified by the user are all good.

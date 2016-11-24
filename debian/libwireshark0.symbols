@@ -486,6 +486,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  elem_tv_short@Base 1.9.1
  elem_v@Base 1.9.1
  elem_v_short@Base 1.9.1
+ eo_ct2ext@Base 2.3.0
+ eo_free_entry@Base 2.3.0
+ eo_iterate_tables@Base 2.3.0
+ eo_massage_str@Base 2.3.0
  epan_cleanup@Base 1.9.1
  epan_dissect_cleanup@Base 1.9.1
  epan_dissect_fake_protocols@Base 1.9.1
@@ -719,6 +723,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_dissector_table_selector_type@Base 1.9.1
  get_dissector_table_ui_name@Base 1.9.1
  get_ebcdic_string@Base 1.12.0~rc1
+ get_eo_by_name@Base 2.3.0
+ get_eo_packet_func@Base 2.3.0
+ get_eo_proto_id@Base 2.3.0
+ get_eo_reset_func@Base 2.3.0
+ get_eo_tap_listener_name@Base 2.3.0
  get_eth_hashtable@Base 1.12.0~rc1
  get_ether_name@Base 1.9.1
  get_follow_address_func@Base 2.1.0
@@ -1210,6 +1219,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_depend_dissector@Base 2.1.0
  register_dissector@Base 2.1.0
  register_dissector_table@Base 1.9.1
+ register_export_object@Base 2.3.0
  register_export_pdu_tap@Base 1.99.0
  register_follow_stream@Base 2.1.0
  register_final_registration_routine@Base 1.9.1

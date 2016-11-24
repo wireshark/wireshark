@@ -112,6 +112,7 @@ set(LIBWIRESHARK_FILES
 	ex-opt.c
 	except.c
 	expert.c
+	export_object.c
 	exported_pdu.c
 	plugin_if.c
 	filter_expressions.c

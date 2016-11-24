@@ -31,6 +31,7 @@
 #include <wsutil/str_util.h>
 
 #include <epan/tap.h>
+#include <epan/export_object.h>
 
 #include "packet-ber.h"
 #include "packet-http.h"
@@ -153,6 +154,35 @@ static int ett_imf_message_text = -1;
 static dissector_handle_t imf_handle;
 
 static expert_field ei_imf_unknown_param = EI_INIT;
+
+
+static gboolean
+imf_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+{
+  export_object_list_t *object_list = (export_object_list_t *)tapdata;
+  const imf_eo_t *eo_info = (const imf_eo_t *)data;
+  export_object_entry_t *entry;
+
+  if(eo_info) { /* We have data waiting for us */
+    /* These values will be freed when the Export Object window
+     * is closed. */
+    entry = g_new(export_object_entry_t, 1);
+
+    entry->pkt_num = pinfo->num;
+    entry->hostname = NULL;
+    entry->content_type = g_strdup("EML file");
+    entry->filename = g_strdup_printf("from_%s_subject_%s.eml", eo_info->sender_data, eo_info->subject_data);
+    entry->payload_len = eo_info->payload_len;
+    entry->payload_data = (guint8 *)g_memdup(eo_info->payload_data, eo_info->payload_len);
+
+    object_list->add_entry(object_list->gui_data, entry);
+
+    return TRUE; /* State changed - window should be redrawn */
+  } else {
+    return FALSE; /* State unchanged - no window updates needed */
+  }
+}
+
 
 struct imf_field {
   char         *name;           /* field name - in lower case for matching purposes */
@@ -1302,7 +1332,7 @@ proto_register_imf(void)
     g_hash_table_insert(imf_field_table, (gpointer)f->name, (gpointer)f);
 
   /* Register for tapping */
-  imf_eo_tap = register_tap("imf_eo"); /* IMF Export Object tap */
+  imf_eo_tap = register_export_object(proto_imf, imf_eo_packet, NULL);
 
 }
 

@@ -221,6 +221,7 @@
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/reassemble.h>
+#include <epan/export_object.h>
 
 #include "packet-tcp.h"
 
@@ -368,6 +369,38 @@ static const value_string dcm_assoc_item_type[] = {
     { 0x56, "SOP Class Extended Negotiation" },
     { 0, NULL }
 };
+
+static gboolean
+dcm_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
+                const void *data)
+{
+    export_object_list_t *object_list = (export_object_list_t *)tapdata;
+    const dicom_eo_t *eo_info = (const dicom_eo_t *)data;
+    export_object_entry_t *entry;
+
+    if (eo_info) { /* We have data waiting for us */
+        /*
+           Don't copy any data. dcm_export_create_object() is already g_malloc() the items
+           Still, the values will be freed when the export Object window is closed.
+           Therefore, strings and buffers must be copied
+        */
+        entry = g_new(export_object_entry_t, 1);
+
+        entry->pkt_num = pinfo->num;
+        entry->hostname = eo_info->hostname;
+        entry->content_type = eo_info->content_type;
+        entry->filename = g_path_get_basename(eo_info->filename);
+        entry->payload_len  = eo_info->payload_len;
+        entry->payload_data = eo_info->payload_data;
+
+        object_list->add_entry(object_list->gui_data, entry);
+
+        return TRUE; /* State changed - window should be redrawn */
+    } else {
+        return FALSE; /* State unchanged - no window updates needed */
+    }
+}
+
 
 /* ************************************************************************* */
 /*                  Fragment items                                           */
@@ -7175,7 +7208,7 @@ proto_register_dcm(void)
             "When not set, the decoding may fail and the exports may become corrupt.",
             &global_dcm_reassemble);
 
-    dicom_eo_tap = register_tap("dicom_eo"); /* DICOM Export Object tap */
+    dicom_eo_tap = register_export_object(proto_dcm, dcm_eo_packet, NULL);
 
     register_init_routine(&dcm_init);
     register_cleanup_routine(&dcm_cleanup);

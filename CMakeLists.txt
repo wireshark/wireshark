@@ -1385,6 +1385,7 @@ set(TSHARK_TAP_SRC
 	ui/cli/tap-comparestat.c
 	ui/cli/tap-diameter-avp.c
 	ui/cli/tap-expert.c
+	ui/cli/tap-exportobject.c
 	ui/cli/tap-endpoints.c
 	ui/cli/tap-follow.c
 	ui/cli/tap-funnel.c

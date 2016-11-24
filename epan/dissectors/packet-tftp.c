@@ -46,6 +46,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <epan/export_object.h>
 
 #include "packet-tftp.h"
 
@@ -139,6 +140,94 @@ static const value_string tftp_error_code_vals[] = {
 };
 
 static int tftp_eo_tap = -1;
+
+/* A list of block list entries to delete from cleanup callback when window is closed. */
+typedef struct eo_info_dynamic_t {
+    gchar  *filename;
+    GSList *block_list;
+} eo_info_dynamic_t;
+static GSList *s_dynamic_info_list = NULL;
+
+/* Tap function */
+static gboolean
+tftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+{
+  export_object_list_t *object_list = (export_object_list_t *)tapdata;
+  const tftp_eo_t *eo_info = (const tftp_eo_t *)data;
+  export_object_entry_t *entry;
+
+  GSList *block_iterator;
+  guint  payload_data_offset = 0;
+  eo_info_dynamic_t *dynamic_info;
+
+  /* These values will be freed when the Export Object window is closed. */
+  entry = g_new(export_object_entry_t, 1);
+
+  /* Remember which frame had the last block of the file */
+  entry->pkt_num = pinfo->num;
+
+  /* Copy filename */
+  entry->filename = g_path_get_basename(eo_info->filename);
+
+  /* Iterate over list of blocks and concatenate into contiguous memory */
+  entry->payload_len = eo_info->payload_len;
+  entry->payload_data = (guint8 *)g_try_malloc((gsize)entry->payload_len);
+  for (block_iterator = eo_info->block_list; block_iterator; block_iterator = block_iterator->next) {
+    file_block_t *block = (file_block_t*)block_iterator->data;
+    memcpy(entry->payload_data + payload_data_offset,
+               block->data,
+               block->length);
+    payload_data_offset += block->length;
+  }
+
+  /* These 2 fields not used */
+  entry->hostname = NULL;
+  entry->content_type = NULL;
+
+  /* Add to list of entries to be cleaned up.  eo_info is only packet scope, so
+     need to make list only of block list now */
+  dynamic_info = g_new(eo_info_dynamic_t, 1);
+  dynamic_info->filename = eo_info->filename;
+  dynamic_info->block_list = eo_info->block_list;
+  s_dynamic_info_list = g_slist_append(s_dynamic_info_list, (eo_info_dynamic_t*)dynamic_info);
+
+  /* Pass out entry to the GUI */
+  object_list->add_entry(object_list->gui_data, entry);
+
+  return TRUE; /* State changed - window should be redrawn */
+}
+
+/* Clean up the stored parts of a single tapped entry */
+static void cleanup_tftp_eo(eo_info_dynamic_t *dynamic_info)
+{
+  GSList *block_iterator;
+  /* Free the filename */
+  g_free(dynamic_info->filename);
+
+  /* Walk list of block items */
+  for (block_iterator = dynamic_info->block_list; block_iterator; block_iterator = block_iterator->next) {
+    file_block_t *block = (file_block_t*)(block_iterator->data);
+    /* Free block data */
+    wmem_free(NULL, block->data);
+
+    /* Free block itself */
+    g_free(block);
+  }
+}
+
+/* Callback for freeing up data supplied with taps.  The taps themselves only have
+   packet scope, so only store/free dynamic memory pointers */
+void tftp_eo_cleanup(void)
+{
+  /* Cleanup each entry in the global list */
+  GSList *dynamic_iterator;
+  for (dynamic_iterator = s_dynamic_info_list; dynamic_iterator; dynamic_iterator = dynamic_iterator->next) {
+    eo_info_dynamic_t *dynamic_info = (eo_info_dynamic_t*)dynamic_iterator->data;
+    cleanup_tftp_eo(dynamic_info);
+  }
+  /* List is empty again */
+  s_dynamic_info_list = NULL;
+}
 
 static void
 tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
@@ -684,7 +773,7 @@ proto_register_tftp(void)
   prefs_register_protocol(proto_tftp, apply_tftp_prefs);
 
   /* Register the tap for the "Export Object" function */
-  tftp_eo_tap = register_tap("tftp_eo"); /* TFTP Export Object tap */
+  tftp_eo_tap = register_export_object(proto_tftp, tftp_eo_packet, tftp_eo_cleanup);
 }
 
 void

@@ -32,7 +32,7 @@
 
 #include <wsutil/str_util.h>
 
-#include <ui/export_object.h>
+#include <ui/export_object_ui.h>
 #include <ui/simple_dialog.h>
 
 #include "dlg_utils.h"
@@ -43,13 +43,6 @@
 #include "stock_icons.h"
 #include "export_object_dlg.h"
 
-/* When a protocol needs intermediate data structures to construct the
-export objects, then it must specifiy a function that cleans up all
-those data structures. This function is passed to export_object_window
-and called when tap reset or windows closes occurs. If no function is needed
-a NULL value should be passed instead */
-typedef void (*eo_protocoldata_reset_cb)(void);
-
 enum {
 	EO_PKT_NUM_COLUMN,
 	EO_HOSTNAME_COLUMN,
@@ -59,22 +52,23 @@ enum {
 	EO_NUM_COLUMNS /* must be last */
 };
 
-struct _export_object_list_t {
+typedef struct _export_object_list_gui_t {
 	GSList *entries;
 	GtkWidget *tree, *dlg;
 	GtkTreeView *tree_view;
 	GtkTreeIter *iter;
 	GtkTreeStore *store;
 	gint row_selected;
-};
+} export_object_list_gui_t;
 
-static eo_protocoldata_reset_cb eo_protocoldata_reset = NULL;
+static export_object_gui_reset_cb eo_protocoldata_reset = NULL;
 
 static void
 eo_remember_this_row(GtkTreeModel *model _U_, GtkTreePath *path,
 		     GtkTreeIter *iter _U_, gpointer arg)
 {
-	export_object_list_t *object_list = (export_object_list_t *)arg;
+	export_object_list_t *tap_object = (export_object_list_t *)arg;
+	export_object_list_gui_t *object_list = (export_object_list_gui_t*)tap_object->gui_data;
 	export_object_entry_t *entry;
 
 	gint *path_index;
@@ -102,23 +96,19 @@ eo_remember_row_num(GtkTreeSelection *sel, gpointer data)
 static void
 eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-	export_object_list_t *object_list = (export_object_list_t *)data;
+	export_object_list_t *tap_object = (export_object_list_t *)data;
+	export_object_list_gui_t *object_list = (export_object_list_gui_t*)tap_object->gui_data;
 	export_object_entry_t *entry;
 	GSList *slist = object_list->entries;
 
-	remove_tap_listener(object_list);
+	remove_tap_listener(tap_object);
 
 	/* Free the GSList attributes */
 	while(slist) {
 		entry = (export_object_entry_t *)slist->data;
-
-		g_free(entry->hostname);
-		g_free(entry->content_type);
-		g_free(entry->filename);
-		wmem_free(wmem_file_scope(), entry->payload_data);
+		eo_free_entry(entry);
 
 		slist = slist->next;
-		wmem_free(wmem_file_scope(), entry);
 	}
 
 	/* Free the GSList elements */
@@ -130,7 +120,7 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static char *
-gtk_eo_save_object_as_file(export_object_list_t *object_list, char *auxfilename)
+gtk_eo_save_object_as_file(export_object_list_gui_t *object_list, char *auxfilename)
 {
 	GtkWidget *save_as_w;
 	char *pathname;
@@ -156,7 +146,8 @@ gtk_eo_save_object_as_file(export_object_list_t *object_list, char *auxfilename)
 static void
 eo_save_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 {
-	export_object_list_t *object_list = (export_object_list_t *)arg;
+	export_object_list_t *tap_object = (export_object_list_t *)arg;
+	export_object_list_gui_t *object_list = (export_object_list_gui_t*)tap_object->gui_data;
 	export_object_entry_t *entry;
 	GString *safe_filename = NULL;
 	char *pathname;
@@ -193,12 +184,12 @@ eo_save_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 	g_string_free(safe_filename, TRUE);
 }
 
-#define MAXFILELEN		255
 static void
 eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 {
 	gchar *save_as_fullpath = NULL;
-	export_object_list_t *object_list = (export_object_list_t *)arg;
+	export_object_list_t *tap_object = (export_object_list_t *)arg;
+	export_object_list_gui_t *object_list = (export_object_list_gui_t*)tap_object->gui_data;
 	export_object_entry_t *entry;
 	GtkWidget *save_in_w;
 	GSList *slist = object_list->entries;
@@ -216,21 +207,21 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 			entry = (export_object_entry_t *)slist->data;
 
 			save_in_path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_in_w));
-			if ((strlen(save_in_path) < MAXFILELEN)) {
+			if ((strlen(save_in_path) < EXPORT_OBJECT_MAXFILELEN)) {
 				do {
 					g_free(save_as_fullpath);
 					if (entry->filename) {
 						safe_filename = eo_massage_str(entry->filename,
-							MAXFILELEN - strlen(save_in_path), count);
+							EXPORT_OBJECT_MAXFILELEN - strlen(save_in_path), count);
 					} else {
-						char generic_name[MAXFILELEN+1];
+						char generic_name[EXPORT_OBJECT_MAXFILELEN+1];
 						const char *ext;
-						ext = ct2ext(entry->content_type);
+						ext = eo_ct2ext(entry->content_type);
 						g_snprintf(generic_name, sizeof(generic_name),
 							"object%u%s%s", entry->pkt_num, ext ? "." : "",
 							ext ? ext : "");
 						safe_filename = eo_massage_str(generic_name,
-							MAXFILELEN - strlen(save_in_path), count);
+							EXPORT_OBJECT_MAXFILELEN - strlen(save_in_path), count);
 					}
 					save_as_fullpath = g_build_filename(
 						save_in_path, safe_filename->str, NULL);
@@ -260,7 +251,8 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 static void
 eo_reset(void *tapdata)
 {
-	export_object_list_t *object_list = (export_object_list_t *)tapdata;
+	export_object_list_t *tap_object = (export_object_list_t *)tapdata;
+	export_object_list_gui_t *object_list = (export_object_list_gui_t*)tap_object->gui_data;
 
 	object_list->entries = NULL;
 	object_list->iter = NULL;
@@ -272,7 +264,8 @@ eo_reset(void *tapdata)
 static void
 eo_draw(void *tapdata)
 {
-	export_object_list_t *object_list = (export_object_list_t *)tapdata;
+	export_object_list_t *tap_object = (export_object_list_t *)tapdata;
+	export_object_list_gui_t *object_list = (export_object_list_gui_t*)tap_object->gui_data;
 	export_object_entry_t *eo_entry;
 	gchar *size_str;
 
@@ -305,17 +298,23 @@ eo_draw(void *tapdata)
 	}
 }
 
-void object_list_add_entry(export_object_list_t *object_list, export_object_entry_t *entry)
+static void
+object_list_add_entry(void *gui_data, export_object_entry_t *entry)
 {
+	export_object_list_gui_t *object_list = (export_object_list_gui_t*)gui_data;
+
 	object_list->entries = g_slist_append(object_list->entries, entry);
 }
 
-export_object_entry_t *object_list_get_entry(export_object_list_t *object_list, int row) {
+static export_object_entry_t*
+object_list_get_entry(void *gui_data, int row) {
+	export_object_list_gui_t *object_list = (export_object_list_gui_t*)gui_data;
+
 	return (export_object_entry_t *)g_slist_nth_data(object_list->entries, row);
 }
 
 static void
-export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_packet, eo_protocoldata_reset_cb eo_protocoldata_resetfn)
+export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_packet, export_object_gui_reset_cb eo_protocoldata_resetfn)
 {
 	GtkWidget *sw;
 	GtkCellRenderer *renderer;
@@ -323,17 +322,23 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	GtkTreeSelection *selection;
 	GtkWidget *vbox, *bbox, *help_bt, *cancel_bt, *save_bt, *save_all_bt;
 	GString *error_msg;
-	export_object_list_t *object_list;
+	export_object_list_t *tap_data;
+	export_object_list_gui_t *object_list;
 	gchar *window_title;
 
 	/* Initialize the pointer to the private data clearing function */
 	eo_protocoldata_reset = eo_protocoldata_resetfn;
 
 	/* Initialize our object list structure */
-	object_list = g_new0(export_object_list_t,1);
+	tap_data = g_new0(export_object_list_t,1);
+	object_list = g_new0(export_object_list_gui_t,1);
+
+	tap_data->add_entry = object_list_add_entry;
+	tap_data->get_entry = object_list_get_entry;
+	tap_data->gui_data = (void*)object_list;
 
 	/* Data will be gathered via a tap callback */
-	error_msg = register_tap_listener(tapname, object_list, NULL, 0,
+	error_msg = register_tap_listener(tapname, tap_data, NULL, 0,
 					  eo_reset,
 					  tap_packet,
 					  eo_draw);
@@ -342,6 +347,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Can't register %s tap: %s\n", name, error_msg->str);
 		g_string_free(error_msg, TRUE);
+		g_free(tap_data);
 		g_free(object_list);
 		return;
 	}
@@ -425,7 +431,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	gtk_container_add(GTK_CONTAINER(sw), object_list->tree);
 
 	selection = gtk_tree_view_get_selection(object_list->tree_view);
-	g_signal_connect(selection, "changed", G_CALLBACK(eo_remember_row_num), object_list);
+	g_signal_connect(selection, "changed", G_CALLBACK(eo_remember_row_num), tap_data);
 
 	bbox = dlg_button_row_new(GTK_STOCK_HELP, WIRESHARK_STOCK_SAVE_ALL, GTK_STOCK_SAVE_AS, GTK_STOCK_CANCEL, NULL);
 
@@ -436,13 +442,12 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 
 	/* Save All button */
 	save_all_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_SAVE_ALL);
-	g_signal_connect(save_all_bt, "clicked", G_CALLBACK(eo_save_all_clicked_cb),
-		       object_list);
+	g_signal_connect(save_all_bt, "clicked", G_CALLBACK(eo_save_all_clicked_cb), tap_data);
 	gtk_widget_set_tooltip_text(save_all_bt, "Save all listed objects with their displayed filenames.");
 
 	/* Save As button */
 	save_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE_AS);
-	g_signal_connect(save_bt, "clicked", G_CALLBACK(eo_save_clicked_cb), object_list);
+	g_signal_connect(save_bt, "clicked", G_CALLBACK(eo_save_clicked_cb), tap_data);
 	gtk_widget_set_tooltip_text(save_bt, "Saves the currently selected content to a file.");
 
 	/* Cancel button */
@@ -455,8 +460,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 
 	/* Setup cancel/delete/destroy signal handlers */
 	g_signal_connect(object_list->dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-	g_signal_connect(object_list->dlg, "destroy",
-		       G_CALLBACK(eo_win_destroy_cb), object_list);
+	g_signal_connect(object_list->dlg, "destroy", G_CALLBACK(eo_win_destroy_cb), tap_data);
 	window_set_cancel_button(object_list->dlg, cancel_bt,
 				 window_cancel_button_cb);
 
@@ -467,30 +471,9 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	cf_retap_packets(&cfile);
 }
 
-void
-eo_dicom_cb(GtkWidget *widget _U_, gpointer data _U_)
+void exportobject_cb(register_eo_t *eo)
 {
-	export_object_window("dicom_eo", "DICOM", eo_dicom_packet, NULL);
-}
-
-void
-eo_http_cb(GtkWidget *widget _U_, gpointer data _U_)
-{
-	export_object_window("http_eo", "HTTP", eo_http_packet, NULL);
-}
-
-void
-eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_)
-{
-	/* Call the export_object window */
-	export_object_window("smb_eo", "SMB", eo_smb_packet, eo_smb_cleanup);
-}
-
-void
-eo_tftp_cb(GtkWidget *widget _U_, gpointer data _U_)
-{
-	/* Call the export_object window */
-	export_object_window("tftp_eo", "TFTP", eo_tftp_packet, eo_tftp_cleanup);
+	export_object_window(get_eo_tap_listener_name(eo), proto_get_protocol_short_name(find_protocol_by_id(get_eo_proto_id(eo))), get_eo_packet_func(eo), get_eo_reset_func(eo));
 }
 
 /*

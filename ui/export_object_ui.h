@@ -1,4 +1,4 @@
-/* export_object.h
+/* export_object_ui.h
  * Common routines for tracking & saving objects found in streams of data
  * Copyright 2007, Stephen Fisher (see AUTHORS file)
  *
@@ -22,11 +22,34 @@
  * USA.
  */
 
-#ifndef __EXPORT_OBJECT_DLG_H__
-#define __EXPORT_OBJECT_DLG_H__
+#ifndef __EXPORT_OBJECT_UI_H__
+#define __EXPORT_OBJECT_UI_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 #include <epan/export_object.h>
 
-void exportobject_cb(register_eo_t *eo);
+/* Common between protocols */
 
-#endif /* __EXPORT_OBJECT_DLG_H__ */
+gboolean eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gboolean show_err);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __EXPORT_OBJECT_UI_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

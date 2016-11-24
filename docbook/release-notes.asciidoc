@@ -37,6 +37,7 @@ since version 2.2.0:
 * GTK+ is disabled by default in Autotools and CMake.
 * SS7 Point Codes can now be resolved into names with a hosts-like file.
 * Wireshark can now go fullscreen to have more room for packets.
+* TShark can now export objects like the other GUI interfaces.
 
 //=== Removed Dissectors
 
