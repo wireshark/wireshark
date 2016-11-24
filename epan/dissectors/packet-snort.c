@@ -1121,7 +1121,7 @@ static void snort_start(void)
                                   (char **)argv,
                                   NULL,          /* envp */
                                   (GSpawnFlags)( G_SPAWN_DO_NOT_REAP_CHILD), /* Leave out G_SPAWN_SEARCH_PATH */
-                                  NULL,                   /* child setup - not currently doing anything.. */
+                                  NULL,                   /* child setup - not supported in Windows, so we can't use it */
                                   NULL,                   /* user-data */
                                   &current_session.pid,   /* PID */
                                   &current_session.in,    /* stdin */
