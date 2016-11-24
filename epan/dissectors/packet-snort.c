@@ -1061,13 +1061,6 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     return tvb_reported_length(tvb);
 }
 
-/* N.B. is being called.. */
-static void snort_config(gpointer user_data _U_)
-{
-    /* N.B. original code tried to get line-buffered (or unbuffered) output from snort.
-       It wasn't very portable, and measurements indicated it didn't make any difference
-       to how often whole lines were output. */
-}
 
 /*------------------------------------------------------------------*/
 /* Start up Snort. */
@@ -1087,6 +1080,11 @@ static void snort_start(void)
         "-y", /* -U", */
         NULL
     };
+
+    /* Nothing to do if not enabled, but registered init function gets called anyway */
+    if (!snort_enable_dissector) {
+        return;
+    }
 
     /* Create tree mapping packet_number -> Alerts_t*.  It will get recreated when packet list is reloaded */
     current_session.alerts_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
@@ -1123,7 +1121,7 @@ static void snort_start(void)
                                   (char **)argv,
                                   NULL,          /* envp */
                                   (GSpawnFlags)( G_SPAWN_DO_NOT_REAP_CHILD), /* Leave out G_SPAWN_SEARCH_PATH */
-                                  snort_config,  /* child setup - not currently doing anything.. */
+                                  NULL,                   /* child setup - not currently doing anything.. */
                                   NULL,                   /* user-data */
                                   &current_session.pid,   /* PID */
                                   &current_session.in,    /* stdin */
