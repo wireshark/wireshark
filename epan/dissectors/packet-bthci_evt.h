@@ -23,6 +23,9 @@
 #define __PACKET_BTHCI_EVT_H__
 
 extern value_string_ext  bthci_evt_evt_code_vals_ext;
+extern const value_string bthci_evt_controller_types[];
+extern const value_string bthci_evt_codec_id_vals[];
+extern const value_string bthci_evt_mws_transport_layer_vals[];
 
 #ifdef __cplusplus
 extern "C" {
