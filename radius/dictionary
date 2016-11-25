@@ -120,6 +120,10 @@ $INCLUDE dictionary.rfc6911
 # See bug 13176.
 #
 #$INCLUDE dictionary.rfc6929
+#
+# We do not support RFC 6929, so we comment this out.
+# See bug 13176.
+#
 #$INCLUDE dictionary.rfc6930
 $INCLUDE dictionary.rfc7055
 #$INCLUDE dictionary.rfc7155
