@@ -69,16 +69,18 @@ protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
 
 private:
+    // Text highlight modes.
     typedef enum {
-        StateNormal,
-        StateField,
-        StateProtocol,
-        StateOffsetNormal,
-        StateOffsetField
-    } highlight_state;
+        ModeNormal,
+        ModeField,
+        ModeProtocol,
+        ModeOffsetNormal,
+        ModeOffsetField,
+        ModeHover
+    } HighlightMode;
 
     void drawOffsetLine(QPainter &painter, const guint offset, const int row_y);
-    qreal flushOffsetFragment(QPainter &painter, qreal x, int y, highlight_state state, gboolean extra_highlight, QString &text);
+    qreal flushOffsetFragment(QPainter &painter, qreal x, int y, HighlightMode mode, QString &text);
     void scrollToByte(int byte);
     int offsetChars();
     int offsetPixels();
