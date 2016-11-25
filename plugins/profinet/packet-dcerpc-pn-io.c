@@ -464,6 +464,9 @@ static int hf_pn_io_mau_type = -1;
 static int hf_pn_io_mau_type_mode = -1;
 static int hf_pn_io_port_state = -1;
 static int hf_pn_io_line_delay = -1;
+static int hf_pn_io_line_delay_value = -1;
+static int hf_pn_io_cable_delay_value = -1;
+static int hf_pn_io_line_delay_format_indicator = -1;
 static int hf_pn_io_number_of_peers = -1;
 static int hf_pn_io_length_peer_port_id = -1;
 static int hf_pn_io_peer_port_id = -1;
@@ -806,6 +809,7 @@ static gint ett_pn_io_rs_reason_code = -1;
 static gint ett_pn_io_soe_digital_input_current_value = -1;
 static gint ett_pn_io_rs_adjust_info = -1;
 static gint ett_pn_io_soe_adjust_specifier = -1;
+static gint ett_pn_io_line_delay = -1;
 
 static gint ett_pn_io_GroupProperties = -1;
 
@@ -2902,6 +2906,18 @@ static const range_string pn_io_am_location_level_vals[] = {
 static const value_string pn_io_am_location_reserved_vals[] = {
     { 0x00, "Reserved" },
     { 0, NULL }
+};
+
+static const range_string pn_io_line_delay_value[] = {
+    { 0x00000000, 0x00000000, "Line delay and cable delay unknown" },
+    { 0x00000001, 0x7FFFFFFF, "Line delay in nanoseconds" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_cable_delay_value[] = {
+    { 0x00000000, 0x00000000, "Reserved" },
+    { 0x00000001, 0x7FFFFFFF, "Cable delay in nanoseconds" },
+    { 0, 0, NULL }
 };
 
 static int
@@ -5550,6 +5566,36 @@ dissect_PDPortData_Check_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* dissect the Line Delay */
+static int
+dissect_Line_Delay(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep,
+    guint32  *u32LineDelayValue)
+{
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+    guint32  u32FormatIndicator;
+    guint8   isFormatIndicatorEnabled;
+
+    sub_item = proto_tree_add_item(tree, hf_pn_io_line_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_line_delay);
+
+    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+        hf_pn_io_line_delay_format_indicator, &u32FormatIndicator);
+
+    isFormatIndicatorEnabled = (guint8)((u32FormatIndicator >> 31) & 0x01);
+    if (isFormatIndicatorEnabled)
+    {
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_cable_delay_value, u32LineDelayValue);
+    }
+    else
+    {
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_line_delay_value, u32LineDelayValue);
+    }
+
+    return offset;
+}
 
 /* dissect the PDPortDataReal blocks */
 static int
@@ -5566,14 +5612,13 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
     char    *pPeerPortID;
     guint8   u8LengthPeerChassisID;
     char    *pPeerChassisID;
-    guint32  u32LineDelay;
     guint8   mac[6];
     guint16  u16MAUType;
     guint32  u32DomainBoundary;
     guint32  u32MulticastBoundary;
     guint16  u16PortState;
     guint32  u32MediaType;
-
+    guint32  u32LineDelayValue;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -5632,8 +5677,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
         offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
         /* LineDelay */
-        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                            hf_pn_io_line_delay, &u32LineDelay);
+        offset = dissect_Line_Delay(tvb, offset, pinfo, tree, drep, &u32LineDelayValue);
 
         /* PeerMACAddress */
         offset = dissect_pn_mac(tvb, offset, pinfo, tree,
@@ -6324,8 +6368,7 @@ dissect_CheckLineDelay_block(tvbuff_t *tvb, int offset,
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* LineDelay */
-    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_line_delay, &u32LineDelay);
+    offset = dissect_Line_Delay(tvb, offset, pinfo, tree, drep, &u32LineDelay);
 
     proto_item_append_text(item, ": LineDelay:%uns", u32LineDelay);
 
@@ -13232,8 +13275,23 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_line_delay,
       { "LineDelay", "pn_io.line_delay",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
+        FT_UINT32, BASE_HEX, NULL, 0x0,
         "LineDelay in nanoseconds", HFILL }
+    },
+    { &hf_pn_io_line_delay_value,
+      { "LineDelayValue", "pn_io.line_delay_value",
+        FT_UINT32, BASE_DEC | BASE_RANGE_STRING, RVALS(pn_io_line_delay_value), 0x7FFFFFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_cable_delay_value,
+      { "CableDelayValue", "pn_io.cable_delay_value",
+         FT_UINT32, BASE_DEC | BASE_RANGE_STRING, RVALS(pn_io_cable_delay_value), 0x7FFFFFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_line_delay_format_indicator,
+      { "LineDelayFormatIndicator", "pn_io.line_delay_format_indicator",
+        FT_UINT32, BASE_HEX, NULL, 0x80000000,
+        "LineDelay FormatIndicator", HFILL }
     },
     { &hf_pn_io_number_of_peers,
       { "NumberOfPeers", "pn_io.number_of_peers",
@@ -14537,7 +14595,8 @@ proto_register_pn_io (void)
         &ett_pn_io_soe_adjust_specifier,
         &ett_pn_io_asset_management_info,
         &ett_pn_io_asset_management_block,
-        &ett_pn_io_am_location
+        &ett_pn_io_am_location,
+        &ett_pn_io_line_delay
     };
 
     static ei_register_info ei[] = {
