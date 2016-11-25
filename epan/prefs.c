@@ -5,19 +5,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include "config.h"
@@ -109,6 +97,7 @@ static const enum_val_t gui_ptree_expander_style[] = {
     {NULL, NULL, -1}
 };
 
+/* GTK+ only. */
 static const enum_val_t gui_hex_dump_highlight_style[] = {
     {"BOLD", "BOLD", 0},
     {"INVERSE", "INVERSE", 1},
@@ -3959,7 +3948,7 @@ pre_init_prefs(void)
     prefs.gui_expert_composite_eyecandy = FALSE;
     prefs.gui_ptree_line_style = 0;
     prefs.gui_ptree_expander_style = 1;
-    prefs.gui_hex_dump_highlight_style = 1;
+    prefs.gui_hex_dump_highlight_style = 1; /* GTK+ only */
     prefs.filter_toolbar_show_in_statusbar = FALSE;
     prefs.restore_filter_after_following_stream = FALSE;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;

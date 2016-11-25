@@ -25,7 +25,6 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QTabBar>
-#include <QTreeWidgetItem>
 
 #include "cfile.h"
 #include "epan/epan_dissect.h"
@@ -266,23 +265,23 @@ void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
 
         if (byte_view_text)
         {
-            int f_start = -1, f_end = -1;
+            int f_start = -1, f_length = -1;
 
             if (cap_file_->search_in_progress && (cap_file_->hex || (cap_file_->string && cap_file_->packet_data))) {
                 // In the hex view, only highlight the target bytes or string. The entire
                 // field can then be displayed by clicking on any of the bytes in the field.
                 f_start = cap_file_->search_pos - cap_file_->search_len + 1;
-                f_end = f_start + cap_file_->search_len;
+                f_length = (int) cap_file_->search_len;
             } else {
                 f_start = selected->position().start;
-                f_end = selected->position().end;
+                f_length = selected->position().length;
             }
 
             setCurrentIndex(idx);
 
-            byte_view_text->markField(f_start, f_end);
-            byte_view_text->markProtocol(selected->parentField()->position().start, selected->parentField()->position().end);
-            byte_view_text->markAppendix(selected->appendix().start, selected->appendix().end);
+            byte_view_text->markField(f_start, f_length);
+            byte_view_text->markProtocol(selected->parentField()->position().start, selected->parentField()->position().length);
+            byte_view_text->markAppendix(selected->appendix().start, selected->appendix().length);
         }
     }
 

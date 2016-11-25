@@ -4,19 +4,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef BYTE_VIEW_TEXT_H
@@ -27,11 +15,13 @@
 #include "ui/recent.h"
 
 #include <QAbstractScrollArea>
-#include <QString>
 #include <QFont>
-#include <QSize>
+#include <QVector>
 #include <QMenu>
-#include <QMap>
+#include <QSize>
+#include <QString>
+#include <QTextLayout>
+#include <QVector>
 
 // XXX - Is there any reason we shouldn't add ByteViewImage, etc?
 
@@ -46,13 +36,11 @@ public:
     virtual QSize minimumSizeHint() const;
 
     void setFormat(bytes_view_type format);
-    void setHighlightStyle(bool bold);
     bool isEmpty() const;
 
     QByteArray viewData();
 
 signals:
-
     void byteHovered(int pos);
     void byteSelected(int pos);
 
@@ -61,9 +49,9 @@ public slots:
 
     void setMonospaceFont(const QFont &mono_font);
 
-    void markProtocol(int start, int end);
-    void markField(int start, int end);
-    void markAppendix(int start, int end);
+    void markProtocol(int start, int length);
+    void markField(int start, int length);
+    void markAppendix(int start, int length);
 
     void moveToOffset(int pos);
 
@@ -86,17 +74,20 @@ private:
         ModeHover
     } HighlightMode;
 
+    QTextLayout *layout_;
     QByteArray data_;
 
-    void drawOffsetLine(QPainter &painter, const guint offset, const int row_y);
-    qreal flushOffsetFragment(QPainter &painter, qreal x, int y, HighlightMode mode, QString &text);
+    void drawLine(QPainter *painter, const int offset, const int row_y);
+    bool addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int start, int length, HighlightMode mode);
+    bool addHexFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int mark_start, int mark_length, int tvb_offset, int max_tvb_pos, HighlightMode mode);
+    bool addAsciiFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int mark_start, int mark_length, int tvb_offset, int max_tvb_pos, HighlightMode mode);
     void scrollToByte(int byte);
     void updateScrollbars();
     int byteOffsetAtPixel(QPoint pos);
 
     void createContextMenu();
 
-    int offsetChars();
+    int offsetChars(bool include_pad = true);
     int offsetPixels();
     int hexPixels();
     int asciiPixels();
@@ -106,37 +97,32 @@ private:
 
     // Fonts and colors
     QFont mono_font_;
-//    QFont mono_bold_font_;
-    QBrush offset_normal_fg_;
-    QBrush offset_field_fg_;
-
-    bool bold_highlight_;
+    QColor offset_normal_fg_;
+    QColor offset_field_fg_;
 
     // Data
     packet_char_enc encoding_;  // ASCII or EBCDIC
     QMenu ctx_menu_;
 
     // Data highlight
-    guint hovered_byte_offset_;
+    int hovered_byte_offset_;
     bool hovered_byte_lock_;
-    QPair<guint,guint> p_bound_;
-    QPair<guint,guint> f_bound_;
-    QPair<guint,guint> fa_bound_;
-    QPair<guint,guint> p_bound_save_;
-    QPair<guint,guint> f_bound_save_;
-    QPair<guint,guint> fa_bound_save_;
+    int proto_start_;
+    int proto_len_;
+    int field_start_;
+    int field_len_;
+    int field_a_start_;
+    int field_a_len_;
 
     bool show_offset_;          // Should we show the byte offset?
     bool show_hex_;             // Should we show the hex display?
     bool show_ascii_;           // Should we show the ASCII display?
-    guint row_width_;           // Number of bytes per line
-    int one_em_;                // Font character height
-    qreal font_width_;          // Font character width
-    int line_spacing_;          // Font line spacing
-    int margin_;                // Text margin
+    int row_width_;             // Number of bytes per line
+    qreal font_width_;          // Single character width and text margin. NOTE: Use fontMetrics::width for multiple characters.
+    int line_height_;           // Font line spacing
 
     // Data selection
-    QMap<int,int> x_pos_to_column_;
+    QVector<int> x_pos_to_column_;
 
 private slots:
     void setHexDisplayFormat(QAction *action);
