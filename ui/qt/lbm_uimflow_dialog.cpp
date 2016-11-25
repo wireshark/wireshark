@@ -64,8 +64,8 @@ static gboolean lbm_uimflow_add_to_graph(seq_analysis_info_t * seq_info, packet_
     }
     if (stream_info->endpoint_a.type == lbm_uim_instance_stream)
     {
-        rc = memcmp((void *)stream_info->endpoint_a.stream_info.ctxinst.ctxinst,
-            (void *)stream_info->endpoint_b.stream_info.ctxinst.ctxinst,
+        rc = memcmp((const void *)stream_info->endpoint_a.stream_info.ctxinst.ctxinst,
+            (const void *)stream_info->endpoint_b.stream_info.ctxinst.ctxinst,
             LBM_CONTEXT_INSTANCE_BLOCK_SZ);
         if (rc <= 0)
         {
