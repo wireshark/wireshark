@@ -115,18 +115,25 @@ $INCLUDE dictionary.rfc6519
 $INCLUDE dictionary.rfc6572
 $INCLUDE dictionary.rfc6677
 $INCLUDE dictionary.rfc6911
+#
+# We do not support RFC 6929, so we comment this out.
+# See bug 13176.
+#
 #$INCLUDE dictionary.rfc6929
 #$INCLUDE dictionary.rfc6930
 $INCLUDE dictionary.rfc7055
 #$INCLUDE dictionary.rfc7155
 #$INCLUDE dictionary.rfc7268
-#$INCLUDE dictionary.rfc7499
 #
-# This one doesn't work - it causes
+# We do not support RFC 6929, so we comment these out.  They cause
 #
-#  radius: Vendor: 'integer', does not exist in .../dictionary.rfc7930
+#  radius: Vendor: 'integer', does not exist in {dictionary file}
 #
 # errors.
+#
+# See bug 13176.
+#
+#$INCLUDE dictionary.rfc7499
 #$INCLUDE dictionary.rfc7930
 
 
