@@ -1206,5 +1206,5 @@ gen-authors:
 	cd $(top_srcdir) && $(PERL) tools/generate_authors.pl AUTHORS.src > AUTHORS
 
 dist-hook:
-	printf "git_description=%s\n" "$$(git -C $(top_srcdir) describe)" \
+	printf "git_description=%s\n" "$$(git -C $(top_srcdir) describe --match 'v[1-9]*')" \
 		> $(top_distdir)/version.conf
