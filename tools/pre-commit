@@ -46,7 +46,7 @@ cd "$(git rev-parse --show-toplevel)"
 # (but only if invoked as hook, i.e. the commit ID is not given as argument).
 if [ -z "$1" ] && [ -f "$hook_script" ]; then
     if ! cmp -s "$hook_script" tools/pre-commit; then
-        echo "Pre-commit hook script is outdated, please update!"
+        echo "Pre-commit hook script is outdated, please update! (cp tools/pre-commit ${hook_script})"
     fi
 fi
 
