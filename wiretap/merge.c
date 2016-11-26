@@ -984,7 +984,7 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     GArray             *shb_hdrs = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
 
-    g_assert(out_fd > 0);
+    g_assert(out_fd >= 0);
     g_assert(in_file_count > 0);
     g_assert(in_filenames != NULL);
     g_assert(err != NULL);
