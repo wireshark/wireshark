@@ -275,6 +275,9 @@ typedef enum {
 
 #define SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES 16
 
+/* Record fragment lengths MUST NOT exceed 2^14 (= 0x4000) */
+#define TLS_MAX_RECORD_LENGTH 0x4000
+
 typedef struct _SslCipherSuite {
     gint number;
     gint kex;
@@ -794,6 +797,7 @@ typedef struct ssl_common_dissect {
         expert_field hs_cipher_suites_len_bad;
         expert_field hs_sig_hash_algs_bad;
         expert_field resumed;
+        expert_field record_length_invalid;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_EI_LIST! */
     } ei;
@@ -898,7 +902,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1,                                     \
     },                                                                  \
     /* ei */ {                                                          \
-        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,                    \
+        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,           \
     },                                                                  \
 }
 /* }}} */
@@ -1546,6 +1550,10 @@ ssl_common_dissect_t name = {   \
     { & name .ei.resumed, \
         { prefix ".resumed", PI_SEQUENCE, PI_NOTE, \
         "This session reuses previously negotiated keys (Session resumption)", EXPFILL } \
+    }, \
+    { & name .ei.record_length_invalid, \
+        { prefix ".record.length.invalid", PI_PROTOCOL, PI_ERROR, \
+        "Record fragment length must not exceed 2^14", EXPFILL } \
     }
 /* }}} */
 

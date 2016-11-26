@@ -1514,6 +1514,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     guint8          next_byte;
     proto_tree     *ti;
     proto_tree     *ssl_record_tree;
+    proto_item     *pi;
     guint32         available_bytes;
 
     ti = NULL;
@@ -1635,8 +1636,11 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     offset += 2;
 
     /* add the length */
-    proto_tree_add_uint(ssl_record_tree, hf_ssl_record_length, tvb,
+    pi = proto_tree_add_uint(ssl_record_tree, hf_ssl_record_length, tvb,
                         offset, 2, record_length);
+    if (record_length > TLS_MAX_RECORD_LENGTH) {
+        expert_add_info(pinfo, pi, &dissect_ssl3_hf.ei.record_length_invalid);
+    }
     offset += 2;    /* move past length field itself */
 
     /*
