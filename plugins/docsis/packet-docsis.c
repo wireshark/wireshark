@@ -456,7 +456,10 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo)
         break;
       case EH_EXTENDED:
         /* Extended EH Element, one or more Sub EH fields may follow; simply recurse */
-        dissect_ehdr (tvb, ehdr_tree, pinfo);
+        {
+            tvbuff_t *subset = tvb_new_subset_remaining(tvb, pos);
+            dissect_ehdr (subset, ehdr_tree, pinfo);
+        }
         break;
       default:
         if (len > 0)
