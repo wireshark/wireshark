@@ -1381,7 +1381,6 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 	while (length > 0) {
 		radius_attr_info_t *dictionary_entry = NULL;
-		gint tvb_len;
 		guint32 avp_type;
 		guint32 avp_length;
 		guint32 vendor_id;
@@ -1596,13 +1595,15 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			PROTO_ITEM_SET_GENERATED(avp_len_item);
 		}
 
-		tvb_len = tvb_captured_length_remaining(tvb, offset);
-
-		if ((gint)avp_length < tvb_len)
-			tvb_len = avp_length;
-
 		if (avp_type == RADIUS_ATTR_TYPE_EAP_MESSAGE) {
+			gint tvb_len;
+
 			eap_seg_num++;
+
+			tvb_len = tvb_captured_length_remaining(tvb, offset);
+
+			if ((gint)avp_length < tvb_len)
+				tvb_len = avp_length;
 
 			/* Show this as an EAP fragment. */
 			proto_tree_add_item(avp_tree, hf_radius_eap_fragment, tvb, offset, tvb_len, ENC_NA);
