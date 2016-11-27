@@ -168,6 +168,8 @@ bool ConversationDialog::addTrafficTable(register_ct_t* table)
     conv_tree->setItemDelegateForColumn(CONV_COLUMN_START, new TimelineDelegate(conv_tree));
     conv_tree->setItemDelegateForColumn(CONV_COLUMN_DURATION, new TimelineDelegate(conv_tree));
 
+    connect(conv_tree, SIGNAL(itemSelectionChanged()),
+            this, SLOT(conversationSelectionChanged()));
     connect(conv_tree, SIGNAL(titleChanged(QWidget*,QString)),
             this, SLOT(setTabText(QWidget*,QString)));
     connect(conv_tree, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
@@ -196,17 +198,6 @@ bool ConversationDialog::addTrafficTable(register_ct_t* table)
                         ConversationTreeWidget::tapDraw);
 
     return true;
-}
-
-conv_item_t *ConversationDialog::currentConversation()
-{
-    ConversationTreeWidget *cur_tree = qobject_cast<ConversationTreeWidget *>(trafficTableTabWidget()->currentWidget());
-
-    if (!cur_tree || cur_tree->selectedItems().count() < 1) {
-        return NULL;
-    }
-
-    return cur_tree->selectedItems()[0]->data(0, Qt::UserRole).value<conv_item_t *>();
 }
 
 void ConversationDialog::followStream()
@@ -271,6 +262,15 @@ void ConversationDialog::graphTcp()
 void ConversationDialog::currentTabChanged()
 {
     bool copy_enable = trafficTableTabWidget()->currentWidget() ? true : false;
+
+    copy_bt_->setEnabled(copy_enable);
+
+    conversationSelectionChanged();
+    TrafficTableDialog::currentTabChanged();
+}
+
+void ConversationDialog::conversationSelectionChanged()
+{
     bool follow_enable = false, graph_enable = false;
     conv_item_t *conv_item = currentConversation();
 
@@ -286,12 +286,8 @@ void ConversationDialog::currentTabChanged()
             break;
         }
     }
-
-    copy_bt_->setEnabled(copy_enable);
     follow_bt_->setEnabled(follow_enable);
     graph_bt_->setEnabled(graph_enable);
-
-    TrafficTableDialog::currentTabChanged();
 }
 
 void ConversationDialog::on_displayFilterCheckBox_toggled(bool checked)
@@ -570,6 +566,18 @@ private:
     guint conv_idx_;
     bool *resolve_names_ptr_;
 };
+
+conv_item_t *ConversationDialog::currentConversation()
+{
+    ConversationTreeWidget *cur_tree = qobject_cast<ConversationTreeWidget *>(trafficTableTabWidget()->currentWidget());
+
+    if (!cur_tree || cur_tree->selectedItems().count() < 1) {
+        return NULL;
+    }
+
+    ConversationTreeWidgetItem *ctwi = dynamic_cast<ConversationTreeWidgetItem *>(cur_tree->selectedItems()[0]);
+    return ctwi->convItem();
+}
 
 // ConversationTreeWidget
 // TrafficTableTreeWidget / QTreeWidget subclass that allows tapping
