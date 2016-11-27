@@ -113,6 +113,8 @@ void UatDialog::setUat(epan_uat *uat)
 
         connect(uat_model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SLOT(modelDataChanged(QModelIndex)));
+        connect(uat_model_, SIGNAL(rowsRemoved(QModelIndex, int, int)),
+                this, SLOT(modelRowsRemoved()));
         connect(ui->uatTreeView, SIGNAL(currentItemChanged(QModelIndex,QModelIndex)),
                 this, SLOT(viewCurrentChanged(QModelIndex,QModelIndex)));
         ok_button_->setEnabled(!uat_model_->hasErrors());
@@ -132,6 +134,14 @@ void UatDialog::setUat(epan_uat *uat)
 void UatDialog::modelDataChanged(const QModelIndex &topLeft)
 {
     checkForErrorHint(topLeft, QModelIndex());
+    ok_button_->setEnabled(!uat_model_->hasErrors());
+}
+
+// Invoked after a row has been removed from the model.
+void UatDialog::modelRowsRemoved()
+{
+    const QModelIndex &current = ui->uatTreeView->currentIndex();
+    checkForErrorHint(current, QModelIndex());
     ok_button_->setEnabled(!uat_model_->hasErrors());
 }
 
