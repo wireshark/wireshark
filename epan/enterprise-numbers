@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2016-11-18)
+(last updated 2016-11-25)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -22,9 +22,9 @@ Decimal
     Michael Kellen
       OID.Admin&NxNetworks.com
 2
-  IBM
-    Kristine Adamson
-      adamson&us.ibm.com
+  IBM (https://w3.ibm.com/standards)
+    Glenn Daly
+      gdaly&us.ibm.com
 3
   Carnegie Mellon
     Mark Poepping
@@ -59244,7 +59244,7 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       nordstrom&realnode.com
 14923
   Abilene Christian University
-    Keith A. Clay
+    Hab Adkins
       oid_info&acu.edu
 14924
   The NewSof Group, Inc.
@@ -64261,7 +64261,7 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
 16177
   Westermo Teleindustri AB
     Daniel Rooth
-      daniel&rooth.nu
+      daniel.rooth&westermo.com
 16178
   WellPoint Health Networks
     Timothy R. Robnett
@@ -195341,8 +195341,8 @@ Decentralization / Helenic Public Administra
       jacco&vevida.com
 48940
   Controllis
-    Alvaro Gamarra
-      alvaro.gamarra&controllis.com
+    Mark Anderson
+      mark.anderson&controllis.com
 48941
   Schleupen AG
     Dr. Peter Wenderoth
@@ -195363,6 +195363,198 @@ Decentralization / Helenic Public Administra
   Rundvirke Skog AB
     Tomas Berg
       tomas.berg&rundvirkeskog.se
+48946
+  556081-8782
+    Erik Kjellberg
+      erik&karlatra.se
+48947
+  ATMC Automação e Comunicação Ltda
+    Marcos Pereira
+      marcos&atmc.com.br
+48948
+  TCPixel, LLC
+    Brian Cavanaugh
+      brian&tcpixel.com
+48949
+  At4wireless
+    Alexander Quesada López
+      aquesada&at4wireless.com
+48950
+  LogDNA
+    Mike Hu
+      ops&logdna.com
+48951
+  UNION TANK Eckstein GmbH & Co. KG 
+    IT-Technik
+      pki&uta.com
+48952
+  ATA Timber AB
+    Jonas Hafmar
+      jonas&ata.nu
+48953
+  UbuntuNet Alliance
+    Chris Rohrer
+      chris.rohrer&ubuntunet.net
+48954
+  ieBep.cn
+    Jebwiz Oscar
+      ieb&outlook.my
+48955
+  Schoeller Technocell GmbH & Co KG
+    Michael Moehlmann
+      MMoehlmann&Felix-Schoeller.com
+48956
+  T4MGroup.com
+    Thomas Nierychlo
+      thomas.nierychlo&trans4mation.de
+48957
+  awaii.net
+    Jesper Nøhr
+      jesper&awaii.net
+48958
+  Trinity Industries, Inc.
+    Anthony Noonan
+      Anthony.Noonan&trin.net
+48959
+  Cruise Engineering Management Consulting
+    Stanley Cruise
+      scruise56&gmail.com
+48960
+  SoftwareONE AG
+    David Tannheimer
+      david.tannheimer&softwareone.com
+48961
+  struktur AG
+    Joachim Bauch
+      bauch&struktur.de
+48962
+  Unilogic Networks B.V.
+    Cliff Albert
+      cliff&unilogicnetworks.net
+48963
+  Gällö Skog AB
+    Hans Lantz
+      hans.lantz&galloskog.se
+48964
+  VŠĮ "Šviesos kūgiai"
+    Anatolij Škodin
+      iana&sviesoskugiai.lt
+48965
+  eMudhra Limited
+    Vijay Kumar M
+      Vijay&emudhra.com
+48966
+  Nils Kaczenski
+    Nils Kaczenski
+      nils&kaczenski.de
+48967
+  ZincFive, Inc.
+    Michael P. Wells
+      mwells&zincfive.com
+48968
+  akquinet AG
+    Matthias Timm
+      matthias.timm&akquinet.de
+48969
+  TK-Schulsoftware GmbH & Co. KG
+    Tobias Knipping
+      knipping&tk-schulsoftware.de
+48970
+  Navipoint Genomics LLC
+    Evan Cofsky
+      evan&navipointgenomics.com
+48971
+  PSYSTEME GmbH
+    Reiner Pröls
+      proels&psysteme.de
+48972
+  Soulssoft
+    Fischer Romain
+      romain.fischer&soulssoft.com
+48973
+  Menzel IT Services
+    Daniel Menzel
+      service&menzel-it.net
+48974
+  Arte y Calidad en Papel,Artepapel,S.A.
+    Fernando Araujo
+      informatica&artepapel.com
+48975
+  Ulmart RSK Ltd.
+    Aleksey Bondarenko
+      ianaoid&ulmart.ru
+48976
+  MURATA SYSTEMS,LTD.
+    Kazuki Kariya
+      kazuki.kariya&jhb.muratec.co.jp
+48977
+  Corsham Technologies, LLC
+    Bob Applegate
+      bob&corshamtech.com
+48978
+  Sawwave
+    Yeoncheon Yi
+      yeoncheon&sawwave.kr
+48979
+  帝信科技股份有限公司 (DIXIN  Science andTechnology Co., Ltd)
+    charlie.li
+      li.changli&bendis.cc
+48980
+  TCL-IMAX
+    Xiaofeng Wu
+      xfwu&tcl-imax.com
+48981
+  Eigenexus Incorporated
+    Dennis Hollenbeck
+      dennis.hollenbeck&eigenexus.net
+48982
+  Navitel s.r.o.
+    Alexey Morozov
+      morozov&navitel.ru
+48983
+  Open Consent Group
+    Mark Lizar
+      info&openconsentgroup.com
+48984
+  Athene Lebensversicherung AG
+    Christian Pöll
+      christian.poell&athene.de
+48985
+  Netresec AB
+    Erik Hjelmvik
+      info&netresec.com
+48986
+  LLC "INVEST-M"
+    Kirill Nastasin
+      nk&invm.net
+48987
+  SkyDNS LLC
+    Dmitriy Vostretsov
+      mail&skydns.ru
+48988
+  Streamonix Ltd
+    DNS Manager
+      dns_manager&streamonix.com
+48989
+  Ture Johanssons Trävaru AB
+    Renata Sorockova
+      renata&tujo.se
+48990
+  Intesi Group S.p.A.
+    Francesco Barcellini
+      fbarcellini&intesigroup.com
+48991
+  Aequitas Software GmbH & Co. KG
+    Dr. Burkhard Mars
+      burkhard.mars&aequitas-software.de
+48992
+  AEF e.V. 
+    AEF PKI Administrator
+      jh.woelker&aef-online.org
+48993
+  MKB Webhoster Limited
+    Michel Dekker
+      michel&mkbwebhoster.com
 
 
 End of Document
