@@ -7544,8 +7544,8 @@ aibkup           4071/tcp # Automatically Incremental Backup [Volker_Wiegand] [V
 aibkup           4071/udp # Automatically Incremental Backup [Volker_Wiegand] [Volker_Wiegand] 2007-07-10
 zieto-sock       4072/tcp # Zieto Socket Communications [Malcolm_McLean] [Malcolm_McLean] 2007-07-19
 zieto-sock       4072/udp # Zieto Socket Communications [Malcolm_McLean] [Malcolm_McLean] 2007-07-19
-iRAPP            4073/tcp # iRAPP Server Protocol [Vladimir_Bickov] [Vladimir_Bickov] 2007-08-20
-iRAPP            4073/udp # iRAPP Server Protocol [Vladimir_Bickov] [Vladimir_Bickov] 2007-08-20
+iRAPP            4073/tcp # Interactive Remote Application Pairing Protocol [Volodymyr_Bykov] [Volodymyr_Bykov] 2007-08-20 2016-11-23
+iRAPP            4073/udp # Interactive Remote Application Pairing Protocol [Volodymyr_Bykov] [Volodymyr_Bykov] 2007-08-20 2016-11-23
 cequint-cityid   4074/tcp # Cequint City ID UI trigger [Phill_Goeckler] [Phill_Goeckler] 2007-08-20
 cequint-cityid   4074/udp # Cequint City ID UI trigger [Phill_Goeckler] [Phill_Goeckler] 2007-08-20
 perimlan         4075/tcp # ISC Alarm Message Service [Bernie_Malkowski] [Bernie_Malkowski] 2007-08-20
