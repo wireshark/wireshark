@@ -448,7 +448,7 @@ dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
 }
 
 
-static void dissect_zvt_int_status(tvbuff_t *tvb, gint offset, guint16 len _U_,
+static void dissect_zvt_int_status(tvbuff_t *tvb, gint offset, guint16 len,
         packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans)
 {
     proto_tree_add_item(tree, hf_zvt_int_status,
