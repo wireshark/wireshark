@@ -21,6 +21,22 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="hintLabel">
+     <property name="styleSheet">
+       <string notr="true">QLabel { color: red; }</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="textFormat">
+       <set>Qt::RichText</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,1">
      <item>
       <widget class="QToolButton" name="newToolButton">
@@ -94,22 +110,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QLabel" name="hintLabel">
-     <property name="styleSheet">
-       <string notr="true">QLabel { color: red; }</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="textFormat">
-       <set>Qt::RichText</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

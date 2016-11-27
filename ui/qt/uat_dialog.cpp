@@ -198,7 +198,7 @@ bool UatDialog::trySetErrorHintFromField(const QModelIndex &index)
     const QVariant &data = uat_model_->data(index, Qt::UserRole + 1);
     if (!data.isNull()) {
         // use HTML instead of PlainText because that handles wordwrap properly
-        ui->hintLabel->setText(html_escape(data.toString()));
+        ui->hintLabel->setText("<small><i>" + html_escape(data.toString()) + "</i></small>");
         return true;
     }
     return false;
