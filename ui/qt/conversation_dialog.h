@@ -79,6 +79,7 @@ private:
 
 private slots:
     void currentTabChanged();
+    void conversationSelectionChanged();
     void on_displayFilterCheckBox_toggled(bool checked);
     void followStream();
     void graphTcp();
