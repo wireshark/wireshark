@@ -576,6 +576,9 @@ void RtpAudioStream::outputStateChanged(QAudio::State new_state)
     switch (new_state) {
     case QAudio::StoppedState:
         // RTP_STREAM_DEBUG("stopped %f", audio_output_->processedUSecs() / 100000.0);
+        // Detach from parent (RtpAudioStream) to prevent deleteLater from being
+        // run during destruction of this class.
+        audio_output_->setParent(0);
         audio_output_->disconnect();
         audio_output_->deleteLater();
         audio_output_ = NULL;
