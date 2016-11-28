@@ -571,15 +571,13 @@ void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int) {
     fi = item->data(0, Qt::UserRole).value<field_info *>();
     if (!fi || !fi->hfinfo) return;
 
-    if(fi->hfinfo->type == FT_FRAMENUM) {
+    if (fi->hfinfo->type == FT_FRAMENUM) {
         if (QApplication::queryKeyboardModifiers() & Qt::ShiftModifier) {
             emit openPacketInNewWindow(true);
         } else {
             emit goToPacket(fi->value.value.uinteger);
         }
-    }
-
-    if(FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type)) {
+    } else if (FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type)) {
         gchar *url;
         url = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
         if(url){
