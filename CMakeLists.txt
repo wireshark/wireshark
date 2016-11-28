@@ -1191,7 +1191,14 @@ if(LIBSSH_FOUND)
 	endif()
 endif()
 
-# Location of our plugins. PLUGIN_DIRECTORY should allow running
+# Directory where plugins and Lua dissectors can be found.
+if (WIN32)
+	set(PLUGIN_INSTALL_DIR "plugins/${CPACK_PACKAGE_VERSION}")
+else ()
+	set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/plugins/${CPACK_PACKAGE_VERSION}")
+endif()
+
+# Location of our plugins. PLUGIN_DIR should allow running
 # from the build directory similar to DATAFILE_DIR above.
 if(ENABLE_PLUGINS)
 	# Target platform locations
@@ -1201,11 +1208,6 @@ if(ENABLE_PLUGINS)
 	set(HAVE_PLUGINS 1)
 	add_custom_target(plugins)
 	set_target_properties(plugins PROPERTIES FOLDER "Plugins")
-	if (WIN32)
-		set(PLUGIN_INSTALL_DIR "plugins/${CPACK_PACKAGE_VERSION}")
-	else ()
-		set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/plugins/${CPACK_PACKAGE_VERSION}")
-	endif()
 	set(PLUGIN_SRC_DIRS
 		plugins/docsis
 		plugins/ethercat
