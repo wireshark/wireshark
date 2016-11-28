@@ -2299,10 +2299,10 @@ main(int argc, char *argv[])
 
     /* Register all libwiretap plugin modules. */
     register_all_wiretap_modules();
+#endif
 
     /* Register all audio codec plugins. */
     register_all_codecs();
-#endif
 
     splash_update(RA_DISSECTORS, NULL, (gpointer)splash_win);
 

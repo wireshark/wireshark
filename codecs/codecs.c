@@ -92,6 +92,7 @@ register_codec_plugin(gpointer data, gpointer user_data _U_)
 
     (plugin->register_codec_module)();
 }
+#endif /* HAVE_PLUGINS */
 
 
 /*
@@ -115,9 +116,11 @@ register_all_codecs(void)
             codec_sbc_get_channels, codec_sbc_get_frequency, codec_sbc_decode);
 #endif
 
+#ifdef HAVE_PLUGINS
     g_slist_foreach(codec_plugins, register_codec_plugin, NULL);
-}
 #endif /* HAVE_PLUGINS */
+}
+
 
 struct codec_handle {
     const char *name;

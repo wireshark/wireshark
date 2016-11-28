@@ -63,9 +63,7 @@
 #include <epan/dissectors/packet-kerberos.h>
 #endif
 
-#ifdef HAVE_PLUGINS
 #include <codecs/codecs.h>
-#endif
 
 #ifdef HAVE_EXTCAP
 #include <extcap.h>
@@ -551,10 +549,10 @@ int main(int argc, char *qt_argv[])
 
     /* Register all libwiretap plugin modules. */
     register_all_wiretap_modules();
+#endif
 
     /* Register all audio codec plugins. */
     register_all_codecs();
-#endif
 
     /* Register all dissectors; we must do this before checking for the
        "-G" flag, as the "-G" flag dumps information registered by the
