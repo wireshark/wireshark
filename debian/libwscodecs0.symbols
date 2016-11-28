@@ -8,6 +8,7 @@ libwscodecs.so.0 libwscodecs0 #MINVER#
  deregister_codec@Base 2.1.0
  find_codec@Base 2.1.0
  register_all_codecs@Base 2.1.0
+ codec_get_compiled_version_info@Base 2.3.0
  register_codec@Base 2.1.0
  ws_codec_resampler_destroy@Base 2.1.0
  ws_codec_resampler_get_input_latency@Base 2.1.0

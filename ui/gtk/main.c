@@ -1875,6 +1875,8 @@ get_gui_compiled_info(GString *str)
 #else
     g_string_append(str, "without AirPcap");
 #endif
+
+    codec_get_compiled_version_info(str);
 }
 
 void

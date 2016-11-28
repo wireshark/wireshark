@@ -216,6 +216,26 @@ size_t codec_decode(codec_handle_t codec, void *context, const void *input, size
     return (codec->decode_fn)(context, input, inputSizeBytes, output, outputSizeBytes);
 }
 
+/**
+ * Get compile-time information for libraries used by libwscodecs.
+ */
+void codec_get_compiled_version_info(GString *str)
+{
+    /* SBC */
+#ifdef HAVE_SBC
+    g_string_append(str, ", with SBC");
+#else
+    g_string_append(str, ", without SBC");
+#endif
+
+    /* Spandsp (G.722, G.726) */
+#ifdef HAVE_SPANDSP
+    g_string_append(str, ", with Spandsp");
+#else
+    g_string_append(str, ", without Spandsp");
+#endif
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

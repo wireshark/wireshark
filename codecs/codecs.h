@@ -41,6 +41,11 @@ WS_DLL_PUBLIC void codec_register_plugin_types(void);
  */
 WS_DLL_PUBLIC void register_all_codecs(void);
 
+/**
+ * Get compile-time information for libraries used by libwscodecs.
+ */
+WS_DLL_PUBLIC void codec_get_compiled_version_info(GString *str);
+
 struct codec_handle;
 typedef struct codec_handle *codec_handle_t;
 
