@@ -29,13 +29,14 @@
 #include "wireshark_application.h"
 
 #include <QMessageBox>
+#include <QRegExp>
 #include <QTextCodec>
 
 /* Simple dialog function - Displays a dialog box with the supplied message
  * text.
  *
  * This is meant to be used as a backend for the functions defined in
- *  ui/simple_dialog.h. Qt code should use QMessageBox directly.
+ * ui/simple_dialog.h. Qt code should use QMessageBox directly.
  *
  * Args:
  * type       : One of ESD_TYPE_*.
@@ -62,14 +63,7 @@ simple_dialog_primary_end(void) {
 char *
 simple_dialog_format_message(const char *msg)
 {
-    char *str;
-
-    if (msg) {
-        str = xml_escape(msg);
-    } else {
-        str = NULL;
-    }
-    return str;
+    return g_strdup(msg);
 }
 
 /*
@@ -95,10 +89,13 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
     message = QTextCodec::codecForLocale()->toUnicode(vmessage);
     g_free(vmessage);
 
-    setTextFormat(Qt::RichText);
+    setTextFormat(Qt::PlainText);
+
     MessagePair msg_pair = splitMessage(message);
-    QString primary = msg_pair.first;
-    QString secondary = msg_pair.second;
+    // Remove leading and trailing whitespace along with excessive newline runs.
+    QString primary = msg_pair.first.trimmed();
+    QString secondary = msg_pair.second.trimmed();
+    secondary.replace(QRegExp("\n\n+"), "\n\n");
 
     if (primary.isEmpty()) {
         return;

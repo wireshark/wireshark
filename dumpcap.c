@@ -642,7 +642,7 @@ get_capture_device_open_failure_messages(const char *open_err_str,
                  "Please check that \"%s\" is the proper interface.\n"
                  "\n"
                  "\n"
-                 "Help can be found at:\n"
+                 "Help can be found on the following pages:\n"
                  "\n"
                  "       https://wiki.wireshark.org/WinPcap\n"
                  "       https://wiki.wireshark.org/CaptureSetup\n",
