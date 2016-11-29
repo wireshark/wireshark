@@ -32,6 +32,10 @@
 typedef struct {
     guint64 service_id;         /* service id specified when the (RC) channel was set-up */
     gboolean client_to_server;  /* message direction */
+    guint32 src_qp;             /* originator src qp as this is not present in RC packets */
+
+    /* store mad data so that it can be parsed for private data by ULP */
+    guint8 mad_private_data[MAD_DATA_SIZE];
 } conversation_infiniband_data;
 
 /* OpCodeValues

@@ -129,7 +129,7 @@ typedef struct {
     guint64 transactionID;
     guint16 attributeID;
     guint32 attributeModifier;
-    char data[232];
+    char data[MAD_DATA_SIZE];
 } MAD_Data;
 
 typedef enum {
@@ -2985,6 +2985,32 @@ static void remove_connection(guint64 transcationID,  address *addr)
     g_hash_table_remove(CM_context_table, &hash_key);
 }
 
+static void
+create_conv_and_add_proto_data(packet_info *pinfo, guint64 service_id,
+                               gboolean client_to_server,
+                               address *addr, const guint16 lid,
+                               const guint32 port, const guint32 src_port,
+                               const guint options, guint8 *mad_data)
+{
+    conversation_t *conv;
+    conversation_infiniband_data *proto_data;
+
+    proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
+    proto_data->service_id = service_id;
+    proto_data->client_to_server = client_to_server;
+    proto_data->src_qp = src_port;
+    memcpy(&proto_data->mad_private_data[0], mad_data, MAD_DATA_SIZE);
+    conv = conversation_new(pinfo->num, addr, addr,
+                            PT_IBQP, port, port, options);
+    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+
+    /* next, register the conversation using the LIDs */
+    set_address(addr, AT_IB, sizeof(guint16), &lid);
+    conv = conversation_new(pinfo->num, addr, addr,
+                            PT_IBQP, port, port, options);
+    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+}
+
 static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8 *remote_gid,
                                    guint32 local_qpn, guint32 local_lid, guint32 remote_lid,
                                    guint64 serviceid, MAD_Data *MadData)
@@ -3029,6 +3055,14 @@ static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8
         conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
                                 PT_IBQP, pinfo->srcport, pinfo->destport, 0);
         conversation_add_proto_data(conv, proto_infiniband, proto_data);
+
+        /* create unidirection conversation for packets that will flow from
+         * server to client.
+         */
+        create_conv_and_add_proto_data(pinfo, connection->service_id, FALSE,
+                                       &pinfo->src, connection->req_lid,
+                                       connection->req_qp, 0, NO_ADDR2|NO_PORT2,
+                                       &MadData->data[0]);
     }
 }
 
@@ -3184,30 +3218,25 @@ static void parse_CM_Req(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
     *offset = local_offset;
 }
 
-static void
-create_conv_and_add_proto_data(packet_info *pinfo, guint64 service_id,
-                               gboolean client_to_server,
-                               address *addr, const guint16 lid,
-                               const guint32 port, const guint options)
+static void create_bidi_conv(packet_info *pinfo, connection_context *connection)
 {
     conversation_t *conv;
-    conversation_infiniband_data *proto_data = NULL;
+    conversation_infiniband_data *proto_data;
 
     proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
-    proto_data->service_id = service_id;
-    proto_data->client_to_server = client_to_server;
-    conv = conversation_new(pinfo->num, addr, addr,
-                            PT_IBQP, port, port, options);
-    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+    proto_data->service_id = connection->service_id;
+    proto_data->client_to_server = FALSE;
+    memset(&proto_data->mad_private_data[0], 0, MAD_DATA_SIZE);
+    conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
+                            PT_IBQP, connection->req_qp,
+                            connection->resp_qp, 0);
 
-    /* next, register the conversation using the LIDs */
-    set_address(addr, AT_IB, sizeof(guint16), &lid);
-    conv = conversation_new(pinfo->num, addr, addr,
-                            PT_IBQP, port, port, options);
     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 }
 
-static void attach_connection_to_pinfo(packet_info *pinfo, connection_context *connection)
+static void
+attach_connection_to_pinfo(packet_info *pinfo, connection_context *connection,
+                           MAD_Data *MadData)
 {
     address req_addr,
             resp_addr;  /* we'll fill these in and pass them to conversation_new */
@@ -3231,17 +3260,35 @@ static void attach_connection_to_pinfo(packet_info *pinfo, connection_context *c
     }
 
     /* create conversations:
-     * first for client to server direction and
-     * sedond for server to client direction so that upper level protocols
+     * first for client to server direction so that upper level protocols
      * can do appropriate dissection depending on the message direction.
      */
-    create_conv_and_add_proto_data(pinfo, connection->service_id, FALSE,
-                                   &req_addr, connection->req_lid,
-                                   connection->req_qp, NO_ADDR2|NO_PORT2);
-
     create_conv_and_add_proto_data(pinfo, connection->service_id, TRUE,
                                    &resp_addr, connection->resp_lid,
-                                   connection->resp_qp, NO_ADDR2|NO_PORT2);
+                                   connection->resp_qp, connection->req_qp,
+                                   NO_ADDR2|NO_PORT2, &MadData->data[0]);
+    /* now create bidirectional connection that can be looked upon
+     * by ULP for stateful context in both directions.
+     */
+    create_bidi_conv(pinfo, connection);
+}
+
+static void update_passive_conv_info(packet_info *pinfo,
+                                     connection_context *connection)
+{
+    conversation_t *conv;
+    conversation_infiniband_data *conv_data;
+
+    conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->dst,
+                             PT_IBQP, connection->req_qp, connection->req_qp,
+                             NO_ADDR_B|NO_PORT_B);
+    if (!conv)
+        return;   /* nothing to do with no conversation context */
+
+    conv_data = (conversation_infiniband_data *)conversation_get_proto_data(conv, proto_infiniband);
+    if (!conv_data)
+        return;
+    conv_data->src_qp = connection->resp_qp;
 }
 
 static void update_conversation_info(packet_info *pinfo,
@@ -3260,8 +3307,8 @@ static void update_conversation_info(packet_info *pinfo,
            do about it here - so just skip saving the context */
         if (connection) {
             connection->resp_qp = remote_qpn;
-
-            attach_connection_to_pinfo(pinfo, connection);
+            update_passive_conv_info(pinfo, connection);
+            attach_connection_to_pinfo(pinfo, connection, MadData);
         }
     }
 }
@@ -3317,8 +3364,6 @@ try_connection_dissectors(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     connection_context *connection;
 
     connection = lookup_connection(MadData->transactionID, addr);
-    if (connection)
-        attach_connection_to_pinfo(pinfo, connection);
 
     next_tvb = tvb_new_subset_length(tvb, pdata_offset, pdata_length);
     dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree,
@@ -3421,7 +3466,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     }
     local_offset = *offset;
 
-    CM_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 232, ENC_NA);
+    CM_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
 
     label = val_to_str_const(MadData.attributeID, CM_Attributes, "(Unknown CM Attribute)");
 
