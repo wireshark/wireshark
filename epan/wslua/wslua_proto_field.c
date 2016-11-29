@@ -373,7 +373,6 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
             }
         }
         break;
-    case FT_CHAR:
     case FT_UINT8:
     case FT_UINT16:
     case FT_UINT24:
@@ -385,10 +384,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     case FT_INT32:
     case FT_INT64:
         if (base == BASE_NONE) {
-            if (type == FT_CHAR)
-                base = BASE_OCT; /* default base for characters (BASE_HEX instead?) */
-            else
-                base = BASE_DEC;  /* Default base for integer */
+            base = BASE_DEC;  /* Default base for integer */
         } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be either base.DEC, base.HEX, base.OCT,"
                                " base.DEC_HEX, base.DEC_HEX or base.HEX_DEC");
