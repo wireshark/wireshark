@@ -1440,7 +1440,7 @@ static const value_string gsm_a_gm_ul_egprs2_vals[] = {
 	{ 0x00, "The mobile station does not support either EGPRS2-A or EGPRS2-B in the uplink" },
 	{ 0x01, "The mobile station supports EGPRS2-A in the uplink" },
 	{ 0x02, "The mobile station supports both EGPRS2-A and EGPRS2-B in the uplink" },
-	{ 0x03, "This value is not used in this release/version of the specifications. If received it shall be interpreted as 'The mobile station supports both EGPRS2-A and EGPRS2-B in the uplink'" },
+	{ 0x03, "The mobile station supports both EGPRS2-A and EGPRS2-B in the uplink" },
 	{ 0, NULL }
 };
 
@@ -1448,15 +1448,15 @@ static const value_string gsm_a_gm_dl_egprs2_vals[] = {
 	{ 0x00, "The mobile station does not support either EGPRS2-A or EGPRS2-B in the downlink" },
 	{ 0x01, "The mobile station supports EGPRS2-A in the downlink" },
 	{ 0x02, "The mobile station supports both EGPRS2-A and EGPRS2-B in the downlink" },
-	{ 0x03, "This value is not used in this release/version of the specifications. If received it shall be interpreted as 'The mobile station supports both EGPRS2-A and EGPRS2-B in the downlink'" },
+	{ 0x03, "The mobile station supports both EGPRS2-A and EGPRS2-B in the downlink" },
 	{ 0, NULL }
 };
 
 static const value_string gsm_a_gm_geran_to_eutra_support_in_geran_ptm_vals[] = {
 	{ 0x00, "None" },
-	{ 0x01, "E-UTRAN Neighbour Cell measurements and MS autonomous cell reselection to E-UTRAN supported" },
-	{ 0x02, "CCN towards E-UTRAN, E-UTRAN Neighbour Cell measurement reporting and Network controlled cell reselection to E-UTRAN supported in addition to capabilities indicated by '01'" },
-	{ 0x03, "PS Handover to E-UTRAN supported in addition to capabilities indicated by '01' and '10'" },
+	{ 0x01, "E-UTRAN neighbour cell measurements and MS autonomous cell reselection to E-UTRAN supported" },
+	{ 0x02, "E-UTRAN neighbour cell meas and report, MS autonomous cell resel, CCN and network controlled cell reselection to E-UTRAN" },
+	{ 0x03, "E-UTRAN neighbour cell meas and report, MS autonomous cell resel, CCN, network controlled cell reselection and PS Handover to E-UTRAN" },
 	{ 0, NULL }
 };
 
