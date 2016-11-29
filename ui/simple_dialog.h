@@ -80,11 +80,32 @@ typedef enum {
 
 /** Create and show a simple dialog.
  *
- * @param type type of dialog
- * @param btn_mask the buttons to display
- * @param msg_format printf like message format
- * @param ... printf like parameters
- * @return the newly created dialog
+ * @param Type type of dialog, e.g. ESD_TYPE_WARN
+ * @param btn_mask The buttons to display, e.g. ESD_BTNS_OK_CANCEL
+ * @param msg_format Printf like message format. Text must be plain.
+ * @param ... Printf like parameters
+ * @return The newly created dialog
+ */
+/*
+ * XXX This is a bit clunky. We typically pass in:
+ * - simple_dialog_primary_start
+ * - The primary message
+ * - simple_dialog_primary_end
+ * - Optionally, the secondary message.
+ *
+ * In the GTK+ UI primary_start and primary_end make up a <span> that adds
+ * text formatting. The whole string is then shoved into a GtkLabel.
+ *
+ * In the Qt UI we use primary_start and _end to split the primary and
+ * secondary messages. They are then added to a QMessageBox via setText and
+ * setInformativeText respectively. No formatting is applied.
+ *
+ * Callers are responsible for wrapping the primary message and formatting
+ * the message text.
+ *
+ * Explicitly passing in separate primary and secondary messages would let us
+ * get rid of primary_start and primary_end and reduce the amount of
+ * gymnastics we have to to in the Qt UI.
  */
 extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
     const gchar *msg_format, ...)
