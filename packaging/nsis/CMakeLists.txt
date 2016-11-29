@@ -195,7 +195,7 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 
 	# qt-dll-manifest.nsh. Created using Wireshark.exe.
 	add_custom_command(OUTPUT ${_nsis_binary_dir}/qt-dll-manifest.nsh
-		COMMAND set "PATH=%PATH%;${QT_BIN_PATH}"
+		COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
 		COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
 			-Executable $<TARGET_FILE:wireshark>
 			-FilePath ${_nsis_binary_dir}/qt-dll-manifest.nsh

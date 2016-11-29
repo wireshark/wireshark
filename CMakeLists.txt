@@ -1880,7 +1880,7 @@ if(BUILD_wireshark AND QT_FOUND)
 			# be smart enough to copy debug DLLs when needed.
 			add_custom_command(TARGET copy_qt_dlls
 				POST_BUILD
-				COMMAND set "PATH=%PATH%;${QT_BIN_PATH}"
+				COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
 				COMMAND "${QT_WINDEPLOYQT_EXECUTABLE}"
 					$<$<CONFIG:Debug>:--debug>
 					$<$<NOT:$<CONFIG:Debug>>:--release>
