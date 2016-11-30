@@ -505,6 +505,7 @@ static int hf_bootp_option_vi_class_data_length = -1;			/* 124 */
 static int hf_bootp_option_vi_class_data = -1;				/* 124 */
 
 static int hf_bootp_option125_enterprise = -1;
+static int hf_bootp_option125_length = -1;
 static int hf_bootp_option125_value = -1;				/* 125 suboption value */
 static int hf_bootp_option125_value_8 = -1;				/* 125 suboption value */
 static int hf_bootp_option125_value_16 = -1;				/* 125 suboption value */
@@ -2850,7 +2851,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 	case 125: {	/* V-I Vendor-specific Information (RFC 3925) */
 		int enterprise = 0;
 		int s_end = 0;
-		int s_option_len = 0;
+		int option_data_len = 0;
 		proto_tree *e_tree = 0;
 
 		optend = optoff + optlen;
@@ -2865,19 +2866,22 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 
 			enterprise = tvb_get_ntohl(tvb, optoff);
 			vti = proto_tree_add_item(v_tree, hf_bootp_option125_enterprise, tvb, optoff, 4, ENC_BIG_ENDIAN);
+			e_tree = proto_item_add_subtree(vti, ett_bootp_option);
 
-			s_option_len = tvb_get_guint8(tvb, optoff + 4);
+			optoff += 4;
+			optleft -= 4;
 
-			optoff += 5;
-			optleft -= 5;
+			proto_tree_add_item_ret_uint(e_tree, hf_bootp_option125_length, tvb, optoff, 1, ENC_NA, &option_data_len);
 
-			s_end = optoff + s_option_len;
+			optoff += 1;
+			optleft -= 1;
+
+			s_end = optoff + option_data_len;
 			if ( s_end > optend ) {
 				expert_add_info_format(pinfo, vti, &ei_bootp_option125_enterprise_malformed, "no room left in option for enterprise %u data", enterprise);
 				break;
 			}
 
-			e_tree = proto_item_add_subtree(vti, ett_bootp_option);
 			while (optoff < s_end) {
 				switch (enterprise) {
 
@@ -2894,7 +2898,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 				break;
 				}
 			}
-			optleft -= s_option_len;
+			optleft -= option_data_len;
 		}
 		break;
 	}
@@ -3968,21 +3972,36 @@ dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *
 }
 
 static int
-dissect_vendor_generic_suboption(packet_info *pinfo _U_, proto_item *v_ti _U_, proto_tree *v_tree,
-				 tvbuff_t *tvb, int optoff, int optend _U_)
+dissect_vendor_generic_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
+				 tvbuff_t *tvb, int optoff, int optend)
 {
 	int	    suboptoff = optoff;
-	guint8	    subopt_len;
+	guint8	subopt;
+	int	    subopt_len;
 	proto_item *item;
 	proto_tree *sub_tree;
 
-	item = proto_tree_add_item(v_tree, hf_bootp_vendor_unknown_suboption, tvb, optoff, 1, ENC_BIG_ENDIAN);
+	item = proto_tree_add_item(v_tree, hf_bootp_vendor_unknown_suboption, tvb, optoff, 1, ENC_NA);
+	subopt = tvb_get_guint8(tvb, optoff);
+
 	suboptoff+=1;
 
+	if (suboptoff >= optend) {
+		expert_add_info_format(pinfo, v_ti, &ei_bootp_missing_subopt_length,
+									"Suboption %d: no room left in option for suboption length", subopt);
+		return (optend);
+	}
+
 	sub_tree = proto_item_add_subtree(item, ett_bootp_option125_suboption);
-	subopt_len = tvb_get_guint8(tvb,suboptoff);
-	proto_tree_add_item(sub_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(sub_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_NA, &subopt_len);
 	suboptoff++;
+
+	if (suboptoff+subopt_len > optend) {
+		expert_add_info_format(pinfo, item, &ei_bootp_missing_subopt_value,
+						"Suboption %d: no room left in option for suboption value", subopt);
+		return (optend);
+	}
+
 	proto_tree_add_item(sub_tree, hf_bootp_suboption_data, tvb, suboptoff, subopt_len, ENC_NA);
 	suboptoff+= subopt_len;
 
@@ -8188,6 +8207,11 @@ proto_register_bootp(void)
 		  { "Enterprise", "bootp.option.vi.enterprise",
 		    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x00,
 		    "Option 125: Enterprise", HFILL }},
+
+		{ &hf_bootp_option125_length,
+		  { "Length", "bootp.option.vi.length",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    "Option 125: Length", HFILL }},
 
 		{ &hf_bootp_option125_value,
 		  { "Value", "bootp.option.vi.value",
