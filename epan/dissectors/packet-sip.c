@@ -6939,6 +6939,7 @@ proto_reg_handoff_sip(void)
 
         dissector_add_uint_range_with_preference("udp.port", DEFAULT_SIP_PORT_RANGE, sip_handle);
         dissector_add_string("media_type", "message/sip", sip_handle);
+        dissector_add_string("ws.protocol", "sip", sip_handle);  /* RFC 7118 */
 
         dissector_add_uint_range_with_preference("tcp.port", DEFAULT_SIP_PORT_RANGE, sip_tcp_handle);
 
