@@ -171,6 +171,15 @@ static int hf_sdp_crypto_lifetime = -1;
 static int hf_sdp_crypto_mki = -1;
 static int hf_sdp_crypto_mki_length = -1;
 
+/* a=candidate subfields */
+static int hf_ice_candidate_foundation = -1;
+static int hf_ice_candidate_componentid = -1;
+static int hf_ice_candidate_transport = -1;
+static int hf_ice_candidate_priority = -1;
+static int hf_ice_candidate_address = -1;
+static int hf_ice_candidate_port = -1;
+static int hf_ice_candidate_type = -1;
+
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_sdp_nal_unit_2_string = -1;
 static int hf_sdp_key_and_salt = -1;
@@ -1285,6 +1294,107 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 
 }
 
+static const string_string ice_candidate_types[] = {
+    { "host",       "Host candidate" },
+    { "srflx",      "Server reflexive candidate" },
+    { "prflx",      "Peer reflexive candidate" },
+    { "relay",      "Relayed candidate" },
+    { 0, NULL }
+};
+
+static void
+dissect_sdp_media_attribute_candidate(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+    /* RFC 5245 (ICE): "The candidate attribute is a media-level attribute
+     * only. It contains a transport address for a candidate that can be
+     * used for connectivity checks."
+     * https://tools.ietf.org/html/rfc5245#section-15.1
+     *
+     *   candidate-attribute   = "candidate" ":" foundation SP component-id SP
+     *                           transport SP
+     *                           priority SP
+     *                           connection-address SP     ;from RFC 4566
+     *                           port         ;port from RFC 4566
+     *                           SP cand-type
+     *                           [SP rel-addr]
+     *                           [SP rel-port]
+     *                           *(SP extension-att-name SP
+     *                                extension-att-value)
+     *
+     * Example: "candidate:0 1 UDP 2122252543 10.9.0.2 60299 typ host"
+     */
+    proto_item   *pi;
+    gint          next_offset, tokenlen;
+    const guint8 *candidate_type;
+
+    /* foundation: between 1 and 32 "ICE chars" (ALPHA / DIGIT / "+" / "/") */
+    tokenlen = find_next_token_in_line(tvb, tree, &offset, &next_offset);
+    if (tokenlen == 0)
+        return;
+    proto_tree_add_item(tree, hf_ice_candidate_foundation,
+            tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+    offset = next_offset + 1;
+
+    /* component-id: integer between 1 and 256.
+     * For RTP, 1 MUST be RTP and 2 MUST be RTCP (RFC 5245) */
+    tokenlen = find_next_token_in_line(tvb, tree, &offset, &next_offset);
+    if (tokenlen == 0)
+        return;
+    proto_tree_add_item(tree, hf_ice_candidate_componentid,
+            tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+    offset = next_offset + 1;
+
+    /* transport: "UDP", etc. */
+    tokenlen = find_next_token_in_line(tvb, tree, &offset, &next_offset);
+    if (tokenlen == 0)
+        return;
+    proto_tree_add_item(tree, hf_ice_candidate_transport,
+            tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+    offset = next_offset + 1;
+
+    /* priority: integer between 1 and 2^31-1 */
+    tokenlen = find_next_token_in_line(tvb, tree, &offset, &next_offset);
+    if (tokenlen == 0)
+        return;
+    proto_tree_add_item(tree, hf_ice_candidate_priority,
+            tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+    offset = next_offset + 1;
+
+    /* connection-address: IPv4, IPv6 address or FQDN. */
+    tokenlen = find_next_token_in_line(tvb, tree, &offset, &next_offset);
+    if (tokenlen == 0)
+        return;
+    proto_tree_add_item(tree, hf_ice_candidate_address,
+            tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+    offset = next_offset + 1;
+
+    /* port */
+    tokenlen = find_next_token_in_line(tvb, tree, &offset, &next_offset);
+    if (tokenlen == 0)
+        return;
+    proto_tree_add_item(tree, hf_ice_candidate_port,
+            tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+    offset = next_offset + 1;
+
+    /* cand-type: type of candidate (where it learned the candidate)
+     * Check for "typ " in "typ host" and skip it. */
+    if (tvb_strneql(tvb, offset, "typ ", 4))
+        return;
+    offset += 4;
+    tokenlen = find_next_token_in_line(tvb, tree, &offset, &next_offset);
+    if (tokenlen == 0)
+        return;
+    pi = proto_tree_add_item_ret_string(tree, hf_ice_candidate_type,
+            tvb, offset, tokenlen, ENC_ASCII|ENC_NA,
+            wmem_packet_scope(), &candidate_type);
+    if ((candidate_type = try_str_to_str(candidate_type, ice_candidate_types))) {
+        proto_item_append_text(pi, " (%s)", candidate_type);
+    }
+    /* offset = next_offset + 1; */
+
+    /* Ignored: [rel-addr] [rel-port] *(extension-att-name extension-att-value) */
+}
+
 typedef struct {
   const char *name;
 } sdp_names_t;
@@ -1295,6 +1405,7 @@ typedef struct {
 #define SDP_H248_ITEM           4
 #define SDP_CRYPTO              5
 #define SDP_SPRTMAP             6
+#define SDP_CANDIDATE           7
 
 static const sdp_names_t sdp_media_attribute_names[] = {
     { "Unknown-name"},    /* 0 Pad so that the real headers start at index 1 */
@@ -1304,6 +1415,7 @@ static const sdp_names_t sdp_media_attribute_names[] = {
     { "h248item"},        /* 4 */
     { "crypto"},          /* 5 */
     { "sprt"},            /* 6 */
+    { "candidate" },      /* 7 */
 };
 
 static gint find_sdp_media_attribute_names(tvbuff_t *tvb, int offset, guint len)
@@ -1753,8 +1865,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                     break;
                 }
             }
-
-          break;
+            break;
+        case SDP_CANDIDATE:
+            dissect_sdp_media_attribute_candidate(sdp_media_attribute_tree, tvb, offset);
+            break;
         default:
             /* No special treatment for values of this attribute type, just add as one item. */
             proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
@@ -2996,6 +3110,41 @@ proto_register_sdp(void)
             { "mki_length", "sdp.crypto.mki_length",
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
+        },
+        { &hf_ice_candidate_foundation,
+            { "Foundation", "sdp.ice_candidate.foundation",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              "Identifier, same for two candidates with same type, base address, protocol and STUN server", HFILL }
+        },
+        { &hf_ice_candidate_componentid,
+            { "Component ID", "sdp.ice_candidate.componentid",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              "Media component identifier (For RTP media, 1 is RTP, 2 is RTCP)", HFILL }
+        },
+        { &hf_ice_candidate_transport,
+            { "Transport", "sdp.ice_candidate.transport",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              "Transport protocol", HFILL }
+        },
+        { &hf_ice_candidate_priority,
+            { "Priority", "sdp.ice_candidate.priority",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_ice_candidate_address,
+            { "Connection Address", "sdp.ice_candidate.address",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              "IP address or FQDN of the candidate", HFILL }
+        },
+        { &hf_ice_candidate_port,
+            { "Candidate Port", "sdp.ice_candidate.port",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              "Port of the candidate", HFILL }
+        },
+        { &hf_ice_candidate_type,
+            { "Candidate Type", "sdp.ice_candidate.type",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              "The origin of the address and port, i.e. where it was learned", HFILL }
         },
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_sdp_nal_unit_1_string, { "NAL unit 1 string", "sdp.nal_unit_1_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
