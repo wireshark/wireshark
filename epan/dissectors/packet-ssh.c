@@ -145,6 +145,10 @@ static int hf_ssh_hostkey_type= -1;
 static int hf_ssh_hostkey_data= -1;
 static int hf_ssh_hostkey_rsa_n= -1;
 static int hf_ssh_hostkey_rsa_e= -1;
+static int hf_ssh_hostkey_dsa_p= -1;
+static int hf_ssh_hostkey_dsa_q= -1;
+static int hf_ssh_hostkey_dsa_g= -1;
+static int hf_ssh_hostkey_dsa_y= -1;
 static int hf_ssh_kexdh_h_sig= -1;
 static int hf_ssh_kexdh_h_sig_length= -1;
 static int hf_ssh_kex_algorithms = -1;
@@ -653,6 +657,11 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const c
     if (0 == strcmp(key_type, "ssh-rsa")) {
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_rsa_e);
         ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_rsa_n);
+    } else if (0 == strcmp(key_type, "ssh-dss")) {
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_dsa_p);
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_dsa_q);
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_dsa_g);
+        ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_dsa_y);
     } else {
         remaining_len = key_len - (type_len + 4);
         proto_tree_add_item(tree, hf_ssh_hostkey_data, tvb, offset, remaining_len, ENC_NA);
@@ -1277,6 +1286,26 @@ proto_register_ssh(void)
 
         { &hf_ssh_hostkey_rsa_e,
           { "RSA public exponent (e)",         "ssh.host_key.rsa.e",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_dsa_p,
+          { "DSA prime modulus (p)",  "ssh.host_key.dsa.p",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_dsa_q,
+          { "DSA prime divisor (q)",  "ssh.host_key.dsa.q",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_dsa_g,
+          { "DSA subgroup generator (g)",  "ssh.host_key.dsa.g",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_dsa_y,
+          { "DSA public key (y)",  "ssh.host_key.dsa.y",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
