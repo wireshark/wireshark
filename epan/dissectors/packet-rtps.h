@@ -418,7 +418,11 @@ typedef struct _rtps_dissector_data {
 #define SUBMESSAGE_APP_ACK                              (0x1c)
 #define SUBMESSAGE_APP_ACK_CONF                         (0x1d)
 #define SUBMESSAGE_HEARTBEAT_VIRTUAL                    (0x1e)
-#define SUBMESSAGE_SECURE                               (0x30)
+#define SUBMESSAGE_SECURE_BODY                          (0x30)
+#define SUBMESSAGE_SECURE_PREFIX                        (0x31)
+#define SUBMESSAGE_SECURE_POSTFIX                       (0x32)
+#define SUBMESSAGE_SECURE_RTPS_PREFIX                   (0x33)
+#define SUBMESSAGE_SECURE_RTPS_POSTFIX                  (0x34)
 
 #define SUBMESSAGE_RTI_CRC                              (0x80)
 
