@@ -2061,7 +2061,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_HELLO_RETRY_REQUEST:
                 ssl_dissect_hnd_hello_retry_request(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree,
-                                                    offset, length, session, ssl);
+                                                    offset, length, session, ssl, FALSE);
                 break;
 
             case SSL_HND_CERTIFICATE:

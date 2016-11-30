@@ -78,6 +78,17 @@ static proto_tree *top_tree;
  *
  *********************************************************************/
 
+/* https://www.iana.org/assignments/srtp-protection/srtp-protection.xhtml */
+static const value_string srtp_protection_profile_vals[] = {
+  { 0x0001, "SRTP_AES128_CM_HMAC_SHA1_80" }, /* RFC 5764 */
+  { 0x0002, "SRTP_AES128_CM_HMAC_SHA1_32" },
+  { 0x0005, "SRTP_NULL_HMAC_SHA1_80" },
+  { 0x0006, "SRTP_NULL_HMAC_SHA1_32" },
+  { 0x0007, "SRTP_AEAD_AES_128_GCM" }, /* RFC 7714 */
+  { 0x0008, "SRTP_AEAD_AES_256_GCM" },
+  { 0x00, NULL },
+};
+
 /* Initialize the protocol and registered fields */
 static gint dtls_tap                            = -1;
 static gint exported_pdu_tap                    = -1;
@@ -115,6 +126,11 @@ static gint hf_dtls_fragment_error              = -1;
 static gint hf_dtls_fragment_count              = -1;
 static gint hf_dtls_reassembled_in              = -1;
 static gint hf_dtls_reassembled_length          = -1;
+
+static gint hf_dtls_hs_ext_use_srtp_protection_profiles_length  = -1;
+static gint hf_dtls_hs_ext_use_srtp_protection_profile          = -1;
+static gint hf_dtls_hs_ext_use_srtp_mki_length                  = -1;
+static gint hf_dtls_hs_ext_use_srtp_mki                         = -1;
 
 /* header fields used in ssl-utils, but defined here. */
 static dtls_hfs_t dtls_hfs = { -1, -1 };
@@ -1298,7 +1314,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
           case SSL_HND_HELLO_RETRY_REQUEST:
             ssl_dissect_hnd_hello_retry_request(&dissect_dtls_hf, sub_tvb, pinfo, ssl_hand_tree,
-                                                0, length, session, ssl);
+                                                0, length, session, ssl, TRUE);
             break;
 
           case SSL_HND_CERTIFICATE:
@@ -1473,6 +1489,59 @@ dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
                                     cookie_length,
                                     plurality(cookie_length, "", "s"));
      offset += cookie_length;
+  }
+
+  return offset;
+}
+
+gint
+dtls_dissect_hnd_hello_ext_use_srtp(tvbuff_t *tvb, proto_tree *tree,
+                                    guint32 offset, guint32 ext_len)
+{
+  /* From https://tools.ietf.org/html/rfc5764#section-4.1.1
+   *
+   * uint8 SRTPProtectionProfile[2];
+   *
+   * struct {
+   *    SRTPProtectionProfiles SRTPProtectionProfiles;
+   *    opaque srtp_mki<0..255>;
+   * } UseSRTPData;
+   *
+   * SRTPProtectionProfile SRTPProtectionProfiles<2..2^16-1>;
+   */
+
+  guint32 profiles_length, profiles_end, mki_length;
+
+  if (ext_len < 2) {
+    /* XXX expert info, record too small */
+    return offset + ext_len;
+  }
+
+  /* SRTPProtectionProfiles list length */
+  proto_tree_add_item_ret_uint(tree, hf_dtls_hs_ext_use_srtp_protection_profiles_length,
+      tvb, offset, 2, ENC_BIG_ENDIAN, &profiles_length);
+  if (profiles_length > ext_len - 2) {
+    /* XXX expert info because length exceeds extension_data field */
+    profiles_length = ext_len - 2;
+  }
+  offset += 2;
+
+  /* SRTPProtectionProfiles list items */
+  profiles_end = offset + profiles_length;
+  while (offset < profiles_end) {
+    proto_tree_add_item(tree, hf_dtls_hs_ext_use_srtp_protection_profile,
+        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+  }
+
+  /* MKI */
+  proto_tree_add_item_ret_uint(tree, hf_dtls_hs_ext_use_srtp_mki_length,
+      tvb, offset, 1, ENC_NA, &mki_length);
+  offset++;
+  if (mki_length > 0) {
+    proto_tree_add_item(tree, hf_dtls_hs_ext_use_srtp_mki,
+        tvb, offset, mki_length, ENC_NA);
+    offset += mki_length;
   }
 
   return offset;
@@ -1753,6 +1822,22 @@ proto_register_dtls(void)
     { &hf_dtls_reassembled_length,
       { "Reassembled DTLS length", "dtls.reassembled.length",
         FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_dtls_hs_ext_use_srtp_protection_profiles_length,
+      { "SRTP Protection Profiles Length", "dtls.use_srtp.protection_profiles_length",
+        FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_dtls_hs_ext_use_srtp_protection_profile,
+      { "SRTP Protection Profile", "dtls.use_srtp.protection_profile",
+        FT_UINT16, BASE_HEX, VALS(srtp_protection_profile_vals), 0x00, NULL, HFILL }
+    },
+    { &hf_dtls_hs_ext_use_srtp_mki_length,
+      { "MKI Length", "dtls.use_srtp.mki_length",
+        FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_dtls_hs_ext_use_srtp_mki,
+      { "MKI", "dtls.use_srtp.mki",
+        FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
     SSL_COMMON_HF_LIST(dissect_dtls_hf, "dtls")
   };

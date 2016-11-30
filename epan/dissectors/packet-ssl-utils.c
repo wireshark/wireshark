@@ -53,6 +53,7 @@
 #include "packet-x509if.h"
 #include "packet-ssl-utils.h"
 #include "packet-ssl.h"
+#include "packet-dtls.h"
 #if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
 #include <gnutls/abstract.h>
 #endif
@@ -6128,7 +6129,8 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
 static gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           packet_info* pinfo, guint32 offset, guint32 left, guint8 hnd_type,
-                          SslSession *session, SslDecryptSession *ssl);
+                          SslSession *session, SslDecryptSession *ssl,
+                          gboolean is_dtls);
 void
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           packet_info *pinfo, proto_tree *tree, guint32 offset,
@@ -6243,7 +6245,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     if (length > offset - start_offset) {
         ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
                                   length - (offset - start_offset), SSL_HND_CLIENT_HELLO,
-                                  session, ssl);
+                                  session, ssl, dtls_hfs != NULL);
     }
 }
 
@@ -6327,7 +6329,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     if (length > offset - start_offset) {
         ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
                                   length - (offset - start_offset), SSL_HND_SERVER_HELLO,
-                                  session, ssl);
+                                  session, ssl, is_dtls);
     }
 }
 /* Client Hello and Server Hello dissections. }}} */
@@ -6384,7 +6386,8 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 void
 ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                     packet_info* pinfo, proto_tree *tree, guint32 offset, guint32 length,
-                                    SslSession *session, SslDecryptSession *ssl)
+                                    SslSession *session, SslDecryptSession *ssl,
+                                    gboolean is_dtls)
 {
     /* struct {
      *     ProtocolVersion server_version;
@@ -6401,7 +6404,7 @@ ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     if (length > offset - start_offset) {
         ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
                                   length - (offset - start_offset), SSL_HND_HELLO_RETRY_REQUEST,
-                                  session, ssl);
+                                  session, ssl, is_dtls);
     }
 }
 
@@ -6768,7 +6771,8 @@ ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tr
 static gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           packet_info* pinfo, guint32 offset, guint32 left, guint8 hnd_type,
-                          SslSession *session, SslDecryptSession *ssl)
+                          SslSession *session, SslDecryptSession *ssl,
+                          gboolean is_dtls)
 {
     guint16     extension_length;
     guint16     ext_type;
@@ -6855,6 +6859,14 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_SERVER_NAME:
             offset = ssl_dissect_hnd_hello_ext_server_name(hf, tvb, ext_tree, offset, ext_len);
+            break;
+        case SSL_HND_HELLO_EXT_USE_SRTP:
+            if (is_dtls) {
+                offset = dtls_dissect_hnd_hello_ext_use_srtp(tvb, ext_tree, offset, ext_len);
+            } else {
+                // XXX expert info: This extension MUST only be used with DTLS, and not with TLS.
+                offset += ext_len;
+            }
             break;
         case SSL_HND_HELLO_EXT_HEARTBEAT:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_heartbeat_mode,

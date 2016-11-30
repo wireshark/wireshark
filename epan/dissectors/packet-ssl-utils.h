@@ -842,7 +842,8 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* 
 extern void
 ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
                                     proto_tree *tree, guint32 offset, guint32 length,
-                                    SslSession *session, SslDecryptSession *ssl);
+                                    SslSession *session, SslDecryptSession *ssl,
+                                    gboolean is_dtls);
 
 extern void
 ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
