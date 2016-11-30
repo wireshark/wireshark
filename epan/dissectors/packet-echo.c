@@ -48,7 +48,7 @@ static int dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   int         offset    = 0;
   gboolean    request   = FALSE;
 
-  if (pinfo->destport == ECHO_PORT) {
+  if (pinfo->destport == pinfo->match_uint) {
     request = TRUE;
   }
 
