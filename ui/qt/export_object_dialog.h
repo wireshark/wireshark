@@ -36,12 +36,8 @@
 
 #include "wireshark_dialog.h"
 
-#include <QMetaType>
-
 class QTreeWidgetItem;
 class QAbstractButton;
-
-Q_DECLARE_METATYPE(export_object_entry_t *)
 
 namespace Ui {
 class ExportObjectDialog;
@@ -61,7 +57,6 @@ public:
 
     explicit ExportObjectDialog(QWidget &parent, CaptureFile &cf, ObjectType object_type);
     ~ExportObjectDialog();
-
 
     void addObjectEntry(export_object_entry_t *entry);
     export_object_entry_t *objectEntry(int row);

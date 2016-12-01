@@ -51,6 +51,7 @@ export_object_entry_t *object_list_get_entry(export_object_list_t *object_list, 
 gboolean eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gboolean show_err);
 GString *eo_massage_str(const gchar *in_str, gsize maxlen, int dup);
 const char *ct2ext(const char *content_type);
+void eo_free_entry(export_object_entry_t *entry);
 
 
 /* Protocol specific */

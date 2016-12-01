@@ -185,6 +185,16 @@ ct2ext(const char *content_type)
     return content_type;
 }
 
+void eo_free_entry(export_object_entry_t *entry)
+{
+    g_free(entry->hostname);
+    g_free(entry->content_type);
+    g_free(entry->filename);
+    g_free(entry->payload_data);
+
+    g_free(entry);
+}
+
 /*
  * Editor modelines
  *
