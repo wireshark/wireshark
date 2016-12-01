@@ -462,7 +462,7 @@ fi
 %endif
 
 %changelog
-* Mon Oct 18 2016 Benoit Canet
+* Tue Oct 18 2016 Benoit Canet
 - Add LZ4 and snappy compression support.
 
 * Mon Aug 29 2016 Jeff Morriss
