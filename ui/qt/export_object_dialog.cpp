@@ -28,6 +28,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/str_util.h>
 
+#include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
 #include <QDialogButtonBox>
@@ -59,6 +60,80 @@ eo_reset(void *tapdata)
 }
 
 } // extern "C"
+
+enum {
+    COL_PACKET,
+    COL_HOSTNAME,
+    COL_CONTENT_TYPE,
+    COL_SIZE,
+    COL_FILENAME
+};
+
+enum {
+    export_object_row_type_ = 1000
+};
+
+class ExportObjectTreeWidgetItem : public QTreeWidgetItem
+{
+public:
+    ExportObjectTreeWidgetItem(QTreeWidget *parent, export_object_entry_t *entry) :
+        QTreeWidgetItem (parent, export_object_row_type_),
+        entry_(entry)
+    {
+        // Not perfect but better than nothing.
+        setTextAlignment(COL_SIZE, Qt::AlignRight);
+    }
+    ~ExportObjectTreeWidgetItem() {
+        eo_free_entry(entry_);
+    }
+
+    export_object_entry_t *entry() { return entry_; }
+
+    virtual QVariant data(int column, int role) const {
+        if (!entry_ || role != Qt::DisplayRole) {
+            return QTreeWidgetItem::data(column, role);
+        }
+
+        switch (column) {
+        case COL_PACKET:
+            return QString::number(entry_->pkt_num);
+        case COL_HOSTNAME:
+            return entry_->hostname;
+        case COL_CONTENT_TYPE:
+            return entry_->content_type;
+        case COL_SIZE:
+            return file_size_to_qstring(entry_->payload_len);
+        case COL_FILENAME:
+            return entry_->filename;
+        default:
+            break;
+        }
+        return QTreeWidgetItem::data(column, role);
+    }
+
+    bool operator< (const QTreeWidgetItem &other) const
+    {
+        if (!entry_ || other.type() != export_object_row_type_) {
+            return QTreeWidgetItem::operator< (other);
+        }
+
+        const ExportObjectTreeWidgetItem *other_row = static_cast<const ExportObjectTreeWidgetItem *>(&other);
+
+        switch (treeWidget()->sortColumn()) {
+        case COL_PACKET:
+            return entry_->pkt_num < other_row->entry_->pkt_num;
+        case COL_SIZE:
+            return entry_->payload_len < other_row->entry_->payload_len;
+        default:
+            break;
+        }
+
+        return QTreeWidgetItem::operator< (other);
+    }
+
+private:
+    export_object_entry_t *entry_;
+};
 
 ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, ObjectType object_type) :
     WiresharkDialog(parent, cf),
@@ -132,33 +207,21 @@ ExportObjectDialog::~ExportObjectDialog()
 
 void ExportObjectDialog::addObjectEntry(export_object_entry_t *entry)
 {
-    QTreeWidgetItem *entry_item;
-    gchar *size_str;
-
     if (!entry) return;
 
-    size_str = format_size(entry->payload_len, format_size_unit_bytes|format_size_prefix_si);
-
-    entry_item = new QTreeWidgetItem(eo_ui_->objectTree);
-    entry_item->setData(0, Qt::UserRole, qVariantFromValue(entry));
-
-    entry_item->setText(0, QString().setNum(entry->pkt_num));
-    entry_item->setText(1, entry->hostname);
-    entry_item->setText(2, entry->content_type);
-    entry_item->setText(3, size_str);
-    entry_item->setText(4, entry->filename);
-    g_free(size_str);
-    // Not perfect but better than nothing.
-    entry_item->setTextAlignment(3, Qt::AlignRight);
+    new ExportObjectTreeWidgetItem(eo_ui_->objectTree, entry);
 
     if (save_all_bt_) save_all_bt_->setEnabled(true);
 }
 
 export_object_entry_t *ExportObjectDialog::objectEntry(int row)
 {
-    QTreeWidgetItem *item = eo_ui_->objectTree->topLevelItem(row);
+    QTreeWidgetItem *cur_ti = eo_ui_->objectTree->topLevelItem(row);
+    ExportObjectTreeWidgetItem *eo_ti = dynamic_cast<ExportObjectTreeWidgetItem *>(cur_ti);
 
-    if (item) return item->data(0, Qt::UserRole).value<export_object_entry_t *>();
+    if (eo_ti) {
+        return eo_ti->entry();
+    }
 
     return NULL;
 }
@@ -186,6 +249,9 @@ void ExportObjectDialog::show()
     for (int i = 0; i < eo_ui_->objectTree->columnCount(); i++)
         eo_ui_->objectTree->resizeColumnToContents(i);
 
+    eo_ui_->objectTree->setSortingEnabled(true);
+    eo_ui_->objectTree->sortByColumn(COL_PACKET, Qt::AscendingOrder);
+
 }
 
 void ExportObjectDialog::accept()
@@ -212,7 +278,13 @@ void ExportObjectDialog::on_objectTree_currentItemChanged(QTreeWidgetItem *item,
 
     if (save_bt_) save_bt_->setEnabled(true);
 
-    export_object_entry_t *entry = item->data(0, Qt::UserRole).value<export_object_entry_t *>();
+    ExportObjectTreeWidgetItem *eo_ti = dynamic_cast<ExportObjectTreeWidgetItem *>(item);
+
+    if (!eo_ti) {
+        return;
+    }
+
+    export_object_entry_t *entry = eo_ti->entry();
     if (entry && !file_closed_) {
         cf_goto_frame(cap_file_.capFile(), entry->pkt_num);
     }
@@ -239,10 +311,15 @@ void ExportObjectDialog::saveCurrentEntry()
     QDir path(wsApp->lastOpenDir());
     QString file_name;
 
-    if (!item) return;
+    ExportObjectTreeWidgetItem *eo_ti = dynamic_cast<ExportObjectTreeWidgetItem *>(item);
+    if (!eo_ti) {
+        return;
+    }
 
-    entry = item->data(0, Qt::UserRole).value<export_object_entry_t *>();
-    if (!entry) return;
+    entry = eo_ti->entry();
+    if (!entry) {
+        return;
+    }
 
     file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Object As" UTF8_HORIZONTAL_ELLIPSIS)),
                                              path.filePath(entry->filename));
@@ -280,8 +357,13 @@ void ExportObjectDialog::saveAllEntries()
     for (i = 0; (item = eo_ui_->objectTree->topLevelItem(i)) != NULL; i++) {
         int count = 0;
         gchar *save_as_fullpath = NULL;
-        export_object_entry_t *entry = item->data(0, Qt::UserRole).value<export_object_entry_t *>();
 
+        ExportObjectTreeWidgetItem *eo_ti = dynamic_cast<ExportObjectTreeWidgetItem *>(item);
+        if (!eo_ti) {
+            continue;
+        }
+
+        export_object_entry_t *entry = eo_ti->entry();
         if (!entry) continue;
 
         do {
