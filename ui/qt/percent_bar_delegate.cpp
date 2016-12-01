@@ -37,7 +37,7 @@ void PercentBarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     // Paint our rect with no text using the current style, then draw our
     // bar and text over it.
-    QStyledItemDelegate::paint(painter, option, QModelIndex());
+    QStyledItemDelegate::paint(painter, option, index);
 
     bool ok = false;
     double value = index.data(Qt::UserRole).toDouble(&ok);

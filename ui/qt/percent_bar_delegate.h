@@ -51,6 +51,10 @@ class PercentBarDelegate : public QStyledItemDelegate
 
 public:
     PercentBarDelegate(QWidget *parent = 0) : QStyledItemDelegate(parent) { }
+
+    // Make sure QStyledItemDelegate::paint doesn't draw any text.
+    virtual QString displayText(const QVariant &, const QLocale &) const { return QString(); }
+
 protected:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const;

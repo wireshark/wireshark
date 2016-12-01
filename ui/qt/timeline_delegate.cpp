@@ -43,12 +43,11 @@ void TimelineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     QStyleOptionViewItem option_vi = option;
     QStyledItemDelegate::initStyleOption(&option_vi, index);
 
-
     struct timeline_span span_px = index.data(Qt::UserRole).value<struct timeline_span>();
 
     // Paint our rect with no text using the current style, then draw our
     // bar and text over it.
-    QStyledItemDelegate::paint(painter, option, QModelIndex());
+    QStyledItemDelegate::paint(painter, option, index);
 
     if (QApplication::style()->objectName().contains("vista")) {
         // QWindowsVistaStyle::drawControl does this internally. Unfortunately there
