@@ -1015,8 +1015,7 @@ ssh_set_mac_length(struct ssh_peer_data *peer_data)
     }
 
     size_str = g_strrstr(mac_name, "-");
-    ws_strtoi32(size_str, NULL, &size);
-    if (size_str && size > 0) {
+    if (size_str && ws_strtou32(size_str + 1, NULL, &size) && size > 0 && size % 8 == 0) {
         peer_data->mac_length = size / 8;
     }
     else if (strcmp(mac_name, "hmac-sha1") == 0) {
