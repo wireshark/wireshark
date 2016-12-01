@@ -498,6 +498,14 @@ static int hf_bthci_mws_patterns = -1;
 static int hf_bthci_mws_pattern = -1;
 static int hf_bthci_mws_pattern_duration = -1;
 static int hf_bthci_mws_pattern_type = -1;
+static int hf_bthci_cmd_sync_train_to = -1;
+static int hf_bthci_cmd_service_data = -1;
+static int hf_bthci_cmd_secure_connection_host_support = -1;
+static int hf_bthci_cmd_csb_fragment = -1;
+static int hf_bthci_cmd_csb_data_length = -1;
+static int hf_bthci_cmd_csb_data = -1;
+static int hf_bthci_cmd_authenticated_payload_timeout = -1;
+static int hf_bthci_cmd_extended_inquiry_length = -1;
 
 
 static const int *hfx_bthci_cmd_le_event_mask[] = {
@@ -2079,6 +2087,15 @@ static const value_string mws_pattern_type_vals[] = {
     {0, NULL }
 };
 
+static const value_string csb_fragment_vals[] = {
+    { 0x00, "Continuation" },
+    { 0x01, "Start" },
+    { 0x02, "End" },
+    { 0x03, "No" },
+    {0, NULL }
+};
+
+
 void proto_register_bthci_cmd(void);
 void proto_reg_handoff_bthci_cmd(void);
 void proto_register_btcommon(void);
@@ -3279,6 +3296,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
         case 0x0008: /* Flush */
         case 0x0027: /* Read Automatic Flush Timeout */
         case 0x0036: /* Read Link Supervision Timeout */
+        case 0x0007B: /* Read Authenticated Payload Timeout */
             proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             break;
@@ -3481,6 +3499,11 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
         case 0x064: /* Read Location Data */
         case 0x066: /* Read Flow Control Mode */
         case 0x06C: /* Read LE Host Supported */
+        case 0x077: /* Read Synchronization Train Parameters */
+        case 0x079: /* Read Secure Connections Host Support */
+        case 0x07D: /* Read Local OOB Extended Data */
+        case 0x07E: /* Read Extended Page Timeout */
+        case 0x080: /* Read Extended Inquiry Length */
             /* NOTE: No parameters */
             break;
 
@@ -3683,22 +3706,60 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
             break;
         case 0x076: /* Set Connectionless Slave Broadcast Data */
-        case 0x077: /* Read Synchronization Train Parameters */
-        case 0x078: /* Write Synchronization Train Parameters */
-        case 0x079: /* Read Secure Connections Host Support */
-        case 0x07A: /* Write Secure Connections Host Support */
-        case 0x07B: /* Read Authenticated Payload Timeout */
-        case 0x07C: /* Write Authenticated Payload Timeout */
-        case 0x07D: /* Read Local OOB Extended Data */
-        case 0x07E: /* Read Extended Page Timeout */
-        case 0x07F: /* Write Extended Page Timeout */
-        case 0x080: /* Read Extended Inquiry Length */
-        case 0x081: /* Write Extended Inquiry Length */
-/* TODO: Implement above cases */
-            proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
-            offset += tvb_reported_length_remaining(tvb, offset);
-            break;
+            {
+            guint32  data_length;
 
+            proto_tree_add_item(tree, hf_bthci_cmd_lt_addr, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_cmd_csb_fragment, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item_ret_uint(tree, hf_bthci_cmd_csb_data_length, tvb, offset, 1, ENC_NA, &data_length);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_cmd_csb_data, tvb, offset, data_length, ENC_NA);
+            offset += data_length;
+
+            }
+            break;
+        case 0x078: /* Write Synchronization Train Parameters */
+            proto_tree_add_item(tree, hf_bthci_cmd_interval_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_cmd_interval_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_cmd_sync_train_to, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(tree, hf_bthci_cmd_service_data, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case 0x07A: /* Write Secure Connections Host Support */
+            proto_tree_add_item(tree, hf_bthci_cmd_secure_connection_host_support, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case 0x07C: /* Write Authenticated Payload Timeout */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_cmd_authenticated_payload_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x07F: /* Write Extended Page Timeout */
+            proto_tree_add_item(tree, hf_bthci_cmd_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x081: /* Write Extended Inquiry Length */
+            proto_tree_add_item(tree, hf_bthci_cmd_extended_inquiry_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
         default:
             proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
             offset += tvb_reported_length_remaining(tvb, offset);
@@ -6981,6 +7042,46 @@ proto_register_bthci_cmd(void)
           { "Type",  "bthci_cmd.mws_pattern.pattern.type",
             FT_UINT8, BASE_HEX, VALS(mws_pattern_type_vals), 0x0,
             NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sync_train_to,
+          { "Synchronization Train To", "bthci_cmd.sync_train_to",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_service_data,
+          { "Service Data", "bthci_cmd.service_data",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_secure_connection_host_support,
+          { "Secure Connection Host Support", "bthci_cmd.secure_connection_host_support",
+            FT_UINT8, BASE_HEX, VALS(disable_enable_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_csb_fragment,
+          { "CSB Fragment", "bthci_cmd.csb.fragment",
+            FT_UINT8, BASE_HEX, VALS(csb_fragment_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_csb_data_length,
+          { "CSB Data Length", "bthci_cmd.csb.data_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_csb_data,
+          { "CSB Data", "bthci_cmd.csb.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_authenticated_payload_timeout,
+          { "Authenticated Payload Timeout", "bthci_cmd.authenticated_payload_timeout",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_extended_inquiry_length,
+          { "Extended Inquiry Length",           "bthci_cmd.extended_inquiry_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
         }
     };
 
@@ -8757,6 +8858,7 @@ proto_register_btcommon(void)
 
     expert_module = expert_register_protocol(proto_btcommon);
     expert_register_field_array(expert_module, ei, array_length(ei));
+    (void )ei_command_undecoded; /* Not needed not, but there is upcoming Bluetooth 5 */
 
     btcommon_ad_handle  = register_dissector("btcommon.eir_ad.ad",  dissect_btcommon_ad,  proto_btcommon);
     btcommon_eir_handle = register_dissector("btcommon.eir_ad.eir", dissect_btcommon_eir, proto_btcommon);
