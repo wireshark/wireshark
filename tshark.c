@@ -88,6 +88,12 @@
 #include "ui/cli/tap-exportobject.h"
 #include "ui/tap_export_pdu.h"
 #include "ui/dissect_opts.h"
+#if defined(HAVE_LIBSMI)
+#include "epan/oids.h"
+#endif
+#if defined(HAVE_GEOIP)
+#include "epan/geoip_db.h"
+#endif
 #include "register.h"
 #include "filter_files.h"
 #include <epan/epan_dissect.h>
@@ -446,6 +452,7 @@ glossary_option_help(void)
   fprintf(output, "Preference reports:\n");
   fprintf(output, "  -G currentprefs          dump current preferences and exit\n");
   fprintf(output, "  -G defaultprefs          dump default preferences and exit\n");
+  fprintf(output, "  -G folders               dump about:folders\n");
   fprintf(output, "\n");
 }
 
@@ -527,6 +534,95 @@ get_tshark_runtime_version_info(GString *str)
 
     /* stuff used by libwireshark */
     epan_get_runtime_version_info(str);
+}
+
+static void
+about_folders(void)
+{
+  const char           *constpath;
+  char                 *path;
+#if defined(HAVE_LIBSMI) || defined(HAVE_GEOIP) || defined(HAVE_EXTCAP)
+  gint                  i;
+  gchar               **resultArray;
+#endif
+
+  /* "file open" */
+
+  /*
+   * Fetching the "File" dialogs folder not implemented.
+   * This is arguably just a pwd for a ui/cli .
+   */
+
+  /* temp */
+  printf("%-21s\t%s\n", "Temp:", g_get_tmp_dir());
+
+  /* pers conf */
+  path = get_persconffile_path("", FALSE);
+  printf("%-21s\t%s\n", "Personal configuration:", path);
+  g_free(path);
+
+  /* global conf */
+  constpath = get_datafile_dir();
+  if (constpath != NULL) {
+    printf("%-21s\t%s\n", "Global configuration:", constpath);
+  }
+
+  /* system */
+  constpath = get_systemfile_dir();
+  printf("%-21s\t%s\n", "System:", constpath);
+
+  /* program */
+  constpath = get_progfile_dir();
+  printf("%-21s\t%s\n", "Program:", constpath);
+
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
+  /* pers plugins */
+  path = get_plugins_pers_dir();
+
+  printf("%-21s\t%s\n", "Personal Plugins:", path);
+
+  g_free(path);
+
+  /* global plugins */
+  printf("%-21s\t%s\n", "Global Plugins:", get_plugin_dir());
+#endif
+
+#ifdef HAVE_GEOIP
+  /* GeoIP */
+  path = geoip_db_get_paths();
+
+  resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 10);
+
+  for(i = 0; resultArray[i]; i++)
+    printf("%-21s\t%s\n", "GeoIP path:", g_strstrip(resultArray[i]));
+
+  g_strfreev(resultArray);
+  g_free(path);
+#endif
+
+#ifdef HAVE_LIBSMI
+  /* SMI MIBs/PIBs */
+  path = oid_get_default_mib_path();
+  resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 10);
+
+  for(i = 0; resultArray[i]; i++)
+    printf("%-21s\t%s\n", "MIB/PIB path:", g_strstrip(resultArray[i]));
+
+  g_strfreev(resultArray);
+  g_free(path);
+#endif
+
+#ifdef HAVE_EXTCAP
+  /* Extcap */
+  constpath = get_extcap_dir();
+
+  resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
+  for(i = 0; resultArray[i]; i++)
+    printf("%-21s\t%s\n", "Extcap path:", g_strstrip(resultArray[i]));
+
+  g_strfreev(resultArray);
+#endif
+
 }
 
 int
@@ -854,6 +950,8 @@ main(int argc, char *argv[])
         return proto_registrar_dump_fieldcount();
       } else if (strcmp(argv[2], "fields") == 0)
         proto_registrar_dump_fields();
+      else if (strcmp(argv[2], "folders") == 0)
+        about_folders();
       else if (strcmp(argv[2], "ftypes") == 0)
         proto_registrar_dump_ftypes();
       else if (strcmp(argv[2], "heuristic-decodes") == 0)

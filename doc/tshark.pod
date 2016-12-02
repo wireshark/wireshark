@@ -422,6 +422,13 @@ The fields are tab-delimited.
  * Field 7 = bitmask: format: hex: 0x....
  * Field 8 = blurb describing field
 
+B<folders> Dumps various folders used by tshark.  This is essentially the
+same data reported in Wireshark's About | Folders tab.
+There is one record per line.  The fields are tab-delimited.
+
+ * Field 1 = Folder type (e.g "Personal configuration:")
+ * Field 2 = Folder location (e.g. "/home/vagrant/.config/wireshark/")
+
 B<ftypes> Dumps the "ftypes" (fundamental types) understood by tshark.
 There is one record per line.  The fields are tab-delimited.
 
