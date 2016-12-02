@@ -19,11 +19,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "config.h"
+
 #include "inet_addr.h"
 
 #include "inet_addr-int.h"
-
-
 
 static inline gboolean
 _inet_pton(int af, const gchar *src, gpointer dst)
