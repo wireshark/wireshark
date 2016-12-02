@@ -1092,7 +1092,7 @@ rpm-package: dist
 	  rm -f SOURCES/$(distdir).tar.xz ../../$(distdir).tar.xz
 else
 rpm-package:
-	@echo "RPM executable not available." ; \
+	@echo "'rpmbuild' executable not available." ; \
 	  false
 endif
 
