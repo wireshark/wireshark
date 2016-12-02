@@ -77,6 +77,7 @@ TSHARK_TAP_SRC = \
 	tap-wspstat.c
 
 noinst_HEADERS = \
+	tap-exportobject.h 	\
 	tshark-tap.h
 
 # All sources that should be put in the source distribution tarball
