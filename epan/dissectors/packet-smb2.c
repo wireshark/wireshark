@@ -8763,7 +8763,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		si->msg_id = tvb_get_letoh64(tvb, offset);
 		ssi_key.msg_id = si->msg_id;
 		msg_id_item = proto_tree_add_item(header_tree, hf_smb2_msg_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-		if (msg_id_item && (si->msg_id == -1)) {
+		if (msg_id_item && (si->msg_id == G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF))) {
 			proto_item_append_text(msg_id_item, " (unsolicited response)");
 		}
 		offset += 8;
@@ -8985,7 +8985,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_msg_id,
-			{ "Message ID", "smb2.msg_id", FT_INT64, BASE_DEC,
+			{ "Message ID", "smb2.msg_id", FT_UINT64, BASE_DEC,
 			NULL, 0, "SMB2 Message ID", HFILL }
 		},
 
