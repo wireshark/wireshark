@@ -80,7 +80,7 @@ typedef enum {
 
 /** Create and show a simple dialog.
  *
- * @param Type type of dialog, e.g. ESD_TYPE_WARN
+ * @param type type of dialog, e.g. ESD_TYPE_WARN
  * @param btn_mask The buttons to display, e.g. ESD_BTNS_OK_CANCEL
  * @param msg_format Printf like message format. Text must be plain.
  * @param ... Printf like parameters
