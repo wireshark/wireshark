@@ -271,8 +271,18 @@ static const value_string tlv_tag_class[] = {
 };
 static value_string_ext tlv_tag_class_ext = VALUE_STRING_EXT_INIT(tlv_tag_class);
 
+#define TLV_TAG_TEXT_LINES          0x07
+#define TLV_TAG_CHARS_PER_LINE      0x12
 #define TLV_TAG_DISPLAY_TEXTS       0x24
+#define TLV_TAG_PERMITTED_ZVT_CMDS  0x26
+#define TLV_TAG_SUPPORTED_CHARSETS  0x27
 #define TLV_TAG_PAYMENT_TYPE        0x2F
+#define TLV_TAG_EMV_CFG_PARAM       0x40
+#define TLV_TAG_RECEIPT_PARAM       0x1F04
+#define TLV_TAG_CARDHOLDER_AUTH     0x1F10
+#define TLV_TAG_ONLINE_FLAG         0x1F11
+#define TLV_TAG_CARD_TYPE           0x1F12
+
 
 typedef struct _tlv_seq_info_t {
     guint txt_enc;
@@ -299,8 +309,18 @@ static const tlv_info_t tlv_info[] = {
 };
 
 static const value_string tlv_tags[] = {
+    { TLV_TAG_TEXT_LINES,         "Text lines" },
+    { TLV_TAG_CHARS_PER_LINE,
+        "Number of characters per line of the printer" },
     { TLV_TAG_DISPLAY_TEXTS, "Display texts" },
-    { TLV_TAG_PAYMENT_TYPE,  "Payment type" },
+    { TLV_TAG_PERMITTED_ZVT_CMDS, "List of permitted ZVT commands" },
+    { TLV_TAG_SUPPORTED_CHARSETS, "List of supported character sets" },
+    { TLV_TAG_PAYMENT_TYPE,       "Payment type" },
+    { TLV_TAG_EMV_CFG_PARAM,      "EMV config parameter" },
+    { TLV_TAG_RECEIPT_PARAM,      "Receipt parameter" },
+    { TLV_TAG_CARDHOLDER_AUTH,    "Cardholder authentication" },
+    { TLV_TAG_ONLINE_FLAG,        "Online flag" },
+    { TLV_TAG_CARD_TYPE,          "Card type" },
     { 0, NULL }
 };
 static value_string_ext tlv_tags_ext = VALUE_STRING_EXT_INIT(tlv_tags);
