@@ -685,6 +685,7 @@ DISSECTOR_SRC = \
 	packet-gsm_sms_ud.c	\
 	packet-gsm_um.c		\
 	packet-gsmtap.c		\
+	packet-gsmtap_log.c	\
 	packet-gssapi.c		\
 	packet-gtp.c		\
 	packet-gtpv2.c		\

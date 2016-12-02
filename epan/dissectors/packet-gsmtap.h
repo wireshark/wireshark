@@ -46,6 +46,7 @@
 #define GSMTAP_TYPE_GMR1_UM		0x0a	/* GMR-1 L2 packets */
 #define GSMTAP_TYPE_UMTS_RLC_MAC	0x0b
 #define GSMTAP_TYPE_UMTS_RRC		0x0c
+#define GSMTAP_TYPE_OSMOCORE_LOG	0x10	/* libosmocore logging */
 
 /* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
 #define GSMTAP_BURST_UNKNOWN		0x00

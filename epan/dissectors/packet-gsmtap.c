@@ -290,6 +290,7 @@ static const value_string gsmtap_types[] = {
 	{ GSMTAP_TYPE_GMR1_UM, "GMR-1 air interfeace (MES-MS<->GTS)" },
 	{ GSMTAP_TYPE_UMTS_RLC_MAC,	"UMTS RLC/MAC" },
 	{ GSMTAP_TYPE_UMTS_RRC,		"UMTS RRC" },
+	{ GSMTAP_TYPE_OSMOCORE_LOG,	"libosmocore logging" },
 	{ 0,			NULL },
 };
 

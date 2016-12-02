@@ -945,6 +945,10 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
+[packet-gsmtap_log.[ch]]
+indent_style = tab
+indent_size = tab
+
 [packet-gssapi.[ch]]
 indent_style = tab
 indent_size = tab
