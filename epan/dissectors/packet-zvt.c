@@ -349,7 +349,9 @@ dissect_zvt_tlv_tag(tvbuff_t *tvb, gint offset,
     }
 
     tag_ti = proto_tree_add_uint_format(tree, hf_zvt_tlv_tag,
-            tvb, offset_start, offset-offset_start, _tag, "Tag: 0x%x", _tag);
+            tvb, offset_start, offset-offset_start, _tag,
+            "Tag: %s (0x%x)",
+            val_to_str_ext(_tag, &tlv_tags_ext, "unknown"), _tag);
 
     tag_tree = proto_item_add_subtree(tag_ti, ett_zvt_tlv_tag);
     proto_tree_add_item(tag_tree, hf_zvt_tlv_tag_class,
