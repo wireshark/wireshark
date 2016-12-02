@@ -1,5 +1,10 @@
 /* -*-mode: flex-*- */
 
+%top {
+/* Include this before everything else, for various large-file definitions */
+#include "config.h"
+}
+
 /*
  * We don't use input, so don't generate code for it.
  */
