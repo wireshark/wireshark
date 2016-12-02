@@ -139,7 +139,6 @@ static int hf_ssh_mpint_p= -1;
 static int hf_ssh_mpint_e= -1;
 static int hf_ssh_mpint_f= -1;
 static int hf_ssh_mpint_length= -1;
-static int hf_ssh_kexdh_host_key= -1;
 static int hf_ssh_hostkey_length= -1;
 static int hf_ssh_hostkey_type= -1;
 static int hf_ssh_hostkey_data= -1;
@@ -863,7 +862,7 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
         break;
 
     case SSH_MSG_KEX_DH_GEX_REPLY:
-        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_host_key, hf_ssh_hostkey_length);
+        offset += ssh_tree_add_hostkey(tvb, offset, tree, "KEX DH host key", ett_key_exchange_host_key);
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_f);
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_h_sig, hf_ssh_kexdh_h_sig_length);
         break;
@@ -1253,11 +1252,6 @@ proto_register_ssh(void)
           { "Multi Precision Integer Length",      "ssh.mpint_length",
             FT_UINT32, BASE_DEC, NULL,  0x0,
             "SSH mpint length", HFILL }},
-
-        { &hf_ssh_kexdh_host_key,
-          { "KEX DH host key",         "ssh.kexdh.host_key",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "SSH KEX DH host key", HFILL }},
 
         { &hf_ssh_kexdh_h_sig,
           { "KEX DH H signature",         "ssh.kexdh.h_sig",
