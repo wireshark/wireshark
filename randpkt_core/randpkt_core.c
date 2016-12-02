@@ -21,9 +21,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "randpkt_core.h"
-
 #include <config.h>
+
+#include "randpkt_core.h"
 
 #include <time.h>
 #include <errno.h>
