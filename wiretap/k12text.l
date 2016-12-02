@@ -1,3 +1,8 @@
+%top {
+/* Include this before everything else, for various large-file definitions */
+#include "config.h"
+}
+
 /*
  * We want a reentrant scanner.
  */
@@ -95,7 +100,6 @@
   *   - verify encapsulations
   */
 
-#include "config.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
