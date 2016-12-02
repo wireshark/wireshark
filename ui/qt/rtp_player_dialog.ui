@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>708</width>
-    <height>400</height>
+    <width>750</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>RTP Player</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
@@ -118,7 +118,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,1,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,1">
      <item>
       <widget class="QToolButton" name="playButton">
        <property name="text">
@@ -153,12 +153,39 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>20</width>
          <height>10</height>
         </size>
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Output Device:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="outputDeviceComboBox"/>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0,0,0,1">
      <item>
       <widget class="QLabel" name="label">
        <property name="toolTip">
@@ -241,8 +268,8 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>20</width>
+         <height>10</height>
         </size>
        </property>
       </spacer>
@@ -256,6 +283,19 @@
         <string>Time of Day</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>48</width>
+         <height>24</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>

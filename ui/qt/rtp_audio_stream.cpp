@@ -42,6 +42,7 @@
 #include <QAudioOutput>
 #include <QDir>
 #include <QTemporaryFile>
+#include <QVariant>
 
 // To do:
 // - Only allow one rtp_stream_info_t per RtpAudioStream?
@@ -521,9 +522,40 @@ QAudio::State RtpAudioStream::outputState() const
     return audio_output_->state();
 }
 
+const QString RtpAudioStream::formatDescription(const QAudioFormat &format)
+{
+    QString fmt_descr = QString("%1 Hz, ").arg(format.sampleRate());
+    switch (format.sampleType()) {
+    case QAudioFormat::SignedInt:
+        fmt_descr += "Int";
+        break;
+    case QAudioFormat::UnSignedInt:
+        fmt_descr += "UInt";
+        break;
+    case QAudioFormat::Float:
+        fmt_descr += "Float";
+        break;
+    default:
+        fmt_descr += "Unknown";
+        break;
+    }
+    fmt_descr += QString::number(format.sampleSize());
+    fmt_descr += format.byteOrder() == QAudioFormat::BigEndian ? "BE" : "LE";
+
+    return fmt_descr;
+}
+
 void RtpAudioStream::startPlaying()
 {
     if (audio_output_) return;
+
+    QAudioDeviceInfo cur_out_device = QAudioDeviceInfo::defaultOutputDevice();
+    QString cur_out_name = parent()->property("currentOutputDeviceName").toString();
+    foreach (QAudioDeviceInfo out_device, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
+        if (cur_out_name == out_device.deviceName()) {
+            cur_out_device = out_device;
+        }
+    }
 
     QAudioFormat format;
     format.setSampleRate(audio_out_rate_);
@@ -536,7 +568,15 @@ void RtpAudioStream::startPlaying()
     //                 tempfile_->fileName().toUtf8().constData(),
     //                 (int) tempfile_->size(), audio_out_rate_);
 
-    audio_output_ = new QAudioOutput(format, this);
+    if (!cur_out_device.isFormatSupported(format)) {
+        QString playback_error = tr("%1 does not support PCM at %2. Preferred format is %3")
+                .arg(cur_out_device.deviceName())
+                .arg(formatDescription(format))
+                .arg(formatDescription(cur_out_device.nearestFormat(format)));
+        emit playbackError(playback_error);
+    }
+
+    audio_output_ = new QAudioOutput(cur_out_device, format, this);
     audio_output_->setNotifyInterval(65); // ~15 fps
     connect(audio_output_, SIGNAL(stateChanged(QAudio::State)), this, SLOT(outputStateChanged(QAudio::State)));
     connect(audio_output_, SIGNAL(notify()), this, SLOT(outputNotify()));

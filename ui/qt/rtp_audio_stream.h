@@ -37,6 +37,7 @@
 #include <QSet>
 #include <QVector>
 
+class QAudioFormat;
 class QAudioOutput;
 class QTemporaryFile;
 
@@ -142,6 +143,7 @@ public:
 signals:
     void startedPlaying();
     void processedSecs(double secs);
+    void playbackError(const QString error_msg);
     void finishedPlaying();
 
 public slots:
@@ -183,6 +185,7 @@ private:
     TimingMode timing_mode_;
 
     void writeSilence(int samples);
+    const QString formatDescription(const QAudioFormat & format);
 
 private slots:
     void outputStateChanged(QAudio::State new_state);

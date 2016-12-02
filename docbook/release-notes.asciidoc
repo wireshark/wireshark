@@ -39,6 +39,7 @@ since version 2.2.0:
 * Wireshark can now go fullscreen to have more room for packets.
 * TShark can now export objects like the other GUI interfaces.
 * Support for G.722 and G.726 codecs in the RTP Player (via the Spandsp library).
+* You can now choose the output device when playing RTP streams.
 
 //=== Removed Dissectors
 
