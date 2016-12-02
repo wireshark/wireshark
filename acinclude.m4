@@ -1577,7 +1577,7 @@ fi
 AC_DEFUN([AC_WIRESHARK_GCC_SYSTEM_INCLUDE],
 [
 	if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
-		$1=`printf %s " $$1" \
+		$1=`echo " $$1" \
 			| sed -e 's/  *-I *\// -isystem\//g' -e 's/^ *//'`
 	fi
 ])
