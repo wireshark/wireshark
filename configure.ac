@@ -1433,15 +1433,13 @@ if test "$have_gtk" = "yes" -a "$have_qt" = "yes" ; then
 	wireshark_bin="wireshark\$(EXEEXT) wireshark-gtk\$(EXEEXT)"
 	wireshark_man="wireshark.1"
 	wireshark_SUBDIRS="codecs ui/qt ui/gtk"
-fi
-if test "$have_gtk" = "no" -a "$have_qt" = "yes" ; then
+elif test "$have_gtk" = "no" -a "$have_qt" = "yes" ; then
 	# We don't have GTK+ but we have Qt.
 
 	wireshark_bin="wireshark\$(EXEEXT)"
 	wireshark_man="wireshark.1"
 	wireshark_SUBDIRS="codecs ui/qt"
-fi
-if test "$have_gtk" = "yes" -a "$have_qt" = "no" ; then
+elif test "$have_gtk" = "yes" -a "$have_qt" = "no" ; then
 	# We have GTK+ but not Qt.
 
 	wireshark_bin="wireshark-gtk\$(EXEEXT)"
@@ -1449,8 +1447,7 @@ if test "$have_gtk" = "yes" -a "$have_qt" = "no" ; then
 	wireshark_SUBDIRS="codecs ui/gtk"
 	OSX_APP_FLAGS="$OSX_APP_FLAGS -gtk"
 	OSX_DMG_FLAGS="-gtk"
-fi
-if test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
+elif test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
 	# We have neither GTK+ nor Qt.
 	#
 	# If they didn't explicitly say "--disable-wireshark",
@@ -1460,7 +1457,15 @@ if test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
 	# problem).
 	#
 	if test "x$enable_wireshark" = "xyes"; then
-		AC_MSG_ERROR([Neither Qt nor GTK+ are available, so Wireshark can't be compiled])
+		if test "$with_qt" != "no" -a "$with_gtk" != "no" ; then
+			AC_MSG_ERROR([Neither Qt nor GTK+ are available, so Wireshark can't be compiled])
+		elif test "$with_qt" != "no" -a "$with_gtk" = "no" ; then
+			AC_MSG_ERROR([Qt is not available and GTK+ was not requested, so Wireshark can't be compiled])
+		elif test "$with_qt" = "no" -a "$with_gtk" != "no" ; then
+			AC_MSG_ERROR([Qt was not requested and GTK+ is not available, so Wireshark can't be compiled])
+		elif test "$with_qt" = "no" -a "$with_gtk" = "no" ; then
+			AC_MSG_ERROR([Neither Qt nor GTK+ were requested, so Wireshark can't be compiled])
+		fi
 	fi
 	wireshark_bin=""
 	wireshark_man=""
