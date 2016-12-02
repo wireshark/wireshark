@@ -838,7 +838,7 @@ register_preference(module_t *module, const char *name, const char *title,
     /* The title shows up in the preferences dialog. Make sure it's UI-friendly. */
     if (preference->title) {
         const char *cur_char;
-        if (preference->type != PREF_STATIC_TEXT && strlen(preference->title) > 80) { // Arbitrary.
+        if (preference->type != PREF_STATIC_TEXT && g_utf8_strlen(preference->title, -1) > 80) { // Arbitrary.
             g_error("Title for preference %s.%s is too long: %s", name_prefix, preference->name, preference->title);
         }
 
