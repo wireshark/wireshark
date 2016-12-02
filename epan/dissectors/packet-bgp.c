@@ -1408,6 +1408,8 @@ static int hf_bgp_notify_minor_cease = -1;
 static int hf_bgp_notify_minor_cap_msg = -1;
 static int hf_bgp_notify_minor_unknown = -1;
 static int hf_bgp_notify_data = -1;
+static int hf_bgp_notify_communication_length = -1;
+static int hf_bgp_notify_communication = -1;
 
 /* BGP route refresh header field */
 
@@ -7435,6 +7437,8 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     int                     offset;
     guint                   major_error;
     proto_item              *ti;
+    guint8                  clen;
+    guint8                  minor_cease;
 
     hlen =  tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     offset = BGP_MARKER_SIZE + 2 + 1;
@@ -7476,7 +7480,17 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
     /* only print if there is optional data */
     if (hlen > BGP_MIN_NOTIFICATION_MSG_SIZE) {
-        proto_tree_add_item(tree, hf_bgp_notify_data, tvb, offset, hlen - BGP_MIN_NOTIFICATION_MSG_SIZE, ENC_NA);
+        minor_cease = tvb_get_guint8(tvb, offset - 1);
+        clen = tvb_get_guint8(tvb, offset);
+        /* Might be a idr-shutdown communication, first byte is length, max length being 128) */
+        if (clen <= 128 && hlen - BGP_MIN_NOTIFICATION_MSG_SIZE - 1 == clen && major_error == BGP_MAJOR_ERROR_CEASE && minor_cease == 2) {
+            proto_tree_add_item(tree, hf_bgp_notify_communication_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(tree, hf_bgp_notify_communication, tvb, offset, hlen - BGP_MIN_NOTIFICATION_MSG_SIZE - 1, ENC_UTF_8|ENC_NA);
+        /* otherwise just dump the hex data */
+        } else {
+            proto_tree_add_item(tree, hf_bgp_notify_data, tvb, offset, hlen - BGP_MIN_NOTIFICATION_MSG_SIZE, ENC_NA);
+        }
     }
 }
 
@@ -8019,6 +8033,12 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_notify_data,
         { "Data", "bgp.notify.minor_data", FT_BYTES, BASE_NONE,
+           NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_notify_communication_length,
+        { "BGP Shutdown Communication Length", "bgp.notify.communication_length", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_notify_communication,
+        { "Shutdown Communication", "bgp.notify.commmunication", FT_STRING, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
 
         /* Route Refresh */
