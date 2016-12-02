@@ -1293,18 +1293,19 @@ if test "x$enable_wireshark" = "xyes"; then
 			AC_SUBST(LRELEASE)
 
 			#
-			# On Darwin, find where the Qt frameworks are
-			# located, and add that to the rpath, just in
-			# case this is Qt 5.5 or later and the frameworks
-			# have an install name that begins with @rpath
-			# and aren't installed in a frameworks directory
-			# that's searched by default.
+			# On Darwin, make sure we're using Qt5 or later.
+			# If so, find where the Qt frameworks are located
+			# and add that to the rpath, just in case this is
+			# Qt 5.5 or later and the frameworks have an
+			# install name that begins with @rpath and aren't
+			# installed in a frameworks directory that's
+			# searched by default.
 			#
 			case "$host_os" in
 			darwin*)
 				if test $qt_version -le 4
 				then
-					Qt_LDFLAGS="-Wl,-rpath,"`$PKG_CONFIG --libs QtCore | sed -e 's/-F//' -e 's/ -framework.*//'`
+					AC_MSG_ERROR([macOS builds should use Qt5])
 				else
 					Qt_LDFLAGS="-Wl,-rpath,"`$PKG_CONFIG --libs Qt${qt_version}Core | sed -e 's/-F//' -e 's/ -framework.*//'`
 				fi
