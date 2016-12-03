@@ -2404,7 +2404,7 @@ wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
 	if (new_fd == -1) {
 		/* dup failed */
 		*err = errno;
-		close(new_fd);
+		ws_close(new_fd);
 		return NULL;
 	}
 #ifdef _WIN32
@@ -2417,7 +2417,7 @@ wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
 	if (_setmode(new_fd, O_BINARY) == -1) {
 		/* "Should not happen" */
 		*err = errno;
-		close(new_fd);
+		ws_close(new_fd);
 		return NULL;
 	}
 #endif
@@ -2426,7 +2426,7 @@ wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
 	    compressed, shb_hdrs, idb_inf, nrb_hdrs, err);
 	if (wdh == NULL) {
 		/* Failed; close the new FD */
-		close(new_fd);
+		ws_close(new_fd);
 		return NULL;
 	}
 	return wdh;
