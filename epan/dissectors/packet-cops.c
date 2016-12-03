@@ -1086,6 +1086,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 if (nstime_cmp(&pinfo->abs_ts, &cops_call->req_time) <= 0 || cops_call->rsp_num != 0)
                     continue;
 
+#if 0
                 if (
                     ( (cops_call->op_code == COPS_MSG_REQ) &&
                         (op_code == COPS_MSG_DEC && is_solicited) ) ||
@@ -1104,6 +1105,68 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                     cops_call->rsp_num = pinfo->num;
                     break;
                 }
+#else
+                if (cops_call->op_code == COPS_MSG_REQ) {
+                    if (op_code == COPS_MSG_DEC) {
+                        if (is_solicited) {
+                            cops_call->rsp_num = pinfo->num;
+                            break;
+                        }
+                    }
+                }
+                else if (cops_call->op_code == COPS_MSG_DEC) {
+                    if (op_code == COPS_MSG_RPT) {
+                        if (is_solicited) {
+                            cops_call->rsp_num = pinfo->num;
+                            break;
+                        }
+                    }
+                    else if (op_code == COPS_MSG_DRQ) {
+                        if (is_solicited) {
+                            cops_call->rsp_num = pinfo->num;
+                            break;
+                        }
+                    }
+                } 
+                else if (cops_call->op_code == COPS_MSG_SSQ) {
+                    if (op_code == COPS_MSG_RPT) {
+                        if (is_solicited) {
+                            cops_call->rsp_num = pinfo->num;
+                            break;
+                        }
+                    }
+                    else if (op_code == COPS_MSG_DRQ) {
+                        if (is_solicited) {
+                            cops_call->rsp_num = pinfo->num;
+                            break;
+                        }
+                    }
+                    else if (op_code == COPS_MSG_SSC) {
+                        cops_call->rsp_num = pinfo->num;
+                        break;
+                    }
+                }
+                else if (cops_call->op_code == COPS_MSG_OPN) {
+                    if (op_code == COPS_MSG_CAT) {
+                        cops_call->rsp_num = pinfo->num;
+                        break;
+                    }
+                    else if (op_code == COPS_MSG_CC) {
+                        cops_call->rsp_num = pinfo->num;
+                        break;
+                    }
+                }
+                else if (cops_call->op_code == COPS_MSG_KA) {
+                    if (!(cops_call->solicited)) {
+                        if (op_code == COPS_MSG_KA) {
+                            if (is_solicited) {
+                                cops_call->rsp_num = pinfo->num;
+                                break;
+                            }
+                        }
+                    }
+                }
+#endif
             }
         }
         else {
