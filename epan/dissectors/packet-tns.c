@@ -43,7 +43,6 @@ static int hf_tns_packet_checksum = -1;
 static int hf_tns_header_checksum = -1;
 static int hf_tns_packet_type = -1;
 static int hf_tns_reserved_byte = -1;
-static int hf_tns_connect = -1;
 static int hf_tns_version = -1;
 static int hf_tns_compat_version = -1;
 
@@ -100,32 +99,26 @@ static int hf_tns_trace_cf1 = -1;
 static int hf_tns_trace_cf2 = -1;
 static int hf_tns_trace_cid = -1;
 
-static int hf_tns_accept = -1;
 static int hf_tns_accept_data_length = -1;
 static int hf_tns_accept_data_offset = -1;
 static int hf_tns_accept_data = -1;
 
-static int hf_tns_refuse = -1;
 static int hf_tns_refuse_reason_user = -1;
 static int hf_tns_refuse_reason_system = -1;
 static int hf_tns_refuse_data_length = -1;
 static int hf_tns_refuse_data = -1;
 
-static int hf_tns_abort = -1;
 static int hf_tns_abort_reason_user = -1;
 static int hf_tns_abort_reason_system = -1;
 static int hf_tns_abort_data = -1;
 
-static int hf_tns_marker = -1;
 static int hf_tns_marker_type = -1;
 static int hf_tns_marker_data_byte = -1;
 /* static int hf_tns_marker_data = -1; */
 
-static int hf_tns_redirect = -1;
 static int hf_tns_redirect_data_length = -1;
 static int hf_tns_redirect_data = -1;
 
-static int hf_tns_control = -1;
 static int hf_tns_control_cmd = -1;
 static int hf_tns_control_data = -1;
 
@@ -144,7 +137,11 @@ static int hf_tns_data_id = -1;
 static int hf_tns_data_length = -1;
 static int hf_tns_data_oci_id = -1;
 static int hf_tns_data_piggyback_id = -1;
-static int hf_tns_data = -1;
+
+static int hf_tns_data_setp_acc_vers = -1;
+static int hf_tns_data_setp_cli_plat = -1;
+static int hf_tns_data_setp_version = -1;
+static int hf_tns_data_setp_banner = -1;
 
 static gint ett_tns = -1;
 static gint ett_tns_connect = -1;
@@ -468,6 +465,30 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	/* Handle data functions that have more than just ID */
 	switch (data_func_id)
 	{
+		case SQLNET_SET_PROTOCOL:
+		{
+			size_t len;
+			if ( pinfo->match_uint == pinfo->destport ) /* check if is request */
+			{
+				len = tvb_strsize(tvb, offset);
+				proto_tree_add_item(data_tree, hf_tns_data_setp_acc_vers, tvb, offset, len-1, ENC_NA);
+				offset += len;
+				len = tvb_strsize(tvb, offset);
+				proto_tree_add_item(data_tree, hf_tns_data_setp_cli_plat, tvb, offset, len, ENC_ASCII|ENC_NA);
+
+				return; /* skip call_data_dissector */
+			}
+			else
+			{
+				proto_tree_add_item(data_tree, hf_tns_data_setp_version, tvb, offset, 1, ENC_NA);
+				offset += 2; /* jump over next null terminator */
+				len = tvb_strsize(tvb, offset);
+				proto_tree_add_item(data_tree, hf_tns_data_setp_banner, tvb, offset, len, ENC_ASCII|ENC_NA);
+				offset += len;
+			}
+			break;
+		}
+
 		case SQLNET_USER_OCI_FUNC:
 			proto_tree_add_item(data_tree, hf_tns_data_oci_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
@@ -1001,9 +1022,6 @@ void proto_register_tns(void)
 			"Value of 1 in Hardware", "tns.value_of_one", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 
-		{ &hf_tns_connect, {
-			"Connect", "tns.connect", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_connect_data_length, {
 			"Length of Connect Data", "tns.connect_data_length", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -1051,9 +1069,6 @@ void proto_register_tns(void)
 			"Connect Data", "tns.connect_data", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 
-		{ &hf_tns_accept, {
-			"Accept", "tns.accept", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_accept_data_length, {
 			"Accept Data Length", "tns.accept_data_length", FT_UINT16, BASE_DEC,
 			NULL, 0x0, "Length of Accept Data", HFILL }},
@@ -1064,10 +1079,6 @@ void proto_register_tns(void)
 			"Offset to Accept Data", "tns.accept_data_offset", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 
-
-		{ &hf_tns_refuse, {
-			"Refuse", "tns.refuse", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_refuse_reason_user, {
 			"Refuse Reason (User)", "tns.refuse_reason_user", FT_UINT8, BASE_HEX,
 			NULL, 0x0, "Refuse Reason from Application", HFILL }},
@@ -1081,9 +1092,6 @@ void proto_register_tns(void)
 			"Refuse Data", "tns.refuse_data", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 
-		{ &hf_tns_abort, {
-			"Abort", "tns.abort", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_abort_reason_user, {
 			"Abort Reason (User)", "tns.abort_reason_user", FT_UINT8, BASE_HEX,
 			NULL, 0x0, "Abort Reason from Application", HFILL }},
@@ -1094,9 +1102,6 @@ void proto_register_tns(void)
 			"Abort Data", "tns.abort_data", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 
-		{ &hf_tns_marker, {
-			"Marker", "tns.marker", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_marker_type, {
 			"Marker Type", "tns.marker.type", FT_UINT8, BASE_HEX,
 			VALS(tns_marker_types), 0x0, NULL, HFILL }},
@@ -1109,9 +1114,6 @@ void proto_register_tns(void)
 			NULL, 0x0, NULL, HFILL }},
 #endif
 
-		{ &hf_tns_control, {
-			"Control", "tns.control", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_control_cmd, {
 			"Control Command", "tns.control.cmd", FT_UINT16, BASE_HEX,
 			VALS(tns_control_cmds), 0x0, NULL, HFILL }},
@@ -1119,18 +1121,11 @@ void proto_register_tns(void)
 			"Control Data", "tns.control.data", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 
-		{ &hf_tns_redirect, {
-			"Redirect", "tns.redirect", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_redirect_data_length, {
 			"Redirect Data Length", "tns.redirect_data_length", FT_UINT16, BASE_DEC,
 			NULL, 0x0, "Length of Redirect Data", HFILL }},
 		{ &hf_tns_redirect_data, {
 			"Redirect Data", "tns.redirect_data", FT_STRING, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
-
-		{ &hf_tns_data, {
-			"Data", "tns.data", FT_BOOLEAN, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_data_flag, {
@@ -1181,6 +1176,19 @@ void proto_register_tns(void)
 			   declared in tns_data_oci_subfuncs. */
 			"Call ID", "tns.data_piggyback.id", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
 			&tns_data_oci_subfuncs_ext, 0x00, NULL, HFILL }},
+
+		{ &hf_tns_data_setp_acc_vers, {
+			"Accepted Versions", "tns.data_setp_req.acc_vers", FT_BYTES, SEP_SPACE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setp_cli_plat, {
+			"Client Platform", "tns.data_setp_req.cli_plat", FT_STRINGZ, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setp_version, {
+			"Version", "tns.data_setp_resp.version", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setp_banner, {
+			"Server Banner", "tns.data_setp_resp.banner", FT_STRINGZ, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_reserved_byte, {
 			"Reserved Byte", "tns.reserved_byte", FT_BYTES, BASE_NONE,
