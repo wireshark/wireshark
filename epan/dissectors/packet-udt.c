@@ -117,6 +117,8 @@ static expert_field ei_udt_nak_seqno = EI_INIT;
 
 static dissector_handle_t udt_handle;
 
+static heur_dissector_list_t heur_subdissector_list;
+
 static int get_sqn(udt_conversation *udt_conv, guint32 sqn)
 {
 	if (udt_conv)
@@ -129,12 +131,13 @@ static int
 dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 	    void *data _U_)
 {
-	proto_tree       *tree;
-	proto_item       *udt_item;
-	int               is_control, type;
-	guint             i;
-	conversation_t   *conv;
-	udt_conversation *udt_conv;
+	proto_tree        *tree;
+	proto_item        *udt_item;
+	int                is_control, type;
+	guint              i;
+	conversation_t    *conv;
+	udt_conversation  *udt_conv;
+	heur_dtbl_entry_t *hdtbl_entry;
 
 	conv = find_or_create_conversation(pinfo);
 	udt_conv = (udt_conversation *)conversation_get_proto_data(conv, proto_udt);
@@ -346,8 +349,12 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 					    ENC_BIG_ENDIAN);
 
 		}
+
 		next_tvb = tvb_new_subset_remaining(tvb, 16);
-		call_data_dissector(next_tvb, pinfo, tree);
+
+		// Try heuristic dissectors first...
+		if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent_tree, &hdtbl_entry, NULL))
+			call_data_dissector(next_tvb, pinfo, parent_tree);
 	}
 
 	return tvb_reported_length(tvb);
@@ -571,6 +578,8 @@ void proto_register_udt(void)
 	expert_register_field_array(expert_udt, ei, array_length(ei));
 
 	register_dissector("udt", dissect_udt, proto_udt);
+
+	heur_subdissector_list = register_heur_dissector_list("udt", proto_udt);
 }
 
 void proto_reg_handoff_udt(void)
