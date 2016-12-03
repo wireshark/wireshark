@@ -2422,7 +2422,6 @@ wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
 	}
 #endif
 
-fprintf(stderr, "new_fd is %d\n", new_fd);
 	wdh = wtap_dump_fdopen_ng(new_fd, file_type_subtype, encap, snaplen,
 	    compressed, shb_hdrs, idb_inf, nrb_hdrs, err);
 	if (wdh == NULL) {
