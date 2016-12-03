@@ -1709,15 +1709,9 @@ gzwfile_flush(GZWFILE_T state)
 }
 
 /* Flush out all data written, and close the file.  Returns a Wiretap
-   error on failure; returns 0 on success.
-
-   If is_stdout is true, do all of that except for closing the file
-   descriptor, as we don't want to close the standard output file
-   descriptor out from under the program (even though, if the program
-   is writing a capture file to the standard output, it shouldn't be
-   doing anything *else* on the standard output). */
+   error on failure; returns 0 on success. */
 int
-gzwfile_close(GZWFILE_T state, gboolean is_stdout)
+gzwfile_close(GZWFILE_T state)
 {
     int ret = 0;
 
@@ -1728,10 +1722,8 @@ gzwfile_close(GZWFILE_T state, gboolean is_stdout)
     g_free(state->out);
     g_free(state->in);
     state->err = Z_OK;
-    if (!is_stdout) {
-        if (ws_close(state->fd) == -1 && ret == 0)
-            ret = errno;
-    }
+    if (ws_close(state->fd) == -1 && ret == 0)
+        ret = errno;
     g_free(state);
     return ret;
 }

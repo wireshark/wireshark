@@ -2392,45 +2392,42 @@ wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
 			 wtapng_iface_descriptions_t *idb_inf,
 			 GArray* nrb_hdrs, int *err)
 {
+	int new_fd;
 	wtap_dumper *wdh;
-	WFILE_T fh;
 
-	/* Allocate and initialize a data structure for the output stream. */
-	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
-	    shb_hdrs, idb_inf, nrb_hdrs, err);
-	if (wdh == NULL)
+	/*
+	 * Duplicate the file descriptor, so that we can close the
+	 * wtap_dumper handle the same way we close any other
+	 * wtap_dumper handle, without closing the standard output.
+	 */
+	new_fd = ws_dup(1);
+	if (new_fd == -1) {
+		/* dup failed */
+		*err = errno;
+		close(new_fd);
 		return NULL;
-
+	}
 #ifdef _WIN32
 	/*
-	 * Put the standard output into binary mode.
+	 * Put the new descriptor into binary mode.
 	 *
 	 * XXX - even if the file format we're writing is a text
 	 * format?
 	 */
-	if (_setmode(1, O_BINARY) == -1) {
+	if (_setmode(new_fd, O_BINARY) == -1) {
 		/* "Should not happen" */
 		*err = errno;
-		g_free(wdh);
-		return NULL;	/* couldn't put standard output in binary mode */
+		close(new_fd);
+		return NULL;
 	}
 #endif
 
-	/* In case "fopen()" fails but doesn't set "errno", set "errno"
-	   to a generic "the open failed" error. */
-	errno = WTAP_ERR_CANT_OPEN;
-	fh = wtap_dump_file_fdopen(wdh, 1);
-	if (fh == NULL) {
-		*err = errno;
-		g_free(wdh);
-		return NULL;	/* can't create standard I/O stream */
-	}
-	wdh->fh = fh;
-	wdh->is_stdout = TRUE;
-
-	if (!wtap_dump_open_finish(wdh, file_type_subtype, compressed, err)) {
-		wtap_dump_file_close(wdh);
-		g_free(wdh);
+fprintf(stderr, "new_fd is %d\n", new_fd);
+	wdh = wtap_dump_fdopen_ng(new_fd, file_type_subtype, encap, snaplen,
+	    compressed, shb_hdrs, idb_inf, nrb_hdrs, err);
+	if (wdh == NULL) {
+		/* Failed; close the new FD */
+		close(new_fd);
 		return NULL;
 	}
 	return wdh;
@@ -2681,24 +2678,11 @@ static int
 wtap_dump_file_close(wtap_dumper *wdh)
 {
 #ifdef HAVE_ZLIB
-	if(wdh->compressed) {
-		/*
-		 * Tell gzwfile_close() whether to close the descriptor
-		 * or not.
-		 */
-		return gzwfile_close((GZWFILE_T)wdh->fh, wdh->is_stdout);
-	} else
+	if(wdh->compressed)
+		return gzwfile_close((GZWFILE_T)wdh->fh);
+	else
 #endif
-	{
-		/*
-		 * Don't close the standard output.
-		 *
-		 * XXX - this really should do everything fclose() does,
-		 * including freeing all allocated data structures,
-		 * *except* for actually closing the file descriptor.
-		 */
-		return wdh->is_stdout ? fflush((FILE *)wdh->fh) : fclose((FILE *)wdh->fh);
-	}
+		return fclose((FILE *)wdh->fh);
 }
 
 gint64
