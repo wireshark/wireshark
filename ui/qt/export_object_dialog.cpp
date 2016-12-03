@@ -228,6 +228,7 @@ export_object_entry_t *ExportObjectDialog::objectEntry(int row)
 
 void ExportObjectDialog::resetObjects()
 {
+    eo_ui_->objectTree->clear();
     if (eo_protocoldata_resetfn_) eo_protocoldata_resetfn_();
     if (save_bt_) save_bt_->setEnabled(false);
     if (save_all_bt_) save_all_bt_->setEnabled(false);
