@@ -2028,6 +2028,125 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
     }
 }
 
+/**
+ * Given is a structure containing the parsed result from the SDP (including
+ * protocol type (RTP, SRTP, T38, etc.), media info (payload type, etc.) and
+ * connection info (address, port). Register the addresss+port such that the
+ * protocol will be invoked for this tuple with the media information.
+ *
+ * For use with SDP using the Offer/Answer model (such as SIP with INVITE and
+ * 200 OK).
+ * XXX what about RTSP where the SDP merely provides media info, without
+ * actually establishing connections (Bug 5208).
+ *
+ * The passed transport information is modified: 'set_rtp' is set when the media
+ * is assigned to a conversation. Note that the unassigned media (payload types)
+ * are not freed, this is the responsibility of the caller.
+ */
+static void
+apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int request_frame)
+{
+    gint        n;
+    int establish_frame = 0;
+
+    struct srtp_info *srtp_info = NULL;
+
+    /* If no request_frame number has been found use this frame's number */
+    if (request_frame == 0) {
+        establish_frame = pinfo->num;
+    } else {
+        establish_frame = request_frame;
+    }
+
+    for (n = 0; n <= transport_info->media_count; n++) {
+      guint32 current_rtp_port = 0;
+
+        /* Add (s)rtp and (s)rtcp conversation, if available (overrides t38 if conversation already set) */
+        if ((transport_info->media_port[n] != 0) &&
+            (transport_info->proto_bitmask[n] & (SDP_RTP_PROTO|SDP_SRTP_PROTO)) &&
+            (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6))) {
+
+            if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
+                srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
+                if (transport_info->encryption_algorithm != SRTP_ENC_ALG_NOT_SET) {
+                    srtp_info->encryption_algorithm = transport_info->encryption_algorithm;
+                    srtp_info->auth_algorithm       = transport_info->auth_algorithm;
+                    srtp_info->mki_len              = transport_info->mki_len;
+                    srtp_info->auth_tag_len         = transport_info->auth_tag_len;
+
+                }
+                DPRINT(("calling srtp_add_address, channel=%d, media_port=%d",
+                        n, transport_info->media_port[n]));
+                DINDENT();
+                /* srtp_add_address and rtp_add_address are given the request_frame's not this frame's number,
+                   because that's where the RTP flow started, and thus conversation needs to check against */
+                srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", establish_frame,
+                                (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
+                                 transport_info->media[n].rtp_dyn_payload, srtp_info);
+                DENDENT();
+            } else {
+                DPRINT(("calling rtp_add_address, channel=%d, media_port=%d",
+                        n, transport_info->media_port[n]));
+                DINDENT();
+                rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", establish_frame,
+                                (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
+                                transport_info->media[n].rtp_dyn_payload);
+                DENDENT();
+             }
+            transport_info->media[n].set_rtp = TRUE;
+            /* SPRT might use the same port... */
+            current_rtp_port = transport_info->media_port[n];
+
+            if (rtcp_handle) {
+                if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
+                    DPRINT(("calling rtcp_add_address, channel=%d, media_port=%d",
+                            n, transport_info->media_port[n]+1));
+                    DINDENT();
+                    srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", establish_frame, srtp_info);
+                    DENDENT();
+                 } else {
+                    DPRINT(("calling rtcp_add_address, channel=%d, media_port=%d",
+                            n, transport_info->media_port[n]+1));
+                    DINDENT();
+                    rtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", establish_frame);
+                    DENDENT();
+                 }
+            }
+        }
+
+        /* add SPRT conversation */
+        if ((transport_info->proto_bitmask[n] & SDP_SPRT_PROTO) &&
+            (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6)) &&
+            (sprt_handle)) {
+
+            if (transport_info->media_port[n] == 0 && current_rtp_port) {
+                sprt_add_address(pinfo, &transport_info->src_addr[n], current_rtp_port,
+                                 0, "SDP", pinfo->num); /* will use same port as RTP */
+            } else {
+                sprt_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num);
+            }
+        }
+
+        /* Add t38 conversation, if available and only if no rtp */
+        if ((transport_info->media_port[n] != 0) &&
+            !transport_info->media[n].set_rtp &&
+            (transport_info->proto_bitmask[n] & SDP_T38_PROTO) &&
+            (transport_info->proto_bitmask[n] & SDP_IPv4)) {
+            t38_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num);
+        }
+
+        /* Add MSRP conversation.  Uses addresses discovered in attribute
+           rather than connection information of media session line
+           (already handled in media conversion) */
+        if ((transport_info->proto_bitmask[n] & SDP_MSRP_PROTO) &&
+            (transport_info->proto_bitmask[n] & SDP_MSRP_IPv4) &&
+            msrp_handle) {
+            msrp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], "SDP", pinfo->num);
+        }
+
+    } /* end for (n = 0; n <= transport_info->media_count; n++) */
+}
+
 void
 setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type exchange_type,
     int request_frame, const gboolean delay)
@@ -2041,9 +2160,6 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     gint        start_transport_info_count = 0;
     transport_info_t* transport_info = NULL;
     disposable_media_info_t media_info;
-    int establish_frame = 0;
-
-    struct srtp_info *srtp_info = NULL;
 
     DPRINT2(("-------------------- setup_sdp_transport -------------------"));
 
@@ -2199,138 +2315,20 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     if (!delay || ((exchange_type == SDP_EXCHANGE_ANSWER_ACCEPT) &&
         (transport_info->sdp_status == SDP_EXCHANGE_OFFER))) {
 
-        /* If no request_frame number has been found use this frame's number */
-        if (request_frame == 0) {
-            establish_frame = pinfo->num;
-        } else {
-            establish_frame = request_frame;
-        }
+        apply_sdp_transport(pinfo, transport_info, request_frame);
 
-        for (n = 0; n <= transport_info->media_count; n++) {
-          guint32 current_rtp_port = 0;
-
-            /* Add (s)rtp and (s)rtcp conversation, if available (overrides t38 if conversation already set) */
-            if ((transport_info->media_port[n] != 0) &&
-                (transport_info->proto_bitmask[n] & (SDP_RTP_PROTO|SDP_SRTP_PROTO)) &&
-                (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6))) {
-
-                if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
-                    srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
-                    if (transport_info->encryption_algorithm != SRTP_ENC_ALG_NOT_SET) {
-                        srtp_info->encryption_algorithm = transport_info->encryption_algorithm;
-                        srtp_info->auth_algorithm       = transport_info->auth_algorithm;
-                        srtp_info->mki_len              = transport_info->mki_len;
-                        srtp_info->auth_tag_len         = transport_info->auth_tag_len;
-
-                    }
-                    DPRINT(("calling srtp_add_address, channel=%d, media_port=%d",
-                            n, transport_info->media_port[n]));
-                    DINDENT();
-                    /* srtp_add_address and rtp_add_address are given the request_frame's not this frame's number,
-                       because that's where the RTP flow started, and thus conversation needs to check against */
-                    srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", establish_frame,
-                                    (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
-                                     transport_info->media[n].rtp_dyn_payload, srtp_info);
-                    DENDENT();
-                } else {
-                    DPRINT(("calling rtp_add_address, channel=%d, media_port=%d",
-                            n, transport_info->media_port[n]));
-                    DINDENT();
-                    rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", establish_frame,
-                                    (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
-                                    transport_info->media[n].rtp_dyn_payload);
-                    DENDENT();
-                 }
-                transport_info->media[n].set_rtp = TRUE;
-                /* SPRT might use the same port... */
-                current_rtp_port = transport_info->media_port[n];
-
-                if (rtcp_handle) {
-                    if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
-                        DPRINT(("calling rtcp_add_address, channel=%d, media_port=%d",
-                                n, transport_info->media_port[n]+1));
-                        DINDENT();
-                        srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", establish_frame, srtp_info);
-                        DENDENT();
-                     } else {
-                        DPRINT(("calling rtcp_add_address, channel=%d, media_port=%d",
-                                n, transport_info->media_port[n]+1));
-                        DINDENT();
-                        rtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", establish_frame);
-                        DENDENT();
-                     }
-                }
-            }
-
-            /* add SPRT conversation */
-            if ((transport_info->proto_bitmask[n] & SDP_SPRT_PROTO) &&
-                (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6)) &&
-                (sprt_handle)) {
-
-                if (transport_info->media_port[n] == 0 && current_rtp_port) {
-                    sprt_add_address(pinfo, &transport_info->src_addr[n], current_rtp_port,
-                                     0, "SDP", pinfo->num); /* will use same port as RTP */
-                } else {
-                    sprt_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num);
-                }
-            }
-
-            /* Add t38 conversation, if available and only if no rtp */
-            if ((transport_info->media_port[n] != 0) &&
-                !transport_info->media[n].set_rtp &&
-                (transport_info->proto_bitmask[n] & SDP_T38_PROTO) &&
-                (transport_info->proto_bitmask[n] & SDP_IPv4)) {
-                t38_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num);
-            }
-
-            /* Add MSRP conversation.  Uses addresses discovered in attribute
-               rather than connection information of media session line
-               (already handled in media conversion) */
-            if ((transport_info->proto_bitmask[n] & SDP_MSRP_PROTO) &&
-                (transport_info->proto_bitmask[n] & SDP_MSRP_IPv4) &&
-                msrp_handle) {
-                msrp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], "SDP", pinfo->num);
-            }
-
-            /* Free the hash table if we did't assigned it to a conv use it */
+        /* Free all media hash tables that were not assigned to a conversation
+         * ('set_rtp' is false) */
+        for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++)
+        {
             if (!transport_info->media[n].set_rtp)
             {
-                DPRINT(("set_rtp is not set, calling rtp_dyn_payload_free, "
+                DPRINT(("media_count = %d, calling rtp_dyn_payload_free, "
                         "channel=%d, media_port=%d",
+                        transport_info->media_count,
                         n, transport_info->media_port[n]));
                 rtp_dyn_payload_free(transport_info->media[n].rtp_dyn_payload);
                 transport_info->media[n].rtp_dyn_payload = NULL;
-            }
-
-        } /* end for (n = 0; n <= transport_info->media_count; n++) */
-
-        /* Free the remaining hash tables not used */
-        if (transport_info->media_count == -1)
-        {
-            for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++)
-            {
-                if (!transport_info->media[n].set_rtp)
-                {
-                    DPRINT(("media_count == -1, calling rtp_dyn_payload_free, "
-                            "channel=%d, media_port=%d",
-                            n, transport_info->media_port[n]));
-                    rtp_dyn_payload_free(transport_info->media[n].rtp_dyn_payload);
-                    transport_info->media[n].rtp_dyn_payload = NULL;
-                }
-            }
-        }
-        else
-        {
-            for (n = transport_info->media_count; n < SDP_MAX_RTP_CHANNELS; n++)
-            {
-                if (!transport_info->media[n].set_rtp)
-                {
-                    DPRINT(("media_count != -1, calling rtp_dyn_payload_free, "
-                            "channel=%d, media_port=%d",
-                            n, transport_info->media_port[n]));
-                    rtp_dyn_payload_free(transport_info->media[n].rtp_dyn_payload);
-                    transport_info->media[n].rtp_dyn_payload = NULL;
-                }
             }
         }
         transport_info->sdp_status = exchange_type;
@@ -2381,7 +2379,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     disposable_media_info_t media_info;
 
     sdp_packet_info  *sdp_pi;
-    struct srtp_info *srtp_info = NULL;
 
     DPRINT2(("----------------------- dissect_sdp ------------------------"));
 
@@ -2581,100 +2578,22 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
 #endif
 
-    for (n = 0; n <= local_transport_info.media_count; n++)
-    {
-        /* Add (s)rtp and (s)rtcp conversation, if available (overrides t38 if conversation already set) */
+    /* For messages not part of the Offer/Answer model, assume that the SDP is
+     * immediately effective (apply it now). */
+    if ((!pinfo->fd->flags.visited) && (transport_info == &local_transport_info)) {
         /* XXX - This is a placeholder for higher layer protocols that haven't implemented the proper
          * OFFER/ANSWER functionality using setup_sdp_transport().  Once all of the higher layers
          * use setup_sdp_transport(), this should be removed
+         * Note that transport_info contains the SDP info from this frame (and
+         * not an earlier request (transport_info == &local_transport_info).
+         * Use 0 as request_frame since there is no (known) request.
          */
-        guint32 current_rtp_port = 0;
+        apply_sdp_transport(pinfo, transport_info, 0);
+    }
 
-        if ((!pinfo->fd->flags.visited) && (transport_info == &local_transport_info) &&
-            (transport_info->media_port[n] != 0) &&
-            (transport_info->proto_bitmask[n] & (SDP_RTP_PROTO|SDP_SRTP_PROTO)) &&
-            (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6))) {
-
-            if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
-                srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
-                if (transport_info->encryption_algorithm != SRTP_ENC_ALG_NOT_SET) {
-                    srtp_info->encryption_algorithm = transport_info->encryption_algorithm;
-                    srtp_info->auth_algorithm       = transport_info->auth_algorithm;
-                    srtp_info->mki_len              = transport_info->mki_len;
-                    srtp_info->auth_tag_len         = transport_info->auth_tag_len;
-                }
-                DPRINT(("calling srtp_add_address for media_port=%d, for channel=%d",
-                        transport_info->media_port[n],n));
-                DINDENT();
-                srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num,
-                                (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
-                                 transport_info->media[n].rtp_dyn_payload, srtp_info);
-                DENDENT();
-            } else {
-                DPRINT(("calling rtp_add_address for media_port=%d, for channel=%d",
-                        transport_info->media_port[n],n));
-                DINDENT();
-                rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num,
-                                (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
-                                transport_info->media[n].rtp_dyn_payload);
-                DENDENT();
-            }
-            transport_info->media[n].set_rtp = TRUE;
-            /* SPRT might use the same port... */
-            current_rtp_port = transport_info->media_port[n];
-
-            if (rtcp_handle) {
-                if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
-                    DPRINT(("calling srtcp_add_address for media_port=%d, for channel=%d",
-                            transport_info->media_port[n],n));
-                    DINDENT();
-                    srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", pinfo->num, srtp_info);
-                    DENDENT();
-                } else {
-                    DPRINT(("calling rtcp_add_address for media_port=%d, for channel=%d",
-                            transport_info->media_port[n],n));
-                    DINDENT();
-                    rtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", pinfo->num);
-                    DENDENT();
-                }
-            }
-        }
-
-        /* add SPRT conversation */
-        /* XXX - more placeholder functionality */
-        if ((!pinfo->fd->flags.visited) && (transport_info == &local_transport_info) &&
-            (transport_info->proto_bitmask[n] & SDP_SPRT_PROTO) &&
-            (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6)) &&
-            (sprt_handle)) {
-
-            if (transport_info->media_port[n] == 0 && current_rtp_port) {
-                sprt_add_address(pinfo, &transport_info->src_addr[n], current_rtp_port,
-                                 0, "SDP", pinfo->num); /* will use same port as RTP */
-            } else {
-                sprt_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num);
-            }
-        }
-
-        /* Add t38 conversation, if available and only if no rtp */
-        /* XXX - more placeholder functionality */
-        if ((!pinfo->fd->flags.visited) && (transport_info == &local_transport_info) &&
-            (transport_info->media_port[n] != 0) &&
-            !transport_info->media[n].set_rtp &&
-            (transport_info->proto_bitmask[n] & SDP_T38_PROTO) &&
-            (transport_info->proto_bitmask[n] & SDP_IPv4)) {
-            t38_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num);
-        }
-
-        /* Add MSRP conversation.  Uses addresses discovered in attribute
-           rather than connection information of media session line */
-        /* XXX - more placeholder functionality */
-        if ((!pinfo->fd->flags.visited) && (transport_info == &local_transport_info) &&
-            (transport_info->proto_bitmask[n] & SDP_MSRP_PROTO) &&
-            (transport_info->proto_bitmask[n] & SDP_MSRP_IPv4) &&
-            msrp_handle) {
-            msrp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], "SDP", pinfo->num);
-        }
-
+    /* Add information to the VoIP Calls dialog. */
+    for (n = 0; n <= local_transport_info.media_count; n++)
+    {
         if (local_transport_info.media_port[n] != 0) {
             /* Create the RTP summary str for the Voip Call analysis.
              * XXX - Currently this is based only on the current packet
@@ -2709,15 +2628,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             }
         }
 
-        /* Free the hash table if we did't assigned it to a conv use it */
-        /* XXX - more placeholder functionality */
-        if ((transport_info == &local_transport_info) &&
-            !transport_info->media[n].set_rtp)
-        {
-            rtp_dyn_payload_free(transport_info->media[n].rtp_dyn_payload);
-            transport_info->media[n].rtp_dyn_payload = NULL;
-        }
-
         /* Create the T38 summary str for the Voip Call analysis
          * XXX - Currently this is based only on the current packet
          */
@@ -2729,10 +2639,10 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
     }
 
-    /* Free the remainded hash tables not used */
-    /* XXX - more placeholder functionality */
+    /* Free all media hash tables that were not assigned to a conversation
+     * ('set_rtp' is false) */
     if (transport_info == &local_transport_info) {
-        for (n = MAX(transport_info->media_count, 0); n < SDP_MAX_RTP_CHANNELS; n++)
+        for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++)
         {
             if (!transport_info->media[n].set_rtp)
             {
