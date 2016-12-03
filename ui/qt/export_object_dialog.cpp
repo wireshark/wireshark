@@ -215,6 +215,9 @@ export_object_entry_t *ExportObjectDialog::objectEntry(int row)
 void ExportObjectDialog::resetObjects()
 {
     export_object_gui_reset_cb reset_cb = get_eo_reset_func(eo_);
+
+    eo_ui_->objectTree->clear();
+
     if (reset_cb)
         reset_cb();
 
