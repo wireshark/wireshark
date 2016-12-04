@@ -1,19 +1,3 @@
-docsis.so libwireshark0 #MINVER#
- plugin_reg_handoff@Base 1.9.1
- plugin_register@Base 1.9.1
- version@Base 1.9.1
-ethercat.so libwireshark0 #MINVER#
- plugin_reg_handoff@Base 1.9.1
- plugin_register@Base 1.9.1
- version@Base 1.9.1
-gryphon.so libwireshark0 #MINVER#
- plugin_reg_handoff@Base 1.9.1
- plugin_register@Base 1.9.1
- version@Base 1.9.1
-irda.so libwireshark0 #MINVER#
- plugin_reg_handoff@Base 1.9.1
- plugin_register@Base 1.9.1
- version@Base 1.9.1
 libwireshark.so.0 libwireshark0 #MINVER#
  AdmissionRejectReason_vals@Base 1.9.1
  AirPDcapDestroyContext@Base 1.9.1
@@ -761,17 +745,18 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_rose_ctx@Base 1.9.1
  get_rtd_num_tables@Base 1.99.8
  get_rtd_packet_func@Base 1.99.8
+ get_rtd_proto_id@Base 1.99.8
+ get_rtd_table_by_name@Base 1.99.8
+ get_rtd_tap_listener_name@Base 1.99.8
+ get_rtd_value_string@Base 1.99.8
  get_srt_max_tables@Base 1.99.8
  get_srt_packet_func@Base 1.99.8
  get_srt_proto_id@Base 1.99.8
  get_srt_table_by_name@Base 1.99.8
  get_srt_table_param_data@Base 1.99.8
  get_srt_tap_listener_name@Base 1.99.8
- get_rtd_proto_id@Base 1.99.8
- get_rtd_table_by_name@Base 1.99.8
- get_rtd_tap_listener_name@Base 1.99.8
- get_rtd_value_string@Base 1.99.8
  get_serv_port_hashtable@Base 1.12.0~rc1
+ get_t61_string@Base 2.3.0
  get_tap_names@Base 1.12.0~rc1
  get_tcp_conversation_data@Base 1.99.0
  get_tcp_stream_count@Base 1.12.0~rc1
@@ -1699,6 +1684,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_list_append@Base 1.12.0~rc1
  wmem_list_count@Base 1.12.0~rc1
  wmem_list_find@Base 2.1.0
+ wmem_list_find_custom@Base 2.3.0
  wmem_list_foreach@Base 2.1.0
  wmem_list_frame_data@Base 1.12.0~rc1
  wmem_list_frame_next@Base 1.12.0~rc1
@@ -1784,38 +1770,3 @@ libwireshark.so.0 libwireshark0 #MINVER#
  xml_get_attrib@Base 1.9.1
  xml_get_cdata@Base 1.9.1
  xml_get_tag@Base 1.9.1
-m2m.so libwireshark0 #MINVER#
- plugin_reg_handoff@Base 1.9.1
- plugin_register@Base 1.9.1
- version@Base 1.9.1
-mate.so libwireshark0 #MINVER#
- plugin_reg_handoff@Base 1.9.1
- plugin_register@Base 1.9.1
- version@Base 1.9.1
-opcua.so libwireshark0 #MINVER#
- plugin_reg_handoff@Base 1.9.1
- plugin_register@Base 1.9.1
- version@Base 1.9.1
-profinet.so libwireshark0 #MINVER#
- plugin_reg_handoff@Base 1.9.1
- plugin_register@Base 1.9.1
- version@Base 1.9.1
-stats_tree.so libwireshark0 #MINVER#
- plugin_register_tap_listener@Base 1.9.1
- version@Base 1.9.1
-unistim.so libwireshark0 #MINVER#
- plugin_reg_handoff@Base 1.9.1
- plugin_register@Base 1.9.1
- version@Base 1.9.1
-wimax.so libwireshark0 #MINVER#
- plugin_reg_handoff@Base 1.9.1
- plugin_register@Base 1.9.1
- version@Base 1.9.1
-wimaxasncp.so libwireshark0 #MINVER#
- plugin_reg_handoff@Base 1.9.1
- plugin_register@Base 1.9.1
- version@Base 1.9.1
-wimaxmacphy.so libwireshark0 #MINVER#
- plugin_reg_handoff@Base 1.9.1
- plugin_register@Base 1.9.1
- version@Base 1.9.1
