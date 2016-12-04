@@ -106,6 +106,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_get_num_file_types_subtypes@Base 1.12.0~rc1
  wtap_get_savable_file_types_subtypes@Base 1.12.0~rc1
  wtap_has_open_info@Base 1.12.0~rc1
+ wtap_init@Base 2.3.0
  wtap_iscompressed@Base 1.9.1
  wtap_open_offline@Base 1.9.1
  wtap_opttype_register_custom_block_type@Base 2.1.2
@@ -123,7 +124,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_register_file_type_extension@Base 1.12.0~rc1
  wtap_register_file_type_subtypes@Base 1.12.0~rc1
  wtap_register_open_info@Base 1.12.0~rc1
- wtap_register_plugin_types@Base 1.12.0~rc1
  wtap_seek_read@Base 1.9.1
  wtap_sequential_close@Base 1.9.1
  wtap_set_bytes_dumped@Base 1.9.1
