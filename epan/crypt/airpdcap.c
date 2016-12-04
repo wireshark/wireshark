@@ -326,7 +326,7 @@ static INT
 AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decryption_key, PAIRPDCAP_SEC_ASSOCIATION sa, guint eapol_len)
 {
     guint8 key_version;
-    guint8 *key_data;
+    const guint8 *key_data;
     guint8  *szEncryptedKey;
     guint16 key_bytes_len = 0; /* Length of the total key data field */
     guint16 key_len;           /* Actual group key length */
@@ -358,7 +358,7 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decryption_
     }
 
     /* Encrypted key is in the information element field of the EAPOL key packet */
-    key_data = (guint8 *)pEAPKey + sizeof(EAPOL_RSN_KEY);
+    key_data = (const guint8 *)pEAPKey + sizeof(EAPOL_RSN_KEY);
     szEncryptedKey = (guint8 *)g_memdup(key_data, key_bytes_len);
 
     DEBUG_DUMP("Encrypted Broadcast key:", szEncryptedKey, key_bytes_len);
