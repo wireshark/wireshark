@@ -77,12 +77,9 @@ DIAG_ON(pedantic)
 	return TRUE;
 }
 
-void
+static void
 wtap_register_plugin_types(void)
 {
-	/* Piggyback the initialization here for now */
-	wtap_opttypes_initialize();
-
 	add_plugin_type("libwiretap", check_for_wtap_plugin);
 }
 
@@ -940,14 +937,12 @@ static void wtap_init_encap_types(void) {
 }
 
 int wtap_get_num_encap_types(void) {
-	wtap_init_encap_types();
 	return wtap_num_encap_types;
 }
 
 
 int wtap_register_encap_type(const char* name, const char* short_name) {
 	struct encap_type_info e;
-	wtap_init_encap_types();
 
 	e.name = g_strdup(name);
 	e.short_name = g_strdup(short_name);
@@ -1417,6 +1412,20 @@ wtap_seek_read(wtap *wth, gint64 seek_off,
 	g_assert(phdr->pkt_encap != WTAP_ENCAP_PER_PACKET);
 
 	return TRUE;
+}
+
+/*
+ * Initialize the library.
+ */
+void
+wtap_init(void)
+{
+	init_open_routines();
+	wtap_opttypes_initialize();
+	wtap_init_encap_types();
+#ifdef HAVE_PLUGINS
+	wtap_register_plugin_types();
+#endif
 }
 
 /*

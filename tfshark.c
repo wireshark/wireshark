@@ -499,7 +499,7 @@ main(int argc, char *argv[])
   timestamp_set_precision(TS_PREC_AUTO);
   timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
 
-  init_open_routines();
+  wtap_init();
 
 #ifdef HAVE_PLUGINS
   /* Register all the plugin types we have. */

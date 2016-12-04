@@ -2287,12 +2287,11 @@ main(int argc, char *argv[])
         g_free(init_progfile_dir_error);
     }
 
-    init_open_routines();
+    wtap_init();
 
 #ifdef HAVE_PLUGINS
     /* Register all the plugin types we have. */
     epan_register_plugin_types(); /* Types known to libwireshark */
-    wtap_register_plugin_types(); /* Types known to libwiretap */
     codec_register_plugin_types(); /* Types known to libwscodecs */
 
     /* Scan for plugins.  This does *not* call their registration routines;
