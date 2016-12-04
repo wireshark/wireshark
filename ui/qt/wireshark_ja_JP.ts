@@ -2412,32 +2412,32 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>オブジェクトを探索中</translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="113"/>
+        <location filename="export_object_dialog.cpp" line="188"/>
         <source>Export</source>
         <translation>エクスポート</translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="113"/>
+        <location filename="export_object_dialog.cpp" line="188"/>
         <source>%1 object list</source>
         <translation>%1 オブジェクト一覧</translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="247"/>
+        <location filename="export_object_dialog.cpp" line="325"/>
         <source>Save Object As</source>
         <translation>としてオブジェクトを保存</translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="274"/>
+        <location filename="export_object_dialog.cpp" line="352"/>
         <source>Save All Objects In</source>
         <translation>すべてのオブジェクトを保存</translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="316"/>
+        <location filename="export_object_dialog.cpp" line="399"/>
         <source>Object Export</source>
         <translation>オブジェクト出力</translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="317"/>
+        <location filename="export_object_dialog.cpp" line="400"/>
         <source>Some files could not be saved.</source>
         <translation>いくつかのファイルは保存できませんでした。</translation>
     </message>

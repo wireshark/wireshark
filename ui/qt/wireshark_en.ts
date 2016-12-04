@@ -2405,32 +2405,32 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="113"/>
+        <location filename="export_object_dialog.cpp" line="188"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="113"/>
+        <location filename="export_object_dialog.cpp" line="188"/>
         <source>%1 object list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="247"/>
+        <location filename="export_object_dialog.cpp" line="325"/>
         <source>Save Object As</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="274"/>
+        <location filename="export_object_dialog.cpp" line="352"/>
         <source>Save All Objects In</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="316"/>
+        <location filename="export_object_dialog.cpp" line="399"/>
         <source>Object Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="317"/>
+        <location filename="export_object_dialog.cpp" line="400"/>
         <source>Some files could not be saved.</source>
         <translation type="unfinished"></translation>
     </message>
