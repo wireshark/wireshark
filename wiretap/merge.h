@@ -122,10 +122,9 @@ typedef struct {
 } merge_progress_callback_t;
 
 
-/** Merge the given input files to the output file descriptor.
+/** Merge the given input files to a file with the given filename
  *
- * @param out_fd The already opened output file decriptor
- * @param out_filename The output filename, used in error messages
+ * @param out_filename The output filename
  * @param file_type The WTAP_FILE_TYPE_SUBTYPE_XXX output file type
  * @param in_filenames An array of input filenames to merge from
  * @param in_file_count The number of entries in in_filenames
@@ -140,11 +139,59 @@ typedef struct {
  * @return the frame type
  */
 WS_DLL_PUBLIC merge_result
-merge_files(int out_fd, const gchar* out_filename, const int file_type,
+merge_files(const gchar* out_filename, const int file_type,
             const char *const *in_filenames, const guint in_file_count,
             const gboolean do_append, const idb_merge_mode mode,
             guint snaplen, const gchar *app_name, merge_progress_callback_t* cb,
             int *err, gchar **err_info, guint *err_fileno);
+
+/** Merge the given input files to a temporary file
+ *
+ * @param out_filenamep Points to a pointer that's set to point to the
+ *        pathname of the temporary file; it's allocated with g_malloc()
+ * @param pfx A string to be used as the prefix for the temporary file name
+ * @param file_type The WTAP_FILE_TYPE_SUBTYPE_XXX output file type
+ * @param in_filenames An array of input filenames to merge from
+ * @param in_file_count The number of entries in in_filenames
+ * @param do_append Whether to append by file order instead of chronological order
+ * @param mode The IDB_MERGE_MODE_XXX merge mode for interface data
+ * @param snaplen The snaplen to limit it to, or 0 to leave as it is in the files
+ * @param app_name The application name performing the merge, used in SHB info
+ * @param cb The callback information to use during execution
+ * @param[out] err Set to the internal WTAP_ERR_XXX error code if it failed
+ * @param[out] err_info Set to a descriptive error string, which must be g_free'd
+ * @param[out] err_fileno Set to the input file number which failed, if it failed
+ * @return the frame type
+ */
+WS_DLL_PUBLIC merge_result
+merge_files_to_tempfile(gchar **out_filenamep, const char *pfx,
+                        const int file_type, const char *const *in_filenames,
+                        const guint in_file_count, const gboolean do_append,
+                        const idb_merge_mode mode, guint snaplen,
+                        const gchar *app_name, merge_progress_callback_t* cb,
+                        int *err, gchar **err_info, guint *err_fileno);
+
+/** Merge the given input files to the standard output
+ *
+ * @param file_type The WTAP_FILE_TYPE_SUBTYPE_XXX output file type
+ * @param in_filenames An array of input filenames to merge from
+ * @param in_file_count The number of entries in in_filenames
+ * @param do_append Whether to append by file order instead of chronological order
+ * @param mode The IDB_MERGE_MODE_XXX merge mode for interface data
+ * @param snaplen The snaplen to limit it to, or 0 to leave as it is in the files
+ * @param app_name The application name performing the merge, used in SHB info
+ * @param cb The callback information to use during execution
+ * @param[out] err Set to the internal WTAP_ERR_XXX error code if it failed
+ * @param[out] err_info Set to a descriptive error string, which must be g_free'd
+ * @param[out] err_fileno Set to the input file number which failed, if it failed
+ * @return the frame type
+ */
+WS_DLL_PUBLIC merge_result
+merge_files_to_stdout(const int file_type, const char *const *in_filenames,
+                      const guint in_file_count, const gboolean do_append,
+                      const idb_merge_mode mode, guint snaplen,
+                      const gchar *app_name, merge_progress_callback_t* cb,
+                      int *err, gchar **err_info, guint *err_fileno);
 
 #ifdef __cplusplus
 }

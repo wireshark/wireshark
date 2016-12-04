@@ -912,22 +912,21 @@ file_merge_cmd(GtkWidget *w _U_)
       file_type = cfile.cd_t;
 
       /* Try to merge or append the two files */
-      tmpname = NULL;
       if (merge_type == 0) {
         /* chronological order */
         in_filenames[0] = cfile.filename;
         in_filenames[1] = file_name->str;
-        merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, FALSE);
+        merge_status = cf_merge_files_to_tempfile(&tmpname, 2, in_filenames, file_type, FALSE);
       } else if (merge_type < 0) {
         /* prepend file */
         in_filenames[0] = file_name->str;
         in_filenames[1] = cfile.filename;
-        merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, TRUE);
+        merge_status = cf_merge_files_to_tempfile(&tmpname, 2, in_filenames, file_type, TRUE);
       } else {
         /* append file */
         in_filenames[0] = cfile.filename;
         in_filenames[1] = file_name->str;
-        merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, TRUE);
+        merge_status = cf_merge_files_to_tempfile(&tmpname, 2, in_filenames, file_type, TRUE);
       }
 
       if (merge_status != CF_OK) {

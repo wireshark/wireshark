@@ -257,7 +257,6 @@ main(int argc, char *argv[])
 #else
   int                 file_type          = WTAP_FILE_TYPE_SUBTYPE_PCAP; /* default to pcapng format */
 #endif
-  int                 out_fd;
   int                 err                = 0;
   gchar              *err_info           = NULL;
   int                 err_fileno;
@@ -428,24 +427,20 @@ main(int argc, char *argv[])
 
   /* open the outfile */
   if (strcmp(out_filename, "-") == 0) {
-    /* use stdout as the outfile */
+    /* merge the files to the standard output */
     use_stdout = TRUE;
-    out_fd = 1 /*stdout*/;
+    status = merge_files_to_stdout(file_type,
+                                   (const char *const *) &argv[optind],
+                                   in_file_count, do_append, mode, snaplen,
+                                   "mergecap", verbose ? &cb : NULL,
+                                   &err, &err_info, &err_fileno);
   } else {
-    /* open the outfile */
-    out_fd = ws_open(out_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
-    if (out_fd == -1) {
-      fprintf(stderr, "mergecap: Couldn't open output file %s: %s\n",
-              out_filename, g_strerror(errno));
-      exit(1);
-    }
+    /* merge the files to the outfile */
+    status = merge_files(out_filename, file_type,
+                         (const char *const *) &argv[optind], in_file_count,
+                         do_append, mode, snaplen, "mergecap", verbose ? &cb : NULL,
+                         &err, &err_info, &err_fileno);
   }
-
-  /* merge the files */
-  status = merge_files(out_fd, out_filename, file_type,
-                       (const char *const *) &argv[optind], in_file_count,
-                       do_append, mode, snaplen, "mergecap", verbose ? &cb : NULL,
-                       &err, &err_info, &err_fileno);
 
   switch (status) {
     case MERGE_OK:
@@ -462,10 +457,13 @@ main(int argc, char *argv[])
       break;
 
     case MERGE_ERR_CANT_OPEN_OUTFILE:
-      fprintf(stderr, "mergecap: Can't open or create %s: %s\n", out_filename,
-                  wtap_strerror(err));
-      if (!use_stdout)
-        ws_close(out_fd);
+      if (use_stdout) {
+        fprintf(stderr, "mergecap: Can't set up the standard output: %s\n",
+                    wtap_strerror(err));
+      } else {
+        fprintf(stderr, "mergecap: Can't open or create %s: %s\n", out_filename,
+                    wtap_strerror(err));
+      }
       break;
 
     case MERGE_ERR_CANT_READ_INFILE:      /* fall through */

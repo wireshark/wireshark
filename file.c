@@ -1335,45 +1335,27 @@ merge_callback(merge_event event, int num _U_,
 
 
 cf_status_t
-cf_merge_files(char **out_filenamep, int in_file_count,
-               char *const *in_filenames, int file_type, gboolean do_append)
+cf_merge_files_to_tempfile(char **out_filenamep, int in_file_count,
+                           char *const *in_filenames, int file_type,
+                           gboolean do_append)
 {
-  char                      *out_filename;
-  char                      *tmpname;
-  int                        out_fd;
   int                        err      = 0;
   gchar                     *err_info = NULL;
   guint                      err_fileno;
   merge_result               status;
   merge_progress_callback_t  cb;
 
-
-  if (*out_filenamep != NULL) {
-    out_filename = *out_filenamep;
-    out_fd = ws_open(out_filename, O_CREAT|O_TRUNC|O_BINARY, 0600);
-    if (out_fd == -1)
-      err = errno;
-  } else {
-    out_fd = create_tempfile(&tmpname, "wireshark", NULL);
-    if (out_fd == -1)
-      err = errno;
-    out_filename = g_strdup(tmpname);
-    *out_filenamep = out_filename;
-  }
-  if (out_fd == -1) {
-    cf_open_failure_alert_box(out_filename, err, NULL, TRUE, file_type);
-    return CF_ERROR;
-  }
-
   /* prepare our callback routine */
   cb.callback_func = merge_callback;
   cb.data = g_malloc0(sizeof(callback_data_t));
 
   /* merge the files */
-  status = merge_files(out_fd, out_filename, file_type,
-                       (const char *const *) in_filenames, in_file_count,
-                       do_append, IDB_MERGE_MODE_ALL_SAME, 0 /* snaplen */,
-                       "Wireshark", &cb, &err, &err_info, &err_fileno);
+  status = merge_files_to_tempfile(out_filenamep, "wireshark", file_type,
+                                   (const char *const *) in_filenames,
+                                   in_file_count, do_append,
+                                   IDB_MERGE_MODE_ALL_SAME, 0 /* snaplen */,
+                                   "Wireshark", &cb, &err, &err_info,
+                                   &err_fileno);
 
   g_free(cb.data);
 
@@ -1388,13 +1370,11 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     case MERGE_ERR_CANT_OPEN_INFILE:
       cf_open_failure_alert_box(in_filenames[err_fileno], err, err_info,
                                 FALSE, 0);
-      ws_close(out_fd);
       break;
 
     case MERGE_ERR_CANT_OPEN_OUTFILE:
-      cf_open_failure_alert_box(out_filename, err, err_info, TRUE,
+      cf_open_failure_alert_box(*out_filenamep, err, err_info, TRUE,
                                 file_type);
-      ws_close(out_fd);
       break;
 
     case MERGE_ERR_CANT_READ_INFILE:      /* fall through */
@@ -1407,8 +1387,6 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   }
 
   g_free(err_info);
-  /* for general case, no need to close out_fd: file handle associated to this file
-     descriptor was already closed by the call to wtap_dump_close() in merge_files() */
 
   if (status != MERGE_OK) {
     /* Callers aren't expected to treat an error or an explicit abort
