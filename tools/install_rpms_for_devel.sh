@@ -97,3 +97,5 @@ echo
 echo "To install optional packages:"
 echo
 echo $INSTALL_CMD install $PKGS_OPT
+echo
+echo "This tool has been obsoleted by tools/rpm-setup.sh"

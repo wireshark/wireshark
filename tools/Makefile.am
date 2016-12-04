@@ -82,6 +82,7 @@ EXTRA_DIST = \
 	process-x11-xcb.pl				\
 	randpkt-test.sh					\
 	rdps.py						\
+	rpm_setup.sh 					\
 	runa2x.sh					\
 	runlex.sh					\
 	setuid-root.pl.in				\
