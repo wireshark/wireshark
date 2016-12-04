@@ -49014,6 +49014,21 @@ const value_string sminmpec_values[] = {
     { 48991, "Aequitas Software GmbH & Co. KG" },
     { 48992, "AEF e.V. " },
     { 48993, "MKB Webhoster Limited" },
+    { 48994, "AGELEC" },
+    { 48995, "Lumeta Corporation" },
+    { 48996, "HOPE Cancer Center of East Texas" },
+    { 48997, "Colorado Blood Cancer Institute" },
+    { 48998, "Colorado Blood Cancer Institute" },
+    { 48999, "MoraMedSoft" },
+    { 49000, sminmpec_unknown },  /* (Added by Wireshark) */
+    { 49001, "KHADAMAT NOVIN DADEAVARZI SADAD" },
+    { 49002, "ULTRA SA" },
+    { 49003, "Gen Re" },
+    { 49004, "EGate Networks Inc." },
+    { 49005, "A&H Software House, Inc." },
+    { 49006, "DHARA CONSULTING GROUP, INC" },
+    { 49007, "YAMABUN ELECTRONICS CO., LTD." },
+    { 49008, "Derome Timber AB" },
     {    0, NULL}
 };
 

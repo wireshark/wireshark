@@ -9400,6 +9400,8 @@ nexgen           6627/tcp # Allied Electronics NeXGen [Lou_Seitchik] [Lou_Seitch
 nexgen           6627/udp # Allied Electronics NeXGen [Lou_Seitchik] [Lou_Seitchik] 2005-08
 afesc-mc         6628/tcp # AFE Stock Channel M/C [K_K_Ho] [K_K_Ho] 2004-04
 afesc-mc         6628/udp # AFE Stock Channel M/C [K_K_Ho] [K_K_Ho] 2004-04
+nexgen-aux       6629/tcp # Secondary, (non ANDI) multi-protocol multi-function interface to    the Allied ANDI-based family of forecourt controllers [Allied_Electronics] [Robert_E_Tomenchok_Jr] 2016-11-29
+nexgen-aux       6629/udp # Secondary, (non ANDI) multi-protocol multi-function interface to      the Allied ANDI-based family of forecourt controllers [Allied_Electronics] [Robert_E_Tomenchok_Jr] 2016-11-29
 mxodbc-connect   6632/tcp # eGenix mxODBC Connect [Marc_Andre_Lemburg] [Marc_Andre_Lemburg] 2009-11-13 Unauthorized Use Known on port 6632
 cisco-vpath-tun  6633/udp # Cisco vPath Services Overlay [Cisco2] [Surendra_Kumar] 2012-06-11
 mpls-pm          6634/udp # MPLS Performance Measurement out-of-band response [Cisco_Systems_2] [Sagar_Soni] 2014-02-20
