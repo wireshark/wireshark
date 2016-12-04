@@ -462,8 +462,6 @@ init_open_routines(void)
 void
 wtap_register_open_info(struct open_info *oi, const gboolean first_routine)
 {
-	init_open_routines();
-
 	if (!oi || !oi->name) {
 		g_error("No open_info name given to register");
 		return;
@@ -501,7 +499,6 @@ void
 wtap_deregister_open_info(const gchar *name)
 {
 	guint i;
-	init_open_routines();
 
 	if (!name) {
 		g_error("Missing open_info name to de-register");
@@ -527,7 +524,6 @@ gboolean
 wtap_has_open_info(const gchar *name)
 {
 	guint i;
-	init_open_routines();
 
 	if (!name) {
 		g_error("No name given to wtap_has_open_info!");
@@ -571,7 +567,6 @@ unsigned int
 open_info_name_to_type(const char *name)
 {
 	unsigned int i;
-	init_open_routines();
 
 	if (!name)
 		return WTAP_TYPE_AUTO;
@@ -718,8 +713,6 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 
 	*err = 0;
 	*err_info = NULL;
-
-	init_open_routines();
 
 	/* open standard input if filename is '-' */
 	if (strcmp(filename, "-") == 0)

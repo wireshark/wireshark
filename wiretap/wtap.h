@@ -1503,6 +1503,10 @@ struct file_type_subtype_info {
 
 #define WTAP_TYPE_AUTO 0
 
+/** Initialize the Wiretap library. */
+WS_DLL_PUBLIC
+void wtap_init(void);
+
 /** On failure, "wtap_open_offline()" returns NULL, and puts into the
  * "int" pointed to by its second argument:
  *

@@ -128,16 +128,14 @@ main(int argc, char *argv[])
    * Get credential information for later use.
    */
   init_process_policies();
-  init_open_routines();
+
+  wtap_init();
 
 #ifdef HAVE_PLUGINS
   if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
     g_warning("captype: init_progfile_dir(): %s", init_progfile_dir_error);
     g_free(init_progfile_dir_error);
   } else {
-    /* Register all the plugin types we have. */
-    wtap_register_plugin_types(); /* Types known to libwiretap */
-
     init_report_err(failure_message,NULL,NULL,NULL);
 
     /* Scan for plugins.  This does *not* call their registration routines;
