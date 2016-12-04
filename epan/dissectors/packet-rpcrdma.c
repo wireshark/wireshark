@@ -88,6 +88,9 @@ static gint ett_rpcordma = -1;
 static gint ett_rpcordma_chunk = -1;
 static gint ett_rpcordma_read_list = -1;
 static gint ett_rpcordma_read_chunk = -1;
+static gint ett_rpcordma_write_list = -1;
+static gint ett_rpcordma_write_chunk = -1;
+static gint ett_rpcordma_segment = -1;
 
 /* global preferences */
 static gboolean gPREF_MAN_EN    = FALSE;
@@ -171,9 +174,17 @@ static guint get_read_list_chunk_count(tvbuff_t *tvb, guint offset)
     return num_chunks;
 }
 
+static guint get_write_chunk_size(tvbuff_t *tvb, guint offset)
+{
+    guint segment_count;
+
+    segment_count = tvb_get_ntohl(tvb, offset);
+    return 4 + (segment_count * 16);
+}
+
 static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
 {
-    guint32 value_follows, segment_count;
+    guint32 value_follows;
     guint start = offset;
 
     while (1) {
@@ -184,11 +195,7 @@ static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
         if (!value_follows)
             break;
 
-        segment_count = tvb_get_ntohl(tvb, offset);
-        offset += 4;
-        if (offset > max_offset)
-            return 0;
-        offset += (segment_count * 16);
+        offset += get_write_chunk_size(tvb, offset);
         if (offset > max_offset)
             return 0;
     }
@@ -196,9 +203,28 @@ static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
     return offset - start;
 }
 
+static guint get_write_list_chunk_count(tvbuff_t *tvb, guint offset)
+{
+    guint32 value_follows;
+    guint num_chunks;
+
+    num_chunks = 0;
+    while (1) {
+        value_follows = tvb_get_ntohl(tvb, offset);
+        offset += 4;
+        if (!value_follows)
+            break;
+
+        num_chunks++;
+        offset += get_write_chunk_size(tvb, offset);
+    }
+
+   return num_chunks;
+}
+
 static guint get_reply_chunk_size(tvbuff_t *tvb, guint max_offset, guint offset)
 {
-    guint32 value_follows, segment_count;
+    guint32 value_follows;
     guint start = offset;
 
     value_follows = tvb_get_ntohl(tvb, offset);
@@ -207,8 +233,7 @@ static guint get_reply_chunk_size(tvbuff_t *tvb, guint max_offset, guint offset)
         return 0;
 
     if (value_follows) {
-        segment_count = tvb_get_ntohl(tvb, offset);
-        offset += segment_count * 16 + 4;
+        offset += get_write_chunk_size(tvb, offset);
         if (offset > max_offset)
             return 0;
     }
@@ -270,6 +295,77 @@ static guint dissect_rpcrdma_read_list(tvbuff_t *tvb, guint offset,
     return offset;
 }
 
+static guint dissect_rpcrdma_segment(proto_tree *write_chunk, tvbuff_t *tvb,
+        guint offset, guint32 i)
+{
+    proto_tree *segment;
+
+    segment = proto_tree_add_subtree_format(write_chunk, tvb,
+                    offset, 16, ett_rpcordma_segment, NULL,
+                    "RDMA segment %u", i);
+
+    proto_tree_add_item(segment, hf_rpcordma_rdma_handle, tvb,
+                offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(segment, hf_rpcordma_rdma_length, tvb,
+                offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(segment, hf_rpcordma_rdma_offset, tvb,
+                offset, 8, ENC_BIG_ENDIAN);
+    return offset + 8;
+}
+
+static guint dissect_rpcrdma_write_chunk(proto_tree *write_list,
+        tvbuff_t *tvb, guint offset)
+{
+    guint32 i, segment_count;
+    proto_tree *write_chunk;
+    guint selection_size;
+
+    selection_size = get_write_chunk_size(tvb, offset);
+    segment_count = tvb_get_ntohl(tvb, offset);
+    write_chunk = proto_tree_add_subtree_format(write_list, tvb,
+                        offset, selection_size,
+                        ett_rpcordma_write_chunk, NULL,
+                        "Write chunk (%u segment%s)", segment_count,
+                        segment_count == 1 ? "" : "s");
+    offset += 4;
+
+    for (i = 0; i < segment_count; ++i)
+        offset = dissect_rpcrdma_segment(write_chunk, tvb, offset, i);
+
+    return offset;
+}
+
+static guint dissect_rpcrdma_write_list(tvbuff_t *tvb, guint offset,
+        proto_tree *tree)
+{
+    guint reported_length = tvb_reported_length(tvb);
+    guint selection_size, chunk_count;
+    proto_tree *write_list;
+    guint32 value_follows;
+    proto_item *item;
+
+    selection_size = get_write_list_size(tvb, reported_length, offset);
+    chunk_count = get_write_list_chunk_count(tvb, offset);
+    item = proto_tree_add_uint_format(tree, hf_rpcordma_writes_count,
+                        tvb, offset, selection_size, chunk_count,
+                        "Write list (count: %u)", chunk_count);
+
+    write_list = proto_item_add_subtree(item, ett_rpcordma_write_list);
+
+    while (1) {
+        value_follows = tvb_get_ntohl(tvb, offset);
+        offset += 4;
+        if (!value_follows)
+            break;
+
+        offset = dissect_rpcrdma_write_chunk(write_list, tvb, offset);
+    }
+
+    return offset;
+}
+
 static guint parse_list(tvbuff_t *tvb, guint offset, proto_tree *tree,
         int hf_item, const char* msg, gboolean have_position)
 {
@@ -313,7 +409,7 @@ static guint parse_list(tvbuff_t *tvb, guint offset, proto_tree *tree,
 static guint parse_rdma_header(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
     offset = dissect_rpcrdma_read_list(tvb, offset, tree);
-    offset = parse_list(tvb, offset, tree, hf_rpcordma_writes_count, "Writes", FALSE);
+    offset = dissect_rpcrdma_write_list(tvb, offset, tree);
     offset = parse_list(tvb, offset, tree, hf_rpcordma_reply_count,  "Reply",  FALSE);
     return offset;
 }
@@ -658,6 +754,9 @@ proto_register_rpcordma(void)
         &ett_rpcordma_chunk,
         &ett_rpcordma_read_list,
         &ett_rpcordma_read_chunk,
+        &ett_rpcordma_write_list,
+        &ett_rpcordma_write_chunk,
+        &ett_rpcordma_segment,
     };
 
     proto_rpcordma = proto_register_protocol (
