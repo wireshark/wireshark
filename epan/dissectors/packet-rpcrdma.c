@@ -352,82 +352,79 @@ dissect_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s XID 0x%x",
         val_to_str(msg_type, rpcordma_message_type, "Unknown (%d)"), xid);
 
-    if (tree) {
-        /* create display subtree for the protocol */
-        ti = proto_tree_add_item(tree, proto_rpcordma, tvb, 0, MIN_RPCRDMA_HDR_SZ, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_rpcordma, tvb, 0, MIN_RPCRDMA_HDR_SZ, ENC_NA);
 
-        rpcordma_tree = proto_item_add_subtree(ti, ett_rpcordma);
+    rpcordma_tree = proto_item_add_subtree(ti, ett_rpcordma);
 
-        proto_tree_add_item(rpcordma_tree, hf_rpcordma_xid, tvb,
+    proto_tree_add_item(rpcordma_tree, hf_rpcordma_xid, tvb,
+                offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(rpcordma_tree, hf_rpcordma_vers, tvb,
+                offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(rpcordma_tree, hf_rpcordma_flow_control, tvb,
+                offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(rpcordma_tree, hf_rpcordma_message_type, tvb,
+                offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    switch (msg_type) {
+    case RDMA_MSG:
+        /* Parse rpc_rdma_header */
+        offset = parse_rdma_header(tvb, offset, rpcordma_tree);
+
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
+        return call_dissector(rpc_handler, next_tvb, pinfo, tree);
+
+    case RDMA_NOMSG:
+        /* Parse rpc_rdma_header_nomsg */
+        offset = parse_rdma_header(tvb, offset, rpcordma_tree);
+        break;
+
+    case RDMA_MSGP:
+        /* Parse rpc_rdma_header_padded */
+        proto_tree_add_item(rpcordma_tree, hf_rpcordma_rdma_align, tvb,
                     offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        proto_tree_add_item(rpcordma_tree, hf_rpcordma_vers, tvb,
-                    offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-        proto_tree_add_item(rpcordma_tree, hf_rpcordma_flow_control, tvb,
-                    offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-        proto_tree_add_item(rpcordma_tree, hf_rpcordma_message_type, tvb,
+
+        proto_tree_add_item(rpcordma_tree, hf_rpcordma_rdma_thresh, tvb,
                     offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        switch (msg_type) {
-        case RDMA_MSG:
-            /* Parse rpc_rdma_header */
-            offset = parse_rdma_header(tvb, offset, rpcordma_tree);
+        offset = parse_rdma_header(tvb, offset, rpcordma_tree);
 
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
+        return call_dissector(rpc_handler, next_tvb, pinfo, tree);
+
+    case RDMA_DONE:
+        break;
+
+    case RDMA_ERROR:
+        /* rpc_rdma_errcode */
+        val = tvb_get_ntohl(tvb, offset);
+        proto_tree_add_item(rpcordma_tree, hf_rpcordma_errcode, tvb,
+                    offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        switch (val) {
+        case ERR_VERS:
+            proto_tree_add_item(rpcordma_tree, hf_rpcordma_vers_low, tvb,
+                        offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(rpcordma_tree, hf_rpcordma_vers_high, tvb,
+                        offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            break;
+
+        case ERR_CHUNK:
+            break;
+
+        default:
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            return call_dissector(rpc_handler, next_tvb, pinfo, tree);
-
-        case RDMA_NOMSG:
-            /* Parse rpc_rdma_header_nomsg */
-            offset = parse_rdma_header(tvb, offset, rpcordma_tree);
-            break;
-
-        case RDMA_MSGP:
-            /* Parse rpc_rdma_header_padded */
-            proto_tree_add_item(rpcordma_tree, hf_rpcordma_rdma_align, tvb,
-                        offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-
-            proto_tree_add_item(rpcordma_tree, hf_rpcordma_rdma_thresh, tvb,
-                        offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-
-            offset = parse_rdma_header(tvb, offset, rpcordma_tree);
-
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
-            return call_dissector(rpc_handler, next_tvb, pinfo, tree);
-
-        case RDMA_DONE:
-            break;
-
-        case RDMA_ERROR:
-            /* rpc_rdma_errcode */
-            val = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_item(rpcordma_tree, hf_rpcordma_errcode, tvb,
-                        offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-
-            switch (val) {
-            case ERR_VERS:
-                proto_tree_add_item(rpcordma_tree, hf_rpcordma_vers_low, tvb,
-                            offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
-                proto_tree_add_item(rpcordma_tree, hf_rpcordma_vers_high, tvb,
-                            offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
-                break;
-
-            case ERR_CHUNK:
-                break;
-
-            default:
-                next_tvb = tvb_new_subset_remaining(tvb, offset);
-                return call_data_dissector(next_tvb, pinfo, tree);
-            }
-            break;
+            return call_data_dissector(next_tvb, pinfo, tree);
         }
+        break;
     }
 
     return offset;
