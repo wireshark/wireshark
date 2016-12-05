@@ -393,12 +393,15 @@ main(int argc, char *argv[])
   print_current_user();
 
   /*
-   * Attempt to get the pathname of the executable file.
+   * Attempt to get the pathname of the directory containing the
+   * executable file.
    */
   init_progfile_dir_error = init_progfile_dir(argv[0], main);
   if (init_progfile_dir_error != NULL) {
-    fprintf(stderr, "tfshark: Can't get pathname of tfshark program: %s.\n",
+    fprintf(stderr,
+            "tfshark: Can't get pathname of directory containing the tfshark program: %s.\n",
             init_progfile_dir_error);
+    g_free(init_progfile_dir_error);
   }
 
   initialize_funnel_ops();

@@ -2115,7 +2115,8 @@ main(int argc, char *argv[])
     relinquish_special_privs_perm();
 
     /*
-     * Attempt to get the pathname of the executable file.
+     * Attempt to get the pathname of the directory containing the
+     * executable file.
      */
     init_progfile_dir_error = init_progfile_dir(argv[0], main);
 
@@ -2280,7 +2281,7 @@ main(int argc, char *argv[])
     splash_win = splash_new("Loading Wireshark ...");
     if (init_progfile_dir_error != NULL) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                      "Can't get pathname of Wireshark: %s.\n"
+                      "Can't get pathname of directory containing Wireshark: %s.\n"
                       "It won't be possible to capture traffic.\n"
                       "Report this to the Wireshark developers.",
                       init_progfile_dir_error);

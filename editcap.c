@@ -942,6 +942,7 @@ main(int argc, char *argv[])
 {
     GString      *comp_info_str;
     GString      *runtime_info_str;
+    char         *init_progfile_dir_error;
     wtap         *wth;
     int           i, j, read_err, write_err;
     gchar        *read_err_info, *write_err_info;
@@ -982,10 +983,6 @@ main(int argc, char *argv[])
     GArray                      *nrb_hdrs = NULL;
     char                        *shb_user_appl;
 
-#ifdef HAVE_PLUGINS
-    char* init_progfile_dir_error;
-#endif
-
     cmdarg_err_init(failure_message, failure_message_cont);
 
 #ifdef _WIN32
@@ -1014,27 +1011,34 @@ main(int argc, char *argv[])
      */
     init_process_policies();
 
+    /*
+     * Attempt to get the pathname of the directory containing the
+     * executable file.
+     */
+    init_progfile_dir_error = init_progfile_dir(argv[0], main);
+    if (init_progfile_dir_error != NULL) {
+        fprintf(stderr,
+                "editcap: Can't get pathname of directory containing the editcap program: %s.\n",
+                init_progfile_dir_error);
+        g_free(init_progfile_dir_error);
+    }
+
     wtap_init();
 
 #ifdef HAVE_PLUGINS
     /* Register wiretap plugins */
-    if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
-        g_warning("editcap: init_progfile_dir(): %s", init_progfile_dir_error);
-        g_free(init_progfile_dir_error);
-    } else {
-        init_report_err(failure_message,NULL,NULL,NULL);
+    init_report_err(failure_message,NULL,NULL,NULL);
 
-        /* Scan for plugins.  This does *not* call their registration routines;
-           that's done later.
+    /* Scan for plugins.  This does *not* call their registration routines;
+       that's done later.
 
-           Don't report failures to load plugins because most (non-wiretap)
-           plugins *should* fail to load (because we're not linked against
-           libwireshark and dissector plugins need libwireshark). */
-        scan_plugins(DONT_REPORT_LOAD_FAILURE);
+       Don't report failures to load plugins because most (non-wiretap)
+       plugins *should* fail to load (because we're not linked against
+       libwireshark and dissector plugins need libwireshark). */
+    scan_plugins(DONT_REPORT_LOAD_FAILURE);
 
-        /* Register all libwiretap plugin modules. */
-        register_all_wiretap_modules();
-    }
+    /* Register all libwiretap plugin modules. */
+    register_all_wiretap_modules();
 #endif
 
     /* Process the options */

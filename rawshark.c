@@ -485,7 +485,8 @@ main(int argc, char *argv[])
     string_fmts = g_ptr_array_new();
 
     /*
-     * Attempt to get the pathname of the executable file.
+     * Attempt to get the pathname of the directory containing the
+     * executable file.
      */
     init_progfile_dir_error = init_progfile_dir(argv[0], main);
     if (init_progfile_dir_error != NULL) {

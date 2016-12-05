@@ -167,6 +167,7 @@ main(int argc, char *argv[])
 {
     GString *comp_info_str;
     GString *runtime_info_str;
+    char *init_progfile_dir_error;
     wtap *wth = NULL;
     wtap_dumper *pdh = NULL;
     struct wtap_pkthdr dump_phdr;
@@ -195,10 +196,6 @@ main(int argc, char *argv[])
     char *infile;
     const char *outfile;
 
-#ifdef HAVE_PLUGINS
-    char  *init_progfile_dir_error;
-#endif
-
     /* Get the compile-time version information string */
     comp_info_str = get_compiled_version_info(NULL, NULL);
 
@@ -215,32 +212,39 @@ main(int argc, char *argv[])
     g_string_free(comp_info_str, TRUE);
     g_string_free(runtime_info_str, TRUE);
 
-  /*
-   * Get credential information for later use.
-   */
-  init_process_policies();
+    /*
+     * Get credential information for later use.
+     */
+    init_process_policies();
 
-  wtap_init();
+    /*
+     * Attempt to get the pathname of the directory containing the
+     * executable file.
+     */
+    init_progfile_dir_error = init_progfile_dir(argv[0], main);
+    if (init_progfile_dir_error != NULL) {
+        fprintf(stderr,
+                "reordercap: Can't get pathname of directory containing the reordercap program: %s.\n",
+                init_progfile_dir_error);
+        g_free(init_progfile_dir_error);
+    }
+
+    wtap_init();
 
 #ifdef HAVE_PLUGINS
     /* Register wiretap plugins */
-    if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
-        g_warning("reordercap: init_progfile_dir(): %s", init_progfile_dir_error);
-        g_free(init_progfile_dir_error);
-    } else {
-        init_report_err(failure_message,NULL,NULL,NULL);
+    init_report_err(failure_message,NULL,NULL,NULL);
 
-        /* Scan for plugins.  This does *not* call their registration routines;
-           that's done later.
+    /* Scan for plugins.  This does *not* call their registration routines;
+       that's done later.
 
-           Don't report failures to load plugins because most (non-wiretap)
-           plugins *should* fail to load (because we're not linked against
-           libwireshark and dissector plugins need libwireshark). */
-        scan_plugins(DONT_REPORT_LOAD_FAILURE);
+       Don't report failures to load plugins because most (non-wiretap)
+       plugins *should* fail to load (because we're not linked against
+       libwireshark and dissector plugins need libwireshark). */
+    scan_plugins(DONT_REPORT_LOAD_FAILURE);
 
-        /* Register all libwiretap plugin modules. */
-        register_all_wiretap_modules();
-    }
+    /* Register all libwiretap plugin modules. */
+    register_all_wiretap_modules();
 #endif
 
     /* Process the options first */
