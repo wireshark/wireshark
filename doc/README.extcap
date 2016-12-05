@@ -3,9 +3,9 @@ EXTCAP: DEVELOPER GUIDE
 
 The extcap interface is a versatile plugin interface that allows external binaries
 to act as capture interfaces directly in wireshark. It is used in scenarios, where
-the source of the capture is not a traditional capture model
-(live capture from an interface, from a pipe, from a file, etc). The typical
-example is connecting esoteric hardware of some kind to the main wireshark app.
+the source of the capture is not a traditional capture model (live capture from an
+interface, from a pipe, from a file, etc). The typical example is connecting esoteric
+hardware of some kind to the main wireshark app.
 
 Without extcap, a capture can always be achieved by directly writing to a capture file:
 
@@ -19,12 +19,12 @@ The extcap subsystem is made of multiple extcap binaries that are automatically
 called by the GUI in a row. In the following chapters we will refer to them as
 "the extcaps".
 
-Extcaps may be any binary or script within the extcap directory. Please note, that scripts
-need to be executable without prefacing a script interpreter before the call.
+Extcaps may be any binary or script within the extcap directory. Please note, that
+scripts need to be executable without prefacing a script interpreter before the call.
 
 WINDOWS USER: Because of restrictions directly calling the script may not always work.
-In such a case, a batch file may be provided, which then in turn executes the script. Please
-refer to doc/extcap_example.py for more information.
+In such a case, a batch file may be provided, which then in turn executes the script.
+Please refer to doc/extcap_example.py for more information.
 
 THE CAPTURE PROCESS
 ===================
@@ -48,14 +48,15 @@ extcap {version=1.0}{help=Some help url}
 interface {value=example1}{display=Example interface 1 for extcap}
 interface {value=example2}{display=Example interface 2 for extcap}
 
-The version for the extcap sentence (which may exist as often as wanted, but only the
-last one will be used) will be used for displaying the version information of the extcap
-interface in the about dialog of Wireshark (Qt only).
+The version for the extcap sentence (which may exist as often as wanted, but only
+the last one will be used) will be used for displaying the version information of
+the extcap interface in the about dialog of Wireshark (Qt only).
 
-The value for each interface will be used in subsequent calls as the interface
-name IFACE.
+The value for each interface will be used in subsequent calls as the interface name
+IFACE.
 
-Using the help argument, an interface may provide a generic help url for the extcap utility.
+Using the help argument, an interface may provide a generic help url for the extcap
+utility.
 
 STEP2: the extcap is queried for valid DLTs (Data Link Types) for all the
 interfaces returned by the step 1.
@@ -106,16 +107,18 @@ extcap when the capture is launched.
 
 There are two kind of options available:
 
-* file, integer, string, boolean, boolflag - are value based options and each expect a single value
-  via the command-line call
-* selector, checkbox - are selections and can be presented multiple times in the command line. Both
-  expect subsequent "value" items in the config list, with the corresponding argument selected via arg
+* file, integer, string, boolean, boolflag - are value based options and each expect
+  a single value via the command-line call
+* selector, checkbox - are selections and can be presented multiple times in the command
+  line. Both expect subsequent "value" items in the config list, with the corresponding
+  argument selected via arg
 
 
 STEP4: the capture. Once the interfaces are listed and configuration is customized
 by the user, the capture is run.
 
-extcapbin --extcap-interface IFACE [params] --capture [--extcap-capture-filter CFILTER] --fifo FIFO
+extcapbin --extcap-interface IFACE [params] --capture [--extcap-capture-filter CFILTER]
+  --fifo FIFO
 
 To run the capture, the extcap must implement the --capture, --extcap-capture-filter
 and --fifo option.
@@ -142,7 +145,8 @@ These options do have types, for which the following types are being supported:
  * INTEGER, UNSIGNED, LONG, DOUBLE - this provides a field for entering a numeric value
    of the given data type. A DEFAULT value may be provided, as well as a RANGE
 
-   arg {number=0}{call=--delay}{display=Time delay}{tooltip=Time delay between packages}{type=integer}{range=1,15}{default=0}
+   arg {number=0}{call=--delay}{display=Time delay}{tooltip=Time delay between packages}
+   {type=integer}{range=1,15}{default=0}
 
  * STRING - Let the user provide a string to the capture
 
@@ -163,15 +167,16 @@ These options do have types, for which the following types are being supported:
 
    arg {number=2}{call=--verify}{display=Verify}{tooltip=Verify package content}{type=boolflag}
 
- * LOGFILE - Let the user provide a filepath to the capture. If FILE_MUSTEXIST is being provided,
-   the GUI checks if the file exists
+ * LOGFILE - Let the user provide a filepath to the capture. If FILE_MUSTEXIST is
+   being provided, the GUI checks if the file exists
 
    arg {number=3}{call=--logfile}{display=Logfile}{tooltip=A file for log messages}{type=fileselect}{file_mustexist=false}
 
- * SELECTOR, RADIO, MULTICHECK - an optionfield, where the user may choose one or more options from.
-   If PARENT is provided for the value items, the option fields for MULTICHECK and SELECTOR are being
-   presented in a tree-like structure. SELECTOR and RADIO values must present a default value, which will
-   be the value provided to the extcap binary for this argument
+ * SELECTOR, RADIO, MULTICHECK - an optionfield, where the user may choose one or
+   more options from. If PARENT is provided for the value items, the option fields
+   for MULTICHECK and SELECTOR are being presented in a tree-like structure. SELECTOR
+   and RADIO values must present a default value, which will be the value provided to
+   the extcap binary for this argument
 
    arg {number=3}{call=--remote}{display=Remote Channel}{tooltip=Remote Channel Selector}{type=selector}
    value {arg=3}{value=if1}{display=Remote1}{default=true}
@@ -180,20 +185,23 @@ These options do have types, for which the following types are being supported:
 
 VALIDATION OF ARGUMENTS
 =======================
-Arguments may be set with "{required=true}" which enforces a value being provided, before a capture can be started
-using the extcap options dialog. This is not being checked, if the extcap is started via a simple double-click. The
-necessary fields are marked for the customer, to ensure a visibility for the end customer of the required argument.
+Arguments may be set with "{required=true}" which enforces a value being provided, before
+a capture can be started using the extcap options dialog. This is not being checked, if
+the extcap is started via a simple double-click. The necessary fields are marked for the
+customer, to ensure a visibility for the end customer of the required argument.
 
-Additionally text and number arguments may also be checked using a regular expression, which is provided using
-the validation attribute (see example above). The syntax for such a check is the same as for Qt RegExp classes.
-This feature is only active in the Qt version of Wireshark.
+Additionally text and number arguments may also be checked using a regular expression,
+which is provided using the validation attribute (see example above). The syntax for
+such a check is the same as for Qt RegExp classes. This feature is only active in the
+Qt version of Wireshark.
 
 
 DEVELOPMENT
 ===========
 To have extcap support, extcap must be enabled. Moreover the specific extcap must
 be compiled. Examples for autotools and cmake compiling the extcap plugin androiddump
-are provided within wireshark.
+are provided within wireshark. The extcap subsystem and the bundled extcaps are compiled
+by default.
 
 autotools: ./configure --with-extcap --enable-androiddump
 cmake: cmake -DENABLE_EXTCAP=ON -DBUILD_androiddump ..
