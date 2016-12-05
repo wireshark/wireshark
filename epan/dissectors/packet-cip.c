@@ -622,6 +622,7 @@ static expert_field ei_proto_special_segment_format = EI_INIT;
 static expert_field ei_proto_log_seg_type = EI_INIT;
 static expert_field ei_proto_log_sub_seg_type = EI_INIT;
 static expert_field ei_proto_ext_string_format = EI_INIT;
+static expert_field ei_proto_ext_network = EI_INIT;
 static expert_field ei_proto_seg_type = EI_INIT;
 static expert_field ei_proto_unsupported_datatype = EI_INIT;
 static expert_field ei_mal_serv_gal = EI_INIT;
@@ -1185,7 +1186,7 @@ value_string_ext cip_gs_vals_ext = VALUE_STRING_EXT_INIT(cip_gs_vals);
 #define CM_ES_NOT_CONFIGURED_MULTICAST                0x813
 #define CM_ES_INVALID_PROD_CONS_DATA_FORMAT           0x814
 
-/* Translate function to string - CIP General Status codes */
+/* Translate function to string - CIP Extended Status codes */
 static const value_string cip_cm_ext_st_vals[] = {
    { CM_ES_DUP_FWD_OPEN,                           "Connection in use or duplicate Forward Open" },
    { CM_ES_CLASS_AND_TRIGGER,                      "Transport class and trigger combination not supported" },
@@ -3863,10 +3864,10 @@ dissect_transport_type_trigger(tvbuff_t *tvb, int offset, proto_tree *tree,
    proto_tree_add_item(ttt_tree, hf_class, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 }
 
-static int dissect_segment_network_extended(tvbuff_t *tvb, int offset, int pathpos, gboolean generate, proto_tree *net_tree)
+static int dissect_segment_network_extended(packet_info *pinfo, proto_item *epath_item, tvbuff_t *tvb, int offset, gboolean generate, proto_tree *net_tree)
 {
    int data_words;
-   data_words = tvb_get_guint8(tvb, offset + pathpos + 1);
+   data_words = tvb_get_guint8(tvb, offset + 1);
 
    if (generate)
    {
@@ -3877,23 +3878,44 @@ static int dissect_segment_network_extended(tvbuff_t *tvb, int offset, int pathp
           tvb, 0, 0, data_words, "%d (words)", data_words);
       PROTO_ITEM_SET_GENERATED(it);
 
-      temp_data = tvb_get_letohs(tvb, offset + pathpos + 2);
+      temp_data = tvb_get_letohs(tvb, offset + 2);
       it = proto_tree_add_uint(net_tree, hf_cip_seg_network_subtype, tvb, 0, 0, temp_data);
       PROTO_ITEM_SET_GENERATED(it);
    }
    else
    {
       proto_tree_add_uint_format_value(net_tree, hf_cip_seg_network_size,
-         tvb, offset + pathpos + 1, 1, data_words, "%d (words)", data_words);
+         tvb, offset + 1, 1, data_words, "%d (words)", data_words);
 
-      proto_tree_add_item(net_tree, hf_cip_seg_network_subtype, tvb, offset + pathpos + 2, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(net_tree, hf_cip_seg_network_subtype, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
+   }
+
+   // Extended Network Subtype is included in the Number of Data words, so we must have at least 1.
+   if (data_words < 1)
+   {
+      expert_add_info(pinfo, epath_item, &ei_proto_ext_network);
+      return 0;
    }
 
    if (generate == FALSE)
    {
       /* The first word of the data is the extended segment subtype, so
          don't include that in the displayed data block. */
-      proto_tree_add_item(net_tree, hf_cip_data, tvb, offset + pathpos + 4, data_words * 2 - 2, ENC_NA);
+      int net_seg_data_offset;
+      int net_seg_data_len;
+      net_seg_data_offset = offset + 4;
+      net_seg_data_len = (data_words - 1) * 2;
+
+      if (tvb_reported_length_remaining(tvb, net_seg_data_offset) < net_seg_data_len)
+      {
+          expert_add_info(pinfo, epath_item, &ei_proto_ext_network);
+          return 0;
+      }
+
+      if (net_seg_data_len > 0)
+      {
+          proto_tree_add_item(net_tree, hf_cip_data, tvb, net_seg_data_offset, net_seg_data_len, ENC_NA);
+      }
    }
 
    return data_words * 2 + 2;
@@ -4705,7 +4727,7 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
                }
 
                case CI_NETWORK_SEG_EXTENDED:
-                   seg_size = dissect_segment_network_extended(tvb, offset, pathpos, generate, net_tree);
+                   seg_size = dissect_segment_network_extended(pinfo, epath_item, tvb, offset + pathpos, generate, net_tree);
 
                    proto_item_append_text(epath_item, "[Data]");
 
@@ -5098,6 +5120,11 @@ static int dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_ite
       break;
    case cip_dissector_func:
       consumed = attr->pdissect(pinfo, tree, item, tvb, offset, total_len);
+      if (consumed == 0)
+      {
+         consumed = total_len;
+      }
+
       break;
    case cip_date_and_time:
       dissect_cip_date_and_time(tree, tvb, offset, *(attr->phf));
@@ -5836,12 +5863,30 @@ dissect_cip_find_next_object_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
    }
 }
 
+static void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_data)
+{
+    cip_req_info_t* preq_info;
+    preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
+
+    if ((preq_info != NULL) &&
+        (preq_info->ciaData != NULL))
+    {
+        memcpy(req_data, preq_info->ciaData, sizeof(cip_simple_request_info_t));
+    }
+    else
+    {
+        req_data->iClass = (guint32)-1;
+        req_data->iInstance = (guint32)-1;
+        req_data->iAttribute = (guint32)-1;
+        req_data->iMember = (guint32)-1;
+    }
+}
+
 static int
 dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    proto_item *cmd_data_item;
    proto_tree *cmd_data_tree;
-   cip_req_info_t* preq_info;
    cip_simple_request_info_t req_data;
    int offset = 0,
    item_length = tvb_reported_length(tvb);
@@ -5863,19 +5908,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       return tvb_reported_length(tvb);
    }
 
-   preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
-   if ((preq_info != NULL) &&
-       (preq_info->ciaData != NULL))
-   {
-      memcpy(&req_data, preq_info->ciaData, sizeof(cip_simple_request_info_t));
-   }
-   else
-   {
-      req_data.iClass = (guint32)-1;
-      req_data.iInstance = (guint32)-1;
-      req_data.iAttribute = (guint32)-1;
-      req_data.iMember = (guint32)-1;
-   }
+   load_cip_request_data(pinfo, &req_data);
 
    switch(service)
    {
@@ -7039,7 +7072,6 @@ dissect_cip_cco_data( proto_tree *item_tree, proto_item *ti, tvbuff_t *tvb, int 
    proto_tree *rrsc_tree, *cmd_data_tree, *con_st_tree;
    int req_path_size;
    guint8 service, gen_status, add_stat_size;
-   cip_req_info_t* preq_info;
    cip_simple_request_info_t req_data;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP CCO");
@@ -7060,19 +7092,7 @@ dissect_cip_cco_data( proto_tree *item_tree, proto_item *ti, tvbuff_t *tvb, int 
    /* Add Service code */
    proto_tree_add_item(rrsc_tree, hf_cip_cco_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
-   preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
-   if ((preq_info != NULL) &&
-       (preq_info->ciaData != NULL))
-   {
-      memcpy(&req_data, preq_info->ciaData, sizeof(cip_simple_request_info_t));
-   }
-   else
-   {
-      req_data.iClass = (guint32)-1;
-      req_data.iInstance = (guint32)-1;
-      req_data.iAttribute = (guint32)-1;
-      req_data.iMember = (guint32)-1;
-   }
+   load_cip_request_data(pinfo, &req_data);
 
    if(service & CIP_SC_RESPONSE_MASK )
    {
@@ -7546,7 +7566,7 @@ proto_register_cip(void)
       { &hf_attr_class_opt_attr_num, { "Number of Attributes", "cip.num_attr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_attr_class_attr_num, { "Attribute Number", "cip.attr_num", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_attr_class_opt_service_num, { "Number of Services", "cip.num_service", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-      { &hf_attr_class_service_code, { "Service Code", "cip.service_code", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_attr_class_service_code, { "Service Code", "cip.service_code", FT_UINT16, BASE_HEX, VALS(cip_sc_vals), 0, NULL, HFILL } },
       { &hf_attr_class_num_class_attr, { "Maximum ID Number Class Attributes", "cip.num_class_attr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_attr_class_num_inst_attr, { "Maximum ID Number Instance Attributes", "cip.num_inst_attr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
 
@@ -7587,7 +7607,7 @@ proto_register_cip(void)
       { &hf_cip_serviceid8,{ "Service ID", "cip.serviceid", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
       { &hf_cip_ekey_format, { "Key Format", "cip.ekey.format", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_ekey_vendor, { "Vendor ID", "cip.ekey.vendor", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0, NULL, HFILL }},
-      { &hf_cip_ekey_devtype, { "Device Type", "cip.ekey.devtype", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &cip_devtype_vals_ext, 0, NULL, HFILL }},
+      { &hf_cip_ekey_devtype, { "Device Type", "cip.ekey.devtype", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_devtype_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_ekey_prodcode, { "Product Code", "cip.ekey.product_code", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_ekey_compatibility, { "Compatibility", "cip.ekey.compatibility", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_ekey_comp_bit, { "Compatibility", "cip.ekey.comp_bit", FT_UINT8, BASE_HEX, VALS(cip_com_bit_vals), 0x80, "EKey: Compatibility bit", HFILL }},
@@ -7695,8 +7715,8 @@ proto_register_cip(void)
       { &hf_cip_sc_group_sync_data, { "Data", "cip.group_sync.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_data, { "Data", "cip.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-      { &hf_id_vendor_id, { "Vendor ID", "cip.id.vendor_id", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_id_device_type, { "Device Type", "cip.id.device_type", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_id_vendor_id, { "Vendor ID", "cip.id.vendor_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &cip_vendor_vals_ext, 0, NULL, HFILL } },
+      { &hf_id_device_type, { "Device Type", "cip.id.device_type", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_devtype_vals_ext, 0, NULL, HFILL }},
       { &hf_id_product_code, { "Product Code", "cip.id.product_code", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_id_major_rev, { "Major Revision", "cip.id.major_rev", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_id_minor_rev, { "Minor Revision", "cip.id.minor_rev", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -7940,14 +7960,14 @@ proto_register_cip(void)
       { &hf_cip_cco_ot_rtf, { "O->T real time transfer format", "cip.cco.otrtf", FT_UINT16, BASE_DEC, VALS(cip_con_rtf_vals), 0x000E, NULL, HFILL }},
       { &hf_cip_cco_to_rtf, { "T->O real time transfer format", "cip.cco.tortf", FT_UINT16, BASE_DEC, VALS(cip_con_rtf_vals), 0x0070, NULL, HFILL }},
       { &hf_cip_cco_tdi_vendor, { "Vendor ID", "cip.cco.tdi.vendor", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0, NULL, HFILL }},
-      { &hf_cip_cco_tdi_devtype, { "Device Type", "cip.cco.tdi.devtype", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &cip_devtype_vals_ext, 0, NULL, HFILL }},
+      { &hf_cip_cco_tdi_devtype, { "Device Type", "cip.cco.tdi.devtype", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_devtype_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_cco_tdi_prodcode, { "Product Code", "cip.cco.tdi.product_code", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_tdi_compatibility, { "Compatibility", "cip.cco.tdi.compatibility", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_tdi_comp_bit, { "Compatibility", "cip.cco.tdi.comp_bit", FT_UINT8, BASE_HEX, VALS(cip_com_bit_vals), 0x80, NULL, HFILL }},
       { &hf_cip_cco_tdi_majorrev, { "Major Revision", "cip.cco.tdi.major_rev", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
       { &hf_cip_cco_tdi_minorrev, { "Minor Revision", "cip.cco.tdi.minor_rev", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_pdi_vendor, { "Vendor ID", "cip.cco.pdi.vendor", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0, NULL, HFILL }},
-      { &hf_cip_cco_pdi_devtype, { "Device Type", "cip.cco.pdi.devtype", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &cip_devtype_vals_ext, 0, NULL, HFILL }},
+      { &hf_cip_cco_pdi_devtype, { "Device Type", "cip.cco.pdi.devtype", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_devtype_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_cco_pdi_prodcode, { "Product Code", "cip.cco.pdi.product_code", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_pdi_compatibility, { "Compatibility", "cip.cco.pdi.compatibility", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_pdi_comp_bit, { "Compatibility", "cip.cco.pdi.comp_bit", FT_UINT8, BASE_HEX, VALS(cip_com_bit_vals), 0x80, NULL, HFILL }},
@@ -8105,6 +8125,7 @@ proto_register_cip(void)
       { &ei_proto_log_seg_type, { "cip.unsupported.log_seg_type", PI_PROTOCOL, PI_WARN, "Unsupported Logical Segment Type", EXPFILL }},
       { &ei_proto_log_sub_seg_type, { "cip.unsupported.log_sub_seg_type", PI_PROTOCOL, PI_WARN, "Unsupported Sub-Segment Type", EXPFILL }},
       { &ei_proto_ext_string_format, { "cip.unsupported.ext_string_format", PI_PROTOCOL, PI_WARN, "Unsupported Extended String Format", EXPFILL } },
+      { &ei_proto_ext_network, { "cip.malformed.ext_network", PI_PROTOCOL, PI_ERROR, "Malformed Extended Network Segment Format", EXPFILL } },
       { &ei_proto_seg_type, { "cip.unsupported.seg_type", PI_PROTOCOL, PI_WARN, "Unsupported Segment Type", EXPFILL }},
       { &ei_proto_unsupported_datatype, { "cip.unsupported.datatype", PI_PROTOCOL, PI_WARN, "Unsupported Datatype", EXPFILL }},
       { &ei_mal_serv_gal, { "cip.malformed.get_attribute_list", PI_MALFORMED, PI_ERROR, "Malformed Get Attribute List service", EXPFILL }},
