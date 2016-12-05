@@ -247,9 +247,9 @@ scan_plugins(void)
     char *plugin_dir_path;
     char *plugins_pers_dir;
     WS_DIR *dir;                /* scanned directory */
-    WS_DIRENT *file;                /* current file */
+    WS_DIRENT *file;            /* current file */
 
-    if (plugin_list == NULL)      /* ensure scan_plugins is only run once */
+    if (plugin_list == NULL)    /* only scan for plugins once */
     {
         /*
          * Scan the global plugin directory.
@@ -259,6 +259,11 @@ scan_plugins(void)
          * they will contain plugins in the case of an in-tree build.
          */
         plugin_dir = get_plugin_dir();
+        if (plugin_dir == NULL)
+        {
+            /* We couldn't find the plugin directory. */
+            return;
+        }
         if (running_in_build_directory())
         {
             if ((dir = ws_dir_open(plugin_dir, 0, NULL)) != NULL)

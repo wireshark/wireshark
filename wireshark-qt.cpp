@@ -373,7 +373,8 @@ int main(int argc, char *qt_argv[])
     relinquish_special_privs_perm();
 
     /*
-     * Attempt to get the pathname of the executable file.
+     * Attempt to get the pathname of the directory containing the
+     * executable file.
      */
     /* init_progfile_dir_error = */ init_progfile_dir(argv[0],
         (int (*)(int, char **)) get_gui_compiled_info);

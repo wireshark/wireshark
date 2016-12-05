@@ -100,6 +100,7 @@ usage(gboolean is_error)
 int
 main(int argc, char **argv)
 {
+	char                   *init_progfile_dir_error;
 	int			opt;
 	int			produce_type = -1;
 	char			*produce_filename = NULL;
@@ -114,14 +115,22 @@ main(int argc, char **argv)
 		{0, 0, 0, 0 }
 	};
 
-#ifdef HAVE_PLUGINS
-	char  *init_progfile_dir_error;
-#endif
-
 	/*
 	 * Get credential information for later use.
 	 */
 	init_process_policies();
+
+	/*
+	 * Attempt to get the pathname of the directory containing the
+	 * executable file.
+	 */
+	init_progfile_dir_error = init_progfile_dir(argv[0], main);
+	if (init_progfile_dir_error != NULL) {
+		fprintf(stderr,
+		    "capinfos: Can't get pathname of directory containing the capinfos program: %s.\n",
+		    init_progfile_dir_error);
+		g_free(init_progfile_dir_error);
+	}
 
 	wtap_init();
 
@@ -132,19 +141,14 @@ main(int argc, char **argv)
 
 #ifdef HAVE_PLUGINS
 	/* Register wiretap plugins */
-	if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
-		g_warning("randpkt: init_progfile_dir(): %s", init_progfile_dir_error);
-		g_free(init_progfile_dir_error);
-	} else {
-		init_report_err(failure_message,NULL,NULL,NULL);
+	init_report_err(failure_message,NULL,NULL,NULL);
 
-		/* Scan for plugins.  This does *not* call their registration routines;
-		   that's done later. */
-		scan_plugins();
+	/* Scan for plugins.  This does *not* call their registration routines;
+		that's done later. */
+	scan_plugins();
 
-		/* Register all libwiretap plugin modules. */
-		register_all_wiretap_modules();
-	}
+	/* Register all libwiretap plugin modules. */
+	register_all_wiretap_modules();
 #endif
 
 	while ((opt = getopt_long(argc, argv, "b:c:ht:r", long_options, NULL)) != -1) {

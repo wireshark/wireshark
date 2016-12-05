@@ -642,12 +642,17 @@ main(int argc, char *argv[])
   print_current_user();
 
   /*
-   * Attempt to get the pathname of the executable file.
+   * Attempt to get the pathname of the directory containing the
+   * executable file.
    */
   init_progfile_dir_error = init_progfile_dir(argv[0], main);
   if (init_progfile_dir_error != NULL) {
-    fprintf(stderr, "tshark: Can't get pathname of tshark program: %s.\n",
+    fprintf(stderr,
+            "tshark: Can't get pathname of directory containing the tshark program: %s.\n"
+            "It won't be possible to capture traffic.\n"
+            "Report this to the Wireshark developers.",
             init_progfile_dir_error);
+    g_free(init_progfile_dir_error);
   }
 
   initialize_funnel_ops();

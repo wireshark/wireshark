@@ -68,12 +68,14 @@ main(int argc, char **argv)
 	init_process_policies();
 
 	/*
-	 * Attempt to get the pathname of the executable file.
+	 * Attempt to get the pathname of the directory containing the
+	 * executable file.
 	 */
 	init_progfile_dir_error = init_progfile_dir(argv[0], main);
 	if (init_progfile_dir_error != NULL) {
-		fprintf(stderr, "dftest: Can't get pathname of dftest program: %s.\n",
+		fprintf(stderr, "dftest: Can't get pathname of directory containing the dftest program: %s.\n",
 			init_progfile_dir_error);
+		g_free(init_progfile_dir_error);
 	}
 
 	init_report_err(failure_message, open_failure_message,

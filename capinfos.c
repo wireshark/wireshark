@@ -1405,6 +1405,7 @@ main(int argc, char *argv[])
 {
   GString *comp_info_str;
   GString *runtime_info_str;
+  char  *init_progfile_dir_error;
   wtap  *wth;
   int    err;
   gchar *err_info;
@@ -1417,9 +1418,6 @@ main(int argc, char *argv[])
   };
 
   int status = 0;
-#ifdef HAVE_PLUGINS
-  char  *init_progfile_dir_error;
-#endif
 #ifdef HAVE_LIBGCRYPT
   FILE  *fh;
   char  *hash_buf = NULL;
@@ -1457,22 +1455,29 @@ main(int argc, char *argv[])
    */
   init_process_policies();
 
+  /*
+   * Attempt to get the pathname of the directory containing the
+   * executable file.
+   */
+  init_progfile_dir_error = init_progfile_dir(argv[0], main);
+  if (init_progfile_dir_error != NULL) {
+    fprintf(stderr,
+            "capinfos: Can't get pathname of directory containing the capinfos program: %s.\n",
+            init_progfile_dir_error);
+    g_free(init_progfile_dir_error);
+  }
+
   wtap_init();
 
 #ifdef HAVE_PLUGINS
-  if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
-    g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
-    g_free(init_progfile_dir_error);
-  } else {
-    init_report_err(failure_message, NULL, NULL, NULL);
+  init_report_err(failure_message, NULL, NULL, NULL);
 
-    /* Scan for plugins.  This does *not* call their registration routines;
-       that's done later. */
-    scan_plugins();
+  /* Scan for plugins.  This does *not* call their registration routines;
+      that's done later. */
+  scan_plugins();
 
-    /* Register all libwiretap plugin modules. */
-    register_all_wiretap_modules();
-  }
+  /* Register all libwiretap plugin modules. */
+  register_all_wiretap_modules();
 #endif
 
   /* Process the options */
