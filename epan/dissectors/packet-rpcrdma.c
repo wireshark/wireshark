@@ -70,6 +70,7 @@ static int hf_rpcordma_writes_count = -1;
 static int hf_rpcordma_reply_count = -1;
 
 static int hf_rpcordma_position = -1;
+static int hf_rpcordma_segment_count = -1;
 
 /* rdma_segment */
 static int hf_rpcordma_rdma_handle = -1;
@@ -338,6 +339,8 @@ static guint dissect_rpcrdma_write_chunk(proto_tree *write_list,
                         ett_rpcordma_write_chunk, NULL,
                         "Write chunk (%u segment%s)", segment_count,
                         segment_count == 1 ? "" : "s");
+    proto_tree_add_item(write_chunk, hf_rpcordma_segment_count,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     for (i = 0; i < segment_count; ++i)
@@ -712,6 +715,11 @@ proto_register_rpcordma(void)
         },
         { &hf_rpcordma_position,
           { "Position in XDR", "rpcordma.position",
+            FT_UINT32, BASE_DEC,
+            NULL, 0, NULL, HFILL }
+        },
+        { &hf_rpcordma_segment_count,
+          { "Write chunk segment count", "rpcordma.segment_count",
             FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }
         },
