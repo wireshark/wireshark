@@ -120,6 +120,9 @@ typedef struct _rtp_dyn_payload_t rtp_dyn_payload_t;
 WS_DLL_PUBLIC
 rtp_dyn_payload_t* rtp_dyn_payload_new(void);
 
+/* Creates a copy of the given dynamic payload information. */
+rtp_dyn_payload_t* rtp_dyn_payload_dup(rtp_dyn_payload_t *rtp_dyn_payload);
+
 /* Inserts the given payload type key, for the encoding name and sample rate, into the hash table.
    This makes copies of the encoding name, scoped to the life of the capture file or sooner if
    rtp_dyn_payload_free is called. */

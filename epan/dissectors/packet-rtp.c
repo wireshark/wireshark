@@ -1006,6 +1006,27 @@ rtp_dyn_payload_t* rtp_dyn_payload_new(void)
     return rtp_dyn_payload;
 }
 
+/* Creates a copy of the given dynamic payload information. */
+rtp_dyn_payload_t* rtp_dyn_payload_dup(rtp_dyn_payload_t *rtp_dyn_payload)
+{
+    rtp_dyn_payload_t *rtp_dyn_payload2 = rtp_dyn_payload_new();
+    GHashTableIter iter;
+    gpointer key, value;
+
+    g_hash_table_iter_init(&iter, rtp_dyn_payload->table);
+    while (g_hash_table_iter_next(&iter, &key, &value)) {
+        const guint pt = GPOINTER_TO_UINT(key);
+        encoding_name_and_rate_t *encoding_name_and_rate_pt =
+            (encoding_name_and_rate_t *)value;
+
+        rtp_dyn_payload_insert(rtp_dyn_payload2, pt,
+                encoding_name_and_rate_pt->encoding_name,
+                encoding_name_and_rate_pt->sample_rate);
+    }
+
+    return rtp_dyn_payload2;
+}
+
 static rtp_dyn_payload_t*
 rtp_dyn_payload_ref(rtp_dyn_payload_t *rtp_dyn_payload)
 {
