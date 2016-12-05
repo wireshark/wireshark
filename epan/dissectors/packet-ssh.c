@@ -148,6 +148,10 @@ static int hf_ssh_hostkey_dsa_p= -1;
 static int hf_ssh_hostkey_dsa_q= -1;
 static int hf_ssh_hostkey_dsa_g= -1;
 static int hf_ssh_hostkey_dsa_y= -1;
+static int hf_ssh_hostkey_ecdsa_curve_id= -1;
+static int hf_ssh_hostkey_ecdsa_curve_id_length= -1;
+static int hf_ssh_hostkey_ecdsa_q= -1;
+static int hf_ssh_hostkey_ecdsa_q_length= -1;
 static int hf_ssh_kexdh_h_sig= -1;
 static int hf_ssh_kexdh_h_sig_length= -1;
 static int hf_ssh_kex_algorithms = -1;
@@ -661,6 +665,11 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const c
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_dsa_q);
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_dsa_g);
         ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_dsa_y);
+    } else if (g_str_has_prefix(key_type, "ecdsa-sha2-")) {
+        offset += ssh_tree_add_string(tvb, offset, tree,
+                                      hf_ssh_hostkey_ecdsa_curve_id, hf_ssh_hostkey_ecdsa_curve_id_length);
+        ssh_tree_add_string(tvb, offset, tree,
+                            hf_ssh_hostkey_ecdsa_q, hf_ssh_hostkey_ecdsa_q_length);
     } else {
         remaining_len = key_len - (type_len + 4);
         proto_tree_add_item(tree, hf_ssh_hostkey_data, tvb, offset, remaining_len, ENC_NA);
@@ -1300,6 +1309,26 @@ proto_register_ssh(void)
         { &hf_ssh_hostkey_dsa_y,
           { "DSA public key (y)",  "ssh.host_key.dsa.y",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_ecdsa_curve_id,
+          { "ECDSA elliptic curve identifier",  "ssh.host_key.ecdsa.id",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_ecdsa_curve_id_length,
+          { "ECDSA elliptic curve identifier length",  "ssh.host_key.ecdsa.id_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_ecdsa_q,
+          { "ECDSA public key (Q)",  "ssh.host_key.ecdsa.q",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_ecdsa_q_length,
+          { "ECDSA public key length",  "ssh.host_key.ecdsa.q_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_kexdh_h_sig_length,
