@@ -539,7 +539,7 @@ proto_register_rpcordma(void)
         },
         { &hf_rpcordma_rdma_length,
           { "RDMA length", "rpcordma.rdma_length",
-            FT_UINT32, BASE_HEX,
+            FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }
         },
         { &hf_rpcordma_rdma_offset,
@@ -549,7 +549,7 @@ proto_register_rpcordma(void)
         },
         { &hf_rpcordma_position,
           { "Position in XDR", "rpcordma.position",
-            FT_UINT32, BASE_HEX,
+            FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }
         },
         { &hf_rpcordma_rdma_align,
