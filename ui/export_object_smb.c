@@ -200,11 +200,11 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
        ...first, we shall be able to allocate the memory */
     if (!entry->payload_data) {
         /* This is a New file */
-        if (calculated_size > G_MAXSIZE) {
+        if (calculated_size > G_MAXUINT32) {
             /*
              * The argument to g_try_malloc() is
-             * a gsize, the maximum value of which is
-             * G_MAXSIZE.  If the calculated size is
+             * a gsize, however the maximum size of a file
+             * is 32-bit.  If the calculated size is
              * bigger than that, we just say the attempt
              * to allocate memory failed.
              */
@@ -222,7 +222,7 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
         if (calculated_size > (guint64) entry->payload_len &&
             !file->is_out_of_memory) {
             /* We need more memory */
-            if (calculated_size > G_MAXSIZE) {
+            if (calculated_size > G_MAXUINT32) {
                 /*
                  * As for g_try_malloc(), so for
                  * g_try_realloc().
