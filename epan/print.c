@@ -33,6 +33,7 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/packet-range.h>
+#include <epan/prefs.h>
 #include <epan/print.h>
 #include <epan/charsets.h>
 #include <wsutil/filesystem.h>
@@ -166,7 +167,7 @@ proto_tree_print_node(proto_node *node, gpointer data)
     g_assert(fi);
 
     /* Don't print invisible entries. */
-    if (PROTO_ITEM_IS_HIDDEN(node))
+    if (PROTO_ITEM_IS_HIDDEN(node) && (prefs.display_hidden_proto_items == FALSE))
         return;
 
     /* Give up if we've already gotten an error. */
@@ -563,7 +564,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
             print_escaped_xml(pdata->fh, label_ptr);
         }
 
-        if (PROTO_ITEM_IS_HIDDEN(node))
+        if (PROTO_ITEM_IS_HIDDEN(node) && (prefs.display_hidden_proto_items == FALSE))
             fprintf(pdata->fh, "\" hide=\"yes");
 
         fprintf(pdata->fh, "\" size=\"%d", fi->length);
