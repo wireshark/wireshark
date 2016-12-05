@@ -925,20 +925,24 @@ get_datafile_dir(void)
 /*
  * Find the directory where the plugins are stored.
  *
- * On Windows, we use the "plugin" subdirectory of the datafile directory.
+ * On Windows, we use the plugin/{VERSION} subdirectory of the datafile
+ * directory, where {VERSION} is the version number of this version of
+ * Wireshark.
  *
- * On UN*X, we use the PLUGIN_INSTALL_DIR value supplied by the configure
- * script, unless we think we're being run from the build directory,
- * in which case we use the "plugin" subdirectory of the datafile directory.
+ * On UN*X:
  *
- * In both cases, we then use the subdirectory of that directory whose
- * name is the version number.
+ *    if we appear to be run from the build directory, we use the
+ *    "plugin" subdirectory of the datafile directory;
  *
- * XXX - if we think we're being run from the build directory, perhaps we
- * should have the plugin code not look in the version subdirectory
- * of the plugin directory, but look in all of the subdirectories
- * of the plugin directory, so it can just fetch the plugins built
- * as part of the build process.
+ *    otherwise, if the WIRESHARK_PLUGIN_DIR environment variable is
+ *    set and we aren't running with special privileges, we use the
+ *    value of that environment variable;
+ *
+ *    otherwise, if we're running from an app bundle in macOS, we
+ *    use the Contents/PlugIns/wireshark subdirectory of the app bundle;
+ *
+ *    otherwise, we use the PLUGIN_INSTALL_DIR value supplied by the
+ *    configure script.
  */
 static char *plugin_dir = NULL;
 
