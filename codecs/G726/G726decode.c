@@ -66,7 +66,7 @@ codec_g726_release(void *ctx)
         return;  /* out-of-memory; */
     }
 
-    /* Note: replaces g726_release since spandsp 20090211 */
+    /* Note: replaces g726_release since SpanDSP 20090211 */
     g726_free(state->state);
     g_free(state);
 }

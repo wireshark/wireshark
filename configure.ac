@@ -2539,20 +2539,20 @@ fi
 AM_CONDITIONAL(HAVE_SBC, test "x$have_sbc" = "xyes")
 
 #`
-# Check Spandsp library for RTP Player
+# Check SpanDSP library for RTP Player
 # http://www.soft-switch.org/
 AC_ARG_WITH([spandsp],
   AC_HELP_STRING( [--with-spandsp=@<:@yes/no@:>@],
-                 [use Spandsp to play G.722/G.726 codecs @<:@default=yes, if available@:>@]),
+                 [use SpanDSP to play G.722/G.726 codecs @<:@default=yes, if available@:>@]),
   with_spandsp="$withval"; want_spandsp="yes", with_spandsp="yes")
 
 PKG_CHECK_MODULES(SPANDSP, spandsp, [have_spandsp=yes], [have_spandsp=no])
 if test "x$with_spandsp" != "xno"; then
     if (test "${have_spandsp}" = "yes"); then
-        AC_DEFINE(HAVE_SPANDSP, 1, [Define if you have the spandsp library])
+        AC_DEFINE(HAVE_SPANDSP, 1, [Define if you have the SpanDSP library])
     elif test "x$want_spandsp" = "xyes"; then
-        # Error out if the user explicitly requested the spandsp library
-        AC_MSG_ERROR([Spandsp library was requested, but is not available])
+        # Error out if the user explicitly requested the SpanDSP library
+        AC_MSG_ERROR([SpanDSP library was requested, but is not available])
     fi
 else
     have_spandsp=no
@@ -3172,7 +3172,7 @@ echo "                 Use libssh library : $libssh_message"
 echo "            Have ssh_userauth_agent : $ssh_userauth_agent_message"
 echo "                     Use nl library : $libnl_message"
 echo "              Use SBC codec library : $have_sbc"
-echo "                Use Spandsp library : $have_spandsp"
+echo "                Use SpanDSP library : $have_spandsp"
 echo "                Use nghttp2 library : $nghttp2_message"
 echo "                    Use LZ4 library : $have_lz4"
 echo "                 Use Snappy library : $have_snappy"

@@ -247,11 +247,11 @@ void codec_get_compiled_version_info(GString *str)
     g_string_append(str, ", without SBC");
 #endif
 
-    /* Spandsp (G.722, G.726) */
+    /* SpanDSP (G.722, G.726) */
 #ifdef HAVE_SPANDSP
-    g_string_append(str, ", with Spandsp");
+    g_string_append(str, ", with SpanDSP");
 #else
-    g_string_append(str, ", without Spandsp");
+    g_string_append(str, ", without SpanDSP");
 #endif
 }
 

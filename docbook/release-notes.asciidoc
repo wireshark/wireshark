@@ -38,7 +38,7 @@ since version 2.2.0:
 * SS7 Point Codes can now be resolved into names with a hosts-like file.
 * Wireshark can now go fullscreen to have more room for packets.
 * TShark can now export objects like the other GUI interfaces.
-* Support for G.722 and G.726 codecs in the RTP Player (via the Spandsp library).
+* Support for G.722 and G.726 codecs in the RTP Player (via the SpanDSP library).
 * You can now choose the output device when playing RTP streams.
 
 //=== Removed Dissectors

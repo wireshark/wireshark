@@ -1,10 +1,10 @@
-# Find the system's Spandsp includes and library
+# Find the system's SpanDSP includes and library
 #
 #  SPANDSP_INCLUDE_DIRS - where to find spandsp.h
-#  SPANDSP_LIBRARIES    - List of libraries when using spandsp
-#  SPANDSP_FOUND        - True if spandsp found
-#  SPANDSP_DLL_DIR      - (Windows) Path to the Spandsp DLL
-#  SPANDSP_DLL          - (Windows) Name of the Spandsp DLL
+#  SPANDSP_LIBRARIES    - List of libraries when using SpanDSP
+#  SPANDSP_FOUND        - True if SpanDSP found
+#  SPANDSP_DLL_DIR      - (Windows) Path to the SpanDSP DLL
+#  SPANDSP_DLL          - (Windows) Name of the SpanDSP DLL
 
 include( FindWSWinLibs )
 FindWSWinLibs( "spandsp-.*" "SPANDSP_HINTS" )
@@ -29,21 +29,21 @@ find_library( SPANDSP_LIBRARY
 )
 
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( Spandsp DEFAULT_MSG SPANDSP_INCLUDE_DIR SPANDSP_LIBRARY )
+find_package_handle_standard_args( SpanDSP DEFAULT_MSG SPANDSP_INCLUDE_DIR SPANDSP_LIBRARY )
 
 if( SPANDSP_FOUND )
   set( SPANDSP_INCLUDE_DIRS ${SPANDSP_INCLUDE_DIR} )
   set( SPANDSP_LIBRARIES ${SPANDSP_LIBRARY} )
   if (WIN32)
     set ( SPANDSP_DLL_DIR "${SPANDSP_HINTS}/bin"
-      CACHE PATH "Path to spandsp DLL"
+      CACHE PATH "Path to SpanDSP DLL"
     )
     file( GLOB _spandsp_dll RELATIVE "${SPANDSP_DLL_DIR}"
       "${SPANDSP_DLL_DIR}/libspandsp-*.dll"
     )
     set ( SPANDSP_DLL ${_spandsp_dll}
       # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "spandsp DLL file name"
+      CACHE FILEPATH "SpanDSP DLL file name"
     )
     mark_as_advanced( SPANDSP_DLL_DIR SPANDSP_DLL )
   endif()

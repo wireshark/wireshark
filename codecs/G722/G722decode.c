@@ -49,7 +49,7 @@ codec_g722_release(void *ctx)
         return;  /* out-of-memory; */
     }
 
-    /* Note: replaces g722_decode_release since spandsp 20090211 */
+    /* Note: replaces g722_decode_release since SpanDSP 20090211 */
     g722_decode_free(state);
 }
 
