@@ -168,10 +168,19 @@ imf_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
      * is closed. */
     entry = g_new(export_object_entry_t, 1);
 
+    gchar *start = g_strrstr_len(eo_info->sender_data, -1, "<");
+    gchar *stop = g_strrstr_len(eo_info->sender_data, -1,  ">");
+    /* Only include the string inside of the "<>" brackets. If there is nothing between
+    the two brackets use the sender_data string */
+    if(start && stop && stop > start && (stop - start) > 2){
+        entry->hostname = g_strdup_printf("%.*s", (int) (stop - start - 1), start + 1);
+    } else {
+        entry->hostname = eo_info->sender_data;
+    }
+
     entry->pkt_num = pinfo->num;
-    entry->hostname = NULL;
     entry->content_type = g_strdup("EML file");
-    entry->filename = g_strdup_printf("from_%s_subject_%s.eml", eo_info->sender_data, eo_info->subject_data);
+    entry->filename = g_strdup_printf("%s.eml", eo_info->subject_data);
     entry->payload_len = eo_info->payload_len;
     entry->payload_data = (guint8 *)g_memdup(eo_info->payload_data, eo_info->payload_len);
 
