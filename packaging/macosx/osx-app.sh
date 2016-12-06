@@ -65,7 +65,13 @@ binary_list="
 	tshark
 "
 
-extcap_binaries="androiddump randpktdump sshdump ciscodump"
+extcap_binaries="
+	androiddump
+	ciscodump
+	randpktdump
+	sshdump
+	udpdump
+"
 
 for extcap_binary in $extcap_binaries
 do
