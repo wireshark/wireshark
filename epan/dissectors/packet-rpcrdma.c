@@ -260,16 +260,14 @@ static guint dissect_rpcrdma_read_chunk(proto_tree *read_list,
 static guint dissect_rpcrdma_read_list(tvbuff_t *tvb, guint offset,
         proto_tree *tree)
 {
-    guint reported_length = tvb_reported_length(tvb);
-    guint selection_size, chunk_count;
+    guint chunk_count, start = offset;
     proto_tree *read_list;
     guint32 value_follows;
     proto_item *item;
 
-    selection_size = get_read_list_size(tvb, reported_length, offset);
     chunk_count = get_read_list_chunk_count(tvb, offset);
     item = proto_tree_add_uint_format(tree, hf_rpcordma_reads_count,
-                        tvb, offset, selection_size, chunk_count,
+                        tvb, offset, 0, chunk_count,
                         "Read list (count: %u)", chunk_count);
 
     read_list = proto_item_add_subtree(item, ett_rpcordma_read_list);
@@ -283,6 +281,7 @@ static guint dissect_rpcrdma_read_list(tvbuff_t *tvb, guint offset,
         offset = dissect_rpcrdma_read_chunk(read_list, tvb, offset);
     }
 
+    proto_item_set_len(item, offset - start);
     return offset;
 }
 
@@ -333,16 +332,14 @@ static guint dissect_rpcrdma_write_chunk(proto_tree *write_list,
 static guint dissect_rpcrdma_write_list(tvbuff_t *tvb, guint offset,
         proto_tree *tree)
 {
-    guint reported_length = tvb_reported_length(tvb);
-    guint selection_size, chunk_count;
+    guint chunk_count, start = offset;
     proto_tree *write_list;
     guint32 value_follows;
     proto_item *item;
 
-    selection_size = get_write_list_size(tvb, reported_length, offset);
     chunk_count = get_write_list_chunk_count(tvb, offset);
     item = proto_tree_add_uint_format(tree, hf_rpcordma_writes_count,
-                        tvb, offset, selection_size, chunk_count,
+                        tvb, offset, 0, chunk_count,
                         "Write list (count: %u)", chunk_count);
 
     write_list = proto_item_add_subtree(item, ett_rpcordma_write_list);
@@ -356,22 +353,21 @@ static guint dissect_rpcrdma_write_list(tvbuff_t *tvb, guint offset,
         offset = dissect_rpcrdma_write_chunk(write_list, tvb, offset);
     }
 
+    proto_item_set_len(item, offset - start);
     return offset;
 }
 
 static guint dissect_rpcrdma_reply_chunk(tvbuff_t *tvb, guint offset,
         proto_tree *tree)
 {
-    guint reported_length = tvb_reported_length(tvb);
-    guint32 selection_size, chunk_count;
+    guint32 chunk_count, start = offset;
     proto_tree *reply_chunk;
     guint32 value_follows;
     proto_item *item;
 
-    selection_size = get_reply_chunk_size(tvb, reported_length, offset);
     chunk_count = get_reply_chunk_count(tvb, offset);
     item = proto_tree_add_uint_format(tree, hf_rpcordma_reply_count,
-                tvb, offset, selection_size, chunk_count,
+                tvb, offset, 0, chunk_count,
                 "Reply chunk (count: %u)", chunk_count);
 
     reply_chunk = proto_item_add_subtree(item, ett_rpcordma_reply_chunk);
@@ -381,7 +377,9 @@ static guint dissect_rpcrdma_reply_chunk(tvbuff_t *tvb, guint offset,
     if (!value_follows)
         return offset;
 
-    return dissect_rpcrdma_write_chunk(reply_chunk, tvb, offset);
+    offset = dissect_rpcrdma_write_chunk(reply_chunk, tvb, offset);
+    proto_item_set_len(item, offset - start);
+    return offset;
 }
 
 static guint parse_rdma_header(tvbuff_t *tvb, guint offset, proto_tree *tree)
