@@ -36,6 +36,7 @@
 #include <QDialog>
 #include <QMenu>
 #include <QRubberBand>
+#include <QTimer>
 
 namespace Ui {
 class TCPStreamDialog;
@@ -54,6 +55,7 @@ signals:
 
 public slots:
     void setCaptureFile(capture_file *cf);
+    void updateGraph();
 
 protected:
     void showEvent(QShowEvent *event);
@@ -85,13 +87,17 @@ private:
     QRubberBand *rubber_band_;
     QPoint rb_origin_;
     QMenu ctx_menu_;
+    QTimer *graph_update_timer_;
 
     int num_dsegs_;
     int num_acks_;
     int num_sack_ranges_;
 
+    double ma_window_size_;
+
     void findStream();
-    void fillGraph();
+    void fillGraph(bool reset_axes = true, bool set_focus = true);
+    void showWidgetsForGraphType();
     void zoomAxes(bool in);
     void zoomXAxis(bool in);
     void zoomYAxis(bool in);
@@ -117,6 +123,9 @@ private slots:
     void on_graphTypeComboBox_currentIndexChanged(int index);
     void on_resetButton_clicked();
     void on_streamNumberSpinBox_valueChanged(int new_stream);
+    void on_maWindowSizeSpinBox_valueChanged(double new_ma_size);
+    void on_maWindowSizeSpinBox_editingFinished();
+    void on_selectAcksCheckBox_stateChanged(int state);
     void on_otherDirectionButton_clicked();
     void on_dragRadioButton_toggled(bool checked);
     void on_zoomRadioButton_toggled(bool checked);

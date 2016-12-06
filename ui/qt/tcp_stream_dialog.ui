@@ -92,6 +92,26 @@
       <widget class="QComboBox" name="graphTypeComboBox"/>
      </item>
      <item>
+      <widget class="QLabel" name="maWindowSizeLabel">
+       <property name="text">
+        <string>MA Window (s)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="maWindowSizeSpinBox" />
+     </item>
+     <item>
+      <widget class="QCheckBox" name="selectAcksCheckBox">
+       <property name="toolTip">
+        <string>Allow ACKs as well as data packets to be selected by clicking on the graph</string>
+       </property>
+       <property name="text">
+        <string>select ACKs</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
