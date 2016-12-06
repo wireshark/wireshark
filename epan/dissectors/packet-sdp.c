@@ -217,11 +217,13 @@ static expert_field ei_sdp_invalid_crypto_mki_length = EI_INIT;
 static ws_mempbrk_pattern pbrk_digits;
 static ws_mempbrk_pattern pbrk_alpha;
 
-#define SDP_RTP_PROTO       0x00000001
-#define SDP_SRTP_PROTO      0x00000002
-#define SDP_T38_PROTO       0x00000004
-#define SDP_MSRP_PROTO      0x00000008
-#define SDP_SPRT_PROTO      0x00000010
+typedef enum {
+    SDP_PROTO_RTP,
+    SDP_PROTO_SRTP,
+    SDP_PROTO_T38,
+    SDP_PROTO_MSRP,
+    SDP_PROTO_SPRT,
+} transport_proto_t;
 
 
 #define SDP_MAX_RTP_CHANNELS 4
@@ -242,7 +244,7 @@ typedef struct {
  * allocated in wmem_file_scope().
  */
 typedef struct {
-    guint   proto_bitmask;      /**< Protocol, parsed from "m=" line. */
+    transport_proto_t proto;    /**< Protocol, parsed from "m=" line. */
     gboolean is_video;          /**< Whether "m=video" */
     guint16 media_port;         /**< Port number, parsed from "m=" line. */
     address conn_addr;          /**< The address from the "c=" line (default
@@ -371,7 +373,7 @@ static void sdp_dump_transport_info(const transport_info_t* info) {
                     DPRINT2(("conn_addr=%s",
                             address_to_str(wmem_packet_scope(), &(media_desc->conn_addr))));
                     DPRINT2(("media_port=%d", media_desc->media_port));
-                    DPRINT2(("proto_bitmask=%x", media_desc->proto_bitmask));
+                    DPRINT2(("proto=%d", media_desc->proto));
                     sdp_dump_transport_media(&(media_desc->media));
                 DENDENT();
             }
@@ -460,16 +462,16 @@ parse_sdp_media_protocol(const char *media_proto, media_description_t *media_des
 {
     const struct {
         const char *proto_name;
-        guint value;
+        transport_proto_t proto;
     } protocols[] = {
         /* XXX: what about 'RTP/AVPF' or RTP/SAVPF'? */
-        { "RTP/AVP",    SDP_RTP_PROTO },
-        { "RTP/SAVP",   SDP_SRTP_PROTO },
-        { "UDPTL",      SDP_T38_PROTO },
-        { "udptl",      SDP_T38_PROTO },
-        { "msrp/tcp",   SDP_MSRP_PROTO },
-        { "UDPSPRT",    SDP_SPRT_PROTO },
-        { "udpsprt",    SDP_SPRT_PROTO },
+        { "RTP/AVP",    SDP_PROTO_RTP },
+        { "RTP/SAVP",   SDP_PROTO_SRTP },
+        { "UDPTL",      SDP_PROTO_T38 },
+        { "udptl",      SDP_PROTO_T38 },
+        { "msrp/tcp",   SDP_PROTO_MSRP },
+        { "UDPSPRT",    SDP_PROTO_SPRT },
+        { "udpsprt",    SDP_PROTO_SPRT },
     };
 
     if (!global_sdp_establish_conversation) {
@@ -479,8 +481,7 @@ parse_sdp_media_protocol(const char *media_proto, media_description_t *media_des
 
     for (guint i = 0; i < G_N_ELEMENTS(protocols); i++) {
         if (!strcmp(protocols[i].proto_name, media_proto)) {
-            /* XXX there can only be one proto, consider enum? */
-            media_desc->proto_bitmask |= protocols[i].value;
+            media_desc->proto = protocols[i].proto;
             break;
         }
     }
@@ -1761,7 +1762,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
             /* Check for "msrp://" */
             if (strncmp((char*)attribute_value, msrp_res, strlen(msrp_res)) == 0 && msrp_handle &&
-                    media_desc && media_desc->proto_bitmask == SDP_MSRP_PROTO) {
+                    media_desc && media_desc->proto == SDP_PROTO_MSRP) {
                 int address_offset, port_offset, port_end_offset;
 
                 /* Address starts here */
@@ -2065,7 +2066,7 @@ complete_descriptions(transport_info_t *transport_info, guint answer_offset)
 
         /* MSRP uses addresses discovered in attribute
            rather than connection information of media session line */
-        if ((media_desc->proto_bitmask & SDP_MSRP_PROTO) && msrp_handle &&
+        if (media_desc->proto == SDP_PROTO_MSRP && msrp_handle &&
             media_desc->media_attr.msrp.ipaddr.type != AT_NONE) {
             /* clear old address and set new address and port. */
             free_address_wmem(wmem_file_scope(), &media_desc->conn_addr);
@@ -2112,11 +2113,12 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
 
         /* Add (s)rtp and (s)rtcp conversation, if available (overrides t38 if conversation already set) */
         if ((media_desc->media_port != 0) &&
-            (media_desc->proto_bitmask & (SDP_RTP_PROTO|SDP_SRTP_PROTO)) &&
+            (media_desc->proto == SDP_PROTO_RTP ||
+             media_desc->proto == SDP_PROTO_SRTP) &&
             (media_desc->conn_addr.type == AT_IPv4 ||
              media_desc->conn_addr.type == AT_IPv6)) {
 
-            if (media_desc->proto_bitmask & SDP_SRTP_PROTO) {
+            if (media_desc->proto == SDP_PROTO_SRTP) {
                 srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
                 if (transport_info->encryption_algorithm != SRTP_ENC_ALG_NOT_SET) {
                     srtp_info->encryption_algorithm = transport_info->encryption_algorithm;
@@ -2148,7 +2150,7 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
             current_rtp_port = media_desc->media_port;
 
             if (rtcp_handle) {
-                if (media_desc->proto_bitmask & SDP_SRTP_PROTO) {
+                if (media_desc->proto == SDP_PROTO_SRTP) {
                     DPRINT(("calling rtcp_add_address, channel=%d, media_port=%d",
                             i, media_desc->media_port+1));
                     DINDENT();
@@ -2165,7 +2167,7 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
         }
 
         /* add SPRT conversation */
-        if ((media_desc->proto_bitmask & SDP_SPRT_PROTO) &&
+        if (media_desc->proto == SDP_PROTO_SPRT &&
             (media_desc->conn_addr.type == AT_IPv4 ||
              media_desc->conn_addr.type == AT_IPv6) &&
             (sprt_handle)) {
@@ -2181,7 +2183,7 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
         /* Add t38 conversation, if available and only if no rtp */
         if ((media_desc->media_port != 0) &&
             !media_desc->media.set_rtp &&
-            (media_desc->proto_bitmask & SDP_T38_PROTO) &&
+            media_desc->proto == SDP_PROTO_T38 &&
             media_desc->conn_addr.type == AT_IPv4) {
             t38_add_address(pinfo, &media_desc->conn_addr, media_desc->media_port, 0, "SDP", pinfo->num);
         }
@@ -2189,8 +2191,7 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
         /* Add MSRP conversation.  Uses addresses discovered in attribute
            rather than connection information of media session line
            (already handled in media conversion) */
-        if ((media_desc->proto_bitmask & SDP_MSRP_PROTO) &&
-            msrp_handle) {
+        if (media_desc->proto == SDP_PROTO_MSRP && msrp_handle) {
             msrp_add_address(pinfo, &media_desc->conn_addr, media_desc->media_port, "SDP", pinfo->num);
         }
 
@@ -2638,8 +2639,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* Create the T38 summary str for the Voip Call analysis
          * XXX - Currently this is based only on the current packet
          */
-        if ((media_desc->media_port != 0) &&
-            (media_desc->proto_bitmask & SDP_T38_PROTO)) {
+        if ((media_desc->media_port != 0) && media_desc->proto == SDP_PROTO_T38) {
             if (strlen(sdp_pi->summary_str))
                 g_strlcat(sdp_pi->summary_str, " ", 50);
             g_strlcat(sdp_pi->summary_str, "t38", 50);
