@@ -66,6 +66,25 @@ static int hf_btsmp_public_key_y = -1;
 static int hf_btsmp_dhkey_check = -1;
 static int hf_btsmp_notification_type = -1;
 
+static const int *hfx_btsmp_key_distribution[] = {
+    &hf_btsmp_key_dist_reserved,
+    &hf_btsmp_key_dist_linkkey,
+    &hf_btsmp_key_dist_sign,
+    &hf_btsmp_key_dist_id,
+    &hf_btsmp_key_dist_enc,
+    NULL
+};
+
+static const int *hfx_btsmp_authreq[] = {
+    &hf_btsmp_reserved_flag,
+    &hf_btsmp_keypress_flag,
+    &hf_btsmp_secure_connection_flag,
+    &hf_btsmp_mitm_flag,
+    &hf_btsmp_bonding_flags,
+    NULL
+};
+
+
 /* Initialize the subtree pointers */
 static gint ett_btsmp = -1;
 static gint ett_btsmp_auth_req = -1;
@@ -164,41 +183,25 @@ void proto_reg_handoff_btsmp(void);
 static int
 dissect_btsmp_auth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti_param;
-    proto_tree *st_param;
-    guint8 param;
+    guint8 value;
     const guint8 *ph;
 
-    param = tvb_get_guint8(tvb, offset);
+    col_append_str(pinfo->cinfo, COL_INFO, "AuthReq: ");
+    proto_tree_add_bitmask(tree, tvb, offset, hf_btsmp_authreq, ett_btsmp_auth_req, hfx_btsmp_authreq, ENC_LITTLE_ENDIAN);
 
-    ti_param = proto_tree_add_item(tree, hf_btsmp_authreq, tvb, offset, 1, ENC_NA);
-    st_param = proto_item_add_subtree(ti_param, ett_btsmp_auth_req);
+    value = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_item(st_param, hf_btsmp_bonding_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    ph = val_to_str_const(param & 0x03, bonding_flag_vals, "<unknown>");
-    proto_item_append_text(ti_param, ": %s, ", ph);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, ", ph);
+    ph = val_to_str_const(value & 0x03, bonding_flag_vals, "<unknown>");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, "", ph);
 
-    proto_tree_add_item(st_param, hf_btsmp_mitm_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    ph = (param & 0x04) ? "MITM" : "No MITM";
-    proto_item_append_text(ti_param, "%s, ", ph);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, ", ph);
-
-    proto_tree_add_item(st_param, hf_btsmp_secure_connection_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    ph = (param & 0x08) ? "SecureConnection" : "No SC";
-    proto_item_append_text(ti_param, "%s, ", ph);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, ", ph);
-
-    proto_tree_add_item(st_param, hf_btsmp_keypress_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    ph = (param & 0x10) ? "Keypress" : "No Keypress";
-    proto_item_append_text(ti_param, "%s", ph);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", ph);
-
-    proto_tree_add_item(st_param, hf_btsmp_reserved_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    if (param & 0xE0) {
-        proto_item_append_text(ti_param, ", Reserved");
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Reserved");
-    }
+    if (value & 0x04)
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "MITM");
+    if (value & 0x08)
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "SecureConnection");
+    if (value & 0x10)
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Keypress");
+    if (value & 0xE0)
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Reserved");
 
     return offset + 1;
 }
@@ -206,47 +209,37 @@ dissect_btsmp_auth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, gboolean initiator)
 {
-    proto_item *ti_param;
-    proto_tree *st_param;
-    guint8 param;
+    guint8 value;
+    gboolean next = FALSE;
 
-    param = tvb_get_guint8(tvb, offset);
     if (initiator) {
-        col_append_str(pinfo->cinfo, COL_INFO, ", Initiator Key(s): ");
-        ti_param = proto_tree_add_item(tree, hf_btsmp_initiator_key_distribution, tvb, offset, 1, ENC_NA);
-    }
-    else {
-        col_append_str(pinfo->cinfo, COL_INFO, ", Responder Key(s): ");
-        ti_param = proto_tree_add_item(tree, hf_btsmp_responder_key_distribution, tvb, offset, 1, ENC_NA);
+        col_append_str(pinfo->cinfo, COL_INFO, " | Initiator Key(s): ");
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btsmp_initiator_key_distribution, ett_btsmp_key_dist, hfx_btsmp_key_distribution, ENC_LITTLE_ENDIAN);
+    } else {
+        col_append_str(pinfo->cinfo, COL_INFO, " | Responder Key(s): ");
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btsmp_responder_key_distribution, ett_btsmp_key_dist, hfx_btsmp_key_distribution, ENC_LITTLE_ENDIAN);
     }
 
-    st_param = proto_item_add_subtree(ti_param, ett_btsmp_key_dist);
-    proto_tree_add_item(st_param, hf_btsmp_key_dist_enc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(st_param, hf_btsmp_key_dist_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(st_param, hf_btsmp_key_dist_sign, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(st_param, hf_btsmp_key_dist_linkkey, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(st_param, hf_btsmp_key_dist_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(ti_param, ": ");
-    if (param & 0x01) {
-        proto_item_append_text(ti_param, "LTK ");
-        col_append_str(pinfo->cinfo, COL_INFO, "LTK ");
+    value = tvb_get_guint8(tvb, offset);
+
+    if (value & 0x01) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, "", "LTK");
+        next = TRUE;
     }
-    if (param & 0x02) {
-        proto_item_append_text(ti_param, "IRK ");
-        col_append_str(pinfo->cinfo, COL_INFO, "IRK ");
+    if (value & 0x02) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, next ? ", " : "", "IRK");
+        next = TRUE;
     }
-    if (param & 0x04) {
-        proto_item_append_text(ti_param, "CSRK ");
-        col_append_str(pinfo->cinfo, COL_INFO, "CSRK ");
+    if (value & 0x04) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, next ? ", " : "", "CSRK");
+        next = TRUE;
     }
-    if (param & 0x08) {
-        proto_item_append_text(ti_param, "Linkkey ");
-        col_append_str(pinfo->cinfo, COL_INFO, "Linkkey ");
+    if (value & 0x08) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, next ? ", " : "", "Linkkey");
+        next = TRUE;
     }
-    if (param & 0xF0) {
-        proto_item_append_text(ti_param, "Reserved ");
-        col_append_str(pinfo->cinfo, COL_INFO, "Reserved ");
-    }
+    if (value & 0xF0)
+        col_append_sep_str(pinfo->cinfo, COL_INFO, next ? ", " : "", "Reserved");
 
     return offset + 1;
 }
@@ -515,17 +508,17 @@ proto_register_btsmp(void)
         },
         {&hf_btsmp_authreq,
             {"AuthReq", "btsmp.authreq",
-            FT_NONE, BASE_NONE, NULL, 0x00,
+            FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL}
         },
         {&hf_btsmp_initiator_key_distribution,
             {"Initiator Key Distribution", "btsmp.initiator_key_distribution",
-            FT_NONE, BASE_NONE, NULL, 0x00,
+            FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL}
         },
         {&hf_btsmp_responder_key_distribution,
             {"Responder Key Distribution", "btsmp.responder_key_distribution",
-            FT_NONE, BASE_NONE, NULL, 0x00,
+            FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL}
         },
         {&hf_bd_addr,
