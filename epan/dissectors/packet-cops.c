@@ -1053,7 +1053,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         }
 
         if (!pinfo->fd->flags.visited) {
-            cops_call = wmem_new(wmem_file_scope(), cops_call_t);
+            cops_call = wmem_new0(wmem_file_scope(), cops_call_t);
             cops_call->op_code = op_code;
             cops_call->solicited = is_solicited;
             cops_call->req_num = PINFO_FD_NUM(pinfo);
