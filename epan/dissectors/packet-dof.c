@@ -3355,7 +3355,7 @@ static void secmode_list_post_update_cb(void)
 {
 }
 
-static void secmode_list_update_cb(void *r, const char **err)
+static gboolean secmode_list_update_cb(void *r, char **err)
 {
     secmode_field_t *rec = (secmode_field_t *)r;
     guint32 size;
@@ -3365,35 +3365,36 @@ static void secmode_list_update_cb(void *r, const char **err)
     size = (guint32)strlen(rec->domain);
     if (!VALIDHEX(rec->domain[0]) && !dof_oid_create_internal(rec->domain, &size, NULL))
     {
-        *err = wmem_strdup(wmem_packet_scope(), "Invalid domain [must be valid OID].");
-        return;
+        *err = g_strdup("Invalid domain [must be valid OID].");
+        return FALSE;
     }
     else if (!count_hex_bytes(rec->domain))
     {
-        *err = wmem_strdup(wmem_packet_scope(), "Invalid domain [must be valid OID].");
-        return;
+        *err = g_strdup("Invalid domain [must be valid OID].");
+        return FALSE;
     }
 
     size = (guint32)strlen(rec->identity);
     if (!VALIDHEX(rec->identity[0]) && !dof_oid_create_internal(rec->identity, &size, NULL))
     {
-        *err = wmem_strdup(wmem_packet_scope(), "Invalid identity [must be valid OID].");
-        return;
+        *err = g_strdup("Invalid identity [must be valid OID].");
+        return FALSE;
     }
     else if (!count_hex_bytes(rec->identity))
     {
-        *err = wmem_strdup(wmem_packet_scope(), "Invalid identity [must be valid OID].");
-        return;
+        *err = g_strdup("Invalid identity [must be valid OID].");
+        return FALSE;
     }
 
     if (count_hex_bytes(rec->kek) != 32)
     {
-        *err = wmem_strdup(wmem_packet_scope(), "Invalid KEK [must be 32 byte key].");
-        return;
+        *err = g_strdup("Invalid KEK [must be 32 byte key].");
+        return FALSE;
     }
+    return TRUE;
 }
 
-static void* secmode_list_copy_cb(void *n, const void *o, unsigned siz _U_)
+static void* secmode_list_copy_cb(void *n, const void *o, size_t siz _U_)
 {
     secmode_field_t *new_rec = (secmode_field_t *)n;
     const secmode_field_t *old_rec = (const secmode_field_t *)o;
@@ -3448,19 +3449,20 @@ static void seckey_list_post_update_cb(void)
 {
 }
 
-static void seckey_list_update_cb(void *r, const char **err)
+static gboolean seckey_list_update_cb(void *r, char **err)
 {
     seckey_field_t *rec = (seckey_field_t *)r;
 
     *err = NULL;
     if (count_hex_bytes(rec->key) != 32)
     {
-        *err = wmem_strdup(wmem_packet_scope(), "Invalid secret [must be 32 bytes].");
-        return;
+        *err = g_strdup("Invalid secret [must be 32 bytes].");
+        return FALSE;
     }
+    return TRUE;
 }
 
-static void* seckey_list_copy_cb(void *n, const void *o, unsigned siz _U_)
+static void* seckey_list_copy_cb(void *n, const void *o, size_t siz _U_)
 {
     seckey_field_t *new_rec = (seckey_field_t *)n;
     const seckey_field_t *old_rec = (const seckey_field_t *)o;
@@ -3495,7 +3497,7 @@ static void identsecret_list_post_update_cb(void)
 {
 }
 
-static void identsecret_list_update_cb(void *r, const char **err)
+static gboolean identsecret_list_update_cb(void *r, char **err)
 {
     identsecret_field_t *rec = (identsecret_field_t *)r;
     guint32 size;
@@ -3507,14 +3509,14 @@ static void identsecret_list_update_cb(void *r, const char **err)
     {
         if (dof_oid_create_internal(rec->domain, &size, NULL))
         {
-            *err = wmem_strdup(wmem_packet_scope(), "Invalid domain [must be valid OID].");
-            return;
+            *err = g_strdup("Invalid domain [must be valid OID].");
+            return FALSE;
         }
     }
     else if (!count_hex_bytes(rec->domain))
     {
-        *err = wmem_strdup(wmem_packet_scope(), "Invalid domain [must be valid OID].");
-        return;
+        *err = g_strdup("Invalid domain [must be valid OID].");
+        return FALSE;
     }
 
     size = (guint32)strlen(rec->identity);
@@ -3522,24 +3524,25 @@ static void identsecret_list_update_cb(void *r, const char **err)
     {
         if (dof_oid_create_internal(rec->identity, &size, NULL))
         {
-            *err = wmem_strdup(wmem_packet_scope(), "Invalid identity [must be valid OID].");
-            return;
+            *err = g_strdup("Invalid identity [must be valid OID].");
+            return FALSE;
         }
     }
     else if (!count_hex_bytes(rec->identity))
     {
-        *err = wmem_strdup(wmem_packet_scope(), "Invalid identity [must be valid OID].");
-        return;
+        *err = g_strdup("Invalid identity [must be valid OID].");
+        return FALSE;
     }
 
     if (count_hex_bytes(rec->secret) != 32)
     {
-        *err = wmem_strdup(wmem_packet_scope(), "Invalid secret [must be 32 byte key].");
-        return;
+        *err = g_strdup("Invalid secret [must be 32 byte key].");
+        return FALSE;
     }
+    return TRUE;
 }
 
-static void* identsecret_list_copy_cb(void *n, const void *o, unsigned siz _U_)
+static void* identsecret_list_copy_cb(void *n, const void *o, size_t siz _U_)
 {
     identsecret_field_t *new_rec = (identsecret_field_t *)n;
     const identsecret_field_t *old_rec = (const identsecret_field_t *)o;
@@ -3719,7 +3722,7 @@ static gboolean identsecret_chk_cb(void *r _U_, const char *p _U_, unsigned len 
 
     if (!num_protos)
     {
-        *err = wmem_strdup(wmem_packet_scope(), "No protocols given");
+        *err = g_strdup("No protocols given");
         return FALSE;
     }
 
@@ -3727,7 +3730,7 @@ static gboolean identsecret_chk_cb(void *r _U_, const char *p _U_, unsigned len 
     {
         if (!find_dissector(protos[i]))
         {
-            *err = wmem_strdup_printf(wmem_packet_scope(), "Could not find dissector for: '%s'", protos[i]);
+            *err = g_strdup("Could not find dissector for: '%s'", protos[i]);
             return FALSE;
         }
     }
@@ -10960,49 +10963,49 @@ static void dof_register(void)
     expert_register_field_array(expert_security, ei, array_length(ei));
 
     dof_module = prefs_register_protocol(proto_2008_1_dof, dof_reset);
-    secmode_uat = uat_new((const char *)"DPS Security Mode Templates",
-                          (size_t)sizeof(secmode_field_t),
-                          (const char *)"custom_dof_secmode_list",
-                          (gboolean)TRUE,
-                          (void **)&secmode_list,
-                          (guint *)&num_secmode_list,
-                          (guint)(UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS),
-                          (const char *)NULL,
-                          (uat_copy_cb_t)secmode_list_copy_cb,
-                          (uat_update_cb_t)secmode_list_update_cb,
-                          (uat_free_cb_t)secmode_list_free_cb,
-                          (uat_post_update_cb_t)secmode_list_post_update_cb,
-                          (uat_field_t *)secmode_uat_fields
+    secmode_uat = uat_new("DPS Security Mode Templates",
+                          sizeof(secmode_field_t),
+                          "custom_dof_secmode_list",
+                          TRUE,
+                          &secmode_list,
+                          &num_secmode_list,
+                          (UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS),
+                          NULL,
+                          secmode_list_copy_cb,
+                          secmode_list_update_cb,
+                          secmode_list_free_cb,
+                          secmode_list_post_update_cb,
+                          secmode_uat_fields
                           );
 
-    seckey_uat = uat_new((const char *)"DPS Session Keys",
-                         (size_t)sizeof(seckey_field_t),
-                         (const char *)"custom_dof_seckey_list",
-                         (gboolean)TRUE,
-                         (void **)&seckey_list,
-                         (guint *)&num_seckey_list,
-                         (guint)(UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS),
-                         (const char *)NULL,
-                         (uat_copy_cb_t)seckey_list_copy_cb,
-                         (uat_update_cb_t)seckey_list_update_cb,
-                         (uat_free_cb_t)seckey_list_free_cb,
-                         (uat_post_update_cb_t)seckey_list_post_update_cb,
-                         (uat_field_t *)seckey_uat_fields
+    seckey_uat = uat_new("DPS Session Keys",
+                         sizeof(seckey_field_t),
+                         "custom_dof_seckey_list",
+                         TRUE,
+                         &seckey_list,
+                         &num_seckey_list,
+                         (UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS),
+                         NULL,
+                         seckey_list_copy_cb,
+                         seckey_list_update_cb,
+                         seckey_list_free_cb,
+                         seckey_list_post_update_cb,
+                         seckey_uat_fields
                          );
 
-    identsecret_uat = uat_new((const char *)"DPS Identity Secrets",
-                              (size_t)sizeof(identsecret_field_t),
-                              (const char *)"custom_dof_identsecret_list",
-                              (gboolean)TRUE,
-                              (void **)&identsecret_list,
-                              (guint *)&num_identsecret_list,
-                              (guint)(UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS),
-                              (const char *)NULL,
-                              (uat_copy_cb_t)identsecret_list_copy_cb,
-                              (uat_update_cb_t)identsecret_list_update_cb,
-                              (uat_free_cb_t)identsecret_list_free_cb,
-                              (uat_post_update_cb_t)identsecret_list_post_update_cb,
-                              (uat_field_t *)identsecret_uat_fields
+    identsecret_uat = uat_new("DPS Identity Secrets",
+                              sizeof(identsecret_field_t),
+                              "custom_dof_identsecret_list",
+                              TRUE,
+                              &identsecret_list,
+                              &num_identsecret_list,
+                              (UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS),
+                              NULL,
+                              identsecret_list_copy_cb,
+                              identsecret_list_update_cb,
+                              identsecret_list_free_cb,
+                              identsecret_list_post_update_cb,
+                              identsecret_uat_fields
                               );
 
     prefs_register_bool_preference(dof_module, "custom_dof_decrypt_all",
