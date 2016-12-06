@@ -1495,7 +1495,6 @@ void MainWindow::exportDissections(export_type_e export_type) {
 
 void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compressed) {
     QString file_name_lower;
-    QString file_suffix;
     GSList  *extensions_list;
     gboolean add_extension;
 
@@ -1516,7 +1515,7 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compre
         /* OK, see if the file has one of those extensions. */
         for (extension = extensions_list; extension != NULL;
              extension = g_slist_next(extension)) {
-            file_suffix += tr(".") + (char *)extension->data;
+            QString file_suffix = tr(".") + (char *)extension->data;
             if (file_name_lower.endsWith(file_suffix)) {
                 /*
                  * The file name has one of the extensions for
