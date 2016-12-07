@@ -179,11 +179,7 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
             gchar *command_output = NULL;
 
             /* full path to extcap binary */
-#ifdef _WIN32
-            g_string_printf(extcap_path, "%s\\%s", dirname, file);
-#else
-            g_string_printf(extcap_path, "%s/%s", dirname, file);
-#endif
+            g_string_printf(extcap_path, "%s" G_DIR_SEPARATOR_S "%s", dirname, file);
             if ( extcap_if_exists(ifname) && !extcap_if_exists_for_extcap(ifname, extcap_path->str ) )
                 continue;
 
