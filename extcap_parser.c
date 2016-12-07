@@ -42,7 +42,7 @@ gchar *extcap_get_complex_as_string(extcap_complex *comp) {
 }
 
 extcap_complex *extcap_parse_complex(extcap_arg_type complex_type,
-        const gchar *data) {
+                                     const gchar *data) {
 
     extcap_complex *rc = g_new0(extcap_complex, 1);
 
@@ -53,54 +53,54 @@ extcap_complex *extcap_parse_complex(extcap_arg_type complex_type,
 }
 
 gboolean extcap_compare_is_default(extcap_arg *element, extcap_complex *test) {
-    if ( element == NULL || element->default_complex == NULL || test == NULL )
+    if (element == NULL || element->default_complex == NULL || test == NULL)
         return FALSE;
 
-    if ( g_strcmp0(element->default_complex->_val, test->_val) == 0 )
+    if (g_strcmp0(element->default_complex->_val, test->_val) == 0)
         return TRUE;
 
     return FALSE;
 }
 
 void extcap_free_complex(extcap_complex *comp) {
-    if ( comp )
+    if (comp)
         g_free(comp->_val);
     g_free(comp);
 }
 
 gint extcap_complex_get_int(extcap_complex *comp) {
-    if ( comp == NULL || comp->_val == NULL || comp->complex_type != EXTCAP_ARG_INTEGER )
+    if (comp == NULL || comp->_val == NULL || comp->complex_type != EXTCAP_ARG_INTEGER)
         return (gint)0;
 
     return (gint) g_ascii_strtoll(comp->_val, NULL, 10);
 }
 
 guint extcap_complex_get_uint(extcap_complex *comp) {
-    if ( comp == NULL || comp->_val == NULL || comp->complex_type != EXTCAP_ARG_UNSIGNED )
+    if (comp == NULL || comp->_val == NULL || comp->complex_type != EXTCAP_ARG_UNSIGNED)
         return (guint)0;
     return (guint) g_ascii_strtoull(comp->_val, NULL, 10);
 }
 
 gint64 extcap_complex_get_long(extcap_complex *comp) {
-    if ( comp == NULL || comp->_val == NULL || comp->complex_type != EXTCAP_ARG_LONG )
+    if (comp == NULL || comp->_val == NULL || comp->complex_type != EXTCAP_ARG_LONG)
         return (gint64)0;
-    return g_ascii_strtoll( comp->_val, NULL, 10 );
+    return g_ascii_strtoll(comp->_val, NULL, 10);
 }
 
 gdouble extcap_complex_get_double(extcap_complex *comp) {
-    if ( comp == NULL || comp->_val == NULL || comp->complex_type != EXTCAP_ARG_DOUBLE )
+    if (comp == NULL || comp->_val == NULL || comp->complex_type != EXTCAP_ARG_DOUBLE)
         return (gdouble)0;
-    return g_strtod( comp->_val, NULL );
+    return g_strtod(comp->_val, NULL);
 }
 
 gboolean extcap_complex_get_bool(extcap_complex *comp) {
-    if ( comp == NULL || comp->_val == NULL  )
+    if (comp == NULL || comp->_val == NULL)
         return FALSE;
 
-    if ( comp->complex_type != EXTCAP_ARG_BOOLEAN && comp->complex_type != EXTCAP_ARG_BOOLFLAG )
+    if (comp->complex_type != EXTCAP_ARG_BOOLEAN && comp->complex_type != EXTCAP_ARG_BOOLFLAG)
         return FALSE;
 
-    return g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, comp->_val, G_REGEX_CASELESS, (GRegexMatchFlags)0 );
+    return g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, comp->_val, G_REGEX_CASELESS, (GRegexMatchFlags)0);
 }
 
 gchar *extcap_complex_get_string(extcap_complex *comp) {
@@ -109,10 +109,10 @@ gchar *extcap_complex_get_string(extcap_complex *comp) {
 }
 
 static extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
-    GRegex * regex = NULL;
-    GMatchInfo * match_info = NULL;
-    GError * error = NULL;
-    gchar * param_value = NULL;
+    GRegex *regex = NULL;
+    GMatchInfo *match_info = NULL;
+    GError *error = NULL;
+    gchar *param_value = NULL;
     guint param_type = EXTCAP_PARAM_UNKNOWN;
 
     extcap_token_sentence *rs = g_new0(extcap_token_sentence, 1);
@@ -120,18 +120,18 @@ static extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
     rs->sentence = NULL;
 
     /* Regex for catching just the allowed values for sentences */
-    if ( ( regex = g_regex_new ( "^[\\t| ]*(arg|value|interface|extcap|dlt)(?=[\\t| ]+\\{)",
-            (GRegexCompileFlags) G_REGEX_CASELESS, (GRegexMatchFlags) 0, NULL ) ) != NULL ) {
-        g_regex_match ( regex, s, (GRegexMatchFlags) 0, &match_info );
+    if ((regex = g_regex_new("^[\\t| ]*(arg|value|interface|extcap|dlt)(?=[\\t| ]+\\{)",
+                             (GRegexCompileFlags) G_REGEX_CASELESS, (GRegexMatchFlags) 0, NULL)) != NULL) {
+        g_regex_match(regex, s, (GRegexMatchFlags) 0, &match_info);
 
-        if ( g_match_info_matches ( match_info ) )
+        if (g_match_info_matches(match_info))
             rs->sentence = g_match_info_fetch(match_info, 0);
 
-        g_match_info_free ( match_info );
-        g_regex_unref ( regex );
+        g_match_info_free(match_info);
+        g_regex_unref(regex);
     }
     /* No valid sentence found, exiting here */
-    if ( rs->sentence == NULL ) {
+    if (rs->sentence == NULL) {
         g_free(rs);
         return NULL;
     }
@@ -141,17 +141,17 @@ static extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
     /* Capture the argument and the value of the list. This will ensure,
      * that regex patterns given to {validation=} are parsed correctly,
      * as long as }{ does not occur within the pattern */
-    regex = g_regex_new ( "\\{([a-zA-Z_-]*?)\\=(.*?)\\}(?=\\{|$|\\s)",
-            (GRegexCompileFlags) G_REGEX_CASELESS, (GRegexMatchFlags) 0, NULL );
-    if ( regex != NULL ) {
-        g_regex_match_full(regex, s, -1, 0, (GRegexMatchFlags) 0, &match_info, &error );
-        while(g_match_info_matches(match_info)) {
-            gchar * arg = g_match_info_fetch ( match_info, 1 );
+    regex = g_regex_new("\\{([a-zA-Z_-]*?)\\=(.*?)\\}(?=\\{|$|\\s)",
+                        (GRegexCompileFlags) G_REGEX_CASELESS, (GRegexMatchFlags) 0, NULL);
+    if (regex != NULL) {
+        g_regex_match_full(regex, s, -1, 0, (GRegexMatchFlags) 0, &match_info, &error);
+        while (g_match_info_matches(match_info)) {
+            gchar *arg = g_match_info_fetch(match_info, 1);
 
-            if ( arg == NULL )
+            if (arg == NULL)
                 break;
 
-            param_value = g_match_info_fetch ( match_info, 2 );
+            param_value = g_match_info_fetch(match_info, 2);
 
             if (g_ascii_strcasecmp(arg, "number") == 0) {
                 param_type = EXTCAP_PARAM_ARGNUM;
@@ -209,12 +209,12 @@ static extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
 
 static GList *extcap_tokenize_sentences(const gchar *s) {
 
-    GList * sentences = NULL;
+    GList *sentences = NULL;
     extcap_token_sentence *item = NULL;
     gchar **list, **list_iter;
 
     list_iter = list = g_strsplit(s, "\n", 0);
-    while ( *list_iter != NULL ) {
+    while (*list_iter != NULL) {
         item = extcap_tokenize_sentence(*list_iter);
         if (item)
             sentences = g_list_append(sentences, item);
@@ -272,7 +272,7 @@ void extcap_free_arg_list(GList *a) {
 }
 
 static gint glist_find_numbered_arg(gconstpointer listelem, gconstpointer needle) {
-    if (((const extcap_arg *) listelem)->arg_num == *((const int*) needle))
+    if (((const extcap_arg *) listelem)->arg_num == *((const int *) needle))
         return 0;
     return 1;
 }
@@ -296,12 +296,12 @@ static void extcap_free_tokenized_sentences(GList *sentences) {
     g_list_free(sentences);
 }
 
-static extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence *s) {
-    gchar * param_value = NULL;
+static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence *s) {
+    gchar *param_value = NULL;
 
     extcap_arg *target_arg = NULL;
     extcap_value *value = NULL;
-    GList * entry = NULL;
+    GList *entry = NULL;
     int tint;
     extcap_sentence_type sent = EXTCAP_SENTENCE_UNKNOWN;
 
@@ -324,29 +324,29 @@ static extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_ARGNUM))) == NULL) {
             extcap_free_arg(target_arg);
-            return NULL ;
+            return NULL;
         }
 
         if (sscanf(param_value, "%d", &(target_arg->arg_num)) != 1) {
             extcap_free_arg(target_arg);
-            return NULL ;
+            return NULL;
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_CALL))) == NULL) {
             extcap_free_arg(target_arg);
-            return NULL ;
+            return NULL;
         }
         target_arg->call = g_strdup(param_value);
 
         /* No value only parameters allowed */
         if (strlen(target_arg->call) == 0) {
             extcap_free_arg(target_arg);
-            return NULL ;
+            return NULL;
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_DISPLAY))) == NULL) {
             extcap_free_arg(target_arg);
-            return NULL ;
+            return NULL;
         }
         target_arg->display = g_strdup(param_value);
 
@@ -357,7 +357,7 @@ static extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_FILE_MUSTEXIST)))
                 != NULL) {
-            target_arg->fileexists = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0 );
+            target_arg->fileexists = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_FILE_EXTENSION)))
@@ -372,14 +372,14 @@ static extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_REQUIRED)))
                 != NULL) {
-            target_arg->is_required = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0 );
+            target_arg->is_required = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_TYPE)))
                 == NULL) {
             /* printf("no type in ARG sentence\n"); */
             extcap_free_arg(target_arg);
-            return NULL ;
+            return NULL;
         }
 
         if (g_ascii_strcasecmp(param_value, "integer") == 0) {
@@ -411,12 +411,12 @@ static extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence
         } else {
             printf("invalid type %s in ARG sentence\n", param_value);
             extcap_free_arg(target_arg);
-            return NULL ;
+            return NULL;
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_SAVE)))
                 != NULL) {
-            target_arg->save = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0 );
+            target_arg->save = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_RANGE)))
@@ -425,34 +425,34 @@ static extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence
 
             if (cp == NULL) {
                 printf("invalid range, expected value,value got %s\n",
-                        param_value);
+                       param_value);
                 extcap_free_arg(target_arg);
-                return NULL ;
+                return NULL;
             }
 
             if ((target_arg->range_start = extcap_parse_complex(
-                    target_arg->arg_type, param_value)) == NULL) {
+                                               target_arg->arg_type, param_value)) == NULL) {
                 printf("invalid range, expected value,value got %s\n",
-                        param_value);
+                       param_value);
                 extcap_free_arg(target_arg);
-                return NULL ;
+                return NULL;
             }
 
             if ((target_arg->range_end = extcap_parse_complex(
-                    target_arg->arg_type, cp + 1)) == NULL) {
+                                             target_arg->arg_type, cp + 1)) == NULL) {
                 printf("invalid range, expected value,value got %s\n",
-                        param_value);
+                       param_value);
                 extcap_free_arg(target_arg);
-                return NULL ;
+                return NULL;
             }
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_DEFAULT)))
                 != NULL) {
-            if ( target_arg->arg_type != EXTCAP_ARG_MULTICHECK && target_arg->arg_type != EXTCAP_ARG_SELECTOR )
+            if (target_arg->arg_type != EXTCAP_ARG_MULTICHECK && target_arg->arg_type != EXTCAP_ARG_SELECTOR)
             {
                 if ((target_arg->default_complex = extcap_parse_complex(
-                        target_arg->arg_type, param_value)) == NULL) {
+                                                       target_arg->arg_type, param_value)) == NULL) {
                     printf("invalid default, couldn't parse %s\n", param_value);
                 }
             }
@@ -462,19 +462,18 @@ static extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_ARG)))
                 == NULL) {
             printf("no arg in VALUE sentence\n");
-            return NULL ;
+            return NULL;
         }
 
         if (sscanf(param_value, "%d", &tint) != 1) {
             printf("invalid arg in VALUE sentence\n");
-            return NULL ;
+            return NULL;
         }
 
-        ;
         if ((entry = g_list_find_custom(args, &tint, glist_find_numbered_arg))
                 == NULL) {
             printf("couldn't find arg %d in list for VALUE sentence\n", tint);
-            return NULL ;
+            return NULL;
         }
 
         value = g_new0(extcap_value, 1);
@@ -484,7 +483,7 @@ static extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence
                 == NULL) {
             /* printf("no value in VALUE sentence\n"); */
             extcap_free_value(value);
-            return NULL ;
+            return NULL;
         }
         value->call = g_strdup(param_value);
 
@@ -492,7 +491,7 @@ static extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence
                 == NULL) {
             /* printf("no display in VALUE sentence\n"); */
             extcap_free_value(value);
-            return NULL ;
+            return NULL;
         }
         value->display = g_strdup(param_value);
 
@@ -504,34 +503,34 @@ static extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_DEFAULT)))
                 != NULL) {
             /* printf("found default value\n"); */
-            value->is_default = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0 );
+            value->is_default = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_ENABLED)))
                 != NULL) {
-            value->enabled = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0 );
+            value->enabled = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
         }
 
-        ((extcap_arg*) entry->data)->values = g_list_append(
-                ((extcap_arg*) entry->data)->values, value);
+        ((extcap_arg *) entry->data)->values = g_list_append(
+                ((extcap_arg *) entry->data)->values, value);
 
-        return NULL ;
+        return NULL;
     }
 
     return target_arg;
 }
 
-GList * extcap_parse_args(gchar *output) {
-    GList * result = NULL;
-    GList * walker = NULL;
-    GList * temp = NULL;
+GList *extcap_parse_args(gchar *output) {
+    GList *result = NULL;
+    GList *walker = NULL;
+    GList *temp = NULL;
 
     walker = extcap_tokenize_sentences(output);
     temp = walker;
 
     while (walker) {
         extcap_arg *ra = NULL;
-        extcap_token_sentence * sentence = (extcap_token_sentence *)walker->data;
+        extcap_token_sentence *sentence = (extcap_token_sentence *)walker->data;
 
         if ((ra = extcap_parse_arg_sentence(result, sentence)) != NULL)
             result = g_list_append(result, (gpointer) ra);
@@ -544,10 +543,10 @@ GList * extcap_parse_args(gchar *output) {
     return result;
 }
 
-static extcap_interface * extcap_parse_interface_sentence(extcap_token_sentence *s) {
+static extcap_interface *extcap_parse_interface_sentence(extcap_token_sentence *s) {
     extcap_sentence_type sent = EXTCAP_SENTENCE_UNKNOWN;
-    gchar * param_value = NULL;
-    extcap_interface * ri = NULL;
+    gchar *param_value = NULL;
+    extcap_interface *ri = NULL;
 
     if (s == NULL)
         return NULL;
@@ -595,18 +594,18 @@ static extcap_interface * extcap_parse_interface_sentence(extcap_token_sentence 
     return ri;
 }
 
-GList * extcap_parse_interfaces(gchar *output) {
+GList *extcap_parse_interfaces(gchar *output) {
 
-    GList * result = NULL;
-    GList * tokens = NULL;
-    GList * walker = extcap_tokenize_sentences(output);
+    GList *result = NULL;
+    GList *tokens = NULL;
+    GList *walker = extcap_tokenize_sentences(output);
     tokens = walker;
 
     while (walker) {
-        extcap_interface * ri = NULL;
-        extcap_token_sentence * if_sentence = (extcap_token_sentence *) walker->data;
+        extcap_interface *ri = NULL;
+        extcap_token_sentence *if_sentence = (extcap_token_sentence *) walker->data;
 
-        if ( if_sentence != NULL && ( ri = extcap_parse_interface_sentence ( if_sentence ) ) != NULL )
+        if (if_sentence != NULL && (ri = extcap_parse_interface_sentence(if_sentence)) != NULL)
             result = g_list_append(result, ri);
 
         walker = g_list_next(walker);
@@ -618,10 +617,10 @@ GList * extcap_parse_interfaces(gchar *output) {
 }
 
 /* Parse a tokenized set of sentences and validate, looking for DLT definitions */
-static extcap_dlt * extcap_parse_dlt_sentence(extcap_token_sentence *s) {
+static extcap_dlt *extcap_parse_dlt_sentence(extcap_token_sentence *s) {
     gchar *param_value = NULL;
     extcap_sentence_type sent = EXTCAP_SENTENCE_UNKNOWN;
-    extcap_dlt * result = NULL;
+    extcap_dlt *result = NULL;
 
     if (s == NULL)
         return result;
@@ -671,11 +670,11 @@ static extcap_dlt * extcap_parse_dlt_sentence(extcap_token_sentence *s) {
     return result;
 }
 
-GList * extcap_parse_dlts(gchar *output) {
+GList *extcap_parse_dlts(gchar *output) {
 
-    GList * walker = NULL;
-    GList * temp = NULL;
-    GList * result = NULL;
+    GList *walker = NULL;
+    GList *temp = NULL;
+    GList *result = NULL;
 
     walker = extcap_tokenize_sentences(output);
 
