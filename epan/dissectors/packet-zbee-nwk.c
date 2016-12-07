@@ -313,7 +313,7 @@ static const value_string zbee_nwk_stack_profiles[] = {
 /* ED Requested Timeout Enumerated Values */
 static const value_string zbee_nwk_end_device_timeout_request[] = {
     { 0, "10 sec" },
-    { 1, "1 min" },
+    { 1, "2 min" },
     { 2, "4 min" },
     { 3, "8 min" },
     { 4, "16 min" },
