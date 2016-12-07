@@ -175,7 +175,7 @@ imf_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
     if(start && stop && stop > start && (stop - start) > 2){
         entry->hostname = g_strdup_printf("%.*s", (int) (stop - start - 1), start + 1);
     } else {
-        entry->hostname = eo_info->sender_data;
+        entry->hostname = g_strdup(eo_info->sender_data);
     }
 
     entry->pkt_num = pinfo->num;
