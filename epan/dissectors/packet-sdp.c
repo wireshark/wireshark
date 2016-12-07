@@ -218,6 +218,7 @@ static ws_mempbrk_pattern pbrk_digits;
 static ws_mempbrk_pattern pbrk_alpha;
 
 typedef enum {
+    SDP_PROTO_UNKNOWN = 0,
     SDP_PROTO_RTP,
     SDP_PROTO_SRTP,
     SDP_PROTO_T38,
@@ -456,35 +457,36 @@ find_next_token_in_line(tvbuff_t *tvb, proto_tree *tree, gint *offset, gint *nex
     return find_next_optional_token_in_line(tvb, tree, offset, next_offset, FALSE);
 }
 
-/* Check if media protocol is RTP and stream decoding is enabled in preferences */
-static void
-parse_sdp_media_protocol(const char *media_proto, media_description_t *media_desc)
+/* Convert the protocol from the "m=" line to something we understand. */
+static transport_proto_t
+parse_sdp_media_protocol(const char *media_proto)
 {
+    /* Sorted according to the "proto" registry at
+     * https://www.iana.org/assignments/sdp-parameters/sdp-parameters.xhtml#sdp-parameters-2 */
     const struct {
         const char *proto_name;
         transport_proto_t proto;
     } protocols[] = {
-        /* XXX: what about 'RTP/AVPF' or RTP/SAVPF'? */
-        { "RTP/AVP",    SDP_PROTO_RTP },
-        { "RTP/SAVP",   SDP_PROTO_SRTP },
-        { "UDPTL",      SDP_PROTO_T38 },
-        { "udptl",      SDP_PROTO_T38 },
-        { "msrp/tcp",   SDP_PROTO_MSRP },
-        { "UDPSPRT",    SDP_PROTO_SPRT },
-        { "udpsprt",    SDP_PROTO_SPRT },
+        { "RTP/AVP",            SDP_PROTO_RTP }, /* RFC 4566 */
+        { "udptl",              SDP_PROTO_T38 }, /* ITU-T T.38, example in Annex E */
+        { "UDPTL",              SDP_PROTO_T38 }, /* Note: IANA registry contains lower case */
+        { "RTP/AVPF",           SDP_PROTO_RTP }, /* RFC 4585 */
+        { "RTP/SAVP",           SDP_PROTO_SRTP }, /* RFC 3711 */
+        { "RTP/SAVPF",          SDP_PROTO_SRTP }, /* RFC 5124 */
+        { "UDP/TLS/RTP/SAVP",   SDP_PROTO_SRTP }, /* RFC 5764 */
+        { "UDP/TLS/RTP/SAVPF",  SDP_PROTO_SRTP }, /* RFC 5764 */
+        { "msrp/tcp",           SDP_PROTO_MSRP }, /* Not in IANA, where is this from? */
+        { "UDPSPRT",            SDP_PROTO_SPRT }, /* Not in IANA, but draft-rajeshkumar-avt-v150-registration-00 */
+        { "udpsprt",            SDP_PROTO_SPRT }, /* lowercase per section E.1.1 of ITU-T V.150.1 */
     };
-
-    if (!global_sdp_establish_conversation) {
-        /* Do not attempt to recognize protocols. */
-        return;
-    }
 
     for (guint i = 0; i < G_N_ELEMENTS(protocols); i++) {
         if (!strcmp(protocols[i].proto_name, media_proto)) {
-            media_desc->proto = protocols[i].proto;
-            break;
+            return protocols[i].proto;
         }
     }
+
+    return SDP_PROTO_UNKNOWN;
 }
 
 /* Parses the parts from "c=" into address structures. */
@@ -995,6 +997,7 @@ dissect_sdp_media(tvbuff_t *tvb, packet_info* pinfo, proto_item *ti,
     const guint8 *media_type_str;
     const guint8 *media_port_str;
     const guint8 *media_proto_str;
+    transport_proto_t transport_proto;
     guint16     media_port;
     gboolean    media_port_valid;
     proto_item *pi;
@@ -1084,9 +1087,10 @@ dissect_sdp_media(tvbuff_t *tvb, packet_info* pinfo, proto_item *ti,
     proto_tree_add_item_ret_string(sdp_media_tree, hf_media_proto, tvb, offset, tokenlen,
                         ENC_UTF_8|ENC_NA, wmem_packet_scope(), &media_proto_str);
     DPRINT(("parsed media_proto=%s", media_proto_str));
+    /* Detect protocol for registering with other dissectors like RTP. */
+    transport_proto = parse_sdp_media_protocol(media_proto_str);
     if (media_desc) {
-        /* Detect protocol for registering with other dissectors like RTP (if pref is enabled). */
-        parse_sdp_media_protocol(media_proto_str, media_desc);
+        media_desc->proto = transport_proto;
     }
 
     do {
@@ -1096,9 +1100,9 @@ dissect_sdp_media(tvbuff_t *tvb, packet_info* pinfo, proto_item *ti,
         if (tokenlen == 0)
             break;
 
-        /* For RTP streams, remember that the payload type was seen. */
-        /* XXX extract this into a function that handles the protocol-specific numbers, and extend it to other RTP thingeys like SRTP? */
-        if (!strcmp(media_proto_str, "RTP/AVP")) {
+        /* RFC 4566: If the <proto> sub-field is "RTP/AVP" or "RTP/SAVP" the
+         * <fmt> sub-fields contain RTP payload type numbers. */
+        if (transport_proto == SDP_PROTO_RTP || transport_proto == SDP_PROTO_SRTP) {
             media_format = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             if (g_ascii_isdigit(media_format[0])) {
                 proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
@@ -2098,6 +2102,11 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
     int establish_frame = 0;
 
     struct srtp_info *srtp_info = NULL;
+
+    if (!global_sdp_establish_conversation) {
+        /* Do not register with other dissectors when this pref is disabled. */
+        return;
+    }
 
     /* If no request_frame number has been found use this frame's number */
     if (request_frame == 0) {
