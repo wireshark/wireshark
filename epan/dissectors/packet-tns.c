@@ -138,7 +138,7 @@ static int hf_tns_data_length = -1;
 static int hf_tns_data_oci_id = -1;
 static int hf_tns_data_piggyback_id = -1;
 
-static int hf_tns_data_setp_acc_vers = -1;
+static int hf_tns_data_setp_acc_version = -1;
 static int hf_tns_data_setp_cli_plat = -1;
 static int hf_tns_data_setp_version = -1;
 static int hf_tns_data_setp_banner = -1;
@@ -154,6 +154,7 @@ static gint ett_tns_attention = -1;
 static gint ett_tns_control = -1;
 static gint ett_tns_data = -1;
 static gint ett_tns_data_flag = -1;
+static gint ett_tns_acc_versions = -1;
 static gint ett_tns_sopt_flag = -1;
 static gint ett_tns_ntp_flag = -1;
 static gint ett_tns_conn_flag = -1;
@@ -467,23 +468,66 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	{
 		case SQLNET_SET_PROTOCOL:
 		{
-			size_t len;
+			proto_tree *versions_tree;
+			proto_item *ti;
+			char sep;
+			gint len;
 			if ( pinfo->match_uint == pinfo->destport ) /* check if is request */
 			{
-				len = tvb_strsize(tvb, offset);
-				proto_tree_add_item(data_tree, hf_tns_data_setp_acc_vers, tvb, offset, len-1, ENC_NA);
-				offset += len;
-				len = tvb_strsize(tvb, offset);
-				proto_tree_add_item(data_tree, hf_tns_data_setp_cli_plat, tvb, offset, len, ENC_ASCII|ENC_NA);
+				versions_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1, ett_tns_acc_versions, &ti, "Accepted Versions");
+				sep = ':';
+				for (;;) {
+					/*
+					 * Add each accepted version as a
+					 * separate item.
+					 */
+					guint8 vers;
+
+					vers = tvb_get_guint8(tvb, offset);
+					if (vers == 0) {
+						/*
+						 * A version of 0 terminates
+						 * the list.
+						 */
+						break;
+					}
+					proto_item_append_text(ti, "%c %u", sep, vers);
+					sep = ',';
+					proto_tree_add_uint(versions_tree, hf_tns_data_setp_acc_version, tvb, offset, 1, vers);
+					offset += 1;
+				}
+				offset += 1; /* skip the 0 terminator */
+				proto_item_set_end(ti, tvb, offset);
+				proto_tree_add_item(data_tree, hf_tns_data_setp_cli_plat, tvb, offset, -1, ENC_ASCII|ENC_NA);
 
 				return; /* skip call_data_dissector */
 			}
 			else
 			{
-				proto_tree_add_item(data_tree, hf_tns_data_setp_version, tvb, offset, 1, ENC_NA);
-				offset += 2; /* jump over next null terminator */
-				len = tvb_strsize(tvb, offset);
-				proto_tree_add_item(data_tree, hf_tns_data_setp_banner, tvb, offset, len, ENC_ASCII|ENC_NA);
+				versions_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1, ett_tns_acc_versions, &ti, "Versions");
+				sep = ':';
+				for (;;) {
+					/*
+					 * Add each version as a separate item.
+					 */
+					guint8 vers;
+
+					vers = tvb_get_guint8(tvb, offset);
+					if (vers == 0) {
+						/*
+						 * A version of 0 terminates
+						 * the list.
+						 */
+						break;
+					}
+					proto_item_append_text(ti, "%c %u", sep, vers);
+					sep = ',';
+					proto_tree_add_uint(versions_tree, hf_tns_data_setp_version, tvb, offset, 1, vers);
+					offset += 1;
+				}
+				offset += 1; /* skip the 0 terminator */
+				proto_item_set_end(ti, tvb, offset);
+				proto_tree_add_item_ret_length(data_tree, hf_tns_data_setp_banner, tvb, offset, -1, ENC_ASCII|ENC_NA, &len);
 				offset += len;
 			}
 			break;
@@ -1177,14 +1221,14 @@ void proto_register_tns(void)
 			"Call ID", "tns.data_piggyback.id", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
 			&tns_data_oci_subfuncs_ext, 0x00, NULL, HFILL }},
 
-		{ &hf_tns_data_setp_acc_vers, {
-			"Accepted Versions", "tns.data_setp_req.acc_vers", FT_BYTES, SEP_SPACE,
+		{ &hf_tns_data_setp_acc_version, {
+			"Accepted Version", "tns.data_setp_req.acc_vers", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_setp_cli_plat, {
 			"Client Platform", "tns.data_setp_req.cli_plat", FT_STRINGZ, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_setp_version, {
-			"Version", "tns.data_setp_resp.version", FT_BYTES, BASE_NONE,
+			"Version", "tns.data_setp_resp.version", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_setp_banner, {
 			"Server Banner", "tns.data_setp_resp.banner", FT_STRINGZ, BASE_NONE,
@@ -1211,6 +1255,7 @@ void proto_register_tns(void)
 		&ett_tns_control,
 		&ett_tns_data,
 		&ett_tns_data_flag,
+		&ett_tns_acc_versions,
 		&ett_tns_sopt_flag,
 		&ett_tns_ntp_flag,
 		&ett_tns_conn_flag,
