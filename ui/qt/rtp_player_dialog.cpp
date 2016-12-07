@@ -733,7 +733,7 @@ int RtpPlayerDialog::getHoveredPacket()
 
 // Used by RtpAudioStreams to initialize QAudioOutput. We could alternatively
 // pass the corresponding QAudioDeviceInfo directly.
-const QString RtpPlayerDialog::currentOutputDeviceName()
+QString RtpPlayerDialog::currentOutputDeviceName()
 {
     return ui->outputDeviceComboBox->currentText();
 }

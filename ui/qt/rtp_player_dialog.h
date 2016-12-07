@@ -46,7 +46,7 @@ class RtpAudioStream;
 class RtpPlayerDialog : public WiresharkDialog
 {
     Q_OBJECT
-    Q_PROPERTY(QString currentOutputDeviceName READ currentOutputDeviceName CONSTANT)
+    Q_PROPERTY(QString currentOutputDeviceName READ currentOutputDeviceName)
 
 public:
     explicit RtpPlayerDialog(QWidget &parent, CaptureFile &cf);
@@ -135,7 +135,7 @@ private:
     double getLowestTimestamp();
     const QString getHoveredTime();
     int getHoveredPacket();
-    const QString currentOutputDeviceName();
+    QString currentOutputDeviceName();
 
 #else // QT_MULTIMEDIA_LIB
 private:
