@@ -950,13 +950,13 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *
     type_item = proto_tree_add_item( tree, hf_rtcp_psfb_ms_type, tvb, offset, 2, ENC_BIG_ENDIAN );
     offset += 2;
 
-    length = tvb_get_ntohs(tvb, offset) - 1;
+    length = tvb_get_ntohs(tvb, offset) - 4;
     proto_tree_add_item( tree, hf_rtcp_psfb_ms_length, tvb, offset, 2, ENC_BIG_ENDIAN );
     offset += 2;
 
     if (type == 1)
     {
-        rtcp_ms_vsr_tree = proto_tree_add_subtree(tree, tvb, offset, hf_rtcp_psfb_ms_length, ett_ms_vsr, &item, "MS Video Source Request");
+        rtcp_ms_vsr_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ms_vsr, &item, "MS Video Source Request");
 
         col_append_fstr(pinfo->cinfo, COL_INFO,"( MS-VSR )");
 
@@ -1050,7 +1050,7 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *
     else if (type == 3)
     {
         /* MS Dominant Speaker History */
-        rtcp_ms_ds_tree = proto_tree_add_subtree(tree, tvb, offset, hf_rtcp_psfb_ms_length, ett_ms_ds, NULL, "MS Dominant Speaker History");
+        rtcp_ms_ds_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ms_ds, NULL, "MS Dominant Speaker History");
         col_append_fstr(pinfo->cinfo, COL_INFO,"( MS-DSH )");
         while (length-- && tvb_captured_length_remaining (tvb, offset) >= 4)
         {
