@@ -136,6 +136,7 @@ static int hf_ssh_msg_code = -1;
 static int hf_ssh2_msg_code = -1;
 static int hf_ssh2_kex_dh_msg_code = -1;
 static int hf_ssh2_kex_dh_gex_msg_code = -1;
+static int hf_ssh2_kex_ecdh_msg_code = -1;
 
 /* Algorithm negotiation */
 static int hf_ssh_cookie = -1;
@@ -190,6 +191,12 @@ static int hf_ssh_dh_gex_max = -1;
 static int hf_ssh_dh_gex_p = -1;
 static int hf_ssh_dh_gex_g = -1;
 
+/* Key exchange: Elliptic Curve Diffie-Hellman */
+static int hf_ssh_ecdh_q_c = -1;
+static int hf_ssh_ecdh_q_c_length = -1;
+static int hf_ssh_ecdh_q_s = -1;
+static int hf_ssh_ecdh_q_s_length = -1;
+
 /* Miscellaneous */
 static int hf_ssh_mpint_length = -1;
 
@@ -232,6 +239,9 @@ static dissector_handle_t ssh_handle;
 #define SSH_MSG_KEX_DH_GEX_INIT         32
 #define SSH_MSG_KEX_DH_GEX_REPLY        33
 #define SSH_MSG_KEX_DH_GEX_REQUEST      34
+
+#define SSH_MSG_KEX_ECDH_INIT       30
+#define SSH_MSG_KEX_ECDH_REPLY      31
 
 /* User authentication protocol: generic (50-59) */
 #define SSH_MSG_USERAUTH_REQUEST    50
@@ -304,6 +314,12 @@ static const value_string ssh2_kex_dh_gex_msg_vals[] = {
     { SSH_MSG_KEX_DH_GEX_INIT,           "Diffie-Hellman Group Exchange Init" },
     { SSH_MSG_KEX_DH_GEX_REPLY,          "Diffie-Hellman Group Exchange Reply" },
     { SSH_MSG_KEX_DH_GEX_REQUEST,        "Diffie-Hellman Group Exchange Request" },
+    { 0, NULL }
+};
+
+static const value_string ssh2_kex_ecdh_msg_vals[] = {
+    { SSH_MSG_KEX_ECDH_INIT,             "Elliptic Curve Diffie-Hellman Key Exchange Init" },
+    { SSH_MSG_KEX_ECDH_REPLY,            "Elliptic Curve Diffie-Hellman Key Exchange Reply" },
     { 0, NULL }
 };
 
@@ -906,6 +922,31 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
 }
 
 static int
+ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
+        packet_info *pinfo, int offset, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_ssh2_kex_ecdh_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+        val_to_str(msg_code, ssh2_kex_ecdh_msg_vals, "Unknown (%u)"));
+
+    switch (msg_code) {
+    case SSH_MSG_KEX_ECDH_INIT:
+        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_ecdh_q_c, hf_ssh_ecdh_q_c_length);
+        break;
+
+    case SSH_MSG_KEX_ECDH_REPLY:
+        offset += ssh_tree_add_hostkey(tvb, offset, tree, "KEX host key", ett_key_exchange_host_key);
+        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_ecdh_q_s, hf_ssh_ecdh_q_s_length);
+        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kex_h_sig, hf_ssh_kex_h_sig_length);
+        break;
+    }
+
+    return offset;
+}
+
+static int
 ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data,
         int offset, proto_tree *tree)
@@ -1069,6 +1110,11 @@ static void ssh_set_kex_specific_dissector(struct ssh_flow_data *global_data)
         strcmp(kex_name, "diffie-hellman-group-exchange-sha256") == 0)
     {
         global_data->kex_specific_dissector = ssh_dissect_kex_dh_gex;
+    }
+    else if (g_str_has_prefix(kex_name, "ecdh-sha2-") ||
+        strcmp(kex_name, "curve25519-sha256@libssh.org") == 0)
+    {
+        global_data->kex_specific_dissector = ssh_dissect_kex_ecdh;
     }
 }
 
@@ -1275,6 +1321,11 @@ proto_register_ssh(void)
         { &hf_ssh2_kex_dh_gex_msg_code,
           { "Message Code",  "ssh.message_code",
             FT_UINT8, BASE_DEC, VALS(ssh2_kex_dh_gex_msg_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh2_kex_ecdh_msg_code,
+          { "Message Code",  "ssh.message_code",
+            FT_UINT8, BASE_DEC, VALS(ssh2_kex_ecdh_msg_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_cookie,
@@ -1500,6 +1551,26 @@ proto_register_ssh(void)
         { &hf_ssh_dh_gex_g,
           { "DH GEX base (G)",  "ssh.dh_gex.g",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_ecdh_q_c,
+          { "ECDH client's ephemeral public key (Q_C)",  "ssh.ecdh.q_c",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_ecdh_q_c_length,
+          { "ECDH client's ephemeral public key length",  "ssh.ecdh.q_c_length",
+            FT_UINT32, BASE_DEC, NULL,  0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_ecdh_q_s,
+          { "ECDH server's ephemeral public key (Q_S)",  "ssh.ecdh.q_s",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_ecdh_q_s_length,
+          { "ECDH server's ephemeral public key length",  "ssh.ecdh.q_s_length",
+            FT_UINT32, BASE_DEC, NULL,  0x0,
             NULL, HFILL }},
 
         { &hf_ssh_mpint_length,
