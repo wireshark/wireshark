@@ -364,6 +364,7 @@ static gboolean interfaces_cb(const gchar *extcap, const gchar *ifname _U_, gcha
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Extcap pipe %s ", extcap);
 
     walker = interfaces;
+    char* help = NULL;
     while (walker != NULL)
     {
         /* Whether the interface information needs to be preserved or not. */
@@ -384,6 +385,7 @@ static gboolean interfaces_cb(const gchar *extcap, const gchar *ifname _U_, gcha
         else if (int_iter->if_type == EXTCAP_SENTENCE_EXTCAP)
         {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  Extcap [%s] ", int_iter->call);
+            help = g_strdup(int_iter->help);
         }
 
         if (int_iter->if_type == EXTCAP_SENTENCE_INTERFACE)
@@ -401,6 +403,7 @@ static gboolean interfaces_cb(const gchar *extcap, const gchar *ifname _U_, gcha
             }
 
             int_iter->extcap_path = g_strdup(extcap);
+            int_iter->help = help;
             preserve_interface = extcap_if_add(int_iter);
         }
 
