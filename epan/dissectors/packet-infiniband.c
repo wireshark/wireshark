@@ -3005,7 +3005,7 @@ create_conv_and_add_proto_data(packet_info *pinfo, guint64 service_id,
     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 
     /* next, register the conversation using the LIDs */
-    set_address(addr, AT_IB, sizeof(guint16), &lid);
+    set_address(addr, AT_IB, sizeof(guint16), wmem_memdup(pinfo->pool, &lid, sizeof lid));
     conv = conversation_new(pinfo->num, addr, addr,
                             PT_IBQP, port, port, options);
     conversation_add_proto_data(conv, proto_infiniband, proto_data);
