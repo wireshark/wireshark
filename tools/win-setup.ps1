@@ -101,8 +101,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2016-10-26"
-$Win32CurrentTag = "2016-10-26"
+$Win64CurrentTag = "2016-12-12-2.2"
+$Win32CurrentTag = "2016-12-12-2.2"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -117,7 +117,7 @@ $Win64Archives = @{
     "nasm-2.09.08-win32.zip" = "";
     "portaudio_v19_2.zip" = "";
     "upx303w.zip" = "";
-    "WinSparkle-0.3-44-g2c8d9d3-win64ws.zip" = "";
+    "WinSparkle-0.5.3.zip" = "";
     "WpdPack_4_1_2.zip" = "";
     "zlib-1.2.8-ws.zip" = "";
 }
@@ -134,7 +134,7 @@ $Win32Archives = @{
     "nasm-2.09.08-win32.zip" = "";
     "portaudio_v19_2.zip" = "";
     "upx303w.zip" = "";
-    "WinSparkle-0.3-44-g2c8d9d3-win32ws.zip" = "";
+    "WinSparkle-0.5.3.zip" = "";
     "WpdPack_4_1_2.zip" = "";
     "zlib-1.2.8-ws.zip" = "";
 }
@@ -195,6 +195,7 @@ $CleanupItems = @(
     "AirPcap_Devpack_4_1_0_1622"
     "GeoIP-1.*-win??ws"
     "WinSparkle-0.3-44-g2c8d9d3-win??ws"
+    "WinSparkle-0.5.?"
     "WpdPack"
     "current-tag.txt"
 )
