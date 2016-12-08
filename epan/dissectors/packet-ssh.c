@@ -118,42 +118,27 @@ struct ssh_flow_data {
 };
 
 static int proto_ssh = -1;
+
+/* Version exchange */
+static int hf_ssh_protocol = -1;
+
+/* Framing */
 static int hf_ssh_packet_length= -1;
 static int hf_ssh_packet_length_encrypted= -1;
 static int hf_ssh_padding_length= -1;
 static int hf_ssh_payload= -1;
-static int hf_ssh_protocol= -1;
-static int hf_ssh_dh_gex_min= -1;
-static int hf_ssh_dh_gex_nbits= -1;
-static int hf_ssh_dh_gex_max= -1;
 static int hf_ssh_encrypted_packet= -1;
 static int hf_ssh_padding_string= -1;
 static int hf_ssh_mac_string= -1;
+
+/* Message codes */
 static int hf_ssh_msg_code = -1;
 static int hf_ssh2_msg_code = -1;
 static int hf_ssh2_kex_dh_msg_code = -1;
 static int hf_ssh2_kex_dh_gex_msg_code = -1;
+
+/* Algorithm negotiation */
 static int hf_ssh_cookie = -1;
-static int hf_ssh_mpint_g= -1;
-static int hf_ssh_mpint_p= -1;
-static int hf_ssh_mpint_e= -1;
-static int hf_ssh_mpint_f= -1;
-static int hf_ssh_mpint_length= -1;
-static int hf_ssh_hostkey_length= -1;
-static int hf_ssh_hostkey_type= -1;
-static int hf_ssh_hostkey_data= -1;
-static int hf_ssh_hostkey_rsa_n= -1;
-static int hf_ssh_hostkey_rsa_e= -1;
-static int hf_ssh_hostkey_dsa_p= -1;
-static int hf_ssh_hostkey_dsa_q= -1;
-static int hf_ssh_hostkey_dsa_g= -1;
-static int hf_ssh_hostkey_dsa_y= -1;
-static int hf_ssh_hostkey_ecdsa_curve_id= -1;
-static int hf_ssh_hostkey_ecdsa_curve_id_length= -1;
-static int hf_ssh_hostkey_ecdsa_q= -1;
-static int hf_ssh_hostkey_ecdsa_q_length= -1;
-static int hf_ssh_kexdh_h_sig= -1;
-static int hf_ssh_kexdh_h_sig_length= -1;
 static int hf_ssh_kex_algorithms = -1;
 static int hf_ssh_server_host_key_algorithms = -1;
 static int hf_ssh_encryption_algorithms_client_to_server = -1;
@@ -176,6 +161,37 @@ static int hf_ssh_languages_client_to_server_length= -1;
 static int hf_ssh_languages_server_to_client_length= -1;
 static int hf_ssh_kex_first_packet_follows = -1;
 static int hf_ssh_kex_reserved = -1;
+
+/* Key exchange common elements */
+static int hf_ssh_hostkey_length = -1;
+static int hf_ssh_hostkey_type = -1;
+static int hf_ssh_hostkey_data = -1;
+static int hf_ssh_hostkey_rsa_n = -1;
+static int hf_ssh_hostkey_rsa_e = -1;
+static int hf_ssh_hostkey_dsa_p = -1;
+static int hf_ssh_hostkey_dsa_q = -1;
+static int hf_ssh_hostkey_dsa_g = -1;
+static int hf_ssh_hostkey_dsa_y = -1;
+static int hf_ssh_hostkey_ecdsa_curve_id = -1;
+static int hf_ssh_hostkey_ecdsa_curve_id_length = -1;
+static int hf_ssh_hostkey_ecdsa_q = -1;
+static int hf_ssh_hostkey_ecdsa_q_length = -1;
+static int hf_ssh_kexdh_h_sig = -1;
+static int hf_ssh_kexdh_h_sig_length = -1;
+
+/* Key exchange: Diffie-Hellman */
+static int hf_ssh_mpint_e = -1;
+static int hf_ssh_mpint_f = -1;
+
+/* Key exchange: Diffie-Hellman Group Exchange */
+static int hf_ssh_dh_gex_min = -1;
+static int hf_ssh_dh_gex_nbits = -1;
+static int hf_ssh_dh_gex_max = -1;
+static int hf_ssh_mpint_p = -1;
+static int hf_ssh_mpint_g = -1;
+
+/* Miscellaneous */
+static int hf_ssh_mpint_length = -1;
 
 static gint ett_ssh = -1;
 static gint ett_key_exchange = -1;
@@ -1201,6 +1217,11 @@ void
 proto_register_ssh(void)
 {
     static hf_register_info hf[] = {
+        { &hf_ssh_protocol,
+          { "Protocol",  "ssh.protocol",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            "SSH Protocol", HFILL }},
+
         { &hf_ssh_packet_length,
           { "Packet Length",      "ssh.packet_length",
             FT_UINT32, BASE_DEC, NULL,  0x0,
@@ -1215,6 +1236,26 @@ proto_register_ssh(void)
           { "Padding Length",  "ssh.padding_length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "SSH Packet Number", HFILL }},
+
+        { &hf_ssh_payload,
+          { "Payload",  "ssh.payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "SSH Payload", HFILL }},
+
+        { &hf_ssh_encrypted_packet,
+          { "Encrypted Packet",  "ssh.encrypted_packet",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "SSH Protocol Packet", HFILL }},
+
+        { &hf_ssh_padding_string,
+          { "Padding String",  "ssh.padding_string",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "SSH Padding String", HFILL }},
+
+        { &hf_ssh_mac_string,
+          { "MAC",  "ssh.mac",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "SSH Protocol Packet MAC", HFILL }},
 
         { &hf_ssh_msg_code,
           { "Message Code",  "ssh.message_code",
@@ -1236,160 +1277,10 @@ proto_register_ssh(void)
             FT_UINT8, BASE_DEC, VALS(ssh2_kex_dh_gex_msg_vals), 0x0,
             "SSH Message Code", HFILL }},
 
-        { &hf_ssh_mpint_g,
-          { "DH base (G)",  "ssh.dh.g",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "SSH DH base (G)", HFILL }},
-
-        { &hf_ssh_mpint_p,
-          { "DH modulus (P)",  "ssh.dh.p",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "SSH DH modulus (P)", HFILL }},
-
-        { &hf_ssh_mpint_e,
-          { "DH client e",  "ssh.dh.e",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "SSH DH client e", HFILL }},
-
-        { &hf_ssh_mpint_f,
-          { "DH server f",  "ssh.dh.f",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "SSH DH server f", HFILL }},
-
-        { &hf_ssh_mpint_length,
-          { "Multi Precision Integer Length",      "ssh.mpint_length",
-            FT_UINT32, BASE_DEC, NULL,  0x0,
-            "SSH mpint length", HFILL }},
-
-        { &hf_ssh_kexdh_h_sig,
-          { "KEX DH H signature",         "ssh.kexdh.h_sig",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "SSH KEX DH H signature", HFILL }},
-
-        { &hf_ssh_hostkey_length,
-          { "Host key length",         "ssh.host_key.length",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_hostkey_type,
-          { "Host key type",         "ssh.host_key.type",
-            FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_hostkey_data,
-          { "Host key data",         "ssh.host_key.data",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_hostkey_rsa_n,
-          { "RSA modulus (N)",         "ssh.host_key.rsa.n",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_hostkey_rsa_e,
-          { "RSA public exponent (e)",         "ssh.host_key.rsa.e",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_hostkey_dsa_p,
-          { "DSA prime modulus (p)",  "ssh.host_key.dsa.p",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_hostkey_dsa_q,
-          { "DSA prime divisor (q)",  "ssh.host_key.dsa.q",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_hostkey_dsa_g,
-          { "DSA subgroup generator (g)",  "ssh.host_key.dsa.g",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_hostkey_dsa_y,
-          { "DSA public key (y)",  "ssh.host_key.dsa.y",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_hostkey_ecdsa_curve_id,
-          { "ECDSA elliptic curve identifier",  "ssh.host_key.ecdsa.id",
-            FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_hostkey_ecdsa_curve_id_length,
-          { "ECDSA elliptic curve identifier length",  "ssh.host_key.ecdsa.id_length",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_hostkey_ecdsa_q,
-          { "ECDSA public key (Q)",  "ssh.host_key.ecdsa.q",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_hostkey_ecdsa_q_length,
-          { "ECDSA public key length",  "ssh.host_key.ecdsa.q_length",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_ssh_kexdh_h_sig_length,
-          { "KEX DH H signature length",         "ssh.kexdh.h_sig_length",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "SSH KEX DH H signature length", HFILL }},
-
-        { &hf_ssh_encrypted_packet,
-          { "Encrypted Packet",  "ssh.encrypted_packet",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "SSH Protocol Packet", HFILL }},
-
-        { &hf_ssh_protocol,
-          { "Protocol",  "ssh.protocol",
-            FT_STRING, BASE_NONE, NULL, 0x0,
-            "SSH Protocol", HFILL }},
-
         { &hf_ssh_cookie,
           { "Cookie",  "ssh.cookie",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "SSH Cookie", HFILL }},
-
-        { &hf_ssh_kex_first_packet_follows,
-          { "KEX First Packet Follows",      "ssh.kex.first_packet_follows",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            "SSH KEX Fist Packet Follows", HFILL }},
-
-        { &hf_ssh_kex_reserved,
-          { "Reserved",  "ssh.kex.reserved",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "SSH Protocol KEX Reserved", HFILL }},
-
-        { &hf_ssh_dh_gex_min,
-          { "DH GEX Min",  "ssh.dh_gex.min",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "SSH DH GEX Minimum", HFILL }},
-
-        { &hf_ssh_dh_gex_nbits,
-          { "DH GEX Number of Bits",  "ssh.dh_gex.nbits",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "SSH DH GEX Number of Bits", HFILL }},
-
-        { &hf_ssh_dh_gex_max,
-          { "DH GEX Max",  "ssh.dh_gex.max",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            "SSH DH GEX Maximum", HFILL }},
-
-        { &hf_ssh_payload,
-          { "Payload",  "ssh.payload",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "SSH Payload", HFILL }},
-
-        { &hf_ssh_padding_string,
-          { "Padding String",  "ssh.padding_string",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "SSH Padding String", HFILL }},
-
-        { &hf_ssh_mac_string,
-          { "MAC",  "ssh.mac",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "SSH Protocol Packet MAC", HFILL }},
 
         { &hf_ssh_kex_algorithms,
           { "kex_algorithms string",         "ssh.kex_algorithms",
@@ -1490,6 +1381,131 @@ proto_register_ssh(void)
           { "languages_server_to_client length",         "ssh.languages_server_to_client_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "SSH languages_server_to_client length", HFILL }},
+
+        { &hf_ssh_kex_first_packet_follows,
+          { "KEX First Packet Follows",      "ssh.kex.first_packet_follows",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "SSH KEX Fist Packet Follows", HFILL }},
+
+        { &hf_ssh_kex_reserved,
+          { "Reserved",  "ssh.kex.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "SSH Protocol KEX Reserved", HFILL }},
+
+        { &hf_ssh_hostkey_length,
+          { "Host key length",         "ssh.host_key.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_type,
+          { "Host key type",         "ssh.host_key.type",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_data,
+          { "Host key data",         "ssh.host_key.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_rsa_n,
+          { "RSA modulus (N)",         "ssh.host_key.rsa.n",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_rsa_e,
+          { "RSA public exponent (e)",         "ssh.host_key.rsa.e",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_dsa_p,
+          { "DSA prime modulus (p)",  "ssh.host_key.dsa.p",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_dsa_q,
+          { "DSA prime divisor (q)",  "ssh.host_key.dsa.q",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_dsa_g,
+          { "DSA subgroup generator (g)",  "ssh.host_key.dsa.g",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_dsa_y,
+          { "DSA public key (y)",  "ssh.host_key.dsa.y",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_ecdsa_curve_id,
+          { "ECDSA elliptic curve identifier",  "ssh.host_key.ecdsa.id",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_ecdsa_curve_id_length,
+          { "ECDSA elliptic curve identifier length",  "ssh.host_key.ecdsa.id_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_ecdsa_q,
+          { "ECDSA public key (Q)",  "ssh.host_key.ecdsa.q",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_ecdsa_q_length,
+          { "ECDSA public key length",  "ssh.host_key.ecdsa.q_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_kexdh_h_sig,
+          { "KEX DH H signature",         "ssh.kexdh.h_sig",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "SSH KEX DH H signature", HFILL }},
+
+        { &hf_ssh_kexdh_h_sig_length,
+          { "KEX DH H signature length",         "ssh.kexdh.h_sig_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "SSH KEX DH H signature length", HFILL }},
+
+        { &hf_ssh_mpint_e,
+          { "DH client e",  "ssh.dh.e",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "SSH DH client e", HFILL }},
+
+        { &hf_ssh_mpint_f,
+          { "DH server f",  "ssh.dh.f",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "SSH DH server f", HFILL }},
+
+        { &hf_ssh_dh_gex_min,
+          { "DH GEX Min",  "ssh.dh_gex.min",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "SSH DH GEX Minimum", HFILL }},
+
+        { &hf_ssh_dh_gex_nbits,
+          { "DH GEX Number of Bits",  "ssh.dh_gex.nbits",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "SSH DH GEX Number of Bits", HFILL }},
+
+        { &hf_ssh_dh_gex_max,
+          { "DH GEX Max",  "ssh.dh_gex.max",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "SSH DH GEX Maximum", HFILL }},
+
+        { &hf_ssh_mpint_p,
+          { "DH modulus (P)",  "ssh.dh.p",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "SSH DH modulus (P)", HFILL }},
+
+        { &hf_ssh_mpint_g,
+          { "DH base (G)",  "ssh.dh.g",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "SSH DH base (G)", HFILL }},
+
+        { &hf_ssh_mpint_length,
+          { "Multi Precision Integer Length",      "ssh.mpint_length",
+            FT_UINT32, BASE_DEC, NULL,  0x0,
+            "SSH mpint length", HFILL }},
     };
 
     static gint *ett[] = {
