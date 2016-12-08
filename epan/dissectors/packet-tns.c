@@ -471,7 +471,6 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			proto_tree *versions_tree;
 			proto_item *ti;
 			char sep;
-			gint len;
 			if ( pinfo->match_uint == pinfo->destport ) /* check if is request */
 			{
 				versions_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1, ett_tns_acc_versions, &ti, "Accepted Versions");
@@ -504,6 +503,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			}
 			else
 			{
+				gint len;
 				versions_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1, ett_tns_acc_versions, &ti, "Versions");
 				sep = ':';
 				for (;;) {
