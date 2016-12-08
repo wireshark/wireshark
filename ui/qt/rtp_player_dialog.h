@@ -46,7 +46,9 @@ class RtpAudioStream;
 class RtpPlayerDialog : public WiresharkDialog
 {
     Q_OBJECT
+#ifdef QT_MULTIMEDIA_LIB
     Q_PROPERTY(QString currentOutputDeviceName READ currentOutputDeviceName)
+#endif
 
 public:
     explicit RtpPlayerDialog(QWidget &parent, CaptureFile &cf);
