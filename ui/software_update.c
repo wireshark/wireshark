@@ -94,10 +94,19 @@ void
 software_update_init(void) {
     const char *update_url = get_appcast_update_url(prefs.gui_update_channel);
 
+    /*
+     * According to the WinSparkle 0.5 documentation these must be called
+     * once, before win_sparkle_init. We can't update them dynamically when
+     * our preferences change.
+     */
     win_sparkle_set_registry_path("Software\\Wireshark\\WinSparkle Settings");
     win_sparkle_set_appcast_url(update_url);
     win_sparkle_set_automatic_check_for_updates(prefs.gui_update_enabled ? 1 : 0);
     win_sparkle_set_update_check_interval(prefs.gui_update_interval);
+    /* Todo: Fix bugs 9687 and 12989.
+     * win_sparkle_set_can_shutdown_callback(...);
+     * win_sparkle_set_shutdown_request_callback(...);
+     */
     win_sparkle_init();
 }
 
