@@ -257,6 +257,10 @@ static int hf_gtp_rep_act_type = -1;
 static int hf_gtp_correlation_id = -1;
 static int hf_gtp_earp_pvi = -1;
 static int hf_gtp_earp_pl = -1;
+static int hf_gtp_ext_comm_flags_uasi = -1;
+static int hf_gtp_ext_comm_flags_II_dtci = -1;
+static int hf_gtp_ext_comm_flags_II_pnsi = -1;
+static int hf_gtp_ext_comm_flags_II_spare = -1;
 static int hf_gtp_earp_pci = -1;
 static int hf_gtp_cdr_app = -1;
 static int hf_gtp_cdr_rel = -1;
@@ -873,7 +877,14 @@ static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message
 #define GTP_EXT_ULI_TIMESTAMP         0xD6    /* 3G   214 TLV ULI Timestamp                             7.7.114 */
 #define GTP_EXT_LHN_ID_W_SAPI         0xD7    /* 3G   215 TLV Local Home Network ID (LHN-ID) with NSAPI 7.7.115 */
 #define GTP_EXT_CN_OP_SEL_ENTITY      0xD8    /* 3G   216 TLV CN Operator Selection Entity              7.7.116 */
-/*  217-238 TLV Spare. For future use.     */
+#define GTP_EXT_UE_USAGE_TYPE         0xD9    /* 3G   217 TLV UE Usage Type                             7.7.117 */
+#define GTP_EXT_EXT_COMMON_FLGS_II    0xDA    /* 3G   218 TLV Extended Common Flags II                  7.7.118 */
+#define GTP_EXT_NODE_IDENTIFIER       0xDB    /* 3G   219 TLV Node Identifier                           7.7.119 */
+#define GTP_EXT_CIOT_OPT_SUP_IND      0xDC    /* 3G   220 TLV CIoT Optimizations Support Indication     7.7.120 */
+#define GTP_EXT_SCEF_PDN_CONNECTION   0xDD    /* 3G   221 TLV SCEF PDN Connection                       7.7.121 */
+
+
+/*  222-238 TLV Spare. For future use.     */
 
 /* 239-250  Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33])*/
 
@@ -1013,19 +1024,26 @@ static const value_string gtp_val[] = {
 /* 202 */  {GTP_EXT_GGSN_BACK_OFF_TIME,     "GGSN Back-Off Time"},                         /* 7.7.102 */
 /* 203 */  {GTP_EXT_SIG_PRI_IND,            "Signalling Priority Indication"},             /* 7.7.103 */
 /* 204 */  {GTP_EXT_SIG_PRI_IND_W_NSAPI,    "Signalling Priority Indication with NSAPI"},  /* 7.7.104 */
-/* 205 */  {GTP_EXT_HIGHER_BR_16MB_FLG,     "Higher bitrates than 16 Mbps flag"},          /* 7.7.105  */
-/* 206 */  {GTP_EXT_MAX_MBR_APN_AMBR,       "Max MBR/APN-AMBR"},                           /* 7.7.106  */
-/* 207 */  {GTP_EXT_ADD_MM_CTX_SRVCC,       "Additional MM context for SRVCC"},            /* 7.7.107  */
-/* 208 */  {GTP_EXT_ADD_FLGS_SRVCC,         "Additional flags for SRVCC"},                 /* 7.7.108  */
-/* 209 */  {GTP_EXT_STN_SR,                 "STN-SR"},                                     /* 7.7.109  */
-/* 210 */  {GTP_EXT_C_MSISDN,               "C-MSISDN"},                                   /* 7.7.110  */
-/* 211 */  {GTP_EXT_EXT_RANAP_CAUSE,        "Extended RANAP Cause"},                       /* 7.7.111  */
-/* 212 */  {GTP_EXT_ENODEB_ID,              "eNodeB ID" },                                 /* 7.7.112  */
+/* 205 */  {GTP_EXT_HIGHER_BR_16MB_FLG,     "Higher bitrates than 16 Mbps flag"},          /* 7.7.105 */
+/* 206 */  {GTP_EXT_MAX_MBR_APN_AMBR,       "Max MBR/APN-AMBR"},                           /* 7.7.106 */
+/* 207 */  {GTP_EXT_ADD_MM_CTX_SRVCC,       "Additional MM context for SRVCC"},            /* 7.7.107 */
+/* 208 */  {GTP_EXT_ADD_FLGS_SRVCC,         "Additional flags for SRVCC"},                 /* 7.7.108 */
+/* 209 */  {GTP_EXT_STN_SR,                 "STN-SR"},                                     /* 7.7.109 */
+/* 210 */  {GTP_EXT_C_MSISDN,               "C-MSISDN"},                                   /* 7.7.110 */
+/* 211 */  {GTP_EXT_EXT_RANAP_CAUSE,        "Extended RANAP Cause"},                       /* 7.7.111 */
+/* 212 */  {GTP_EXT_ENODEB_ID,              "eNodeB ID" },                                 /* 7.7.112 */
 /* 213 */  {GTP_EXT_SEL_MODE_W_NSAPI,       "Selection Mode with NSAPI" },                 /* 7.7.113 */
 /* 214 */  {GTP_EXT_ULI_TIMESTAMP,          "ULI Timestamp" },                             /* 7.7.114 */
-/* 215 */  {GTP_EXT_LHN_ID_W_SAPI,          "Local Home Network ID (LHN-ID) with NSAPI" }, /* 7.7.115*/
-/* 216 */  {GTP_EXT_CN_OP_SEL_ENTITY,       "Operator Selection Entity" },                 /* 7.7.116*/
-/* 217-238 TLV Spare. For future use. */
+/* 215 */  {GTP_EXT_LHN_ID_W_SAPI,          "Local Home Network ID (LHN-ID) with NSAPI" }, /* 7.7.115 */
+/* 216 */  {GTP_EXT_CN_OP_SEL_ENTITY,       "Operator Selection Entity" },                 /* 7.7.116 */
+/* 217 */  {GTP_EXT_UE_USAGE_TYPE,          "UE Usage Type" },                             /* 7.7.117 */
+/* 218 */  {GTP_EXT_EXT_COMMON_FLGS_II,     "Extended Common Flags II"},                   /* 7.7.118 */
+/* 219 */  {GTP_EXT_NODE_IDENTIFIER,        "Node Identifier" },                           /* 7.7.119 */
+/* 220 */  {GTP_EXT_CIOT_OPT_SUP_IND,       "CIoT Optimizations Support Indication" },     /* 7.7.120 */
+/* 221 */  {GTP_EXT_SCEF_PDN_CONNECTION,    "SCEF PDN Connection" },                       /* 7.7.121 */
+
+
+/* 222-238 TLV Spare. For future use. */
 /* 239-250 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
 /* 249 */  {GTP_EXT_REL_PACK,  "Sequence numbers of released packets IE"},  /* charging */
 /* 250 */  {GTP_EXT_CAN_PACK,  "Sequence numbers of canceled packets IE"},  /* charging */
@@ -1158,19 +1176,25 @@ static const value_string gtpv1_val[] = {
 /* 202 */  {202,                           "GGSN Back-Off Time"},                             /* 7.7.102 */
 /* 203 */  {203,                           "Signalling Priority Indication"},                 /* 7.7.103 */
 /* 204 */  {204,                           "Signalling Priority Indication with NSAPI"},      /* 7.7.104 */
-/* 205 */  {205,                           "Higher bitrates than 16 Mbps flag"},              /* 7.7.105  */
-/* 206 */  {206,                           "Max MBR/APN-AMBR"},                               /* 7.7.106  */
-/* 207 */  {207,                           "Additional MM context for SRVCC"},                /* 7.7.107  */
-/* 208 */  {208,                           "Additional flags for SRVCC"},                     /* 7.7.108  */
-/* 209 */  {209,                           "STN-SR"},                                         /* 7.7.109  */
-/* 210 */  {210,                           "C-MSISDN"},                                       /* 7.7.110  */
-/* 211 */  {211,                           "Extended RANAP Cause"},                           /* 7.7.111  */
-/* 212 */  {GTP_EXT_ENODEB_ID,             "eNodeB ID" },                                     /* 7.7.112  */
+/* 205 */  {205,                           "Higher bitrates than 16 Mbps flag"},              /* 7.7.105 */
+/* 206 */  {206,                           "Max MBR/APN-AMBR"},                               /* 7.7.106 */
+/* 207 */  {207,                           "Additional MM context for SRVCC"},                /* 7.7.107 */
+/* 208 */  {208,                           "Additional flags for SRVCC"},                     /* 7.7.108 */
+/* 209 */  {209,                           "STN-SR"},                                         /* 7.7.109 */
+/* 210 */  {210,                           "C-MSISDN"},                                       /* 7.7.110 */
+/* 211 */  {211,                           "Extended RANAP Cause"},                           /* 7.7.111 */
+/* 212 */  {GTP_EXT_ENODEB_ID,             "eNodeB ID" },                                     /* 7.7.112 */
 /* 213 */  {GTP_EXT_SEL_MODE_W_NSAPI,      "Selection Mode with NSAPI" },                     /* 7.7.113 */
 /* 214 */  {GTP_EXT_ULI_TIMESTAMP,         "ULI Timestamp" },                                 /* 7.7.114 */
-/* 215 */  {GTP_EXT_LHN_ID_W_SAPI,         "Local Home Network ID (LHN-ID) with NSAPI" },     /* 7.7.115*/
-/* 216 */  {GTP_EXT_CN_OP_SEL_ENTITY,      "Operator Selection Entity" },                      /* 7.7.116*/
-/* 217-238 TLV Spare. For future use. */
+/* 215 */  {GTP_EXT_LHN_ID_W_SAPI,         "Local Home Network ID (LHN-ID) with NSAPI" },     /* 7.7.115 */
+/* 216 */  {GTP_EXT_CN_OP_SEL_ENTITY,      "Operator Selection Entity" },                     /* 7.7.116 */
+/* 217 */  {GTP_EXT_UE_USAGE_TYPE,         "UE Usage Type" },                                 /* 7.7.117 */
+/* 218 */  {GTP_EXT_EXT_COMMON_FLGS_II,    "Extended Common Flags II"},                       /* 7.7.118 */
+/* 219 */  {GTP_EXT_NODE_IDENTIFIER,       "Node Identifier" },                              /* 7.7.119 */
+/* 220 */  {GTP_EXT_CIOT_OPT_SUP_IND,      "CIoT Optimizations Support Indication" },        /* 7.7.120 */
+/* 221 */  {GTP_EXT_SCEF_PDN_CONNECTION,   "SCEF PDN Connection" },                          /* 7.7.121 */
+
+/* 219-238 TLV Spare. For future use. */
 /* 239-250 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
 /* 249 */  {GTP_EXT_REL_PACK,              "Sequence numbers of released packets IE"},        /* charging */
 /* 250 */  {GTP_EXT_CAN_PACK,              "Sequence numbers of canceled packets IE"},        /* charging */
@@ -1258,7 +1282,8 @@ static const value_string cause_type[] = {
     {228, "Collision with network initiated request"},
     {229, "APN Congestion"},
     {230, "Bearer handling not supported"},
-    /* For future use 231-240 */
+    {232, "UE is temporarily not reachable due to power saving"},
+    /* For future use -240 */
     /* Cause values reserved for GPRS charging
      * protocol use (see GTP' in 3GPP TS 32.295 [33])
      * 241-255
@@ -2138,6 +2163,8 @@ static int decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_in
 static int decode_gtp_ext_uli_timestamp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_ext_lhn_id_w_sapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_extended_common_flgs_II(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+
 static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_mbms_ip_mcast_dist(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
@@ -2283,6 +2310,9 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xD6 */  {GTP_EXT_ULI_TIMESTAMP, decode_gtp_ext_uli_timestamp },             /* 7.7.114 */
 /* 0xD7 */  {GTP_EXT_LHN_ID_W_SAPI, decode_gtp_ext_lhn_id_w_sapi },             /* 7.7.115 */
 /* 0xD8 */  {GTP_EXT_CN_OP_SEL_ENTITY, decode_gtp_ext_cn_op_sel_entity },       /* 7.7.116 */
+
+/* 0xDA */	{GTP_EXT_EXT_COMMON_FLGS_II, decode_gtp_extended_common_flgs_II},	/* 7.7.118 */
+
 /* 0xf9 */  {GTP_EXT_REL_PACK, decode_gtp_rel_pack },                           /* charging */
 /* 0xfa */  {GTP_EXT_CAN_PACK, decode_gtp_can_pack},                            /* charging */
 /* 0xfb */  {GTP_EXT_CHRG_ADDR, decode_gtp_chrg_addr},
@@ -7387,7 +7417,12 @@ decode_gtp_extended_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    proto_tree_add_item(ext_tree, hf_gtp_ext_comm_flags_uasi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if(length > 1){
+        proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length-1);
+    }
 
     return 3 + length;
 }
@@ -8024,6 +8059,36 @@ decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo 
 
     return 3 + length;
 }
+
+/*
+ * 7.7.118 Extended Common Flags II
+ */
+static int
+decode_gtp_extended_common_flgs_II(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+{
+    guint16     length;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_EXT_COMMON_FLGS_II], NULL,
+                                        val_to_str_ext_const(GTP_EXT_EXT_COMMON_FLGS_II, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+    proto_tree_add_item(ext_tree, hf_gtp_ext_comm_flags_II_dtci, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+
+    if(length > 1){
+        proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length-1);
+    }
+
+    return 3 + length;
+}
+
 
 static int
 decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
@@ -9668,6 +9733,26 @@ proto_register_gtp(void)
         {&hf_gtp_earp_pl,
          { "PL Priority Level", "gtp.EARP_priority_level",
            FT_UINT8, BASE_DEC, NULL, 0x3C,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_comm_flags_uasi,
+         { "UASI", "gtp.ext_comm_flags_uasi",
+           FT_UINT8, BASE_DEC, NULL, 0x80,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_comm_flags_II_dtci,
+         { "DTCI", "gtp.ext_comm_flags_II_dtci",
+           FT_UINT8, BASE_DEC, NULL, 0x02,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_comm_flags_II_pnsi,
+         { "PNSI", "gtp.ext_comm_flags_II_pnsi",
+           FT_UINT8, BASE_DEC, NULL, 0x01,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_comm_flags_II_spare,
+         { "SPARE", "gtp.ext_comm_flags_II_spare",
+           FT_UINT8, BASE_HEX, NULL, 0xFC,
            NULL, HFILL}
         },
         {&hf_gtp_earp_pci,
