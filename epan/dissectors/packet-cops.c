@@ -1055,6 +1055,28 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         }
 
         if (!pinfo->fd->flags.visited) {
+            /*
+             * XXX - yes, we're setting all the fields in this
+             * structure, but there's padding between op_code
+             * and solicited, and that can't be set.
+             *
+             * For some reason, on some platforms, valgrind is
+             * complaining about a test of the solicited field
+             * accessing uninitialized data, perhaps because
+             * the 8 bytes containing op_code and solicited is
+             * being loaded as a unit.  If the compiler is, for
+             * example, turning a test of
+             *
+             *   cops_call->op_code == COPS_MSG_KA && !(cops_call->solicited)
+             *
+             * into a load of those 8 bytes and a comparison against a value
+             * with op_code being COPS_MSG_KA, solicited being false (0),
+             * *and* the padding being zero, it's buggy, but overly-"clever"
+             * buggy compilers do exist, so....)
+             *
+             * So we use wmem_new0() to forcibly zero out the entire
+             * structure before filling it in.
+             */
             cops_call = wmem_new0(wmem_file_scope(), cops_call_t);
             cops_call->op_code = op_code;
             cops_call->solicited = is_solicited;
