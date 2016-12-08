@@ -80,6 +80,37 @@ epan_get_version(void) {
 	return VERSION;
 }
 
+#if defined(HAVE_LIBGCRYPT) && defined(_WIN32)
+// Libgcrypt prints all log messages to stderr by default. This is noisier
+// than we would like on Windows. In particular slow_gatherer tends to print
+//     "NOTE: you should run 'diskperf -y' to enable the disk statistics"
+// which we don't care about.
+static void
+quiet_gcrypt_logger (void *dummy _U_, int level, const char *format, va_list args)
+{
+	GLogLevelFlags log_level = G_LOG_LEVEL_WARNING;
+
+	switch (level) {
+	case GCRY_LOG_CONT: // Continuation. Ignore for now.
+	case GCRY_LOG_DEBUG:
+	case GCRY_LOG_INFO:
+	default:
+		return;
+	case GCRY_LOG_WARN:
+	case GCRY_LOG_BUG:
+		log_level = G_LOG_LEVEL_WARNING;
+		break;
+	case GCRY_LOG_ERROR:
+		log_level = G_LOG_LEVEL_ERROR;
+		break;
+	case GCRY_LOG_FATAL:
+		log_level = G_LOG_LEVEL_CRITICAL;
+		break;
+	}
+	g_logv(NULL, log_level, format, args);
+}
+#endif // HAVE_LIBGCRYPT && _WIN32
+
 /*
  * Register all the plugin types that are part of libwireshark, namely
  * dissector and tap plugins.
@@ -117,6 +148,9 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 #ifdef HAVE_LIBGCRYPT
 	/* initialize libgcrypt (beware, it won't be thread-safe) */
 	gcry_check_version(NULL);
+#if defined(HAVE_LIBGCRYPT) && defined(_WIN32)
+	gcry_set_log_handler (quiet_gcrypt_logger, NULL);
+#endif
 	gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
 	gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
 #endif
