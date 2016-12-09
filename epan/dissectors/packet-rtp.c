@@ -1438,7 +1438,6 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
             proto_tree *rtp_tree, unsigned int payload_type)
 {
     struct _rtp_conversation_info *p_conv_data;
-    gboolean found_match = FALSE;
     int payload_len;
     struct srtp_info *srtp_info;
     int offset = 0;
@@ -1461,7 +1460,6 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
         {
             if (rtp_tree)
                 proto_tree_add_item(rtp_tree, hf_srtp_encrypted_payload, newtvb, offset, payload_len, ENC_NA);
-            found_match = TRUE; /* use this flag to prevent dissection below */
         }
         offset += payload_len;
 
@@ -1474,32 +1472,11 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(rtp_tree, hf_srtp_auth_tag, newtvb, offset, srtp_info->auth_tag_len, ENC_NA);
             /*offset += srtp_info->auth_tag_len;*/
         }
-    } else if (p_conv_data && !p_conv_data->bta2dp_info && !p_conv_data->btvdp_info &&
-            payload_type >= PT_UNDF_96 && payload_type <= PT_UNDF_127) {
-        /* if the payload type is dynamic, we check if the conv is set and we look for the pt definition */
-        if (p_conv_data->rtp_dyn_payload) {
-            const gchar *payload_type_str = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, payload_type);
-            if (payload_type_str) {
-                int len;
-                len = dissector_try_string(rtp_dyn_pt_dissector_table,
-                                   payload_type_str, newtvb, pinfo, tree, NULL);
-                /* If payload type string set from conversation and
-                 * no matching dissector found it's probably because no subdissector
-                 * exists. Don't call the dissectors based on payload number
-                 * as that'd probably be the wrong dissector in this case.
-                 * Just add it as data.
-                 */
-                if(len == 0)
-                    proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, ENC_NA );
-                return;
-            }
+        return;
 
-        }
-    } else if (p_conv_data && p_conv_data->bta2dp_info) {
+    } if (p_conv_data && p_conv_data->bta2dp_info) {
         tvbuff_t  *nexttvb;
         gint       suboffset = 0;
-
-        found_match = TRUE;
 
         if (p_conv_data->bta2dp_info->content_protection_type == BTAVDTP_CONTENT_PROTECTION_TYPE_SCMS_T) {
             nexttvb = tvb_new_subset_length(newtvb, 0, 1);
@@ -1512,11 +1489,12 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
             call_dissector_with_data(p_conv_data->bta2dp_info->codec_dissector, nexttvb, pinfo, tree, p_conv_data->bta2dp_info);
         else
             call_data_dissector(nexttvb, pinfo, tree);
-    } else if (p_conv_data && p_conv_data->btvdp_info) {
+
+        return;
+
+    } if (p_conv_data && p_conv_data->btvdp_info) {
         tvbuff_t  *nexttvb;
         gint       suboffset = 0;
-
-        found_match = TRUE;
 
         if (p_conv_data->btvdp_info->content_protection_type == BTAVDTP_CONTENT_PROTECTION_TYPE_SCMS_T) {
             nexttvb = tvb_new_subset_length(newtvb, 0, 1);
@@ -1529,10 +1507,33 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
             call_dissector_with_data(p_conv_data->btvdp_info->codec_dissector, nexttvb, pinfo, tree, p_conv_data->btvdp_info);
         else
             call_data_dissector(nexttvb, pinfo, tree);
+
+        return;
+    }
+    /* We have checked for !p_conv_data->bta2dp_info && !p_conv_data->btvdp_info above*/
+    if (p_conv_data && payload_type >= PT_UNDF_96 && payload_type <= PT_UNDF_127) {
+        /* if the payload type is dynamic, we check if the conv is set and we look for the pt definition */
+        if (p_conv_data->rtp_dyn_payload) {
+            const gchar *payload_type_str = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, payload_type);
+            if (payload_type_str) {
+                int len;
+                len = dissector_try_string(rtp_dyn_pt_dissector_table,
+                    payload_type_str, newtvb, pinfo, tree, NULL);
+                /* If payload type string set from conversation and
+                * no matching dissector found it's probably because no subdissector
+                * exists. Don't call the dissectors based on payload number
+                * as that'd probably be the wrong dissector in this case.
+                * Just add it as data.
+                */
+                if (len == 0)
+                    proto_tree_add_item(rtp_tree, hf_rtp_data, newtvb, 0, -1, ENC_NA);
+                return;
+            }
+        }
     }
 
     /* if we don't found, it is static OR could be set static from the preferences */
-    if (!found_match && !dissector_try_uint(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
+    if (!dissector_try_uint(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
         proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, ENC_NA );
 
 }
