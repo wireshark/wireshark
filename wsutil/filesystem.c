@@ -2121,6 +2121,29 @@ done:
     return FALSE;
 }
 
+gchar *
+data_file_url(const gchar *filename)
+{
+    gchar *file_path;
+    gchar *uri;
+
+    /* Absolute path? */
+    if(g_path_is_absolute(filename)) {
+        file_path = g_strdup(filename);
+    } else if(running_in_build_directory()) {
+        file_path = g_strdup_printf("%s/doc/%s", get_datafile_dir(), filename);
+    } else {
+        file_path = g_strdup_printf("%s/%s", get_datafile_dir(), filename);
+    }
+
+    /* XXX - check, if the file is really existing, otherwise display a simple_dialog about the problem */
+
+    /* convert filename to uri */
+    uri = g_filename_to_uri(file_path, NULL, NULL);
+    g_free(file_path);
+    return uri;
+}
+
 /*
  * Editor modelines
  *

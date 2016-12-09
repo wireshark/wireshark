@@ -292,6 +292,18 @@ WS_DLL_PUBLIC gboolean files_identical(const char *fname1, const char *fname2);
 WS_DLL_PUBLIC gboolean copy_file_binary_mode(const char *from_filename,
     const char *to_filename);
 
+
+/*
+ * Given a filename return a filesystem URL. Relative paths are prefixed with
+ * the datafile directory path.
+ *
+ * @param filename A file name or path. Relative paths will be prefixed with
+ * the data file directory path.
+ * @return A filesystem URL for the file or NULL on failure. A non-NULL return
+ * value must be freed with g_free().
+ */
+WS_DLL_PUBLIC gchar* data_file_url(const gchar *filename);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

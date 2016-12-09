@@ -114,6 +114,8 @@
 
 #include "ui/gtk/webbrowser.h"
 
+#include <wsutil/filesystem.h>
+
 #if defined(G_OS_WIN32)
 /* Win32 - use Windows shell services to start a browser */
 #include <windows.h>
