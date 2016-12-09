@@ -2,6 +2,7 @@
  * Routines for HomePlug AV dissection
  *
  * Copyright 2011, Florian Fainelli <florian[AT]openwrt.org>
+ * Copyright 2016, Nora Sandler <nsandler[AT]securityinnovation.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald[AT]wireshark.org>
@@ -43,6 +44,28 @@ static int hf_homeplug_av_vendor                 = -1;
 static int hf_homeplug_av_vendor_oui             = -1;
 static int hf_homeplug_av_reserved               = -1;
 
+/* Frame Control fields (for sniffer data) */
+static int hf_homeplug_av_fc                     = -1;
+static int hf_homeplug_av_fc_del_type            = -1;
+static int hf_homeplug_av_fc_access              = -1;
+static int hf_homeplug_av_fc_snid                = -1;
+static int hf_homeplug_av_fc_fccs_av             = -1;
+
+/* Variant fields used by multiple MPDU types */
+static int hf_homeplug_av_dtei                   = -1;
+static int hf_homeplug_av_stei                   = -1;
+static int hf_homeplug_av_lid                    = -1;
+static int hf_homeplug_av_cfs                    = -1;
+static int hf_homeplug_av_bdf                    = -1;
+static int hf_homeplug_av_hp10df                 = -1;
+static int hf_homeplug_av_hp11df                 = -1;
+static int hf_homeplug_av_svn                    = -1;
+static int hf_homeplug_av_rrtf                   = -1;
+static int hf_homeplug_av_fl_av                  = -1;
+static int hf_homeplug_av_ppb                    = -1;
+static int hf_homeplug_av_mfs_rsp_data           = -1;
+static int hf_homeplug_av_mfs_rsp_mgmt           = -1;
+
 /* Beacon */
 static int hf_homeplug_av_bcn                    = -1;
 static int hf_homeplug_av_bcn_bts                = -1;
@@ -51,32 +74,86 @@ static int hf_homeplug_av_bcn_bto_1              = -1;
 static int hf_homeplug_av_bcn_bto_2              = -1;
 static int hf_homeplug_av_bcn_bto_3              = -1;
 
-/* Frame Control */
-static int hf_homeplug_av_fc                     = -1;
-static int hf_homeplug_av_fc_stei                = -1;
-static int hf_homeplug_av_fc_dtei                = -1;
-static int hf_homeplug_av_fc_lid                 = -1;
-static int hf_homeplug_av_fc_cfs                 = -1;
-static int hf_homeplug_av_fc_bdf                 = -1;
-static int hf_homeplug_av_fc_hp10df              = -1;
-static int hf_homeplug_av_fc_hp11df              = -1;
-static int hf_homeplug_av_fc_ppb                 = -1;
-static int hf_homeplug_av_fc_ble                 = -1;
-static int hf_homeplug_av_fc_pbsz                = -1;
-static int hf_homeplug_av_fc_num_sym             = -1;
-static int hf_homeplug_av_fc_tmi_av              = -1;
-static int hf_homeplug_av_fc_fl_av               = -1;
-static int hf_homeplug_av_fc_mpdu_cnt            = -1;
-static int hf_homeplug_av_fc_burst_cnt           = -1;
-static int hf_homeplug_av_fc_clst                = -1;
-static int hf_homeplug_av_fc_rg_len              = -1;
-static int hf_homeplug_av_fc_mfs_cmd_mgmt        = -1;
-static int hf_homeplug_av_fc_mfs_cmd_data        = -1;
-static int hf_homeplug_av_fc_rsr                 = -1;
-static int hf_homeplug_av_fc_mcf                 = -1;
-static int hf_homeplug_av_fc_dccpcf              = -1;
-static int hf_homeplug_av_fc_mnbf                = -1;
+/* Beacon MPDU Payload */
+static int hf_homeplug_av_bcn_payload            = -1;
+static int hf_homeplug_av_bcn_type               = -1;
+static int hf_homeplug_av_bcn_nid                = -1;
+static int hf_homeplug_av_bcn_stei               = -1;
+static int hf_homeplug_av_bcn_ncnr               = -1;
+static int hf_homeplug_av_bcn_num_slots          = -1;
+static int hf_homeplug_av_bcn_slot_use           = -1;
+static int hf_homeplug_av_bcn_slot_id            = -1;
+static int hf_homeplug_av_bcn_aclss              = -1;
+static int hf_homeplug_av_bcn_hm                 = -1;
+static int hf_homeplug_av_bcn_nm                 = -1;
+static int hf_homeplug_av_bcn_npsm               = -1;
+static int hf_homeplug_av_bcn_cco_cap            = -1;
+static int hf_homeplug_av_bcn_rtsbf              = -1;
+static int hf_homeplug_av_bcn_hoip               = -1;
+static int hf_homeplug_av_bcn_rsf                = -1;
+static int hf_homeplug_av_bcn_plevel             = -1;
+static int hf_homeplug_av_bcn_bentries           = -1;
+static int hf_homeplug_av_bcn_bpcs               = -1;
 
+/* Start of Frame */
+static int hf_homeplug_av_sof                    = -1;
+static int hf_homeplug_av_sof_peks               = -1;
+static int hf_homeplug_av_sof_ble                = -1;
+static int hf_homeplug_av_sof_pbsz               = -1;
+static int hf_homeplug_av_sof_num_sym            = -1;
+static int hf_homeplug_av_sof_tmi_av             = -1;
+static int hf_homeplug_av_sof_mpdu_cnt           = -1;
+static int hf_homeplug_av_sof_burst_cnt          = -1;
+static int hf_homeplug_av_sof_bbf                = -1;
+static int hf_homeplug_av_sof_mrtfl              = -1;
+static int hf_homeplug_av_sof_clst               = -1;
+static int hf_homeplug_av_sof_mfs_cmd_mgmt       = -1;
+static int hf_homeplug_av_sof_mfs_cmd_data       = -1;
+static int hf_homeplug_av_sof_rsr                = -1;
+static int hf_homeplug_av_sof_mcf                = -1;
+static int hf_homeplug_av_sof_dccpcf             = -1;
+static int hf_homeplug_av_sof_mnbf               = -1;
+static int hf_homeplug_av_sof_mfs_rsp_mgmt       = -1;
+static int hf_homeplug_av_sof_mfs_rsp_data       = -1;
+static int hf_homeplug_av_sof_bm_sack            = -1;
+
+/* Selective Acknowledgement */
+static int hf_homeplug_av_sack                   = -1;
+
+/* Request to Send/Clear to Send */
+static int hf_homeplug_av_rtscts                 = -1;
+static int hf_homeplug_av_rtscts_rtsf            = -1;
+static int hf_homeplug_av_rtscts_igf             = -1;
+static int hf_homeplug_av_rtscts_mnbf            = -1;
+static int hf_homeplug_av_rtscts_mcf             = -1;
+static int hf_homeplug_av_rtscts_dur             = -1;
+
+/* Sound */
+static int hf_homeplug_av_sound                  = -1;
+static int hf_homeplug_av_sound_pbsz             = -1;
+static int hf_homeplug_av_sound_bdf              = -1;
+static int hf_homeplug_av_sound_saf              = -1;
+static int hf_homeplug_av_sound_scf              = -1;
+static int hf_homeplug_av_sound_req_tm           = -1;
+static int hf_homeplug_av_sound_mpdu_cnt         = -1;
+static int hf_homeplug_av_sound_src              = -1;
+static int hf_homeplug_av_sound_add_req_tm       = -1;
+static int hf_homeplug_av_sound_max_pb_sym       = -1;
+static int hf_homeplug_av_sound_ecsf             = -1;
+static int hf_homeplug_av_sound_ecuf             = -1;
+static int hf_homeplug_av_sound_ems              = -1;
+static int hf_homeplug_av_sound_esgisf           = -1;
+static int hf_homeplug_av_sound_elgisf           = -1;
+static int hf_homeplug_av_sound_efrs             = -1;
+
+/* Reverse Start of Frame */
+static int hf_homeplug_av_rsof                   = -1;
+static int hf_homeplug_av_rsof_fl                = -1;
+static int hf_homeplug_av_rsof_tmi               = -1;
+static int hf_homeplug_av_rsof_pbsz              = -1;
+static int hf_homeplug_av_rsof_num_sym           = -1;
+static int hf_homeplug_av_rsof_mfs_cmd_mgmt      = -1;
+static int hf_homeplug_av_rsof_mfs_cmd_data      = -1;
 
 /* Public MMEs */
 static int hf_homeplug_av_public                 = -1;
@@ -112,8 +189,6 @@ static int hf_homeplug_av_cm_nw_infos_cnf        = -1;
 static int hf_homeplug_av_nw_stats_cnf           = -1;
 
 /* Shared network informations fields */
-static int hf_homeplug_av_nw_info_del_type       = -1;
-static int hf_homeplug_av_nw_info_fccs_av        = -1;
 static int hf_homeplug_av_nw_info_peks           = -1;
 static int hf_homeplug_av_nw_info_pid            = -1;
 static int hf_homeplug_av_nw_info_prn            = -1;
@@ -462,7 +537,13 @@ static gint ett_homeplug_av_vendor               = -1;
 static gint ett_homeplug_av_public               = -1;
 
 static gint ett_homeplug_av_fc                   = -1;
+static gint ett_homeplug_av_sof                  = -1;
+static gint ett_homeplug_av_sack                 = -1;
+static gint ett_homeplug_av_rtscts               = -1;
+static gint ett_homeplug_av_sound                = -1;
+static gint ett_homeplug_av_rsof                 = -1;
 static gint ett_homeplug_av_bcn                  = -1;
+static gint ett_homeplug_av_bcn_payload          = -1;
 static gint ett_homeplug_av_cc_disc_list_cnf     = -1;
 static gint ett_homeplug_av_cc_sta_info          = -1;
 static gint ett_homeplug_av_cc_net_info          = -1;
@@ -771,7 +852,8 @@ static const value_string homeplug_av_nw_info_role_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_NW_INFO_NID_MASK 0x01
+#define HOMEPLUG_AV_NW_INFO_NID_MASK    0x01
+#define HOMEPLUG_AV_NW_INFO_ACCESS_MASK 0x08
 
 static const value_string homeplug_nw_info_access_vals[] = {
    { 0x00, "In-home" },
@@ -779,7 +861,8 @@ static const value_string homeplug_nw_info_access_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_PEKS_MASK 0x0F
+#define HOMEPLUG_AV_PEKS_MASK     0x0F
+#define HOMEPLUG_AV_SOF_PEKS_MASK 0xF0
 
 static const value_string homeplug_av_peks_vals[] = {
    { 0x00, "Destination STA's DAK" },
@@ -802,7 +885,19 @@ static const value_string homeplug_av_peks_vals[] = {
 };
 static value_string_ext homeplug_av_peks_vals_ext = VALUE_STRING_EXT_INIT(homeplug_av_peks_vals);
 
-#define HOMEPLUG_AV_AVLN_STATUS_MASK 0x0F
+#define HOMEPLUG_AV_CCO_CAP_MASK        0x0C
+
+static const value_string homeplug_av_bcn_cco_cap_vals[] = {
+   { 0x0, "CSMA-only (no QoS/TDMA)" },
+   { 0x1, "Uncoordinated mode QoS/TDMA" },
+   { 0x2, "Coordianted mode QoS/TDMA" },
+   { 0x3, "Reserved" },
+   { 0, NULL }
+};
+
+#define HOMEPLUG_AV_AVLN_STATUS_MASK    0x0F
+#define HOMEPLUG_AV_RSF_MASK            0x10
+#define HOMEPLUG_AV_PLEVEL_MASK         0xE0
 
 static const value_string homeplug_av_avln_status_vals[] = {
    { 0x00, "Unassociated and Level-0 CCo capable" },
@@ -1070,6 +1165,187 @@ static const value_string homeplug_av_sniffer_type_vals[] = {
    { 0, NULL }
 };
 
+#define HOMEPLUG_AV_DEL_TYPE_BCN    0x00
+#define HOMEPLUG_AV_DEL_TYPE_SOF    0x01
+#define HOMEPLUG_AV_DEL_TYPE_SACK   0x02
+#define HOMEPLUG_AV_DEL_TYPE_RTS    0x03
+#define HOMEPLUG_AV_DEL_TYPE_SOUND  0x04
+#define HOMEPLUG_AV_DEL_TYPE_RSOF   0x05
+
+#define HOMEPLUG_AV_DEL_TYPE_MASK   0x07
+
+static const value_string homeplug_av_fc_del_type_vals[] = {
+   { HOMEPLUG_AV_DEL_TYPE_BCN,   "Beacon" },
+   { HOMEPLUG_AV_DEL_TYPE_SOF,   "Start-of-Frame" },
+   { HOMEPLUG_AV_DEL_TYPE_SACK,  "Selective Acknowledgement" },
+   { HOMEPLUG_AV_DEL_TYPE_RTS,   "Request-to-Send/Clear-to-Send" },
+   { HOMEPLUG_AV_DEL_TYPE_SOUND, "Sound" },
+   { HOMEPLUG_AV_DEL_TYPE_RSOF,  "Reverse Start-of-Frame" },
+   { 0x06, "Unknown" },
+   { 0x07, "Unknown" },
+   { 0, NULL }
+};
+
+/* MPDU Values */
+
+#define HOMEPLUG_AV_SNID_MASK      0xf0
+#define HOMEPLUG_AV_CFS_MASK       0x01
+#define HOMEPLUG_AV_BDF_MASK       0x02
+#define HOMEPLUG_AV_HP10DF_MASK    0x04
+#define HOMEPLUG_AV_HP11DF_MASK    0x08
+#define HOMEPLUG_AV_SVN_MASK       0x04
+#define HOMEPLUG_AV_RRTF_MASK      0x08
+#define HOMEPLUG_AV_FL_AV_MASK     0x0FFF
+#define HOMEPLUG_AV_RSP_DATA_MASK  0x03
+#define HOMEPLUG_AV_RSP_MGMT_MASK  0x0C
+
+static const int *rsof_sack_fields[] = {
+   &hf_homeplug_av_cfs,
+   &hf_homeplug_av_bdf,
+   &hf_homeplug_av_svn,
+   &hf_homeplug_av_rrtf,
+   &hf_homeplug_av_mfs_rsp_data,
+   &hf_homeplug_av_mfs_rsp_mgmt,
+   NULL
+};
+
+#define HOMEPLUG_AV_PBSZ_MASK           0x01
+
+static const true_false_string homeplug_av_phy_block_size_vals = {
+   "136 octets",
+   "520 octets"
+};
+
+#define HOMEPLUG_AV_NUM_SYM_MASK        0x06
+#define HOMEPLUG_AV_TMI_AV_MASK         0xF8
+#define HOMEPLUG_AV_SOF_MPDU_CNT_MASK   0x3000
+#define HOMEPLUG_AV_BURST_CNT_MASK      0xC000
+#define HOMEPLUG_AV_BBF_MASK            0x01
+
+static const true_false_string homeplug_av_bbf_vals = {
+   "May continue",
+   "Must not continue"
+};
+
+#define HOMEPLUG_AV_MRTLF_MASK          0x1E
+#define HOMEPLUG_AV_DCCPCF_MASK         0x20
+#define HOMEPLUG_AV_MCF_MASK            0x40
+#define HOMEPLUG_AV_MNBF_MASK           0x80
+#define HOMEPLUG_AV_RSR_MASK            0x01
+#define HOMEPLUG_AV_CLST_MASK           0x02
+
+static const true_false_string homeplug_av_clst_vals = {
+   "Reserved",
+   "Ethernet II"
+};
+
+#define HOMEPLUG_AV_MFS_MGMT_MASK       0x1C
+#define HOMEPLUG_AV_MFS_DATA_MASK       0xE0
+#define HOMEPLUG_AV_SOF_RSP_MGMT_MASK   0x03
+#define HOMEPLUG_AV_SOF_RSP_DATA_MASK   0x0C
+#define HOMEPLUG_AV_BM_SACK_MASK        0xF0
+
+#define HOMEPLUG_AV_RTSF_MASK           0x10
+
+static const true_false_string homeplug_av_rtsf_vals = {
+   "RTS MPDU",
+   "CTS MPDU"
+};
+
+#define HOMEPLUG_AV_IGF_MASK            0x20
+#define HOMEPLUG_AV_RTSCTS_MNBF_MASK    0x40
+#define HOMEPLUG_AV_RTSCTS_MCF_MASK     0x80
+#define HOMEPLUG_AV_DUR_MASK            0x3FFF
+
+#define HOMEPLUG_AV_SOUND_PBSZ_MASK     0x02
+#define HOMEPLUG_AV_SOUND_BDF_MASK      0x04
+#define HOMEPLUG_AV_SAF_MASK            0x08
+#define HOMEPLUG_AV_SCF_MASK            0x10
+#define HOMEPLUG_AV_REQ_TM_MASK         0xE0
+#define HOMEPLUG_AV_SOUND_MPDU_CNT_MASK 0x3000
+#define HOMEPLUG_AV_ADD_REQ_TM_MASK     0x07
+#define HOMEPLUG_AV_MAX_PB_SYM_MASK     0x38
+#define HOMEPLUG_AV_ECSF_MASK           0x40
+#define HOMEPLUG_AV_ECUF_MASK           0x80
+#define HOMEPLUG_AV_EMS_MASK            0x03
+
+static const value_string homeplug_av_ems_vals[] = {
+   { 0x00, "Extended QAM Modulations not supported" },
+   { 0x01, "4096 QAM Modulation support" },
+   { 0x02, "Reserved" },
+   { 0x03, "Reserved" },
+   { 0, NULL }
+};
+
+#define HOMEPLUG_AV_ESGISF_MASK         0x04
+#define HOMEPLUG_AV_ELGISF_MASK         0x08
+#define HOMEPLUG_AV_EFRS_MASK           0x30
+
+static const value_string homeplug_av_efrs_vals[] = {
+   { 0x00, "Extended FEC Rates Not Supported" },
+   { 0x01, "16/18 FED Rate Supported" },
+   { 0x02, "Reserved" },
+   { 0x03, "Reserved" },
+   { 0, NULL }
+};
+
+#define HOMEPLUG_AV_RSOF_FL_MASK        0x03FF
+#define HOMEPLUG_AV_RSOF_TMI_MASK       0x7C00
+#define HOMEPLUG_AV_RSOF_PBSZ_MASK      0x8000
+#define HOMEPLUG_AV_RSOF_NUM_SYM_MASK   0x03
+
+/* MPDU Beacon payloads */
+
+#define HOMEPLUG_AV_BCN_NID_MASK        0xFFFFFFFFFFFF3F
+#define HOMEPLUG_AV_HM_MASK             0xC0
+
+static const val64_string homeplug_av_bcn_hm_vals[] = {
+   { 0x00, "AV-only mode" },
+   { 0x01, "Shared CSMA Hybrid Mode" },
+   { 0x02, "Fully hybrid mode" },
+   { 0x03, "Fully hybrid mode with unrestricted frame lengths" },
+   { 0, NULL }
+};
+
+#define HOMEPLUG_AV_BCN_TYPE_MASK       0x07
+
+static const value_string homeplug_av_bcn_type_vals[] = {
+   { 0x0, "Central" },
+   { 0x1, "Discover" },
+   { 0x2, "Proxy" },
+   { 0, NULL }
+};
+
+#define HOMEPLUG_AV_NCNR_MASK           0x08
+#define HOMEPLUG_AV_NPSM_MASK           0x10
+#define HOMEPLUG_AV_NUM_SLOTS_MASK      0xE0
+#define HOMEPLUG_AV_SLOT_ID_MASK        0x03
+
+/* There must be a better way to do this. */
+static const value_string homeplug_av_bcn_slot_vals[] = {
+   { 0x0, "1" },
+   { 0x1, "2" },
+   { 0x2, "3" },
+   { 0x3, "4" },
+   { 0x4, "5" },
+   { 0x5, "6" },
+   { 0x6, "7" },
+   { 0x7, "8" },
+   { 0, NULL }
+};
+
+#define HOMEPLUG_AV_ACLSS_MASK          0x38
+#define HOMEPLUG_AV_HOIP_MASK           0x40
+#define HOMEPLUG_AV_RTSBF_MASK          0x80
+#define HOMEPLUG_AV_NM_MASK             0x03
+
+static const value_string homeplug_av_bcn_nm_vals[] = {
+   { 0x1, "Uncoordinated Mode" },
+   { 0x2, "Coordinated Mode" },
+   { 0x3, "CSMA-only Mode" },
+   { 0, NULL }
+};
+
 #define HOMEPLUG_AV_LBK_STATUS_MASK 0x01
 
 static const value_string homeplug_av_lbk_status_vals[] = {
@@ -1298,6 +1574,78 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor, guint8 *homeplug_av_mmver, guint1
 }
 
 /* Beacon body */
+
+static void
+dissect_homeplug_av_beacon_payload(ptvcursor_t *cursor)
+{
+
+   proto_item *it;
+   proto_tree *tree;
+   tvbuff_t   *tvb;
+
+   if (!ptvcursor_tree(cursor))
+      return;
+
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_bcn_payload, -1, ENC_NA);
+
+   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_bcn_payload);
+   {
+      tree = ptvcursor_tree(cursor);
+      tvb = ptvcursor_tvbuff(cursor);
+
+      static const int *bcn1_fields[] = {
+         &hf_homeplug_av_bcn_nid,
+         &hf_homeplug_av_bcn_hm,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 7, bcn1_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 7);
+
+      ptvcursor_add(cursor, hf_homeplug_av_bcn_stei, 1, ENC_BIG_ENDIAN);
+
+      static const int *bcn2_fields[] = {
+         &hf_homeplug_av_bcn_type,
+         &hf_homeplug_av_bcn_ncnr,
+         &hf_homeplug_av_bcn_npsm,
+         &hf_homeplug_av_bcn_num_slots,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, bcn2_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      ptvcursor_add(cursor, hf_homeplug_av_bcn_slot_use, 1, ENC_BIG_ENDIAN);
+
+      static const int *bcn3_fields[] = {
+         &hf_homeplug_av_bcn_slot_id,
+         &hf_homeplug_av_bcn_aclss,
+         &hf_homeplug_av_bcn_hoip,
+         &hf_homeplug_av_bcn_rtsbf,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, bcn3_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      static const int *bcn4_fields[] = {
+         &hf_homeplug_av_bcn_nm,
+         &hf_homeplug_av_bcn_cco_cap,
+         &hf_homeplug_av_bcn_rsf,
+         &hf_homeplug_av_bcn_plevel,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, bcn4_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      /* TODO: decode individual beacon entries */
+      ptvcursor_add(cursor, hf_homeplug_av_bcn_bentries, 120, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_bcn_bpcs, 4, ENC_LITTLE_ENDIAN);
+   }
+   ptvcursor_pop_subtree(cursor);
+}
+
 static void
 dissect_homeplug_av_beacon(ptvcursor_t *cursor)
 {
@@ -1310,61 +1658,305 @@ dissect_homeplug_av_beacon(ptvcursor_t *cursor)
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_bcn);
    {
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_del_type, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_access, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, ENC_BIG_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_bcn_bts, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_bcn_bto_0, 2, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_bcn_bto_1, 2, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_bcn_bto_2, 2, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_bcn_bto_3, 2, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_fccs_av, 3, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_fc_fccs_av, 3, ENC_NA);
+      dissect_homeplug_av_beacon_payload(cursor);
    }
    ptvcursor_pop_subtree(cursor);
 }
 
-/* Frame control */
+/* Start of Frame */
 static void
-dissect_homeplug_av_frame_control(ptvcursor_t *cursor)
+dissect_homeplug_av_start_of_frame(ptvcursor_t *cursor)
 {
    proto_item *it;
+   proto_tree *tree;
+   tvbuff_t   *tvb;
 
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc, -1, ENC_NA);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_sof, -1, ENC_NA);
 
-   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_fc);
+   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_sof);
    {
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_del_type, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_access, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_fc_stei, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_fc_dtei, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_fc_lid, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_cfs, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_bdf, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_hp10df, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_hp11df, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_fc_ppb, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_fc_ble, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_pbsz, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_num_sym, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_fc_tmi_av, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mpdu_cnt, 2, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_burst_cnt, 2, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_fc_fl_av, 2, ENC_LITTLE_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_clst, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_fc_rg_len, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mfs_cmd_mgmt, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mfs_cmd_data, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_fc_rsr, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mcf, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_dccpcf, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mnbf, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_fccs_av, 3, ENC_NA);
+      tree = ptvcursor_tree(cursor);
+      tvb = ptvcursor_tvbuff(cursor);
+
+      ptvcursor_add(cursor, hf_homeplug_av_stei, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_dtei, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lid, 1, ENC_BIG_ENDIAN);
+
+      static const int *sof1_fields[] = {
+         &hf_homeplug_av_cfs,
+         &hf_homeplug_av_bdf,
+         &hf_homeplug_av_hp10df,
+         &hf_homeplug_av_hp11df,
+         &hf_homeplug_av_sof_peks,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sof1_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      ptvcursor_add(cursor, hf_homeplug_av_ppb, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_sof_ble, 1, ENC_BIG_ENDIAN);
+
+      static const int *sof2_fields[] = {
+         &hf_homeplug_av_sof_pbsz,
+         &hf_homeplug_av_sof_num_sym,
+         &hf_homeplug_av_sof_tmi_av,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sof2_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      static const int *sof3_fields[] = {
+         &hf_homeplug_av_fl_av,
+         &hf_homeplug_av_sof_mpdu_cnt,
+         &hf_homeplug_av_sof_burst_cnt,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 2, sof3_fields, ENC_LITTLE_ENDIAN);
+      ptvcursor_advance(cursor, 2);
+
+      static const int *sof4_fields[] = {
+         &hf_homeplug_av_sof_bbf,
+         &hf_homeplug_av_sof_mrtfl,
+         &hf_homeplug_av_sof_dccpcf,
+         &hf_homeplug_av_sof_mcf,
+         &hf_homeplug_av_sof_mnbf,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sof4_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      static const int *sof5_fields[] = {
+         &hf_homeplug_av_sof_rsr,
+         &hf_homeplug_av_sof_clst,
+         &hf_homeplug_av_sof_mfs_cmd_mgmt,
+         &hf_homeplug_av_sof_mfs_cmd_data,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sof5_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      static const int *sof6_fields[] = {
+         &hf_homeplug_av_sof_mfs_rsp_mgmt,
+         &hf_homeplug_av_sof_mfs_rsp_data,
+         &hf_homeplug_av_sof_bm_sack,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sof6_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      ptvcursor_add(cursor, hf_homeplug_av_fc_fccs_av, 3, ENC_NA);
+   }
+   ptvcursor_pop_subtree(cursor);
+}
+
+/* Selective acknowledgment */
+static void
+dissect_homeplug_av_sack(ptvcursor_t *cursor)
+{
+   proto_item *it;
+   proto_tree *tree;
+   tvbuff_t   *tvb;
+
+   if (!ptvcursor_tree(cursor))
+      return;
+
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_sack, -1, ENC_NA);
+
+   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_sack);
+   {
+      tree = ptvcursor_tree(cursor);
+      tvb = ptvcursor_tvbuff(cursor);
+
+      ptvcursor_add(cursor, hf_homeplug_av_dtei, 1, ENC_BIG_ENDIAN);
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, rsof_sack_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      /* TODO: add variable fields here */
+      ptvcursor_advance(cursor, 10);
+      ptvcursor_add(cursor, hf_homeplug_av_fc_fccs_av, 3, ENC_NA);
+   }
+   ptvcursor_pop_subtree(cursor);
+}
+
+/* Request to send/clear to send */
+static void
+dissect_homeplug_av_rtscts(ptvcursor_t *cursor)
+{
+   proto_item *it;
+   proto_tree *tree;
+   tvbuff_t   *tvb;
+
+   if (!ptvcursor_tree(cursor))
+      return;
+
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rtscts, -1, ENC_NA);
+
+   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_rtscts);
+   {
+      tree = ptvcursor_tree(cursor);
+      tvb = ptvcursor_tvbuff(cursor);
+
+      ptvcursor_add(cursor, hf_homeplug_av_stei, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_dtei, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lid, 1, ENC_BIG_ENDIAN);
+
+      static const int *rtscts_fields[] = {
+         &hf_homeplug_av_cfs,
+         &hf_homeplug_av_bdf,
+         &hf_homeplug_av_hp10df,
+         &hf_homeplug_av_hp11df,
+         &hf_homeplug_av_rtscts_rtsf,
+         &hf_homeplug_av_rtscts_igf,
+         &hf_homeplug_av_rtscts_mnbf,
+         &hf_homeplug_av_rtscts_mcf,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, rtscts_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      ptvcursor_add(cursor, hf_homeplug_av_rtscts_dur, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 6, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_fc_fccs_av, 3, ENC_NA);
+   }
+   ptvcursor_pop_subtree(cursor);
+}
+
+/* Sound */
+static void
+dissect_homeplug_av_sound(ptvcursor_t *cursor)
+{
+   proto_item *it;
+   proto_tree *tree;
+   tvbuff_t   *tvb;
+
+   if (!ptvcursor_tree(cursor))
+      return;
+
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_sound, -1, ENC_NA);
+
+   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_sound);
+   {
+      tree = ptvcursor_tree(cursor);
+      tvb = ptvcursor_tvbuff(cursor);
+
+      ptvcursor_add(cursor, hf_homeplug_av_stei, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_dtei, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lid, 1, ENC_BIG_ENDIAN);
+
+      static const int *sound1_fields[] = {
+         &hf_homeplug_av_cfs,
+         &hf_homeplug_av_sound_pbsz,
+         &hf_homeplug_av_sound_bdf,
+         &hf_homeplug_av_sound_saf,
+         &hf_homeplug_av_sound_scf,
+         &hf_homeplug_av_sound_req_tm,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sound1_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      static const int *sound2_fields[] = {
+         &hf_homeplug_av_fl_av,
+         &hf_homeplug_av_sound_mpdu_cnt,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 2, sound2_fields, ENC_LITTLE_ENDIAN);
+      ptvcursor_advance(cursor, 2);
+
+      ptvcursor_add(cursor, hf_homeplug_av_ppb, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_sound_src, 1, ENC_BIG_ENDIAN);
+
+      static const int *sound3_fields[] = {
+         &hf_homeplug_av_sound_add_req_tm,
+         &hf_homeplug_av_sound_max_pb_sym,
+         &hf_homeplug_av_sound_ecsf,
+         &hf_homeplug_av_sound_ecuf,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sound3_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      static const int *sound4_fields[] = {
+         &hf_homeplug_av_sound_ems,
+         &hf_homeplug_av_sound_esgisf,
+         &hf_homeplug_av_sound_elgisf,
+         &hf_homeplug_av_sound_efrs,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, sound4_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 3); /* one byte for bitmask plus two reserved bytes we ignore */
+
+      ptvcursor_add(cursor, hf_homeplug_av_fc_fccs_av, 3, ENC_NA);
+   }
+   ptvcursor_pop_subtree(cursor);
+}
+
+/* Reverse Start of Frame */
+static void
+dissect_homeplug_av_rsof(ptvcursor_t *cursor)
+{
+   proto_item *it;
+   proto_tree *tree;
+   tvbuff_t   *tvb;
+
+   if (!ptvcursor_tree(cursor))
+      return;
+
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rsof, -1, ENC_NA);
+
+   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_rsof);
+   {
+      tree = ptvcursor_tree(cursor);
+      tvb = ptvcursor_tvbuff(cursor);
+
+      ptvcursor_add(cursor, hf_homeplug_av_dtei, 1, ENC_BIG_ENDIAN);
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, rsof_sack_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 8); /* 1 byte for bitmask field, plus 7 bytes of variable data */
+     /* TODO: fill in variable fields */
+
+      static const int *rsof2_fields[] = {
+         &hf_homeplug_av_rsof_fl,
+         &hf_homeplug_av_rsof_tmi,
+         &hf_homeplug_av_rsof_pbsz,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 2, rsof2_fields, ENC_LITTLE_ENDIAN);
+      ptvcursor_advance(cursor, 2);
+
+      static const int *rsof3_fields[] = {
+         &hf_homeplug_av_rsof_num_sym,
+         &hf_homeplug_av_rsof_mfs_cmd_mgmt,
+         &hf_homeplug_av_rsof_mfs_cmd_data,
+         NULL
+      };
+
+      proto_tree_add_bitmask_list(tree, tvb, ptvcursor_current_offset(cursor), 1, rsof3_fields, ENC_BIG_ENDIAN);
+      ptvcursor_advance(cursor, 1);
+
+      ptvcursor_add(cursor, hf_homeplug_av_fc_fccs_av, 3, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2310,6 +2902,10 @@ dissect_homeplug_av_sniffer_ind(ptvcursor_t *cursor)
 {
    proto_item *it;
    proto_item *it_data;
+   tvbuff_t   *tvb;
+   guint       offset;
+
+   guint8 del_type;
 
    if (!ptvcursor_tree(cursor))
       return;
@@ -2327,8 +2923,51 @@ dissect_homeplug_av_sniffer_ind(ptvcursor_t *cursor)
          ptvcursor_add(cursor, hf_homeplug_av_sniffer_data_dir, 1, ENC_BIG_ENDIAN);
          ptvcursor_add(cursor, hf_homeplug_av_sniffer_data_systime, 8, ENC_LITTLE_ENDIAN);
          ptvcursor_add(cursor, hf_homeplug_av_sniffer_data_bc_time, 4, ENC_LITTLE_ENDIAN);
-         dissect_homeplug_av_frame_control(cursor);
-         dissect_homeplug_av_beacon(cursor);
+
+         offset = ptvcursor_current_offset(cursor);
+         tvb = ptvcursor_tvbuff(cursor);
+
+         del_type = tvb_get_guint8(tvb, offset);
+
+         /* bitmask - we only want 3 bits of del_type */
+         guint8 bitmask = 0x07;
+
+         del_type &= bitmask;
+
+         static const int *frame_control_fields[] = {
+            &hf_homeplug_av_fc_del_type,
+            &hf_homeplug_av_fc_access,
+            &hf_homeplug_av_fc_snid,
+            NULL
+         };
+
+         proto_tree_add_bitmask(ptvcursor_tree(cursor), tvb, offset, hf_homeplug_av_fc,
+                                ett_homeplug_av_fc, frame_control_fields, ENC_BIG_ENDIAN);
+         ptvcursor_advance(cursor, 1);
+
+         switch (del_type)
+         {
+         case HOMEPLUG_AV_DEL_TYPE_BCN:
+            dissect_homeplug_av_beacon(cursor);
+            break;
+         case HOMEPLUG_AV_DEL_TYPE_SOF:
+            dissect_homeplug_av_start_of_frame(cursor);
+            break;
+         case HOMEPLUG_AV_DEL_TYPE_SACK:
+            dissect_homeplug_av_sack(cursor);
+            break;
+         case HOMEPLUG_AV_DEL_TYPE_RTS:
+            dissect_homeplug_av_rtscts(cursor);
+            break;
+         case HOMEPLUG_AV_DEL_TYPE_SOUND:
+            dissect_homeplug_av_sound(cursor);
+            break;
+         case HOMEPLUG_AV_DEL_TYPE_RSOF:
+            dissect_homeplug_av_rsof(cursor);
+            break;
+         default:
+            break;
+        }
       }
       ptvcursor_pop_subtree(cursor);
    }
@@ -3271,106 +3910,288 @@ proto_register_homeplug_av(void)
         { "Fragment Sequence number", "homeplug_av.public.frag_seqnum",
           FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
-      /* Frame Control */
+      /* Frame control fields */
       { &hf_homeplug_av_fc,
-        { "Frame control", "homeplug_av.fc",
+        { "Frame Control", "homeplug_av.fc",
+         FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_fc_del_type,
+        { "Delimiter type", "homeplug_av.fc.del_type",
+          FT_UINT8, BASE_HEX, VALS(homeplug_av_fc_del_type_vals), HOMEPLUG_AV_DEL_TYPE_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_fc_access,
+        { "Access network", "homeplug_av.fc.access",
+          FT_UINT8, BASE_HEX, VALS(homeplug_nw_info_access_vals), HOMEPLUG_AV_NW_INFO_ACCESS_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_fc_snid,
+        { "Short network ID", "homeplug_av.fc.snid",
+          FT_UINT8, BASE_HEX, NULL, HOMEPLUG_AV_SNID_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_fc_fccs_av,
+        { "Frame control check sequence", "homeplug_av.fc.fccs_av",
+          FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+      /* Common MPDU variant fields */
+      { &hf_homeplug_av_dtei,
+        { "Destination Terminal Equipment Identifier", "homeplug_av.dtei",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_stei,
+        { "Source Terminal Equipment Identifier", "homeplug_av.stei",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_lid,
+        { "Link ID", "homeplug_av.lid",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_cfs,
+        { "Contention free session", "homeplug_av.cfs",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_CFS_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bdf,
+        { "Beacon detect flag", "homeplug_av.bdf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_BDF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_hp10df,
+        { "Homeplug AV version 1.0", "homeplug_av.hp10df",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_HP10DF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_hp11df,
+        { "Homeplug AV version 1.1", "homeplug_av.hp11df",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_HP11DF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_svn,
+        { "Sack version number", "homeplug_av.svn",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_SVN_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_rrtf,
+        { "Request reverse transmission flag", "homeplug_av.rrtf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_RRTF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_fl_av,
+        { "Frame length", "homeplug_av.fl_av",
+          FT_UINT16, BASE_DEC, NULL, HOMEPLUG_AV_FL_AV_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_ppb,
+        { "Pending PHY blocks", "homeplug_av.ppb",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_mfs_rsp_data,
+        { "Data MAC Frame Stream Response", "homeplug_av.sack.mfs_rsp_data",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_RSP_DATA_MASK << 4, NULL, HFILL }
+      },
+      { &hf_homeplug_av_mfs_rsp_mgmt,
+        { "Management MAC Frame Stream Response", "homeplug_av.sack.mfs_rsp_mgmt",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_RSP_MGMT_MASK << 4, NULL, HFILL }
+      },
+      /* Frame Control */
+      { &hf_homeplug_av_sof,
+        { "Start of Frame Variant Fields", "homeplug_av.sof",
           FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_stei,
-        { "Source Terminal Equipment Identifier", "homeplug_av.fc.snei",
+      { &hf_homeplug_av_sof_peks,
+        { "Payload Encryption Key Select", "homeplug_av.sof.peks",
+          FT_UINT8, BASE_HEX | BASE_EXT_STRING, &homeplug_av_peks_vals_ext, HOMEPLUG_AV_SOF_PEKS_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_ble,
+        { "Bit loading estimate", "homeplug_av.sof.ble",
           FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_dtei,
-        { "Destination Terminal Equipment Identifier", "homeplug_av.fc.dtei",
+      { &hf_homeplug_av_sof_pbsz,
+        { "PHY block size", "homeplug_av.sof.pbsz",
+          FT_BOOLEAN, 8, TFS(&homeplug_av_phy_block_size_vals), HOMEPLUG_AV_PBSZ_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_num_sym,
+        { "Number of symbols", "homeplug_av.sof.num_sym",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_NUM_SYM_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_tmi_av,
+        { "Tonemap index", "homeplug_av.sof.tmi_av",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_TMI_AV_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_mpdu_cnt,
+        { "MPDU count", "homeplug_av.sof.mpdu_cnt",
+          FT_UINT16, BASE_DEC, NULL, HOMEPLUG_AV_SOF_MPDU_CNT_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_burst_cnt,
+        { "Burst count", "homeplug_av.sof.burst_cnt",
+          FT_UINT16, BASE_DEC, NULL, HOMEPLUG_AV_BURST_CNT_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_bbf,
+        { "Bidirectional Burst", "homeplug_av.sof.bbf",
+          FT_BOOLEAN, 8, TFS(&homeplug_av_bbf_vals), HOMEPLUG_AV_BBF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_mrtfl,
+        { "Max Reverse Transmission Frame Length", "homeplug_av.sof.mrtfl",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_MRTLF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_dccpcf,
+        { "Different CP PHY clock", "homeplug_av.sof.dccpcf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_DCCPCF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_mcf,
+        { "Multicast", "homeplug_av.sof.mcf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_MCF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_mnbf,
+        { "Multinetwork broadcast", "homeplug_av.sof.mnbf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_MNBF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_rsr,
+        { "Request SACK retransmission", "homeplug_av.sof.rsr",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_RSR_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_clst,
+        { "Convergence layer SAP type", "homeplug_av.sof.clst",
+          FT_BOOLEAN, 8, TFS(&homeplug_av_clst_vals), HOMEPLUG_AV_CLST_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_mfs_cmd_mgmt,
+        { "Management MAC Frame Stream Command", "homeplug_av.sof.mfs_cmd_mgmt",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_MFS_MGMT_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_mfs_cmd_data,
+        { "Data MAC Frame Stream Command", "homeplug_av.sof.mfs_data_mgmt",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_MFS_DATA_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_mfs_rsp_mgmt,
+        { "Management MAC Frame Stream Response", "homeplug_av.sof.mfs_rsp_mgmt",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_SOF_RSP_MGMT_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_mfs_rsp_data,
+        { "Data MAC Frame Stream Response", "homeplug_av.sof.mfs_rsp_data",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_SOF_RSP_DATA_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sof_bm_sack,
+        { "Bit Map SACK", "homeplug_av.sof.bm_sack",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_BM_SACK_MASK, NULL, HFILL }
+      },
+      /* Selective Acknowledgement */
+      { &hf_homeplug_av_sack,
+        { "Selective Acknowledgment Variant Fields", "homeplug_av.sack",
+          FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL}
+      },
+      /* Request to Send/Clear to Send */
+      { &hf_homeplug_av_rtscts,
+        { "Request to Send/Clear to Send Variant Fields", "homeplug_av.rtscts",
+          FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_rtscts_rtsf,
+        { "RTS Flag", "homeplug_av.rtscts.rtsf",
+          FT_BOOLEAN, 8, TFS(&homeplug_av_rtsf_vals), HOMEPLUG_AV_RTSF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_rtscts_igf,
+        { "Immediate Grant Flag", "homeplug_av.rtscts.igf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_IGF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_rtscts_mnbf,
+        { "Multinetwork Broadcast Flag", "homeplug_av.rtscts.mnbf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_RTSCTS_MNBF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_rtscts_mcf,
+        { "Multicast Flag", "homeplug_av.rtscts.mcf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_RTSCTS_MCF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_rtscts_dur,
+        { "Duration", "homeplug_av.rtscts.dur",
+          FT_UINT16, BASE_DEC, NULL, HOMEPLUG_AV_DUR_MASK, NULL, HFILL }
+      },
+      /* Sound */
+      { &hf_homeplug_av_sound,
+        { "Sound Variant Fields", "homeplug_av.sound",
+          FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sound_pbsz,
+        { "PHY Block Size", "homeplug_av.sound.pbsz",
+          FT_BOOLEAN, 8, TFS(&homeplug_av_phy_block_size_vals), HOMEPLUG_AV_SOUND_PBSZ_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sound_bdf,
+        { "Beacon Detect Flag", "homeplug_av.sound.bdf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_SOUND_BDF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sound_saf,
+        { "Sound ACK Flag", "homeplug_av.sound.saf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_SAF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sound_scf,
+        { "Sound Complete Flag", "homeplug_av.sound.scf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_SCF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sound_req_tm,
+        { "Max Tone Maps Requested", "homeplug_av.sound.req_tm",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_REQ_TM_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sound_mpdu_cnt,
+        { "MPDU Count", "homeplug_av.sound.mpdu_cnt",
+         FT_UINT16, BASE_DEC, NULL, HOMEPLUG_AV_SOUND_MPDU_CNT_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_sound_src,
+        { "Sound Reason Code", "homeplug_av.sound.src",
           FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_lid,
-        { "Link ID", "homeplug_av.fc.lid",
-          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      { &hf_homeplug_av_sound_add_req_tm,
+        { "Additional Tone Maps Requested", "homeplug_av.sound.add_req_tm",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_ADD_REQ_TM_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_cfs,
-        { "Contention free session", "homeplug_av.fc.cfs",
-          FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
+      { &hf_homeplug_av_sound_max_pb_sym,
+        { "Max PBs per Symbol", "homeplug_av.sound.max_pb_sym",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_MAX_PB_SYM_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_bdf,
-        { "Beacon detect flag", "homeplug_av.fc.bdf",
-          FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }
+      { &hf_homeplug_av_sound_ecsf,
+        { "Extended Carriers Support Flag", "homeplug_av.sound.ecsf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_ECSF_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_hp10df,
-        { "Homeplug AV version 1.0", "homeplug_av.fc.hp10df",
-          FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
+      { &hf_homeplug_av_sound_ecuf,
+        { "Extended Carriers Used Flag", "homeplug_av.sound.hf_homeplug_av_sound_ecuf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_ECUF_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_hp11df,
-        { "Homeplug AV version 1.1", "homeplug_av.fc.hp11df",
-          FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
+      { &hf_homeplug_av_sound_ems,
+        { "Extended Modulation Support", "homeplug_av.sound.ems",
+          FT_UINT8, BASE_HEX, VALS(homeplug_av_ems_vals), HOMEPLUG_AV_EMS_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_ppb,
-        { "Pending PHY blocks", "homeplug_av.fc.ppb",
-          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      { &hf_homeplug_av_sound_esgisf,
+        { "Extended Smaller Guard Interval Support Flag", "homeplug_av.sound.esgisf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_ESGISF_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_ble,
-        { "Bit loading estimate", "homeplug_av.fc.ble",
-          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      { &hf_homeplug_av_sound_elgisf,
+        { "Extended Larger Guard Interval Support Flag", "homeplug_av.sound.elgisf",
+          FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_ELGISF_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_pbsz,
-        { "PHY block size", "homeplug_av.fc.pbsz",
-          FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
+      { &hf_homeplug_av_sound_efrs,
+        { "Extended FEC Rate Support", "homeplug_av.sound.efrs",
+          FT_UINT8, BASE_HEX, VALS(homeplug_av_efrs_vals), HOMEPLUG_AV_EFRS_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_num_sym,
-        { "Number of symbols", "homeplug_av.fc.num_sym",
-          FT_UINT8, BASE_DEC, NULL, 0x06, NULL, HFILL }
+      /* Reverse Start of Frame */
+      { &hf_homeplug_av_rsof,
+        { "Reverse Start of Frame Variant Fields", "homeplug_av.rsof",
+          FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_tmi_av,
-        { "Tonemap index", "homeplug_av.fc.tmi_av",
-          FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL }
+      { &hf_homeplug_av_rsof_fl,
+        { "Reverse SOF Frame Length", "homeplug_av.rsof.fl",
+          FT_UINT16, BASE_DEC, NULL, HOMEPLUG_AV_RSOF_FL_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_fl_av,
-        { "Frame length", "homeplug_av.fc.fl_av",
-          FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }
+      { &hf_homeplug_av_rsof_tmi,
+        { "Tone Map Index", "homeplug_av.rsof.tmi",
+          FT_UINT16, BASE_DEC, NULL, HOMEPLUG_AV_RSOF_TMI_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_mpdu_cnt,
-        { "MPDU count", "homeplug_av.fc.mpdu_cnt",
-          FT_UINT8, BASE_DEC, NULL, 0x3000, NULL, HFILL }
+      { &hf_homeplug_av_rsof_pbsz,
+        { "PHY Block Size", "homeplug_av.rsof.pbsz",
+          FT_BOOLEAN, 16, TFS(&homeplug_av_phy_block_size_vals), HOMEPLUG_AV_RSOF_PBSZ_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_burst_cnt,
-        { "Burst count", "homeplug_av.fc.burst_cnt",
-          FT_UINT8, BASE_DEC, NULL, 0xC000, NULL, HFILL }
+      { &hf_homeplug_av_rsof_num_sym,
+        { "Number of Symbols", "homeplug_av.rsof.num_sym",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_RSOF_NUM_SYM_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_clst,
-        { "Convergence layer SAP type", "homeplug_av.fc.clst",
-          FT_UINT8, BASE_HEX, NULL, 0x07, NULL, HFILL }
+      { &hf_homeplug_av_rsof_mfs_cmd_mgmt,
+        { "Management MAC Frame Stream Command", "homeplug_av.rsof.mfs_cmd_mgmt",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_MFS_MGMT_MASK, NULL, HFILL }
       },
-      { &hf_homeplug_av_fc_rg_len,
-        { "Reverse grant length", "homeplug_av.fc.rg_len",
-          FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }
-      },
-      { &hf_homeplug_av_fc_mfs_cmd_mgmt,
-        { "Management MAC frame stream command", "homeplug_av.fc.mfs_cmd_mgmt",
-          FT_UINT8, BASE_DEC, NULL, 0x0E, NULL, HFILL }
-      },
-      { &hf_homeplug_av_fc_mfs_cmd_data,
-        { "Data MAC frame stream command", "homeplug_av.fc.mfs_data_mgmt",
-          FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL }
-      },
-      { &hf_homeplug_av_fc_rsr,
-        { "Request SACK transmission", "homeplug_av.fc.rsr",
-          FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }
-      },
-      { &hf_homeplug_av_fc_mcf,
-        { "Multicast", "homeplug_av.fc.mcf",
-          FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
-      },
-      { &hf_homeplug_av_fc_dccpcf,
-        { "Different CP PHY clock", "homeplug_av.fc.dccpcf",
-          FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }
-      },
-      { &hf_homeplug_av_fc_mnbf,
-        { "Multinetwork broadcast", "homeplug_av.fc.mnbf",
-          FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
+      { &hf_homeplug_av_rsof_mfs_cmd_data,
+        { "Data MAC Frame Stream Command", "homeplug_av.rsof.mfs_cmd_data",
+          FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_MFS_DATA_MASK, NULL, HFILL }
       },
       /* Beacon body */
       { &hf_homeplug_av_bcn,
-        { "Beacon", "homeplug_av.bcn",
+        { "Beacon Variant Fields", "homeplug_av.bcn",
           FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
       { &hf_homeplug_av_bcn_bts,
@@ -3392,6 +4213,82 @@ proto_register_homeplug_av(void)
       { &hf_homeplug_av_bcn_bto_3,
         { "Beacon transmission offset 3", "homeplug_av.bcn.bto_3",
           FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_payload,
+        { "Beacon MPDU payload", "homeplug_av.bcn.payload",
+           FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_nid,
+        { "Network ID", "homeplug_av.bcn.nid",
+           FT_UINT56, BASE_HEX, NULL, HOMEPLUG_AV_BCN_NID_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_hm,
+        { "Hybrid Mode", "homeplug_av.bcn.hm",
+           FT_UINT56, BASE_HEX | BASE_VAL64_STRING, VALS64(homeplug_av_bcn_hm_vals), HOMEPLUG_AV_HM_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_stei,
+         { "Source Terminal Equipment ID", "homeplug_av.bcn.stei",
+           FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_type,
+        { "Beacon type", "homeplug_av.bcn.type",
+           FT_UINT8, BASE_HEX, VALS(homeplug_av_bcn_type_vals), HOMEPLUG_AV_BCN_TYPE_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_ncnr,
+         { "Non-coordinating networks reported", "homeplug_av.bcn.ncnr",
+           FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_NCNR_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_npsm,
+         { "Network Power Save Mode", "homeplug_av.bcn.npsm",
+           FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_NPSM_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_num_slots,
+         { "Number of Beacon Slots", "homeplug_av.bcn.num_slots",
+           FT_UINT8, BASE_HEX, VALS(homeplug_av_bcn_slot_vals), HOMEPLUG_AV_NUM_SLOTS_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_slot_use,
+         { "Beacon Slot Usage (bitmapped)", "homeplug_av.bcn.slot_usage",
+           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_slot_id,
+         { "Beacon Slot ID", "homeplug_av.bcn.slot_id",
+           FT_UINT8, BASE_HEX, VALS(homeplug_av_bcn_slot_vals), HOMEPLUG_AV_SLOT_ID_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_aclss,
+         { "AC Line Synchronization Status", "homeplug_av.bcn.aclss",
+           FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_ACLSS_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_hoip,
+         { "Hand-Off in progress", "homeplug_av.bcn.hoip",
+           FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_HOIP_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_rtsbf,
+         { "RTS Broadcast Flag", "homeplug_av.bcn.rtsbf",
+           FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_RTSBF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_nm,
+         { "Network Mode", "homeplug_av.bcn.nm",
+           FT_UINT8, BASE_DEC, VALS(homeplug_av_bcn_nm_vals), HOMEPLUG_AV_NM_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_cco_cap,
+         { "CCo Capabilities", "homeplug_av.bcn.cco_cap",
+           FT_UINT8, BASE_DEC, VALS(homeplug_av_bcn_cco_cap_vals), HOMEPLUG_AV_CCO_CAP_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_rsf,
+         { "Resuable SNID?", "homeplug_av.bcn.rsf",
+           FT_BOOLEAN, 8, NULL, HOMEPLUG_AV_RSF_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_plevel,
+         { "Proxy level", "homeplug_av.bcn.plevel",
+           FT_UINT8, BASE_DEC, NULL, HOMEPLUG_AV_PLEVEL_MASK, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_bentries,
+         { "Beacon entries and padding", "homeplug_av.bcn.bentries",
+           FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_bcn_bpcs,
+        { "Beacon payload check sequence", "homeplug_av.bcn.bpcs",
+          FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
       /* Central Coordination Discovery List Confirmation */
       { &hf_homeplug_av_cc_disc_list_cnf,
@@ -3453,14 +4350,6 @@ proto_register_homeplug_av(void)
           FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
       /* Shared encrypted related fields */
-      { &hf_homeplug_av_nw_info_del_type,
-        { "Delimiter type", "homeplug_av.nw_info.del_type",
-          FT_UINT8, BASE_HEX, NULL, 0x07, NULL, HFILL }
-      },
-      { &hf_homeplug_av_nw_info_fccs_av,
-        { "Frame control check sequence", "homeplug_av.nw_info.fccs_av",
-          FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
-      },
       { &hf_homeplug_av_nw_info_peks,
         { "Payload Encryption Key Select", "homeplug_av.nw_info.peks",
           FT_UINT8, BASE_HEX | BASE_EXT_STRING, &homeplug_av_peks_vals_ext, HOMEPLUG_AV_PEKS_MASK, NULL, HFILL }
@@ -4660,7 +5549,13 @@ proto_register_homeplug_av(void)
       &ett_homeplug_av_public,
 
       &ett_homeplug_av_fc,
+      &ett_homeplug_av_sof,
+      &ett_homeplug_av_rtscts,
+      &ett_homeplug_av_sack,
+      &ett_homeplug_av_sound,
+      &ett_homeplug_av_rsof,
       &ett_homeplug_av_bcn,
+      &ett_homeplug_av_bcn_payload,
       &ett_homeplug_av_cc_disc_list_cnf,
       &ett_homeplug_av_cc_sta_info,
       &ett_homeplug_av_cc_net_info,
