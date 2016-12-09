@@ -73,6 +73,7 @@ Unified Diagnostic Services (UDS)
 vSocket
 Windows Cluster Management API (clusapi)
 GSMTAP based logging
+HomePNA
 --sort-and-group--
 
 === Updated Protocol Support

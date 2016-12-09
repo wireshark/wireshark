@@ -703,6 +703,7 @@ set(DISSECTOR_SRC
 	packet-hl7.c
 	packet-homeplug-av.c
 	packet-homeplug.c
+	packet-homepna.c
 	packet-hp-erm.c
 	packet-hpext.c
 	packet-hpfeeds.c
