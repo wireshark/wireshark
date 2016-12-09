@@ -281,6 +281,11 @@ static const value_string kafka_security_protocol_types[] = {
 /* List/range of TCP ports to register */
 static range_t *current_kafka_tcp_range = NULL;
 
+/* Whether to show the lengths of string and byte fields in the protocol tree.
+ * It can be useful to see these, but they do clutter up the display, so disable
+ * by default */
+static gboolean kafka_show_string_bytes_lengths = FALSE;
+
 typedef gint16 kafka_api_key_t;
 typedef gint16 kafka_api_version_t;
 typedef gint16 kafka_error_t;
@@ -362,15 +367,21 @@ dissect_kafka_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *
     if (len < -1) {
         expert_add_info(pinfo, pi, &ei_kafka_bad_string_length);
     }
-    else if (len == -1) {
-        /* -1 indicates a NULL string */
-        proto_tree_add_string(tree, hf_item, tvb, offset, 0, NULL);
-
-    }
     else {
-        /* Add the string itself. */
-        proto_tree_add_item(tree, hf_item, tvb, offset, len, ENC_NA|ENC_ASCII);
-        offset += len;
+        /* Only showing length field if preference indicates */
+        if (!kafka_show_string_bytes_lengths) {
+            PROTO_ITEM_SET_HIDDEN(pi);
+        }
+
+        if (len == -1) {
+            /* -1 indicates a NULL string */
+            proto_tree_add_string(tree, hf_item, tvb, offset, 0, NULL);
+        }
+        else {
+            /* Add the string itself. */
+            proto_tree_add_item(tree, hf_item, tvb, offset, len, ENC_NA|ENC_ASCII);
+            offset += len;
+        }
     }
 
     if (p_string_len != NULL) *p_string_len = len;
@@ -395,12 +406,19 @@ dissect_kafka_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *p
     if (len < -1) {
         expert_add_info(pinfo, pi, &ei_kafka_bad_bytes_length);
     }
-    else if (len == -1) {
-        proto_tree_add_bytes(tree, hf_item, tvb, offset, 0, NULL);
-    }
     else {
-        proto_tree_add_item(tree, hf_item, tvb, offset, len, ENC_NA);
-        offset += len;
+        /* Only showing length field if preference indicates */
+        if (!kafka_show_string_bytes_lengths) {
+            PROTO_ITEM_SET_HIDDEN(pi);
+        }
+
+        if (len == -1) {
+            proto_tree_add_bytes(tree, hf_item, tvb, offset, 0, NULL);
+        }
+        else {
+            proto_tree_add_item(tree, hf_item, tvb, offset, len, ENC_NA);
+            offset += len;
+        }
     }
 
     if (p_bytes_len != NULL) *p_bytes_len = len;
@@ -3682,6 +3700,7 @@ proto_register_kafka(void)
           { "kafka.bad_bytes_length", PI_MALFORMED, PI_WARN, "Invalid byte length field", EXPFILL }},
     };
 
+    module_t *kafka_module;
     expert_module_t* expert_kafka;
 
     proto_kafka = proto_register_protocol("Kafka", "Kafka", "kafka");
@@ -3691,7 +3710,13 @@ proto_register_kafka(void)
     expert_kafka = expert_register_protocol(proto_kafka);
     expert_register_field_array(expert_kafka, ei, array_length(ei));
 
-    prefs_register_protocol(proto_kafka, apply_kafka_prefs);
+    kafka_module = prefs_register_protocol(proto_kafka, apply_kafka_prefs);
+
+    prefs_register_bool_preference(kafka_module, "show_string_bytes_lengths",
+        "Show length for string and bytes fields in the protocol tree",
+        "",
+        &kafka_show_string_bytes_lengths);
+
 }
 
 void
