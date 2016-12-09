@@ -297,7 +297,7 @@ void proto_reg_handoff_pkt_ccc(void);
 
 static gint dissect_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info);
+static struct _rtp_conversation_info *get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info);
 
 /* Preferences bool to control whether or not setup info should be shown */
 static gboolean global_rtp_show_setup_info = TRUE;
@@ -2109,8 +2109,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
 
     /* Look for conv and add to the frame if found */
-    get_conv_info(pinfo, rtp_info);
-    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
+    p_conv_data = get_conv_info(pinfo, rtp_info);
 
     if (p_conv_data)
         rtp_info->info_is_video = p_conv_data->is_video;
@@ -2120,10 +2119,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     col_set_str( pinfo->cinfo, COL_PROTOCOL, (is_srtp) ? "SRTP" : "RTP" );
 
-    /* check if this is added as an SRTP stream - if so, don't try to dissect the payload data for now */
-    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
-
 #if 0 /* XXX: srtp_offset never actually used ?? */
+    /* check if this is added as an SRTP stream - if so, don't try to dissect the payload data for now */
     if (p_conv_data && p_conv_data->srtp_info) {
         srtp_info = p_conv_data->srtp_info;
         if (rtp_info->info_all_data_present) {
@@ -2631,7 +2628,7 @@ calculate_extended_seqno(guint32 previous_seqno, guint16 raw_seqno)
 }
 
 /* Look for conversation info */
-static void
+static struct _rtp_conversation_info *
 get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 {
     /* Conversation and current data */
@@ -2681,7 +2678,10 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
             }
         }
     }
-    if (p_conv_data) rtp_info->info_setup_frame_num = p_conv_data->frame_number;
+    if (p_conv_data) {
+        rtp_info->info_setup_frame_num = p_conv_data->frame_number;
+    }
+    return p_conv_data;
 }
 
 
