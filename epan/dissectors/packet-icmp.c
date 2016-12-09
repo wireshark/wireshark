@@ -32,6 +32,7 @@
 
 #include "config.h"
 
+#include <stdlib.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -1491,13 +1492,13 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		 */
 		ts.secs = tvb_get_ntohl(tvb, 8);
 		ts.nsecs = tvb_get_ntohl(tvb, 8 + 4);	/* Leave at microsec resolution for now */
-		if ((guint32) (ts.secs - pinfo->abs_ts.secs) >=
+		if (abs((int)(ts.secs - pinfo->abs_ts.secs)) >=
 		    3600 * 24 || ts.nsecs >= 1000000) {
 			/* Timestamp does not look right in BE, try LE representation */
 			ts.secs = tvb_get_letohl(tvb, 8);
 			ts.nsecs = tvb_get_letohl(tvb, 8 + 4);	/* Leave at microsec resolution for now */
 		}
-		if ((guint32) (ts.secs - pinfo->abs_ts.secs) <
+		if (abs((int)(ts.secs - pinfo->abs_ts.secs)) <
 		    3600 * 24 && ts.nsecs < 1000000) {
 			ts.nsecs *= 1000;	/* Convert to nanosec resolution */
 			proto_tree_add_time(icmp_tree, hf_icmp_data_time,
