@@ -28,6 +28,8 @@
 
 #include <epan/packet.h>
 
+#include "packet-gsmtap.h"
+
 void proto_register_gsm_sim(void);
 void proto_reg_handoff_gsm_sim(void);
 
@@ -2935,7 +2937,7 @@ proto_reg_handoff_gsm_sim(void)
 {
 	dissector_handle_t sim_handle;
 	sim_handle = find_dissector("gsm_sim");
-	dissector_add_uint("gsmtap.type", 4, sim_handle);
+	dissector_add_uint("gsmtap.type", GSMTAP_TYPE_SIM, sim_handle);
 
 	sub_handle_cap = find_dissector_add_dependency("etsi_cat", proto_gsm_sim);
 }
