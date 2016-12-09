@@ -29,6 +29,7 @@
 #include <wsutil/interface.h>
 #include <wsutil/file_util.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/filesystem.h>
 
 #include <errno.h>
 #include <string.h>
@@ -346,7 +347,7 @@ int main(int argc, char **argv)
 #endif  /* _WIN32 */
 
 	extcap_base_set_util_info(extcap_conf, argv[0], SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR,
-		SSHDUMP_VERSION_RELEASE, NULL);
+		SSHDUMP_VERSION_RELEASE, data_file_url("sshdump.html"));
 	extcap_base_register_interface(extcap_conf, SSH_EXTCAP_INTERFACE, "SSH remote capture", 147, "Remote capture dependent DLT");
 
 	help_header = g_strdup_printf(

@@ -241,7 +241,7 @@ topic_action_url(topic_action_e action)
         break;
 #ifdef HAVE_EXTCAP
     case(HELP_EXTCAP_OPTIONS_DIALOG):
-        url = user_guide_url("ChExtcapOptions.html");
+        url = data_file_url("extcap.html");
         break;
 #endif
     case(HELP_STATS_SUMMARY_DIALOG):

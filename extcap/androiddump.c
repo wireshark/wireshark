@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <time.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/filesystem.h>
 
 #ifdef HAVE_NETINET_IN_H
 #    include <netinet/in.h>
@@ -2590,7 +2591,7 @@ int main(int argc, char **argv) {
     extcap_conf = g_new0(extcap_parameters, 1);
 
     extcap_base_set_util_info(extcap_conf, argv[0], ANDROIDDUMP_VERSION_MAJOR, ANDROIDDUMP_VERSION_MINOR,
-        ANDROIDDUMP_VERSION_RELEASE, NULL);
+        ANDROIDDUMP_VERSION_RELEASE, data_file_url("androiddump.html"));
 
     help_header = g_strdup_printf(
         " %s --extcap-interfaces [--adb-server-ip=<arg>] [--adb-server-tcp-port=<arg>]\n"

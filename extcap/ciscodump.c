@@ -27,6 +27,7 @@
 #include <extcap/extcap-base.h>
 #include <wsutil/interface.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/filesystem.h>
 #include <extcap/ssh-base.h>
 #include <writecap/pcapio.h>
 
@@ -540,7 +541,7 @@ int main(int argc, char **argv)
 #endif  /* _WIN32 */
 
 	extcap_base_set_util_info(extcap_conf, argv[0], CISCODUMP_VERSION_MAJOR, CISCODUMP_VERSION_MINOR,
-		CISCODUMP_VERSION_RELEASE, NULL);
+		CISCODUMP_VERSION_RELEASE, data_file_url("ciscodump.html"));
 	extcap_base_register_interface(extcap_conf, CISCODUMP_EXTCAP_INTERFACE, "Cisco remote capture", 147, "Remote capture dependent DLT");
 
 	help_header = g_strdup_printf(
