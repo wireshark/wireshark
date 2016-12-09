@@ -1,9 +1,37 @@
 
 =head1 NAME
 
-extcap - Extcap grammar elements
+extcap - The extcap interface
 
 =head1 DESCRIPTION
+
+The extcap interface is a versatile plugin interface that allows external binaries
+to act as capture interfaces directly in wireshark. It is used in scenarios, where
+the source of the capture is not a traditional capture model
+(live capture from an interface, from a pipe, from a file, etc). The typical
+example is connecting esoteric hardware of some kind to the main wireshark app.
+
+Without extcap, a capture can always be achieved by directly writing to a capture file:
+
+    the-esoteric-binary --the-strange-flag --interface=stream1 --file dumpfile.pcap &
+    wireshark dumpfile.pcap
+
+but the extcap interface allows for such a connection to be easily established and
+configured using the wireshark GUI.
+
+The extcap subsystem is made of multiple extcap binaries that are automatically
+called by the GUI in a row. In the following chapters we will refer to them as
+"the extcaps".
+
+Extcaps may be any binary or script within the extcap directory. Please note, that scripts
+need to be executable without prefacing a script interpreter before the call. To go deeper
+into the extcap utility development, please refer to README.extcap.
+
+WINDOWS USER: Because of restrictions directly calling the script may not always work.
+In such a case, a batch file may be provided, which then in turn executes the script. Please
+refer to doc/extcap_example.py for more information.
+
+=head1 GRAMMAR ELEMENTS
 
 Grammar elements:
 
