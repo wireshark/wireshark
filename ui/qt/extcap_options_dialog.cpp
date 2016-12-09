@@ -316,20 +316,33 @@ void ExtcapOptionsDialog::on_buttonBox_rejected()
 void ExtcapOptionsDialog::on_buttonBox_helpRequested()
 {
     interface_t device;
-    gchar * interface_help = NULL;
+    QString interface_help = NULL;
 
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, device_idx);
-    interface_help = extcap_get_help_for_ifname(device.name);
-
-    if (interface_help)
-    {
-        QUrl help_url = QString(interface_help);
-        QDesktopServices::openUrl(help_url);
-    }
-    else
-    {
+    interface_help = QString(extcap_get_help_for_ifname(device.name));
+    /* The extcap interface didn't provide an help. Let's go with the default */
+    if (interface_help.isEmpty()) {
         wsApp->helpTopicAction(HELP_EXTCAP_OPTIONS_DIALOG);
+        return;
     }
+
+    QUrl help_url(interface_help);
+
+    /* The help is not a local file, open it and exit */
+    if (! help_url.scheme().compare("file"))
+        QDesktopServices::openUrl(help_url);
+
+    /* The help information is a file url and has been provided as-is by the extcap.
+       Before attempting to open the it, check if it actually exists.
+    */
+    if ( ! QFileInfo::exists(help_url.path()) )
+    {
+        QMessageBox::warning(this, tr("Extcap Help cannot be found"),
+                QString(tr("The help for the extcap interface %1 cannot be found. Given file: %2"))
+                    .arg(device.name).arg(help_url.path()),
+                QMessageBox::Ok);
+    }
+
 }
 
 bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
