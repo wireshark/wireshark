@@ -50,7 +50,7 @@ MAX_PASSES=0
 
 # These may be set to your liking
 # Stop the child process if it's running longer than x seconds
-MAX_CPU_TIME=300
+MAX_CPU_TIME=600
 # Stop the child process if it's using more than y * 1024 bytes
 MAX_VMEM=1000000
 # Stop the child process if its stack is larger than than z * 1024 bytes
