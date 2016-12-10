@@ -530,7 +530,7 @@ ExtcapValueList ExtcapArgument::loadValues(QString parent)
         if (v == NULL || v->display == NULL || v->call == NULL )
             break;
 
-        QString valParent(v->parent == 0 ? "" : QString().fromUtf8(v->parent));
+        QString valParent = QString().fromUtf8(v->parent);
 
         if ( parent.compare(valParent) == 0 )
         {
@@ -541,7 +541,9 @@ ExtcapValueList ExtcapArgument::loadValues(QString parent)
             ExtcapValue element = ExtcapValue(display, call,
                             v->enabled == (gboolean)TRUE, v->is_default == (gboolean)TRUE);
 
-            element.setChildren(this->loadValues(call));
+            if (!call.isEmpty())
+                element.setChildren(this->loadValues(call));
+
             elements.append(element);
         }
     }
