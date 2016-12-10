@@ -2369,6 +2369,23 @@ parse_IETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
     *offset = local_offset;
 }
 
+static void update_sport(packet_info *pinfo)
+{
+    conversation_t *conv;
+    conversation_infiniband_data *conv_data;
+
+    conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->dst,
+                             PT_IBQP, pinfo->destport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
+    if (!conv)
+        return;
+
+    conv_data = (conversation_infiniband_data *)conversation_get_proto_data(conv, proto_infiniband);
+    if (!conv_data)
+        return;
+
+    pinfo->srcport = conv_data->src_qp;
+}
+
 /* Parse Payload - Packet Payload / Invariant CRC / maybe Variant CRC
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: pinfo - packet info from wireshark
@@ -2464,6 +2481,10 @@ static void parse_PAYLOAD(proto_tree *parentTree,
     }
     else /* Normal Data Packet - Parse as such */
     {
+        /* update sport for the packet, for dissectors that performs
+         * exact match on saddr, dadr, sport, dport tuple.
+         */
+        update_sport(pinfo);
 
         /* Calculation for Payload:
         * (tvb_length) Length of entire packet - (local_offset) Starting byte of Payload Data
@@ -3228,9 +3249,8 @@ static void create_bidi_conv(packet_info *pinfo, connection_context *connection)
     proto_data->client_to_server = FALSE;
     memset(&proto_data->mad_private_data[0], 0, MAD_DATA_SIZE);
     conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                            PT_IBQP, connection->req_qp,
-                            connection->resp_qp, 0);
-
+                            PT_IBQP, connection->resp_qp,
+                            connection->req_qp, 0);
     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 }
 
