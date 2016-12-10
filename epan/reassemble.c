@@ -2062,14 +2062,15 @@ fragment_start_seq_check(reassembly_table *table, const packet_info *pinfo,
 		/* Create list-head. */
 		fd_head = g_slice_new(fragment_head);
 		fd_head->next = NULL;
-		fd_head->datalen = tot_len;
+		fd_head->frame = 0;
 		fd_head->offset = 0;
-		fd_head->fragment_nr_offset = 0;
 		fd_head->len = 0;
-		fd_head->flags = FD_BLOCKSEQUENCE|FD_DATALEN_SET;
-		fd_head->tvb_data = NULL;
+		fd_head->fragment_nr_offset = 0;
+		fd_head->datalen = tot_len;
 		fd_head->reassembled_in = 0;
 		fd_head->reas_in_layer_num = 0;
+		fd_head->flags = FD_BLOCKSEQUENCE|FD_DATALEN_SET;
+		fd_head->tvb_data = NULL;
 		fd_head->error = NULL;
 
 		insert_fd_head(table, fd_head, pinfo, id, data);
