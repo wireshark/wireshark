@@ -217,7 +217,7 @@ static void cleanup_tftp_eo(eo_info_dynamic_t *dynamic_info)
 
 /* Callback for freeing up data supplied with taps.  The taps themselves only have
    packet scope, so only store/free dynamic memory pointers */
-void tftp_eo_cleanup(void)
+static void tftp_eo_cleanup(void)
 {
   /* Cleanup each entry in the global list */
   GSList *dynamic_iterator;

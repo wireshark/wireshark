@@ -1362,7 +1362,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 /* This is the eo_reset_cb function that is used in the export_object module
    to cleanup any previous private data of the export object functionality before perform
    the eo_reset function or when the window closes */
-void
+static void
 smb_eo_cleanup(void)
 {
 	int          i, last;
