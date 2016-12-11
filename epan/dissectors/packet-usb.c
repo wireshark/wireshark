@@ -98,9 +98,9 @@ static int hf_usb_frame_data = -1;
 static int hf_usb_urb_id = -1;
 static int hf_usb_linux_urb_type = -1;
 static int hf_usb_linux_transfer_type = -1;
-static int hf_usb_endpoint_number = -1;
+static int hf_usb_endpoint_address = -1;
 static int hf_usb_endpoint_direction = -1;
-static int hf_usb_endpoint_number_value = -1;
+static int hf_usb_endpoint_number = -1;
 static int hf_usb_device_address = -1;
 static int hf_usb_bus_id = -1;
 static int hf_usb_setup_flag = -1;
@@ -124,9 +124,9 @@ static int hf_usb_info = -1;
 static int hf_usb_usbpcap_info_reserved = -1;
 static int hf_usb_usbpcap_info_direction = -1;
 static int hf_usb_win32_device_address = -1;
-/* hf_usb_bus_id, hf_usb_endpoint_number, hf_usb_endpoint_direction,
- * hf_usb_endpoint_number_value, hf_usb_transfer_type are common with
- * Linux pseudoheader */
+/* hf_usb_bus_id, hf_usb_endpoint_address, hf_usb_endpoint_direction,
+ * hf_usb_endpoint_number, hf_usb_transfer_type are common with
+ * FreeBSD and Linux pseudoheaders */
 static int hf_usb_win32_data_len = -1;
 static int hf_usb_control_stage = -1;
 static int hf_usb_win32_iso_start_frame = -1;
@@ -261,7 +261,7 @@ static int usb_address_type = -1;
 
 static const int *usb_endpoint_fields[] = {
     &hf_usb_endpoint_direction,
-    &hf_usb_endpoint_number_value,
+    &hf_usb_endpoint_number,
     NULL
 };
 
@@ -3413,7 +3413,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     col_append_str(pinfo->cinfo, COL_INFO,
                     val_to_str(transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
 
-    proto_tree_add_bitmask(tree, tvb, 10, hf_usb_endpoint_number, ett_usb_endpoint, usb_endpoint_fields, ENC_NA);
+    proto_tree_add_bitmask(tree, tvb, 10, hf_usb_endpoint_address, ett_usb_endpoint, usb_endpoint_fields, ENC_NA);
     proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, ENC_LITTLE_ENDIAN);
     usb_conv_info->device_address = (guint16)tvb_get_guint8(tvb, 11);
 
@@ -3491,7 +3491,7 @@ dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     endpoint_byte = tvb_get_guint8(tvb, 21);
     usb_conv_info->direction = endpoint_byte&URB_TRANSFER_IN ?  P2P_DIR_RECV : P2P_DIR_SENT;
     usb_conv_info->endpoint = endpoint_byte&0x7F;
-    proto_tree_add_bitmask(tree, tvb, 21, hf_usb_endpoint_number, ett_usb_endpoint, usb_endpoint_fields, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, 21, hf_usb_endpoint_address, ett_usb_endpoint, usb_endpoint_fields, ENC_LITTLE_ENDIAN);
 
     transfer_type = tvb_get_guint8(tvb, 22);
     usb_conv_info->transfer_type = transfer_type;
@@ -3997,7 +3997,7 @@ dissect_freebsd_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void 
     proto_tree_add_item_ret_uint(tree, hf_usb_nframes, tvb, 28, 4, ENC_LITTLE_ENDIAN, &nframes);
     proto_tree_add_item(tree, hf_usb_packet_size, tvb, 32, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_packet_count, tvb, 36, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_usb_endpoint_number, tvb, 40, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, 40, hf_usb_endpoint_address, ett_usb_endpoint, usb_endpoint_fields, ENC_NA);
     proto_tree_add_item(tree, hf_usb_speed, tvb, 44, 1, ENC_LITTLE_ENDIAN);
 
     offset += 128;
@@ -4599,20 +4599,20 @@ proto_register_usb(void)
             FT_UINT8, BASE_HEX, VALS(usb_linux_transfer_type_vals), 0x0,
             NULL, HFILL }},
 
-        { &hf_usb_endpoint_number,
-          { "Endpoint", "usb.endpoint_number",
+        { &hf_usb_endpoint_address,
+          { "Endpoint", "usb.endpoint_address",
             FT_UINT8, BASE_HEX, NULL, 0x0,
-            "USB endpoint number", HFILL }},
+            "USB endpoint address", HFILL }},
 
         { &hf_usb_endpoint_direction,
-          { "Direction", "usb.endpoint_number.direction",
+          { "Direction", "usb.endpoint_address.direction",
             FT_UINT8, BASE_DEC, VALS(usb_endpoint_direction_vals), 0x80,
             "USB endpoint direction", HFILL }},
 
-        { &hf_usb_endpoint_number_value,
-          { "Endpoint value", "usb.endpoint_number.endpoint",
-            FT_UINT8, BASE_DEC, NULL, 0x7F,
-            "USB endpoint value", HFILL }},
+        { &hf_usb_endpoint_number,
+          { "Endpoint number", "usb.endpoint_address.number",
+            FT_UINT8, BASE_DEC, NULL, 0x0F,
+            "USB endpoint number", HFILL }},
 
         { &hf_usb_device_address,
           { "Device", "usb.device_address",
