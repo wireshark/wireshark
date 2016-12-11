@@ -9479,91 +9479,91 @@ text-decoration: underline;
         <translation>Pakete können nicht in die aktuelle Mitschnittdatei exportiert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1519"/>
-        <location filename="main_window.cpp" line="1544"/>
+        <location filename="main_window.cpp" line="1518"/>
+        <location filename="main_window.cpp" line="1543"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1591"/>
+        <location filename="main_window.cpp" line="1590"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Wollen Sie die durchgeführten Änderungen speichern%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1587"/>
-        <location filename="main_window.cpp" line="1595"/>
+        <location filename="main_window.cpp" line="1586"/>
+        <location filename="main_window.cpp" line="1594"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Die aufgezeichneten Pakete gehen verloren wenn sie nicht gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1600"/>
+        <location filename="main_window.cpp" line="1599"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Sollen die Änderungen an der Mitschnittdatei &quot;%1&quot;%2 gespeichert werden?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1592"/>
-        <location filename="main_window.cpp" line="1601"/>
+        <location filename="main_window.cpp" line="1591"/>
+        <location filename="main_window.cpp" line="1600"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Änderungen gehen verloren, wenn sie nicht gesichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1586"/>
+        <location filename="main_window.cpp" line="1585"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation>Wollen Sie die Aufzeichnung stoppen und die aufgezeichneten Pakete speichern%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1594"/>
+        <location filename="main_window.cpp" line="1593"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation>Wollen Sie die aufgezeichneten Pakete speichern%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1618"/>
+        <location filename="main_window.cpp" line="1617"/>
         <source>Save before Continue</source>
         <translation>Vor dem Fortsetzen speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1620"/>
+        <location filename="main_window.cpp" line="1619"/>
         <source>Stop and Save</source>
         <translation>Stoppen und speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1632"/>
+        <location filename="main_window.cpp" line="1631"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
         <translation>Stoppen und beenden &amp;ohne zu speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1644"/>
+        <location filename="main_window.cpp" line="1643"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>&amp;Ohne speichern beenden</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1635"/>
-        <location filename="main_window.cpp" line="1648"/>
+        <location filename="main_window.cpp" line="1634"/>
+        <location filename="main_window.cpp" line="1647"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
         <translation>Fortsetzen &amp;ohne zu Speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1638"/>
+        <location filename="main_window.cpp" line="1637"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>Stoppen und Fortsetzen &amp;ohne zu Speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1991"/>
+        <location filename="main_window.cpp" line="1990"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Dateiname kann nicht auf UTF-8 angewendet werden)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2012"/>
+        <location filename="main_window.cpp" line="2011"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Die Wireshark Netzwerk Analysesoftware</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2037"/>
+        <location filename="main_window.cpp" line="2036"/>
         <source>Capturing from %1</source>
         <translation>Aufzeichnen von %1</translation>
     </message>
@@ -12311,10 +12311,18 @@ text-decoration: underline;
     </message>
 </context>
 <context>
+    <name>RtpAudioStream</name>
+    <message>
+        <location filename="rtp_audio_stream.cpp" line="572"/>
+        <source>%1 does not support PCM at %2. Preferred format is %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>RtpPlayerDialog</name>
     <message>
         <location filename="rtp_player_dialog.ui" line="14"/>
-        <location filename="rtp_player_dialog.cpp" line="112"/>
+        <location filename="rtp_player_dialog.cpp" line="113"/>
         <source>RTP Player</source>
         <translation>RTP Player</translation>
     </message>
@@ -12422,26 +12430,31 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="165"/>
+        <source>Output Device:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_player_dialog.ui" line="192"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="168"/>
+        <location filename="rtp_player_dialog.ui" line="195"/>
         <source>Jitter Buffer:</source>
         <translation>Jitter Puffer:</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="175"/>
+        <location filename="rtp_player_dialog.ui" line="202"/>
         <source>The simulated jitter buffer in milliseconds.</source>
         <translation>Simulierter Jitter Puffer in Millisekunden.</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="207"/>
+        <location filename="rtp_player_dialog.ui" line="234"/>
         <source>Playback Timing:</source>
         <translation>Zeitsteuerung beim Abspielen:</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="214"/>
+        <location filename="rtp_player_dialog.ui" line="241"/>
         <source>&lt;strong&gt;Jitter Buffer&lt;/strong&gt;: Use jitter buffer to simulate the RTP stream as heard by the end user.
 &lt;br/&gt;
 &lt;strong&gt;RTP Timestamp&lt;/strong&gt;: Use RTP Timestamp instead of the arriving packet time. This will not reproduce the RTP stream as the user heard it, but is useful when the RTP is being tunneled and the original packet timing is missing.
@@ -12459,203 +12472,208 @@ text-decoration: underline;
 &lt;strong&gt;Unterbrechungsfreier Modus&lt;/strong&gt;: Ignoriert den RTP Zeitstemel. Spielt den zusammengesetzten RTP Stream ab. Kann hilfreich sein, wenn RTP Zeitstempel fehlen.</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="222"/>
+        <location filename="rtp_player_dialog.ui" line="249"/>
         <source>Jitter Buffer</source>
         <translation>Jitter Puffer</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="227"/>
+        <location filename="rtp_player_dialog.ui" line="254"/>
         <source>RTP Timestamp</source>
         <translation>RTP Zeitstempel</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="232"/>
+        <location filename="rtp_player_dialog.ui" line="259"/>
         <source>Uninterrupted Mode</source>
         <translation>Unterbrechungsfreier Modus</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="253"/>
+        <location filename="rtp_player_dialog.ui" line="280"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;View the timestamps as time of day (checked) or seconds since beginning of capture (unchecked).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zeitstempel als Uhrzeit anzeigen (ausgewählt) oder als Sekunden seit dem Start des Mitschnitts (nicht angewählt).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="256"/>
+        <location filename="rtp_player_dialog.ui" line="283"/>
         <source>Time of Day</source>
         <translation>Uhrzeit</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="275"/>
+        <location filename="rtp_player_dialog.ui" line="315"/>
         <source>Reset Graph</source>
         <translation>Graph zurücksetzen</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="278"/>
+        <location filename="rtp_player_dialog.ui" line="318"/>
         <source>Reset the graph to its initial state.</source>
         <translation>Graph in den Ursprungszustand zurücksetzen.</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="281"/>
+        <location filename="rtp_player_dialog.ui" line="321"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="286"/>
-        <location filename="rtp_player_dialog.ui" line="289"/>
+        <location filename="rtp_player_dialog.ui" line="326"/>
+        <location filename="rtp_player_dialog.ui" line="329"/>
         <source>Zoom In</source>
         <translation>Vergrößern</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="292"/>
+        <location filename="rtp_player_dialog.ui" line="332"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="297"/>
-        <location filename="rtp_player_dialog.ui" line="300"/>
+        <location filename="rtp_player_dialog.ui" line="337"/>
+        <location filename="rtp_player_dialog.ui" line="340"/>
         <source>Zoom Out</source>
         <translation>Verkleinern</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="303"/>
+        <location filename="rtp_player_dialog.ui" line="343"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="308"/>
-        <location filename="rtp_player_dialog.ui" line="311"/>
+        <location filename="rtp_player_dialog.ui" line="348"/>
+        <location filename="rtp_player_dialog.ui" line="351"/>
         <source>Move Left 10 Pixels</source>
         <translation>Um 10 Bildpunkte nach links verschieben</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="314"/>
+        <location filename="rtp_player_dialog.ui" line="354"/>
         <source>Left</source>
         <translation>Links</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="319"/>
-        <location filename="rtp_player_dialog.ui" line="322"/>
+        <location filename="rtp_player_dialog.ui" line="359"/>
+        <location filename="rtp_player_dialog.ui" line="362"/>
         <source>Move Right 10 Pixels</source>
         <translation>Um 10 Bildpunkte nach rechts verschieben</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="325"/>
+        <location filename="rtp_player_dialog.ui" line="365"/>
         <source>Right</source>
         <translation>Rechts</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="330"/>
-        <location filename="rtp_player_dialog.ui" line="333"/>
+        <location filename="rtp_player_dialog.ui" line="370"/>
+        <location filename="rtp_player_dialog.ui" line="373"/>
         <source>Move Left 1 Pixels</source>
         <translation>Um 1 Bildpunkt nach links verschieben</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="336"/>
+        <location filename="rtp_player_dialog.ui" line="376"/>
         <source>Shift+Left</source>
         <translation>Shift+Left</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="341"/>
-        <location filename="rtp_player_dialog.ui" line="344"/>
+        <location filename="rtp_player_dialog.ui" line="381"/>
+        <location filename="rtp_player_dialog.ui" line="384"/>
         <source>Move Right 1 Pixels</source>
         <translation>Um 1 Bildpunkt nach rechts verschieben</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="347"/>
+        <location filename="rtp_player_dialog.ui" line="387"/>
         <source>Shift+Right</source>
         <translation>Shift+Right</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="352"/>
+        <location filename="rtp_player_dialog.ui" line="392"/>
         <source>Go To Packet Under Cursor</source>
         <translation>Zum Paket gehen, auf das der Mauszeiger gerade zeigt</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="355"/>
+        <location filename="rtp_player_dialog.ui" line="395"/>
         <source>Go to packet currently under the cursor</source>
         <translation>Zum Paket gehen, auf das der Mauszeiger gerade zeigt</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="358"/>
+        <location filename="rtp_player_dialog.ui" line="398"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="363"/>
+        <location filename="rtp_player_dialog.ui" line="403"/>
         <source>Drag / Zoom</source>
         <translation>Verschieben / Zoomen</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="366"/>
+        <location filename="rtp_player_dialog.ui" line="406"/>
         <source>Toggle mouse drag / zoom behavior</source>
         <translation>Maustastenverhalten umschalten: Verschieben / Zoomen</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="369"/>
+        <location filename="rtp_player_dialog.ui" line="409"/>
         <source>Z</source>
         <translation>Z</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="374"/>
+        <location filename="rtp_player_dialog.ui" line="414"/>
         <source>Capture / Session Time Origin</source>
         <translation>Uhrzeit / verstrichene Zeit</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="377"/>
+        <location filename="rtp_player_dialog.ui" line="417"/>
         <source>Toggle capture / session time origin</source>
         <translation>Umschalten zwischen Uhrzeit und verstrichener Zeit</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="380"/>
+        <location filename="rtp_player_dialog.ui" line="420"/>
         <source>T</source>
         <translation>T</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="385"/>
+        <location filename="rtp_player_dialog.ui" line="425"/>
         <source>Crosshairs</source>
         <translation>Fadenkreuz</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="388"/>
+        <location filename="rtp_player_dialog.ui" line="428"/>
         <source>Toggle crosshairs</source>
         <translation>Fadenkreuz ein/ausblenden</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="391"/>
+        <location filename="rtp_player_dialog.ui" line="431"/>
         <source>Space</source>
         <translation>Space</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="170"/>
+        <location filename="rtp_player_dialog.cpp" line="166"/>
+        <source>No devices available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_player_dialog.cpp" line="186"/>
         <source>Play Streams</source>
         <translation>Streams abspielen</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="276"/>
+        <location filename="rtp_player_dialog.cpp" line="292"/>
         <source>Out of Sequence</source>
         <translation>Außerhalb der Reihe</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="291"/>
+        <location filename="rtp_player_dialog.cpp" line="307"/>
         <source>Jitter Drops</source>
         <translation>Jitter Drops</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="306"/>
+        <location filename="rtp_player_dialog.cpp" line="322"/>
         <source>Wrong Timestamps</source>
         <translation>Falscher Zeitstempel</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="321"/>
+        <location filename="rtp_player_dialog.cpp" line="337"/>
         <source>Inserted Silence</source>
         <translation>Eingefügte Stille</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="501"/>
+        <location filename="rtp_player_dialog.cpp" line="520"/>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
         <translation>%1. &quot;G&quot; um zu Paket %2 zu gehen</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="685"/>
+        <location filename="rtp_player_dialog.cpp" line="707"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>

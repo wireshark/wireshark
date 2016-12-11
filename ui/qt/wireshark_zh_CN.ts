@@ -9466,91 +9466,91 @@ text-decoration: underline;
         <translation>您不能将分组导出到当前捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1519"/>
-        <location filename="main_window.cpp" line="1544"/>
+        <location filename="main_window.cpp" line="1518"/>
+        <location filename="main_window.cpp" line="1543"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1591"/>
+        <location filename="main_window.cpp" line="1590"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>您是否要保存已做出的更改%1？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1587"/>
-        <location filename="main_window.cpp" line="1595"/>
+        <location filename="main_window.cpp" line="1586"/>
+        <location filename="main_window.cpp" line="1594"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>若不保存，您已经捕获的分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1600"/>
+        <location filename="main_window.cpp" line="1599"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>是否希望保存对捕获文件“%1”%2 的更改？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1592"/>
-        <location filename="main_window.cpp" line="1601"/>
+        <location filename="main_window.cpp" line="1591"/>
+        <location filename="main_window.cpp" line="1600"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>若不保存，您的更改将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1586"/>
+        <location filename="main_window.cpp" line="1585"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation>您是否要停止捕获，并保存已捕获的分组%1？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1594"/>
+        <location filename="main_window.cpp" line="1593"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation>您是否要保存已捕获的分组%1？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1618"/>
+        <location filename="main_window.cpp" line="1617"/>
         <source>Save before Continue</source>
         <translation>继续前保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1620"/>
+        <location filename="main_window.cpp" line="1619"/>
         <source>Stop and Save</source>
         <translation>停止并保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1632"/>
+        <location filename="main_window.cpp" line="1631"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
         <translation>停止并退出，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1644"/>
+        <location filename="main_window.cpp" line="1643"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>直接退出，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1635"/>
-        <location filename="main_window.cpp" line="1648"/>
+        <location filename="main_window.cpp" line="1634"/>
+        <location filename="main_window.cpp" line="1647"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
         <translation>继续，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1638"/>
+        <location filename="main_window.cpp" line="1637"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>停止并继续，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1991"/>
+        <location filename="main_window.cpp" line="1990"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>文件名不能映射到UTF-8</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2012"/>
+        <location filename="main_window.cpp" line="2011"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark 网络分析器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2037"/>
+        <location filename="main_window.cpp" line="2036"/>
         <source>Capturing from %1</source>
         <translation>正在捕获 %1</translation>
     </message>
@@ -12296,10 +12296,18 @@ text-decoration: underline;
     </message>
 </context>
 <context>
+    <name>RtpAudioStream</name>
+    <message>
+        <location filename="rtp_audio_stream.cpp" line="572"/>
+        <source>%1 does not support PCM at %2. Preferred format is %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>RtpPlayerDialog</name>
     <message>
         <location filename="rtp_player_dialog.ui" line="14"/>
-        <location filename="rtp_player_dialog.cpp" line="112"/>
+        <location filename="rtp_player_dialog.cpp" line="113"/>
         <source>RTP Player</source>
         <translation>RTP 播放器</translation>
     </message>
@@ -12407,26 +12415,31 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="165"/>
+        <source>Output Device:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_player_dialog.ui" line="192"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="168"/>
+        <location filename="rtp_player_dialog.ui" line="195"/>
         <source>Jitter Buffer:</source>
         <translation>抖动缓冲区：</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="175"/>
+        <location filename="rtp_player_dialog.ui" line="202"/>
         <source>The simulated jitter buffer in milliseconds.</source>
         <translation>以毫秒为单位的模拟的抖动缓冲区。</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="207"/>
+        <location filename="rtp_player_dialog.ui" line="234"/>
         <source>Playback Timing:</source>
         <translation>播放时间：</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="214"/>
+        <location filename="rtp_player_dialog.ui" line="241"/>
         <source>&lt;strong&gt;Jitter Buffer&lt;/strong&gt;: Use jitter buffer to simulate the RTP stream as heard by the end user.
 &lt;br/&gt;
 &lt;strong&gt;RTP Timestamp&lt;/strong&gt;: Use RTP Timestamp instead of the arriving packet time. This will not reproduce the RTP stream as the user heard it, but is useful when the RTP is being tunneled and the original packet timing is missing.
@@ -12444,203 +12457,208 @@ text-decoration: underline;
 &lt;strong&gt;不间断模式&lt;/strong&gt;: 忽略 RTP 时间戳。播放流认为它是完整的。 这在 RTP 时间戳缺失时非常有用。</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="222"/>
+        <location filename="rtp_player_dialog.ui" line="249"/>
         <source>Jitter Buffer</source>
         <translation>抖动缓冲区</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="227"/>
+        <location filename="rtp_player_dialog.ui" line="254"/>
         <source>RTP Timestamp</source>
         <translation>RTP 时间戳</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="232"/>
+        <location filename="rtp_player_dialog.ui" line="259"/>
         <source>Uninterrupted Mode</source>
         <translation>不间断模式</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="253"/>
+        <location filename="rtp_player_dialog.ui" line="280"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;View the timestamps as time of day (checked) or seconds since beginning of capture (unchecked).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;以当天时间形式查看时间戳（选中状态）或者以自捕捉以来的秒数（未选中状态）&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="256"/>
+        <location filename="rtp_player_dialog.ui" line="283"/>
         <source>Time of Day</source>
         <translation>当天时间</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="275"/>
+        <location filename="rtp_player_dialog.ui" line="315"/>
         <source>Reset Graph</source>
         <translation>复位图形</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="278"/>
+        <location filename="rtp_player_dialog.ui" line="318"/>
         <source>Reset the graph to its initial state.</source>
         <translation>复位图形到初始状态。</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="281"/>
+        <location filename="rtp_player_dialog.ui" line="321"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="286"/>
-        <location filename="rtp_player_dialog.ui" line="289"/>
+        <location filename="rtp_player_dialog.ui" line="326"/>
+        <location filename="rtp_player_dialog.ui" line="329"/>
         <source>Zoom In</source>
         <translation>放大</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="292"/>
+        <location filename="rtp_player_dialog.ui" line="332"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="297"/>
-        <location filename="rtp_player_dialog.ui" line="300"/>
+        <location filename="rtp_player_dialog.ui" line="337"/>
+        <location filename="rtp_player_dialog.ui" line="340"/>
         <source>Zoom Out</source>
         <translation>缩小</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="303"/>
+        <location filename="rtp_player_dialog.ui" line="343"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="308"/>
-        <location filename="rtp_player_dialog.ui" line="311"/>
+        <location filename="rtp_player_dialog.ui" line="348"/>
+        <location filename="rtp_player_dialog.ui" line="351"/>
         <source>Move Left 10 Pixels</source>
         <translation>左移10像素</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="314"/>
+        <location filename="rtp_player_dialog.ui" line="354"/>
         <source>Left</source>
         <translation>左键</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="319"/>
-        <location filename="rtp_player_dialog.ui" line="322"/>
+        <location filename="rtp_player_dialog.ui" line="359"/>
+        <location filename="rtp_player_dialog.ui" line="362"/>
         <source>Move Right 10 Pixels</source>
         <translation>右移10像素</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="325"/>
+        <location filename="rtp_player_dialog.ui" line="365"/>
         <source>Right</source>
         <translation>右方向键</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="330"/>
-        <location filename="rtp_player_dialog.ui" line="333"/>
+        <location filename="rtp_player_dialog.ui" line="370"/>
+        <location filename="rtp_player_dialog.ui" line="373"/>
         <source>Move Left 1 Pixels</source>
         <translation>左移10像素 {1 ?}</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="336"/>
+        <location filename="rtp_player_dialog.ui" line="376"/>
         <source>Shift+Left</source>
         <translation>Shift+左方向键</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="341"/>
-        <location filename="rtp_player_dialog.ui" line="344"/>
+        <location filename="rtp_player_dialog.ui" line="381"/>
+        <location filename="rtp_player_dialog.ui" line="384"/>
         <source>Move Right 1 Pixels</source>
         <translation>右移1像素</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="347"/>
+        <location filename="rtp_player_dialog.ui" line="387"/>
         <source>Shift+Right</source>
         <translation>Shift+右方向键</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="352"/>
+        <location filename="rtp_player_dialog.ui" line="392"/>
         <source>Go To Packet Under Cursor</source>
         <translation>跳转到光标所在的分组</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="355"/>
+        <location filename="rtp_player_dialog.ui" line="395"/>
         <source>Go to packet currently under the cursor</source>
         <translation>跳转到当前光标所在的分组</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="358"/>
+        <location filename="rtp_player_dialog.ui" line="398"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="363"/>
+        <location filename="rtp_player_dialog.ui" line="403"/>
         <source>Drag / Zoom</source>
         <translation>拖拽/缩放</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="366"/>
+        <location filename="rtp_player_dialog.ui" line="406"/>
         <source>Toggle mouse drag / zoom behavior</source>
         <translation>切换鼠标拖拽/缩放行为</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="369"/>
+        <location filename="rtp_player_dialog.ui" line="409"/>
         <source>Z</source>
         <translation>Z</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="374"/>
+        <location filename="rtp_player_dialog.ui" line="414"/>
         <source>Capture / Session Time Origin</source>
         <translation>捕获/会话时间起源</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="377"/>
+        <location filename="rtp_player_dialog.ui" line="417"/>
         <source>Toggle capture / session time origin</source>
         <translation>切换捕获/会话时间起源</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="380"/>
+        <location filename="rtp_player_dialog.ui" line="420"/>
         <source>T</source>
         <translation>T</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="385"/>
+        <location filename="rtp_player_dialog.ui" line="425"/>
         <source>Crosshairs</source>
         <translation>十字线</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="388"/>
+        <location filename="rtp_player_dialog.ui" line="428"/>
         <source>Toggle crosshairs</source>
         <translation>切换十字线</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="391"/>
+        <location filename="rtp_player_dialog.ui" line="431"/>
         <source>Space</source>
         <translation>空格键</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="170"/>
+        <location filename="rtp_player_dialog.cpp" line="166"/>
+        <source>No devices available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_player_dialog.cpp" line="186"/>
         <source>Play Streams</source>
         <translation>播放流</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="276"/>
+        <location filename="rtp_player_dialog.cpp" line="292"/>
         <source>Out of Sequence</source>
         <translation>乱序</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="291"/>
+        <location filename="rtp_player_dialog.cpp" line="307"/>
         <source>Jitter Drops</source>
         <translation>抖动过滤</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="306"/>
+        <location filename="rtp_player_dialog.cpp" line="322"/>
         <source>Wrong Timestamps</source>
         <translation>错误的时间戳</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="321"/>
+        <location filename="rtp_player_dialog.cpp" line="337"/>
         <source>Inserted Silence</source>
         <translation>插入的静默</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="501"/>
+        <location filename="rtp_player_dialog.cpp" line="520"/>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
         <translation>%1. 按 &quot;G&quot; 去到数据包 %2</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="685"/>
+        <location filename="rtp_player_dialog.cpp" line="707"/>
         <source>Unknown</source>
         <translation>未知</translation>
     </message>
