@@ -11370,6 +11370,8 @@ rt-classmanager 35004/tcp # ReadyTech ClassManager [ReadyTech_Corporation] [Kevi
 rt-classmanager 35004/udp # ReadyTech ClassManager [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13
 rt-labtracker   35005/tcp # ReadyTech LabTracker [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13
 rt-helper       35006/tcp # ReadyTech Helper Service [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13
+axio-disc       35100/tcp # Axiomatic discovery protocol [Axiomatic_Technologies_Corporation] [Oleksandr_Bogush] 2016-12-09
+axio-disc       35100/udp # Axiomatic discovery protocol [Axiomatic_Technologies_Corporation] [Oleksandr_Bogush] 2016-12-09
 kitim           35354/tcp # KIT Messenger [Rudi_Visser] [Rudi_Visser] 2011-07-07
 altova-lm       35355/tcp # Altova License Management [Alexander_Falk_2] [Alexander_Falk_2] 2011-07-07
 altova-lm-disc  35355/udp # Altova License Management Discovery [Alexander_Falk_2] [Alexander_Falk_2] 2011-07-07
