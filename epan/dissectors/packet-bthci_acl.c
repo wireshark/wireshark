@@ -412,6 +412,13 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         fragmented = FALSE;
     }
 
+    alloc_address_wmem(pinfo->pool, &pinfo->net_src, AT_STRINGZ, (int)strlen(src_name) + 1, src_name);
+    alloc_address_wmem(pinfo->pool, &pinfo->dl_src, AT_ETHER, 6, src_bd_addr);
+    alloc_address_wmem(pinfo->pool, &pinfo->src, AT_STRINGZ, (int)strlen(src_addr_name) + 1, src_addr_name);
+
+    alloc_address_wmem(pinfo->pool, &pinfo->net_dst, AT_STRINGZ, (int)strlen(dst_name) + 1, dst_name);
+    alloc_address_wmem(pinfo->pool, &pinfo->dl_dst, AT_ETHER, 6, dst_bd_addr);
+    alloc_address_wmem(pinfo->pool, &pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_name) + 1, dst_addr_name);
 
     if (!fragmented || (!acl_reassembly && !(pb_flag & 0x01))) {
         /* call L2CAP dissector for PDUs that are not fragmented
@@ -506,14 +513,6 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (acl_data->disconnect_in_frame == &invalid_session) {
         expert_add_info(pinfo, bthci_acl_itam, &ei_invalid_session);
     }
-
-    set_address(&pinfo->net_src, AT_STRINGZ, (int)strlen(src_name) + 1, src_name);
-    set_address(&pinfo->dl_src, AT_ETHER, 6, src_bd_addr);
-    set_address(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr_name) + 1, src_addr_name);
-
-    set_address(&pinfo->net_dst, AT_STRINGZ, (int)strlen(dst_name) + 1, dst_name);
-    set_address(&pinfo->dl_dst, AT_ETHER, 6, dst_bd_addr);
-    set_address(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_name) + 1, dst_addr_name);
 
     if (!pinfo->fd->flags.visited) {
         address *addr;
