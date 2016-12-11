@@ -2089,7 +2089,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         /* Get and display the checksum. */
         if (!(udp_flags & LOWPAN_NHC_UDP_CHECKSUM)) {
             /* Parse the checksum. */
-            udp.checksum = tvb_get_ntohs(tvb, offset);
+            tvb_memcpy(tvb, &udp.checksum, offset, sizeof(udp.checksum));
             proto_tree_add_checksum(tree, tvb, offset, hf_6lowpan_udp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
             offset += 2;
         }
