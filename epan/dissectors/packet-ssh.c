@@ -159,7 +159,7 @@ static int hf_ssh_compression_algorithms_client_to_server_length= -1;
 static int hf_ssh_compression_algorithms_server_to_client_length= -1;
 static int hf_ssh_languages_client_to_server_length= -1;
 static int hf_ssh_languages_server_to_client_length= -1;
-static int hf_ssh_kex_first_packet_follows = -1;
+static int hf_ssh_first_kex_packet_follows = -1;
 static int hf_ssh_kex_reserved = -1;
 
 /* Key exchange common elements */
@@ -176,19 +176,19 @@ static int hf_ssh_hostkey_ecdsa_curve_id = -1;
 static int hf_ssh_hostkey_ecdsa_curve_id_length = -1;
 static int hf_ssh_hostkey_ecdsa_q = -1;
 static int hf_ssh_hostkey_ecdsa_q_length = -1;
-static int hf_ssh_kexdh_h_sig = -1;
-static int hf_ssh_kexdh_h_sig_length = -1;
+static int hf_ssh_kex_h_sig = -1;
+static int hf_ssh_kex_h_sig_length = -1;
 
 /* Key exchange: Diffie-Hellman */
-static int hf_ssh_mpint_e = -1;
-static int hf_ssh_mpint_f = -1;
+static int hf_ssh_dh_e = -1;
+static int hf_ssh_dh_f = -1;
 
 /* Key exchange: Diffie-Hellman Group Exchange */
 static int hf_ssh_dh_gex_min = -1;
 static int hf_ssh_dh_gex_nbits = -1;
 static int hf_ssh_dh_gex_max = -1;
-static int hf_ssh_mpint_p = -1;
-static int hf_ssh_mpint_g = -1;
+static int hf_ssh_dh_gex_p = -1;
+static int hf_ssh_dh_gex_g = -1;
 
 /* Miscellaneous */
 static int hf_ssh_mpint_length = -1;
@@ -849,13 +849,13 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
 
     switch (msg_code) {
     case SSH_MSG_KEXDH_INIT:
-        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_e);
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_e);
         break;
 
     case SSH_MSG_KEXDH_REPLY:
-        offset += ssh_tree_add_hostkey(tvb, offset, tree, "KEX DH host key", ett_key_exchange_host_key);
-        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_f);
-        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_h_sig, hf_ssh_kexdh_h_sig_length);
+        offset += ssh_tree_add_hostkey(tvb, offset, tree, "KEX host key", ett_key_exchange_host_key);
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
+        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kex_h_sig, hf_ssh_kex_h_sig_length);
         break;
     }
 
@@ -878,18 +878,18 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
         break;
 
     case SSH_MSG_KEX_DH_GEX_GROUP:
-        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_p);
-        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_g);
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_gex_p);
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_gex_g);
         break;
 
     case SSH_MSG_KEX_DH_GEX_INIT:
-        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_e);
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_e);
         break;
 
     case SSH_MSG_KEX_DH_GEX_REPLY:
-        offset += ssh_tree_add_hostkey(tvb, offset, tree, "KEX DH host key", ett_key_exchange_host_key);
-        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_f);
-        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_h_sig, hf_ssh_kexdh_h_sig_length);
+        offset += ssh_tree_add_hostkey(tvb, offset, tree, "KEX host key", ett_key_exchange_host_key);
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
+        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kex_h_sig, hf_ssh_kex_h_sig_length);
         break;
 
     case SSH_MSG_KEX_DH_GEX_REQUEST:
@@ -1168,7 +1168,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
         hf_ssh_languages_server_to_client_length,
         hf_ssh_languages_server_to_client, NULL);
 
-    proto_tree_add_item(key_init_tree, hf_ssh_kex_first_packet_follows,
+    proto_tree_add_item(key_init_tree, hf_ssh_first_kex_packet_follows,
         tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
 
@@ -1382,8 +1382,8 @@ proto_register_ssh(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_ssh_kex_first_packet_follows,
-          { "KEX First Packet Follows",      "ssh.kex.first_packet_follows",
+        { &hf_ssh_first_kex_packet_follows,
+          { "First KEX Packet Follows",      "ssh.first_kex_packet_follows",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
@@ -1457,22 +1457,22 @@ proto_register_ssh(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_ssh_kexdh_h_sig,
-          { "KEX DH H signature",         "ssh.kexdh.h_sig",
+        { &hf_ssh_kex_h_sig,
+          { "KEX H signature",         "ssh.kex.h_sig",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_ssh_kexdh_h_sig_length,
-          { "KEX DH H signature length",         "ssh.kexdh.h_sig_length",
+        { &hf_ssh_kex_h_sig_length,
+          { "KEX H signature length",         "ssh.kex.h_sig_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_ssh_mpint_e,
+        { &hf_ssh_dh_e,
           { "DH client e",  "ssh.dh.e",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_ssh_mpint_f,
+        { &hf_ssh_dh_f,
           { "DH server f",  "ssh.dh.f",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
@@ -1492,13 +1492,13 @@ proto_register_ssh(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "Maximal acceptable group size", HFILL }},
 
-        { &hf_ssh_mpint_p,
-          { "DH modulus (P)",  "ssh.dh.p",
+        { &hf_ssh_dh_gex_p,
+          { "DH GEX modulus (P)",  "ssh.dh_gex.p",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_ssh_mpint_g,
-          { "DH base (G)",  "ssh.dh.g",
+        { &hf_ssh_dh_gex_g,
+          { "DH GEX base (G)",  "ssh.dh_gex.g",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
