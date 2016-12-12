@@ -2338,7 +2338,7 @@ tvb_get_string_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint 
 }
 
 /*
- * Given a wmem scope, a tvbuff, an offset, and a length, and a translation
+ * Given a wmem scope, a tvbuff, an offset, a length, and a translation
  * table, treat the string of bytes referred to by the tvbuff, the offset,
  * and the length as a string encoded using one octet per character, with
  * octets with the high-order bit clear being ASCII and octets with the
@@ -2462,18 +2462,20 @@ tvb_get_ascii_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 }
 
 /*
- * Given a wmem scope, a tvbuff, an offset, and a length, treat the string
- * of bytes referred to by the tvbuff, offset, and length as a string encoded
- * in EBCDIC using one octet per character, and return a pointer to a
- * UTF-8 string, allocated using the wmem scope.
+ * Given a wmem scope, a tvbuff, an offset, a length, and a translation
+ * table, treat the string of bytes referred to by the tvbuff, the offset,
+ * and the length as a string encoded using one octet per character, with
+ * octets being mapped by the translation table to 2-byte Unicode Basic
+ * Multilingual Plane characters (including REPLACEMENT CHARACTER), and
+ * return a pointer to a UTF-8 string, allocated with the wmem scope.
  */
 static guint8 *
-tvb_get_ebcdic_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
+tvb_get_ebcdic_unichar2_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length, const gunichar2 table[256])
 {
 	const guint8  *ptr;
 
 	ptr = ensure_contiguous(tvb, offset, length);
-	return get_ebcdic_string(scope, ptr, length);
+	return get_ebcdic_unichar2_string(scope, ptr, length, table);
 }
 
 static guint8 *
@@ -2641,9 +2643,18 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 
 	case ENC_EBCDIC:
 		/*
-		 * XXX - multiple "dialects" of EBCDIC?
+		 * "Common" EBCDIC, covering all characters with the
+		 * same code point in all Roman-alphabet EBCDIC code
+		 * pages.
 		 */
-		strptr = tvb_get_ebcdic_string(scope, tvb, offset, length);
+		strptr = tvb_get_ebcdic_unichar2_string(scope, tvb, offset, length, charset_table_ebcdic);
+		break;
+
+	case ENC_EBCDIC_CP037:
+		/*
+		 * EBCDIC code page 037.
+		 */
+		strptr = tvb_get_ebcdic_unichar2_string(scope, tvb, offset, length, charset_table_ebcdic_cp037);
 		break;
 
 	case ENC_T61:
@@ -2812,7 +2823,7 @@ tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 }
 
 static guint8 *
-tvb_get_ebcdic_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp)
+tvb_get_ebcdic_unichar2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp, const gunichar2 table[256])
 {
 	guint	       size;
 	const guint8  *ptr;
@@ -2822,7 +2833,7 @@ tvb_get_ebcdic_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint
 	/* XXX, conversion between signed/unsigned integer */
 	if (lengthp)
 		*lengthp = size;
-	return get_ebcdic_string(scope, ptr, size);
+	return get_ebcdic_unichar2_string(scope, ptr, size, table);
 }
 
 static guint8 *
@@ -2974,9 +2985,18 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_EBCDIC:
 		/*
-		 * XXX - multiple "dialects" of EBCDIC?
+		 * "Common" EBCDIC, covering all characters with the
+		 * same code point in all Roman-alphabet EBCDIC code
+		 * pages.
 		 */
-		strptr = tvb_get_ebcdic_stringz(scope, tvb, offset, lengthp);
+		strptr = tvb_get_ebcdic_unichar2_stringz(scope, tvb, offset, lengthp, charset_table_ebcdic);
+		break;
+
+	case ENC_EBCDIC_CP037:
+		/*
+		 * EBCDIC code page 037.
+		 */
+		strptr = tvb_get_ebcdic_unichar2_stringz(scope, tvb, offset, lengthp, charset_table_ebcdic_cp037);
 		break;
 
 	case ENC_T61:
