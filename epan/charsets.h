@@ -99,7 +99,7 @@ get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
         const gint bit_offset, gint no_of_chars);
 
 WS_DLL_PUBLIC guint8 *
-get_ebcdic_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const gunichar2 table[256]);
+get_nonascii_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const gunichar2 table[256]);
 
 WS_DLL_PUBLIC guint8 *
 get_t61_string(wmem_allocator_t *scope, const guint8 *ptr, gint length);

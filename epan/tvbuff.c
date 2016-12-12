@@ -2470,12 +2470,12 @@ tvb_get_ascii_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
  * return a pointer to a UTF-8 string, allocated with the wmem scope.
  */
 static guint8 *
-tvb_get_ebcdic_unichar2_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length, const gunichar2 table[256])
+tvb_get_nonascii_unichar2_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length, const gunichar2 table[256])
 {
 	const guint8  *ptr;
 
 	ptr = ensure_contiguous(tvb, offset, length);
-	return get_ebcdic_unichar2_string(scope, ptr, length, table);
+	return get_nonascii_unichar2_string(scope, ptr, length, table);
 }
 
 static guint8 *
@@ -2647,14 +2647,14 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 * same code point in all Roman-alphabet EBCDIC code
 		 * pages.
 		 */
-		strptr = tvb_get_ebcdic_unichar2_string(scope, tvb, offset, length, charset_table_ebcdic);
+		strptr = tvb_get_nonascii_unichar2_string(scope, tvb, offset, length, charset_table_ebcdic);
 		break;
 
 	case ENC_EBCDIC_CP037:
 		/*
 		 * EBCDIC code page 037.
 		 */
-		strptr = tvb_get_ebcdic_unichar2_string(scope, tvb, offset, length, charset_table_ebcdic_cp037);
+		strptr = tvb_get_nonascii_unichar2_string(scope, tvb, offset, length, charset_table_ebcdic_cp037);
 		break;
 
 	case ENC_T61:
@@ -2823,7 +2823,7 @@ tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 }
 
 static guint8 *
-tvb_get_ebcdic_unichar2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp, const gunichar2 table[256])
+tvb_get_nonascii_unichar2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp, const gunichar2 table[256])
 {
 	guint	       size;
 	const guint8  *ptr;
@@ -2833,7 +2833,7 @@ tvb_get_ebcdic_unichar2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint off
 	/* XXX, conversion between signed/unsigned integer */
 	if (lengthp)
 		*lengthp = size;
-	return get_ebcdic_unichar2_string(scope, ptr, size, table);
+	return get_nonascii_unichar2_string(scope, ptr, size, table);
 }
 
 static guint8 *
@@ -2989,14 +2989,14 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 		 * same code point in all Roman-alphabet EBCDIC code
 		 * pages.
 		 */
-		strptr = tvb_get_ebcdic_unichar2_stringz(scope, tvb, offset, lengthp, charset_table_ebcdic);
+		strptr = tvb_get_nonascii_unichar2_stringz(scope, tvb, offset, lengthp, charset_table_ebcdic);
 		break;
 
 	case ENC_EBCDIC_CP037:
 		/*
 		 * EBCDIC code page 037.
 		 */
-		strptr = tvb_get_ebcdic_unichar2_stringz(scope, tvb, offset, lengthp, charset_table_ebcdic_cp037);
+		strptr = tvb_get_nonascii_unichar2_stringz(scope, tvb, offset, lengthp, charset_table_ebcdic_cp037);
 		break;
 
 	case ENC_T61:

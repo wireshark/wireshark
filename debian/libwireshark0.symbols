@@ -706,7 +706,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_dissector_table_param@Base 1.99.2
  get_dissector_table_selector_type@Base 1.9.1
  get_dissector_table_ui_name@Base 1.9.1
- get_ebcdic_unichar2_string@Base 2.3.0
  get_eo_by_name@Base 2.3.0
  get_eo_packet_func@Base 2.3.0
  get_eo_proto_id@Base 2.3.0
@@ -742,6 +741,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_manuf_name_if_known@Base 1.9.1
  get_mptcp_stream_count@Base 2.0.0
  get_node_field_value@Base 1.12.0~rc1
+ get_nonascii_unichar2_string@Base 2.3.0
  get_rose_ctx@Base 1.9.1
  get_rtd_num_tables@Base 1.99.8
  get_rtd_packet_func@Base 1.99.8

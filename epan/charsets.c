@@ -1098,7 +1098,7 @@ const gunichar2 charset_table_ebcdic_cp037[256] = {
  * pointer to a UTF-8 string, allocated using the wmem scope.
  */
 guint8 *
-get_ebcdic_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const gunichar2 table[256])
+get_nonascii_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const gunichar2 table[256])
 {
     wmem_strbuf_t *str;
 
