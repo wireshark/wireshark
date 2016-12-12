@@ -85,4 +85,18 @@
     </ComponentGroup>
   </Fragment>
 
+  <!-- TRANSUM -->
+  <Fragment>
+    <DirectoryRef Id="dirPluginsVersion">
+      <Component Id="cmpTransum_dll" Guid="*">
+        <File Id="filTransum_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\transum.dll" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Plugins.Transum">
+      <ComponentRef Id="cmpTransum_dll" />
+    </ComponentGroup>
+  </Fragment>
+
 </Include>

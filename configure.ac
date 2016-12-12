@@ -2986,6 +2986,7 @@ AC_CONFIG_FILES(
   plugins/opcua/Makefile
   plugins/profinet/Makefile
   plugins/stats_tree/Makefile
+  plugins/transum/Makefile
   plugins/unistim/Makefile
   plugins/wimax/Makefile
   plugins/wimaxasncp/Makefile

@@ -1026,6 +1026,13 @@ SetOutPath '$INSTDIR\plugins\${VERSION}'
 File "${STAGING_DIR}\plugins\mate.dll"
 SectionEnd
 
+
+Section "TRANSUM - network and application performance analysis" SecTransum
+;-------------------------------------------
+SetOutPath '$INSTDIR\plugins\${VERSION}'
+File "${STAGING_DIR}\plugins\transum.dll"
+SectionEnd
+
 Section "Configuration Profiles" SecProfiles
 ;-------------------------------------------
 ; This should be a function or macro
@@ -1166,6 +1173,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Additional protocol dissectors."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Extended statistics."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecTransum} "TRANSUM plugin - network and application performance analysis."
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecProfiles} "Configuration profiles"
 

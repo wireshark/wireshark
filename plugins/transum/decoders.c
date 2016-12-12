@@ -41,7 +41,7 @@ extern HF_OF_INTEREST hf_of_interest;
 
 
 /* Returns the number of sub-packets of interest */
-int decode_syn(packet_info *pinfo, proto_tree *tree)
+int decode_syn(packet_info *pinfo _U_, proto_tree *tree _U_)
 {
     if (sub_packet[0].tcp_flags_ack)
         sub_packet[0].rrpd.c2s = FALSE;
@@ -69,11 +69,11 @@ int decode_syn(packet_info *pinfo, proto_tree *tree)
 
     Returns the number of sub-packets of interest, which in this case is always 1.
  */
-int decode_dcerpc(packet_info *pinfo, proto_tree *tree)
+int decode_dcerpc(packet_info *pinfo _U_, proto_tree *tree)
 {
     guint32 field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */
-    guint32 dcerpc_cn_ctx_id;
+    guint32 dcerpc_cn_ctx_id = 0;
 
     if (!extract_uint(tree, hf_of_interest.dcerpc_ver, field_uint, &field_value_count))
     {
@@ -145,7 +145,7 @@ int decode_dcerpc(packet_info *pinfo, proto_tree *tree)
 }
 
 /* Returns the number of sub-packets of interest */
-int decode_smb(packet_info *pinfo, proto_tree *tree)
+int decode_smb(packet_info *pinfo _U_, proto_tree *tree)
 {
     guint32 field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */
@@ -184,7 +184,7 @@ int decode_smb(packet_info *pinfo, proto_tree *tree)
         {
             extract_ui64(tree, hf_of_interest.smb2_ses_id, ses_id, &ses_id_count);
 
-            for (int i = 0; i < msg_id_count; i++)
+            for (size_t i = 0; i < msg_id_count; i++)
             {
                 sub_packet[i].rrpd.c2s = sub_packet[0].rrpd.c2s;
                 sub_packet[i].rrpd.ip_proto = sub_packet[0].rrpd.ip_proto;
@@ -254,7 +254,7 @@ int decode_gtcp(packet_info *pinfo, proto_tree *tree)
 }
 
 /* Returns the number of sub-packets of interest */
-int decode_dns(packet_info *pinfo, proto_tree *tree)
+int decode_dns(packet_info *pinfo _U_, proto_tree *tree)
 {
     guint32 field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */

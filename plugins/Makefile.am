@@ -32,6 +32,7 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	opcua \
 	profinet \
 	stats_tree \
+	transum \
 	unistim \
 	wimax \
 	wimaxasncp \

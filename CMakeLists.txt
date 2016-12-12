@@ -1225,6 +1225,7 @@ if(ENABLE_PLUGINS)
 		plugins/opcua
 		plugins/profinet
 		plugins/stats_tree
+		plugins/transum
 		plugins/unistim
 		plugins/wimax
 		plugins/wimaxasncp

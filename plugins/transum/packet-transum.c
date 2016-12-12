@@ -27,12 +27,11 @@
 
 #include "config.h"
 
-#include <wiretap/wtap.h>
 #include <epan/proto.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/dissectors/packet-tcp.h>
-#include <tap.h>
+#include <epan/tap.h>
 #include <wsutil/report_err.h>
 #include "packet-transum.h"
 #include "preferences.h"
@@ -143,17 +142,17 @@ static const enum_val_t capture_position_vals[] = {
     { NULL, NULL, 0}
 };
 
-static const enum_val_t time_multiplier_vals[] = {
+/*static const enum_val_t time_multiplier_vals[] = {
     { "RTE_TIME_SEC", "seconds", RTE_TIME_SEC },
     { "RTE_TIME_MSEC", "milliseconds", RTE_TIME_MSEC },
     { "RTE_TIME_USEC", "microseconds", RTE_TIME_USEC },
     { NULL, NULL, 0}
-};
+};*/
 
 static int fake_tap = 0xa7a7a7a7;
 
 
-void init_detected_tcp_svc()
+void init_detected_tcp_svc(void)
 {
     for (int i = 0; i < 64 * 1024; i++)
         detected_tcp_svc[i] = FALSE;
@@ -165,7 +164,7 @@ void add_detected_tcp_svc(guint16 port)
 }
 
 
-void init_dcerpc_data()
+void init_dcerpc_data(void)
 {
     for (int i = 0; i < 256; i++)
         dcerpc_req_pkt_type[i] = FALSE;
@@ -190,7 +189,7 @@ void clear_rrpd(RRPD *rrpd)
     memset(rrpd, 0x00, sizeof(RRPD));
 }
 
-void init_rrpd_data()
+void init_rrpd_data(void)
 {
     for (int i = 0; i < MAX_PACKETS; i++)
         output_rrpd[i] = NULL;
@@ -252,11 +251,6 @@ int append_to_rrpd_list(RRPD *in_rrpd)
 
     return (next_free_rrpd - 1);
 }
-
-/*
-This function finds the latest entry in the rrpd_list that matches the
-ip_proto and stream_no values.  If is_struct os true it will only match
-if the session_id, msg_id and suffix are all zero or all ones.
 
 /*
 This function finds the latest entry in the rrpd_list that matches the
@@ -676,7 +670,7 @@ void update_rrpd_rte_data(RRPD *in_rrpd)
 }
 
 /* This function initialises all of the sub_packets in the sub_packet array. */
-void init_sub_packet()
+void init_sub_packet(void)
 {
     for (int i = 0; i < MAX_SUBPKTS_PER_PACKET; i++)
     {
@@ -757,15 +751,10 @@ void init_globals(void)
     if (!preferences.tsumenabled) return;
 
     /* Create and initialise some dynamic memory areas */
-    detected_tcp_svc = (gboolean *)wmem_alloc(wmem_file_scope(), (64 * 1024 * sizeof(gboolean)));
-    sub_packet = (PKT_INFO *)wmem_alloc(wmem_file_scope(), (MAX_SUBPKTS_PER_PACKET * sizeof(PKT_INFO)));
-    rrpd_list = (RRPD *)wmem_alloc(wmem_file_scope(), (MAX_RRPDS * sizeof(RRPD)));
-    temp_rsp_rrpd_list = (RRPD *)wmem_alloc(wmem_file_scope(), (SIZE_OF_TEMP_RSP_RRPD_LIST * sizeof(RRPD)));
-
-    memset(detected_tcp_svc, 0x00, (64 * 1024 * sizeof(gboolean)));
-    memset(sub_packet, 0x00, (MAX_SUBPKTS_PER_PACKET * sizeof(PKT_INFO)));
-    memset(rrpd_list, 0x00, (MAX_RRPDS * sizeof(RRPD)));
-    memset(temp_rsp_rrpd_list, 0x00, (SIZE_OF_TEMP_RSP_RRPD_LIST * sizeof(RRPD)));
+    detected_tcp_svc = (gboolean *)wmem_alloc0(wmem_file_scope(), (64 * 1024 * sizeof(gboolean)));
+    sub_packet = (PKT_INFO *)wmem_alloc0(wmem_file_scope(), (MAX_SUBPKTS_PER_PACKET * sizeof(PKT_INFO)));
+    rrpd_list = (RRPD *)wmem_alloc0(wmem_file_scope(), (MAX_RRPDS * sizeof(RRPD)));
+    temp_rsp_rrpd_list = (RRPD *)wmem_alloc0(wmem_file_scope(), (SIZE_OF_TEMP_RSP_RRPD_LIST * sizeof(RRPD)));
 
     next_free_rrpd = 0;
 
@@ -866,8 +855,7 @@ void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summary)
     proto_tree *rte_tree;
     proto_item *pi;
 
-    char *temp_string;
-    temp_string = wmem_alloc(wmem_packet_scope(), SIZEOF_TEMP_STRING);
+    char *temp_string = (char *)wmem_alloc(wmem_packet_scope(), SIZEOF_TEMP_STRING);
 
     if (in_rrpd->req_first_frame)
     {
@@ -1106,7 +1094,7 @@ void set_proto_values(packet_info *pinfo, proto_tree *tree)
  * Wireshark scans all the packets once and then once again as they are displayed
  * The pinfo.visited boolean is set to FALSE; on the first scan
 */
-static int dissect_transum(tvbuff_t *buffer, packet_info *pinfo, proto_tree *tree _U_)
+static int dissect_transum(tvbuff_t *buffer, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     if (!preferences.tsumenabled) return 0;
 
