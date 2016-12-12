@@ -939,7 +939,7 @@ void RtpAnalysisDialog::updateStatistics()
     stats_tables += "<h4>Reverse</h4>\n";
     stats_tables += "<p><table>\n";
     stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
-            .arg(int_to_qstring(ssrc_fwd_, 8, 16));
+            .arg(int_to_qstring(ssrc_rev_, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
             .arg(rev_statinfo_.max_delta, 0, 'f', 2)
             .arg(rev_statinfo_.max_nr);
