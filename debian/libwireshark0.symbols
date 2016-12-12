@@ -706,7 +706,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_dissector_table_param@Base 1.99.2
  get_dissector_table_selector_type@Base 1.9.1
  get_dissector_table_ui_name@Base 1.9.1
- get_ebcdic_string@Base 1.12.0~rc1
+ get_ebcdic_unichar2_string@Base 2.3.0
  get_eo_by_name@Base 2.3.0
  get_eo_packet_func@Base 2.3.0
  get_eo_proto_id@Base 2.3.0

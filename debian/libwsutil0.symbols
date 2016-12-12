@@ -46,6 +46,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  crypt_md4@Base 1.12.0~rc1
  crypt_rc4@Base 1.12.0~rc1
  crypt_rc4_init@Base 1.12.0~rc1
+ data_file_url@Base 2.3.0
  delete_persconffile_profile@Base 1.12.0~rc1
  file_exists@Base 1.12.0~rc1
  file_open_error_message@Base 1.12.0~rc1
