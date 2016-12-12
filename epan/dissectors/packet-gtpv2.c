@@ -42,6 +42,7 @@
 #include "packet-ntp.h"
 #include "packet-gtpv2.h"
 #include "packet-diameter.h"
+#include "packet-diameter_3gpp.h"
 #include "packet-ip.h"
 
 void proto_register_gtpv2(void);
@@ -560,6 +561,13 @@ static int hf_gtpv2_twan_relay_id_ipv6 = -1;
 static int hf_gtpv2_twan_circuit_id_len = -1;
 static int hf_gtpv2_twan_circuit_id = -1;
 static int hf_gtpv2_integer_number_val = -1;
+static int hf_gtpv2_ran_nas_protocol_type = -1;
+static int hf_gtpv2_ran_nas_cause_type = -1;
+static int hf_gtpv2_ran_nas_cause_value = -1;
+static int hf_gtpv2_emm_cause = -1;
+static int hf_gtpv2_esm_cause = -1;
+static int hf_gtpv2_diameter_cause = -1;
+static int hf_gtpv2_ikev2_cause = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -627,7 +635,6 @@ static expert_field ei_gtpv2_mbms_session_duration_days = EI_INIT;
 static expert_field ei_gtpv2_mbms_session_duration_secs = EI_INIT;
 static expert_field ei_gtpv2_ie = EI_INIT;
 static expert_field ei_gtpv2_int_size_not_handled = EI_INIT;
-
 
 /* Definition of User Location Info (AVP 22) masks */
 #define GTPv2_ULI_CGI_MASK          0x01
@@ -5949,10 +5956,51 @@ dissect_gtpv2_mbms_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 /*
  * 8.103        RAN/NAS Cause
  */
+static const value_string ran_nas_prot_type_vals[] = {
+    { 1, "S1AP Cause" },
+    { 2, "EMM Cause" },
+    { 3, "ESM Cause" },
+    { 4, "Diameter Cause" },
+    { 5, "IKEv2 Cause" },
+    { 0, NULL },
+};
+
 static void
 dissect_gtpv2_ran_nas_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int offset = 0;
+    guint8 octet = tvb_get_guint8(tvb, offset);
+    guint8 proto_type = (octet >> 4);
+    int cause_type = 0;
+
+    proto_tree_add_item(tree, hf_gtpv2_ran_nas_protocol_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    if (proto_type == 1) {
+        proto_tree_add_item(tree, hf_gtpv2_ran_nas_cause_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        cause_type = octet & 0x0F;
+    }
+    offset += 1;
+
+    switch (proto_type) {
+        case 1:
+                dissect_gtpv2_s1ap_cause(tvb, pinfo, tree, offset, cause_type);
+                break;
+        case 2:
+                proto_tree_add_item(tree, hf_gtpv2_emm_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
+                break;
+        case 3:
+                proto_tree_add_item(tree, hf_gtpv2_esm_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
+                break;
+        case 4:
+                proto_tree_add_item(tree, hf_gtpv2_diameter_cause, tvb, offset, 2, ENC_BIG_ENDIAN);
+                break;
+        case 5:
+                proto_tree_add_item(tree, hf_gtpv2_ikev2_cause, tvb, offset, 2, ENC_BIG_ENDIAN);
+                break;
+        default:
+                proto_tree_add_item(tree, hf_gtpv2_ran_nas_cause_value, tvb, offset, length - offset, ENC_BIG_ENDIAN);
+                break;
+    }
 }
 /*
  * 8.104        CN Operator Selection Entity
@@ -9013,6 +9061,13 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_twan_circuit_id_len,{ "Relay Identity Type Length", "gtpv2.twan_id.relay_id_type_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_twan_circuit_id,{ "Circuit-ID", "gtpv2.twan_id.circuit_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_integer_number_val,{ "Value", "gtpv2.integer_number_val", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_ran_nas_protocol_type, {"RAN/NAS Protocol Type", "gtpv2.ran_nas.protocol_type", FT_UINT8, BASE_DEC, VALS(ran_nas_prot_type_vals), 0xF0, NULL, HFILL} },
+      { &hf_gtpv2_ran_nas_cause_type, {"RAN/NAS S1AP Cause Type", "gtpv2.ran_nas.s1ap_type", FT_UINT8, BASE_DEC, VALS(s1ap_Cause_vals), 0x0F, NULL, HFILL} },
+      { &hf_gtpv2_ran_nas_cause_value, {"RAN/NAS Cause Value", "gtpv2.ran_nas.cause_value", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL} },
+      { &hf_gtpv2_emm_cause, {"EMM Cause Value", "gtpv2.ran_nas.emm_cause", FT_UINT8, BASE_DEC, VALS(nas_eps_emm_cause_values), 0x0, NULL, HFILL} },
+      { &hf_gtpv2_esm_cause, {"ESM Cause Value", "gtpv2.ran_nas.esm_cause", FT_UINT8, BASE_DEC, VALS(nas_eps_esm_cause_vals), 0x0, NULL, HFILL} },
+      { &hf_gtpv2_diameter_cause, {"Diameter Cause Value", "gtpv2.ran_nas.diameter_cause", FT_UINT16, BASE_DEC, VALS(diameter_3gpp_termination_cause_vals), 0x0, NULL, HFILL} },
+      { &hf_gtpv2_ikev2_cause, {"IKEv2 Cause Value", "gtpv2.ran_nas.ikev2_cause", FT_UINT16, BASE_DEC, VALS(diameter_3gpp_IKEv2_error_type_vals), 0x0, NULL, HFILL} },
     };
 
     static gint *ett_gtpv2_array[] = {

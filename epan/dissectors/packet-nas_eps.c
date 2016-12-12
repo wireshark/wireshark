@@ -2637,7 +2637,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 9.9.4.4 ESM cause
  */
 
-static const value_string nas_eps_esm_cause_vals[] = {
+const value_string nas_eps_esm_cause_vals[] = {
     { 0x08, "Operator Determined Barring"},
     { 0x1a, "Insufficient resources"},
     { 0x1b, "Missing or unknown APN"},

@@ -17,6 +17,7 @@ CauseTransport
 CauseNas
 CauseProtocol
 CauseMisc
+Cause
 
 #.EXPORTS
 ENB-StatusTransfer-TransparentContainer_PDU

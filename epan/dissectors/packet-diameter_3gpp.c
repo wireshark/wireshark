@@ -30,12 +30,15 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/asn1.h>
 
 #include "packet-diameter.h"
+#include "packet-diameter_3gpp.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-ntp.h"
+#include "packet-s1ap.h"
 #include "packet-sip.h"
 #include "packet-lcsap.h"
 
@@ -398,6 +401,19 @@ static int hf_diameter_3gpp_feature_list1_rx_flags_spare_bits = -1;
 
 static int hf_diameter_3gpp_feature_list2_rx_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list2_rx_flags_spare_bits = -1;
+
+static int hf_diameter_3gpp_ran_nas_protocol_type = -1;
+static int hf_diameter_3gpp_ran_nas_cause_type = -1;
+static int hf_diameter_3gpp_ran_nas_cause_value = -1;
+static int hf_diameter_3gpp_s1ap_radio_network = -1;
+static int hf_diameter_3gpp_s1ap_transport = -1;
+static int hf_diameter_3gpp_s1ap_nas = -1;
+static int hf_diameter_3gpp_s1ap_protocol = -1;
+static int hf_diameter_3gpp_s1ap_misc = -1;
+static int hf_diameter_3gpp_emm_cause = -1;
+static int hf_diameter_3gpp_esm_cause = -1;
+static int hf_diameter_3gpp_diameter_cause = -1;
+static int hf_diameter_3gpp_ikev2_cause = -1;
 
 /* Dissector handles */
 static dissector_handle_t xml_handle;
@@ -1855,6 +1871,82 @@ dissect_diameter_3gpp_eutran_positioning_data(tvbuff_t *tvb, packet_info *pinfo 
     return dissect_lcsap_Positioning_Data_PDU(tvb, pinfo, tree, NULL);
 }
 
+/* AVP Code: 2819 RAN-NAS-Release-Cause*/
+
+static const value_string ran_nas_prot_type_vals[] = {
+    { 1, "S1AP Cause" },
+    { 2, "EMM Cause" },
+    { 3, "ESM Cause" },
+    { 4, "Diameter Cause" },
+    { 5, "IKEv2 Cause" },
+    { 0, NULL}
+};
+
+static int
+dissect_diameter_3gpp_ran_nas_release_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+    guint8 octet = tvb_get_guint8(tvb, offset);
+    guint8 proto_type = (octet >> 4);
+    int cause_type = 0;
+
+    proto_tree_add_item(tree, hf_diameter_3gpp_ran_nas_protocol_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    if (proto_type == 1) {
+        proto_tree_add_item(tree, hf_diameter_3gpp_ran_nas_cause_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        cause_type = octet & 0x0F;
+    }
+    offset += 1;
+
+    switch (proto_type) {
+        case 1:
+                switch (cause_type) {
+                        case 0:
+                                proto_tree_add_item(tree, hf_diameter_3gpp_s1ap_radio_network, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                break;
+                        case 1:
+                                proto_tree_add_item(tree, hf_diameter_3gpp_s1ap_transport, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                break;
+                        case 2:
+                                proto_tree_add_item(tree, hf_diameter_3gpp_s1ap_nas, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                break;
+                        case 3:
+                                proto_tree_add_item(tree, hf_diameter_3gpp_s1ap_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                break;
+                        case 4:
+                                proto_tree_add_item(tree, hf_diameter_3gpp_s1ap_misc, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                break;
+                        default:
+                                proto_tree_add_item(tree, hf_diameter_3gpp_ran_nas_cause_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+                }
+                offset += 1;
+                break;
+        case 2:
+                proto_tree_add_item(tree, hf_diameter_3gpp_emm_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                break;
+        case 3:
+                proto_tree_add_item(tree, hf_diameter_3gpp_esm_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                break;
+        case 4:
+                proto_tree_add_item(tree, hf_diameter_3gpp_diameter_cause, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+        case 5:
+                proto_tree_add_item(tree, hf_diameter_3gpp_ikev2_cause, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+        default:
+                proto_tree_add_item(tree, hf_diameter_3gpp_ran_nas_cause_value, tvb, offset, length - offset, ENC_BIG_ENDIAN);
+                offset += (length - offset);
+                break;
+    }
+
+    return offset;
+}
+
 /* AVP Code: 3502 MBMS-Bearer-Event */
 static int
 dissect_diameter_3gpp_mbms_bearer_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -2096,6 +2188,9 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 2516 EUTRAN-Positioning-Data */
     dissector_add_uint("diameter.3gpp", 2516, create_dissector_handle(dissect_diameter_3gpp_eutran_positioning_data, proto_diameter_3gpp));
 
+    /* AVP Code: 2819 RAN-NAS-Release-Cause */
+    dissector_add_uint("diameter.3gpp", 2819, create_dissector_handle(dissect_diameter_3gpp_ran_nas_release_cause, proto_diameter_3gpp));
+
     /* AVP Code: 3502 MBMS-Bearer-Event */
     dissector_add_uint("diameter.3gpp", 3502, create_dissector_handle(dissect_diameter_3gpp_mbms_bearer_event, proto_diameter_3gpp));
 
@@ -2110,7 +2205,6 @@ proto_reg_handoff_diameter_3gpp(void)
 
     xml_handle = find_dissector_add_dependency("xml", proto_diameter_3gpp);
 }
-
 
 /*
  *  3GPP TS 24.008 Quality of service
@@ -3882,6 +3976,66 @@ proto_register_diameter_3gpp(void)
         { &hf_diameter_3gpp_feature_list_sd_flags_spare_bits,
         { "Spare", "diameter.3gpp.feature_list_sd_flags_spare",
           FT_UINT32, BASE_HEX, NULL, 0xFFFFF800,
+          NULL, HFILL}
+        },
+        { &hf_diameter_3gpp_ran_nas_protocol_type,
+        { "Protocol Type", "diameter.3gpp.ran_nas.protocol_type",
+          FT_UINT8, BASE_DEC, VALS(ran_nas_prot_type_vals), 0xF0,
+          NULL, HFILL}
+        },
+        { &hf_diameter_3gpp_ran_nas_cause_type,
+        { "S1AP Cause Type", "diameter.3gpp.ran_nas.s1ap_type",
+          FT_UINT8, BASE_DEC, VALS(s1ap_Cause_vals), 0x0F,
+          NULL, HFILL}
+        },
+        { &hf_diameter_3gpp_ran_nas_cause_value,
+        { "Cause Value", "diameter.3gpp.ran_nas.cause_value",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        { &hf_diameter_3gpp_s1ap_radio_network,
+        { "S1AP Radio Network Cause Value", "diameter.3gpp.ran_nas.radio_cause",
+          FT_UINT8, BASE_DEC, VALS(s1ap_CauseRadioNetwork_vals), 0x0,
+          NULL, HFILL}
+        },
+        { &hf_diameter_3gpp_s1ap_transport,
+        { "S1AP Transport Cause Value", "diameter.3gpp.ran_nas.transport_cause",
+          FT_UINT8, BASE_DEC, VALS(s1ap_CauseTransport_vals), 0x0,
+          NULL, HFILL}
+        },
+        { &hf_diameter_3gpp_s1ap_nas,
+        { "S1AP NAS Cause Value", "diameter.3gpp.ran_nas.nas_cause",
+          FT_UINT8, BASE_DEC, VALS(s1ap_CauseNas_vals), 0x0,
+          NULL, HFILL}
+        },
+        { &hf_diameter_3gpp_s1ap_protocol,
+        { "S1AP Protocol Cause Value", "diameter.3gpp.ran_nas.protocol_cause",
+          FT_UINT8, BASE_DEC, VALS(s1ap_CauseProtocol_vals), 0x0,
+          NULL, HFILL}
+        },
+        { &hf_diameter_3gpp_s1ap_misc,
+        { "S1AP Misc. Cause Value", "diameter.3gpp.ran_nas.misc_cause",
+          FT_UINT8, BASE_DEC, VALS(s1ap_CauseMisc_vals), 0x0,
+          NULL, HFILL}
+        },
+        { &hf_diameter_3gpp_emm_cause,
+        { "EMM Cause Value", "diameter.3gpp.ran_nas.emm_cause",
+          FT_UINT8, BASE_DEC, VALS(nas_eps_emm_cause_values), 0x0,
+          NULL, HFILL}
+        },
+        { &hf_diameter_3gpp_esm_cause,
+        { "ESM Cause Value", "diameter.3gpp.ran_nas.esm_cause",
+          FT_UINT8, BASE_DEC, VALS(nas_eps_esm_cause_vals), 0x0,
+          NULL, HFILL}
+        },
+        { &hf_diameter_3gpp_diameter_cause,
+        { "Diameter Cause Value", "diameter.3gpp.ran_nas.diameter_cause",
+          FT_UINT16, BASE_DEC, VALS(diameter_3gpp_termination_cause_vals), 0x0,
+          NULL, HFILL}
+        },
+        { &hf_diameter_3gpp_ikev2_cause,
+        { "IKEv2 Cause Value", "diameter.3gpp.ran_nas.ikev2_cause",
+          FT_UINT16, BASE_DEC, VALS(diameter_3gpp_IKEv2_error_type_vals), 0x0,
           NULL, HFILL}
         },
 };

@@ -757,6 +757,8 @@ extern value_string_ext gsm_a_rr_rxlev_vals_ext;
 extern const value_string gsm_a_gm_type_of_ciph_alg_vals[];
 
 extern value_string_ext nas_eps_emm_cause_values_ext;
+extern const value_string nas_eps_emm_cause_values[];
+extern const value_string nas_eps_esm_cause_vals[];
 
 typedef enum
 {

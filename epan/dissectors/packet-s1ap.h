@@ -42,6 +42,7 @@ typedef struct _s1ap_ctx_t {
 
 /*--- Included file: packet-s1ap-exp.h ---*/
 #line 1 "./asn1/s1ap/packet-s1ap-exp.h"
+WS_DLL_PUBLIC const value_string s1ap_Cause_vals[];
 WS_DLL_PUBLIC const value_string s1ap_CauseMisc_vals[];
 WS_DLL_PUBLIC const value_string s1ap_CauseProtocol_vals[];
 WS_DLL_PUBLIC const value_string s1ap_CauseRadioNetwork_vals[];
