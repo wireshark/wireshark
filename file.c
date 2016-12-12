@@ -1146,19 +1146,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     frame_data_set_after_dissect(fdata, &cf->cum_bytes);
     cf->prev_dis = fdata;
 
-    /* If we haven't yet seen the first frame, this is it.
-
-       XXX - we must do this before we add the row to the display,
-       as, if the display's GtkCList's selection mode is
-       GTK_SELECTION_BROWSE, when the first entry is added to it,
-       "cf_select_packet()" will be called, and it will fetch the row
-       data for the 0th row, and will get a null pointer rather than
-       "fdata", as "gtk_clist_append()" won't yet have returned and
-       thus "gtk_clist_set_row_data()" won't yet have been called.
-
-       We thus need to leave behind bread crumbs so that
-       "cf_select_packet()" can find this frame.  See the comment
-       in "cf_select_packet()". */
+    /* If we haven't yet seen the first frame, this is it. */
     if (cf->first_displayed == 0)
       cf->first_displayed = fdata->num;
 
@@ -3644,38 +3632,6 @@ cf_select_packet(capture_file *cf, int row)
   /* Get the frame data struct pointer for this frame */
   fdata = packet_list_get_row_data(row);
 
-  if (fdata == NULL) {
-    /* XXX - if a GtkCList's selection mode is GTK_SELECTION_BROWSE, when
-       the first entry is added to it by "real_insert_row()", that row
-       is selected (see "real_insert_row()", in "ui/gtk/gtkclist.c", in both
-       our version and the vanilla GTK+ version).
-
-       This means that a "select-row" signal is emitted; this causes
-       "packet_list_select_cb()" to be called, which causes "cf_select_packet()"
-       to be called.
-
-       "cf_select_packet()" fetches, above, the data associated with the
-       row that was selected; however, as "gtk_clist_append()", which
-       called "real_insert_row()", hasn't yet returned, we haven't yet
-       associated any data with that row, so we get back a null pointer.
-
-       We can't assume that there's only one frame in the frame list,
-       either, as we may be filtering the display.
-
-       We therefore assume that, if "row" is 0, i.e. the first row
-       is being selected, and "cf->first_displayed" equals
-       "cf->last_displayed", i.e. there's only one frame being
-       displayed, that frame is the frame we want.
-
-       This means we have to set "cf->first_displayed" and
-       "cf->last_displayed" before adding the row to the
-       GtkCList; see the comment in "add_packet_to_packet_list()". */
-
-       if (row == 0 && cf->first_displayed == cf->last_displayed)
-         fdata = frame_data_sequence_find(cf->frames, cf->first_displayed);
-  }
-
-  /* If fdata _still_ isn't set simply give up. */
   if (fdata == NULL) {
     return;
   }

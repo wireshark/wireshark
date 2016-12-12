@@ -48,7 +48,7 @@ typedef struct {
  */
 extern void init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, const char *title, const char *filter);
 
-/** Create a stats table, using a scrollable gtkclist.
+/** Create a stats table, using GtkListStore and GtkTreeView.
  *
  * @param scrolled_window the scrolled window
  * @param vbox the vbox for the window
