@@ -156,7 +156,14 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
         QString out_name = out_device.deviceName();
         ui->outputDeviceComboBox->addItem(out_name);
         if (out_name == default_out_name) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
             ui->outputDeviceComboBox->setCurrentText(out_name);
+#else
+            int new_index = ui->outputDeviceComboBox->findText(default_out_name);
+            if (new_index >= 0) {
+                ui->outputDeviceComboBox->setCurrentIndex(new_index);
+            }
+#endif
         }
     }
     if (ui->outputDeviceComboBox->count() < 1) {
