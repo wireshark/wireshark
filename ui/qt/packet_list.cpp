@@ -246,7 +246,8 @@ PacketList::PacketList(QWidget *parent) :
     tail_timer_id_(0),
     rows_inserted_(false),
     columns_changed_(false),
-    set_column_visibility_(false)
+    set_column_visibility_(false),
+    frozen_row_(-1)
 {
     QMenu *main_menu_item, *submenu;
     QAction *action;
@@ -882,6 +883,11 @@ void PacketList::freeze()
 {
     setUpdatesEnabled(false);
     column_state_ = header()->saveState();
+    if (currentIndex().isValid()) {
+        frozen_row_ = currentIndex().row();
+    } else {
+        frozen_row_ = -1;
+    }
     selectionModel()->clear();
     setModel(NULL);
     // It looks like GTK+ sends a cursor-changed signal at this point but Qt doesn't
@@ -891,7 +897,7 @@ void PacketList::freeze()
     byte_view_tab_->clear();
 }
 
-void PacketList::thaw()
+void PacketList::thaw(bool restore_selection)
 {
     setUpdatesEnabled(true);
     setModel(packet_list_model_);
@@ -900,6 +906,13 @@ void PacketList::thaw()
     // We don't reapply the recent settings because the user could have
     // resized the columns manually since they were initially loaded.
     header()->restoreState(column_state_);
+
+    if (restore_selection && frozen_row_ > -1) {
+        // This updates our selection, which redissects the current packet,
+        // which is needed when we're called from MainWindow::layoutPanes.
+        setCurrentIndex(packet_list_model_->index(frozen_row_, 0));
+    }
+    frozen_row_ = -1;
 }
 
 void PacketList::clear() {
@@ -1388,7 +1401,7 @@ void PacketList::sectionMoved(int, int, int)
     g_list_free(prefs.col_list);
     prefs.col_list = new_col_list;
 
-    thaw();
+    thaw(true);
 
     for (int i = 0; i < saved_sizes.length(); i++) {
         if (saved_sizes[i] < 1) continue;

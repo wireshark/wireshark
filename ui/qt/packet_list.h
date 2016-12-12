@@ -61,8 +61,20 @@ public:
     QMenu *colorizeMenu() { return &colorize_menu_; }
     void setProtoTree(ProtoTree *proto_tree);
     void setByteViewTab(ByteViewTab *byteViewTab);
+    /** Disable and clear the packet list.
+     *
+     * Disable packet list widget updates, clear the detail and byte views,
+     * and disconnect the model.
+     */
     void freeze();
-    void thaw();
+    /** Enable and restore the packet list.
+     *
+     * Enable packet list widget updates and reconnect the model.
+     *
+     * @param restore_selection If true, redissect the previously selected
+     * packet. This includes filling in the detail and byte views.
+     */
+    void thaw(bool restore_selection = false);
     void clear();
     void writeRecent(FILE *rf);
     bool contextMenuActive();
@@ -120,6 +132,7 @@ private:
     bool rows_inserted_;
     bool columns_changed_;
     bool set_column_visibility_;
+    int frozen_row_;
 
     void setFrameReftime(gboolean set, frame_data *fdata);
     void setColumnVisibility();

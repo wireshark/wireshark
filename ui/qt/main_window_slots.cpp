@@ -320,7 +320,6 @@ void MainWindow::layoutPanes()
     if (cur_layout_ == new_layout) return;
 
     QSplitter *parents[3];
-    int current_row = capture_file_.currentRow();
 
     // Reparent all widgets and add them back in the proper order below.
     // This hides each widget as well.
@@ -397,8 +396,7 @@ void MainWindow::layoutPanes()
     proto_tree_->setVisible(ms_children.contains(proto_tree_) && recent.tree_view_show);
     byte_view_tab_->setVisible(ms_children.contains(byte_view_tab_) && recent.byte_view_show);
 
-    packet_list_->thaw();
-    cf_select_packet(capture_file_.capFile(), current_row);  // XXX Doesn't work for row 0?
+    packet_list_->thaw(true);
     cur_layout_ = new_layout;
 }
 
