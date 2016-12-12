@@ -469,6 +469,7 @@ rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		if (rtpinfo->info_marker_set) {
 			statinfo->flags |= STAT_FLAG_MARKER;
 		}
+		statinfo->first_packet_num = pinfo->num;
 		statinfo->first_packet = FALSE;
 		return;
 	}

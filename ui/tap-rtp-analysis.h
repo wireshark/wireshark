@@ -106,6 +106,7 @@ typedef struct _tap_rtp_stat_t {
     gint            cycles;
     guint16         pt;
     int             reg_pt;
+    guint32         first_packet_num;
 } tap_rtp_stat_t;
 
 #define PT_UNDEFINED -1

@@ -928,6 +928,9 @@ void RtpAnalysisDialog::updateStatistics()
             .arg(f_lost).arg(f_perc, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</td></tr>")
             .arg(fwd_statinfo_.sequence);
+    stats_tables += QString("<tr><th align=\"left\">Start at</th><td>%1 s @ %2</td></tr>")
+            .arg(fwd_statinfo_.start_time / 1000.0, 0, 'f', 6)
+            .arg(fwd_statinfo_.first_packet_num);
     stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</td></tr>")
             .arg(f_duration / 1000.0, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</td></tr>")
@@ -957,13 +960,22 @@ void RtpAnalysisDialog::updateStatistics()
             .arg(r_lost).arg(r_perc, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</td></tr>")
             .arg(rev_statinfo_.sequence);
+    stats_tables += QString("<tr><th align=\"left\">Start at</th><td>%1 s @ %2</td></tr>")
+            .arg(rev_statinfo_.start_time / 1000.0, 0, 'f', 6)
+            .arg(rev_statinfo_.first_packet_num);
     stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</td></tr>")
             .arg(r_duration / 1000.0, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</td></tr>")
             .arg(r_duration * (r_clock_drift - 1.0), 0, 'f', 0);
     stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</td></tr>") // XXX Terminology?
             .arg(r_clock_drift * r_clock_rate, 0, 'f', 0).arg(100.0 * (r_clock_drift - 1.0), 0, 'f', 2);
-    stats_tables += "</table></p></body></html>\n";
+    stats_tables += "</table></p>";
+    if (rev_statinfo_.total_nr) {
+        stats_tables += QString("<h4>Forward to reverse<br/>start diff %1 s @ %2</h4>")
+            .arg((rev_statinfo_.start_time - fwd_statinfo_.start_time) / 1000.0, 0, 'f', 6)
+            .arg((gint64)rev_statinfo_.first_packet_num - (gint64)fwd_statinfo_.first_packet_num);
+    }
+    stats_tables += "</body></html>\n";
 
     ui->statisticsLabel->setText(stats_tables);
 
