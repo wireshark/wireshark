@@ -146,13 +146,13 @@ goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
 void
 goto_top_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-  cf_goto_top_frame();
+  packet_list_select_first_row();
 }
 
 void
 goto_bottom_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-  cf_goto_bottom_frame();
+  packet_list_select_last_row();
 }
 
 void

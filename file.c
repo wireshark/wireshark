@@ -3612,23 +3612,6 @@ cf_goto_frame(capture_file *cf, guint fnumber)
   return TRUE;  /* we got to that packet */
 }
 
-gboolean
-cf_goto_top_frame(void)
-{
-  /* Find and select */
-  packet_list_select_first_row();
-  return TRUE;  /* we got to that packet */
-}
-
-/* GTK+ only */
-gboolean
-cf_goto_bottom_frame(void)
-{
-  /* Find and select */
-  packet_list_select_last_row();
-  return TRUE;  /* we got to that packet */
-}
-
 /*
  * Go to frame specified by currently selected protocol tree item.
  */
