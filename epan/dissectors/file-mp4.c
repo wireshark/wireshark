@@ -217,15 +217,13 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     rate = tvb_get_ntohs(tvb, offset);
     fract_dec = tvb_get_ntohs(tvb, offset+2);
     rate += make_fract(fract_dec);
-    proto_tree_add_double_format_value(tree, hf_mp4_mvhd_rate,
-            tvb, offset, 4, rate, "%f", rate);
+    proto_tree_add_double(tree, hf_mp4_mvhd_rate, tvb, offset, 4, rate);
     offset += 4;
 
     vol = tvb_get_guint8(tvb, offset);
     fract_dec = tvb_get_guint8(tvb, offset+1);
     vol += make_fract(fract_dec);
-    proto_tree_add_double_format_value(tree, hf_mp4_mvhd_vol,
-            tvb, offset, 4, vol, "%f", vol);
+    proto_tree_add_double(tree, hf_mp4_mvhd_vol, tvb, offset, 4, vol);
     offset += 2;
 
     offset += 2;   /* 16 bits reserved */
@@ -314,15 +312,13 @@ dissect_mp4_tkhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     width = tvb_get_ntohs(tvb, offset);
     fract_dec = tvb_get_ntohs(tvb, offset+2);
     width += make_fract(fract_dec);
-    proto_tree_add_double_format_value(tree, hf_mp4_tkhd_width,
-            tvb, offset, 4, width, "%f", width);
+    proto_tree_add_double(tree, hf_mp4_tkhd_width, tvb, offset, 4, width);
     offset += 4;
 
     height = tvb_get_ntohs(tvb, offset);
     fract_dec = tvb_get_ntohs(tvb, offset+2);
     height += make_fract(fract_dec);
-    proto_tree_add_double_format_value(tree, hf_mp4_tkhd_height,
-            tvb, offset, 4, height, "%f", height);
+    proto_tree_add_double(tree, hf_mp4_tkhd_height, tvb, offset, 4, height);
     offset += 4;
 
     return offset-offset_start;

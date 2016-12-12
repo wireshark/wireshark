@@ -54,6 +54,11 @@ WS_DLL_PUBLIC const unit_name_string units_second_seconds; // full unit name "se
 WS_DLL_PUBLIC const unit_name_string units_seconds;        //only seconds abbreviation "s"
 WS_DLL_PUBLIC const unit_name_string units_millisecond_milliseconds; // full unit name "millisecond[s?]"
 WS_DLL_PUBLIC const unit_name_string units_milliseconds;        //only seconds abbreviation "ms"
+WS_DLL_PUBLIC const unit_name_string units_nanosecond_nanoseconds; // full unit name "nanosecond[s?]"
+WS_DLL_PUBLIC const unit_name_string units_degree_degrees;
+WS_DLL_PUBLIC const unit_name_string units_ghz;
+WS_DLL_PUBLIC const unit_name_string units_hz;
+WS_DLL_PUBLIC const unit_name_string units_hz_s;
 
 #ifdef __cplusplus
 }

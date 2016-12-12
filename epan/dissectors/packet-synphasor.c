@@ -965,17 +965,15 @@ static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block
 static gint dissect_DFREQ(tvbuff_t *tvb, proto_tree *tree, config_block *block, gint offset)
 {
 	if (floating_point == block->format_fr) {
-		gfloat tmp;
-
-		tmp = tvb_get_ntohieee_float(tvb, offset);
-		proto_tree_add_float_format_value(tree, hf_synphasor_actual_frequency_value, tvb, offset, 4, tmp, "%fHz", tmp); offset += 4;
+		proto_tree_add_item(tree, hf_synphasor_actual_frequency_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
 
 		/* The standard doesn't clearly say how to interpret this value, but
 		 * http://www.pes-psrc.org/h/C37_118_H11_FAQ_Jan2008.pdf provides further information.
 		 * --> no scaling factor is applied to DFREQ
 		 */
-		tmp = tvb_get_ntohieee_float(tvb, offset);
-		proto_tree_add_float_format_value(tree, hf_synphasor_rate_change_frequency, tvb, offset, 4, tmp, "%fHz/s", tmp); offset += 4;
+		proto_tree_add_item(tree, hf_synphasor_rate_change_frequency, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
 	}
 	else {
 		gint16 tmp;
@@ -1304,8 +1302,8 @@ void proto_register_synphasor(void)
       { &hf_synphasor_num_digital_status_words, { "Number of digital status words", "synphasor.num_digital_status_words", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_rate_of_transmission, { "Rate of transmission", "synphasor.rate_of_transmission", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_phasor, { "Phasor", "synphasor.phasor", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_synphasor_actual_frequency_value, { "Actual frequency value", "synphasor.actual_frequency_value", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_synphasor_rate_change_frequency, { "Rate of change of frequency", "synphasor.rate_change_frequency", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_actual_frequency_value, { "Actual frequency value", "synphasor.actual_frequency_value", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0x0, NULL, HFILL }},
+      { &hf_synphasor_rate_change_frequency, { "Rate of change of frequency", "synphasor.rate_change_frequency", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_hz_s, 0x0, NULL, HFILL }},
       { &hf_synphasor_frequency_deviation_from_nominal, { "Frequency deviation from nominal", "synphasor.frequency_deviation_from_nominal", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_analog_value, { "Analog value", "synphasor.analog_value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_synphasor_digital_status_word, { "Digital status word", "synphasor.digital_status_word", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},

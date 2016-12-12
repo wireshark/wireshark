@@ -54,6 +54,12 @@ const unit_name_string units_second_seconds = { " second", " seconds" };
 const unit_name_string units_seconds = { "s", NULL };
 const unit_name_string units_millisecond_milliseconds = { " millisecond", " milliseconds" };
 const unit_name_string units_milliseconds = { "ms", NULL };
+const unit_name_string units_nanosecond_nanoseconds = { " nanosecond", " nanoseconds" };
+const unit_name_string units_degree_degrees = { " degree", " degrees" };
+const unit_name_string units_ghz = { "GHz", NULL };
+const unit_name_string units_hz = { "Hz", NULL };
+const unit_name_string units_hz_s = { "Hz/s", NULL };
+
 
 /*
  * Editor modelines

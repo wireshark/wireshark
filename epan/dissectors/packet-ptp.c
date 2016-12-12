@@ -2403,9 +2403,8 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree
     proto_tree_add_uint64_format_value(ptptimeInterval_subtree,
         hf_ptp_v2_timeInterval_ns, tvb, *cur_offset, 6, time_ns, "Ns: %" G_GINT64_MODIFIER "d nanoseconds", time_ns);
 
-    proto_tree_add_double_format_value(ptptimeInterval_subtree,
-        hf_ptp_v2_timeInterval_subns, tvb, *cur_offset+6, 2, (time_subns/65536.0),
-        "%f nanoseconds", (time_subns/65536.0));
+    proto_tree_add_double(ptptimeInterval_subtree,
+        hf_ptp_v2_timeInterval_subns, tvb, *cur_offset+6, 2, (time_subns/65536.0));
 
     *cur_offset = *cur_offset + 8;
 }
@@ -5032,7 +5031,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_correctionsubns,
           { "correctionSubNs",           "ptp.v2.correction.subns",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_clockidentity,
@@ -5933,7 +5932,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_offset_subns,
           { "SubNs",           "ptp.v2.mm.offset.subns",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_pathDelay_ns,
@@ -5943,7 +5942,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_pathDelay_subns,
           { "SubNs",           "ptp.v2.mm.pathDelay.subns",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_PortNumber,
@@ -5968,7 +5967,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_mm_peerMeanPathDelay_subns,
           { "SubNs",           "ptp.v2.mm.peerMeanPathDelay.subns",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_logAnnounceInterval,

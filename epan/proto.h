@@ -2963,6 +2963,9 @@ proto_custom_set(proto_tree* tree, GSList *field_id,
 #define proto_tree_add_uint(tree, hfinfo, tvb, start, length, value) \
 	proto_tree_add_uint(tree, (hfinfo)->id, tvb, start, length, value)
 
+#define proto_tree_add_float(tree, hfinfo, tvb, start, length, value) \
+	proto_tree_add_float(tree, (hfinfo)->id, tvb, start, length, value)
+
 #define proto_tree_add_float_format_value(tree, hfinfo, \
                   tvb, start, length, value, format, ...) \
 	proto_tree_add_float_format_value(tree, (hfinfo)->id, \

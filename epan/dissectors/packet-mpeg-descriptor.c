@@ -749,14 +749,14 @@ proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, pr
                 MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1)) / 10.0 +
                 MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+2)) / 1000.0 +
                 MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)) / 100000.0;
-    proto_tree_add_double_format_value(tree, hf_mpeg_descr_satellite_delivery_frequency,
-            tvb, offset, 4, frequency, "%f GHz", frequency);
+    proto_tree_add_double(tree, hf_mpeg_descr_satellite_delivery_frequency,
+            tvb, offset, 4, frequency);
     offset += 4;
 
     orbital_position = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset)) * 10.0f +
                        MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1)) / 10.0f;
-    proto_tree_add_float_format_value(tree, hf_mpeg_descr_satellite_delivery_orbital_position,
-            tvb, offset, 2, orbital_position, "%f degrees", orbital_position);
+    proto_tree_add_float(tree, hf_mpeg_descr_satellite_delivery_orbital_position,
+            tvb, offset, 2, orbital_position);
     offset += 2;
 
     modulation_system = tvb_get_guint8(tvb, offset) & MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_SYSTEM_MASK;
@@ -3481,12 +3481,12 @@ proto_register_mpeg_descriptor(void)
         /* 0x43 Satellite Delivery System Descriptor */
         { &hf_mpeg_descr_satellite_delivery_frequency, {
             "Frequency", "mpeg_descr.sat_delivery.freq",
-            FT_DOUBLE, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_ghz, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_satellite_delivery_orbital_position, {
             "Orbital Position", "mpeg_descr.sat_delivery.orbital_pos",
-            FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_degree_degrees, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_satellite_delivery_west_east_flag, {

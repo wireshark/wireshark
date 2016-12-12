@@ -386,43 +386,43 @@ dissect_png_chrm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     gint   offset = 0;
 
     wx = tvb_get_ntohl(tvb, offset) / 100000.0f;
-    proto_tree_add_float_format_value(tree, &hfi_png_chrm_white_x,
-            tvb, offset, 4, wx, "%f", wx);
+    proto_tree_add_float(tree, &hfi_png_chrm_white_x,
+            tvb, offset, 4, wx);
     offset += 4;
 
     wy = tvb_get_ntohl(tvb, offset) / 100000.0f;
-    proto_tree_add_float_format_value(tree, &hfi_png_chrm_white_y,
-            tvb, offset, 4, wy, "%f", wy);
+    proto_tree_add_float(tree, &hfi_png_chrm_white_y,
+            tvb, offset, 4, wy);
     offset += 4;
 
     rx = tvb_get_ntohl(tvb, offset) / 100000.0f;
-    proto_tree_add_float_format_value(tree, &hfi_png_chrm_red_x,
-            tvb, offset, 4, rx, "%f", rx);
+    proto_tree_add_float(tree, &hfi_png_chrm_red_x,
+            tvb, offset, 4, rx);
     offset += 4;
 
     ry = tvb_get_ntohl(tvb, offset) / 100000.0f;
-    proto_tree_add_float_format_value(tree, &hfi_png_chrm_red_y,
-            tvb, offset, 4, ry, "%f", ry);
+    proto_tree_add_float(tree, &hfi_png_chrm_red_y,
+            tvb, offset, 4, ry);
     offset += 4;
 
     gx = tvb_get_ntohl(tvb, offset) / 100000.0f;
-    proto_tree_add_float_format_value(tree, &hfi_png_chrm_green_x,
-            tvb, offset, 4, gx, "%f", gx);
+    proto_tree_add_float(tree, &hfi_png_chrm_green_x,
+            tvb, offset, 4, gx);
     offset += 4;
 
     gy = tvb_get_ntohl(tvb, offset) / 100000.0f;
-    proto_tree_add_float_format_value(tree, &hfi_png_chrm_green_y,
-            tvb, offset, 4, gy, "%f", gy);
+    proto_tree_add_float(tree, &hfi_png_chrm_green_y,
+            tvb, offset, 4, gy);
     offset += 4;
 
     bx = tvb_get_ntohl(tvb, offset) / 100000.0f;
-    proto_tree_add_float_format_value(tree, &hfi_png_chrm_blue_x,
-            tvb, offset, 4, bx, "%f", bx);
+    proto_tree_add_float(tree, &hfi_png_chrm_blue_x,
+            tvb, offset, 4, bx);
     offset += 4;
 
     by = tvb_get_ntohl(tvb, offset) / 100000.0f;
-    proto_tree_add_float_format_value(tree, &hfi_png_chrm_blue_y,
-            tvb, offset, 4, by, "%f", by);
+    proto_tree_add_float(tree, &hfi_png_chrm_blue_y,
+            tvb, offset, 4, by);
 }
 
 static void
@@ -431,8 +431,8 @@ dissect_png_gama(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     float  gamma;
 
     gamma = tvb_get_ntohl(tvb, 0) / 100000.0f;
-    proto_tree_add_float_format_value(tree, &hfi_png_gama_gamma,
-            tvb, 0, 4, gamma, "%f", gamma);
+    proto_tree_add_float(tree, &hfi_png_gama_gamma,
+            tvb, 0, 4, gamma);
 }
 
 static gint
