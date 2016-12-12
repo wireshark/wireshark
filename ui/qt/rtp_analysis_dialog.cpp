@@ -1066,9 +1066,13 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
         break;
     }
 
-    QString ext_filter = tr("Sun Audio (*.au)");
+    QString ext_filter = "";
+    QString ext_filter_au = tr("Sun Audio (*.au)");
+    QString ext_filter_raw = tr("Raw (*.raw)");
+    ext_filter.append(ext_filter_au);
     if (direction != dir_both_) {
-        ext_filter.append(tr(";;Raw (*.raw)"));
+        ext_filter.append(";;");
+        ext_filter.append(ext_filter_raw);
     }
     QString sel_filter;
     QString file_path = QFileDialog::getSaveFileName(
@@ -1078,9 +1082,9 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
     if (file_path.isEmpty()) return;
 
     int save_format = save_audio_none_;
-    if (file_path.endsWith(".au")) {
+    if (0 == QString::compare(sel_filter, ext_filter_au)) {
         save_format = save_audio_au_;
-    } else if (file_path.endsWith(".raw")) {
+    } else if (0 == QString::compare(sel_filter, ext_filter_raw)) {
         save_format = save_audio_raw_;
     }
 
