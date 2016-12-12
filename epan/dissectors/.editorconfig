@@ -1029,6 +1029,14 @@ indent_size = 2
 [packet-imf.[ch]]
 indent_size = 2
 
+[packet-indigocare-netrix.[ch]]
+indent_style = tab
+indent_size = tab
+
+[packet-indigocare-icall.[ch]]
+indent_style = tab
+indent_size = tab
+
 [packet-interlink.[ch]]
 indent_style = tab
 indent_size = tab

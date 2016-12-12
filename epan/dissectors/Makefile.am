@@ -750,6 +750,8 @@ DISSECTOR_SRC = \
 	packet-igrp.c		\
 	packet-imap.c		\
 	packet-imf.c		\
+	packet-indigocare-icall.c	\
+	packet-indigocare-netrix.c	\
 	packet-infiniband.c	\
 	packet-infiniband_sdp.c	\
 	packet-interlink.c	\
