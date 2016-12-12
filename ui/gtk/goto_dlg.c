@@ -27,7 +27,6 @@
 
 #include <stdlib.h>
 
-
 #include "../../globals.h"
 #include "ui/simple_dialog.h"
 
@@ -35,7 +34,7 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/help_dlg.h"
-
+#include "ui/gtk/packet_list.h"
 
 /* Capture callback data keys */
 #define E_GOTO_FNUMBER_KEY     "goto_fnumber_te"

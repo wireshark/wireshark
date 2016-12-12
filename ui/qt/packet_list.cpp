@@ -123,15 +123,6 @@ packet_list_select_first_row(void)
     gbl_cur_packet_list->goFirstPacket();
 }
 
-// GTK+ only
-void
-packet_list_select_last_row(void)
-{
-    if (!gbl_cur_packet_list)
-        return;
-    gbl_cur_packet_list->goLastPacket();
-}
-
 /*
  * Given a frame_data structure, scroll to and select the row in the
  * packet list corresponding to that frame.  If there is no such
