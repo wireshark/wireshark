@@ -3620,6 +3620,7 @@ cf_goto_top_frame(void)
   return TRUE;  /* we got to that packet */
 }
 
+/* GTK+ only */
 gboolean
 cf_goto_bottom_frame(void)
 {

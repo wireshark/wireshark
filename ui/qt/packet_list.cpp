@@ -123,6 +123,7 @@ packet_list_select_first_row(void)
     gbl_cur_packet_list->goFirstPacket();
 }
 
+// GTK+ only
 void
 packet_list_select_last_row(void)
 {

@@ -569,6 +569,7 @@ gboolean cf_goto_top_frame(void);
  *
  * @return TRUE if last row exists, FALSE otherwise
  */
+/* GTK+ only */
 gboolean cf_goto_bottom_frame(void);
 
 /**
