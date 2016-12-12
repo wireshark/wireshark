@@ -546,6 +546,7 @@ typedef enum {
 #define BASE_EXT_STRING   0x200
 #define BASE_VAL64_STRING 0x400
 #define BASE_ALLOW_ZERO   0x800  /**< Display <none> instead of <MISSING> for zero sized byte array */
+#define BASE_UNIT_STRING  0x1000  /**< Add unit text to the field value */
 
 /** BASE_ values that cause the field value to be displayed twice */
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)

@@ -31,6 +31,7 @@
 #include "column-utils.h"
 #include "guid-utils.h"
 #include "tfs.h"
+#include "unit_strings.h"
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

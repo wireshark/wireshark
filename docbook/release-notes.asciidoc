@@ -40,6 +40,9 @@ since version 2.2.0:
 * TShark can now export objects like the other GUI interfaces.
 * Support for G.722 and G.726 codecs in the RTP Player (via the SpanDSP library).
 * You can now choose the output device when playing RTP streams.
+* Added support for dissectors to include a unit name natively in their hf field.
+  A field can now automatically append "seconds" or "ms" to its value without
+  additional printf-style APIs.
 
 //=== Removed Dissectors
 

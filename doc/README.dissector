@@ -116,7 +116,8 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
 
                   BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX, BASE_HEX_DEC,
                   BASE_CUSTOM, or BASE_NONE, possibly ORed with
-                  BASE_RANGE_STRING, BASE_EXT_STRING or BASE_VAL64_STRING.
+                  BASE_RANGE_STRING, BASE_EXT_STRING, BASE_VAL64_STRING,
+                  BASE_ALLOW_ZERO or BASE_UNIT_STRING
 
                   BASE_NONE may be used with a non-NULL FIELDCONVERT when the
                   numeric value of the field itself is not of significance to
@@ -988,6 +989,34 @@ used is a guint64 (instead of guint32). Instead of using the VALS()
 macro for the 'strings' field in the header_field_info struct array,
 'VALS64()' is used.
 
+-- Unit string
+Some integer fields, of type FT_UINT* and float fiels, of type FT_FLOAT
+or FT_DOUBLE, need units of measurement to help convey the field value.
+
+A 'unit_name_string' structure is a way to add a unit suffix to a field.
+
+    typedef struct unit_name_string {
+        char *singular;     /* name to use for 1 unit */
+        char *plural;       /* name to use for < 1 or > 1 units */
+    } unit_name_string;
+
+For fields with that unit name, you would declare a "unit_name_string":
+
+    static const unit_name_string unitname[] =
+        { "single item name" , "multiple item name" };
+
+(the second entry can be NULL if there is no plural form of the unit name.
+This is typically the case when abbreviations are used instead of full words.)
+
+There are several "common" unit name structures already defined in
+epan/unit_strings.h.  Dissector authors may choose to add the unit name
+structure there rather than locally in a dissector.
+
+For hf[] array FT_(U)INT*, FT_FlOAT and FT_DOUBLE fields that need a
+'unit_name_string' struct, the 'strings' field would be set to
+'&units_second_seconds'. Furthermore, the 'display' field must be ORed
+with 'BASE_UNIT_STRING' (e.g. BASE_DEC|BASE_UNIT_STRING).
+
 -- Ranges
 If the field has a numeric type that might logically fit in ranges of values
 one can use a range_string struct.
@@ -1826,6 +1855,9 @@ arguments are a "printf"-style format and any arguments for that format.
 With these routines, unlike the proto_tree_add_XXX_format() routines,
 the name of the field is added automatically as in the
 proto_tree_add_XXX() functions; only the value is added with the format.
+One use case for this would be to add a unit of measurement string to
+the value of the field, however using BASE_UNIT_STRING in the hf_
+definition is now preferred.
 
 proto_tree_add_checksum()
 ----------------------------

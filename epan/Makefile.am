@@ -128,6 +128,7 @@ LIBWIRESHARK_SRC = \
 	tvbuff_zlib.c		\
 	tvbuff.c		\
 	uat.c			\
+	unit_strings.c		\
 	value_string.c		\
 	xdlc.c
 
@@ -290,6 +291,7 @@ LIBWIRESHARK_INCLUDES = \
 	tvbuff-int.h		\
 	uat.h			\
 	uat-int.h		\
+	unit_strings.h		\
 	value_string.h		\
 	x264_prt_id.h		\
 	xdlc.h

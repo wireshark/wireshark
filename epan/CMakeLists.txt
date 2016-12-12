@@ -167,6 +167,7 @@ set(LIBWIRESHARK_FILES
 	tvbuff_zlib.c
 	uat.c
 	value_string.c
+	unit_strings.c
 	xdlc.c
 	${CMAKE_SOURCE_DIR}/ws_version_info.c
 )

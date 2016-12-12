@@ -955,10 +955,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	 */
 	rootdelay = ((gint16)tvb_get_ntohs(tvb, 4)) +
 			(tvb_get_ntohs(tvb, 6) / 65536.0);
-	proto_tree_add_double_format_value(ntp_tree, hf_ntp_rootdelay, tvb, 4, 4,
-				   rootdelay,
-				   "%9.4f sec",
-				   rootdelay);
+	proto_tree_add_double(ntp_tree, hf_ntp_rootdelay, tvb, 4, 4, rootdelay);
 
 	/* Root Dispersion, 32-bit unsigned fixed-point number indicating
 	 * the nominal error relative to the primary reference source, in
@@ -966,10 +963,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	 */
 	rootdispersion = ((gint16)tvb_get_ntohs(tvb, 8)) +
 				(tvb_get_ntohs(tvb, 10) / 65536.0);
-	proto_tree_add_double_format_value(ntp_tree, hf_ntp_rootdispersion, tvb, 8, 4,
-				   rootdispersion,
-				   "%9.4f sec",
-				   rootdispersion);
+	proto_tree_add_double(ntp_tree, hf_ntp_rootdispersion, tvb, 8, 4, rootdispersion);
 
 	/* Now, there is a problem with secondary servers.  Standards
 	 * asks from stratum-2 - stratum-15 servers to set this to the
@@ -1428,11 +1422,11 @@ proto_register_ntp(void)
 			"Peer Clock Precision", "ntp.precision", FT_INT8, BASE_DEC,
 			NULL, 0, "The precision of the system clock", HFILL }},
 		{ &hf_ntp_rootdelay, {
-			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_NONE,
-			NULL, 0, "Total round-trip delay to the reference clock", HFILL }},
+			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING,
+			&units_second_seconds, 0, "Total round-trip delay to the reference clock", HFILL }},
 		{ &hf_ntp_rootdispersion, {
-			"Root Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_NONE,
-			NULL, 0, "Total dispersion to the reference clock", HFILL }},
+			"Root Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING,
+			&units_second_seconds, 0, "Total dispersion to the reference clock", HFILL }},
 		{ &hf_ntp_refid, {
 			"Reference ID", "ntp.refid", FT_BYTES, BASE_NONE,
 			NULL, 0, "Particular server or reference clock being used", HFILL }},
