@@ -2152,6 +2152,18 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 rtp_info->info_payload_type_str = payload_type_str;
                 rtp_info->info_payload_rate     = sample_rate;
             }
+        } else {
+            /* See if we have a dissector tied to the dynamic payload trough preferences*/
+            dissector_handle_t pt_dissector_handle;
+            const char *name;
+
+            pt_dissector_handle = dissector_get_uint_handle(rtp_pt_dissector_table, payload_type);
+            if (pt_dissector_handle) {
+                name = dissector_handle_get_dissector_name(pt_dissector_handle);
+                if (name) {
+                    rtp_info->info_payload_type_str = name;
+                }
+            }
         }
     }
 
