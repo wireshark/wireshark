@@ -446,10 +446,18 @@ rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->lastnominaltime = 0;
 		statinfo->pt = rtpinfo->info_payload_type;
 		statinfo->reg_pt = rtpinfo->info_payload_type;
-		statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 28;
+		if (pinfo->net_src.type == AT_IPv6) {
+			statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 48;
+		} else {
+			statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 28;
+		}
 		statinfo->bw_history[statinfo->bw_index].time = current_time;
 		statinfo->bw_index++;
-		statinfo->total_bytes += rtpinfo->info_data_len + 28;
+		if (pinfo->net_src.type == AT_IPv6) {
+			statinfo->total_bytes += rtpinfo->info_data_len + 48;
+		} else {
+			statinfo->total_bytes += rtpinfo->info_data_len + 28;
+		}
 		statinfo->bandwidth = (double)(statinfo->total_bytes*8)/1000;
 		/* Not needed ? initialised to zero? */
 		statinfo->delta = 0;
@@ -634,7 +642,11 @@ rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	}
 
 	/* Calculate the BW in Kbps adding the IP+UDP header to the RTP -> 20bytes(IP) + 8bytes(UDP) */
-	statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 28;
+	if (pinfo->net_src.type == AT_IPv6) {
+		statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 48;
+	} else {
+		statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 28;
+	}
 	statinfo->bw_history[statinfo->bw_index].time = current_time;
 
 	/* Check if there are more than 1sec in the history buffer to calculate BW in bps. If so, remove those for the calculation */
@@ -644,7 +656,11 @@ rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		if (statinfo->bw_start_index == BUFF_BW) statinfo->bw_start_index=0;
 	};
 	/* IP hdr + UDP + RTP */
-	statinfo->total_bytes += rtpinfo->info_data_len + 28;
+	if (pinfo->net_src.type == AT_IPv6){
+		statinfo->total_bytes += rtpinfo->info_data_len + 48;
+	}else{
+		statinfo->total_bytes += rtpinfo->info_data_len + 28;
+	}
 	statinfo->bandwidth = (double)(statinfo->total_bytes*8)/1000;
 	statinfo->bw_index++;
 	if (statinfo->bw_index == BUFF_BW) statinfo->bw_index = 0;
