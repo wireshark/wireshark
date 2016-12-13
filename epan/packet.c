@@ -238,8 +238,8 @@ set_actual_length(tvbuff_t *tvb, const guint specified_len)
 /* List of routines that are called before we make a pass through a capture file
  * and dissect all its packets. See register_init_routine and
  * register_cleanup_routine in packet.h */
-static GSList *init_routines;
-static GSList *cleanup_routines;
+static GSList *init_routines = NULL;
+static GSList *cleanup_routines = NULL;
 
 void
 register_init_routine(void (*func)(void))
