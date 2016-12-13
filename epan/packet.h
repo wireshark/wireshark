@@ -647,6 +647,11 @@ WS_DLL_PUBLIC void register_init_routine(void (*func)(void));
  */
 WS_DLL_PUBLIC void register_cleanup_routine(void (*func)(void));
 
+/*
+ * Register a shutdown routine to call once just before program exit
+ */
+WS_DLL_PUBLIC void register_shutdown_routine(void (*func)(void));
+
 /* Initialize all data structures used for dissection. */
 void init_dissection(void);
 
@@ -684,7 +689,6 @@ WS_DLL_PUBLIC void add_new_data_source(packet_info *pinfo, tvbuff_t *tvb,
     const char *name);
 /* Removes the last-added data source, if it turns out it wasn't needed */
 WS_DLL_PUBLIC void remove_last_data_source(packet_info *pinfo);
-
 
 /*
  * Return the data source name, tvb.
