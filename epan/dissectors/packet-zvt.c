@@ -116,7 +116,7 @@ static void dissect_zvt_init(tvbuff_t *tvb, gint offset, guint16 len,
         packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
 
 static const apdu_info_t apdu_info[] = {
-    { CTRL_STATUS,        0, DIRECTION_PT_TO_ECR, NULL },
+    { CTRL_STATUS,        0, DIRECTION_PT_TO_ECR, dissect_zvt_bitmap_seq },
     { CTRL_INT_STATUS,    0, DIRECTION_PT_TO_ECR, dissect_zvt_int_status },
     { CTRL_REGISTRATION,  4, DIRECTION_ECR_TO_PT, dissect_zvt_reg },
     /* authorisation has at least a 0x04 tag and 6 bytes for the amount */
@@ -138,18 +138,27 @@ typedef struct _bitmap_info_t {
 
 #define BMP_TIMEOUT       0x01
 #define BMP_MAX_STAT_INFO 0x02
+#define BMP_SVC_BYTE      0x03
 #define BMP_AMOUNT        0x04
 #define BMP_PUMP_NR       0x05
 #define BMP_TLV_CONTAINER 0x06
+#define BMP_TRACE_NUM     0x0B
+#define BMP_TIME          0x0C
+#define BMP_DATE          0x0D
 #define BMP_EXP_DATE      0x0E
+#define BMP_CARD_SEQ_NUM  0x17
 #define BMP_PAYMENT_TYPE  0x19
 #define BMP_CARD_NUM      0x22
 #define BMP_T2_DAT        0x23
 #define BMP_T3_DAT        0x24
+#define BMP_RES_CODE      0x27
+#define BMP_TID           0x29
 #define BMP_T1_DAT        0x2D
 #define BMP_CVV_CVC       0x3A
 #define BMP_ADD_DATA      0x3C
 #define BMP_CC            0x49
+#define BMP_RCPT_NUM      0x87
+#define BMP_CARD_TYPE     0x8A
 
 #define BMP_PLD_LEN_UNKNOWN 0  /* unknown/variable bitmap payload len */
 
@@ -161,18 +170,27 @@ static gint dissect_zvt_cc(
 static const bitmap_info_t bitmap_info[] = {
     { BMP_TIMEOUT,                         1, NULL },
     { BMP_MAX_STAT_INFO,                   1, NULL },
+    { BMP_SVC_BYTE,                        1, NULL },
     { BMP_AMOUNT,                          6, NULL },
     { BMP_PUMP_NR,                         1, NULL },
     { BMP_TLV_CONTAINER, BMP_PLD_LEN_UNKNOWN, dissect_zvt_tlv_container },
+    { BMP_TRACE_NUM,                       3, NULL },
+    { BMP_TIME,                            3, NULL },
+    { BMP_DATE,                            2, NULL },
     { BMP_EXP_DATE,                        2, NULL },
+    { BMP_CARD_SEQ_NUM,                    2, NULL },
     { BMP_PAYMENT_TYPE,                    1, NULL },
     { BMP_CARD_NUM,      BMP_PLD_LEN_UNKNOWN, NULL },
     { BMP_T2_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
     { BMP_T3_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
+    { BMP_RES_CODE,                        1, NULL },
+    { BMP_TID,                             4, NULL },
     { BMP_T1_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
     { BMP_CVV_CVC,                         2, NULL },
     { BMP_ADD_DATA,      BMP_PLD_LEN_UNKNOWN, NULL },
-    { BMP_CC,                              2, dissect_zvt_cc }
+    { BMP_CC,                              2, dissect_zvt_cc },
+    { BMP_RCPT_NUM,                        2, NULL },
+    { BMP_CARD_TYPE,                       1, NULL }
 };
 
 
@@ -246,18 +264,27 @@ static const value_string zvt_cc[] = {
 static const value_string bitmap[] = {
     { BMP_TIMEOUT,       "Timeout" },
     { BMP_MAX_STAT_INFO, "max. status info" },
+    { BMP_SVC_BYTE,      "Service byte" },
     { BMP_AMOUNT,        "Amount" },
     { BMP_PUMP_NR,       "Pump number" },
     { BMP_TLV_CONTAINER, "TLV container" },
+    { BMP_TRACE_NUM,     "Trace number" },
+    { BMP_TIME,          "Time" },
+    { BMP_DATE,          "Date" },
     { BMP_EXP_DATE,      "Exipry date" },
+    { BMP_CARD_SEQ_NUM,  "Card sequence number" },
     { BMP_PAYMENT_TYPE,  "Payment type" },
     { BMP_CARD_NUM,      "Card number" },
     { BMP_T2_DAT,        "Track 2 data" },
     { BMP_T3_DAT,        "Track 3 data" },
+    { BMP_RES_CODE,      "Result code" },
+    { BMP_TID,           "Transaction ID" },
     { BMP_T1_DAT,        "Track 1 data" },
     { BMP_CVV_CVC,       "CVV / CVC" },
     { BMP_ADD_DATA,      "Additional data" },
     { BMP_CC,            "Currency code (CC)" },
+    { BMP_RCPT_NUM,      "Receipt number" },
+    { BMP_CARD_TYPE,     "Card type" },
     { 0, NULL }
 };
 static value_string_ext bitmap_ext = VALUE_STRING_EXT_INIT(bitmap);
