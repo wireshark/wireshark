@@ -929,7 +929,38 @@ value_string_ext bthci_cmd_ocf_testing_vals_ext = VALUE_STRING_EXT_INIT(bthci_cm
     { (base) | 0x02C,  "LE Read Local Resolvable Address" }, \
     { (base) | 0x02D,  "LE Set Address Resolution Enable" }, \
     { (base) | 0x02E,  "LE Set Resolvable Private Address Timeout" }, \
-    { (base) | 0x02F,  "LE Read Maximum Data Length" }
+    { (base) | 0x02F,  "LE Read Maximum Data Length" }, \
+    { (base) | 0x030,  "LE Read PHY" }, \
+    { (base) | 0x031,  "LE Set Default PHY" }, \
+    { (base) | 0x032,  "LE Set PHY" }, \
+    { (base) | 0x033,  "LE Enhanced Receiver Test" }, \
+    { (base) | 0x034,  "LE Enhanced Transmitter Test" }, \
+    { (base) | 0x035,  "LE Set Advertising Set Random Address" }, \
+    { (base) | 0x036,  "LE Set Extended Advertising Parameters" }, \
+    { (base) | 0x037,  "LE Set Extended Advertising Data" }, \
+    { (base) | 0x038,  "LE Set Extended Scan Response Data" }, \
+    { (base) | 0x039,  "LE Set Extended Advertising Enable" }, \
+    { (base) | 0x03A,  "LE Read Maximum Advertising Data Length" }, \
+    { (base) | 0x03B,  "LE Read Number of Supported Advertising Sets" }, \
+    { (base) | 0x03C,  "LE Remove Advertising Set" }, \
+    { (base) | 0x03D,  "LE Clear Advertising Sets" }, \
+    { (base) | 0x03E,  "LE Set Periodic Advertising Parameters" }, \
+    { (base) | 0x03F,  "LE Set Periodic Advertising Data" }, \
+    { (base) | 0x040,  "LE Set Periodic Advertising Enable" }, \
+    { (base) | 0x041,  "LE Set Extended Scan Parameters" }, \
+    { (base) | 0x042,  "LE Set Extended Scan Enable" }, \
+    { (base) | 0x043,  "LE Extended Create Connection" }, \
+    { (base) | 0x044,  "LE Periodic Advertising Create Sync" }, \
+    { (base) | 0x045,  "LE Periodic Advertising Create Sync Cancel" }, \
+    { (base) | 0x046,  "LE Periodic Advertising Terminate Sync" }, \
+    { (base) | 0x047,  "LE Add Device To Periodic Advertiser List" }, \
+    { (base) | 0x048,  "LE Remove Device From Periodic Advertiser List" }, \
+    { (base) | 0x049,  "LE Clear Periodic Advertiser List" }, \
+    { (base) | 0x04A,  "LE Read Periodic Advertiser List Size" }, \
+    { (base) | 0x04B,  "LE Read Transmit Power" }, \
+    { (base) | 0x04C,  "LE Read RF Path Compensation" }, \
+    { (base) | 0x04D,  "LE Write RF Path Compensation" }, \
+    { (base) | 0x04E,  "LE Set Privacy Mode" }
 
 static const value_string bthci_cmd_ocf_low_energy_vals[] = {
     LOW_ENERGY_VALS(0x0),
@@ -1016,6 +1047,10 @@ static const value_string bthci_cmd_status_vals[] = {
     {0x3E, "Connection Failed to be Established"},
     {0x3F, "MAC Connection Failed"},
     {0x40, "Coarse Clock Adjustment Rejected but Will Try to Adjust Using Clock Dragging"},
+    {0x41, "Type0 Submap Not Defined"},
+    {0x42, "Unknown Advertising Identifier"},
+    {0x43, "Limit Reached"},
+    {0x44, "Operation Cancelled by Host"},
     {0, NULL }
 };
 value_string_ext bthci_cmd_status_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_status_vals);
@@ -3369,6 +3404,14 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
         case 0x029: /* LE Clear Resolving List */
         case 0x02A: /* LE Read Resolving List Size */
         case 0x02F: /* LE Read Maximum Data Length */
+        case 0x03A: /* LE Read Maximum Advertising Data Length */
+        case 0x03B: /* LE Read Number of Supported Advertising Sets */
+        case 0x03D: /* LE Clear Advertising Sets */
+        case 0x045: /* LE Periodic Advertising Create Sync Cancel */
+        case 0x049: /* LE Clear Periodic Advertiser List */
+        case 0x04A: /* LE Read Periodic Advertiser List Size */
+        case 0x04B: /* LE Read Transmit Power */
+        case 0x04C: /* LE Read RF Path Compensation */
 
             /* NOTE: No parameters */
             break;

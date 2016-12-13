@@ -739,6 +739,15 @@ static const value_string evt_le_meta_subevent[] = {
     { 0x09, "LE Generate DHKey Complete" },
     { 0x0A, "LE Enhanced Connection Complete" },
     { 0x0B, "LE Direct Advertising Report" },
+    { 0x0C, "LE PHY Update Complete" },
+    { 0x0D, "LE Extended Advertising Report" },
+    { 0x0E, "LE Periodic Advertising Sync Established" },
+    { 0x0F, "LE Periodic Advertising Report" },
+    { 0x10, "LE Periodic Advertising Sync Lost" },
+    { 0x11, "LE Scan Timeout" },
+    { 0x12, "LE Advertising Set Terminated" },
+    { 0x13, "LE Scan Request Received" },
+    { 0x14, "LE Channel Selection Algorithm" },
     { 0, NULL }
 };
 
@@ -2679,6 +2688,27 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
         case 0x2014: /* LE Set Host Channel Classification */
         case 0x201d: /* LE Receiver Test */
         case 0x201e: /* LE Transmitter Test */
+        case 0x2031: /* LE Set Default PHY */
+        case 0x2033: /* LE Enhanced Receiver Test */
+        case 0x2034: /* LE Enhanced Transmitter Test */
+        case 0x2035: /* LE Set Advertising Set Random Address */
+        case 0x2037: /* LE Set Extended Advertising Data */
+        case 0x2038: /* LE Set Extended Scan Response Data */
+        case 0x2039: /* LE Set Extended Advertising Enable */
+        case 0x203C: /* LE Remove Advertising Set */
+        case 0x203D: /* LE Clear Advertising Sets */
+        case 0x203E: /* LE Set Periodic Advertising Parameters */
+        case 0x203F: /* LE Set Periodic Advertising Data */
+        case 0x2040: /* LE Set Periodic Advertising Enable */
+        case 0x2041: /* LE Set Extended Scan Parameters */
+        case 0x2042: /* LE Set Extended Scan Enable */
+        case 0x2045: /* LE Periodic Advertising Create Sync Cancel */
+        case 0x2046: /* LE Periodic Advertising Terminate Sync */
+        case 0x2047: /* LE Add Device To Periodic Advertiser List */
+        case 0x2048: /* LE Remove Device From Periodic Advertiser List */
+        case 0x2049: /* LE Clear Periodic Advertiser List */
+        case 0x204D: /* LE Write RF Path Compensation */
+        case 0x204E: /* LE Set Privacy Mode */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
             offset += 1;
