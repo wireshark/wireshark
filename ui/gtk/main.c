@@ -3414,6 +3414,22 @@ void redissect_packets(void)
     status_expert_update();
 }
 
+#ifdef HAVE_SOFTWARE_UPDATE
+/** Check to see if Wireshark can shut down safely (e.g. offer to save the
+ *  current capture).
+ * Dummy.
+ */
+int software_update_can_shutdown_callback(void) {
+    return FALSE;
+}
+
+/** Shut down Wireshark in preparation for an upgrade.
+ * Dummy.
+ */
+void software_update_shutdown_request_callback(void) {
+}
+#endif
+
 /*
  * Editor modelines
  *

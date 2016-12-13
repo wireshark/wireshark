@@ -182,6 +182,9 @@ private:
     QMenu *dock_menu_;
 #endif
 
+#ifdef HAVE_SOFTWARE_UPDATE
+    QAction *update_action_;
+#endif
 
     QWidget* getLayoutWidget(layout_pane_content_e type);
 
@@ -357,6 +360,10 @@ private slots:
     void openTapParameterDialog();
 
     void byteViewTabChanged(int tab_index);
+
+#ifdef HAVE_SOFTWARE_UPDATE
+    void softwareUpdateRequested();
+#endif
 
     // Automatically connected slots ("on_<object>_<signal>").
     //

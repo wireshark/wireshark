@@ -320,6 +320,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // iterates over *all* of our children, looking for matching "on_" slots.
     // The fewer children we have at this point the better.
     main_ui_->setupUi(this);
+#ifdef HAVE_SOFTWARE_UPDATE
+    update_action_ = new QAction(tr("Check for Updates" UTF8_HORIZONTAL_ELLIPSIS), main_ui_->menuHelp);
+#endif
     setWindowIcon(wsApp->normalIcon());
     setTitlebarForCaptureFile();
     setMenusForCaptureFile();
@@ -360,6 +363,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(wsApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
     updateRecentCaptures();
+
+#ifdef HAVE_SOFTWARE_UPDATE
+    connect(wsApp, SIGNAL(softwareUpdateRequested()), this, SLOT(softwareUpdateRequested()),
+        Qt::BlockingQueuedConnection);
+    connect(wsApp, SIGNAL(softwareUpdateClose()), this, SLOT(close()),
+        Qt::BlockingQueuedConnection);
+#endif
 
     df_combo_box_ = new DisplayFilterCombo();
     const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
@@ -449,9 +459,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifdef HAVE_SOFTWARE_UPDATE
     QAction *update_sep = main_ui_->menuHelp->insertSeparator(main_ui_->actionHelpAbout);
-    QAction *update_action = new QAction(tr("Check for Updates" UTF8_HORIZONTAL_ELLIPSIS), main_ui_->menuHelp);
-    main_ui_->menuHelp->insertAction(update_sep, update_action);
-    connect(update_action, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
+    main_ui_->menuHelp->insertAction(update_sep, update_action_);
+    connect(update_action_, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
 #endif
     master_split_.setObjectName("splitterMaster");
     extra_split_.setObjectName("splitterExtra");
@@ -2090,6 +2099,11 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
     }
 
     main_ui_->actionViewReload->setEnabled(enable);
+
+#ifdef HAVE_SOFTWARE_UPDATE
+    // We might want to enable or disable automatic checks here as well.
+    update_action_->setEnabled(!can_save);
+#endif
 }
 
 void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
@@ -2116,6 +2130,10 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
 
     main_ui_->menuFileSet->setEnabled(!capture_in_progress);
     main_ui_->actionFileQuit->setEnabled(true);
+#ifdef HAVE_SOFTWARE_UPDATE
+    // We might want to enable or disable automatic checks here as well.
+    update_action_->setEnabled(!capture_in_progress);
+#endif
 
     main_ui_->actionStatisticsCaptureFileProperties->setEnabled(capture_in_progress);
 
@@ -2140,6 +2158,9 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
 
 void MainWindow::setMenusForCaptureStopping() {
     main_ui_->actionFileQuit->setEnabled(false);
+#ifdef HAVE_SOFTWARE_UPDATE
+    update_action_->setEnabled(false);
+#endif
     main_ui_->actionStatisticsCaptureFileProperties->setEnabled(false);
 #ifdef HAVE_LIBPCAP
     main_ui_->actionCaptureStart->setChecked(false);

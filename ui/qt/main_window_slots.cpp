@@ -1651,6 +1651,17 @@ void MainWindow::byteViewTabChanged(int tab_index)
     }
 }
 
+#ifdef HAVE_SOFTWARE_UPDATE
+void MainWindow::softwareUpdateRequested() {
+    // We could call testCaptureFileClose here, but that would give us yet
+    // another dialog. Just try again later.
+    if (capture_file_.capFile() && capture_file_.capFile()->state != FILE_CLOSED) {
+        wsApp->rejectSoftwareUpdate();
+    }
+}
+#endif
+
+
 // File Menu
 
 void MainWindow::on_actionFileOpen_triggered()

@@ -103,10 +103,8 @@ software_update_init(void) {
     win_sparkle_set_appcast_url(update_url);
     win_sparkle_set_automatic_check_for_updates(prefs.gui_update_enabled ? 1 : 0);
     win_sparkle_set_update_check_interval(prefs.gui_update_interval);
-    /* Todo: Fix bugs 9687 and 12989.
-     * win_sparkle_set_can_shutdown_callback(...);
-     * win_sparkle_set_shutdown_request_callback(...);
-     */
+    win_sparkle_set_can_shutdown_callback(software_update_can_shutdown_callback);
+    win_sparkle_set_shutdown_request_callback(software_update_shutdown_request_callback);
     win_sparkle_init();
 }
 
@@ -140,10 +138,20 @@ software_update_check(void) {
 }
 
 /** Clean up software update checking.
- *
- * Does nothing on platforms that don't support software updates.
  */
-extern void software_update_cleanup(void) {
+void software_update_cleanup(void) {
+}
+
+/** Check to see if Wireshark can shut down safely (e.g. offer to save the
+ *  current capture).
+ */
+int software_update_can_shutdown_callback(void) {
+    return FALSE;
+}
+
+/** Shut down Wireshark in preparation for an upgrade.
+ */
+void software_update_shutdown_request_callback(void) {
 }
 
 #endif /* defined(HAVE_SOFTWARE_UPDATE) && defined (_WIN32) */

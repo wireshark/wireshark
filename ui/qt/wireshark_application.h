@@ -124,6 +124,11 @@ public:
     const QString windowTitleString(QStringList title_parts);
     const QString windowTitleString(QString title_part) { return windowTitleString(QStringList() << title_part); }
     void applyCustomColorsFromRecent();
+#ifdef HAVE_SOFTWARE_UPDATE
+    void rejectSoftwareUpdate() { software_update_ok_ = false; }
+    bool softwareUpdateCanShutdown();
+    void softwareUpdateShutdownRequest();
+#endif
 
     QTranslator translator;
     QTranslator translatorQt;
@@ -145,6 +150,10 @@ private:
     static QString window_title_separator_;
     QList<AppSignal> app_signals_;
     int active_captures_;
+#ifdef HAVE_SOFTWARE_UPDATE
+    bool software_update_ok_;
+#endif
+
     void storeCustomColorsInRecent();
 
 protected:
@@ -171,6 +180,12 @@ signals:
     void checkDisplayFilter();
     void fieldsChanged();
     void reloadLuaPlugins();
+#ifdef HAVE_SOFTWARE_UPDATE
+    // Each of these are called from a separate thread.
+    void softwareUpdateRequested();
+    void softwareUpdateClose();
+    void softwareUpdateQuit();
+#endif
 
     void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
     void openTapParameterDialog(const QString cfg_str, const QString arg, void *userdata);

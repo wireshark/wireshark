@@ -168,6 +168,10 @@ GModule *ws_module_open(gchar *module_name, GModuleFlags flags);
  */
 WS_DLL_PUBLIC void create_app_running_mutex();
 
+/** Close our "Wireshark is running" mutex.
+ */
+WS_DLL_PUBLIC void close_app_running_mutex();
+
 #else	/* _WIN32 */
 
 /*
