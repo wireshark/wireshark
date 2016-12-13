@@ -107,7 +107,14 @@ typedef struct _tap_rtp_stat_t {
     guint16         pt;
     int             reg_pt;
     guint32         first_packet_num;
+    guint           last_payload_len;
 } tap_rtp_stat_t;
+
+typedef struct _tap_rtp_save_data_t {
+    guint32 timestamp;
+    unsigned int payload_type;
+    size_t payload_len;
+} tap_rtp_save_data_t;
 
 #define PT_UNDEFINED -1
 

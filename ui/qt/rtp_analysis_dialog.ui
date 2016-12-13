@@ -328,28 +328,28 @@
     </widget>
    </item>
   </layout>
-  <action name="actionSaveAudio">
+  <action name="actionSaveAudioUnsync">
    <property name="text">
-    <string>Audio</string>
+    <string>Unsynchronized Forward and Reverse Audio</string>
    </property>
    <property name="toolTip">
-    <string>Save the audio data for both channels.</string>
+    <string>Save the unsynchronized audio data for both channels.</string>
    </property>
   </action>
-  <action name="actionSaveForwardAudio">
+  <action name="actionSaveForwardAudioUnsync">
    <property name="text">
-    <string>Forward Stream Audio</string>
+    <string>Unsynchronized Forward Stream Audio</string>
    </property>
    <property name="toolTip">
-    <string>Save the forward stream audio data.</string>
+    <string>Save the unsynchronized forward stream audio data.</string>
    </property>
   </action>
-  <action name="actionSaveReverseAudio">
+  <action name="actionSaveReverseAudioUnsync">
    <property name="text">
-    <string>Reverse Stream Audio</string>
+    <string>Unsynchronized Reverse Stream Audio</string>
    </property>
    <property name="toolTip">
-    <string>Save the reverse stream audio data.</string>
+    <string>Save the unsynchronized reverse stream audio data.</string>
    </property>
   </action>
   <action name="actionSaveCsv">
@@ -404,6 +404,54 @@
    </property>
    <property name="shortcut">
     <string>N</string>
+   </property>
+  </action>
+  <action name="actionSaveAudioSyncStream">
+   <property name="text">
+    <string>Stream Synchronized Forward and Reverse Audio</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the audio data for both channels synchronized to start of earlier stream.</string>
+   </property>
+  </action>
+  <action name="actionSaveForwardAudioSyncStream">
+   <property name="text">
+    <string>Stream Synchronized Forward Stream Audio</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the forward stream audio data synchronized to start of earlier stream.</string>
+   </property>
+  </action>
+  <action name="actionSaveReverseAudioSyncStream">
+   <property name="text">
+    <string>Stream Synchronized Reverse Stream Audio</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the reverse stream audio data synchronized to start of earlier stream.</string>
+   </property>
+  </action>
+  <action name="actionSaveAudioSyncFile">
+   <property name="text">
+    <string>File Synchronized Forward and Reverse Audio</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the audio data for both channels synchronized to start of file.</string>
+   </property>
+  </action>
+  <action name="actionSaveForwardAudioSyncFile">
+   <property name="text">
+    <string>File Synchronized Forward Stream Audio</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the forward stream audio data synchronized to start of file.</string>
+   </property>
+  </action>
+  <action name="actionSaveReverseAudioSyncFile">
+   <property name="text">
+    <string>File Synchronized Reverse Stream Audio</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the reverse stream audio data synchronized to start of file.</string>
    </property>
   </action>
  </widget>

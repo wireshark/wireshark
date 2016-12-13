@@ -137,4 +137,7 @@
 	((guint8*)(p))[3] = (guint8)((v) >> 0);	\
 	}
 
+/* Subtract two guint32s with respect to wraparound */
+#define guint32_wraparound_diff(higher, lower) ((higher>lower)?(higher-lower):(higher+0xffffffff-lower+1))
+
 #endif /* PINT_H */

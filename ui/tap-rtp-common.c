@@ -39,6 +39,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
 #include <epan/dissectors/packet-rtp.h>
+#include <wsutil/pint.h>
 #include "rtp_stream.h"
 #include "tap-rtp-common.h"
 
@@ -591,12 +592,7 @@ rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		/* Handle wraparound ? */
 	arrivaltime = current_time - statinfo->start_time;
 
-	if (statinfo->first_timestamp > rtpinfo->info_timestamp){
-		/* Handle wraparound */
-		nominaltime = (double)(rtpinfo->info_timestamp + 0xffffffff - statinfo->first_timestamp + 1);
-	}else{
-		nominaltime = (double)(rtpinfo->info_timestamp - statinfo->first_timestamp);
-	}
+	nominaltime = (double)(guint32_wraparound_diff(rtpinfo->info_timestamp, statinfo->first_timestamp));
 
 	/* Can only analyze defined sampling rates */
 	if (clock_rate != 0) {
@@ -669,7 +665,7 @@ rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 
 	/* Is it a packet with the mark bit set? */
 	if (rtpinfo->info_marker_set) {
-		statinfo->delta_timestamp = rtpinfo->info_timestamp - statinfo->timestamp;
+		statinfo->delta_timestamp = guint32_wraparound_diff(rtpinfo->info_timestamp, statinfo->timestamp);
 		if (rtpinfo->info_timestamp > statinfo->timestamp){
 			statinfo->flags |= STAT_FLAG_MARKER;
 		}
@@ -714,6 +710,7 @@ rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	statinfo->timestamp = rtpinfo->info_timestamp;
 	statinfo->stop_seq_nr = rtpinfo->info_seq_num;
 	statinfo->total_nr++;
+	statinfo->last_payload_len = rtpinfo->info_payload_len - rtpinfo->info_padding_count;
 
 	return;
 }

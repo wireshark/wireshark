@@ -33,6 +33,7 @@
 
 #include <QAbstractButton>
 #include <QMenu>
+#include <QFile>
 
 #include "wireshark_dialog.h"
 
@@ -73,9 +74,15 @@ private slots:
     void on_rJitterCheckBox_toggled(bool checked);
     void on_rDiffCheckBox_toggled(bool checked);
     void on_rDeltaCheckBox_toggled(bool checked);
-    void on_actionSaveAudio_triggered();
-    void on_actionSaveForwardAudio_triggered();
-    void on_actionSaveReverseAudio_triggered();
+    void on_actionSaveAudioUnsync_triggered();
+    void on_actionSaveForwardAudioUnsync_triggered();
+    void on_actionSaveReverseAudioUnsync_triggered();
+    void on_actionSaveAudioSyncStream_triggered();
+    void on_actionSaveForwardAudioSyncStream_triggered();
+    void on_actionSaveReverseAudioSyncStream_triggered();
+    void on_actionSaveAudioSyncFile_triggered();
+    void on_actionSaveForwardAudioSyncFile_triggered();
+    void on_actionSaveReverseAudioSyncFile_triggered();
     void on_actionSaveCsv_triggered();
     void on_actionSaveForwardCsv_triggered();
     void on_actionSaveReverseCsv_triggered();
@@ -88,6 +95,7 @@ private slots:
 private:
     Ui::RtpAnalysisDialog *ui;
     enum StreamDirection { dir_both_, dir_forward_, dir_reverse_ };
+    enum SyncType { sync_unsync_, sync_sync_stream_, sync_sync_file_ };
 
     // XXX These are copied to and from rtp_stream_info_t structs. Should
     // we just have a pair of those instead?
@@ -153,7 +161,13 @@ private:
 
     void showPlayer();
 
-    void saveAudio(StreamDirection direction);
+    size_t convert_payload_to_samples(unsigned int payload_type, QTemporaryFile *tempfile, gchar *pd_out, size_t expected_nchars);
+    gboolean saveAudioAUSilence(size_t total_len, QFile *save_file, gboolean *stop_flag);
+    gboolean saveAudioAUUnidir(tap_rtp_stat_t statinfo, QTemporaryFile *tempfile, QFile *save_file, size_t header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence);
+    gboolean saveAudioAUBidir(tap_rtp_stat_t fwd_statinfo, tap_rtp_stat_t rev_statinfo, QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, size_t header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev);
+    gboolean saveAudioAU(StreamDirection direction, QFile *save_file, gboolean *stop_flag, RtpAnalysisDialog::SyncType sync);
+    gboolean saveAudioRAW(StreamDirection direction, QFile *save_file, gboolean *stop_flag);
+    void saveAudio(StreamDirection direction, RtpAnalysisDialog::SyncType sync);
     void saveCsv(StreamDirection direction);
 
     guint32 processNode(proto_node *ptree_node, header_field_info *hfinformation, const gchar* proto_field, bool *ok);
