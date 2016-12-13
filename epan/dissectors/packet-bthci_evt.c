@@ -389,6 +389,7 @@ static int hf_bthci_evt_mws_to_mws_baud_rate = -1;
 static int hf_bthci_evt_mws_from_mws_baud_rates = -1;
 static int hf_bthci_evt_mws_from_mws_baud_rates_tranport_item = -1;
 static int hf_bthci_evt_mws_from_mws_baud_rate = -1;
+static int hf_bthci_evt_selected_tx_power = -1;
 
 static const int *hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_encryption,
@@ -4001,6 +4002,16 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             break;
         }
 
+        case 0x2036: /* LE Set Extended Advertising Parameters */
+        {
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+            proto_tree_add_item(tree, hf_bthci_evt_selected_tx_power, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            break;
+        }
+
         case 0x140C: /* Get MWS Transport Layer Configuration */ {
             guint8       transports;
             guint8       i_transport;
@@ -6991,6 +7002,11 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_mws_from_mws_baud_rate,
           { "From MWS Baud Rate",                          "bthci_evt.mws.from_mws_baud_rates.item.baud_rate",
             FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_selected_tx_power,
+          { "Selected TX Power (dBm)",                     "bthci_evt.transmit_power_level",
+            FT_INT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         }
     };

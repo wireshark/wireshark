@@ -351,6 +351,13 @@ static int hf_bthci_cmd_le_peer_irk = -1;
 static int hf_bthci_cmd_le_local_irk = -1;
 static int hf_bthci_cmd_le_address_resolution_enable = -1;
 static int hf_bthci_cmd_le_rpa_timeout = -1;
+static int hf_bthci_cmd_advertising_handle = -1;
+static int hf_bthci_cmd_advertising_event_properties = -1;
+static int hf_bthci_cmd_primary_advertising_phy = -1;
+static int hf_bthci_cmd_sec_adv_max_skip = -1;
+static int hf_bthci_cmd_secondary_advertising_phy = -1;
+static int hf_bthci_cmd_advertising_sid = -1;
+static int hf_bthci_cmd_scan_req_notif_en = -1;
 
 
 static const int *hfx_bthci_cmd_le_event_mask[] = {
@@ -1667,6 +1674,19 @@ static const value_string tds_transport_state_vals[] = {
     { 0x02, "Temporarily Unavailable" },
     { 0x03, "RFU" },
     {0, NULL }
+};
+
+static const value_string cmd_le_primary_advertising_phy[] = {
+    { 0x01, "Primary advertisement PHY is LE 1M" },
+    { 0x03, "Primary advertisement PHY is LE Coded" },
+    { 0, NULL }
+};
+
+static const value_string cmd_le_secondary_advertising_phy[] = {
+    { 0x01, "Secondary advertisement PHY is LE 1M" },
+    { 0x02, "Secondary advertisement PHY is LE 2M" },
+    { 0x03, "Secondary advertisement PHY is LE Coded" },
+    { 0, NULL }
 };
 
 void proto_register_bthci_cmd(void);
@@ -3388,6 +3408,48 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             item = proto_tree_add_item(tree, hf_bthci_cmd_le_rpa_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%d sec)",  tvb_get_letohs(tvb, offset));
             offset+=2;
+            break;
+
+        case 0x035: /* LE Set Advertising Set Random Address */
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset+=1;
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            break;
+
+        case 0x036: /* LE Set Extended Advertising Parameters */
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset+=1;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_advertising_event_properties, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_advts_interval_min, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
+            offset+=3;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_advts_interval_max, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
+            offset+=3;
+            proto_tree_add_item(tree, hf_bthci_cmd_le_advts_channel_map_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_advts_channel_map_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_advts_channel_map_3, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_le_own_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_advts_filter_policy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_tx_power, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_primary_advertising_phy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_sec_adv_max_skip, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_secondary_advertising_phy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_sid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_scan_req_notif_en, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
             break;
 
         case 0x002: /* LE Read Buffer Size */
@@ -5207,6 +5269,41 @@ proto_register_bthci_cmd(void)
         { &hf_bthci_cmd_le_rpa_timeout,
           { "RPA Timeout", "bthci_cmd.le_rpa_timeout",
             FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_advertising_handle,
+          { "Advertising Handle", "bthci_cmd.advertising_handle",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_advertising_event_properties,
+          { "Advertising Event Properties", "bthci_cmd.advertising_event_properties",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_primary_advertising_phy,
+          { "Primary Advertising PHY", "bthci_cmd.primary_advertising_phy",
+            FT_UINT8, BASE_HEX, VALS(cmd_le_primary_advertising_phy), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sec_adv_max_skip,
+          { "Secondary Advertising Max Skip", "bthci_cmd.secondary_advertising_max_skip",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_secondary_advertising_phy,
+          { "Secondary Advertising PHY", "bthci_cmd.secondary_advertising_phy",
+            FT_UINT8, BASE_HEX, VALS(cmd_le_secondary_advertising_phy), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_advertising_sid,
+          { "Advertising SID", "bthci_cmd.advertising_sid",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_scan_req_notif_en,
+          { "Scan Request Notification Enable", "bthci_cmd.scan_request_notification_enable",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
     };
