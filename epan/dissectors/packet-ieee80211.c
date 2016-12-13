@@ -4540,6 +4540,7 @@ static int hf_ieee80211_ff_alloc_type = -1;
 static int hf_ieee80211_ff_src_aid = -1;
 static int hf_ieee80211_ff_dest_aid = -1;
 static int hf_ieee80211_ff_alloc_duration = -1;
+static int hf_ieee80211_ff_b39 = -1;
 static int hf_ieee80211_ff_ssw = -1;
 static int hf_ieee80211_ff_ssw_direction = -1;
 static int hf_ieee80211_ff_ssw_cdown = -1;
@@ -8558,11 +8559,12 @@ add_ff_dynamic_allocation(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U
 {
   proto_item *dynamic_alloc_item = proto_tree_add_item(tree, hf_ieee80211_ff_dynamic_allocation, tvb, offset, 5, ENC_LITTLE_ENDIAN);
   proto_tree *dynamic_alloc_tree = proto_item_add_subtree(dynamic_alloc_item, ett_dynamic_alloc_tree);
-  proto_tree_add_item(dynamic_alloc_tree, hf_ieee80211_ff_TID, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(dynamic_alloc_tree, hf_ieee80211_ff_alloc_type, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(dynamic_alloc_tree, hf_ieee80211_ff_src_aid, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(dynamic_alloc_tree, hf_ieee80211_ff_dest_aid, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(dynamic_alloc_tree, hf_ieee80211_ff_alloc_duration, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(dynamic_alloc_tree, hf_ieee80211_ff_TID, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(dynamic_alloc_tree, hf_ieee80211_ff_alloc_type, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(dynamic_alloc_tree, hf_ieee80211_ff_src_aid, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(dynamic_alloc_tree, hf_ieee80211_ff_dest_aid, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(dynamic_alloc_tree, hf_ieee80211_ff_alloc_duration, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(dynamic_alloc_tree, hf_ieee80211_ff_b39, tvb, offset, 5, ENC_LITTLE_ENDIAN);
   return 5;
 }
 
@@ -19688,32 +19690,37 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_dynamic_allocation,
      {"Response Offset", "wlan.dynamic_allocation",
-      FT_UINT64, BASE_HEX, NULL, 0,
+      FT_UINT40, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_TID,
-     {"Response Offset", "wlan.dynamic_allocation.TID",
-      FT_UINT8, BASE_DEC, NULL, 0x0f,
+     {"TID", "wlan.dynamic_allocation.tid",
+      FT_UINT40, BASE_DEC, NULL, 0x000000000F,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_alloc_type,
-     {"Response Offset", "wlan.dynamic_allocation.alloc_type",
-      FT_UINT8, BASE_DEC, NULL, 0x70,
+     {"Allocation Type", "wlan.dynamic_allocation.alloc_type",
+      FT_UINT40, BASE_DEC, NULL, 0x000000070,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_src_aid,
-     {"Response Offset", "wlan.dynamic_allocation.src_aid",
-      FT_UINT16, BASE_DEC, NULL, 0x7f80,
+     {"Source AID", "wlan.dynamic_allocation.src_aid",
+      FT_UINT40, BASE_DEC, NULL, 0x0000007F80,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_dest_aid,
-     {"Response Offset", "wlan.dynamic_allocation.dest_aid",
-      FT_UINT16, BASE_DEC, NULL, 0x7f80,
+     {"Destination AID", "wlan.dynamic_allocation.dest_aid",
+      FT_UINT40, BASE_DEC, NULL, 0x00007f8000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_alloc_duration,
-     {"Response Offset", "wlan.dynamic_allocation.alloc_duration",
-      FT_UINT32, BASE_CUSTOM, CF_FUNC(allocation_duration_base_custom), 0x7fff80,
+     {"Allocation Duration", "wlan.dynamic_allocation.alloc_duration",
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(allocation_duration_base_custom), 0x7FFF800000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_b39,
+     {"Reserved (b39)", "wlan.dynamic_allocation.b39",
+      FT_UINT40, BASE_HEX, NULL, 0x8000000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ssw,
