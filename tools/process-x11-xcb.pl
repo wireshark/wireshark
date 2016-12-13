@@ -196,12 +196,20 @@ sub mesa_category {
     $t->purge;
 }
 
+#used to prevent value_string duplication
+my %mesa_enum_hash = ();
+
 sub mesa_enum {
     my ($t, $elt) = @_;
     my $name = $elt->att('name');
     my $value = $elt->att('value');
+    my $hex_value = hex($value); #convert string to hex value to catch leading zeros
 
-    print $enum "  { $value, \"$name\" },\n" if (length($value) > 3 && length($value) < 10);
+    #make sure value isn't already in the hash, to prevent duplication in value_string
+    if (!exists($mesa_enum_hash{$hex_value})) {
+        $mesa_enum_hash{$hex_value} = $name;
+        print $enum "  { $value, \"$name\" },\n" if (length($value) > 3 && length($value) < 10);
+    }
     $t->purge;
 }
 
@@ -218,9 +226,9 @@ sub mesa_type {
 
     if($name eq 'enum') {
         # enum does not have a direct X equivalent
-        $gltype{'GLenum'} = { size => 4, encoding => 'byte_order', type => 'FT_UINT32', base => 'BASE_HEX',
+        $gltype{'GLenum'} = { size => 4, encoding => 'byte_order', type => 'FT_UINT32', base => 'BASE_HEX|BASE_EXT_STRING',
                               get => 'VALUE32', list => 'listOfCard32',
-                              val => 'VALS(mesa_enum)', };
+                              val => '&mesa_enum_ext', };
         return;
     }
 
@@ -1829,6 +1837,7 @@ if (-e "$mesadir/gl_API.xml") {
 
     print $enum "    { 0, NULL }\n";
     print $enum "};\n";
+    print $enum "static value_string_ext mesa_enum_ext = VALUE_STRING_EXT_INIT(mesa_enum);\n";
     $enum->close();
 
     print $decl "static int hf_x11_glx_render_op_name = -1;\n\n";

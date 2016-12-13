@@ -25,8 +25,6 @@
 
 static const value_string mesa_enum[] = {
 /* OpenGL version 1.0 */
-  { 0x0000, "POINTS" },
-  { 0x0001, "LINES" },
   { 0x0002, "LINE_LOOP" },
   { 0x0003, "LINE_STRIP" },
   { 0x0004, "TRIANGLES" },
@@ -431,9 +429,7 @@ static const value_string mesa_enum[] = {
   { 0x4006, "LIGHT6" },
   { 0x4007, "LIGHT7" },
 /* OpenGL version 1.1 */
-  { 0x0BF1, "INDEX_LOGIC_OP" },
   { 0x0BF2, "COLOR_LOGIC_OP" },
-  { 0x1003, "TEXTURE_INTERNAL_FORMAT" },
   { 0x140A, "DOUBLE" },
   { 0x2A00, "POLYGON_OFFSET_UNITS" },
   { 0x2A01, "POLYGON_OFFSET_POINT" },
@@ -561,10 +557,6 @@ static const value_string mesa_enum[] = {
   { 0x81F8, "LIGHT_MODEL_COLOR_CONTROL" },
   { 0x81F9, "SINGLE_COLOR" },
   { 0x81FA, "SEPARATE_SPECULAR_COLOR" },
-  { 0x0B12, "SMOOTH_POINT_SIZE_RANGE" },
-  { 0x0B13, "SMOOTH_POINT_SIZE_GRANULARITY" },
-  { 0x0B22, "SMOOTH_LINE_WIDTH_RANGE" },
-  { 0x0B23, "SMOOTH_LINE_WIDTH_GRANULARITY" },
   { 0x846D, "ALIASED_POINT_SIZE_RANGE" },
   { 0x846E, "ALIASED_LINE_WIDTH_RANGE" },
   { 0x8001, "CONSTANT_COLOR" },
@@ -812,22 +804,7 @@ static const value_string mesa_enum[] = {
   { 0x88E9, "DYNAMIC_READ" },
   { 0x88EA, "DYNAMIC_COPY" },
   { 0x8914, "SAMPLES_PASSED" },
-  { 0x8450, "FOG_COORD_SRC" },
-  { 0x8451, "FOG_COORD" },
-  { 0x8453, "CURRENT_FOG_COORD" },
-  { 0x8454, "FOG_COORD_ARRAY_TYPE" },
-  { 0x8455, "FOG_COORD_ARRAY_STRIDE" },
-  { 0x8456, "FOG_COORD_ARRAY_POINTER" },
-  { 0x8457, "FOG_COORD_ARRAY" },
-  { 0x889D, "FOG_COORD_ARRAY_BUFFER_BINDING" },
-  { 0x8580, "SRC0_RGB" },
-  { 0x8581, "SRC1_RGB" },
-  { 0x8582, "SRC2_RGB" },
-  { 0x8588, "SRC0_ALPHA" },
-  { 0x8589, "SRC1_ALPHA" },
-  { 0x858A, "SRC2_ALPHA" },
 /* OpenGL version 2.0 */
-  { 0x8009, "BLEND_EQUATION_RGB" },
   { 0x8622, "VERTEX_ATTRIB_ARRAY_ENABLED" },
   { 0x8623, "VERTEX_ATTRIB_ARRAY_SIZE" },
   { 0x8624, "VERTEX_ATTRIB_ARRAY_STRIDE" },
@@ -936,88 +913,13 @@ static const value_string mesa_enum[] = {
   { 0x8C4A, "COMPRESSED_SLUMINANCE" },
   { 0x8C4B, "COMPRESSED_SLUMINANCE_ALPHA" },
 /* OpenGL extension GL_ARB_multitexture */
-  { 0x84C0, "TEXTURE0_ARB" },
-  { 0x84C1, "TEXTURE1_ARB" },
-  { 0x84C2, "TEXTURE2_ARB" },
-  { 0x84C3, "TEXTURE3_ARB" },
-  { 0x84C4, "TEXTURE4_ARB" },
-  { 0x84C5, "TEXTURE5_ARB" },
-  { 0x84C6, "TEXTURE6_ARB" },
-  { 0x84C7, "TEXTURE7_ARB" },
-  { 0x84C8, "TEXTURE8_ARB" },
-  { 0x84C9, "TEXTURE9_ARB" },
-  { 0x84CA, "TEXTURE10_ARB" },
-  { 0x84CB, "TEXTURE11_ARB" },
-  { 0x84CC, "TEXTURE12_ARB" },
-  { 0x84CD, "TEXTURE13_ARB" },
-  { 0x84CE, "TEXTURE14_ARB" },
-  { 0x84CF, "TEXTURE15_ARB" },
-  { 0x84D0, "TEXTURE16_ARB" },
-  { 0x84D1, "TEXTURE17_ARB" },
-  { 0x84D2, "TEXTURE18_ARB" },
-  { 0x84D3, "TEXTURE19_ARB" },
-  { 0x84D4, "TEXTURE20_ARB" },
-  { 0x84D5, "TEXTURE21_ARB" },
-  { 0x84D6, "TEXTURE22_ARB" },
-  { 0x84D7, "TEXTURE23_ARB" },
-  { 0x84D8, "TEXTURE24_ARB" },
-  { 0x84D9, "TEXTURE25_ARB" },
-  { 0x84DA, "TEXTURE26_ARB" },
-  { 0x84DB, "TEXTURE27_ARB" },
-  { 0x84DC, "TEXTURE28_ARB" },
-  { 0x84DD, "TEXTURE29_ARB" },
-  { 0x84DE, "TEXTURE30_ARB" },
-  { 0x84DF, "TEXTURE31_ARB" },
-  { 0x84E0, "ACTIVE_TEXTURE_ARB" },
-  { 0x84E1, "CLIENT_ACTIVE_TEXTURE_ARB" },
-  { 0x84E2, "MAX_TEXTURE_UNITS_ARB" },
 /* OpenGL extension GL_ARB_transpose_matrix */
-  { 0x84E3, "TRANSPOSE_MODELVIEW_MATRIX_ARB" },
-  { 0x84E4, "TRANSPOSE_PROJECTION_MATRIX_ARB" },
-  { 0x84E5, "TRANSPOSE_TEXTURE_MATRIX_ARB" },
-  { 0x84E6, "TRANSPOSE_COLOR_MATRIX_ARB" },
 /* OpenGL extension GL_ARB_multisample */
-  { 0x809D, "MULTISAMPLE_ARB" },
-  { 0x809E, "SAMPLE_ALPHA_TO_COVERAGE_ARB" },
-  { 0x809F, "SAMPLE_ALPHA_TO_ONE_ARB" },
-  { 0x80A0, "SAMPLE_COVERAGE_ARB" },
-  { 0x80A8, "SAMPLE_BUFFERS_ARB" },
-  { 0x80A9, "SAMPLES_ARB" },
-  { 0x80AA, "SAMPLE_COVERAGE_VALUE_ARB" },
-  { 0x80AB, "SAMPLE_COVERAGE_INVERT_ARB" },
 /* OpenGL extension GL_ARB_texture_env_add */
 /* OpenGL extension GL_ARB_texture_cube_map */
-  { 0x8511, "NORMAL_MAP_ARB" },
-  { 0x8512, "REFLECTION_MAP_ARB" },
-  { 0x8513, "TEXTURE_CUBE_MAP_ARB" },
-  { 0x8514, "TEXTURE_BINDING_CUBE_MAP_ARB" },
-  { 0x8515, "TEXTURE_CUBE_MAP_POSITIVE_X_ARB" },
-  { 0x8516, "TEXTURE_CUBE_MAP_NEGATIVE_X_ARB" },
-  { 0x8517, "TEXTURE_CUBE_MAP_POSITIVE_Y_ARB" },
-  { 0x8518, "TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB" },
-  { 0x8519, "TEXTURE_CUBE_MAP_POSITIVE_Z_ARB" },
-  { 0x851A, "TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB" },
-  { 0x851B, "PROXY_TEXTURE_CUBE_MAP_ARB" },
-  { 0x851C, "MAX_CUBE_MAP_TEXTURE_SIZE_ARB" },
 /* OpenGL extension GL_ARB_texture_compression */
-  { 0x84E9, "COMPRESSED_ALPHA_ARB" },
-  { 0x84EA, "COMPRESSED_LUMINANCE_ARB" },
-  { 0x84EB, "COMPRESSED_LUMINANCE_ALPHA_ARB" },
-  { 0x84EC, "COMPRESSED_INTENSITY_ARB" },
-  { 0x84ED, "COMPRESSED_RGB_ARB" },
-  { 0x84EE, "COMPRESSED_RGBA_ARB" },
-  { 0x84EF, "TEXTURE_COMPRESSION_HINT_ARB" },
-  { 0x86A0, "TEXTURE_COMPRESSED_IMAGE_SIZE_ARB" },
-  { 0x86A1, "TEXTURE_COMPRESSED_ARB" },
-  { 0x86A2, "NUM_COMPRESSED_TEXTURE_FORMATS_ARB" },
-  { 0x86A3, "TEXTURE_COMPRESSED_FORMATS_ARB" },
 /* OpenGL extension GL_ARB_texture_border_clamp */
-  { 0x812D, "CLAMP_TO_BORDER_ARB" },
 /* OpenGL extension GL_ARB_point_parameters */
-  { 0x8126, "POINT_SIZE_MIN_ARB" },
-  { 0x8127, "POINT_SIZE_MAX_ARB" },
-  { 0x8128, "POINT_FADE_THRESHOLD_SIZE_ARB" },
-  { 0x8129, "POINT_DISTANCE_ATTENUATION_ARB" },
 /* OpenGL extension GL_ARB_vertex_blend */
   { 0x86A4, "MAX_VERTEX_UNITS_ARB" },
   { 0x86A5, "ACTIVE_VERTEX_UNITS_ARB" },
@@ -1029,7 +931,6 @@ static const value_string mesa_enum[] = {
   { 0x86AB, "WEIGHT_ARRAY_SIZE_ARB" },
   { 0x86AC, "WEIGHT_ARRAY_POINTER_ARB" },
   { 0x86AD, "WEIGHT_ARRAY_ARB" },
-  { 0x1700, "MODELVIEW0_ARB" },
   { 0x850A, "MODELVIEW1_ARB" },
   { 0x8722, "MODELVIEW2_ARB" },
   { 0x8723, "MODELVIEW3_ARB" },
@@ -1073,68 +974,24 @@ static const value_string mesa_enum[] = {
   { 0x8848, "MATRIX_INDEX_ARRAY_STRIDE_ARB" },
   { 0x8849, "MATRIX_INDEX_ARRAY_POINTER_ARB" },
 /* OpenGL extension GL_ARB_texture_env_combine */
-  { 0x8570, "COMBINE_ARB" },
-  { 0x8571, "COMBINE_RGB_ARB" },
-  { 0x8572, "COMBINE_ALPHA_ARB" },
-  { 0x8580, "SOURCE0_RGB_ARB" },
-  { 0x8581, "SOURCE1_RGB_ARB" },
-  { 0x8582, "SOURCE2_RGB_ARB" },
-  { 0x8588, "SOURCE0_ALPHA_ARB" },
-  { 0x8589, "SOURCE1_ALPHA_ARB" },
-  { 0x858A, "SOURCE2_ALPHA_ARB" },
-  { 0x8590, "OPERAND0_RGB_ARB" },
-  { 0x8591, "OPERAND1_RGB_ARB" },
-  { 0x8592, "OPERAND2_RGB_ARB" },
-  { 0x8598, "OPERAND0_ALPHA_ARB" },
-  { 0x8599, "OPERAND1_ALPHA_ARB" },
-  { 0x859A, "OPERAND2_ALPHA_ARB" },
-  { 0x8573, "RGB_SCALE_ARB" },
-  { 0x8574, "ADD_SIGNED_ARB" },
-  { 0x8575, "INTERPOLATE_ARB" },
-  { 0x84E7, "SUBTRACT_ARB" },
-  { 0x8576, "CONSTANT_ARB" },
-  { 0x8577, "PRIMARY_COLOR_ARB" },
-  { 0x8578, "PREVIOUS_ARB" },
 /* OpenGL extension GL_ARB_texture_env_crossbar */
 /* OpenGL extension GL_ARB_texture_env_dot3 */
-  { 0x86AE, "DOT3_RGB_ARB" },
-  { 0x86AF, "DOT3_RGBA_ARB" },
 /* OpenGL extension GL_ARB_texture_mirrored_repeat */
-  { 0x8370, "MIRRORED_REPEAT_ARB" },
 /* OpenGL extension GL_ARB_depth_texture */
-  { 0x81A5, "DEPTH_COMPONENT16_ARB" },
-  { 0x81A6, "DEPTH_COMPONENT24_ARB" },
-  { 0x81A7, "DEPTH_COMPONENT32_ARB" },
-  { 0x884A, "TEXTURE_DEPTH_SIZE_ARB" },
-  { 0x884B, "DEPTH_TEXTURE_MODE_ARB" },
 /* OpenGL extension GL_ARB_shadow */
-  { 0x884C, "TEXTURE_COMPARE_MODE_ARB" },
-  { 0x884D, "TEXTURE_COMPARE_FUNC_ARB" },
-  { 0x884E, "COMPARE_R_TO_TEXTURE_ARB" },
 /* OpenGL extension GL_ARB_shadow_ambient */
   { 0x80BF, "TEXTURE_COMPARE_FAIL_VALUE_ARB" },
 /* OpenGL extension GL_ARB_window_pos */
 /* OpenGL extension GL_ARB_vertex_program */
-  { 0x8458, "COLOR_SUM_ARB" },
   { 0x8620, "VERTEX_PROGRAM_ARB" },
-  { 0x8622, "VERTEX_ATTRIB_ARRAY_ENABLED_ARB" },
-  { 0x8623, "VERTEX_ATTRIB_ARRAY_SIZE_ARB" },
-  { 0x8624, "VERTEX_ATTRIB_ARRAY_STRIDE_ARB" },
-  { 0x8625, "VERTEX_ATTRIB_ARRAY_TYPE_ARB" },
-  { 0x8626, "CURRENT_VERTEX_ATTRIB_ARB" },
   { 0x8627, "PROGRAM_LENGTH_ARB" },
   { 0x8628, "PROGRAM_STRING_ARB" },
   { 0x862E, "MAX_PROGRAM_MATRIX_STACK_DEPTH_ARB" },
   { 0x862F, "MAX_PROGRAM_MATRICES_ARB" },
   { 0x8640, "CURRENT_MATRIX_STACK_DEPTH_ARB" },
   { 0x8641, "CURRENT_MATRIX_ARB" },
-  { 0x8642, "VERTEX_PROGRAM_POINT_SIZE_ARB" },
-  { 0x8643, "VERTEX_PROGRAM_TWO_SIDE_ARB" },
-  { 0x8645, "VERTEX_ATTRIB_ARRAY_POINTER_ARB" },
   { 0x864B, "PROGRAM_ERROR_POSITION_ARB" },
   { 0x8677, "PROGRAM_BINDING_ARB" },
-  { 0x8869, "MAX_VERTEX_ATTRIBS_ARB" },
-  { 0x886A, "VERTEX_ATTRIB_ARRAY_NORMALIZED_ARB" },
   { 0x8874, "PROGRAM_ERROR_STRING_ARB" },
   { 0x8875, "PROGRAM_FORMAT_ASCII_ARB" },
   { 0x8876, "PROGRAM_FORMAT_ARB" },
@@ -1208,87 +1065,17 @@ static const value_string mesa_enum[] = {
   { 0x880E, "MAX_PROGRAM_NATIVE_ALU_INSTRUCTIONS_ARB" },
   { 0x880F, "MAX_PROGRAM_NATIVE_TEX_INSTRUCTIONS_ARB" },
   { 0x8810, "MAX_PROGRAM_NATIVE_TEX_INDIRECTIONS_ARB" },
-  { 0x8871, "MAX_TEXTURE_COORDS_ARB" },
-  { 0x8872, "MAX_TEXTURE_IMAGE_UNITS_ARB" },
 /* OpenGL extension GL_ARB_vertex_buffer_object */
-  { 0x8764, "BUFFER_SIZE_ARB" },
-  { 0x8765, "BUFFER_USAGE_ARB" },
-  { 0x8894, "ARRAY_BUFFER_BINDING_ARB" },
-  { 0x8895, "ELEMENT_ARRAY_BUFFER_BINDING_ARB" },
-  { 0x8896, "VERTEX_ARRAY_BUFFER_BINDING_ARB" },
-  { 0x8897, "NORMAL_ARRAY_BUFFER_BINDING_ARB" },
-  { 0x8898, "COLOR_ARRAY_BUFFER_BINDING_ARB" },
-  { 0x8899, "INDEX_ARRAY_BUFFER_BINDING_ARB" },
-  { 0x889A, "TEXTURE_COORD_ARRAY_BUFFER_BINDING_ARB" },
-  { 0x889B, "EDGE_FLAG_ARRAY_BUFFER_BINDING_ARB" },
-  { 0x889C, "SECONDARY_COLOR_ARRAY_BUFFER_BINDING_ARB" },
-  { 0x889D, "FOG_COORDINATE_ARRAY_BUFFER_BINDING_ARB" },
-  { 0x889E, "WEIGHT_ARRAY_BUFFER_BINDING_ARB" },
-  { 0x889F, "VERTEX_ATTRIB_ARRAY_BUFFER_BINDING_ARB" },
-  { 0x88B8, "READ_ONLY_ARB" },
-  { 0x88B9, "WRITE_ONLY_ARB" },
-  { 0x88BA, "READ_WRITE_ARB" },
-  { 0x88BB, "BUFFER_ACCESS_ARB" },
-  { 0x88BC, "BUFFER_MAPPED_ARB" },
-  { 0x88BD, "BUFFER_MAP_POINTER_ARB" },
-  { 0x88E0, "STREAM_DRAW_ARB" },
-  { 0x88E1, "STREAM_READ_ARB" },
-  { 0x88E2, "STREAM_COPY_ARB" },
-  { 0x88E4, "STATIC_DRAW_ARB" },
-  { 0x88E5, "STATIC_READ_ARB" },
-  { 0x88E6, "STATIC_COPY_ARB" },
-  { 0x88E8, "DYNAMIC_DRAW_ARB" },
-  { 0x88E9, "DYNAMIC_READ_ARB" },
-  { 0x88EA, "DYNAMIC_COPY_ARB" },
 /* OpenGL extension GL_ARB_occlusion_query */
-  { 0x8864, "QUERY_COUNTER_BITS_ARB" },
-  { 0x8865, "CURRENT_QUERY_ARB" },
-  { 0x8866, "QUERY_RESULT_ARB" },
-  { 0x8867, "QUERY_RESULT_AVAILABLE_ARB" },
-  { 0x8914, "SAMPLES_PASSED_ARB" },
 /* OpenGL extension GL_ARB_shader_objects */
   { 0x8B40, "PROGRAM_OBJECT_ARB" },
   { 0x8B48, "SHADER_OBJECT_ARB" },
   { 0x8B4E, "OBJECT_TYPE_ARB" },
-  { 0x8B4F, "OBJECT_SUBTYPE_ARB" },
-  { 0x8B50, "FLOAT_VEC2_ARB" },
-  { 0x8B51, "FLOAT_VEC3_ARB" },
-  { 0x8B52, "FLOAT_VEC4_ARB" },
-  { 0x8B53, "INT_VEC2_ARB" },
-  { 0x8B54, "INT_VEC3_ARB" },
-  { 0x8B55, "INT_VEC4_ARB" },
-  { 0x8B56, "BOOL_ARB" },
-  { 0x8B57, "BOOL_VEC2_ARB" },
-  { 0x8B58, "BOOL_VEC3_ARB" },
-  { 0x8B59, "BOOL_VEC4_ARB" },
-  { 0x8B5A, "FLOAT_MAT2_ARB" },
-  { 0x8B5B, "FLOAT_MAT3_ARB" },
-  { 0x8B5C, "FLOAT_MAT4_ARB" },
-  { 0x8B80, "OBJECT_DELETE_STATUS_ARB" },
-  { 0x8B81, "OBJECT_COMPILE_STATUS_ARB" },
-  { 0x8B82, "OBJECT_LINK_STATUS_ARB" },
-  { 0x8B83, "OBJECT_VALIDATE_STATUS_ARB" },
-  { 0x8B84, "OBJECT_INFO_LOG_LENGTH_ARB" },
-  { 0x8B85, "OBJECT_ATTACHED_OBJECTS_ARB" },
-  { 0x8B86, "OBJECT_ACTIVE_UNIFORMS_ARB" },
-  { 0x8B87, "OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB" },
-  { 0x8B88, "OBJECT_SHADER_SOURCE_LENGTH_ARB" },
 /* OpenGL extension GL_ARB_vertex_shader */
-  { 0x8B31, "VERTEX_SHADER_ARB" },
-  { 0x8B4A, "MAX_VERTEX_UNIFORM_COMPONENTS_ARB" },
-  { 0x8B4B, "MAX_VARYING_FLOATS_ARB" },
-  { 0x8B4C, "MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB" },
-  { 0x8B4D, "MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB" },
-  { 0x8B89, "OBJECT_ACTIVE_ATTRIBUTES_ARB" },
-  { 0x8B8A, "OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB" },
 /* OpenGL extension GL_ARB_fragment_shader */
-  { 0x8B30, "FRAGMENT_SHADER_ARB" },
-  { 0x8B49, "MAX_FRAGMENT_UNIFORM_COMPONENTS_ARB" },
 /* OpenGL extension GL_ARB_shading_language_100 */
 /* OpenGL extension GL_ARB_texture_non_power_of_two */
 /* OpenGL extension GL_ARB_point_sprite */
-  { 0x8861, "POINT_SPRITE_ARB" },
-  { 0x8862, "COORD_REPLACE_ARB" },
 /* OpenGL extension GL_ARB_fragment_program_shadow */
 /* OpenGL extension GL_ARB_texture_rectangle */
   { 0x84F5, "TEXTURE_RECTANGLE_ARB" },
@@ -1311,13 +1098,8 @@ static const value_string mesa_enum[] = {
 /* OpenGL extension GL_ARB_explicit_uniform_location */
   { 0x826E, "MAX_UNIFORM_LOCATIONS" },
 /* OpenGL extension GL_ARB_buffer_storage */
-  { 0x40, "MAP_PERSISTENT_BIT" },
-  { 0x80, "MAP_COHERENT_BIT" },
-  { 0x100, "DYNAMIC_STORAGE_BIT" },
-  { 0x200, "CLIENT_STORAGE_BIT" },
   { 0x821F, "BUFFER_IMMUTABLE_STORAGE" },
   { 0x8220, "BUFFER_STORAGE_FLAGS" },
-  { 0x4000, "CLIENT_MAPPED_BUFFER_BARRIER_BIT" },
 /* OpenGL extension GL_ARB_query_buffer_object */
   { 0x9194, "QUERY_RESULT_NO_WAIT" },
   { 0x9192, "QUERY_BUFFER" },
@@ -1353,117 +1135,21 @@ static const value_string mesa_enum[] = {
   { 0x9381, "MULTISAMPLE_LINE_WIDTH_RANGE_ARB" },
   { 0x9382, "MULTISAMPLE_LINE_WIDTH_GRANULARITY_ARB" },
 /* OpenGL extension GL_EXT_blend_color */
-  { 0x8001, "CONSTANT_COLOR_EXT" },
-  { 0x8002, "ONE_MINUS_CONSTANT_COLOR_EXT" },
-  { 0x8003, "CONSTANT_ALPHA_EXT" },
-  { 0x8004, "ONE_MINUS_CONSTANT_ALPHA_EXT" },
-  { 0x8005, "BLEND_COLOR_EXT" },
 /* OpenGL extension GL_EXT_polygon_offset */
   { 0x8039, "POLYGON_OFFSET_BIAS_EXT" },
 /* OpenGL extension GL_EXT_texture */
-  { 0x803B, "ALPHA4_EXT" },
-  { 0x803C, "ALPHA8_EXT" },
-  { 0x803D, "ALPHA12_EXT" },
-  { 0x803E, "ALPHA16_EXT" },
-  { 0x803F, "LUMINANCE4_EXT" },
-  { 0x8040, "LUMINANCE8_EXT" },
-  { 0x8041, "LUMINANCE12_EXT" },
-  { 0x8042, "LUMINANCE16_EXT" },
-  { 0x8043, "LUMINANCE4_ALPHA4_EXT" },
-  { 0x8044, "LUMINANCE6_ALPHA2_EXT" },
-  { 0x8045, "LUMINANCE8_ALPHA8_EXT" },
-  { 0x8046, "LUMINANCE12_ALPHA4_EXT" },
-  { 0x8047, "LUMINANCE12_ALPHA12_EXT" },
-  { 0x8048, "LUMINANCE16_ALPHA16_EXT" },
-  { 0x8049, "INTENSITY_EXT" },
-  { 0x804A, "INTENSITY4_EXT" },
-  { 0x804B, "INTENSITY8_EXT" },
-  { 0x804C, "INTENSITY12_EXT" },
-  { 0x804D, "INTENSITY16_EXT" },
   { 0x804E, "RGB2_EXT" },
-  { 0x804F, "RGB4_EXT" },
-  { 0x8050, "RGB5_EXT" },
-  { 0x8051, "RGB8_EXT" },
-  { 0x8052, "RGB10_EXT" },
-  { 0x8053, "RGB12_EXT" },
-  { 0x8054, "RGB16_EXT" },
-  { 0x8055, "RGBA2_EXT" },
-  { 0x8056, "RGBA4_EXT" },
-  { 0x8057, "RGB5_A1_EXT" },
-  { 0x8058, "RGBA8_EXT" },
-  { 0x8059, "RGB10_A2_EXT" },
-  { 0x805A, "RGBA12_EXT" },
-  { 0x805B, "RGBA16_EXT" },
-  { 0x805C, "TEXTURE_RED_SIZE_EXT" },
-  { 0x805D, "TEXTURE_GREEN_SIZE_EXT" },
-  { 0x805E, "TEXTURE_BLUE_SIZE_EXT" },
-  { 0x805F, "TEXTURE_ALPHA_SIZE_EXT" },
-  { 0x8060, "TEXTURE_LUMINANCE_SIZE_EXT" },
-  { 0x8061, "TEXTURE_INTENSITY_SIZE_EXT" },
   { 0x8062, "REPLACE_EXT" },
-  { 0x8063, "PROXY_TEXTURE_1D_EXT" },
-  { 0x8064, "PROXY_TEXTURE_2D_EXT" },
   { 0x8065, "TEXTURE_TOO_LARGE_EXT" },
 /* OpenGL extension GL_EXT_texture3D */
 /* OpenGL extension GL_SGIS_texture_filter4 */
 /* OpenGL extension GL_EXT_subtexture */
 /* OpenGL extension GL_EXT_copy_texture */
 /* OpenGL extension GL_EXT_histogram */
-  { 0x8024, "HISTOGRAM_EXT" },
-  { 0x8025, "PROXY_HISTOGRAM_EXT" },
-  { 0x8026, "HISTOGRAM_WIDTH_EXT" },
-  { 0x8027, "HISTOGRAM_FORMAT_EXT" },
-  { 0x8028, "HISTOGRAM_RED_SIZE_EXT" },
-  { 0x8029, "HISTOGRAM_GREEN_SIZE_EXT" },
-  { 0x802A, "HISTOGRAM_BLUE_SIZE_EXT" },
-  { 0x802B, "HISTOGRAM_ALPHA_SIZE_EXT" },
-  { 0x802C, "HISTOGRAM_LUMINANCE_SIZE_EXT" },
-  { 0x802D, "HISTOGRAM_SINK_EXT" },
-  { 0x802E, "MINMAX_EXT" },
-  { 0x802F, "MINMAX_FORMAT_EXT" },
-  { 0x8030, "MINMAX_SINK_EXT" },
   { 0x8031, "TABLE_TOO_LARGE_EXT" },
 /* OpenGL extension GL_EXT_convolution */
-  { 0x8013, "CONVOLUTION_BORDER_MODE_EXT" },
-  { 0x8014, "CONVOLUTION_FILTER_SCALE_EXT" },
-  { 0x8015, "CONVOLUTION_FILTER_BIAS_EXT" },
-  { 0x8016, "REDUCE_EXT" },
-  { 0x8017, "CONVOLUTION_FORMAT_EXT" },
-  { 0x8018, "CONVOLUTION_WIDTH_EXT" },
-  { 0x8019, "CONVOLUTION_HEIGHT_EXT" },
-  { 0x801A, "MAX_CONVOLUTION_WIDTH_EXT" },
-  { 0x801B, "MAX_CONVOLUTION_HEIGHT_EXT" },
-  { 0x801C, "POST_CONVOLUTION_RED_SCALE_EXT" },
-  { 0x801D, "POST_CONVOLUTION_GREEN_SCALE_EXT" },
-  { 0x801E, "POST_CONVOLUTION_BLUE_SCALE_EXT" },
-  { 0x801F, "POST_CONVOLUTION_ALPHA_SCALE_EXT" },
-  { 0x8020, "POST_CONVOLUTION_RED_BIAS_EXT" },
-  { 0x8021, "POST_CONVOLUTION_GREEN_BIAS_EXT" },
-  { 0x8022, "POST_CONVOLUTION_BLUE_BIAS_EXT" },
-  { 0x8023, "POST_CONVOLUTION_ALPHA_BIAS_EXT" },
 /* OpenGL extension GL_SGI_color_matrix */
-  { 0x80B1, "COLOR_MATRIX_SGI" },
-  { 0x80B2, "COLOR_MATRIX_STACK_DEPTH_SGI" },
-  { 0x80B3, "MAX_COLOR_MATRIX_STACK_DEPTH_SGI" },
-  { 0x80B4, "POST_COLOR_MATRIX_RED_SCALE_SGI" },
-  { 0x80B5, "POST_COLOR_MATRIX_GREEN_SCALE_SGI" },
-  { 0x80B6, "POST_COLOR_MATRIX_BLUE_SCALE_SGI" },
-  { 0x80B7, "POST_COLOR_MATRIX_ALPHA_SCALE_SGI" },
-  { 0x80B8, "POST_COLOR_MATRIX_RED_BIAS_SGI" },
-  { 0x80B9, "POST_COLOR_MATRIX_GREEN_BIAS_SGI" },
-  { 0x80BA, "POST_COLOR_MATRIX_BLUE_BIAS_SGI" },
-  { 0x80BB, "POST_COLOR_MATRIX_ALPHA_BIAS_SGI" },
 /* OpenGL extension GL_SGI_color_table */
-  { 0x80D6, "COLOR_TABLE_SCALE_SGI" },
-  { 0x80D7, "COLOR_TABLE_BIAS_SGI" },
-  { 0x80D8, "COLOR_TABLE_FORMAT_SGI" },
-  { 0x80D9, "COLOR_TABLE_WIDTH_SGI" },
-  { 0x80DA, "COLOR_TABLE_RED_SIZE_SGI" },
-  { 0x80DB, "COLOR_TABLE_GREEN_SIZE_SGI" },
-  { 0x80DC, "COLOR_TABLE_BLUE_SIZE_SGI" },
-  { 0x80DD, "COLOR_TABLE_ALPHA_SIZE_SGI" },
-  { 0x80DE, "COLOR_TABLE_LUMINANCE_SIZE_SGI" },
-  { 0x80DF, "COLOR_TABLE_INTENSITY_SIZE_SGI" },
 /* OpenGL extension GL_SGIS_pixel_texture */
 /* OpenGL extension GL_SGIS_texture4D */
 /* OpenGL extension GL_SGI_texture_color_table */
@@ -1474,7 +1160,6 @@ static const value_string mesa_enum[] = {
 /* OpenGL extension GL_SGIS_sharpen_texture */
 /* OpenGL extension GL_SGIS_multisample */
 /* OpenGL extension GL_EXT_rescale_normal */
-  { 0x803A, "RESCALE_NORMAL_EXT" },
 /* OpenGL extension GL_EXT_vertex_array */
   { 0x807D, "VERTEX_ARRAY_COUNT_EXT" },
   { 0x8080, "NORMAL_ARRAY_COUNT_EXT" },
@@ -1483,8 +1168,6 @@ static const value_string mesa_enum[] = {
   { 0x808B, "TEXTURE_COORD_ARRAY_COUNT_EXT" },
   { 0x808D, "EDGE_FLAG_ARRAY_COUNT_EXT" },
 /* OpenGL extension GL_SGIS_generate_mipmap */
-  { 0x8191, "GENERATE_MIPMAP_SGIS" },
-  { 0x8192, "GENERATE_MIPMAP_HINT_SGIS" },
 /* OpenGL extension GL_SGIX_clipmap */
   { 0x8170, "LINEAR_CLIPMAP_LINEAR_SGIX" },
   { 0x8171, "TEXTURE_CLIPMAP_CENTER_SGIX" },
@@ -1504,23 +1187,11 @@ static const value_string mesa_enum[] = {
   { 0x819C, "TEXTURE_LEQUAL_R_SGIX" },
   { 0x819D, "TEXTURE_GEQUAL_R_SGIX" },
 /* OpenGL extension GL_SGIS_texture_edge_clamp */
-  { 0x812F, "CLAMP_TO_EDGE_SGIS" },
 /* OpenGL extension GL_SGIS_texture_border_clamp */
-  { 0x812D, "CLAMP_TO_BORDER_SGIS" },
 /* OpenGL extension GL_EXT_blend_minmax */
-  { 0x8006, "FUNC_ADD_EXT" },
-  { 0x8007, "MIN_EXT" },
-  { 0x8008, "MAX_EXT" },
-  { 0x8009, "BLEND_EQUATION_EXT" },
 /* OpenGL extension GL_EXT_blend_subtract */
-  { 0x800A, "FUNC_SUBTRACT_EXT" },
-  { 0x800B, "FUNC_REVERSE_SUBTRACT_EXT" },
 /* OpenGL extension GL_SGIX_sprite */
 /* OpenGL extension GL_EXT_point_parameters */
-  { 0x8126, "POINT_SIZE_MIN_EXT" },
-  { 0x8127, "POINT_SIZE_MAX_EXT" },
-  { 0x8128, "POINT_FADE_THRESHOLD_SIZE_EXT" },
-  { 0x8129, "POINT_DISTANCE_ATTENUATION_EXT" },
 /* OpenGL extension GL_SGIX_instruments */
 /* OpenGL extension GL_SGIX_texture_scale_bias */
   { 0x8179, "POST_TEXTURE_FILTER_BIAS_SGIX" },
@@ -1532,9 +1203,6 @@ static const value_string mesa_enum[] = {
 /* OpenGL extension GL_SGIX_reference_plane */
 /* OpenGL extension GL_SGIX_flush_raster */
 /* OpenGL extension GL_SGIX_depth_texture */
-  { 0x81A5, "DEPTH_COMPONENT16_SGIX" },
-  { 0x81A6, "DEPTH_COMPONENT24_SGIX" },
-  { 0x81A7, "DEPTH_COMPONENT32_SGIX" },
 /* OpenGL extension GL_SGIS_fog_function */
 /* OpenGL extension GL_SGIX_fog_offset */
   { 0x8198, "FOG_OFFSET_SGIX" },
@@ -1544,18 +1212,9 @@ static const value_string mesa_enum[] = {
   { 0x8150, "IGNORE_BORDER_HP" },
   { 0x8151, "CONSTANT_BORDER_HP" },
   { 0x8153, "REPLICATE_BORDER_HP" },
-  { 0x8154, "CONVOLUTION_BORDER_COLOR_HP" },
 /* OpenGL extension GL_EXT_color_subtable */
 /* OpenGL extension GL_PGI_misc_hints */
 /* OpenGL extension GL_EXT_paletted_texture */
-  { 0x80D8, "COLOR_TABLE_FORMAT_EXT" },
-  { 0x80D9, "COLOR_TABLE_WIDTH_EXT" },
-  { 0x80DA, "COLOR_TABLE_RED_SIZE_EXT" },
-  { 0x80DB, "COLOR_TABLE_GREEN_SIZE_EXT" },
-  { 0x80DC, "COLOR_TABLE_BLUE_SIZE_EXT" },
-  { 0x80DD, "COLOR_TABLE_ALPHA_SIZE_EXT" },
-  { 0x80DE, "COLOR_TABLE_LUMINANCE_SIZE_EXT" },
-  { 0x80DF, "COLOR_TABLE_INTENSITY_SIZE_EXT" },
   { 0x80ED, "TEXTURE_INDEX_SIZE_EXT" },
 /* OpenGL extension GL_EXT_clip_volume_hint */
   { 0x80F0, "CLIP_VOLUME_CLIPPING_HINT_EXT" },
@@ -1565,7 +1224,6 @@ static const value_string mesa_enum[] = {
   { 0x818F, "TEXTURE_LOD_BIAS_T_SGIX" },
   { 0x8190, "TEXTURE_LOD_BIAS_R_SGIX" },
 /* OpenGL extension GL_SGIX_shadow_ambient */
-  { 0x80BF, "SHADOW_AMBIENT_SGIX" },
 /* OpenGL extension GL_EXT_index_material */
 /* OpenGL extension GL_EXT_index_func */
 /* OpenGL extension GL_EXT_compiled_vertex_array */
@@ -1589,36 +1247,12 @@ static const value_string mesa_enum[] = {
 /* OpenGL extension GL_EXT_shared_texture_palette */
   { 0x81FB, "SHARED_TEXTURE_PALETTE_EXT" },
 /* OpenGL extension GL_EXT_separate_specular_color */
-  { 0x81F8, "LIGHT_MODEL_COLOR_CONTROL_EXT" },
-  { 0x81F9, "SINGLE_COLOR_EXT" },
-  { 0x81FA, "SEPARATE_SPECULAR_COLOR_EXT" },
 /* OpenGL extension GL_EXT_secondary_color */
 /* OpenGL extension GL_EXT_texture_perturb_normal */
 /* OpenGL extension GL_EXT_multi_draw_arrays */
 /* OpenGL extension GL_EXT_fog_coord */
 /* OpenGL extension GL_EXT_coordinate_frame */
 /* OpenGL extension GL_EXT_texture_env_combine */
-  { 0x8570, "COMBINE_EXT" },
-  { 0x8571, "COMBINE_RGB_EXT" },
-  { 0x8572, "COMBINE_ALPHA_EXT" },
-  { 0x8573, "RGB_SCALE_EXT" },
-  { 0x8574, "ADD_SIGNED_EXT" },
-  { 0x8575, "INTERPOLATE_EXT" },
-  { 0x8576, "CONSTANT_EXT" },
-  { 0x8577, "PRIMARY_COLOR_EXT" },
-  { 0x8578, "PREVIOUS_EXT" },
-  { 0x8580, "SOURCE0_RGB_EXT" },
-  { 0x8581, "SOURCE1_RGB_EXT" },
-  { 0x8582, "SOURCE2_RGB_EXT" },
-  { 0x8588, "SOURCE0_ALPHA_EXT" },
-  { 0x8589, "SOURCE1_ALPHA_EXT" },
-  { 0x858A, "SOURCE2_ALPHA_EXT" },
-  { 0x8590, "OPERAND0_RGB_EXT" },
-  { 0x8591, "OPERAND1_RGB_EXT" },
-  { 0x8592, "OPERAND2_RGB_EXT" },
-  { 0x8598, "OPERAND0_ALPHA_EXT" },
-  { 0x8599, "OPERAND1_ALPHA_EXT" },
-  { 0x859A, "OPERAND2_ALPHA_EXT" },
 /* OpenGL extension GL_SGIX_pixel_texture */
 /* OpenGL extension GL_SUNX_constant_data */
 /* OpenGL extension GL_SUN_global_alpha */
@@ -1626,16 +1260,11 @@ static const value_string mesa_enum[] = {
 /* OpenGL extension GL_SUN_vertex */
 /* OpenGL extension GL_EXT_blend_func_separate */
 /* OpenGL extension GL_EXT_stencil_wrap */
-  { 0x8507, "INCR_WRAP_EXT" },
-  { 0x8508, "DECR_WRAP_EXT" },
 /* OpenGL extension GL_NV_texgen_reflection */
-  { 0x8511, "NORMAL_MAP_NV" },
-  { 0x8512, "REFLECTION_MAP_NV" },
 /* OpenGL extension GL_SUN_convolution_border_modes */
   { 0x81D4, "WRAP_BORDER_SUN" },
 /* OpenGL extension GL_EXT_texture_env_add */
 /* OpenGL extension GL_EXT_texture_lod_bias */
-  { 0x8501, "TEXTURE_LOD_BIAS_EXT" },
 /* OpenGL extension GL_EXT_texture_filter_anisotropic */
   { 0x84FE, "TEXTURE_MAX_ANISOTROPY_EXT" },
   { 0x84FF, "MAX_TEXTURE_MAX_ANISOTROPY_EXT" },
@@ -1684,38 +1313,20 @@ static const value_string mesa_enum[] = {
   { 0x8743, "MIRROR_CLAMP_TO_EDGE_ATI" },
 /* OpenGL extension GL_NV_fence */
 /* OpenGL extension GL_IBM_texture_mirrored_repeat */
-  { 0x8370, "MIRRORED_REPEAT_IBM" },
 /* OpenGL extension GL_NV_evaluators */
 /* OpenGL extension GL_NV_packed_depth_stencil */
   { 0x84F9, "DEPTH_STENCIL_NV" },
   { 0x84FA, "UNSIGNED_INT_24_8_NV" },
 /* OpenGL extension GL_NV_register_combiners2 */
 /* OpenGL extension GL_NV_texture_compression_vtc */
-  { 0x83F0, "COMPRESSED_RGB_S3TC_DXT1_EXT" },
-  { 0x83F1, "COMPRESSED_RGBA_S3TC_DXT1_EXT" },
-  { 0x83F2, "COMPRESSED_RGBA_S3TC_DXT3_EXT" },
-  { 0x83F3, "COMPRESSED_RGBA_S3TC_DXT5_EXT" },
 /* OpenGL extension GL_NV_texture_rectangle */
-  { 0x84F5, "TEXTURE_RECTANGLE_NV" },
-  { 0x84F6, "TEXTURE_BINDING_RECTANGLE_NV" },
-  { 0x84F7, "PROXY_TEXTURE_RECTANGLE_NV" },
-  { 0x84F8, "MAX_RECTANGLE_TEXTURE_SIZE_NV" },
 /* OpenGL extension GL_NV_vertex_program */
-  { 0x8620, "VERTEX_PROGRAM_NV" },
   { 0x8621, "VERTEX_STATE_PROGRAM_NV" },
-  { 0x8623, "ATTRIB_ARRAY_SIZE_NV" },
-  { 0x8624, "ATTRIB_ARRAY_STRIDE_NV" },
-  { 0x8625, "ATTRIB_ARRAY_TYPE_NV" },
-  { 0x8626, "CURRENT_ATTRIB_NV" },
-  { 0x8627, "PROGRAM_LENGTH_NV" },
-  { 0x8628, "PROGRAM_STRING_NV" },
   { 0x8629, "MODELVIEW_PROJECTION_NV" },
   { 0x862A, "IDENTITY_NV" },
   { 0x862B, "INVERSE_NV" },
   { 0x862C, "TRANSPOSE_NV" },
   { 0x862D, "INVERSE_TRANSPOSE_NV" },
-  { 0x862E, "MAX_TRACK_MATRIX_STACK_DEPTH_NV" },
-  { 0x862F, "MAX_TRACK_MATRICES_NV" },
   { 0x8630, "MATRIX0_NV" },
   { 0x8631, "MATRIX1_NV" },
   { 0x8632, "MATRIX2_NV" },
@@ -1724,18 +1335,12 @@ static const value_string mesa_enum[] = {
   { 0x8635, "MATRIX5_NV" },
   { 0x8636, "MATRIX6_NV" },
   { 0x8637, "MATRIX7_NV" },
-  { 0x8640, "CURRENT_MATRIX_STACK_DEPTH_NV" },
-  { 0x8641, "CURRENT_MATRIX_NV" },
-  { 0x8642, "VERTEX_PROGRAM_POINT_SIZE_NV" },
-  { 0x8643, "VERTEX_PROGRAM_TWO_SIDE_NV" },
   { 0x8644, "PROGRAM_PARAMETER_NV" },
-  { 0x8645, "ATTRIB_ARRAY_POINTER_NV" },
   { 0x8646, "PROGRAM_TARGET_NV" },
   { 0x8647, "PROGRAM_RESIDENT_NV" },
   { 0x8648, "TRACK_MATRIX_NV" },
   { 0x8649, "TRACK_MATRIX_TRANSFORM_NV" },
   { 0x864A, "VERTEX_PROGRAM_BINDING_NV" },
-  { 0x864B, "PROGRAM_ERROR_POSITION_NV" },
   { 0x8650, "VERTEX_ATTRIB_ARRAY0_NV" },
   { 0x8651, "VERTEX_ATTRIB_ARRAY1_NV" },
   { 0x8652, "VERTEX_ATTRIB_ARRAY2_NV" },
@@ -1775,7 +1380,6 @@ static const value_string mesa_enum[] = {
   { 0x8674, "MAP2_VERTEX_ATTRIB4_4_NV" },
   { 0x8675, "MAP2_VERTEX_ATTRIB5_4_NV" },
   { 0x8676, "MAP2_VERTEX_ATTRIB6_4_NV" },
-  { 0x8677, "MAP2_VERTEX_ATTRIB7_4_NV" },
   { 0x8678, "MAP2_VERTEX_ATTRIB8_4_NV" },
   { 0x8679, "MAP2_VERTEX_ATTRIB9_4_NV" },
   { 0x867A, "MAP2_VERTEX_ATTRIB10_4_NV" },
@@ -1902,12 +1506,6 @@ static const value_string mesa_enum[] = {
 /* OpenGL extension GL_NV_depth_clamp */
   { 0x864F, "DEPTH_CLAMP_NV" },
 /* OpenGL extension GL_NV_point_sprite */
-  { 0x8126, "POINT_SIZE_MIN_EXT" },
-  { 0x8127, "POINT_SIZE_MAX_EXT" },
-  { 0x8128, "POINT_FADE_THRESHOLD_SIZE_EXT" },
-  { 0x8129, "POINT_DISTANCE_ATTENUATION_EXT" },
-  { 0x8861, "POINT_SPRITE_NV" },
-  { 0x8862, "COORD_REPLACE_NV" },
   { 0x8863, "POINT_SPRITE_R_MODE_NV" },
 /* OpenGL extension GL_EXT_shadow_funcs */
 /* OpenGL extension GL_EXT_stencil_two_side */
@@ -1930,11 +1528,8 @@ static const value_string mesa_enum[] = {
   { 0x8746, "MODULATE_SUBTRACT_ATI" },
 /* OpenGL extension GL_NV_fragment_program */
   { 0x8870, "FRAGMENT_PROGRAM_NV" },
-  { 0x8871, "MAX_TEXTURE_COORDS_NV" },
-  { 0x8872, "MAX_TEXTURE_IMAGE_UNITS_NV" },
   { 0x8873, "FRAGMENT_PROGRAM_BINDING_NV" },
   { 0x8868, "MAX_FRAGMENT_PROGRAM_LOCAL_PARAMETERS_NV" },
-  { 0x8874, "PROGRAM_ERROR_STRING_NV" },
 /* OpenGL extension GL_NV_texture_expand_normal */
   { 0x888F, "TEXTURE_UNSIGNED_REMAP_MODE_NV" },
 /* OpenGL extension GL_OES_compressed_paletted_texture */
@@ -1955,23 +1550,13 @@ static const value_string mesa_enum[] = {
   { 0x8890, "DEPTH_BOUNDS_TEST_EXT" },
   { 0x8891, "DEPTH_BOUNDS_EXT" },
 /* OpenGL extension GL_EXT_texture_mirror_clamp */
-  { 0x8742, "MIRROR_CLAMP_EXT" },
-  { 0x8743, "MIRROR_CLAMP_TO_EDGE_EXT" },
   { 0x8912, "MIRROR_CLAMP_TO_BORDER_EXT" },
 /* OpenGL extension GL_EXT_blend_equation_separate */
-  { 0x8009, "BLEND_EQUATION_RGB_EXT" },
-  { 0x883D, "BLEND_EQUATION_ALPHA_EXT" },
 /* OpenGL extension GL_MESA_pack_invert */
   { 0x8758, "PACK_INVERT_MESA" },
 /* OpenGL extension GL_MESA_ycbcr_texture */
   { 0x8757, "YCBCR_MESA" },
-  { 0x85BA, "UNSIGNED_SHORT_8_8_MESA" },
-  { 0x85BB, "UNSIGNED_SHORT_8_8_REV_MESA" },
 /* OpenGL extension GL_EXT_pixel_buffer_object */
-  { 0x88EB, "PIXEL_PACK_BUFFER_EXT" },
-  { 0x88EC, "PIXEL_UNPACK_BUFFER_EXT" },
-  { 0x88ED, "PIXEL_PACK_BUFFER_BINDING_EXT" },
-  { 0x88EF, "PIXEL_UNPACK_BUFFER_BINDING_EXT" },
 /* OpenGL extension GL_NV_fragment_program_option */
 /* OpenGL extension GL_NV_fragment_program2 */
   { 0x88F4, "MAX_PROGRAM_EXEC_INSTRUCTIONS_NV" },
@@ -1980,13 +1565,8 @@ static const value_string mesa_enum[] = {
   { 0x88F7, "MAX_PROGRAM_LOOP_DEPTH_NV" },
   { 0x88F8, "MAX_PROGRAM_LOOP_COUNT_NV" },
 /* OpenGL extension GL_NV_vertex_program2_option */
-  { 0x88F4, "MAX_PROGRAM_EXEC_INSTRUCTIONS_NV" },
-  { 0x88F5, "MAX_PROGRAM_CALL_DEPTH_NV" },
 /* OpenGL extension GL_NV_vertex_program3 */
-  { 0x8B4C, "MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB" },
 /* OpenGL extension GL_EXT_texture_compression_dxt1 */
-  { 0x83F0, "COMPRESSED_RGB_S3TC_DXT1_EXT" },
-  { 0x83F1, "COMPRESSED_RGBA_S3TC_DXT1_EXT" },
 /* OpenGL extension GL_APPLE_flush_buffer_range */
   { 0x8A12, "BUFFER_SERIALIZED_MODIFY_APPLE" },
   { 0x8A13, "BUFFER_FLUSHING_UNMAP_APPLE" },
@@ -2028,24 +1608,16 @@ static const value_string mesa_enum[] = {
   { 0x8E1B, "POLYGON_OFFSET_CLAMP_EXT" },
 /* OpenGL extension GL_ATI_blend_equation_separate */
 /* OpenGL extension GL_ATI_separate_stencil */
-  { 0x8800, "STENCIL_BACK_FUNC_ATI" },
-  { 0x8801, "STENCIL_BACK_FAIL_ATI" },
-  { 0x8802, "STENCIL_BACK_PASS_DEPTH_FAIL_ATI" },
-  { 0x8803, "STENCIL_BACK_PASS_DEPTH_PASS_ATI" },
 /* OpenGL extension GL_EXT_gpu_program_parameters */
 /* OpenGL extension GL_EXT_timer_query */
-  { 0x88BF, "TIME_ELAPSED_EXT" },
 /* OpenGL extension GL_INGR_blend_func_separate */
 /* OpenGL extension GL_MESA_texture_signed_rgba */
   { 0x8F9C, "SIGNED_NORMALIZED" },
   { 0x8F93, "RGBA_SNORM" },
   { 0x8F97, "RGBA8_SNORM" },
 /* OpenGL extension GL_SGIS_point_parameters */
-  { 0x8126, "POINT_SIZE_MIN_SGIS" },
-  { 0x8127, "POINT_SIZE_MAX_SGIS" },
-  { 0x8128, "POINT_FADE_THRESHOLD_SIZE_SGIS" },
-  { 0x8129, "POINT_DISTANCE_ATTENUATION_SGIS" },
 /* OpenGL extension GL_SGIX_igloo_interface */
 /* OpenGL extension GL_SGIX_polynomial_ffd */
     { 0, NULL }
 };
+static value_string_ext mesa_enum_ext = VALUE_STRING_EXT_INIT(mesa_enum);
