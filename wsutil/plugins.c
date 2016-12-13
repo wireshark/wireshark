@@ -170,7 +170,14 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
             dot = strrchr(name, '.');
             if (dot == NULL || strcmp(dot+1, G_MODULE_SUFFIX) != 0)
                 continue;
-
+#if WIN32
+            if (strncmp(name, "nordic_ble.dll", 14) == 0)
+                /*
+                 * Skip the Nordic BLE Sniffer dll on WIN32 because
+                 * the dissector has been added as internal.
+                 */
+                continue;
+#endif
             g_snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
                        dirname, name);
             if ((handle = g_module_open(filename, G_MODULE_BIND_LOCAL)) == NULL)
