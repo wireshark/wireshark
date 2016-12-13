@@ -663,15 +663,18 @@ rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	if (statinfo->bw_index == BUFF_BW) statinfo->bw_index = 0;
 
 
+        /* Used by GTK code only */
+	statinfo->delta_timestamp = guint32_wraparound_diff(rtpinfo->info_timestamp, statinfo->timestamp);
+
 	/* Is it a packet with the mark bit set? */
 	if (rtpinfo->info_marker_set) {
-		statinfo->delta_timestamp = guint32_wraparound_diff(rtpinfo->info_timestamp, statinfo->timestamp);
-		if (rtpinfo->info_timestamp > statinfo->timestamp){
-			statinfo->flags |= STAT_FLAG_MARKER;
-		}
-		else{
-			statinfo->flags |= STAT_FLAG_WRONG_TIMESTAMP;
-		}
+		statinfo->flags |= STAT_FLAG_MARKER;
+	}
+
+	/* Difference can be negative. We don't expect difference bigger than 31 bits. Difference don't care about wrap around. */
+	gint32 tsdelta=rtpinfo->info_timestamp - statinfo->timestamp;
+	if (tsdelta < 0) {
+		statinfo->flags |= STAT_FLAG_WRONG_TIMESTAMP;
 	}
 	/* Is it a regular packet? */
 	if (!(statinfo->flags & STAT_FLAG_FIRST)
