@@ -226,9 +226,9 @@ sub mesa_type {
 
     if($name eq 'enum') {
         # enum does not have a direct X equivalent
-        $gltype{'GLenum'} = { size => 4, encoding => 'byte_order', type => 'FT_UINT32', base => 'BASE_HEX|BASE_EXT_STRING',
+        $gltype{'GLenum'} = { size => 4, encoding => 'byte_order', type => 'FT_UINT32', base => 'BASE_HEX',
                               get => 'VALUE32', list => 'listOfCard32',
-                              val => '&mesa_enum_ext', };
+                              val => 'VALS(mesa_enum)', };
         return;
     }
 
@@ -1837,7 +1837,6 @@ if (-e "$mesadir/gl_API.xml") {
 
     print $enum "    { 0, NULL }\n";
     print $enum "};\n";
-    print $enum "static value_string_ext mesa_enum_ext = VALUE_STRING_EXT_INIT(mesa_enum);\n";
     $enum->close();
 
     print $decl "static int hf_x11_glx_render_op_name = -1;\n\n";

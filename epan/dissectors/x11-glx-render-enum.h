@@ -1620,4 +1620,3 @@ static const value_string mesa_enum[] = {
 /* OpenGL extension GL_SGIX_polynomial_ffd */
     { 0, NULL }
 };
-static value_string_ext mesa_enum_ext = VALUE_STRING_EXT_INIT(mesa_enum);
