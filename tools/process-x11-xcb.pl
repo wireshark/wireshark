@@ -811,19 +811,17 @@ sub dissect_element($$$$$;$$)
                     if ($refref->{field}{$fieldname}) {
                         say $impl $indent."f_$fieldname = $get(tvb, *offsetp);";
                     }
+                    my $bitmask_field = $fieldname . "_bits";
                     say $impl $indent."{";
-                    say $impl $indent."    proto_item *ti = proto_tree_add_item(t, $regname, tvb, *offsetp, $size, $encoding);";
-                    say $impl $indent."    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);";
-
-                    my $bytesize = $info->{'size'};
-                    my $byteencoding = $info->{'encoding'};
+                    say $impl $indent."    const int* $bitmask_field [] = {";
                     my $bit = $enum{$enum_name{$e->att('mask')}}{bit};
                     for my $val (sort { $a <=> $b } keys %$bit) {
                         my $item = $regname . '_mask_' . $$bit{$val};
-
-                        say $impl "$indent    proto_tree_add_item(bitmask_tree, $item, tvb, *offsetp, $bytesize, $byteencoding);";
+                        say $impl "$indent$indent&$item,";
                     }
+                    say $impl $indent."    };";
 
+                    say $impl $indent."    proto_tree_add_bitmask(t,  tvb, *offsetp, $regname, ett_x11_rectangle, $bitmask_field, $encoding);";
                     say $impl $indent."}";
                     say $impl $indent."*offsetp += $size;";
                 } else {

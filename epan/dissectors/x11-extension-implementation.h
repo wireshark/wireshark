@@ -9682,22 +9682,23 @@ static void struct_randr_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_name_len, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_randr_ModeInfo_mode_flags, tvb, *offsetp, 4, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_HsyncPositive, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_HsyncNegative, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_VsyncPositive, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_VsyncNegative, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_DoubleScan, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_Csync, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_CsyncPositive, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_CsyncNegative, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_HskewPresent, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_Bcast, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_PixelMultiplex, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_DoubleClock, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_ModeInfo_mode_flags_mask_HalveClock, tvb, *offsetp, 4, byte_order);
+            const int* mode_flags_bits [] = {
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_HsyncPositive,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_HsyncNegative,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_VsyncPositive,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_VsyncNegative,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_Interlace,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_DoubleScan,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_Csync,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_CsyncPositive,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_CsyncNegative,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_HskewPresent,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_Bcast,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_PixelMultiplex,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_DoubleClock,
+                &hf_x11_struct_randr_ModeInfo_mode_flags_mask_HalveClock,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_randr_ModeInfo_mode_flags, ett_x11_rectangle, mode_flags_bits, byte_order);
         }
         *offsetp += 4;
     }
@@ -9721,14 +9722,15 @@ static void struct_randr_CrtcChange(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_mode, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_rotation, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_0, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_90, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_180, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_270, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Reflect_X, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_CrtcChange_rotation_mask_Reflect_Y, tvb, *offsetp, 2, byte_order);
+            const int* rotation_bits [] = {
+                &hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_0,
+                &hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_90,
+                &hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_180,
+                &hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_270,
+                &hf_x11_struct_randr_CrtcChange_rotation_mask_Reflect_X,
+                &hf_x11_struct_randr_CrtcChange_rotation_mask_Reflect_Y,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_randr_CrtcChange_rotation, ett_x11_rectangle, rotation_bits, byte_order);
         }
         *offsetp += 2;
         UNUSED(2);
@@ -9765,14 +9767,15 @@ static void struct_randr_OutputChange(tvbuff_t *tvb, int *offsetp, proto_tree *r
         proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_mode, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_randr_OutputChange_rotation, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_0, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_90, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_180, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_270, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Reflect_X, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_randr_OutputChange_rotation_mask_Reflect_Y, tvb, *offsetp, 2, byte_order);
+            const int* rotation_bits [] = {
+                &hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_0,
+                &hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_90,
+                &hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_180,
+                &hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_270,
+                &hf_x11_struct_randr_OutputChange_rotation_mask_Reflect_X,
+                &hf_x11_struct_randr_OutputChange_rotation_mask_Reflect_Y,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_randr_OutputChange_rotation, ett_x11_rectangle, rotation_bits, byte_order);
         }
         *offsetp += 2;
         field8(tvb, offsetp, t, hf_x11_struct_randr_OutputChange_connection, byte_order);
@@ -10084,12 +10087,13 @@ static void presentSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     proto_tree_add_item(t, hf_x11_present_SelectInput_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_present_SelectInput_event_mask, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_present_SelectInput_event_mask_mask_ConfigureNotify, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_present_SelectInput_event_mask_mask_CompleteNotify, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_present_SelectInput_event_mask_mask_IdleNotify, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_present_SelectInput_event_mask_mask_RedirectNotify, tvb, *offsetp, 4, byte_order);
+        const int* event_mask_bits [] = {
+        &hf_x11_present_SelectInput_event_mask_mask_ConfigureNotify,
+        &hf_x11_present_SelectInput_event_mask_mask_CompleteNotify,
+        &hf_x11_present_SelectInput_event_mask_mask_IdleNotify,
+        &hf_x11_present_SelectInput_event_mask_mask_RedirectNotify,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_present_SelectInput_event_mask, ett_x11_rectangle, event_mask_bits, byte_order);
     }
     *offsetp += 4;
 }
@@ -10297,14 +10301,15 @@ static void randrSetScreenConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     proto_tree_add_item(t, hf_x11_randr_SetScreenConfig_sizeID, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_randr_SetScreenConfig_rotation, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SetScreenConfig_rotation_mask_Rotate_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SetScreenConfig_rotation_mask_Rotate_90, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SetScreenConfig_rotation_mask_Rotate_180, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SetScreenConfig_rotation_mask_Rotate_270, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SetScreenConfig_rotation_mask_Reflect_X, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SetScreenConfig_rotation_mask_Reflect_Y, tvb, *offsetp, 2, byte_order);
+        const int* rotation_bits [] = {
+        &hf_x11_randr_SetScreenConfig_rotation_mask_Rotate_0,
+        &hf_x11_randr_SetScreenConfig_rotation_mask_Rotate_90,
+        &hf_x11_randr_SetScreenConfig_rotation_mask_Rotate_180,
+        &hf_x11_randr_SetScreenConfig_rotation_mask_Rotate_270,
+        &hf_x11_randr_SetScreenConfig_rotation_mask_Reflect_X,
+        &hf_x11_randr_SetScreenConfig_rotation_mask_Reflect_Y,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_SetScreenConfig_rotation, ett_x11_rectangle, rotation_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_randr_SetScreenConfig_rate, tvb, *offsetp, 2, byte_order);
@@ -10340,15 +10345,16 @@ static void randrSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     proto_tree_add_item(t, hf_x11_randr_SelectInput_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_randr_SelectInput_enable, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SelectInput_enable_mask_ScreenChange, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SelectInput_enable_mask_CrtcChange, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SelectInput_enable_mask_OutputChange, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SelectInput_enable_mask_OutputProperty, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SelectInput_enable_mask_ProviderChange, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SelectInput_enable_mask_ProviderProperty, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SelectInput_enable_mask_ResourceChange, tvb, *offsetp, 2, byte_order);
+        const int* enable_bits [] = {
+        &hf_x11_randr_SelectInput_enable_mask_ScreenChange,
+        &hf_x11_randr_SelectInput_enable_mask_CrtcChange,
+        &hf_x11_randr_SelectInput_enable_mask_OutputChange,
+        &hf_x11_randr_SelectInput_enable_mask_OutputProperty,
+        &hf_x11_randr_SelectInput_enable_mask_ProviderChange,
+        &hf_x11_randr_SelectInput_enable_mask_ProviderProperty,
+        &hf_x11_randr_SelectInput_enable_mask_ResourceChange,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_SelectInput_enable, ett_x11_rectangle, enable_bits, byte_order);
     }
     *offsetp += 2;
     UNUSED(2);
@@ -10369,14 +10375,15 @@ static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
 
     REPLY(reply);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_randr_GetScreenInfo_reply_rotations, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetScreenInfo_reply_rotations_mask_Rotate_0, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetScreenInfo_reply_rotations_mask_Rotate_90, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetScreenInfo_reply_rotations_mask_Rotate_180, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetScreenInfo_reply_rotations_mask_Rotate_270, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetScreenInfo_reply_rotations_mask_Reflect_X, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetScreenInfo_reply_rotations_mask_Reflect_Y, tvb, *offsetp, 1, byte_order);
+        const int* rotations_bits [] = {
+        &hf_x11_randr_GetScreenInfo_reply_rotations_mask_Rotate_0,
+        &hf_x11_randr_GetScreenInfo_reply_rotations_mask_Rotate_90,
+        &hf_x11_randr_GetScreenInfo_reply_rotations_mask_Rotate_180,
+        &hf_x11_randr_GetScreenInfo_reply_rotations_mask_Rotate_270,
+        &hf_x11_randr_GetScreenInfo_reply_rotations_mask_Reflect_X,
+        &hf_x11_randr_GetScreenInfo_reply_rotations_mask_Reflect_Y,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetScreenInfo_reply_rotations, ett_x11_rectangle, rotations_bits, byte_order);
     }
     *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
@@ -10397,14 +10404,15 @@ static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     proto_tree_add_item(t, hf_x11_randr_GetScreenInfo_reply_sizeID, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_randr_GetScreenInfo_reply_rotation, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetScreenInfo_reply_rotation_mask_Rotate_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetScreenInfo_reply_rotation_mask_Rotate_90, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetScreenInfo_reply_rotation_mask_Rotate_180, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetScreenInfo_reply_rotation_mask_Rotate_270, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetScreenInfo_reply_rotation_mask_Reflect_X, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetScreenInfo_reply_rotation_mask_Reflect_Y, tvb, *offsetp, 2, byte_order);
+        const int* rotation_bits [] = {
+        &hf_x11_randr_GetScreenInfo_reply_rotation_mask_Rotate_0,
+        &hf_x11_randr_GetScreenInfo_reply_rotation_mask_Rotate_90,
+        &hf_x11_randr_GetScreenInfo_reply_rotation_mask_Rotate_180,
+        &hf_x11_randr_GetScreenInfo_reply_rotation_mask_Rotate_270,
+        &hf_x11_randr_GetScreenInfo_reply_rotation_mask_Reflect_X,
+        &hf_x11_randr_GetScreenInfo_reply_rotation_mask_Reflect_Y,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetScreenInfo_reply_rotation, ett_x11_rectangle, rotation_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_randr_GetScreenInfo_reply_rate, tvb, *offsetp, 2, byte_order);
@@ -10795,25 +10803,27 @@ static void randrGetCrtcInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     proto_tree_add_item(t, hf_x11_randr_GetCrtcInfo_reply_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_randr_GetCrtcInfo_reply_rotation, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Rotate_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Rotate_90, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Rotate_180, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Rotate_270, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Reflect_X, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Reflect_Y, tvb, *offsetp, 2, byte_order);
+        const int* rotation_bits [] = {
+        &hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Rotate_0,
+        &hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Rotate_90,
+        &hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Rotate_180,
+        &hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Rotate_270,
+        &hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Reflect_X,
+        &hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Reflect_Y,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetCrtcInfo_reply_rotation, ett_x11_rectangle, rotation_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_randr_GetCrtcInfo_reply_rotations, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Rotate_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Rotate_90, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Rotate_180, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Rotate_270, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Reflect_X, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Reflect_Y, tvb, *offsetp, 2, byte_order);
+        const int* rotations_bits [] = {
+        &hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Rotate_0,
+        &hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Rotate_90,
+        &hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Rotate_180,
+        &hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Rotate_270,
+        &hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Reflect_X,
+        &hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Reflect_Y,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetCrtcInfo_reply_rotations, ett_x11_rectangle, rotations_bits, byte_order);
     }
     *offsetp += 2;
     f_num_outputs = VALUE16(tvb, *offsetp);
@@ -10841,14 +10851,15 @@ static void randrSetCrtcConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     proto_tree_add_item(t, hf_x11_randr_SetCrtcConfig_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_randr_SetCrtcConfig_rotation, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SetCrtcConfig_rotation_mask_Rotate_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SetCrtcConfig_rotation_mask_Rotate_90, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SetCrtcConfig_rotation_mask_Rotate_180, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SetCrtcConfig_rotation_mask_Rotate_270, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SetCrtcConfig_rotation_mask_Reflect_X, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_SetCrtcConfig_rotation_mask_Reflect_Y, tvb, *offsetp, 2, byte_order);
+        const int* rotation_bits [] = {
+        &hf_x11_randr_SetCrtcConfig_rotation_mask_Rotate_0,
+        &hf_x11_randr_SetCrtcConfig_rotation_mask_Rotate_90,
+        &hf_x11_randr_SetCrtcConfig_rotation_mask_Rotate_180,
+        &hf_x11_randr_SetCrtcConfig_rotation_mask_Rotate_270,
+        &hf_x11_randr_SetCrtcConfig_rotation_mask_Reflect_X,
+        &hf_x11_randr_SetCrtcConfig_rotation_mask_Reflect_Y,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_SetCrtcConfig_rotation, ett_x11_rectangle, rotation_bits, byte_order);
     }
     *offsetp += 2;
     UNUSED(2);
@@ -11246,12 +11257,13 @@ static void randrGetProviderInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     proto_tree_add_item(t, hf_x11_randr_GetProviderInfo_reply_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_randr_GetProviderInfo_reply_capabilities, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SourceOutput, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SinkOutput, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SourceOffload, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SinkOffload, tvb, *offsetp, 4, byte_order);
+        const int* capabilities_bits [] = {
+        &hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SourceOutput,
+        &hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SinkOutput,
+        &hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SourceOffload,
+        &hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SinkOffload,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetProviderInfo_reply_capabilities, ett_x11_rectangle, capabilities_bits, byte_order);
     }
     *offsetp += 4;
     f_num_crtcs = VALUE16(tvb, *offsetp);
@@ -12183,21 +12195,22 @@ static void renderCreatePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 4;
     f_value_mask = VALUE32(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_render_CreatePicture_value_mask, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_Repeat, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_AlphaMap, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_AlphaXOrigin, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_AlphaYOrigin, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_ClipXOrigin, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_ClipYOrigin, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_ClipMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_GraphicsExposure, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_SubwindowMode, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_PolyEdge, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_PolyMode, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_Dither, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_ComponentAlpha, tvb, *offsetp, 4, byte_order);
+        const int* value_mask_bits [] = {
+        &hf_x11_render_CreatePicture_value_mask_mask_Repeat,
+        &hf_x11_render_CreatePicture_value_mask_mask_AlphaMap,
+        &hf_x11_render_CreatePicture_value_mask_mask_AlphaXOrigin,
+        &hf_x11_render_CreatePicture_value_mask_mask_AlphaYOrigin,
+        &hf_x11_render_CreatePicture_value_mask_mask_ClipXOrigin,
+        &hf_x11_render_CreatePicture_value_mask_mask_ClipYOrigin,
+        &hf_x11_render_CreatePicture_value_mask_mask_ClipMask,
+        &hf_x11_render_CreatePicture_value_mask_mask_GraphicsExposure,
+        &hf_x11_render_CreatePicture_value_mask_mask_SubwindowMode,
+        &hf_x11_render_CreatePicture_value_mask_mask_PolyEdge,
+        &hf_x11_render_CreatePicture_value_mask_mask_PolyMode,
+        &hf_x11_render_CreatePicture_value_mask_mask_Dither,
+        &hf_x11_render_CreatePicture_value_mask_mask_ComponentAlpha,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_render_CreatePicture_value_mask, ett_x11_rectangle, value_mask_bits, byte_order);
     }
     *offsetp += 4;
     if (f_value_mask & (1U << 0)) {
@@ -12257,21 +12270,22 @@ static void renderChangePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 4;
     f_value_mask = VALUE32(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_render_ChangePicture_value_mask, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_Repeat, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_AlphaMap, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_AlphaXOrigin, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_AlphaYOrigin, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_ClipXOrigin, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_ClipYOrigin, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_ClipMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_GraphicsExposure, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_SubwindowMode, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_PolyEdge, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_PolyMode, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_Dither, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_ComponentAlpha, tvb, *offsetp, 4, byte_order);
+        const int* value_mask_bits [] = {
+        &hf_x11_render_ChangePicture_value_mask_mask_Repeat,
+        &hf_x11_render_ChangePicture_value_mask_mask_AlphaMap,
+        &hf_x11_render_ChangePicture_value_mask_mask_AlphaXOrigin,
+        &hf_x11_render_ChangePicture_value_mask_mask_AlphaYOrigin,
+        &hf_x11_render_ChangePicture_value_mask_mask_ClipXOrigin,
+        &hf_x11_render_ChangePicture_value_mask_mask_ClipYOrigin,
+        &hf_x11_render_ChangePicture_value_mask_mask_ClipMask,
+        &hf_x11_render_ChangePicture_value_mask_mask_GraphicsExposure,
+        &hf_x11_render_ChangePicture_value_mask_mask_SubwindowMode,
+        &hf_x11_render_ChangePicture_value_mask_mask_PolyEdge,
+        &hf_x11_render_ChangePicture_value_mask_mask_PolyMode,
+        &hf_x11_render_ChangePicture_value_mask_mask_Dither,
+        &hf_x11_render_ChangePicture_value_mask_mask_ComponentAlpha,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_render_ChangePicture_value_mask, ett_x11_rectangle, value_mask_bits, byte_order);
     }
     *offsetp += 4;
     if (f_value_mask & (1U << 0)) {
@@ -12895,10 +12909,11 @@ static void struct_res_ClientIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         proto_tree_add_item(t, hf_x11_struct_res_ClientIdSpec_client, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_res_ClientIdSpec_mask, tvb, *offsetp, 4, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_res_ClientIdSpec_mask_mask_ClientXID, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_res_ClientIdSpec_mask_mask_LocalClientPID, tvb, *offsetp, 4, byte_order);
+            const int* mask_bits [] = {
+                &hf_x11_struct_res_ClientIdSpec_mask_mask_ClientXID,
+                &hf_x11_struct_res_ClientIdSpec_mask_mask_LocalClientPID,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_res_ClientIdSpec_mask, ett_x11_rectangle, mask_bits, byte_order);
         }
         *offsetp += 4;
     }
@@ -13286,10 +13301,11 @@ static void screensaverSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     proto_tree_add_item(t, hf_x11_screensaver_SelectInput_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_screensaver_SelectInput_event_mask, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SelectInput_event_mask_mask_NotifyMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SelectInput_event_mask_mask_CycleMask, tvb, *offsetp, 4, byte_order);
+        const int* event_mask_bits [] = {
+        &hf_x11_screensaver_SelectInput_event_mask_mask_NotifyMask,
+        &hf_x11_screensaver_SelectInput_event_mask_mask_CycleMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_screensaver_SelectInput_event_mask, ett_x11_rectangle, event_mask_bits, byte_order);
     }
     *offsetp += 4;
 }
@@ -13316,23 +13332,24 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     *offsetp += 4;
     f_value_mask = VALUE32(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_value_mask, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_BackPixmap, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_BackPixel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_BorderPixmap, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_BorderPixel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_BitGravity, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_WinGravity, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_BackingStore, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_BackingPlanes, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_BackingPixel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_OverrideRedirect, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_SaveUnder, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_EventMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_DontPropagate, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_Colormap, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_Cursor, tvb, *offsetp, 4, byte_order);
+        const int* value_mask_bits [] = {
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_BackPixmap,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_BackPixel,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_BorderPixmap,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_BorderPixel,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_BitGravity,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_WinGravity,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_BackingStore,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_BackingPlanes,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_BackingPixel,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_OverrideRedirect,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_SaveUnder,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_EventMask,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_DontPropagate,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_Colormap,
+        &hf_x11_screensaver_SetAttributes_value_mask_mask_Cursor,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_screensaver_SetAttributes_value_mask, ett_x11_rectangle, value_mask_bits, byte_order);
     }
     *offsetp += 4;
     if (f_value_mask & (1U << 0)) {
@@ -13376,65 +13393,67 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     }
     if (f_value_mask & (1U << 11)) {
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_EventMask_event_mask, tvb, *offsetp, 4, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_KeyPress, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_KeyRelease, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_ButtonPress, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_ButtonRelease, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_EnterWindow, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_LeaveWindow, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_PointerMotion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_PointerMotionHint, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_Button1Motion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_Button2Motion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_Button3Motion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_Button4Motion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_Button5Motion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_ButtonMotion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_KeymapState, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_Exposure, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_VisibilityChange, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_StructureNotify, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_ResizeRedirect, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_SubstructureNotify, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_SubstructureRedirect, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_FocusChange, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_PropertyChange, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_ColorMapChange, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_OwnerGrabButton, tvb, *offsetp, 4, byte_order);
+            const int* event_mask_bits [] = {
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_KeyPress,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_KeyRelease,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_ButtonPress,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_ButtonRelease,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_EnterWindow,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_LeaveWindow,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_PointerMotion,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_PointerMotionHint,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_Button1Motion,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_Button2Motion,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_Button3Motion,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_Button4Motion,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_Button5Motion,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_ButtonMotion,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_KeymapState,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_Exposure,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_VisibilityChange,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_StructureNotify,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_ResizeRedirect,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_SubstructureNotify,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_SubstructureRedirect,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_FocusChange,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_PropertyChange,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_ColorMapChange,
+                &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_OwnerGrabButton,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_screensaver_SetAttributes_EventMask_event_mask, ett_x11_rectangle, event_mask_bits, byte_order);
         }
         *offsetp += 4;
     }
     if (f_value_mask & (1U << 12)) {
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask, tvb, *offsetp, 4, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_KeyPress, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_KeyRelease, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_ButtonPress, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_ButtonRelease, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_EnterWindow, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_LeaveWindow, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_PointerMotion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_PointerMotionHint, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_Button1Motion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_Button2Motion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_Button3Motion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_Button4Motion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_Button5Motion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_ButtonMotion, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_KeymapState, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_Exposure, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_VisibilityChange, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_StructureNotify, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_ResizeRedirect, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_SubstructureNotify, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_SubstructureRedirect, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_FocusChange, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_PropertyChange, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_ColorMapChange, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_OwnerGrabButton, tvb, *offsetp, 4, byte_order);
+            const int* do_not_propogate_mask_bits [] = {
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_KeyPress,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_KeyRelease,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_ButtonPress,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_ButtonRelease,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_EnterWindow,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_LeaveWindow,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_PointerMotion,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_PointerMotionHint,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_Button1Motion,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_Button2Motion,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_Button3Motion,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_Button4Motion,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_Button5Motion,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_ButtonMotion,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_KeymapState,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_Exposure,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_VisibilityChange,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_StructureNotify,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_ResizeRedirect,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_SubstructureNotify,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_SubstructureRedirect,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_FocusChange,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_PropertyChange,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_ColorMapChange,
+                &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_OwnerGrabButton,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask, ett_x11_rectangle, do_not_propogate_mask_bits, byte_order);
         }
         *offsetp += 4;
     }
@@ -14125,14 +14144,15 @@ static void syncCreateAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 4;
     f_value_mask = VALUE32(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_sync_CreateAlarm_value_mask, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_sync_CreateAlarm_value_mask_mask_Counter, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_sync_CreateAlarm_value_mask_mask_ValueType, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_sync_CreateAlarm_value_mask_mask_Value, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_sync_CreateAlarm_value_mask_mask_TestType, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_sync_CreateAlarm_value_mask_mask_Delta, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_sync_CreateAlarm_value_mask_mask_Events, tvb, *offsetp, 4, byte_order);
+        const int* value_mask_bits [] = {
+        &hf_x11_sync_CreateAlarm_value_mask_mask_Counter,
+        &hf_x11_sync_CreateAlarm_value_mask_mask_ValueType,
+        &hf_x11_sync_CreateAlarm_value_mask_mask_Value,
+        &hf_x11_sync_CreateAlarm_value_mask_mask_TestType,
+        &hf_x11_sync_CreateAlarm_value_mask_mask_Delta,
+        &hf_x11_sync_CreateAlarm_value_mask_mask_Events,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_sync_CreateAlarm_value_mask, ett_x11_rectangle, value_mask_bits, byte_order);
     }
     *offsetp += 4;
     if (f_value_mask & (1U << 0)) {
@@ -14164,14 +14184,15 @@ static void syncChangeAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 4;
     f_value_mask = VALUE32(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_sync_ChangeAlarm_value_mask, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_sync_ChangeAlarm_value_mask_mask_Counter, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_sync_ChangeAlarm_value_mask_mask_ValueType, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_sync_ChangeAlarm_value_mask_mask_Value, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_sync_ChangeAlarm_value_mask_mask_TestType, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_sync_ChangeAlarm_value_mask_mask_Delta, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_sync_ChangeAlarm_value_mask_mask_Events, tvb, *offsetp, 4, byte_order);
+        const int* value_mask_bits [] = {
+        &hf_x11_sync_ChangeAlarm_value_mask_mask_Counter,
+        &hf_x11_sync_ChangeAlarm_value_mask_mask_ValueType,
+        &hf_x11_sync_ChangeAlarm_value_mask_mask_Value,
+        &hf_x11_sync_ChangeAlarm_value_mask_mask_TestType,
+        &hf_x11_sync_ChangeAlarm_value_mask_mask_Delta,
+        &hf_x11_sync_ChangeAlarm_value_mask_mask_Events,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_sync_ChangeAlarm_value_mask, ett_x11_rectangle, value_mask_bits, byte_order);
     }
     *offsetp += 4;
     if (f_value_mask & (1U << 0)) {
@@ -15188,21 +15209,22 @@ static void struct_xf86vidmode_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
         *offsetp += 2;
         UNUSED(4);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_flags, tvb, *offsetp, 4, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_HSync, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_HSync, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_VSync, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_VSync, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Composite_Sync, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_CSync, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_CSync, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_HSkew, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Broadcast, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Pixmux, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Double_Clock, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Half_Clock, tvb, *offsetp, 4, byte_order);
+            const int* flags_bits [] = {
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_HSync,
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_HSync,
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_VSync,
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_VSync,
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Interlace,
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Composite_Sync,
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_CSync,
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Negative_CSync,
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_HSkew,
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Broadcast,
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Pixmux,
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Double_Clock,
+                &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Half_Clock,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xf86vidmode_ModeInfo_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
         *offsetp += 4;
         UNUSED(12);
@@ -15277,21 +15299,22 @@ static void xf86vidmodeGetModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     *offsetp += 2;
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xf86vidmode_GetModeLine_reply_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Positive_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Negative_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Positive_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Negative_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Composite_Sync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Positive_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Negative_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_HSkew, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Broadcast, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Pixmux, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Double_Clock, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Half_Clock, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Positive_HSync,
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Negative_HSync,
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Positive_VSync,
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Negative_VSync,
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Interlace,
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Composite_Sync,
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Positive_CSync,
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Negative_CSync,
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_HSkew,
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Broadcast,
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Pixmux,
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Double_Clock,
+        &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Half_Clock,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_GetModeLine_reply_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(12);
@@ -15326,21 +15349,22 @@ static void xf86vidmodeModModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 2;
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xf86vidmode_ModModeLine_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_Positive_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_Negative_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_Positive_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_Negative_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_Composite_Sync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_Positive_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_Negative_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_HSkew, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_Broadcast, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_Pixmux, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_Double_Clock, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ModModeLine_flags_mask_Half_Clock, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_Positive_HSync,
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_Negative_HSync,
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_Positive_VSync,
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_Negative_VSync,
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_Interlace,
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_Composite_Sync,
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_Positive_CSync,
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_Negative_CSync,
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_HSkew,
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_Broadcast,
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_Pixmux,
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_Double_Clock,
+        &hf_x11_xf86vidmode_ModModeLine_flags_mask_Half_Clock,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_ModModeLine_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(12);
@@ -15466,21 +15490,22 @@ static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 2;
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xf86vidmode_AddModeLine_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_Positive_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_Negative_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_Positive_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_Negative_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_Composite_Sync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_Positive_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_Negative_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_HSkew, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_Broadcast, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_Pixmux, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_Double_Clock, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_flags_mask_Half_Clock, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_Positive_HSync,
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_Negative_HSync,
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_Positive_VSync,
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_Negative_VSync,
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_Interlace,
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_Composite_Sync,
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_Positive_CSync,
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_Negative_CSync,
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_HSkew,
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_Broadcast,
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_Pixmux,
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_Double_Clock,
+        &hf_x11_xf86vidmode_AddModeLine_flags_mask_Half_Clock,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_AddModeLine_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(12);
@@ -15509,21 +15534,22 @@ static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 2;
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xf86vidmode_AddModeLine_after_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Positive_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Negative_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Positive_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Negative_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Composite_Sync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Positive_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Negative_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_HSkew, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Broadcast, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Pixmux, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Double_Clock, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Half_Clock, tvb, *offsetp, 4, byte_order);
+        const int* after_flags_bits [] = {
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Positive_HSync,
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Negative_HSync,
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Positive_VSync,
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Negative_VSync,
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Interlace,
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Composite_Sync,
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Positive_CSync,
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Negative_CSync,
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_HSkew,
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Broadcast,
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Pixmux,
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Double_Clock,
+        &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Half_Clock,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_AddModeLine_after_flags, ett_x11_rectangle, after_flags_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(12);
@@ -15558,21 +15584,22 @@ static void xf86vidmodeDeleteModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int
     *offsetp += 2;
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xf86vidmode_DeleteModeLine_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Positive_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Negative_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Positive_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Negative_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Composite_Sync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Positive_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Negative_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_HSkew, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Broadcast, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Pixmux, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Double_Clock, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Half_Clock, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Positive_HSync,
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Negative_HSync,
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Positive_VSync,
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Negative_VSync,
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Interlace,
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Composite_Sync,
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Positive_CSync,
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Negative_CSync,
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_HSkew,
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Broadcast,
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Pixmux,
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Double_Clock,
+        &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Half_Clock,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_DeleteModeLine_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(12);
@@ -15610,21 +15637,22 @@ static void xf86vidmodeValidateModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, i
     *offsetp += 2;
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xf86vidmode_ValidateModeLine_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Positive_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Negative_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Positive_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Negative_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Composite_Sync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Positive_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Negative_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_HSkew, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Broadcast, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Pixmux, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Double_Clock, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Half_Clock, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Positive_HSync,
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Negative_HSync,
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Positive_VSync,
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Negative_VSync,
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Interlace,
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Composite_Sync,
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Positive_CSync,
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Negative_CSync,
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_HSkew,
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Broadcast,
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Pixmux,
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Double_Clock,
+        &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Half_Clock,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_ValidateModeLine_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(12);
@@ -15680,21 +15708,22 @@ static void xf86vidmodeSwitchToMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     *offsetp += 2;
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xf86vidmode_SwitchToMode_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_Positive_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_Negative_HSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_Positive_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_Negative_VSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_Interlace, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_Composite_Sync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_Positive_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_Negative_CSync, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_HSkew, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_Broadcast, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_Pixmux, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_Double_Clock, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_SwitchToMode_flags_mask_Half_Clock, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Positive_HSync,
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Negative_HSync,
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Positive_VSync,
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Negative_VSync,
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Interlace,
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Composite_Sync,
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Positive_CSync,
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Negative_CSync,
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_HSkew,
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Broadcast,
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Pixmux,
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Double_Clock,
+        &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Half_Clock,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_SwitchToMode_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(12);
@@ -15767,9 +15796,10 @@ static void xf86vidmodeGetDotClocks_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 4;
     f_flags = VALUE32(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xf86vidmode_GetDotClocks_reply_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetDotClocks_reply_flags_mask_Programable, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xf86vidmode_GetDotClocks_reply_flags_mask_Programable,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_GetDotClocks_reply_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     f_clocks = VALUE32(tvb, *offsetp);
@@ -15925,10 +15955,11 @@ static void xf86vidmodeGetPermissions_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xf86vidmode_GetPermissions_reply_permissions, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetPermissions_reply_permissions_mask_Read, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xf86vidmode_GetPermissions_reply_permissions_mask_Write, tvb, *offsetp, 4, byte_order);
+        const int* permissions_bits [] = {
+        &hf_x11_xf86vidmode_GetPermissions_reply_permissions_mask_Read,
+        &hf_x11_xf86vidmode_GetPermissions_reply_permissions_mask_Write,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_GetPermissions_reply_permissions, ett_x11_rectangle, permissions_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(20);
@@ -16103,11 +16134,12 @@ static void xfixesSelectSelectionInput(tvbuff_t *tvb, packet_info *pinfo _U_, in
     proto_tree_add_item(t, hf_x11_xfixes_SelectSelectionInput_selection, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xfixes_SelectSelectionInput_event_mask, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xfixes_SelectSelectionInput_event_mask_mask_SetSelectionOwner, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xfixes_SelectSelectionInput_event_mask_mask_SelectionWindowDestroy, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xfixes_SelectSelectionInput_event_mask_mask_SelectionClientClose, tvb, *offsetp, 4, byte_order);
+        const int* event_mask_bits [] = {
+        &hf_x11_xfixes_SelectSelectionInput_event_mask_mask_SetSelectionOwner,
+        &hf_x11_xfixes_SelectSelectionInput_event_mask_mask_SelectionWindowDestroy,
+        &hf_x11_xfixes_SelectSelectionInput_event_mask_mask_SelectionClientClose,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xfixes_SelectSelectionInput_event_mask, ett_x11_rectangle, event_mask_bits, byte_order);
     }
     *offsetp += 4;
 }
@@ -16132,9 +16164,10 @@ static void xfixesSelectCursorInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     proto_tree_add_item(t, hf_x11_xfixes_SelectCursorInput_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xfixes_SelectCursorInput_event_mask, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xfixes_SelectCursorInput_event_mask_mask_DisplayCursor, tvb, *offsetp, 4, byte_order);
+        const int* event_mask_bits [] = {
+        &hf_x11_xfixes_SelectCursorInput_event_mask_mask_DisplayCursor,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xfixes_SelectCursorInput_event_mask, ett_x11_rectangle, event_mask_bits, byte_order);
     }
     *offsetp += 4;
 }
@@ -16509,12 +16542,13 @@ static void xfixesCreatePointerBarrier(tvbuff_t *tvb, packet_info *pinfo _U_, in
     proto_tree_add_item(t, hf_x11_xfixes_CreatePointerBarrier_y2, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xfixes_CreatePointerBarrier_directions, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xfixes_CreatePointerBarrier_directions_mask_PositiveX, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xfixes_CreatePointerBarrier_directions_mask_PositiveY, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xfixes_CreatePointerBarrier_directions_mask_NegativeX, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xfixes_CreatePointerBarrier_directions_mask_NegativeY, tvb, *offsetp, 4, byte_order);
+        const int* directions_bits [] = {
+        &hf_x11_xfixes_CreatePointerBarrier_directions_mask_PositiveX,
+        &hf_x11_xfixes_CreatePointerBarrier_directions_mask_PositiveY,
+        &hf_x11_xfixes_CreatePointerBarrier_directions_mask_NegativeX,
+        &hf_x11_xfixes_CreatePointerBarrier_directions_mask_NegativeY,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xfixes_CreatePointerBarrier_directions, ett_x11_rectangle, directions_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(2);
@@ -17430,17 +17464,18 @@ static void xinputGrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     proto_tree_add_item(t, hf_x11_xinput_GrabDeviceKey_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_GrabDeviceKey_modifiers, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceKey_modifiers_mask_Shift, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceKey_modifiers_mask_Lock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceKey_modifiers_mask_Control, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceKey_modifiers_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceKey_modifiers_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceKey_modifiers_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceKey_modifiers_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceKey_modifiers_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceKey_modifiers_mask_Any, tvb, *offsetp, 2, byte_order);
+        const int* modifiers_bits [] = {
+        &hf_x11_xinput_GrabDeviceKey_modifiers_mask_Shift,
+        &hf_x11_xinput_GrabDeviceKey_modifiers_mask_Lock,
+        &hf_x11_xinput_GrabDeviceKey_modifiers_mask_Control,
+        &hf_x11_xinput_GrabDeviceKey_modifiers_mask_1,
+        &hf_x11_xinput_GrabDeviceKey_modifiers_mask_2,
+        &hf_x11_xinput_GrabDeviceKey_modifiers_mask_3,
+        &hf_x11_xinput_GrabDeviceKey_modifiers_mask_4,
+        &hf_x11_xinput_GrabDeviceKey_modifiers_mask_5,
+        &hf_x11_xinput_GrabDeviceKey_modifiers_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_GrabDeviceKey_modifiers, ett_x11_rectangle, modifiers_bits, byte_order);
     }
     *offsetp += 2;
     field8(tvb, offsetp, t, hf_x11_xinput_GrabDeviceKey_modifier_device, byte_order);
@@ -17461,17 +17496,18 @@ static void xinputUngrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     proto_tree_add_item(t, hf_x11_xinput_UngrabDeviceKey_grabWindow, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_UngrabDeviceKey_modifiers, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceKey_modifiers_mask_Shift, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceKey_modifiers_mask_Lock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceKey_modifiers_mask_Control, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceKey_modifiers_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceKey_modifiers_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceKey_modifiers_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceKey_modifiers_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceKey_modifiers_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceKey_modifiers_mask_Any, tvb, *offsetp, 2, byte_order);
+        const int* modifiers_bits [] = {
+        &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_Shift,
+        &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_Lock,
+        &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_Control,
+        &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_1,
+        &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_2,
+        &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_3,
+        &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_4,
+        &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_5,
+        &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_UngrabDeviceKey_modifiers, ett_x11_rectangle, modifiers_bits, byte_order);
     }
     *offsetp += 2;
     field8(tvb, offsetp, t, hf_x11_xinput_UngrabDeviceKey_modifier_device, byte_order);
@@ -17492,17 +17528,18 @@ static void xinputGrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     proto_tree_add_item(t, hf_x11_xinput_GrabDeviceButton_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_GrabDeviceButton_modifiers, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceButton_modifiers_mask_Shift, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceButton_modifiers_mask_Lock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceButton_modifiers_mask_Control, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceButton_modifiers_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceButton_modifiers_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceButton_modifiers_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceButton_modifiers_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceButton_modifiers_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_GrabDeviceButton_modifiers_mask_Any, tvb, *offsetp, 2, byte_order);
+        const int* modifiers_bits [] = {
+        &hf_x11_xinput_GrabDeviceButton_modifiers_mask_Shift,
+        &hf_x11_xinput_GrabDeviceButton_modifiers_mask_Lock,
+        &hf_x11_xinput_GrabDeviceButton_modifiers_mask_Control,
+        &hf_x11_xinput_GrabDeviceButton_modifiers_mask_1,
+        &hf_x11_xinput_GrabDeviceButton_modifiers_mask_2,
+        &hf_x11_xinput_GrabDeviceButton_modifiers_mask_3,
+        &hf_x11_xinput_GrabDeviceButton_modifiers_mask_4,
+        &hf_x11_xinput_GrabDeviceButton_modifiers_mask_5,
+        &hf_x11_xinput_GrabDeviceButton_modifiers_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_GrabDeviceButton_modifiers, ett_x11_rectangle, modifiers_bits, byte_order);
     }
     *offsetp += 2;
     field8(tvb, offsetp, t, hf_x11_xinput_GrabDeviceButton_this_device_mode, byte_order);
@@ -17520,17 +17557,18 @@ static void xinputUngrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     proto_tree_add_item(t, hf_x11_xinput_UngrabDeviceButton_grab_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_UngrabDeviceButton_modifiers, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceButton_modifiers_mask_Shift, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceButton_modifiers_mask_Lock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceButton_modifiers_mask_Control, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceButton_modifiers_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceButton_modifiers_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceButton_modifiers_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceButton_modifiers_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceButton_modifiers_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_UngrabDeviceButton_modifiers_mask_Any, tvb, *offsetp, 2, byte_order);
+        const int* modifiers_bits [] = {
+        &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_Shift,
+        &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_Lock,
+        &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_Control,
+        &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_1,
+        &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_2,
+        &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_3,
+        &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_4,
+        &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_5,
+        &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_UngrabDeviceButton_modifiers, ett_x11_rectangle, modifiers_bits, byte_order);
     }
     *offsetp += 2;
     field8(tvb, offsetp, t, hf_x11_xinput_UngrabDeviceButton_modifier_device, byte_order);
@@ -17780,16 +17818,17 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
 static void xinputChangeFeedbackControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_ChangeFeedbackControl_mask, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_ChangeFeedbackControl_mask_mask_AccelNum, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_ChangeFeedbackControl_mask_mask_AccelDenom, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_ChangeFeedbackControl_mask_mask_Threshold, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_ChangeFeedbackControl_mask_mask_Duration, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_ChangeFeedbackControl_mask_mask_Led, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_ChangeFeedbackControl_mask_mask_LedMode, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_ChangeFeedbackControl_mask_mask_Key, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_ChangeFeedbackControl_mask_mask_AutoRepeatMode, tvb, *offsetp, 4, byte_order);
+        const int* mask_bits [] = {
+        &hf_x11_xinput_ChangeFeedbackControl_mask_mask_AccelNum,
+        &hf_x11_xinput_ChangeFeedbackControl_mask_mask_AccelDenom,
+        &hf_x11_xinput_ChangeFeedbackControl_mask_mask_Threshold,
+        &hf_x11_xinput_ChangeFeedbackControl_mask_mask_Duration,
+        &hf_x11_xinput_ChangeFeedbackControl_mask_mask_Led,
+        &hf_x11_xinput_ChangeFeedbackControl_mask_mask_LedMode,
+        &hf_x11_xinput_ChangeFeedbackControl_mask_mask_Key,
+        &hf_x11_xinput_ChangeFeedbackControl_mask_mask_AutoRepeatMode,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_ChangeFeedbackControl_mask, ett_x11_rectangle, mask_bits, byte_order);
     }
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_ChangeFeedbackControl_device_id, tvb, *offsetp, 1, byte_order);
@@ -18011,10 +18050,11 @@ static void struct_xinput_InputState(tvbuff_t *tvb, int *offsetp, proto_tree *ro
             proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Valuator_num_valuators, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
             {
-                proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Valuator_mode, tvb, *offsetp, 1, byte_order);
-                proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-                proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_InputState_Valuator_mode_mask_DeviceModeAbsolute, tvb, *offsetp, 1, byte_order);
-                proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_InputState_Valuator_mode_mask_OutOfProximity, tvb, *offsetp, 1, byte_order);
+                const int* mode_bits [] = {
+                        &hf_x11_struct_xinput_InputState_Valuator_mode_mask_DeviceModeAbsolute,
+                        &hf_x11_struct_xinput_InputState_Valuator_mode_mask_OutOfProximity,
+                };
+                proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xinput_InputState_Valuator_mode, ett_x11_rectangle, mode_bits, byte_order);
             }
             *offsetp += 1;
             listOfInt32(tvb, offsetp, t, hf_x11_struct_xinput_InputState_Valuator_valuators, hf_x11_struct_xinput_InputState_Valuator_valuators_item, f_num_valuators, byte_order);
@@ -18772,10 +18812,11 @@ static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *r
             field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Scroll_scroll_type, byte_order);
             UNUSED(2);
             {
-                proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Scroll_flags, tvb, *offsetp, 4, byte_order);
-                proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-                proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_NoEmulation, tvb, *offsetp, 4, byte_order);
-                proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_Preferred, tvb, *offsetp, 4, byte_order);
+                const int* flags_bits [] = {
+                        &hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_NoEmulation,
+                        &hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_Preferred,
+                };
+                proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xinput_DeviceClass_Scroll_flags, ett_x11_rectangle, flags_bits, byte_order);
             }
             *offsetp += 4;
             struct_xinput_FP3232(tvb, offsetp, t, byte_order, 1);
@@ -19239,21 +19280,22 @@ static void xinputDeviceKeyPress(tvbuff_t *tvb, int *offsetp, proto_tree *t, gui
     proto_tree_add_item(t, hf_x11_xinput_DeviceKeyPress_event_y, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_DeviceKeyPress_state, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Shift, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Lock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Control, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Mod1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Mod2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Mod3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Mod4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Mod5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Button1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Button2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Button3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Button4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceKeyPress_state_mask_Button5, tvb, *offsetp, 2, byte_order);
+        const int* state_bits [] = {
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Shift,
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Lock,
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Control,
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Mod1,
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Mod2,
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Mod3,
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Mod4,
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Mod5,
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Button1,
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Button2,
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Button3,
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Button4,
+        &hf_x11_xinput_DeviceKeyPress_state_mask_Button5,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_DeviceKeyPress_state, ett_x11_rectangle, state_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xinput_DeviceKeyPress_same_screen, tvb, *offsetp, 1, byte_order);
@@ -19292,13 +19334,14 @@ static void xinputDeviceStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     proto_tree_add_item(t, hf_x11_xinput_DeviceStateNotify_num_valuators, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_DeviceStateNotify_classes_reported, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceStateNotify_classes_reported_mask_ReportingKeys, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceStateNotify_classes_reported_mask_ReportingButtons, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceStateNotify_classes_reported_mask_ReportingValuators, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceStateNotify_classes_reported_mask_DeviceModeAbsolute, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_DeviceStateNotify_classes_reported_mask_OutOfProximity, tvb, *offsetp, 1, byte_order);
+        const int* classes_reported_bits [] = {
+        &hf_x11_xinput_DeviceStateNotify_classes_reported_mask_ReportingKeys,
+        &hf_x11_xinput_DeviceStateNotify_classes_reported_mask_ReportingButtons,
+        &hf_x11_xinput_DeviceStateNotify_classes_reported_mask_ReportingValuators,
+        &hf_x11_xinput_DeviceStateNotify_classes_reported_mask_DeviceModeAbsolute,
+        &hf_x11_xinput_DeviceStateNotify_classes_reported_mask_OutOfProximity,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_DeviceStateNotify_classes_reported, ett_x11_rectangle, classes_reported_bits, byte_order);
     }
     *offsetp += 1;
     listOfByte(tvb, offsetp, t, hf_x11_xinput_DeviceStateNotify_buttons, 4, byte_order);
@@ -19434,9 +19477,10 @@ static void xinputKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tr
     field16(tvb, offsetp, t, hf_x11_xinput_KeyPress_sourceid, byte_order);
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_KeyPress_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_KeyPress_flags_mask_KeyRepeat, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xinput_KeyPress_flags_mask_KeyRepeat,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_KeyPress_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     struct_xinput_ModifierInfo(tvb, offsetp, t, byte_order, 1);
@@ -19487,9 +19531,10 @@ static void xinputButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
     field16(tvb, offsetp, t, hf_x11_xinput_ButtonPress_sourceid, byte_order);
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_ButtonPress_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_ButtonPress_flags_mask_PointerEmulated, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xinput_ButtonPress_flags_mask_PointerEmulated,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_ButtonPress_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     struct_xinput_ModifierInfo(tvb, offsetp, t, byte_order, 1);
@@ -19559,16 +19604,17 @@ static void struct_xinput_HierarchyInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
         *offsetp += 1;
         UNUSED(2);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyInfo_flags, tvb, *offsetp, 4, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_MasterAdded, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_MasterRemoved, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveAdded, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveRemoved, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveAttached, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveDetached, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_DeviceEnabled, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xinput_HierarchyInfo_flags_mask_DeviceDisabled, tvb, *offsetp, 4, byte_order);
+            const int* flags_bits [] = {
+                &hf_x11_struct_xinput_HierarchyInfo_flags_mask_MasterAdded,
+                &hf_x11_struct_xinput_HierarchyInfo_flags_mask_MasterRemoved,
+                &hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveAdded,
+                &hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveRemoved,
+                &hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveAttached,
+                &hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveDetached,
+                &hf_x11_struct_xinput_HierarchyInfo_flags_mask_DeviceEnabled,
+                &hf_x11_struct_xinput_HierarchyInfo_flags_mask_DeviceDisabled,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xinput_HierarchyInfo_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
         *offsetp += 4;
     }
@@ -19582,16 +19628,17 @@ static void xinputHierarchy(tvbuff_t *tvb, int length _U_, int *offsetp, proto_t
     field16(tvb, offsetp, t, hf_x11_xinput_Hierarchy_deviceid, byte_order);
     field32(tvb, offsetp, t, hf_x11_xinput_Hierarchy_time, byte_order);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_Hierarchy_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_Hierarchy_flags_mask_MasterAdded, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_Hierarchy_flags_mask_MasterRemoved, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_Hierarchy_flags_mask_SlaveAdded, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_Hierarchy_flags_mask_SlaveRemoved, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_Hierarchy_flags_mask_SlaveAttached, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_Hierarchy_flags_mask_SlaveDetached, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_Hierarchy_flags_mask_DeviceEnabled, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_Hierarchy_flags_mask_DeviceDisabled, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xinput_Hierarchy_flags_mask_MasterAdded,
+        &hf_x11_xinput_Hierarchy_flags_mask_MasterRemoved,
+        &hf_x11_xinput_Hierarchy_flags_mask_SlaveAdded,
+        &hf_x11_xinput_Hierarchy_flags_mask_SlaveRemoved,
+        &hf_x11_xinput_Hierarchy_flags_mask_SlaveAttached,
+        &hf_x11_xinput_Hierarchy_flags_mask_SlaveDetached,
+        &hf_x11_xinput_Hierarchy_flags_mask_DeviceEnabled,
+        &hf_x11_xinput_Hierarchy_flags_mask_DeviceDisabled,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_Hierarchy_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     f_num_infos = VALUE16(tvb, *offsetp);
@@ -19631,9 +19678,10 @@ static void xinputRawKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
     proto_tree_add_item(t, hf_x11_xinput_RawKeyPress_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_RawKeyPress_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_RawKeyPress_flags_mask_KeyRepeat, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xinput_RawKeyPress_flags_mask_KeyRepeat,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_RawKeyPress_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(4);
@@ -19665,9 +19713,10 @@ static void xinputRawButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, pr
     proto_tree_add_item(t, hf_x11_xinput_RawButtonPress_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_RawButtonPress_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_RawButtonPress_flags_mask_PointerEmulated, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xinput_RawButtonPress_flags_mask_PointerEmulated,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_RawButtonPress_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(4);
@@ -19717,10 +19766,11 @@ static void xinputTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_
     field16(tvb, offsetp, t, hf_x11_xinput_TouchBegin_sourceid, byte_order);
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_TouchBegin_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_TouchBegin_flags_mask_TouchPendingEnd, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_TouchBegin_flags_mask_TouchEmulatingPointer, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xinput_TouchBegin_flags_mask_TouchPendingEnd,
+        &hf_x11_xinput_TouchBegin_flags_mask_TouchEmulatingPointer,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_TouchBegin_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     struct_xinput_ModifierInfo(tvb, offsetp, t, byte_order, 1);
@@ -19774,10 +19824,11 @@ static void xinputRawTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, pro
     proto_tree_add_item(t, hf_x11_xinput_RawTouchBegin_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_RawTouchBegin_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_RawTouchBegin_flags_mask_TouchPendingEnd, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_RawTouchBegin_flags_mask_TouchEmulatingPointer, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xinput_RawTouchBegin_flags_mask_TouchPendingEnd,
+        &hf_x11_xinput_RawTouchBegin_flags_mask_TouchEmulatingPointer,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_RawTouchBegin_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(4);
@@ -19810,10 +19861,11 @@ static void xinputBarrierHit(tvbuff_t *tvb, int length _U_, int *offsetp, proto_
     proto_tree_add_item(t, hf_x11_xinput_BarrierHit_dtime, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xinput_BarrierHit_flags, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_BarrierHit_flags_mask_PointerReleased, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xinput_BarrierHit_flags_mask_DeviceIsGrabbed, tvb, *offsetp, 4, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xinput_BarrierHit_flags_mask_PointerReleased,
+        &hf_x11_xinput_BarrierHit_flags_mask_DeviceIsGrabbed,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_BarrierHit_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
     field16(tvb, offsetp, t, hf_x11_xinput_BarrierHit_sourceid, byte_order);
@@ -20194,70 +20246,74 @@ static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_groups, byte_order);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_IndicatorMap_whichMods, byte_order);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_IndicatorMap_mods, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* mods_bits [] = {
+                &hf_x11_struct_xkb_IndicatorMap_mods_mask_Shift,
+                &hf_x11_struct_xkb_IndicatorMap_mods_mask_Lock,
+                &hf_x11_struct_xkb_IndicatorMap_mods_mask_Control,
+                &hf_x11_struct_xkb_IndicatorMap_mods_mask_1,
+                &hf_x11_struct_xkb_IndicatorMap_mods_mask_2,
+                &hf_x11_struct_xkb_IndicatorMap_mods_mask_3,
+                &hf_x11_struct_xkb_IndicatorMap_mods_mask_4,
+                &hf_x11_struct_xkb_IndicatorMap_mods_mask_5,
+                &hf_x11_struct_xkb_IndicatorMap_mods_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_IndicatorMap_mods, ett_x11_rectangle, mods_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_IndicatorMap_realMods, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* realMods_bits [] = {
+                &hf_x11_struct_xkb_IndicatorMap_realMods_mask_Shift,
+                &hf_x11_struct_xkb_IndicatorMap_realMods_mask_Lock,
+                &hf_x11_struct_xkb_IndicatorMap_realMods_mask_Control,
+                &hf_x11_struct_xkb_IndicatorMap_realMods_mask_1,
+                &hf_x11_struct_xkb_IndicatorMap_realMods_mask_2,
+                &hf_x11_struct_xkb_IndicatorMap_realMods_mask_3,
+                &hf_x11_struct_xkb_IndicatorMap_realMods_mask_4,
+                &hf_x11_struct_xkb_IndicatorMap_realMods_mask_5,
+                &hf_x11_struct_xkb_IndicatorMap_realMods_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_IndicatorMap_realMods, ett_x11_rectangle, realMods_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_IndicatorMap_vmods, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_0, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_1, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_2, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_3, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_4, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_5, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_6, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_7, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_8, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_9, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_10, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_11, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_12, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_13, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_14, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_vmods_mask_15, tvb, *offsetp, 2, byte_order);
+            const int* vmods_bits [] = {
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_0,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_1,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_2,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_3,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_4,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_5,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_6,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_7,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_8,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_9,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_10,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_11,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_12,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_13,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_14,
+                &hf_x11_struct_xkb_IndicatorMap_vmods_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_IndicatorMap_vmods, ett_x11_rectangle, vmods_bits, byte_order);
         }
         *offsetp += 2;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_IndicatorMap_ctrls, tvb, *offsetp, 4, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_IndicatorMap_ctrls_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+            const int* ctrls_bits [] = {
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_RepeatKeys,
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_SlowKeys,
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_BounceKeys,
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_StickyKeys,
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_MouseKeys,
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_MouseKeysAccel,
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AccessXKeys,
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AccessXTimeoutMask,
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AccessXFeedbackMask,
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_AudibleBellMask,
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_Overlay1Mask,
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_Overlay2Mask,
+                &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_IgnoreGroupLockMask,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_IndicatorMap_ctrls, ett_x11_rectangle, ctrls_bits, byte_order);
         }
         *offsetp += 4;
     }
@@ -20273,52 +20329,55 @@ static void struct_xkb_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
         item = proto_tree_add_item(root, hf_x11_struct_xkb_ModDef, tvb, *offsetp, 4, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_ModDef_mask, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* mask_bits [] = {
+                &hf_x11_struct_xkb_ModDef_mask_mask_Shift,
+                &hf_x11_struct_xkb_ModDef_mask_mask_Lock,
+                &hf_x11_struct_xkb_ModDef_mask_mask_Control,
+                &hf_x11_struct_xkb_ModDef_mask_mask_1,
+                &hf_x11_struct_xkb_ModDef_mask_mask_2,
+                &hf_x11_struct_xkb_ModDef_mask_mask_3,
+                &hf_x11_struct_xkb_ModDef_mask_mask_4,
+                &hf_x11_struct_xkb_ModDef_mask_mask_5,
+                &hf_x11_struct_xkb_ModDef_mask_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_ModDef_mask, ett_x11_rectangle, mask_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_ModDef_realMods, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* realMods_bits [] = {
+                &hf_x11_struct_xkb_ModDef_realMods_mask_Shift,
+                &hf_x11_struct_xkb_ModDef_realMods_mask_Lock,
+                &hf_x11_struct_xkb_ModDef_realMods_mask_Control,
+                &hf_x11_struct_xkb_ModDef_realMods_mask_1,
+                &hf_x11_struct_xkb_ModDef_realMods_mask_2,
+                &hf_x11_struct_xkb_ModDef_realMods_mask_3,
+                &hf_x11_struct_xkb_ModDef_realMods_mask_4,
+                &hf_x11_struct_xkb_ModDef_realMods_mask_5,
+                &hf_x11_struct_xkb_ModDef_realMods_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_ModDef_realMods, ett_x11_rectangle, realMods_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_ModDef_vmods, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_0, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_1, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_2, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_3, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_4, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_5, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_6, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_7, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_8, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_9, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_10, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_11, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_12, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_13, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_14, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_ModDef_vmods_mask_15, tvb, *offsetp, 2, byte_order);
+            const int* vmods_bits [] = {
+                &hf_x11_struct_xkb_ModDef_vmods_mask_0,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_1,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_2,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_3,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_4,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_5,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_6,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_7,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_8,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_9,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_10,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_11,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_12,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_13,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_14,
+                &hf_x11_struct_xkb_ModDef_vmods_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_ModDef_vmods, ett_x11_rectangle, vmods_bits, byte_order);
         }
         *offsetp += 2;
     }
@@ -20391,54 +20450,57 @@ static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_active, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_mods_mask, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* mods_mask_bits [] = {
+                &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Shift,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Lock,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Control,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_1,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_2,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_3,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_4,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_5,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KTMapEntry_mods_mask, ett_x11_rectangle, mods_mask_bits, byte_order);
         }
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_level, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_mods_mods, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* mods_mods_bits [] = {
+                &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Shift,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Lock,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Control,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_1,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_2,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_3,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_4,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_5,
+                &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KTMapEntry_mods_mods, ett_x11_rectangle, mods_mods_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTMapEntry_mods_vmods, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_0, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_1, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_2, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_3, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_4, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_5, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_6, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_7, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_8, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_9, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_10, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_11, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_12, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_13, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_14, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_15, tvb, *offsetp, 2, byte_order);
+            const int* mods_vmods_bits [] = {
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_0,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_1,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_2,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_3,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_4,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_5,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_6,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_7,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_8,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_9,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_10,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_11,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_12,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_13,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_14,
+                &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KTMapEntry_mods_vmods, ett_x11_rectangle, mods_vmods_bits, byte_order);
         }
         *offsetp += 2;
         UNUSED(2);
@@ -20469,52 +20531,55 @@ static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
         item = proto_tree_add_item(root, hf_x11_struct_xkb_KeyType, tvb, *offsetp, struct_size_xkb_KeyType(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_mods_mask, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* mods_mask_bits [] = {
+                &hf_x11_struct_xkb_KeyType_mods_mask_mask_Shift,
+                &hf_x11_struct_xkb_KeyType_mods_mask_mask_Lock,
+                &hf_x11_struct_xkb_KeyType_mods_mask_mask_Control,
+                &hf_x11_struct_xkb_KeyType_mods_mask_mask_1,
+                &hf_x11_struct_xkb_KeyType_mods_mask_mask_2,
+                &hf_x11_struct_xkb_KeyType_mods_mask_mask_3,
+                &hf_x11_struct_xkb_KeyType_mods_mask_mask_4,
+                &hf_x11_struct_xkb_KeyType_mods_mask_mask_5,
+                &hf_x11_struct_xkb_KeyType_mods_mask_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KeyType_mods_mask, ett_x11_rectangle, mods_mask_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_mods_mods, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* mods_mods_bits [] = {
+                &hf_x11_struct_xkb_KeyType_mods_mods_mask_Shift,
+                &hf_x11_struct_xkb_KeyType_mods_mods_mask_Lock,
+                &hf_x11_struct_xkb_KeyType_mods_mods_mask_Control,
+                &hf_x11_struct_xkb_KeyType_mods_mods_mask_1,
+                &hf_x11_struct_xkb_KeyType_mods_mods_mask_2,
+                &hf_x11_struct_xkb_KeyType_mods_mods_mask_3,
+                &hf_x11_struct_xkb_KeyType_mods_mods_mask_4,
+                &hf_x11_struct_xkb_KeyType_mods_mods_mask_5,
+                &hf_x11_struct_xkb_KeyType_mods_mods_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KeyType_mods_mods, ett_x11_rectangle, mods_mods_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_mods_vmods, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_0, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_1, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_2, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_3, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_4, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_5, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_6, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_7, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_8, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_9, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_10, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_11, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_12, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_13, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_14, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyType_mods_vmods_mask_15, tvb, *offsetp, 2, byte_order);
+            const int* mods_vmods_bits [] = {
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_0,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_1,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_2,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_3,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_4,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_5,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_6,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_7,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_8,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_9,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_10,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_11,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_12,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_13,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_14,
+                &hf_x11_struct_xkb_KeyType_mods_vmods_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KeyType_mods_vmods, ett_x11_rectangle, mods_vmods_bits, byte_order);
         }
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_numLevels, tvb, *offsetp, 1, byte_order);
@@ -20691,16 +20756,17 @@ static void struct_xkb_SetExplicit(tvbuff_t *tvb, int *offsetp, proto_tree *root
         proto_tree_add_item(t, hf_x11_struct_xkb_SetExplicit_keycode, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetExplicit_explicit, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_Interpret, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_AutoRepeat, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_Behavior, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetExplicit_explicit_mask_VModMap, tvb, *offsetp, 1, byte_order);
+            const int* explicit_bits [] = {
+                &hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType1,
+                &hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType2,
+                &hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType3,
+                &hf_x11_struct_xkb_SetExplicit_explicit_mask_KeyType4,
+                &hf_x11_struct_xkb_SetExplicit_explicit_mask_Interpret,
+                &hf_x11_struct_xkb_SetExplicit_explicit_mask_AutoRepeat,
+                &hf_x11_struct_xkb_SetExplicit_explicit_mask_Behavior,
+                &hf_x11_struct_xkb_SetExplicit_explicit_mask_VModMap,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SetExplicit_explicit, ett_x11_rectangle, explicit_bits, byte_order);
         }
         *offsetp += 1;
     }
@@ -20718,17 +20784,18 @@ static void struct_xkb_KeyModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         proto_tree_add_item(t, hf_x11_struct_xkb_KeyModMap_keycode, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyModMap_mods, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyModMap_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* mods_bits [] = {
+                &hf_x11_struct_xkb_KeyModMap_mods_mask_Shift,
+                &hf_x11_struct_xkb_KeyModMap_mods_mask_Lock,
+                &hf_x11_struct_xkb_KeyModMap_mods_mask_Control,
+                &hf_x11_struct_xkb_KeyModMap_mods_mask_1,
+                &hf_x11_struct_xkb_KeyModMap_mods_mask_2,
+                &hf_x11_struct_xkb_KeyModMap_mods_mask_3,
+                &hf_x11_struct_xkb_KeyModMap_mods_mask_4,
+                &hf_x11_struct_xkb_KeyModMap_mods_mask_5,
+                &hf_x11_struct_xkb_KeyModMap_mods_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KeyModMap_mods, ett_x11_rectangle, mods_bits, byte_order);
         }
         *offsetp += 1;
     }
@@ -20747,24 +20814,25 @@ static void struct_xkb_KeyVModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         *offsetp += 1;
         UNUSED(1);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KeyVModMap_vmods, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_0, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_1, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_2, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_3, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_4, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_5, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_6, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_7, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_8, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_9, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_10, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_11, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_12, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_13, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_14, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KeyVModMap_vmods_mask_15, tvb, *offsetp, 2, byte_order);
+            const int* vmods_bits [] = {
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_0,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_1,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_2,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_3,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_4,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_5,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_6,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_7,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_8,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_9,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_10,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_11,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_12,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_13,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_14,
+                &hf_x11_struct_xkb_KeyVModMap_vmods_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KeyVModMap_vmods, ett_x11_rectangle, vmods_bits, byte_order);
         }
         *offsetp += 2;
     }
@@ -20782,38 +20850,40 @@ static void struct_xkb_KTSetMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         proto_tree_add_item(t, hf_x11_struct_xkb_KTSetMapEntry_level, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTSetMapEntry_realMods, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* realMods_bits [] = {
+                &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Shift,
+                &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Lock,
+                &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Control,
+                &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_1,
+                &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_2,
+                &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_3,
+                &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_4,
+                &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_5,
+                &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KTSetMapEntry_realMods, ett_x11_rectangle, realMods_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_KTSetMapEntry_virtualMods, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+            const int* virtualMods_bits [] = {
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_0,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_1,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_2,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_3,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_4,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_5,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_6,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_7,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_8,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_9,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_10,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_11,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_12,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_13,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_14,
+                &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KTSetMapEntry_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
         }
         *offsetp += 2;
     }
@@ -20843,52 +20913,55 @@ static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SetKeyType, tvb, *offsetp, struct_size_xkb_SetKeyType(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_mask, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* mask_bits [] = {
+                &hf_x11_struct_xkb_SetKeyType_mask_mask_Shift,
+                &hf_x11_struct_xkb_SetKeyType_mask_mask_Lock,
+                &hf_x11_struct_xkb_SetKeyType_mask_mask_Control,
+                &hf_x11_struct_xkb_SetKeyType_mask_mask_1,
+                &hf_x11_struct_xkb_SetKeyType_mask_mask_2,
+                &hf_x11_struct_xkb_SetKeyType_mask_mask_3,
+                &hf_x11_struct_xkb_SetKeyType_mask_mask_4,
+                &hf_x11_struct_xkb_SetKeyType_mask_mask_5,
+                &hf_x11_struct_xkb_SetKeyType_mask_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SetKeyType_mask, ett_x11_rectangle, mask_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_realMods, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* realMods_bits [] = {
+                &hf_x11_struct_xkb_SetKeyType_realMods_mask_Shift,
+                &hf_x11_struct_xkb_SetKeyType_realMods_mask_Lock,
+                &hf_x11_struct_xkb_SetKeyType_realMods_mask_Control,
+                &hf_x11_struct_xkb_SetKeyType_realMods_mask_1,
+                &hf_x11_struct_xkb_SetKeyType_realMods_mask_2,
+                &hf_x11_struct_xkb_SetKeyType_realMods_mask_3,
+                &hf_x11_struct_xkb_SetKeyType_realMods_mask_4,
+                &hf_x11_struct_xkb_SetKeyType_realMods_mask_5,
+                &hf_x11_struct_xkb_SetKeyType_realMods_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SetKeyType_realMods, ett_x11_rectangle, realMods_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_virtualMods, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SetKeyType_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+            const int* virtualMods_bits [] = {
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_0,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_1,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_2,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_3,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_4,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_5,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_6,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_7,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_8,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_9,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_10,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_11,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_12,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_13,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_14,
+                &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SetKeyType_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
         }
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_numLevels, tvb, *offsetp, 1, byte_order);
@@ -21002,65 +21075,70 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetMods_type, byte_order);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_flags, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_flags_mask_ClearLocks, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_flags_mask_LatchToLock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_flags_mask_GroupAbsolute, tvb, *offsetp, 1, byte_order);
+            const int* flags_bits [] = {
+                &hf_x11_struct_xkb_SASetMods_flags_mask_ClearLocks,
+                &hf_x11_struct_xkb_SASetMods_flags_mask_LatchToLock,
+                &hf_x11_struct_xkb_SASetMods_flags_mask_GroupAbsolute,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetMods_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_mask, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* mask_bits [] = {
+                &hf_x11_struct_xkb_SASetMods_mask_mask_Shift,
+                &hf_x11_struct_xkb_SASetMods_mask_mask_Lock,
+                &hf_x11_struct_xkb_SASetMods_mask_mask_Control,
+                &hf_x11_struct_xkb_SASetMods_mask_mask_1,
+                &hf_x11_struct_xkb_SASetMods_mask_mask_2,
+                &hf_x11_struct_xkb_SASetMods_mask_mask_3,
+                &hf_x11_struct_xkb_SASetMods_mask_mask_4,
+                &hf_x11_struct_xkb_SASetMods_mask_mask_5,
+                &hf_x11_struct_xkb_SASetMods_mask_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetMods_mask, ett_x11_rectangle, mask_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_realMods, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* realMods_bits [] = {
+                &hf_x11_struct_xkb_SASetMods_realMods_mask_Shift,
+                &hf_x11_struct_xkb_SASetMods_realMods_mask_Lock,
+                &hf_x11_struct_xkb_SASetMods_realMods_mask_Control,
+                &hf_x11_struct_xkb_SASetMods_realMods_mask_1,
+                &hf_x11_struct_xkb_SASetMods_realMods_mask_2,
+                &hf_x11_struct_xkb_SASetMods_realMods_mask_3,
+                &hf_x11_struct_xkb_SASetMods_realMods_mask_4,
+                &hf_x11_struct_xkb_SASetMods_realMods_mask_5,
+                &hf_x11_struct_xkb_SASetMods_realMods_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetMods_realMods, ett_x11_rectangle, realMods_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_vmodsHigh, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_8, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_9, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_10, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_11, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_12, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_13, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_14, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_15, tvb, *offsetp, 1, byte_order);
+            const int* vmodsHigh_bits [] = {
+                &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_8,
+                &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_9,
+                &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_10,
+                &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_11,
+                &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_12,
+                &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_13,
+                &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_14,
+                &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetMods_vmodsHigh, ett_x11_rectangle, vmodsHigh_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetMods_vmodsLow, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_0, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_6, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetMods_vmodsLow_mask_7, tvb, *offsetp, 1, byte_order);
+            const int* vmodsLow_bits [] = {
+                &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_0,
+                &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_1,
+                &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_2,
+                &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_3,
+                &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_4,
+                &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_5,
+                &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_6,
+                &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_7,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetMods_vmodsLow, ett_x11_rectangle, vmodsLow_bits, byte_order);
         }
         *offsetp += 1;
         UNUSED(2);
@@ -21078,11 +21156,12 @@ static void struct_xkb_SASetGroup(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetGroup_type, byte_order);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetGroup_flags, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetGroup_flags_mask_ClearLocks, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetGroup_flags_mask_LatchToLock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetGroup_flags_mask_GroupAbsolute, tvb, *offsetp, 1, byte_order);
+            const int* flags_bits [] = {
+                &hf_x11_struct_xkb_SASetGroup_flags_mask_ClearLocks,
+                &hf_x11_struct_xkb_SASetGroup_flags_mask_LatchToLock,
+                &hf_x11_struct_xkb_SASetGroup_flags_mask_GroupAbsolute,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetGroup_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SASetGroup_group, tvb, *offsetp, 1, byte_order);
@@ -21102,11 +21181,12 @@ static void struct_xkb_SAMovePtr(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SAMovePtr_type, byte_order);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_flags, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAMovePtr_flags_mask_NoAcceleration, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAMovePtr_flags_mask_MoveAbsoluteX, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAMovePtr_flags_mask_MoveAbsoluteY, tvb, *offsetp, 1, byte_order);
+            const int* flags_bits [] = {
+                &hf_x11_struct_xkb_SAMovePtr_flags_mask_NoAcceleration,
+                &hf_x11_struct_xkb_SAMovePtr_flags_mask_MoveAbsoluteX,
+                &hf_x11_struct_xkb_SAMovePtr_flags_mask_MoveAbsoluteY,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAMovePtr_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_xHigh, tvb, *offsetp, 1, byte_order);
@@ -21171,17 +21251,19 @@ static void struct_xkb_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetPtrDflt_type, byte_order);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetPtrDflt_flags, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetPtrDflt_flags_mask_AffectDfltButton, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetPtrDflt_flags_mask_DfltBtnAbsolute, tvb, *offsetp, 1, byte_order);
+            const int* flags_bits [] = {
+                &hf_x11_struct_xkb_SASetPtrDflt_flags_mask_AffectDfltButton,
+                &hf_x11_struct_xkb_SASetPtrDflt_flags_mask_DfltBtnAbsolute,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetPtrDflt_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetPtrDflt_affect, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetPtrDflt_affect_mask_AffectDfltButton, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetPtrDflt_affect_mask_DfltBtnAbsolute, tvb, *offsetp, 1, byte_order);
+            const int* affect_bits [] = {
+                &hf_x11_struct_xkb_SASetPtrDflt_affect_mask_AffectDfltButton,
+                &hf_x11_struct_xkb_SASetPtrDflt_affect_mask_DfltBtnAbsolute,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetPtrDflt_affect, ett_x11_rectangle, affect_bits, byte_order);
         }
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SASetPtrDflt_value, tvb, *offsetp, 1, byte_order);
@@ -21201,77 +21283,83 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SAIsoLock_type, byte_order);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_flags, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_flags_mask_NoLock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_flags_mask_NoUnlock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_flags_mask_GroupAbsolute, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_flags_mask_ISODfltIsGroup, tvb, *offsetp, 1, byte_order);
+            const int* flags_bits [] = {
+                &hf_x11_struct_xkb_SAIsoLock_flags_mask_NoLock,
+                &hf_x11_struct_xkb_SAIsoLock_flags_mask_NoUnlock,
+                &hf_x11_struct_xkb_SAIsoLock_flags_mask_GroupAbsolute,
+                &hf_x11_struct_xkb_SAIsoLock_flags_mask_ISODfltIsGroup,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAIsoLock_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_mask, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* mask_bits [] = {
+                &hf_x11_struct_xkb_SAIsoLock_mask_mask_Shift,
+                &hf_x11_struct_xkb_SAIsoLock_mask_mask_Lock,
+                &hf_x11_struct_xkb_SAIsoLock_mask_mask_Control,
+                &hf_x11_struct_xkb_SAIsoLock_mask_mask_1,
+                &hf_x11_struct_xkb_SAIsoLock_mask_mask_2,
+                &hf_x11_struct_xkb_SAIsoLock_mask_mask_3,
+                &hf_x11_struct_xkb_SAIsoLock_mask_mask_4,
+                &hf_x11_struct_xkb_SAIsoLock_mask_mask_5,
+                &hf_x11_struct_xkb_SAIsoLock_mask_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAIsoLock_mask, ett_x11_rectangle, mask_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_realMods, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* realMods_bits [] = {
+                &hf_x11_struct_xkb_SAIsoLock_realMods_mask_Shift,
+                &hf_x11_struct_xkb_SAIsoLock_realMods_mask_Lock,
+                &hf_x11_struct_xkb_SAIsoLock_realMods_mask_Control,
+                &hf_x11_struct_xkb_SAIsoLock_realMods_mask_1,
+                &hf_x11_struct_xkb_SAIsoLock_realMods_mask_2,
+                &hf_x11_struct_xkb_SAIsoLock_realMods_mask_3,
+                &hf_x11_struct_xkb_SAIsoLock_realMods_mask_4,
+                &hf_x11_struct_xkb_SAIsoLock_realMods_mask_5,
+                &hf_x11_struct_xkb_SAIsoLock_realMods_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAIsoLock_realMods, ett_x11_rectangle, realMods_bits, byte_order);
         }
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_group, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_affect, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_affect_mask_Ctrls, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_affect_mask_Ptr, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_affect_mask_Group, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_affect_mask_Mods, tvb, *offsetp, 1, byte_order);
+            const int* affect_bits [] = {
+                &hf_x11_struct_xkb_SAIsoLock_affect_mask_Ctrls,
+                &hf_x11_struct_xkb_SAIsoLock_affect_mask_Ptr,
+                &hf_x11_struct_xkb_SAIsoLock_affect_mask_Group,
+                &hf_x11_struct_xkb_SAIsoLock_affect_mask_Mods,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAIsoLock_affect, ett_x11_rectangle, affect_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_vmodsHigh, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_8, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_9, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_10, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_11, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_12, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_13, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_14, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_15, tvb, *offsetp, 1, byte_order);
+            const int* vmodsHigh_bits [] = {
+                &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_8,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_9,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_10,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_11,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_12,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_13,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_14,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAIsoLock_vmodsHigh, ett_x11_rectangle, vmodsHigh_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAIsoLock_vmodsLow, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_0, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_6, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_7, tvb, *offsetp, 1, byte_order);
+            const int* vmodsLow_bits [] = {
+                &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_0,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_1,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_2,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_3,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_4,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_5,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_6,
+                &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_7,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAIsoLock_vmodsLow, ett_x11_rectangle, vmodsLow_bits, byte_order);
         }
         *offsetp += 1;
     }
@@ -21321,26 +21409,28 @@ static void struct_xkb_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetControls_type, byte_order);
         UNUSED(3);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_AccessXFeedback, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_AudibleBell, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_Overlay1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_Overlay2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_IgnoreGroupLock, tvb, *offsetp, 1, byte_order);
+            const int* boolCtrlsHigh_bits [] = {
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_AccessXFeedback,
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_AudibleBell,
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_Overlay1,
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_Overlay2,
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_IgnoreGroupLock,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh, ett_x11_rectangle, boolCtrlsHigh_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SASetControls_boolCtrlsLow, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_RepeatKeys, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_SlowKeys, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_BounceKeys, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_StickyKeys, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_MouseKeys, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_MouseKeysAccel, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_AccessXKeys, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_AccessXTimeout, tvb, *offsetp, 1, byte_order);
+            const int* boolCtrlsLow_bits [] = {
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_RepeatKeys,
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_SlowKeys,
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_BounceKeys,
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_StickyKeys,
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_MouseKeys,
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_MouseKeysAccel,
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_AccessXKeys,
+                &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_AccessXTimeout,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetControls_boolCtrlsLow, ett_x11_rectangle, boolCtrlsLow_bits, byte_order);
         }
         *offsetp += 1;
         UNUSED(2);
@@ -21358,11 +21448,12 @@ static void struct_xkb_SAActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SAActionMessage_type, byte_order);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SAActionMessage_flags, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAActionMessage_flags_mask_OnPress, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAActionMessage_flags_mask_OnRelease, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SAActionMessage_flags_mask_GenKeyEvent, tvb, *offsetp, 1, byte_order);
+            const int* flags_bits [] = {
+                &hf_x11_struct_xkb_SAActionMessage_flags_mask_OnPress,
+                &hf_x11_struct_xkb_SAActionMessage_flags_mask_OnRelease,
+                &hf_x11_struct_xkb_SAActionMessage_flags_mask_GenKeyEvent,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAActionMessage_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
         *offsetp += 1;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_SAActionMessage_message, 6, byte_order);
@@ -21382,83 +21473,89 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_newkey, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_mask, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_mask_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* mask_bits [] = {
+                &hf_x11_struct_xkb_SARedirectKey_mask_mask_Shift,
+                &hf_x11_struct_xkb_SARedirectKey_mask_mask_Lock,
+                &hf_x11_struct_xkb_SARedirectKey_mask_mask_Control,
+                &hf_x11_struct_xkb_SARedirectKey_mask_mask_1,
+                &hf_x11_struct_xkb_SARedirectKey_mask_mask_2,
+                &hf_x11_struct_xkb_SARedirectKey_mask_mask_3,
+                &hf_x11_struct_xkb_SARedirectKey_mask_mask_4,
+                &hf_x11_struct_xkb_SARedirectKey_mask_mask_5,
+                &hf_x11_struct_xkb_SARedirectKey_mask_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SARedirectKey_mask, ett_x11_rectangle, mask_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_realModifiers, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* realModifiers_bits [] = {
+                &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Shift,
+                &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Lock,
+                &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Control,
+                &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_1,
+                &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_2,
+                &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_3,
+                &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_4,
+                &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_5,
+                &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SARedirectKey_realModifiers, ett_x11_rectangle, realModifiers_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_8, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_9, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_10, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_11, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_12, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_13, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_14, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_15, tvb, *offsetp, 1, byte_order);
+            const int* vmodsMaskHigh_bits [] = {
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_8,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_9,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_10,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_11,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_12,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_13,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_14,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh, ett_x11_rectangle, vmodsMaskHigh_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_0, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_6, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_7, tvb, *offsetp, 1, byte_order);
+            const int* vmodsMaskLow_bits [] = {
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_0,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_1,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_2,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_3,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_4,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_5,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_6,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_7,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow, ett_x11_rectangle, vmodsMaskLow_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_vmodsHigh, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_8, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_9, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_10, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_11, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_12, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_13, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_14, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_15, tvb, *offsetp, 1, byte_order);
+            const int* vmodsHigh_bits [] = {
+                &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_8,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_9,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_10,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_11,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_12,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_13,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_14,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SARedirectKey_vmodsHigh, ett_x11_rectangle, vmodsHigh_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SARedirectKey_vmodsLow, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_0, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_6, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_7, tvb, *offsetp, 1, byte_order);
+            const int* vmodsLow_bits [] = {
+                &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_0,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_1,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_2,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_3,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_4,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_5,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_6,
+                &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_7,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SARedirectKey_vmodsLow, ett_x11_rectangle, vmodsLow_bits, byte_order);
         }
         *offsetp += 1;
     }
@@ -21497,10 +21594,11 @@ static void struct_xkb_SALockDeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SALockDeviceBtn_type, byte_order);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SALockDeviceBtn_flags, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SALockDeviceBtn_flags_mask_NoLock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SALockDeviceBtn_flags_mask_NoUnlock, tvb, *offsetp, 1, byte_order);
+            const int* flags_bits [] = {
+                &hf_x11_struct_xkb_SALockDeviceBtn_flags_mask_NoLock,
+                &hf_x11_struct_xkb_SALockDeviceBtn_flags_mask_NoUnlock,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SALockDeviceBtn_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
         *offsetp += 1;
         UNUSED(1);
@@ -21563,31 +21661,33 @@ static void struct_xkb_SymInterpret(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_sym, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_mods, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+            const int* mods_bits [] = {
+                &hf_x11_struct_xkb_SymInterpret_mods_mask_Shift,
+                &hf_x11_struct_xkb_SymInterpret_mods_mask_Lock,
+                &hf_x11_struct_xkb_SymInterpret_mods_mask_Control,
+                &hf_x11_struct_xkb_SymInterpret_mods_mask_1,
+                &hf_x11_struct_xkb_SymInterpret_mods_mask_2,
+                &hf_x11_struct_xkb_SymInterpret_mods_mask_3,
+                &hf_x11_struct_xkb_SymInterpret_mods_mask_4,
+                &hf_x11_struct_xkb_SymInterpret_mods_mask_5,
+                &hf_x11_struct_xkb_SymInterpret_mods_mask_Any,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SymInterpret_mods, ett_x11_rectangle, mods_bits, byte_order);
         }
         *offsetp += 1;
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SymInterpret_match, byte_order);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_virtualMod, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_0, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_4, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_5, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_6, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xkb_SymInterpret_virtualMod_mask_7, tvb, *offsetp, 1, byte_order);
+            const int* virtualMod_bits [] = {
+                &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_0,
+                &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_1,
+                &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_2,
+                &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_3,
+                &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_4,
+                &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_5,
+                &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_6,
+                &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_7,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SymInterpret_virtualMod, ett_x11_rectangle, virtualMod_bits, byte_order);
         }
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SymInterpret_flags, tvb, *offsetp, 1, byte_order);
@@ -21693,161 +21793,172 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 2;
     f_affectWhich = VALUE16(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_affectWhich, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectWhich_mask_NewKeyboardNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectWhich_mask_MapNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectWhich_mask_StateNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectWhich_mask_ControlsNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectWhich_mask_IndicatorStateNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectWhich_mask_IndicatorMapNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectWhich_mask_NamesNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectWhich_mask_CompatMapNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectWhich_mask_BellNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectWhich_mask_ActionMessage, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectWhich_mask_AccessXNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectWhich_mask_ExtensionDeviceNotify, tvb, *offsetp, 2, byte_order);
+        const int* affectWhich_bits [] = {
+        &hf_x11_xkb_SelectEvents_affectWhich_mask_NewKeyboardNotify,
+        &hf_x11_xkb_SelectEvents_affectWhich_mask_MapNotify,
+        &hf_x11_xkb_SelectEvents_affectWhich_mask_StateNotify,
+        &hf_x11_xkb_SelectEvents_affectWhich_mask_ControlsNotify,
+        &hf_x11_xkb_SelectEvents_affectWhich_mask_IndicatorStateNotify,
+        &hf_x11_xkb_SelectEvents_affectWhich_mask_IndicatorMapNotify,
+        &hf_x11_xkb_SelectEvents_affectWhich_mask_NamesNotify,
+        &hf_x11_xkb_SelectEvents_affectWhich_mask_CompatMapNotify,
+        &hf_x11_xkb_SelectEvents_affectWhich_mask_BellNotify,
+        &hf_x11_xkb_SelectEvents_affectWhich_mask_ActionMessage,
+        &hf_x11_xkb_SelectEvents_affectWhich_mask_AccessXNotify,
+        &hf_x11_xkb_SelectEvents_affectWhich_mask_ExtensionDeviceNotify,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_affectWhich, ett_x11_rectangle, affectWhich_bits, byte_order);
     }
     *offsetp += 2;
     f_clear = VALUE16(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_clear, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_clear_mask_NewKeyboardNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_clear_mask_MapNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_clear_mask_StateNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_clear_mask_ControlsNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_clear_mask_IndicatorStateNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_clear_mask_IndicatorMapNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_clear_mask_NamesNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_clear_mask_CompatMapNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_clear_mask_BellNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_clear_mask_ActionMessage, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_clear_mask_AccessXNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_clear_mask_ExtensionDeviceNotify, tvb, *offsetp, 2, byte_order);
+        const int* clear_bits [] = {
+        &hf_x11_xkb_SelectEvents_clear_mask_NewKeyboardNotify,
+        &hf_x11_xkb_SelectEvents_clear_mask_MapNotify,
+        &hf_x11_xkb_SelectEvents_clear_mask_StateNotify,
+        &hf_x11_xkb_SelectEvents_clear_mask_ControlsNotify,
+        &hf_x11_xkb_SelectEvents_clear_mask_IndicatorStateNotify,
+        &hf_x11_xkb_SelectEvents_clear_mask_IndicatorMapNotify,
+        &hf_x11_xkb_SelectEvents_clear_mask_NamesNotify,
+        &hf_x11_xkb_SelectEvents_clear_mask_CompatMapNotify,
+        &hf_x11_xkb_SelectEvents_clear_mask_BellNotify,
+        &hf_x11_xkb_SelectEvents_clear_mask_ActionMessage,
+        &hf_x11_xkb_SelectEvents_clear_mask_AccessXNotify,
+        &hf_x11_xkb_SelectEvents_clear_mask_ExtensionDeviceNotify,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_clear, ett_x11_rectangle, clear_bits, byte_order);
     }
     *offsetp += 2;
     f_selectAll = VALUE16(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_selectAll, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_selectAll_mask_NewKeyboardNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_selectAll_mask_MapNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_selectAll_mask_StateNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_selectAll_mask_ControlsNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_selectAll_mask_IndicatorStateNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_selectAll_mask_IndicatorMapNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_selectAll_mask_NamesNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_selectAll_mask_CompatMapNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_selectAll_mask_BellNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_selectAll_mask_ActionMessage, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_selectAll_mask_AccessXNotify, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_selectAll_mask_ExtensionDeviceNotify, tvb, *offsetp, 2, byte_order);
+        const int* selectAll_bits [] = {
+        &hf_x11_xkb_SelectEvents_selectAll_mask_NewKeyboardNotify,
+        &hf_x11_xkb_SelectEvents_selectAll_mask_MapNotify,
+        &hf_x11_xkb_SelectEvents_selectAll_mask_StateNotify,
+        &hf_x11_xkb_SelectEvents_selectAll_mask_ControlsNotify,
+        &hf_x11_xkb_SelectEvents_selectAll_mask_IndicatorStateNotify,
+        &hf_x11_xkb_SelectEvents_selectAll_mask_IndicatorMapNotify,
+        &hf_x11_xkb_SelectEvents_selectAll_mask_NamesNotify,
+        &hf_x11_xkb_SelectEvents_selectAll_mask_CompatMapNotify,
+        &hf_x11_xkb_SelectEvents_selectAll_mask_BellNotify,
+        &hf_x11_xkb_SelectEvents_selectAll_mask_ActionMessage,
+        &hf_x11_xkb_SelectEvents_selectAll_mask_AccessXNotify,
+        &hf_x11_xkb_SelectEvents_selectAll_mask_ExtensionDeviceNotify,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_selectAll, ett_x11_rectangle, selectAll_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_affectMap, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectMap_mask_KeyTypes, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectMap_mask_KeySyms, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectMap_mask_ModifierMap, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectMap_mask_ExplicitComponents, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectMap_mask_KeyActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectMap_mask_KeyBehaviors, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectMap_mask_VirtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_affectMap_mask_VirtualModMap, tvb, *offsetp, 2, byte_order);
+        const int* affectMap_bits [] = {
+        &hf_x11_xkb_SelectEvents_affectMap_mask_KeyTypes,
+        &hf_x11_xkb_SelectEvents_affectMap_mask_KeySyms,
+        &hf_x11_xkb_SelectEvents_affectMap_mask_ModifierMap,
+        &hf_x11_xkb_SelectEvents_affectMap_mask_ExplicitComponents,
+        &hf_x11_xkb_SelectEvents_affectMap_mask_KeyActions,
+        &hf_x11_xkb_SelectEvents_affectMap_mask_KeyBehaviors,
+        &hf_x11_xkb_SelectEvents_affectMap_mask_VirtualMods,
+        &hf_x11_xkb_SelectEvents_affectMap_mask_VirtualModMap,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_affectMap, ett_x11_rectangle, affectMap_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_map, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_map_mask_KeyTypes, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_map_mask_KeySyms, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_map_mask_ModifierMap, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_map_mask_ExplicitComponents, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_map_mask_KeyActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_map_mask_KeyBehaviors, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_map_mask_VirtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_map_mask_VirtualModMap, tvb, *offsetp, 2, byte_order);
+        const int* map_bits [] = {
+        &hf_x11_xkb_SelectEvents_map_mask_KeyTypes,
+        &hf_x11_xkb_SelectEvents_map_mask_KeySyms,
+        &hf_x11_xkb_SelectEvents_map_mask_ModifierMap,
+        &hf_x11_xkb_SelectEvents_map_mask_ExplicitComponents,
+        &hf_x11_xkb_SelectEvents_map_mask_KeyActions,
+        &hf_x11_xkb_SelectEvents_map_mask_KeyBehaviors,
+        &hf_x11_xkb_SelectEvents_map_mask_VirtualMods,
+        &hf_x11_xkb_SelectEvents_map_mask_VirtualModMap,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_map, ett_x11_rectangle, map_bits, byte_order);
     }
     *offsetp += 2;
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 0)) {
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard_mask_Keycodes, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard_mask_Geometry, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard_mask_DeviceID, tvb, *offsetp, 2, byte_order);
+            const int* affectNewKeyboard_bits [] = {
+                &hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard_mask_Keycodes,
+                &hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard_mask_Geometry,
+                &hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard_mask_DeviceID,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard, ett_x11_rectangle, affectNewKeyboard_bits, byte_order);
         }
         *offsetp += 2;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails_mask_Keycodes, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails_mask_Geometry, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails_mask_DeviceID, tvb, *offsetp, 2, byte_order);
+            const int* newKeyboardDetails_bits [] = {
+                &hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails_mask_Keycodes,
+                &hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails_mask_Geometry,
+                &hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails_mask_DeviceID,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails, ett_x11_rectangle, newKeyboardDetails_bits, byte_order);
         }
         *offsetp += 2;
     }
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 2)) {
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_StateNotify_affectState, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_ModifierState, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_ModifierBase, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_ModifierLatch, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_ModifierLock, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_GroupState, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_GroupBase, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_GroupLatch, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_GroupLock, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_CompatState, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_GrabMods, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_CompatGrabMods, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_LookupMods, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_CompatLookupMods, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_PointerButtons, tvb, *offsetp, 2, byte_order);
+            const int* affectState_bits [] = {
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_ModifierState,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_ModifierBase,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_ModifierLatch,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_ModifierLock,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_GroupState,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_GroupBase,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_GroupLatch,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_GroupLock,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_CompatState,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_GrabMods,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_CompatGrabMods,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_LookupMods,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_CompatLookupMods,
+                &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_PointerButtons,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_StateNotify_affectState, ett_x11_rectangle, affectState_bits, byte_order);
         }
         *offsetp += 2;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_StateNotify_stateDetails, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_ModifierState, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_ModifierBase, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_ModifierLatch, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_ModifierLock, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_GroupState, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_GroupBase, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_GroupLatch, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_GroupLock, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_CompatState, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_GrabMods, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_CompatGrabMods, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_LookupMods, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_CompatLookupMods, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_PointerButtons, tvb, *offsetp, 2, byte_order);
+            const int* stateDetails_bits [] = {
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_ModifierState,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_ModifierBase,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_ModifierLatch,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_ModifierLock,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_GroupState,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_GroupBase,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_GroupLatch,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_GroupLock,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_CompatState,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_GrabMods,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_CompatGrabMods,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_LookupMods,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_CompatLookupMods,
+                &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_PointerButtons,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_StateNotify_stateDetails, ett_x11_rectangle, stateDetails_bits, byte_order);
         }
         *offsetp += 2;
     }
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 3)) {
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls, tvb, *offsetp, 4, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_GroupsWrap, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_InternalMods, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_IgnoreLockMods, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_PerKeyRepeat, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_ControlsEnabled, tvb, *offsetp, 4, byte_order);
+            const int* affectCtrls_bits [] = {
+                &hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_GroupsWrap,
+                &hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_InternalMods,
+                &hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_IgnoreLockMods,
+                &hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_PerKeyRepeat,
+                &hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_ControlsEnabled,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls, ett_x11_rectangle, affectCtrls_bits, byte_order);
         }
         *offsetp += 4;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails, tvb, *offsetp, 4, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_GroupsWrap, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_InternalMods, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_IgnoreLockMods, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_PerKeyRepeat, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_ControlsEnabled, tvb, *offsetp, 4, byte_order);
+            const int* ctrlDetails_bits [] = {
+                &hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_GroupsWrap,
+                &hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_InternalMods,
+                &hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_IgnoreLockMods,
+                &hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_PerKeyRepeat,
+                &hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_ControlsEnabled,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails, ett_x11_rectangle, ctrlDetails_bits, byte_order);
         }
         *offsetp += 4;
     }
@@ -21865,57 +21976,61 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 6)) {
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_NamesNotify_affectNames, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Keycodes, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Geometry, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Symbols, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_PhysSymbols, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Types, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Compat, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_KeyTypeNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_KTLevelNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_KeyNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_KeyAliases, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_VirtualModNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_GroupNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_RGNames, tvb, *offsetp, 2, byte_order);
+            const int* affectNames_bits [] = {
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Keycodes,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Geometry,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Symbols,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_PhysSymbols,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Types,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_Compat,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_KeyTypeNames,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_KTLevelNames,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_IndicatorNames,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_KeyNames,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_KeyAliases,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_VirtualModNames,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_GroupNames,
+                &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_RGNames,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_NamesNotify_affectNames, ett_x11_rectangle, affectNames_bits, byte_order);
         }
         *offsetp += 2;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Keycodes, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Geometry, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Symbols, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_PhysSymbols, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Types, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Compat, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_KeyTypeNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_KTLevelNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_KeyNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_KeyAliases, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_VirtualModNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_GroupNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_RGNames, tvb, *offsetp, 2, byte_order);
+            const int* namesDetails_bits [] = {
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Keycodes,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Geometry,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Symbols,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_PhysSymbols,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Types,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_Compat,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_KeyTypeNames,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_KTLevelNames,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_IndicatorNames,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_KeyNames,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_KeyAliases,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_VirtualModNames,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_GroupNames,
+                &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_RGNames,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails, ett_x11_rectangle, namesDetails_bits, byte_order);
         }
         *offsetp += 2;
     }
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 7)) {
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat_mask_SymInterp, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat_mask_GroupCompat, tvb, *offsetp, 1, byte_order);
+            const int* affectCompat_bits [] = {
+                &hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat_mask_SymInterp,
+                &hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat_mask_GroupCompat,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat, ett_x11_rectangle, affectCompat_bits, byte_order);
         }
         *offsetp += 1;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_CompatMapNotify_compatDetails, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_CompatMapNotify_compatDetails_mask_SymInterp, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_CompatMapNotify_compatDetails_mask_GroupCompat, tvb, *offsetp, 1, byte_order);
+            const int* compatDetails_bits [] = {
+                &hf_x11_xkb_SelectEvents_CompatMapNotify_compatDetails_mask_SymInterp,
+                &hf_x11_xkb_SelectEvents_CompatMapNotify_compatDetails_mask_GroupCompat,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_CompatMapNotify_compatDetails, ett_x11_rectangle, compatDetails_bits, byte_order);
         }
         *offsetp += 1;
     }
@@ -21933,49 +22048,53 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     }
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 10)) {
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_SKPress, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_SKAccept, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_SKReject, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_SKRelease, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_BKAccept, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_BKReject, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_AXKWarning, tvb, *offsetp, 2, byte_order);
+            const int* affectAccessX_bits [] = {
+                &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_SKPress,
+                &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_SKAccept,
+                &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_SKReject,
+                &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_SKRelease,
+                &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_BKAccept,
+                &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_BKReject,
+                &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_AXKWarning,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX, ett_x11_rectangle, affectAccessX_bits, byte_order);
         }
         *offsetp += 2;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_SKPress, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_SKAccept, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_SKReject, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_SKRelease, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_BKAccept, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_BKReject, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_AXKWarning, tvb, *offsetp, 2, byte_order);
+            const int* accessXDetails_bits [] = {
+                &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_SKPress,
+                &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_SKAccept,
+                &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_SKReject,
+                &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_SKRelease,
+                &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_BKAccept,
+                &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_BKReject,
+                &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_AXKWarning,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails, ett_x11_rectangle, accessXDetails_bits, byte_order);
         }
         *offsetp += 2;
     }
     if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 11)) {
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_Keyboards, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_ButtonActions, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_IndicatorState, tvb, *offsetp, 2, byte_order);
+            const int* affectExtDev_bits [] = {
+                &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_Keyboards,
+                &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_ButtonActions,
+                &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_IndicatorNames,
+                &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_IndicatorMaps,
+                &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_IndicatorState,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev, ett_x11_rectangle, affectExtDev_bits, byte_order);
         }
         *offsetp += 2;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_Keyboards, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_ButtonActions, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_IndicatorState, tvb, *offsetp, 2, byte_order);
+            const int* extdevDetails_bits [] = {
+                &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_Keyboards,
+                &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_ButtonActions,
+                &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_IndicatorNames,
+                &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_IndicatorMaps,
+                &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_IndicatorState,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails, ett_x11_rectangle, extdevDetails_bits, byte_order);
         }
         *offsetp += 2;
     }
@@ -22029,59 +22148,63 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetState_reply_mods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_mods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_mods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_mods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_mods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_mods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* mods_bits [] = {
+        &hf_x11_xkb_GetState_reply_mods_mask_Shift,
+        &hf_x11_xkb_GetState_reply_mods_mask_Lock,
+        &hf_x11_xkb_GetState_reply_mods_mask_Control,
+        &hf_x11_xkb_GetState_reply_mods_mask_1,
+        &hf_x11_xkb_GetState_reply_mods_mask_2,
+        &hf_x11_xkb_GetState_reply_mods_mask_3,
+        &hf_x11_xkb_GetState_reply_mods_mask_4,
+        &hf_x11_xkb_GetState_reply_mods_mask_5,
+        &hf_x11_xkb_GetState_reply_mods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_mods, ett_x11_rectangle, mods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetState_reply_baseMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_baseMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_baseMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_baseMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_baseMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_baseMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_baseMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_baseMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_baseMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_baseMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* baseMods_bits [] = {
+        &hf_x11_xkb_GetState_reply_baseMods_mask_Shift,
+        &hf_x11_xkb_GetState_reply_baseMods_mask_Lock,
+        &hf_x11_xkb_GetState_reply_baseMods_mask_Control,
+        &hf_x11_xkb_GetState_reply_baseMods_mask_1,
+        &hf_x11_xkb_GetState_reply_baseMods_mask_2,
+        &hf_x11_xkb_GetState_reply_baseMods_mask_3,
+        &hf_x11_xkb_GetState_reply_baseMods_mask_4,
+        &hf_x11_xkb_GetState_reply_baseMods_mask_5,
+        &hf_x11_xkb_GetState_reply_baseMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_baseMods, ett_x11_rectangle, baseMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetState_reply_latchedMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_latchedMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_latchedMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_latchedMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_latchedMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_latchedMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_latchedMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_latchedMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_latchedMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_latchedMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* latchedMods_bits [] = {
+        &hf_x11_xkb_GetState_reply_latchedMods_mask_Shift,
+        &hf_x11_xkb_GetState_reply_latchedMods_mask_Lock,
+        &hf_x11_xkb_GetState_reply_latchedMods_mask_Control,
+        &hf_x11_xkb_GetState_reply_latchedMods_mask_1,
+        &hf_x11_xkb_GetState_reply_latchedMods_mask_2,
+        &hf_x11_xkb_GetState_reply_latchedMods_mask_3,
+        &hf_x11_xkb_GetState_reply_latchedMods_mask_4,
+        &hf_x11_xkb_GetState_reply_latchedMods_mask_5,
+        &hf_x11_xkb_GetState_reply_latchedMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_latchedMods, ett_x11_rectangle, latchedMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetState_reply_lockedMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lockedMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lockedMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lockedMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lockedMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lockedMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lockedMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lockedMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lockedMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lockedMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* lockedMods_bits [] = {
+        &hf_x11_xkb_GetState_reply_lockedMods_mask_Shift,
+        &hf_x11_xkb_GetState_reply_lockedMods_mask_Lock,
+        &hf_x11_xkb_GetState_reply_lockedMods_mask_Control,
+        &hf_x11_xkb_GetState_reply_lockedMods_mask_1,
+        &hf_x11_xkb_GetState_reply_lockedMods_mask_2,
+        &hf_x11_xkb_GetState_reply_lockedMods_mask_3,
+        &hf_x11_xkb_GetState_reply_lockedMods_mask_4,
+        &hf_x11_xkb_GetState_reply_lockedMods_mask_5,
+        &hf_x11_xkb_GetState_reply_lockedMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_lockedMods, ett_x11_rectangle, lockedMods_bits, byte_order);
     }
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_xkb_GetState_reply_group, byte_order);
@@ -22091,92 +22214,98 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     proto_tree_add_item(t, hf_x11_xkb_GetState_reply_latchedGroup, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetState_reply_compatState, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatState_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatState_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatState_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatState_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatState_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatState_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatState_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatState_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatState_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* compatState_bits [] = {
+        &hf_x11_xkb_GetState_reply_compatState_mask_Shift,
+        &hf_x11_xkb_GetState_reply_compatState_mask_Lock,
+        &hf_x11_xkb_GetState_reply_compatState_mask_Control,
+        &hf_x11_xkb_GetState_reply_compatState_mask_1,
+        &hf_x11_xkb_GetState_reply_compatState_mask_2,
+        &hf_x11_xkb_GetState_reply_compatState_mask_3,
+        &hf_x11_xkb_GetState_reply_compatState_mask_4,
+        &hf_x11_xkb_GetState_reply_compatState_mask_5,
+        &hf_x11_xkb_GetState_reply_compatState_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_compatState, ett_x11_rectangle, compatState_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetState_reply_grabMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_grabMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_grabMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_grabMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_grabMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_grabMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_grabMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_grabMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_grabMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_grabMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* grabMods_bits [] = {
+        &hf_x11_xkb_GetState_reply_grabMods_mask_Shift,
+        &hf_x11_xkb_GetState_reply_grabMods_mask_Lock,
+        &hf_x11_xkb_GetState_reply_grabMods_mask_Control,
+        &hf_x11_xkb_GetState_reply_grabMods_mask_1,
+        &hf_x11_xkb_GetState_reply_grabMods_mask_2,
+        &hf_x11_xkb_GetState_reply_grabMods_mask_3,
+        &hf_x11_xkb_GetState_reply_grabMods_mask_4,
+        &hf_x11_xkb_GetState_reply_grabMods_mask_5,
+        &hf_x11_xkb_GetState_reply_grabMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_grabMods, ett_x11_rectangle, grabMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetState_reply_compatGrabMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatGrabMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatGrabMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatGrabMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatGrabMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatGrabMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatGrabMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatGrabMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatGrabMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatGrabMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* compatGrabMods_bits [] = {
+        &hf_x11_xkb_GetState_reply_compatGrabMods_mask_Shift,
+        &hf_x11_xkb_GetState_reply_compatGrabMods_mask_Lock,
+        &hf_x11_xkb_GetState_reply_compatGrabMods_mask_Control,
+        &hf_x11_xkb_GetState_reply_compatGrabMods_mask_1,
+        &hf_x11_xkb_GetState_reply_compatGrabMods_mask_2,
+        &hf_x11_xkb_GetState_reply_compatGrabMods_mask_3,
+        &hf_x11_xkb_GetState_reply_compatGrabMods_mask_4,
+        &hf_x11_xkb_GetState_reply_compatGrabMods_mask_5,
+        &hf_x11_xkb_GetState_reply_compatGrabMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_compatGrabMods, ett_x11_rectangle, compatGrabMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetState_reply_lookupMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lookupMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lookupMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lookupMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lookupMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lookupMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lookupMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lookupMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lookupMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_lookupMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* lookupMods_bits [] = {
+        &hf_x11_xkb_GetState_reply_lookupMods_mask_Shift,
+        &hf_x11_xkb_GetState_reply_lookupMods_mask_Lock,
+        &hf_x11_xkb_GetState_reply_lookupMods_mask_Control,
+        &hf_x11_xkb_GetState_reply_lookupMods_mask_1,
+        &hf_x11_xkb_GetState_reply_lookupMods_mask_2,
+        &hf_x11_xkb_GetState_reply_lookupMods_mask_3,
+        &hf_x11_xkb_GetState_reply_lookupMods_mask_4,
+        &hf_x11_xkb_GetState_reply_lookupMods_mask_5,
+        &hf_x11_xkb_GetState_reply_lookupMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_lookupMods, ett_x11_rectangle, lookupMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetState_reply_compatLookupMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatLookupMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatLookupMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatLookupMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatLookupMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatLookupMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatLookupMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatLookupMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatLookupMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_compatLookupMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* compatLookupMods_bits [] = {
+        &hf_x11_xkb_GetState_reply_compatLookupMods_mask_Shift,
+        &hf_x11_xkb_GetState_reply_compatLookupMods_mask_Lock,
+        &hf_x11_xkb_GetState_reply_compatLookupMods_mask_Control,
+        &hf_x11_xkb_GetState_reply_compatLookupMods_mask_1,
+        &hf_x11_xkb_GetState_reply_compatLookupMods_mask_2,
+        &hf_x11_xkb_GetState_reply_compatLookupMods_mask_3,
+        &hf_x11_xkb_GetState_reply_compatLookupMods_mask_4,
+        &hf_x11_xkb_GetState_reply_compatLookupMods_mask_5,
+        &hf_x11_xkb_GetState_reply_compatLookupMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_compatLookupMods, ett_x11_rectangle, compatLookupMods_bits, byte_order);
     }
     *offsetp += 1;
     UNUSED(1);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetState_reply_ptrBtnState, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Shift, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Lock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Control, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Mod1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Mod2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Mod3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Mod4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Mod5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button5, tvb, *offsetp, 2, byte_order);
+        const int* ptrBtnState_bits [] = {
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Shift,
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Lock,
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Control,
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Mod1,
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Mod2,
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Mod3,
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Mod4,
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Mod5,
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button1,
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button2,
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button3,
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button4,
+        &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button5,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_ptrBtnState, ett_x11_rectangle, ptrBtnState_bits, byte_order);
     }
     *offsetp += 2;
     UNUSED(6);
@@ -22187,48 +22316,51 @@ static void xkbLatchLockState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     proto_tree_add_item(t, hf_x11_xkb_LatchLockState_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_LatchLockState_affectModLocks, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLocks_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLocks_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLocks_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLocks_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLocks_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLocks_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLocks_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLocks_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLocks_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* affectModLocks_bits [] = {
+        &hf_x11_xkb_LatchLockState_affectModLocks_mask_Shift,
+        &hf_x11_xkb_LatchLockState_affectModLocks_mask_Lock,
+        &hf_x11_xkb_LatchLockState_affectModLocks_mask_Control,
+        &hf_x11_xkb_LatchLockState_affectModLocks_mask_1,
+        &hf_x11_xkb_LatchLockState_affectModLocks_mask_2,
+        &hf_x11_xkb_LatchLockState_affectModLocks_mask_3,
+        &hf_x11_xkb_LatchLockState_affectModLocks_mask_4,
+        &hf_x11_xkb_LatchLockState_affectModLocks_mask_5,
+        &hf_x11_xkb_LatchLockState_affectModLocks_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_LatchLockState_affectModLocks, ett_x11_rectangle, affectModLocks_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_LatchLockState_modLocks, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_modLocks_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_modLocks_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_modLocks_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_modLocks_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_modLocks_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_modLocks_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_modLocks_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_modLocks_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_modLocks_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* modLocks_bits [] = {
+        &hf_x11_xkb_LatchLockState_modLocks_mask_Shift,
+        &hf_x11_xkb_LatchLockState_modLocks_mask_Lock,
+        &hf_x11_xkb_LatchLockState_modLocks_mask_Control,
+        &hf_x11_xkb_LatchLockState_modLocks_mask_1,
+        &hf_x11_xkb_LatchLockState_modLocks_mask_2,
+        &hf_x11_xkb_LatchLockState_modLocks_mask_3,
+        &hf_x11_xkb_LatchLockState_modLocks_mask_4,
+        &hf_x11_xkb_LatchLockState_modLocks_mask_5,
+        &hf_x11_xkb_LatchLockState_modLocks_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_LatchLockState_modLocks, ett_x11_rectangle, modLocks_bits, byte_order);
     }
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_LatchLockState_lockGroup, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_xkb_LatchLockState_groupLock, byte_order);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_LatchLockState_affectModLatches, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLatches_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLatches_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLatches_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLatches_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLatches_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLatches_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLatches_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLatches_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_LatchLockState_affectModLatches_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* affectModLatches_bits [] = {
+        &hf_x11_xkb_LatchLockState_affectModLatches_mask_Shift,
+        &hf_x11_xkb_LatchLockState_affectModLatches_mask_Lock,
+        &hf_x11_xkb_LatchLockState_affectModLatches_mask_Control,
+        &hf_x11_xkb_LatchLockState_affectModLatches_mask_1,
+        &hf_x11_xkb_LatchLockState_affectModLatches_mask_2,
+        &hf_x11_xkb_LatchLockState_affectModLatches_mask_3,
+        &hf_x11_xkb_LatchLockState_affectModLatches_mask_4,
+        &hf_x11_xkb_LatchLockState_affectModLatches_mask_5,
+        &hf_x11_xkb_LatchLockState_affectModLatches_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_LatchLockState_affectModLatches, ett_x11_rectangle, affectModLatches_bits, byte_order);
     }
     *offsetp += 1;
     UNUSED(1);
@@ -22267,102 +22399,108 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_groupsWrap, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_internalModsMask, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsMask_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsMask_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsMask_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsMask_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsMask_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsMask_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsMask_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsMask_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsMask_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* internalModsMask_bits [] = {
+        &hf_x11_xkb_GetControls_reply_internalModsMask_mask_Shift,
+        &hf_x11_xkb_GetControls_reply_internalModsMask_mask_Lock,
+        &hf_x11_xkb_GetControls_reply_internalModsMask_mask_Control,
+        &hf_x11_xkb_GetControls_reply_internalModsMask_mask_1,
+        &hf_x11_xkb_GetControls_reply_internalModsMask_mask_2,
+        &hf_x11_xkb_GetControls_reply_internalModsMask_mask_3,
+        &hf_x11_xkb_GetControls_reply_internalModsMask_mask_4,
+        &hf_x11_xkb_GetControls_reply_internalModsMask_mask_5,
+        &hf_x11_xkb_GetControls_reply_internalModsMask_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_internalModsMask, ett_x11_rectangle, internalModsMask_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_ignoreLockModsMask, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* ignoreLockModsMask_bits [] = {
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_Shift,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_Lock,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_Control,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_1,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_2,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_3,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_4,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_5,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_ignoreLockModsMask, ett_x11_rectangle, ignoreLockModsMask_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_internalModsRealMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* internalModsRealMods_bits [] = {
+        &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_Shift,
+        &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_Lock,
+        &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_Control,
+        &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_1,
+        &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_2,
+        &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_3,
+        &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_4,
+        &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_5,
+        &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_internalModsRealMods, ett_x11_rectangle, internalModsRealMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* ignoreLockModsRealMods_bits [] = {
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_Shift,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_Lock,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_Control,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_1,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_2,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_3,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_4,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_5,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods, ett_x11_rectangle, ignoreLockModsRealMods_bits, byte_order);
     }
     *offsetp += 1;
     UNUSED(1);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_internalModsVmods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_internalModsVmods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* internalModsVmods_bits [] = {
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_0,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_1,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_2,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_3,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_4,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_5,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_6,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_7,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_8,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_9,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_10,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_11,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_12,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_13,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_14,
+        &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_internalModsVmods, ett_x11_rectangle, internalModsVmods_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* ignoreLockModsVmods_bits [] = {
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_0,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_1,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_2,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_3,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_4,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_5,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_6,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_7,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_8,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_9,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_10,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_11,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_12,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_13,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_14,
+        &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods, ett_x11_rectangle, ignoreLockModsVmods_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_repeatDelay, tvb, *offsetp, 2, byte_order);
@@ -22384,111 +22522,117 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_mouseKeysCurve, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_accessXOption, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXOption_mask_SKPressFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXOption_mask_SKAcceptFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXOption_mask_FeatureFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXOption_mask_SlowWarnFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXOption_mask_IndicatorFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXOption_mask_StickyKeysFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXOption_mask_TwoKeys, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXOption_mask_LatchToLock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXOption_mask_SKReleaseFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXOption_mask_SKRejectFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXOption_mask_BKRejectFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXOption_mask_DumbBell, tvb, *offsetp, 2, byte_order);
+        const int* accessXOption_bits [] = {
+        &hf_x11_xkb_GetControls_reply_accessXOption_mask_SKPressFB,
+        &hf_x11_xkb_GetControls_reply_accessXOption_mask_SKAcceptFB,
+        &hf_x11_xkb_GetControls_reply_accessXOption_mask_FeatureFB,
+        &hf_x11_xkb_GetControls_reply_accessXOption_mask_SlowWarnFB,
+        &hf_x11_xkb_GetControls_reply_accessXOption_mask_IndicatorFB,
+        &hf_x11_xkb_GetControls_reply_accessXOption_mask_StickyKeysFB,
+        &hf_x11_xkb_GetControls_reply_accessXOption_mask_TwoKeys,
+        &hf_x11_xkb_GetControls_reply_accessXOption_mask_LatchToLock,
+        &hf_x11_xkb_GetControls_reply_accessXOption_mask_SKReleaseFB,
+        &hf_x11_xkb_GetControls_reply_accessXOption_mask_SKRejectFB,
+        &hf_x11_xkb_GetControls_reply_accessXOption_mask_BKRejectFB,
+        &hf_x11_xkb_GetControls_reply_accessXOption_mask_DumbBell,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_accessXOption, ett_x11_rectangle, accessXOption_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_accessXTimeout, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SKPressFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SKAcceptFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_FeatureFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SlowWarnFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_IndicatorFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_StickyKeysFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_TwoKeys, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_LatchToLock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SKReleaseFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SKRejectFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_BKRejectFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_DumbBell, tvb, *offsetp, 2, byte_order);
+        const int* accessXTimeoutOptionsMask_bits [] = {
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SKPressFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SKAcceptFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_FeatureFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SlowWarnFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_IndicatorFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_StickyKeysFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_TwoKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_LatchToLock,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SKReleaseFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SKRejectFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_BKRejectFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_DumbBell,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask, ett_x11_rectangle, accessXTimeoutOptionsMask_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SKPressFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SKAcceptFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_FeatureFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SlowWarnFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_IndicatorFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_StickyKeysFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_TwoKeys, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_LatchToLock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SKReleaseFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SKRejectFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_BKRejectFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_DumbBell, tvb, *offsetp, 2, byte_order);
+        const int* accessXTimeoutOptionsValues_bits [] = {
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SKPressFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SKAcceptFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_FeatureFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SlowWarnFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_IndicatorFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_StickyKeysFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_TwoKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_LatchToLock,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SKReleaseFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SKRejectFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_BKRejectFB,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_DumbBell,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues, ett_x11_rectangle, accessXTimeoutOptionsValues_bits, byte_order);
     }
     *offsetp += 2;
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_accessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* accessXTimeoutMask_bits [] = {
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_RepeatKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_SlowKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_BounceKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_StickyKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_MouseKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_MouseKeysAccel,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_AccessXKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_AudibleBellMask,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_Overlay1Mask,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_Overlay2Mask,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_accessXTimeoutMask, ett_x11_rectangle, accessXTimeoutMask_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_accessXTimeoutValues, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* accessXTimeoutValues_bits [] = {
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_RepeatKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_SlowKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_BounceKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_StickyKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_MouseKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_MouseKeysAccel,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_AccessXKeys,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_AudibleBellMask,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_Overlay1Mask,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_Overlay2Mask,
+        &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_accessXTimeoutValues, ett_x11_rectangle, accessXTimeoutValues_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_enabledControls, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetControls_reply_enabledControls_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* enabledControls_bits [] = {
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_RepeatKeys,
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_SlowKeys,
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_BounceKeys,
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_StickyKeys,
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_MouseKeys,
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_MouseKeysAccel,
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_AccessXKeys,
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_AudibleBellMask,
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_Overlay1Mask,
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_Overlay2Mask,
+        &hf_x11_xkb_GetControls_reply_enabledControls_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_enabledControls, ett_x11_rectangle, enabledControls_bits, byte_order);
     }
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xkb_GetControls_reply_perKeyRepeat, 32, byte_order);
@@ -22499,143 +22643,151 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_xkb_SetControls_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_affectInternalRealMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalRealMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalRealMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalRealMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalRealMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalRealMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalRealMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalRealMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalRealMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalRealMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* affectInternalRealMods_bits [] = {
+        &hf_x11_xkb_SetControls_affectInternalRealMods_mask_Shift,
+        &hf_x11_xkb_SetControls_affectInternalRealMods_mask_Lock,
+        &hf_x11_xkb_SetControls_affectInternalRealMods_mask_Control,
+        &hf_x11_xkb_SetControls_affectInternalRealMods_mask_1,
+        &hf_x11_xkb_SetControls_affectInternalRealMods_mask_2,
+        &hf_x11_xkb_SetControls_affectInternalRealMods_mask_3,
+        &hf_x11_xkb_SetControls_affectInternalRealMods_mask_4,
+        &hf_x11_xkb_SetControls_affectInternalRealMods_mask_5,
+        &hf_x11_xkb_SetControls_affectInternalRealMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_affectInternalRealMods, ett_x11_rectangle, affectInternalRealMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_internalRealMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalRealMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalRealMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalRealMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalRealMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalRealMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalRealMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalRealMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalRealMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalRealMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* internalRealMods_bits [] = {
+        &hf_x11_xkb_SetControls_internalRealMods_mask_Shift,
+        &hf_x11_xkb_SetControls_internalRealMods_mask_Lock,
+        &hf_x11_xkb_SetControls_internalRealMods_mask_Control,
+        &hf_x11_xkb_SetControls_internalRealMods_mask_1,
+        &hf_x11_xkb_SetControls_internalRealMods_mask_2,
+        &hf_x11_xkb_SetControls_internalRealMods_mask_3,
+        &hf_x11_xkb_SetControls_internalRealMods_mask_4,
+        &hf_x11_xkb_SetControls_internalRealMods_mask_5,
+        &hf_x11_xkb_SetControls_internalRealMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_internalRealMods, ett_x11_rectangle, internalRealMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_affectIgnoreLockRealMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* affectIgnoreLockRealMods_bits [] = {
+        &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_Shift,
+        &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_Lock,
+        &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_Control,
+        &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_1,
+        &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_2,
+        &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_3,
+        &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_4,
+        &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_5,
+        &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_affectIgnoreLockRealMods, ett_x11_rectangle, affectIgnoreLockRealMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_ignoreLockRealMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockRealMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockRealMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockRealMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockRealMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockRealMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockRealMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockRealMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockRealMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockRealMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* ignoreLockRealMods_bits [] = {
+        &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_Shift,
+        &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_Lock,
+        &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_Control,
+        &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_1,
+        &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_2,
+        &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_3,
+        &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_4,
+        &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_5,
+        &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_ignoreLockRealMods, ett_x11_rectangle, ignoreLockRealMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_affectInternalVirtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* affectInternalVirtualMods_bits [] = {
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_0,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_1,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_2,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_3,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_4,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_5,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_6,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_7,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_8,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_9,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_10,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_11,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_12,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_13,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_14,
+        &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_affectInternalVirtualMods, ett_x11_rectangle, affectInternalVirtualMods_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_internalVirtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_internalVirtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* internalVirtualMods_bits [] = {
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_0,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_1,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_2,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_3,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_4,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_5,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_6,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_7,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_8,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_9,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_10,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_11,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_12,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_13,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_14,
+        &hf_x11_xkb_SetControls_internalVirtualMods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_internalVirtualMods, ett_x11_rectangle, internalVirtualMods_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* affectIgnoreLockVirtualMods_bits [] = {
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_0,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_1,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_2,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_3,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_4,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_5,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_6,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_7,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_8,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_9,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_10,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_11,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_12,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_13,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_14,
+        &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods, ett_x11_rectangle, affectIgnoreLockVirtualMods_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_ignoreLockVirtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* ignoreLockVirtualMods_bits [] = {
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_0,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_1,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_2,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_3,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_4,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_5,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_6,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_7,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_8,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_9,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_10,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_11,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_12,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_13,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_14,
+        &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_ignoreLockVirtualMods, ett_x11_rectangle, ignoreLockVirtualMods_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_SetControls_mouseKeysDfltBtn, tvb, *offsetp, 1, byte_order);
@@ -22643,67 +22795,71 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_xkb_SetControls_groupsWrap, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_accessXOptions, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXOptions_mask_SKPressFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXOptions_mask_SKAcceptFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXOptions_mask_FeatureFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXOptions_mask_SlowWarnFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXOptions_mask_IndicatorFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXOptions_mask_StickyKeysFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXOptions_mask_TwoKeys, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXOptions_mask_LatchToLock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXOptions_mask_SKReleaseFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXOptions_mask_SKRejectFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXOptions_mask_BKRejectFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXOptions_mask_DumbBell, tvb, *offsetp, 2, byte_order);
+        const int* accessXOptions_bits [] = {
+        &hf_x11_xkb_SetControls_accessXOptions_mask_SKPressFB,
+        &hf_x11_xkb_SetControls_accessXOptions_mask_SKAcceptFB,
+        &hf_x11_xkb_SetControls_accessXOptions_mask_FeatureFB,
+        &hf_x11_xkb_SetControls_accessXOptions_mask_SlowWarnFB,
+        &hf_x11_xkb_SetControls_accessXOptions_mask_IndicatorFB,
+        &hf_x11_xkb_SetControls_accessXOptions_mask_StickyKeysFB,
+        &hf_x11_xkb_SetControls_accessXOptions_mask_TwoKeys,
+        &hf_x11_xkb_SetControls_accessXOptions_mask_LatchToLock,
+        &hf_x11_xkb_SetControls_accessXOptions_mask_SKReleaseFB,
+        &hf_x11_xkb_SetControls_accessXOptions_mask_SKRejectFB,
+        &hf_x11_xkb_SetControls_accessXOptions_mask_BKRejectFB,
+        &hf_x11_xkb_SetControls_accessXOptions_mask_DumbBell,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_accessXOptions, ett_x11_rectangle, accessXOptions_bits, byte_order);
     }
     *offsetp += 2;
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_affectEnabledControls, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_affectEnabledControls_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* affectEnabledControls_bits [] = {
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_RepeatKeys,
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_SlowKeys,
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_BounceKeys,
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_StickyKeys,
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_MouseKeys,
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_MouseKeysAccel,
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_AccessXKeys,
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_AudibleBellMask,
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_Overlay1Mask,
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_Overlay2Mask,
+        &hf_x11_xkb_SetControls_affectEnabledControls_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_affectEnabledControls, ett_x11_rectangle, affectEnabledControls_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_enabledControls, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_enabledControls_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* enabledControls_bits [] = {
+        &hf_x11_xkb_SetControls_enabledControls_mask_RepeatKeys,
+        &hf_x11_xkb_SetControls_enabledControls_mask_SlowKeys,
+        &hf_x11_xkb_SetControls_enabledControls_mask_BounceKeys,
+        &hf_x11_xkb_SetControls_enabledControls_mask_StickyKeys,
+        &hf_x11_xkb_SetControls_enabledControls_mask_MouseKeys,
+        &hf_x11_xkb_SetControls_enabledControls_mask_MouseKeysAccel,
+        &hf_x11_xkb_SetControls_enabledControls_mask_AccessXKeys,
+        &hf_x11_xkb_SetControls_enabledControls_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_SetControls_enabledControls_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_SetControls_enabledControls_mask_AudibleBellMask,
+        &hf_x11_xkb_SetControls_enabledControls_mask_Overlay1Mask,
+        &hf_x11_xkb_SetControls_enabledControls_mask_Overlay2Mask,
+        &hf_x11_xkb_SetControls_enabledControls_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_enabledControls, ett_x11_rectangle, enabledControls_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_changeControls, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_changeControls_mask_GroupsWrap, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_changeControls_mask_InternalMods, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_changeControls_mask_IgnoreLockMods, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_changeControls_mask_PerKeyRepeat, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_changeControls_mask_ControlsEnabled, tvb, *offsetp, 4, byte_order);
+        const int* changeControls_bits [] = {
+        &hf_x11_xkb_SetControls_changeControls_mask_GroupsWrap,
+        &hf_x11_xkb_SetControls_changeControls_mask_InternalMods,
+        &hf_x11_xkb_SetControls_changeControls_mask_IgnoreLockMods,
+        &hf_x11_xkb_SetControls_changeControls_mask_PerKeyRepeat,
+        &hf_x11_xkb_SetControls_changeControls_mask_ControlsEnabled,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_changeControls, ett_x11_rectangle, changeControls_bits, byte_order);
     }
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_SetControls_repeatDelay, tvb, *offsetp, 2, byte_order);
@@ -22727,73 +22883,77 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     proto_tree_add_item(t, hf_x11_xkb_SetControls_accessXTimeout, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_accessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutMask_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* accessXTimeoutMask_bits [] = {
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_RepeatKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_SlowKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_BounceKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_StickyKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_MouseKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_MouseKeysAccel,
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_AccessXKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_AudibleBellMask,
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_Overlay1Mask,
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_Overlay2Mask,
+        &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_accessXTimeoutMask, ett_x11_rectangle, accessXTimeoutMask_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_accessXTimeoutValues, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutValues_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* accessXTimeoutValues_bits [] = {
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_RepeatKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_SlowKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_BounceKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_StickyKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_MouseKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_MouseKeysAccel,
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_AccessXKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_AudibleBellMask,
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_Overlay1Mask,
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_Overlay2Mask,
+        &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_accessXTimeoutValues, ett_x11_rectangle, accessXTimeoutValues_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SKPressFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SKAcceptFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_FeatureFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SlowWarnFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_IndicatorFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_StickyKeysFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_TwoKeys, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_LatchToLock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SKReleaseFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SKRejectFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_BKRejectFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_DumbBell, tvb, *offsetp, 2, byte_order);
+        const int* accessXTimeoutOptionsMask_bits [] = {
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SKPressFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SKAcceptFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_FeatureFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SlowWarnFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_IndicatorFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_StickyKeysFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_TwoKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_LatchToLock,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SKReleaseFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SKRejectFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_BKRejectFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_DumbBell,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask, ett_x11_rectangle, accessXTimeoutOptionsMask_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SKPressFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SKAcceptFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_FeatureFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SlowWarnFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_IndicatorFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_StickyKeysFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_TwoKeys, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_LatchToLock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SKReleaseFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SKRejectFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_BKRejectFB, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_DumbBell, tvb, *offsetp, 2, byte_order);
+        const int* accessXTimeoutOptionsValues_bits [] = {
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SKPressFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SKAcceptFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_FeatureFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SlowWarnFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_IndicatorFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_StickyKeysFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_TwoKeys,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_LatchToLock,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SKReleaseFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SKRejectFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_BKRejectFB,
+        &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_DumbBell,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues, ett_x11_rectangle, accessXTimeoutOptionsValues_bits, byte_order);
     }
     *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_xkb_SetControls_perKeyRepeat, 32, byte_order);
@@ -22805,29 +22965,31 @@ static void xkbGetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     proto_tree_add_item(t, hf_x11_xkb_GetMap_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetMap_full, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_full_mask_KeyTypes, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_full_mask_KeySyms, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_full_mask_ModifierMap, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_full_mask_ExplicitComponents, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_full_mask_KeyActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_full_mask_KeyBehaviors, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_full_mask_VirtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_full_mask_VirtualModMap, tvb, *offsetp, 2, byte_order);
+        const int* full_bits [] = {
+        &hf_x11_xkb_GetMap_full_mask_KeyTypes,
+        &hf_x11_xkb_GetMap_full_mask_KeySyms,
+        &hf_x11_xkb_GetMap_full_mask_ModifierMap,
+        &hf_x11_xkb_GetMap_full_mask_ExplicitComponents,
+        &hf_x11_xkb_GetMap_full_mask_KeyActions,
+        &hf_x11_xkb_GetMap_full_mask_KeyBehaviors,
+        &hf_x11_xkb_GetMap_full_mask_VirtualMods,
+        &hf_x11_xkb_GetMap_full_mask_VirtualModMap,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetMap_full, ett_x11_rectangle, full_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetMap_partial, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_partial_mask_KeyTypes, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_partial_mask_KeySyms, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_partial_mask_ModifierMap, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_partial_mask_ExplicitComponents, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_partial_mask_KeyActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_partial_mask_KeyBehaviors, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_partial_mask_VirtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_partial_mask_VirtualModMap, tvb, *offsetp, 2, byte_order);
+        const int* partial_bits [] = {
+        &hf_x11_xkb_GetMap_partial_mask_KeyTypes,
+        &hf_x11_xkb_GetMap_partial_mask_KeySyms,
+        &hf_x11_xkb_GetMap_partial_mask_ModifierMap,
+        &hf_x11_xkb_GetMap_partial_mask_ExplicitComponents,
+        &hf_x11_xkb_GetMap_partial_mask_KeyActions,
+        &hf_x11_xkb_GetMap_partial_mask_KeyBehaviors,
+        &hf_x11_xkb_GetMap_partial_mask_VirtualMods,
+        &hf_x11_xkb_GetMap_partial_mask_VirtualModMap,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetMap_partial, ett_x11_rectangle, partial_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_firstType, tvb, *offsetp, 1, byte_order);
@@ -22847,24 +23009,25 @@ static void xkbGetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     proto_tree_add_item(t, hf_x11_xkb_GetMap_nKeyBehaviors, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetMap_virtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* virtualMods_bits [] = {
+        &hf_x11_xkb_GetMap_virtualMods_mask_0,
+        &hf_x11_xkb_GetMap_virtualMods_mask_1,
+        &hf_x11_xkb_GetMap_virtualMods_mask_2,
+        &hf_x11_xkb_GetMap_virtualMods_mask_3,
+        &hf_x11_xkb_GetMap_virtualMods_mask_4,
+        &hf_x11_xkb_GetMap_virtualMods_mask_5,
+        &hf_x11_xkb_GetMap_virtualMods_mask_6,
+        &hf_x11_xkb_GetMap_virtualMods_mask_7,
+        &hf_x11_xkb_GetMap_virtualMods_mask_8,
+        &hf_x11_xkb_GetMap_virtualMods_mask_9,
+        &hf_x11_xkb_GetMap_virtualMods_mask_10,
+        &hf_x11_xkb_GetMap_virtualMods_mask_11,
+        &hf_x11_xkb_GetMap_virtualMods_mask_12,
+        &hf_x11_xkb_GetMap_virtualMods_mask_13,
+        &hf_x11_xkb_GetMap_virtualMods_mask_14,
+        &hf_x11_xkb_GetMap_virtualMods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetMap_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_firstKeyExplicit, tvb, *offsetp, 1, byte_order);
@@ -22913,16 +23076,17 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     *offsetp += 1;
     f_present = VALUE16(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_present, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_present_mask_KeyTypes, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_present_mask_KeySyms, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_present_mask_ModifierMap, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_present_mask_ExplicitComponents, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_present_mask_KeyActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_present_mask_KeyBehaviors, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_present_mask_VirtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_present_mask_VirtualModMap, tvb, *offsetp, 2, byte_order);
+        const int* present_bits [] = {
+        &hf_x11_xkb_GetMap_reply_present_mask_KeyTypes,
+        &hf_x11_xkb_GetMap_reply_present_mask_KeySyms,
+        &hf_x11_xkb_GetMap_reply_present_mask_ModifierMap,
+        &hf_x11_xkb_GetMap_reply_present_mask_ExplicitComponents,
+        &hf_x11_xkb_GetMap_reply_present_mask_KeyActions,
+        &hf_x11_xkb_GetMap_reply_present_mask_KeyBehaviors,
+        &hf_x11_xkb_GetMap_reply_present_mask_VirtualMods,
+        &hf_x11_xkb_GetMap_reply_present_mask_VirtualModMap,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetMap_reply_present, ett_x11_rectangle, present_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_firstType, tvb, *offsetp, 1, byte_order);
@@ -22978,24 +23142,25 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     UNUSED(1);
     f_virtualMods = VALUE16(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_virtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* virtualMods_bits [] = {
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_0,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_1,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_2,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_3,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_4,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_5,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_6,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_7,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_8,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_9,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_10,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_11,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_12,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_13,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_14,
+        &hf_x11_xkb_GetMap_reply_virtualMods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetMap_reply_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
     *offsetp += 2;
     if (f_present & (1U << 0)) {
@@ -23053,23 +23218,25 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     *offsetp += 2;
     f_present = VALUE16(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetMap_present, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_present_mask_KeyTypes, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_present_mask_KeySyms, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_present_mask_ModifierMap, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_present_mask_ExplicitComponents, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_present_mask_KeyActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_present_mask_KeyBehaviors, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_present_mask_VirtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_present_mask_VirtualModMap, tvb, *offsetp, 2, byte_order);
+        const int* present_bits [] = {
+        &hf_x11_xkb_SetMap_present_mask_KeyTypes,
+        &hf_x11_xkb_SetMap_present_mask_KeySyms,
+        &hf_x11_xkb_SetMap_present_mask_ModifierMap,
+        &hf_x11_xkb_SetMap_present_mask_ExplicitComponents,
+        &hf_x11_xkb_SetMap_present_mask_KeyActions,
+        &hf_x11_xkb_SetMap_present_mask_KeyBehaviors,
+        &hf_x11_xkb_SetMap_present_mask_VirtualMods,
+        &hf_x11_xkb_SetMap_present_mask_VirtualModMap,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetMap_present, ett_x11_rectangle, present_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetMap_flags, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_flags_mask_ResizeTypes, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_flags_mask_RecomputeActions, tvb, *offsetp, 2, byte_order);
+        const int* flags_bits [] = {
+        &hf_x11_xkb_SetMap_flags_mask_ResizeTypes,
+        &hf_x11_xkb_SetMap_flags_mask_RecomputeActions,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetMap_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_minKeyCode, tvb, *offsetp, 1, byte_order);
@@ -23126,24 +23293,25 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     *offsetp += 1;
     f_virtualMods = VALUE16(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetMap_virtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* virtualMods_bits [] = {
+        &hf_x11_xkb_SetMap_virtualMods_mask_0,
+        &hf_x11_xkb_SetMap_virtualMods_mask_1,
+        &hf_x11_xkb_SetMap_virtualMods_mask_2,
+        &hf_x11_xkb_SetMap_virtualMods_mask_3,
+        &hf_x11_xkb_SetMap_virtualMods_mask_4,
+        &hf_x11_xkb_SetMap_virtualMods_mask_5,
+        &hf_x11_xkb_SetMap_virtualMods_mask_6,
+        &hf_x11_xkb_SetMap_virtualMods_mask_7,
+        &hf_x11_xkb_SetMap_virtualMods_mask_8,
+        &hf_x11_xkb_SetMap_virtualMods_mask_9,
+        &hf_x11_xkb_SetMap_virtualMods_mask_10,
+        &hf_x11_xkb_SetMap_virtualMods_mask_11,
+        &hf_x11_xkb_SetMap_virtualMods_mask_12,
+        &hf_x11_xkb_SetMap_virtualMods_mask_13,
+        &hf_x11_xkb_SetMap_virtualMods_mask_14,
+        &hf_x11_xkb_SetMap_virtualMods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetMap_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
     *offsetp += 2;
     if (f_present & (1U << 0)) {
@@ -23195,12 +23363,13 @@ static void xkbGetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_groups, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetCompatMap_groups_mask_Group1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetCompatMap_groups_mask_Group2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetCompatMap_groups_mask_Group3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetCompatMap_groups_mask_Group4, tvb, *offsetp, 1, byte_order);
+        const int* groups_bits [] = {
+        &hf_x11_xkb_GetCompatMap_groups_mask_Group1,
+        &hf_x11_xkb_GetCompatMap_groups_mask_Group2,
+        &hf_x11_xkb_GetCompatMap_groups_mask_Group3,
+        &hf_x11_xkb_GetCompatMap_groups_mask_Group4,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetCompatMap_groups, ett_x11_rectangle, groups_bits, byte_order);
     }
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_getAllSI, tvb, *offsetp, 1, byte_order);
@@ -23229,12 +23398,13 @@ static void xkbGetCompatMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 4;
     f_groupsRtrn = VALUE8(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_reply_groupsRtrn, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group4, tvb, *offsetp, 1, byte_order);
+        const int* groupsRtrn_bits [] = {
+        &hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group1,
+        &hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group2,
+        &hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group3,
+        &hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group4,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetCompatMap_reply_groupsRtrn, ett_x11_rectangle, groupsRtrn_bits, byte_order);
     }
     *offsetp += 1;
     UNUSED(1);
@@ -23263,12 +23433,13 @@ static void xkbSetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 1;
     f_groups = VALUE8(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetCompatMap_groups, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetCompatMap_groups_mask_Group1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetCompatMap_groups_mask_Group2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetCompatMap_groups_mask_Group3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetCompatMap_groups_mask_Group4, tvb, *offsetp, 1, byte_order);
+        const int* groups_bits [] = {
+        &hf_x11_xkb_SetCompatMap_groups_mask_Group1,
+        &hf_x11_xkb_SetCompatMap_groups_mask_Group2,
+        &hf_x11_xkb_SetCompatMap_groups_mask_Group3,
+        &hf_x11_xkb_SetCompatMap_groups_mask_Group4,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetCompatMap_groups, ett_x11_rectangle, groups_bits, byte_order);
     }
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetCompatMap_firstSI, tvb, *offsetp, 2, byte_order);
@@ -23393,104 +23564,112 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_ndx, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_map_flags, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_flags_mask_LEDDrivesKB, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_flags_mask_NoAutomatic, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_flags_mask_NoExplicit, tvb, *offsetp, 1, byte_order);
+        const int* map_flags_bits [] = {
+        &hf_x11_xkb_GetNamedIndicator_reply_map_flags_mask_LEDDrivesKB,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_flags_mask_NoAutomatic,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_flags_mask_NoExplicit,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_flags, ett_x11_rectangle, map_flags_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseBase, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseLatched, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseLocked, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseEffective, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseCompat, tvb, *offsetp, 1, byte_order);
+        const int* map_whichGroups_bits [] = {
+        &hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseBase,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseLatched,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseLocked,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseEffective,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseCompat,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups, ett_x11_rectangle, map_whichGroups_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_map_groups, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_groups_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* map_groups_bits [] = {
+        &hf_x11_xkb_GetNamedIndicator_reply_map_groups_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_groups, ett_x11_rectangle, map_groups_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_map_whichMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseBase, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseLatched, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseLocked, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseEffective, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseCompat, tvb, *offsetp, 1, byte_order);
+        const int* map_whichMods_bits [] = {
+        &hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseBase,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseLatched,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseLocked,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseEffective,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseCompat,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_whichMods, ett_x11_rectangle, map_whichMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_map_mods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* map_mods_bits [] = {
+        &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_Shift,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_Lock,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_Control,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_1,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_2,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_3,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_4,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_5,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_mods, ett_x11_rectangle, map_mods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_map_realMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* map_realMods_bits [] = {
+        &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_Shift,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_Lock,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_Control,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_1,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_2,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_3,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_4,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_5,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_realMods, ett_x11_rectangle, map_realMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_map_vmod, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* map_vmod_bits [] = {
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_0,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_1,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_2,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_3,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_4,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_5,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_6,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_7,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_8,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_9,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_10,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_11,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_12,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_13,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_14,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_vmod, ett_x11_rectangle, map_vmod_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* map_ctrls_bits [] = {
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_RepeatKeys,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_SlowKeys,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_BounceKeys,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_StickyKeys,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_MouseKeys,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_MouseKeysAccel,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_AccessXKeys,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_AudibleBellMask,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_Overlay1Mask,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_Overlay2Mask,
+        &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls, ett_x11_rectangle, map_ctrls_bits, byte_order);
     }
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_supported, tvb, *offsetp, 1, byte_order);
@@ -23517,90 +23696,97 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 1;
     UNUSED(1);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetNamedIndicator_map_flags, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_flags_mask_LEDDrivesKB, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_flags_mask_NoAutomatic, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_flags_mask_NoExplicit, tvb, *offsetp, 1, byte_order);
+        const int* map_flags_bits [] = {
+        &hf_x11_xkb_SetNamedIndicator_map_flags_mask_LEDDrivesKB,
+        &hf_x11_xkb_SetNamedIndicator_map_flags_mask_NoAutomatic,
+        &hf_x11_xkb_SetNamedIndicator_map_flags_mask_NoExplicit,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_flags, ett_x11_rectangle, map_flags_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetNamedIndicator_map_whichGroups, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseBase, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseLatched, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseLocked, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseEffective, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseCompat, tvb, *offsetp, 1, byte_order);
+        const int* map_whichGroups_bits [] = {
+        &hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseBase,
+        &hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseLatched,
+        &hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseLocked,
+        &hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseEffective,
+        &hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseCompat,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_whichGroups, ett_x11_rectangle, map_whichGroups_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetNamedIndicator_map_groups, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_groups_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* map_groups_bits [] = {
+        &hf_x11_xkb_SetNamedIndicator_map_groups_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_groups, ett_x11_rectangle, map_groups_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetNamedIndicator_map_whichMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseBase, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseLatched, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseLocked, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseEffective, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseCompat, tvb, *offsetp, 1, byte_order);
+        const int* map_whichMods_bits [] = {
+        &hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseBase,
+        &hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseLatched,
+        &hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseLocked,
+        &hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseEffective,
+        &hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseCompat,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_whichMods, ett_x11_rectangle, map_whichMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetNamedIndicator_map_realMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_realMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_realMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_realMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_realMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_realMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_realMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_realMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_realMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_realMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* map_realMods_bits [] = {
+        &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_Shift,
+        &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_Lock,
+        &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_Control,
+        &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_1,
+        &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_2,
+        &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_3,
+        &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_4,
+        &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_5,
+        &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_realMods, ett_x11_rectangle, map_realMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetNamedIndicator_map_vmods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_vmods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* map_vmods_bits [] = {
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_0,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_1,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_2,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_3,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_4,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_5,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_6,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_7,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_8,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_9,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_10,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_11,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_12,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_13,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_14,
+        &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_vmods, ett_x11_rectangle, map_vmods_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetNamedIndicator_map_ctrls, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* map_ctrls_bits [] = {
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_RepeatKeys,
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_SlowKeys,
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_BounceKeys,
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_StickyKeys,
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_MouseKeys,
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_MouseKeysAccel,
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_AccessXKeys,
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_AudibleBellMask,
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_Overlay1Mask,
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_Overlay2Mask,
+        &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_ctrls, ett_x11_rectangle, map_ctrls_bits, byte_order);
     }
     *offsetp += 4;
 }
@@ -23611,22 +23797,23 @@ static void xkbGetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 2;
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetNames_which, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_Keycodes, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_Geometry, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_Symbols, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_PhysSymbols, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_Types, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_Compat, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_KeyTypeNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_KTLevelNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_IndicatorNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_KeyNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_KeyAliases, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_VirtualModNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_GroupNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_which_mask_RGNames, tvb, *offsetp, 4, byte_order);
+        const int* which_bits [] = {
+        &hf_x11_xkb_GetNames_which_mask_Keycodes,
+        &hf_x11_xkb_GetNames_which_mask_Geometry,
+        &hf_x11_xkb_GetNames_which_mask_Symbols,
+        &hf_x11_xkb_GetNames_which_mask_PhysSymbols,
+        &hf_x11_xkb_GetNames_which_mask_Types,
+        &hf_x11_xkb_GetNames_which_mask_Compat,
+        &hf_x11_xkb_GetNames_which_mask_KeyTypeNames,
+        &hf_x11_xkb_GetNames_which_mask_KTLevelNames,
+        &hf_x11_xkb_GetNames_which_mask_IndicatorNames,
+        &hf_x11_xkb_GetNames_which_mask_KeyNames,
+        &hf_x11_xkb_GetNames_which_mask_KeyAliases,
+        &hf_x11_xkb_GetNames_which_mask_VirtualModNames,
+        &hf_x11_xkb_GetNames_which_mask_GroupNames,
+        &hf_x11_xkb_GetNames_which_mask_RGNames,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNames_which, ett_x11_rectangle, which_bits, byte_order);
     }
     *offsetp += 4;
 }
@@ -23655,22 +23842,23 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 4;
     f_which = VALUE32(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_which, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_Keycodes, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_Geometry, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_Symbols, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_PhysSymbols, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_Types, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_Compat, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_KeyTypeNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_KTLevelNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_IndicatorNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_KeyNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_KeyAliases, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_VirtualModNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_GroupNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_which_mask_RGNames, tvb, *offsetp, 4, byte_order);
+        const int* which_bits [] = {
+        &hf_x11_xkb_GetNames_reply_which_mask_Keycodes,
+        &hf_x11_xkb_GetNames_reply_which_mask_Geometry,
+        &hf_x11_xkb_GetNames_reply_which_mask_Symbols,
+        &hf_x11_xkb_GetNames_reply_which_mask_PhysSymbols,
+        &hf_x11_xkb_GetNames_reply_which_mask_Types,
+        &hf_x11_xkb_GetNames_reply_which_mask_Compat,
+        &hf_x11_xkb_GetNames_reply_which_mask_KeyTypeNames,
+        &hf_x11_xkb_GetNames_reply_which_mask_KTLevelNames,
+        &hf_x11_xkb_GetNames_reply_which_mask_IndicatorNames,
+        &hf_x11_xkb_GetNames_reply_which_mask_KeyNames,
+        &hf_x11_xkb_GetNames_reply_which_mask_KeyAliases,
+        &hf_x11_xkb_GetNames_reply_which_mask_VirtualModNames,
+        &hf_x11_xkb_GetNames_reply_which_mask_GroupNames,
+        &hf_x11_xkb_GetNames_reply_which_mask_RGNames,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNames_reply_which, ett_x11_rectangle, which_bits, byte_order);
     }
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_minKeyCode, tvb, *offsetp, 1, byte_order);
@@ -23682,34 +23870,36 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 1;
     f_groupNames = VALUE8(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_groupNames, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_groupNames_mask_Group1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_groupNames_mask_Group2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_groupNames_mask_Group3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_groupNames_mask_Group4, tvb, *offsetp, 1, byte_order);
+        const int* groupNames_bits [] = {
+        &hf_x11_xkb_GetNames_reply_groupNames_mask_Group1,
+        &hf_x11_xkb_GetNames_reply_groupNames_mask_Group2,
+        &hf_x11_xkb_GetNames_reply_groupNames_mask_Group3,
+        &hf_x11_xkb_GetNames_reply_groupNames_mask_Group4,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNames_reply_groupNames, ett_x11_rectangle, groupNames_bits, byte_order);
     }
     *offsetp += 1;
     f_virtualMods = VALUE16(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_virtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetNames_reply_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* virtualMods_bits [] = {
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_0,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_1,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_2,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_3,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_4,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_5,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_6,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_7,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_8,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_9,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_10,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_11,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_12,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_13,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_14,
+        &hf_x11_xkb_GetNames_reply_virtualMods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNames_reply_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_firstKey, tvb, *offsetp, 1, byte_order);
@@ -23804,44 +23994,46 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 2;
     f_virtualMods = VALUE16(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetNames_virtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* virtualMods_bits [] = {
+        &hf_x11_xkb_SetNames_virtualMods_mask_0,
+        &hf_x11_xkb_SetNames_virtualMods_mask_1,
+        &hf_x11_xkb_SetNames_virtualMods_mask_2,
+        &hf_x11_xkb_SetNames_virtualMods_mask_3,
+        &hf_x11_xkb_SetNames_virtualMods_mask_4,
+        &hf_x11_xkb_SetNames_virtualMods_mask_5,
+        &hf_x11_xkb_SetNames_virtualMods_mask_6,
+        &hf_x11_xkb_SetNames_virtualMods_mask_7,
+        &hf_x11_xkb_SetNames_virtualMods_mask_8,
+        &hf_x11_xkb_SetNames_virtualMods_mask_9,
+        &hf_x11_xkb_SetNames_virtualMods_mask_10,
+        &hf_x11_xkb_SetNames_virtualMods_mask_11,
+        &hf_x11_xkb_SetNames_virtualMods_mask_12,
+        &hf_x11_xkb_SetNames_virtualMods_mask_13,
+        &hf_x11_xkb_SetNames_virtualMods_mask_14,
+        &hf_x11_xkb_SetNames_virtualMods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNames_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
     *offsetp += 2;
     f_which = VALUE32(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetNames_which, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_Keycodes, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_Geometry, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_Symbols, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_PhysSymbols, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_Types, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_Compat, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_KeyTypeNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_KTLevelNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_IndicatorNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_KeyNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_KeyAliases, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_VirtualModNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_GroupNames, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_which_mask_RGNames, tvb, *offsetp, 4, byte_order);
+        const int* which_bits [] = {
+        &hf_x11_xkb_SetNames_which_mask_Keycodes,
+        &hf_x11_xkb_SetNames_which_mask_Geometry,
+        &hf_x11_xkb_SetNames_which_mask_Symbols,
+        &hf_x11_xkb_SetNames_which_mask_PhysSymbols,
+        &hf_x11_xkb_SetNames_which_mask_Types,
+        &hf_x11_xkb_SetNames_which_mask_Compat,
+        &hf_x11_xkb_SetNames_which_mask_KeyTypeNames,
+        &hf_x11_xkb_SetNames_which_mask_KTLevelNames,
+        &hf_x11_xkb_SetNames_which_mask_IndicatorNames,
+        &hf_x11_xkb_SetNames_which_mask_KeyNames,
+        &hf_x11_xkb_SetNames_which_mask_KeyAliases,
+        &hf_x11_xkb_SetNames_which_mask_VirtualModNames,
+        &hf_x11_xkb_SetNames_which_mask_GroupNames,
+        &hf_x11_xkb_SetNames_which_mask_RGNames,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNames_which, ett_x11_rectangle, which_bits, byte_order);
     }
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_SetNames_firstType, tvb, *offsetp, 1, byte_order);
@@ -23858,12 +24050,13 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 4;
     f_groupNames = VALUE8(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetNames_groupNames, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_groupNames_mask_Group1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_groupNames_mask_Group2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_groupNames_mask_Group3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetNames_groupNames_mask_Group4, tvb, *offsetp, 1, byte_order);
+        const int* groupNames_bits [] = {
+        &hf_x11_xkb_SetNames_groupNames_mask_Group1,
+        &hf_x11_xkb_SetNames_groupNames_mask_Group2,
+        &hf_x11_xkb_SetNames_groupNames_mask_Group3,
+        &hf_x11_xkb_SetNames_groupNames_mask_Group4,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNames_groupNames, ett_x11_rectangle, groupNames_bits, byte_order);
     }
     *offsetp += 1;
     f_nRadioGroups = VALUE8(tvb, *offsetp);
@@ -23957,77 +24150,82 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     *offsetp += 2;
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_PerClientFlags_change, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_change_mask_DetectableAutoRepeat, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_change_mask_GrabsUseXKBState, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_change_mask_AutoResetControls, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_change_mask_LookupStateWhenGrabbed, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_change_mask_SendEventUsesXKBState, tvb, *offsetp, 4, byte_order);
+        const int* change_bits [] = {
+        &hf_x11_xkb_PerClientFlags_change_mask_DetectableAutoRepeat,
+        &hf_x11_xkb_PerClientFlags_change_mask_GrabsUseXKBState,
+        &hf_x11_xkb_PerClientFlags_change_mask_AutoResetControls,
+        &hf_x11_xkb_PerClientFlags_change_mask_LookupStateWhenGrabbed,
+        &hf_x11_xkb_PerClientFlags_change_mask_SendEventUsesXKBState,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_change, ett_x11_rectangle, change_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_PerClientFlags_value, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_value_mask_DetectableAutoRepeat, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_value_mask_GrabsUseXKBState, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_value_mask_AutoResetControls, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_value_mask_LookupStateWhenGrabbed, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_value_mask_SendEventUsesXKBState, tvb, *offsetp, 4, byte_order);
+        const int* value_bits [] = {
+        &hf_x11_xkb_PerClientFlags_value_mask_DetectableAutoRepeat,
+        &hf_x11_xkb_PerClientFlags_value_mask_GrabsUseXKBState,
+        &hf_x11_xkb_PerClientFlags_value_mask_AutoResetControls,
+        &hf_x11_xkb_PerClientFlags_value_mask_LookupStateWhenGrabbed,
+        &hf_x11_xkb_PerClientFlags_value_mask_SendEventUsesXKBState,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_value, ett_x11_rectangle, value_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_PerClientFlags_ctrlsToChange, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* ctrlsToChange_bits [] = {
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_RepeatKeys,
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_SlowKeys,
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_BounceKeys,
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_StickyKeys,
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_MouseKeys,
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_MouseKeysAccel,
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_AccessXKeys,
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_AudibleBellMask,
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_Overlay1Mask,
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_Overlay2Mask,
+        &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_ctrlsToChange, ett_x11_rectangle, ctrlsToChange_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_PerClientFlags_autoCtrls, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrls_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* autoCtrls_bits [] = {
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_RepeatKeys,
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_SlowKeys,
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_BounceKeys,
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_StickyKeys,
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_MouseKeys,
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_MouseKeysAccel,
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_AccessXKeys,
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_AudibleBellMask,
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_Overlay1Mask,
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_Overlay2Mask,
+        &hf_x11_xkb_PerClientFlags_autoCtrls_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_autoCtrls, ett_x11_rectangle, autoCtrls_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_PerClientFlags_autoCtrlsValues, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* autoCtrlsValues_bits [] = {
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_RepeatKeys,
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_SlowKeys,
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_BounceKeys,
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_StickyKeys,
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_MouseKeys,
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_MouseKeysAccel,
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_AccessXKeys,
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_AudibleBellMask,
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_Overlay1Mask,
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_Overlay2Mask,
+        &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_autoCtrlsValues, ett_x11_rectangle, autoCtrlsValues_bits, byte_order);
     }
     *offsetp += 4;
 }
@@ -24047,59 +24245,63 @@ static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_PerClientFlags_reply_supported, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_supported_mask_DetectableAutoRepeat, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_supported_mask_GrabsUseXKBState, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_supported_mask_AutoResetControls, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_supported_mask_LookupStateWhenGrabbed, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_supported_mask_SendEventUsesXKBState, tvb, *offsetp, 4, byte_order);
+        const int* supported_bits [] = {
+        &hf_x11_xkb_PerClientFlags_reply_supported_mask_DetectableAutoRepeat,
+        &hf_x11_xkb_PerClientFlags_reply_supported_mask_GrabsUseXKBState,
+        &hf_x11_xkb_PerClientFlags_reply_supported_mask_AutoResetControls,
+        &hf_x11_xkb_PerClientFlags_reply_supported_mask_LookupStateWhenGrabbed,
+        &hf_x11_xkb_PerClientFlags_reply_supported_mask_SendEventUsesXKBState,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_reply_supported, ett_x11_rectangle, supported_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_PerClientFlags_reply_value, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_value_mask_DetectableAutoRepeat, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_value_mask_GrabsUseXKBState, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_value_mask_AutoResetControls, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_value_mask_LookupStateWhenGrabbed, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_value_mask_SendEventUsesXKBState, tvb, *offsetp, 4, byte_order);
+        const int* value_bits [] = {
+        &hf_x11_xkb_PerClientFlags_reply_value_mask_DetectableAutoRepeat,
+        &hf_x11_xkb_PerClientFlags_reply_value_mask_GrabsUseXKBState,
+        &hf_x11_xkb_PerClientFlags_reply_value_mask_AutoResetControls,
+        &hf_x11_xkb_PerClientFlags_reply_value_mask_LookupStateWhenGrabbed,
+        &hf_x11_xkb_PerClientFlags_reply_value_mask_SendEventUsesXKBState,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_reply_value, ett_x11_rectangle, value_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_PerClientFlags_reply_autoCtrls, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* autoCtrls_bits [] = {
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_RepeatKeys,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_SlowKeys,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_BounceKeys,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_StickyKeys,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_MouseKeys,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_MouseKeysAccel,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_AccessXKeys,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_AudibleBellMask,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_Overlay1Mask,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_Overlay2Mask,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_reply_autoCtrls, ett_x11_rectangle, autoCtrls_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* autoCtrlsValues_bits [] = {
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_RepeatKeys,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_SlowKeys,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_BounceKeys,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_StickyKeys,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_MouseKeys,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_MouseKeysAccel,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_AccessXKeys,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_AudibleBellMask,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_Overlay1Mask,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_Overlay2Mask,
+        &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues, ett_x11_rectangle, autoCtrlsValues_bits, byte_order);
     }
     *offsetp += 4;
     UNUSED(8);
@@ -24167,29 +24369,31 @@ static void xkbGetKbdByName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_need, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_need_mask_Types, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_need_mask_CompatMap, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_need_mask_ClientSymbols, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_need_mask_ServerSymbols, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_need_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_need_mask_KeyNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_need_mask_Geometry, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_need_mask_OtherNames, tvb, *offsetp, 2, byte_order);
+        const int* need_bits [] = {
+        &hf_x11_xkb_GetKbdByName_need_mask_Types,
+        &hf_x11_xkb_GetKbdByName_need_mask_CompatMap,
+        &hf_x11_xkb_GetKbdByName_need_mask_ClientSymbols,
+        &hf_x11_xkb_GetKbdByName_need_mask_ServerSymbols,
+        &hf_x11_xkb_GetKbdByName_need_mask_IndicatorMaps,
+        &hf_x11_xkb_GetKbdByName_need_mask_KeyNames,
+        &hf_x11_xkb_GetKbdByName_need_mask_Geometry,
+        &hf_x11_xkb_GetKbdByName_need_mask_OtherNames,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_need, ett_x11_rectangle, need_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_want, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_want_mask_Types, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_want_mask_CompatMap, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_want_mask_ClientSymbols, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_want_mask_ServerSymbols, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_want_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_want_mask_KeyNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_want_mask_Geometry, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_want_mask_OtherNames, tvb, *offsetp, 2, byte_order);
+        const int* want_bits [] = {
+        &hf_x11_xkb_GetKbdByName_want_mask_Types,
+        &hf_x11_xkb_GetKbdByName_want_mask_CompatMap,
+        &hf_x11_xkb_GetKbdByName_want_mask_ClientSymbols,
+        &hf_x11_xkb_GetKbdByName_want_mask_ServerSymbols,
+        &hf_x11_xkb_GetKbdByName_want_mask_IndicatorMaps,
+        &hf_x11_xkb_GetKbdByName_want_mask_KeyNames,
+        &hf_x11_xkb_GetKbdByName_want_mask_Geometry,
+        &hf_x11_xkb_GetKbdByName_want_mask_OtherNames,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_want, ett_x11_rectangle, want_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_load, tvb, *offsetp, 1, byte_order);
@@ -24221,30 +24425,32 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_newKeyboard, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_found, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_found_mask_Types, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_found_mask_CompatMap, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_found_mask_ClientSymbols, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_found_mask_ServerSymbols, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_found_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_found_mask_KeyNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_found_mask_Geometry, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_found_mask_OtherNames, tvb, *offsetp, 2, byte_order);
+        const int* found_bits [] = {
+        &hf_x11_xkb_GetKbdByName_reply_found_mask_Types,
+        &hf_x11_xkb_GetKbdByName_reply_found_mask_CompatMap,
+        &hf_x11_xkb_GetKbdByName_reply_found_mask_ClientSymbols,
+        &hf_x11_xkb_GetKbdByName_reply_found_mask_ServerSymbols,
+        &hf_x11_xkb_GetKbdByName_reply_found_mask_IndicatorMaps,
+        &hf_x11_xkb_GetKbdByName_reply_found_mask_KeyNames,
+        &hf_x11_xkb_GetKbdByName_reply_found_mask_Geometry,
+        &hf_x11_xkb_GetKbdByName_reply_found_mask_OtherNames,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_found, ett_x11_rectangle, found_bits, byte_order);
     }
     *offsetp += 2;
     f_reported = VALUE16(tvb, *offsetp);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_reported, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_reported_mask_Types, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_reported_mask_CompatMap, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_reported_mask_ClientSymbols, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_reported_mask_ServerSymbols, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_reported_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_reported_mask_KeyNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_reported_mask_Geometry, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_reported_mask_OtherNames, tvb, *offsetp, 2, byte_order);
+        const int* reported_bits [] = {
+        &hf_x11_xkb_GetKbdByName_reply_reported_mask_Types,
+        &hf_x11_xkb_GetKbdByName_reply_reported_mask_CompatMap,
+        &hf_x11_xkb_GetKbdByName_reply_reported_mask_ClientSymbols,
+        &hf_x11_xkb_GetKbdByName_reply_reported_mask_ServerSymbols,
+        &hf_x11_xkb_GetKbdByName_reply_reported_mask_IndicatorMaps,
+        &hf_x11_xkb_GetKbdByName_reply_reported_mask_KeyNames,
+        &hf_x11_xkb_GetKbdByName_reply_reported_mask_Geometry,
+        &hf_x11_xkb_GetKbdByName_reply_reported_mask_OtherNames,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_reported, ett_x11_rectangle, reported_bits, byte_order);
     }
     *offsetp += 2;
     UNUSED(16);
@@ -24274,16 +24480,17 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 1;
         f_present = VALUE16(tvb, *offsetp);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_present, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_present_mask_KeyTypes, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_present_mask_KeySyms, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_present_mask_ModifierMap, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_present_mask_ExplicitComponents, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_present_mask_KeyActions, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_present_mask_KeyBehaviors, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_present_mask_VirtualMods, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_present_mask_VirtualModMap, tvb, *offsetp, 2, byte_order);
+            const int* present_bits [] = {
+                &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_KeyTypes,
+                &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_KeySyms,
+                &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_ModifierMap,
+                &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_ExplicitComponents,
+                &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_KeyActions,
+                &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_KeyBehaviors,
+                &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_VirtualMods,
+                &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_VirtualModMap,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_Types_present, ett_x11_rectangle, present_bits, byte_order);
         }
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_firstType, tvb, *offsetp, 1, byte_order);
@@ -24339,24 +24546,25 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         UNUSED(1);
         f_virtualMods = VALUE16(tvb, *offsetp);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+            const int* virtualMods_bits [] = {
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_0,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_1,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_2,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_3,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_4,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_5,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_6,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_7,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_8,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_9,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_10,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_11,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_12,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_13,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_14,
+                &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
         }
         *offsetp += 2;
         if (f_present & (1U << 0)) {
@@ -24410,12 +24618,13 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 4;
         f_groupsRtrn = VALUE8(tvb, *offsetp);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group4, tvb, *offsetp, 1, byte_order);
+            const int* groupsRtrn_bits [] = {
+                &hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group1,
+                &hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group2,
+                &hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group3,
+                &hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group4,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn, ett_x11_rectangle, groupsRtrn_bits, byte_order);
         }
         *offsetp += 1;
         UNUSED(1);
@@ -24469,22 +24678,23 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 4;
         f_which = VALUE32(tvb, *offsetp);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_which, tvb, *offsetp, 4, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Keycodes, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Geometry, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Symbols, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_PhysSymbols, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Types, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Compat, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_KeyTypeNames, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_KTLevelNames, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_IndicatorNames, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_KeyNames, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_KeyAliases, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_VirtualModNames, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_GroupNames, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_RGNames, tvb, *offsetp, 4, byte_order);
+            const int* which_bits [] = {
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Keycodes,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Geometry,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Symbols,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_PhysSymbols,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Types,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Compat,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_KeyTypeNames,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_KTLevelNames,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_IndicatorNames,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_KeyNames,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_KeyAliases,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_VirtualModNames,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_GroupNames,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_RGNames,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_KeyNames_which, ett_x11_rectangle, which_bits, byte_order);
         }
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_keyMinKeyCode, tvb, *offsetp, 1, byte_order);
@@ -24496,34 +24706,36 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 1;
         f_groupNames = VALUE8(tvb, *offsetp);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group1, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group2, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group3, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group4, tvb, *offsetp, 1, byte_order);
+            const int* groupNames_bits [] = {
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group1,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group2,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group3,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group4,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames, ett_x11_rectangle, groupNames_bits, byte_order);
         }
         *offsetp += 1;
         f_virtualMods = VALUE16(tvb, *offsetp);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods, tvb, *offsetp, 2, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+            const int* virtualMods_bits [] = {
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_0,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_1,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_2,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_3,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_4,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_5,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_6,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_7,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_8,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_9,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_10,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_11,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_12,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_13,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_14,
+                &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_15,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
         }
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_firstKey, tvb, *offsetp, 1, byte_order);
@@ -24646,13 +24858,14 @@ static void xkbGetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_wanted, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_wanted_mask_Keyboards, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_wanted_mask_ButtonActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_wanted_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_wanted_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_wanted_mask_IndicatorState, tvb, *offsetp, 2, byte_order);
+        const int* wanted_bits [] = {
+        &hf_x11_xkb_GetDeviceInfo_wanted_mask_Keyboards,
+        &hf_x11_xkb_GetDeviceInfo_wanted_mask_ButtonActions,
+        &hf_x11_xkb_GetDeviceInfo_wanted_mask_IndicatorNames,
+        &hf_x11_xkb_GetDeviceInfo_wanted_mask_IndicatorMaps,
+        &hf_x11_xkb_GetDeviceInfo_wanted_mask_IndicatorState,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetDeviceInfo_wanted, ett_x11_rectangle, wanted_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_allButtons, tvb, *offsetp, 1, byte_order);
@@ -24684,33 +24897,36 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_reply_present, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_present_mask_Keyboards, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_present_mask_ButtonActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_present_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_present_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_present_mask_IndicatorState, tvb, *offsetp, 2, byte_order);
+        const int* present_bits [] = {
+        &hf_x11_xkb_GetDeviceInfo_reply_present_mask_Keyboards,
+        &hf_x11_xkb_GetDeviceInfo_reply_present_mask_ButtonActions,
+        &hf_x11_xkb_GetDeviceInfo_reply_present_mask_IndicatorNames,
+        &hf_x11_xkb_GetDeviceInfo_reply_present_mask_IndicatorMaps,
+        &hf_x11_xkb_GetDeviceInfo_reply_present_mask_IndicatorState,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetDeviceInfo_reply_present, ett_x11_rectangle, present_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_reply_supported, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_supported_mask_Keyboards, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_supported_mask_ButtonActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_supported_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_supported_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_supported_mask_IndicatorState, tvb, *offsetp, 2, byte_order);
+        const int* supported_bits [] = {
+        &hf_x11_xkb_GetDeviceInfo_reply_supported_mask_Keyboards,
+        &hf_x11_xkb_GetDeviceInfo_reply_supported_mask_ButtonActions,
+        &hf_x11_xkb_GetDeviceInfo_reply_supported_mask_IndicatorNames,
+        &hf_x11_xkb_GetDeviceInfo_reply_supported_mask_IndicatorMaps,
+        &hf_x11_xkb_GetDeviceInfo_reply_supported_mask_IndicatorState,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetDeviceInfo_reply_supported, ett_x11_rectangle, supported_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_reply_unsupported, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_Keyboards, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_ButtonActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_IndicatorState, tvb, *offsetp, 2, byte_order);
+        const int* unsupported_bits [] = {
+        &hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_Keyboards,
+        &hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_ButtonActions,
+        &hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_IndicatorNames,
+        &hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_IndicatorMaps,
+        &hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_IndicatorState,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetDeviceInfo_reply_unsupported, ett_x11_rectangle, unsupported_bits, byte_order);
     }
     *offsetp += 2;
     f_nDeviceLedFBs = VALUE16(tvb, *offsetp);
@@ -24757,13 +24973,14 @@ static void xkbSetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     proto_tree_add_item(t, hf_x11_xkb_SetDeviceInfo_nBtns, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SetDeviceInfo_change, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetDeviceInfo_change_mask_Keyboards, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetDeviceInfo_change_mask_ButtonActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetDeviceInfo_change_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetDeviceInfo_change_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetDeviceInfo_change_mask_IndicatorState, tvb, *offsetp, 2, byte_order);
+        const int* change_bits [] = {
+        &hf_x11_xkb_SetDeviceInfo_change_mask_Keyboards,
+        &hf_x11_xkb_SetDeviceInfo_change_mask_ButtonActions,
+        &hf_x11_xkb_SetDeviceInfo_change_mask_IndicatorNames,
+        &hf_x11_xkb_SetDeviceInfo_change_mask_IndicatorMaps,
+        &hf_x11_xkb_SetDeviceInfo_change_mask_IndicatorState,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetDeviceInfo_change, ett_x11_rectangle, change_bits, byte_order);
     }
     *offsetp += 2;
     f_nDeviceLedFBs = VALUE16(tvb, *offsetp);
@@ -24830,16 +25047,17 @@ static void xkbMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     proto_tree_add_item(t, hf_x11_xkb_MapNotify_ptrBtnActions, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_MapNotify_changed, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_changed_mask_KeyTypes, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_changed_mask_KeySyms, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_changed_mask_ModifierMap, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_changed_mask_ExplicitComponents, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_changed_mask_KeyActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_changed_mask_KeyBehaviors, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_changed_mask_VirtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_changed_mask_VirtualModMap, tvb, *offsetp, 2, byte_order);
+        const int* changed_bits [] = {
+        &hf_x11_xkb_MapNotify_changed_mask_KeyTypes,
+        &hf_x11_xkb_MapNotify_changed_mask_KeySyms,
+        &hf_x11_xkb_MapNotify_changed_mask_ModifierMap,
+        &hf_x11_xkb_MapNotify_changed_mask_ExplicitComponents,
+        &hf_x11_xkb_MapNotify_changed_mask_KeyActions,
+        &hf_x11_xkb_MapNotify_changed_mask_KeyBehaviors,
+        &hf_x11_xkb_MapNotify_changed_mask_VirtualMods,
+        &hf_x11_xkb_MapNotify_changed_mask_VirtualModMap,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_MapNotify_changed, ett_x11_rectangle, changed_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_MapNotify_minKeyCode, tvb, *offsetp, 1, byte_order);
@@ -24875,24 +25093,25 @@ static void xkbMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
     proto_tree_add_item(t, hf_x11_xkb_MapNotify_nVModMapKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_MapNotify_virtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_MapNotify_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* virtualMods_bits [] = {
+        &hf_x11_xkb_MapNotify_virtualMods_mask_0,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_1,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_2,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_3,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_4,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_5,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_6,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_7,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_8,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_9,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_10,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_11,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_12,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_13,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_14,
+        &hf_x11_xkb_MapNotify_virtualMods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_MapNotify_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
     *offsetp += 2;
     UNUSED(2);
@@ -24909,59 +25128,63 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     proto_tree_add_item(t, hf_x11_xkb_StateNotify_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_StateNotify_mods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_mods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_mods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_mods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_mods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_mods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* mods_bits [] = {
+        &hf_x11_xkb_StateNotify_mods_mask_Shift,
+        &hf_x11_xkb_StateNotify_mods_mask_Lock,
+        &hf_x11_xkb_StateNotify_mods_mask_Control,
+        &hf_x11_xkb_StateNotify_mods_mask_1,
+        &hf_x11_xkb_StateNotify_mods_mask_2,
+        &hf_x11_xkb_StateNotify_mods_mask_3,
+        &hf_x11_xkb_StateNotify_mods_mask_4,
+        &hf_x11_xkb_StateNotify_mods_mask_5,
+        &hf_x11_xkb_StateNotify_mods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_mods, ett_x11_rectangle, mods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_StateNotify_baseMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_baseMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_baseMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_baseMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_baseMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_baseMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_baseMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_baseMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_baseMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_baseMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* baseMods_bits [] = {
+        &hf_x11_xkb_StateNotify_baseMods_mask_Shift,
+        &hf_x11_xkb_StateNotify_baseMods_mask_Lock,
+        &hf_x11_xkb_StateNotify_baseMods_mask_Control,
+        &hf_x11_xkb_StateNotify_baseMods_mask_1,
+        &hf_x11_xkb_StateNotify_baseMods_mask_2,
+        &hf_x11_xkb_StateNotify_baseMods_mask_3,
+        &hf_x11_xkb_StateNotify_baseMods_mask_4,
+        &hf_x11_xkb_StateNotify_baseMods_mask_5,
+        &hf_x11_xkb_StateNotify_baseMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_baseMods, ett_x11_rectangle, baseMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_StateNotify_latchedMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_latchedMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_latchedMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_latchedMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_latchedMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_latchedMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_latchedMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_latchedMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_latchedMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_latchedMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* latchedMods_bits [] = {
+        &hf_x11_xkb_StateNotify_latchedMods_mask_Shift,
+        &hf_x11_xkb_StateNotify_latchedMods_mask_Lock,
+        &hf_x11_xkb_StateNotify_latchedMods_mask_Control,
+        &hf_x11_xkb_StateNotify_latchedMods_mask_1,
+        &hf_x11_xkb_StateNotify_latchedMods_mask_2,
+        &hf_x11_xkb_StateNotify_latchedMods_mask_3,
+        &hf_x11_xkb_StateNotify_latchedMods_mask_4,
+        &hf_x11_xkb_StateNotify_latchedMods_mask_5,
+        &hf_x11_xkb_StateNotify_latchedMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_latchedMods, ett_x11_rectangle, latchedMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_StateNotify_lockedMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lockedMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lockedMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lockedMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lockedMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lockedMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lockedMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lockedMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lockedMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lockedMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* lockedMods_bits [] = {
+        &hf_x11_xkb_StateNotify_lockedMods_mask_Shift,
+        &hf_x11_xkb_StateNotify_lockedMods_mask_Lock,
+        &hf_x11_xkb_StateNotify_lockedMods_mask_Control,
+        &hf_x11_xkb_StateNotify_lockedMods_mask_1,
+        &hf_x11_xkb_StateNotify_lockedMods_mask_2,
+        &hf_x11_xkb_StateNotify_lockedMods_mask_3,
+        &hf_x11_xkb_StateNotify_lockedMods_mask_4,
+        &hf_x11_xkb_StateNotify_lockedMods_mask_5,
+        &hf_x11_xkb_StateNotify_lockedMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_lockedMods, ett_x11_rectangle, lockedMods_bits, byte_order);
     }
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_xkb_StateNotify_group, byte_order);
@@ -24971,110 +25194,117 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 2;
     field8(tvb, offsetp, t, hf_x11_xkb_StateNotify_lockedGroup, byte_order);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_StateNotify_compatState, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatState_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatState_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatState_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatState_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatState_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatState_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatState_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatState_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatState_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* compatState_bits [] = {
+        &hf_x11_xkb_StateNotify_compatState_mask_Shift,
+        &hf_x11_xkb_StateNotify_compatState_mask_Lock,
+        &hf_x11_xkb_StateNotify_compatState_mask_Control,
+        &hf_x11_xkb_StateNotify_compatState_mask_1,
+        &hf_x11_xkb_StateNotify_compatState_mask_2,
+        &hf_x11_xkb_StateNotify_compatState_mask_3,
+        &hf_x11_xkb_StateNotify_compatState_mask_4,
+        &hf_x11_xkb_StateNotify_compatState_mask_5,
+        &hf_x11_xkb_StateNotify_compatState_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_compatState, ett_x11_rectangle, compatState_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_StateNotify_grabMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_grabMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_grabMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_grabMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_grabMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_grabMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_grabMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_grabMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_grabMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_grabMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* grabMods_bits [] = {
+        &hf_x11_xkb_StateNotify_grabMods_mask_Shift,
+        &hf_x11_xkb_StateNotify_grabMods_mask_Lock,
+        &hf_x11_xkb_StateNotify_grabMods_mask_Control,
+        &hf_x11_xkb_StateNotify_grabMods_mask_1,
+        &hf_x11_xkb_StateNotify_grabMods_mask_2,
+        &hf_x11_xkb_StateNotify_grabMods_mask_3,
+        &hf_x11_xkb_StateNotify_grabMods_mask_4,
+        &hf_x11_xkb_StateNotify_grabMods_mask_5,
+        &hf_x11_xkb_StateNotify_grabMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_grabMods, ett_x11_rectangle, grabMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_StateNotify_compatGrabMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatGrabMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatGrabMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatGrabMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatGrabMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatGrabMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatGrabMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatGrabMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatGrabMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatGrabMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* compatGrabMods_bits [] = {
+        &hf_x11_xkb_StateNotify_compatGrabMods_mask_Shift,
+        &hf_x11_xkb_StateNotify_compatGrabMods_mask_Lock,
+        &hf_x11_xkb_StateNotify_compatGrabMods_mask_Control,
+        &hf_x11_xkb_StateNotify_compatGrabMods_mask_1,
+        &hf_x11_xkb_StateNotify_compatGrabMods_mask_2,
+        &hf_x11_xkb_StateNotify_compatGrabMods_mask_3,
+        &hf_x11_xkb_StateNotify_compatGrabMods_mask_4,
+        &hf_x11_xkb_StateNotify_compatGrabMods_mask_5,
+        &hf_x11_xkb_StateNotify_compatGrabMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_compatGrabMods, ett_x11_rectangle, compatGrabMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_StateNotify_lookupMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lookupMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lookupMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lookupMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lookupMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lookupMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lookupMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lookupMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lookupMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_lookupMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* lookupMods_bits [] = {
+        &hf_x11_xkb_StateNotify_lookupMods_mask_Shift,
+        &hf_x11_xkb_StateNotify_lookupMods_mask_Lock,
+        &hf_x11_xkb_StateNotify_lookupMods_mask_Control,
+        &hf_x11_xkb_StateNotify_lookupMods_mask_1,
+        &hf_x11_xkb_StateNotify_lookupMods_mask_2,
+        &hf_x11_xkb_StateNotify_lookupMods_mask_3,
+        &hf_x11_xkb_StateNotify_lookupMods_mask_4,
+        &hf_x11_xkb_StateNotify_lookupMods_mask_5,
+        &hf_x11_xkb_StateNotify_lookupMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_lookupMods, ett_x11_rectangle, lookupMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_StateNotify_compatLoockupMods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatLoockupMods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatLoockupMods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatLoockupMods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatLoockupMods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatLoockupMods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatLoockupMods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatLoockupMods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatLoockupMods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_compatLoockupMods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* compatLoockupMods_bits [] = {
+        &hf_x11_xkb_StateNotify_compatLoockupMods_mask_Shift,
+        &hf_x11_xkb_StateNotify_compatLoockupMods_mask_Lock,
+        &hf_x11_xkb_StateNotify_compatLoockupMods_mask_Control,
+        &hf_x11_xkb_StateNotify_compatLoockupMods_mask_1,
+        &hf_x11_xkb_StateNotify_compatLoockupMods_mask_2,
+        &hf_x11_xkb_StateNotify_compatLoockupMods_mask_3,
+        &hf_x11_xkb_StateNotify_compatLoockupMods_mask_4,
+        &hf_x11_xkb_StateNotify_compatLoockupMods_mask_5,
+        &hf_x11_xkb_StateNotify_compatLoockupMods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_compatLoockupMods, ett_x11_rectangle, compatLoockupMods_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_StateNotify_ptrBtnState, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Shift, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Lock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Control, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Mod1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Mod2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Mod3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Mod4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Mod5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Button1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Button2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Button3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Button4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_ptrBtnState_mask_Button5, tvb, *offsetp, 2, byte_order);
+        const int* ptrBtnState_bits [] = {
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Shift,
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Lock,
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Control,
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Mod1,
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Mod2,
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Mod3,
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Mod4,
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Mod5,
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Button1,
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Button2,
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Button3,
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Button4,
+        &hf_x11_xkb_StateNotify_ptrBtnState_mask_Button5,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_ptrBtnState, ett_x11_rectangle, ptrBtnState_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_StateNotify_changed, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_ModifierState, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_ModifierBase, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_ModifierLatch, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_ModifierLock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_GroupState, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_GroupBase, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_GroupLatch, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_GroupLock, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_CompatState, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_GrabMods, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_CompatGrabMods, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_LookupMods, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_CompatLookupMods, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_StateNotify_changed_mask_PointerButtons, tvb, *offsetp, 2, byte_order);
+        const int* changed_bits [] = {
+        &hf_x11_xkb_StateNotify_changed_mask_ModifierState,
+        &hf_x11_xkb_StateNotify_changed_mask_ModifierBase,
+        &hf_x11_xkb_StateNotify_changed_mask_ModifierLatch,
+        &hf_x11_xkb_StateNotify_changed_mask_ModifierLock,
+        &hf_x11_xkb_StateNotify_changed_mask_GroupState,
+        &hf_x11_xkb_StateNotify_changed_mask_GroupBase,
+        &hf_x11_xkb_StateNotify_changed_mask_GroupLatch,
+        &hf_x11_xkb_StateNotify_changed_mask_GroupLock,
+        &hf_x11_xkb_StateNotify_changed_mask_CompatState,
+        &hf_x11_xkb_StateNotify_changed_mask_GrabMods,
+        &hf_x11_xkb_StateNotify_changed_mask_CompatGrabMods,
+        &hf_x11_xkb_StateNotify_changed_mask_LookupMods,
+        &hf_x11_xkb_StateNotify_changed_mask_CompatLookupMods,
+        &hf_x11_xkb_StateNotify_changed_mask_PointerButtons,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_changed, ett_x11_rectangle, changed_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_StateNotify_keycode, tvb, *offsetp, 1, byte_order);
@@ -25101,49 +25331,52 @@ static void xkbControlsNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint 
     *offsetp += 1;
     UNUSED(2);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_ControlsNotify_changedControls, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_changedControls_mask_GroupsWrap, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_changedControls_mask_InternalMods, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_changedControls_mask_IgnoreLockMods, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_changedControls_mask_PerKeyRepeat, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_changedControls_mask_ControlsEnabled, tvb, *offsetp, 4, byte_order);
+        const int* changedControls_bits [] = {
+        &hf_x11_xkb_ControlsNotify_changedControls_mask_GroupsWrap,
+        &hf_x11_xkb_ControlsNotify_changedControls_mask_InternalMods,
+        &hf_x11_xkb_ControlsNotify_changedControls_mask_IgnoreLockMods,
+        &hf_x11_xkb_ControlsNotify_changedControls_mask_PerKeyRepeat,
+        &hf_x11_xkb_ControlsNotify_changedControls_mask_ControlsEnabled,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ControlsNotify_changedControls, ett_x11_rectangle, changedControls_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_ControlsNotify_enabledControls, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControls_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* enabledControls_bits [] = {
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_RepeatKeys,
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_SlowKeys,
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_BounceKeys,
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_StickyKeys,
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_MouseKeys,
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_MouseKeysAccel,
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_AccessXKeys,
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_AudibleBellMask,
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_Overlay1Mask,
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_Overlay2Mask,
+        &hf_x11_xkb_ControlsNotify_enabledControls_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ControlsNotify_enabledControls, ett_x11_rectangle, enabledControls_bits, byte_order);
     }
     *offsetp += 4;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_ControlsNotify_enabledControlChanges, tvb, *offsetp, 4, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_RepeatKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_SlowKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_BounceKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_StickyKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_MouseKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_MouseKeysAccel, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_AccessXKeys, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_AccessXTimeoutMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_AccessXFeedbackMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_AudibleBellMask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_Overlay1Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_Overlay2Mask, tvb, *offsetp, 4, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_IgnoreGroupLockMask, tvb, *offsetp, 4, byte_order);
+        const int* enabledControlChanges_bits [] = {
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_RepeatKeys,
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_SlowKeys,
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_BounceKeys,
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_StickyKeys,
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_MouseKeys,
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_MouseKeysAccel,
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_AccessXKeys,
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_AccessXTimeoutMask,
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_AccessXFeedbackMask,
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_AudibleBellMask,
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_Overlay1Mask,
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_Overlay2Mask,
+        &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_IgnoreGroupLockMask,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ControlsNotify_enabledControlChanges, ett_x11_rectangle, enabledControlChanges_bits, byte_order);
     }
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_ControlsNotify_keycode, tvb, *offsetp, 1, byte_order);
@@ -25205,22 +25438,23 @@ static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 1;
     UNUSED(1);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_NamesNotify_changed, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_Keycodes, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_Geometry, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_Symbols, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_PhysSymbols, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_Types, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_Compat, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_KeyTypeNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_KTLevelNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_KeyNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_KeyAliases, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_VirtualModNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_GroupNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changed_mask_RGNames, tvb, *offsetp, 2, byte_order);
+        const int* changed_bits [] = {
+        &hf_x11_xkb_NamesNotify_changed_mask_Keycodes,
+        &hf_x11_xkb_NamesNotify_changed_mask_Geometry,
+        &hf_x11_xkb_NamesNotify_changed_mask_Symbols,
+        &hf_x11_xkb_NamesNotify_changed_mask_PhysSymbols,
+        &hf_x11_xkb_NamesNotify_changed_mask_Types,
+        &hf_x11_xkb_NamesNotify_changed_mask_Compat,
+        &hf_x11_xkb_NamesNotify_changed_mask_KeyTypeNames,
+        &hf_x11_xkb_NamesNotify_changed_mask_KTLevelNames,
+        &hf_x11_xkb_NamesNotify_changed_mask_IndicatorNames,
+        &hf_x11_xkb_NamesNotify_changed_mask_KeyNames,
+        &hf_x11_xkb_NamesNotify_changed_mask_KeyAliases,
+        &hf_x11_xkb_NamesNotify_changed_mask_VirtualModNames,
+        &hf_x11_xkb_NamesNotify_changed_mask_GroupNames,
+        &hf_x11_xkb_NamesNotify_changed_mask_RGNames,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_NamesNotify_changed, ett_x11_rectangle, changed_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_NamesNotify_firstType, tvb, *offsetp, 1, byte_order);
@@ -25237,33 +25471,35 @@ static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     proto_tree_add_item(t, hf_x11_xkb_NamesNotify_nKeyAliases, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_NamesNotify_changedGroupNames, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group4, tvb, *offsetp, 1, byte_order);
+        const int* changedGroupNames_bits [] = {
+        &hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group1,
+        &hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group2,
+        &hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group3,
+        &hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group4,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_NamesNotify_changedGroupNames, ett_x11_rectangle, changedGroupNames_bits, byte_order);
     }
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_NamesNotify_changedVirtualMods, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_0, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_1, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_2, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_3, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_4, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_5, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_6, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_7, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_8, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_9, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_10, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_11, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_12, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_13, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_14, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_NamesNotify_changedVirtualMods_mask_15, tvb, *offsetp, 2, byte_order);
+        const int* changedVirtualMods_bits [] = {
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_0,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_1,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_2,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_3,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_4,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_5,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_6,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_7,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_8,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_9,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_10,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_11,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_12,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_13,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_14,
+        &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_15,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_NamesNotify_changedVirtualMods, ett_x11_rectangle, changedVirtualMods_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_NamesNotify_firstKey, tvb, *offsetp, 1, byte_order);
@@ -25286,12 +25522,13 @@ static void xkbCompatMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     proto_tree_add_item(t, hf_x11_xkb_CompatMapNotify_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_CompatMapNotify_changedGroups, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group4, tvb, *offsetp, 1, byte_order);
+        const int* changedGroups_bits [] = {
+        &hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group1,
+        &hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group2,
+        &hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group3,
+        &hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group4,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_CompatMapNotify_changedGroups, ett_x11_rectangle, changedGroups_bits, byte_order);
     }
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_CompatMapNotify_firstSI, tvb, *offsetp, 2, byte_order);
@@ -25348,17 +25585,18 @@ static void xkbActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     proto_tree_add_item(t, hf_x11_xkb_ActionMessage_keyEventFollows, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_ActionMessage_mods, tvb, *offsetp, 1, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ActionMessage_mods_mask_Shift, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ActionMessage_mods_mask_Lock, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ActionMessage_mods_mask_Control, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ActionMessage_mods_mask_1, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ActionMessage_mods_mask_2, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ActionMessage_mods_mask_3, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ActionMessage_mods_mask_4, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ActionMessage_mods_mask_5, tvb, *offsetp, 1, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ActionMessage_mods_mask_Any, tvb, *offsetp, 1, byte_order);
+        const int* mods_bits [] = {
+        &hf_x11_xkb_ActionMessage_mods_mask_Shift,
+        &hf_x11_xkb_ActionMessage_mods_mask_Lock,
+        &hf_x11_xkb_ActionMessage_mods_mask_Control,
+        &hf_x11_xkb_ActionMessage_mods_mask_1,
+        &hf_x11_xkb_ActionMessage_mods_mask_2,
+        &hf_x11_xkb_ActionMessage_mods_mask_3,
+        &hf_x11_xkb_ActionMessage_mods_mask_4,
+        &hf_x11_xkb_ActionMessage_mods_mask_5,
+        &hf_x11_xkb_ActionMessage_mods_mask_Any,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ActionMessage_mods, ett_x11_rectangle, mods_bits, byte_order);
     }
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_xkb_ActionMessage_group, byte_order);
@@ -25379,15 +25617,16 @@ static void xkbAccessXNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     proto_tree_add_item(t, hf_x11_xkb_AccessXNotify_keycode, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_AccessXNotify_detailt, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_AccessXNotify_detailt_mask_SKPress, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_AccessXNotify_detailt_mask_SKAccept, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_AccessXNotify_detailt_mask_SKReject, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_AccessXNotify_detailt_mask_SKRelease, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_AccessXNotify_detailt_mask_BKAccept, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_AccessXNotify_detailt_mask_BKReject, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_AccessXNotify_detailt_mask_AXKWarning, tvb, *offsetp, 2, byte_order);
+        const int* detailt_bits [] = {
+        &hf_x11_xkb_AccessXNotify_detailt_mask_SKPress,
+        &hf_x11_xkb_AccessXNotify_detailt_mask_SKAccept,
+        &hf_x11_xkb_AccessXNotify_detailt_mask_SKReject,
+        &hf_x11_xkb_AccessXNotify_detailt_mask_SKRelease,
+        &hf_x11_xkb_AccessXNotify_detailt_mask_BKAccept,
+        &hf_x11_xkb_AccessXNotify_detailt_mask_BKReject,
+        &hf_x11_xkb_AccessXNotify_detailt_mask_AXKWarning,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_AccessXNotify_detailt, ett_x11_rectangle, detailt_bits, byte_order);
     }
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_AccessXNotify_slowKeysDelay, tvb, *offsetp, 2, byte_order);
@@ -25409,13 +25648,14 @@ static void xkbExtensionDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     *offsetp += 1;
     UNUSED(1);
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_ExtensionDeviceNotify_reason, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_reason_mask_Keyboards, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_reason_mask_ButtonActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_reason_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_reason_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_reason_mask_IndicatorState, tvb, *offsetp, 2, byte_order);
+        const int* reason_bits [] = {
+        &hf_x11_xkb_ExtensionDeviceNotify_reason_mask_Keyboards,
+        &hf_x11_xkb_ExtensionDeviceNotify_reason_mask_ButtonActions,
+        &hf_x11_xkb_ExtensionDeviceNotify_reason_mask_IndicatorNames,
+        &hf_x11_xkb_ExtensionDeviceNotify_reason_mask_IndicatorMaps,
+        &hf_x11_xkb_ExtensionDeviceNotify_reason_mask_IndicatorState,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ExtensionDeviceNotify_reason, ett_x11_rectangle, reason_bits, byte_order);
     }
     *offsetp += 2;
     field16(tvb, offsetp, t, hf_x11_xkb_ExtensionDeviceNotify_ledClass, byte_order);
@@ -25430,23 +25670,25 @@ static void xkbExtensionDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     proto_tree_add_item(t, hf_x11_xkb_ExtensionDeviceNotify_nButtons, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_ExtensionDeviceNotify_supported, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_supported_mask_Keyboards, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_supported_mask_ButtonActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_supported_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_supported_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_supported_mask_IndicatorState, tvb, *offsetp, 2, byte_order);
+        const int* supported_bits [] = {
+        &hf_x11_xkb_ExtensionDeviceNotify_supported_mask_Keyboards,
+        &hf_x11_xkb_ExtensionDeviceNotify_supported_mask_ButtonActions,
+        &hf_x11_xkb_ExtensionDeviceNotify_supported_mask_IndicatorNames,
+        &hf_x11_xkb_ExtensionDeviceNotify_supported_mask_IndicatorMaps,
+        &hf_x11_xkb_ExtensionDeviceNotify_supported_mask_IndicatorState,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ExtensionDeviceNotify_supported, ett_x11_rectangle, supported_bits, byte_order);
     }
     *offsetp += 2;
     {
-        proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_ExtensionDeviceNotify_unsupported, tvb, *offsetp, 2, byte_order);
-        proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_Keyboards, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_ButtonActions, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_IndicatorNames, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_IndicatorMaps, tvb, *offsetp, 2, byte_order);
-        proto_tree_add_item(bitmask_tree, hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_IndicatorState, tvb, *offsetp, 2, byte_order);
+        const int* unsupported_bits [] = {
+        &hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_Keyboards,
+        &hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_ButtonActions,
+        &hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_IndicatorNames,
+        &hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_IndicatorMaps,
+        &hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_IndicatorState,
+        };
+        proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ExtensionDeviceNotify_unsupported, ett_x11_rectangle, unsupported_bits, byte_order);
     }
     *offsetp += 2;
     UNUSED(2);
@@ -27116,13 +27358,14 @@ static void struct_xv_AdaptorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_num_formats, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_type, tvb, *offsetp, 1, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_InputMask, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_OutputMask, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_VideoMask, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_StillMask, tvb, *offsetp, 1, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AdaptorInfo_type_mask_ImageMask, tvb, *offsetp, 1, byte_order);
+            const int* type_bits [] = {
+                &hf_x11_struct_xv_AdaptorInfo_type_mask_InputMask,
+                &hf_x11_struct_xv_AdaptorInfo_type_mask_OutputMask,
+                &hf_x11_struct_xv_AdaptorInfo_type_mask_VideoMask,
+                &hf_x11_struct_xv_AdaptorInfo_type_mask_StillMask,
+                &hf_x11_struct_xv_AdaptorInfo_type_mask_ImageMask,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xv_AdaptorInfo_type, ett_x11_rectangle, type_bits, byte_order);
         }
         *offsetp += 1;
         UNUSED(1);
@@ -27193,10 +27436,11 @@ static void struct_xv_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         item = proto_tree_add_item(root, hf_x11_struct_xv_AttributeInfo, tvb, *offsetp, struct_size_xv_AttributeInfo(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         {
-            proto_item *ti = proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_flags, tvb, *offsetp, 4, byte_order);
-            proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AttributeInfo_flags_mask_Gettable, tvb, *offsetp, 4, byte_order);
-            proto_tree_add_item(bitmask_tree, hf_x11_struct_xv_AttributeInfo_flags_mask_Settable, tvb, *offsetp, 4, byte_order);
+            const int* flags_bits [] = {
+                &hf_x11_struct_xv_AttributeInfo_flags_mask_Gettable,
+                &hf_x11_struct_xv_AttributeInfo_flags_mask_Settable,
+            };
+            proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xv_AttributeInfo_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_min, tvb, *offsetp, 4, byte_order);
