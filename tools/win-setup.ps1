@@ -199,6 +199,7 @@ $CleanupItems = @(
     "user-guide"
     "zlib-1.2.5"
     "zlib-1.2.8"
+    "zlib-1.2.8-ws"
     "AirPcap_Devpack_4_1_0_1622"
     "GeoIP-1.*-win??ws"
     "WinSparkle-0.3-44-g2c8d9d3-win??ws"
