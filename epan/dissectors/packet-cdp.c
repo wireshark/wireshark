@@ -268,6 +268,8 @@ static const value_string type_nrgyz_vals[] = {
     { 0, NULL }
 };
 
+static const unit_name_string units_mw = { "mW", NULL };
+
 static int
 dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -295,10 +297,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_tree_add_item(cdp_tree, hf_cdp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_uint_format_value(cdp_tree, hf_cdp_ttl, tvb, offset, 1,
-                                        tvb_get_guint8(tvb, offset),
-                                        "%u seconds",
-                                        tvb_get_guint8(tvb, offset));
+    proto_tree_add_item(cdp_tree, hf_cdp_ttl, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     /* Checksum display & verification code */
@@ -633,8 +632,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                            tvb_get_ntohs(tvb, offset + 4));
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_uint_format_value(tlv_tree, hf_cdp_power_consumption, tvb, offset + 4, 2,
-                                    tvb_get_ntohs(tvb, offset + 4), "%u mW", tvb_get_ntohs(tvb, offset + 4));
+                proto_tree_add_item(tlv_tree, hf_cdp_power_consumption, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
             }
             offset += length;
             break;
@@ -753,15 +751,13 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             offset += 8;
             while(power_req_len) {
                 if (power_req_len > 4) {
-                    power_req = tvb_get_ntohl(tvb, offset);
-                    proto_tree_add_uint_format_value(tlv_tree, hf_cdp_power_requested, tvb, offset, 4, power_req, "%u mW", power_req);
+                    proto_tree_add_item_ret_uint(tlv_tree, hf_cdp_power_requested, tvb, offset, 4, ENC_BIG_ENDIAN, &power_req);
                     proto_item_append_text(tlvi, "%u mW, ", power_req);
                     power_req_len -= 4;
                     offset += 4;
                 } else {
                     if (power_req_len == 4) {
-                        power_req = tvb_get_ntohl(tvb, offset);
-                        proto_tree_add_uint_format_value(tlv_tree, hf_cdp_power_requested, tvb, offset, 4, power_req, "%u mW", power_req);
+                        proto_tree_add_item_ret_uint(tlv_tree, hf_cdp_power_requested, tvb, offset, 4, ENC_BIG_ENDIAN, &power_req);
                         proto_item_append_text(tlvi, "%u mW", power_req);
                     }
                     offset += power_req_len;
@@ -784,8 +780,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             offset += 8;
             while(power_avail_len) {
                 if (power_avail_len >= 4) {
-                    power_avail = tvb_get_ntohl(tvb, offset);
-                    proto_tree_add_uint_format_value(tlv_tree, hf_cdp_power_available, tvb, offset, 4, power_avail, "%u mW", power_avail);
+                    proto_tree_add_item_ret_uint(tlv_tree, hf_cdp_power_available, tvb, offset, 4, ENC_BIG_ENDIAN, &power_avail);
                     proto_item_append_text(tlvi, "%u mW, ", power_avail);
                     power_avail_len -= 4;
                     offset += 4;
@@ -1257,7 +1252,7 @@ proto_register_cdp(void)
           NULL, HFILL }},
 
         { &hf_cdp_ttl,
-        { "TTL",                "cdp.ttl", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "TTL",                "cdp.ttl", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0,
           NULL, HFILL }},
 
         { &hf_cdp_checksum,
@@ -1374,7 +1369,7 @@ proto_register_cdp(void)
       { &hf_cdp_duplex, { "Duplex", "cdp.duplex", FT_BOOLEAN, BASE_NONE, TFS(&tfs_full_half), 0x0, NULL, HFILL }},
       { &hf_cdp_data, { "Data", "cdp.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_voice_vlan, { "Voice VLAN", "cdp.voice_vlan", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_cdp_power_consumption, { "Power Consumption", "cdp.power_consumption", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_cdp_power_consumption, { "Power Consumption", "cdp.power_consumption", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mw, 0x0, NULL, HFILL }},
       { &hf_cdp_mtu, { "MTU", "cdp.mtu", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_trust_bitmap, { "Trust Bitmap", "cdp.trust_bitmap", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_untrusted_port_cos, { "Untrusted port CoS", "cdp.untrusted_port_cos", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -1384,8 +1379,8 @@ proto_register_cdp(void)
       { &hf_cdp_location, { "Location", "cdp.location", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_request_id, { "Request-ID", "cdp.request_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_management_id, { "Management-ID", "cdp.management_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_cdp_power_requested, { "Power Requested", "cdp.power_requested", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_cdp_power_available, { "Power Available", "cdp.power_available", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_cdp_power_requested, { "Power Requested", "cdp.power_requested", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_mw, 0x0, NULL, HFILL }},
+      { &hf_cdp_power_available, { "Power Available", "cdp.power_available", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_mw, 0x0, NULL, HFILL }},
       { &hf_cdp_encrypted_data, { "Encrypted Data", "cdp.encrypted_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_seen_sequence, { "Seen Sequence?", "cdp.seen_sequence", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_sequence_number, { "Sequence Number", "cdp.sequence_number", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},

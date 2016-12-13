@@ -480,8 +480,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                                          bfd_detect_time_multiplier,
                                          bfd_detect_time_multiplier * (bfd_desired_min_tx_interval/1000));
 
-        proto_tree_add_uint_format_value(bfd_tree, hf_bfd_message_length, tvb, 3, 1, bfd_length,
-                "%u bytes", bfd_length);
+        proto_tree_add_uint(bfd_tree, hf_bfd_message_length, tvb, 3, 1, bfd_length);
 
         proto_tree_add_uint(bfd_tree, hf_bfd_my_discriminator, tvb, 4,
                                  4, bfd_my_discriminator);
@@ -713,7 +712,7 @@ proto_register_bfd(void)
         },
         { &hf_bfd_message_length,
           { "Message Length", "bfd.message_length",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
             "Length of the BFD Control packet, in bytes", HFILL }
         },
         { &hf_bfd_my_discriminator,

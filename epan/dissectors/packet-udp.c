@@ -1082,24 +1082,16 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     process_tree = proto_tree_add_subtree(udp_tree, tvb, offset, 0, ett_udp_process_info, &ti, "Process Information");
     PROTO_ITEM_SET_GENERATED(ti);
     if (udpd->fwd && udpd->fwd->command) {
-      proto_tree_add_uint_format_value(process_tree, hfi_udp_proc_dst_uid.id, tvb, 0, 0,
-              udpd->fwd->process_uid, "%u", udpd->fwd->process_uid);
-      proto_tree_add_uint_format_value(process_tree, hfi_udp_proc_dst_pid.id, tvb, 0, 0,
-              udpd->fwd->process_pid, "%u", udpd->fwd->process_pid);
-      proto_tree_add_string_format_value(process_tree, hfi_udp_proc_dst_uname.id, tvb, 0, 0,
-              udpd->fwd->username, "%s", udpd->fwd->username);
-      proto_tree_add_string_format_value(process_tree, hfi_udp_proc_dst_cmd.id, tvb, 0, 0,
-              udpd->fwd->command, "%s", udpd->fwd->command);
+      proto_tree_add_uint(process_tree, &hfi_udp_proc_dst_uid, tvb, 0, 0, udpd->fwd->process_uid);
+      proto_tree_add_uint(process_tree, &hfi_udp_proc_dst_pid, tvb, 0, 0, udpd->fwd->process_pid);
+      proto_tree_add_string(process_tree, &hfi_udp_proc_dst_uname, tvb, 0, 0, udpd->fwd->username);
+      proto_tree_add_string(process_tree, &hfi_udp_proc_dst_cmd, tvb, 0, 0, udpd->fwd->command);
     }
     if (udpd->rev->command) {
-      proto_tree_add_uint_format_value(process_tree, hfi_udp_proc_src_uid.id, tvb, 0, 0,
-              udpd->rev->process_uid, "%u", udpd->rev->process_uid);
-      proto_tree_add_uint_format_value(process_tree, hfi_udp_proc_src_pid.id, tvb, 0, 0,
-              udpd->rev->process_pid, "%u", udpd->rev->process_pid);
-      proto_tree_add_string_format_value(process_tree, hfi_udp_proc_src_uname.id, tvb, 0, 0,
-              udpd->rev->username, "%s", udpd->rev->username);
-      proto_tree_add_string_format_value(process_tree, hfi_udp_proc_src_cmd.id, tvb, 0, 0,
-              udpd->rev->command, "%s", udpd->rev->command);
+      proto_tree_add_uint(process_tree, &hfi_udp_proc_src_uid, tvb, 0, 0, udpd->rev->process_uid);
+      proto_tree_add_uint(process_tree, &hfi_udp_proc_src_pid, tvb, 0, 0, udpd->rev->process_pid);
+      proto_tree_add_string(process_tree, &hfi_udp_proc_src_uname, tvb, 0, 0, udpd->rev->username);
+      proto_tree_add_string(process_tree, &hfi_udp_proc_src_cmd, tvb, 0, 0, udpd->rev->command);
     }
   }
 

@@ -4711,7 +4711,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
   guint       content_len, length_indicator;
   guint       duration;
   guint       diagnostic;
-  guint32     bncid, Local_BCU_ID;
+  guint32     bncid;
 
   element_no = 0;
 
@@ -4931,9 +4931,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
           offset += tempdata;
         } /* end if */
 
-        Local_BCU_ID = tvb_get_letohl(parameter_tvb, offset);
-        proto_tree_add_uint_format_value(bat_ase_element_tree, hf_Local_BCU_ID , parameter_tvb, offset, 4,
-                                   Local_BCU_ID , "0x%08x", Local_BCU_ID);
+        proto_tree_add_item(bat_ase_element_tree, hf_Local_BCU_ID, parameter_tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
         break;
       case SIGNAL :
@@ -5744,10 +5742,9 @@ dissect_isup_user_service_information_prime_parameter(tvbuff_t *parameter_tvb, p
 static void
 dissect_isup_propagation_delay_counter_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 info;
+  guint32 info;
 
-  info = tvb_get_ntohs(parameter_tvb, 0);
-  proto_tree_add_uint_format_value(parameter_tree, hf_isup_propagation_delay_counter, parameter_tvb, 0, PROPAGATION_DELAY_COUNT_LENGTH, info, "%u ms", info);
+  proto_tree_add_item_ret_uint(parameter_tree, hf_isup_propagation_delay_counter, parameter_tvb, 0, PROPAGATION_DELAY_COUNT_LENGTH, ENC_BIG_ENDIAN, &info);
   proto_item_set_text(parameter_item, "Propagation delay counter = %u ms", info);
 }
 /* ------------------------------------------------------------------
@@ -11973,7 +11970,7 @@ proto_register_isup(void)
       { &hf_isup_call_history_info, { "Call history info", "isup.call_history_info", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isup_network_specific_facility, { "Network specific facility (refer to 3.36/Q.763 for detailed decoding)", "isup.network_specific_facility", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isup_user_service_information_prime, { "User service information prime (-> Q.931 Bearer capability information IE)", "isup.user_service_information_prime", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isup_propagation_delay_counter, { "Propagation delay counter", "isup.propagation_delay_counter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_isup_propagation_delay_counter, { "Propagation delay counter", "isup.propagation_delay_counter", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
       { &hf_isup_remote_operations, { "Remote operations", "isup.remote_operations", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isup_feature_code, { "Feature Code", "isup.feature_code", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isup_user_teleservice_information, { "User teleservice information (-> Q.931 High Layer Compatibility IE)", "isup.user_teleservice_information", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},

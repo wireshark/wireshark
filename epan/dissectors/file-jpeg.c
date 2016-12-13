@@ -654,9 +654,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
         /*
          * Offset to IFD
          */
-        val_32 = tvb_get_guint32(tvb, offset, encoding);
-        tiff_item = proto_tree_add_uint_format_value(subtree, hf_start_ifd_offset, tvb, offset, 4, val_32, "%u bytes",
-            val_32);
+        tiff_item = proto_tree_add_item_ret_uint(subtree, hf_start_ifd_offset, tvb, offset, 4, encoding, &val_32);
         offset += 4;
         /*
          * Check for a bogus val_32 value.
@@ -697,9 +695,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
             /*
              * Offset to the next IFD
              */
-            val_32 = tvb_get_guint32(tvb, offset, encoding);
-            tiff_item = proto_tree_add_uint_format_value(subtree, hf_next_ifd_offset, tvb, offset, 4, val_32, "%u bytes",
-                val_32);
+            tiff_item = proto_tree_add_item_ret_uint(subtree, hf_next_ifd_offset, tvb, offset, 4, encoding, &val_32);
             offset += 4;
             if (val_32 != 0 &&
                 val_32 + tiff_start < (guint32)offset) {
@@ -1208,7 +1204,7 @@ proto_register_jfif(void)
         { &hf_start_ifd_offset,
           {   "Start offset of IFD starting from the TIFF header start",
               IMG_JFIF ".start_ifd_offset",
-              FT_UINT32, BASE_DEC, NULL, 0x0,
+              FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
               NULL,
               HFILL
           }
@@ -1216,7 +1212,7 @@ proto_register_jfif(void)
         { &hf_next_ifd_offset,
           {   "Offset to next IFD from start of TIFF header",
               IMG_JFIF ".next_ifd_offset",
-              FT_UINT32, BASE_DEC, NULL, 0x0,
+              FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
               NULL,
               HFILL
           }

@@ -1244,20 +1244,14 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     case NBDS_DIRECT_UNIQUE:
     case NBDS_DIRECT_GROUP:
     case NBDS_BROADCAST:
-        if (tree) {
-            header.dgm_length = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint_format_value(nbdgm_tree, hf_nbdgm_datagram_length,
-                                             tvb, offset, 2, header.dgm_length,
-                                             "%u bytes", header.dgm_length);
-        }
+        header.dgm_length = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(nbdgm_tree, hf_nbdgm_datagram_length,
+                                            tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        if (tree) {
-            header.pkt_offset = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint_format_value(nbdgm_tree, hf_nbdgm_packet_offset,
-                                             tvb, offset, 2, header.pkt_offset,
-                                             "%u bytes", header.pkt_offset);
-        }
+        header.pkt_offset = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(nbdgm_tree, hf_nbdgm_packet_offset,
+                                            tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
@@ -1969,11 +1963,11 @@ proto_register_nbt(void)
             NULL, HFILL }},
         { &hf_nbdgm_datagram_length,
           { "Datagram length",          "nbdgm.dgram_len",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
             NULL, HFILL }},
         { &hf_nbdgm_packet_offset,
           { "Packet offset",            "nbdgm.pkt_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
             NULL, HFILL }},
         { &hf_nbdgm_error_code,
           { "Error code",               "nbdgm.error_code",

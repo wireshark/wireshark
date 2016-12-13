@@ -369,11 +369,9 @@ dissect_q933_segmented_message_ie(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	octet = tvb_get_guint8(tvb, offset);
 	if (octet & 0x80) {
-		proto_tree_add_uint_format_value(tree, hf_q933_first_segment, tvb, offset, 1,
-				octet & 0x7F, "%u segments remaining", octet & 0x7F);
+		proto_tree_add_item(tree, hf_q933_first_segment, tvb, offset, 1, ENC_NA);
 	} else {
-		proto_tree_add_uint_format_value(tree, hf_q933_not_first_segment, tvb, offset, 1,
-				octet & 0x7F, "%u segments remaining", octet & 0x7F);
+		proto_tree_add_item(tree, hf_q933_not_first_segment, tvb, offset, 1, ENC_NA);
 	}
 	proto_tree_add_item(tree, hf_q933_segmented_message_type, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 }
@@ -1432,7 +1430,7 @@ dissect_q933_guint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int le
 	/*len -= 1;*/
 	value_len++;
 
-	proto_tree_add_uint_format_value(tree, hf, tvb, offset, value_len, value, "%u ms", value);
+	proto_tree_add_uint(tree, hf, tvb, offset, value_len, value);
 	return value_len;
 
 past_end:
@@ -2137,8 +2135,8 @@ proto_register_q933(void)
 			NULL, HFILL }},
 
       /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_q933_first_segment, { "First segment", "q933.first_segment", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q933_not_first_segment, { "Not first segment", "q933.not_first_segment", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_q933_first_segment, { "First segment", "q933.first_segment", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_segment_remaining, 0x7F, NULL, HFILL }},
+      { &hf_q933_not_first_segment, { "Not first segment", "q933.not_first_segment", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_segment_remaining, 0x7F, NULL, HFILL }},
       { &hf_q933_segmented_message_type, { "Segmented message type", "q933.segmented_message_type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_q933_out_band_negotiation, { "Out-band negotiation", "q933.out_band_negotiation", FT_BOOLEAN, 8, TFS(&tfs_possible_not_possible), 0x40, NULL, HFILL }},
       { &hf_q933_layer_1, { "Layer 1", "q933.layer_1", FT_BOOLEAN, 8, TFS(&tfs_asynchronous_synchronous), 0x40, NULL, HFILL }},
@@ -2158,7 +2156,7 @@ proto_register_q933(void)
       { &hf_q933_mode, { "Mode", "q933.mode", FT_UINT8, BASE_HEX, VALS(q933_mode_vals), 0x60, NULL, HFILL }},
       { &hf_q933_default_packet_size_0F, { "Default packet size", "q933.default_packet_size", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
       { &hf_q933_packet_window_size, { "Packet window size", "q933.packet_window_size", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
-      { &hf_q933_default_packet_size, { "Default packet size", "q933.default_packet_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_q933_default_packet_size, { "Default packet size", "q933.default_packet_size", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
       { &hf_q933_additional_layer_3_protocol_information, { "Additional layer 3 protocol information", "q933.additional_layer_3_protocol_information", FT_UINT16, BASE_HEX, VALS(nlpid_vals), 0x0FF0, NULL, HFILL }},
       { &hf_q933_recommendation, { "Recommendation", "q933.recommendation", FT_UINT8, BASE_HEX, VALS(q933_cause_recommendation_vals), 0x7F, NULL, HFILL }},
       { &hf_q933_network_service, { "Network service", "q933.network_service", FT_BOOLEAN, 8, TFS(&tfs_user_provider), 0x80, NULL, HFILL }},
@@ -2209,10 +2207,10 @@ proto_register_q933(void)
       { &hf_q933_length, { "Length", "q933.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_q933_diagnostics, { "Diagnostics", "q933.diagnostics", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_q933_display_information, { "Display information", "q933.display_information", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_q933_cumulative_transit_delay, { "Cumulative transit delay", "q933.cumulative_transit_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q933_requested_end_to_end_transit_delay, { "Requested end-to-end transit delay", "q933.requested_end_to_end_transit_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q933_max_end_to_end_transit_delay, { "Maximum end-to-end transit delay", "q933.max_end_to_end_transit_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_q933_transit_delay, { "Transit Delay", "q933.transit_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_q933_cumulative_transit_delay, { "Cumulative transit delay", "q933.cumulative_transit_delay", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
+      { &hf_q933_requested_end_to_end_transit_delay, { "Requested end-to-end transit delay", "q933.requested_end_to_end_transit_delay", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
+      { &hf_q933_max_end_to_end_transit_delay, { "Maximum end-to-end transit delay", "q933.max_end_to_end_transit_delay", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
+      { &hf_q933_transit_delay, { "Transit Delay", "q933.transit_delay", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
       { &hf_q933_request, { "Request", "q933.request", FT_BOOLEAN, 8, TFS(&tfs_no_request_request_indicated), 0x04, NULL, HFILL }},
 
 	};

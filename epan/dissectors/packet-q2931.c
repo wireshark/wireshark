@@ -636,6 +636,8 @@ static const value_string q2931_atm_td_subfield_vals[] = {
 	{ 0x0,				NULL }
 };
 
+static const unit_name_string units_cells_s = { " cell/s", " cells/s" };
+
 static void
 dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 			       proto_tree *tree)
@@ -664,9 +666,9 @@ dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, in
 		case Q2931_ATM_CR_BW_MAXB_CLP_0_1:
 			if (len < 4)
 				return;
+
 			value = tvb_get_ntoh24(tvb, offset + 1);
-			proto_tree_add_uint_format_value(tree, hf_q2931_atm_identifier_value, tvb, offset+3, 3, value,
-			    "%u cell%s/s", value, plurality(value, "", "s"));
+			proto_tree_add_uint(tree, hf_q2931_atm_identifier_value, tvb, offset+3, 3, value);
 			offset += 4;
 			len -= 4;
 			break;
@@ -950,8 +952,7 @@ l2_done:
 			break;
 
 		case Q2931_UIL3_USER_SPEC:
-			proto_tree_add_uint_format_value(tree, hf_q2931_bband_low_layer_info_default_packet_size, tvb, offset, 1,
-			    1 << (octet & 0x0F), "%u octets", 1 << (octet & 0x0F));
+			proto_tree_add_uint(tree, hf_q2931_bband_low_layer_info_default_packet_size, tvb, offset, 1, 1 << (octet & 0x0F));
 			/*offset += 1;*/
 			/*len -= 1;*/
 			break;
@@ -1480,8 +1481,7 @@ dissect_q2931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info* pinfo, int offset
 		switch (identifier) {
 
 		case 0x01:	/* Cumulative transit delay identifier */
-			proto_tree_add_uint_format_value(tree, hf_q2931_e2e_transit_delay_cumulative, tvb, offset, 2,
-			    value, "%u ms", value);
+			proto_tree_add_uint(tree, hf_q2931_e2e_transit_delay_cumulative, tvb, offset, 2, value);
 			break;
 
 		case 0x03:	/* Maximum transit delay identifier */
@@ -2099,7 +2099,7 @@ proto_register_q2931(void)
 		},
 		{ &hf_q2931_aal1_partially_filled_cells_method,
 		  { "Partially filled cells method", "q2931.aal1.partially_filled_cells_method",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_q2931_aal1_forward_max_cpcs_sdu_size,
@@ -2179,7 +2179,7 @@ proto_register_q2931(void)
 		},
 		{ &hf_q2931_bband_low_layer_info_default_packet_size,
 		  { "Default packet size", "q2931.bband_low_layer_info.default_packet_size",
-		    FT_UINT8, BASE_DEC, NULL, 0x0F,
+		    FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0F,
 		    NULL, HFILL }
 		},
 		{ &hf_q2931_bband_low_layer_info_packet_window_size,
@@ -2354,7 +2354,7 @@ proto_register_q2931(void)
 		},
 		{ &hf_q2931_e2e_transit_delay_cumulative,
 		  { "Cumulative transit delay", "q2931.e2e_transit_delay.cumulative",
-		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_q2931_e2e_transit_delay_maximum_end_to_end,
@@ -2509,7 +2509,7 @@ proto_register_q2931(void)
 		},
 		{ &hf_q2931_atm_identifier_value,
 		  { "Value", "q2931.atm_identifier_value",
-		    FT_UINT24, BASE_DEC, NULL, 0x0,
+		    FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_cells_s, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_q2931_aal_parameter_identifier,

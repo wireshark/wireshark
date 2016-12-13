@@ -470,9 +470,7 @@ dissect_lat_start(tvbuff_t *tvb, int offset, proto_tree *tree)
 	proto_tree_add_uint_format_value(tree, hf_lat_server_circuit_timer, tvb,
 	    offset, 1, timer, "%u milliseconds", timer*10);
 	offset += 1;
-	timer = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint_format_value(tree, hf_lat_keep_alive_timer, tvb,
-	    offset, 1, timer, "%u seconds", timer);
+	proto_tree_add_item(tree, hf_lat_keep_alive_timer, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(tree, hf_lat_facility_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
@@ -1588,7 +1586,7 @@ proto_register_lat(void)
 
 	    { &hf_lat_keep_alive_timer,
 		{ "Keep-alive timer", "lat.keep_alive_timer", FT_UINT8,
-		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
+		  BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_facility_number,
 		{ "Facility number", "lat.facility_number", FT_UINT16,

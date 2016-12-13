@@ -306,8 +306,11 @@ static const value_string regulatory_services_indicator_vals[] = {
 	{ 0, NULL },
 };
 
-const true_false_string tfs_desired_pilot_phase_resolution = { "at least 1/8th PN chip resolution", "at least 1 PN chip resolution" };
-const true_false_string tfs_spherical_cartesian = { "Spherical", "Cartesian" };
+static const true_false_string tfs_desired_pilot_phase_resolution = { "at least 1/8th PN chip resolution", "at least 1 PN chip resolution" };
+static const true_false_string tfs_spherical_cartesian = { "Spherical", "Cartesian" };
+
+static const unit_name_string units_time_of_almanac = { " (in units of 4096 seconds)", NULL };
+static const unit_name_string units_gps_week_number = { " (8 least significant bits)", NULL };
 
 static void
 for_req_pseudo_meas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset)
@@ -877,20 +880,15 @@ static void
 rev_req_gps_alm_correction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset)
 {
 	guint32	saved_offset;
-	guint8	oct;
 
 	SHORT_DATA_CHECK(len, 2);
 
 	saved_offset = offset;
 
-	oct = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint_format_value(tree, hf_ansi_801_time_of_almanac, tvb, offset, 1, oct,
-			    "%d (in units of 4096 seconds)", oct);
+	proto_tree_add_item(tree, hf_ansi_801_time_of_almanac, tvb, offset, 1, ENC_NA);
 
 	offset++;
-	oct = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint_format_value(tree, hf_ansi_801_gps_week_number, tvb, offset, 1, oct,
-			    "%d (8 least significant bits)", oct);
+	proto_tree_add_item(tree, hf_ansi_801_gps_week_number, tvb, offset, 1, ENC_NA);
 
 	offset++;
 
@@ -2245,12 +2243,12 @@ proto_register_ansi_801(void)
 		},
 		{ &hf_ansi_801_time_of_almanac,
 		  { "Time of almanac", "ansi_801.time_of_almanac",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_time_of_almanac, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_ansi_801_gps_week_number,
 		  { "GPS week number", "ansi_801.gps_week_number",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_gps_week_number, 0x0,
 		    NULL, HFILL }
 		},
 	};

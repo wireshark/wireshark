@@ -346,8 +346,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	proto_tree_add_checksum(ipx_tree, tvb, 0, hf_ipx_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
-	proto_tree_add_uint_format_value(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length,
-		"%d bytes", ipxh->ipx_length);
+	proto_tree_add_uint(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length);
 	ipx_hops = tvb_get_guint8(tvb, 4);
 	proto_tree_add_uint_format(ipx_tree, hf_ipx_hops, tvb, 4, 1, ipx_hops,
 		"Transport Control: %d hops", ipx_hops);
@@ -1314,7 +1313,7 @@ proto_register_ipx(void)
 		  "Source or Destination IPX Address  \"network.node\"", HFILL }},
 
 		{ &hf_ipx_len,
-		{ "Length",		"ipx.len", FT_UINT16, BASE_DEC, NULL, 0x0,
+		{ "Length",		"ipx.len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ipx_hops,

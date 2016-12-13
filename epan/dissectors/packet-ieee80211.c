@@ -9902,8 +9902,8 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
             cwmax= (1 << ecwmax) - 1;
             proto_tree_add_item(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_ecw_max, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_ecw_min, tvb, offset, 1, ENC_NA);
-            proto_tree_add_uint_format_value(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_cw_max, tvb, offset, 1, cwmax, "%u", cwmax);
-            proto_tree_add_uint_format_value(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_cw_min, tvb, offset, 1, cwmin, "%u", cwmin);
+            proto_tree_add_uint(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_cw_max, tvb, offset, 1, cwmax);
+            proto_tree_add_uint(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_cw_min, tvb, offset, 1, cwmin);
             proto_item_append_text(ac_item, ", ECWmin/max %u/%u (CWmin/max %u/%u)", ecwmin, ecwmax, cwmin, cwmax);
             offset += 1;
 
@@ -13654,7 +13654,7 @@ ieee80211_tag_tim(packet_info *pinfo, proto_tree *tree,
     for (j = 0; j < 8; j++) {
       if (byte & (1 << j)) {
         aid = 8*n1 + 8*i + j;
-        proto_tree_add_uint_format_value(tree, hf_ieee80211_tim_aid, tvb, offset + i, 1, aid, "%d", aid);
+        proto_tree_add_uint(tree, hf_ieee80211_tim_aid, tvb, offset + i, 1, aid);
       }
     }
   }
@@ -17340,8 +17340,8 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
                 for (f = 0; f < 64; f++) {
                   if (bmap & (G_GUINT64_CONSTANT(1) << f))
                     continue;
-                  proto_tree_add_uint_format_value(ba_bitmap_tree, hf_ieee80211_block_ack_bitmap_missing_frame,
-                                                   tvb, offset + (f/8), 1, ssn + f, "%u", ssn + f);
+                  proto_tree_add_uint(ba_bitmap_tree, hf_ieee80211_block_ack_bitmap_missing_frame,
+                                                   tvb, offset + (f/8), 1, ssn + f);
                 }
                 offset += 8;
                 proto_tree_add_item(ba_sub_tree, hf_ieee80211_block_ack_RBUFCAP, tvb, offset, 1, ENC_LITTLE_ENDIAN);

@@ -184,8 +184,7 @@ dissect_krb4_kdc_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 	offset++;
 
 	/* length2 */
-	length=little_endian?tvb_get_letohs(tvb, offset):tvb_get_ntohs(tvb, offset);
-	proto_tree_add_uint_format_value(tree, hf_krb4_length, tvb, offset, 2, length, "%d", length);
+	proto_tree_add_item_ret_uint(tree, hf_krb4_length, tvb, offset, 2, little_endian?ENC_LITTLE_ENDIAN:ENC_BIG_ENDIAN, &length);
 	offset+=2;
 
 	/* encrypted blob */

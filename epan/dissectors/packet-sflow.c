@@ -629,6 +629,8 @@ static expert_field ei_sflow_invalid_address_type = EI_INIT;
 
 static dissector_table_t   header_subdissector_table;
 
+static const unit_name_string units_total_packets = { " total packet", " total packets" };
+
 void proto_reg_handoff_sflow_245(void);
 
 /* dissect a sampled header - layer 2 protocols */
@@ -1436,7 +1438,7 @@ dissect_sflow_5_extended_80211_aggregation(tvbuff_t *tvb _U_, proto_tree *tree _
 static gint
 dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, gint offset, proto_item *parent) {
-    guint32     sequence_number, sampling_rate, sample_pool, output;
+    guint32     sequence_number, sampling_rate, output;
 
     proto_tree *extended_data_tree;
     proto_item *ti;
@@ -1451,10 +1453,8 @@ dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_uint_format_value(tree, hf_sflow_flow_sample_sampling_rate, tvb, offset + 8, 4,
             sampling_rate, "1 out of %u packets",
             sampling_rate);
-    sample_pool = tvb_get_ntohl(tvb, offset + 12);
-    proto_tree_add_uint_format_value(tree, hf_sflow_flow_sample_sample_pool, tvb, offset + 12, 4,
-            sample_pool, "%u total packets",
-            sample_pool);
+
+    proto_tree_add_item(tree, hf_sflow_flow_sample_sample_pool, tvb, offset + 12, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_sflow_flow_sample_dropped_packets, tvb, offset + 16, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_sflow_flow_sample_input_interface, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
     output = tvb_get_ntohl(tvb, offset + 24);
@@ -1953,7 +1953,7 @@ static void
 dissect_sflow_5_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, gint offset, proto_item *parent) {
 
-    guint32 sequence_number, sampling_rate, sample_pool,
+    guint32 sequence_number, sampling_rate,
             output, records, i;
 
     sequence_number = tvb_get_ntohl(tvb, offset);
@@ -1968,9 +1968,7 @@ dissect_sflow_5_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_uint_format_value(tree, hf_sflow_flow_sample_sampling_rate, tvb, offset, 4,
             sampling_rate, "1 out of %u packets", sampling_rate);
     offset += 4;
-    sample_pool = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_uint_format_value(tree, hf_sflow_flow_sample_sample_pool, tvb, offset, 4,
-            sample_pool, "%u total packets", sample_pool);
+    proto_tree_add_item(tree, hf_sflow_flow_sample_sample_pool, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_sflow_flow_sample_dropped_packets, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -2005,7 +2003,7 @@ static void
 dissect_sflow_5_expanded_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, gint offset, proto_item *parent) {
 
-    guint32 sequence_number, sampling_rate, sample_pool, records, i;
+    guint32 sequence_number, sampling_rate, records, i;
 
     sequence_number = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_sflow_flow_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2019,9 +2017,7 @@ dissect_sflow_5_expanded_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_uint_format_value(tree, hf_sflow_flow_sample_sampling_rate, tvb, offset, 4,
             sampling_rate, "1 out of %u packets", sampling_rate);
     offset += 4;
-    sample_pool = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_uint_format_value(tree, hf_sflow_flow_sample_sample_pool, tvb, offset, 4,
-            sample_pool, "%u total packets", sample_pool);
+    proto_tree_add_item(tree, hf_sflow_flow_sample_sample_pool, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_sflow_flow_sample_dropped_packets, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -3321,7 +3317,7 @@ proto_register_sflow(void) {
       },
       { &hf_sflow_flow_sample_sample_pool,
         { "Sample pool", "sflow.flow_sample.sample_pool",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_total_packets, 0x0,
           NULL, HFILL }
       },
       { &hf_sflow_flow_sample_dropped_packets,

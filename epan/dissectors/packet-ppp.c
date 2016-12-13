@@ -3791,12 +3791,10 @@ dissect_bap_link_type_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_tree *field_tree;
-    guint16     link_speed;
 
     field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
 
-    link_speed = tvb_get_ntohs(tvb, offset + 2);
-    proto_tree_add_uint_format_value(field_tree, hf_bacp_link_speed, tvb, offset + 2, 2, link_speed, "%u kbps", link_speed);
+    proto_tree_add_item(field_tree, hf_bacp_link_speed, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_bacp_link_type, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
 }
 
@@ -7079,7 +7077,7 @@ proto_register_bacp(void)
     static hf_register_info hf[] = {
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_bacp_magic_number, { "Magic number", "bacp.magic_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_bacp_link_speed, { "Link Speed", "bacp.link_speed", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_bacp_link_speed, { "Link Speed", "bacp.link_speed", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0, NULL, HFILL }},
       { &hf_bacp_link_type, { "Link Type", "bacp.link_type", FT_UINT8, BASE_DEC, VALS(bap_link_type_vals), 0x0, NULL, HFILL }},
     };
 

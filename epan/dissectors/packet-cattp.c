@@ -116,6 +116,8 @@ static const value_string cattp_reset_reason[] = {
     { 0, NULL }
 };
 
+static const unit_name_string units_pdu = { "PDU", "PDUs" };
+
 /* Forward declartion due to use of heuristic dissection preference. */
 void proto_reg_handoff_cattp(void);
 void proto_register_cattp(void);
@@ -181,8 +183,7 @@ dissect_cattp_eakpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
     guint8      eak_count;
 
     eak_count = (hlen - offset) >> 1;
-    eaki = proto_tree_add_uint_format_value(cattp_tree, hf_cattp_eaklen, tvb, offset, eak_count * 2,
-                                            eak_count, "%u PDUs", eak_count);
+    eaki = proto_tree_add_uint(cattp_tree, hf_cattp_eaklen, tvb, offset, eak_count * 2, eak_count);
 
     if (eak_count > 0) {
         proto_item *eak_tree;
@@ -528,7 +529,7 @@ proto_register_cattp(void)
         {
             &hf_cattp_eaklen,
             {
-                "Extended Acknowledgement Numbers", "cattp.eaks", FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Extended Acknowledgement Numbers", "cattp.eaks", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_pdu, 0x0,
                 NULL, HFILL
             }
         }

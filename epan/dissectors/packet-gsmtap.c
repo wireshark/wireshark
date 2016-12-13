@@ -422,9 +422,8 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		gsmtap_tree = proto_item_add_subtree(ti, ett_gsmtap);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_version,
 				    tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_uint_format_value(gsmtap_tree, hf_gsmtap_hdrlen,
-				    tvb, offset+1, 1, hdr_len,
-				    "%u bytes", hdr_len);
+		proto_tree_add_uint(gsmtap_tree, hf_gsmtap_hdrlen,
+				    tvb, offset+1, 1, hdr_len);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_type,
 				    tvb, offset+2, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_timeslot,
@@ -599,7 +598,7 @@ proto_register_gsmtap(void)
 		{ &hf_gsmtap_version, { "Version", "gsmtap.version",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_gsmtap_hdrlen, { "Header Length", "gsmtap.hdr_len",
-		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		  FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0, NULL, HFILL } },
 		{ &hf_gsmtap_type, { "Payload Type", "gsmtap.type",
 		  FT_UINT8, BASE_DEC, VALS(gsmtap_types), 0, NULL, HFILL } },
 		{ &hf_gsmtap_timeslot, { "Time Slot", "gsmtap.ts",

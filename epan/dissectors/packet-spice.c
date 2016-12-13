@@ -969,7 +969,7 @@ dissect_ImageQuic(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
         ImageQuic_tree = proto_tree_add_subtree(tree, tvb, offset, QuicSize + 4, ett_imageQuic, NULL, "QUIC Image");
 
-        proto_tree_add_uint_format_value(ImageQuic_tree, hf_spice_quic_image_size, tvb, offset, 4, QuicSize, "%u bytes", QuicSize);
+        proto_tree_add_uint(ImageQuic_tree, hf_spice_quic_image_size, tvb, offset, 4, QuicSize);
         offset += 4;
         proto_tree_add_item(ImageQuic_tree, hf_spice_quic_magic, tvb, offset, 4, ENC_ASCII|ENC_NA);
         offset += 4;
@@ -1066,7 +1066,7 @@ dissect_ImageLZ_JPEG(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     const guint32  LZ_JPEGSize = tvb_get_letohl(tvb, offset);
 
     LZ_JPEG_tree = proto_tree_add_subtree(tree, tvb, offset, LZ_JPEGSize + 4, ett_LZ_JPEG, NULL, "LZ_JPEG Image");
-    proto_tree_add_uint_format_value(LZ_JPEG_tree, hf_spice_lz_jpeg_image_size, tvb, offset, 4, LZ_JPEGSize, "%u bytes", LZ_JPEGSize);
+    proto_tree_add_uint(LZ_JPEG_tree, hf_spice_lz_jpeg_image_size, tvb, offset, 4, LZ_JPEGSize);
     offset += 4;
     offset += dissect_ImageLZ_common_header(tvb, LZ_JPEG_tree, offset);
 
@@ -1083,7 +1083,7 @@ dissect_ImageGLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const guin
     if (size == 0) { /* if no size was passed to us, need to fetch it. Otherwise, we already have it from the callee */
         GLZ_RGBSize = tvb_get_letohl(tvb, offset);
         GLZ_RGB_tree = proto_tree_add_subtree(tree, tvb, offset, GLZ_RGBSize + 4, ett_GLZ_RGB, NULL, "GLZ_RGB Image");
-        proto_tree_add_uint_format_value(GLZ_RGB_tree, hf_spice_glz_rgb_image_size, tvb, offset, 4, GLZ_RGBSize, "%u bytes", GLZ_RGBSize);
+        proto_tree_add_uint(GLZ_RGB_tree, hf_spice_glz_rgb_image_size, tvb, offset, 4, GLZ_RGBSize);
         offset += 4;
     } else {
         GLZ_RGBSize = size;
@@ -1102,7 +1102,7 @@ dissect_ImageLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     const guint32  LZ_RGBSize = tvb_get_letohl(tvb, offset);
 
     LZ_RGB_tree = proto_tree_add_subtree(tree, tvb, offset, LZ_RGBSize + 4, ett_LZ_RGB, NULL, "LZ_RGB Image");
-    proto_tree_add_uint_format_value(LZ_RGB_tree, hf_spice_lz_rgb_image_size, tvb, offset, 4, LZ_RGBSize, "%u bytes", LZ_RGBSize);
+    proto_tree_add_uint(LZ_RGB_tree, hf_spice_lz_rgb_image_size, tvb, offset, 4, LZ_RGBSize);
     offset += 4;
 
     dissect_ImageLZ_common(tvb, LZ_RGB_tree, offset, TRUE, LZ_RGBSize);
@@ -1126,8 +1126,7 @@ dissect_ImageLZ_PLT(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     proto_tree_add_uint_format_value(LZ_PLT_tree, hf_spice_lz_plt_image_size, tvb, offset, 4, LZ_PLTSize, "%u bytes (2 extra bytes?)", LZ_PLTSize);
     offset += 4;
 
-    pal_size = tvb_get_letohl(tvb, offset);
-    proto_tree_add_uint_format_value(LZ_PLT_tree, hf_spice_palette_offset, tvb, offset, 4, pal_size, "%u bytes", pal_size); /* TODO: not sure it's correct */
+    proto_tree_add_item_ret_uint(LZ_PLT_tree, hf_spice_palette_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pal_size); /* TODO: not sure it's correct */
     offset += 4;
 
     dissect_ImageLZ_common_header(tvb, LZ_PLT_tree, offset);
@@ -4434,7 +4433,7 @@ proto_register_spice(void)
       { &hf_spice_pixmap_pixels, { "Pixmap pixels", "spice.pixmap_pixels", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_palette, { "Palette", "spice.palette", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_cursor_data, { "Cursor data", "spice.cursor_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_spice_quic_image_size, { "QUIC image size", "spice.quic_image_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_spice_quic_image_size, { "QUIC image size", "spice.quic_image_size", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
       { &hf_spice_quic_magic, { "QUIC magic", "spice.quic_magic", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_quic_compressed_image_data, { "QUIC compressed image data", "spice.quic_compressed_image_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_lz_magic, { "LZ magic", "spice.lz_magic", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -4442,13 +4441,13 @@ proto_register_spice(void)
       { &hf_spice_topdown_flag, { "Topdown flag", "spice.topdown_flag", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_unknown_bytes, { "Unknown bytes", "spice.unknown_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 #if 0
-      { &hf_spice_lz_jpeg_image_size, { "LZ JPEG image size", "spice.lz_jpeg_image_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_spice_lz_jpeg_image_size, { "LZ JPEG image size", "spice.lz_jpeg_image_size", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
 #endif
-      { &hf_spice_glz_rgb_image_size, { "GLZ RGB image size", "spice.glz_rgb_image_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_spice_lz_rgb_image_size, { "LZ RGB image size", "spice.lz_rgb_image_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_spice_glz_rgb_image_size, { "GLZ RGB image size", "spice.glz_rgb_image_size", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+      { &hf_spice_lz_rgb_image_size, { "LZ RGB image size", "spice.lz_rgb_image_size", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
       { &hf_spice_lz_plt_flag, { "LZ_PLT Flag", "spice.lz_plt_flag", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_lz_plt_image_size, { "LZ PLT image size", "spice.lz_plt_image_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_spice_palette_offset, { "palette offset", "spice.palette_offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_spice_palette_offset, { "palette offset", "spice.palette_offset", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
       { &hf_spice_lz_plt_data, { "LZ_PLT data", "spice.lz_plt_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_zlib_stream, { "ZLIB stream", "spice.zlib_stream", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_spice_image_from_cache, { "Image from Cache", "spice.image_from_cache", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},

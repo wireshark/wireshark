@@ -1528,9 +1528,8 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     proto_tree_add_item(field_tree, hf_ip_opt_qs_rate, tvb, offset + 2, 1, ENC_NA);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_ttl, tvb, offset + 3, 1, ENC_NA);
     ttl_diff = (iph->ip_ttl - tvb_get_guint8(tvb, offset + 3) % 256);
-    ti = proto_tree_add_uint_format_value(field_tree, hf_ip_opt_qs_ttl_diff,
-                                          tvb, offset + 3, 1, ttl_diff,
-                                          "%u", ttl_diff);
+    ti = proto_tree_add_uint(field_tree, hf_ip_opt_qs_ttl_diff,
+                                          tvb, offset + 3, 1, ttl_diff);
     PROTO_ITEM_SET_GENERATED(ti);
     proto_item_append_text(tf, ", %s, QS TTL %u, QS TTL diff %u",
                            val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"),

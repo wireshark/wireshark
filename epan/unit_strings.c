@@ -22,6 +22,7 @@
 
 #include "config.h"
 
+#include <wsutil/utf8_entities.h>
 #include <wsutil/str_util.h>
 #include "unit_strings.h"
 
@@ -49,16 +50,27 @@ char* unit_name_string_get_value64(guint64 value, unit_name_string* units)
 const unit_name_string units_foot_feet = { " foot", " feet" };
 const unit_name_string units_bit_bits = { " bit", " bits" };
 const unit_name_string units_byte_bytes = { " byte", " bytes" };
+const unit_name_string units_octet_octets = { " octet", " octets" };
 const unit_name_string units_word_words = { " word", " words" };
+const unit_name_string units_tick_ticks = { " tick", " ticks" };
 const unit_name_string units_second_seconds = { " second", " seconds" };
 const unit_name_string units_seconds = { "s", NULL };
 const unit_name_string units_millisecond_milliseconds = { " millisecond", " milliseconds" };
 const unit_name_string units_milliseconds = { "ms", NULL };
+const unit_name_string units_microseconds = { UTF8_MICRO_SIGN "s", NULL };
 const unit_name_string units_nanosecond_nanoseconds = { " nanosecond", " nanoseconds" };
+const unit_name_string units_nanometers = { "nm", NULL };
 const unit_name_string units_degree_degrees = { " degree", " degrees" };
+const unit_name_string units_decibals = { "dB", NULL };
+const unit_name_string units_percent = { "%", NULL };
+const unit_name_string units_mhz = { "MHz", NULL };
 const unit_name_string units_ghz = { "GHz", NULL };
 const unit_name_string units_hz = { "Hz", NULL };
 const unit_name_string units_hz_s = { "Hz/s", NULL };
+const unit_name_string units_kbit = { "kbit", NULL };
+const unit_name_string units_kbps = { "Kbps", NULL };
+const unit_name_string units_bit_sec = { "bits/s", NULL };
+const unit_name_string units_segment_remaining = { " segment remaining", " segments remaining" };
 
 
 /*

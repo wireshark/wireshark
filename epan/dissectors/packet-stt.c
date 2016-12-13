@@ -310,11 +310,10 @@ dissect_tcp_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *stt_tree)
     proto_item_set_text(tcp_item, "TCP Data");
 
     data_offset = hi_nibble(tvb_get_guint8(tvb, offset)) * 4;
-    data_offset_item = proto_tree_add_uint_format_value(tcp_tree,
-                                                        hf_stt_tcp_data_offset,
-                                                        tvb, offset, 1,
-                                                        data_offset,
-                                                        "%u bytes", data_offset);
+    data_offset_item = proto_tree_add_uint(tcp_tree,
+                                            hf_stt_tcp_data_offset,
+                                            tvb, offset, 1,
+                                            data_offset);
     if (data_offset != STT_TCP_HDR_LEN) {
         expert_add_info(pinfo, data_offset_item, &ei_stt_data_offset_bad);
     }
@@ -604,7 +603,7 @@ proto_register_stt(void)
         },
         { &hf_stt_tcp_data_offset,
           { "Data Offset", "stt.tcp.data_offset",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
             NULL, HFILL,
           },
         },

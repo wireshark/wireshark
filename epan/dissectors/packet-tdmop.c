@@ -158,7 +158,7 @@ static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             {
                 mask = tvb_get_letohl(tvb,offset);
                 mask = ((mask >> 16) & 0xFFFF)|((mask & 0xFFFF) << 16);
-                proto_tree_add_uint_format_value(currentblock, hf_tdmop_Compression_mask, tvb, offset, 4, mask, "%08X", mask);
+                proto_tree_add_uint(currentblock, hf_tdmop_Compression_mask, tvb, offset, 4, mask);
                 offset+=4;
             }
             for (i=0; i<32; i++)

@@ -494,13 +494,9 @@ dissect_ssc_readblocklimits (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     }
     else if (!iscdb) {
         granularity = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_uint_format_value(tree, hf_scsi_ssc_readblocklimits_granularity, tvb, offset, 1,
-                             1 << granularity, "%u %s", 1 << granularity,
-                             plurality(1 << granularity, "byte", "bytes"));
-        proto_tree_add_uint_format_value(tree, hf_scsi_ssc_readblocklimits_max_block_length_limit, tvb, offset+1, 3,
-                             tvb_get_ntoh24 (tvb, offset+1), "%u bytes", tvb_get_ntoh24 (tvb, offset+1));
-        proto_tree_add_uint_format_value(tree, hf_scsi_ssc_readblocklimits_min_block_length_limit, tvb, offset+4, 2,
-                             tvb_get_ntohs (tvb, offset+4), "%u bytes", tvb_get_ntohs (tvb, offset+4));
+        proto_tree_add_uint(tree, hf_scsi_ssc_readblocklimits_granularity, tvb, offset, 1, 1 << granularity);
+        proto_tree_add_item(tree, hf_scsi_ssc_readblocklimits_max_block_length_limit, tvb, offset+1, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_ssc_readblocklimits_min_block_length_limit, tvb, offset+4, 2, ENC_BIG_ENDIAN);
     }
 }
 
@@ -1348,9 +1344,9 @@ proto_register_scsi_ssc(void)
           {"Capacity Proportion Value", "scsi_ssc.cpv", FT_UINT16, BASE_DEC,
            NULL, 0, NULL, HFILL}},
       /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_scsi_ssc_readblocklimits_granularity, { "Granularity", "scsi_ssc.readblocklimits.granularity", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_ssc_readblocklimits_max_block_length_limit, { "Maximum Block Length Limit", "scsi_ssc.readblocklimits.max_block_length_limit", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_ssc_readblocklimits_min_block_length_limit, { "Minimum Block Length Limit", "scsi_ssc.readblocklimits.min_block_length_limit", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_ssc_readblocklimits_granularity, { "Granularity", "scsi_ssc.readblocklimits.granularity", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+      { &hf_scsi_ssc_readblocklimits_max_block_length_limit, { "Maximum Block Length Limit", "scsi_ssc.readblocklimits.max_block_length_limit", FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
+      { &hf_scsi_ssc_readblocklimits_min_block_length_limit, { "Minimum Block Length Limit", "scsi_ssc.readblocklimits.min_block_length_limit", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
       { &hf_scsi_ssc_erase6_immed, { "IMMED", "scsi_ssc.erase6.immed", FT_UINT8, BASE_DEC, NULL, 0x02, NULL, HFILL }},
       { &hf_scsi_ssc_erase6_long, { "LONG", "scsi_ssc.erase6.long", FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
       { &hf_scsi_ssc_space16_parameter_len, { "Parameter Len", "scsi_ssc.space16.parameter_len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},

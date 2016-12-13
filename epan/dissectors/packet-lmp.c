@@ -1027,8 +1027,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
                 proto_tree_add_bitmask(lmp_object_tree, tvb, offset2, hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS], lmp_subtree[LMP_TREE_BEGIN_VERIFY_FLAGS], verify_flags, ENC_BIG_ENDIAN);
 
-                proto_tree_add_uint_format_value(lmp_object_tree, hf_lmp_verify_interval, tvb, offset2+2, 2,
-                                    tvb_get_ntohs(tvb, offset2+2), "%d ms", tvb_get_ntohs(tvb, offset2+2));
+                proto_tree_add_item(lmp_object_tree, hf_lmp_verify_interval, tvb, offset2+2, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(lmp_object_tree, hf_lmp_number_of_data_links, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_ENCTYPE],
@@ -1055,9 +1054,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 proto_item_append_text(ti, ": VerifyDeadInterval: %d, TransportResponse: 0x%0x",
                                        tvb_get_ntohs(tvb, offset2),
                                        tvb_get_ntohs(tvb, offset2+2));
-                proto_tree_add_uint_format_value(lmp_object_tree, hf_lmp_verifydeadinterval, tvb, offset2, 2,
-                                    tvb_get_ntohs(tvb, offset2), "%d ms",
-                                    tvb_get_ntohs(tvb, offset2));
+                proto_tree_add_item(lmp_object_tree, hf_lmp_verifydeadinterval, tvb, offset2, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(lmp_object_tree, hf_lmp_verify_transport_response, tvb, offset2+2, 2, ENC_BIG_ENDIAN);
                 break;
 
@@ -2574,16 +2571,16 @@ proto_register_lmp(void)
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_lmp_version, { "LMP Version", "lmp.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_header_flags, { "Flags", "lmp.header_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_lmp_header_length, { "Length", "lmp.header_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_header_length, { "Length", "lmp.header_length", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
       { &hf_lmp_negotiable, { "Negotiable", "lmp.negotiable", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL }},
       { &hf_lmp_object_length, { "Length", "lmp.object_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_object_class, { "Object Class", "lmp.object_class", FT_UINT8, BASE_DEC, VALS(lmp_class_vals), 0x0, NULL, HFILL }},
-      { &hf_lmp_verify_interval, { "Verify Interval", "lmp.verify_interval", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_verify_interval, { "Verify Interval", "lmp.verify_interval", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
       { &hf_lmp_number_of_data_links, { "Number of Data Links", "lmp.number_of_data_links", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_verify_transport_mechanism, { "Verify Transport Mechanism", "lmp.verify_transport_mechanism", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_transmission_rate, { "Transmission Rate", "lmp.transmission_rate", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_wavelength, { "Wavelength", "lmp.wavelength", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_lmp_verifydeadinterval, { "VerifyDeadInterval", "lmp.verifydeadinterval", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_lmp_verifydeadinterval, { "VerifyDeadInterval", "lmp.verifydeadinterval", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
       { &hf_lmp_verify_transport_response, { "Verify Transport Response", "lmp.verify_transport_response", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_data_link_local_id_ipv6, { "Data-Link Local ID - IPv6", "lmp.data_link.local_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_lmp_data_link_remote_id_ipv6, { "Data-Link Remote ID - IPv6", "lmp.data_link.remote_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},

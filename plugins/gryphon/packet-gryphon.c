@@ -1438,7 +1438,7 @@ cmd_sched(tvbuff_t *tvb, int offset, proto_tree *pt)
 
     if (tvb_get_ntohl(tvb, offset) == 0xFFFFFFFF)
         proto_tree_add_uint_format_value(pt, hf_gryphon_sched_num_iterations, tvb, offset, 4,
-                0, "Number of iterations: \"infinite\"");
+                0, "\"infinite\"");
     else
         proto_tree_add_item(pt, hf_gryphon_sched_num_iterations, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;

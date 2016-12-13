@@ -1897,8 +1897,8 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 					    ett_http_chunk_data, NULL, "Data chunk (%u octets)", chunk_size);
 			}
 
-			chuck_size_item = proto_tree_add_uint_format_value(chunk_subtree, hf_http_chunk_size, tvb, offset,
-			    1, chunk_size, "%u octets", chunk_size);
+			chuck_size_item = proto_tree_add_uint(chunk_subtree, hf_http_chunk_size, tvb, offset,
+			    1, chunk_size);
 			proto_item_set_len(chuck_size_item, chunk_offset - offset);
 
 			/*
@@ -2049,8 +2049,8 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 					    "Data chunk (%u octets)", chunk_size);
 			}
 
-			chunk_size_item = proto_tree_add_uint_format_value(chunk_subtree, hf_http_chunk_size, tvb, offset,
-			    1, chunk_size, "%u octets", chunk_size);
+			chunk_size_item = proto_tree_add_uint(chunk_subtree, hf_http_chunk_size, tvb, offset,
+			    1, chunk_size);
 			proto_item_set_len(chunk_size_item, chunk_offset - offset);
 
 			/* last-chunk does not have chunk-data CRLF. */
@@ -3564,7 +3564,7 @@ proto_register_http(void)
 		NULL, HFILL }},
 	    { &hf_http_chunk_size,
 	      { "Chunk size", "http.chunk_size",
-		FT_UINT32, BASE_DEC, NULL, 0,
+		FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0,
 		NULL, HFILL }},
 	    { &hf_http_file_data,
 	      { "File Data", "http.file_data",

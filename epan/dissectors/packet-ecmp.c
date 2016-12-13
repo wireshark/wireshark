@@ -1029,7 +1029,7 @@ static int get_response_size(int offset, tvbuff_t *tvb, proto_tree* ecmp_tree)
 
 	/*display chunks and max response size in response subtree*/
 	proto_tree_add_item(ecmp_response_size_tree, hf_ecmp_chunking, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_uint_format_value(ecmp_response_size_tree, hf_ecmp_max_response_size, tvb, offset, 2, max_response_size, "%d bytes", max_response_size);
+	proto_tree_add_item(ecmp_response_size_tree, hf_ecmp_max_response_size, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+= 2;
 
 	return offset;
@@ -2182,11 +2182,8 @@ static int add_cyclic_setup_attributes(packet_info* pinfo, int offset, guint16 l
 
 			case 7: /* rx timeout */
 			{
-				guint32 val;
-
 				/* tout */
-				val = tvb_get_ntohl(tvb, offset);
-				proto_tree_add_uint_format_value(cyclic_setup_attrib_item, hf_ecmp_rx_timeout, tvb, offset, 4, val, "%dus", val);
+				proto_tree_add_item(cyclic_setup_attrib_item, hf_ecmp_rx_timeout, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
 				/* action */
@@ -3223,7 +3220,7 @@ void proto_register_ecmp (void)
 	{ "Chunks allowed","ecmp.chunking", FT_UINT16, BASE_DEC, NULL,0xF000, "ECMP number of chunks allowed", HFILL}},
 
 	{ &hf_ecmp_max_response_size,
-	{ "Maximum Response Size","ecmp.response_size", FT_UINT16, BASE_DEC, NULL,0x0FFF, NULL, HFILL}},
+	{ "Maximum Response Size","ecmp.response_size", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0FFF, NULL, HFILL}},
 
 	{ &hf_ecmp_category,
 	{ "Device", "ecmp.category", FT_UINT8, BASE_DEC, VALS(category), 0x0, "ECMP Category (drive or option module)", HFILL }},
@@ -3480,7 +3477,7 @@ void proto_register_ecmp (void)
 	{ &hf_ecmp_file_length, { "File length", "ecmp.file_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_ecmp_mec_offset, { "mec_offset", "ecmp.mec_offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_ecmp_sample_period, { "Sample period", "ecmp.sample_period", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-	{ &hf_ecmp_rx_timeout, { "RX Timeout", "ecmp.rx_timeout", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	{ &hf_ecmp_rx_timeout, { "RX Timeout", "ecmp.rx_timeout", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0, NULL, HFILL }},
 	{ &hf_ecmp_rx_action, { "Action", "ecmp.rx_action", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_ecmp_rx_event_destination, { "Event Destination", "ecmp.rx_event_destination", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_ecmp_rx_event, { "Event", "ecmp.rx_event", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

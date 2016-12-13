@@ -1027,8 +1027,8 @@ static void dissect_batadv_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, pr
 	}
 
 	gwflags_tree =  proto_item_add_subtree(tgw, ett_batadv_batman_gwflags);
-	proto_tree_add_uint_format_value(gwflags_tree, hf_batadv_batman_gwflags_dl_speed, tvb, offset, 1, down, "%dkbit", down);
-	proto_tree_add_uint_format_value(gwflags_tree, hf_batadv_batman_gwflags_ul_speed, tvb, offset, 1, up, "%dkbit", up);
+	proto_tree_add_uint(gwflags_tree, hf_batadv_batman_gwflags_dl_speed, tvb, offset, 1, down);
+	proto_tree_add_uint(gwflags_tree, hf_batadv_batman_gwflags_ul_speed, tvb, offset, 1, up);
 }
 
 static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -4234,12 +4234,12 @@ void proto_register_batadv(void)
 		},
 		{ &hf_batadv_batman_gwflags_dl_speed,
 		  { "Download Speed", "batadv.batman.gwflags.dl_speed",
-		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbit, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_batman_gwflags_ul_speed,
 		  { "Upload Speed", "batadv.batman.gwflags.ul_speed",
-		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbit, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_batman_tq,

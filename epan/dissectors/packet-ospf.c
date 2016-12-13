@@ -1516,8 +1516,7 @@ dissect_ospf_lls_data_block(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 
     /* TODO: verify checksum */
     proto_tree_add_checksum(ospf_lls_data_block_tree, tvb, offset, hf_ospf_lls_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
-    proto_tree_add_uint_format_value(ospf_lls_data_block_tree, hf_ospf_lls_data_length, tvb, offset + 2, 2,
-                        ospf_lls_len, "%d bytes", ospf_lls_len);
+    proto_tree_add_uint(ospf_lls_data_block_tree, hf_ospf_lls_data_length, tvb, offset + 2, 2, ospf_lls_len);
 
     offset += 4;
     DISSECTOR_ASSERT((version == OSPF_VERSION_2) || (version == OSPF_VERSION_3));
@@ -3766,7 +3765,7 @@ proto_register_ospf(void)
       { &hf_ospf_v3_lls_request_from, { "Request From", "ospf.v3.lls.request_from", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_v3_lls_full_state_for, { "Full State For", "ospf.v3.lls.full_state_for", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_lls_checksum, { "Checksum", "ospf.lls.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_ospf_lls_data_length, { "LLS Data Length", "ospf.lls.data_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ospf_lls_data_length, { "LLS Data Length", "ospf.lls.data_length", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
       { &hf_ospf_db_interface_mtu, { "Interface MTU", "ospf.db.interface_mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_db_dd_sequence, { "DD Sequence", "ospf.db.dd_sequence", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_link_state_id, { "Link State ID", "ospf.link_state_id", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},

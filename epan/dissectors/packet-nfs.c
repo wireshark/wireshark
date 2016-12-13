@@ -1750,9 +1750,8 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 
 		/* = utility = */
 		utility = tvb_get_guint8(tvb, offset);
-		tf = proto_tree_add_uint_format_value(tree, hf_nfs3_gxfh_utlfield, tvb,
-						offset, 1, utility,
-						"0x%02x", utility);
+		tf = proto_tree_add_uint(tree, hf_nfs3_gxfh_utlfield, tvb,
+						offset, 1, utility);
 
 		field_tree = proto_item_add_subtree(tf, ett_nfs3_gxfh_utlfield);
 		if (utility & NFS3GX_FH_TREE_MASK) {

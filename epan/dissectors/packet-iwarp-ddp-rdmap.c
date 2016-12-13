@@ -328,8 +328,6 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 
 	guint8 layer, etype, hdrct;
 
-	guint32 rdmardsz;
-
 	if (rdma_tree) {
 
 		if (rdma_msg_opcode == RDMA_READ_REQUEST) {
@@ -345,11 +343,9 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 					offset, RDMA_SINKTO_LEN, ENC_BIG_ENDIAN);
 			offset += RDMA_SINKTO_LEN;
 
-			rdmardsz = (guint32) tvb_get_ntohl(tvb, offset);
-			proto_tree_add_uint_format_value(rdma_header_tree,
+			proto_tree_add_item(rdma_header_tree,
 					hf_iwarp_rdma_rdmardsz, tvb, offset,
-					RDMA_RDMARDSZ_LEN, rdmardsz, "%u bytes",
-					rdmardsz);
+					RDMA_RDMARDSZ_LEN, ENC_BIG_ENDIAN);
 
 			offset += RDMA_RDMARDSZ_LEN;
 			proto_tree_add_item(rdma_header_tree, hf_iwarp_rdma_srcstag, tvb,
@@ -846,7 +842,7 @@ proto_register_iwarp_ddp_rdmap(void)
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_rdmardsz, {
 				"RDMA Read Message Size", "iwarp_rdma.rdmardsz",
-				FT_UINT32, BASE_DEC, NULL, 0x0,
+				FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_rdma_srcstag, {
 				"Data Source STag", "iwarp_rdma.srcstag",

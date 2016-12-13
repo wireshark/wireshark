@@ -550,16 +550,13 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
                             if (io_data_object->lastToggleBit != toggleBitSb) {    /* ToggleBit has changed --> new Data incoming */
                                 /* Special Filter for ToggleBit within Statusbyte */
-                                ModuleID_item = proto_tree_add_uint_format_value(IODataObject_tree, hf_pn_io_ps_sb_toggelBitChanged, tvb, offset, 0,
-                                    toggleBitSb, "%u", toggleBitSb);
+                                ModuleID_item = proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_sb_toggelBitChanged, tvb, offset, 0, toggleBitSb);
                                 PROTO_ITEM_SET_HIDDEN(ModuleID_item);
 
-                                ModuleID_item = proto_tree_add_uint_format_value(IODataObject_tree, hf_pn_io_ps_sb_toggelBitChange_slot_nr, tvb, offset, 0,
-                                    io_data_object->slotNr, "%u", io_data_object->slotNr);
+                                ModuleID_item = proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_sb_toggelBitChange_slot_nr, tvb, offset, 0, io_data_object->slotNr);
                                 PROTO_ITEM_SET_HIDDEN(ModuleID_item);
 
-                                ModuleID_item = proto_tree_add_uint_format_value(IODataObject_tree, hf_pn_io_ps_sb_toggelBitChange_subslot_nr, tvb, offset, 0,
-                                    io_data_object->subSlotNr, "%u", io_data_object->subSlotNr);
+                                ModuleID_item = proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_sb_toggelBitChange_subslot_nr, tvb, offset, 0, io_data_object->subSlotNr);
                                 PROTO_ITEM_SET_HIDDEN(ModuleID_item);
                             }
 
@@ -748,16 +745,13 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
                             if (io_data_object->lastToggleBit != toggleBitCb) {   /* ToggleBit has changed --> new Data incoming */
                                 /* Special Filter for ToggleBit within Controlbyte */
-                                ModuleID_item = proto_tree_add_uint_format_value(IODataObject_tree, hf_pn_io_ps_cb_toggelBitChanged, tvb, offset, 0,
-                                    toggleBitCb, "%u", toggleBitCb);
+                                ModuleID_item = proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_cb_toggelBitChanged, tvb, offset, 0, toggleBitCb);
                                 PROTO_ITEM_SET_HIDDEN(ModuleID_item);
 
-                                ModuleID_item = proto_tree_add_uint_format_value(IODataObject_tree, hf_pn_io_ps_cb_toggelBitChange_slot_nr, tvb, offset, 0,
-                                    io_data_object->slotNr, "%u", io_data_object->slotNr);
+                                ModuleID_item = proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_cb_toggelBitChange_slot_nr, tvb, offset, 0, io_data_object->slotNr);
                                 PROTO_ITEM_SET_HIDDEN(ModuleID_item);
 
-                                ModuleID_item = proto_tree_add_uint_format_value(IODataObject_tree, hf_pn_io_ps_cb_toggelBitChange_subslot_nr, tvb, offset, 0,
-                                    io_data_object->subSlotNr, "%u", io_data_object->subSlotNr);
+                                ModuleID_item = proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_cb_toggelBitChange_subslot_nr, tvb, offset, 0, io_data_object->subSlotNr);
                                 PROTO_ITEM_SET_HIDDEN(ModuleID_item);
                             }
 
@@ -949,17 +943,17 @@ init_pn_io_rtc1(int proto)
         },
         { &hf_pn_io_ps_sb_toggelBitChanged,
             { "Status Byte", "pn_io.ps.sb.toggle_d_changed",
-            FT_UINT8, BASE_HEX, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pn_io_ps_sb_toggelBitChange_slot_nr,
             { "Slot_Number", "pn_io.ps.sb.toggle_d_changed.slot",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pn_io_ps_sb_toggelBitChange_subslot_nr,
             { "Sub_Slot_Number", "pn_io.ps.sb.toggle_d_changed.subslot",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pn_io_ps_cb,
@@ -969,17 +963,17 @@ init_pn_io_rtc1(int proto)
         },
         { &hf_pn_io_ps_cb_toggelBitChanged,
             { "Control Byte", "pn_io.ps.cb.toggle_h_changed",
-            FT_UINT8, BASE_HEX, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pn_io_ps_cb_toggelBitChange_slot_nr,
             { "Slot_Number", "pn_io.ps.cb.toggle_h_changed.slot",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pn_io_ps_cb_toggelBitChange_subslot_nr,
             { "Sub_Slot_Number", "pn_io.ps.cb.toggle_h_changed.subslot",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         /* Structures for dissecting Status Byte & Control Byte PROFIsafe ---dissector details */

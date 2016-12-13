@@ -688,10 +688,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
     if (phdr->has_signal_percent) {
       col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%", phdr->signal_percent);
-      proto_tree_add_uint_format_value(radio_tree, hf_wlan_radio_signal_percent, tvb, 0, 0,
-              phdr->signal_percent,
-              "%u%%",
-              phdr->signal_percent);
+      proto_tree_add_uint(radio_tree, hf_wlan_radio_signal_percent, tvb, 0, 0, phdr->signal_percent);
     }
 
     if (phdr->has_signal_dbm) {
@@ -703,10 +700,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
 
     if (phdr->has_noise_percent) {
-      proto_tree_add_uint_format_value(radio_tree, hf_wlan_radio_noise_percent, tvb, 0, 0,
-              phdr->noise_percent,
-              "%u%%",
-              phdr->noise_percent);
+      proto_tree_add_uint(radio_tree, hf_wlan_radio_noise_percent, tvb, 0, 0, phdr->noise_percent);
     }
 
     if (phdr->has_noise_dbm) {
@@ -923,10 +917,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       }
 
     if (duration) {
-        proto_item *item = proto_tree_add_uint_format_value(radio_tree, hf_wlan_radio_duration, tvb, 0, 0,
-                duration,
-                "%d us",
-                duration);
+        proto_item *item = proto_tree_add_uint(radio_tree, hf_wlan_radio_duration, tvb, 0, 0, duration);
         PROTO_ITEM_SET_GENERATED(item);
 
         if (assumed_short_preamble)
@@ -942,10 +933,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
         if (preamble) {
           proto_tree *d_tree = proto_item_add_subtree(item, ett_wlan_radio_duration);
-          proto_item *p_item = proto_tree_add_uint_format_value(d_tree, hf_wlan_radio_preamble, tvb, 0, 0,
-                    preamble,
-                    "%d us",
-                    preamble);
+          proto_item *p_item = proto_tree_add_uint(d_tree, hf_wlan_radio_preamble, tvb, 0, 0, preamble);
             PROTO_ITEM_SET_GENERATED(p_item);
         }
       }
@@ -1101,7 +1089,7 @@ static hf_register_info hf_wlan_radio[] = {
       "802.11 channel number that this frame was sent/received on", HFILL }},
 
     {&hf_wlan_radio_frequency,
-     {"Frequency", "wlan_radio.frequency", FT_UINT16, BASE_DEC, NULL, 0,
+     {"Frequency", "wlan_radio.frequency", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0,
       "Center frequency of the 802.11 channel that this frame was sent/received on", HFILL }},
 
     {&hf_wlan_radio_short_preamble,
@@ -1109,7 +1097,7 @@ static hf_register_info hf_wlan_radio[] = {
       NULL, HFILL }},
 
     {&hf_wlan_radio_signal_percent,
-     {"Signal strength (percentage)", "wlan_radio.signal_percentage", FT_UINT32, BASE_DEC, NULL, 0,
+     {"Signal strength (percentage)", "wlan_radio.signal_percentage", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0,
       "Signal strength, as percentage of maximum RSSI", HFILL }},
 
     {&hf_wlan_radio_signal_dbm,
@@ -1117,7 +1105,7 @@ static hf_register_info hf_wlan_radio[] = {
       NULL, HFILL }},
 
     {&hf_wlan_radio_noise_percent,
-     {"Noise level (percentage)", "wlan_radio.noise_percentage", FT_UINT32, BASE_DEC, NULL, 0,
+     {"Noise level (percentage)", "wlan_radio.noise_percentage", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_noise_dbm,
@@ -1141,12 +1129,12 @@ static hf_register_info hf_wlan_radio[] = {
       NULL, HFILL }},
 
     {&hf_wlan_radio_duration,
-     {"Duration", "wlan_radio.duration", FT_UINT32, BASE_DEC, NULL, 0,
+     {"Duration", "wlan_radio.duration", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0,
       "Total duration of the frame in microseconds, including any preamble or plcp header. "
       "Calculated from the frame length, modulation and other phy data.", HFILL }},
 
     {&hf_wlan_radio_preamble,
-     {"Preamble", "wlan_radio.preamble", FT_UINT32, BASE_DEC, NULL, 0,
+     {"Preamble", "wlan_radio.preamble", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0,
       "Duration of the PLCP or preamble in microseconds, calculated from PHY data", HFILL }},
 
 };

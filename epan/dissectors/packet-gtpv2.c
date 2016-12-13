@@ -3442,7 +3442,6 @@ dissect_gtpv2_mm_context_common_data(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 {
     proto_tree *net_cap_tree, *msnt_cap_tree;
     guint8      ue_net_cap_len, ms_net_cap_len, mei_len;
-    guint32     tmp;
 
     /*
      * If SAMBRI (Subscribed UE AMBR Indicator), bit 1 of octet 6, is set to "1",
@@ -3450,13 +3449,11 @@ dissect_gtpv2_mm_context_common_data(tvbuff_t *tvb, packet_info *pinfo, proto_tr
      */
     if (samb_ri) {
         /* j to (j+3) Uplink Subscribed UE AMBR */
-        tmp = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint_format_value(tree, hf_gtpv2_uplink_subscribed_ue_ambr, tvb, offset, 4, tmp, "%d Kbps", tmp);
+        proto_tree_add_item(tree, hf_gtpv2_uplink_subscribed_ue_ambr, tvb, offset, 4, ENC_BIG_ENDIAN);
 
         offset += 4;
         /* (j+4) to (j+7) Downlink Subscribed UE AMBR */
-        tmp = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint_format_value(tree, hf_gtpv2_downlink_subscribed_ue_ambr, tvb, offset, 4, tmp, "%d Kbps", tmp);
+        proto_tree_add_item(tree, hf_gtpv2_downlink_subscribed_ue_ambr, tvb, offset, 4, ENC_BIG_ENDIAN);
 
         offset += 4;
     }
@@ -3466,13 +3463,11 @@ dissect_gtpv2_mm_context_common_data(tvbuff_t *tvb, packet_info *pinfo, proto_tr
      */
     if (uamb_ri) {
         /* i to (i+3) Uplink Used UE AMBR  */
-        tmp = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint_format_value(tree, hf_gtpv2_uplink_used_ue_ambr, tvb, offset, 4, tmp, "%d Kbps", tmp);
+        proto_tree_add_item(tree, hf_gtpv2_uplink_used_ue_ambr, tvb, offset, 4, ENC_BIG_ENDIAN);
 
         offset += 4;
         /* (i+4) to (i+7) Downlink Used UE AMBR */
-        tmp = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint_format_value(tree, hf_gtpv2_downlink_used_ue_ambr, tvb, offset, 4, tmp, "%d Kbps", tmp);
+        proto_tree_add_item(tree, hf_gtpv2_downlink_used_ue_ambr, tvb, offset, 4, ENC_BIG_ENDIAN);
 
         offset += 4;
     }
@@ -8969,10 +8964,10 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_drx_parameter, { "DRX parameter", "gtpv2.drx_parameter", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_mm_context_sres, { "SRES'", "gtpv2.mm_context_sres", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_mm_context_kc, { "Kc'", "gtpv2.mm_context_kc", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtpv2_uplink_subscribed_ue_ambr, { "Uplink Subscribed UE AMBR", "gtpv2.uplink_subscribed_ue_ambr", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtpv2_downlink_subscribed_ue_ambr, { "Downlink Subscribed UE AMBR", "gtpv2.downlink_subscribed_ue_ambr", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtpv2_uplink_used_ue_ambr, { "Uplink Used UE AMBR", "gtpv2.uplink_used_ue_ambr", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtpv2_downlink_used_ue_ambr, { "Downlink Used UE AMBR", "gtpv2.downlink_used_ue_ambr", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtpv2_uplink_subscribed_ue_ambr, { "Uplink Subscribed UE AMBR", "gtpv2.uplink_subscribed_ue_ambr", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0, NULL, HFILL }},
+      { &hf_gtpv2_downlink_subscribed_ue_ambr, { "Downlink Subscribed UE AMBR", "gtpv2.downlink_subscribed_ue_ambr", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0, NULL, HFILL }},
+      { &hf_gtpv2_uplink_used_ue_ambr, { "Uplink Used UE AMBR", "gtpv2.uplink_used_ue_ambr", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0, NULL, HFILL }},
+      { &hf_gtpv2_downlink_used_ue_ambr, { "Downlink Used UE AMBR", "gtpv2.downlink_used_ue_ambr", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0, NULL, HFILL }},
       { &hf_gtpv2_voice_domain_and_ue_usage_setting, { "Voice Domain Preference and UE's Usage Setting", "gtpv2.voice_domain_and_ue_usage_setting", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_ue_radio_capability_for_paging_information,{ "UE Radio Capability for Paging information", "gtpv2.UE_Radio_Capability_for_Paging_information", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_authentication_quadruplets, { "Authentication Quadruplets", "gtpv2.authentication_quadruplets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

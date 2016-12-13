@@ -186,7 +186,7 @@ static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, gu
   proto_tree_add_ipv4(igrp_vektor_tree, hf_igrp_network, tvb, 0, 3, addr.addr_word);
   proto_tree_add_item(igrp_vektor_tree, hf_igrp_delay, tvb, 3, 3, ENC_BIG_ENDIAN);
   proto_tree_add_item(igrp_vektor_tree, hf_igrp_bandwidth, tvb, 6, 3, ENC_BIG_ENDIAN);
-  proto_tree_add_uint_format_value(igrp_vektor_tree, hf_igrp_mtu, tvb, 9, 2, tvb_get_ntohs(tvb,9), "%d  bytes", tvb_get_ntohs(tvb,9));
+  proto_tree_add_item(igrp_vektor_tree, hf_igrp_mtu, tvb, 9, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(igrp_vektor_tree, hf_igrp_reliability, tvb, 11, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(igrp_vektor_tree, hf_igrp_load, tvb, 12, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(igrp_vektor_tree, hf_igrp_hop_count, tvb, 13, 1, ENC_BIG_ENDIAN);
@@ -221,7 +221,7 @@ void proto_register_igrp(void)
     { &hf_igrp_network, { "Network", "igrp.network", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_igrp_delay, { "Delay", "igrp.delay", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_igrp_bandwidth, { "Bandwidth", "igrp.bandwidth", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-    { &hf_igrp_mtu, { "MTU", "igrp.mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_igrp_mtu, { "MTU", "igrp.mtu", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }},
     { &hf_igrp_reliability, { "Reliability", "igrp.reliability", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_igrp_load, { "Load", "igrp.load", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_igrp_hop_count, { "Hop count", "igrp.hop_count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

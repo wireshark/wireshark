@@ -371,9 +371,8 @@ dissect_operation_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
             expert_add_info_format(pinfo, ti, &ei_forces_lfbselect_tlv_type_operation_type,
                 "Bogus: ForCES Operation TLV (Type:0x%04x) is not supported", type);
 
-        length = tvb_get_ntohs(tvb, offset+2);
-        proto_tree_add_uint_format_value(oper_tree, hf_forces_lfbselect_tlv_type_operation_length,
-                                   tvb, offset+2, 2, length, "%u Bytes", length);
+        proto_tree_add_item_ret_uint(oper_tree, hf_forces_lfbselect_tlv_type_operation_length,
+                                   tvb, offset+2, 2, ENC_BIG_ENDIAN, &length);
 
         dissect_path_data_tlv(tvb, pinfo, oper_tree, offset+TLV_TL_LENGTH);
         if (length == 0)
@@ -421,8 +420,7 @@ dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     proto_tree_add_item(meta_data_tree, hf_forces_redirect_tlv_meta_data_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     length_meta = tvb_get_ntohs(tvb, offset+2);
-    proto_tree_add_uint_format_value(meta_data_tree, hf_forces_redirect_tlv_meta_data_tlv_length, tvb, offset+2, 2,
-                               length_meta, "%u Bytes", length_meta);
+    proto_tree_add_uint(meta_data_tree, hf_forces_redirect_tlv_meta_data_tlv_length, tvb, offset+2, 2, length_meta);
     proto_item_set_len(ti, length_meta);
 
     start_offset = offset;
@@ -434,8 +432,8 @@ dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
         proto_tree_add_item(meta_data_ilv_tree, hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv_id,
                                    tvb, offset+8, 4, ENC_BIG_ENDIAN);
         length_ilv = tvb_get_ntohl(tvb, offset+12);
-        proto_tree_add_uint_format_value(meta_data_ilv_tree, hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv_length,
-                                   tvb,  offset+12, 4, length_ilv, "%u Bytes", length_ilv);
+        proto_tree_add_uint(meta_data_ilv_tree, hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv_length,
+                                   tvb, offset+12, 4, length_ilv);
         offset += 8;
         if (length_ilv > 0) {
             proto_tree_add_item(meta_data_ilv_tree, hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv,
@@ -457,8 +455,8 @@ dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
         proto_tree_add_item(redirect_data_tree, hf_forces_redirect_tlv_redirect_data_tlv_type,
                             tvb, offset, 2,  ENC_BIG_ENDIAN);
         length_redirect = tvb_get_ntohs(tvb, offset+2);
-        proto_tree_add_uint_format_value(redirect_data_tree, hf_forces_redirect_tlv_redirect_data_tlv_length,
-                            tvb, offset+2, 2, length_redirect, "%u Bytes", length_redirect);
+        proto_tree_add_uint(redirect_data_tree, hf_forces_redirect_tlv_redirect_data_tlv_length,
+                            tvb, offset+2, 2, length_redirect);
 
         if (tvb_reported_length_remaining(tvb, offset) < length_redirect)
         {
@@ -549,8 +547,8 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
         tlv_item = proto_tree_add_item(forces_tlv_tree, hf_forces_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         length_count = tvb_get_ntohs(tvb, offset+2) * 4;
         proto_item_set_len(ti, length_count);
-        ti = proto_tree_add_uint_format_value(forces_tlv_tree, hf_forces_tlv_length,
-                                        tvb, offset+2, 2, length_count, "%u Bytes", length_count);
+        ti = proto_tree_add_uint(forces_tlv_tree, hf_forces_tlv_length,
+                                        tvb, offset+2, 2, length_count);
         if (tvb_reported_length_remaining(tvb, offset) < length_count)
             expert_add_info_format(pinfo, ti, &ei_forces_tlv_length, "Bogus: Main TLV length (%u bytes) is wrong", length_count);
 
@@ -659,7 +657,7 @@ proto_register_forces(void)
         },
         { &hf_forces_tlv_length,
             { "Length", "forces.tlv.length",
-            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }
         },
         /*flags*/
         { &hf_forces_flags,
@@ -710,7 +708,7 @@ proto_register_forces(void)
         },
         { &hf_forces_lfbselect_tlv_type_operation_length,
             { "Length", "forces.lfbselect.tlv.type.operation.length",
-            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }
         },
         { &hf_forces_lfbselect_tlv_type_operation_path_type,
             { "Type", "forces.lfbselect.tlv.type.operation.path.type",
@@ -751,7 +749,7 @@ proto_register_forces(void)
         },
         { &hf_forces_redirect_tlv_meta_data_tlv_length,
             { "Length", "forces.redirect.tlv.meta.data.tlv.length",
-            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }
         },
         { &hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv,
             { "Meta Data ILV", "forces.redirect.tlv.meta.data.tlv.meta.data.ilv",
@@ -763,7 +761,7 @@ proto_register_forces(void)
         },
         { &hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv_length,
             { "Length", "forces.redirect.tlv.meta.data.tlv.meta.data.ilv.length",
-            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }
         },
         { &hf_forces_redirect_tlv_redirect_data_tlv_type,
             { "Type", "forces.redirect.tlv.redirect.data.tlv.type",
@@ -771,7 +769,7 @@ proto_register_forces(void)
         },
         { &hf_forces_redirect_tlv_redirect_data_tlv_length,
             { "Length", "forces.redirect.tlv.redirect.data.tlv.length",
-            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0, NULL, HFILL }
         },
         { &hf_forces_asresult_association_setup_result,
             { "Association Setup Result", "forces.teardown.reason",

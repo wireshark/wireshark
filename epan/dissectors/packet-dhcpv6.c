@@ -1768,8 +1768,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
 
         temp_optlen = tvb_get_ntohs(tvb, off);
-        proto_tree_add_uint_format_value(subtree, hf_elapsed_time, tvb, off,
-                                    2, temp_optlen*10, "%u ms", temp_optlen*10);
+        proto_tree_add_uint(subtree, hf_elapsed_time, tvb, off, 2, temp_optlen*10);
         break;
     case OPTION_RELAY_MSG:
         if (optlen == 0) {
@@ -2402,7 +2401,7 @@ proto_register_dhcpv6(void)
         { &hf_option_preference,
           { "Pref-value", "dhcpv6.option_preference", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
         { &hf_elapsed_time,
-          { "Elapsed time", "dhcpv6.elapsed_time", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},
+          { "Elapsed time", "dhcpv6.elapsed_time", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0, NULL, HFILL}},
         { &hf_auth_protocol,
           { "Protocol", "dhcpv6.auth.protocol", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
         { &hf_auth_algorithm,

@@ -159,8 +159,7 @@ again:
 
     proto_tree_add_item(ext_tree, hf_aodv_ext_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    len_item = proto_tree_add_uint_format_value(ext_tree, hf_aodv_ext_length, tvb, offset + 1, 1,
-                                                len, "%u bytes", len);
+    len_item = proto_tree_add_uint(ext_tree, hf_aodv_ext_length, tvb, offset + 1, 1, len);
     if (len == 0) {
         expert_add_info(pinfo, len_item, &ei_aodv_ext_length);
         return;                 /* we must not try to decode this */
@@ -879,7 +878,7 @@ proto_register_aodv(void)
         },
         { &hf_aodv_ext_length,
           { "Extension Length", "aodv.ext_length",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
             "Extension Data Length", HFILL}
         },
         { &hf_aodv_ext_interval,

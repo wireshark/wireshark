@@ -228,7 +228,6 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	guint16		dsi_requestid;
 	gint32		dsi_code;
 	guint32		dsi_length;
-	guint32		dsi_reserved;
 	struct		aspinfo aspinfo;
 
 
@@ -240,7 +239,6 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	dsi_requestid = tvb_get_ntohs(tvb, 2);
 	dsi_code = tvb_get_ntohl(tvb, 4);
 	dsi_length = tvb_get_ntohl(tvb, 8);
-	dsi_reserved = tvb_get_ntohl(tvb, 12);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s (%u)",
 			val_to_str(dsi_flags, flag_vals,
@@ -271,11 +269,10 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				4, 4, dsi_code);
 			break;
 		}
-		proto_tree_add_uint_format_value(dsi_tree, hf_dsi_length, tvb,
-			8, 4, dsi_length,
-			"%u bytes", dsi_length);
-		proto_tree_add_uint(dsi_tree, hf_dsi_reserved, tvb,
-			12, 4, dsi_reserved);
+		proto_tree_add_item(dsi_tree, hf_dsi_length, tvb,
+			8, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(dsi_tree, hf_dsi_reserved, tvb,
+			12, 4, ENC_BIG_ENDIAN);
 	}
 
 	switch (dsi_command) {
@@ -389,7 +386,7 @@ proto_register_dsi(void)
 
 		{ &hf_dsi_length,
 		  { "Length",           "dsi.length",
-		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
 		    "Total length of the data that follows the DSI header.", HFILL }},
 
 		{ &hf_dsi_reserved,

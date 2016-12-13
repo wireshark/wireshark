@@ -90,8 +90,7 @@ dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	proto_tree_add_checksum(idp_tree, tvb, 0, hf_idp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	length = tvb_get_ntohs(tvb, 2);
-	proto_tree_add_uint_format_value(idp_tree, hf_idp_len, tvb, 2, 2, length,
-		"%u bytes", length);
+	proto_tree_add_uint(idp_tree, hf_idp_len, tvb, 2, 2, length);
 	/* Adjust the tvbuff length to include only the IDP datagram. */
 	set_actual_length(tvb, length);
 	proto_tree_add_item(idp_tree, hf_idp_hops, tvb, 4, 1, ENC_BIG_ENDIAN);
@@ -149,8 +148,8 @@ proto_register_idp(void)
 #endif
 
 		{ &hf_idp_len,
-		    { "Length",		"idp.len", FT_UINT16, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }},
+		    { "Length",		"idp.len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING,
+			&units_byte_bytes, 0x0, NULL, HFILL }},
 
 		/* XXX - does this have separate hop count and time subfields? */
 		{ &hf_idp_hops,

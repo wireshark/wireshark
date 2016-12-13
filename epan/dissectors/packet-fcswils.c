@@ -730,8 +730,6 @@ dissect_swils_elp(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *elp_tree, g
     /* We skip the initial 4 bytes as we don't care about the opcode */
     int          offset = 4;
     const gchar *flags;
-    guint32 r_a_tov;
-    guint32 e_d_tov;
     guint16 isl_flwctrl_mode;
     guint8  clsf_svcparm[6], cls1_svcparm[2], cls2_svcparm[2], cls3_svcparm[2];
 
@@ -740,13 +738,9 @@ dissect_swils_elp(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *elp_tree, g
         proto_tree_add_item(elp_tree, hf_swils_elp_rev, tvb, offset++, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(elp_tree, hf_swils_elp_flags, tvb, offset, 2, ENC_NA);
         offset += 3;
-        r_a_tov = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint_format_value(elp_tree, hf_swils_elp_r_a_tov, tvb, offset, 4,
-                                   r_a_tov, "%d msecs", r_a_tov);
+        proto_tree_add_item(elp_tree, hf_swils_elp_r_a_tov, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        e_d_tov = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint_format_value(elp_tree, hf_swils_elp_e_d_tov, tvb, offset, 4,
-                                   e_d_tov, "%d msecs", e_d_tov);
+        proto_tree_add_item(elp_tree, hf_swils_elp_e_d_tov, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         proto_tree_add_item(elp_tree, hf_swils_elp_req_epn, tvb, offset, 8, ENC_NA);
         offset += 8;
@@ -1009,8 +1003,7 @@ static void
 dissect_swils_fspf_lsrechdr(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     proto_tree_add_item(tree, hf_swils_lsrh_lsr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_uint_format_value(tree, hf_swils_lsrh_lsr_age, tvb, offset+2, 2,
-                        tvb_get_ntohs(tvb, offset+2), "%d secs", tvb_get_ntohs(tvb, offset+2));
+    proto_tree_add_item(tree, hf_swils_lsrh_lsr_age, tvb, offset+2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_swils_lsrh_options, tvb, offset+4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_swils_lsrh_lsid, tvb, offset+11, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_swils_lsrh_adv_domid, tvb, offset+15, 1, ENC_BIG_ENDIAN);
@@ -1831,12 +1824,12 @@ proto_register_fcswils(void)
 
         { &hf_swils_elp_r_a_tov,
           {"R_A_TOV", "swils.elp.ratov",
-           FT_UINT32, BASE_DEC, NULL, 0x0,
+           FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_elp_e_d_tov,
           {"E_D_TOV", "swils.elp.edtov",
-           FT_UINT32, BASE_DEC, NULL, 0x0,
+           FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_elp_req_epn,
@@ -2461,7 +2454,7 @@ proto_register_fcswils(void)
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_swils_requested_domain_id, { "Requested Domain ID", "swils.requested_domain_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_swils_granted_domain_id, { "Granted Domain ID", "swils.granted_domain_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_swils_lsrh_lsr_age, { "LSR Age", "swils.lsr.age", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_swils_lsrh_lsr_age, { "LSR Age", "swils.lsr.age", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0, NULL, HFILL }},
       { &hf_swils_lsrh_options, { "Options", "swils.lsr.options", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_swils_lsrh_checksum, { "Checksum", "swils.lsr.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_swils_lsrh_lsr_length, { "LSR Length", "swils.lsr.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},

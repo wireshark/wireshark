@@ -252,9 +252,8 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     } else {
       phdr->has_frequency = TRUE;
       phdr->frequency = channel;
-      proto_tree_add_uint_format_value(wlan_tree, hf_netmon_802_11_frequency,
-                                       tvb, offset, 4, channel,
-                                       "%u Mhz", channel);
+      proto_tree_add_uint(wlan_tree, hf_netmon_802_11_frequency,
+                                       tvb, offset, 4, channel);
       calc_channel = ieee80211_mhz_to_chan(channel);
       if (calc_channel != -1) {
         phdr->has_channel = TRUE;
@@ -363,7 +362,7 @@ proto_register_netmon_802_11(void)
     { &hf_netmon_802_11_channel, { "Channel", "netmon_802_11.channel", FT_UINT32,
                           BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_frequency, { "Center frequency", "netmon_802_11.frequency", FT_UINT32,
-                          BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                          BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_rssi, { "RSSI", "netmon_802_11.rssi", FT_INT32,
                           BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_datarate, { "Data rate", "netmon_802_11.datarate", FT_UINT32,

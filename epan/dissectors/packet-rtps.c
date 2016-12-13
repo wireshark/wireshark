@@ -155,7 +155,7 @@ static int hf_rtps_persistence                          = -1;
 static int hf_rtps_info_ts_timestamp                    = -1;
 static int hf_rtps_locator_kind                         = -1;
 static int hf_rtps_locator_port                         = -1;
-static int hf_rtps_logical_port                         = -1;
+/* static int hf_rtps_logical_port                         = -1; */
 static int hf_rtps_locator_public_address_port          = -1;
 static int hf_rtps_locator_ipv4                         = -1;
 static int hf_rtps_locator_ipv6                         = -1;
@@ -264,9 +264,9 @@ static int hf_rtps_source_participant_guid                  = -1;
 static int hf_rtps_message_identity_source_guid             = -1;
 static int hf_rtps_pgm_message_class_id                     = -1;
 static int hf_rtps_pgm_data_holder_class_id                 = -1;
-static int hf_rtps_pgm_data_holder_stringseq_size           = -1;
-static int hf_rtps_pgm_data_holder_stringseq_name           = -1;
-static int hf_rtps_pgm_data_holder_long_long                = -1;
+/* static int hf_rtps_pgm_data_holder_stringseq_size           = -1; */
+/* static int hf_rtps_pgm_data_holder_stringseq_name           = -1; */
+/* static int hf_rtps_pgm_data_holder_long_long                = -1; */
 
 static int hf_rtps_param_ntpt_sec                               = -1;
 static int hf_rtps_param_ntpt_fraction                          = -1;
@@ -3452,15 +3452,13 @@ gint rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
   guint32 seq_length;
   proto_item *ti;
 
-  seq_length = tvb_get_guint32(tvb, offset, encoding);
-
-  ti = proto_tree_add_uint_format_value(tree, hf_rtps_sequence_size, tvb, offset, 4, seq_length, "%d octets", seq_length);
+  ti = proto_tree_add_item_ret_uint(tree, hf_rtps_sequence_size, tvb, offset, 4, encoding, &seq_length);
 
   offset += 4;
   /* param length -1 means not specified */
   if (param_length != -1 && param_length < 4 + (int)seq_length) {
     expert_add_info_format(pinfo, ti, &ei_rtps_parameter_value_invalid, "ERROR: Parameter value too small");
-    return offset + seq_length;;
+    return offset + seq_length;
   }
 
   proto_tree_add_item(tree, hf_id, tvb, offset, seq_length, ENC_NA);
@@ -10171,13 +10169,13 @@ void proto_register_rtps(void) {
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
-
+#if 0
     { &hf_rtps_logical_port,
       { "RTPS Logical Port", "rtps.locator.port",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
-
+#endif
     { &hf_rtps_locator_public_address_port,
       { "Public Address Port", "rtps.locator.public_address_port",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -10973,7 +10971,7 @@ void proto_register_rtps(void) {
 
     { &hf_rtps_sequence_size, {
         "sequenceSize", "rtps.sequence_size",
-        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0, NULL, HFILL }
     },
 
     { &hf_rtps_guid, {
@@ -11495,6 +11493,7 @@ void proto_register_rtps(void) {
       { "Class Id", "rtps.pgm.data_holder.class_id",
         FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
     },
+#if 0
     { &hf_rtps_pgm_data_holder_stringseq_size,
       { "Size", "rtps.pgm.data_holder.string_seq_size",
         FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }
@@ -11507,6 +11506,7 @@ void proto_register_rtps(void) {
       { "Long long", "rtps.pgm.data_holder.long_long",
         FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL }
     },
+#endif
     { &hf_rtps_param_topic_query_publication_enable,
       { "Enable", "rtps.param.topic_query_publication_enable",
         FT_BOOLEAN, 8, TFS(&tfs_true_false), 0, NULL, HFILL }

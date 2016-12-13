@@ -49,16 +49,27 @@ WS_DLL_PUBLIC char* unit_name_string_get_value64(guint64 value, unit_name_string
 WS_DLL_PUBLIC const unit_name_string units_foot_feet;
 WS_DLL_PUBLIC const unit_name_string units_bit_bits;
 WS_DLL_PUBLIC const unit_name_string units_byte_bytes;
+WS_DLL_PUBLIC const unit_name_string units_octet_octets;
 WS_DLL_PUBLIC const unit_name_string units_word_words;
+WS_DLL_PUBLIC const unit_name_string units_tick_ticks;
 WS_DLL_PUBLIC const unit_name_string units_second_seconds; // full unit name "second[s?]"
 WS_DLL_PUBLIC const unit_name_string units_seconds;        //only seconds abbreviation "s"
 WS_DLL_PUBLIC const unit_name_string units_millisecond_milliseconds; // full unit name "millisecond[s?]"
 WS_DLL_PUBLIC const unit_name_string units_milliseconds;        //only seconds abbreviation "ms"
+WS_DLL_PUBLIC const unit_name_string units_microseconds;        //only seconds abbreviation "us"
 WS_DLL_PUBLIC const unit_name_string units_nanosecond_nanoseconds; // full unit name "nanosecond[s?]"
+WS_DLL_PUBLIC const unit_name_string units_nanometers;
 WS_DLL_PUBLIC const unit_name_string units_degree_degrees;
+WS_DLL_PUBLIC const unit_name_string units_decibals;
+WS_DLL_PUBLIC const unit_name_string units_percent;
 WS_DLL_PUBLIC const unit_name_string units_ghz;
+WS_DLL_PUBLIC const unit_name_string units_mhz;
 WS_DLL_PUBLIC const unit_name_string units_hz;
 WS_DLL_PUBLIC const unit_name_string units_hz_s;
+WS_DLL_PUBLIC const unit_name_string units_kbit;
+WS_DLL_PUBLIC const unit_name_string units_kbps;
+WS_DLL_PUBLIC const unit_name_string units_bit_sec;
+WS_DLL_PUBLIC const unit_name_string units_segment_remaining;
 
 #ifdef __cplusplus
 }

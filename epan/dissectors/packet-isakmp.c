@@ -3543,7 +3543,7 @@ dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf_ui
       guint8 val;
       val = tvb_get_guint8(tvb, offset);
 
-      proto_tree_add_uint_format_value(tree, hf_uint32, tvb, offset, len, val, "%u", val);
+      proto_tree_add_uint(tree, hf_uint32, tvb, offset, len, val);
       proto_item_append_text(ti, ": %u", val);
       break;
     }
@@ -3551,7 +3551,7 @@ dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf_ui
       guint16 val;
       val = tvb_get_ntohs(tvb, offset);
 
-      proto_tree_add_uint_format_value(tree, hf_uint32, tvb, offset, len, val, "%u", val);
+      proto_tree_add_uint(tree, hf_uint32, tvb, offset, len, val);
       proto_item_append_text(ti, ": %u", val);
       break;
     }
@@ -3559,7 +3559,7 @@ dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf_ui
       guint32 val;
       val = tvb_get_ntoh24(tvb, offset);
 
-      proto_tree_add_uint_format_value(tree, hf_uint32, tvb, offset, len, val, "%u", val);
+      proto_tree_add_uint(tree, hf_uint32, tvb, offset, len, val);
       proto_item_append_text(ti, ": %u", val);
       break;
     }
@@ -3567,7 +3567,7 @@ dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf_ui
       guint32 val;
       val = tvb_get_ntohl(tvb, offset);
 
-      proto_tree_add_uint_format_value(tree, hf_uint32, tvb, offset, len, val, "%u", val);
+      proto_tree_add_uint(tree, hf_uint32, tvb, offset, len, val);
       proto_item_append_text(ti, ": %u", val);
       break;
     }

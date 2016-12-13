@@ -803,11 +803,9 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			proto_item_append_text(oi,", %u seconds",
 			    receive_timer);
 
-			proto_tree_add_uint_format_value(option_tree,
+			proto_tree_add_uint(option_tree,
 			    hf_dhcpfo_receive_timer, tvb, offset,
-			    option_length, receive_timer,
-			    "%u seconds",
-			    receive_timer);
+			    option_length, receive_timer);
 			break;
 
 		case DHCP_FO_PD_HASH_BUCKET_ASSIGNMENT:
@@ -1079,7 +1077,7 @@ proto_register_dhcpfo(void)
 
 		{&hf_dhcpfo_receive_timer,
 			{"Receive timer", "dhcpfo.receivetimer",
-			FT_UINT32, BASE_DEC, NULL, 0,
+			FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0,
 			NULL, HFILL }
 		},
 

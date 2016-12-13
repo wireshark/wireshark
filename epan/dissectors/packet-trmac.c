@@ -245,8 +245,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 			}
 
 			error_report_timer_value = 10 * tvb_get_ntohs(tvb, svoff+2);
-			proto_tree_add_uint_format_value(sv_tree, hf_trmac_error_report_timer_value, tvb, svoff+2, sv_length-2,
-											error_report_timer_value, "%u ms", error_report_timer_value );
+			proto_tree_add_uint(sv_tree, hf_trmac_error_report_timer_value, tvb, svoff+2, sv_length-2, error_report_timer_value);
 			proto_item_append_text(sv_item,
 				": %u ms", error_report_timer_value );
 			break;
@@ -497,8 +496,7 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		mac_tree = proto_item_add_subtree(ti, ett_tr_mac);
 
 		proto_tree_add_uint(mac_tree, hf_trmac_mv, tvb, 3, 1, mv_val);
-		proto_tree_add_uint_format_value(mac_tree, hf_trmac_length, tvb, 0, 2, mv_length,
-				"%d bytes", mv_length);
+		proto_tree_add_uint(mac_tree, hf_trmac_length, tvb, 0, 2, mv_length);
 		proto_tree_add_uint(mac_tree, hf_trmac_srcclass, tvb, 2, 1, tvb_get_guint8(tvb, 2) & 0x0f);
 		proto_tree_add_uint(mac_tree, hf_trmac_dstclass, tvb, 2, 1, tvb_get_guint8(tvb, 2) >> 4 );
 
@@ -527,7 +525,7 @@ proto_register_trmac(void)
 			NULL, HFILL }},
 
 		{ &hf_trmac_length,
-		{ "Total Length",			"trmac.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "Total Length",			"trmac.length", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_trmac_srcclass,
@@ -611,7 +609,7 @@ proto_register_trmac(void)
 			NULL, HFILL }},
 
 		{ &hf_trmac_error_report_timer_value,
-		{ "Error Report Timer Value",		"trmac.error_report_timer_value", FT_UINT16, BASE_DEC, NULL, 0x0,
+		{ "Error Report Timer Value",		"trmac.error_report_timer_value", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_trmac_authorized_function_classes,

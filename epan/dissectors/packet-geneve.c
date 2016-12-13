@@ -60,7 +60,6 @@ void proto_reg_handoff_geneve(void);
 static int proto_geneve = -1;
 
 static int hf_geneve_version = -1;
-static int hf_geneve_opt_len = -1;
 static int hf_geneve_flags = -1;
 static int hf_geneve_flag_oam = -1;
 static int hf_geneve_flag_critical = -1;
@@ -177,8 +176,7 @@ dissect_unknown_option(tvbuff_t *tvb, proto_tree *opts_tree, int offset,
         PROTO_ITEM_SET_HIDDEN(flag_item);
     }
 
-    proto_tree_add_uint_format_value(opt_tree, hf_geneve_option_length, tvb,
-                                     offset, 1, len, "%u bytes", len);
+    proto_tree_add_uint(opt_tree, hf_geneve_option_length, tvb, offset, 1, len);
     offset += 1;
 
     proto_tree_add_item(opt_tree, hf_geneve_opt_unknown_data, tvb, offset,
@@ -258,8 +256,8 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
     /* Option length. */
     opts_len = (ver_opt & HDR_OPTS_LEN_MASK) * 4;
-    proto_tree_add_uint_format_value(geneve_tree, hf_geneve_opt_len, tvb,
-                                     offset, 1, opts_len, "%u bytes", opts_len);
+    proto_tree_add_uint(geneve_tree, hf_geneve_option_length, tvb,
+                                     offset, 1, opts_len);
     offset += 1;
 
     /* Flags. */
@@ -330,11 +328,6 @@ proto_register_geneve(void)
             FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_geneve_opt_len,
-          { "Options Length", "geneve.options_length",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_geneve_flags,
           { "Flags", "geneve.flags",
             FT_UINT8, BASE_HEX, NULL, 0x00,
@@ -402,7 +395,7 @@ proto_register_geneve(void)
         },
         { &hf_geneve_option_length,
           { "Length", "geneve.option.length",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x00,
             NULL, HFILL }
         },
         { &hf_geneve_opt_unknown,

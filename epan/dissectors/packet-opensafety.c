@@ -334,11 +334,11 @@ opensafety_packet_node(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree *t
 
     if ( sdn > 0 )
     {
-        psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb,
-                posSdnInFrame, 2, sdn, "0x%04X", sdn);
+        psf_item = proto_tree_add_uint(psf_tree, hf_oss_msg_network, message_tvb,
+                posSdnInFrame, 2, sdn);
     } else if ( sdn <= 0 ) {
-        psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb,
-                posSdnInFrame, 2, sdn * -1, "0x%04X", sdn * -1);
+        psf_item = proto_tree_add_uint(psf_tree, hf_oss_msg_network, message_tvb,
+                posSdnInFrame, 2, sdn * -1);
         expert_add_info(pinfo, psf_item, &ei_scmudid_unknown );
     }
     PROTO_ITEM_SET_GENERATED(psf_item);
@@ -958,9 +958,7 @@ static void dissect_opensafety_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_
                                                                          &opensafety_sod_idx_names_ext, "Unknown") );
             PROTO_ITEM_SET_GENERATED(item);
 
-            entry = tvb_get_letohl ( new_tvb, 0 );
-            proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_timestamp, new_tvb, 0,
-                        4, entry, "0x%08X", entry );
+            proto_tree_add_item( sod_tree, hf_oss_sod_par_timestamp, new_tvb, 0, 4, ENC_LITTLE_ENDIAN );
 
             /* This is to avoid a compiler loop optimization warning */
             nCRCs = dataLength / 4;
@@ -1025,9 +1023,7 @@ static void dissect_opensafety_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_
 
                 if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x06 )
                 {
-                    entry = tvb_get_letohl ( new_tvb, ctr + 5 );
-                    proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_timestamp, new_tvb, ctr + 5,
-                                4, entry, "0x%08X", entry );
+                    proto_tree_add_item( sod_tree, hf_oss_sod_par_timestamp, new_tvb, ctr + 5, 4, ENC_LITTLE_ENDIAN );
 
                     /* This is to avoid a compiler loop optimization warning */
                     nCRCs = sodLength / 4;
@@ -1038,9 +1034,7 @@ static void dissect_opensafety_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_
                                 (ctr + 5 + ( n * 4 ) ), 4, entry, "[#%d] 0x%08X", n, entry );
                     }
                 } else if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x07 ) {
-                    entry = tvb_get_letohl ( new_tvb, ctr + 5 );
-                    proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_timestamp, new_tvb, ctr + 5,
-                                4, entry, "0x%08X", entry );
+                    proto_tree_add_item( sod_tree, hf_oss_sod_par_timestamp, new_tvb, ctr + 5, 4, ENC_LITTLE_ENDIAN );
                 } else if ( ( dispSSDOIndex == OPENSAFETY_SOD_RXMAP || dispSSDOIndex == OPENSAFETY_SOD_TXMAP ) && ssdoSubIndex != 0x0 ) {
                     proto_tree_add_uint(sod_tree, hf_oss_ssdo_sodentry_size, new_tvb, ctr + 1, 4, sodLength );
                     item = proto_tree_add_item(sod_tree, hf_oss_ssdo_sodmapping, new_tvb, ctr + 5, sodLength, ENC_NA );
@@ -1048,8 +1042,7 @@ static void dissect_opensafety_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_
 
                     proto_tree_add_item(ext_tree, hf_oss_ssdo_sodmapping_bits, new_tvb, ctr + 5, 1, ENC_NA);
 
-                    entry = tvb_get_letohl ( new_tvb, ctr + 7 );
-                    proto_tree_add_item(ext_tree, hf_oss_ssdo_sod_index, new_tvb, ctr + 7, 2, entry);
+                    proto_tree_add_item(ext_tree, hf_oss_ssdo_sod_index, new_tvb, ctr + 7, 2, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item(ext_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 6, 1, ENC_NA);
 
                 } else {
@@ -1330,9 +1323,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
                     if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x06 )
                     {
-                        entry = tvb_get_letohl ( message_tvb, payloadOffset );
-                        proto_tree_add_uint_format_value ( ssdo_tree, hf_oss_sod_par_timestamp, message_tvb, payloadOffset,
-                                    4, entry, "0x%08X", entry );
+                        proto_tree_add_item( ssdo_tree, hf_oss_sod_par_timestamp, message_tvb, payloadOffset, 4, ENC_LITTLE_ENDIAN );
                         for ( n = 4; n < payloadSize; n+=4 )
                         {
                             entry = tvb_get_letohl ( message_tvb, payloadOffset + n );
@@ -1340,9 +1331,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                                     4, entry, "[#%d] 0x%08X", ( n / 4 ), entry );
                         }
                     } else if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x07 ) {
-                        entry = tvb_get_letohl ( message_tvb, payloadOffset );
-                        proto_tree_add_uint_format_value ( ssdo_tree, hf_oss_sod_par_timestamp, message_tvb, payloadOffset,
-                                    4, entry, "0x%08X", entry );
+                        proto_tree_add_item ( ssdo_tree, hf_oss_sod_par_timestamp, message_tvb, payloadOffset, 4, ENC_LITTLE_ENDIAN );
                     } else
                         proto_tree_add_item(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, payloadSize, ENC_NA );
                 }
@@ -1389,7 +1378,6 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         opensafety_packet_info *packet, proto_item * opensafety_item )
 {
     proto_tree *snmt_tree;
-    guint32     entry = 0;
     guint16     addr, taddr, sdn;
     guint8      db0, byte, errcode;
     guint       dataLength;
@@ -1570,9 +1558,8 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         {
             if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_SET_TO_OP) == 0 )
             {
-                entry = tvb_get_letohl ( message_tvb, packet->frame.subframe1 + OSS_FRAME_POS_DATA + 1 );
-                proto_tree_add_uint_format_value ( snmt_tree, hf_oss_sod_par_timestamp, message_tvb,
-                        OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1, 4, entry, "0x%08X", entry );
+                proto_tree_add_item ( snmt_tree, hf_oss_sod_par_timestamp, message_tvb,
+                        OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1, 4, ENC_LITTLE_ENDIAN );
             }
             else if ( ( db0 ^ OPENSAFETY_MSG_SNMT_EXT_ASSIGN_ADDITIONAL_SADR) == 0 )
             {

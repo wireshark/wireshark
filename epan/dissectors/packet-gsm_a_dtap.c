@@ -3637,7 +3637,6 @@ de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 curr_offset;
     guchar  oct;
     guint8  lb_setup_length,i,j;
-    guint16 value;
     proto_tree* subtree;
 
     curr_offset = offset;
@@ -3655,8 +3654,7 @@ de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         for (i=0,j=0; (i<lb_setup_length) && (j<4); i+=3,j++)
         {
             subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 3, ett_ue_test_loop_mode, NULL, "LB setup RB IE: %d",j+1);
-            value = tvb_get_ntohs(tvb, curr_offset);
-            proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_uplink_rlc_sdu_size, tvb, curr_offset, 2, value, "%d bits", value);
+            proto_tree_add_item(subtree, hf_gsm_a_dtap_uplink_rlc_sdu_size, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
             curr_offset += 2;
             proto_tree_add_item(subtree, hf_gsm_a_dtap_radio_bearer, tvb, curr_offset, 1, ENC_NA);
             curr_offset+= 1;
@@ -8191,7 +8189,7 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_uplink_rlc_sdu_size,
           { "Uplink RLC SDU size", "gsm_a_dtap.uplink_rlc_sdu_size",
-          FT_UINT16, BASE_DEC, NULL, 0x0,
+          FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_bit_bits, 0x0,
           NULL, HFILL }
         },
         { &hf_gsm_a_dtap_radio_bearer,

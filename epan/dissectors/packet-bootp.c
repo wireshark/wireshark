@@ -4649,8 +4649,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 			"Bogus length: %s", asc_val);
 		return;
 	} else {
-		proto_tree_add_uint_format_value(v_tree, hf_bootp_pkt_mta_cap_len, tvb, off, 2,
-				tlv_len, "%d", tlv_len);
+		proto_tree_add_uint(v_tree, hf_bootp_pkt_mta_cap_len, tvb, off, 2, tlv_len);
 		off += 2;
 
 		while (off - voff < len) {
@@ -5152,8 +5151,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		tlv_type = tvb_get_guint8(tvb, off);
 		/* Length */
 		tlv_len	 = tvb_get_guint8(tvb, off+1);
-		proto_tree_add_uint_format_value(v_tree, hf_bootp_docsis_cm_cap_len, tvb, off+1, 1,
-						 tlv_len, "%d", tlv_len);
+		proto_tree_add_uint(v_tree, hf_bootp_docsis_cm_cap_len, tvb, off+1, 1, tlv_len);
 	}
 	else
 	{
@@ -5958,8 +5956,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	 */
 	secs = tvb_get_letohs(tvb, 8);
 	if (secs > 0 && secs <= 0xff) {
-		ti = proto_tree_add_uint_format_value(bp_tree, hf_bootp_secs, tvb,
-			    8, 2, secs, "%u", secs);
+		ti = proto_tree_add_uint(bp_tree, hf_bootp_secs, tvb, 8, 2, secs);
 		expert_add_info_format(pinfo, ti, &ei_bootp_secs_le, "Seconds elapsed appears to be encoded as little-endian");
 	} else {
 		proto_tree_add_item(bp_tree, hf_bootp_secs, tvb,
