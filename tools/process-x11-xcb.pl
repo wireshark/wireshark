@@ -345,7 +345,7 @@ eot
         } else {
             print $decl "static int $regname = -1;\n";
             if ($list and $info->{'size'} > 1) {
-                print $reg "{ &$regname, { \"$fieldname\", \"x11.glx.render.$name.$fieldname\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
+                print $reg "{ &$regname, { \"$fieldname\", \"x11.glx.render.$name.$fieldname.list\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
                 $regname .= '_item';
                 print $decl "static int $regname = -1;\n";
             }
@@ -732,7 +732,7 @@ sub register_element($$$$;$)
 
     print $decl "static int $regname = -1;\n";
     if ($e->name() eq 'list' and defined $info->{'size'} and $info->{'size'} > 1) {
-        print $reg "{ &$regname, { \"$fieldname\", \"$humanname\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
+        print $reg "{ &$regname, { \"$fieldname\", \"$humanname.list\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
         $regname .= '_item';
         print $decl "static int $regname = -1;\n";
     }
