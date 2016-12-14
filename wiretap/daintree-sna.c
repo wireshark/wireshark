@@ -62,10 +62,9 @@ typedef struct daintree_sna_header {
 #define DAINTREE_SNA_HEADER_SIZE 2
 #define FCS_LENGTH 2
 
-static const char daintree_magic_text[] =
-{ '#', 'F', 'o', 'r', 'm', 'a', 't', '=' };
+static const char daintree_magic_text[] = "#Format=";
 
-#define DAINTREE_MAGIC_TEXT_SIZE (sizeof daintree_magic_text)
+#define DAINTREE_MAGIC_TEXT_SIZE (sizeof daintree_magic_text - 1)
 #define DAINTREE_MAX_LINE_SIZE 512
 #define READDATA_BUF_SIZE (DAINTREE_MAX_LINE_SIZE/2)
 #define READDATA_MAX_FIELD_SIZE "255"  /* DAINTREE_MAX_LINE_SIZE/2 -1 */
@@ -98,8 +97,7 @@ wtap_open_return_val daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* check magic text */
-	if (strlen(readLine) >= DAINTREE_MAGIC_TEXT_SIZE &&
-	    memcmp(readLine, daintree_magic_text, DAINTREE_MAGIC_TEXT_SIZE) != 0)
+	if (strncmp(readLine, daintree_magic_text, DAINTREE_MAGIC_TEXT_SIZE) != 0)
 		return WTAP_OPEN_NOT_MINE; /* not daintree format */
 
 	/* read second header line */
