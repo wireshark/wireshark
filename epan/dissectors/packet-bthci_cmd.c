@@ -358,6 +358,11 @@ static int hf_bthci_cmd_sec_adv_max_skip = -1;
 static int hf_bthci_cmd_secondary_advertising_phy = -1;
 static int hf_bthci_cmd_advertising_sid = -1;
 static int hf_bthci_cmd_scan_req_notif_en = -1;
+static int hf_bthci_cmd_le_adv_data_operation = -1;
+static int hf_bthci_cmd_le_adv_data_frag_pref = -1;
+static int hf_bthci_cmd_le_adv_en_sets = -1;
+static int hf_bthci_cmd_le_adv_duration = -1;
+static int hf_bthci_cmd_le_adv_max_extended_events = -1;
 
 
 static const int *hfx_bthci_cmd_le_event_mask[] = {
@@ -1686,6 +1691,20 @@ static const value_string cmd_le_secondary_advertising_phy[] = {
     { 0x01, "Secondary advertisement PHY is LE 1M" },
     { 0x02, "Secondary advertisement PHY is LE 2M" },
     { 0x03, "Secondary advertisement PHY is LE Coded" },
+    { 0, NULL }
+};
+
+static const value_string cmd_le_adv_data_operation[] = {
+    { 0x00, "Intermediate fragment of fragmented data" },
+    { 0x01, "First fragment of fragmented data" },
+    { 0x02, "Last fragment of fragmented data" },
+    { 0x03, "Complete scan response data" },
+    { 0, NULL }
+};
+
+static const value_string cmd_le_adv_data_frag_pref[] = {
+    { 0x00, "The Controller may fragment all Host data" },
+    { 0x01, "The Controller should not fragment or should minimize fragmentation of Host data" },
     { 0, NULL }
 };
 
@@ -3450,6 +3469,51 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_scan_req_notif_en, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
+            break;
+
+        case 0x037: /* LE Set Extended Advertising Data */
+        case 0x038: /* LE Set Extended Scan Response Data */
+            {
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset+=1;
+            proto_tree_add_item(tree, hf_bthci_cmd_le_adv_data_operation, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset+=1;
+            proto_tree_add_item(tree, hf_bthci_cmd_le_adv_data_frag_pref, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset+=1;
+
+            bluetooth_eir_ad_data_t *ad_data;
+            ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+            ad_data->interface_id = bluetooth_data->interface_id;
+            ad_data->adapter_id = bluetooth_data->adapter_id;
+            ad_data->bd_addr = NULL;
+
+            guint8 data_length = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_data_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            call_dissector_with_data(btcommon_ad_handle, tvb_new_subset_length(tvb, offset, data_length), pinfo, tree, ad_data);
+            save_local_device_name_from_eir_ad(tvb, offset, pinfo, data_length, bluetooth_data);
+            offset += data_length;
+            }
+            break;
+
+        case 0x039: /* LE Set Extended Advertising Enable */
+            {
+            proto_tree_add_item(tree, hf_bthci_cmd_le_advts_enable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+
+            guint8 number_of_sets = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_adv_en_sets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+
+            for (int i = 0; i< number_of_sets; i++) {
+                proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset+=1;
+                proto_tree_add_item(tree, hf_bthci_cmd_le_adv_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset+=2;
+                proto_tree_add_item(tree, hf_bthci_cmd_le_adv_max_extended_events, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset+=1;
+            }
+            }
             break;
 
         case 0x002: /* LE Read Buffer Size */
@@ -5302,6 +5366,31 @@ proto_register_bthci_cmd(void)
         { &hf_bthci_cmd_scan_req_notif_en,
           { "Scan Request Notification Enable", "bthci_cmd.scan_request_notification_enable",
             FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_adv_data_operation,
+          { "Data Operation", "bthci_cmd.adv_data_operation",
+            FT_UINT8, BASE_HEX, VALS(cmd_le_adv_data_operation), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_adv_data_frag_pref,
+          { "Fragment Preference", "bthci_cmd.adv_fragment_preference",
+            FT_UINT8, BASE_HEX, VALS(cmd_le_adv_data_frag_pref), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_adv_en_sets,
+          { "Number of Sets", "bthci_cmd.adv_num_sets",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_adv_duration,
+          { "Duration", "bthci_cmd.adv_duration",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_adv_max_extended_events,
+          { "Max Extended Events", "bthci_cmd.max_extended_advertising_events",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
     };
