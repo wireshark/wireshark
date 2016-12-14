@@ -10,16 +10,18 @@ used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
+//The following vulnerabilities have been fixed:
 
-* ws-salink:2016-62[]
-+
-A dissector went awry.
-(ws-buglink:xxxx[])
+//* ws-salink:2016-63[]
+//+
+//A dissector went awry.
+//(ws-buglink:xxxx[])
 //cve-idlink:2015-XXXX[]
 // Fixed in master: xxxx
 // Fixed in master-2.2: xxxx
 // Fixed in master-2.0: xxxx
+
+* Arbitrary file deletion on Windows. (ws-buglink:13217[])
 
 The following bugs have been fixed:
 
@@ -28,6 +30,42 @@ The following bugs have been fixed:
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.3rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Saving all exported objects (SMB/SMB2) results in out of physical memory. (ws-buglink:11133[])
+
+* Export HTTP Objects - Single file shows as multiple files in 2.0.2. (ws-buglink:12230[])
+
+* Follow Stream and graph buttons remain greyed out in conversation window. (ws-buglink:12893[])
+
+* Dicom list of tags in element of VR=AT not properly decoded. (ws-buglink:13077[])
+
+* Malformed Packet: BGP Update (withdraw) message. (ws-buglink:13146[])
+
+* Install fail on macOS Serria (error PKInstallErrorDomain Code=112). (ws-buglink:13152[])
+
+* GTP: "Create PDP Context response" message shows back-off timer as malformed when included in the response. (ws-buglink:13153[])
+
+* ICMP dissector fails to properly detect timestamps. (ws-buglink:13161[])
+
+* RLC misdissection. (ws-buglink:13162[])
+
+* Text2pcap on Windows produces corrupt output when writing the capture file to the standard output. (ws-buglink:13165[])
+
+* HTML escaping of quotes in error message. (ws-buglink:13178[])
+
+* TShark doesn't respect protocols.display_hidden_proto_items setting. (ws-buglink:13192[])
+
+* RPC/RDMA dissector should exit when frame is not RPC-over-RDMA. (ws-buglink:13195[])
+
+* Some RPC-over-RDMA frames are not recognized as RPC-over-RDMA. (ws-buglink:13196[])
+
+* RPC-over-RDMA frames with chunk lists are "Malformed". (ws-buglink:13197[])
+
+* TShark fails to pass RPC-over-RDMA frames to RPC subdissector. (ws-buglink:13198[])
+
+* Adding a DOF DPS Identity Secret, session Key, or Mode Template causes Wireshark to crash. (ws-buglink:13209[])
+
+* Wireshark shows "MS Video Source Request" in a RTCP packet as "Malformed". (ws-buglink:13212[])
 
 === New and Updated Features
 
@@ -46,6 +84,22 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+BGP
+BTLE
+BOOTP/DHCP
+DICOM
+DOF
+Echo
+GTP
+ICMP
+Radiotap
+RLC
+RPC over RDMA
+RTCP
+SMB
+TCP
+UFTP4
+VXLAN
 --sort-and-group--
 
 === New and Updated Capture File Support
