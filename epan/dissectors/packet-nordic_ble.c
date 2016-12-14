@@ -55,6 +55,7 @@ static gint ett_packet_header = -1;
 static gint ett_flags = -1;
 
 static int hf_nordic_ble_board_id = -1;
+static int hf_nordic_ble_legacy_marker = -1;
 static int hf_nordic_ble_header = -1;
 static int hf_nordic_ble_header_length = -1;
 static int hf_nordic_ble_payload_length = -1;
@@ -94,31 +95,32 @@ static dissector_handle_t btle_dissector_handle = NULL;
 static dissector_handle_t debug_handle = NULL;
 
 static gint
-dissect_lengths(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean *bad_length)
+dissect_lengths(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean legacy_mode, guint8 *packet_length, gboolean *bad_length)
 {
     guint8 hlen, plen;
     proto_item* item;
 
-    hlen = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_nordic_ble_header_length, tvb, offset, 1, ENC_NA);
-    offset += 1;
+    if (!legacy_mode) {
+        hlen = tvb_get_guint8(tvb, offset) + 1; /* Add one byte for board id */
+        proto_tree_add_item(tree, hf_nordic_ble_header_length, tvb, offset, 1, ENC_NA);
+        offset += 1;
+    } else {
+        hlen = 8; /* 2 bytes legacy marker + 6 bytes header */
+    }
 
     plen = tvb_get_guint8(tvb, offset);
     item = proto_tree_add_item(tree, hf_nordic_ble_payload_length, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    if ((hlen + plen + 1u) != tvb_captured_length(tvb)) {
+    if (((hlen + plen) != tvb_captured_length(tvb)) ||
+        ((hlen + plen) < MIN_TOTAL_LENGTH) ||
+        ((hlen + plen) > MAX_TOTAL_LENGTH))
+    {
         expert_add_info(pinfo, item, &ei_nordic_ble_bad_length);
         *bad_length = TRUE;
     }
-    else if ((hlen + plen) < MIN_TOTAL_LENGTH) {
-        expert_add_info(pinfo, item, &ei_nordic_ble_bad_length);
-        *bad_length = TRUE;
-    }
-    else if ((hlen + plen) > MAX_TOTAL_LENGTH) {
-        expert_add_info(pinfo, item, &ei_nordic_ble_bad_length);
-        *bad_length = TRUE;
-    }
+
+    *packet_length = plen;
 
     return offset;
 }
@@ -128,7 +130,6 @@ dissect_flags(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, 
 {
     guint8 flags;
     gboolean dir, encrypted;
-    /*gboolean bad_length = FALSE;*/
     proto_item *flags_item, *item;
     proto_tree *flags_tree;
 
@@ -196,31 +197,50 @@ dissect_ble_delta_time(tvbuff_t *tvb, gint offset, proto_tree *tree, guint8 pack
 }
 
 static gint
-dissect_packet_header(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean *bad_length, guint8 *packet_len)
+dissect_packet_counter(tvbuff_t *tvb, gint offset, proto_item *item, proto_tree *tree)
+{
+    proto_item_append_text(item, ", Packet counter: %u", tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN));
+    proto_tree_add_item(tree, hf_nordic_ble_packet_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static gint
+dissect_packet_header(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean legacy_mode, gboolean *bad_length, guint8 *packet_len)
 {
     proto_item *ti;
     proto_tree *header_tree;
-    guint8 header_len;
+    gint start_offset = offset;
 
-    header_len = tvb_get_guint8(tvb, offset) + 1;
-    ti = proto_tree_add_item(tree, hf_nordic_ble_header, tvb, offset, header_len, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_nordic_ble_header, tvb, offset, -1, ENC_NA);
     header_tree = proto_item_add_subtree(ti, ett_packet_header);
 
-    offset = dissect_lengths(tvb, offset, pinfo, header_tree, bad_length);
+    if (legacy_mode) {
+        proto_tree_add_item(header_tree, hf_nordic_ble_packet_id, tvb, offset, 1, ENC_NA);
+        offset += 1;
 
-    proto_tree_add_item(header_tree, hf_nordic_ble_protover, tvb, offset, 1, ENC_NA);
-    offset += 1;
+        offset = dissect_packet_counter(tvb, offset, ti, header_tree);
 
-    proto_item_append_text(ti, ", Packet counter: %u", tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN));
-    proto_tree_add_item(header_tree, hf_nordic_ble_packet_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
+        offset += 2; // Two unused bytes
+    }
 
-    proto_tree_add_item(header_tree, hf_nordic_ble_packet_id, tvb, offset, 1, ENC_NA);
-    offset += 1;
+    offset = dissect_lengths(tvb, offset, pinfo, header_tree, legacy_mode, packet_len, bad_length);
 
-    *packet_len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(header_tree, hf_nordic_ble_packet_length, tvb, offset, 1, ENC_NA);
-    offset += 1;
+    if (!legacy_mode) {
+        proto_tree_add_item(header_tree, hf_nordic_ble_protover, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        offset = dissect_packet_counter(tvb, offset, ti, header_tree);
+
+        proto_tree_add_item(header_tree, hf_nordic_ble_packet_id, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(header_tree, hf_nordic_ble_packet_length, tvb, offset, 1, ENC_NA);
+        offset += 1;
+    }
+
+    proto_item_set_len(ti, offset - start_offset);
 
     return offset;
 }
@@ -254,14 +274,20 @@ dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_context
     proto_tree *nordic_ble_tree;
     guint8 packet_len = 0;
     gint offset = 0;
+    gboolean legacy_mode = (tvb_get_guint16(tvb, 0, ENC_BIG_ENDIAN) == 0xBEEF);
 
     ti = proto_tree_add_item(tree, proto_nordic_ble, tvb, 0, -1, ENC_NA);
     nordic_ble_tree = proto_item_add_subtree(ti, ett_nordic_ble);
 
-    proto_tree_add_item(nordic_ble_tree, hf_nordic_ble_board_id, tvb, 0, 1, ENC_NA);
-    offset += 1;
+    if (legacy_mode) {
+        proto_tree_add_item(nordic_ble_tree, hf_nordic_ble_legacy_marker, tvb, 0, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    } else {
+        proto_tree_add_item(nordic_ble_tree, hf_nordic_ble_board_id, tvb, 0, 1, ENC_NA);
+        offset += 1;
+    }
 
-    offset = dissect_packet_header(tvb, offset, pinfo, nordic_ble_tree, bad_length, &packet_len);
+    offset = dissect_packet_header(tvb, offset, pinfo, nordic_ble_tree, legacy_mode, bad_length, &packet_len);
     offset = dissect_packet(tvb, offset, pinfo, nordic_ble_tree, context, packet_len);
 
     proto_item_set_len(ti, offset);
@@ -305,6 +331,11 @@ proto_register_nordic_ble(void)
         { &hf_nordic_ble_board_id,
             { "Board", "nordic_ble.board_id",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_nordic_ble_legacy_marker,
+            { "Legacy marker", "nordic_ble.legacy_marker",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_nordic_ble_header,
