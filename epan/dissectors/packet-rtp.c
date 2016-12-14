@@ -147,6 +147,7 @@ static const fragment_items rtp_fragment_items = {
 };
 
 static dissector_handle_t rtp_handle;
+static dissector_handle_t rtp_rfc4571_handle;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t classicstun_handle;
 static dissector_handle_t stun_handle;
@@ -272,6 +273,9 @@ static int hf_rtp_ext_rfc5285_id = -1;
 static int hf_rtp_ext_rfc5285_length = -1;
 static int hf_rtp_ext_rfc5285_appbits = -1;
 static int hf_rtp_ext_rfc5285_data = -1;
+
+/* RFC 4571 Header extension */
+static int hf_rfc4571_header_len = -1;
 
 #define RTP0_INVALID 0
 #define RTP0_STUN    1
@@ -1235,7 +1239,7 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
 
 /* Set up an SRTP conversation */
 void
-srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
+srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int port, int other_port,
          const gchar *setup_method, guint32 setup_frame_number,
          gboolean is_video _U_, rtp_dyn_payload_t *rtp_dyn_payload,
          struct srtp_info *srtp_info)
@@ -1249,13 +1253,13 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
      * we've already done this work, so we don't need to do it
      * again.
      */
-    if ((pinfo->fd->flags.visited) || (rtp_handle == NULL))
+    if ((pinfo->fd->flags.visited) || (rtp_handle == NULL) || (rtp_rfc4571_handle == NULL))
     {
         return;
     }
 
-    DPRINT(("#%u: %srtp_add_address(%s, %u, %u, %s, %u)",
-            pinfo->num, (srtp_info)?"s":"", address_to_str(wmem_packet_scope(), addr), port,
+    DPRINT(("#%u: %srtp_add_address(%d, %s, %u, %u, %s, %u)",
+            pinfo->num, (srtp_info)?"s":"", ptype, address_to_str(wmem_packet_scope(), addr), port,
             other_port, setup_method, setup_frame_number));
     DINDENT();
 
@@ -1265,7 +1269,7 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
      * Check if the ip address and port combination is not
      * already registered as a conversation.
      */
-    p_conv = find_conversation(setup_frame_number, addr, &null_addr, PT_UDP, port, other_port,
+    p_conv = find_conversation(setup_frame_number, addr, &null_addr, ptype, port, other_port,
                    NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
     DENDENT();
@@ -1275,13 +1279,19 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
      * If not, create a new conversation.
      */
     if (!p_conv || p_conv->setup_frame != setup_frame_number) {
-        p_conv = conversation_new(setup_frame_number, addr, &null_addr, PT_UDP,
+        p_conv = conversation_new(setup_frame_number, addr, &null_addr, ptype,
                                   (guint32)port, (guint32)other_port,
                       NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
     }
 
     /* Set dissector */
-    conversation_set_dissector(p_conv, rtp_handle);
+    if (ptype == PT_UDP) {
+        conversation_set_dissector(p_conv, rtp_handle);
+    } else if (ptype == PT_TCP) {
+        conversation_set_dissector(p_conv, rtp_rfc4571_handle);
+    } else {
+        DISSECTOR_ASSERT(FALSE);
+    }
 
     /*
      * Check if the conversation has data associated with it.
@@ -1335,11 +1345,11 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
 
 /* Set up an RTP conversation */
 void
-rtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
+rtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int port, int other_port,
         const gchar *setup_method, guint32 setup_frame_number,
         gboolean is_video , rtp_dyn_payload_t *rtp_dyn_payload)
 {
-    srtp_add_address(pinfo, addr, port, other_port, setup_method, setup_frame_number, is_video, rtp_dyn_payload, NULL);
+    srtp_add_address(pinfo, ptype, addr, port, other_port, setup_method, setup_frame_number, is_video, rtp_dyn_payload, NULL);
 }
 
 static gboolean
@@ -1749,8 +1759,6 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pinfo->desegment_len = 0;
 }
 
-
-
 static int
 dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -1838,6 +1846,30 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         hdr_last = hdr_last->next;
     }
     return tvb_captured_length(tvb);
+}
+
+static int
+dissect_rtp_rfc4571(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    gint offset = 0;
+    unsigned int packet_len;
+    unsigned int rtp_packet_len;
+    tvbuff_t  *nexttvb;
+
+    packet_len = tvb_reported_length(tvb);
+    if ( packet_len < 2 )
+        return 0;
+
+    /* Is packet longer than length item */
+    rtp_packet_len = tvb_get_ntohs( tvb, offset );
+    if (packet_len != rtp_packet_len)
+        return 0;
+
+    proto_tree_add_uint( tree, hf_rfc4571_header_len, tvb, offset, 2, rtp_packet_len);
+    offset += 2;
+
+    nexttvb = tvb_new_subset_remaining( tvb, offset);
+    return dissect_rtp( nexttvb, pinfo, tree, data );
 }
 
 static void
@@ -3552,6 +3584,18 @@ proto_register_rtp(void)
                 HFILL
             }
         },
+        {
+            &hf_rfc4571_header_len,
+            {
+                "RFC 4571 packet len",
+                "rtp.rfc4571.len",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
 
         /* reassembly stuff */
         {&hf_rtp_fragments,
@@ -3667,6 +3711,7 @@ proto_register_rtp(void)
 
     register_dissector("rtp", dissect_rtp, proto_rtp);
     register_dissector("rtp.rfc2198", dissect_rtp_rfc2198, proto_rtp);
+    register_dissector("rtp.rfc4571", dissect_rtp_rfc4571, proto_rtp);
 
     rtp_tap = register_tap("rtp");
 
@@ -3729,8 +3774,10 @@ proto_reg_handoff_rtp(void)
 
         rtp_handle = find_dissector("rtp");
         rtp_rfc2198_handle = find_dissector("rtp.rfc2198");
+        rtp_rfc4571_handle = find_dissector("rtp.rfc4571");
 
         dissector_add_for_decode_as("udp.port", rtp_handle);
+        dissector_add_for_decode_as("tcp.port", rtp_rfc4571_handle);
         dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
         heur_dissector_add( "udp", dissect_rtp_heur_udp,  "RTP over UDP", "rtp_udp", proto_rtp, HEURISTIC_DISABLE);
         heur_dissector_add("stun", dissect_rtp_heur_app, "RTP over TURN", "rtp_stun", proto_rtp, HEURISTIC_DISABLE);

@@ -6844,7 +6844,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
             rtp_dyn_payload_used = TRUE;
 
             first_assigned_found = TRUE;
-            rtp_add_address(pinfo, &data_p->rtp_src_addr, data_p->rtp_port, 0, "IOS5",
+            rtp_add_address(pinfo, PT_UDP, &data_p->rtp_src_addr, data_p->rtp_port, 0, "IOS5",
                 pinfo->num, FALSE, rtp_dyn_payload);
         }
 

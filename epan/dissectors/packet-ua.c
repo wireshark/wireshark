@@ -224,7 +224,7 @@ static void _dissect_ua_msg(tvbuff_t       *tvb,
 
             if ((remote_rtp_addr.data != NULL) && (remote_rtp_port != 0))
             {
-                rtp_add_address(pinfo, &remote_rtp_addr, remote_rtp_port, 0,
+                rtp_add_address(pinfo, PT_UDP, &remote_rtp_addr, remote_rtp_port, 0,
                         "UA", pinfo->num, 0, NULL);
                 rtcp_add_address(pinfo, &remote_rtp_addr, remote_rtp_port+1, 0,
                          "UA", pinfo->num);

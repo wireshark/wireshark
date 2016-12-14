@@ -2271,7 +2271,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
     src_addr.len = 4;
     src_addr.data = (guint8 *)&ip_address;
     ip_address = tvb_get_ipv4(tvb, offset);
-    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->num, is_video, NULL);
+    rtp_add_address(pinfo, PT_UDP, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->num, is_video, NULL);
     ptvcursor_add(cursor, hfindex_ipv4, 4, ENC_BIG_ENDIAN);
     if (hdr_version >= V17_MSG_TYPE) {
       /* skip over the extra room for ipv6 addresses */
@@ -2283,7 +2283,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
     src_addr.len = 16;
     src_addr.data = (guint8 *)&IPv6;
     tvb_get_ipv6(tvb, offset, &IPv6);
-    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->num, is_video, NULL);
+    rtp_add_address(pinfo, PT_UDP, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->num, is_video, NULL);
     ptvcursor_add(cursor, hfindex_ipv6, 16, ENC_NA);
   } else {
     /* Invalid : skip over ipv6 space completely */

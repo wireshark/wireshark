@@ -3200,7 +3200,7 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         }
         conversation_delete_proto_data(conv, proto_rsl);
         wmem_free(wmem_file_scope(), dyn_pl_info);
-        rtp_add_address(pinfo, &src_addr, local_port, 0,
+        rtp_add_address(pinfo, PT_UDP, &src_addr, local_port, 0,
                         "GSM A-bis/IP", pinfo->num, 0, dyn_pl);
         rtcp_add_address(pinfo, &src_addr, local_port+1, 0,
                          "GSM A-bis/IP", pinfo->num);

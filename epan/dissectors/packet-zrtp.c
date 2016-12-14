@@ -452,10 +452,10 @@ dissect_Conf2ACK(packet_info *pinfo) {
   dummy_srtp_info->mki_len = 0;
   dummy_srtp_info->auth_tag_len = 4;
 
-  srtp_add_address(pinfo, &pinfo->net_src, pinfo->srcport, pinfo->destport,
+  srtp_add_address(pinfo, PT_UDP, &pinfo->net_src, pinfo->srcport, pinfo->destport,
                    "ZRTP", pinfo->num, FALSE, NULL, dummy_srtp_info);
 
-  srtp_add_address(pinfo, &pinfo->net_dst, pinfo->destport, pinfo->srcport,
+  srtp_add_address(pinfo, PT_UDP, &pinfo->net_dst, pinfo->destport, pinfo->srcport,
                    "ZRTP", pinfo->num, FALSE, NULL, dummy_srtp_info);
 
   srtcp_add_address(pinfo, &pinfo->net_src, pinfo->srcport+1, pinfo->destport+1,

@@ -636,7 +636,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
     if (rtp_transport)
     {
         /* There is always data for RTP */
-        rtp_add_address(pinfo, &pinfo->dst, c_data_port, s_data_port,
+        rtp_add_address(pinfo, PT_UDP, &pinfo->dst, c_data_port, s_data_port,
                         "RTSP", pinfo->num, is_video, NULL);
 
         /* RTCP only if indicated */

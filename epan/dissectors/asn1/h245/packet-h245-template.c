@@ -371,7 +371,7 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 	/* DEBUG 	g_warning("h245_setup_channels media_addr.addr.type %u port %u",upcoming_channel_lcl->media_addr.addr.type, upcoming_channel_lcl->media_addr.port );
 	*/
 	if (upcoming_channel_lcl->media_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_addr.port!=0) {
-		srtp_add_address(pinfo, &upcoming_channel_lcl->media_addr.addr,
+		srtp_add_address(pinfo, PT_UDP, &upcoming_channel_lcl->media_addr.addr,
 						upcoming_channel_lcl->media_addr.port, 0,
 						"H245", pinfo->num, upcoming_channel_lcl->is_video , rtp_dyn_payload, dummy_srtp_info);
 	}

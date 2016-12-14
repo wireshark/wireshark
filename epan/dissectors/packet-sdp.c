@@ -2141,7 +2141,7 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
                 DINDENT();
                 /* srtp_add_address and rtp_add_address are given the request_frame's not this frame's number,
                    because that's where the RTP flow started, and thus conversation needs to check against */
-                srtp_add_address(pinfo, &media_desc->conn_addr, media_desc->media_port, 0, "SDP", establish_frame,
+                srtp_add_address(pinfo, PT_UDP, &media_desc->conn_addr, media_desc->media_port, 0, "SDP", establish_frame,
                                  media_desc->is_video,
                                  media_desc->media.rtp_dyn_payload, srtp_info);
                 DENDENT();
@@ -2149,7 +2149,7 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
                 DPRINT(("calling rtp_add_address, channel=%d, media_port=%d",
                         i, media_desc->media_port));
                 DINDENT();
-                rtp_add_address(pinfo, &media_desc->conn_addr, media_desc->media_port, 0, "SDP", establish_frame,
+                rtp_add_address(pinfo, PT_UDP, &media_desc->conn_addr, media_desc->media_port, 0, "SDP", establish_frame,
                                 media_desc->is_video,
                                 media_desc->media.rtp_dyn_payload);
                 DENDENT();

@@ -193,6 +193,7 @@ struct _rtp_conversation_info
 /* Add an RTP conversation with the given details */
 WS_DLL_PUBLIC
 void rtp_add_address(packet_info *pinfo,
+                     const port_type ptype,
                      address *addr, int port,
                      int other_port,
                      const gchar *setup_method,
@@ -203,6 +204,7 @@ void rtp_add_address(packet_info *pinfo,
 /* Add an SRTP conversation with the given details */
 WS_DLL_PUBLIC
 void srtp_add_address(packet_info *pinfo,
+                     const port_type ptype,
                      address *addr, int port,
                      int other_port,
                      const gchar *setup_method,

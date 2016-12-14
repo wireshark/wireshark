@@ -881,7 +881,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 if (rtp_handle) {
                     /* FIXME tell if isn't a video stream, and setup codec mapping */
                     if (addr.len)
-                        rtp_add_address(pinfo, &addr, port, 0, "RTPproxy", pinfo->num, 0, NULL);
+                        rtp_add_address(pinfo, PT_UDP, &addr, port, 0, "RTPproxy", pinfo->num, 0, NULL);
                 }
                 if (rtcp_handle) {
                     if (addr.len)
