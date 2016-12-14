@@ -98,7 +98,8 @@ wtap_open_return_val daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* check magic text */
-	if (memcmp(readLine, daintree_magic_text, DAINTREE_MAGIC_TEXT_SIZE) != 0)
+	if (strlen(readLine) >= DAINTREE_MAGIC_TEXT_SIZE &&
+	    memcmp(readLine, daintree_magic_text, DAINTREE_MAGIC_TEXT_SIZE) != 0)
 		return WTAP_OPEN_NOT_MINE; /* not daintree format */
 
 	/* read second header line */
