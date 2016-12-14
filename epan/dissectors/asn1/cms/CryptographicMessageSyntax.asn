@@ -1,14 +1,17 @@
 -- Extracted from RFC5652
 -- and massaged/modified so it passes through our asn2wrs compiler
 
-CryptographicMessageSyntax { iso(1) member-body(2) us(840) rsadsi(113549)
-      pkcs(1) pkcs-9(9) smime(16) modules(0) cms-2004(24) } DEFINITIONS IMPLICIT TAGS ::=
+CryptographicMessageSyntax
+  { iso(1) member-body(2) us(840) rsadsi(113549)
+    pkcs(1) pkcs-9(9) smime(16) modules(0) cms-2004(24) }
+
+DEFINITIONS IMPLICIT TAGS ::=
 BEGIN
 
 -- EXPORTS All
--- The types and values defined in this module are exported for use in
--- the other ASN.1 modules.  Other applications may use them for their
--- own purposes.
+-- The types and values defined in this module are exported for use
+-- in the other ASN.1 modules.  Other applications may use them for
+-- their own purposes.
 
 IMPORTS
   -- Directory Information Framework (X.501)
@@ -24,13 +27,10 @@ IMPORTS
 
 
 -- Cryptographic Message Syntax
--- 
-
 
 ContentInfo ::= SEQUENCE {
-   contentType ContentType,
-   content [0] EXPLICIT ANY DEFINED BY contentType
-}
+  contentType ContentType,
+  content [0] EXPLICIT ANY DEFINED BY contentType }
 
 ContentType ::= OBJECT IDENTIFIER
 
@@ -70,8 +70,7 @@ UnsignedAttributes ::= SET SIZE (1..MAX) OF Attribute
 
 Attribute ::= SEQUENCE {
   attrType OBJECT IDENTIFIER,
-  attrValues SET OF AttributeValue 
-}
+  attrValues SET OF AttributeValue }
 
 AttributeValue ::= ANY
 
@@ -245,8 +244,7 @@ UserKeyingMaterial ::= OCTET STRING
 
 OtherKeyAttribute ::= SEQUENCE {
   keyAttrId OBJECT IDENTIFIER,
-  keyAttr ANY DEFINED BY keyAttrId OPTIONAL
-}
+  keyAttr ANY DEFINED BY keyAttrId OPTIONAL }
 
 -- Content Type Object Identifiers
 
@@ -274,12 +272,12 @@ id-ct-authData OBJECT IDENTIFIER ::= { iso(1) member-body(2)
 -- The CMS Attributes
 
 MessageDigest ::= OCTET STRING
- 
+
 SigningTime  ::= Time
- 
+
 Time ::= CHOICE {
-   utcTime UTCTime,
-   generalTime GeneralizedTime }
+  utcTime UTCTime,
+  generalTime GeneralizedTime }
 
 Countersignature ::= SignerInfo
 
@@ -349,11 +347,11 @@ id-signingTime OBJECT IDENTIFIER ::= { iso(1) member-body(2)
 id-countersignature OBJECT IDENTIFIER ::= { iso(1) member-body(2)
     us(840) rsadsi(113549) pkcs(1) pkcs9(9) 6 }
 
--- Obsolete Extended Certificate syntax from PKCS#6
+-- Obsolete Extended Certificate syntax from PKCS #6
 
 ExtendedCertificateOrCertificate ::= CHOICE {
-     certificate Certificate,
-     extendedCertificate [0] IMPLICIT ExtendedCertificate }
+  certificate Certificate,
+  extendedCertificate [0] IMPLICIT ExtendedCertificate }
 
 ExtendedCertificate ::= SEQUENCE {
   extendedCertificateInfo ExtendedCertificateInfo,
