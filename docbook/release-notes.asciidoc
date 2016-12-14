@@ -10,7 +10,7 @@ used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-//The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
 //* ws-salink:2016-63[]
 //+
@@ -104,9 +104,9 @@ VXLAN
 
 === New and Updated Capture File Support
 
-//There is no new or updated capture file support in this release.
---sort-and-group--
---sort-and-group--
+There is no new or updated capture file support in this release.
+//--sort-and-group--
+//--sort-and-group--
 
 === New and Updated Capture Interfaces support
 
@@ -152,9 +152,6 @@ Filtering tshark captures with read filters (-R) no longer works.
 
 Application crash when changing real-time option.
 (ws-buglink:4035[])
-
-Packet list rows are oversized.
-(ws-buglink:4357[])
 
 Wireshark and TShark will display incorrect delta times in some cases.
 (ws-buglink:4985[])

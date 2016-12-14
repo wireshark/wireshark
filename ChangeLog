@@ -1,0 +1,1045 @@
+commit b5336be
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 14 08:45:15 2016 -0800
+
+    Build 2.2.3.
+    
+    Change-Id: I7c69e6fce27bef164ed1189da2837898ede601a8
+
+commit 68129c5
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Dec 13 18:14:39 2016 -0800
+
+    Fix tpyo.
+    
+    Change-Id: Id5d08b34f56786f36f995a1e6c0d03ad1e392baf
+    Reviewed-on: https://code.wireshark.org/review/19252
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 00d0b27
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 13 16:26:08 2016 -0800
+
+    Update release notes for 2.2.3.
+    
+    Change-Id: Ib4b702f5a465c2587774392aba4e56b1a0b54a0d
+    Reviewed-on: https://code.wireshark.org/review/19249
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 4cc70f5
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Dec 9 19:27:58 2016 -0800
+
+    Boost the max CPU time.
+    
+    See if that lets the big file from bug 13226 pass the test under
+    Valgrind.
+    
+    Change-Id: I76eb0c18809289e3b14ff8071402c31f70d93d42
+    Ping-Bug: 13226
+    Reviewed-on: https://code.wireshark.org/review/19189
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 5592deb6d0659a8f0dba52f8301fc7d19a56575a)
+    Reviewed-on: https://code.wireshark.org/review/19246
+
+commit a337a62
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Dec 8 09:41:47 2016 -0800
+
+    Update to WinSparkle 0.5.3.
+    
+    Update our WinSparkle package to 0.5.3. This fixes a file deletion bug.
+    Note that WinSparkle now supports application shutdown callbacks, which
+    should let us fix bugs 9687 and 12989.
+    
+    Bug: 13217
+    Change-Id: I4b5f325c6dc251ce167f7bd344bbf3ca5ad3fe14
+    (cherry picked from commit 91968833037ed0e5d13b012d448bf3a9e8bc8f48)
+    Reviewed-on: https://code.wireshark.org/review/19231
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit cb86717
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sat Dec 10 13:07:06 2016 +0100
+
+    Qt: Avoid infinite recursion in ExtcapArgument::loadValues
+    
+    If configuring a extcap "value" sentence with {value=} then loadValues()
+    must not run in a infinite recursion trying to find it's children.
+    
+    Change-Id: Ic2577b31d9312e8f6a099c4fe7c0672e801dbc89
+    Reviewed-on: https://code.wireshark.org/review/19192
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    (cherry picked from commit 00223bc5b9f3c34a365759fceb49684b4496051a)
+    Reviewed-on: https://code.wireshark.org/review/19202
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 92ab5aa
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 11 08:22:53 2016 -0800
+
+    [Automatic update for 2016-12-11]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I13551e660d234fdb37c16f98a59a132cd4414611
+    Reviewed-on: https://code.wireshark.org/review/19204
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 13b230f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Dec 10 10:37:07 2016 -0800
+
+    Initialize fd_head->frame in all cases where we allocate fd_head.
+    
+    Also, sort the initializations of structure members by the order in the
+    structure, to make it easier to check that we've initialized them all.
+    
+    Bug: 13231
+    Change-Id: Id2819940d916a5fd5a3f1bf2fc20bd3ee34a75f4
+    Reviewed-on: https://code.wireshark.org/review/19195
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 2dfa603333416aec69719fb074388886f0fc96b2)
+    Reviewed-on: https://code.wireshark.org/review/19196
+
+commit 95b5b0c
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Thu Dec 8 21:41:58 2016 -0500
+
+    [ICMP] use abs() in detecting timestamp heuristics
+    
+    The code was making the assumption that the ICMP data time will always
+    be greater than or equal to the frame time, but not earlier, but that
+    is not always the case and the heuristics can fail.
+    
+    Bug: 13161
+    Change-Id: I4bc7bd8d22d717d3b1f08afdd651f8a70cb7aef2
+    Reviewed-on: https://code.wireshark.org/review/19157
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit f60ec2581ae825f89e669ca4b4f14917a2aab561)
+    Reviewed-on: https://code.wireshark.org/review/19184
+
+commit abddc44
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Dec 8 12:40:32 2016 -0800
+
+    Add a comment explaining how a compiler bug where it's overly optimizing
+    a combination of tests could cause the valgrind errors we were seeing,
+    so we're zeroing the entire structure, padding included, to avoid that.
+    
+    Change-Id: I6713c870b0432a03b81dda3c3a50566853a9021c
+    Reviewed-on: https://code.wireshark.org/review/19152
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit c6e6f79
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Tue Dec 6 17:46:09 2016 +0100
+
+    cops: try to avoid uninitialized warning error
+    
+    Valgrind 3.11.0 on the Ubuntu 16.04 buildbot reports that
+    cops_call->solicited is not initialized:
+    
+        pdus_array = (GPtrArray *)wmem_map_lookup(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value));
+        /* ... */
+        for (i=0; i < pdus_array->len; i++) {
+            cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
+            if ( /* ... */
+            ( (cops_call->op_code == COPS_MSG_KA && !(cops_call->solicited)) &&
+                                                      ^^^^^^^^^^^^^^^^^^^^
+    
+    which is clearly bogus since the only place where cops_call could be
+    created is a few lines up:
+    
+        ver_flags = tvb_get_guint8(tvb, offset);
+        is_solicited = (lo_nibble(ver_flags) == 0x01);
+        /* ... */
+        pdus_array = (GPtrArray *)wmem_map_lookup(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value));
+        if (pdus_array == NULL) {
+            pdus_array = g_ptr_array_new();
+            wmem_map_insert(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value), pdus_array);
+        }
+        /* ... */
+        cops_call = wmem_new(wmem_file_scope(), cops_call_t);
+        cops_call->op_code = op_code;
+        cops_call->solicited = is_solicited;
+        /* ... */
+        g_ptr_array_add(pdus_array, cops_call);
+    
+    Try to zero the whole structure to avoid this bogus warning.
+    
+    Change-Id: I1ec4d23e99c987849af580a1c8134610c383e55e
+    Ping-Bug: 13044
+    Ping-Bug: 13203
+    Reviewed-on: https://code.wireshark.org/review/19119
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 47829b9611b613425aa0a314224863b02b915ea2)
+    Reviewed-on: https://code.wireshark.org/review/19150
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 8c1819b
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue Dec 6 21:19:01 2016 -0500
+
+    RTCP: Bugfix MS Video Source Request dissection
+    
+    Bug: 13212
+    Change-Id: I249d38e843f737bbd0773828f24980d148fbaa00
+    Reviewed-on: https://code.wireshark.org/review/19126
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 29768d91ec60023cc68cb38edc492a6d2221f662)
+    Reviewed-on: https://code.wireshark.org/review/19140
+
+commit 35c5dab
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Dec 6 14:50:09 2016 +0100
+
+    DOF: fix UAT update callbacks
+    
+    - update callback must return a boolean to indicate success / failure
+    - error message must be allcoated in glib memory as GUI will g_free it
+    
+    Bug: 13209
+    Change-Id: Ibb9690034d66dae85e775d0010aadeb192c76b4a
+    Reviewed-on: https://code.wireshark.org/review/19111
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 7c3ecc6956e456867ac7d216600ea3697b548eff)
+    Reviewed-on: https://code.wireshark.org/review/19114
+
+commit f3abfb2
+Author: Chuck Lever <chuck.lever@oracle.com>
+Date:   Sun Dec 4 20:16:59 2016 -0500
+
+    packet-rpcrdma: Clean up Reply chunk dissection
+    
+    Display the Reply chunk as a tree, using the same code that the
+    Write list dissector now uses. Fix up the selection size of the
+    Reply chunk.
+    
+    Bug: 13197
+    Change-Id: Ie861b7721b2c2dd9a5839986488ee22f39f81d1e
+    Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+    Reviewed-on: https://code.wireshark.org/review/19101
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit a94b82a8e1ca71d130ec5a77f7d71b2d6814aeef)
+    Reviewed-on: https://code.wireshark.org/review/19112
+
+commit 47a205c
+Author: Chuck Lever <chuck.lever@oracle.com>
+Date:   Sun Dec 4 18:39:39 2016 -0500
+
+    packet-rpcrdma: Fix Write list dissection
+    
+    The current mechanism of dissecting RPC-over-RDMA chunk lists is not
+    working. It treats the Write list as a list of RDMA segments (it's a
+    list of counted arrays).
+    
+    Bug: 13197
+    Change-Id: I6f8e788d66eefd17d6c1995e238a9ff9fa1e81f2
+    Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+    Reviewed-on: https://code.wireshark.org/review/19100
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 677a543e48eed5921d44ceb53ea6101b43a98ad2)
+    Reviewed-on: https://code.wireshark.org/review/19110
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+
+commit 3eecb9e
+Author: Chuck Lever <chuck.lever@oracle.com>
+Date:   Sun Dec 4 17:36:59 2016 -0500
+
+    packet-rpcrdma: Fix Read list dissection
+    
+    The current mechanism of dissecting RPC-over-RDMA chunk lists is not
+    working. It treats the Read list as a counted array (it's a list).
+    
+    Part of this confusion arises because RFC 5666 uses the term "chunk"
+    to mean "chunk", "read segment", and "rdma segment". Re-organize
+    the dissector logic to make this distinction properly.
+    
+    Bug: 13197
+    Change-Id: Iad517804dbcf8b30de795af03af7a71a6f231231
+    Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+    Reviewed-on: https://code.wireshark.org/review/19099
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 149e42f7d5e4bbb988da7e9f7fc70efe87cbca2e)
+    Reviewed-on: https://code.wireshark.org/review/19105
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+
+commit 43b76c5
+Author: Chuck Lever <chuck.lever@oracle.com>
+Date:   Sun Dec 4 16:58:37 2016 -0500
+
+    packet-rpcrdma: Remove if (tree) preventing dissectors being called.
+    
+    When tshark displays each frame in default mode (without -V):
+    
+    - NFS on TCP is dissected and displayed
+    - NFS on RPC/RDMA is displayed as only an RPC/RDMA frame
+    
+    NFS on RPC/RDMA should be dissected and displayed just like NFS on
+    TCP. Make passing along the RPC payload to the RPC dissector
+    unconditional.
+    
+    Bug: 13198
+    Change-Id: Ia86f3abcfcbc65a860d4ff7bac19a5f3af44a0b0
+    Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+    Reviewed-on: https://code.wireshark.org/review/19027
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 026b2f99293d1eb75f29178fc1ffd86dbe22fe7d)
+    Reviewed-on: https://code.wireshark.org/review/19104
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+
+commit 3508aee
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Mon Dec 5 07:39:06 2016 -0500
+
+    SMB: Limit Export object files to 32 bits.
+    
+    Most of the file offset fields are 32-bit, but the algorithms use gsize
+    variables, which can vary between 32 and 64 bit builds.  The 64-bit
+    builds are the ones with the problem with "garbage" data comes from
+    (effectively) invalid 32-bit offsets.
+    
+    Bug: 11133
+    Change-Id: Icb5d31ae732f9177f3a117dfae39bf1cc983d603
+    Reviewed-on: https://code.wireshark.org/review/19090
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit af816dd
+Author: Michal Labedzki <michal.labedzki@tieto.com>
+Date:   Wed Nov 9 12:51:15 2016 +0100
+
+    Bluetooth: BTLE*: Initialize what initialized was not
+    
+    Fix unexpected Direction flag pass to BTLE dissector
+    what caused reassemble of L2CAP not working correctly
+    (it based on Source/Destination addresses/columns).
+    
+    Change-Id: I10fb17c29b020f6ca746f7bbccb7527e0ba04624
+    Reviewed-on: https://code.wireshark.org/review/19084
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 75a5cf9fa0c2d7eed8fca8b9011c07dd99f5a751)
+    Reviewed-on: https://code.wireshark.org/review/19093
+
+commit 42d0d92
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sun Dec 4 22:29:14 2016 -0500
+
+    Honor protocols.display_hidden_proto_items preferences when outputting fields in TShark
+    
+    Bug: 13192
+    Change-Id: Ibb2b3913716d31a3d5f600e1b6400fdf14a69ca4
+    Reviewed-on: https://code.wireshark.org/review/19075
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 26def3ef72b3dc1f936322fb1e96b7d81a19390b)
+    Reviewed-on: https://code.wireshark.org/review/19077
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit d8086cc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 4 08:24:03 2016 -0800
+
+    [Automatic update for 2016-12-04]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Id29d87f78e1cac18817de2bbb8ce01a8b3c22bf8
+    Reviewed-on: https://code.wireshark.org/review/19067
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 563b1f3
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Sat Dec 3 23:41:08 2016 +0100
+
+    Qt: clear Export Objects list on retapping
+    
+    The tap reset callback should not just invoke the reset callback of the
+    dissector, but also clear the previous list of objects in the dialog.
+    Otherwise duplicate entries will be created every time retapping occurs
+    (e.g. on changing the display filter).
+    
+    Bug: 12230
+    Change-Id: I75f25db0652dcc9c0ac59ab0e536c06874aedb9c
+    Reviewed-on: https://code.wireshark.org/review/19055
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 5721a87330f8afe3fed12d4af250d7a3d219cbe2)
+    [ Peter: resolved conflict in context ]
+    Reviewed-on: https://code.wireshark.org/review/19064
+
+commit a6f89d6
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Nov 30 18:00:12 2016 +0100
+
+    echo: decide on req/resp based on matched port
+    
+    Since the use of 'Decode as' can result in another port number than the
+    default port (7) being the service port, this should be checked against.
+    
+    Change-Id: I93383613115595fff621e2fb9ab7959cd448c01e
+    Reviewed-on: https://code.wireshark.org/review/18991
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 54f48c8b92475523a49c15cd549fb5408e96ea8d)
+    Reviewed-on: https://code.wireshark.org/review/19048
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 043e92a
+Author: Chuck Lever <chuck.lever@oracle.com>
+Date:   Wed Nov 9 10:06:45 2016 -0500
+
+    packet-rpcrdma: Fix protocol frame pre-detection
+    
+    The current mechanism of detecting RPC-over-RDMA is broken because
+    it treats the Read list as a counted array (it's a list); and treats
+    the Write list and Reply chunk identically (one is a list, one is
+    always a single chunk).
+    
+    While we're here, refactor pre-detection helper functions so they
+    can be used during frame dissection as well.
+    
+    Bug: 13196
+    Change-Id: I76e210c8d2a9464fed00e7199072d37f4ebbebf2
+    Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+    Reviewed-on: https://code.wireshark.org/review/19025
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 2462f9e8103b23c2728cc5aa84995e0b2f363f12)
+    Reviewed-on: https://code.wireshark.org/review/19044
+
+commit 0798e0a
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Dec 2 11:18:50 2016 -0800
+
+    Include config.h at the very beginning of all Flex scanners.
+    
+    That way, if we #define anything for large file support, that's done
+    before we include any system header files that either depend on that
+    definition or that define it themselves if it's not already defined.
+    
+    Change-Id: I9b07344151103be337899dead44d6960715d6813
+    Reviewed-on: https://code.wireshark.org/review/19035
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 6f373175396a06b8e1a91acec6031322d91ef9dd)
+    Reviewed-on: https://code.wireshark.org/review/19043
+
+commit e0d9408
+Author: Chuck Lever <chuck.lever@oracle.com>
+Date:   Wed Nov 9 10:06:45 2016 -0500
+
+    packet-rpcrdma: Dissector should exit when frame is not RPC-over-RDMA
+    
+    On an RDMA transport, RPC protocol never appears in a frame by
+    itself. If RPC-over-RDMA is not present, then RPC is by definition
+    not present as an InfiniBand data payload.
+    
+    Bug: 13195
+    Change-Id: Icaea9d4936477af32adc73140c67539e977a7a9a
+    Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+    Reviewed-on: https://code.wireshark.org/review/19024
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit d5bdf7bac0c829cb00def4abb08444fe96d51e06)
+    Reviewed-on: https://code.wireshark.org/review/19041
+
+commit 84562bc
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Dec 2 13:15:41 2016 -0800
+
+    Include config.h first, for large-file-related #defines.
+    
+    Change-Id: Iced77fb65c2db8bc370cefe4c48c972fe1262f92
+    Reviewed-on: https://code.wireshark.org/review/19039
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit aecff2f67995905e58cacd9c4b7e5a7220a26e3b)
+    Reviewed-on: https://code.wireshark.org/review/19040
+
+commit beda14c
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Dec 2 13:05:53 2016 -0800
+
+    Include config.h first, for large-file-related #defines.
+    
+    Change-Id: Id71326bc89e1461b100df99b618a1c49256b93af
+    Reviewed-on: https://code.wireshark.org/review/19037
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 4dc787361202e6ba142672b312e44dd296db8852)
+    Reviewed-on: https://code.wireshark.org/review/19038
+
+commit 6721868
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Nov 30 23:37:32 2016 +0100
+
+    BOOTP: Fix V-I Vendor-Specific Information Option
+    
+    Apply the same value checks to the vendor generic suboption dissection
+    as is done for the Cable lab and ADSL forum ones.
+    See https://ask.wireshark.org/questions/57695 for an example issue.
+    
+    Change-Id: I4fe07d07cf0a93f4693e5ff54dd70c008701cf41
+    Reviewed-on: https://code.wireshark.org/review/18999
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 9ca313cfbe4993a0a36520d216a3e4282b0b7b99)
+    Reviewed-on: https://code.wireshark.org/review/19020
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+
+commit a512ff6
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Dec 2 02:32:39 2016 -0800
+
+    Make sure config.h is included before inet_addr.h.
+    
+    Otherwise, _FILE_OFFSET_BITS might be defined by a header file included
+    by inet_addr.h before it gets defined by config.h.
+    
+    Change-Id: I5987b3f1493b81fd2d427d9792b9606117b255d0
+    Reviewed-on: https://code.wireshark.org/review/19018
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 6ac40522af625971a6cb7b7e1ab56c7834e335db)
+    Reviewed-on: https://code.wireshark.org/review/19023
+
+commit e7042d8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Dec 1 09:58:23 2016 -0800
+
+    Qt: Export object fixups.
+    
+    Add eo_free_entry, which frees an export_object_entry_t.
+    
+    Create ExportObjectTreeWidgetItem similar to our other custom
+    TreeWidgetItems. Call eo_free_entry in its destructor. This fixes a
+    serious memory leak.
+    
+    Make the columns sortable. Fixup numeric comparisons. Use a convenience
+    function for file sizes.
+    
+    Ping-Bug: 13174
+    Change-Id: Idb4eb5680afe760880ebe7d84216fcac5ccdb250
+    Reviewed-on: https://code.wireshark.org/review/19010
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 1b6606e
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Dec 2 01:29:26 2016 -0800
+
+    Do *NOT* strip newlines from the standard input of sed.
+    
+    There is *NO* guarantee that sed will do anything useful with input that
+    doesn't have a newline and, in fact, the default sed in Solaris 11
+    doesn't produce *any* output if you hand it input with no newline.
+    
+    Furthermore, doing xxx=`yyy` will, if the output of yyy has newlines at
+    the end, strip them; to quote section 2.6.3 "Command Substitution" of
+    the Single UNIX Specification:
+    
+            The shell shall expand the command substitution by executing
+            command in a subshell environment (see Shell Execution
+            Environment) and replacing the command substitution (the text of
+            command plus the enclosing "$()" or backquotes) with the
+            standard output of the command, removing sequences of one or
+            more <newline> characters at the end of the substitution.
+    
+    so there's no need to strip the newline.
+    
+    Change-Id: Ia710f67a42739c1e218eb9fec53a54bde6e010da
+    Reviewed-on: https://code.wireshark.org/review/19016
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 6e0278989c29a401f22485fd295bcc2486160241)
+    Reviewed-on: https://code.wireshark.org/review/19017
+
+commit b88f196
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Dec 1 18:24:58 2016 -0800
+
+    The Kerberos dissector include Kerberos header, and needs KRB5_CFLAGS.
+    
+    Change-Id: I9a0e6ff09292fafca970e8ff423f18a835b5f2c4
+    Reviewed-on: https://code.wireshark.org/review/19011
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 672a5bd5468322cc3264886cf1655519f2dbf503)
+    Reviewed-on: https://code.wireshark.org/review/19013
+
+commit 43ae2b0
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Dec 1 16:42:30 2016 -0800
+
+    Clean up error messages.
+    
+    Also, use elif in some chains of tests, to make it a bit clearer that
+    the cases in question are disjoint.
+    
+    Change-Id: I6dc92d536450c7ac3db6ee118581a5ed0c3ce80c
+    Reviewed-on: https://code.wireshark.org/review/19009
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 007976b3abeb762b362b3c9d65f8d8bee28b7e81)
+    Reviewed-on: https://code.wireshark.org/review/19012
+
+commit 09a1f9b
+Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
+Date:   Mon Aug 1 14:20:08 2016 +0100
+
+    autotools: Fix make dist without Qt
+    
+    Change-Id: I62b1d73eede471535b4ccc7ca68c9f94f25b7417
+    Reviewed-on: https://code.wireshark.org/review/16826
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 0dcda99b5018f591dcd70f72a3d7367bec009d9f)
+    Reviewed-on: https://code.wireshark.org/review/19004
+    Reviewed-by: Jeff Morriss <jeff.morriss.ws@gmail.com>
+
+commit 5d1fcac
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Mon Nov 28 15:53:59 2016 +0100
+
+    Qt: fix crash when closing RTP player while playing
+    
+    For some time, the RTP Player has been crashing for me (Arch Linux, Qt
+    5.7.0) when the RTP Player is active (affects also Wireshark 2.0.5).
+    
+    This call trace was observed:
+    
+        + RtpPlayerDialog::reject (closing dialog via Escape / Close button)
+          + RtpAudioStream::stopPlaying
+            + RtpAudioStream::outputStateChanged(QAudio::StoppedState)
+              + QAudioOutput::deleteLater   // problematic!
+          + RtpPlayerDialog::~RtpPlayerDialog
+            + RtpAudioStream::~RtpAudioStream
+    
+    As the QAudioOutput instance is a child of RtpAudioStream, it is also
+    destroyed after that. QAudioOutput's destructor somehow invokes (via
+    libqtmedia_pulse.so) a main loop iteration which invokes the previously
+    scheduled deleteLater call.
+    
+    As QAudioOutput was already being destructed, this results in a crash.
+    Workaround this by removing this child from RtpAudioStream (no cruelty
+    intended).
+    
+    Change-Id: I88f2e929ac566534be5d2270e2e0b194685533eb
+    Reviewed-on: https://code.wireshark.org/review/18970
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 9887cd7feb7c377a3d046b924fe86907479be413)
+    Reviewed-on: https://code.wireshark.org/review/18994
+
+commit 48a7576
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Nov 29 09:32:47 2016 -0800
+
+    Qt: Fix simple_dialog formatting.
+    
+    Make sure that simple_dialog displays plain text. Trim whitespace
+    and remove excessive newlines in order to improve message formatting.
+    Add a comment about simple_dialog's behavior in Qt and GTK+ and how it
+    might be improved.
+    
+    Bug: 13178
+    Change-Id: Ic6ff3cecd5ef1d76ec095d7a409f38e602b41ce2
+    Reviewed-on: https://code.wireshark.org/review/18985
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 72427192723869535fb938425ddf8c5c4568ab5c)
+    Reviewed-on: https://code.wireshark.org/review/18992
+
+commit b3613a9
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Wed Nov 23 16:28:34 2016 +0100
+
+    Qt: fix GoToPacket when Voip Calls dialog is closed
+    
+    After opening the Call Flows dialog from the Voip Calls dialog, followed
+    by closing the Voip Calls dialog, the Go To Packet functionality in the
+    Call Flows dialog is broken. That happens because the signal is not
+    proxied anymore.
+    
+    Just remove all these indirections via signals and directly update the
+    selected packet.
+    
+    Change-Id: I9c6d519dbe800e4dfdf0407d832f17819b344e46
+    Reviewed-on: https://code.wireshark.org/review/18933
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 7fe45cc0ec4e8bc1c3d5cd27c98feb8ecbb2b1b4)
+    Reviewed-on: https://code.wireshark.org/review/18986
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+
+commit f844484
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Nov 28 19:19:57 2016 -0800
+
+    2.2 doesn't have FT_CHAR.
+    
+    Change-Id: I96950b3a4dfae546a37534b849fb4288d60ccf1c
+    Reviewed-on: https://code.wireshark.org/review/18981
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit eefff98
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Nov 28 19:16:55 2016 -0800
+
+    Handle FT_CHAR, and report unsupported types as such.
+    
+    FT_CHAR is straightforward to support.
+    
+    Split the list of "invalid" types into a list of "unsupported" types and
+    a short list of "invalid" types, containing FT_PCRE (which isn't a valid
+    type for a field) and "everything else".  Add FT_IEEE_11073_SFLOAT and
+    FT_IEEE_11073_FLOAT to the "unsupported" list.
+    
+    Flag the whole unsupported list as just "not handled yet".
+    
+    Change-Id: I62d2d7eead53377e4e601594a035b4395fdbeead
+    Reviewed-on: https://code.wireshark.org/review/18979
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 0cb44e4277f3366234019c2f919ab1aea308822d)
+    Reviewed-on: https://code.wireshark.org/review/18980
+
+commit 2fd7c92
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Nov 26 18:31:19 2016 -0600
+
+    Qt: Fix conversation buttons.
+    
+    Move parts of currentTabChanged to conversationSelectionChanged. This
+    lets us enable the "Follow Stream" and "Graph" buttons when either the
+    current tab or the current selection changes.
+    
+    Bug: 12893
+    Change-Id: I025447d26073a938f2d8b5a8fcad7c0d5e855650
+    Reviewed-on: https://code.wireshark.org/review/18975
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit d30be94
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Mon Nov 28 16:50:25 2016 +0100
+
+    Qt: fix heap-use-after-free when double-clicking a packet number
+    
+    On double-clicking a packet number, the current field item is
+    invalidated by goToPacket. Skip the URL since a field can either have a
+    URL or a frame number (but not both).
+    
+    Change-Id: I58e5445fa74071fa0fd203df77ebdecdd1478d31
+    Reviewed-on: https://code.wireshark.org/review/18971
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 1239336af00215172c94d5d2af3926a72ea998c3)
+    Reviewed-on: https://code.wireshark.org/review/18973
+
+commit ff7f93b
+Author: Petr Sumbera <petr.sumbera@oracle.com>
+Date:   Tue Nov 22 06:09:24 2016 -0800
+
+    Fix git description for out-of-tree builds from a tarball
+    
+    version.conf is to be found in the source dir after unpacking.
+    
+    Bug: 13163
+    Change-Id: Ib8308e341b771d991ab48b48553f8d92b0b0621c
+    Reviewed-on: https://code.wireshark.org/review/18923
+    Reviewed-by: João Valverde <j@v6e.pt>
+    Petri-Dish: João Valverde <j@v6e.pt>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 2e8bbe410e652d9038aa3be839602941f313ee25)
+    Reviewed-on: https://code.wireshark.org/review/18957
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 89c2417
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 27 08:24:30 2016 -0800
+
+    [Automatic update for 2016-11-27]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I625df57d063838b024f78696fd26d47057cb7266
+    Reviewed-on: https://code.wireshark.org/review/18965
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 3693d77
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Nov 20 10:18:56 2016 +0100
+
+    uftp4: fix last argument of proto_tree_add_item
+    
+    It can be not FALSE
+    
+    Change-Id: I938011296b40013a1dad813c3196e899b1b90347
+    Reviewed-on: https://code.wireshark.org/review/18883
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 01d1abcec075cab84454a7a42a8bd561ce3ae5d3)
+    Reviewed-on: https://code.wireshark.org/review/18903
+
+commit 1b766e0
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Thu Nov 24 12:34:55 2016 -0500
+
+    Use correct memory freeing function for GTK export objects dialog.
+    
+    All memory from export object taps is g_ allocated, not wmem.
+    
+    Change-Id: I3518b433b7f4f85a2a0b90cef507c7d4a95937c7
+    Ping-Bug: 13174
+    Reviewed-on: https://code.wireshark.org/review/18944
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit e754775
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Nov 22 11:19:37 2016 -0800
+
+    Include <io.h> and <fcntl.h> for _setmode().
+    
+    Change-Id: I1910275653ef4a985e9894f01cf5cb5fa33070d4
+    Reviewed-on: https://code.wireshark.org/review/18928
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 6930ded24ab64b6de646ae3e120995b44188bc84)
+    Reviewed-on: https://code.wireshark.org/review/18929
+
+commit 2f6c449
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Nov 22 10:01:29 2016 -0800
+
+    On Windows, put the standard output in binary mode if we're writing the capture file to it.
+    
+    While we're at it, explicitly compare the restult of strcmp() against 0,
+    to make it clearer that it's testing for the argument *not* being equal
+    to "-".
+    
+    Bug: 13165
+    Change-Id: Ic63085abb2de5f5c60d2101d19c1a269b7e0c9d7
+    Reviewed-on: https://code.wireshark.org/review/18924
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit f4d6c7abbc32c5eee10e4f771f5e7fc1cc2639ef)
+    Reviewed-on: https://code.wireshark.org/review/18925
+
+commit bf964ff
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Nov 22 07:16:17 2016 +0100
+
+    RLC: always initialize LI length, even when it is malformed
+    
+    Bug: 13162
+    Change-Id: Ie0938611b4c90fd54e7ccda0ee5f3d791078be06
+    Reviewed-on: https://code.wireshark.org/review/18918
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 7617286f32135051800998cb3a4b07badc8c6719)
+    Reviewed-on: https://code.wireshark.org/review/18921
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit b984292
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Nov 20 10:45:03 2016 -0800
+
+    Make something to which we assign a string pointer const.
+    
+    Change-Id: I4b292f252f0e4290fc8adc1e76aa589108fc597e
+    Reviewed-on: https://code.wireshark.org/review/18905
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 1f512906db7dd98f6c47b85d081d4dd7b2877e5e)
+    Reviewed-on: https://code.wireshark.org/review/18906
+
+commit 138441f
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Nov 20 10:13:18 2016 +0100
+
+    uftp4: Fix conflict for hf fields
+    
+    'uftp4.announce.publicmcast' exists multiple times with NOT compatible types: FT_IPv6 and FT_IPv4
+    'uftp4.announce.privatemcast' exists multiple times with NOT compatible types: FT_IPv6 and FT_IPv4
+    'uftp4.fileinfo.tstamp' exists multiple times with NOT compatible types: FT_ABSOLUTE_TIME and FT_UINT32
+    
+    Change-Id: I94b235e9ba8ebe8a036620f9537eb674f418f1e5
+    Reviewed-on: https://code.wireshark.org/review/18882
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit cbbaf1d9343d0e063e9b46ca3c69706e9ee32075)
+    Reviewed-on: https://code.wireshark.org/review/18902
+
+commit d556018
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 20 08:21:57 2016 -0800
+
+    [Automatic update for 2016-11-20]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Ibee4586009594c814ebd0a1a78ecd604925cd4f0
+    Reviewed-on: https://code.wireshark.org/review/18897
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 050df41
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Tue Nov 15 00:14:51 2016 +0100
+
+    DICOM: Fix handling of AT tag elements
+    
+    A Attribute Identifier List can have more than one AT element. Therefore
+    we have to loop through the elements list.
+    
+    Bug: 13077
+    Change-Id: I3adaa5ba50a1ad01e7c5bacd05118c65afcf4442
+    Reviewed-on: https://code.wireshark.org/review/18825
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit c63609b360cf8fa3a9f86d4dcdaaada2d2be87f8)
+    Reviewed-on: https://code.wireshark.org/review/18890
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+
+commit 855bd75
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Nov 20 12:20:12 2016 +0100
+
+    radiotap: Fix conflict for hf fields
+    
+    'radiotap.present.flags' exists multiple times with NOT compatible types: FT_BOOLEAN and FT_UINT32
+    
+    Change-Id: Ib53eb43c2103b24bd02bd41fd20030b7e7ae321b
+    Reviewed-on: https://code.wireshark.org/review/18886
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 08e5d9ad7d82f6349aee3d13ad6d11e0a1f42d5e)
+    Reviewed-on: https://code.wireshark.org/review/18893
+
+commit db7f6ec
+Author: Alex Badea <abadea@ixiacom.com>
+Date:   Thu Nov 17 16:46:16 2016 +0200
+
+    tcp: fix "calculated checksum" tree item for bad checksums
+    
+    The Calculated Checksum tree item prints the checksum from the
+    tvb, instead of the computed one  (the "should be 0x...." tree
+    item above it _does_ print the computed one).  As such, in a packet
+    with bad checksum, the Calculated Checksum is incorrect.  Fix the value.
+    
+    This seems to have been introduced in ad6fc87d ("Add
+    proto_tree_add_checksum.")
+    
+    Change-Id: Ia20d5addc40956713a944102e79d25317b969a0e
+    Reviewed-on: https://code.wireshark.org/review/18859
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 6bd322223d3f13612a449cbba20ce36e9da30ebb)
+    Reviewed-on: https://code.wireshark.org/review/18879
+
+commit 20c1327
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Nov 20 10:06:18 2016 +0100
+
+    VXLAN: Fix conflict for hf fields
+    
+    'vxlan.flags_reserved' exists multiple times with NOT compatible types: FT_UINT8 and FT_BOOLEAN
+    
+    Change-Id: I98d296393796defc5741c41a496432eb8f927be2
+    Reviewed-on: https://code.wireshark.org/review/18881
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit ded081ccecfbba91cacabba70d69a7eb36a5288d)
+    Reviewed-on: https://code.wireshark.org/review/18892
+
+commit 56ccabc
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Nov 18 10:51:12 2016 -0800
+
+    Create /etc/paths.d and /etc/manpaths.d if they don't exist.
+    
+    Bug: 13152
+    Change-Id: I6ecfd1e3f7f10a3a63b44b0d8bf137f0b3450391
+    Reviewed-on: https://code.wireshark.org/review/18871
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit a12399018c6c0e0721c54c8982aacc53e8b823eb)
+    Reviewed-on: https://code.wireshark.org/review/18872
+
+commit 152089f
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Fri Nov 18 09:39:24 2016 +0100
+
+    GTP: fix dissection of GGSN Back-Off Time IE
+    
+    Bug: 13153
+    Change-Id: I2f404515187f9f29a45f101c8ff294a971ffddac
+    Reviewed-on: https://code.wireshark.org/review/18865
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit a90d196ce8f8dee4beb22c508080dfef6efdf71b)
+    Reviewed-on: https://code.wireshark.org/review/18866
+
+commit 211ff87
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Wed Nov 16 23:32:34 2016 +0100
+
+    BGP: Fix length in decode_prefix4()
+    
+    When decode_prefix4() gets called with more prefixes the length of
+    proto_tree_add_subtree_format() should not be the total length.
+    
+    As the "Withdrawn route" part was the only one where decode_prefix4() has
+    been called with a tlen not equal 0 we can eliminate the tlen parameter.
+    
+    Bug: 13146
+    Change-Id: I708dec2cecbed6054b60190104b82c72d54e8037
+    Reviewed-on: https://code.wireshark.org/review/18852
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-on: https://code.wireshark.org/review/18857
+
+commit 0e19e81
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Nov 16 15:40:09 2016 -0800
+
+    2.2.2 → 2.2.3.
+    
+    Change-Id: Ic900c54af2a209eb552363fadadb145552bc3f89
+    Reviewed-on: https://code.wireshark.org/review/18853
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
