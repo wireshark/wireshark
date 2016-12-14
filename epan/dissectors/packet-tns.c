@@ -814,15 +814,26 @@ static guint
 get_tns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	/*
-	 * Get the length of the TNS message, including header
+	 * Get the 16-bit length of the TNS message, including header
 	 */
 	return tvb_get_ntohs(tvb, offset);
+}
+
+static guint
+get_tns_pdu_len_nochksum(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+	/*
+	 * Get the 32-bit length of the TNS message, including header
+	 */
+	return tvb_get_ntohl(tvb, offset);
 }
 
 static int
 dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	guint8 type;
+	guint32 length;
+	guint16 chksum;
+	guint8  type;
 
 	/*
 	 * First, do a sanity check to make sure what we have
@@ -838,8 +849,25 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			return 0;	/* it's not a known type */
 	}
 
-	tcp_dissect_pdus(tvb, pinfo, tree, tns_desegment, 2,
-	    get_tns_pdu_len, dissect_tns_pdu, data);
+	/*
+	 * In some messages (observed in Oracle12c) packet length has 4 bytes
+	 * instead of 2.
+	 *
+	 * If packet length has 2 bytes, length and checksum equals two unsigned
+	 * 16-bit numbers. Packet checksum is generally unused (equal zero),
+	 * but 10g client may set 2nd byte to 4.
+	 *
+	 * Else, Oracle 12c combine these two 16-bit numbers into one 32-bit.
+	 * This number represents the packet length. Checksum is omitted.
+	 */
+	chksum = tvb_get_ntohs(tvb, 2);
+
+	length = (chksum == 0 || chksum == 4) ? 2 : 4;
+
+	tcp_dissect_pdus(tvb, pinfo, tree, tns_desegment, length,
+			(length == 2 ? get_tns_pdu_len : get_tns_pdu_len_nochksum),
+			dissect_tns_pdu, data);
+
 	return tvb_captured_length(tvb);
 }
 
@@ -850,7 +878,8 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	proto_item *hidden_item;
 	int offset = 0;
 	guint32 length;
-	guint16 type;
+	guint16 chksum;
+	guint8  type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TNS");
 
@@ -872,12 +901,23 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	}
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-	proto_tree_add_item_ret_uint(tns_tree, hf_tns_length, tvb,
-			offset, 2, ENC_BIG_ENDIAN, &length);
-	offset += 2;
-
-	proto_tree_add_checksum(tns_tree, tvb, offset, hf_tns_packet_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
-	offset += 2;
+	chksum = tvb_get_ntohs(tvb, offset+2);
+	if (chksum == 0 || chksum == 4)
+	{
+		proto_tree_add_item_ret_uint(tns_tree, hf_tns_length, tvb, offset,
+					2, ENC_BIG_ENDIAN, &length);
+		offset += 2;
+		proto_tree_add_checksum(tns_tree, tvb, offset, hf_tns_packet_checksum,
+					-1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+		offset += 2;
+	}
+	else
+	{
+		/* Oracle 12c uses checksum bytes as part of the packet length. */
+		proto_tree_add_item_ret_uint(tns_tree, hf_tns_length, tvb, offset,
+					4, ENC_BIG_ENDIAN, &length);
+		offset += 4;
+	}
 
 	type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tns_tree, hf_tns_packet_type, tvb,
