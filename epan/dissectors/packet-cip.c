@@ -341,36 +341,16 @@ static int hf_cip_pad8 = -1;
 
 static int hf_cip_sc_get_attr_list_attr_count = -1;
 static int hf_cip_sc_get_attr_list_attr_status = -1;
-static int hf_cip_sc_get_attr_list_attr_data = -1;
 static int hf_cip_sc_set_attr_list_attr_count = -1;
 static int hf_cip_sc_set_attr_list_attr_status = -1;
-static int hf_cip_sc_set_attr_list_attr_data = -1;
 static int hf_cip_sc_reset_param = -1;
-static int hf_cip_sc_get_attribute_all_data = -1;
-static int hf_cip_sc_set_attribute_all_data = -1;
-static int hf_cip_sc_reset_data = -1;
-static int hf_cip_sc_start_data = -1;
-static int hf_cip_sc_stop_data = -1;
 static int hf_cip_sc_create_instance = -1;
-static int hf_cip_sc_create_data = -1;
-static int hf_cip_sc_delete_data = -1;
 static int hf_cip_sc_mult_serv_pack_num_services = -1;
 static int hf_cip_sc_mult_serv_pack_offset = -1;
-static int hf_cip_sc_apply_attributes_data = -1;
-static int hf_cip_sc_set_attr_single_data = -1;
-static int hf_cip_sc_get_attr_single_data = -1;
 static int hf_cip_find_next_object_max_instance = -1;
 static int hf_cip_find_next_object_num_instances = -1;
 static int hf_cip_find_next_object_instance_item = -1;
-static int hf_cip_sc_restore_data = -1;
-static int hf_cip_sc_save_data = -1;
-static int hf_cip_sc_noop_data = -1;
-static int hf_cip_sc_get_member_data = -1;
-static int hf_cip_sc_set_member_data = -1;
-static int hf_cip_sc_insert_member_data = -1;
-static int hf_cip_sc_remove_member_data = -1;
 static int hf_cip_sc_group_sync_is_sync = -1;
-static int hf_cip_sc_group_sync_data = -1;
 
 /* Parsed Attributes */
 static int hf_id_vendor_id = -1;
@@ -2725,8 +2705,8 @@ static void add_cip_symbol_to_info_column(packet_info *pinfo, gchar *symbol_name
 void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, const value_string* service_vals)
 {
    col_append_str( pinfo->cinfo, COL_INFO,
-   val_to_str(service & CIP_SC_MASK, service_vals, "Service (0x%02x)"));
-       col_set_fence(pinfo->cinfo, COL_INFO);
+      val_to_str(service & CIP_SC_MASK, service_vals, "Service (0x%02x)"));
+   col_set_fence(pinfo->cinfo, COL_INFO);
 }
 
 static int dissect_id_revision(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
@@ -5230,30 +5210,23 @@ dissect_cip_class_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
    return tvb_reported_length(tvb);
 }
 
-static void
+static int
 dissect_cip_set_attribute_single_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
                                   int offset, cip_simple_request_info_t* req_data)
 {
    int parsed_len = 0;
-   int total_len;
    attribute_info_t* attr;
 
-   total_len = tvb_reported_length_remaining(tvb, offset);
    attr = cip_get_attribute(req_data->iClass, req_data->iInstance, req_data->iAttribute);
    if (attr != NULL)
    {
       parsed_len = dissect_cip_attribute(pinfo, tree, item, tvb, attr, offset, tvb_reported_length_remaining(tvb, offset));
    }
 
-   if (total_len - parsed_len > 0)
-   {
-      /* Can't find the attribute or there is leftover data, treat the rest of the response as raw data */
-      proto_tree_add_item(tree, hf_cip_sc_set_attr_single_data, tvb, offset + parsed_len, total_len - parsed_len, ENC_NA);
-   }
+   return parsed_len;
 }
 
-static void
-dissect_cip_get_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
+static int dissect_cip_get_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
                                   int offset, cip_simple_request_info_t* req_data)
 {
    int i, att_count, att_value;
@@ -5265,34 +5238,37 @@ dissect_cip_get_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    if (tvb_reported_length_remaining(tvb, offset) < 2)
    {
       expert_add_info(pinfo, item, &ei_mal_serv_gal);
-      return;
+      return 0;
    }
 
    /* Add number of attributes */
    att_count = tvb_get_letohs( tvb, offset);
    proto_tree_add_item(tree, hf_cip_sc_get_attr_list_attr_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   offset += 2;
 
    /* Add Attribute List */
-   att_tree = proto_tree_add_subtree(tree, tvb, offset+2, att_count*2, ett_cip_get_attribute_list, &att_list, "Attribute List" );
+   att_tree = proto_tree_add_subtree(tree, tvb, offset, att_count*2, ett_cip_get_attribute_list, &att_list, "Attribute List" );
 
    for( i=0; i < att_count; i++ )
    {
-      att_value = tvb_get_letohs( tvb, offset+2);
-      att_item = proto_tree_add_item(att_tree, hf_cip_attribute16, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
+      att_value = tvb_get_letohs( tvb, offset);
+      att_item = proto_tree_add_item(att_tree, hf_cip_attribute16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       pattribute = cip_get_attribute(req_data->iClass, req_data->iInstance, att_value);
       if (pattribute != NULL)
          proto_item_append_text(att_item, " (%s)", pattribute->text);
 
       offset += 2;
-      if ((tvb_reported_length_remaining(tvb, offset+2) < 2) && (i < att_count-1))
+      if ((tvb_reported_length_remaining(tvb, offset) < 2) && (i < att_count-1))
       {
          expert_add_info(pinfo, att_list, &ei_mal_serv_gal_count);
          break;
       }
    }
+
+   return 2 + att_count * 2;
 }
 
-static void
+static int
 dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
                                   int offset, cip_simple_request_info_t* req_data)
 {
@@ -5306,7 +5282,7 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    if (tvb_reported_length_remaining(tvb, offset) < 2)
    {
       expert_add_info(pinfo, item, &ei_mal_serv_sal);
-      return;
+      return 0;
    }
 
    /* Add number of attributes */
@@ -5336,8 +5312,7 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       }
       else
       {
-         /* Can't find the attribute, treat the rest of the request as raw data */
-         proto_tree_add_item(att_list_tree, hf_cip_sc_set_attr_list_attr_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+         /* Can't find the attribute. */
          break;
       }
 
@@ -5349,20 +5324,23 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    }
 
    proto_item_set_len(att_list, offset-start_offset );
+
+   return 2 + (offset - start_offset);
 }
 
-static void
+static int
 dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset, gboolean request)
 {
    proto_tree *mult_serv_tree, *offset_tree;
    int i, num_services, serv_offset, prev_offset = 0;
+   int parsed_len;
    cip_req_info_t *cip_req_info, *mr_single_req_info;
    mr_mult_req_info_t *mr_mult_req_info = NULL;
 
    if (tvb_reported_length_remaining(tvb, offset) < 2)
    {
       expert_add_info(pinfo, item, &ei_mal_msp_missing_services);
-      return;
+      return 0;
    }
 
    num_services = tvb_get_letohs( tvb, offset);
@@ -5405,6 +5383,7 @@ dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
    col_append_str(pinfo->cinfo, COL_INFO, ": ");
 
+   parsed_len = 2 + num_services * 2;
    for( i=0; i < num_services; i++ )
    {
       proto_item *mult_serv_item;
@@ -5472,7 +5451,11 @@ dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       {
           col_append_str(pinfo->cinfo, COL_INFO, ", ");
       }
+
+      parsed_len += serv_length;
    }
+
+   return parsed_len;
 }
 
 static int
@@ -5496,75 +5479,40 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    if (tvb_reported_length_remaining(tvb, offset) <= 0)
       return tvb_reported_length(tvb);
 
+   int parsed_len = 0;
+
    switch(service)
    {
-   case SC_GET_ATT_ALL:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_get_attribute_all_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_SET_ATT_ALL:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_set_attribute_all_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
    case SC_GET_ATT_LIST:
-      dissect_cip_get_attribute_list_req(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, req_data);
+      parsed_len = dissect_cip_get_attribute_list_req(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, req_data);
       break;
    case SC_SET_ATT_LIST:
-      dissect_cip_set_attribute_list_req(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, req_data);
+      parsed_len = dissect_cip_set_attribute_list_req(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, req_data);
       break;
    case SC_RESET:
       proto_tree_add_item(cmd_data_tree, hf_cip_sc_reset_param, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_reset_data, tvb, offset+1, tvb_reported_length_remaining(tvb, offset+1), ENC_NA);
-      break;
-   case SC_START:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_start_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_STOP:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_stop_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_CREATE:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_create_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_DELETE:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_delete_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+      parsed_len = 1;
       break;
    case SC_MULT_SERV_PACK:
-      dissect_cip_multiple_service_packet(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, TRUE);
-      break;
-   case SC_APPLY_ATTRIBUTES:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_apply_attributes_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_GET_ATT_SINGLE:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_get_attr_single_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+      parsed_len = dissect_cip_multiple_service_packet(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, TRUE);
       break;
    case SC_SET_ATT_SINGLE:
-      dissect_cip_set_attribute_single_req(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, req_data);
+      parsed_len = dissect_cip_set_attribute_single_req(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, req_data);
       break;
    case SC_FIND_NEXT_OBJ_INST:
       proto_tree_add_item(cmd_data_tree, hf_cip_find_next_object_max_instance, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      parsed_len = 1;
       break;
-   case SC_RESTOR:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_restore_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+   default:
+      // No specific handling for other services.
       break;
-   case SC_SAVE:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_save_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_NO_OP:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_noop_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_GET_MEMBER:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_get_member_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_SET_MEMBER:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_set_member_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_INSERT_MEMBER:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_insert_member_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_REMOVE_MEMBER:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_remove_member_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_GROUP_SYNC:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_group_sync_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
+   }
+
+   // Display any remaining unparsed data.
+   int remain_len = tvb_reported_length_remaining(tvb, offset + parsed_len);
+   if (remain_len > 0)
+   {
+       proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset + parsed_len, remain_len, ENC_NA);
    }
 
    return tvb_reported_length(tvb);
@@ -5647,7 +5595,7 @@ static void build_get_attr_all_table(void)
    }
 }
 
-void dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+int dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, cip_simple_request_info_t* req_data)
 {
    int att_size;
@@ -5658,6 +5606,7 @@ void dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_
    cip_gaa_key_t key;
    cip_gaa_val_t *gaa_val;
    wmem_list_frame_t* attribute_list;
+   int parsed_len = 0;
 
    key.cip_class = req_data->iClass;
    key.class_instance = (req_data->iInstance == 0);
@@ -5665,8 +5614,7 @@ void dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_
    gaa_val = (cip_gaa_val_t *)wmem_map_lookup( cip_gaa_hashtable, &key );
    if (gaa_val == NULL)
    {
-      proto_tree_add_item(tree, hf_cip_sc_get_attribute_all_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      return;
+      return 0;
    }
 
    for (attribute_list = wmem_list_head(gaa_val->attributes);
@@ -5687,17 +5635,13 @@ void dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_
       proto_item_set_len(att_item, att_size);
 
       offset += att_size;
+      parsed_len += att_size;
    }
 
-   /* Add whatever is left as raw data. */
-   len_remain = tvb_reported_length_remaining(tvb, offset);
-   if (len_remain > 0)
-   {
-      proto_tree_add_item(tree, hf_cip_sc_get_attribute_all_data, tvb, offset, len_remain, ENC_NA);
-   }
+   return parsed_len;
 }
 
-static void
+static int
 dissect_cip_get_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
                                   int offset, cip_simple_request_info_t* req_data)
 {
@@ -5712,7 +5656,7 @@ dissect_cip_get_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    if (tvb_reported_length_remaining(tvb, offset) < 2)
    {
       expert_add_info(pinfo, item, &ei_mal_serv_gal);
-      return;
+      return 0;
    }
 
    /* Add number of attributes */
@@ -5749,8 +5693,7 @@ dissect_cip_get_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
          }
          else
          {
-            /* Can't find the attribute, treat the rest of the response as raw data */
-            proto_tree_add_item(att_list_tree, hf_cip_sc_get_attr_list_attr_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            /* Can't find the attribute */
             break;
          }
       }
@@ -5763,9 +5706,10 @@ dissect_cip_get_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    }
 
    proto_item_set_len(att_list, offset-start_offset );
+   return 2 + (offset - start_offset);
 }
 
-static void
+static int
 dissect_cip_set_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
                                   int offset, cip_simple_request_info_t* req_data)
 {
@@ -5778,7 +5722,7 @@ dissect_cip_set_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    if (tvb_reported_length_remaining(tvb, offset) < 2)
    {
       expert_add_info(pinfo, item, &ei_mal_serv_sal);
-      return;
+      return 0;
    }
 
    /* Add number of attributes */
@@ -5811,9 +5755,10 @@ dissect_cip_set_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    }
 
    proto_item_set_len(att_list, offset-start_offset );
+   return 2 + (offset - start_offset);
 }
 
-static void
+static int
 dissect_cip_get_attribute_single_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
                                   int offset, cip_simple_request_info_t* req_data)
 {
@@ -5829,14 +5774,10 @@ dissect_cip_get_attribute_single_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tr
       parsed_len = dissect_cip_attribute(pinfo, tree, item, tvb, attr, offset, total_len);
    }
 
-   if (total_len - parsed_len > 0)
-   {
-      /* Can't find the attribute or there is leftover data, treat the rest of the response as raw data */
-      proto_tree_add_item(tree, hf_cip_sc_get_attr_single_data, tvb, offset + parsed_len, total_len - parsed_len, ENC_NA);
-   }
+   return parsed_len;
 }
 
-static void
+static int
 dissect_cip_find_next_object_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset)
 {
    guint8 i, num_instances;
@@ -5844,7 +5785,7 @@ dissect_cip_find_next_object_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
    if (tvb_reported_length_remaining(tvb, offset) < 1)
    {
       expert_add_info(pinfo, item, &ei_mal_serv_find_next_object);
-      return;
+      return 0;
    }
 
    num_instances = tvb_get_guint8( tvb, offset);
@@ -5861,6 +5802,8 @@ dissect_cip_find_next_object_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
          break;
       }
    }
+
+   return 1 + num_instances * 2;
 }
 
 static void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_data)
@@ -5888,98 +5831,69 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    proto_item *cmd_data_item;
    proto_tree *cmd_data_tree;
    cip_simple_request_info_t req_data;
-   int offset = 0,
-   item_length = tvb_reported_length(tvb);
-   guint8 service = tvb_get_guint8( tvb, offset ) & CIP_SC_MASK,
-          add_stat_size = tvb_get_guint8( tvb, offset+3 ) * 2;
+   int offset = 0;
+   int item_length = tvb_reported_length(tvb);
+   guint8 service = tvb_get_guint8(tvb, offset) & CIP_SC_MASK;
+   guint16 add_stat_size = tvb_get_guint8( tvb, offset+3 ) * 2;
+
+   offset = 4 + add_stat_size;
 
    add_cip_service_to_info_column(pinfo, service, cip_sc_vals);
 
    /* If there is any command specific data create a sub-tree for it */
    if( (item_length-4-add_stat_size ) != 0 )
    {
-      cmd_data_tree = proto_tree_add_subtree(tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
+      cmd_data_tree = proto_tree_add_subtree(tree, tvb, offset, item_length-4-add_stat_size,
                            ett_cmd_data, &cmd_data_item, val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)"));
       proto_item_append_text(cmd_data_item, " (Response)");
    }
    else
    {
-/*      PROTO_ITEM_SET_HIDDEN( ti ); */
       return tvb_reported_length(tvb);
    }
 
    load_cip_request_data(pinfo, &req_data);
 
+   int parsed_len = 0;
+
    switch(service)
    {
    case SC_GET_ATT_ALL:
-      dissect_cip_get_attribute_all_rsp(tvb, pinfo, cmd_data_tree, offset+4+add_stat_size, &req_data);
-      break;
-   case SC_SET_ATT_ALL:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_set_attribute_all_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
+      parsed_len = dissect_cip_get_attribute_all_rsp(tvb, pinfo, cmd_data_tree, offset, &req_data);
       break;
    case SC_GET_ATT_LIST:
-      dissect_cip_get_attribute_list_rsp(tvb, pinfo, cmd_data_tree, cmd_data_item, offset+4+add_stat_size, &req_data);
+      parsed_len = dissect_cip_get_attribute_list_rsp(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, &req_data);
       break;
    case SC_SET_ATT_LIST:
-      dissect_cip_set_attribute_list_rsp(tvb, pinfo, cmd_data_tree, cmd_data_item, offset+4+add_stat_size, &req_data);
-      break;
-   case SC_RESET:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_reset_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
-      break;
-   case SC_START:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_start_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
-      break;
-   case SC_STOP:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_stop_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
+      parsed_len = dissect_cip_set_attribute_list_rsp(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, &req_data);
       break;
    case SC_CREATE:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_create_instance, tvb, offset+4+add_stat_size, 2, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_create_data, tvb, offset+4+add_stat_size+2, tvb_reported_length_remaining(tvb, offset+4+add_stat_size+2), ENC_NA);
-      break;
-   case SC_DELETE:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_delete_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
+      proto_tree_add_item(cmd_data_tree, hf_cip_sc_create_instance, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      parsed_len = 2;
       break;
    case SC_MULT_SERV_PACK:
-      dissect_cip_multiple_service_packet(tvb, pinfo, cmd_data_tree, cmd_data_item, offset+4+add_stat_size, FALSE);
-      break;
-   case SC_APPLY_ATTRIBUTES:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_apply_attributes_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
+      parsed_len = dissect_cip_multiple_service_packet(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, FALSE);
       break;
    case SC_GET_ATT_SINGLE:
-      dissect_cip_get_attribute_single_rsp(tvb, pinfo, cmd_data_tree, cmd_data_item, offset+4+add_stat_size, &req_data);
-      break;
-   case SC_SET_ATT_SINGLE:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_set_attr_single_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
+      parsed_len = dissect_cip_get_attribute_single_rsp(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, &req_data);
       break;
    case SC_FIND_NEXT_OBJ_INST:
-      dissect_cip_find_next_object_rsp(tvb, pinfo, cmd_data_tree, cmd_data_item, offset+4+add_stat_size);
-      break;
-   case SC_RESTOR:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_restore_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
-      break;
-   case SC_SAVE:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_save_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
-      break;
-   case SC_NO_OP:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_noop_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
-      break;
-   case SC_GET_MEMBER:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_get_member_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_SET_MEMBER:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_set_member_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_INSERT_MEMBER:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_insert_member_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-      break;
-   case SC_REMOVE_MEMBER:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_remove_member_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+      parsed_len = dissect_cip_find_next_object_rsp(tvb, pinfo, cmd_data_tree, cmd_data_item, offset);
       break;
    case SC_GROUP_SYNC:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_group_sync_is_sync, tvb, offset+4+add_stat_size, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_group_sync_data, tvb, offset+4+add_stat_size+1, tvb_reported_length_remaining(tvb, offset+4+add_stat_size+1), ENC_NA);
+      proto_tree_add_item(cmd_data_tree, hf_cip_sc_group_sync_is_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      parsed_len = 1;
       break;
+   default:
+       // No specific handling for other services.
+       break;
+   }
+
+   // Display any remaining unparsed data.
+   int remain_len = tvb_reported_length_remaining(tvb, offset + parsed_len);
+   if (remain_len > 0)
+   {
+       proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset + parsed_len, remain_len, ENC_NA);
    }
 
    return tvb_reported_length(tvb);
@@ -7682,37 +7596,16 @@ proto_register_cip(void)
 
       { &hf_cip_sc_get_attr_list_attr_count, { "Attribute Count", "cip.getlist.attr_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_get_attr_list_attr_status, { "General Status", "cip.getlist.attr_status", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_gs_vals_ext, 0, NULL, HFILL }},
-      { &hf_cip_sc_get_attr_list_attr_data, { "Data", "cip.getlist.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_set_attr_list_attr_count, { "Attribute Count", "cip.setlist.attr_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_set_attr_list_attr_status, { "General Status", "cip.setlist.attr_status", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_gs_vals_ext, 0, NULL, HFILL }},
-      { &hf_cip_sc_set_attr_list_attr_data, { "Data", "cip.setlist.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-
-      { &hf_cip_sc_get_attribute_all_data, { "Data", "cip.getall.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_set_attribute_all_data, { "Data", "cip.setall.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_reset_param, { "Reset type", "cip.reset.type", FT_UINT8, BASE_DEC, VALS(cip_reset_type_vals), 0, NULL, HFILL }},
-      { &hf_cip_sc_reset_data, { "Data", "cip.reset.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_start_data, { "Data", "cip.start.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_stop_data, { "Data", "cip.stop.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_create_instance, { "Instance", "cip.create.instance", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_create_data, { "Data", "cip.create.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_mult_serv_pack_num_services, { "Number of Services", "cip.msp.num_services", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_mult_serv_pack_offset, { "Offset", "cip.msp.offset", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_delete_data, { "Data", "cip.delete.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_apply_attributes_data, { "Data", "cip.apply_attributes.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_get_attr_single_data, { "Data", "cip.getsingle.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_set_attr_single_data, { "Data", "cip.setsingle.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_find_next_object_max_instance, { "Maximum ID", "cip.find_next_object.max_instance", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_find_next_object_num_instances, { "Number of Instances:", "cip.find_next_object.num_instances", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_find_next_object_instance_item, { "Instance", "cip.find_next_object.instance", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_restore_data, { "Data", "cip.restore.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_save_data, { "Data", "cip.save.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_noop_data, { "Data", "cip.noop.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_get_member_data, { "Data", "cip.getmember.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_set_member_data, { "Data", "cip.setmember.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_insert_member_data, { "Data", "cip.insertmember.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_remove_member_data, { "Data", "cip.removemember.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_group_sync_is_sync, { "IsSynchronized", "cip.group_sync.is_sync", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_group_sync_data, { "Data", "cip.group_sync.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_data, { "Data", "cip.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
       { &hf_id_vendor_id, { "Vendor ID", "cip.id.vendor_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &cip_vendor_vals_ext, 0, NULL, HFILL } },
