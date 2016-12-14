@@ -34,6 +34,7 @@ void proto_register_lg8979(void);
 /* Initialize the protocol and registered fields */
 static int proto_lg8979                    = -1;
 static int hf_lg8979_header                = -1;
+static int hf_lg8979_flags                 = -1;
 static int hf_lg8979_shr                   = -1;
 static int hf_lg8979_mfc                   = -1;
 static int hf_lg8979_ack                   = -1;
@@ -351,20 +352,6 @@ static const value_string lg8979_pul_output_rl_vals[] = {
     { 0,    NULL }
 };
 
-
-/*****************************************************************/
-/*  Adds text to item, with trailing "," if required             */
-/*****************************************************************/
-static gboolean
-add_item_text(proto_item *item, const gchar *text, gboolean comma_needed)
-{
-  if (comma_needed) {
-    proto_item_append_text(item, ", ");
-  }
-  proto_item_append_text(item, "%s", text);
-  return TRUE;
-}
-
 /*************************************************************/
 /* Try to determine "direction" of message.                  */
 /* Check the data length within the packet and compare       */
@@ -497,9 +484,9 @@ static int
 dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *lg8979_item, *lg8979_flags_item = NULL, *lg8979_point_item = NULL;
+    proto_item    *lg8979_item, *lg8979_point_item = NULL;
     proto_item    *lg8979_slot_item = NULL, *lg8979_ang_group_pts_item = NULL;
-    proto_tree    *lg8979_tree, *lg8979_flags_tree = NULL, *lg8979_fc_tree = NULL;
+    proto_tree    *lg8979_tree, *lg8979_fc_tree = NULL;
     proto_tree    *lg8979_point_tree = NULL, *lg8979_ts_tree = NULL;
     int           offset = 0;
     guint8        rtu_addr, func, packet_type, data_len, ptnum8, tripclose, rl, exp_code, num_chassis;
@@ -507,7 +494,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     guint16       ptnum, ptval, ana12_val;
     guint16       ts_ms;
     gint          num_points = 0, cnt = 0, cnt1 = 0;
-    gboolean      shr, con, frz, ind, sch, slg, ack, comma_needed = FALSE, new_status, change;
+    gboolean      shr, new_status, change;
 
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "L&G 8979");
@@ -525,24 +512,19 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
     /* This packet type is classified as a "Request" and is deemed in the direction of "master -> RTU" */
     if (packet_type == LG8979_DIR_MASTER_TO_RTU) {
+        static const int * request_flags[] = {
+            &hf_lg8979_shr,
+            &hf_lg8979_mfc,
+            &hf_lg8979_ack,
+            NULL
+        };
 
         col_add_str(pinfo->cinfo, COL_INFO, "Master -> RTU");
 
         /* Add Flags to Protocol Tree */
         shr = tvb_get_guint8(tvb, offset) & 0x80;
-        ack = tvb_get_guint8(tvb, offset) & 0x04;
 
-        lg8979_flags_tree = proto_tree_add_subtree(lg8979_tree, tvb, offset, 1,
-                                    ett_lg8979_flags, &lg8979_flags_item, "Flags");
-
-        proto_item_append_text(lg8979_flags_item, " (");
-        if (shr) comma_needed = add_item_text(lg8979_flags_item, "SHR", comma_needed);
-        if (ack)                add_item_text(lg8979_flags_item, "ACK", comma_needed);
-        proto_item_append_text(lg8979_flags_item, ")");
-
-        proto_tree_add_item(lg8979_flags_tree, hf_lg8979_shr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(lg8979_flags_tree, hf_lg8979_mfc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(lg8979_flags_tree, hf_lg8979_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_bitmask(lg8979_tree, tvb, offset, hf_lg8979_flags, ett_lg8979_flags, request_flags, ENC_LITTLE_ENDIAN);
         offset += 1;
 
         /* Add RTU Address to Protocol Tree */
@@ -771,33 +753,22 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     /* This packet type is classified as a "Response" and is deemed in the direction of "RTU -> master" */
     else if (packet_type == LG8979_DIR_RTU_TO_MASTER) {
 
+        static const int * response_flags[] = {
+            &hf_lg8979_shr,
+            &hf_lg8979_con,
+            &hf_lg8979_frz,
+            &hf_lg8979_ind,
+            &hf_lg8979_sch,
+            &hf_lg8979_slg,
+            NULL
+        };
+
         col_add_str(pinfo->cinfo, COL_INFO, "RTU -> Master");
 
         /* Retrieve and add Flags to Protocol Tree */
         shr = tvb_get_guint8(tvb, offset) & 0x80;
-        con = tvb_get_guint8(tvb, offset) & 0x40;
-        frz = tvb_get_guint8(tvb, offset) & 0x20;
-        ind = tvb_get_guint8(tvb, offset) & 0x10;
-        sch = tvb_get_guint8(tvb, offset) & 0x08;
-        slg = tvb_get_guint8(tvb, offset) & 0x04;
 
-        lg8979_flags_tree = proto_tree_add_subtree(lg8979_tree, tvb, offset, 1, ett_lg8979_flags, &lg8979_flags_item, "Flags");
-
-        proto_item_append_text(lg8979_flags_item, " (");
-        if (shr) comma_needed = add_item_text(lg8979_flags_item, "SHR", comma_needed);
-        if (con) comma_needed = add_item_text(lg8979_flags_item, "CON", comma_needed);
-        if (frz) comma_needed = add_item_text(lg8979_flags_item, "FRZ", comma_needed);
-        if (ind) comma_needed = add_item_text(lg8979_flags_item, "IND", comma_needed);
-        if (sch) comma_needed = add_item_text(lg8979_flags_item, "SCH", comma_needed);
-        if (slg)                add_item_text(lg8979_flags_item, "SLG", comma_needed);
-        proto_item_append_text(lg8979_flags_item, ")");
-
-        proto_tree_add_item(lg8979_flags_tree, hf_lg8979_shr, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(lg8979_flags_tree, hf_lg8979_con, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(lg8979_flags_tree, hf_lg8979_frz, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(lg8979_flags_tree, hf_lg8979_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(lg8979_flags_tree, hf_lg8979_sch, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(lg8979_flags_tree, hf_lg8979_slg, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(lg8979_tree, tvb, offset, hf_lg8979_flags, ett_lg8979_flags, response_flags, ENC_LITTLE_ENDIAN);
         offset += 1;
 
         /* Add RTU Address to Protocol Tree */
@@ -1294,22 +1265,24 @@ proto_register_lg8979(void)
     static hf_register_info lg8979_hf[] = {
         { &hf_lg8979_header,
         { "Header", "lg8979.header", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_lg8979_flags,
+        { "Flags", "lg8979.flags", FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }},
         { &hf_lg8979_shr,
-        { "SHR: Short Response Flag", "lg8979.shr", FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL }},
+        { "SHR", "lg8979.shr", FT_UINT8, BASE_DEC, NULL, 0x80, "Short Response Flag", HFILL }},
         { &hf_lg8979_mfc,
-        { "MFC: Multi Function Code", "lg8979.mfc", FT_UINT8, BASE_DEC, NULL, 0x78, NULL, HFILL }},
+        { "MFC", "lg8979.mfc", FT_UINT8, BASE_DEC, NULL, 0x78, "Multi Function Code", HFILL }},
         { &hf_lg8979_ack,
-        { "ACK: Acknowledge Flag", "lg8979.ack", FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL }},
+        { "ACK", "lg8979.ack", FT_UINT8, BASE_DEC, NULL, 0x04, "Acknowledge Flag", HFILL }},
         { &hf_lg8979_con,
-        { "CON: Continuation Flag", "lg8979.con", FT_UINT8, BASE_DEC, NULL, 0x40, NULL, HFILL }},
+        { "CON", "lg8979.con", FT_UINT8, BASE_DEC, NULL, 0x40, "Continuation Flag", HFILL }},
         { &hf_lg8979_frz,
-        { "FRZ: Accumulator Freeze Flag", "lg8979.frz", FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL }},
+        { "FRZ", "lg8979.frz", FT_UINT8, BASE_DEC, NULL, 0x20, "Accumulator Freeze Flag", HFILL }},
         { &hf_lg8979_ind,
-        { "IND: Indication Change Flag", "lg8979.ind", FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }},
+        { "IND", "lg8979.ind", FT_UINT8, BASE_DEC, NULL, 0x10, "Indication Change Flag", HFILL }},
         { &hf_lg8979_sch,
-        { "SCH: SOE Change Flag", "lg8979.sch", FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL }},
+        { "SCH", "lg8979.sch", FT_UINT8, BASE_DEC, NULL, 0x08, "SOE Change Flag", HFILL }},
         { &hf_lg8979_slg,
-        { "SLG: SOE Log Flag", "lg8979.slg", FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL }},
+        { "SLG", "lg8979.slg", FT_UINT8, BASE_DEC, NULL, 0x04, "SOE Log Flag", HFILL }},
         { &hf_lg8979_address,
         { "RTU Address", "lg8979.address", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_lg8979_lastblock,

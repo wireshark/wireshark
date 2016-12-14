@@ -1413,71 +1413,39 @@ calculateCRCtvb(tvbuff_t *tvb, guint offset, guint len) {
 }
 
 /*****************************************************************/
-/*  Adds text to item, with trailing "," if required             */
-/*****************************************************************/
-static gboolean
-add_item_text(proto_item *item, const gchar *text, gboolean comma_needed)
-{
-  if (comma_needed) {
-    proto_item_append_text(item, ", ");
-  }
-  proto_item_append_text(item, "%s", text);
-  return TRUE;
-}
-
-/*****************************************************************/
 /*  Application Layer Process Internal Indications (IIN)         */
 /*****************************************************************/
 static void
 dnp3_al_process_iin(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *al_tree)
 {
-
   guint16     al_iin;
   proto_item *tiin;
-  proto_tree *iin_tree;
-  gboolean    comma_needed = FALSE;
+  static const int* indications[] = {
+      &hf_dnp3_al_iin_rst,
+      &hf_dnp3_al_iin_dt,
+      &hf_dnp3_al_iin_dol,
+      &hf_dnp3_al_iin_tsr,
+      &hf_dnp3_al_iin_cls3d,
+      &hf_dnp3_al_iin_cls2d,
+      &hf_dnp3_al_iin_cls1d,
+      &hf_dnp3_al_iin_bmsg,
+      &hf_dnp3_al_iin_cc,
+      &hf_dnp3_al_iin_oae,
+      &hf_dnp3_al_iin_ebo,
+      &hf_dnp3_al_iin_pioor,
+      &hf_dnp3_al_iin_obju,
+      &hf_dnp3_al_iin_fcni,
+      NULL
+  };
 
+  tiin = proto_tree_add_bitmask(al_tree, tvb, offset, hf_dnp3_al_iin, ett_dnp3_al_iin, indications, ENC_BIG_ENDIAN);
   al_iin = tvb_get_ntohs(tvb, offset);
-
-  tiin = proto_tree_add_uint_format(al_tree, hf_dnp3_al_iin, tvb, offset, 2, al_iin,
-        "Internal Indications: ");
-  if (al_iin & AL_IIN_RST)    comma_needed = add_item_text(tiin, "Device Restart",                     comma_needed);
-  if (al_iin & AL_IIN_DOL)    comma_needed = add_item_text(tiin, "Outputs in Local",                   comma_needed);
-  if (al_iin & AL_IIN_DT)     comma_needed = add_item_text(tiin, "Device Trouble",                     comma_needed);
-  if (al_iin & AL_IIN_TSR)    comma_needed = add_item_text(tiin, "Time Sync Required",                 comma_needed);
-  if (al_iin & AL_IIN_CLS3D)  comma_needed = add_item_text(tiin, "Class 3 Data Available",             comma_needed);
-  if (al_iin & AL_IIN_CLS2D)  comma_needed = add_item_text(tiin, "Class 2 Data Available",             comma_needed);
-  if (al_iin & AL_IIN_CLS1D)  comma_needed = add_item_text(tiin, "Class 1 Data Available",             comma_needed);
-  if (al_iin & AL_IIN_BMSG)   comma_needed = add_item_text(tiin, "Broadcast Message Rx'd",             comma_needed);
-  if (al_iin & AL_IIN_CC)     comma_needed = add_item_text(tiin, "Device Configuration Corrupt",       comma_needed);
-  if (al_iin & AL_IIN_OAE)    comma_needed = add_item_text(tiin, "Operation Already Executing",        comma_needed);
-  if (al_iin & AL_IIN_EBO)    comma_needed = add_item_text(tiin, "Event Buffer Overflow",              comma_needed);
-  if (al_iin & AL_IIN_PIOOR)  comma_needed = add_item_text(tiin, "Parameters Invalid or Out of Range", comma_needed);
-  if (al_iin & AL_IIN_OBJU)   comma_needed = add_item_text(tiin, "Requested Objects Unknown",          comma_needed);
-  if (al_iin & AL_IIN_FCNI)   /*comma_needed = */add_item_text(tiin, "Function code not implemented",  comma_needed);
-  proto_item_append_text(tiin, " (0x%04x)", al_iin);
 
   /* If IIN indicates an abnormal condition, add expert info */
   if ((al_iin & AL_IIN_DT) || (al_iin & AL_IIN_CC) || (al_iin & AL_IIN_OAE) || (al_iin & AL_IIN_EBO) ||
       (al_iin & AL_IIN_PIOOR) || (al_iin & AL_IIN_OBJU) || (al_iin & AL_IIN_FCNI)) {
       expert_add_info(pinfo, tiin, &ei_dnp_iin_abnormal);
   }
-
-  iin_tree = proto_item_add_subtree(tiin, ett_dnp3_al_iin);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_rst,   tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_dt,    tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_dol,   tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_tsr,   tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cls3d, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cls2d, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cls1d, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_bmsg,  tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cc,    tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_oae,   tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_ebo,   tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_pioor, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_obju,  tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_fcni,  tvb, offset, 2, ENC_BIG_ENDIAN);
 }
 
 /**************************************************************/
@@ -3772,8 +3740,8 @@ proto_register_dnp3(void)
     },
 
     { &hf_dnp3_al_iin,
-      { "Application Layer IIN bits", "dnp3.al.iin",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+      { "Internal Indications", "dnp3.al.iin",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
         "Application Layer IIN", HFILL }
     },
 
