@@ -135,16 +135,13 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
   guint32 stream;
   guint expected_len;
 
+  /* Too little data? */
+  if (tvb_captured_length(tvb) < LSC_MIN_LEN)
+    return 0;
+
   /* Protocol is LSC, packet summary is not yet known */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LSC");
   col_clear(pinfo->cinfo, COL_INFO);
-
-  /* Too little data? */
-  if (tvb_captured_length(tvb) < LSC_MIN_LEN)
-  {
-    col_set_str(pinfo->cinfo, COL_INFO, "[Too short]");
-    return 0;
-  }
 
   /* Get the op code */
   op_code = tvb_get_guint8(tvb, 2);
@@ -208,41 +205,32 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                                      stream, "%.8u", stream);
 
     /* Add rest of LSC header */
-    proto_tree_add_uint(lsc_tree, hf_lsc_version, tvb, 0, 1,
-                        tvb_get_guint8(tvb, 0));
-    proto_tree_add_uint(lsc_tree, hf_lsc_trans_id, tvb, 1, 1,
-                        tvb_get_guint8(tvb, 1));
+    proto_tree_add_item(lsc_tree, hf_lsc_version, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(lsc_tree, hf_lsc_trans_id, tvb, 1, 1, ENC_NA);
 
     /* Only replies contain a status code */
     if (isReply(op_code))
-      proto_tree_add_uint(lsc_tree, hf_lsc_status_code, tvb, 3, 1,
-                          tvb_get_guint8(tvb, 3));
+      proto_tree_add_item(lsc_tree, hf_lsc_status_code, tvb, 3, 1,
+                          ENC_NA);
 
     /* Add op code specific parts */
     switch (op_code)
       {
         case LSC_PAUSE:
-          proto_tree_add_int(lsc_tree, hf_lsc_stop_npt, tvb, 8, 4,
-                             tvb_get_ntohl(tvb, 8));
+          proto_tree_add_item(lsc_tree, hf_lsc_stop_npt, tvb, 8, 4,
+                             ENC_BIG_ENDIAN);
           break;
         case LSC_RESUME:
-          proto_tree_add_int(lsc_tree, hf_lsc_start_npt, tvb, 8, 4,
-                             tvb_get_ntohl(tvb, 8));
-          proto_tree_add_int(lsc_tree, hf_lsc_scale_num, tvb, 12, 2,
-                             tvb_get_ntohs(tvb, 12));
-          proto_tree_add_uint(lsc_tree, hf_lsc_scale_denom, tvb, 14, 2,
-                              tvb_get_ntohs(tvb, 14));
+          proto_tree_add_item(lsc_tree, hf_lsc_start_npt, tvb, 8, 4, ENC_BIG_ENDIAN);
+          proto_tree_add_item(lsc_tree, hf_lsc_scale_num, tvb, 12, 2, ENC_BIG_ENDIAN);
+          proto_tree_add_item(lsc_tree, hf_lsc_scale_denom, tvb, 14, 2, ENC_BIG_ENDIAN);
           break;
         case LSC_JUMP:
         case LSC_PLAY:
-          proto_tree_add_int(lsc_tree, hf_lsc_start_npt, tvb, 8, 4,
-                             tvb_get_ntohl(tvb, 8));
-          proto_tree_add_int(lsc_tree, hf_lsc_stop_npt, tvb, 12, 4,
-                             tvb_get_ntohl(tvb, 12));
-          proto_tree_add_int(lsc_tree, hf_lsc_scale_num, tvb, 16, 2,
-                             tvb_get_ntohs(tvb, 16));
-          proto_tree_add_uint(lsc_tree, hf_lsc_scale_denom, tvb, 18, 2,
-                              tvb_get_ntohs(tvb, 18));
+          proto_tree_add_item(lsc_tree, hf_lsc_start_npt, tvb, 8, 4, ENC_BIG_ENDIAN);
+          proto_tree_add_item(lsc_tree, hf_lsc_stop_npt, tvb, 12, 4, ENC_BIG_ENDIAN);
+          proto_tree_add_item(lsc_tree, hf_lsc_scale_num, tvb, 16, 2, ENC_BIG_ENDIAN);
+          proto_tree_add_item(lsc_tree, hf_lsc_scale_denom, tvb, 18, 2, ENC_BIG_ENDIAN);
           break;
         case LSC_DONE:
         case LSC_PAUSE_REPLY:
@@ -251,14 +239,10 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         case LSC_RESET_REPLY:
         case LSC_JUMP_REPLY:
         case LSC_PLAY_REPLY:
-          proto_tree_add_int(lsc_tree, hf_lsc_current_npt, tvb, 8, 4,
-                             tvb_get_ntohl(tvb, 8));
-          proto_tree_add_int(lsc_tree, hf_lsc_scale_num, tvb, 12, 2,
-                             tvb_get_ntohs(tvb, 12));
-          proto_tree_add_uint(lsc_tree, hf_lsc_scale_denom, tvb, 14, 2,
-                              tvb_get_ntohs(tvb, 14));
-          proto_tree_add_uint(lsc_tree, hf_lsc_mode, tvb, 16, 1,
-                              tvb_get_guint8(tvb, 16));
+          proto_tree_add_item(lsc_tree, hf_lsc_current_npt, tvb, 8, 4, ENC_BIG_ENDIAN);
+          proto_tree_add_item(lsc_tree, hf_lsc_scale_num, tvb, 12, 2, ENC_BIG_ENDIAN);
+          proto_tree_add_item(lsc_tree, hf_lsc_scale_denom, tvb, 14, 2, ENC_BIG_ENDIAN);
+          proto_tree_add_item(lsc_tree, hf_lsc_mode, tvb, 16, 1, ENC_BIG_ENDIAN);
           break;
         default:
           break;
