@@ -174,4 +174,11 @@ Accuracy ::= SEQUENCE {
                 millis     [0] INTEGER  (1..999) OPTIONAL,
                 micros     [1] INTEGER  (1..999) OPTIONAL  }
 
+-- from Appendix A
+
+id-aa-timeStampToken OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) aa(2) 14 }
+
+SignatureTimeStampToken ::= TimeStampToken
+
 END
