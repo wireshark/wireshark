@@ -31,6 +31,7 @@
 
 #include <stdio.h>	/* for sscanf() */
 
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/req_resp_hdrs.h>
 #include <epan/prefs.h>
@@ -39,6 +40,7 @@
 #include <epan/strutil.h>
 #include <epan/tap-voip.h>
 #include <epan/stats_tree.h>
+#include <epan/addr_resolv.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 
@@ -142,8 +144,11 @@ static expert_field ei_rtsp_bad_client_port = EI_INIT;
 static expert_field ei_rtsp_bad_interleaved_channel = EI_INIT;
 static expert_field ei_rtsp_content_length_invalid = EI_INIT;
 static expert_field ei_rtsp_rdtfeaturelevel_invalid = EI_INIT;
+static expert_field ei_rtsp_bad_server_ip_address = EI_INIT;
+static expert_field ei_rtsp_bad_client_ip_address = EI_INIT;
 
 static dissector_handle_t rtp_handle;
+static dissector_handle_t rtp_rfc4571_handle;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t rdt_handle;
 static dissector_table_t media_type_dissector_table;
@@ -494,9 +499,13 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
 
 static const char rtsp_content_type[]      = "Content-Type:";
 static const char rtsp_transport[]         = "Transport:";
-static const char rtsp_sps[]               = "server_port=";
-static const char rtsp_cps[]               = "client_port=";
-static const char rtsp_rtp[]               = "rtp/";
+static const char rtsp_sps_server_port[]   = "server_port=";
+static const char rtsp_cps_server_port[]   = "client_port=";
+static const char rtsp_sps_dest_addr[]     = "dest_addr=";
+static const char rtsp_cps_src_addr[]      = "src_addr=";
+static const char rtsp_rtp_udp_default[]   = "rtp/avp";
+static const char rtsp_rtp_udp[]           = "rtp/avp/udp";
+static const char rtsp_rtp_tcp[]           = "rtp/avp/tcp";
 static const char rtsp_rdt_feature_level[] = "RDTFeatureLevel";
 static const char rtsp_real_rdt[]          = "x-real-rdt/";
 static const char rtsp_real_tng[]          = "x-pn-tng/"; /* synonym for x-real-rdt */
@@ -505,16 +514,28 @@ static const char rtsp_inter[]             = "interleaved=";
 static void
 rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
                          const guchar *line_begin, size_t line_len,
-                         gint rdt_feature_level)
+                         gint rdt_feature_level,
+                         rtsp_type_t rtsp_type_packet)
 {
     conversation_t  *conv;
     guchar    buf[256];
     guchar   *tmp;
-    gboolean  rtp_transport = FALSE;
+    gboolean  rtp_udp_transport = FALSE;
+    gboolean  rtp_tcp_transport = FALSE;
     gboolean  rdt_transport = FALSE;
     guint     c_data_port, c_mon_port;
     guint     s_data_port, s_mon_port;
+    guint     ipv4_1, ipv4_2, ipv4_3, ipv4_4;
     gboolean  is_video      = FALSE; /* FIX ME - need to indicate video or not */
+    address   src_addr;
+    address   dst_addr;
+
+    if (rtsp_type_packet != RTSP_REPLY) {
+        return;
+    }
+
+    src_addr=pinfo->src;
+    dst_addr=pinfo->dst;
 
     /* Copy line into buf */
     if (line_len > sizeof(buf) - 1)
@@ -531,12 +552,23 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
         tmp++;
 
     /* Work out which transport type is here */
-    if (g_ascii_strncasecmp(tmp, rtsp_rtp, strlen(rtsp_rtp)) == 0)
-        rtp_transport = TRUE;
-    else
-    if (g_ascii_strncasecmp(tmp, rtsp_real_rdt, strlen(rtsp_real_rdt)) == 0 ||
-        g_ascii_strncasecmp(tmp, rtsp_real_tng, strlen(rtsp_real_tng)) == 0)
+    if (g_ascii_strncasecmp(tmp, rtsp_rtp_udp, strlen(rtsp_rtp_udp)) == 0)
+    {
+        rtp_udp_transport = TRUE;
+    }
+    else if (g_ascii_strncasecmp(tmp, rtsp_rtp_tcp, strlen(rtsp_rtp_tcp)) == 0)
+    {
+        rtp_tcp_transport = TRUE;
+    }
+    else if (g_ascii_strncasecmp(tmp, rtsp_rtp_udp_default, strlen(rtsp_rtp_udp_default)) == 0)
+    {
+        rtp_udp_transport = TRUE;
+    }
+    else if (g_ascii_strncasecmp(tmp, rtsp_real_rdt, strlen(rtsp_real_rdt)) == 0 ||
+                 g_ascii_strncasecmp(tmp, rtsp_real_tng, strlen(rtsp_real_tng)) == 0)
+    {
         rdt_transport = TRUE;
+    }
     else
     {
         /* Give up on unknown transport types */
@@ -548,39 +580,100 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
     s_data_port = s_mon_port = 0;
 
     /* Look for server port */
-    if ((tmp = strstr(buf, rtsp_sps))) {
-        tmp += strlen(rtsp_sps);
+    if ((tmp = strstr(buf, rtsp_sps_server_port))) {
+        tmp += strlen(rtsp_sps_server_port);
         if (sscanf(tmp, "%u-%u", &s_data_port, &s_mon_port) < 1) {
             expert_add_info(pinfo, ti, &ei_rtsp_bad_server_port);
             return;
         }
     }
-    /* Look for client port */
-    if ((tmp = strstr(buf, rtsp_cps))) {
-        tmp += strlen(rtsp_cps);
-        if (sscanf(tmp, "%u-%u", &c_data_port, &c_mon_port) < 1) {
-            expert_add_info(pinfo, ti, &ei_rtsp_bad_client_port);
+    else if ((tmp = strstr(buf, rtsp_sps_dest_addr))) {
+        tmp += strlen(rtsp_sps_dest_addr);
+        if (sscanf(tmp, "\":%u\"", &s_data_port) == 1) {
+            /* :9 mean ignore */
+            if (s_data_port == 9) {
+                s_data_port = 0;
+            }
+        }
+        else if (sscanf(tmp, "\"%u.%u.%u.%u:%u\"", &ipv4_1, &ipv4_2, &ipv4_3, &ipv4_4, &s_data_port) == 5) {
+            guchar *tmp2;
+            guchar *tmp3;
+            guint32 ip4_addr;
+
+            /* Skip leading " */
+            tmp++;
+            tmp2=strstr(tmp,":");
+            tmp3=g_strndup(tmp,tmp2-tmp);
+            if (!str_to_ip(tmp3, &ip4_addr)) {
+                g_free(tmp3);
+                expert_add_info(pinfo, ti, &ei_rtsp_bad_server_ip_address);
+                return;
+            }
+            set_address(&dst_addr, AT_IPv4, 4, &ip4_addr);
+            g_free(tmp3);
+        }
+        else if (sscanf(tmp, "\"%u.%u.%u.%u\"", &ipv4_1, &ipv4_2, &ipv4_3, &ipv4_4) == 4) {
+            guchar *tmp2;
+            guchar *tmp3;
+            guint32 ip4_addr;
+
+            /* Skip leading " */
+            tmp++;
+            tmp2=strstr(tmp,"\"");
+            tmp3=g_strndup(tmp,tmp2-tmp);
+            if (!str_to_ip(tmp3, &ip4_addr)) {
+                g_free(tmp3);
+                expert_add_info(pinfo, ti, &ei_rtsp_bad_server_ip_address);
+                return;
+            }
+            set_address(&dst_addr, AT_IPv4, 4, &ip4_addr);
+            g_free(tmp3);
+        }
+        else
+        {
+            expert_add_info(pinfo, ti, &ei_rtsp_bad_server_port);
             return;
         }
     }
 
 
+    /* Look for client port */
+    if ((tmp = strstr(buf, rtsp_cps_server_port))) {
+        tmp += strlen(rtsp_cps_server_port);
+        if (sscanf(tmp, "%u-%u", &c_data_port, &c_mon_port) < 1) {
+            expert_add_info(pinfo, ti, &ei_rtsp_bad_client_port);
+            return;
+        }
+    }
+    else if ((tmp = strstr(buf, rtsp_cps_src_addr))) {
+        tmp += strlen(rtsp_cps_src_addr);
+        if (sscanf(tmp, "\"%u.%u.%u.%u:%u\"", &ipv4_1, &ipv4_2, &ipv4_3, &ipv4_4, &c_data_port) == 5) {
+            guchar *tmp2;
+            guchar *tmp3;
+            guint32 ip4_addr;
+
+            /* Skip leading " */
+            tmp++;
+            tmp2=strstr(tmp,":");
+            tmp3=g_strndup(tmp,tmp2-tmp);
+            if (!str_to_ip(tmp3, &ip4_addr)) {
+                g_free(tmp3);
+                expert_add_info(pinfo, ti, &ei_rtsp_bad_client_ip_address);
+                return;
+            }
+            set_address(&src_addr, AT_IPv4, 4, &ip4_addr);
+            g_free(tmp3);
+        }
+    }
+
     /* Deal with RTSP TCP-interleaved conversations. */
-    if (!c_data_port) {
+    if (strstr(buf, rtsp_inter) != NULL) {
         rtsp_conversation_data_t    *data;
         guint               s_data_chan, s_mon_chan;
         int             i;
 
-        /* Search tranport line for interleaved string */
-        if ((tmp = strstr(buf, rtsp_inter)) == NULL) {
-            /*
-             * No interleaved or server_port - probably a
-             * SETUP request, rather than reply.
-             */
-            return;
-        }
-
         /* Move tmp to beyone interleaved string */
+        tmp = strstr(buf, rtsp_inter);
         tmp += strlen(rtsp_inter);
         /* Look for channel number(s) */
         i = sscanf(tmp, "%u-%u", &s_data_chan, &s_mon_chan);
@@ -605,7 +698,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
 
         /* Now set the dissector handle of the interleaved channel
            according to the transport protocol used */
-        if (rtp_transport)
+        if (rtp_tcp_transport)
         {
             if (s_data_chan < RTSP_MAX_INTERLEAVED) {
                 data->interleaved[s_data_chan].dissector =
@@ -625,7 +718,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
         }
         return;
     }
-
+    /* Noninterleaved options follow */
     /*
      * We only want to match on the destination address, not the
      * source address, because the server might send back a packet
@@ -633,11 +726,14 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
      * sent the packet, so we construct a conversation with no
      * second address.
      */
-    if (rtp_transport)
+    else if (rtp_udp_transport)
     {
-        /* There is always data for RTP */
-        rtp_add_address(pinfo, PT_UDP, &pinfo->dst, c_data_port, s_data_port,
-                        "RTSP", pinfo->num, is_video, NULL);
+        /* RTP only if indicated */
+        if (c_data_port)
+        {
+            rtp_add_address(pinfo, PT_UDP, &dst_addr, c_data_port, s_data_port,
+                            "RTSP", pinfo->num, is_video, NULL);
+        }
 
         /* RTCP only if indicated */
         if (c_mon_port)
@@ -646,8 +742,13 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
                              "RTSP", pinfo->num);
         }
     }
-    else
-    if (rdt_transport)
+    else if (rtp_tcp_transport)
+    {
+        /* RTP only if indicated */
+        rtp_add_address(pinfo, PT_TCP, &src_addr, c_data_port, s_data_port,
+                        "RTSP", pinfo->num, is_video, NULL);
+    }
+    else if (rdt_transport)
     {
         /* Real Data Transport */
         rdt_add_address(pinfo, &pinfo->dst, c_data_port, s_data_port,
@@ -707,7 +808,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
     gboolean      body_requires_content_len;
     gboolean      saw_req_resp_or_header;
     guchar        c;
-    rtsp_type_t   rtsp_type;
+    rtsp_type_t   rtsp_type_packet;
+    rtsp_type_t   rtsp_type_line;
     gboolean      is_header;
     int           datalen;
     int           content_length;
@@ -744,7 +846,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
      */
     line = tvb_get_ptr(tvb, offset, first_linelen);
     is_request_or_reply = is_rtsp_request_or_reply(line, first_linelen,
-        &rtsp_type);
+        &rtsp_type_packet);
     if (is_request_or_reply) {
         /*
          * Yes, it's a request or response.
@@ -782,14 +884,14 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * which would require subdissectors to deal intelligently
      * with empty segments.
      */
-    if (rtsp_type == RTSP_REQUEST)
+    if (rtsp_type_packet == RTSP_REQUEST)
         body_requires_content_len = TRUE;
     else
         body_requires_content_len = FALSE;
 
     line = tvb_get_ptr(tvb, offset, first_linelen);
     if (is_request_or_reply) {
-        if ( rtsp_type == RTSP_REPLY ) {
+        if ( rtsp_type_packet == RTSP_REPLY ) {
             frame_label = wmem_strdup_printf(wmem_packet_scope(),
                   "Reply: %s", format_text(line, first_linelen));
         }
@@ -811,7 +913,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
         * "tvb_get_ptr()" call won't throw an exception.
         */
     if (is_request_or_reply)
-        if ( rtsp_type == RTSP_REPLY ) {
+        if ( rtsp_type_packet == RTSP_REPLY ) {
             col_set_str(pinfo->cinfo, COL_INFO, "Reply: ");
             col_append_str(pinfo->cinfo, COL_INFO,
                 format_text(line, first_linelen));
@@ -868,7 +970,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /*
          * OK, does it look like an RTSP request or response?
          */
-        is_request_or_reply = is_rtsp_request_or_reply(line, linelen, &rtsp_type);
+        is_request_or_reply = is_rtsp_request_or_reply(line, linelen, &rtsp_type_line);
         if (is_request_or_reply)
             goto is_rtsp;
 
@@ -995,7 +1097,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
         saw_req_resp_or_header = TRUE;
         if (rtsp_tree) {
 
-            switch (rtsp_type)
+            switch (rtsp_type_line)
             {
                 case RTSP_REQUEST:
                     process_rtsp_request(tvb, offset, line, linelen, next_offset, rtsp_tree);
@@ -1045,7 +1147,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                  * a conversation that will be dissected
                  * with the appropriate dissector.
                  */
-                rtsp_create_conversation(pinfo, ti, line, linelen, rdt_feature_level);
+                rtsp_create_conversation(pinfo, ti, line, linelen, rdt_feature_level, rtsp_type_packet);
             } else if (HDR_MATCHES(rtsp_content_type))
             {
                 proto_tree_add_string(rtsp_tree, hf_rtsp_content_type,
@@ -1132,7 +1234,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 proto_tree_add_format_text(rtsp_tree, tvb, offset, next_offset - offset);
             }
         }
-        else if (rtsp_type == RTSP_NOT_FIRST_LINE)
+        else if (rtsp_type_line == RTSP_NOT_FIRST_LINE)
         {
             /* Catch-all for all other lines... Show line as text.
                TODO: should these be shown as errors? */
@@ -1459,7 +1561,11 @@ proto_register_rtsp(void)
         { &ei_rtsp_content_length_invalid,
           { "rtsp.content-length.invalid", PI_MALFORMED, PI_ERROR, "Invalid content length", EXPFILL }},
         { &ei_rtsp_rdtfeaturelevel_invalid,
-          { "rtsp.rdt-feature-level.invalid", PI_MALFORMED, PI_ERROR, "Invalid RDTFeatureLevel", EXPFILL }}
+          { "rtsp.rdt-feature-level.invalid", PI_MALFORMED, PI_ERROR, "Invalid RDTFeatureLevel", EXPFILL }},
+        { &ei_rtsp_bad_server_ip_address,
+          { "rtsp.bad_client_ip_address", PI_MALFORMED, PI_ERROR, "Bad server IP address", EXPFILL }},
+        { &ei_rtsp_bad_client_ip_address,
+          { "rtsp.bad_client_ip_address", PI_MALFORMED, PI_ERROR, "Bad client IP address", EXPFILL }}
     };
 
     module_t *rtsp_module;
@@ -1515,6 +1621,7 @@ proto_reg_handoff_rtsp(void)
 
     rtsp_handle = find_dissector("rtsp");
     rtp_handle = find_dissector_add_dependency("rtp", proto_rtsp);
+    rtp_rfc4571_handle = find_dissector_add_dependency("rtp.rfc4571", proto_rtsp);
     rtcp_handle = find_dissector_add_dependency("rtcp", proto_rtsp);
     rdt_handle = find_dissector_add_dependency("rdt", proto_rtsp);
     media_type_dissector_table = find_dissector_table("media_type");
