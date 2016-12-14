@@ -475,7 +475,7 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
                 bi = proto_tree_add_none_format(message_tree, hf_osc_message_blob_type, tvb, offset, 4+slen, "Blob: %i bytes", blen);
                 blob_tree = proto_item_add_subtree(bi, ett_osc_blob);
 
-                proto_tree_add_int_format_value(blob_tree, hf_osc_message_blob_size_type, tvb, offset, 4, blen, "%i bytes", blen);
+                proto_tree_add_int(blob_tree, hf_osc_message_blob_size_type, tvb, offset, 4, blen);
                 offset += 4;
 
                 /* check for zero length blob */
@@ -768,10 +768,10 @@ dissect_osc_bundle(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint off
     while(offset < end)
     {
         /* peek bundle element size */
-        gint32 size = tvb_get_ntohl(tvb, offset);
+        gint32 size;
 
         /* read bundle element size */
-        proto_tree_add_int_format_value(bundle_tree, hf_osc_bundle_element_size_type, tvb, offset, 4, size, "%i bytes", size);
+        proto_tree_add_item_ret_int(bundle_tree, hf_osc_bundle_element_size_type, tvb, offset, 4, ENC_BIG_ENDIAN, &size);
         offset += 4;
 
         /* check for zero size bundle element */
@@ -1112,8 +1112,8 @@ proto_register_osc(void)
                 "Scheduled bundle execution time", HFILL } },
 
         { &hf_osc_bundle_element_size_type, { "Size", "osc.bundle.element.size",
-                FT_INT32, BASE_DEC,
-                NULL, 0x0,
+                FT_INT32, BASE_DEC|BASE_UNIT_STRING,
+                &units_byte_bytes, 0x0,
                 "Bundle element size", HFILL } },
 
         { &hf_osc_message_type, { "Message", "osc.message",
@@ -1151,8 +1151,8 @@ proto_register_osc(void)
                 NULL, 0x0,
                 "Binary blob value", HFILL } },
         { &hf_osc_message_blob_size_type, { "Size", "osc.message.blob.size",
-                FT_INT32, BASE_DEC,
-                NULL, 0x0,
+                FT_INT32, BASE_DEC|BASE_UNIT_STRING,
+                &units_byte_bytes, 0x0,
                 "Binary blob size", HFILL } },
         { &hf_osc_message_blob_data_type, { "Data", "osc.message.blob.data",
                 FT_BYTES, BASE_NONE,

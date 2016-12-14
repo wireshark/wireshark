@@ -61,6 +61,7 @@ WS_DLL_PUBLIC const unit_name_string units_nanosecond_nanoseconds; // full unit 
 WS_DLL_PUBLIC const unit_name_string units_nanometers;
 WS_DLL_PUBLIC const unit_name_string units_degree_degrees;
 WS_DLL_PUBLIC const unit_name_string units_decibals;
+WS_DLL_PUBLIC const unit_name_string units_dbm;
 WS_DLL_PUBLIC const unit_name_string units_percent;
 WS_DLL_PUBLIC const unit_name_string units_ghz;
 WS_DLL_PUBLIC const unit_name_string units_mhz;

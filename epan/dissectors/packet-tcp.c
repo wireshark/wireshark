@@ -598,6 +598,7 @@ static const int *tcp_option_mptcp_dss_flags[] = {
   NULL
 };
 
+const unit_name_string units_64bit_version = { " (64bits version)", NULL };
 
 static void
 tcp_src_prompt(packet_info *pinfo, gchar *result)
@@ -4007,8 +4008,8 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                       hf_mptcp_expected_token, tvb, offset, 0, tcpd->fwd->mptcp_subflow->meta->token);
                 PROTO_ITEM_SET_GENERATED(item);
 
-                item = proto_tree_add_uint64_format_value(mptcp_tree,
-                      hf_mptcp_expected_idsn, tvb, offset, 0, tcpd->fwd->mptcp_subflow->meta->base_dsn, "%" G_GINT64_MODIFIER "u  (64bits version)", tcpd->fwd->mptcp_subflow->meta->base_dsn);
+                item = proto_tree_add_uint64(mptcp_tree,
+                      hf_mptcp_expected_idsn, tvb, offset, 0, tcpd->fwd->mptcp_subflow->meta->base_dsn);
                 PROTO_ITEM_SET_GENERATED(item);
 
                 /* last ACK of 3WHS, repeats both keys */
@@ -7357,7 +7358,7 @@ proto_register_tcp(void)
 
         { &hf_mptcp_expected_idsn,
           { "Subflow expected IDSN", "mptcp.expected_idsn", FT_UINT64,
-            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+            BASE_DEC|BASE_UNIT_STRING, &units_64bit_version, 0x0, NULL, HFILL}},
 
         { &hf_mptcp_analysis_subflows_stream_id,
           { "List subflow Stream IDs", "mptcp.analysis.subflows.streamid", FT_UINT16,

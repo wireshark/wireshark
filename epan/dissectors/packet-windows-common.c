@@ -1557,9 +1557,9 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	/* Add revision, num_auth, and authority */
 	proto_tree_add_item(subtree, hf_nt_sid_revision, tvb, offset_sid_start, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(subtree, hf_nt_sid_num_auth, tvb, offset_sid_start+1, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_uint64_format_value(subtree,
+	proto_tree_add_uint64(subtree,
 		(sid_display_hex ? hf_nt_sid_auth_hex : hf_nt_sid_auth_dec),
-		tvb, offset_sid_start+2, 6, authority, "%" G_GINT64_MODIFIER "u", authority);
+		tvb, offset_sid_start+2, 6, authority);
 
 	/* Add subauthorities */
 	proto_tree_add_string_format_value(subtree, hf_nt_sid_subauth, tvb, sa_offset,

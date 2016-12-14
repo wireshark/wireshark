@@ -62,6 +62,7 @@ const unit_name_string units_nanosecond_nanoseconds = { " nanosecond", " nanosec
 const unit_name_string units_nanometers = { "nm", NULL };
 const unit_name_string units_degree_degrees = { " degree", " degrees" };
 const unit_name_string units_decibals = { "dB", NULL };
+const unit_name_string units_dbm = { "dBm", NULL };
 const unit_name_string units_percent = { "%", NULL };
 const unit_name_string units_mhz = { "MHz", NULL };
 const unit_name_string units_ghz = { "GHz", NULL };
