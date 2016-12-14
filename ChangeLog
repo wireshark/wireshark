@@ -1,0 +1,598 @@
+commit ab1069e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 14 09:22:41 2016 -0800
+
+    Build 2.0.9.
+    
+    Change-Id: Ieac3f97e6921eac5541caf14ea62ffac5919e231
+
+commit 732603e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 13 15:02:23 2016 -0800
+
+    Update release notes for 2.0.9.
+    
+    Change-Id: Ieb0fcac284e4c13f80293725852b0798cccd27c4
+    Reviewed-on: https://code.wireshark.org/review/19250
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit cea17a7
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Dec 9 19:27:58 2016 -0800
+
+    Boost the max CPU time.
+    
+    See if that lets the big file from bug 13226 pass the test under
+    Valgrind.
+    
+    Change-Id: I76eb0c18809289e3b14ff8071402c31f70d93d42
+    Ping-Bug: 13226
+    Reviewed-on: https://code.wireshark.org/review/19189
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 5592deb6d0659a8f0dba52f8301fc7d19a56575a)
+    Reviewed-on: https://code.wireshark.org/review/19248
+
+commit ed62a05
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Dec 8 09:41:47 2016 -0800
+
+    Update to WinSparkle 0.5.3.
+    
+    Update our WinSparkle package to 0.5.3. This fixes a file deletion bug.
+    Note that WinSparkle now supports application shutdown callbacks, which
+    should let us fix bugs 9687 and 12989.
+    
+    Bug: 13217
+    Change-Id: I4b5f325c6dc251ce167f7bd344bbf3ca5ad3fe14
+    (cherry picked from commit 91968833037ed0e5d13b012d448bf3a9e8bc8f48)
+    (cherry picked from commit 1ce8b164f4370efa9303e33e9825ef8a0cb832b5)
+    Reviewed-on: https://code.wireshark.org/review/19232
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 21469e1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 11 08:31:51 2016 -0800
+
+    [Automatic update for 2016-12-11]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I376c75a492d4c9393dd0a2f70a18118340bd2837
+    Reviewed-on: https://code.wireshark.org/review/19205
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 7ed3dc3
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Dec 10 10:37:07 2016 -0800
+
+    Initialize fd_head->frame in all cases where we allocate fd_head.
+    
+    Also, sort the initializations of structure members by the order in the
+    structure, to make it easier to check that we've initialized them all.
+    
+    Bug: 13231
+    Change-Id: Id2819940d916a5fd5a3f1bf2fc20bd3ee34a75f4
+    Reviewed-on: https://code.wireshark.org/review/19195
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 2dfa603333416aec69719fb074388886f0fc96b2)
+    Reviewed-on: https://code.wireshark.org/review/19197
+
+commit 1965249
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Thu Dec 8 21:41:58 2016 -0500
+
+    [ICMP] use abs() in detecting timestamp heuristics
+    
+    The code was making the assumption that the ICMP data time will always
+    be greater than or equal to the frame time, but not earlier, but that
+    is not always the case and the heuristics can fail.
+    
+    # Conflicts:
+    #       epan/dissectors/packet-icmp.c
+    
+    Bug: 13161
+    Change-Id: I4bc7bd8d22d717d3b1f08afdd651f8a70cb7aef2
+    Reviewed-on: https://code.wireshark.org/review/19157
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit f60ec2581ae825f89e669ca4b4f14917a2aab561)
+    Reviewed-on: https://code.wireshark.org/review/19186
+
+commit 3e30990
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Dec 8 12:40:32 2016 -0800
+
+    Add a comment explaining how a compiler bug where it's overly optimizing
+    a combination of tests could cause the valgrind errors we were seeing,
+    so we're zeroing the entire structure, padding included, to avoid that.
+    
+    Change-Id: I6713c870b0432a03b81dda3c3a50566853a9021c
+    Reviewed-on: https://code.wireshark.org/review/19152
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit abddc44ccaf1677b3763dc068b0c2acbe06a5655)
+    Reviewed-on: https://code.wireshark.org/review/19153
+
+commit a7c68da
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Tue Dec 6 17:46:09 2016 +0100
+
+    cops: try to avoid uninitialized warning error
+    
+    Valgrind 3.11.0 on the Ubuntu 16.04 buildbot reports that
+    cops_call->solicited is not initialized:
+    
+        pdus_array = (GPtrArray *)wmem_map_lookup(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value));
+        /* ... */
+        for (i=0; i < pdus_array->len; i++) {
+            cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
+            if ( /* ... */
+            ( (cops_call->op_code == COPS_MSG_KA && !(cops_call->solicited)) &&
+                                                      ^^^^^^^^^^^^^^^^^^^^
+    
+    which is clearly bogus since the only place where cops_call could be
+    created is a few lines up:
+    
+        ver_flags = tvb_get_guint8(tvb, offset);
+        is_solicited = (lo_nibble(ver_flags) == 0x01);
+        /* ... */
+        pdus_array = (GPtrArray *)wmem_map_lookup(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value));
+        if (pdus_array == NULL) {
+            pdus_array = g_ptr_array_new();
+            wmem_map_insert(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value), pdus_array);
+        }
+        /* ... */
+        cops_call = wmem_new(wmem_file_scope(), cops_call_t);
+        cops_call->op_code = op_code;
+        cops_call->solicited = is_solicited;
+        /* ... */
+        g_ptr_array_add(pdus_array, cops_call);
+    
+    Try to zero the whole structure to avoid this bogus warning.
+    
+    Change-Id: I1ec4d23e99c987849af580a1c8134610c383e55e
+    Ping-Bug: 13044
+    Ping-Bug: 13203
+    Reviewed-on: https://code.wireshark.org/review/19119
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 47829b9611b613425aa0a314224863b02b915ea2)
+    Reviewed-on: https://code.wireshark.org/review/19151
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 2db54cf
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue Dec 6 21:19:01 2016 -0500
+
+    RTCP: Bugfix MS Video Source Request dissection
+    
+    Bug: 13212
+    Change-Id: I249d38e843f737bbd0773828f24980d148fbaa00
+    Reviewed-on: https://code.wireshark.org/review/19126
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 29768d91ec60023cc68cb38edc492a6d2221f662)
+    Reviewed-on: https://code.wireshark.org/review/19140
+    (cherry picked from commit 8c1819bbaa1e53273c6f89107b7a4fc6ccb1d5f3)
+    Reviewed-on: https://code.wireshark.org/review/19141
+
+commit 199756b
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Mon Dec 5 07:39:06 2016 -0500
+
+    SMB: Limit Export object files to 32 bits.
+    
+    Most of the file offset fields are 32-bit, but the algorithms use gsize
+    variables, which can vary between 32 and 64 bit builds.  The 64-bit
+    builds are the ones with the problem with "garbage" data comes from
+    (effectively) invalid 32-bit offsets.
+    
+    Bug: 11133
+    Change-Id: Icb5d31ae732f9177f3a117dfae39bf1cc983d603
+    Reviewed-on: https://code.wireshark.org/review/19091
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit deefa5b
+Author: Michal Labedzki <michal.labedzki@tieto.com>
+Date:   Wed Nov 9 12:51:15 2016 +0100
+
+    Bluetooth: BTLE*: Initialize what initialized was not
+    
+    Fix unexpected Direction flag pass to BTLE dissector
+    what caused reassemble of L2CAP not working correctly
+    (it based on Source/Destination addresses/columns).
+    
+    Change-Id: I10fb17c29b020f6ca746f7bbccb7527e0ba04624
+    Reviewed-on: https://code.wireshark.org/review/19084
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 75a5cf9fa0c2d7eed8fca8b9011c07dd99f5a751)
+    Reviewed-on: https://code.wireshark.org/review/19093
+    (cherry picked from commit af816dd25d03bd0b0f130dbd59b1a2c6b63e0a39)
+    Reviewed-on: https://code.wireshark.org/review/19094
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 3abb9a1
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sun Dec 4 22:29:14 2016 -0500
+
+    Honor protocols.display_hidden_proto_items preferences when outputting fields in TShark
+    
+    Bug: 13192
+    Change-Id: Ibb2b3913716d31a3d5f600e1b6400fdf14a69ca4
+    Reviewed-on: https://code.wireshark.org/review/19075
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 26def3ef72b3dc1f936322fb1e96b7d81a19390b)
+    Reviewed-on: https://code.wireshark.org/review/19078
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit dcc062e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 4 08:34:41 2016 -0800
+
+    [Automatic update for 2016-12-04]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I7505d39ec4e72cb96a89be89c006275715fbb7d2
+    Reviewed-on: https://code.wireshark.org/review/19068
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 94a9d4b
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Sat Dec 3 23:41:08 2016 +0100
+
+    Qt: clear Export Objects list on retapping
+    
+    The tap reset callback should not just invoke the reset callback of the
+    dissector, but also clear the previous list of objects in the dialog.
+    Otherwise duplicate entries will be created every time retapping occurs
+    (e.g. on changing the display filter).
+    
+    Bug: 12230
+    Change-Id: I75f25db0652dcc9c0ac59ab0e536c06874aedb9c
+    Reviewed-on: https://code.wireshark.org/review/19055
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 5721a87330f8afe3fed12d4af250d7a3d219cbe2)
+    [ Peter: resolved conflict in context ]
+    Reviewed-on: https://code.wireshark.org/review/19065
+
+commit eee5f97
+Author: Chuck Lever <chuck.lever@oracle.com>
+Date:   Wed Nov 9 10:06:45 2016 -0500
+
+    packet-rpcrdma: Fix protocol frame pre-detection
+    
+    The current mechanism of detecting RPC-over-RDMA is broken because
+    it treats the Read list as a counted array (it's a list); and treats
+    the Write list and Reply chunk identically (one is a list, one is
+    always a single chunk).
+    
+    While we're here, refactor pre-detection helper functions so they
+    can be used during frame dissection as well.
+    
+    Bug: 13196
+    Change-Id: I76e210c8d2a9464fed00e7199072d37f4ebbebf2
+    Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+    Reviewed-on: https://code.wireshark.org/review/19025
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 2462f9e8103b23c2728cc5aa84995e0b2f363f12)
+    Reviewed-on: https://code.wireshark.org/review/19045
+
+commit 30c1081
+Author: Chuck Lever <chuck.lever@oracle.com>
+Date:   Wed Nov 9 10:06:45 2016 -0500
+
+    packet-rpcrdma: Dissector should exit when frame is not RPC-over-RDMA
+    
+    On an RDMA transport, RPC protocol never appears in a frame by
+    itself. If RPC-over-RDMA is not present, then RPC is by definition
+    not present as an InfiniBand data payload.
+    
+    Bug: 13195
+    Change-Id: Icaea9d4936477af32adc73140c67539e977a7a9a
+    Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+    Reviewed-on: https://code.wireshark.org/review/19024
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit d5bdf7bac0c829cb00def4abb08444fe96d51e06)
+    Reviewed-on: https://code.wireshark.org/review/19041
+    (cherry picked from commit e0d9408b98cf3381b4f8dc554924d5ae4ec12596)
+    Reviewed-on: https://code.wireshark.org/review/19042
+
+commit 6f64047
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Dec 1 09:58:23 2016 -0800
+
+    Qt: Export object fixups.
+    
+    Add eo_free_entry, which frees an export_object_entry_t.
+    
+    Create ExportObjectTreeWidgetItem similar to our other custom
+    TreeWidgetItems. Call eo_free_entry in its destructor. This fixes a
+    serious memory leak.
+    
+    Make the columns sortable. Fixup numeric comparisons. Use a convenience
+    function for file sizes.
+    
+    Ping-Bug: 13174
+    Change-Id: Idb4eb5680afe760880ebe7d84216fcac5ccdb250
+    Reviewed-on: https://code.wireshark.org/review/19010
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit e7042d8af3ead1ff43b48d0a3b669c286c970cb5)
+    Reviewed-on: https://code.wireshark.org/review/19021
+
+commit 5dc08c6
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Mon Nov 28 15:53:59 2016 +0100
+
+    Qt: fix crash when closing RTP player while playing
+    
+    For some time, the RTP Player has been crashing for me (Arch Linux, Qt
+    5.7.0) when the RTP Player is active (affects also Wireshark 2.0.5).
+    
+    This call trace was observed:
+    
+        + RtpPlayerDialog::reject (closing dialog via Escape / Close button)
+          + RtpAudioStream::stopPlaying
+            + RtpAudioStream::outputStateChanged(QAudio::StoppedState)
+              + QAudioOutput::deleteLater   // problematic!
+          + RtpPlayerDialog::~RtpPlayerDialog
+            + RtpAudioStream::~RtpAudioStream
+    
+    As the QAudioOutput instance is a child of RtpAudioStream, it is also
+    destroyed after that. QAudioOutput's destructor somehow invokes (via
+    libqtmedia_pulse.so) a main loop iteration which invokes the previously
+    scheduled deleteLater call.
+    
+    As QAudioOutput was already being destructed, this results in a crash.
+    Workaround this by removing this child from RtpAudioStream (no cruelty
+    intended).
+    
+    Change-Id: I88f2e929ac566534be5d2270e2e0b194685533eb
+    Reviewed-on: https://code.wireshark.org/review/18970
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 9887cd7feb7c377a3d046b924fe86907479be413)
+    Reviewed-on: https://code.wireshark.org/review/18995
+
+commit f12d242
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Mon Nov 28 16:50:25 2016 +0100
+
+    Qt: fix heap-use-after-free when double-clicking a packet number
+    
+    On double-clicking a packet number, the current field item is
+    invalidated by goToPacket. Skip the URL since a field can either have a
+    URL or a frame number (but not both).
+    
+    Change-Id: I58e5445fa74071fa0fd203df77ebdecdd1478d31
+    Reviewed-on: https://code.wireshark.org/review/18971
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit 1239336af00215172c94d5d2af3926a72ea998c3)
+    Reviewed-on: https://code.wireshark.org/review/18974
+
+commit 0eed360
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 27 08:33:42 2016 -0800
+
+    [Automatic update for 2016-11-27]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Iec2b567d085a733aab43fc54bc54785315a76faa
+    Reviewed-on: https://code.wireshark.org/review/18966
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit e63c9b3
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Nov 22 11:19:37 2016 -0800
+
+    Include <io.h> and <fcntl.h> for _setmode().
+    
+    Change-Id: I1910275653ef4a985e9894f01cf5cb5fa33070d4
+    Reviewed-on: https://code.wireshark.org/review/18928
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 6930ded24ab64b6de646ae3e120995b44188bc84)
+    Reviewed-on: https://code.wireshark.org/review/18930
+
+commit 7137dc0
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Nov 22 10:01:29 2016 -0800
+
+    On Windows, put the standard output in binary mode if we're writing the capture file to it.
+    
+    While we're at it, explicitly compare the restult of strcmp() against 0,
+    to make it clearer that it's testing for the argument *not* being equal
+    to "-".
+    
+    Bug: 13165
+    Change-Id: Ic63085abb2de5f5c60d2101d19c1a269b7e0c9d7
+    Reviewed-on: https://code.wireshark.org/review/18924
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit f4d6c7abbc32c5eee10e4f771f5e7fc1cc2639ef)
+    Reviewed-on: https://code.wireshark.org/review/18926
+
+commit 20b4f8a
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Nov 22 07:16:17 2016 +0100
+
+    RLC: always initialize LI length, even when it is malformed
+    
+    Bug: 13162
+    Change-Id: Ie0938611b4c90fd54e7ccda0ee5f3d791078be06
+    Reviewed-on: https://code.wireshark.org/review/18918
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 7617286f32135051800998cb3a4b07badc8c6719)
+    Reviewed-on: https://code.wireshark.org/review/18922
+
+commit b9fed56
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Nov 20 10:45:03 2016 -0800
+
+    Make something to which we assign a string pointer const.
+    
+    Change-Id: I4b292f252f0e4290fc8adc1e76aa589108fc597e
+    Reviewed-on: https://code.wireshark.org/review/18905
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 1f512906db7dd98f6c47b85d081d4dd7b2877e5e)
+    Reviewed-on: https://code.wireshark.org/review/18907
+
+commit 3f49531
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 20 08:32:09 2016 -0800
+
+    [Automatic update for 2016-11-20]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I05e8ae1280cf4205e9a9cb413bab82f5030754d3
+    Reviewed-on: https://code.wireshark.org/review/18898
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit ed143d4
+Author: Jiri Novak <j.novak@netsystem.cz>
+Date:   Fri Nov 18 20:52:06 2016 +0100
+
+    SDP: Payload type name for dynamic payload is wrong for reverse RTP channels (2.0 branch)
+    
+    Change-ID: I61a2575f9d8da958ae2fb01c71f3c71c9643ddea
+    Reviewed-on: https://code.wireshark.org/review/18876
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 6c2428a
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Tue Nov 15 00:14:51 2016 +0100
+
+    DICOM: Fix handling of AT tag elements
+    
+    A Attribute Identifier List can have more than one AT element. Therefore
+    we have to loop through the elements list.
+    
+    Bug: 13077
+    Change-Id: I3adaa5ba50a1ad01e7c5bacd05118c65afcf4442
+    Reviewed-on: https://code.wireshark.org/review/18825
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit c63609b360cf8fa3a9f86d4dcdaaada2d2be87f8)
+    Reviewed-on: https://code.wireshark.org/review/18891
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+
+commit d1ae322
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Fri Nov 18 09:39:24 2016 +0100
+
+    GTP: fix dissection of GGSN Back-Off Time IE
+    
+    Bug: 13153
+    Change-Id: I2f404515187f9f29a45f101c8ff294a971ffddac
+    Reviewed-on: https://code.wireshark.org/review/18865
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit a90d196ce8f8dee4beb22c508080dfef6efdf71b)
+    Reviewed-on: https://code.wireshark.org/review/18867
+
+commit a6a30ec
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Wed Nov 16 23:32:34 2016 +0100
+
+    BGP: Fix length in decode_prefix4()
+    
+    When decode_prefix4() gets called with more prefixes the length of
+    proto_tree_add_subtree_format() should not be the total length.
+    
+    As the "Withdrawn route" part was the only one where decode_prefix4() has
+    been called with a tlen not equal 0 we can eliminate the tlen parameter.
+    
+    Bug: 13146
+    Change-Id: I708dec2cecbed6054b60190104b82c72d54e8037
+    Reviewed-on: https://code.wireshark.org/review/18852
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-on: https://code.wireshark.org/review/18858
+
+commit 2893703
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Nov 15 15:56:57 2016 -0800
+
+    Double the fuzz testing memory limit.
+    
+    Increase MAX_VMEM to 1000000 in order to accommodate a large capture
+    file in the menagerie and allow some breathing room for future large
+    captures.
+    
+    Change-Id: I87c8cac50a5c7d848708f5322c07a9f767b93d7f
+    Ping-Bug: 13049
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 1de9f3ccebdef5b2423c70cd565dc9c4ec203177)
+    Reviewed-on: https://code.wireshark.org/review/18843
+    (cherry picked from commit 3798be652596312d6e489eba6967772e9b87f79a)
+    Reviewed-on: https://code.wireshark.org/review/18850
+
+commit a8ccad0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Nov 16 13:04:26 2016 -0800
+
+    2.0.8 → 2.0.9.
+    
+    Change-Id: I0b5b420d5d88f37d5174d4cd9e948013204d590c
+    Reviewed-on: https://code.wireshark.org/review/18849
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 7832b91
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Nov 16 18:19:04 2016 +0000
+
+    Revert "Double the fuzz testing memory limit."
+    
+    Accidentally submitted while a release was in progress.
+    
+    This reverts commit 2965f59a78d0dca472d82e87820ddb16cfea7efc.
+    
+    Change-Id: I19ff1b112fc4e7bca1b3531ca8ad19656885fd25
+    Reviewed-on: https://code.wireshark.org/review/18845
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 2965f59
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Nov 15 15:56:57 2016 -0800
+
+    Double the fuzz testing memory limit.
+    
+    Increase MAX_VMEM to 1000000 in order to accommodate a large capture
+    file in the menagerie and allow some breathing room for future large
+    captures.
+    
+    Change-Id: I61d1a56d30d49af5c25785f8d43f104b6a300da5
+    Ping-Bug: 13049
+    Reviewed-on: https://code.wireshark.org/review/18838
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 1de9f3ccebdef5b2423c70cd565dc9c4ec203177)
+    Reviewed-on: https://code.wireshark.org/review/18843
+    (cherry picked from commit 3798be652596312d6e489eba6967772e9b87f79a)
+    Reviewed-on: https://code.wireshark.org/review/18844

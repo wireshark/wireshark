@@ -55,8 +55,6 @@ The following bugs have been fixed:
 
 * Wireshark shows "MS Video Source Request" in a RTCP packet as "Malformed". (ws-buglink:13212[])
 
-// Left off at 21469e1
-
 === New and Updated Features
 
 There are no new features in this release.
@@ -87,9 +85,9 @@ SMB
 
 === New and Updated Capture File Support
 
-//There is no new or updated capture file support in this release.
---sort-and-group--
---sort-and-group--
+There is no new or updated capture file support in this release.
+//--sort-and-group--
+//--sort-and-group--
 
 === New and Updated Capture Interfaces support
 
@@ -129,23 +127,11 @@ Capture filters aren't applied when capturing from named pipes.
 Filtering tshark captures with read filters (-R) no longer works.
 (ws-buglink:2234[])
 
-Resolving (ws-buglink:9044[]) reopens (ws-buglink:3528[]) so that Wireshark
-no longer automatically decodes gzip data when following a TCP stream.
-
 Application crash when changing real-time option.
 (ws-buglink:4035[])
 
-Hex pane display issue after startup.
-(ws-buglink:4056[])
-
-Packet list rows are oversized.
-(ws-buglink:4357[])
-
 Wireshark and TShark will display incorrect delta times in some cases.
 (ws-buglink:4985[])
-
-The 64-bit version of Wireshark will leak memory on Windows when the display
-depth is set to 16 bits (ws-buglink:9914[])
 
 Wireshark should let you work with multiple capture files. (ws-buglink:10488[])
 
