@@ -226,6 +226,7 @@ static int hf_zvt_tlv_tag = -1;
 static int hf_zvt_tlv_tag_class = -1;
 static int hf_zvt_tlv_tag_type = -1;
 static int hf_zvt_tlv_len = -1;
+static int hf_zvt_text_lines_line = -1;
 
 static expert_field ei_invalid_apdu_len = EI_INIT;
 
@@ -326,11 +327,16 @@ typedef struct _tlv_info_t {
             packet_info *, proto_tree *, tlv_seq_info_t *);
 } tlv_info_t;
 
+static gint dissect_zvt_tlv_text_lines(
+        tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info);
+
 static gint dissect_zvt_tlv_subseq(
         tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info);
 
 static const tlv_info_t tlv_info[] = {
+    { TLV_TAG_TEXT_LINES, dissect_zvt_tlv_text_lines },
     { TLV_TAG_DISPLAY_TEXTS, dissect_zvt_tlv_subseq },
     { TLV_TAG_PAYMENT_TYPE, dissect_zvt_tlv_subseq }
 };
@@ -351,6 +357,16 @@ static const value_string tlv_tags[] = {
     { 0, NULL }
 };
 static value_string_ext tlv_tags_ext = VALUE_STRING_EXT_INIT(tlv_tags);
+
+
+static gint dissect_zvt_tlv_text_lines(
+        tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo _U_, proto_tree *tree, tlv_seq_info_t *seq_info)
+{
+    proto_tree_add_item(tree, hf_zvt_text_lines_line,
+            tvb, offset, len, seq_info->txt_enc | ENC_NA);
+    return len;
+}
 
 
 static gint dissect_zvt_tlv_subseq(
@@ -1046,7 +1062,10 @@ proto_register_zvt(void)
                 8, TFS(&tfs_constructed_primitive), 0x20, NULL, HFILL } },
         { &hf_zvt_tlv_len,
             { "Length", "zvt.tlv.len",
-                FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } }
+                FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_text_lines_line,
+            { "Text line", "zvt.tlv.text_lines.line",
+                FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL } }
     };
 
     static ei_register_info ei[] = {
