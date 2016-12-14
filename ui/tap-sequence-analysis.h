@@ -123,6 +123,12 @@ void sequence_analysis_list_free(seq_analysis_info_t *sainfo);
  */
 int sequence_analysis_get_nodes(seq_analysis_info_t *sainfo);
 
+/** Free the node address list
+ *
+ * @param sainfo Sequence analysis information.
+ */
+void sequence_analysis_free_nodes(seq_analysis_info_t *sainfo);
+
 /** Write an ASCII version of the sequence diagram to a file.
  *
  * @param pathname Pathname of the file to write.

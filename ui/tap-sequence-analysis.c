@@ -339,8 +339,6 @@ sequence_analysis_list_sort(seq_analysis_info_t *sainfo)
 void
 sequence_analysis_list_free(seq_analysis_info_t *sainfo)
 {
-    int i;
-
     if (!sainfo) return;
     /* SEQ_ANALYSIS_DEBUG("%d items", g_queue_get_length(sainfo->items)); */
 
@@ -366,10 +364,7 @@ sequence_analysis_list_free(seq_analysis_info_t *sainfo)
     }
     sainfo->nconv = 0;
 
-    for (i=0; i<MAX_NUM_NODES; i++) {
-        free_address(&sainfo->nodes[i]);
-    }
-    sainfo->num_nodes = 0;
+    sequence_analysis_free_nodes(sainfo);
 }
 
 /****************************************************************************/
@@ -481,6 +476,19 @@ sequence_analysis_get_nodes(seq_analysis_info_t *sainfo)
     g_queue_foreach(sainfo->items, sequence_analysis_get_nodes_item_proc, &sc);
 
     return sc.num_items;
+}
+
+/* Free the node address list */
+/****************************************************************************/
+void
+sequence_analysis_free_nodes(seq_analysis_info_t *sainfo)
+{
+    int i;
+
+    for (i=0; i<MAX_NUM_NODES; i++) {
+        free_address(&sainfo->nodes[i]);
+    }
+    sainfo->num_nodes = 0;
 }
 
 /****************************************************************************/

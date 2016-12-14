@@ -85,6 +85,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
         info_->sainfo()->all_packets = TRUE;
     } else {
         info_->ref();
+        sequence_analysis_free_nodes(info_->sainfo());
         num_items_ = sequence_analysis_get_nodes(info_->sainfo());
     }
 
