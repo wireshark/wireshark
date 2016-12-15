@@ -2251,20 +2251,18 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         /* Defined by profile field is 16 bits (2 octets) */
         hdr_extension_id = tvb_get_ntohs( tvb, offset );
-        if ( tree ) proto_tree_add_uint( rtp_tree, hf_rtp_prof_define, tvb, offset, 2, hdr_extension_id );
+        proto_tree_add_uint( rtp_tree, hf_rtp_prof_define, tvb, offset, 2, hdr_extension_id );
         offset += 2;
 
         hdr_extension_len = tvb_get_ntohs( tvb, offset );
-        if ( tree ) proto_tree_add_uint( rtp_tree, hf_rtp_length, tvb, offset, 2, hdr_extension_len);
+        proto_tree_add_uint( rtp_tree, hf_rtp_length, tvb, offset, 2, hdr_extension_len);
         offset += 2;
         if ( hdr_extension_len > 0 ) {
             proto_tree *rtp_hext_tree = NULL;
             tvbuff_t   *newtvb;
 
-            if ( tree ) {
-                ti = proto_tree_add_item(rtp_tree, hf_rtp_hdr_exts, tvb, offset, hdr_extension_len * 4, ENC_NA);
-                rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext );
-            }
+            ti = proto_tree_add_item(rtp_tree, hf_rtp_hdr_exts, tvb, offset, hdr_extension_len * 4, ENC_NA);
+            rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext );
 
             /* pass interpretation of header extension to a registered subdissector */
             newtvb = tvb_new_subset_length(tvb, offset, hdr_extension_len * 4);
@@ -2279,14 +2277,12 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             }
             else {
                 if ( !(dissector_try_uint(rtp_hdr_ext_dissector_table, hdr_extension_id, newtvb, pinfo, rtp_hext_tree)) ) {
-                    if ( tree ) {
-                        unsigned int hdrext_offset;
+                    unsigned int hdrext_offset;
 
-                        hdrext_offset = offset;
-                        for ( i = 0; i < hdr_extension_len; i++ ) {
-                            proto_tree_add_uint( rtp_hext_tree, hf_rtp_hdr_ext, tvb, hdrext_offset, 4, tvb_get_ntohl( tvb, hdrext_offset ) );
-                            hdrext_offset += 4;
-                        }
+                    hdrext_offset = offset;
+                    for ( i = 0; i < hdr_extension_len; i++ ) {
+                        proto_tree_add_uint( rtp_hext_tree, hf_rtp_hdr_ext, tvb, hdrext_offset, 4, tvb_get_ntohl( tvb, hdrext_offset ) );
+                        hdrext_offset += 4;
                     }
                 }
             }
@@ -2383,7 +2379,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
              * show all but the last byte as padding
              * data.
              */
-            if ( tree ) proto_tree_add_item( rtp_tree, hf_rtp_padding_data,
+            proto_tree_add_item( rtp_tree, hf_rtp_padding_data,
                 tvb, offset, padding_count - 1, ENC_NA );
             offset += padding_count - 1;
         }
@@ -2391,7 +2387,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
          * Show the last byte in the PDU as the padding
          * count.
          */
-        if ( tree ) proto_tree_add_item( rtp_tree, hf_rtp_padding_count,
+        proto_tree_add_item( rtp_tree, hf_rtp_padding_count,
             tvb, offset, 1, ENC_BIG_ENDIAN );
     }
     else {
@@ -2457,19 +2453,18 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             proto_item *ti;
             ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, ENC_NA);
             rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext_ed137s );
-        }
-        for(i=0; i<hdr_extension_len; i++) {
-            guint32 ext_value = tvb_get_ntohl( tvb, hdrext_offset );
 
-            if (RTP_ED137_ptt_mask(ext_value)) {
-                col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
-            }
-            if (RTP_ED137_squ_mask(ext_value)) {
-                col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
-            }
-            if ( tree ) {
+            for(i=0; i<hdr_extension_len; i++) {
                 proto_item *ti2;
                 proto_tree *rtp_hext_tree2;
+                guint32 ext_value = tvb_get_ntohl( tvb, hdrext_offset );
+
+                if (RTP_ED137_ptt_mask(ext_value)) {
+                    col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
+                }
+                if (RTP_ED137_squ_mask(ext_value)) {
+                    col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
+                }
 
                 ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137, tvb, hdrext_offset, 4, ENC_NA);
                 rtp_hext_tree2 = proto_item_add_subtree( ti2, ett_hdr_ext_ed137 );
@@ -2523,8 +2518,8 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 }
 
                 proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137_vf, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
+                hdrext_offset += 4;
             }
-            hdrext_offset += 4;
         }
     }
     return tvb_captured_length(tvb);
@@ -2547,19 +2542,18 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             proto_item *ti;
             ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, ENC_NA);
             rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext_ed137s );
-        }
-        for(i=0; i<hdr_extension_len; i++) {
-            guint32 ext_value = tvb_get_ntohl( tvb, hdrext_offset );
 
-            if (RTP_ED137A_ptt_mask(ext_value)) {
-                col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
-            }
-            if (RTP_ED137A_squ_mask(ext_value)) {
-                col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
-            }
-            if ( tree ) {
+            for(i=0; i<hdr_extension_len; i++) {
                 proto_item *ti2;
                 proto_tree *rtp_hext_tree2;
+                guint32 ext_value = tvb_get_ntohl( tvb, hdrext_offset );
+
+                if (RTP_ED137A_ptt_mask(ext_value)) {
+                    col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
+                }
+                if (RTP_ED137A_squ_mask(ext_value)) {
+                    col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
+                }
 
                 ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137a, tvb, hdrext_offset, 4, ENC_NA);
                 rtp_hext_tree2 = proto_item_add_subtree( ti2, ett_hdr_ext_ed137a );
@@ -2616,8 +2610,8 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     /* Extended information is not used */
                     proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_x_nu, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                 }
+                hdrext_offset += 4;
             }
-            hdrext_offset += 4;
         }
     }
     return tvb_captured_length(tvb);
