@@ -783,7 +783,7 @@ rtp_packet_save_payload(tap_rtp_save_info_t    *saveinfo,
 			saveinfo->error_type = TAP_RTP_FILE_WRITE_ERROR;
 			return 0;
 		}
-		saveinfo->count += ((int)rtpinfo->info_payload_len - rtpinfo->info_padding_count);
+		saveinfo->count += rtpinfo->info_payload_len - rtpinfo->info_padding_count;
 
 		fflush(saveinfo->fp);
 		saveinfo->saved = TRUE;
