@@ -475,6 +475,8 @@ static int hf_bootp_option_civic_location_country = -1;			/* 99 */
 static int hf_bootp_option_civic_location_ca_type = -1;			/* 99 */
 static int hf_bootp_option_civic_location_ca_length = -1;		/* 99 */
 static int hf_bootp_option_civic_location_ca_value = -1;		/* 99 */
+static int hf_bootp_option_tz_pcode = -1;                               /* 100 */
+static int hf_bootp_option_tz_tcode = -1;                               /* 101 */
 static int hf_bootp_option_netinfo_parent_server_address = -1;		/* 112 */
 static int hf_bootp_option_netinfo_parent_server_tag = -1;		/* 113 */
 static int hf_bootp_option_dhcp_auto_configuration = -1;		/* 116 */
@@ -531,6 +533,7 @@ static int hf_bootp_option_subnet_selection_option = -1;		/* 118 */
 static int hf_bootp_option_lost_server_domain_name = -1;		/* 137 */
 static int hf_bootp_option_capwap_access_controller = -1;		/* 138 */
 static int hf_bootp_option_tftp_server_address = -1;			/* 150 */
+static int hf_bootp_option_mudurl = -1;                                 /* 161 */
 static int hf_bootp_option_pxe_config_file = -1;			/* 209 */
 static int hf_bootp_option_pxe_path_prefix = -1;			/* 210 */
 static int hf_bootp_option_6RD_ipv4_mask_len = -1;			/* 212 */
@@ -1315,8 +1318,8 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /*  97 */ { "UUID/GUID-based Client Identifier",	special, NULL},
 /*  98 */ { "Open Group's User Authentication [TODO:RFC2485]",	opaque, NULL },
 /*  99 */ { "Civic Addresses Configuration",		special, NULL},
-/* 100 */ { "PCode [TODO:RFC4833]",			opaque, NULL },
-/* 101 */ { "TCode [TODO:RFC4833]",			opaque, NULL },
+/* 100 */ { "PCode", 			                string, &hf_bootp_option_tz_pcode },
+/* 101 */ { "TCode",			                string, &hf_bootp_option_tz_tcode },
 /* 102 */ { "Removed/unassigned",			opaque, NULL },
 /* 103 */ { "Removed/unassigned",			opaque, NULL },
 /* 104 */ { "Removed/unassigned",			opaque, NULL },
@@ -1376,7 +1379,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 158 */ { "Unassigned",				opaque, NULL },
 /* 159 */ { "Unassigned",				opaque, NULL },
 /* 160 */ { "Unassigned",				opaque, NULL },
-/* 161 */ { "Unassigned",				opaque, NULL },
+/* 161 */ { "Manufacturer Usage Description",	        string, &hf_bootp_option_mudurl},
 /* 162 */ { "Unassigned",				opaque, NULL },
 /* 163 */ { "Unassigned",				opaque, NULL },
 /* 164 */ { "Unassigned",				opaque, NULL },
@@ -8074,6 +8077,16 @@ proto_register_bootp(void)
 		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		    "Option 99: CA Value", HFILL }},
 
+		{ &hf_bootp_option_tz_pcode,
+		  { "TZ PCode", "bootp.option.tz_pcode",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Option 100: TZ PCode", HFILL  }},
+
+		{ &hf_bootp_option_tz_tcode,
+		  { "TZ TCode", "bootp.option.tz_tcode",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Option 101: TZ TCode", HFILL  }},
+
 		{ &hf_bootp_option_netinfo_parent_server_address,
 		  { "NetInfo Parent Server Address", "bootp.option.netinfo_parent_server_address",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
@@ -8343,6 +8356,11 @@ proto_register_bootp(void)
 		  { "TFTP Server Address", "bootp.option.tftp_server_address",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 150: TFTP Server Address", HFILL }},
+
+		{ &hf_bootp_option_mudurl,
+		  { "MUDURL", "bootp.option.mudurl",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Option 161: MUDURL", HFILL  }},
 
 		{ &hf_bootp_option_pxe_config_file,
 		  { "PXELINUX configuration file", "bootp.option.pxe_config_file",
