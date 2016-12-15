@@ -3363,7 +3363,7 @@ dissect_gtpv2_authentication_quintuplets(tvbuff_t *tvb, proto_tree *tree, int of
 {
     proto_tree *auth_qui_tree;
     int         i;
-    guint8      xres_len, autn_len;
+    guint32      tmp;
 
     for (i = 0; i < nr_qui; i++) {
         auth_qui_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0,
@@ -3380,20 +3380,18 @@ dissect_gtpv2_authentication_quintuplets(tvbuff_t *tvb, proto_tree *tree, int of
         */
         proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_rand, tvb, offset, 16, ENC_NA);
         offset += 16;
-        xres_len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_xres_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(auth_qui_tree, hf_gtpv2_mm_context_xres_len, tvb, offset, 1, ENC_NA, &tmp);
         offset += 1;
-        proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_xres, tvb, offset, xres_len, ENC_NA);
-        offset += xres_len;
+        proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_xres, tvb, offset, tmp, ENC_NA);
+        offset += tmp;
         proto_tree_add_item(auth_qui_tree, hf_gtpv2_ck, tvb, offset, 16, ENC_NA);
         offset += 16;
         proto_tree_add_item(auth_qui_tree, hf_gtpv2_ik, tvb, offset, 16, ENC_NA);
         offset += 16;
-        autn_len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_autn_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(auth_qui_tree, hf_gtpv2_mm_context_autn_len, tvb, offset, 1, ENC_NA, &tmp);
         offset += 1;
-        proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_autn, tvb, offset, autn_len, ENC_NA);
-        offset += autn_len;
+        proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_autn, tvb, offset, tmp, ENC_NA);
+        offset += tmp;
     }
 
     return offset;
@@ -3404,22 +3402,24 @@ static int
 dissect_gtpv2_authentication_quadruplets(tvbuff_t *tvb, proto_tree *tree, int offset, guint8  nr_qui)
 {
     proto_tree *auth_qua_tree;
-    guint8      tmp;
+    guint32     tmp;
     int         i;
 
     for (i = 0; i < nr_qui; i++) {
-        auth_qua_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
-            ett_gtpv2_mm_context_auth_qua, NULL, "Authentication Quadruplet");
+        auth_qua_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0,
+            ett_gtpv2_mm_context_auth_qua, NULL, "Authentication Quadruplet %u",i+1);
 
         proto_tree_add_item(auth_qua_tree, hf_gtpv2_mm_context_rand, tvb, offset, 16, ENC_NA);
         offset += 16;
 
-        tmp = tvb_get_guint8(tvb, offset++);
+        proto_tree_add_item_ret_uint(auth_qua_tree, hf_gtpv2_mm_context_xres_len, tvb, offset, 1, ENC_NA, &tmp);
+        offset++;
 
         proto_tree_add_item(auth_qua_tree, hf_gtpv2_mm_context_xres, tvb, offset, tmp, ENC_NA);
         offset += tmp;
 
-        tmp = tvb_get_guint8(tvb, offset++);
+        proto_tree_add_item_ret_uint(auth_qua_tree, hf_gtpv2_mm_context_autn_len, tvb, offset, 1, ENC_NA, &tmp);
+        offset++;
 
         proto_tree_add_item(auth_qua_tree, hf_gtpv2_mm_context_autn, tvb, offset, tmp, ENC_NA);
         offset += tmp;
@@ -3931,7 +3931,6 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
      * Hop Chaining Count) are both present, otherwise their octets are not present.
      */
     tmp = tvb_get_guint8(tvb, offset);
-    osci = tmp & 1;
     nhi = (tmp & 0x10) >> 4;
     drxi = (tmp & 0x08) >> 3;
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3949,6 +3948,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     nr_qua = tmp & 0x1c;
     nr_qua >>= 2;
     uamb_ri = (tmp & 0x2) >> 1;
+    osci = tmp & 1;
 
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_nr_qui, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_nr_qua, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4079,11 +4079,11 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     if (paging_len) {
         proto_tree_add_item(tree, hf_gtpv2_ue_radio_capability_for_paging_information, tvb, offset, paging_len, ENC_NA);
-        offset = +paging_len;
+        offset +=paging_len;
     }
 
     if (offset < (gint)length){
-        proto_tree_add_expert_format(flag_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length - offset, "The rest of the IE not dissected yet");
     }
 }
 
@@ -8384,8 +8384,8 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_mm_context_osci,
           {"OSCI", "gtpv2.mm_context_osci",
-           FT_BOOLEAN, 8, NULL, 0x02,
-           NULL, HFILL}
+           FT_BOOLEAN, 8, NULL, 0x01,
+           "Old Security Context Indicator", HFILL}
         },
         { &hf_gtpv2_mm_context_samb_ri,
           {"SAMB RI", "gtpv2.mm_context_samb_ri",
