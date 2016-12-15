@@ -171,8 +171,7 @@ void proto_reg_handoff_6lowpan(void);
 
 /* NHC UDP fields. */
 #define LOWPAN_NHC_UDP_CHECKSUM         0x04
-#define LOWPAN_NHC_UDP_SRCPORT          0x02
-#define LOWPAN_NHC_UDP_DSTPORT          0x01
+#define LOWPAN_NHC_UDP_PORTS            0x03
 
 /* 6LoWPAN Mesh Header */
 #define LOWPAN_MESH_HEADER_V            0x20
@@ -186,9 +185,15 @@ void proto_reg_handoff_6lowpan(void);
 #define IP6OPT_PAD1                     0x00
 #define IP6OPT_PADN                     0x01
 
+/* UDP port compression encoding */
+#define LOWPAN_NHC_UDP_PORT_INLINE      0x0
+#define LOWPAN_NHC_UDP_PORT_8BIT_DST    0x1
+#define LOWPAN_NHC_UDP_PORT_8BIT_SRC    0x2
+#define LOWPAN_NHC_UDP_PORT_12BIT       0x3
+
 /* Compressed port number offset. */
 #define LOWPAN_PORT_8BIT_OFFSET         0xf000
-#define LOWPAN_PORT_12BIT_OFFSET        (LOWPAN_PORT_8BIT_OFFSET | 0xb0)
+#define LOWPAN_PORT_12BIT_OFFSET        0xf0b0
 
 /* 6LoWPAN interface identifier length. */
 #define LOWPAN_IFC_ID_LEN               8
@@ -239,8 +244,7 @@ static int hf_6lowpan_nhc_ext_reserved = -1;
 
 /* NHC UDP compression header fields. */
 static int hf_6lowpan_nhc_udp_checksum = -1;
-static int hf_6lowpan_nhc_udp_src = -1;
-static int hf_6lowpan_nhc_udp_dst = -1;
+static int hf_6lowpan_nhc_udp_ports = -1;
 
 /* Inline IPv6 header fields. */
 static int hf_6lowpan_traffic_class = -1;
@@ -383,6 +387,13 @@ static const value_string lowpan_nhc_eid [] = {
     { LOWPAN_NHC_EID_DEST_OPTIONS,  "IPv6 destination options" },
     { LOWPAN_NHC_EID_MOBILITY,      "IPv6 mobility header" },
     { LOWPAN_NHC_EID_IPV6,          "IPv6 header" },
+    { 0, NULL }
+};
+static const value_string lowpan_udp_ports [] = {
+    { LOWPAN_NHC_UDP_PORT_INLINE,   "Inline" },
+    { LOWPAN_NHC_UDP_PORT_8BIT_DST, "Source port inline, first 8 bits of destination port elided" },
+    { LOWPAN_NHC_UDP_PORT_8BIT_SRC, "Destination port inline, first 8 bits of source port elided" },
+    { LOWPAN_NHC_UDP_PORT_12BIT,    "12 bits of both ports elided" },
     { 0, NULL }
 };
 /* Reassembly Data */
@@ -2043,40 +2054,43 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_UDP_BITS, ENC_BIG_ENDIAN);
 
         /* Get and display the UDP header compression options */
+        proto_tree_add_item(nhc_tree, hf_6lowpan_nhc_udp_checksum, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(nhc_tree, hf_6lowpan_nhc_udp_ports, tvb, offset, 1, ENC_NA);
         udp_flags = tvb_get_guint8(tvb, offset);
-        proto_tree_add_boolean(nhc_tree, hf_6lowpan_nhc_udp_checksum, tvb, offset, 1, udp_flags & LOWPAN_NHC_UDP_CHECKSUM);
-        proto_tree_add_boolean(nhc_tree, hf_6lowpan_nhc_udp_src, tvb, offset, 1, udp_flags & LOWPAN_NHC_UDP_SRCPORT);
-        proto_tree_add_boolean(nhc_tree, hf_6lowpan_nhc_udp_dst, tvb, offset, 1, udp_flags & LOWPAN_NHC_UDP_DSTPORT);
         offset += 1;
 
         /* Get and display the ports. */
-        switch (udp_flags & (LOWPAN_NHC_UDP_SRCPORT | LOWPAN_NHC_UDP_DSTPORT)) {
-            case (LOWPAN_NHC_UDP_SRCPORT | LOWPAN_NHC_UDP_DSTPORT):
-                udp.src_port = LOWPAN_PORT_12BIT_OFFSET + (tvb_get_guint8(tvb, offset) >> 4);
-                udp.dst_port = LOWPAN_PORT_12BIT_OFFSET + (tvb_get_guint8(tvb, offset) & 0x0f);
-                src_bitlen = 4;
-                dst_bitlen = 4;
-                break;
-
-            case LOWPAN_NHC_UDP_SRCPORT:
-                udp.src_port = LOWPAN_PORT_8BIT_OFFSET + tvb_get_guint8(tvb, offset);
-                udp.dst_port = tvb_get_ntohs(tvb, offset + 1);
-                src_bitlen = 8;
+        switch (udp_flags & LOWPAN_NHC_UDP_PORTS) {
+            case LOWPAN_NHC_UDP_PORT_INLINE:
+                udp.src_port = tvb_get_ntohs(tvb, offset);
+                udp.dst_port = tvb_get_ntohs(tvb, offset+2);
+                src_bitlen = 16;
                 dst_bitlen = 16;
                 break;
 
-            case LOWPAN_NHC_UDP_DSTPORT:
+            case LOWPAN_NHC_UDP_PORT_8BIT_DST:
                 udp.src_port = tvb_get_ntohs(tvb, offset);
                 udp.dst_port = LOWPAN_PORT_8BIT_OFFSET + tvb_get_guint8(tvb, offset + 2);
                 src_bitlen = 16;
                 dst_bitlen = 8;
                 break;
 
-            default:
-                udp.src_port = tvb_get_ntohs(tvb, offset);
-                udp.dst_port = tvb_get_ntohs(tvb, offset+2);
-                src_bitlen = 16;
+            case LOWPAN_NHC_UDP_PORT_8BIT_SRC:
+                udp.src_port = LOWPAN_PORT_8BIT_OFFSET + tvb_get_guint8(tvb, offset);
+                udp.dst_port = tvb_get_ntohs(tvb, offset + 1);
+                src_bitlen = 8;
                 dst_bitlen = 16;
+                break;
+
+            case LOWPAN_NHC_UDP_PORT_12BIT:
+                udp.src_port = LOWPAN_PORT_12BIT_OFFSET + (tvb_get_guint8(tvb, offset) >> 4);
+                udp.dst_port = LOWPAN_PORT_12BIT_OFFSET + (tvb_get_guint8(tvb, offset) & 0x0f);
+                src_bitlen = 4;
+                dst_bitlen = 4;
+                break;
+
+            default:
+                DISSECTOR_ASSERT_NOT_REACHED();
                 break;
         } /* switch */
 
@@ -2704,12 +2718,9 @@ proto_register_6lowpan(void)
         { &hf_6lowpan_nhc_udp_checksum,
           { "Checksum",                       "6lowpan.nhc.udp.checksum",
             FT_BOOLEAN, 8, TFS(&lowpan_compression), LOWPAN_NHC_UDP_CHECKSUM, NULL, HFILL }},
-        { &hf_6lowpan_nhc_udp_src,
-          { "Source port",                    "6lowpan.nhc.udp.src",
-            FT_BOOLEAN, 8, TFS(&lowpan_compression), LOWPAN_NHC_UDP_SRCPORT, NULL, HFILL }},
-        { &hf_6lowpan_nhc_udp_dst,
-          { "Destination port",               "6lowpan.nhc.udp.dst",
-            FT_BOOLEAN, 8, TFS(&lowpan_compression), LOWPAN_NHC_UDP_DSTPORT, NULL, HFILL }},
+        { &hf_6lowpan_nhc_udp_ports,
+          { "Ports",                          "6lowpan.nhc.udp.ports",
+            FT_UINT8, BASE_DEC, VALS(lowpan_udp_ports), LOWPAN_NHC_UDP_PORTS, NULL, HFILL }},
 
         /* Uncompressed IPv6 fields. */
         { &hf_6lowpan_traffic_class,
