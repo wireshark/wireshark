@@ -116,8 +116,6 @@ ENDMACRO()
 
 MACRO( ASCIIDOC2HTML _output _asciidocsource _conf_files )
     GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
-    set( A2X_HTML_OPTS --stylesheet=ws.css )
-
     SET( A2X_HTML_OPTS --stylesheet=ws.css )
 
     SET( _conf_opts_list )
@@ -165,7 +163,6 @@ MACRO( ASCIIDOC2TXT _output _asciidocsource _conf_files )
     else()
         set( A2X_TEXT_OPTS  )
     endif()
-
     SET( A2X_HTML_OPTS --stylesheet=ws.css )
 
     SET( _conf_opts_list )
@@ -212,7 +209,6 @@ ENDMACRO()
 
 MACRO( ASCIIDOC2PDF _output _asciidocsource _conf_files _paper )
     GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
-
     SET( A2X_HTML_OPTS --stylesheet=ws.css )
 
     SET( _conf_opts_list )
