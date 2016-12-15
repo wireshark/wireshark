@@ -1039,7 +1039,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
 
       if (computed_cksum != 0) {
-         proto_item_append_text(item, "(maybe caused by \"UDP checksum offload\"?)");
+         proto_item_append_text(item, " (maybe caused by \"UDP checksum offload\"?)");
          col_append_str(pinfo->cinfo, COL_INFO, " [UDP CHECKSUM INCORRECT]");
          calc_item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_calculated,
                                    tvb, offset + 6, 2, in_cksum_shouldbe(udph->uh_sum, computed_cksum));
