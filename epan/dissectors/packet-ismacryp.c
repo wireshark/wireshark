@@ -338,9 +338,8 @@ static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 		/* ismacryp_tree analysis */
 		/* get total length of AU headers (first 2 bytes) */
-		ismacryp_item = proto_tree_add_item(ismacryp_tree, hf_ismacryp_au_headers_length,
+		proto_tree_add_item(ismacryp_tree, hf_ismacryp_au_headers_length,
 						    tvb, poffset->offset_bytes, AU_HEADERS_LENGTH_SIZE, ENC_BIG_ENDIAN );
-		proto_item_append_text(ismacryp_item, " (bits)"); /* add text to AU Header tree indicating length */
 		au_headers_length = tvb_get_ntohs(tvb, poffset->offset_bytes); /* 2 byte au headers length */
 		poffset->offset_bytes += AU_HEADERS_LENGTH_SIZE;
 		/* ADD HEADER(S) BRANCH  */
@@ -715,7 +714,7 @@ void proto_register_ismacryp (void)
 #endif
 
 		{ &hf_ismacryp_au_headers_length,
-		  { "AU Headers Length", "ismacryp.au_headers.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+		  { "AU Headers Length", "ismacryp.au_headers.length", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_bit_bits, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_ismacryp_header_byte,

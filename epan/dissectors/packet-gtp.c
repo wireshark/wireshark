@@ -7526,7 +7526,6 @@ decode_gtp_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
 {
     guint16     length;
     proto_tree *ext_tree;
-    proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_RELIABLE_IRAT_HO_INF], NULL,
@@ -7541,12 +7540,10 @@ decode_gtp_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
      * formatted as shown in Figure 7.7.98-1 as Unsigned32 binary integer values in kbps (1000 bits per second).
      */
     /* 4 to 7 APN-AMBR for Uplink */
-    te = proto_tree_add_item(ext_tree, hf_gtp_ext_apn_ambr_ul, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_item_append_text(te, " kbps");
+    proto_tree_add_item(ext_tree, hf_gtp_ext_apn_ambr_ul, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
     /* 8 to 11 APN-AMBR for Downlink */
-    te = proto_tree_add_item(ext_tree, hf_gtp_ext_apn_ambr_dl, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_item_append_text(te, " kbps");
+    proto_tree_add_item(ext_tree, hf_gtp_ext_apn_ambr_dl, tvb, offset, 4, ENC_BIG_ENDIAN);
 
     return 3 + length;
 }
@@ -7580,7 +7577,6 @@ decode_gtp_ue_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
 {
     guint16     length;
     proto_tree *ext_tree;
-    proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_APN_AMBR_WITH_NSAPI], NULL,
@@ -7592,12 +7588,10 @@ decode_gtp_ue_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
     offset = offset + 2;
 
     /* 4 to 7 Subscribed UE-AMBR for Uplink */
-    te = proto_tree_add_item(ext_tree, hf_gtp_ext_sub_ue_ambr_ul, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_item_append_text(te, " kbps");
+    proto_tree_add_item(ext_tree, hf_gtp_ext_sub_ue_ambr_ul, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
     /* 8 to 11 Subscribed UE-AMBR for Downlink */
-    te = proto_tree_add_item(ext_tree, hf_gtp_ext_sub_ue_ambr_dl, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_item_append_text(te, " kbps");
+    proto_tree_add_item(ext_tree, hf_gtp_ext_sub_ue_ambr_dl, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     /* Authorized UE-AMBR for Uplink and Downlink fields are present in the IE only if the sender has their valid values
@@ -7607,13 +7601,11 @@ decode_gtp_ue_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
         return 3 + length;
 
     /* m to (m+3) Authorized UE-AMBR for Uplink */
-    te = proto_tree_add_item(ext_tree, hf_gtp_ext_auth_ue_ambr_ul, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_item_append_text(te, " kbps");
+    proto_tree_add_item(ext_tree, hf_gtp_ext_auth_ue_ambr_ul, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     /* (m+4) to (n+3) Authorized UE-AMBR for Downlink */
-    te = proto_tree_add_item(ext_tree, hf_gtp_ext_auth_ue_ambr_dl, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_item_append_text(te, " kbps");
+    proto_tree_add_item(ext_tree, hf_gtp_ext_auth_ue_ambr_dl, tvb, offset, 4, ENC_BIG_ENDIAN);
 
     proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
 
@@ -7628,7 +7620,6 @@ decode_gtp_apn_ambr_with_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _
 {
     guint16     length;
     proto_tree *ext_tree;
-    proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_UE_AMBR], NULL,
@@ -7643,13 +7634,11 @@ decode_gtp_apn_ambr_with_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _
     offset++;
 
     /* 5 to 8 Authorized APN-AMBR for Uplink */
-    te = proto_tree_add_item(ext_tree, hf_gtp_ext_auth_apn_ambr_ul, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_item_append_text(te, " kbps");
+    proto_tree_add_item(ext_tree, hf_gtp_ext_auth_apn_ambr_ul, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     /* 9 to12 Authorized APN-AMBR for Downlink */
-    te = proto_tree_add_item(ext_tree, hf_gtp_ext_auth_apn_ambr_dl, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_item_append_text(te, " kbps");
+    proto_tree_add_item(ext_tree, hf_gtp_ext_auth_apn_ambr_dl, tvb, offset, 4, ENC_BIG_ENDIAN);
 
     return 3 + length;
 }
@@ -9908,42 +9897,42 @@ proto_register_gtp(void)
         },
         { &hf_gtp_ext_apn_ambr_ul,
           { "APN-AMBR for Uplink", "gtp.apn_ambr_ul",
-            FT_INT32, BASE_DEC, NULL, 0x0,
+            FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
             NULL, HFILL}
         },
         { &hf_gtp_ext_apn_ambr_dl,
           { "APN-AMBR for Downlink", "gtp.apn_ambr_dl",
-            FT_INT32, BASE_DEC, NULL, 0x0,
+            FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
             NULL, HFILL}
         },
         { &hf_gtp_ext_sub_ue_ambr_ul,
           { "Subscribed UE-AMBR for Uplink", "gtp.sub_ue_ambr_ul",
-            FT_INT32, BASE_DEC, NULL, 0x0,
+            FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
             NULL, HFILL}
         },
         { &hf_gtp_ext_sub_ue_ambr_dl,
           { "Subscribed UE-AMBR for Downlink", "gtp.sub_ue_ambr_dl",
-            FT_INT32, BASE_DEC, NULL, 0x0,
+            FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
             NULL, HFILL}
         },
         { &hf_gtp_ext_auth_ue_ambr_ul,
           { "Authorized UE-AMBR for Uplink", "gtp.auth_ue_ambr_ul",
-            FT_INT32, BASE_DEC, NULL, 0x0,
+            FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
             NULL, HFILL}
         },
         { &hf_gtp_ext_auth_ue_ambr_dl,
           { "Authorized UE-AMBR for Downlink", "gtp.auth_ue_ambr_dl",
-            FT_INT32, BASE_DEC, NULL, 0x0,
+            FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
             NULL, HFILL}
         },
         { &hf_gtp_ext_auth_apn_ambr_ul,
           { "Authorized APN-AMBR for Uplink", "gtp.auth_apn_ambr_ul",
-            FT_INT32, BASE_DEC, NULL, 0x0,
+            FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
             NULL, HFILL}
         },
         { &hf_gtp_ext_auth_apn_ambr_dl,
           { "Authorized APN-AMBR for Downlink", "gtp.auth_apn_ambr_dl",
-            FT_INT32, BASE_DEC, NULL, 0x0,
+            FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
             NULL, HFILL}
         },
         { &hf_gtp_ext_ggsn_back_off_time_units,

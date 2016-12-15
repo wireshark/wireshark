@@ -788,6 +788,8 @@ static const value_string mws_transport_layer_vals[] = {
     { 0, NULL }
 };
 
+static const unit_name_string units_number_events = { " (number events)", NULL };
+
 void proto_register_bthci_evt(void);
 void proto_reg_handoff_bthci_evt(void);
 
@@ -2054,7 +2056,6 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset += 2;
 
             item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,         tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(item, " (number events)");
             offset += 2;
 
             item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2152,7 +2153,6 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item_append_text(item, " (%g msec)", tvb_get_letohs(tvb, offset)*1.25);
             offset += 2;
             item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,         tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(item, " (number events)");
             offset += 2;
             item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%g sec)",                             tvb_get_letohs(tvb, offset)*0.01);
@@ -2194,7 +2194,6 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset += 2;
 
             item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,         tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(item, " (number events)");
             offset += 2;
 
             item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2266,7 +2265,6 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset += 2;
 
             item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,         tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(item, " (number events)");
             offset += 2;
 
             item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -5291,13 +5289,11 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
             nstime_delta(&delta, &lastest_bthci_cmd_data->pending_abs_ts, &lastest_bthci_cmd_data->command_abs_ts);
             sub_item = proto_tree_add_double(bthci_evt_tree, hf_command_pending_time_delta, tvb, 0, 0, nstime_to_msec(&delta));
-            proto_item_append_text(sub_item, " ms");
             PROTO_ITEM_SET_GENERATED(sub_item);
 
             if (lastest_bthci_cmd_data->response_in_frame < max_disconnect_in_frame) {
                 nstime_delta(&delta, &lastest_bthci_cmd_data->response_abs_ts, &lastest_bthci_cmd_data->pending_abs_ts);
                 sub_item = proto_tree_add_double(bthci_evt_tree, hf_pending_response_time_delta, tvb, 0, 0, nstime_to_msec(&delta));
-                proto_item_append_text(sub_item, " ms");
                 PROTO_ITEM_SET_GENERATED(sub_item);
             }
         }
@@ -5312,13 +5308,11 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
                 nstime_delta(&delta, &lastest_bthci_cmd_data->response_abs_ts, &lastest_bthci_cmd_data->pending_abs_ts);
                 sub_item = proto_tree_add_double(bthci_evt_tree, hf_pending_response_time_delta, tvb, 0, 0, nstime_to_msec(&delta));
-                proto_item_append_text(sub_item, " ms");
                 PROTO_ITEM_SET_GENERATED(sub_item);
             }
 
             nstime_delta(&delta, &lastest_bthci_cmd_data->response_abs_ts, &lastest_bthci_cmd_data->command_abs_ts);
             sub_item = proto_tree_add_double(bthci_evt_tree, hf_command_response_time_delta, tvb, 0, 0, nstime_to_msec(&delta));
-            proto_item_append_text(sub_item, " ms");
             PROTO_ITEM_SET_GENERATED(sub_item);
         }
     }
@@ -6661,7 +6655,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_le_con_latency,
           { "Connection Latency", "bthci_evt.le_con_latency",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_number_events, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_le_supervision_timeout,
@@ -6891,12 +6885,12 @@ proto_register_bthci_evt(void)
         },
         { &hf_command_pending_time_delta,
             { "Command-Pending Delta",          "bthci_evt.command_pending_delta",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_pending_response_time_delta,
             { "Pending-Response Delta",          "bthci_evt.pending_response_delta",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_bthci_evt_le_features,

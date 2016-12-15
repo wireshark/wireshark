@@ -120,9 +120,8 @@ display_xip_serval_control_ext(tvbuff_t *tvb, proto_tree *xip_serval_tree,
 	offset++;
 
 	/* Add XIP Serval extension length. */
-	ti = proto_tree_add_item(cext_tree, hf_xip_serval_ext_length, tvb,
+	proto_tree_add_item(cext_tree, hf_xip_serval_ext_length, tvb,
 		offset, 1, ENC_BIG_ENDIAN);
-	proto_item_append_text(ti, " bytes");
 	offset++;
 
 	/* Create XIP Serval Control Extension flags tree. */
@@ -198,7 +197,6 @@ display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Add XIP Serval header length. */
 	hl_ti = proto_tree_add_item(xip_serval_tree, hf_xip_serval_hl, tvb,
 		XSRVL_LEN, 1, ENC_BIG_ENDIAN);
-	proto_item_append_text(hl_ti, " bytes");
 	if (tvb_captured_length(tvb) < xsh_len)
 		expert_add_info_format(pinfo, hl_ti, &ei_xip_serval_bad_len,
 			"Header Length field (%d bytes) cannot be greater than actual number of bytes left in packet (%d bytes)",
@@ -284,7 +282,7 @@ proto_register_xip_serval(void)
 
 		{ &hf_xip_serval_hl,
 		{ "Header Length", "xip_serval.hl", FT_UINT8,
-		   BASE_DEC, NULL, 0x0,	NULL, HFILL }},
+		   BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,	NULL, HFILL }},
 
 		{ &hf_xip_serval_proto,
 		{ "Protocol", "xip_serval.proto", FT_UINT8,
@@ -306,7 +304,7 @@ proto_register_xip_serval(void)
 
 		{ &hf_xip_serval_ext_length,
 		{ "Extension Length", "xip_serval.ext_length", FT_UINT8,
-		   BASE_DEC, NULL, 0x0,	NULL, HFILL }},
+		   BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,	NULL, HFILL }},
 
 		/* Serval Control Extension Header. */
 

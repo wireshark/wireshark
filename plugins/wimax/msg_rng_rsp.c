@@ -335,16 +335,14 @@ static int dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 					break;
 				}
 				case RNG_RSP_OFFSET_FREQ_ADJUST: {
-					tlv_item = add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_rng_rsp_offset_freq_adjust, tvb, offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " Hz");
+					add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_rng_rsp_offset_freq_adjust, tvb, offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case RNG_RSP_RANGING_STATUS:
 					ranging_status_item = add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_rng_rsp_ranging_status, tvb, offset, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_DL_FREQ_OVERRIDE: {
-					dl_freq_override_item = add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_rng_rsp_dl_freq_override, tvb, offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(dl_freq_override_item, " kHz");
+					add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_rng_rsp_dl_freq_override, tvb, offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case RNG_RSP_UL_CHANNEL_ID_OVERRIDE:
@@ -577,7 +575,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 			&hf_rng_rsp_dl_freq_override,
 			{
 				"Downlink Frequency Override", "wmx.rng_rsp.dl_freq_override",
-				FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL
+				FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_hz, 0x00, NULL, HFILL
 			}
 		},
 		{
@@ -768,7 +766,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 			&hf_rng_rsp_offset_freq_adjust,
 			{
 				"Offset Frequency Adjust", "wmx.rng_rsp.offset_freq_adjust",
-				FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL
+				FT_INT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_hz, 0x00, NULL, HFILL
 			}
 		},
 		{

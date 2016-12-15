@@ -2848,7 +2848,6 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         cumulative_frame_duration = (tvb_reported_length(tvb) / 4.0) * frame_duration;
 
         pitem = proto_tree_add_double(aptx_tree, hf_aptx_cumulative_frame_duration, tvb, 0, 0, cumulative_frame_duration);
-        proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
         if (info && info->previous_media_packet_info && info->current_media_packet_info) {
@@ -2856,27 +2855,22 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             nstime_delta(&delta, &pinfo->abs_ts, &info->previous_media_packet_info->abs_ts);
             pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time, tvb, 0, 0, nstime_to_msec(&delta));
-            proto_item_append_text(pitem, " ms");
             PROTO_ITEM_SET_GENERATED(pitem);
 
             pitem = proto_tree_add_double(aptx_tree, hf_aptx_avrcp_song_position, tvb, 0, 0, info->previous_media_packet_info->avrcp_song_position);
-            proto_item_append_text(pitem, " ms");
             PROTO_ITEM_SET_GENERATED(pitem);
 
             nstime_delta(&delta, &pinfo->abs_ts, &info->previous_media_packet_info->first_abs_ts);
             pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time_from_the_beginning, tvb, 0, 0, nstime_to_msec(&delta));
-            proto_item_append_text(pitem, " ms");
             PROTO_ITEM_SET_GENERATED(pitem);
 
             if (!pinfo->fd->flags.visited)
                 info->current_media_packet_info->cumulative_frame_duration += cumulative_frame_duration;
 
             pitem = proto_tree_add_double(aptx_tree, hf_aptx_cumulative_duration, tvb, 0, 0, info->previous_media_packet_info->cumulative_frame_duration);
-            proto_item_append_text(pitem, " ms");
             PROTO_ITEM_SET_GENERATED(pitem);
 
             pitem = proto_tree_add_double(aptx_tree, hf_aptx_diff, tvb, 0, 0, info->previous_media_packet_info->cumulative_frame_duration - nstime_to_msec(&delta));
-            proto_item_append_text(pitem, " ms");
             PROTO_ITEM_SET_GENERATED(pitem);
         }
     }
@@ -2895,32 +2889,32 @@ proto_register_aptx(void)
         },
         { &hf_aptx_cumulative_frame_duration,
             { "Cumulative Frame Duration",      "aptx.cumulative_frame_duration",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_aptx_delta_time,
             { "Delta time",                      "aptx.delta_time",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_aptx_avrcp_song_position,
             { "AVRCP Song Position",             "aptx.avrcp_song_position",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_aptx_delta_time_from_the_beginning,
             { "Delta time from the beginning",   "aptx.delta_time_from_the_beginning",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_aptx_cumulative_duration,
             { "Cumulative Music Duration",      "aptx.cumulative_music_duration",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_aptx_diff,
             { "Diff",                            "aptx.diff",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
     };

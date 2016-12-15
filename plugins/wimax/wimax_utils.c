@@ -64,6 +64,18 @@ static gint ett_dl_service_flow_decoder = -1;
 
 static dissector_handle_t eap_handle = NULL;
 
+const unit_name_string wimax_units_byte_bytes = { " byte", " bytes" };
+const unit_name_string wimax_units_bit_sec = { "bits/s", NULL };
+const unit_name_string wimax_units_db = { "dB", NULL };
+const unit_name_string wimax_units_dbm = { "dBm", NULL };
+const unit_name_string wimax_units_frame_frames = { " frame", " frames" };
+const unit_name_string wimax_units_frame_offset = { " frame offset", NULL };
+const unit_name_string wimax_units_hz = { "Hz", NULL };
+const unit_name_string wimax_units_khz = { "kHz", NULL };
+const unit_name_string wimax_units_ms = { "ms", NULL };
+const unit_name_string wimax_units_ps = { "PS", NULL };
+
+
 /* The following two variables save the Scheduling Service type for
    the Grant Management subheader dissector and track whether or not
    one has been seen.
@@ -739,15 +751,15 @@ void proto_register_wimax_utility_decoders(void)
 		},
 		{	/* 7 Maximum Sustained Traffic Rate */
 			&hf_sfe_max_str,
-			{"Maximum Sustained Traffic Rate", "wmx.sfe.msr", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+			{"Maximum Sustained Traffic Rate", "wmx.sfe.msr", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_bit_sec, 0x0, NULL, HFILL}
 		},
 		{	/* 8 Maximum Traffic Burst */
 			&hf_sfe_max_traffic_burst,
-			{"Maximum Traffic Burst", "wmx.sfe.max_traffic_burst", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+			{"Maximum Traffic Burst", "wmx.sfe.max_traffic_burst", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_byte_bytes, 0x0, NULL, HFILL}
 		},
 		{	/* 9 Minimum Reserved Traffic Rate */
 			&hf_sfe_min_rtr,
-			{"Minimum Reserved Traffic Rate", "wmx.sfe.mrr", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+			{"Minimum Reserved Traffic Rate", "wmx.sfe.mrr", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_bit_sec, 0x0, NULL, HFILL}
 		},
 		{
 			/* 10 Reserved */
@@ -802,11 +814,11 @@ void proto_register_wimax_utility_decoders(void)
 		},
 		{	/* 13 Tolerated Jitter */
 			&hf_sfe_jitter,
-			{"Tolerated Jitter", "wmx.sfe.jitter", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+			{"Tolerated Jitter", "wmx.sfe.jitter", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ms, 0x0, NULL, HFILL}
 		},
 		{	/* 14 Maximum Latency */
 			&hf_sfe_max_latency,
-			{"Maximum Latency", "wmx.sfe.max_latency", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+			{"Maximum Latency", "wmx.sfe.max_latency", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ms, 0x0, NULL, HFILL}
 		},
 		{	/* 15 Fixed/Variable Length SDU */
 			&hf_sfe_fixed_len_sdu,
@@ -814,7 +826,7 @@ void proto_register_wimax_utility_decoders(void)
 		},
 		{	/* 16 SDU Size */
 			&hf_sfe_sdu_size,
-			{"SDU Size", "wmx.sfe.sdu_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+			{"SDU Size", "wmx.sfe.sdu_size", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_byte_bytes, 0x0, NULL, HFILL}
 		},
 		{	/* 17 SAID Onto Which SF Is Mapped */
 			&hf_sfe_target_said,
@@ -899,7 +911,7 @@ void proto_register_wimax_utility_decoders(void)
 		},
 			{	/* 31 Time Base */
 			&hf_sfe_time_base,
-			{"Time Base", "wmx.sfe.time_base", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+			{"Time Base", "wmx.sfe.time_base", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ms, 0x0, NULL, HFILL}
 		},
 			{	/* 32 Paging Preference */
 			&hf_sfe_paging_preference,
@@ -943,11 +955,11 @@ void proto_register_wimax_utility_decoders(void)
 		},
 			{	/* 40 Unsolicited Grant Interval */
 			&hf_sfe_unsolicited_grant_interval,
-			{"Unsolicited Grant Interval", "wmx.sfe.unsolicited_grant_interval", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+			{"Unsolicited Grant Interval", "wmx.sfe.unsolicited_grant_interval", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ms, 0x0, NULL, HFILL}
 		},
 			{	/* 41 Unsolicited Polling Interval */
 			&hf_sfe_unsolicited_polling_interval,
-			{"Unsolicited Polling Interval", "wmx.sfe.unsolicited_polling_interval", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+			{"Unsolicited Polling Interval", "wmx.sfe.unsolicited_polling_interval", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ms, 0x0, NULL, HFILL}
 		},
 		{	/* 42 PDU SN extended subheader for HARQ reordering */
 			&hf_sfe_pdu_sn_ext_subheader_reorder,
@@ -2214,16 +2226,13 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				proto_item_append_text(tlv_item, " (allowed values are 0-7)");
 			break;
 			case SFE_MAX_STR:
-				tlv_item = add_tlv_subtree(&tlv_info, tree, hf_sfe_max_str, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-				proto_item_append_text(tlv_item, " bps");
+				add_tlv_subtree(&tlv_info, tree, hf_sfe_max_str, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case SFE_MAX_TRAFFIC_BURST:
-				tlv_item = add_tlv_subtree(&tlv_info, tree, hf_sfe_max_traffic_burst, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-				proto_item_append_text(tlv_item, " bytes");
+				add_tlv_subtree(&tlv_info, tree, hf_sfe_max_traffic_burst, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case SFE_MIN_RTR:
-				tlv_item = add_tlv_subtree(&tlv_info, tree, hf_sfe_min_rtr, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-				proto_item_append_text(tlv_item, " bps");
+				add_tlv_subtree(&tlv_info, tree, hf_sfe_min_rtr, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case SFE_RESERVED_10:
 				add_tlv_subtree(&tlv_info, tree, hf_sfe_reserved_10, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
@@ -2248,12 +2257,10 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				proto_tree_add_item(tlv_tree, hf_sfe_policy_rsvd1, tvb, offset, 1, ENC_BIG_ENDIAN);
 			break;
 			case SFE_TOLERATED_JITTER:
-				tlv_item = add_tlv_subtree(&tlv_info, tree, hf_sfe_jitter, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-				proto_item_append_text(tlv_item, " ms");
+				add_tlv_subtree(&tlv_info, tree, hf_sfe_jitter, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case SFE_MAX_LATENCY:
-				tlv_item = add_tlv_subtree(&tlv_info, tree, hf_sfe_max_latency, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-				proto_item_append_text(tlv_item, " ms");
+				add_tlv_subtree(&tlv_info, tree, hf_sfe_max_latency, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case SFE_FIXED_LEN_SDU:
 				add_tlv_subtree(&tlv_info, tree, hf_sfe_fixed_len_sdu, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
@@ -2261,8 +2268,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			case SFE_SDU_SIZE:
 				/* save the SDU size */
 				mac_sdu_length = tvb_get_guint8(tvb, offset);
-				tlv_item = add_tlv_subtree(&tlv_info, tree, hf_sfe_sdu_size, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-				proto_item_append_text(tlv_item, " bytes");
+				add_tlv_subtree(&tlv_info, tree, hf_sfe_sdu_size, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case SFE_TARGET_SAID:
 				add_tlv_subtree(&tlv_info, tree, hf_sfe_target_said, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
@@ -2349,8 +2355,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				add_tlv_subtree(&tlv_info, tree, hf_sfe_sdu_inter_arrival_interval, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case SFE_TIME_BASE:
-				tlv_item = add_tlv_subtree(&tlv_info, tree, hf_sfe_time_base, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-				proto_item_append_text(tlv_item, " ms");
+				add_tlv_subtree(&tlv_info, tree, hf_sfe_time_base, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case SFE_PAGING_PREFERENCE:
 				add_tlv_subtree(&tlv_info, tree, hf_sfe_paging_preference, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
@@ -2382,12 +2387,10 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sfe_cid_alloc_for_active_bs_cid, tvb, (offset+i), 2, ENC_BIG_ENDIAN);
 			break;
 			case SFE_UNSOLICITED_GRANT_INTERVAL:
-				tlv_item = add_tlv_subtree(&tlv_info, tree, hf_sfe_unsolicited_grant_interval, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-				proto_item_append_text(tlv_item, " ms");
+				add_tlv_subtree(&tlv_info, tree, hf_sfe_unsolicited_grant_interval, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case SFE_UNSOLOCITED_POLLING_INTERVAL:
-				tlv_item = add_tlv_subtree(&tlv_info, tree, hf_sfe_unsolicited_polling_interval, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-				proto_item_append_text(tlv_item, " ms");
+				add_tlv_subtree(&tlv_info, tree, hf_sfe_unsolicited_polling_interval, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case SFE_PDU_SN_EXT_SUBHEADER_HARQ_REORDER:
 				add_tlv_subtree(&tlv_info, tree, hf_sfe_pdu_sn_ext_subheader_reorder, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);

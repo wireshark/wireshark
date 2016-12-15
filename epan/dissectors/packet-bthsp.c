@@ -137,6 +137,8 @@ static const enum_val_t pref_hsp_role[] = {
     { NULL, NULL, 0 }
 };
 
+static const unit_name_string units_slash15 = { "/15", NULL };
+
 void proto_register_bthsp(void);
 void proto_reg_handoff_bthsp(void);
 
@@ -194,7 +196,6 @@ dissect_vgs_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     value = get_uint_parameter(parameter_stream, parameter_length);
 
     pitem = proto_tree_add_uint(tree, hf_vgs, tvb, offset, parameter_length, value);
-    proto_item_append_text(pitem, "/15");
 
     if (value > 15) {
         expert_add_info(pinfo, pitem, &ei_vgs_gain);
@@ -218,7 +219,6 @@ dissect_vgm_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     value = get_uint_parameter(parameter_stream, parameter_length);
 
     pitem = proto_tree_add_uint(tree, hf_vgm, tvb, offset, parameter_length, value);
-    proto_item_append_text(pitem, "/15");
 
     if (value > 15) {
         expert_add_info(pinfo, pitem, &ei_vgm_gain);
@@ -1089,12 +1089,12 @@ proto_register_bthsp(void)
         },
         { &hf_vgs,
            { "Gain",                             "bthsp.vgs",
-           FT_UINT8, BASE_DEC, NULL, 0,
+           FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_slash15, 0,
            NULL, HFILL}
         },
         { &hf_vgm,
            { "Gain",                             "bthsp.vgm",
-           FT_UINT8, BASE_DEC, NULL, 0,
+           FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_slash15, 0,
            NULL, HFILL}
         },
         { &hf_ckpd,

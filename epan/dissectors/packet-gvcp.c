@@ -1458,10 +1458,9 @@ static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 			{
 				/* Insert data as generic register */
 				item = proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_custom_register_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_item_append_text(item, " ");
 
 				/* Use generic register name */
-				proto_item_append_text(item, "[Unknown Register]");
+				proto_item_append_text(item, " [Unknown Register]");
 			}
 		}
 		offset +=4;
@@ -1596,8 +1595,7 @@ static void dissect_readmem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 		else
 		{
 			item = proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_custom_memory_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-			proto_item_append_text(item, " ");
-			proto_item_append_text(item, "[Unknown Register]");
+			proto_item_append_text(item, " [Unknown Register]");
 		}
 		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_readmemcmd_count, tvb, (offset + 6), 2, ENC_BIG_ENDIAN);
 	}

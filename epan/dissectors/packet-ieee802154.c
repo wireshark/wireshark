@@ -1691,8 +1691,7 @@ dissect_ieee802154_fcs:
             field_tree = proto_tree_add_subtree_format(ieee802154_tree, tvb, offset, 2, ett_ieee802154_fcs, NULL,
                         "Frame Check Sequence (TI CC24xx format): FCS %s", (fcs_ok) ? "OK" : "Bad");
             /* Display FCS contents.  */
-            ti = proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, 1, (gint8) (fcs & IEEE802154_CC24xx_RSSI));
-            proto_item_append_text(ti, " dB");  /*  Displaying Units */
+            proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, 1, (gint8) (fcs & IEEE802154_CC24xx_RSSI));
             proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, 1, (gboolean) (fcs & IEEE802154_CC24xx_CRC_OK));
             proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset, 1, (guint8) ((fcs & IEEE802154_CC24xx_CORRELATION) >> 8));
         }
@@ -3624,7 +3623,7 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_rssi,
-        { "RSSI",                           "wpan.rssi", FT_INT8, BASE_DEC, NULL, 0x0,
+        { "RSSI",                           "wpan.rssi", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_decibals, 0x0,
             "Received Signal Strength", HFILL }},
 
         { &hf_ieee802154_fcs_ok,

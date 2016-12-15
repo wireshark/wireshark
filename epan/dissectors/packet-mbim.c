@@ -2604,7 +2604,6 @@ mbim_dissect_registration_state_info(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 static void
 mbim_dissect_packet_service_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-    proto_item *ti;
     guint32 nw_error;
 
     nw_error = tvb_get_letohl(tvb, offset);
@@ -2619,22 +2618,18 @@ mbim_dissect_packet_service_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_packet_service_info_highest_available_data_class, ett_mbim_bitmap,
                            mbim_data_class_fields, ENC_LITTLE_ENDIAN);
     offset += 4;
-    ti = proto_tree_add_item(tree, hf_mbim_packet_service_info_uplink_speed, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(ti, " b/s");
+    proto_tree_add_item(tree, hf_mbim_packet_service_info_uplink_speed, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
-    ti = proto_tree_add_item(tree, hf_mbim_packet_service_info_downlink_speed, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(ti, " b/s");
+    proto_tree_add_item(tree, hf_mbim_packet_service_info_downlink_speed, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     /*offset += 8;*/
 }
 
 static void
 mbim_dissect_set_signal_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-    proto_item *ti;
     guint32 error_rate_threshold;
 
-    ti = proto_tree_add_item(tree, hf_mbim_set_signal_state_signal_strength_interval, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(ti, " s");
+    proto_tree_add_item(tree, hf_mbim_set_signal_state_signal_strength_interval, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_set_signal_state_rssi_threshold, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -2650,15 +2645,13 @@ mbim_dissect_set_signal_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static void
 mbim_dissect_signal_state_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-    proto_item *ti;
     guint32 error_rate_threshold;
 
     proto_tree_add_item(tree, hf_mbim_signal_state_info_rssi, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_signal_state_info_error_rate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    ti = proto_tree_add_item(tree, hf_mbim_signal_state_info_signal_strength_interval, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(ti, " s");
+    proto_tree_add_item(tree, hf_mbim_signal_state_info_signal_strength_interval, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_signal_state_info_rssi_threshold, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -4120,21 +4113,15 @@ mbim_dissect_sar_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static void
 mbim_dissect_adpclk_freq_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, guint32 buffer_len)
 {
-    proto_item *pi;
-
-    pi = proto_tree_add_item(tree, hf_mbim_adpclk_freq_info_adpclk_freq_value_center_freq, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(pi, " Hz");
+    proto_tree_add_item(tree, hf_mbim_adpclk_freq_info_adpclk_freq_value_center_freq, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 4;
-    pi = proto_tree_add_item(tree, hf_mbim_adpclk_freq_info_adpclk_freq_value_freq_spread, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(pi, " Hz");
+    proto_tree_add_item(tree, hf_mbim_adpclk_freq_info_adpclk_freq_value_freq_spread, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     if (buffer_len > 8) {
-        pi = proto_tree_add_item(tree, hf_mbim_adpclk_freq_info_adpclk_freq_value_noise_power, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_item_append_text(pi, " dBm");
+        proto_tree_add_item(tree, hf_mbim_adpclk_freq_info_adpclk_freq_value_noise_power, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
         if (buffer_len > 12) {
-            pi = proto_tree_add_item(tree, hf_mbim_adpclk_freq_info_adpclk_freq_value_rssi, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(pi, " dBm");
+            proto_tree_add_item(tree, hf_mbim_adpclk_freq_info_adpclk_freq_value_rssi, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             if (buffer_len > 16) {
                 proto_tree_add_item(tree, hf_mbim_adpclk_freq_info_adpclk_freq_value_connect_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -4197,21 +4184,15 @@ mbim_dissect_nrtcws_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static void
 mbim_dissect_nrtcws_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-    proto_item *pi;
-
     proto_tree_add_item(tree, hf_mbim_nrtcws_info_lte_active, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    pi = proto_tree_add_item(tree, hf_mbim_nrtcws_info_wlan_safe_rx_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(pi, " MHz");
+    proto_tree_add_item(tree, hf_mbim_nrtcws_info_wlan_safe_rx_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    pi = proto_tree_add_item(tree, hf_mbim_nrtcws_info_wlan_safe_rx_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(pi, " MHz");
+    proto_tree_add_item(tree, hf_mbim_nrtcws_info_wlan_safe_rx_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    pi = proto_tree_add_item(tree, hf_mbim_nrtcws_info_bt_safe_rx_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(pi, " MHz");
+    proto_tree_add_item(tree, hf_mbim_nrtcws_info_bt_safe_rx_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    pi = proto_tree_add_item(tree, hf_mbim_nrtcws_info_bt_safe_rx_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(pi, " MHz");
+    proto_tree_add_item(tree, hf_mbim_nrtcws_info_bt_safe_rx_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(tree, hf_mbim_nrtcws_info_lte_sps_period, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
@@ -4314,47 +4295,39 @@ mbim_dissect_atds_operators(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 mbim_dissect_atds_projection_table(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-    proto_item *pi;
-
     proto_tree_add_item(tree, hf_mbim_atds_projection_table_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    pi = proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar5min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(pi, " dBm");
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar5min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_atds_projection_table_a5, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_atds_projection_table_b5, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    pi = proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar4min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(pi, " dBm");
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar4min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_atds_projection_table_a4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_atds_projection_table_b4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    pi = proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar3min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(pi, " dBm");
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar3min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_atds_projection_table_a3, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_atds_projection_table_b3, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    pi = proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar2min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(pi, " dBm");
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar2min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_atds_projection_table_a2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_atds_projection_table_b2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    pi = proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar1min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(pi, " dBm");
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar1min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_atds_projection_table_a1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_atds_projection_table_b1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    pi = proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar0min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(pi, " dBm");
+    proto_tree_add_item(tree, hf_mbim_atds_projection_table_bar0min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_atds_projection_table_a0, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -5031,13 +5004,9 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         switch (cid) {
                             case MBIM_CID_INTC_NRTAPP:
                                 if (cmd_type == MBIM_COMMAND_SET) {
-                                    proto_item *pi;
-
-                                    pi = proto_tree_add_item(subtree, hf_mbim_nrtc_app_info_period, frag_tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                                    proto_item_append_text(pi, " ms");
+                                    proto_tree_add_item(subtree, hf_mbim_nrtc_app_info_period, frag_tvb, offset, 2, ENC_LITTLE_ENDIAN);
                                     offset += 2;
-                                    pi = proto_tree_add_item(subtree, hf_mbim_nrtc_app_info_duration, frag_tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                                    proto_item_append_text(pi, " ms");
+                                    proto_tree_add_item(subtree, hf_mbim_nrtc_app_info_duration, frag_tvb, offset, 2, ENC_LITTLE_ENDIAN);
                                 } else if (info_buff_len) {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
                                 }
@@ -5711,13 +5680,9 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                     if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET) && info_buff_len) {
                                         proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
                                     } else if ((mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_QUERY)) || info_buff_len) {
-                                        proto_item *pi;
-
-                                        pi = proto_tree_add_item(subtree, hf_mbim_nrtc_app_info_period, frag_tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                                        proto_item_append_text(pi, " ms");
+                                        proto_tree_add_item(subtree, hf_mbim_nrtc_app_info_period, frag_tvb, offset, 2, ENC_LITTLE_ENDIAN);
                                         offset += 2;
-                                        pi = proto_tree_add_item(subtree, hf_mbim_nrtc_app_info_duration, frag_tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                                        proto_item_append_text(pi, " ms");
+                                        proto_tree_add_item(subtree, hf_mbim_nrtc_app_info_duration, frag_tvb, offset, 2, ENC_LITTLE_ENDIAN);
                                     }
                                 } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
@@ -7006,17 +6971,17 @@ proto_register_mbim(void)
         },
         { &hf_mbim_packet_service_info_uplink_speed,
             { "Uplink Speed", "mbim.control.packet_service_info.uplink_speed",
-               FT_UINT64, BASE_DEC, NULL, 0,
+               FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
               NULL, HFILL }
         },
         { &hf_mbim_packet_service_info_downlink_speed,
             { "Downlink Speed", "mbim.control.packet_service_info.downlink_speed",
-               FT_UINT64, BASE_DEC, NULL, 0,
+               FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
               NULL, HFILL }
         },
         { &hf_mbim_set_signal_state_signal_strength_interval,
             { "Signal Strength Interval", "mbim.control.set_signal_state.signal_strength_interval",
-               FT_UINT32, BASE_DEC, NULL, 0,
+               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
               NULL, HFILL }
         },
         { &hf_mbim_set_signal_state_rssi_threshold,
@@ -7041,7 +7006,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_signal_state_info_signal_strength_interval,
             { "Signal Strength Interval", "mbim.control.signal_state_info.signal_strength_interval",
-               FT_UINT32, BASE_DEC, NULL, 0,
+               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
               NULL, HFILL }
         },
         { &hf_mbim_signal_state_info_rssi_threshold,
@@ -8911,22 +8876,22 @@ proto_register_mbim(void)
         },
         { &hf_mbim_adpclk_freq_info_adpclk_freq_value_center_freq,
             { "Center Frequency", "mbim.control.adpclk_freq_info.adpclk_freq_value.center_freq",
-               FT_UINT64, BASE_DEC, NULL, 0,
+               FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0,
               NULL, HFILL }
         },
         { &hf_mbim_adpclk_freq_info_adpclk_freq_value_freq_spread,
             { "Frequency Spread", "mbim.control.adpclk_freq_info.adpclk_freq_value.freq_spread",
-               FT_UINT32, BASE_DEC, NULL, 0,
+               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_hz, 0,
               NULL, HFILL }
         },
         { &hf_mbim_adpclk_freq_info_adpclk_freq_value_noise_power,
             { "Noise Power", "mbim.control.adpclk_freq_info.adpclk_freq_value.noise_power",
-               FT_UINT32, BASE_DEC, NULL, 0,
+               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
               NULL, HFILL }
         },
         { &hf_mbim_adpclk_freq_info_adpclk_freq_value_rssi,
             { "Relative Signal Strength Indication", "mbim.control.adpclk_freq_info.adpclk_freq_value.rssi",
-               FT_UINT32, BASE_DEC, NULL, 0,
+               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
               NULL, HFILL }
         },
         { &hf_mbim_adpclk_freq_info_adpclk_freq_value_connect_status,
@@ -8941,12 +8906,12 @@ proto_register_mbim(void)
         },
         { &hf_mbim_nrtc_app_info_period,
             { "Period", "mbim.control.nrtc_app_info.period",
-               FT_UINT16, BASE_DEC, NULL, 0,
+               FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0,
               NULL, HFILL }
         },
         { &hf_mbim_nrtc_app_info_duration,
             { "Duration", "mbim.control.nrtc_app_info.duration",
-               FT_UINT16, BASE_DEC, NULL, 0,
+               FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0,
               NULL, HFILL }
         },
         { &hf_mbim_nrtcws_config_mode,
@@ -8986,22 +8951,22 @@ proto_register_mbim(void)
         },
         { &hf_mbim_nrtcws_info_wlan_safe_rx_min,
             { "WLAN Safe Rx Min", "mbim.control.nrtcws_info.wlan_safe_rx_min",
-               FT_UINT16, BASE_DEC, NULL, 0,
+               FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0,
               NULL, HFILL }
         },
         { &hf_mbim_nrtcws_info_wlan_safe_rx_max,
             { "WLAN Safe Rx Max", "mbim.control.nrtcws_info.wlan_safe_rx_max",
-               FT_UINT16, BASE_DEC, NULL, 0,
+               FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0,
               NULL, HFILL }
         },
         { &hf_mbim_nrtcws_info_bt_safe_rx_min,
             { "BT Safe Rx Min", "mbim.control.nrtcws_info.bt_safe_rx_min",
-               FT_UINT16, BASE_DEC, NULL, 0,
+               FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0,
               NULL, HFILL }
         },
         { &hf_mbim_nrtcws_info_bt_safe_rx_max,
             { "BT Safe Rx Max", "mbim.control.nrtcws_info.bt_safe_rx_max",
-               FT_UINT16, BASE_DEC, NULL, 0,
+               FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_mhz, 0,
               NULL, HFILL }
         },
         { &hf_mbim_nrtcws_info_lte_sps_period,
@@ -9186,7 +9151,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_atds_projection_table_bar5min,
             { "Bar5 Min", "mbim.control.atds_projection_table.bar5min",
-               FT_INT32, BASE_DEC, NULL, 0,
+               FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
               NULL, HFILL }
         },
         { &hf_mbim_atds_projection_table_a5,
@@ -9201,7 +9166,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_atds_projection_table_bar4min,
             { "Bar4 Min", "mbim.control.atds_projection_table.bar4min",
-               FT_INT32, BASE_DEC, NULL, 0,
+               FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
               NULL, HFILL }
         },
         { &hf_mbim_atds_projection_table_a4,
@@ -9216,7 +9181,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_atds_projection_table_bar3min,
             { "Bar3 Min", "mbim.control.atds_projection_table.bar3min",
-               FT_INT32, BASE_DEC, NULL, 0,
+               FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
               NULL, HFILL }
         },
         { &hf_mbim_atds_projection_table_a3,
@@ -9231,7 +9196,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_atds_projection_table_bar2min,
             { "Bar2 Min", "mbim.control.atds_projection_table.bar2min",
-               FT_INT32, BASE_DEC, NULL, 0,
+               FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
               NULL, HFILL }
         },
         { &hf_mbim_atds_projection_table_a2,
@@ -9246,7 +9211,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_atds_projection_table_bar1min,
             { "Bar1 Min", "mbim.control.atds_projection_table.bar1min",
-               FT_INT32, BASE_DEC, NULL, 0,
+               FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
               NULL, HFILL }
         },
         { &hf_mbim_atds_projection_table_a1,
@@ -9261,7 +9226,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_atds_projection_table_bar0min,
             { "Bar0 Min", "mbim.control.atds_projection_table.bar0min",
-               FT_INT32, BASE_DEC, NULL, 0,
+               FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
               NULL, HFILL }
         },
         { &hf_mbim_atds_projection_table_a0,

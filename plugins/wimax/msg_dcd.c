@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
+#include "wimax_utils.h"
 
 /* Delete the following variable as soon as possible */
 extern gboolean include_cor2_changes;
@@ -419,8 +420,7 @@ static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 						{
 							case DCD_BURST_FREQUENCY:
 							{
-								tlv_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_dcd_burst_freq, tvb, (offset+tlv_offset), ENC_BIG_ENDIAN);
-								proto_item_append_text(tlv_item, " kHz");
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_dcd_burst_freq, tvb, (offset+tlv_offset), ENC_BIG_ENDIAN);
 								break;
 							}
 							case DCD_BURST_FEC_CODE_TYPE:
@@ -453,8 +453,7 @@ static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				}
 				case DCD_BS_EIRP:
 				{
-					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_bs_eirp, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " dBm");
+					add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_bs_eirp, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_FRAME_DURATION:
@@ -479,28 +478,24 @@ static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				}
 				case DCD_TTG:
 				{
-					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_ttg, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " PS");
+					add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_ttg, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_RTG:
 				{
-					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_rtg, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " PS");
+					add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_rtg, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 #ifdef WIMAX_16D_2004
 				case DCD_RSS:
 				{
-					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_rss, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " dBm");
+					add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_rss, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 #else
 				case DCD_EIRXP:
 				{
-					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_eirxp, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " dBm");
+					add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_eirxp, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 #endif
@@ -511,8 +506,7 @@ static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				}
 				case DCD_FREQUENCY:
 				{
-					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_frequency, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " kHz");
+					add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_frequency, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_BS_ID:
@@ -539,8 +533,7 @@ static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 #endif
 				case DCD_H_ARQ_ACK_DELAY:
 				{
-					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_h_arq_ack_delay, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " frame offset");
+					add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_h_arq_ack_delay, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_MAC_VERSION:
@@ -601,24 +594,20 @@ static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				}
 				case DCD_TLV_T_31_H_ADD_THRESHOLD:
 				{
-					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_tlv_t_31_h_add_threshold, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " dB");
+					add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_tlv_t_31_h_add_threshold, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_32_H_DELETE_THRESHOLD:
 				{
-					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_tlv_t_32_h_delete_threshold, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " dB");
+					add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_tlv_t_32_h_delete_threshold, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_33_ASR:
 				{
 					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_tlv_t_33_asr, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_dcd_decoder);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr_m, tvb, offset, 1, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " frames");
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr_l, tvb, offset, 1, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " frames");
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr_m, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr_l, tvb, offset, 1, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_35_PAGING_GROUP_ID:
@@ -638,14 +627,12 @@ static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				}
 				case DCD_TLV_T_51_HYSTERSIS_MARGIN:
 				{
-					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_tlv_t_51_hysteresis_margin, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " dB");
+					add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_tlv_t_51_hysteresis_margin, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_52_TIME_TO_TRIGGER_DURATION:
 				{
-					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_tlv_t_52_time_to_trigger_duration, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item, " ms");
+					add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_tlv_t_52_time_to_trigger_duration, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_54_TRIGGER:
@@ -744,21 +731,21 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_tlv_t_33_asr_l,
 			{
 				"ASR Switching Period (L)", "wmx.dcd.asr.l",
-				FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_frame_frames, 0x0f, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_33_asr_m,
 			{
 				"ASR Slot Length (M)", "wmx.dcd.asr.m",
-				FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_frame_frames, 0xf0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dcd_bs_eirp,
 			{
 				"BS EIRP", "wmx.dcd.bs_eirp",
-				FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL
+				FT_INT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_dbm, 0x00, NULL, HFILL
 			}
 		},
 		{
@@ -809,7 +796,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_burst_freq,
 			{
 				"Frequency", "wmx.dcd.burst.freq",
-				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_khz, 0x00, NULL, HFILL
 			}
 		},
 #if 0
@@ -952,7 +939,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_eirxp,
 			{
 				"EIRXP (IR, max)", "wmx.dcd.eirxp",
-				FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL
+				FT_INT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_dbm, 0x00, NULL, HFILL
 			}
 		},
 #endif
@@ -981,14 +968,14 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_frequency,
 			{
 				"Downlink Center Frequency", "wmx.dcd.frequency",
-				FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL
+				FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_khz, 0x00, NULL, HFILL
 			}
 		},
 			{
 			&hf_dcd_tlv_t_31_h_add_threshold,
 			{
 				"H_add Threshold", "wmx.dcd.h_add_threshold",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_db, 0x0, NULL, HFILL
 			}
 		},
 #ifdef WIMAX_16D_2004
@@ -996,7 +983,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_h_arq_ack_delay,
 			{
 				"H-ARQ ACK Delay for DL Burst", "wmx.dcd.h_arq_ack_delay_dl_burst",
-				FT_UINT8, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_frame_offset, 0x00, "", HFILL
 			}
 		},
 #else
@@ -1004,7 +991,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_h_arq_ack_delay,
 			{
 				"H-ARQ ACK Delay for UL Burst", "wmx.dcd.h_arq_ack_delay_ul_burst",
-				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_frame_offset, 0x00, NULL, HFILL
 			}
 		},
 #endif
@@ -1012,7 +999,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_tlv_t_32_h_delete_threshold,
 			{
 				"H_delete Threshold", "wmx.dcd.h_delete_threshold",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_db, 0x0, NULL, HFILL
 			}
 		},
 			{
@@ -1054,7 +1041,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_tlv_t_51_hysteresis_margin,
 			{
 				"Hysteresis Margin", "wmx.dcd.hysteresis_margin",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_db, 0x0, NULL, HFILL
 			}
 		},
 		{
@@ -1146,7 +1133,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_rss,
 			{
 				"RSS (IR, max)", "wmx.dcd.rss",
-				FT_INT16, BASE_DEC, NULL, 0x00, "", HFILL
+				FT_INT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_dbm, 0x00, "", HFILL
 			}
 		},
 #endif
@@ -1154,7 +1141,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_rtg,
 			{
 				"RTG", "wmx.dcd.rtg",
-				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_ps, 0x00, NULL, HFILL
 			}
 		},
 #ifdef WIMAX_16D_2004
@@ -1177,7 +1164,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_tlv_t_52_time_to_trigger_duration,
 			{
 				"Time to Trigger Duration", "wmx.dcd.time_trigger_duration",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ms, 0x0, NULL, HFILL
 			}
 		},
 			{
@@ -1198,7 +1185,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 			&hf_dcd_ttg,
 			{
 				"TTG", "wmx.dcd.ttg",
-				FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL
+				FT_UINT16, BASE_HEX|BASE_UNIT_STRING, &wimax_units_ps, 0x00, NULL, HFILL
 			}
 		},
 			{

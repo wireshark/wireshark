@@ -1226,7 +1226,6 @@ dissect_ImageZLIB_GLZ_stream(tvbuff_t *tvb, proto_tree *ZLIB_GLZ_tree, packet_in
 static guint32
 dissect_ImageZLIB_GLZ(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset)
 {
-    proto_item *ti;
     proto_tree *ZLIB_GLZ_tree;
     guint32     ZLIB_GLZSize, ZLIB_uncompSize;
 
@@ -1235,11 +1234,9 @@ dissect_ImageZLIB_GLZ(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     if (tree) {
         ZLIB_GLZ_tree = proto_tree_add_subtree(tree, tvb, offset, ZLIB_GLZSize + 8, ett_ZLIB_GLZ, NULL, "ZLIB over GLZ Image");
 
-        ti = proto_tree_add_item(ZLIB_GLZ_tree, hf_zlib_uncompress_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_item_append_text(ti, " bytes");
+        proto_tree_add_item(ZLIB_GLZ_tree, hf_zlib_uncompress_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
-        ti = proto_tree_add_item(ZLIB_GLZ_tree, hf_zlib_compress_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_item_append_text(ti, " bytes");
+        proto_tree_add_item(ZLIB_GLZ_tree, hf_zlib_compress_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
         dissect_ImageZLIB_GLZ_stream(tvb, ZLIB_GLZ_tree, pinfo, offset, ZLIB_GLZSize, ZLIB_uncompSize);
     }
@@ -4211,12 +4208,12 @@ proto_register_spice(void)
         },
         { &hf_zlib_uncompress_size,
           { "ZLIB stream uncompressed size", "spice.zlib_uncompress_size",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
             NULL, HFILL }
         },
         { &hf_zlib_compress_size,
           { "ZLIB stream compressed size", "spice.zlib_compress_size",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
             NULL, HFILL }
         },
         { &hf_rect_left,

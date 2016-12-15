@@ -55,4 +55,16 @@ extern void wimax_security_capabilities_decoder(tvbuff_t *tvb, packet_info *pinf
 extern void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern guint wimax_common_tlv_encoding_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+//Windows can't handle plugins using globals from epan, so copies are necessary
+extern const unit_name_string wimax_units_byte_bytes;
+extern const unit_name_string wimax_units_bit_sec;
+extern const unit_name_string wimax_units_db;
+extern const unit_name_string wimax_units_dbm;
+extern const unit_name_string wimax_units_frame_frames;
+extern const unit_name_string wimax_units_frame_offset;
+extern const unit_name_string wimax_units_hz;
+extern const unit_name_string wimax_units_khz;
+extern const unit_name_string wimax_units_ms;
+extern const unit_name_string wimax_units_ps;
+
 #endif /* WIMAX_UTILS_H */

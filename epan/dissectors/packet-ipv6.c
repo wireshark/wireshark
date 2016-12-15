@@ -1199,7 +1199,6 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     rthdr_ti.len = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     ti = proto_tree_add_uint(rthdr_tree, hf_ipv6_routing_len_oct, tvb, offset, 1, len);
-    proto_item_append_text(ti, " bytes");
     PROTO_ITEM_SET_GENERATED(ti);
     if (ipv6_exthdr_hide_len_oct_field) {
         PROTO_ITEM_SET_HIDDEN(ti);
@@ -1245,7 +1244,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
 static int
 dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-    proto_item      *pi, *ti;
+    proto_item      *pi;
     proto_tree      *frag_tree, *root_tree;
     guint8           nxt;
     guint16          offlg;
@@ -1289,8 +1288,7 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree_add_item(frag_tree, hf_ipv6_fraghdr_reserved_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    ti = proto_tree_add_item(frag_tree, hf_ipv6_fraghdr_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_item_append_text(ti, " (%d bytes)", frag_off);
+    proto_tree_add_item(frag_tree, hf_ipv6_fraghdr_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(frag_tree, hf_ipv6_fraghdr_reserved_bits, tvb, offset, 2, ENC_BIG_ENDIAN);
 
@@ -1861,7 +1859,6 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
 
     ti_len = proto_tree_add_item(exthdr_tree, hf_exthdr_item_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     ti = proto_tree_add_uint(exthdr_tree, hf_exthdr_item_len_oct, tvb, offset, 1, len);
-    proto_item_append_text(ti, " bytes");
     PROTO_ITEM_SET_GENERATED(ti);
     if (ipv6_exthdr_hide_len_oct_field) {
         PROTO_ITEM_SET_HIDDEN(ti);
@@ -3091,7 +3088,7 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_hopopts_len_oct,
             { "Length", "ipv6.hopopts.len_oct",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
                 "Extension header length in octets", HFILL }
         }
     };
@@ -3109,7 +3106,7 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_dstopts_len_oct,
             { "Length", "ipv6.dstopts.len_oct",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
                 "Extension header length in octets", HFILL }
         }
     };
@@ -3129,7 +3126,7 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_routing_len_oct,
             { "Length", "ipv6.routing.len_oct",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
                 "Extension header length in octets", HFILL }
         },
         { &hf_ipv6_routing_type,
@@ -3274,7 +3271,7 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_fraghdr_offset,
             { "Offset", "ipv6.fraghdr.offset",
-                FT_UINT16, BASE_DEC, NULL, IP6F_OFF_MASK,
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, IP6F_OFF_MASK,
                 "Fragment Offset", HFILL }
         },
         { &hf_ipv6_fraghdr_reserved_bits,

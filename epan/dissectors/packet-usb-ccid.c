@@ -345,13 +345,11 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
             ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    freq_item = proto_tree_add_item(desc_tree, hf_ccid_dwDefaultClock, tvb,
+    proto_tree_add_item(desc_tree, hf_ccid_dwDefaultClock, tvb,
             offset, 4, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(freq_item, " kHz");
     offset += 4;
-    freq_item = proto_tree_add_item(desc_tree, hf_ccid_dwMaximumClock, tvb,
+    proto_tree_add_item(desc_tree, hf_ccid_dwMaximumClock, tvb,
             offset, 4, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(freq_item, " kHz");
     offset += 4;
     num_clock_supp = tvb_get_guint8(tvb, offset);
     freq_item = proto_tree_add_item(desc_tree, hf_ccid_bNumClockSupported, tvb,
@@ -693,10 +691,10 @@ proto_register_ccid(void)
             TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }},
         {&hf_ccid_dwDefaultClock,
          { "default clock frequency", "usbccid.dwDefaultClock",
-             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+             FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_khz, 0x0, NULL, HFILL }},
         {&hf_ccid_dwMaximumClock,
          { "maximum clock frequency", "usbccid.dwMaximumClock",
-             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+             FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_khz, 0x0, NULL, HFILL }},
         {&hf_ccid_bNumClockSupported,
          { "number of supported clock frequencies", "usbccid.bNumClockSupported",
              FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

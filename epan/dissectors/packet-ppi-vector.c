@@ -481,10 +481,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             vel_r = ppi_fixed6_4_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_r, tvb, offset, 4, vel_r);
-                proto_item_append_text(ti, " m/s");
-            }
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_r, tvb, offset, 4, vel_r);
             offset+=4;
             length_remaining-=4;
             break;
@@ -493,10 +490,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             vel_f = ppi_fixed6_4_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_f, tvb, offset, 4, vel_f);
-                proto_item_append_text(ti, " m/s");
-            }
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_f, tvb, offset, 4, vel_f);
             offset+=4;
             length_remaining-=4;
             break;
@@ -505,10 +499,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             vel_u = ppi_fixed6_4_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_u, tvb, offset, 4, vel_u);
-                proto_item_append_text(ti, " m/s");
-            }
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_u, tvb, offset, 4, vel_u);
             offset+=4;
             length_remaining-=4;
             break;
@@ -517,10 +508,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             vel_t = ppi_fixed6_4_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_t, tvb, offset, 4, vel_t);
-                proto_item_append_text(ti, " m/s");
-            }
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_t, tvb, offset, 4, vel_t);
             offset+=4;
             length_remaining-=4;
             break;
@@ -529,10 +517,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             acc_r = ppi_fixed6_4_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_r, tvb, offset, 4, acc_r);
-                proto_item_append_text(ti, " (m/s)/s");
-            }
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_r, tvb, offset, 4, acc_r);
             offset+=4;
             length_remaining-=4;
             break;
@@ -541,10 +526,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             acc_f = ppi_fixed6_4_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_f, tvb, offset, 4, acc_f);
-                proto_item_append_text(ti, " (m/s)/s");
-            }
+            ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_f, tvb, offset, 4, acc_f);
             offset+=4;
             length_remaining-=4;
             break;
@@ -553,10 +535,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             acc_u = ppi_fixed6_4_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_u, tvb, offset, 4, acc_u);
-                proto_item_append_text(ti, " (m/s)/s");
-            }
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_u, tvb, offset, 4, acc_u);
             offset+=4;
             length_remaining-=4;
             break;
@@ -565,10 +544,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             acc_t = ppi_fixed6_4_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_t, tvb, offset, 4, acc_t);
-                proto_item_append_text(ti, " (m/s)/s");
-            }
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_t, tvb, offset, 4, acc_t);
             offset+=4;
             length_remaining-=4;
             break;
@@ -577,10 +553,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val   = tvb_get_letohl(tvb, offset);
             err_rot = ppi_fixed3_6_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_rot, tvb, offset, 4, err_rot);
-                proto_item_append_text(ti, " degrees");
-            }
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_rot, tvb, offset, 4, err_rot);
             offset+=4;
             length_remaining-=4;
             break;
@@ -589,10 +562,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val   = tvb_get_letohl(tvb, offset);
             err_off = ppi_fixed6_4_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_off, tvb, offset, 4, err_off);
-                proto_item_append_text(ti, " meters");
-            }
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_off, tvb, offset, 4, err_off);
             offset+=4;
             length_remaining-=4;
             break;
@@ -601,10 +571,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val   = tvb_get_letohl(tvb, offset);
             err_vel = ppi_fixed6_4_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_vel, tvb, offset, 4, err_vel);
-                proto_item_append_text(ti, "m/s");
-            }
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_vel, tvb, offset, 4, err_vel);
             offset+=4;
             length_remaining-=4;
             break;
@@ -882,10 +849,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val   = tvb_get_letohl(tvb, offset);
             err_rot = ppi_fixed3_6_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_rot, tvb, offset, 4, err_rot);
-                proto_item_append_text(ti, " Degrees");
-            }
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_rot, tvb, offset, 4, err_rot);
             offset+=4;
             length_remaining-=4;
             break;
@@ -894,10 +858,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val   = tvb_get_letohl(tvb, offset);
             err_off = ppi_fixed6_4_to_gdouble(t_val);
-            if (ppi_vector_tree) {
-                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_off, tvb, offset, 4, err_off);
-                proto_item_append_text(ti, " Meters");
-            }
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_off, tvb, offset, 4, err_off);
             offset+=4;
             length_remaining-=4;
             break;
@@ -1217,36 +1178,36 @@ proto_register_ppi_vector(void)
             "Offset up", HFILL } },
         { &hf_ppi_vector_vel_r,
           { "Vel-r", "ppi_vector.vel_r",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_m_per_s, 0x0,
             "Velocity-right", HFILL } },
         { &hf_ppi_vector_vel_f,
           { "Vel-f", "ppi_vector.vel_f",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_m_per_s, 0x0,
             "Velocity-forward", HFILL } },
         { &hf_ppi_vector_vel_u,
           { "Vel-u", "ppi_vector.vel_u",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_m_per_s, 0x0,
             "Velocity-up", HFILL } },
         { &hf_ppi_vector_vel_t,
           { "Vel-t", "ppi_vector.vel_t",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_m_per_s, 0x0,
             "Velocity-Total", HFILL } },
 
         { &hf_ppi_vector_acc_r,
           { "Accel-r", "ppi_vector.acc_r",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_m_per_s_per_s, 0x0,
             "Acceleration-right", HFILL } },
         { &hf_ppi_vector_acc_f,
           { "Accel-f", "ppi_vector.acc_f",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_m_per_s_per_s, 0x0,
             "Acceleration-forward", HFILL } },
         { &hf_ppi_vector_acc_u,
           { "Accel-u", "ppi_vector.acc_u",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_m_per_s_per_s, 0x0,
             "Acceleration-up", HFILL } },
         { &hf_ppi_vector_acc_t,
           { "Accel-t", "ppi_vector.acc_t",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_m_per_s_per_s, 0x0,
             "Acceleration-Total", HFILL } },
 
         /* V2 */
@@ -1265,21 +1226,21 @@ proto_register_ppi_vector(void)
 
         { &hf_ppi_vector_err_rot,
           { "Err-Rot", "ppi_vector.err_rot",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_degree_degrees, 0x0,
             "Rotation margin of error", HFILL } },
         { &hf_ppi_vector_err_off,
           { "Err-Off", "ppi_vector.err_off",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_meter_meters, 0x0,
             "Offset margin of  error", HFILL } },
 
         /* V1 only */
         { &hf_ppi_vector_err_vel,
           { "Err-Vel", "ppi_vector.err_vel",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_m_per_s, 0x0,
             "Velocity margin of error", HFILL } },
         { &hf_ppi_vector_err_acc,
           { "Err-Accel", "ppi_vector.err_acc",
-            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_m_per_s_per_s, 0x0,
             "Acceleration margin of error", HFILL } },
 
         { &hf_ppi_vector_descstr,

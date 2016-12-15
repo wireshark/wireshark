@@ -559,6 +559,8 @@ static dissector_handle_t nbifom_handle;
 
 static dissector_table_t gprs_sm_pco_subdissector_table; /* GPRS SM PCO PPP Protocols */
 
+static const unit_name_string units_message_messages = { " message", " messages" };
+
 #define	NUM_GSM_GM_ELEM (sizeof(gsm_gm_elem_strings)/sizeof(value_string))
 gint ett_gsm_gm_elem[NUM_GSM_GM_ELEM];
 
@@ -4442,8 +4444,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				break;
 			case 0x0010:
 				if ((link_dir == P2P_DIR_DL) && (e_len == 2)) {
-					pco_item = proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ipv4_link_mtu_size, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-					proto_item_append_text(pco_item, " octets");
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ipv4_link_mtu_size, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 				}
 				break;
 			case 0x0014:
@@ -4453,8 +4454,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				break;
 			case 0x0015:
 				if ((link_dir == P2P_DIR_DL) && (e_len == 2)) {
-					pco_item = proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_non_ip_link_mtu_size, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-					proto_item_append_text(pco_item, " octets");
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_non_ip_link_mtu_size, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 				}
 				break;
 			case 0x0016:
@@ -4463,8 +4463,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 					proto_tree_add_item(tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_aer, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_ul_time_unit, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 					if (e_len >= 4) {
-						pco_item = proto_tree_add_item(tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate, tvb, curr_offset+1, 3, ENC_BIG_ENDIAN);
-						proto_item_append_text(pco_item, " messages");
+						proto_tree_add_item(tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate, tvb, curr_offset+1, 3, ENC_BIG_ENDIAN);
 					}
 				}
 				break;
@@ -8851,7 +8850,7 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate,
 		  { "Maximum uplink rate", "gsm_a.gm.sm.pco.apn_rate_ctrl_params.max_ul_rate",
-		    FT_UINT24, BASE_DEC, NULL, 0x0,
+		    FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_message_messages, 0x0,
 		    NULL, HFILL }
 		},
 		/* Generated from convert_proto_tree_add_text.pl */
@@ -8879,9 +8878,9 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_sm_pco_dsmipv6_home_agent_ipv4, { "IPv4", "gsm_a.gm.sm.pco.dsmipv6_home_agent.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_pcscf_ipv4, { "IPv4", "gsm_a.gm.sm.pco.pcscf.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_dns_ipv4, { "IPv4", "gsm_a.gm.sm.pco.dns.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ &hf_gsm_a_gm_sm_pco_ipv4_link_mtu_size, { "IPv4 link MTU size", "gsm_a.gm.sm.pco.ipv4_link_mtu_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_ipv4_link_mtu_size, { "IPv4 link MTU size", "gsm_a.gm.sm.pco.ipv4_link_mtu_size", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_nbifom_mode, { "NBIFOM mode", "gsm_a.gm.sm.pco.nbifom_mode", FT_UINT8, BASE_HEX, VALS(gsm_a_gm_nbifom_mode_vals), 0x0, NULL, HFILL }},
-		{ &hf_gsm_a_gm_sm_pco_non_ip_link_mtu_size, { "Non-IP link MTU size", "gsm_a.gm.sm.pco.non_ip_link_mtu_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_non_ip_link_mtu_size, { "Non-IP link MTU size", "gsm_a.gm.sm.pco.non_ip_link_mtu_size", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_sel_bearer_ctrl_mode, { "Selected Bearer Control Mode", "gsm_a.gm.sm.pco.sel_bearer_ctrl_mode", FT_UINT8, BASE_DEC, VALS(gsm_a_gm_sel_bearer_ctrl_mode_vals), 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_sm_pdp_type_number, { "PDP type number", "gsm_a.gm.sm.pdp_type_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_sm_pdp_address, { "PDP address", "gsm_a.gm.sm.pdp_address", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

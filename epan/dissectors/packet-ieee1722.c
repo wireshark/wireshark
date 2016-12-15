@@ -1077,8 +1077,7 @@ static int dissect_1722_aaf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 expert_add_info(pinfo, ti, &ei_aaf_incorrect_bit_depth);
             }
             offset += 1;
-            ti = proto_tree_add_item_ret_uint(ti_aaf_tree, hf_1722_aaf_stream_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &datalen);
-            proto_item_append_text(ti, " bytes");
+            proto_tree_add_item_ret_uint(ti_aaf_tree, hf_1722_aaf_stream_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &datalen);
             offset += 2;
 
             proto_tree_add_bitmask_list(ti_aaf_tree, tvb, offset, 1, fields_pcm, ENC_BIG_ENDIAN);
@@ -1166,7 +1165,7 @@ void proto_register_1722_aaf (void)
         },
         { &hf_1722_aaf_stream_data_length,
             { "Stream Data Length", "aaf.stream_data_len",
-              FT_UINT16, BASE_DEC, NULL, IEEE_1722_STREAM_DATA_LENGTH_MASK, NULL, HFILL }
+              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, IEEE_1722_STREAM_DATA_LENGTH_MASK, NULL, HFILL }
         },
         { &hf_1722_aaf_sparse_timestamp,
             { "Sparse Timestamp Mode", "aaf.sparse_timestamp",
@@ -1259,8 +1258,7 @@ static int dissect_1722_crf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     offset += 8;
     proto_tree_add_bitmask_list(ti_crf_tree, tvb, offset, 4, pull_frequency, ENC_NA);
     offset += 4;
-    ti = proto_tree_add_item_ret_uint(ti_crf_tree, hf_1722_crf_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &datalen);
-    proto_item_append_text(ti, " bytes");
+    proto_tree_add_item_ret_uint(ti_crf_tree, hf_1722_crf_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &datalen);
     offset += 2;
     proto_tree_add_item(ti_crf_tree, hf_1722_crf_timestamp_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -1325,7 +1323,7 @@ void proto_register_1722_crf(void)
         },
         { &hf_1722_crf_data_length,
             { "Data Length", "crf.data_len",
-              FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x00, NULL, HFILL }
         },
         { &hf_1722_crf_timestamp_interval,
             { "Timestamp Interval", "crf.timestamp_interval",

@@ -747,11 +747,9 @@ dissect_usb_com_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             offset += 2;
             proto_tree_add_item(subtree, hf_usb_com_interrupt_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
-            it = proto_tree_add_item(subtree, hf_usb_com_interrupt_dl_bitrate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(it, " b/s");
+            proto_tree_add_item(subtree, hf_usb_com_interrupt_dl_bitrate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            it = proto_tree_add_item(subtree, hf_usb_com_interrupt_ul_bitrate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(it, " b/s");
+            proto_tree_add_item(subtree, hf_usb_com_interrupt_ul_bitrate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
         default:
@@ -1048,11 +1046,11 @@ proto_register_usb_com(void)
             { "Length", "usbcom.interrupt.length", FT_UINT16, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         { &hf_usb_com_interrupt_dl_bitrate,
-            { "DL Bitrate", "usbcom.interrupt.conn_speed_change.dl_bitrate", FT_UINT32, BASE_DEC,
-              NULL, 0, NULL, HFILL }},
+            { "DL Bitrate", "usbcom.interrupt.conn_speed_change.dl_bitrate", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+              &units_bit_sec, 0, NULL, HFILL }},
         { &hf_usb_com_interrupt_ul_bitrate,
-            { "UL Bitrate", "usbcom.interrupt.conn_speed_change.ul_bitrate", FT_UINT32, BASE_DEC,
-              NULL, 0, NULL, HFILL }},
+            { "UL Bitrate", "usbcom.interrupt.conn_speed_change.ul_bitrate", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+              &units_bit_sec, 0, NULL, HFILL }},
         { &hf_usb_com_interrupt_payload,
             { "Payload", "usbcom.interrupt.payload", FT_BYTES, BASE_NONE,
               NULL, 0, NULL, HFILL }}

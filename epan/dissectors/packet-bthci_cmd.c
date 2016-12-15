@@ -3727,7 +3727,6 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         nstime_delta(&delta, &bthci_cmd_data->pending_abs_ts, &bthci_cmd_data->command_abs_ts);
         sub_item = proto_tree_add_double(bthci_cmd_tree, hf_command_pending_time_delta, tvb, 0, 0, nstime_to_msec(&delta));
-        proto_item_append_text(sub_item, " ms");
         PROTO_ITEM_SET_GENERATED(sub_item);
     }
     if (bthci_cmd_data && bthci_cmd_data->response_in_frame < max_disconnect_in_frame) {
@@ -3738,7 +3737,6 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         nstime_delta(&delta, &bthci_cmd_data->response_abs_ts, &bthci_cmd_data->command_abs_ts);
         sub_item = proto_tree_add_double(bthci_cmd_tree, hf_command_response_time_delta, tvb, 0, 0, nstime_to_msec(&delta));
-        proto_item_append_text(sub_item, " ms");
         PROTO_ITEM_SET_GENERATED(sub_item);
     }
 
@@ -5213,7 +5211,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_command_response_time_delta,
             { "Command-Response Delta",          "bthci_cmd.command_response_delta",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_pending_in_frame,
@@ -5223,7 +5221,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_command_pending_time_delta,
             { "Command-Pending Delta",          "bthci_cmd.command_pending_delta",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_tx_octets,

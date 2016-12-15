@@ -802,6 +802,9 @@ static const value_string user_port_object_result_rr_vals[] = {
     { 0, NULL }
 };
 
+static const unit_name_string units_pdus_100ms = { " (PDUs/100ms)", NULL };
+static const unit_name_string units_num_100ms = { " (Number of 100ms)", NULL };
+
 /* Initialise the protocol and registered fields */
 static int proto_oampdu = -1;
 
@@ -1099,7 +1102,6 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
     proto_tree *info_tree;
     proto_item *info_item;
     proto_item *oui_item;
-    proto_item *item;
 
 
     offset = OAMPDU_HEADER_SIZE;
@@ -1183,10 +1185,8 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
             offset += OAMPDU_INFO_OAM_CONFIG_SZ;
 
-            item = proto_tree_add_item(info_tree, hf_oampdu_info_oampduConfig,
+            proto_tree_add_item(info_tree, hf_oampdu_info_oampduConfig,
                     tvb, offset, 2, ENC_BIG_ENDIAN);
-
-            proto_item_append_text(item, " (bytes)");
 
             offset += OAMPDU_INFO_OAMPDU_CONFIG_SZ;
 
@@ -1760,10 +1760,8 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
                             } else if (leaf_branch == DPOE_LB_NUM_S1_INT) {
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_response_int, tvb, offset, variable_length, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_OAM_FR) {
-                                dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_minimum, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                proto_item_append_text(dpoe_opcode_response, " (PDUs/100ms)");
-                                dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_maximum, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                                proto_item_append_text(dpoe_opcode_response, " (Number of 100ms)");
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_minimum, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_maximum, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_REP_THRESH) {
                                 guint8 nqs;
                                 guint8 rvpqs;
@@ -2059,7 +2057,7 @@ proto_register_oampdu(void)
 
         { &hf_oampdu_info_oampduConfig,
             { "Max OAMPDU Size",    "oampdu.info.oampduConfig",
-                FT_UINT16,    BASE_DEC,    NULL,    0x0,
+                FT_UINT16,    BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes,    0x0,
                 "OAMPDU Configuration", HFILL }},
 
         { &hf_oampdu_info_oui,
@@ -2302,12 +2300,12 @@ proto_register_oampdu(void)
 
         { &hf_oam_dpoe_frame_rate_maximum,
             { "Maximum OAM Rate", "oampdu.frame.rate.min",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_num_100ms, 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_frame_rate_minimum,
             { "Minimum OAM Rate", "oampdu.frame.rate.max",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_pdus_100ms, 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_repthr_nqs,

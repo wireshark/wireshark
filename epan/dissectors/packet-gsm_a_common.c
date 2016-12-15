@@ -1047,8 +1047,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, ENC_BIG_ENDIAN);
         curr_offset += 2;
         /* Horizontal speed is encoded in increments of 1 kilometre per hour using a 16 bit binary coded number N. */
-        velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_item_append_text(velocity_item, " km/h");
+        proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
         curr_offset += 2;
         break;
     case 1:
@@ -1061,14 +1060,12 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, ENC_BIG_ENDIAN);
         curr_offset += 2;
         /* Horizontal speed is encoded in increments of 1 kilometre per hour using a 16 bit binary coded number N. */
-        velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_item_append_text(velocity_item, " km/h");
+        proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
         curr_offset += 2;
         /* Vertical Speed Octet 5
          * Vertical speed is encoded in increments of 1 kilometre per hour using 8 bits giving a number N between 0 and 28-1.
          */
-        velocity_item = proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(velocity_item, " km/h");
+        proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
         break;
     case 2:
@@ -1079,8 +1076,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, ENC_BIG_ENDIAN);
         curr_offset += 2;
         /* Horizontal speed is encoded in increments of 1 kilometre per hour using a 16 bit binary coded number N. */
-        velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_item_append_text(velocity_item, " km/h");
+        proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
         curr_offset += 2;
         /* Uncertainty Speed Octet 5
          * Uncertainty speed is encoded in increments of 1 kilometre per hour using an 8 bit binary coded number N. The value of
@@ -1105,14 +1101,12 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, ENC_BIG_ENDIAN);
         curr_offset += 2;
         /* Horizontal speed is encoded in increments of 1 kilometre per hour using a 16 bit binary coded number N. */
-        velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_item_append_text(velocity_item, " km/h");
+        proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
         curr_offset += 2;
         /* Vertical Speed Octet 5
          * Vertical speed is encoded in increments of 1 kilometre per hour using 8 bits giving a number N between 0 and 28-1.
          */
-        velocity_item = proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(velocity_item, " km/h");
+        proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
 
         /* Horizontal Uncertainty Speed Octet 6 */
@@ -4581,12 +4575,12 @@ proto_register_gsm_a_common(void)
     },
     { &hf_gsm_a_horizontal_speed,
         { "Horizontal Speed", "gsm_a.gad.horizontal_velocity",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_kmh, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_vertical_speed,
         { "Vertical Speed", "gsm_a.gad.vertical_speed",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_kmh, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_uncertainty_speed,

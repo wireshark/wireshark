@@ -136,7 +136,6 @@ struct rftap_hdr {
 static void
 dissect_rftap_header(tvbuff_t *tvb, proto_tree *tree, guint32 *dlt, const guint8 **subdissector_name)
 {
-    proto_item *ti;
     proto_item *ti_header;
     proto_tree *header_tree;
     gint32  offset;
@@ -201,18 +200,15 @@ dissect_rftap_header(tvbuff_t *tvb, proto_tree *tree, guint32 *dlt, const guint8
             offset += 4;
             break;
         case RFTAP_TAG_FREQ:
-            ti = proto_tree_add_item(tree, hf_rftap_freq, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(ti, " Hz");
+            proto_tree_add_item(tree, hf_rftap_freq, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
             break;
         case RFTAP_TAG_NOM_FREQ:
-            ti = proto_tree_add_item(tree, hf_rftap_nomfreq, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(ti, " Hz");
+            proto_tree_add_item(tree, hf_rftap_nomfreq, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
             break;
         case RFTAP_TAG_FREQ_OFS:
-            ti = proto_tree_add_item(tree, hf_rftap_freqofs, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(ti, " Hz");
+            proto_tree_add_item(tree, hf_rftap_freqofs, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
             break;
         case RFTAP_TAG_POWER_IS_IN_DBM:
@@ -251,17 +247,13 @@ dissect_rftap_header(tvbuff_t *tvb, proto_tree *tree, guint32 *dlt, const guint8
             offset += 16;
             break;
         case RFTAP_TAG_DURATION:
-            ti = proto_tree_add_item(tree, hf_rftap_duration, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(ti, " seconds");
+            proto_tree_add_item(tree, hf_rftap_duration, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
             break;
         case RFTAP_TAG_LOCATION:
-            ti = proto_tree_add_item(tree, hf_rftap_latitude, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(ti, " degrees");
-            ti = proto_tree_add_item(tree, hf_rftap_longitude, tvb, offset+8, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(ti, " degrees");
-            ti = proto_tree_add_item(tree, hf_rftap_altitude, tvb, offset+16, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(ti, " meters");
+            proto_tree_add_item(tree, hf_rftap_latitude, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_rftap_longitude, tvb, offset+8, 8, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_rftap_altitude, tvb, offset+16, 8, ENC_LITTLE_ENDIAN);
             offset += 24;
             break;
         default:
@@ -493,17 +485,17 @@ proto_register_rftap(void)
         { &hf_rftap_freq, {
             "Frequency",
             "rftap.freq",
-            FT_DOUBLE, BASE_NONE, NULL, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0,
             "Actual (measured) carrier frequency, in Hertz (not necessarily center frequency)", HFILL }},
         { &hf_rftap_nomfreq, {
             "Nominal Frequency",
             "rftap.nomfreq",
-            FT_DOUBLE, BASE_NONE, NULL, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0,
             "Nominal carrier frequency, in Hertz (the ideal frequency, ignoring freq errors)", HFILL }},
         { &hf_rftap_freqofs, {
             "Frequency Offset",
             "rftap.freqofs",
-            FT_DOUBLE, BASE_NONE, NULL, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0,
             "Carrier frequency offset, in Hertz: wikipedia.org/wiki/Carrier_frequency_offset", HFILL }},
         { &hf_rftap_signal_power, {
             "Signal Power",
@@ -543,22 +535,22 @@ proto_register_rftap(void)
         { &hf_rftap_duration, {
             "Duration",
             "rftap.duration",
-            FT_DOUBLE, BASE_NONE, NULL, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_second_seconds, 0,
             "The duration of the event (packet), in seconds", HFILL }},
         { &hf_rftap_latitude, {
             "Latitude",
             "rftap.lat",
-            FT_DOUBLE, BASE_NONE, NULL, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_degree_degrees, 0,
             "Latitude of receiver (-90..90 degrees), using WGS 84 datum: wikipedia.org/wiki/World_Geodetic_System", HFILL }},
         { &hf_rftap_longitude, {
             "Longitude",
             "rftap.lon",
-            FT_DOUBLE, BASE_NONE, NULL, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_degree_degrees, 0,
             "Longitude of receiver (-180..180 degrees), using WGS 84 datum: wikipedia.org/wiki/World_Geodetic_System", HFILL }},
         { &hf_rftap_altitude, {
             "Altitude",
             "rftap.alt",
-            FT_DOUBLE, BASE_NONE, NULL, 0,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_meter_meters, 0,
             "Altitude of receiver, in meters, using WGS 84 datum: wikipedia.org/wiki/World_Geodetic_System", HFILL }},
 
         /* rftap tagged parameters */

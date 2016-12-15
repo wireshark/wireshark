@@ -228,21 +228,18 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 /* TODO: expert_info for invalid CRC */
 
         pitem = proto_tree_add_uint(rtree, hf_sbc_expected_data_speed, tvb, offset, 0, expected_speed_data / 1024);
-        proto_item_append_text(pitem, " KiB/s");
         PROTO_ITEM_SET_GENERATED(pitem);
 
         frame_duration = (((double) frame_length / (double) expected_speed_data) * 1000.0);
         cumulative_frame_duration += frame_duration;
 
         pitem = proto_tree_add_double(rtree, hf_sbc_frame_duration, tvb, offset, 0, frame_duration);
-        proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
         counter += 1;
     }
 
     pitem = proto_tree_add_double(sbc_tree, hf_sbc_cumulative_frame_duration, tvb, offset, 0, cumulative_frame_duration);
-    proto_item_append_text(pitem, " ms");
     PROTO_ITEM_SET_GENERATED(pitem);
 
     if (info && info->configuration && info->configuration_length > 0) {
@@ -254,16 +251,13 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         nstime_delta(&delta, &pinfo->abs_ts, &info->previous_media_packet_info->abs_ts);
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_delta_time, tvb, offset, 0, nstime_to_msec(&delta));
-        proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_avrcp_song_position, tvb, offset, 0, info->previous_media_packet_info->avrcp_song_position);
-        proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
         nstime_delta(&delta, &pinfo->abs_ts, &info->previous_media_packet_info->first_abs_ts);
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_delta_time_from_the_beginning, tvb, offset, 0,  nstime_to_msec(&delta));
-        proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
         if (!pinfo->fd->flags.visited) {
@@ -272,11 +266,9 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_cumulative_duration, tvb, offset, 0, info->previous_media_packet_info->cumulative_frame_duration);
-        proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_diff, tvb, offset, 0, info->previous_media_packet_info->cumulative_frame_duration - nstime_to_msec(&delta));
-        proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
     }
 
@@ -361,42 +353,42 @@ proto_register_sbc(void)
         },
         { &hf_sbc_expected_data_speed,
             { "Expected data speed",             "sbc.expected_speed_data",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kibps, 0x00,
             NULL, HFILL }
         },
         { &hf_sbc_frame_duration,
             { "Frame Duration",                  "sbc.frame_duration",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_sbc_cumulative_frame_duration,
             { "Cumulative Frame Duration",      "sbc.cumulative_frame_duration",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_sbc_delta_time,
             { "Delta time",                      "sbc.delta_time",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_sbc_delta_time_from_the_beginning,
             { "Delta time from the beginning",   "sbc.delta_time_from_the_beginning",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_sbc_cumulative_duration,
             { "Cumulative Music Duration",      "sbc.cumulative_music_duration",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_sbc_avrcp_song_position,
             { "AVRCP Song Position",             "sbc.avrcp_song_position",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_sbc_diff,
             { "Diff",            "sbc.diff",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_sbc_data,

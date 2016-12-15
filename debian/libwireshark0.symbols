@@ -1653,7 +1653,14 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_hz_s@Base 2.3.0
  units_kbit@Base 2.3.0
  units_kbps@Base 2.3.0
+ units_khz@Base 2.3.0
+ units_kibps@Base 2.3.0
+ units_kmh@Base 2.3.0
+ units_m_per_s@Base 2.3.0
+ units_m_per_s_per_s@Base 2.3.0
+ units_meter_meters@Base 2.3.0
  units_mhz@Base 2.3.0
+ units_microsecond_microseconds@Base 2.3.0
  units_microseconds@Base 2.3.0
  units_millisecond_milliseconds@Base 2.3.0
  units_milliseconds@Base 2.3.0
@@ -1665,6 +1672,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_seconds@Base 2.3.0
  units_segment_remaining@Base 2.3.0
  units_tick_ticks@Base 2.3.0
+ units_uW@Base 2.3.0
  units_word_words@Base 2.3.0
  unsigned_time_secs_to_str@Base 2.1.0
  update_crc10_by_bytes_tvb@Base 1.99.0

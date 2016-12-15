@@ -683,16 +683,13 @@ static expert_field ei_knxnetip_length = EI_INIT;
 
 static void dissect_hpai(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree, const char *append_text) {
 
-    proto_item *hpai_item = NULL;
-    proto_item *slength = NULL;
-
-    proto_tree *hpai_tree = NULL;
+    proto_item *hpai_item;
+    proto_tree *hpai_tree;
 
     hpai_item = proto_tree_add_item( insert_tree, hf_knxnetip_hpai, tvb, *offset, 8, ENC_NA );
     hpai_tree = proto_item_add_subtree(hpai_item, ett_knxnetip_hpai);
     proto_item_append_text(hpai_item, "%s", append_text);
-    slength= proto_tree_add_item(hpai_tree, hf_knxnetip_hpai_structure_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(slength, " octets");
+    proto_tree_add_item(hpai_tree, hf_knxnetip_hpai_structure_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
     *offset+=1;
     proto_tree_add_item(hpai_tree, hf_knxnetip_hpai_host_protocol, tvb, *offset, 1, ENC_BIG_ENDIAN);
     *offset+=1;
@@ -706,7 +703,6 @@ static void dissect_hpai(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree
 static gboolean dissect_dib(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree) {
 
     proto_item *dib_item = NULL;
-    proto_item *struct_length = NULL;
     proto_item *projectid_item = NULL;
     proto_item *service_item = NULL;
 
@@ -723,8 +719,7 @@ static gboolean dissect_dib(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_t
     length = tvb_get_guint8(tvb, *offset);
     dib_item = proto_tree_add_item(insert_tree, hf_knxnetip_dib, tvb, *offset, length, ENC_NA);
     dib_tree = proto_item_add_subtree(dib_item, ett_knxnetip_dib);
-    struct_length= proto_tree_add_item(dib_tree, hf_knxnetip_structure_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(struct_length, " octets");
+    proto_tree_add_item(dib_tree, hf_knxnetip_structure_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
     *offset+=1;
     proto_tree_add_item(dib_tree, hf_knxnetip_dib_type, tvb, *offset, 1, ENC_BIG_ENDIAN);
     dib_type = tvb_get_guint8(tvb, *offset);
@@ -834,7 +829,6 @@ static gboolean dissect_dib(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_t
 static guint dissect_cri(tvbuff_t *tvb, guint32 offset, proto_tree *insert_tree) {
 
     proto_item *cri_item = NULL;
-    proto_item *cri_length = NULL;
     proto_tree *cri_tree = NULL;
 
     guint8 length;
@@ -843,8 +837,7 @@ static guint dissect_cri(tvbuff_t *tvb, guint32 offset, proto_tree *insert_tree)
     cri_item = proto_tree_add_item(insert_tree, hf_knxnetip_cri, tvb, offset, length, ENC_NA);
     cri_tree = proto_item_add_subtree(cri_item, ett_knxnetip_cri);
 
-    cri_length= proto_tree_add_item(cri_tree, hf_knxnetip_structure_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(cri_length, " octets");
+    proto_tree_add_item(cri_tree, hf_knxnetip_structure_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
     proto_tree_add_item(cri_tree, hf_knxnetip_connection_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
@@ -864,7 +857,6 @@ static guint dissect_cri(tvbuff_t *tvb, guint32 offset, proto_tree *insert_tree)
 static void dissect_crd(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree) {
 
     proto_item *crd_item = NULL;
-    proto_item *crd_length = NULL;
     proto_tree *crd_tree = NULL;
 
     guint8 length;
@@ -874,8 +866,7 @@ static void dissect_crd(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree)
     crd_item = proto_tree_add_item(insert_tree, hf_knxnetip_crd, tvb, *offset, length, ENC_NA);
     crd_tree = proto_item_add_subtree(crd_item, ett_knxnetip_crd);
 
-    crd_length= proto_tree_add_item(crd_tree, hf_knxnetip_structure_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(crd_length, " octets");
+    proto_tree_add_item(crd_tree, hf_knxnetip_structure_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
     *offset+=1;
     proto_tree_add_item(crd_tree, hf_knxnetip_connection_type, tvb, *offset, 1, ENC_BIG_ENDIAN);
     *offset+=1;
@@ -892,10 +883,7 @@ static void dissect_crd(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree)
 
 static guint dissect_connection_header(tvbuff_t *tvb, guint32 offset, proto_tree *insert_tree, gboolean have_status) {
 
-    proto_item *struct_length = NULL;
-
-    struct_length= proto_tree_add_item(insert_tree, hf_knxnetip_structure_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(struct_length, " octets");
+    proto_tree_add_item(insert_tree, hf_knxnetip_structure_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
     proto_tree_add_item(insert_tree, hf_knxnetip_communication_channel_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
@@ -911,10 +899,7 @@ static guint dissect_connection_header(tvbuff_t *tvb, guint32 offset, proto_tree
 
 static guint dissect_selector(tvbuff_t *tvb, guint32 offset, proto_tree *insert_tree){
 
-    proto_item *struct_length = NULL;
-
-    struct_length= proto_tree_add_item(insert_tree, hf_knxnetip_structure_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(struct_length, " octets");
+    proto_tree_add_item(insert_tree, hf_knxnetip_structure_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
     proto_tree_add_item(insert_tree, hf_knxnetip_selector_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
@@ -1028,11 +1013,8 @@ static void dissect_apci(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree
 static gboolean dissect_cemi(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree, packet_info *pinfo){
 
     proto_item *cemi_item = NULL;
-    proto_item *additional_info_totallength = NULL;
     proto_item *additional_item = NULL;
     proto_item *additional_info = NULL;
-    proto_item *tpdu_length = NULL;
-    proto_item *npdu_length = NULL;
 
     proto_tree *cemi_tree = NULL;
     proto_tree *additional_tree = NULL;
@@ -1056,8 +1038,7 @@ static gboolean dissect_cemi(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_
     /*check if M_ Message*/
     if ((messagecode & 0xF0) < 0xF0){
         length = tvb_get_guint8(tvb, *offset);
-        additional_info_totallength= proto_tree_add_item(cemi_tree, hf_knxnetip_cemi_addlength, tvb, *offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(additional_info_totallength, " octets");
+        proto_tree_add_item(cemi_tree, hf_knxnetip_cemi_addlength, tvb, *offset, 1, ENC_BIG_ENDIAN);
         *offset+=1;
 
         if (length != 0){
@@ -1069,8 +1050,7 @@ static gboolean dissect_cemi(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_
                 additional_item = proto_tree_add_item(additional_tree, hf_knxnetip_cemi_typid, tvb, *offset, 1, ENC_BIG_ENDIAN);
                 additional_subtree = proto_item_add_subtree(additional_item, ett_knxnetip_cemi_additional_item);
                 *offset+=1;
-                additional_info_totallength= proto_tree_add_item(additional_item, hf_knxnetip_cemi_additemlength, tvb, *offset, 1, ENC_BIG_ENDIAN);
-                proto_item_append_text(additional_info_totallength, " octets");
+                proto_tree_add_item(additional_item, hf_knxnetip_cemi_additemlength, tvb, *offset, 1, ENC_BIG_ENDIAN);
                 *offset+=1;
                 if (length >= 2){
                     length-=2;
@@ -1250,8 +1230,7 @@ static gboolean dissect_cemi(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_
                     proto_tree_add_item(cemi_tree, hf_knxnetip_polldata, tvb, *offset, -1, ENC_NA);
                 }
                 else {
-                    npdu_length = proto_tree_add_item(cemi_tree, hf_knxnetip_cemi_npdu_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
-                    proto_item_append_text(npdu_length, " octets");
+                    proto_tree_add_item(cemi_tree, hf_knxnetip_cemi_npdu_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
                     *offset+=1;
                     dissect_apci(tvb, offset, cemi_tree, FALSE);
                 }
@@ -1268,8 +1247,7 @@ static gboolean dissect_cemi(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_
             case(DATA_CONNEC_REQ):
                 proto_tree_add_item(cemi_tree, hf_knxnetip_reserved, tvb, *offset, 6, ENC_NA);
                 *offset+=6;
-                tpdu_length = proto_tree_add_item(cemi_tree, hf_knxnetip_cemi_tpdu_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
-                proto_item_append_text(tpdu_length, " octets");
+                proto_tree_add_item(cemi_tree, hf_knxnetip_cemi_tpdu_length, tvb, *offset, 1, ENC_BIG_ENDIAN);
                 *offset+=1;
                 dissect_apci(tvb, offset, cemi_tree, TRUE);
                 break;
@@ -1332,9 +1310,6 @@ static gboolean dissect_cemi(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_
 
 static void dissect_knxnetip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_item *knx_item = NULL;
-    proto_item *total_length = NULL;
-    proto_item *struct_length = NULL;
-    proto_item *busy_item = NULL;
 
     proto_tree *knx_tree = NULL;
     proto_tree *header_tree = NULL;
@@ -1360,8 +1335,7 @@ static void dissect_knxnetip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item(header_tree, hf_knxnetip_servicetype, tvb, offset, 2, ENC_BIG_ENDIAN);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s %d > %d", val_to_str(service_type, knxnetip_service_identifier, "Unknown Identifier:0x%02x"), pinfo->srcport, pinfo->destport);
     offset+=2;
-    total_length = proto_tree_add_item(header_tree, hf_knxnetip_totallength, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_item_append_text(total_length, " octets");
+    proto_tree_add_item(header_tree, hf_knxnetip_totallength, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
     /* BODY */
     body_tree = proto_tree_add_subtree(knx_tree, tvb, offset, -1, ett_knxnetip_body, NULL, "Body");
@@ -1457,8 +1431,7 @@ static void dissect_knxnetip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             }
             break;
         case(ROUTING_LOST):
-            struct_length= proto_tree_add_item(body_tree, hf_knxnetip_structure_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(struct_length, " octets");
+            proto_tree_add_item(body_tree, hf_knxnetip_structure_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset+=1;
             proto_tree_add_bitmask(body_tree, tvb, offset, hf_knxnetip_devicestate, ett_knxnetip_devicestate, devicestate_flags, ENC_BIG_ENDIAN);
             offset+=1;
@@ -1466,13 +1439,11 @@ static void dissect_knxnetip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             offset+=2;
             break;
         case(ROUTING_BUSY):
-            struct_length= proto_tree_add_item(body_tree, hf_knxnetip_structure_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(struct_length, " octets");
+            proto_tree_add_item(body_tree, hf_knxnetip_structure_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset+=1;
             proto_tree_add_bitmask(body_tree, tvb, offset, hf_knxnetip_devicestate, ett_knxnetip_devicestate, devicestate_flags, ENC_BIG_ENDIAN);
             offset+=1;
-            busy_item = proto_tree_add_item(body_tree, hf_knxnetip_busywaittime, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_item_append_text(busy_item, " ms");
+            proto_tree_add_item(body_tree, hf_knxnetip_busywaittime, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
             proto_tree_add_item(body_tree, hf_knxnetip_busycontrol, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
@@ -1553,13 +1524,13 @@ void proto_register_knxnetip (void) {
         { &hf_knxnetip_servicetype,
             { "Service Type Identifier", "knxnetip.service_type_identifier", FT_UINT16, BASE_HEX, VALS(knxnetip_service_identifier), 0x0, NULL, HFILL }},
         { &hf_knxnetip_totallength,
-            { "Total Length", "knxnetip.total_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Total Length", "knxnetip.total_length", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
         { &hf_knxnetip_hpai,
             { "HPAI", "knxnetip.hpai", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_hpai_structure_length,
-            { "Structure Length", "knxnetip.hpai_structure_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Structure Length", "knxnetip.hpai_structure_length", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
         { &hf_knxnetip_structure_length,
-            { "Structure Length", "knxnetip.struct_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Structure Length", "knxnetip.struct_length", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
         { &hf_knxnetip_hpai_host_protocol,
             { "Host Protocol Code", "knxnetip.hpai_host_protocol", FT_UINT8, BASE_HEX, VALS(knxnetip_host_protocol_codes), 0x0, NULL, HFILL }},
         { &hf_knxnetip_hpai_ip_address,
@@ -1649,7 +1620,7 @@ void proto_register_knxnetip (void) {
         { &hf_knxnetip_numberoflost,
             { "NumberofLostMessages", "knxnetip.number_of_lost_msg", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_busywaittime,
-            { "Busy Wait Time", "knxnetip.busy_time", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Busy Wait Time", "knxnetip.busy_time", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL }},
         { &hf_knxnetip_busycontrol,
             { "Busy Control Field", "knxnetip.busy_control", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_knxnetip_knxlayer,
@@ -1663,9 +1634,9 @@ void proto_register_knxnetip (void) {
         { &hf_knxnetip_cemi_mc,
             { "messagecode", "knxnetip.cemi_messagecode", FT_UINT8, BASE_HEX, VALS(cemi_messagecodes), 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_addlength,
-            { "add information length", "knxnetip.additional_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "add information length", "knxnetip.additional_length", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_additemlength,
-            { "Length", "knxnetip.additional_item_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "Length", "knxnetip.additional_item_length", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_typid,
             { "Type id", "knxnetip.cemi_type_id", FT_UINT8, BASE_HEX, VALS(cemi_add_type_id), 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_type_pl,
@@ -1709,9 +1680,9 @@ void proto_register_knxnetip (void) {
         { &hf_knxnetip_cemi_tpci,
             { "TPCI", "knxnetip.cemitpci", FT_UINT8, BASE_HEX, VALS(cemi_tpci_vals), 0xC0, NULL, HFILL }},
         { &hf_knxnetip_cemi_npdu_length,
-            { "NPDU length", "knxnetip.npdulength", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "NPDU length", "knxnetip.npdulength", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_tpdu_length,
-            { "TPDU length", "knxnetip.tpdulength", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "TPDU length", "knxnetip.tpdulength", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL }},
         { &hf_knxnetip_cemi_counter,
             { "sequence NCD/NDT", "knxnetip.npduseq", FT_UINT8, BASE_DEC, NULL, 0x3C, NULL, HFILL }},
         { &hf_knxnetip_cemi_apci,

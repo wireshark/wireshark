@@ -447,6 +447,8 @@ static const range_string le_psm_rvals[] = {
     { 0, 0, NULL }
 };
 
+static const unit_name_string units_ll_connection_event = { " LL Connection Event", " LL Connection Events" };
+
 #define PROTO_DATA_BTL2CAP_CID        0
 #define PROTO_DATA_BTL2CAP_PSM        1
 
@@ -1680,7 +1682,6 @@ dissect_connparamrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     max_interval = tvb_get_letohs(tvb, offset);
     offset += 2;
     item = proto_tree_add_item(tree, hf_btl2cap_slave_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(item, " LL Connection Events");
     slave_latency = tvb_get_letohs(tvb, offset);
 
     if(slave_latency >= 500 || slave_latency > 10.0 * tvb_get_letohs(tvb, offset + 2) / (max_interval *1.25))
@@ -3206,7 +3207,7 @@ proto_register_btl2cap(void)
         },
         { &hf_btl2cap_slave_latency,
           { "Slave Latency",           "btl2cap.slave_latency",
-            FT_UINT16, BASE_DEC, NULL, 0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_ll_connection_event, 0,
             NULL, HFILL }
         },
         { &hf_btl2cap_timeout_multiplier,

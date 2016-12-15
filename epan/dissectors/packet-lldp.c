@@ -1084,6 +1084,8 @@ static const value_string ieee_802_1qbg_subtypes[] = {
 	{ 0, NULL }
 };
 
+static const unit_name_string units_m = { " m", NULL };
+
 static void
 mdi_power_base(gchar *buf, guint32 value) {
 	g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u. Watt", value/10, value%10);
@@ -3245,7 +3247,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	gint32 bit_offset, msg_len, expected_data_length, maximum_data_length, temp_gint32;
 	proto_tree *hytec_data = NULL;
 	proto_item *tf = NULL;
-	proto_item *tlm, *group_proto_item, *identifier_proto_item;
+	proto_item *group_proto_item, *identifier_proto_item;
 	float float_value = 0.0f;
 
 	subtype = tvb_get_guint8(tvb, offset);
@@ -3299,8 +3301,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			case HYTEC_TBD__SINGLE_MODE:
 				if(msg_len == expected_data_length)
 				{
-					tlm = proto_tree_add_item(tree, hf_hytec_single_mode, tvb, offset, msg_len, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlm, " m");
+					proto_tree_add_item(tree, hf_hytec_single_mode, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 				}
 				else
 				{ /* unexpected length */
@@ -3311,8 +3312,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			case HYTEC_TBD__MULTI_MODE_50:
 				if(msg_len == expected_data_length)
 				{
-					tlm = proto_tree_add_item(tree, hf_hytec_multi_mode_50, tvb, offset, msg_len, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlm, " m");
+					proto_tree_add_item(tree, hf_hytec_multi_mode_50, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 				}
 				else
 				{ /* unexpected length */
@@ -3323,8 +3323,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			case HYTEC_TBD__MULTI_MODE_62_5:
 				if(msg_len == expected_data_length)
 				{
-					tlm = proto_tree_add_item(tree, hf_hytec_multi_mode_62_5, tvb, offset, msg_len, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlm, " m");
+					proto_tree_add_item(tree, hf_hytec_multi_mode_62_5, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 				}
 				else
 				{ /* unexpected length */
@@ -3346,8 +3345,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				{
 					temp_gint32 = (gint32) tvb_get_ntohl(tvb, offset);
 					float_value = (float) 0.1 * (float) temp_gint32;
-					tlm = proto_tree_add_float(tree, hf_hytec_tx_current_output_power, tvb, offset, msg_len, float_value);
-					proto_item_append_text(tlm, " uW");
+					proto_tree_add_float(tree, hf_hytec_tx_current_output_power, tvb, offset, msg_len, float_value);
 				}
 				else
 				{ /* unexpected length */
@@ -3360,8 +3358,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				{
 					temp_gint32 = (gint32) tvb_get_ntohl(tvb, offset);
 					float_value = (float) 0.1 * (float) temp_gint32;
-					tlm = proto_tree_add_float(tree, hf_hytec_rx_current_input_power, tvb, offset, msg_len, float_value);
-					proto_item_append_text(tlm, " uW");
+					proto_tree_add_float(tree, hf_hytec_rx_current_input_power, tvb, offset, msg_len, float_value);
 				}
 				else
 				{ /* unexpected length */
@@ -3376,8 +3373,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 					if(temp_gint32 < 0) float_value = (float)-1.0 * (float)((~temp_gint32) >> 8);
 					else float_value = (float) (temp_gint32 >> 8);
 					float_value += (float)(temp_gint32 & 0xFF) * (float)0.00390625; /* 0.00390625 == 0.5 ^ 8 */
-					tlm = proto_tree_add_float(tree, hf_hytec_rx_input_snr, tvb, offset, msg_len, float_value);
-					proto_item_append_text(tlm, " dB");
+					proto_tree_add_float(tree, hf_hytec_rx_input_snr, tvb, offset, msg_len, float_value);
 				}
 				else
 				{ /* unexpected length */
@@ -3392,8 +3388,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 					if(temp_gint32 < 0) float_value = (float)-1.0 * (float)((~temp_gint32) >> 8);
 					else float_value = (float) (temp_gint32 >> 8);
 					float_value += (float)(temp_gint32 & 0xFF) * (float)0.00390625; /* 0.5 ^ 8 */
-					tlm = proto_tree_add_float(tree, hf_hytec_lineloss, tvb, offset, msg_len, float_value);
-					proto_item_append_text(tlm, " dB");
+					proto_tree_add_float(tree, hf_hytec_lineloss, tvb, offset, msg_len, float_value);
 				}
 				else
 				{ /* unexpected length */
@@ -5111,32 +5106,32 @@ proto_register_lldp(void)
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_hytec_single_mode,
-			{ HYTEC_TBD__SINGLE_MODE_STR, "lldp.hytec.single_mode", FT_UINT32, BASE_DEC,
-			NULL, 0x0, NULL, HFILL}
+			{ HYTEC_TBD__SINGLE_MODE_STR, "lldp.hytec.single_mode", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+			&units_m, 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_multi_mode_50,
-			{ HYTEC_TBD__MULTI_MODE_50_STR, "lldp.hytec.multi_mode_50", FT_UINT32, BASE_DEC,
-			NULL, 0x0, NULL, HFILL}
+			{ HYTEC_TBD__MULTI_MODE_50_STR, "lldp.hytec.multi_mode_50", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+			&units_m, 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_multi_mode_62_5,
-			{ HYTEC_TBD__MULTI_MODE_62_5_STR, "lldp.hytec.multi_mode_62_5", FT_UINT32, BASE_DEC,
-			NULL, 0x0, NULL, HFILL}
+			{ HYTEC_TBD__MULTI_MODE_62_5_STR, "lldp.hytec.multi_mode_62_5", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+			&units_m, 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_tx_current_output_power,
-			{ HYTEC_MD__TX_CURRENT_OUTPUT_POWER_STR, "lldp.hytec.tx_current_output_power", FT_FLOAT, BASE_NONE,
-			NULL, 0x0, NULL, HFILL}
+			{ HYTEC_MD__TX_CURRENT_OUTPUT_POWER_STR, "lldp.hytec.tx_current_output_power", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
+			&units_uW, 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_rx_current_input_power,
-			{ HYTEC_MD__RX_CURRENT_INPUT_POWER_STR, "lldp.hytec.rx_current_input_power", FT_FLOAT, BASE_NONE,
-			NULL, 0x0, NULL, HFILL}
+			{ HYTEC_MD__RX_CURRENT_INPUT_POWER_STR, "lldp.hytec.rx_current_input_power", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
+			&units_uW, 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_rx_input_snr,
-			{ HYTEC_MD__RX_INPUT_SNR_STR, "lldp.hytec.rx_input_snr", FT_FLOAT, BASE_NONE,
-			NULL, 0x0, NULL, HFILL}
+			{ HYTEC_MD__RX_INPUT_SNR_STR, "lldp.hytec.rx_input_snr", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
+			&units_decibals, 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_lineloss,
-			{ HYTEC_MD__LINELOSS_STR, "lldp.hytec.lineloss", FT_FLOAT, BASE_NONE,
-			NULL, 0x0, NULL, HFILL}
+			{ HYTEC_MD__LINELOSS_STR, "lldp.hytec.lineloss", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
+			&units_decibals, 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_mac_trace_request,
 			{ HYTEC_MC__MAC_TRACE_REQUEST_STR, "lldp.hytec.mac_trace_request", FT_NONE, BASE_NONE,

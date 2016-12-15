@@ -136,8 +136,7 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         /* Octet 2 - Time Stamp */
         timestamp = tvb_get_ntohs(tvb, offset) * 10;
-        item = proto_tree_add_uint(sync_tree, hf_sync_timestamp, tvb, offset, 2, timestamp);
-        proto_item_append_text(item, " ms");
+        proto_tree_add_uint(sync_tree, hf_sync_timestamp, tvb, offset, 2, timestamp);
         offset += 2;
 
         /* Octet 4 - Packet Number */
@@ -239,7 +238,7 @@ proto_register_sync(void)
         },
         { &hf_sync_timestamp,
             { "Timestamp", "sync.timestamp",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
             "Relative time value for the starting time of a synchronisation sequence within the synchronisation period.", HFILL }
         },
         { &hf_sync_packet_nr,

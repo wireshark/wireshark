@@ -1120,7 +1120,7 @@ static int
 dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   proto_tree *ah_tree, *root_tree;
-  proto_item *pi, *ti;
+  proto_item *pi;
   guint       ah_nxt;         /* Next header */
   guint8      ah_len;         /* Length of header in 32bit words minus 2 */
   guint       ah_hdr_len;     /* Length of header in octets */
@@ -1153,8 +1153,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   ah_tree = proto_item_add_subtree(pi, ett_ah);
 
   proto_tree_add_item(ah_tree, hf_ah_next_header, tvb, 0, 1, ENC_BIG_ENDIAN);
-  ti = proto_tree_add_item(ah_tree, hf_ah_length, tvb, 1, 1, ENC_BIG_ENDIAN);
-  proto_item_append_text(ti, " (%u bytes)", ah_hdr_len);
+  proto_tree_add_item(ah_tree, hf_ah_length, tvb, 1, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(ah_tree, hf_ah_reserved, tvb, 2, 2, ENC_NA);
   proto_tree_add_item_ret_uint(ah_tree, hf_ah_spi, tvb, 4, 4, ENC_BIG_ENDIAN, &ah_spi);
 
@@ -2268,7 +2267,7 @@ proto_register_ipsec(void)
       { "Next header", "ah.next_header", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
         NULL, HFILL }},
     { &hf_ah_length,
-      { "Length", "ah.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+      { "Length", "ah.length", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
         NULL, HFILL }},
     { &hf_ah_reserved,
       { "Reserved", "ah.reserved", FT_BYTES, BASE_NONE, NULL, 0x0,

@@ -1146,15 +1146,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_max_rx_octets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
-                sub_item = proto_tree_add_item(btle_tree, hf_control_max_rx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_item_append_text (sub_item, " microseconds");
+                proto_tree_add_item(btle_tree, hf_control_max_rx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
                 proto_tree_add_item(btle_tree, hf_control_max_tx_octets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
-                sub_item = proto_tree_add_item(btle_tree, hf_control_max_tx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_item_append_text (sub_item, " microseconds");
+                proto_tree_add_item(btle_tree, hf_control_max_tx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
                 break;
@@ -1596,7 +1594,7 @@ proto_register_btle(void)
         },
         { &hf_control_max_rx_time,
             { "Max RX time",     "btle.control.max_rx_time",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0,
             NULL, HFILL }
         },
         { &hf_control_max_tx_octets,
@@ -1606,7 +1604,7 @@ proto_register_btle(void)
         },
         { &hf_control_max_tx_time,
             { "Max TX time",     "btle.control.max_tx_time",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0,
             NULL, HFILL }
         },
         { &hf_l2cap_fragment,

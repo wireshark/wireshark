@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
+#include "wimax_utils.h"
 
 void proto_register_mac_mgmt_msg_ucd(void);
 void proto_reg_handoff_mac_mgmt_msg_ucd(void);
@@ -68,7 +69,7 @@ static gint hf_ucd_tlv_t_159_band_amc_allocation_threshold = -1;
 static gint hf_ucd_tlv_t_158_optional_permutation_ul_allocated_subchannels_bitmap = -1;
 static gint hf_ucd_tlv_t_160_band_amc_release_threshold = -1;
 static gint hf_ucd_tlv_t_161_band_amc_allocation_timer = -1;
-/* static gint hf_ucd_tlv_t_162_band_amc_release_timer = -1; */
+static gint hf_ucd_tlv_t_162_band_amc_release_timer = -1;
 static gint hf_ucd_tlv_t_163_band_status_report_max_period = -1;
 static gint hf_ucd_tlv_t_164_band_amc_retry_timer = -1;
 static gint hf_ucd_tlv_t_171_harq_ack_delay_dl_burst = -1;
@@ -369,17 +370,13 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 							}
 							case UCD_BURST_RANGING_DATA_RATIO:
 							{
-								proto_item *tlv_item2;
-								tlv_item2 = add_tlv_subtree(&tlv_info, tlv_tree, hf_ucd_burst_ranging_data_ratio, tvb, (offset+tlv_offset), ENC_BIG_ENDIAN);
-								proto_item_append_text(tlv_item2, " dB");
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_ucd_burst_ranging_data_ratio, tvb, (offset+tlv_offset), ENC_BIG_ENDIAN);
 								break;
 							}
 #if 0 /* for OFDM */
 							case UCD_BURST_POWER_BOOST:
 							{
-								proto_item *tlv_item2;
-								tlv_item2 = add_tlv_subtree(&tlv_info, tlv_tree, hf_ucd_burst_power_boost, tvb, (offset+tlv_offset), ENC_BIG_ENDIAN);
-								proto_item_append_text(tlv_item2, " dB");
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_ucd_burst_power_boost, tvb, (offset+tlv_offset), ENC_BIG_ENDIAN);
 								break;
 							}
 							case UCD_BURST_TCS_ENABLE:
@@ -403,20 +400,17 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				}
 				case UCD_BW_REQ_SIZE:
 				{
-					tlv_item1 = add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_bw_req_size, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item1, " PS");
+					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_bw_req_size, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case UCD_RANGING_REQ_SIZE:
 				{
-					tlv_item1 = add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_ranging_req_size, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item1, " PS");
+					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_ranging_req_size, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case UCD_FREQUENCY:
 				{
-					tlv_item1 = add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_freq, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item1, " kHz");
+					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_freq, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case UCD_TLV_T_7_HO_RANGING_START:
@@ -440,56 +434,47 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				}
 				case UCD_TLV_T_159_BAND_AMC_ALLOCATION_THRESHHOLD:
 				{
-					tlv_item1 = add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_159_band_amc_allocation_threshold, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item1, " dB");
+					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_159_band_amc_allocation_threshold, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case UCD_TLV_T_160_BAND_AMC_RELEASE_THRESHOLD:
 				{
-					tlv_item1 = add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_160_band_amc_release_threshold, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item1, " dB");
+					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_160_band_amc_release_threshold, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case UCD_TLV_T_161_BAND_AMC_ALLOCATION_TIMER:
 				{
-					tlv_item1 = add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_161_band_amc_allocation_timer, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item1, " frames");
+					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_161_band_amc_allocation_timer, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case UCD_TLV_T_162_BAND_AMC_RELEASE_TIMER:
 				{
-					tlv_item1 = add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_161_band_amc_allocation_timer, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item1, " frames");
+					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_162_band_amc_release_timer, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case UCD_TLV_T_163_BAND_STATUS_REPORT_MAX_PERIOD:
 				{
-					tlv_item1 = add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_163_band_status_report_max_period, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item1, " frames");
+					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_163_band_status_report_max_period, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case UCD_TLV_T_164_BAND_AMC_RETRY_TIMER:
 				{
-					tlv_item1 = add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_164_band_amc_retry_timer, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item1, " frames");
+					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_164_band_amc_retry_timer, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case UCD_TLV_T_170_SAFETY_CHANNEL_RETRY_TIMER:
 				{
-					tlv_item1 = add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_170_safety_channel_retry_timer, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item1, " frames");
+					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_170_safety_channel_retry_timer, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case UCD_TLV_T_171_HARQ_ACK_DELAY_FOR_DL_BURST:
 				{
-					tlv_item1 = add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_171_harq_ack_delay_dl_burst, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item1, " frames offset");
+					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_171_harq_ack_delay_dl_burst, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case UCD_TLV_T_172_CQICH_BAND_AMC_TRANSITION_DELAY:
 				{
-					tlv_item1 = add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_172_cqich_band_amc_transition_delay, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					proto_item_append_text(tlv_item1, " frames");
+					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_172_cqich_band_amc_transition_delay, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case UCD_TLV_T_174_MAXIMUM_RETRANSMISSION:
@@ -707,44 +692,42 @@ void proto_register_mac_mgmt_msg_ucd(void)
 			&hf_ucd_tlv_t_159_band_amc_allocation_threshold,
 			{
 				"Band AMC Allocation Threshold", "wmx.ucd.band_amc.allocation_threshold",
-				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_db, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ucd_tlv_t_161_band_amc_allocation_timer,
 			{
 				"Band AMC Allocation Timer", "wmx.ucd.band_amc.allocation_timer",
-				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_frame_frames, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ucd_tlv_t_160_band_amc_release_threshold,
 			{
 				"Band AMC Release Threshold", "wmx.ucd.band_amc.release_threshold",
-				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_db, 0, NULL, HFILL
 			}
 		},
-#if 0
 		{
 			&hf_ucd_tlv_t_162_band_amc_release_timer,
 			{
 				"Band AMC Release Timer", "wmx.ucd.band_amc.release_timer",
-				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_frame_frames, 0, NULL, HFILL
 			}
 		},
-#endif
 		{
 			&hf_ucd_tlv_t_164_band_amc_retry_timer,
 			{
 				"Band AMC Retry Timer", "wmx.ucd.band_amc.retry_timer",
-				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_frame_frames, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ucd_tlv_t_163_band_status_report_max_period,
 			{
 				"Band Status Report MAC Period", "wmx.ucd.band_status.report_max_period",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_frame_frames, 0, NULL, HFILL
 			}
 		},
 		{
@@ -765,7 +748,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 			&hf_ucd_burst_ranging_data_ratio,
 			{
 				"Ranging Data Ratio", "wmx.ucd.burst.ranging_data_ratio",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_db, 0, NULL, HFILL
 			}
 		},
 		{
@@ -785,32 +768,32 @@ void proto_register_mac_mgmt_msg_ucd(void)
 #if 0
 		{
 			&hf_ucd_burst_power_boost,
-			{"Focused Contention Power Boost", "wmx.ucd.burst.power_boost", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL}
+			{"Focused Contention Power Boost", "wmx.ucd.burst.power_boost", FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_db, 0, NULL, HFILL}
 		},
 		{
 			&hf_ucd_burst_tcs_enable,
-			{"TCS", "wmx.ucd.burst.tcs", FT_UINT8, BASE_DEC, VALS(vals_dcd_burst_tcs), 0, "", HFILL}
+			{"TCS", "wmx.ucd.burst.tcs", FT_UINT8, BASE_DEC, VALS(vals_dcd_burst_tcs), 0, NULL, HFILL}
 		},
 #endif
 		{
 			&hf_ucd_bw_req_size,
 			{
 				"Bandwidth Request Opportunity Size", "wmx.ucd.bw_req_size",
-				FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_ps, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ucd_tlv_t_172_cqich_band_amc_transition_delay,
 			{
 				"CQICH Band AMC-Transition Delay", "wmx.ucd.cqich_band_amc_transition_delay",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_frame_frames, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_ucd_freq,
 			{
 				"Frequency", "wmx.ucd.frequency",
-				FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &wimax_units_khz, 0, NULL, HFILL
 			}
 		},
 		{
@@ -824,7 +807,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 			&hf_ucd_tlv_t_171_harq_ack_delay_dl_burst,
 			{
 				"HARQ ACK Delay for DL Burst", "wmx.ucd.harq_ack_delay_dl_burst",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &wimax_units_frame_offset, 0, NULL, HFILL
 			}
 		},
 		{
@@ -945,7 +928,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 			&hf_ucd_ranging_req_size,
 			{
 				"Ranging Request Opportunity Size", "wmx.ucd.ranging_req_size",
-				FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
+				FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &wimax_units_db, 0, NULL, HFILL
 			}
 		},
 		{
@@ -959,7 +942,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 			&hf_ucd_tlv_t_170_safety_channel_retry_timer,
 			{
 				"Safety Channel Release Timer", "wmx.ucd.safety_channel_release_timer",
-				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX|BASE_UNIT_STRING, &wimax_units_frame_frames, 0, NULL, HFILL
 			}
 		},
 		{
