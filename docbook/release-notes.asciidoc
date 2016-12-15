@@ -34,7 +34,8 @@ since version 2.2.0:
   That is, you should make sure the NSIS package is completely uninstalled before
   installing the Windows Installer package and vice-versa.
 * Source packages are now compressed using xz instead of bzip2.
-* GTK+ is disabled by default in Autotools and CMake.
+* The legacy (GTK+) UI is disabled by default in the Windows installer.
+* The legacy (GTK+) UI is disabled by default in Autotools and CMake.
 * SS7 Point Codes can now be resolved into names with a hosts-like file.
 * Wireshark can now go fullscreen to have more room for packets.
 * TShark can now export objects like the other GUI interfaces.
@@ -52,26 +53,25 @@ since version 2.2.0:
 
 // Add one protocol per line between the --sort-and-group-- delimiters.
 --sort-and-group--
-Nordic BLE Sniffer
-Ericsson A-bis TFP (Traffic Forwarding Protocol)
-Ericsson A-bis P-GSL
-vSocket
-ISO 15765
-Unified Diagnostic Services (UDS)
-SCTE-35 Digital Program Insertion Messages
-Windows Cluster Management API (clusapi)
-RFTap Protocol
-M2 Application Protocol
-CAN FD
 Bluetooth HCI Vendor Intel
-High-speed SECS message service (HSMS)
+CAN FD
+Ericsson A-bis P-GSL
+Ericsson A-bis TFP (Traffic Forwarding Protocol)
+Fc00/cjdns Protocol
 GSM Osmux
 Health Level 7 (HL7)
-Local Service Discovery (LSD)
-Fc00/cjdns Protocol
+High-speed SECS message service (HSMS)
 iPerf2
+ISO 15765
+Local Service Discovery (LSD)
+M2 Application Protocol
+Nordic BLE Sniffer
+RFTap Protocol
+SCTE-35 Digital Program Insertion Messages
 Snort Post-dissector
-
+Unified Diagnostic Services (UDS)
+vSocket
+Windows Cluster Management API (clusapi)
 --sort-and-group--
 
 === Updated Protocol Support
@@ -130,9 +130,6 @@ Filtering tshark captures with read filters (-R) no longer works.
 
 Application crash when changing real-time option.
 (ws-buglink:4035[])
-
-Packet list rows are oversized.
-(ws-buglink:4357[])
 
 Wireshark and TShark will display incorrect delta times in some cases.
 (ws-buglink:4985[])
