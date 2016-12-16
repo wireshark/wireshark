@@ -45,6 +45,7 @@
  */
 
 #define UTF8_DEGREE_SIGN                    "\xc2\xb0"      /*   176 /   0xb0 */
+#define UTF8_SUPERSCRIPT_TWO                "\xc2\xb2"      /*   178 /   0xb2 */
 #define UTF8_MICRO_SIGN                     "\xc2\xb5"      /*   181 /   0xb5 */
 #define UTF8_MIDDLE_DOT                     "\xc2\xb7"      /*   183 /   0xb7 */
 

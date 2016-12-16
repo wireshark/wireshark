@@ -5119,11 +5119,11 @@ proto_register_lldp(void)
 		},
 		{ &hf_hytec_tx_current_output_power,
 			{ HYTEC_MD__TX_CURRENT_OUTPUT_POWER_STR, "lldp.hytec.tx_current_output_power", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
-			&units_uW, 0x0, NULL, HFILL}
+			&units_microwatts, 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_rx_current_input_power,
 			{ HYTEC_MD__RX_CURRENT_INPUT_POWER_STR, "lldp.hytec.rx_current_input_power", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
-			&units_uW, 0x0, NULL, HFILL}
+			&units_microwatts, 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_rx_input_snr,
 			{ HYTEC_MD__RX_INPUT_SNR_STR, "lldp.hytec.rx_input_snr", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,

@@ -74,9 +74,9 @@ WS_DLL_PUBLIC const unit_name_string units_kbit;
 WS_DLL_PUBLIC const unit_name_string units_kbps;
 WS_DLL_PUBLIC const unit_name_string units_kibps;
 WS_DLL_PUBLIC const unit_name_string units_kmh;
-WS_DLL_PUBLIC const unit_name_string units_uW;
-WS_DLL_PUBLIC const unit_name_string units_m_per_s;
-WS_DLL_PUBLIC const unit_name_string units_m_per_s_per_s;
+WS_DLL_PUBLIC const unit_name_string units_microwatts;
+WS_DLL_PUBLIC const unit_name_string units_meter_sec;
+WS_DLL_PUBLIC const unit_name_string units_meter_sec_squared;
 WS_DLL_PUBLIC const unit_name_string units_bit_sec;
 WS_DLL_PUBLIC const unit_name_string units_segment_remaining;
 
