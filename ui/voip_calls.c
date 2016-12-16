@@ -305,6 +305,7 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     {
         strinfo = (rtp_stream_info_t *)list->data;
         wmem_free(NULL, strinfo->payload_type_name);
+        wmem_free(NULL, strinfo->ed137_info);
         list = g_list_next(list);
     }
     g_list_free(tapinfo->rtp_stream_list);
@@ -620,6 +621,14 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
                this is to show multiple payload changes in the Graph for example for DTMF RFC2833 */
             if ( tmp_listinfo->payload_type != rtp_info->info_payload_type ) {
                 tmp_listinfo->end_stream = TRUE;
+            } else if ( ( ( tmp_listinfo->ed137_info == NULL ) && (rtp_info->info_ed137_info != NULL) ) ||
+                        ( ( tmp_listinfo->ed137_info != NULL ) && (rtp_info->info_ed137_info == NULL) ) ||
+                        ( ( tmp_listinfo->ed137_info != NULL ) && (rtp_info->info_ed137_info != NULL) &&
+                          ( 0!=strcmp(tmp_listinfo->ed137_info, rtp_info->info_ed137_info) )
+                        )
+                      ) {
+            /* if ed137_info has changed, create new stream */
+                tmp_listinfo->end_stream = TRUE;
             } else {
                 strinfo = (rtp_stream_info_t*)(list->data);
                 break;
@@ -660,6 +669,11 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
         strinfo->setup_frame_number = rtp_info->info_setup_frame_num;
         strinfo->call_num = -1;
         strinfo->rtp_event = -1;
+        if (rtp_info->info_ed137_info != NULL) {
+            strinfo->ed137_info = wmem_strdup(NULL, rtp_info->info_ed137_info);
+        } else {
+            strinfo->ed137_info = NULL;
+        }
         tapinfo->rtp_stream_list = g_list_prepend(tapinfo->rtp_stream_list, strinfo);
     }
 
@@ -726,11 +740,14 @@ rtp_draw(void *tap_offset_ptr)
                 new_gai->port_src = rtp_listinfo->src_port;
                 new_gai->port_dst = rtp_listinfo->dest_port;
                 duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_time) - nstime_to_msec(&rtp_listinfo->start_rel_time));
-                new_gai->frame_label = g_strdup_printf("%s (%s) %s",
+                new_gai->frame_label = g_strdup_printf("%s (%s) %s%s%s",
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP",
                         rtp_listinfo->payload_type_name,
                         (rtp_listinfo->rtp_event == -1)?
-                        "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"));
+                        "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"),
+                        (rtp_listinfo->ed137_info!=NULL?" ":""),
+                        (rtp_listinfo->ed137_info!=NULL?rtp_listinfo->ed137_info:"")
+                );
                 new_gai->comment = g_strdup_printf(comment_fmt,
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->packet_count,
                         duration/1000,(duration%1000), rtp_listinfo->ssrc);

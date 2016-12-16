@@ -76,6 +76,7 @@ typedef struct _rtp_stream_info {
 
     tap_rtp_stat_t  rtp_stats;  /**< here goes the RTP statistics info */
     gboolean        problem;    /**< if the streams had wrong sequence numbers or wrong timestamps */
+    gchar          *ed137_info;
 } rtp_stream_info_t;
 
 /** tapping modes */

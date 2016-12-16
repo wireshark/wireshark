@@ -35,6 +35,7 @@
 #include <epan/rtp_pt.h>
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/strtoi.h>
 
@@ -301,6 +302,13 @@ typedef struct {
     rtp_dyn_payload_t *rtp_dyn_payload; /**< Parsed from "a=rtpmap:" line.
                                              Note: wmem_file_scope, needs manual dealloc. */
 } session_info_t;
+
+/* Structure for private data to hold ED137 related values */
+typedef struct sdp_data_t {
+  char *ed137_type;           /* Radio session type */
+  char *ed137_txrxmode;       /* Tx/Rx mode */
+  char *ed137_fid;            /* Frequency ID */
+} sdp_data_t;
 
 
 /* here lie the debugging dumper functions */
@@ -1529,6 +1537,9 @@ typedef struct {
 #define SDP_CRYPTO              5
 #define SDP_SPRTMAP             6
 #define SDP_CANDIDATE           7
+#define SDP_ED137_TYPE          8
+#define SDP_ED137_TXRXMODE      9
+#define SDP_ED137_FID           10
 
 static const sdp_names_t sdp_media_attribute_names[] = {
     { "Unknown-name"},    /* 0 Pad so that the real headers start at index 1 */
@@ -1539,6 +1550,9 @@ static const sdp_names_t sdp_media_attribute_names[] = {
     { "crypto"},          /* 5 */
     { "sprt"},            /* 6 */
     { "candidate" },      /* 7 */
+    { "type" },           /* 8 */
+    { "txrxmode" },       /* 9 */
+    { "fid" },            /* 10 */
 };
 
 static gint find_sdp_media_attribute_names(tvbuff_t *tvb, int offset, guint len)
@@ -1557,7 +1571,8 @@ static gint find_sdp_media_attribute_names(tvbuff_t *tvb, int offset, guint len)
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item * ti, int length,
                                         transport_info_t *transport_info,
                                         session_info_t *session_info,
-                                        media_description_t *media_desc)
+                                        media_description_t *media_desc,
+                                        sdp_data_t *sdp_data)
 {
     proto_tree   *sdp_media_attribute_tree, *parameter_item;
     proto_item   *fmtp_item, *media_format_item, *parameter_tree;
@@ -1998,6 +2013,24 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
         case SDP_CANDIDATE:
             dissect_sdp_media_attribute_candidate(sdp_media_attribute_tree, tvb, offset);
             break;
+        case SDP_ED137_TYPE:
+            /* Remember the value and add it to tree */
+            sdp_data->ed137_type = attribute_value;
+            proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
+                                tvb, offset, -1, ENC_UTF_8|ENC_NA);
+            break;
+        case SDP_ED137_TXRXMODE:
+            /* Remember the value and add it to tree */
+            sdp_data->ed137_txrxmode = attribute_value;
+            proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
+                                tvb, offset, -1, ENC_UTF_8|ENC_NA);
+            break;
+        case SDP_ED137_FID:
+            /* Remember the value and add it to tree */
+            sdp_data->ed137_fid = attribute_value;
+            proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
+                                tvb, offset, -1, ENC_UTF_8|ENC_NA);
+            break;
         default:
             /* No special treatment for values of this attribute type, just add as one item. */
             proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
@@ -2010,7 +2043,8 @@ static void
 call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, int hf, proto_tree* ti, int length,
                       transport_info_t *transport_info,
                       session_info_t *session_info,
-                      media_description_t *media_desc)
+                      media_description_t *media_desc,
+                      sdp_data_t *sdp_data)
 {
     if (hf == hf_owner) {
         dissect_sdp_owner(tvb, ti);
@@ -2031,7 +2065,7 @@ call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, int hf, proto_tree* ti,
     } else if (hf == hf_media) {
         dissect_sdp_media(tvb, pinfo, ti, media_desc);
     } else if (hf == hf_media_attribute) {
-        dissect_sdp_media_attribute(tvb, pinfo, ti, length, transport_info, session_info, media_desc);
+        dissect_sdp_media_attribute(tvb, pinfo, ti, length, transport_info, session_info, media_desc, sdp_data);
     }
 }
 
@@ -2221,6 +2255,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     transport_info_t* transport_info = NULL;
     media_description_t *media_desc = NULL;
     session_info_t session_info;
+    sdp_data_t  sdp_data;
 
     DPRINT2(("-------------------- setup_sdp_transport -------------------"));
 
@@ -2229,6 +2264,8 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
         DPRINT(("already visited"));
         return;
     }
+
+    memset(&sdp_data, 0, sizeof(sdp_data));
 
     if (request_frame != 0)
         transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_reqs, request_frame );
@@ -2332,7 +2369,8 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
                                     hf, NULL, linelen-tokenoffset,
                                     transport_info,
                                     in_media_description ? NULL : &session_info,
-                                    media_desc);
+                                    media_desc,
+                                    &sdp_data);
             DENDENT();
         }
 
@@ -2394,6 +2432,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     guchar      type, delim;
     int         datalen, tokenoffset, hf = -1;
     char       *string;
+    sdp_data_t  sdp_data;
 
     transport_info_t  local_transport_info;
     transport_info_t* transport_info = NULL;
@@ -2406,6 +2445,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /* Initialise packet info for passing to tap */
     sdp_pi = wmem_new(wmem_packet_scope(), sdp_packet_info);
     sdp_pi->summary_str[0] = '\0';
+
+    memset(&sdp_data, 0, sizeof(sdp_data));
 
     if (!pinfo->fd->flags.visited) {
         transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_reqs, pinfo->num );
@@ -2567,9 +2608,29 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                               hf, sub_ti, linelen-tokenoffset,
                               &local_transport_info,
                               in_media_description ? NULL : &session_info,
-                              in_media_description ? media_desc : NULL);
+                              in_media_description ? media_desc : NULL,
+                              &sdp_data);
 
         offset = next_offset;
+    }
+
+    if (NULL != sdp_data.ed137_fid) {
+      col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", sdp_data.ed137_fid);
+      if (strlen(sdp_pi->summary_str))
+          g_strlcat(sdp_pi->summary_str, " ", 50);
+      g_strlcat(sdp_pi->summary_str, sdp_data.ed137_fid, 50);
+    }
+    if (NULL != sdp_data.ed137_txrxmode) {
+      col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", sdp_data.ed137_txrxmode);
+      if (strlen(sdp_pi->summary_str))
+          g_strlcat(sdp_pi->summary_str, " ", 50);
+      g_strlcat(sdp_pi->summary_str, sdp_data.ed137_txrxmode, 50);
+    }
+    if (NULL != sdp_data.ed137_type) {
+      col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", sdp_data.ed137_type);
+      if (strlen(sdp_pi->summary_str))
+          g_strlcat(sdp_pi->summary_str, " ", 50);
+      g_strlcat(sdp_pi->summary_str, sdp_data.ed137_type, 50);
     }
 
     /* Done parsing media description, no more need for the session-level details. */

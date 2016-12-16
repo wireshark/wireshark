@@ -2106,6 +2106,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     rtp_info->info_setup_frame_num = 0;
     rtp_info->info_payload_type_str = NULL;
     rtp_info->info_payload_rate = 0;
+    rtp_info->info_is_ed137 = FALSE;
+    rtp_info->info_ed137_info = NULL;
 
     /*
      * Do we have all the data?
@@ -2308,7 +2310,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     pinfo, rtp_hext_tree);
             }
             else {
-                if ( !(dissector_try_uint(rtp_hdr_ext_dissector_table, hdr_extension_id, newtvb, pinfo, rtp_hext_tree)) ) {
+                if ( !(dissector_try_uint_new(rtp_hdr_ext_dissector_table, hdr_extension_id, newtvb, pinfo, rtp_hext_tree, FALSE, rtp_info)) ) {
                     unsigned int hdrext_offset;
 
                     hdrext_offset = offset;
@@ -2468,10 +2470,16 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     return offset;
 }
 
+/* We do not need to allocate/free strings */
+static char *ed137_ptt_only = "PTT";
+static char *ed137_squ_only = "SQU";
+static char *ed137_ptt_and_squ = "PTT+SQU";
+
 static int
 dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
     unsigned int hdr_extension_len;
+    struct _rtp_info *rtp_info=(struct _rtp_info *)data;
 
     hdr_extension_len = tvb_reported_length(tvb)/4;
 
@@ -2480,7 +2488,10 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         unsigned int  offset = 0;
         unsigned int  hdrext_offset = 0;
         unsigned int  i;
+        gboolean ed137_ptt = FALSE;
+        gboolean ed137_squ = FALSE;
 
+        rtp_info->info_is_ed137 = TRUE;
         if ( tree ) {
             proto_item *ti;
             ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, ENC_NA);
@@ -2493,9 +2504,28 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
                 if (RTP_ED137_ptt_mask(ext_value)) {
                     col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
+                    ed137_ptt = TRUE;
                 }
                 if (RTP_ED137_squ_mask(ext_value)) {
                     col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
+                    ed137_squ = TRUE;
+                }
+
+                /* Map PTT/SQU bits to string */
+                if (rtp_info != NULL) {
+                    if (ed137_ptt) {
+                        if (ed137_squ) {
+                            rtp_info->info_ed137_info = ed137_ptt_and_squ;
+                        } else {
+                            rtp_info->info_ed137_info = ed137_ptt_only;
+                        }
+                    } else {
+                        if (ed137_squ) {
+                            rtp_info->info_ed137_info = ed137_squ_only;
+                        } else {
+                            rtp_info->info_ed137_info = NULL;
+                        }
+                    }
                 }
 
                 ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137, tvb, hdrext_offset, 4, ENC_NA);
@@ -2561,6 +2591,7 @@ static int
 dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
     unsigned int hdr_extension_len;
+    struct _rtp_info *rtp_info=(struct _rtp_info *)data;
 
     hdr_extension_len = tvb_reported_length(tvb)/4;
 
@@ -2569,7 +2600,10 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         unsigned int offset = 0;
         unsigned int hdrext_offset = 0;
         unsigned int i;
+        gboolean ed137_ptt = FALSE;
+        gboolean ed137_squ = FALSE;
 
+        rtp_info->info_is_ed137 = TRUE;
         if ( tree ) {
             proto_item *ti;
             ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, ENC_NA);
@@ -2582,9 +2616,28 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
                 if (RTP_ED137A_ptt_mask(ext_value)) {
                     col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
+                    ed137_ptt = TRUE;
                 }
                 if (RTP_ED137A_squ_mask(ext_value)) {
                     col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
+                    ed137_squ = TRUE;
+                }
+
+                /* Map PTT/SQU bits to string */
+                if (rtp_info != NULL) {
+                    if (ed137_ptt) {
+                        if (ed137_squ) {
+                            rtp_info->info_ed137_info = ed137_ptt_and_squ;
+                        } else {
+                            rtp_info->info_ed137_info = ed137_ptt_only;
+                        }
+                    } else {
+                        if (ed137_squ) {
+                            rtp_info->info_ed137_info = ed137_squ_only;
+                        } else {
+                            rtp_info->info_ed137_info = NULL;
+                        }
+                    }
                 }
 
                 ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137a, tvb, hdrext_offset, 4, ENC_NA);
