@@ -32,7 +32,7 @@
 #include <epan/epan_dissect.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
-#include <epan/packet-range.h>
+#include <epan/packet_range.h>
 #include <epan/prefs.h>
 #include <epan/print.h>
 #include <epan/charsets.h>

@@ -32,7 +32,7 @@
 
 #include <epan/print_stream.h>
 
-#include <epan/packet-range.h>
+#include <epan/packet_range.h>
 
 #include "ws_symbol_export.h"
 

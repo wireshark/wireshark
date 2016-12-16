@@ -1,4 +1,4 @@
-/* packet-range.c
+/* packet_range.c
  * Packet range routines (save, print, ...)
  *
  * Dick Gooris <gooris@lucent.com>
@@ -31,7 +31,7 @@
 
 #include <epan/frame_data.h>
 
-#include "packet-range.h"
+#include "packet_range.h"
 
 /* (re-)calculate the packet counts (except the user specified range) */
 static void packet_range_calc(packet_range_t *range) {

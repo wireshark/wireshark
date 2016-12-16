@@ -26,7 +26,7 @@
 
 #include <glib.h>
 
-#include "epan/packet-range.h"
+#include "epan/packet_range.h"
 
 #include "syntax_line_edit.h"
 #include <QGroupBox>

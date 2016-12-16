@@ -28,7 +28,7 @@
 #include <epan/epan.h>
 
 #include <epan/print.h>
-#include <epan/packet-range.h>
+#include <epan/packet_range.h>
 
 #ifdef __cplusplus
 extern "C" {
