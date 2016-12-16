@@ -382,7 +382,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 
 %(DEFAULT_BODY)s
 
-  if (g_s1ap_dissect_container) {
+  if ((g_s1ap_dissect_container)&&(parameter_tvb) && (tvb_reported_length(parameter_tvb) > 0)) {
     struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     /* Don't want elements inside container to write to info column */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
@@ -441,7 +441,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 
 %(DEFAULT_BODY)s
 
-  if (g_s1ap_dissect_container) {
+  if ((g_s1ap_dissect_container)&&(parameter_tvb) && (tvb_reported_length(parameter_tvb) > 0)) {
     struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToSourceTransparentContainer);
 
