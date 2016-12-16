@@ -62,7 +62,7 @@ WS_DLL_PUBLIC const unit_name_string units_microseconds;        //only seconds a
 WS_DLL_PUBLIC const unit_name_string units_nanosecond_nanoseconds; // full unit name "nanosecond[s?]"
 WS_DLL_PUBLIC const unit_name_string units_nanometers;
 WS_DLL_PUBLIC const unit_name_string units_degree_degrees;
-WS_DLL_PUBLIC const unit_name_string units_decibals;
+WS_DLL_PUBLIC const unit_name_string units_decibels;
 WS_DLL_PUBLIC const unit_name_string units_dbm;
 WS_DLL_PUBLIC const unit_name_string units_percent;
 WS_DLL_PUBLIC const unit_name_string units_khz;

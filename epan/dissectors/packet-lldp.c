@@ -5127,11 +5127,11 @@ proto_register_lldp(void)
 		},
 		{ &hf_hytec_rx_input_snr,
 			{ HYTEC_MD__RX_INPUT_SNR_STR, "lldp.hytec.rx_input_snr", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
-			&units_decibals, 0x0, NULL, HFILL}
+			&units_decibels, 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_lineloss,
 			{ HYTEC_MD__LINELOSS_STR, "lldp.hytec.lineloss", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
-			&units_decibals, 0x0, NULL, HFILL}
+			&units_decibels, 0x0, NULL, HFILL}
 		},
 		{ &hf_hytec_mac_trace_request,
 			{ HYTEC_MC__MAC_TRACE_REQUEST_STR, "lldp.hytec.mac_trace_request", FT_NONE, BASE_NONE,

@@ -2314,7 +2314,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_db_antsignal,
 		 {"SSI Signal", "radiotap.db_antsignal",
-		  FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_decibals, 0x0,
+		  FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0x0,
 		  "RF signal power at the antenna from a fixed, arbitrary value in decibels", HFILL}},
 
 		{&hf_radiotap_dbm_antnoise,
@@ -2325,7 +2325,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_db_antnoise,
 		 {"SSI Noise", "radiotap.db_antnoise",
-		  FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_decibals, 0x0,
+		  FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0x0,
 		  "RF noise power at the antenna from a fixed, arbitrary value"
 		  " in decibels", HFILL}},
 
