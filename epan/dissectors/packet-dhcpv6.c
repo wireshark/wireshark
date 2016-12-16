@@ -531,11 +531,11 @@ static const value_string opttype_vals[] = {
     { OPTION_ANI_AP_BSSID,           "Access Point BSSID" },
     { OPTION_ANI_OPERATOR_ID,        "Access Network Operator ID" },
     { OPTION_ANI_OPERATOR_REALM,     "Access Network Operator Realm" },
+    { OPTION_MUDURL,                 "Manufacturer Usage Description" },
     { OPTION_IPv6_ADDRESS_ANDSF,     "ANDSF IPv6 Address" },
     { OPTION_MIP6_HA,                "Mobile IPv6 Home Agent" },
     { OPTION_MIP6_HOA,               "Mobile IPv6 Home Address" },
     { OPTION_NAI,                    "Network Access Identifier" },
-    { OPTION_MUDURL,                 "Manufacturer Usage Description" },
     { 0,        NULL }
 };
 static value_string_ext opttype_vals_ext = VALUE_STRING_EXT_INIT(opttype_vals);
