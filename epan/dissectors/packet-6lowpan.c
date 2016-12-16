@@ -2047,6 +2047,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         gint            src_bitlen;
         gint            dst_bitlen;
         guint8          udp_flags;
+        guint16         udp_src_port, udp_dst_port;
 
         /* Create a tree for the UDP header. */
         nhc_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_6lowpan_nhc_udp, NULL, "UDP header compression");
@@ -2062,29 +2063,29 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         /* Get and display the ports. */
         switch (udp_flags & LOWPAN_NHC_UDP_PORTS) {
             case LOWPAN_NHC_UDP_PORT_INLINE:
-                udp.src_port = tvb_get_ntohs(tvb, offset);
-                udp.dst_port = tvb_get_ntohs(tvb, offset+2);
+                udp_src_port = tvb_get_ntohs(tvb, offset);
+                udp_dst_port = tvb_get_ntohs(tvb, offset+2);
                 src_bitlen = 16;
                 dst_bitlen = 16;
                 break;
 
             case LOWPAN_NHC_UDP_PORT_8BIT_DST:
-                udp.src_port = tvb_get_ntohs(tvb, offset);
-                udp.dst_port = LOWPAN_PORT_8BIT_OFFSET + tvb_get_guint8(tvb, offset + 2);
+                udp_src_port = tvb_get_ntohs(tvb, offset);
+                udp_dst_port = LOWPAN_PORT_8BIT_OFFSET + tvb_get_guint8(tvb, offset + 2);
                 src_bitlen = 16;
                 dst_bitlen = 8;
                 break;
 
             case LOWPAN_NHC_UDP_PORT_8BIT_SRC:
-                udp.src_port = LOWPAN_PORT_8BIT_OFFSET + tvb_get_guint8(tvb, offset);
-                udp.dst_port = tvb_get_ntohs(tvb, offset + 1);
+                udp_src_port = LOWPAN_PORT_8BIT_OFFSET + tvb_get_guint8(tvb, offset);
+                udp_dst_port = tvb_get_ntohs(tvb, offset + 1);
                 src_bitlen = 8;
                 dst_bitlen = 16;
                 break;
 
             case LOWPAN_NHC_UDP_PORT_12BIT:
-                udp.src_port = LOWPAN_PORT_12BIT_OFFSET + (tvb_get_guint8(tvb, offset) >> 4);
-                udp.dst_port = LOWPAN_PORT_12BIT_OFFSET + (tvb_get_guint8(tvb, offset) & 0x0f);
+                udp_src_port = LOWPAN_PORT_12BIT_OFFSET + (tvb_get_guint8(tvb, offset) >> 4);
+                udp_dst_port = LOWPAN_PORT_12BIT_OFFSET + (tvb_get_guint8(tvb, offset) & 0x0f);
                 src_bitlen = 4;
                 dst_bitlen = 4;
                 break;
@@ -2094,11 +2095,11 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
                 break;
         } /* switch */
 
-        proto_tree_add_uint(tree, hf_6lowpan_udp_src, tvb, offset, BITS_TO_BYTE_LEN(offset<<3, src_bitlen), udp.src_port);
-        proto_tree_add_uint(tree, hf_6lowpan_udp_dst, tvb, offset+(src_bitlen>>3), BITS_TO_BYTE_LEN((offset<<3)+src_bitlen, dst_bitlen), udp.dst_port);
+        proto_tree_add_uint(tree, hf_6lowpan_udp_src, tvb, offset, BITS_TO_BYTE_LEN(offset<<3, src_bitlen), udp_src_port);
+        proto_tree_add_uint(tree, hf_6lowpan_udp_dst, tvb, offset+(src_bitlen>>3), BITS_TO_BYTE_LEN((offset<<3)+src_bitlen, dst_bitlen), udp_dst_port);
         offset += ((src_bitlen + dst_bitlen)>>3);
-        udp.src_port = g_ntohs(udp.src_port);
-        udp.dst_port = g_ntohs(udp.dst_port);
+        udp.src_port = g_htons(udp_src_port);
+        udp.dst_port = g_htons(udp_dst_port);
 
         /* Get and display the checksum. */
         if (!(udp_flags & LOWPAN_NHC_UDP_CHECKSUM)) {
