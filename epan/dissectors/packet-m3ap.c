@@ -681,10 +681,6 @@ dissect_m3ap_BitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
                                                             0U, G_GUINT64_CONSTANT(10000000000), NULL, FALSE);
 
-#line 166 "./asn1/m3ap/m3ap.cnf"
-  proto_item_append_text(actx->created_item, "bit/s");
-
-
   return offset;
 }
 
@@ -885,9 +881,9 @@ dissect_m3ap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
 
-	if (!parameter_tvb)
-		return offset;
-	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, E212_NONE, FALSE);
+  if (!parameter_tvb)
+    return offset;
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, E212_NONE, FALSE);
 
 
   return offset;
@@ -2473,11 +2469,11 @@ void proto_register_m3ap(void) {
         NULL, HFILL }},
     { &hf_m3ap_mBMS_E_RAB_MaximumBitrateDL,
       { "mBMS-E-RAB-MaximumBitrateDL", "m3ap.mBMS_E_RAB_MaximumBitrateDL",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
         "BitRate", HFILL }},
     { &hf_m3ap_mBMS_E_RAB_GuaranteedBitrateDL,
       { "mBMS-E-RAB-GuaranteedBitrateDL", "m3ap.mBMS_E_RAB_GuaranteedBitrateDL",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
         "BitRate", HFILL }},
     { &hf_m3ap_MBMS_Cell_List_item,
       { "ECGI", "m3ap.ECGI_element",
