@@ -713,6 +713,7 @@ static dissector_handle_t gsm_bsslap_handle = NULL;
 static dissector_handle_t dtap_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t rrc_handle;
+static dissector_handle_t bssmap_handle;
 
 static proto_tree *g_tree;
 static guint8 cell_discriminator = 0x0f;  /* tracks whether handover is to UMTS */
@@ -8000,16 +8001,13 @@ proto_register_gsm_a_bssmap(void)
     expert_gsm_a_bssmap = expert_register_protocol(proto_a_bssmap);
     expert_register_field_array(expert_gsm_a_bssmap, ei, array_length(ei));
 
-    register_dissector("gsm_a_bssmap", dissect_bssmap, proto_a_bssmap);
+    bssmap_handle = register_dissector("gsm_a_bssmap", dissect_bssmap, proto_a_bssmap);
 }
 
 
 void
 proto_reg_handoff_gsm_a_bssmap(void)
 {
-    dissector_handle_t bssmap_handle;
-
-    bssmap_handle = find_dissector("gsm_a_bssmap");
     dissector_add_uint("bssap.pdu_type",  GSM_A_PDU_TYPE_BSSMAP, bssmap_handle);
 
     dtap_handle       = find_dissector_add_dependency("gsm_a_dtap", proto_a_bssmap);

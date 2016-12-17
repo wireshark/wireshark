@@ -67,6 +67,8 @@ static int                  hf_rts              = -1;
 static int                  hf_dcd              = -1;
 static int                  hf_signals          = -1;
 
+static dissector_handle_t  sita_handle;
+
 #define MAX_FLAGS_LEN 64                                    /* max size of a 'flags' decoded string */
 #define IOP                 "Local"
 #define REMOTE              "Remote"
@@ -393,7 +395,7 @@ proto_register_sita(void)
     sita_dissector_table = register_dissector_table("sita.proto", "SITA protocol number", proto_sita, FT_UINT8, BASE_HEX);
     proto_register_field_array(proto_sita, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("sita", dissect_sita, proto_sita);
+    sita_handle = register_dissector("sita", dissect_sita, proto_sita);
 }
 
 void
@@ -403,13 +405,11 @@ proto_reg_handoff_sita(void)
     dissector_handle_t  frame_relay_handle;
     dissector_handle_t  uts_handle;
     dissector_handle_t  ipars_handle;
-    dissector_handle_t  sita_handle;
 
     lapb_handle     = find_dissector("lapb");
     frame_relay_handle  = find_dissector("fr");
     uts_handle      = find_dissector("uts");
     ipars_handle        = find_dissector("ipars");
-    sita_handle         = find_dissector("sita");
 
     dissector_add_uint("sita.proto", SITA_PROTO_BOP_LAPB,   lapb_handle);
     dissector_add_uint("sita.proto", SITA_PROTO_BOP_FRL,        frame_relay_handle);

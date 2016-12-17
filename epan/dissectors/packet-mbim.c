@@ -747,6 +747,7 @@ static dissector_handle_t eth_handle;
 static dissector_handle_t eth_fcs_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t mbim_control_handle;
 
 static gboolean mbim_control_decode_unknown_itf = FALSE;
 
@@ -9567,7 +9568,7 @@ proto_register_mbim(void)
     register_init_routine(mbim_reassembly_init);
     register_cleanup_routine(mbim_reassembly_cleanup);
 
-    register_dissector("mbim.control", dissect_mbim_control, proto_mbim);
+    mbim_control_handle = register_dissector("mbim.control", dissect_mbim_control, proto_mbim);
     register_dissector("mbim.descriptor", dissect_mbim_descriptor, proto_mbim);
     register_dissector("mbim.bulk", dissect_mbim_bulk, proto_mbim);
     dss_dissector_table = register_dissector_table("mbim.dss_session_id",
@@ -9608,7 +9609,6 @@ proto_reg_handoff_mbim(void)
         initialized = TRUE;
     }
     if (mbim_control_decode_unknown_itf != mbim_control_decode_unknown_itf_prev) {
-        dissector_handle_t mbim_control_handle = find_dissector("mbim.control");
         if (mbim_control_decode_unknown_itf) {
             dissector_add_uint("usb.control", IF_CLASS_UNKNOWN, mbim_control_handle);
         } else {

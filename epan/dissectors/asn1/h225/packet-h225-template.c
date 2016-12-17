@@ -939,7 +939,7 @@ proto_reg_handoff_h225(void)
 
     h245_handle = find_dissector("h245");
     h245dg_handle = find_dissector("h245dg");
-    h4501_handle = find_dissector("h4501");
+    h4501_handle = find_dissector_add_dependency("h4501", proto_h225);
     data_handle = find_dissector("data");
     h225_prefs_initialized = TRUE;
     q931_tpkt_handle = find_dissector("q931.tpkt");

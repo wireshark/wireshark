@@ -3407,7 +3407,7 @@ proto_register_sprt(void)
     expert_register_field_array(expert_sprt, ei, array_length(ei));
 
     /* register the dissector */
-    register_dissector("sprt", dissect_sprt, proto_sprt);
+    sprt_handle = register_dissector("sprt", dissect_sprt, proto_sprt);
 
     sprt_module = prefs_register_protocol(proto_sprt, NULL);
 
@@ -3428,7 +3428,6 @@ proto_register_sprt(void)
 void
 proto_reg_handoff_sprt(void)
 {
-    sprt_handle = find_dissector("sprt");
     dissector_add_for_decode_as_with_preference("udp.port", sprt_handle);
 
     heur_dissector_add( "udp", dissect_sprt_heur, "SPRT over UDP", "sprt_udp", proto_sprt, HEURISTIC_ENABLE);

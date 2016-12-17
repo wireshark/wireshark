@@ -71,6 +71,8 @@ static gint ett_rpl_c005      = -1;
 static gint ett_rpl_c014      = -1;
 static gint ett_rpl_unkn      = -1;
 
+static dissector_handle_t rpl_handle;
+
 static const value_string rpl_type_vals[] = {
 	{ 1,		"FIND Command" },
 	{ 2,	 	"FOUND Frame" },
@@ -397,15 +399,12 @@ proto_register_rpl(void)
 	    "RPL", "rpl");
 	proto_register_field_array(proto_rpl, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("rpl", dissect_rpl, proto_rpl);
+	rpl_handle = register_dissector("rpl", dissect_rpl, proto_rpl);
 }
 
 void
 proto_reg_handoff_rpl(void)
 {
-	dissector_handle_t rpl_handle;
-
-	rpl_handle = find_dissector("rpl");
 	dissector_add_uint("llc.dsap", SAP_RPL, rpl_handle);
 }
 

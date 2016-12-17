@@ -125,6 +125,7 @@ static gint ett_llcgprs_sframe = -1;
 static expert_field ei_llcgprs_no_info_field = EI_INIT;
 
 static dissector_handle_t sndcp_xid_handle;
+static dissector_handle_t gprs_llc_handle;
 
 static gboolean ignore_cipher_bit = FALSE;
 
@@ -1332,7 +1333,7 @@ proto_register_llcgprs(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_llcgprs = expert_register_protocol(proto_llcgprs);
 	expert_register_field_array(expert_llcgprs, ei, array_length(ei));
-	register_dissector("llcgprs", dissect_llcgprs, proto_llcgprs);
+	gprs_llc_handle = register_dissector("llcgprs", dissect_llcgprs, proto_llcgprs);
 
 	llcgprs_module = prefs_register_protocol ( proto_llcgprs, NULL );
 	prefs_register_bool_preference ( llcgprs_module, "autodetect_cipher_bit",
@@ -1345,10 +1346,7 @@ proto_register_llcgprs(void)
 void
 proto_reg_handoff_llcgprs(void)
 {
-	dissector_handle_t gprs_llc_handle;
-
 	/* make sure that the top level can call this dissector */
-	gprs_llc_handle = find_dissector("llcgprs");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_GPRS_LLC, gprs_llc_handle);
 
 	sndcp_xid_handle  = find_dissector_add_dependency("sndcpxid", proto_llcgprs);

@@ -3787,7 +3787,7 @@ proto_register_megaco(void)
 
     proto_megaco = proto_register_protocol("MEGACO", "MEGACO", "megaco");
 
-    register_dissector("megaco", dissect_megaco_text, proto_megaco);
+    megaco_text_handle = register_dissector("megaco", dissect_megaco_text, proto_megaco);
 
     proto_register_field_array(proto_megaco, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -3875,7 +3875,6 @@ proto_reg_handoff_megaco(void)
         h248_otp_handle = find_dissector_add_dependency("h248_otp", proto_megaco);
         data_handle = find_dissector("data");
 
-        megaco_text_handle = find_dissector("megaco");
         megaco_text_tcp_handle = create_dissector_handle(dissect_megaco_text_tcp, proto_megaco);
 
         dissector_add_uint_with_preference("tcp.port", PORT_MEGACO_TXT, megaco_text_tcp_handle);

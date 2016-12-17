@@ -873,6 +873,7 @@ static expert_field ei_smb_info_level_not_understood = EI_INIT;
 static int smb_tap = -1;
 static int smb_eo_tap = -1;
 
+static dissector_handle_t smb_handle;
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t ntlmssp_handle;
 
@@ -21039,7 +21040,7 @@ proto_register_smb(void)
 	register_init_routine(smb_trans_reassembly_init);
 	smb_tap = register_tap("smb");
 
-	register_dissector("smb", dissect_smb, proto_smb);
+	smb_handle = register_dissector("smb", dissect_smb, proto_smb);
 
 	register_srt_table(proto_smb, NULL, 3, smbstat_packet, smbstat_init, NULL);
 	/* Register the tap for the "Export Object" function */
@@ -21049,8 +21050,6 @@ proto_register_smb(void)
 void
 proto_reg_handoff_smb(void)
 {
-	dissector_handle_t smb_handle;
-
 	gssapi_handle  = find_dissector_add_dependency("gssapi", proto_smb);
 	ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_smb);
 
@@ -21059,7 +21058,6 @@ proto_reg_handoff_smb(void)
 	heur_dissector_add("cotp", dissect_smb_heur, "SMB over COTP", "smb_cotp", proto_smb, HEURISTIC_ENABLE);
 	heur_dissector_add("vines_spp", dissect_smb_heur, "SMB over Vines", "smb_vines", proto_smb, HEURISTIC_ENABLE);
 
-	smb_handle = find_dissector("smb");
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_SERVER, smb_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_REDIR, smb_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_MESSENGER, smb_handle);

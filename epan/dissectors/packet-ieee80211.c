@@ -5071,6 +5071,7 @@ is_broadcast_bssid(const address *bssid) {
 }
 
 static dissector_handle_t ieee80211_handle;
+static dissector_handle_t wlan_withoutfcs_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
 static dissector_handle_t eth_withoutfcs_handle;
@@ -27413,9 +27414,9 @@ proto_register_ieee80211(void)
   expert_ieee80211 = expert_register_protocol(proto_wlan);
   expert_register_field_array(expert_ieee80211, ei, array_length(ei));
 
-  register_dissector("wlan",                    dissect_ieee80211,                    proto_wlan);
+  ieee80211_handle = register_dissector("wlan", dissect_ieee80211,                    proto_wlan);
   register_dissector("wlan_withfcs",            dissect_ieee80211_withfcs,            proto_wlan);
-  register_dissector("wlan_withoutfcs",         dissect_ieee80211_withoutfcs,         proto_wlan);
+  wlan_withoutfcs_handle = register_dissector("wlan_withoutfcs", dissect_ieee80211_withoutfcs, proto_wlan);
   register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
   register_dissector("wlan_noqos",              dissect_ieee80211_noqos,              proto_wlan);
 
@@ -27628,7 +27629,7 @@ void
 proto_reg_handoff_ieee80211(void)
 {
   dissector_handle_t data_encap_handle, centrino_handle;
-  dissector_handle_t wlan_rsna_eapol_wpa_key_handle, wlan_rsna_eapol_rsn_key_handle, wlan_withoutfcs_handle;
+  dissector_handle_t wlan_rsna_eapol_wpa_key_handle, wlan_rsna_eapol_rsn_key_handle;
   capture_dissector_handle_t ieee80211_cap_handle;
 
   /*
@@ -27641,7 +27642,6 @@ proto_reg_handoff_ieee80211(void)
   llc_cap_handle = find_capture_dissector("llc");
   ipx_cap_handle = find_capture_dissector("ipx");
 
-  ieee80211_handle = find_dissector("wlan");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_handle);
 
   centrino_handle = create_dissector_handle( dissect_ieee80211_centrino, proto_centrino );
@@ -27692,7 +27692,6 @@ proto_reg_handoff_ieee80211(void)
                                                                proto_wlan_rsna_eapol);
   dissector_add_uint("eapol.keydes.type", EAPOL_RSN_KEY, wlan_rsna_eapol_rsn_key_handle);
 
-  wlan_withoutfcs_handle = find_dissector("wlan_withoutfcs");
   dissector_add_uint("sflow_245.header_protocol", SFLOW_5_HEADER_80211_MAC, wlan_withoutfcs_handle);
 }
 

@@ -153,6 +153,8 @@ static gint ett_bfd_auth = -1;
 static expert_field ei_bfd_auth_len_invalid = EI_INIT;
 static expert_field ei_bfd_auth_no_data = EI_INIT;
 
+static dissector_handle_t bfd_control_handle = NULL;
+
 static gint hf_mep_type = -1;
 static gint hf_mep_len = -1;
 static gint hf_mep_global_id = -1;
@@ -852,7 +854,7 @@ proto_register_bfd(void)
     proto_bfd = proto_register_protocol("Bidirectional Forwarding Detection Control Message",
                                         "BFD Control",
                                         "bfd");
-    register_dissector("bfd", dissect_bfd_control, proto_bfd);
+    bfd_control_handle = register_dissector("bfd", dissect_bfd_control, proto_bfd);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bfd, hf, array_length(hf));
@@ -864,9 +866,6 @@ proto_register_bfd(void)
 void
 proto_reg_handoff_bfd(void)
 {
-    dissector_handle_t bfd_control_handle;
-
-    bfd_control_handle = find_dissector("bfd");
     dissector_add_uint_range_with_preference("udp.port", UDP_PORT_RANGE_BFD, bfd_control_handle);
 
     dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_BFD_CC, bfd_control_handle);

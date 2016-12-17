@@ -528,9 +528,6 @@ proto_reg_handoff_old_pflog(void)
 {
   dissector_handle_t pflog_handle;
 
-  ip_handle = find_dissector("ip");
-  ipv6_handle = find_dissector("ipv6");
-
   pflog_handle = create_dissector_handle(dissect_old_pflog, proto_old_pflog);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_OLD_PFLOG, pflog_handle);
 }

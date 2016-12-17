@@ -461,7 +461,7 @@ proto_register_pop(void)
 
 
   proto_pop = proto_register_protocol("Post Office Protocol", "POP", "pop");
-  register_dissector("pop", dissect_pop, proto_pop);
+  pop_handle = register_dissector("pop", dissect_pop, proto_pop);
   proto_register_field_array(proto_pop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_init_routine (&pop_data_reassemble_init);
@@ -483,7 +483,6 @@ proto_register_pop(void)
 void
 proto_reg_handoff_pop(void)
 {
-  pop_handle = find_dissector("pop");
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_POP, pop_handle);
   ssl_dissector_add(TCP_PORT_SSL_POP, pop_handle);
 

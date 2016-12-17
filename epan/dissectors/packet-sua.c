@@ -375,6 +375,7 @@ static guint16 sua_ri;
 static gchar *sua_source_gt;
 static gchar *sua_destination_gt;
 
+static dissector_handle_t sua_handle;
 static dissector_handle_t sua_info_str_handle;
 static dissector_table_t sua_parameter_table;
 static dissector_table_t sccp_ssn_dissector_table;
@@ -2456,7 +2457,7 @@ proto_register_sua(void)
 
   /* Register the protocol name and description */
   proto_sua = proto_register_protocol("SS7 SCCP-User Adaptation Layer", "SUA", "sua");
-  register_dissector("sua", dissect_sua, proto_sua);
+  sua_handle = register_dissector("sua", dissect_sua, proto_sua);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sua, hf, array_length(hf));
@@ -2479,9 +2480,6 @@ proto_register_sua(void)
 void
 proto_reg_handoff_sua(void)
 {
-  dissector_handle_t sua_handle;
-
-  sua_handle = find_dissector("sua");
   /* Do we have an info string dissector ? */
   sua_info_str_handle = find_dissector("sua.infostring");
   dissector_add_uint("sctp.ppi",  SUA_PAYLOAD_PROTOCOL_ID, sua_handle);

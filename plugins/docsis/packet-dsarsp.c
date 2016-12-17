@@ -37,6 +37,8 @@ static dissector_handle_t docsis_tlv_handle;
 /* Initialize the subtree pointers */
 static gint ett_docsis_dsarsp = -1;
 
+static dissector_handle_t docsis_dsarsp_handle;
+
 extern value_string docsis_conf_code[];
 
 /* Dissection */
@@ -102,15 +104,12 @@ proto_register_docsis_dsarsp (void)
   proto_register_field_array (proto_docsis_dsarsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_dsarsp", dissect_dsarsp, proto_docsis_dsarsp);
+  docsis_dsarsp_handle = register_dissector ("docsis_dsarsp", dissect_dsarsp, proto_docsis_dsarsp);
 }
 
 void
 proto_reg_handoff_docsis_dsarsp (void)
 {
-  dissector_handle_t docsis_dsarsp_handle;
-
-  docsis_dsarsp_handle = find_dissector ("docsis_dsarsp");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
   dissector_add_uint ("docsis_mgmt", 0x10, docsis_dsarsp_handle);
 

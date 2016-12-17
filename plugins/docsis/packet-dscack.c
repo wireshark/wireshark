@@ -39,6 +39,8 @@ static gint ett_docsis_dscack = -1;
 
 extern value_string docsis_conf_code[];
 
+static dissector_handle_t docsis_dscack_handle;
+
 /* Dissection */
 static int
 dissect_dscack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -101,15 +103,12 @@ proto_register_docsis_dscack (void)
   proto_register_field_array (proto_docsis_dscack, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_dscack", dissect_dscack, proto_docsis_dscack);
+  docsis_dscack_handle = register_dissector ("docsis_dscack", dissect_dscack, proto_docsis_dscack);
 }
 
 void
 proto_reg_handoff_docsis_dscack (void)
 {
-  dissector_handle_t docsis_dscack_handle;
-
-  docsis_dscack_handle = find_dissector ("docsis_dscack");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
   dissector_add_uint ("docsis_mgmt", 0x14, docsis_dscack_handle);
 }

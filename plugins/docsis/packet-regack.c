@@ -40,6 +40,8 @@ extern value_string docsis_conf_code[];
 /* Initialize the subtree pointers */
 static gint ett_docsis_regack = -1;
 
+static dissector_handle_t docsis_regack_handle;
+
 /* Dissection */
 static int
 dissect_regack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -102,15 +104,12 @@ proto_register_docsis_regack (void)
   proto_register_field_array (proto_docsis_regack, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_regack", dissect_regack, proto_docsis_regack);
+  docsis_regack_handle = register_dissector ("docsis_regack", dissect_regack, proto_docsis_regack);
 }
 
 void
 proto_reg_handoff_docsis_regack (void)
 {
-  dissector_handle_t docsis_regack_handle;
-
-  docsis_regack_handle = find_dissector ("docsis_regack");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
   dissector_add_uint ("docsis_mgmt", 0x0e, docsis_regack_handle);
 }

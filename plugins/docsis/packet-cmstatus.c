@@ -67,6 +67,8 @@ static int hf_docsis_cmstatus_descr = -1;
 static gint ett_docsis_cmstatus = -1;
 static gint ett_docsis_cmstatus_tlv = -1;
 
+static dissector_handle_t docsis_cmstatus_handle;
+
 /* Dissection */
 /* See Table 6-52 in CM-SP-MULPIv3.0-I14-101008 */
 static void
@@ -265,14 +267,12 @@ static gint *ett[] = {
 
   proto_register_field_array (proto_docsis_cmstatus, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
-  register_dissector ("docsis_cmstatus", dissect_cmstatus, proto_docsis_cmstatus);
+  docsis_cmstatus_handle = register_dissector ("docsis_cmstatus", dissect_cmstatus, proto_docsis_cmstatus);
 }
 
 void
 proto_reg_handoff_docsis_cmstatus (void)
 {
-  dissector_handle_t docsis_cmstatus_handle;
-  docsis_cmstatus_handle = find_dissector ("docsis_cmstatus");
   dissector_add_uint ("docsis_mgmt", 0x29, docsis_cmstatus_handle);
 }
 

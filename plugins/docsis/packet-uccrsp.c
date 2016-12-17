@@ -35,6 +35,8 @@ static int hf_docsis_uccrsp_upchid = -1;
 /* Initialize the subtree pointers */
 static gint ett_docsis_uccrsp = -1;
 
+static dissector_handle_t docsis_uccrsp_handle;
+
 /* Dissection */
 static int
 dissect_uccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -85,15 +87,12 @@ proto_register_docsis_uccrsp (void)
   proto_register_field_array (proto_docsis_uccrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_uccrsp", dissect_uccrsp, proto_docsis_uccrsp);
+  docsis_uccrsp_handle = register_dissector ("docsis_uccrsp", dissect_uccrsp, proto_docsis_uccrsp);
 }
 
 void
 proto_reg_handoff_docsis_uccrsp (void)
 {
-  dissector_handle_t docsis_uccrsp_handle;
-
-  docsis_uccrsp_handle = find_dissector ("docsis_uccrsp");
   dissector_add_uint ("docsis_mgmt", 0x09, docsis_uccrsp_handle);
 }
 

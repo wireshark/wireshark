@@ -377,6 +377,8 @@ static dissector_handle_t  arp_handle;
 static dissector_handle_t  cipsafety_handle;
 static dissector_handle_t  cipmotion_handle;
 static dissector_handle_t  cip_implicit_handle;
+static dissector_handle_t  enip_tcp_handle;
+static dissector_handle_t  enipio_handle;
 
 static gboolean enip_desegment  = TRUE;
 static gboolean enip_OTrun_idle = TRUE;
@@ -4379,8 +4381,8 @@ proto_register_enip(void)
    proto_enip = proto_register_protocol("EtherNet/IP (Industrial Protocol)", "ENIP", "enip");
    proto_enipio = proto_register_protocol("EtherNet/IP I/O", "ENIP I/O", "enip_io");
 
-   register_dissector("enip", dissect_enip_tcp, proto_enip);
-   register_dissector("enip_io", dissect_enipio, proto_enipio);
+   enip_tcp_handle = register_dissector("enip", dissect_enip_tcp, proto_enip);
+   enipio_handle = register_dissector("enip_io", dissect_enipio, proto_enipio);
 
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_enip, hf, array_length(hf));
@@ -4436,12 +4438,10 @@ proto_register_enip(void)
 void
 proto_reg_handoff_enip(void)
 {
-   dissector_handle_t enip_udp_handle, enip_tcp_handle;
-   dissector_handle_t enipio_handle;
+   dissector_handle_t enip_udp_handle;
    dissector_handle_t dlr_handle;
 
    /* Register for EtherNet/IP, using TCP */
-   enip_tcp_handle = find_dissector("enip");
    dissector_add_uint_with_preference("tcp.port", ENIP_ENCAP_PORT, enip_tcp_handle);
 
    /* Register for EtherNet/IP, using UDP */
@@ -4449,7 +4449,6 @@ proto_reg_handoff_enip(void)
    dissector_add_uint_with_preference("udp.port", ENIP_ENCAP_PORT, enip_udp_handle);
 
    /* Register for EtherNet/IP IO data (UDP) */
-   enipio_handle = find_dissector("enip_io");
    dissector_add_uint_with_preference("udp.port", ENIP_IO_PORT, enipio_handle);
 
    /* Register for EtherNet/IP TLS */

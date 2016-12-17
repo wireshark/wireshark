@@ -51,6 +51,7 @@ static int hf_dvb_nit_transport_descriptors_length = -1;
 static gint ett_dvb_nit = -1;
 static gint ett_dvb_nit_ts = -1;
 
+static dissector_handle_t dvb_nit_handle;
 
 #define DVB_NIT_RESERVED1_MASK                            0xC0
 #define DVB_NIT_VERSION_NUMBER_MASK                       0x3E
@@ -232,16 +233,12 @@ proto_register_dvb_nit(void)
     proto_register_field_array(proto_dvb_nit, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("dvb_nit", dissect_dvb_nit, proto_dvb_nit);
+    dvb_nit_handle = register_dissector("dvb_nit", dissect_dvb_nit, proto_dvb_nit);
 }
 
 
 void proto_reg_handoff_dvb_nit(void)
 {
-    dissector_handle_t dvb_nit_handle;
-
-    dvb_nit_handle = find_dissector("dvb_nit");
-
     dissector_add_uint("mpeg_sect.tid", DVB_NIT_TID, dvb_nit_handle);
     dissector_add_uint("mpeg_sect.tid", DVB_NIT_TID_OTHER, dvb_nit_handle);
 }

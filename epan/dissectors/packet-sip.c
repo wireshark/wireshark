@@ -67,10 +67,10 @@
 
 void proto_register_sip(void);
 
-static dissector_handle_t sip_tcp_handle;
-
 static gint sip_tap = -1;
 static gint exported_pdu_tap = -1;
+static dissector_handle_t sip_handle;
+static dissector_handle_t sip_tcp_handle;
 static dissector_handle_t sigcomp_handle;
 static dissector_handle_t sip_diag_handle;
 static dissector_handle_t sip_uri_userinfo_handle;
@@ -6800,8 +6800,8 @@ void proto_register_sip(void)
     proto_sip = proto_register_protocol("Session Initiation Protocol", "SIP", "sip");
     proto_raw_sip = proto_register_protocol("Session Initiation Protocol (SIP as raw text)",
                                             "Raw_SIP", "raw_sip");
-    register_dissector("sip", dissect_sip, proto_sip);
-    register_dissector("sip.tcp", dissect_sip_tcp, proto_sip);
+    sip_handle = register_dissector("sip", dissect_sip, proto_sip);
+    sip_tcp_handle = register_dissector("sip.tcp", dissect_sip_tcp, proto_sip);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_sip, hf, array_length(hf));
@@ -6925,9 +6925,6 @@ proto_reg_handoff_sip(void)
     static gboolean sip_prefs_initialized = FALSE;
 
     if (!sip_prefs_initialized) {
-        dissector_handle_t sip_handle;
-        sip_handle = find_dissector("sip");
-        sip_tcp_handle = find_dissector("sip.tcp");
         sigcomp_handle = find_dissector_add_dependency("sigcomp", proto_sip);
         sip_diag_handle = find_dissector("sip.diagnostic");
         sip_uri_userinfo_handle = find_dissector("sip.uri_userinfo");

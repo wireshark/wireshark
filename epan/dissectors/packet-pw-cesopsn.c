@@ -63,6 +63,8 @@ static expert_field ei_cw_lm = EI_INIT;
 static expert_field ei_packet_size_too_small = EI_INIT;
 
 static dissector_handle_t pw_padding_handle;
+static dissector_handle_t pw_cesopsn_udp_handle;
+
 
 const char pwc_longname_pw_cesopsn[] = "CESoPSN basic NxDS0 mode (no RTP support)";
 static const char shortname[] = "CESoPSN basic (no RTP)";
@@ -443,7 +445,7 @@ void proto_register_pw_cesopsn(void)
 	proto_register_subtree_array(ett_array, array_length(ett_array));
 	expert_pwcesopsn = expert_register_protocol(proto);
 	expert_register_field_array(expert_pwcesopsn, ei, array_length(ei));
-	register_dissector("pw_cesopsn_udp", dissect_pw_cesopsn_udp, proto);
+	pw_cesopsn_udp_handle = register_dissector("pw_cesopsn_udp", dissect_pw_cesopsn_udp, proto);
 }
 
 
@@ -457,8 +459,7 @@ void proto_reg_handoff_pw_cesopsn(void)
 	pw_cesopsn_mpls_handle = create_dissector_handle( dissect_pw_cesopsn_mpls, proto );
 	dissector_add_for_decode_as("mpls.label", pw_cesopsn_mpls_handle);
 
-	dissector_add_for_decode_as_with_preference("udp.port", find_dissector("pw_cesopsn_udp"));
-	return;
+	dissector_add_for_decode_as_with_preference("udp.port", pw_cesopsn_udp_handle);
 }
 
 /*

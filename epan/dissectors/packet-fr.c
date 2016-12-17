@@ -122,6 +122,7 @@ static expert_field ei_fr_frame_relay_xid = EI_INIT;
 static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t gprs_ns_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t fr_handle;
 
 static capture_dissector_handle_t chdlc_cap_handle;
 static capture_dissector_handle_t eth_cap_handle;
@@ -961,7 +962,7 @@ proto_register_fr(void)
                                                          "Frame Relay OSI NLPID", proto_fr, FT_UINT8, BASE_HEX);
 
   register_dissector("fr_uncompressed", dissect_fr_uncompressed, proto_fr);
-  register_dissector("fr", dissect_fr, proto_fr);
+  fr_handle = register_dissector("fr", dissect_fr, proto_fr);
   register_dissector("fr_stripped_address", dissect_fr_stripped_address, proto_fr);
 
   frencap_module = prefs_register_protocol(proto_fr, NULL);
@@ -983,10 +984,9 @@ proto_register_fr(void)
 void
 proto_reg_handoff_fr(void)
 {
-  dissector_handle_t fr_handle, fr_phdr_handle;
+  dissector_handle_t fr_phdr_handle;
   capture_dissector_handle_t fr_cap_handle;
 
-  fr_handle = find_dissector("fr");
   dissector_add_uint("gre.proto", ETHERTYPE_RAW_FR, fr_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FRELAY, fr_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_FRELAY, fr_handle);

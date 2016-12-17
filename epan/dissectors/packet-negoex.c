@@ -75,6 +75,8 @@ static gint ett_negoex_checksum = -1;
 static gint ett_negoex_checksum_vector = -1;
 static gint ett_negoex_byte_vector = -1;
 
+static dissector_handle_t negoex_handle;
+
 /* If you add more message types, add them in sequence and update MAX_MSG */
 #define MESSAGE_TYPE_INITIATOR_NEGO      0
 #define MESSAGE_TYPE_ACCEPTOR_NEGO       1
@@ -618,17 +620,14 @@ proto_register_negoex(void)
 
   /* negoex_module = prefs_register_protocol(proto_negoex, NULL);*/
 
-  register_dissector("negoex", dissect_negoex, proto_negoex);
+  negoex_handle = register_dissector("negoex", dissect_negoex, proto_negoex);
 }
 
 void
 proto_reg_handoff_negoex(void)
 {
-  dissector_handle_t negoex_handle;
 
   /* Register protocol with the GSS-API module */
-
-  negoex_handle = find_dissector("negoex");
   gssapi_init_oid("1.3.6.1.4.1.311.2.2.30", proto_negoex, ett_negoex,
                   negoex_handle, NULL,
                   "NEGOEX - SPNEGO Extended Negotiation Security Mechanism");

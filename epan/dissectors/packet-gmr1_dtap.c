@@ -48,6 +48,7 @@ static gint ett_gmr1_pd = -1;
 
 /* Handoffs */
 static dissector_handle_t gsm_dtap_handle;
+static dissector_handle_t dtap_handle;
 
 
 static int
@@ -173,15 +174,12 @@ proto_register_gmr1_dtap(void)
 	proto_register_field_array(proto_gmr1_dtap, hf, array_length(hf));
 
 	/* Register dissector */
-	register_dissector("gmr1_dtap", dissect_gmr1_dtap, proto_gmr1_dtap);
+	dtap_handle = register_dissector("gmr1_dtap", dissect_gmr1_dtap, proto_gmr1_dtap);
 }
 
 void
 proto_reg_handoff_gmr1_dtap(void)
 {
-	dissector_handle_t dtap_handle;
-
-	dtap_handle = find_dissector("gmr1_dtap");
 	dissector_add_uint("lapsat.sapi", 0 , dtap_handle); /* LAPSat: CC/RR/MM */
 	dissector_add_uint("lapsat.sapi", 3 , dtap_handle); /* LAPSat: SMS/SS */
 

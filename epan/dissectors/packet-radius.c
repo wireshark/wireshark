@@ -217,6 +217,8 @@ static radius_vendor_info_t no_vendor = {"Unknown Vendor", 0, NULL, -1, 1, 1, FA
 static radius_attr_info_t no_dictionary_entry = {"Unknown-Attribute", 0, FALSE, FALSE, radius_octets, NULL, NULL, -1, -1, -1, -1, -1, NULL };
 
 static dissector_handle_t eap_handle;
+static dissector_handle_t radius_handle;
+
 
 static const gchar *shared_secret = "";
 static gboolean validate_authenticator = FALSE;
@@ -2632,7 +2634,7 @@ proto_register_radius(void)
 	module_t *radius_module;
 
 	proto_radius = proto_register_protocol("RADIUS Protocol", "RADIUS", "radius");
-	register_dissector("radius", dissect_radius, proto_radius);
+	radius_handle = register_dissector("radius", dissect_radius, proto_radius);
 	register_init_routine(&radius_init_protocol);
 	radius_module = prefs_register_protocol(proto_radius, NULL);
 	prefs_register_string_preference(radius_module, "shared_secret", "Shared Secret",
@@ -2662,9 +2664,6 @@ proto_register_radius(void)
 void
 proto_reg_handoff_radius(void)
 {
-	dissector_handle_t radius_handle;
-
-	radius_handle = find_dissector("radius");
 	eap_handle = find_dissector_add_dependency("eap", proto_radius);
 	dissector_add_uint_range_with_preference("udp.port", DEFAULT_RADIUS_PORT_RANGE, radius_handle);
 }

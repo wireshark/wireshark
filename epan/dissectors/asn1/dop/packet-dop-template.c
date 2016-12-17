@@ -70,6 +70,8 @@ static expert_field ei_dop_unsupported_errcode = EI_INIT;
 static expert_field ei_dop_unsupported_pdu = EI_INIT;
 static expert_field ei_dop_zero_pdu = EI_INIT;
 
+static dissector_handle_t dop_handle = NULL;
+
 /* Dissector table */
 static dissector_table_t dop_dissector_table;
 
@@ -257,7 +259,7 @@ void proto_register_dop(void) {
   /* Register protocol */
   proto_dop = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  register_dissector("dop", dissect_dop, proto_dop);
+  dop_handle = register_dissector("dop", dissect_dop, proto_dop);
 
   dop_dissector_table = register_dissector_table("dop.oid", "DOP OID Dissectors", proto_dop, FT_STRING, BASE_NONE);
 
@@ -282,7 +284,6 @@ void proto_register_dop(void) {
 
 /*--- proto_reg_handoff_dop --- */
 void proto_reg_handoff_dop(void) {
-  dissector_handle_t dop_handle;
 
 #include "packet-dop-dis-tab.c"
   /* APPLICATION CONTEXT */
@@ -292,7 +293,6 @@ void proto_reg_handoff_dop(void) {
   /* ABSTRACT SYNTAXES */
 
   /* Register DOP with ROS (with no use of RTSE) */
-  dop_handle = find_dissector("dop");
   register_ros_oid_dissector_handle("2.5.9.4", dop_handle, 0, "id-as-directory-operational-binding-management", FALSE);
 
   /* BINDING TYPES */

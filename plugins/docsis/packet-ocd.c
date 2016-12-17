@@ -72,6 +72,8 @@ static gint ett_docsis_ocd_tlv_subcarrier_assignment = -1;
 static expert_field ei_docsis_ocd_tlvlen_bad = EI_INIT;
 static expert_field ei_docsis_ocd_value_unknown = EI_INIT;
 
+static dissector_handle_t docsis_ocd_handle;
+
 static const value_string docsis_ocd_four_trans_size[] = {
   {0, "4096 subcarriers at 50 kHz spacing"},
   {1, "8192 subcarriers at 25 kHz spacing"},
@@ -381,14 +383,12 @@ proto_register_docsis_ocd(void)
   proto_register_subtree_array (ett, array_length (ett));
   expert_docsis_ocd = expert_register_protocol(proto_docsis_ocd);
   expert_register_field_array(expert_docsis_ocd, ei, array_length(ei));
-  register_dissector ("docsis_ocd", dissect_ocd, proto_docsis_ocd);
+  docsis_ocd_handle = register_dissector ("docsis_ocd", dissect_ocd, proto_docsis_ocd);
 }
 
 void
 proto_reg_handoff_docsis_ocd (void)
 {
-  dissector_handle_t docsis_ocd_handle;
-  docsis_ocd_handle = find_dissector ("docsis_ocd");
   dissector_add_uint ("docsis_mgmt", 0x31, docsis_ocd_handle);
 }
 

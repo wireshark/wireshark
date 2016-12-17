@@ -127,6 +127,8 @@ static int hf_ams_adscycletime = -1;
 /* static int hf_ams_adscmpmax = -1; */
 /* static int hf_ams_adscmpmin = -1; */
 
+static dissector_handle_t ams_handle;
+
 static const value_string TransMode[] =
 {
    {  0, "NO TRANS"},
@@ -1227,16 +1229,15 @@ void proto_register_ams(void)
    proto_register_field_array(proto_ams, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
-   register_dissector("ams", dissect_ams, proto_ams);
+   ams_handle = register_dissector("ams", dissect_ams, proto_ams);
 }
 
 /* The registration hand-off routing */
 
 void proto_reg_handoff_ams(void)
 {
-   dissector_handle_t ams_handle, amstcp_handle;
+   dissector_handle_t amstcp_handle;
 
-   ams_handle = find_dissector("ams");
    amstcp_handle = create_dissector_handle( dissect_amstcp, proto_ams );
    dissector_add_uint_with_preference("tcp.port", AMS_TCP_PORT, amstcp_handle);
    dissector_add_uint("ecatf.type", 2, ams_handle);

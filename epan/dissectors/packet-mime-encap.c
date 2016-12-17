@@ -30,6 +30,8 @@ void proto_reg_handoff_mime_encap(void);
 
 static int proto_mime_encap = -1;
 
+static dissector_handle_t mime_encap_handle;
+
 static heur_dissector_list_t heur_subdissector_list;
 
 static int
@@ -55,16 +57,13 @@ proto_register_mime_encap(void)
 {
 	proto_mime_encap = proto_register_protocol("MIME file", "MIME_FILE", "mime_dlt");
 
-	register_dissector("mime_dlt", dissect_mime_encap, proto_mime_encap);
+	mime_encap_handle = register_dissector("mime_dlt", dissect_mime_encap, proto_mime_encap);
 	heur_subdissector_list = register_heur_dissector_list("wtap_file", proto_mime_encap);
 }
 
 void
 proto_reg_handoff_mime_encap(void)
 {
-	dissector_handle_t mime_encap_handle;
-
-	mime_encap_handle = find_dissector("mime_dlt");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_MIME, mime_encap_handle);
 }
 

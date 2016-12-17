@@ -64,6 +64,8 @@ static int hf_krb4_unknown_transarc_blob = -1;
 static gint ett_krb4 = -1;
 static gint ett_krb4_auth_msg_type = -1;
 
+static dissector_handle_t krb4_handle;
+
 #define UDP_PORT_KRB4    750
 #define TRANSARC_SPECIAL_VERSION 0x63
 
@@ -439,7 +441,7 @@ proto_register_krb4(void)
 
 	proto_krb4 = proto_register_protocol("Kerberos v4",
 					     "KRB4", "krb4");
-	register_dissector("krb4", dissect_krb4, proto_krb4);
+	krb4_handle = register_dissector("krb4", dissect_krb4, proto_krb4);
 	proto_register_field_array(proto_krb4, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -447,9 +449,6 @@ proto_register_krb4(void)
 void
 proto_reg_handoff_krb4(void)
 {
-	dissector_handle_t krb4_handle;
-
-	krb4_handle = find_dissector("krb4");
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_KRB4, krb4_handle);
 }
 

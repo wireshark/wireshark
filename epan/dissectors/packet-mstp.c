@@ -93,6 +93,8 @@ static expert_field ei_mstp_frame_checksum_bad = EI_INIT;
 
 static int mstp_address_type = -1;
 
+static dissector_handle_t mstp_handle;
+
 #if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
 /* Accumulate "dataValue" into the CRC in crcValue. */
 /* Return value is updated CRC */
@@ -394,7 +396,7 @@ proto_register_mstp(void)
 	expert_mstp = expert_register_protocol(proto_mstp);
 	expert_register_field_array(expert_mstp, ei, array_length(ei));
 
-	register_dissector("mstp", dissect_mstp_wtap, proto_mstp);
+	mstp_handle = register_dissector("mstp", dissect_mstp_wtap, proto_mstp);
 
 	subdissector_table = register_dissector_table("mstp.vendor_frame_type",
 	    "MSTP Vendor specific Frametypes", proto_mstp, FT_UINT24, BASE_DEC);
@@ -406,10 +408,8 @@ proto_register_mstp(void)
 void
 proto_reg_handoff_mstp(void)
 {
-	dissector_handle_t mstp_handle;
 	dissector_handle_t bacnet_handle;
 
-	mstp_handle = find_dissector("mstp");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_BACNET_MS_TP, mstp_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR, mstp_handle);
 

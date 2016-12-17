@@ -40,6 +40,8 @@ static int hf_docsis_bintrngreq_capflags_encrypt = -1;
 /* Initialize the subtree pointers */
 static gint ett_docsis_bintrngreq = -1;
 
+static dissector_handle_t docsis_bintrngreq_handle;
+
 /* Dissection */
 static int
 dissect_bintrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -127,15 +129,12 @@ proto_register_docsis_bintrngreq (void)
   proto_register_field_array (proto_docsis_bintrngreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_bintrngreq", dissect_bintrngreq, proto_docsis_bintrngreq);
+  docsis_bintrngreq_handle = register_dissector ("docsis_bintrngreq", dissect_bintrngreq, proto_docsis_bintrngreq);
 }
 
 void
 proto_reg_handoff_docsis_bintrngreq (void)
 {
-  dissector_handle_t docsis_bintrngreq_handle;
-
-  docsis_bintrngreq_handle = find_dissector ("docsis_bintrngreq");
   dissector_add_uint ("docsis_mgmt", 0x22, docsis_bintrngreq_handle);
 }
 

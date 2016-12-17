@@ -36,6 +36,8 @@ static int hf_docsis_sync_cmts_timestamp = -1;
 /* Initialize the subtree pointers */
 static gint ett_docsis_sync = -1;
 
+static dissector_handle_t docsis_sync_handle;
+
 /* Dissection */
 static int
 dissect_sync (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -80,15 +82,12 @@ proto_register_docsis_sync (void)
   proto_register_field_array (proto_docsis_sync, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_sync", dissect_sync, proto_docsis_sync);
+  docsis_sync_handle = register_dissector ("docsis_sync", dissect_sync, proto_docsis_sync);
 }
 
 void
 proto_reg_handoff_docsis_sync (void)
 {
-  dissector_handle_t docsis_sync_handle;
-
-  docsis_sync_handle = find_dissector ("docsis_sync");
   dissector_add_uint ("docsis_mgmt", 1, docsis_sync_handle);
 }
 

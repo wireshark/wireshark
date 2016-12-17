@@ -59,6 +59,9 @@ static gint ett_db_lsp = -1;
 
 static heur_dissector_list_t heur_subdissector_list;
 
+static dissector_handle_t db_lsp_tcp_handle;
+static dissector_handle_t db_lsp_udp_handle;
+
 /* Use heuristic */
 static gboolean try_heuristic = TRUE;
 /* desegmentation of tcp payload */
@@ -237,8 +240,8 @@ proto_register_db_lsp (void)
 
   proto_db_lsp = proto_register_protocol (PNAME, PSNAME, PFNAME);
   proto_db_lsp_disc = proto_register_protocol (PNAME_DISC, PSNAME_DISC, PFNAME_DISC);
-  register_dissector ("db-lsp.tcp", dissect_db_lsp_tcp, proto_db_lsp);
-  register_dissector ("db-lsp.udp", dissect_db_lsp_disc, proto_db_lsp_disc);
+  db_lsp_tcp_handle = register_dissector ("db-lsp.tcp", dissect_db_lsp_tcp, proto_db_lsp);
+  db_lsp_udp_handle = register_dissector ("db-lsp.udp", dissect_db_lsp_disc, proto_db_lsp_disc);
 
   heur_subdissector_list = register_heur_dissector_list("db-lsp", proto_db_lsp);
 
@@ -265,12 +268,6 @@ proto_register_db_lsp (void)
 void
 proto_reg_handoff_db_lsp (void)
 {
-  dissector_handle_t db_lsp_tcp_handle;
-  dissector_handle_t db_lsp_udp_handle;
-
-  db_lsp_tcp_handle = find_dissector ("db-lsp.tcp");
-  db_lsp_udp_handle = find_dissector ("db-lsp.udp");
-
   dissector_add_uint_with_preference("tcp.port", DB_LSP_PORT, db_lsp_tcp_handle);
   dissector_add_uint_with_preference("udp.port", DB_LSP_PORT, db_lsp_udp_handle);
 }

@@ -397,13 +397,12 @@ proto_register_mpls_y1711(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_mpls_y1711 = expert_register_protocol(proto_mpls_y1711);
     expert_register_field_array(expert_mpls_y1711, ei, array_length(ei));
-    register_dissector("mpls_y1711", dissect_mpls_y1711, proto_mpls_y1711);
+    mpls_y1711_handle = register_dissector("mpls_y1711", dissect_mpls_y1711, proto_mpls_y1711);
 }
 
 void
 proto_reg_handoff_mpls_y1711(void)
 {
-    mpls_y1711_handle = find_dissector("mpls_y1711");
     dissector_add_uint("mpls.label",
                        MPLS_LABEL_OAM_ALERT /* 14 */,
                        mpls_y1711_handle);

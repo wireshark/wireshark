@@ -98,6 +98,8 @@ static dissector_handle_t fddi_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t turbo_handle;
 static dissector_handle_t mesh_handle;
+static dissector_handle_t llc_handle;
+
 
 /*
  * Group/Individual bit, in the DSAP.
@@ -815,7 +817,7 @@ proto_register_llc(void)
 	  "LLC XID SAP", proto_llc, FT_UINT8, BASE_HEX);
 	register_capture_dissector_table("llc.dsap", "LLC");
 
-	register_dissector("llc", dissect_llc, proto_llc);
+	llc_handle = register_dissector("llc", dissect_llc, proto_llc);
 
 	register_capture_dissector("llc", capture_llc, proto_llc);
 }
@@ -858,7 +860,6 @@ register_hf(gpointer key _U_, gpointer value, gpointer user_data _U_)
 void
 proto_reg_handoff_llc(void)
 {
-	dissector_handle_t llc_handle;
 	capture_dissector_handle_t llc_cap_handle;
 	capture_dissector_handle_t llc_snap_handle;
 
@@ -880,7 +881,6 @@ proto_reg_handoff_llc(void)
 	ethertype_subdissector_table = find_dissector_table("ethertype");
 	hpteam_subdissector_table = find_dissector_table("llc.hpteam_pid");
 
-	llc_handle = find_dissector("llc");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_RFC1483, llc_handle);
 	dissector_add_uint("sll.ltype", LINUX_SLL_P_802_2, llc_handle);
 	/* RFC 2043 */

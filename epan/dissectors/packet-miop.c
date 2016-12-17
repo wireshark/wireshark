@@ -81,6 +81,8 @@ static gint ett_miop = -1;
 static expert_field ei_miop_version_not_supported = EI_INIT;
 static expert_field ei_miop_unique_id_len_exceed_max_value = EI_INIT;
 
+static dissector_handle_t miop_handle;
+
 #define MIOP_MAGIC   0x4d494f50 /* "MIOP" */
 
 static gboolean
@@ -306,16 +308,13 @@ void proto_register_miop (void) {
   expert_miop = expert_register_protocol(proto_miop);
   expert_register_field_array(expert_miop, ei, array_length(ei));
 
-  register_dissector("miop", dissect_miop, proto_miop);
+  miop_handle = register_dissector("miop", dissect_miop, proto_miop);
 
 }
 
 
 void proto_reg_handoff_miop (void) {
 
-  dissector_handle_t miop_handle;
-
-  miop_handle = find_dissector("miop");
   dissector_add_for_decode_as_with_preference("udp.port", miop_handle);
 
   heur_dissector_add("udp", dissect_miop_heur, "MIOP over UDP", "miop_udp", proto_miop, HEURISTIC_ENABLE);

@@ -488,7 +488,7 @@ static int ett_gvcp_payload_ack_subtree = -1;
 static int ett_gvcp_bootstrap_fields = -1;
 
 static dissector_handle_t gvcp_handle;
-
+static dissector_handle_t gvsp_handle;
 
 /*Device Mode*/
 static const value_string devicemodenames_class[] = {
@@ -1502,13 +1502,8 @@ static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 		(addr == GVCP_SC_DESTINATION_PORT(2)) ||
 		(addr == GVCP_SC_DESTINATION_PORT(3)))
 	{
-		dissector_handle_t gvsp_handle;
-		gvsp_handle = find_dissector("gvsp");
-		if (gvsp_handle != NULL)
-		{
-			/* For now we simply (always) add ports. Maybe we should remove when the dissector gets unloaded? */
-			dissector_add_uint("udp.port", value, gvsp_handle);
-		}
+		/* For now we simply (always) add ports. Maybe we should remove when the dissector gets unloaded? */
+		dissector_add_uint("udp.port", value, gvsp_handle);
 	}
 
 	/* Automatically learn messaging channel port. Dissect as GVCP. */
@@ -3820,6 +3815,7 @@ void proto_register_gvcp(void)
 void proto_reg_handoff_gvcp(void)
 {
 	dissector_add_uint("udp.port", global_gvcp_port, gvcp_handle);
+	gvsp_handle = find_dissector("gvsp");
 }
 
 /*

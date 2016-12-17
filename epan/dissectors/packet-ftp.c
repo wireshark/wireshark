@@ -68,6 +68,7 @@ static expert_field ei_ftp_epsv_args_invalid = EI_INIT;
 static expert_field ei_ftp_response_code_invalid = EI_INIT;
 
 static dissector_handle_t ftpdata_handle;
+static dissector_handle_t ftp_handle;
 
 #define TCP_PORT_FTPDATA        20
 #define TCP_PORT_FTP            21
@@ -1049,9 +1050,9 @@ proto_register_ftp(void)
 
     proto_ftp = proto_register_protocol("File Transfer Protocol (FTP)", "FTP", "ftp");
 
-    register_dissector("ftp", dissect_ftp, proto_ftp);
+    ftp_handle = register_dissector("ftp", dissect_ftp, proto_ftp);
     proto_ftp_data = proto_register_protocol("FTP Data", "FTP-DATA", "ftp-data");
-    register_dissector("ftp-data", dissect_ftpdata, proto_ftp_data);
+    ftpdata_handle = register_dissector("ftp-data", dissect_ftpdata, proto_ftp_data);
     proto_register_field_array(proto_ftp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_ftp = expert_register_protocol(proto_ftp);
@@ -1061,11 +1062,7 @@ proto_register_ftp(void)
 void
 proto_reg_handoff_ftp(void)
 {
-    dissector_handle_t ftp_handle;
-
-    ftpdata_handle = find_dissector("ftp-data");
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_FTPDATA, ftpdata_handle);
-    ftp_handle = find_dissector("ftp");
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_FTP, ftp_handle);
 }
 

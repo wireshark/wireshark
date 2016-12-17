@@ -45,6 +45,8 @@ static dissector_handle_t docsis_tlv_handle;
 /* Initialize the subtree pointers */
 static gint ett_docsis_regrspmp = -1;
 
+static dissector_handle_t docsis_regrspmp_handle;
+
 /* Dissection */
 static int
 dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -110,16 +112,13 @@ proto_register_docsis_regrspmp (void)
   proto_register_field_array (proto_docsis_regrspmp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_regrspmp", dissect_regrspmp, proto_docsis_regrspmp);
+  docsis_regrspmp_handle = register_dissector ("docsis_regrspmp", dissect_regrspmp, proto_docsis_regrspmp);
 }
 
 void
 proto_reg_handoff_docsis_regrspmp (void)
 {
-  dissector_handle_t docsis_regrspmp_handle;
-
   docsis_tlv_handle = find_dissector ("docsis_tlv");
-  docsis_regrspmp_handle = find_dissector ("docsis_regrspmp");
   dissector_add_uint ("docsis_mgmt", 45, docsis_regrspmp_handle);
 }
 

@@ -256,6 +256,9 @@ static const fragment_items oss_frag_items = {
 static const char *global_scm_udid = "00:00:00:00:00:00";
 
 static dissector_handle_t data_dissector = NULL;
+static dissector_handle_t opensafety_udpdata_handle = NULL;
+static dissector_handle_t opensafety_mbtcp_handle = NULL;
+static dissector_handle_t opensafety_pnio_handle = NULL;
 
 static gboolean global_display_intergap_data   = FALSE;
 static gboolean global_scm_udid_autoset        = TRUE;
@@ -2403,23 +2406,18 @@ dissect_opensafety_udpdata(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
 static void
 apply_prefs ( void )
 {
-    static dissector_handle_t opensafety_udpdata_handle = NULL;
     static guint    opensafety_udp_port_number;
     static guint    opensafety_udp_siii_port_number;
     static gboolean opensafety_init = FALSE;
 
     /* It only should delete dissectors, if run for any time except the first */
-    if ( !opensafety_init )
-    {
-        opensafety_udpdata_handle = find_dissector("opensafety_udpdata");
-        opensafety_init = TRUE;
-    }
-    else
+    if ( opensafety_init )
     {
         /* Delete dissectors in preparation of a changed config setting */
         dissector_delete_uint ("udp.port", opensafety_udp_port_number, opensafety_udpdata_handle);
         dissector_delete_uint ("udp.port", opensafety_udp_siii_port_number, opensafety_udpdata_handle);
     }
+    opensafety_init = TRUE;
 
     /* Storing the port numbers locally, to being able to delete the old associations */
     opensafety_udp_port_number = global_network_udp_port;
@@ -2854,9 +2852,9 @@ proto_register_opensafety(void)
                 &global_classify_transport);
 
     /* Registering default and ModBus/TCP dissector */
-    register_dissector("opensafety_udpdata", dissect_opensafety_udpdata, proto_opensafety );
-    register_dissector("opensafety_mbtcp", dissect_opensafety_mbtcp, proto_opensafety );
-    register_dissector("opensafety_pnio", dissect_opensafety_pn_io, proto_opensafety);
+    opensafety_udpdata_handle = register_dissector("opensafety_udpdata", dissect_opensafety_udpdata, proto_opensafety );
+    opensafety_mbtcp_handle = register_dissector("opensafety_mbtcp", dissect_opensafety_mbtcp, proto_opensafety );
+    opensafety_pnio_handle = register_dissector("opensafety_pnio", dissect_opensafety_pn_io, proto_opensafety);
 }
 
 void
@@ -2875,7 +2873,7 @@ proto_reg_handoff_opensafety(void)
         heur_dissector_add("opensafety_udp", dissect_opensafety_udpdata, "openSAFETY over UDP", "opensafety_udp", proto_opensafety, HEURISTIC_ENABLE);
 
     /* Modbus TCP dissector registration */
-    dissector_add_string("modbus.data", "data", find_dissector("opensafety_mbtcp"));
+    dissector_add_string("modbus.data", "data", opensafety_mbtcp_handle);
 
     /* For Profinet we have to register as a heuristic dissector, as Profinet
      *  is implemented as a plugin, and therefore the heuristic dissector is not
@@ -2891,7 +2889,7 @@ proto_reg_handoff_opensafety(void)
          * the ethernet subdissector list. No PNIO specific data will be dissected
          * and a warning will be displayed, recognizing the missing dissector plugin.
          */
-        dissector_add_uint("ethertype", ETHERTYPE_PROFINET, find_dissector("opensafety_pnio"));
+        dissector_add_uint("ethertype", ETHERTYPE_PROFINET, opensafety_pnio_handle);
     }
 
     apply_prefs();

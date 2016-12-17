@@ -191,9 +191,9 @@ proto_reg_handoff_jmirror(void)
 	jmirror_handle = create_dissector_handle(dissect_jmirror, proto_jmirror);
 
 	/* Create pointer to ipv4, ipv6, ppp and data dissectors */
-	ipv4_handle = find_dissector("ip");
-	ipv6_handle = find_dissector("ipv6");
-	hdlc_handle = find_dissector("pw_hdlc_nocw_hdlc_ppp");
+	ipv4_handle = find_dissector_add_dependency("ip", proto_jmirror);
+	ipv6_handle = find_dissector_add_dependency("ipv6", proto_jmirror);
+	hdlc_handle = find_dissector_add_dependency("pw_hdlc_nocw_hdlc_ppp", proto_jmirror);
 
 	/* Register as a normal IP dissector with default UDP port 30030 */
 	dissector_add_uint_with_preference("udp.port", DEF_JMIRROR_UDP_PORT, jmirror_handle);

@@ -200,6 +200,8 @@ static int hf_ehs_dz_udsm_event = -1;
 static int hf_ehs_dz_udsm_num_pkts_xmtd_rollover = -1;
 
 
+static dissector_handle_t ehs_handle;
+
 /* handle to ccsds packet dissector */
 static dissector_handle_t ccsds_handle;
 
@@ -1952,14 +1954,13 @@ proto_register_ehs(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   /* XX: Does this dissector need to be publicly registered ?? */
-  register_dissector ( "ehs", dissect_ehs, proto_ehs );
-
+  ehs_handle = register_dissector ( "ehs", dissect_ehs, proto_ehs );
 }
 
 void
 proto_reg_handoff_ehs(void)
 {
-  dissector_add_for_decode_as_with_preference( "udp.port", find_dissector("ehs") );
+  dissector_add_for_decode_as_with_preference( "udp.port", ehs_handle );
   ccsds_handle = find_dissector_add_dependency ( "ccsds", proto_ehs  );
 }
 

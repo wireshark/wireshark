@@ -83,6 +83,8 @@ static int hf_tapa_tunnel_tagsetc = -1;
 
 static int hf_tapa_tunnel_remaining = -1;
 
+static dissector_handle_t tapa_handle;
+
 #define PROTO_SHORT_NAME "TAPA"
 #define PROTO_LONG_NAME "Trapeze Access Point Access Protocol"
 
@@ -616,16 +618,13 @@ proto_register_tapa(void)
 	proto_register_field_array(proto_tapa, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("tapa", dissect_tapa_static, proto_tapa);
+	tapa_handle = register_dissector("tapa", dissect_tapa_static, proto_tapa);
 
 }
 
 void
 proto_reg_handoff_tapa(void)
 {
-	dissector_handle_t tapa_handle;
-
-	tapa_handle = find_dissector("tapa");
 	dissector_add_uint_with_preference("udp.port", PORT_TAPA, tapa_handle);
 	heur_dissector_add( "ip", dissect_tapa_heur, "TAPA over IP", "tapa_ip", proto_tapa, HEURISTIC_ENABLE);
 }

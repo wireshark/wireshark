@@ -60,6 +60,8 @@ static gint ett_hpsw_tlv = -1;
 
 static expert_field ei_hpsw_tlvlength_bad = EI_INIT;
 
+static dissector_handle_t hpsw_handle;
+
 #define HPFOO_DEVICE_NAME     0x1
 #define HPFOO_DEVICE_VERSION  0x2
 #define HPFOO_CONFIG_NAME     0x3
@@ -359,16 +361,12 @@ proto_register_hpsw(void)
     expert_hpsw = expert_register_protocol(proto_hpsw);
     expert_register_field_array(expert_hpsw, ei, array_length(ei));
 
-    register_dissector("hpsw", dissect_hpsw, proto_hpsw);
+    hpsw_handle = register_dissector("hpsw", dissect_hpsw, proto_hpsw);
 }
 
 void
 proto_reg_handoff_hpsw(void)
 {
-    dissector_handle_t hpsw_handle;
-
-    hpsw_handle = find_dissector("hpsw");
-
     dissector_add_uint("hpext.dxsap", HPEXT_HPSW, hpsw_handle);
 }
 

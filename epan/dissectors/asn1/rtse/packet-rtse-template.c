@@ -67,6 +67,7 @@ static expert_field ei_rtse_unknown_rtse_pdu = EI_INIT;
 static expert_field ei_rtse_abstract_syntax = EI_INIT;
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
+static dissector_handle_t rtse_handle = NULL;
 static GHashTable *oid_table=NULL;
 static gint ett_rtse_unknown = -1;
 
@@ -115,11 +116,8 @@ register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector
 {
 /* XXX: Note that this fcn is called from proto_reg_handoff in *other* dissectors ... */
 
-  static  dissector_handle_t rtse_handle = NULL;
   static  dissector_handle_t ros_handle = NULL;
 
-  if (rtse_handle == NULL)
-    rtse_handle = find_dissector("rtse");
   if (ros_handle == NULL)
     ros_handle = find_dissector("ros");
 
@@ -385,7 +383,7 @@ void proto_register_rtse(void) {
 
   /* Register protocol */
   proto_rtse = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("rtse", dissect_rtse, proto_rtse);
+  rtse_handle = register_dissector("rtse", dissect_rtse, proto_rtse);
   /* Register fields and subtrees */
   proto_register_field_array(proto_rtse, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

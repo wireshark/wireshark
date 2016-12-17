@@ -1927,8 +1927,7 @@ proto_register_dtls(void)
   }
 #endif
 
-  register_dissector("dtls", dissect_dtls, proto_dtls);
-  dtls_handle = find_dissector("dtls");
+  dtls_handle = register_dissector("dtls", dissect_dtls, proto_dtls);
 
   register_init_routine(dtls_init);
   register_cleanup_routine(dtls_cleanup);
@@ -1956,7 +1955,7 @@ proto_reg_handoff_dtls(void)
 
   if (initialized == FALSE) {
     heur_dissector_add("udp", dissect_dtls_heur, "DTLS over UDP", "dtls_udp", proto_dtls, HEURISTIC_ENABLE);
-    dissector_add_uint("sctp.ppi", DIAMETER_DTLS_PROTOCOL_ID, find_dissector("dtls"));
+    dissector_add_uint("sctp.ppi", DIAMETER_DTLS_PROTOCOL_ID, dtls_handle);
   }
 
   initialized = TRUE;

@@ -564,6 +564,7 @@ static const value_string mptcp_subtype_vs[] = {
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
+static dissector_handle_t tcp_handle;
 static dissector_handle_t sport_handle;
 static guint32 tcp_stream_count;
 static guint32 mptcp_stream_count;
@@ -7411,7 +7412,7 @@ proto_register_tcp(void)
     expert_module_t* expert_mptcp;
 
     proto_tcp = proto_register_protocol("Transmission Control Protocol", "TCP", "tcp");
-    register_dissector("tcp", dissect_tcp, proto_tcp);
+    tcp_handle = register_dissector("tcp", dissect_tcp, proto_tcp);
     proto_register_field_array(proto_tcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_tcp = expert_register_protocol(proto_tcp);
@@ -7540,10 +7541,8 @@ proto_register_tcp(void)
 void
 proto_reg_handoff_tcp(void)
 {
-    dissector_handle_t tcp_handle;
     capture_dissector_handle_t tcp_cap_handle;
 
-    tcp_handle = find_dissector("tcp");
     dissector_add_uint("ip.proto", IP_PROTO_TCP, tcp_handle);
     data_handle = find_dissector("data");
     sport_handle = find_dissector("sport");

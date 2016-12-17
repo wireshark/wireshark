@@ -304,6 +304,9 @@ static gint ett_sna_control_05hpr = -1;
 static gint ett_sna_control_05hpr_type = -1;
 static gint ett_sna_control_0e = -1;
 
+static dissector_handle_t sna_handle;
+static dissector_handle_t sna_xid_handle;
+
 static int sna_address_type = -1;
 
 /* Defragment fragmented SNA BIUs*/
@@ -3477,11 +3480,11 @@ proto_register_sna(void)
 	    "SNA", "sna");
 	proto_register_field_array(proto_sna, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("sna", dissect_sna, proto_sna);
+	sna_handle = register_dissector("sna", dissect_sna, proto_sna);
 
 	proto_sna_xid = proto_register_protocol(
 	    "Systems Network Architecture XID", "SNA XID", "sna_xid");
-	register_dissector("sna_xid", dissect_sna_xid, proto_sna_xid);
+	sna_xid_handle = register_dissector("sna_xid", dissect_sna_xid, proto_sna_xid);
 
 	sna_address_type = address_type_dissector_register("AT_SNA", "SNA Address", sna_fid_to_str_buf, sna_address_str_len, NULL, NULL, NULL, NULL, NULL);
 
@@ -3499,11 +3502,6 @@ proto_register_sna(void)
 void
 proto_reg_handoff_sna(void)
 {
-	dissector_handle_t sna_handle;
-	dissector_handle_t sna_xid_handle;
-
-	sna_handle = find_dissector("sna");
-	sna_xid_handle = find_dissector("sna_xid");
 	dissector_add_uint("llc.dsap", SAP_SNA_PATHCTRL, sna_handle);
 	dissector_add_uint("llc.dsap", SAP_SNA1, sna_handle);
 	dissector_add_uint("llc.dsap", SAP_SNA2, sna_handle);

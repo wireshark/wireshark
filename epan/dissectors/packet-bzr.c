@@ -49,6 +49,7 @@ static gint hf_bzr_packet_protocol_version = -1;
 static gint hf_bzr_packet_kind = -1;
 
 static dissector_handle_t bencode_handle;
+static dissector_handle_t bzr_handle = NULL;
 
 #define REQUEST_VERSION_TWO   "bzr request 2\n"
 #define RESPONSE_VERSION_TWO  "bzr response 2\n"
@@ -302,7 +303,7 @@ proto_register_bzr(void)
 
     module_t *bzr_module;
     proto_bzr = proto_register_protocol("Bazaar Smart Protocol", "Bazaar", "bzr");
-    register_dissector("bzr", dissect_bzr, proto_bzr);
+    bzr_handle = register_dissector("bzr", dissect_bzr, proto_bzr);
     proto_register_field_array(proto_bzr, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -319,11 +320,8 @@ proto_register_bzr(void)
 void
 proto_reg_handoff_bzr(void)
 {
-    dissector_handle_t bzr_handle;
-
     bencode_handle = find_dissector_add_dependency("bencode", proto_bzr);
 
-    bzr_handle = find_dissector("bzr");
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_BZR, bzr_handle);
 }
 

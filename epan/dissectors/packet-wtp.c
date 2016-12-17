@@ -221,6 +221,7 @@ static const fragment_items wtp_frag_items = {
 
 /* Handle for WSP dissector */
 static dissector_handle_t wsp_handle;
+static dissector_handle_t wtp_fromudp_handle;
 
 /*
  * reassembly of WSP
@@ -1061,7 +1062,7 @@ proto_register_wtp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector("wtp-wtls", dissect_wtp_fromwtls, proto_wtp);
-    register_dissector("wtp-udp", dissect_wtp_fromudp, proto_wtp);
+    wtp_fromudp_handle = register_dissector("wtp-udp", dissect_wtp_fromudp, proto_wtp);
     register_init_routine(wtp_defragment_init);
     register_cleanup_routine(wtp_defragment_cleanup);
 }
@@ -1069,15 +1070,12 @@ proto_register_wtp(void)
 void
 proto_reg_handoff_wtp(void)
 {
-    dissector_handle_t wtp_fromudp_handle;
-
     /*
      * Get a handle for the connection-oriented WSP dissector - if WTP
      * PDUs have data, it is WSP.
      */
     wsp_handle = find_dissector_add_dependency("wsp-co", proto_wtp);
 
-    wtp_fromudp_handle = find_dissector("wtp-udp");
     dissector_add_uint_with_preference("udp.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
     dissector_add_uint("gsm_sms_ud.udh.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
     dissector_add_uint("gsm_sms.udh.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);

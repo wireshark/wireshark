@@ -312,6 +312,7 @@ static gint ett_q708_dpc = -1;
 
 static module_t *m3ua_module;
 static dissector_handle_t mtp3_handle;
+static dissector_handle_t m3ua_handle;
 static dissector_table_t si_dissector_table;
 
 static int ss7pc_address_type = -1;
@@ -2135,7 +2136,7 @@ proto_register_m3ua(void)
 
   /* Register the protocol name and description */
   proto_m3ua = proto_register_protocol("MTP 3 User Adaptation Layer", "M3UA",  "m3ua");
-  register_dissector("m3ua", dissect_m3ua, proto_m3ua);
+  m3ua_handle = register_dissector("m3ua", dissect_m3ua, proto_m3ua);
 
   m3ua_module = prefs_register_protocol(proto_m3ua, NULL);
   prefs_register_enum_preference(m3ua_module, "version", "M3UA Version", "Version used by Wireshark", &version, options, FALSE);
@@ -2151,13 +2152,11 @@ proto_register_m3ua(void)
 void
 proto_reg_handoff_m3ua(void)
 {
-  dissector_handle_t m3ua_handle;
 
   /*
    * Get a handle for the MTP3 dissector.
    */
   mtp3_handle = find_dissector_add_dependency("mtp3", proto_m3ua);
-  m3ua_handle = find_dissector("m3ua");
   dissector_add_uint("sctp.ppi",  M3UA_PAYLOAD_PROTOCOL_ID, m3ua_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_M3UA, m3ua_handle);
 

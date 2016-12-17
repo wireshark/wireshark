@@ -39,6 +39,7 @@ static int hf_docsis_regreqmp_number_of_fragments = -1;
 static int hf_docsis_regreqmp_fragment_sequence_number = -1;
 
 static dissector_handle_t docsis_tlv_handle;
+static dissector_handle_t docsis_regreqmp_handle;
 
 /* Initialize the subtree pointers */
 static gint ett_docsis_regreqmp = -1;
@@ -102,16 +103,13 @@ proto_register_docsis_regreqmp (void)
   proto_register_field_array (proto_docsis_regreqmp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_regreqmp", dissect_regreqmp, proto_docsis_regreqmp);
+  docsis_regreqmp_handle = register_dissector ("docsis_regreqmp", dissect_regreqmp, proto_docsis_regreqmp);
 }
 
 void
 proto_reg_handoff_docsis_regreqmp (void)
 {
-  dissector_handle_t docsis_regreqmp_handle;
-
   docsis_tlv_handle = find_dissector ("docsis_tlv");
-  docsis_regreqmp_handle = find_dissector ("docsis_regreqmp");
   dissector_add_uint ("docsis_mgmt", 44, docsis_regreqmp_handle);
 }
 

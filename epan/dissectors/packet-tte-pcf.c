@@ -52,6 +52,8 @@ static int hf_tte_pcf_tc = -1;
 /* Initialize the subtree pointers */
 static gint ett_tte_pcf = -1;
 
+static dissector_handle_t tte_pcf_handle;
+
 static const value_string pcf_type_str_vals[] =
     { {2, "integration frame"}
     , {4, "coldstart frame"}
@@ -203,19 +205,13 @@ proto_register_tte_pcf(void)
     proto_register_field_array(proto_tte_pcf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("tte_pcf", dissect_tte_pcf, proto_tte_pcf);
-
+    tte_pcf_handle = register_dissector("tte_pcf", dissect_tte_pcf, proto_tte_pcf);
 }
 
 
 void
 proto_reg_handoff_tte_pcf(void)
 {
-    dissector_handle_t tte_pcf_handle;
-
-    /* initialize the pcf handle */
-    tte_pcf_handle = find_dissector("tte_pcf");
-
     dissector_add_uint("ethertype", ETHERTYPE_TTE_PCF, tte_pcf_handle);
 
 }

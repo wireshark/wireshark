@@ -46,6 +46,8 @@ static int hf_redbackli_unknownavp = -1;	/* Unknown AVP */
 static int ett_redbackli = -1;
 
 static dissector_handle_t ip_handle;
+static dissector_handle_t redbackli_handle;
+
 
 #define RB_AVP_SEQNO	1
 #define RB_AVP_LIID	2
@@ -281,15 +283,12 @@ void proto_register_redbackli(void) {
 	proto_register_field_array(proto_redbackli, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("redbackli", redbackli_dissect, proto_redbackli);
+	redbackli_handle = register_dissector("redbackli", redbackli_dissect, proto_redbackli);
 }
 
 void proto_reg_handoff_redbackli(void) {
-	dissector_handle_t redbackli_handle;
-
 	ip_handle = find_dissector_add_dependency("ip", proto_redbackli);
 
-	redbackli_handle = find_dissector("redbackli");
 	dissector_add_for_decode_as_with_preference("udp.port", redbackli_handle);
 
 	heur_dissector_add("udp", redbackli_dissect_heur, "Redback Lawful Intercept over UDP", "redbackli_udp", proto_redbackli, HEURISTIC_ENABLE);

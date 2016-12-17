@@ -260,6 +260,8 @@ static expert_field ei_h264_bad_nal_length = EI_INIT;
 static expert_field ei_h264_nal_unit_type_reserved = EI_INIT;
 static expert_field ei_h264_nal_unit_type_unspecified = EI_INIT;
 
+static dissector_handle_t h264_name_handle;
+
 /* The dynamic payload type range which will be dissected as H.264 */
 
 #define RTP_PT_DEFAULT_RANGE "0"
@@ -3700,7 +3702,7 @@ proto_register_h264(void)
                             "; Values must be in the range 96 - 127",
                             &temp_dynamic_payload_type_range, 127);
 
-    register_dissector("h264", dissect_h264, proto_h264);
+    h264_handle = register_dissector("h264", dissect_h264, proto_h264);
 }
 
 
@@ -3712,10 +3714,8 @@ proto_reg_handoff_h264(void)
     static gboolean  h264_prefs_initialized     = FALSE;
 
     if (!h264_prefs_initialized) {
-        dissector_handle_t h264_name_handle;
         h264_capability_t *ftr;
 
-        h264_handle = find_dissector("h264");
         dissector_add_string("rtp_dyn_payload_type","H264", h264_handle);
         dissector_add_string("rtp_dyn_payload_type","H264-SVC", h264_handle);
         dissector_add_string("rtp_dyn_payload_type","X-H264UC", h264_handle);

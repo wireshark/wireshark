@@ -58,6 +58,7 @@ static const value_string code_field_vals[] = {
 static gint ett_docsis_bpkmrsp = -1;
 
 static dissector_handle_t attrs_handle;
+static dissector_handle_t docsis_bpkmrsp_handle;
 
 /* Dissection */
 static int
@@ -127,16 +128,13 @@ proto_register_docsis_bpkmrsp (void)
   proto_register_field_array (proto_docsis_bpkmrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_bpkmrsp", dissect_bpkmrsp,
+  docsis_bpkmrsp_handle = register_dissector ("docsis_bpkmrsp", dissect_bpkmrsp,
                       proto_docsis_bpkmrsp);
 }
 
 void
 proto_reg_handoff_docsis_bpkmrsp (void)
 {
-  dissector_handle_t docsis_bpkmrsp_handle;
-
-  docsis_bpkmrsp_handle = find_dissector ("docsis_bpkmrsp");
   attrs_handle = find_dissector ("docsis_bpkmattr");
   dissector_add_uint ("docsis_mgmt", 0x0D, docsis_bpkmrsp_handle);
 }

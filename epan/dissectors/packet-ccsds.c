@@ -95,7 +95,8 @@ static gint ett_ccsds_checkword = -1;
 static expert_field ei_ccsds_length_error = EI_INIT;
 static expert_field ei_ccsds_checkword = EI_INIT;
 
-/* Dissectot table */
+static dissector_handle_t ccsds_handle;
+/* Dissector table */
 static dissector_table_t ccsds_dissector_table;
 
 static const enum_val_t dissect_checkword[] = {
@@ -704,7 +705,7 @@ proto_register_ccsds(void)
     expert_ccsds = expert_register_protocol(proto_ccsds);
     expert_register_field_array(expert_ccsds, ei, array_length(ei));
 
-    register_dissector ( "ccsds", dissect_ccsds, proto_ccsds );
+    ccsds_handle = register_dissector ( "ccsds", dissect_ccsds, proto_ccsds );
 
     /* Register preferences module */
     ccsds_module = prefs_register_protocol(proto_ccsds, NULL);
@@ -722,7 +723,7 @@ proto_register_ccsds(void)
 void
 proto_reg_handoff_ccsds(void)
 {
-    dissector_add_for_decode_as_with_preference( "udp.port", find_dissector("ccsds") );
+    dissector_add_for_decode_as_with_preference( "udp.port", ccsds_handle);
 }
 
 /*

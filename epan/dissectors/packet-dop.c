@@ -346,6 +346,8 @@ static expert_field ei_dop_unsupported_errcode = EI_INIT;
 static expert_field ei_dop_unsupported_pdu = EI_INIT;
 static expert_field ei_dop_zero_pdu = EI_INIT;
 
+static dissector_handle_t dop_handle = NULL;
+
 /* Dissector table */
 static dissector_table_t dop_dissector_table;
 
@@ -2037,7 +2039,7 @@ static int dissect_ACIItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-dop-fn.c ---*/
-#line 85 "./asn1/dop/packet-dop-template.c"
+#line 87 "./asn1/dop/packet-dop-template.c"
 
 static int
 call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info, void* data)
@@ -2954,7 +2956,7 @@ void proto_register_dop(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 237 "./asn1/dop/packet-dop-template.c"
+#line 239 "./asn1/dop/packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -3033,7 +3035,7 @@ void proto_register_dop(void) {
     &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 244 "./asn1/dop/packet-dop-template.c"
+#line 246 "./asn1/dop/packet-dop-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -3050,7 +3052,7 @@ void proto_register_dop(void) {
   /* Register protocol */
   proto_dop = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  register_dissector("dop", dissect_dop, proto_dop);
+  dop_handle = register_dissector("dop", dissect_dop, proto_dop);
 
   dop_dissector_table = register_dissector_table("dop.oid", "DOP OID Dissectors", proto_dop, FT_STRING, BASE_NONE);
 
@@ -3075,7 +3077,6 @@ void proto_register_dop(void) {
 
 /*--- proto_reg_handoff_dop --- */
 void proto_reg_handoff_dop(void) {
-  dissector_handle_t dop_handle;
 
 
 /*--- Included file: packet-dop-dis-tab.c ---*/
@@ -3100,7 +3101,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 288 "./asn1/dop/packet-dop-template.c"
+#line 289 "./asn1/dop/packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");
@@ -3108,7 +3109,6 @@ void proto_reg_handoff_dop(void) {
   /* ABSTRACT SYNTAXES */
 
   /* Register DOP with ROS (with no use of RTSE) */
-  dop_handle = find_dissector("dop");
   register_ros_oid_dissector_handle("2.5.9.4", dop_handle, 0, "id-as-directory-operational-binding-management", FALSE);
 
   /* BINDING TYPES */

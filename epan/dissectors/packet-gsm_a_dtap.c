@@ -759,6 +759,7 @@ static dissector_table_t u2u_dissector_table;
 
 static dissector_handle_t gsm_map_handle;
 static dissector_handle_t rp_handle;
+static dissector_handle_t dtap_handle;
 
 static proto_tree *g_tree;
 
@@ -8311,7 +8312,7 @@ proto_register_gsm_a_dtap(void)
 
 
     /* subdissector code */
-    register_dissector("gsm_a_dtap", dissect_dtap, proto_a_dtap);
+    dtap_handle = register_dissector("gsm_a_dtap", dissect_dtap, proto_a_dtap);
     u2u_dissector_table = register_dissector_table("gsm_a.dtap.u2u_prot_discr", "GSM User to User Signalling",
                                                   proto_a_dtap, FT_UINT8, BASE_DEC);
 }
@@ -8319,9 +8320,6 @@ proto_register_gsm_a_dtap(void)
 void
 proto_reg_handoff_gsm_a_dtap(void)
 {
-    dissector_handle_t dtap_handle;
-
-    dtap_handle = find_dissector("gsm_a_dtap");
     dissector_add_uint("bssap.pdu_type", BSSAP_PDU_TYPE_DTAP, dtap_handle);
     dissector_add_uint("ranap.nas_pdu", BSSAP_PDU_TYPE_DTAP, dtap_handle);
     dissector_add_uint("llcgprs.sapi", 1 , dtap_handle); /* GPRS Mobility Management */

@@ -147,6 +147,7 @@ static expert_field ei_rtsp_rdtfeaturelevel_invalid = EI_INIT;
 static expert_field ei_rtsp_bad_server_ip_address = EI_INIT;
 static expert_field ei_rtsp_bad_client_ip_address = EI_INIT;
 
+static dissector_handle_t rtsp_handle;
 static dissector_handle_t rtp_handle;
 static dissector_handle_t rtp_rfc4571_handle;
 static dissector_handle_t rtcp_handle;
@@ -1580,7 +1581,7 @@ proto_register_rtsp(void)
     expert_register_field_array(expert_rtsp, ei, array_length(ei));
 
     /* Make this dissector findable by name */
-    register_dissector("rtsp", dissect_rtsp, proto_rtsp);
+    rtsp_handle = register_dissector("rtsp", dissect_rtsp, proto_rtsp);
 
     /* Register our configuration options, particularly our ports */
 
@@ -1617,9 +1618,6 @@ proto_register_rtsp(void)
 void
 proto_reg_handoff_rtsp(void)
 {
-    dissector_handle_t rtsp_handle;
-
-    rtsp_handle = find_dissector("rtsp");
     rtp_handle = find_dissector_add_dependency("rtp", proto_rtsp);
     rtp_rfc4571_handle = find_dissector_add_dependency("rtp.rfc4571", proto_rtsp);
     rtcp_handle = find_dissector_add_dependency("rtcp", proto_rtsp);

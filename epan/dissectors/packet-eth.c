@@ -97,6 +97,9 @@ static capture_dissector_handle_t ipx_cap_handle;
 static capture_dissector_handle_t llc_cap_handle;
 static heur_dissector_list_t heur_subdissector_list;
 static heur_dissector_list_t eth_trailer_subdissector_list;
+static dissector_handle_t eth_withoutfcs_handle;
+static dissector_handle_t eth_maybefcs_handle;
+
 
 static int eth_tap = -1;
 
@@ -991,9 +994,9 @@ proto_register_eth(void)
                                  "Set the condition that must be true for the CCSDS dissector to be called",
                                  &ccsds_heuristic_bit);
 
-  register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
+  eth_withoutfcs_handle = register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
   register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
-  register_dissector("eth_maybefcs", dissect_eth_maybefcs, proto_eth);
+  eth_maybefcs_handle = register_dissector("eth_maybefcs", dissect_eth_maybefcs, proto_eth);
   eth_tap = register_tap("eth");
 
   register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_hostlist_packet);
@@ -1005,7 +1008,7 @@ proto_register_eth(void)
 void
 proto_reg_handoff_eth(void)
 {
-  dissector_handle_t eth_handle, eth_withoutfcs_handle, eth_maybefcs_handle;
+  dissector_handle_t eth_handle;
   capture_dissector_handle_t eth_cap_handle;
 
   /* Get a handle for the Firewall-1 dissector. */
@@ -1017,8 +1020,6 @@ proto_reg_handoff_eth(void)
   eth_handle = create_dissector_handle(dissect_eth, proto_eth);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ETHERNET, eth_handle);
 
-  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-  eth_maybefcs_handle = find_dissector("eth_maybefcs");
   dissector_add_uint("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
 
   dissector_add_uint("erf.types.type", ERF_TYPE_ETH, eth_maybefcs_handle);

@@ -1291,7 +1291,7 @@ proto_register_smtp(void)
   register_cleanup_routine (&smtp_data_reassemble_cleanup);
 
   /* Allow dissector to find be found by name. */
-  register_dissector("smtp", dissect_smtp, proto_smtp);
+  smtp_handle = register_dissector("smtp", dissect_smtp, proto_smtp);
 
   /* Preferences */
   smtp_module = prefs_register_protocol(proto_smtp, NULL);
@@ -1319,7 +1319,6 @@ proto_register_smtp(void)
 void
 proto_reg_handoff_smtp(void)
 {
-  smtp_handle = find_dissector("smtp");
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_SMTP, smtp_handle);
   ssl_dissector_add(TCP_PORT_SSL_SMTP, smtp_handle);
   /* No "auto" preference since handle is shared with SMTP */

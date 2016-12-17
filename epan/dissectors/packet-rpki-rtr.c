@@ -73,6 +73,8 @@ static gint ett_flags_nd = -1;
 
 static expert_field ei_rpkirtr_wrong_version_router_key = EI_INIT;
 
+static dissector_handle_t rpkirtr_handle;
+
 
 /* http://www.iana.org/assignments/rpki/rpki.xml#rpki-rtr-pdu */
 #define RPKI_RTR_SERIAL_NOTIFY_PDU   0
@@ -474,7 +476,7 @@ proto_register_rpkirtr(void)
 
     expert_rpkirtr = expert_register_protocol(proto_rpkirtr);
     expert_register_field_array(expert_rpkirtr, ei, array_length(ei));
-    register_dissector("rpkirtr", dissect_rpkirtr, proto_rpkirtr);
+    rpkirtr_handle = register_dissector("rpkirtr", dissect_rpkirtr, proto_rpkirtr);
 }
 
 
@@ -482,11 +484,9 @@ void
 proto_reg_handoff_rpkirtr(void)
 {
     static gboolean initialized = FALSE;
-    static dissector_handle_t rpkirtr_handle;
     static int rpki_rtr_tls_port;
 
     if (!initialized) {
-        rpkirtr_handle = find_dissector("rpkirtr");
         dissector_add_uint_with_preference("tcp.port", RPKI_RTR_TCP_PORT, rpkirtr_handle);
         initialized = TRUE;
     } else {

@@ -331,6 +331,8 @@ static gint ett_bap_call_status_opt = -1;
 
 static expert_field ei_bap_sub_option_length = EI_INIT;
 
+static dissector_handle_t ppp_hdlc_handle, ppp_handle;
+
 static int proto_comp_data = -1;
 
 #if 0  /* see dissect_comp_data() */
@@ -6018,9 +6020,9 @@ proto_register_ppp(void)
     ppp_subdissector_table = register_dissector_table("ppp.protocol",
         "PPP protocol", proto_ppp, FT_UINT16, BASE_HEX);
 
-    register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
+    ppp_hdlc_handle = register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
     register_dissector("ppp_lcp_options", dissect_lcp_options, proto_ppp);
-    register_dissector("ppp", dissect_ppp, proto_ppp);
+    ppp_handle = register_dissector("ppp", dissect_ppp, proto_ppp);
 
     /* Register the preferences for the ppp protocol */
     ppp_module = prefs_register_protocol(proto_ppp, NULL);
@@ -6039,17 +6041,13 @@ proto_register_ppp(void)
 void
 proto_reg_handoff_ppp(void)
 {
-    dissector_handle_t ppp_hdlc_handle, ppp_handle;
-
     /*
      * Get a handle for the CHDLC dissector.
      */
     chdlc_handle = find_dissector_add_dependency("chdlc", proto_ppp);
 
-    ppp_handle = find_dissector("ppp");
     dissector_add_uint("fr.nlpid", NLPID_PPP, ppp_handle);
 
-    ppp_hdlc_handle = find_dissector("ppp_hdlc");
     dissector_add_uint("wtap_encap", WTAP_ENCAP_PPP, ppp_hdlc_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR,
         ppp_hdlc_handle);

@@ -1535,6 +1535,8 @@ static expert_field ei_amqp_invalid_number_of_params = EI_INIT;
 static expert_field ei_amqp_size_exceeds_65K = EI_INIT;
 static expert_field ei_amqp_array_type_unknown = EI_INIT;
 
+static dissector_handle_t amqp_tcp_handle = NULL;
+
 /*  Various enumerations  */
 
 static const value_string amqp_1_0_SASL_code_value [] = {
@@ -13336,7 +13338,7 @@ proto_register_amqp(void)
 
     proto_amqp = proto_register_protocol(
         "Advanced Message Queueing Protocol", "AMQP", "amqp");
-    register_dissector("amqp", dissect_amqp, proto_amqp);
+    amqp_tcp_handle = register_dissector("amqp", dissect_amqp, proto_amqp);
     proto_register_field_array(proto_amqp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -13355,11 +13357,8 @@ proto_register_amqp(void)
 void
 proto_reg_handoff_amqp(void)
 {
-    static dissector_handle_t amqp_tcp_handle;
     static guint old_amqps_port = 0;
     static gboolean initialize = FALSE;
-
-    amqp_tcp_handle = find_dissector("amqp");
 
     if (!initialize) {
         /* Register TCP port for dissection */

@@ -421,6 +421,9 @@ static heur_dissector_list_t    ieee802154_heur_subdissector_list;
 static dissector_handle_t  zigbee_beacon_handle;
 static dissector_handle_t  zigbee_ie_handle;
 static dissector_handle_t  zigbee_nwk_handle;
+static dissector_handle_t  ieee802154_handle;
+static dissector_handle_t  ieee802154_nonask_phy_handle;
+static dissector_handle_t  ieee802154_nofcs_handle;
 
 /* Versions */
 static const value_string ieee802154_frame_versions[] = {
@@ -4252,10 +4255,10 @@ void proto_register_ieee802154(void)
     ieee802154_beacon_subdissector_list = register_heur_dissector_list(IEEE802154_PROTOABBREV_WPAN_BEACON, proto_ieee802154);
 
     /*  Register dissectors with Wireshark. */
-    register_dissector(IEEE802154_PROTOABBREV_WPAN, dissect_ieee802154, proto_ieee802154);
-    register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
+    ieee802154_handle = register_dissector(IEEE802154_PROTOABBREV_WPAN, dissect_ieee802154, proto_ieee802154);
+    ieee802154_nofcs_handle = register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
     register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
-    register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);
+    ieee802154_nonask_phy_handle = register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);
 
     /* Register a Decode-As handler. */
     register_decode_as(&ieee802154_da);
@@ -4270,18 +4273,12 @@ void proto_register_ieee802154(void)
 void proto_reg_handoff_ieee802154(void)
 {
     static gboolean            prefs_initialized = FALSE;
-    static dissector_handle_t  ieee802154_handle;
-    static dissector_handle_t  ieee802154_nonask_phy_handle;
-    static dissector_handle_t  ieee802154_nofcs_handle;
     static unsigned int        old_ieee802154_ethertype;
     GByteArray                *bytes;
     gboolean                   res;
 
     if (!prefs_initialized){
         /* Get the dissector handles. */
-        ieee802154_handle   = find_dissector(IEEE802154_PROTOABBREV_WPAN);
-        ieee802154_nonask_phy_handle = find_dissector("wpan-nonask-phy");
-        ieee802154_nofcs_handle = find_dissector("wpan_nofcs");
         zigbee_beacon_handle = find_dissector_add_dependency("zbee_beacon", proto_ieee802154);
         zigbee_ie_handle = find_dissector_add_dependency("zbee_ie", proto_ieee802154);
         zigbee_nwk_handle = find_dissector("zbee_nwk");

@@ -35,6 +35,8 @@ static int hf_newmail_payload = -1;
 /* Initialize the subtree pointers */
 static gint ett_newmail = -1;
 
+static dissector_handle_t newmail_handle;
+
 /* Code to actually dissect the packets */
 static int
 dissect_newmail(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -84,15 +86,12 @@ proto_register_newmail(void)
 	proto_register_field_array(proto_newmail, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("newmail", dissect_newmail, proto_newmail);
+	newmail_handle = register_dissector("newmail", dissect_newmail, proto_newmail);
 }
 
 void
 proto_reg_handoff_newmail(void)
 {
-	dissector_handle_t newmail_handle;
-
-	newmail_handle = find_dissector("newmail");
 	dissector_add_for_decode_as_with_preference("udp.port", newmail_handle);
 }
 

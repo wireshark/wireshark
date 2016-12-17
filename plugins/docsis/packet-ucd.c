@@ -127,6 +127,8 @@ static gint ett_docsis_ucd = -1;
 static gint ett_docsis_tlv = -1;
 static gint ett_docsis_burst_tlv = -1;
 
+static dissector_handle_t docsis_ucd_handle;
+
 static const value_string channel_tlv_vals[] = {
   {UCD_SYMBOL_RATE,  "Symbol Rate"},
   {UCD_FREQUENCY,    "Frequency"},
@@ -996,15 +998,12 @@ proto_register_docsis_ucd (void)
   expert_docsis_ucd = expert_register_protocol(proto_docsis_ucd);
   expert_register_field_array(expert_docsis_ucd, ei, array_length(ei));
 
-  register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
+  docsis_ucd_handle = register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
 }
 
 void
 proto_reg_handoff_docsis_ucd (void)
 {
-   dissector_handle_t docsis_ucd_handle;
-
-   docsis_ucd_handle = find_dissector ("docsis_ucd");
    dissector_add_uint ("docsis_mgmt", 0x02, docsis_ucd_handle);
 }
 

@@ -1902,9 +1902,9 @@ proto_register_pw_atm_ata(void)
 
 	proto_register_subtree_array(ett_array, array_length(ett_array));
 
-	register_dissector("mpls_pw_atm_control_word"	,dissect_control_word	,proto_control_word);
-	register_dissector("mpls_pw_atm_cell"	,dissect_cell		,proto_cell);
-	register_dissector("mpls_pw_atm_cell_header",dissect_cell_header	,proto_cell_header);
+	dh_control_word = register_dissector("mpls_pw_atm_control_word"	,dissect_control_word	,proto_control_word);
+	dh_cell = register_dissector("mpls_pw_atm_cell"	,dissect_cell		,proto_cell);
+	dh_cell_header = register_dissector("mpls_pw_atm_cell_header",dissect_cell_header	,proto_cell_header);
 	{
 		static const char description_allow_cw_length_nonzero[] =
 			"Enable to allow non-zero Length in Control Word."
@@ -1964,9 +1964,6 @@ proto_reg_handoff_pw_atm_ata(void)
 	h = create_dissector_handle( dissect_aal5_sdu, proto_aal5_sdu );
 	dissector_add_for_decode_as( "mpls.label", h );
 
-	dh_cell		   = find_dissector("mpls_pw_atm_cell");
-	dh_cell_header	   = find_dissector("mpls_pw_atm_cell_header");
-	dh_control_word	   = find_dissector("mpls_pw_atm_control_word");
 	dh_atm_truncated   = find_dissector("atm_pw_truncated");
 	dh_atm_untruncated = find_dissector("atm_pw_untruncated");
 	dh_atm_oam_cell	   = find_dissector("atm_pw_oam_cell");

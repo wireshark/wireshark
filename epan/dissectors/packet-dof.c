@@ -2058,7 +2058,6 @@ static const value_string ccm_opcode_strings[] = {
 #define DOF_OBJECT_IDENTIFIER "DOF Object Identifier"
 
 static dissector_handle_t dof_oid_handle;
-static dissector_handle_t undissected_data_handle;
 
 static int oid_proto = -1;
 
@@ -7306,7 +7305,7 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         expert_add_info(pinfo, security_tree, &ei_dpp_no_security_context);
                         {
                             tvbuff_t *data_tvb = tvb_new_subset_remaining(tvb, offset);
-                            call_dissector(undissected_data_handle, data_tvb, pinfo, tree);
+                            call_data_dissector(data_tvb, pinfo, tree);
                         }
                         proto_item_set_len(security_tree, offset - sec_offset);
                         return offset;
@@ -10539,14 +10538,14 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             offset = dof_dissect_pdu_as_field(dissect_2008_16_security_3_1, tvb, pinfo, trp_tree,
                                               offset, hf_identity_resolution, ett_identity_resolution, NULL);
             data_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(undissected_data_handle, data_tvb, pinfo, trp_tree);
+            call_data_dissector(data_tvb, pinfo, trp_tree);
         }
         break;
 
     case TRP_RSP_VALIDATE_CREDENTIAL:
     {
         tvbuff_t *data_tvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(undissected_data_handle, data_tvb, pinfo, trp_tree);
+        call_data_dissector(data_tvb, pinfo, trp_tree);
     }
        break;
     }
@@ -11049,8 +11048,6 @@ static void dof_handoff(void)
 
     tcp_handle = create_dissector_handle(dissect_dof_tcp, proto_2008_1_dof);
     dof_udp_handle = create_dissector_handle(dissect_dof_udp, proto_2008_1_dof);
-
-    undissected_data_handle = find_dissector("data");
 
     dissector_add_uint_with_preference("tcp.port", DOF_P2P_NEG_SEC_TCP_PORT, tcp_handle);
     dissector_add_uint_range_with_preference("udp.port", DOF_NEG_SEC_UDP_PORT_RANGE, dof_udp_handle);

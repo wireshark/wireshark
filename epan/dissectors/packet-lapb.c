@@ -48,6 +48,7 @@ static gint ett_lapb_control = -1;
 
 static dissector_handle_t x25_dir_handle;
 static dissector_handle_t x25_handle;
+static dissector_handle_t lapb_handle;
 
 static const xdlc_cf_items lapb_cf_items = {
     &hf_lapb_n_r,
@@ -214,14 +215,12 @@ proto_register_lapb(void)
     proto_register_field_array (proto_lapb, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("lapb", dissect_lapb, proto_lapb);
+    lapb_handle = register_dissector("lapb", dissect_lapb, proto_lapb);
 }
 
 void
 proto_reg_handoff_lapb(void)
 {
-    dissector_handle_t lapb_handle;
-
     /*
      * Get handles for the X.25 dissectors; we don't get an X.25
      * pseudo-header for LAPB-over-Ethernet, but we do get it
@@ -230,7 +229,6 @@ proto_reg_handoff_lapb(void)
     x25_dir_handle = find_dissector_add_dependency("x.25_dir", proto_lapb);
     x25_handle = find_dissector_add_dependency("x.25", proto_lapb);
 
-    lapb_handle = find_dissector("lapb");
     dissector_add_uint("wtap_encap", WTAP_ENCAP_LAPB, lapb_handle);
 }
 

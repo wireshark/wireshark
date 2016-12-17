@@ -164,6 +164,8 @@ static int hf_bacnet_term_time_value = -1;
 static gint ett_bacnet = -1;
 static gint ett_bacnet_control = -1;
 
+static dissector_handle_t bacnet_handle = NULL;
+
 static int
 dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -617,7 +619,7 @@ proto_register_bacnet(void)
 	proto_register_field_array(proto_bacnet, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("bacnet", dissect_bacnet, proto_bacnet);
+	bacnet_handle = register_dissector("bacnet", dissect_bacnet, proto_bacnet);
 
 	bacnet_dissector_table = register_dissector_table("bacnet.vendor",
 							  "BACnet Vendor Identifier", proto_bacnet,
@@ -627,9 +629,6 @@ proto_register_bacnet(void)
 void
 proto_reg_handoff_bacnet(void)
 {
-	dissector_handle_t bacnet_handle;
-
-	bacnet_handle = find_dissector("bacnet");
 	dissector_add_uint("bvlc.function", 0x04, bacnet_handle);
 	dissector_add_uint("bvlc.function", 0x09, bacnet_handle);
 	dissector_add_uint("bvlc.function", 0x0a, bacnet_handle);

@@ -73,6 +73,7 @@ static int hf_rfc2190_vmv2 = -1;
 
 static gint ett_rfc2190         = -1;
 static dissector_handle_t h263_handle;
+static dissector_handle_t rfc2190_handle;
 
 
 static int
@@ -244,9 +245,6 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 void
 proto_reg_handoff_rfc2190(void)
 {
-    dissector_handle_t rfc2190_handle;
-
-    rfc2190_handle = find_dissector("rfc2190");
     dissector_add_uint("rtp.pt", PT_H263, rfc2190_handle);
     dissector_add_uint("iax2.codec", AST_FORMAT_H263, rfc2190_handle);
 
@@ -522,7 +520,7 @@ proto_register_rfc2190(void)
         "RFC2190", "rfc2190");
 
     proto_register_field_array(proto_rfc2190, hf, array_length(hf));
-    register_dissector("rfc2190", dissect_rfc2190, proto_rfc2190);
+    rfc2190_handle = register_dissector("rfc2190", dissect_rfc2190, proto_rfc2190);
 }
 
 /*

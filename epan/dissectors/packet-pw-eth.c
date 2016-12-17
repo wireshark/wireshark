@@ -47,6 +47,7 @@ static int hf_pw_eth_cw_sequence_number = -1;
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t pw_eth_handle_cw;
 static dissector_handle_t pw_eth_handle_nocw;
+static dissector_handle_t pw_eth_handle_heuristic;
 
 static int
 dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -192,15 +193,13 @@ proto_register_pw_eth(void)
                                 "pwethheuristic");
     proto_register_field_array(proto_pw_eth_cw, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("pw_eth_heuristic", dissect_pw_eth_heuristic,
+    pw_eth_handle_heuristic = register_dissector("pw_eth_heuristic", dissect_pw_eth_heuristic,
                        proto_pw_eth_heuristic);
 }
 
 void
 proto_reg_handoff_pw_eth(void)
 {
-    dissector_handle_t pw_eth_handle_heuristic;
-
     eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_pw_eth_cw);
 
     pw_eth_handle_cw = create_dissector_handle( dissect_pw_eth_cw, proto_pw_eth_cw );
@@ -209,7 +208,6 @@ proto_reg_handoff_pw_eth(void)
     pw_eth_handle_nocw = create_dissector_handle( dissect_pw_eth_nocw, proto_pw_eth_nocw );
     dissector_add_for_decode_as("mpls.label", pw_eth_handle_nocw);
 
-    pw_eth_handle_heuristic = find_dissector("pw_eth_heuristic");
     dissector_add_for_decode_as("mpls.label", pw_eth_handle_heuristic);
 }
 

@@ -241,6 +241,8 @@ static gint ett_iap_entry[MAX_IAP_ENTRIES];
 
 static int irda_address_type = -1;
 
+static dissector_handle_t irda_handle;
+
 static const xdlc_cf_items irlap_cf_items = {
     &hf_lap_c_nr,
     &hf_lap_c_ns,
@@ -2206,7 +2208,7 @@ void proto_register_irda(void)
     proto_ttp   = proto_register_protocol("Tiny Transport Protocol", "TTP", "ttp");
 
     /* Register the dissector */
-    register_dissector("irda", dissect_irda, proto_irlap);
+    irda_handle = register_dissector("irda", dissect_irda, proto_irlap);
 
     /* Required function calls to register the header fields */
     proto_register_field_array(proto_irlap, hf_lap, array_length(hf_lap));
@@ -2241,9 +2243,6 @@ void proto_register_irda(void)
 
 void proto_reg_handoff_irda(void)
 {
-    dissector_handle_t irda_handle;
-
-    irda_handle = find_dissector("irda");
     dissector_add_uint("wtap_encap", WTAP_ENCAP_IRDA, irda_handle);
     dissector_add_uint("sll.ltype", LINUX_SLL_P_IRDA_LAP, irda_handle);
 }

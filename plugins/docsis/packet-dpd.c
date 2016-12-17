@@ -69,6 +69,8 @@ static gint ett_docsis_dpd_tlv = -1;
 static gint ett_docsis_dpd_tlv_subcarrier_assignment = -1;
 static gint ett_docsis_dpd_tlv_subcarrier_assignment_vector = -1;
 
+static dissector_handle_t docsis_dpd_handle;
+
 /*BASE_CUSTOM function for subcarrier range*/
 static void
 subc_assign_range(
@@ -366,14 +368,12 @@ proto_register_docsis_dpd(void)
   proto_register_subtree_array (ett, array_length (ett));
   expert_docsis_dpd = expert_register_protocol(proto_docsis_dpd);
   expert_register_field_array(expert_docsis_dpd, ei, array_length(ei));
-  register_dissector ("docsis_dpd", dissect_dpd, proto_docsis_dpd);
+  docsis_dpd_handle = register_dissector ("docsis_dpd", dissect_dpd, proto_docsis_dpd);
 }
 
 void
 proto_reg_handoff_docsis_dpd (void)
 {
-  dissector_handle_t docsis_dpd_handle;
-  docsis_dpd_handle = find_dissector ("docsis_dpd");
   dissector_add_uint ("docsis_mgmt", 0x32, docsis_dpd_handle);
 }
 

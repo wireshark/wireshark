@@ -2160,7 +2160,7 @@ void proto_register_rdt(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_rdt = expert_register_protocol(proto_rdt);
     expert_register_field_array(expert_rdt, ei, array_length(ei));
-    register_dissector("rdt", dissect_rdt, proto_rdt);
+    rdt_handle = register_dissector("rdt", dissect_rdt, proto_rdt);
 
     /* Preference settings */
     rdt_module = prefs_register_protocol(proto_rdt, NULL);
@@ -2175,7 +2175,6 @@ void proto_register_rdt(void)
 
 void proto_reg_handoff_rdt(void)
 {
-    rdt_handle = find_dissector("rdt");
     dissector_add_uint_with_preference("udp.port", RDT_UDP_PORT, rdt_handle);
 }
 

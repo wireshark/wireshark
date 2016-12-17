@@ -175,6 +175,8 @@ static expert_field ei_icmp_resp_not_found = EI_INIT;
 static expert_field ei_icmp_checksum = EI_INIT;
 static expert_field ei_icmp_ext_checksum = EI_INIT;
 
+static dissector_handle_t icmp_handle;
+
 
 /* ICMP definitions */
 #define ICMP_ECHOREPLY     0
@@ -2020,20 +2022,18 @@ void proto_register_icmp(void)
 				       "Whether the 128th and following bytes of the ICMP payload should be decoded as MPLS extensions or as a portion of the original packet",
 				       &favor_icmp_mpls_ext);
 
-	register_dissector("icmp", dissect_icmp, proto_icmp);
+	icmp_handle = register_dissector("icmp", dissect_icmp, proto_icmp);
 	icmp_tap = register_tap("icmp");
 }
 
 void proto_reg_handoff_icmp(void)
 {
-	dissector_handle_t icmp_handle;
 	capture_dissector_handle_t icmp_cap_handle;
 
 	/*
 	 * Get handle for the IP dissector.
 	 */
 	ip_handle = find_dissector_add_dependency("ip", proto_icmp);
-	icmp_handle = find_dissector("icmp");
 
 	dissector_add_uint("ip.proto", IP_PROTO_ICMP, icmp_handle);
 	icmp_cap_handle = create_capture_dissector_handle(capture_icmp, proto_icmp);

@@ -76,6 +76,8 @@ static gint ett_ecp = -1;
 static gint ett_end_of_vdpdu = -1;
 static gint ett_802_1qbg_capabilities_flags = -1;
 
+static dissector_handle_t ecp_handle;
+
 static const value_string ecp_pid_vals[] = {
 	{ 0x0000,	"ECP draft 0" },
 	{ 0,		NULL }
@@ -438,14 +440,11 @@ void proto_register_ecp_oui(void)
 	ieee802a_add_oui(OUI_IEEE_802_1QBG, "ieee802a.ecp_pid",
 		"IEEE802a ECP PID", &hf_reg, proto_ecp);
 
-	register_dissector("ecp", dissect_ecp, proto_ecp);
+	ecp_handle = register_dissector("ecp", dissect_ecp, proto_ecp);
 }
 
 void proto_reg_handoff_ecp(void)
 {
-	static dissector_handle_t ecp_handle;
-
-	ecp_handle = find_dissector("ecp");
 	dissector_add_uint("ieee802a.ecp_pid", 0x0000, ecp_handle);
 }
 

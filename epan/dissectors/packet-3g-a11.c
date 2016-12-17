@@ -223,6 +223,8 @@ static expert_field ei_a11_bcmcs_too_short = EI_INIT;
 static expert_field ei_a11_entry_data_not_dissected = EI_INIT;
 static expert_field ei_a11_session_data_not_dissected = EI_INIT;
 
+static dissector_handle_t a11_handle = NULL;
+
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
 #define UDP_PORT_3GA11    699 /* Not IANA registered */
 
@@ -2723,7 +2725,7 @@ proto_register_a11(void)
     proto_a11 = proto_register_protocol("3GPP2 A11", "3GPP2 A11", "a11");
 
     /* Register the dissector by name */
-    register_dissector("a11", dissect_a11, proto_a11);
+    a11_handle = register_dissector("a11", dissect_a11, proto_a11);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_a11, hf, array_length(hf));
@@ -2736,9 +2738,6 @@ proto_register_a11(void)
 void
 proto_reg_handoff_a11(void)
 {
-    dissector_handle_t a11_handle;
-
-    a11_handle = find_dissector("a11");
     dissector_add_uint_with_preference("udp.port", UDP_PORT_3GA11, a11_handle);
 
     /* 3GPP2-Service-Option-Profile(74) */

@@ -52,6 +52,8 @@ static int hf_mpeg_pmt_stream_es_info_length = -1;
 static gint ett_mpeg_pmt = -1;
 static gint ett_mpeg_pmt_stream = -1;
 
+static dissector_handle_t mpeg_pmt_handle;
+
 #define MPEG_PMT_RESERVED1_MASK                   0xC0
 #define MPEG_PMT_VERSION_NUMBER_MASK              0x3E
 #define MPEG_PMT_CURRENT_NEXT_INDICATOR_MASK      0x01
@@ -286,17 +288,13 @@ proto_register_mpeg_pmt(void)
     proto_register_field_array(proto_mpeg_pmt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("mpeg_pmt", dissect_mpeg_pmt, proto_mpeg_pmt);
+    mpeg_pmt_handle = register_dissector("mpeg_pmt", dissect_mpeg_pmt, proto_mpeg_pmt);
 }
 
 
 void
 proto_reg_handoff_mpeg_pmt(void)
 {
-    dissector_handle_t mpeg_pmt_handle;
-
-    mpeg_pmt_handle = find_dissector("mpeg_pmt");
-
     dissector_add_uint("mpeg_sect.tid", MPEG_PMT_TID, mpeg_pmt_handle);
 }
 

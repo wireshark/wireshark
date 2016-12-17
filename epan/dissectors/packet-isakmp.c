@@ -399,6 +399,8 @@ static expert_field ei_isakmp_payload_bad_length = EI_INIT;
 static expert_field ei_isakmp_bad_fragment_number = EI_INIT;
 
 static dissector_handle_t eap_handle = NULL;
+static dissector_handle_t isakmp_handle;
+
 
 static reassembly_table isakmp_cisco_reassembly_table;
 static reassembly_table isakmp_ike2_reassembly_table;
@@ -7106,7 +7108,7 @@ proto_register_isakmp(void)
   register_init_routine(&isakmp_init_protocol);
   register_cleanup_routine(&isakmp_cleanup_protocol);
 
-  register_dissector("isakmp", dissect_isakmp, proto_isakmp);
+  isakmp_handle = register_dissector("isakmp", dissect_isakmp, proto_isakmp);
 
 #ifdef HAVE_LIBGCRYPT
   isakmp_module = prefs_register_protocol(proto_isakmp, NULL);
@@ -7156,9 +7158,6 @@ proto_register_isakmp(void)
 void
 proto_reg_handoff_isakmp(void)
 {
-  dissector_handle_t isakmp_handle;
-
-  isakmp_handle = find_dissector("isakmp");
   eap_handle = find_dissector_add_dependency("eap", proto_isakmp);
   dissector_add_uint_with_preference("udp.port", UDP_PORT_ISAKMP, isakmp_handle);
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_ISAKMP, isakmp_handle);

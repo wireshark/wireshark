@@ -89,6 +89,8 @@ static expert_field ei_coap_invalid_option_number = EI_INIT;
 static expert_field ei_coap_invalid_option_range  = EI_INIT;
 static expert_field ei_coap_option_length_bad	  = EI_INIT;
 
+static dissector_handle_t coap_handle;
+
 /* CoAP's IANA-assigned port (UDP only) number */
 #define DEFAULT_COAP_PORT	5683
 
@@ -1249,15 +1251,12 @@ proto_register_coap(void)
 	expert_coap = expert_register_protocol(proto_coap);
 	expert_register_field_array(expert_coap, ei, array_length(ei));
 
-	register_dissector("coap", dissect_coap, proto_coap);
+	coap_handle = register_dissector("coap", dissect_coap, proto_coap);
 }
 
 void
 proto_reg_handoff_coap(void)
 {
-	dissector_handle_t coap_handle;
-
-	coap_handle = find_dissector("coap");
 	media_type_dissector_table = find_dissector_table("media_type");
 	dissector_add_uint_with_preference("tcp.port", DEFAULT_COAP_PORT, coap_handle);
 	dissector_add_uint_with_preference("udp.port", DEFAULT_COAP_PORT, coap_handle);

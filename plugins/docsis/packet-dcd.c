@@ -124,6 +124,8 @@ static gint ett_docsis_dcd_rule = -1;
 static gint ett_docsis_dcd_clid = -1;
 static gint ett_docsis_dcd_cfg = -1;
 
+static dissector_handle_t docsis_dcd_handle;
+
 /* Dissection */
 static void
 dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
@@ -843,17 +845,13 @@ proto_register_docsis_dcd (void)
   proto_register_field_array (proto_docsis_dcd, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_dcd", dissect_dcd, proto_docsis_dcd);
+  docsis_dcd_handle = register_dissector ("docsis_dcd", dissect_dcd, proto_docsis_dcd);
 }
 
 void
 proto_reg_handoff_docsis_dcd (void)
 {
-  dissector_handle_t docsis_dcd_handle;
-
-  docsis_dcd_handle = find_dissector ("docsis_dcd");
   dissector_add_uint ("docsis_mgmt", 0x20, docsis_dcd_handle);
-
 }
 
 /*

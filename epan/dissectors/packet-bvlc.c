@@ -49,6 +49,7 @@ static int hf_bvlc_fwd_ip = -1;
 static int hf_bvlc_fwd_port = -1;
 
 static dissector_table_t bvlc_dissector_table;
+static dissector_handle_t bvlc_handle = NULL;
 
 static const value_string bvlc_function_names[] = {
 	{ 0x00, "BVLC-Result", },
@@ -385,7 +386,7 @@ proto_register_bvlc(void)
 	proto_register_field_array(proto_bvlc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("bvlc", dissect_bvlc, proto_bvlc);
+	bvlc_handle = register_dissector("bvlc", dissect_bvlc, proto_bvlc);
 
 	bvlc_dissector_table = register_dissector_table("bvlc.function",
 	    "BVLC Function", proto_bvlc, FT_UINT8, BASE_HEX);
@@ -394,9 +395,6 @@ proto_register_bvlc(void)
 void
 proto_reg_handoff_bvlc(void)
 {
-	dissector_handle_t bvlc_handle;
-
-	bvlc_handle = find_dissector("bvlc");
 	dissector_add_uint_with_preference("udp.port", BVLC_UDP_PORT, bvlc_handle);
 }
 

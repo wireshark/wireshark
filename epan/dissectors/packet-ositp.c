@@ -154,6 +154,8 @@ static const fragment_items cotp_frag_items = {
 
 static dissector_handle_t rdp_cr_handle;
 static dissector_handle_t rdp_cc_handle;
+static dissector_handle_t ositp_handle;
+
 
 /*
  * ISO8073 OSI COTP definition
@@ -2427,7 +2429,7 @@ void proto_register_cotp(void)
   cotp_heur_subdissector_list = register_heur_dissector_list("cotp", proto_cotp);
 
   /* XXX - what about CLTP and proto_cltp? */
-  register_dissector("ositp", dissect_ositp, proto_cotp);
+  ositp_handle = register_dissector("ositp", dissect_ositp, proto_cotp);
   register_dissector("ositp_inactive", dissect_ositp_inactive, proto_cotp);
 
   register_init_routine(cotp_reassemble_init);
@@ -2458,9 +2460,6 @@ void proto_register_cltp(void)
 void
 proto_reg_handoff_cotp(void)
 {
-  dissector_handle_t ositp_handle;
-
-  ositp_handle = find_dissector("ositp");
   dissector_add_uint("ip.proto", IP_PROTO_TP, ositp_handle);
 
   rdp_cr_handle = find_dissector("rdp_cr");

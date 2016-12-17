@@ -137,6 +137,7 @@ static gint ett_ac_if_input_channelconfig = -1;
 static gint ett_ac_if_mu_channelconfig = -1;
 
 static dissector_handle_t sysex_handle;
+static dissector_handle_t usb_audio_bulk_handle;
 
 #define AUDIO_IF_SUBCLASS_UNDEFINED        0x00
 #define AUDIO_IF_SUBCLASS_AUDIOCONTROL     0x01
@@ -1302,19 +1303,18 @@ proto_register_usb_audio(void)
     register_init_routine(&midi_data_reassemble_init);
     register_cleanup_routine(&midi_data_reassemble_cleanup);
 
-    register_dissector("usbaudio", dissect_usb_audio_bulk, proto_usb_audio);
+    usb_audio_bulk_handle = register_dissector("usbaudio", dissect_usb_audio_bulk, proto_usb_audio);
 }
 
 void
 proto_reg_handoff_usb_audio(void)
 {
-    dissector_handle_t usb_audio_bulk_handle, usb_audio_descr_handle;
+    dissector_handle_t usb_audio_descr_handle;
 
     usb_audio_descr_handle = create_dissector_handle(
             dissect_usb_audio_descriptor, proto_usb_audio);
     dissector_add_uint("usb.descriptor", IF_CLASS_AUDIO, usb_audio_descr_handle);
 
-    usb_audio_bulk_handle = find_dissector("usbaudio");
     dissector_add_uint("usb.bulk", IF_CLASS_AUDIO, usb_audio_bulk_handle);
 
     sysex_handle = find_dissector_add_dependency("sysex", proto_usb_audio);

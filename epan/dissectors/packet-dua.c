@@ -77,6 +77,7 @@ static gint ett_dua                 = -1;
 static gint ett_dua_parameter       = -1;
 
 static dissector_handle_t dpnss_handle;
+static dissector_handle_t dua_handle;
 
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
@@ -903,15 +904,12 @@ proto_register_dua(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Allow other dissectors to find this one by name. */
-  register_dissector("dua", dissect_dua, proto_dua);
+  dua_handle = register_dissector("dua", dissect_dua, proto_dua);
 }
 
 void
 proto_reg_handoff_dua(void)
 {
-  dissector_handle_t dua_handle;
-
-  dua_handle   = find_dissector("dua");
   dpnss_handle = find_dissector_add_dependency("dpnss", proto_dua);
   dissector_add_uint("sctp.ppi", DUA_PAYLOAD_PROTOCOL_ID, dua_handle);
 }

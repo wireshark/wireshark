@@ -6506,7 +6506,7 @@ proto_register_rtcp(void)
     expert_rtcp = expert_register_protocol(proto_rtcp);
     expert_register_field_array(expert_rtcp, ei, array_length(ei));
 
-    register_dissector("rtcp", dissect_rtcp, proto_rtcp);
+    rtcp_handle = register_dissector("rtcp", dissect_rtcp, proto_rtcp);
 
     rtcp_module = prefs_register_protocol(proto_rtcp, NULL);
 
@@ -6543,7 +6543,6 @@ proto_reg_handoff_rtcp(void)
      * Register this dissector as one that can be selected by a
      * UDP port number.
      */
-    rtcp_handle = find_dissector("rtcp");
     dissector_add_for_decode_as_with_preference("udp.port", rtcp_handle);
     dissector_add_for_decode_as("flip.payload", rtcp_handle );
 

@@ -773,6 +773,7 @@ typedef struct _sccp_user_t {
 static sccp_user_t *sccp_users;
 static guint        num_sccp_users;
 
+static dissector_handle_t sccp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t tcap_handle;
 static dissector_handle_t ranap_handle;
@@ -4104,7 +4105,7 @@ proto_register_sccp(void)
   /* Register the protocol name and description */
   proto_sccp = proto_register_protocol("Signalling Connection Control Part", "SCCP", "sccp");
 
-  register_dissector("sccp", dissect_sccp, proto_sccp);
+  sccp_handle = register_dissector("sccp", dissect_sccp, proto_sccp);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sccp, hf, array_length(hf));
@@ -4170,13 +4171,9 @@ proto_register_sccp(void)
 void
 proto_reg_handoff_sccp(void)
 {
-  dissector_handle_t sccp_handle;
-
   static gboolean initialised = FALSE;
 
   if (!initialised) {
-    sccp_handle = find_dissector("sccp");
-
     dissector_add_uint("wtap_encap", WTAP_ENCAP_SCCP, sccp_handle);
     dissector_add_uint("mtp3.service_indicator", MTP_SI_SCCP, sccp_handle);
     dissector_add_string("tali.opcode", "sccp", sccp_handle);

@@ -77,6 +77,7 @@ static gint ett_m2pa_li    = -1;
 static expert_field ei_undecode_data = EI_INIT;
 static expert_field ei_length = EI_INIT;
 
+static dissector_handle_t m2pa_handle;
 static dissector_handle_t mtp3_handle;
 
 typedef enum {
@@ -576,7 +577,7 @@ proto_register_m2pa(void)
   expert_register_field_array(expert_m2pa, ei, array_length(ei));
 
   /* Allow other dissectors to find this one by name. */
-  register_dissector("m2pa", dissect_m2pa, proto_m2pa);
+  m2pa_handle = register_dissector("m2pa", dissect_m2pa, proto_m2pa);
 
   m2pa_module = prefs_register_protocol(proto_m2pa, proto_reg_handoff_m2pa);
 
@@ -588,12 +589,10 @@ void
 proto_reg_handoff_m2pa(void)
 {
   static gboolean prefs_initialized = FALSE;
-  static dissector_handle_t m2pa_handle;
   static guint sctp_port;
 
   /* Port preferences code shamelessly copied from packet-beep.c */
   if (!prefs_initialized) {
-    m2pa_handle   = find_dissector("m2pa");
     mtp3_handle   = find_dissector_add_dependency("mtp3", proto_m2pa);
 
     dissector_add_uint("sctp.ppi", M2PA_PAYLOAD_PROTOCOL_ID, m2pa_handle);

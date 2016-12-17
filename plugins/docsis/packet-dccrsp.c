@@ -53,6 +53,8 @@ static int hf_docsis_dccrsp_hmac_digest = -1;
 static gint ett_docsis_dccrsp = -1;
 static gint ett_docsis_dccrsp_cm_jump_time = -1;
 
+static dissector_handle_t docsis_dccrsp_handle;
+
 /* Dissection */
 static void
 dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
@@ -235,15 +237,12 @@ proto_register_docsis_dccrsp (void)
   proto_register_field_array (proto_docsis_dccrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_dccrsp", dissect_dccrsp, proto_docsis_dccrsp);
+  docsis_dccrsp_handle = register_dissector ("docsis_dccrsp", dissect_dccrsp, proto_docsis_dccrsp);
 }
 
 void
 proto_reg_handoff_docsis_dccrsp (void)
 {
-  dissector_handle_t docsis_dccrsp_handle;
-
-  docsis_dccrsp_handle = find_dissector ("docsis_dccrsp");
   dissector_add_uint ("docsis_mgmt", 0x18, docsis_dccrsp_handle);
 
 }

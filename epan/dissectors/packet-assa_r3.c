@@ -1757,6 +1757,8 @@ static expert_field ei_r3_unknown_command_value = EI_INIT;
 static expert_field ei_r3_response_hasdata_octet_3 = EI_INIT;
 static expert_field ei_r3_cmd_downloadfirmwaretimeout = EI_INIT;
 
+static dissector_handle_t r3_handle = NULL;
+
 /*
  *  Indicates next command to be processed as a manufacturing command
  */
@@ -10096,7 +10098,7 @@ void proto_register_r3 (void)
   expert_module_t* expert_r3;
 
   proto_r3 = proto_register_protocol ("Assa Abloy R3", "R3", "r3");
-  register_dissector ("r3", dissect_r3, proto_r3);
+  r3_handle = register_dissector ("r3", dissect_r3, proto_r3);
   proto_register_field_array (proto_r3, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
   expert_r3 = expert_register_protocol(proto_r3);
@@ -10105,8 +10107,6 @@ void proto_register_r3 (void)
 
 void proto_reg_handoff_r3 (void)
 {
-  dissector_handle_t r3_handle = find_dissector ("r3");
-
   dissector_add_uint_range_with_preference("tcp.port", ASSA_R3_PORT_RANGE, r3_handle);
 }
 

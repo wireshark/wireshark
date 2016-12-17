@@ -36,6 +36,8 @@ static dissector_handle_t docsis_tlv_handle;
 /* Initialize the subtree pointers */
 static gint ett_docsis_dscreq = -1;
 
+static dissector_handle_t docsis_dscreq_handle;
+
 /* Dissection */
 static int
 dissect_dscreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -89,15 +91,12 @@ proto_register_docsis_dscreq (void)
   proto_register_field_array (proto_docsis_dscreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_dscreq", dissect_dscreq, proto_docsis_dscreq);
+  docsis_dscreq_handle = register_dissector ("docsis_dscreq", dissect_dscreq, proto_docsis_dscreq);
 }
 
 void
 proto_reg_handoff_docsis_dscreq (void)
 {
-  dissector_handle_t docsis_dscreq_handle;
-
-  docsis_dscreq_handle = find_dissector ("docsis_dscreq");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
   dissector_add_uint ("docsis_mgmt", 0x12, docsis_dscreq_handle);
 }

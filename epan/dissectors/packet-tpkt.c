@@ -57,6 +57,7 @@ static gboolean tpkt_desegment = TRUE;
 
 /* find the dissector for OSI TP (aka COTP) */
 static dissector_handle_t osi_tp_handle;
+static dissector_handle_t tpkt_handle;
 
 #define DEFAULT_TPKT_PORT_RANGE "102"
 static range_t *tpkt_tcp_port_range;
@@ -649,7 +650,7 @@ proto_register_tpkt(void)
     proto_tpkt_ptr = find_protocol_by_id(proto_tpkt);
     proto_register_field_array(proto_tpkt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("tpkt", dissect_tpkt, proto_tpkt);
+    tpkt_handle = register_dissector("tpkt", dissect_tpkt, proto_tpkt);
 
     tpkt_module = prefs_register_protocol(proto_tpkt, proto_reg_handoff_tpkt);
     prefs_register_bool_preference(tpkt_module, "desegment",
@@ -669,11 +670,9 @@ proto_register_tpkt(void)
 void
 proto_reg_handoff_tpkt(void)
 {
-    static dissector_handle_t tpkt_handle;
     static range_t *port_range;
 
     osi_tp_handle = find_dissector("ositp");
-    tpkt_handle = find_dissector("tpkt");
     dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_TPKT_RANGE, tpkt_handle);
 
     port_range = range_copy(tpkt_tcp_port_range);

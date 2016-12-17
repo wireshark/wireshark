@@ -126,6 +126,7 @@ static const value_string direction_vals[] = {
 	{ 0,	NULL }
 };
 
+static dissector_handle_t tr_handle;
 static dissector_handle_t trmac_handle;
 static dissector_handle_t llc_handle;
 
@@ -792,7 +793,7 @@ proto_register_tr(void)
 	    "Whether Linux mangling of the link-layer header should be checked for and worked around",
 	    &fix_linux_botches);
 
-	register_dissector("tr", dissect_tr, proto_tr);
+	tr_handle = register_dissector("tr", dissect_tr, proto_tr);
 	tr_tap=register_tap("tr");
 
 	register_conversation_table(proto_tr, TRUE, tr_conversation_packet, tr_hostlist_packet);
@@ -803,7 +804,6 @@ proto_register_tr(void)
 void
 proto_reg_handoff_tr(void)
 {
-	dissector_handle_t tr_handle;
 	capture_dissector_handle_t tr_cap_handle;
 
 	/*
@@ -812,7 +812,6 @@ proto_reg_handoff_tr(void)
 	trmac_handle = find_dissector_add_dependency("trmac", proto_tr);
 	llc_handle = find_dissector_add_dependency("llc", proto_tr);
 
-	tr_handle = find_dissector("tr");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_TOKEN_RING, tr_handle);
 	dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_TOKENRING, tr_handle);
 

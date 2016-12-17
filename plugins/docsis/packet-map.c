@@ -63,6 +63,8 @@ static int hf_docsis_map_offset = -1;
 /* Initialize the subtree pointers */
 static gint ett_docsis_map = -1;
 
+static dissector_handle_t docsis_map_handle;
+
 static const value_string iuc_vals[] = {
   {IUC_REQUEST,                  "Request"},
   {IUC_REQ_DATA,                 "REQ/Data"},
@@ -261,15 +263,12 @@ proto_register_docsis_map (void)
   proto_register_field_array (proto_docsis_map, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_map", dissect_map, proto_docsis_map);
+  docsis_map_handle = register_dissector ("docsis_map", dissect_map, proto_docsis_map);
 }
 
 void
 proto_reg_handoff_docsis_map (void)
 {
-  dissector_handle_t docsis_map_handle;
-
-  docsis_map_handle = find_dissector ("docsis_map");
   dissector_add_uint ("docsis_mgmt", 0x03, docsis_map_handle);
 }
 

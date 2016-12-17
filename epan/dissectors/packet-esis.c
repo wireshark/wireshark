@@ -79,6 +79,8 @@ static expert_field ei_esis_length = EI_INIT;
 static expert_field ei_esis_type = EI_INIT;
 static expert_field ei_esis_checksum = EI_INIT;
 
+static dissector_handle_t esis_handle;
+
 static const value_string esis_vals[] = {
   { ESIS_ESH_PDU, "ES HELLO"},
   { ESIS_ISH_PDU, "IS HELLO"},
@@ -400,15 +402,12 @@ proto_register_esis(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_esis = expert_register_protocol(proto_esis);
   expert_register_field_array(expert_esis, ei, array_length(ei));
-  register_dissector("esis", dissect_esis, proto_esis);
+  esis_handle = register_dissector("esis", dissect_esis, proto_esis);
 }
 
 void
 proto_reg_handoff_esis(void)
 {
-  dissector_handle_t esis_handle;
-
-  esis_handle = find_dissector("esis");
   dissector_add_uint("osinl.incl", NLPID_ISO9542_ESIS, esis_handle);
 }
 

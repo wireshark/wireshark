@@ -171,6 +171,8 @@ static int uri_address_type = -1;
 static gboolean gDESEGMENT = TRUE;
 static gboolean gMSG_MEDIA = TRUE;
 
+static dissector_handle_t jxta_udp_handle;
+
 /**
 *   Stream Conversation data
 **/
@@ -470,9 +472,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 
     conversation_t *conversation = find_or_create_conversation(pinfo);
 
-    DISSECTOR_ASSERT(find_dissector("jxta.udp"));
-
-    conversation_set_dissector(conversation, find_dissector("jxta.udp"));
+    conversation_set_dissector(conversation, jxta_udp_handle);
 
     while (TRUE) {
         tvbuff_t *jxta_message_framing_tvb;
@@ -2344,8 +2344,8 @@ void proto_register_jxta(void)
 
     proto_message_jxta = proto_register_protocol("JXTA Message", "JXTA Message", "jxta.message");
 
-    register_dissector("jxta.udp", dissect_jxta_udp, proto_jxta);
-    register_dissector("jxta.stream", dissect_jxta_stream, proto_jxta);
+    jxta_udp_handle = register_dissector("jxta.udp", dissect_jxta_udp, proto_jxta);
+    stream_jxta_handle = register_dissector("jxta.stream", dissect_jxta_stream, proto_jxta);
 
     /* Register header fields */
     proto_register_field_array(proto_jxta, hf, array_length(hf));
@@ -2389,7 +2389,6 @@ void proto_reg_handoff_jxta(void)
 
     if(!init_done) {
         message_jxta_handle = create_dissector_handle(dissect_jxta_message, proto_message_jxta);
-        stream_jxta_handle = find_dissector("jxta.stream");
 
         media_type_dissector_table = find_dissector_table("media_type");
         ssl_handle = find_dissector_add_dependency("ssl", proto_jxta);

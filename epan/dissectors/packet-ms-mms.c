@@ -1873,12 +1873,11 @@ void proto_register_msmms(void)
     proto_msmms = proto_register_protocol("Microsoft Media Server", "MSMMS", "msmms");
     proto_register_field_array(proto_msmms, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("msmms", dissect_msmms_pdu, proto_msmms);
+    msmms_handle = register_dissector("msmms", dissect_msmms_pdu, proto_msmms);
 }
 
 void proto_reg_handoff_msmms_command(void)
 {
-    msmms_handle = find_dissector("msmms");
     /* Control commands using TCP port */
     dissector_add_uint_with_preference("tcp.port", MSMMS_PORT, msmms_handle);
     /* Data command(s) using UDP port */

@@ -197,6 +197,9 @@ static gboolean bpdu_use_system_id_extensions = TRUE;
 static dissector_handle_t gvrp_handle;
 static dissector_handle_t gmrp_handle;
 
+static dissector_handle_t bpdu_handle = NULL;
+static dissector_handle_t bpdu_cisco_handle = NULL;
+
 static const value_string protocol_id_vals[] = {
   { 0, "Spanning Tree Protocol" },
   { 0, NULL }
@@ -1343,8 +1346,8 @@ proto_register_bpdu(void)
   proto_register_field_array(proto_bpdu, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("bpdu", dissect_bpdu_generic, proto_bpdu);
-  register_dissector("bpdu_cisco", dissect_bpdu_cisco, proto_bpdu);
+  bpdu_handle = register_dissector("bpdu", dissect_bpdu_generic, proto_bpdu);
+  bpdu_cisco_handle = register_dissector("bpdu_cisco", dissect_bpdu_cisco, proto_bpdu);
 
   expert_bpdu = expert_register_protocol(proto_bpdu);
   expert_register_field_array(expert_bpdu, ei, array_length(ei));
@@ -1359,8 +1362,6 @@ proto_register_bpdu(void)
 void
 proto_reg_handoff_bpdu(void)
 {
-  dissector_handle_t bpdu_handle;
-
   /*
    * Get handle for the GVRP dissector.
    */
@@ -1371,7 +1372,6 @@ proto_reg_handoff_bpdu(void)
    */
   gmrp_handle = find_dissector_add_dependency("gmrp", proto_bpdu);
 
-  bpdu_handle = find_dissector_add_dependency("bpdu", proto_bpdu);
   dissector_add_uint("llc.dsap", SAP_BPDU, bpdu_handle);
   dissector_add_uint("chdlc.protocol", CHDLCTYPE_BPDU, bpdu_handle);
   dissector_add_uint("ethertype", ETHERTYPE_STP, bpdu_handle);
@@ -1379,9 +1379,7 @@ proto_reg_handoff_bpdu(void)
   dissector_add_uint("llc.cisco_pid", 0x0109, bpdu_handle); /* Cisco's RLQ is just plain STP */
   dissector_add_uint("llc.cisco_pid", 0x010c, bpdu_handle); /* Cisco's VLAN-bridge STP is just plain STP */
 
-
-  bpdu_handle = find_dissector("bpdu_cisco");
-  dissector_add_uint("llc.cisco_pid", 0x010b, bpdu_handle); /* Handle Cisco's (R)PVST+ TLV extensions */
+  dissector_add_uint("llc.cisco_pid", 0x010b, bpdu_cisco_handle); /* Handle Cisco's (R)PVST+ TLV extensions */
 }
 
 /*

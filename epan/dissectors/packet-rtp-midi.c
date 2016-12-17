@@ -2902,6 +2902,7 @@ static guint saved_payload_type_value;
 static int proto_rtp_midi			= -1;
 
 
+static dissector_handle_t	rtp_midi_handle;
 
 
 void proto_reg_handoff_rtp_midi( void );
@@ -10034,7 +10035,7 @@ proto_register_rtp_midi( void )
 
 	rtp_midi_module = prefs_register_protocol ( proto_rtp_midi, proto_reg_handoff_rtp_midi );
 	prefs_register_uint_preference ( rtp_midi_module, "midi_payload_type_value", "Payload Type for RFC 4695/6295 RTP-MIDI", "This is the value of the Payload Type field that specifies RTP-MIDI", 10, &rtp_midi_payload_type_value );
-	register_dissector( RTP_MIDI_DISSECTOR_ABBREVIATION, dissect_rtp_midi, proto_rtp_midi );
+	rtp_midi_handle = register_dissector( RTP_MIDI_DISSECTOR_ABBREVIATION, dissect_rtp_midi, proto_rtp_midi );
 }
 
 
@@ -10042,12 +10043,10 @@ proto_register_rtp_midi( void )
 void
 proto_reg_handoff_rtp_midi( void )
 {
-	static dissector_handle_t	rtp_midi_handle;
 	static int			rtp_midi_prefs_initialized = FALSE;
 
 
 	if ( !rtp_midi_prefs_initialized ) {
-		rtp_midi_handle = find_dissector( RTP_MIDI_DISSECTOR_ABBREVIATION );
 		dissector_add_string("rtp_dyn_payload_type", "rtp-midi", rtp_midi_handle);
 		rtp_midi_prefs_initialized = TRUE;
 	}

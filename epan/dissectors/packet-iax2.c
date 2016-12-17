@@ -190,6 +190,8 @@ static expert_field ei_iax_circuit_id_conflict = EI_INIT;
 static expert_field ei_iax_peer_address_unsupported = EI_INIT;
 static expert_field ei_iax_invalid_len = EI_INIT;
 
+static dissector_handle_t iax2_handle;
+
 static const fragment_items iax2_fragment_items = {
   &ett_iax2_fragment,
   &ett_iax2_fragments,
@@ -3197,7 +3199,7 @@ proto_register_iax2(void)
   expert_iax = expert_register_protocol(proto_iax2);
   expert_register_field_array(expert_iax, ei, array_length(ei));
 
-  register_dissector("iax2", dissect_iax2, proto_iax2);
+  iax2_handle = register_dissector("iax2", dissect_iax2, proto_iax2);
 
   iax2_codec_dissector_table = register_dissector_table(
     "iax2.codec", "IAX codec number", proto_iax2, FT_UINT32, BASE_HEX);
@@ -3216,7 +3218,7 @@ proto_reg_handoff_iax2(void)
 {
   dissector_handle_t v110_handle;
 
-  dissector_add_uint_with_preference("udp.port", IAX2_PORT, find_dissector("iax2"));
+  dissector_add_uint_with_preference("udp.port", IAX2_PORT, iax2_handle);
   v110_handle =  find_dissector("v110");
   if (v110_handle)
     dissector_add_uint("iax2.dataformat", AST_DATAFORMAT_V110, v110_handle);

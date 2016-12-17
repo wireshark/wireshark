@@ -117,6 +117,9 @@ static const value_string scop_services [] = {
 
 /*  Dissector handle */
 static dissector_handle_t ieee802154_handle;
+static dissector_handle_t  scop_udp_handle;
+static dissector_handle_t  scop_tcp_handle;
+
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -356,8 +359,8 @@ void proto_register_scop(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /*  Register dissector with Wireshark. */
-    register_dissector("scop.udp", dissect_scop, proto_scop);
-    register_dissector("scop.tcp", dissect_scop_tcp, proto_scop);
+    scop_udp_handle = register_dissector("scop.udp", dissect_scop, proto_scop);
+    scop_tcp_handle = register_dissector("scop.tcp", dissect_scop_tcp, proto_scop);
 } /* proto_register_scop() */
 
 /*FUNCTION:------------------------------------------------------
@@ -374,11 +377,6 @@ void proto_register_scop(void)
  */
 void proto_reg_handoff_scop(void)
 {
-    dissector_handle_t  scop_udp_handle;
-    dissector_handle_t  scop_tcp_handle;
-
-    scop_udp_handle     = find_dissector("scop.udp");
-    scop_tcp_handle     = find_dissector("scop.tcp");
     ieee802154_handle   = find_dissector_add_dependency("wpan_nofcs", proto_scop);
 
     dissector_add_uint_range_with_preference("udp.port", SCOP_DEFAULT_PORT_RANGE, scop_udp_handle);

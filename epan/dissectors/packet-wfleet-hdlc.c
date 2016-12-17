@@ -36,6 +36,7 @@ static int hf_wfleet_hdlc_cmd = -1;
 static gint ett_wfleet_hdlc = -1;
 
 static dissector_handle_t eth_withoutfcs_handle;
+static dissector_handle_t wfleet_hdlc_handle;
 
 static const value_string wfleet_hdlc_cmd_vals[] = {
   { 0x03, "Un-numbered I frame"},
@@ -98,16 +99,13 @@ proto_register_wfleet_hdlc(void)
   proto_register_field_array(proto_wfleet_hdlc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("wfleet_hdlc", dissect_wfleet_hdlc, proto_wfleet_hdlc);
+  wfleet_hdlc_handle = register_dissector("wfleet_hdlc", dissect_wfleet_hdlc, proto_wfleet_hdlc);
 
 }
 
 void
 proto_reg_handoff_wfleet_hdlc(void)
 {
-  dissector_handle_t wfleet_hdlc_handle;
-
-  wfleet_hdlc_handle = find_dissector("wfleet_hdlc");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_WFLEET_HDLC, wfleet_hdlc_handle);
 
   /*

@@ -71,6 +71,7 @@ static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle = NULL;
 static dissector_handle_t rrc_sys_info_cont_handle = NULL;
 static dissector_handle_t gsm_a_dtap_handle = NULL;
 static dissector_handle_t gsm_rlcmac_dl_handle = NULL;
+static dissector_handle_t lte_rrc_dl_ccch_handle;
 
 static GHashTable *lte_rrc_etws_cmas_dcs_hash = NULL;
 
@@ -242,7 +243,7 @@ typedef enum _SI_OrPSI_GERAN_enum {
 } SI_OrPSI_GERAN_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 82 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 83 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -4740,7 +4741,7 @@ static int hf_lte_rrc_n311_r13_01 = -1;           /* T_n311_r13_01 */
 static int dummy_hf_lte_rrc_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 87 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 88 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -7089,7 +7090,7 @@ static gint ett_lte_rrc_UE_RadioPagingInfo_NB_r13 = -1;
 static gint ett_lte_rrc_UE_TimersAndConstants_NB_r13 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 273 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 274 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -69513,7 +69514,7 @@ static int dissect_UE_RadioPagingInfo_NB_r13_PDU(tvbuff_t *tvb _U_, packet_info 
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2895 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2896 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -87786,7 +87787,7 @@ void proto_register_lte_rrc(void) {
         "T_n311_r13_01", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 3215 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3216 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -90676,7 +90677,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_UE_TimersAndConstants_NB_r13,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 3942 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3943 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -90723,7 +90724,7 @@ void proto_register_lte_rrc(void) {
   proto_lte_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   /* These entry points will first create an lte_rrc root node */
-  register_dissector("lte_rrc.dl_ccch", dissect_lte_rrc_DL_CCCH, proto_lte_rrc);
+  lte_rrc_dl_ccch_handle = register_dissector("lte_rrc.dl_ccch", dissect_lte_rrc_DL_CCCH, proto_lte_rrc);
   register_dissector("lte_rrc.dl_dcch", dissect_lte_rrc_DL_DCCH, proto_lte_rrc);
   register_dissector("lte_rrc.ul_ccch", dissect_lte_rrc_UL_CCCH, proto_lte_rrc);
   register_dissector("lte_rrc.ul_dcch", dissect_lte_rrc_UL_DCCH, proto_lte_rrc);
@@ -90776,7 +90777,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 4016 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 4017 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
   register_cleanup_routine(&lte_rrc_cleanup_protocol);
@@ -90787,9 +90788,6 @@ void proto_register_lte_rrc(void) {
 void
 proto_reg_handoff_lte_rrc(void)
 {
-	static dissector_handle_t lte_rrc_dl_ccch_handle;
-
-	lte_rrc_dl_ccch_handle = find_dissector("lte_rrc.dl_ccch");
 	dissector_add_for_decode_as_with_preference("udp.port", lte_rrc_dl_ccch_handle);
 	nas_eps_handle = find_dissector("nas-eps");
 	rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");

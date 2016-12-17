@@ -264,6 +264,7 @@ static int hf_ndp_number_of_links = -1;
 
 static gint ett_ndp = -1;
 
+static dissector_handle_t ndp_handle;
 
 static int
 dissect_ndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -363,16 +364,12 @@ proto_register_ndp(void)
 	proto_register_field_array(proto_ndp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("ndp", dissect_ndp, proto_ndp);
+	ndp_handle = register_dissector("ndp", dissect_ndp, proto_ndp);
 }
 
 void
 proto_reg_handoff_ndp(void)
 {
-	dissector_handle_t ndp_handle;
-
-	ndp_handle = find_dissector("ndp");
-
 	dissector_add_uint("llc.nortel_pid", 0x01a1, ndp_handle); /* flatnet hello */
 	dissector_add_uint("llc.nortel_pid", 0x01a2, ndp_handle); /* Segment hello */
 	/* not got round to adding this but it's really old, so I'm not sure people will see it */

@@ -237,6 +237,8 @@ static gint hf_x25_reg_confirm_diagnostic = -1;
 
 static expert_field ei_x25_facility_length = EI_INIT;
 
+static dissector_handle_t x25_handle;
+
 static const value_string vals_modulo[] = {
     { 1, "8" },
     { 2, "128" },
@@ -2373,7 +2375,7 @@ proto_register_x25(void)
     x25_heur_subdissector_list = register_heur_dissector_list("x.25", proto_x25);
 
     register_dissector("x.25_dir", dissect_x25_dir, proto_x25);
-    register_dissector("x.25", dissect_x25, proto_x25);
+    x25_handle = register_dissector("x.25", dissect_x25, proto_x25);
 
     /* Preferences */
     x25_module = prefs_register_protocol(proto_x25, NULL);
@@ -2401,8 +2403,6 @@ proto_register_x25(void)
 void
 proto_reg_handoff_x25(void)
 {
-    dissector_handle_t x25_handle;
-
     /*
      * Get handles for various dissectors.
      */
@@ -2411,7 +2411,6 @@ proto_reg_handoff_x25(void)
     ositp_handle = find_dissector_add_dependency("ositp", proto_x25);
     qllc_handle = find_dissector_add_dependency("qllc", proto_x25);
 
-    x25_handle = find_dissector("x.25");
     dissector_add_uint("llc.dsap", SAP_X25, x25_handle);
     dissector_add_uint("lapd.sapi", LAPD_SAPI_X25, x25_handle);
     dissector_add_uint("ax25.pid", AX25_P_ROSE, x25_handle);

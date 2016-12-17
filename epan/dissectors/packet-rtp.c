@@ -155,6 +155,9 @@ static dissector_handle_t classicstun_heur_handle;
 static dissector_handle_t stun_heur_handle;
 static dissector_handle_t t38_handle;
 static dissector_handle_t zrtp_handle;
+static dissector_handle_t rtp_rfc2198_handle;
+static dissector_handle_t rtp_hdr_ext_ed137_handle;
+static dissector_handle_t rtp_hdr_ext_ed137a_handle;
 
 static dissector_handle_t sprt_handle;
 static dissector_handle_t v150fw_handle;
@@ -3772,9 +3775,9 @@ proto_register_rtp(void)
     expert_rtp = expert_register_protocol(proto_rtp);
     expert_register_field_array(expert_rtp, ei, array_length(ei));
 
-    register_dissector("rtp", dissect_rtp, proto_rtp);
-    register_dissector("rtp.rfc2198", dissect_rtp_rfc2198, proto_rtp);
-    register_dissector("rtp.rfc4571", dissect_rtp_rfc4571, proto_rtp);
+    rtp_handle = register_dissector("rtp", dissect_rtp, proto_rtp);
+    rtp_rfc2198_handle = register_dissector("rtp.rfc2198", dissect_rtp_rfc2198, proto_rtp);
+    rtp_rfc4571_handle = register_dissector("rtp.rfc4571", dissect_rtp_rfc4571, proto_rtp);
 
     rtp_tap = register_tap("rtp");
 
@@ -3789,8 +3792,8 @@ proto_register_rtp(void)
     rtp_hdr_ext_rfc5285_dissector_table = register_dissector_table("rtp.ext.rfc5285.id",
                                     "RTP Generic header extension (RFC 5285)", proto_rtp, FT_UINT8, BASE_DEC);
 
-    register_dissector("rtp.ext.ed137", dissect_rtp_hdr_ext_ed137, proto_rtp);
-    register_dissector("rtp.ext.ed137a", dissect_rtp_hdr_ext_ed137a, proto_rtp);
+    rtp_hdr_ext_ed137_handle = register_dissector("rtp.ext.ed137", dissect_rtp_hdr_ext_ed137, proto_rtp);
+    rtp_hdr_ext_ed137a_handle = register_dissector("rtp.ext.ed137a", dissect_rtp_hdr_ext_ed137a, proto_rtp);
 
     rtp_module = prefs_register_protocol(proto_rtp, proto_reg_handoff_rtp);
 
@@ -3828,16 +3831,9 @@ void
 proto_reg_handoff_rtp(void)
 {
     static gboolean rtp_prefs_initialized = FALSE;
-    static dissector_handle_t rtp_rfc2198_handle;
     static guint rtp_saved_rfc2198_pt;
 
     if (!rtp_prefs_initialized) {
-        dissector_handle_t rtp_hdr_ext_ed137_handle;
-        dissector_handle_t rtp_hdr_ext_ed137a_handle;
-
-        rtp_handle = find_dissector("rtp");
-        rtp_rfc2198_handle = find_dissector("rtp.rfc2198");
-        rtp_rfc4571_handle = find_dissector("rtp.rfc4571");
 
         dissector_add_for_decode_as("udp.port", rtp_handle);
         dissector_add_for_decode_as("tcp.port", rtp_rfc4571_handle);
@@ -3846,8 +3842,6 @@ proto_reg_handoff_rtp(void)
         heur_dissector_add("stun", dissect_rtp_heur_app, "RTP over TURN", "rtp_stun", proto_rtp, HEURISTIC_DISABLE);
         heur_dissector_add("rtsp", dissect_rtp_heur_app, "RTP over RTSP", "rtp_rtsp", proto_rtp, HEURISTIC_DISABLE);
 
-        rtp_hdr_ext_ed137_handle = find_dissector("rtp.ext.ed137");
-        rtp_hdr_ext_ed137a_handle = find_dissector("rtp.ext.ed137a");
         dissector_add_uint("rtp.hdr_ext", RTP_ED137_SIG, rtp_hdr_ext_ed137_handle);
         dissector_add_uint("rtp.hdr_ext", RTP_ED137A_SIG, rtp_hdr_ext_ed137a_handle);
         dissector_add_for_decode_as("flip.payload", rtp_handle );

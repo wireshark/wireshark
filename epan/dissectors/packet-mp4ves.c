@@ -67,10 +67,13 @@ static int ett_mp4ves_config = -1;
 static expert_field ei_mp4ves_config_too_short = EI_INIT;
 static expert_field ei_mp4ves_not_dissected_bits = EI_INIT;
 
+static dissector_handle_t mp4ves_name_handle;
+
 /* The dynamic payload type which will be dissected as MP4V-ES */
 
 static guint global_dynamic_payload_type = 0;
 
+static dissector_handle_t mp4ves_handle;
 
 /*
 14496-2, Annex G, Table G-1.
@@ -1017,7 +1020,7 @@ proto_register_mp4ves(void)
 	expert_register_field_array(expert_mp4ves, ei, array_length(ei));
 	/* Register a configuration option for port */
 
-	register_dissector("mp4ves", dissect_mp4ves, proto_mp4ves);
+	mp4ves_handle = register_dissector("mp4ves", dissect_mp4ves, proto_mp4ves);
 	register_dissector("mp4ves_config", dissect_mp4ves_config, proto_mp4ves);
 
 	/* Register a configuration option for port */
@@ -1035,15 +1038,12 @@ proto_register_mp4ves(void)
 void
 proto_reg_handoff_mp4ves(void)
 {
-	static dissector_handle_t mp4ves_handle;
 	static guint dynamic_payload_type;
 	static gboolean mp4ves_prefs_initialized = FALSE;
 
 	if (!mp4ves_prefs_initialized) {
-		dissector_handle_t mp4ves_name_handle;
 		mp4ves_capability_t *ftr;
 
-		mp4ves_handle = find_dissector("mp4ves");
 		dissector_add_string("rtp_dyn_payload_type","MP4V-ES", mp4ves_handle);
 		mp4ves_prefs_initialized = TRUE;
 

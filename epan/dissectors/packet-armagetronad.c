@@ -40,6 +40,8 @@ static int hf_armagetronad_msg_subtree = -1;
 static gint ett_armagetronad = -1;
 static gint ett_message = -1;
 
+static dissector_handle_t armagetronad_handle = NULL;
+
 #define ARMAGETRONAD_UDP_PORT_RANGE "4533-4534" /* 4533 is not IANA registered, 4534 is */
 
 /*
@@ -305,22 +307,15 @@ void proto_register_armagetronad(void)
 		&ett_message
 	};
 
-	proto_armagetronad =
-	    proto_register_protocol("The Armagetron Advanced OpenGL Tron clone",
-				    "Armagetronad", "armagetronad");
+	proto_armagetronad = proto_register_protocol("The Armagetron Advanced OpenGL Tron clone", "Armagetronad", "armagetronad");
 
 	proto_register_field_array(proto_armagetronad, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("armagetronad", dissect_armagetronad,
-			       proto_armagetronad);
+	armagetronad_handle = register_dissector("armagetronad", dissect_armagetronad, proto_armagetronad);
 }
 
 void proto_reg_handoff_armagetronad(void)
 {
-	dissector_handle_t armagetronad_handle;
-
-	armagetronad_handle = find_dissector("armagetronad");
-
 	dissector_add_uint_range_with_preference("udp.port", ARMAGETRONAD_UDP_PORT_RANGE, armagetronad_handle);
 }
 

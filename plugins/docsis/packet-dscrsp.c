@@ -39,6 +39,8 @@ static gint ett_docsis_dscrsp = -1;
 
 extern value_string docsis_conf_code[];
 
+static dissector_handle_t docsis_dscrsp_handle;
+
 /* Dissection */
 static int
 dissect_dscrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -102,15 +104,12 @@ proto_register_docsis_dscrsp (void)
   proto_register_field_array (proto_docsis_dscrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_dscrsp", dissect_dscrsp, proto_docsis_dscrsp);
+  docsis_dscrsp_handle = register_dissector ("docsis_dscrsp", dissect_dscrsp, proto_docsis_dscrsp);
 }
 
 void
 proto_reg_handoff_docsis_dscrsp (void)
 {
-  dissector_handle_t docsis_dscrsp_handle;
-
-  docsis_dscrsp_handle = find_dissector ("docsis_dscrsp");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
   dissector_add_uint ("docsis_mgmt", 0x13, docsis_dscrsp_handle);
 

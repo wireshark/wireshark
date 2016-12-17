@@ -568,6 +568,8 @@ static int ett_u3v_device_info_descriptor_speed_support = -1;
 static int ett_u3v_device_info_descriptor_gencp_version = -1;
 static int ett_u3v_device_info_descriptor_u3v_version = -1;
 
+static dissector_handle_t u3v_handle = NULL;
+
 static const value_string command_names[] =
 {
     { U3V_READMEM_CMD, "READMEM_CMD" },
@@ -2732,7 +2734,7 @@ proto_register_u3v(void)
     proto_u3v = proto_register_protocol("USB 3 Vision", "U3V", "u3v");
     proto_register_field_array(proto_u3v, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("u3v", dissect_u3v, proto_u3v);
+    u3v_handle = register_dissector("u3v", dissect_u3v, proto_u3v);
 }
 
 
@@ -2740,10 +2742,8 @@ proto_register_u3v(void)
 void
 proto_reg_handoff_u3v(void)
 {
-    dissector_handle_t u3v_handle = NULL;
     dissector_handle_t u3v_descr_handle = NULL;
 
-    u3v_handle = find_dissector("u3v");
     dissector_add_uint("usb.bulk", IF_CLASS_MISCELLANEOUS, u3v_handle);
     heur_dissector_add("usb.bulk", dissect_u3v_heur, "USB3Vision Protocol", "u3v", proto_u3v,HEURISTIC_ENABLE);
     u3v_descr_handle = create_dissector_handle(dissect_u3v_descriptors, proto_u3v);

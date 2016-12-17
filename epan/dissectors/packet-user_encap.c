@@ -82,6 +82,8 @@ static uat_t* encaps_uat;
 
 static gint exported_pdu_tap = -1;
 
+static dissector_handle_t user_encap_handle;
+
 /*
  * Use this for DLT_USER2 if we don't have an encapsulation for it.
  */
@@ -222,10 +224,7 @@ UAT_PROTO_DEF(user_encap, trailer_proto, trailer_proto, trailer_proto_name, user
 
 void proto_reg_handoff_user_encap(void)
 {
-    dissector_handle_t user_encap_handle;
     guint i;
-
-    user_encap_handle = find_dissector("user_dlt");
 
     user2_encap.encap = WTAP_ENCAP_USER2;
     user2_encap.payload_proto_name = g_strdup("pktap");
@@ -294,7 +293,7 @@ void proto_register_user_encap(void)
                       encaps_uat);
 
 
-    register_dissector("user_dlt",dissect_user,proto_user_encap);
+    user_encap_handle = register_dissector("user_dlt",dissect_user,proto_user_encap);
 
     /*
     prefs_register_protocol_obsolete(proto_register_protocol("DLT User A","DLT_USER_A","user_dlt_a"));

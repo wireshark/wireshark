@@ -262,6 +262,7 @@ static expert_field ei_ip_ttl_too_small = EI_INIT;
 static expert_field ei_ip_cipso_tag = EI_INIT;
 static expert_field ei_ip_bogus_ip_version = EI_INIT;
 
+static dissector_handle_t ip_handle;
 
 #ifdef HAVE_GEOIP
 static gint ett_geoip_info = -1;
@@ -3120,7 +3121,7 @@ proto_register_ip(void)
     "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
     &try_heuristic_first);
 
-  register_dissector("ip", dissect_ip, proto_ip);
+  ip_handle = register_dissector("ip", dissect_ip, proto_ip);
   register_init_routine(ip_defragment_init);
   register_cleanup_routine(ip_defragment_cleanup);
   ip_tap = register_tap("ip");
@@ -3135,12 +3136,10 @@ proto_register_ip(void)
 void
 proto_reg_handoff_ip(void)
 {
-  dissector_handle_t ip_handle;
   dissector_handle_t ipv4_handle;
   capture_dissector_handle_t clip_cap_handle;
   int proto_clip;
 
-  ip_handle = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
   ipv4_handle = create_dissector_handle(dissect_ip_v4, proto_ip);
 

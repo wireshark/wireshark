@@ -152,6 +152,8 @@ static gint ett_docsis_type29ucd = -1;
 static gint ett_docsis_type29tlv = -1;
 static gint ett_docsis_type29_burst_tlv = -1;
 
+static dissector_handle_t docsis_type29ucd_handle;
+
 static const value_string channel_tlv_vals[] _U_ = {
   {type29ucd_SYMBOL_RATE,                     "Symbol Rate"},
   {type29ucd_FREQUENCY,                       "Frequency"},
@@ -1082,15 +1084,12 @@ proto_register_docsis_type29ucd (void)
   expert_docsis_type29ucd = expert_register_protocol(proto_docsis_type29ucd);
   expert_register_field_array(expert_docsis_type29ucd, ei, array_length(ei));
 
-  register_dissector ("docsis_type29ucd", dissect_type29ucd, proto_docsis_type29ucd);
+  docsis_type29ucd_handle = register_dissector ("docsis_type29ucd", dissect_type29ucd, proto_docsis_type29ucd);
 }
 
 void
 proto_reg_handoff_docsis_type29ucd (void)
 {
-  dissector_handle_t docsis_type29ucd_handle;
-
-  docsis_type29ucd_handle = find_dissector ("docsis_type29ucd");
   dissector_add_uint ("docsis_mgmt", 0x1D, docsis_type29ucd_handle);
 }
 

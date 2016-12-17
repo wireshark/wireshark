@@ -46,6 +46,8 @@ static gint hf_llc_hpteam_pid = -1;
 /* These are the ids of the subtrees that we may be creating */
 static gint ett_hpteam = -1;
 
+static dissector_handle_t hpteam_handle;
+
 /*
  * According to the HP document at
  *
@@ -128,14 +130,11 @@ void proto_register_hpteam(void)
 	llc_add_oui(OUI_HP_2, "llc.hpteam_pid", "LLC Hewlett Packard OUI PID", &hf_pid, proto_hpteam);
 	proto_register_field_array(proto_hpteam, hf_data, array_length(hf_data));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("hpteam", dissect_hpteam, proto_hpteam);
+	hpteam_handle = register_dissector("hpteam", dissect_hpteam, proto_hpteam);
 }
 
 void proto_reg_handoff_hpteam(void)
 {
-	dissector_handle_t hpteam_handle;
-
-	hpteam_handle = find_dissector("hpteam");
 	/* Register dissector to key off of known PID / OUI combination */
 	dissector_add_uint("llc.hpteam_pid", 0x0002, hpteam_handle);
 }

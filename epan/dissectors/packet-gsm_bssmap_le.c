@@ -224,6 +224,7 @@ static expert_field ei_gsm_a_bssmap_le_extraneous_data = EI_INIT;
 static expert_field ei_gsm_a_bssmap_le_missing_mandatory_element = EI_INIT;
 
 static dissector_handle_t gsm_bsslap_handle = NULL;
+static dissector_handle_t bssmap_le_handle;
 
 static proto_tree *g_tree;
 
@@ -1212,16 +1213,12 @@ proto_register_gsm_bssmap_le(void)
 	expert_gsm_a_bssmap_le = expert_register_protocol(proto_bssmap_le);
 	expert_register_field_array(expert_gsm_a_bssmap_le, ei, array_length(ei));
 
-	register_dissector("gsm_bssmap_le", dissect_bssmap_le, proto_bssmap_le);
+	bssmap_le_handle = register_dissector("gsm_bssmap_le", dissect_bssmap_le, proto_bssmap_le);
 }
 
 void
 proto_reg_handoff_gsm_bssmap_le(void)
 {
-	dissector_handle_t bssmap_le_handle;
-
-	bssmap_le_handle = find_dissector("gsm_bssmap_le");
-
 	dissector_add_uint("bssap.pdu_type",  BSSAP_PDU_TYPE_BSSMAP, bssmap_le_handle);
 
 	gsm_bsslap_handle = find_dissector_add_dependency("gsm_bsslap", proto_bssmap_le);

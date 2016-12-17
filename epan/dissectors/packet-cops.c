@@ -798,6 +798,8 @@ static gint ett_cops_subtree = -1;
 
 static gint ett_docsis_request_transmission_policy = -1;
 
+static dissector_handle_t cops_handle;
+
 /* For request/response matching */
 typedef struct _cops_conv_info_t {
     wmem_map_t *pdus_tree;
@@ -2842,7 +2844,7 @@ void proto_register_cops(void)
     expert_register_field_array(expert_cops, ei, array_length(ei));
 
     /* Make dissector findable by name */
-    register_dissector("cops", dissect_cops, proto_cops);
+    cops_handle = register_dissector("cops", dissect_cops, proto_cops);
 
     /* Register our configuration options for cops */
     cops_module = prefs_register_protocol(proto_cops, NULL);
@@ -2867,9 +2869,6 @@ void proto_register_cops(void)
 
 void proto_reg_handoff_cops(void)
 {
-    dissector_handle_t cops_handle;
-
-    cops_handle = find_dissector("cops");
     /* These could use a separate "preference name" (to avoid collision),
         but they are IANA registered and users could still use Decode As */
     dissector_add_uint("tcp.port", TCP_PORT_PKTCABLE_COPS, cops_handle);

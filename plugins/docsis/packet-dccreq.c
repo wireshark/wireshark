@@ -87,6 +87,8 @@ static gint ett_docsis_dccreq = -1;
 static gint ett_docsis_dccreq_ds_params = -1;
 static gint ett_docsis_dccreq_sf_sub = -1;
 
+static dissector_handle_t docsis_dccreq_handle;
+
 value_string ds_mod_type_vals[] = {
   {0 , "64 QAM"},
   {1 , "256 QAM"},
@@ -577,17 +579,13 @@ proto_register_docsis_dccreq (void)
   proto_register_field_array (proto_docsis_dccreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_dccreq", dissect_dccreq, proto_docsis_dccreq);
+  docsis_dccreq_handle = register_dissector ("docsis_dccreq", dissect_dccreq, proto_docsis_dccreq);
 }
 
 void
 proto_reg_handoff_docsis_dccreq (void)
 {
-  dissector_handle_t docsis_dccreq_handle;
-
-  docsis_dccreq_handle = find_dissector ("docsis_dccreq");
   dissector_add_uint ("docsis_mgmt", 0x17, docsis_dccreq_handle);
-
 }
 
 /*

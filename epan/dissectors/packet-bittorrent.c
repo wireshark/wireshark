@@ -678,7 +678,7 @@ proto_register_bittorrent(void)
    proto_register_field_array(proto_bittorrent, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
-   register_dissector("bittorrent.tcp", dissect_bittorrent, proto_bittorrent);
+   dissector_handle = register_dissector("bittorrent.tcp", dissect_bittorrent, proto_bittorrent);
 
    bittorrent_module = prefs_register_protocol(proto_bittorrent, NULL);
    prefs_register_bool_preference(bittorrent_module, "desegment",
@@ -698,7 +698,6 @@ proto_reg_handoff_bittorrent(void)
 {
    bencode_handle = find_dissector_add_dependency("bencode", proto_bittorrent);
 
-   dissector_handle = find_dissector("bittorrent.tcp");
    dissector_add_uint_range_with_preference("tcp.port", DEFAULT_TCP_PORT_RANGE, dissector_handle);
 
    heur_dissector_add("tcp", test_bittorrent_packet, "BitTorrent over TCP", "bittorrent_tcp", proto_bittorrent, HEURISTIC_ENABLE);

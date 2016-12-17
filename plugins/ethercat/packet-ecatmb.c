@@ -41,6 +41,7 @@ void proto_reg_handoff_ecat_mailbox(void);
 
 static dissector_handle_t eth_handle;
 static dissector_handle_t ams_handle;
+static dissector_handle_t ecat_mailbox_handle;
 
 /* Define the EtherCAT mailbox proto */
 int proto_ecat_mailbox  = -1;
@@ -1972,15 +1973,12 @@ void proto_register_ecat_mailbox(void)
    proto_register_field_array(proto_ecat_mailbox, hf,array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
-   register_dissector("ecat_mailbox", dissect_ecat_mailbox, proto_ecat_mailbox);
+   ecat_mailbox_handle = register_dissector("ecat_mailbox", dissect_ecat_mailbox, proto_ecat_mailbox);
 }
 
 void proto_reg_handoff_ecat_mailbox(void)
 {
-   dissector_handle_t ecat_mailbox_handle;
-
    /* Register this dissector as a sub dissector to E88A4 based on ether type. */
-   ecat_mailbox_handle = find_dissector("ecat_mailbox");
    dissector_add_uint("ecatf.type", 5, ecat_mailbox_handle);
 
    eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_ecat_mailbox);

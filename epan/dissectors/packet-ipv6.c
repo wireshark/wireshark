@@ -338,6 +338,7 @@ static expert_field ei_ipv6_bogus_ipv6_version = EI_INIT;
 static expert_field ei_ipv6_invalid_header = EI_INIT;
 static expert_field ei_ipv6_opt_header_mismatch = EI_INIT;
 
+static dissector_handle_t ipv6_handle;
 
 #define set_address_ipv6(dst, src_ip6) \
     set_address((dst), AT_IPv6, IPv6_ADDR_SIZE, (src_ip6))
@@ -3518,7 +3519,7 @@ proto_register_ipv6(void)
                                    "If enabled the Length field in octets will be hidden",
                                    &ipv6_exthdr_hide_len_oct_field);
 
-    register_dissector("ipv6", dissect_ipv6, proto_ipv6);
+    ipv6_handle = register_dissector("ipv6", dissect_ipv6, proto_ipv6);
     register_init_routine(ipv6_reassemble_init);
     register_cleanup_routine(ipv6_reassemble_cleanup);
     ip6_hdr_tap = register_tap("ipv6");
@@ -3539,7 +3540,6 @@ proto_register_ipv6(void)
 void
 proto_reg_handoff_ipv6(void)
 {
-    dissector_handle_t ipv6_handle;
     dissector_handle_t ipv6_hopopts_handle;
     dissector_handle_t ipv6_routing_handle;
     dissector_handle_t ipv6_fraghdr_handle;
@@ -3547,7 +3547,6 @@ proto_reg_handoff_ipv6(void)
     capture_dissector_handle_t ipv6_cap_handle;
     capture_dissector_handle_t ipv6_ext_cap_handle;
 
-    ipv6_handle = find_dissector("ipv6");
     dissector_add_uint("ethertype", ETHERTYPE_IPv6, ipv6_handle);
     dissector_add_uint("erf.types.type", ERF_TYPE_IPV6, ipv6_handle);
     dissector_add_uint("ppp.protocol", PPP_IPV6, ipv6_handle);

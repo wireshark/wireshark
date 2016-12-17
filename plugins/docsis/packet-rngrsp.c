@@ -62,6 +62,8 @@ static const value_string rng_stat_vals[] = {
 static gint ett_docsis_rngrsp = -1;
 static gint ett_docsis_rngrsptlv = -1;
 
+static dissector_handle_t docsis_rngrsp_handle;
+
 static const value_string rngrsp_tlv_vals[] = {
   {RNGRSP_TIMING,            "Timing Adjust (6.25us/64)"},
   {RNGRSP_PWR_LEVEL_ADJ,     "Power Level Adjust (0.25dB units)"},
@@ -266,7 +268,7 @@ proto_register_docsis_rngrsp (void)
   proto_register_field_array (proto_docsis_rngrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_rngrsp", dissect_rngrsp, proto_docsis_rngrsp);
+  docsis_rngrsp_handle = register_dissector ("docsis_rngrsp", dissect_rngrsp, proto_docsis_rngrsp);
 }
 
 
@@ -277,11 +279,7 @@ proto_register_docsis_rngrsp (void)
 void
 proto_reg_handoff_docsis_rngrsp (void)
 {
-  dissector_handle_t docsis_rngrsp_handle;
-
-  docsis_rngrsp_handle = find_dissector ("docsis_rngrsp");
   dissector_add_uint ("docsis_mgmt", 0x05, docsis_rngrsp_handle);
-
 }
 
 /*

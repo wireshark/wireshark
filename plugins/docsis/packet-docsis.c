@@ -1157,7 +1157,7 @@ proto_register_docsis (void)
                                                      FT_UINT8, BASE_DEC);
 #endif
 
-  register_dissector ("docsis", dissect_docsis, proto_docsis);
+  docsis_handle = register_dissector ("docsis", dissect_docsis, proto_docsis);
   register_init_routine(docsis_defragment_init);
   register_cleanup_routine(docsis_defragment_cleanup);
 }
@@ -1165,8 +1165,6 @@ proto_register_docsis (void)
 void
 proto_reg_handoff_docsis (void)
 {
-
-  docsis_handle = find_dissector ("docsis");
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_DOCSIS, docsis_handle);
 
   docsis_mgmt_handle = find_dissector ("docsis_mgmt");

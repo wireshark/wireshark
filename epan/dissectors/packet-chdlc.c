@@ -88,6 +88,8 @@ static gint ett_slarp = -1;
 
 static dissector_table_t subdissector_table;
 
+static dissector_handle_t chdlc_handle;
+
 static capture_dissector_handle_t ip_cap_handle;
 
 static const value_string chdlc_address_vals[] = {
@@ -235,7 +237,7 @@ proto_register_chdlc(void)
                                                 "Cisco HDLC protocol", proto_chdlc,
                                                 FT_UINT16, BASE_HEX);
 
-  register_dissector("chdlc", dissect_chdlc, proto_chdlc);
+  chdlc_handle = register_dissector("chdlc", dissect_chdlc, proto_chdlc);
 
   /* Register the preferences for the chdlc protocol */
   chdlc_module = prefs_register_protocol(proto_chdlc, NULL);
@@ -254,10 +256,8 @@ proto_register_chdlc(void)
 void
 proto_reg_handoff_chdlc(void)
 {
-  dissector_handle_t chdlc_handle;
   capture_dissector_handle_t chdlc_cap_handle;
 
-  chdlc_handle = find_dissector("chdlc");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC, chdlc_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC_WITH_PHDR, chdlc_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_CHDLC, chdlc_handle);

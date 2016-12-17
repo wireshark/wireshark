@@ -96,6 +96,7 @@ static gboolean support_IG          = FALSE;
 
 static dissector_handle_t q931_handle;
 static dissector_handle_t x25_handle;
+static dissector_handle_t iua_handle;
 
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
@@ -975,7 +976,7 @@ proto_register_iua(void)
         &global_iua_gsm_sapis);
 
   /* Allow other dissectors to find this one by name. */
-  register_dissector("iua", dissect_iua, proto_iua);
+  iua_handle = register_dissector("iua", dissect_iua, proto_iua);
 }
 
 #define SCTP_PORT_IUA          9900
@@ -983,9 +984,6 @@ proto_register_iua(void)
 void
 proto_reg_handoff_iua(void)
 {
-  dissector_handle_t iua_handle;
-
-  iua_handle  = find_dissector("iua");
   q931_handle = find_dissector_add_dependency("q931", proto_iua);
   x25_handle  = find_dissector_add_dependency("x.25", proto_iua);
 

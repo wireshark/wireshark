@@ -560,6 +560,8 @@ sctp_chunk_type_update_cb(void *r, char **err)
   return TRUE;
 }
 
+static dissector_handle_t sctp_handle;
+
 static struct _sctp_info sctp_info;
 
 #define RETURN_DIRECTION(direction) \
@@ -5098,7 +5100,7 @@ proto_register_sctp(void)
   sctp_port_dissector_table = register_dissector_table("sctp.port", "SCTP port", proto_sctp, FT_UINT16, BASE_DEC);
   sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi",  "SCTP payload protocol identifier", proto_sctp, FT_UINT32, BASE_HEX);
 
-  register_dissector("sctp", dissect_sctp, proto_sctp);
+  sctp_handle = register_dissector("sctp", dissect_sctp, proto_sctp);
   sctp_heur_subdissector_list = register_heur_dissector_list("sctp", proto_sctp);
 
   register_init_routine(sctp_init);
@@ -5116,10 +5118,8 @@ proto_register_sctp(void)
 void
 proto_reg_handoff_sctp(void)
 {
-  dissector_handle_t sctp_handle;
   capture_dissector_handle_t sctp_cap_handle;
 
-  sctp_handle = find_dissector("sctp");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_SCTP, sctp_handle);
   dissector_add_uint("ip.proto", IP_PROTO_SCTP, sctp_handle);
   dissector_add_uint_with_preference("udp.port", UDP_TUNNELING_PORT, sctp_handle);

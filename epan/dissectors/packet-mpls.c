@@ -120,6 +120,8 @@ static expert_field ei_mpls_pw_ach_res = EI_INIT;
 static expert_field ei_mpls_pw_mcw_error_processing_message = EI_INIT;
 static expert_field ei_mpls_invalid_label = EI_INIT;
 
+static dissector_handle_t mpls_handle;
+
 #if 0 /*not used yet*/
 /*
  * MPLS PW types
@@ -599,7 +601,7 @@ proto_register_mpls(void)
     expert_mpls = expert_register_protocol(proto_mpls);
     expert_register_field_array(expert_mpls, ei, array_length(ei));
 
-    register_dissector("mpls", dissect_mpls, proto_mpls);
+    mpls_handle = register_dissector("mpls", dissect_mpls, proto_mpls);
 
     /* FF: mpls subdissector table is indexed by label */
     mpls_subdissector_table = register_dissector_table("mpls.label",
@@ -626,9 +628,8 @@ proto_register_mpls(void)
 void
 proto_reg_handoff_mpls(void)
 {
-    dissector_handle_t mpls_handle, mpls_pwcw_handle;
+    dissector_handle_t mpls_pwcw_handle;
 
-    mpls_handle = find_dissector("mpls");
     dissector_add_uint("ethertype", ETHERTYPE_MPLS, mpls_handle);
     dissector_add_uint("ethertype", ETHERTYPE_MPLS_MULTI, mpls_handle);
     dissector_add_uint("ppp.protocol", PPP_MPLS_UNI, mpls_handle);

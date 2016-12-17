@@ -77,6 +77,7 @@ void proto_reg_handoff_gtp(void);
 static dissector_table_t ppp_subdissector_table;
 static dissector_table_t gtp_priv_ext_dissector_table;
 static dissector_table_t gtp_cdr_fmt_dissector_table;
+static dissector_handle_t gtp_handle, gtp_prime_handle;
 
 #define GTPv0_PORT  3386
 #define GTPv1C_PORT 2123    /* 3G Control PDU */
@@ -10134,8 +10135,8 @@ proto_register_gtp(void)
     prefs_register_bool_preference(gtp_module, "dissect_gtp_over_tcp", "Dissect GTP over TCP", "Dissect GTP over TCP", &g_gtp_over_tcp);
     prefs_register_bool_preference(gtp_module, "track_gtp_session", "Track GTP session", "Track GTP session", &g_gtp_session);
 
-    register_dissector("gtp", dissect_gtp, proto_gtp);
-    register_dissector("gtpprime", dissect_gtpprime, proto_gtpprime);
+    gtp_handle = register_dissector("gtp", dissect_gtp, proto_gtp);
+    gtp_prime_handle = register_dissector("gtpprime", dissect_gtpprime, proto_gtpprime);
 
     gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP PRIVATE EXT", proto_gtp, FT_UINT16, BASE_DEC);
     gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP DATA RECORD TYPE", proto_gtp, FT_UINT16, BASE_DEC);
@@ -10162,15 +10163,12 @@ void
 proto_reg_handoff_gtp(void)
 {
     static gboolean           Initialized = FALSE;
-    static dissector_handle_t gtp_handle, gtp_prime_handle;
     static gboolean           gtp_over_tcp;
     static guint              gtpv0_port;
     static guint              gtpv1c_port;
     static guint              gtpv1u_port;
 
     if (!Initialized) {
-        gtp_handle = find_dissector("gtp");
-        gtp_prime_handle = find_dissector("gtpprime");
         ppp_subdissector_table = find_dissector_table("ppp.protocol");
 
         radius_register_avp_dissector(VENDOR_THE3GPP, 5, dissect_radius_qos_umts);

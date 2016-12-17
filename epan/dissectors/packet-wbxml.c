@@ -180,6 +180,8 @@ static expert_field ei_wbxml_content_type_disabled = EI_INIT;
 static expert_field ei_wbxml_oversized_uintvar = EI_INIT;
 static expert_field ei_wbxml_too_much_recursion = EI_INIT;
 
+static dissector_handle_t wbxml_handle;
+
 /* WBXML Preferences */
 static gboolean skip_wbxml_token_mapping = FALSE;
 static gboolean disable_wbxml_token_parsing = FALSE;
@@ -8159,8 +8161,6 @@ proto_register_wbxml(void)
 void
 proto_reg_handoff_wbxml(void)
 {
-	dissector_handle_t wbxml_handle;
-
 	/* Heuristic dissectors would be declared by means of:
 	 * heur_dissector_add("wsp", dissect_wbxml_heur, proto_wbxml);
 	 */

@@ -59,6 +59,8 @@ static int hf_epmd_creation = -1;
 
 static gint ett_epmd = -1;
 
+static dissector_handle_t epmd_handle = NULL;
+
 /* Other dissectors */
 static dissector_handle_t edp_handle = NULL;
 
@@ -408,14 +410,11 @@ proto_register_epmd(void)
     proto_epmd = proto_register_protocol(PNAME, PSNAME, PFNAME);
     proto_register_field_array(proto_epmd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector(PFNAME, dissect_epmd, proto_epmd);
+    epmd_handle = register_dissector(PFNAME, dissect_epmd, proto_epmd);
 }
 
 void
 proto_reg_handoff_epmd(void) {
-    dissector_handle_t epmd_handle;
-
-    epmd_handle = find_dissector("epmd");
     edp_handle = find_dissector("erldp");
 
     dissector_add_uint_with_preference("tcp.port", EPMD_PORT, epmd_handle);

@@ -53,6 +53,7 @@ static gint ett_interlink_block = -1;
 
 static dissector_handle_t data_handle;
 static dissector_table_t subdissector_table;
+static dissector_handle_t interlink_handle;
 
 static const true_false_string flags_set_notset = {
 	"Set", "Not set"
@@ -215,7 +216,7 @@ proto_register_interlink(void)
 							"interlink");
 	proto_register_field_array(proto_interlink, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("interlink", dissect_interlink, proto_interlink);
+	interlink_handle = register_dissector("interlink", dissect_interlink, proto_interlink);
 
 	/* Probably someone will write sub-dissectors. You can never know. */
 	subdissector_table = register_dissector_table("interlink.type_version",
@@ -226,9 +227,6 @@ proto_register_interlink(void)
 void
 proto_reg_handoff_interlink(void)
 {
-	dissector_handle_t interlink_handle;
-	interlink_handle = find_dissector("interlink");
-
 	/* Allow "Decode As" with any UDP packet. */
 	dissector_add_for_decode_as_with_preference("udp.port", interlink_handle);
 

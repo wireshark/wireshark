@@ -72,6 +72,8 @@ static gint ett_exported_pdu_tag = -1;
 
 static int ss7pc_address_type = -1;
 
+static dissector_handle_t exported_pdu_handle;
+
 #define EXPORTED_PDU_NEXT_PROTO_STR      0
 #define EXPORTED_PDU_NEXT_HEUR_PROTO_STR 1
 #define EXPORTED_PDU_NEXT_DIS_TABLE_STR  2
@@ -438,7 +440,7 @@ proto_register_exported_pdu(void)
     proto_exported_pdu = proto_register_protocol("EXPORTED_PDU",
             "exported_pdu", "exported_pdu");
 
-    register_dissector("exported_pdu", dissect_exported_pdu, proto_exported_pdu);
+    exported_pdu_handle = register_dissector("exported_pdu", dissect_exported_pdu, proto_exported_pdu);
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_exported_pdu, hf, array_length(hf));
@@ -457,10 +459,8 @@ void
 proto_reg_handoff_exported_pdu(void)
 {
     static gboolean initialized = FALSE;
-    static dissector_handle_t exported_pdu_handle;
 
     if (!initialized) {
-        exported_pdu_handle = find_dissector("exported_pdu");
         dissector_add_uint("wtap_encap", WTAP_ENCAP_WIRESHARK_UPPER_PDU, exported_pdu_handle);
         initialized = TRUE;
     }

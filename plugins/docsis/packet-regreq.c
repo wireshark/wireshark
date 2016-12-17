@@ -37,6 +37,7 @@ static int hf_docsis_regreq_sid = -1;
 static gint ett_docsis_regreq = -1;
 
 static dissector_handle_t docsis_tlv_handle;
+static dissector_handle_t docsis_regreq_handle;
 
 /* Code to actually dissect the packets */
 static int
@@ -90,15 +91,12 @@ proto_register_docsis_regreq (void)
   proto_register_field_array (proto_docsis_regreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_regreq", dissect_regreq, proto_docsis_regreq);
+  docsis_regreq_handle = register_dissector ("docsis_regreq", dissect_regreq, proto_docsis_regreq);
 }
 
 void
 proto_reg_handoff_docsis_regreq (void)
 {
-  dissector_handle_t docsis_regreq_handle;
-
-  docsis_regreq_handle = find_dissector ("docsis_regreq");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
 
   dissector_add_uint ("docsis_mgmt", 0x06, docsis_regreq_handle);

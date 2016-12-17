@@ -157,13 +157,12 @@ proto_register_ipos(void)
     expert_ipos = expert_register_protocol(proto_ipos);
     expert_register_field_array(expert_ipos, ei, array_length(ei));
 #endif
-    register_dissector("ipos", dissect_ipos, proto_ipos);
+    ipos_handle = register_dissector("ipos", dissect_ipos, proto_ipos);
 }
 
 void
 proto_reg_handoff_ipos(void)
 {
-    ipos_handle = find_dissector("ipos");
     redback_handle = find_dissector_add_dependency("redback", proto_ipos);
 
     /*dissector_add_uint("wtap_encap", WTAP_ENCAP_IPOS, ipos_handle); */

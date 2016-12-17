@@ -134,6 +134,8 @@ static gint ett_zrtp_checksum = -1;
 
 static expert_field ei_zrtp_checksum = EI_INIT;
 
+static dissector_handle_t zrtp_handle;
+
 
 /*
   Definitions
@@ -1142,7 +1144,7 @@ proto_register_zrtp(void)
   proto_zrtp = proto_register_protocol("ZRTP", "ZRTP", "zrtp");
   proto_register_field_array(proto_zrtp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  register_dissector("zrtp", dissect_zrtp, proto_zrtp);
+  zrtp_handle = register_dissector("zrtp", dissect_zrtp, proto_zrtp);
   expert_zrtp = expert_register_protocol(proto_zrtp);
   expert_register_field_array(expert_zrtp, ei, array_length(ei));
 }
@@ -1150,9 +1152,6 @@ proto_register_zrtp(void)
 void
 proto_reg_handoff_zrtp(void)
 {
-  dissector_handle_t zrtp_handle;
-
-  zrtp_handle = find_dissector("zrtp");
   dissector_add_for_decode_as_with_preference("udp.port", zrtp_handle);
 }
 

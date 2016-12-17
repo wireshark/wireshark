@@ -2319,7 +2319,7 @@ proto_register_diameter(void)
 	proto_diameter = proto_register_protocol ("Diameter Protocol", "DIAMETER", "diameter");
 
 	/* Allow dissector to find be found by name. */
-	register_dissector("diameter", dissect_diameter, proto_diameter);
+	diameter_sctp_handle = register_dissector("diameter", dissect_diameter, proto_diameter);
 
 	/* Delay registration of Diameter fields */
 	proto_register_prefix("diameter", register_diameter_fields);
@@ -2375,7 +2375,6 @@ proto_reg_handoff_diameter(void)
 	static range_t *diameter_sctp_port_range;
 
 	if (!Initialized) {
-		diameter_sctp_handle = find_dissector("diameter");
 		diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
 							      proto_diameter);
 		diameter_udp_handle = create_dissector_handle(dissect_diameter, proto_diameter);

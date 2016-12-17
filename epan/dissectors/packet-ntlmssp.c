@@ -273,6 +273,8 @@ static expert_field ei_ntlmssp_blob_len_too_long = EI_INIT;
 static expert_field ei_ntlmssp_target_info_attr = EI_INIT;
 static expert_field ei_ntlmssp_message_type = EI_INIT;
 
+static dissector_handle_t ntlmssp_handle, ntlmssp_wrap_handle;
+
 /* Configuration variables */
 const char *gbl_nt_password = NULL;
 
@@ -3277,8 +3279,8 @@ proto_register_ntlmssp(void)
                                    "NT Password (used to decrypt payloads)",
                                    &gbl_nt_password);
 
-  register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
-  register_dissector("ntlmssp_payload", dissect_ntlmssp_payload, proto_ntlmssp);
+  ntlmssp_handle = register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
+  ntlmssp_wrap_handle = register_dissector("ntlmssp_payload", dissect_ntlmssp_payload, proto_ntlmssp);
   register_dissector("ntlmssp_data_only", dissect_ntlmssp_payload_only, proto_ntlmssp);
   register_dissector("ntlmssp_verf", dissect_ntlmssp_verf, proto_ntlmssp);
 }
@@ -3286,12 +3288,8 @@ proto_register_ntlmssp(void)
 void
 proto_reg_handoff_ntlmssp(void)
 {
-  dissector_handle_t ntlmssp_handle, ntlmssp_wrap_handle;
-
   /* Register protocol with the GSS-API module */
 
-  ntlmssp_handle      = find_dissector("ntlmssp");
-  ntlmssp_wrap_handle = find_dissector("ntlmssp_verf");
   gssapi_init_oid("1.3.6.1.4.1.311.2.2.10", proto_ntlmssp, ett_ntlmssp,
                   ntlmssp_handle, ntlmssp_wrap_handle,
                   "NTLMSSP - Microsoft NTLM Security Support Provider");

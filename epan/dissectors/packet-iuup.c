@@ -157,6 +157,8 @@ static expert_field ei_iuup_pdu_type = EI_INIT;
 
 static GHashTable* circuits = NULL;
 
+static dissector_handle_t iuup_handle;
+
 static gboolean dissect_fields = FALSE;
 static gboolean two_byte_pseudoheader = FALSE;
 static guint global_dynamic_payload_type = 0;
@@ -843,11 +845,9 @@ static void cleanup_iuup(void) {
 
 void proto_reg_handoff_iuup(void) {
     static gboolean iuup_prefs_initialized = FALSE;
-    static dissector_handle_t iuup_handle;
     static guint saved_dynamic_payload_type = 0;
 
     if (!iuup_prefs_initialized) {
-        iuup_handle = find_dissector("iuup");
         dissector_add_string("rtp_dyn_payload_type","VND.3GPP.IUFP", iuup_handle);
         iuup_prefs_initialized = TRUE;
     } else {
@@ -994,7 +994,7 @@ void proto_register_iuup(void) {
     proto_register_subtree_array(ett, array_length(ett));
     expert_iuup = expert_register_protocol(proto_iuup);
     expert_register_field_array(expert_iuup, ei, array_length(ei));
-    register_dissector("iuup", dissect_iuup, proto_iuup);
+    iuup_handle = register_dissector("iuup", dissect_iuup, proto_iuup);
     register_dissector("find_iuup", find_iuup, proto_iuup);
 
     register_init_routine(&init_iuup);

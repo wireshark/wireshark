@@ -49,6 +49,7 @@ void proto_register_irsir(void);
 
 /** Protocol handles. */
 static dissector_handle_t irda_handle;
+static dissector_handle_t sir_handle;
 
 /** Protocol fields. */
 static int proto_sir = -1;
@@ -174,7 +175,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root, void* data _U_)
 void
 proto_reg_handoff_irsir(void)
 {
-	dissector_add_uint_with_preference("tcp.port", TCP_PORT_SIR, find_dissector("sir"));
+	dissector_add_uint_with_preference("tcp.port", TCP_PORT_SIR, sir_handle);
 
 	irda_handle = find_dissector("irda");
 }
@@ -226,7 +227,7 @@ proto_register_irsir(void)
 	expert_module_t* expert_sir;
 
 	proto_sir = proto_register_protocol("Serial Infrared", "SIR", "sir");
-	register_dissector("sir", dissect_sir, proto_sir);
+	sir_handle = register_dissector("sir", dissect_sir, proto_sir);
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array( proto_sir, hf_sir, array_length(hf_sir));
 	expert_sir = expert_register_protocol(proto_sir);

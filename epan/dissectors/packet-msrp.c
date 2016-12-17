@@ -931,7 +931,7 @@ proto_register_msrp(void)
      * Register the dissector by name, so other dissectors can
      * grab it by name rather than just referring to it directly.
      */
-    register_dissector("msrp", dissect_msrp, proto_msrp);
+    msrp_handle = register_dissector("msrp", dissect_msrp, proto_msrp);
 
     expert_msrp = expert_register_protocol(proto_msrp);
     expert_register_field_array(expert_msrp, ei, array_length(ei));
@@ -942,7 +942,6 @@ proto_register_msrp(void)
 void
 proto_reg_handoff_msrp(void)
 {
-    msrp_handle = find_dissector("msrp");
     heur_dissector_add("tcp", dissect_msrp_heur, "MSRP over TCP", "msrp_tcp", proto_msrp, HEURISTIC_ENABLE);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_MSRP, msrp_handle);
     media_type_dissector_table = find_dissector_table("media_type");

@@ -63,6 +63,7 @@ static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle = NULL;
 static dissector_handle_t rrc_sys_info_cont_handle = NULL;
 static dissector_handle_t gsm_a_dtap_handle = NULL;
 static dissector_handle_t gsm_rlcmac_dl_handle = NULL;
+static dissector_handle_t lte_rrc_dl_ccch_handle;
 
 static GHashTable *lte_rrc_etws_cmas_dcs_hash = NULL;
 
@@ -3985,7 +3986,7 @@ void proto_register_lte_rrc(void) {
   proto_lte_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   /* These entry points will first create an lte_rrc root node */
-  register_dissector("lte_rrc.dl_ccch", dissect_lte_rrc_DL_CCCH, proto_lte_rrc);
+  lte_rrc_dl_ccch_handle = register_dissector("lte_rrc.dl_ccch", dissect_lte_rrc_DL_CCCH, proto_lte_rrc);
   register_dissector("lte_rrc.dl_dcch", dissect_lte_rrc_DL_DCCH, proto_lte_rrc);
   register_dissector("lte_rrc.ul_ccch", dissect_lte_rrc_UL_CCCH, proto_lte_rrc);
   register_dissector("lte_rrc.ul_dcch", dissect_lte_rrc_UL_DCCH, proto_lte_rrc);
@@ -4023,9 +4024,6 @@ void proto_register_lte_rrc(void) {
 void
 proto_reg_handoff_lte_rrc(void)
 {
-	static dissector_handle_t lte_rrc_dl_ccch_handle;
-
-	lte_rrc_dl_ccch_handle = find_dissector("lte_rrc.dl_ccch");
 	dissector_add_for_decode_as_with_preference("udp.port", lte_rrc_dl_ccch_handle);
 	nas_eps_handle = find_dissector("nas-eps");
 	rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");

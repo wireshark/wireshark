@@ -48,6 +48,7 @@ static int hf_usb_ms_maxlun = -1;
 
 static gint ett_usb_ms = -1;
 
+static dissector_handle_t usb_ms_bulk_handle;
 
 /* there is one such structure for each masstorage conversation */
 typedef struct _usb_ms_conv_info_t {
@@ -454,16 +455,14 @@ proto_register_usb_ms(void)
     proto_register_field_array(proto_usb_ms, hf, array_length(hf));
     proto_register_subtree_array(usb_ms_subtrees, array_length(usb_ms_subtrees));
 
-    register_dissector("usbms", dissect_usb_ms_bulk, proto_usb_ms);
+    usb_ms_bulk_handle = register_dissector("usbms", dissect_usb_ms_bulk, proto_usb_ms);
 }
 
 void
 proto_reg_handoff_usb_ms(void)
 {
-    dissector_handle_t usb_ms_bulk_handle;
     dissector_handle_t usb_ms_control_handle;
 
-    usb_ms_bulk_handle = find_dissector("usbms");
     dissector_add_uint("usb.bulk", IF_CLASS_MASS_STORAGE, usb_ms_bulk_handle);
 
     usb_ms_control_handle = create_dissector_handle(dissect_usb_ms_control, proto_usb_ms);

@@ -935,13 +935,7 @@ proto_register_iso7816(void)
 
     proto_iso7816_atr = proto_register_protocol(
             "ISO/IEC 7816-3", "ISO 7816-3", "iso7816.atr");
-    register_dissector("iso7816.atr", dissect_iso7816_atr, proto_iso7816_atr);
-}
-
-void
-proto_reg_handoff_iso7816(void)
-{
-    iso7816_atr_handle = find_dissector("iso7816.atr");
+    iso7816_atr_handle = register_dissector("iso7816.atr", dissect_iso7816_atr, proto_iso7816_atr);
 }
 
 /*

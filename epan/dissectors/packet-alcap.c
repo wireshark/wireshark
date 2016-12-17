@@ -405,6 +405,8 @@ static expert_field ei_alcap_release_cause_not31 = EI_INIT;
 static expert_field ei_alcap_abnormal_release = EI_INIT;
 static expert_field ei_alcap_response = EI_INIT;
 
+static dissector_handle_t alcap_handle = NULL;
+
 static gboolean keep_persistent_info = TRUE;
 
 static wmem_tree_t* legs_by_dsaid = NULL;
@@ -2392,7 +2394,7 @@ proto_register_alcap(void)
 
     proto_alcap = proto_register_protocol(alcap_proto_name, alcap_proto_name_short, "alcap");
 
-    register_dissector("alcap", dissect_alcap, proto_alcap);
+    alcap_handle = register_dissector("alcap", dissect_alcap, proto_alcap);
 
     proto_register_field_array(proto_alcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -2415,8 +2417,6 @@ proto_register_alcap(void)
 void
 proto_reg_handoff_alcap(void)
 {
-    dissector_handle_t alcap_handle = find_dissector("alcap");
-
     dissector_add_uint("mtp3.service_indicator", MTP_SI_AAL2, alcap_handle);
 }
 

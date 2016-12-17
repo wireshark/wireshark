@@ -58,6 +58,7 @@
 void proto_register_sdp(void);
 void proto_reg_handoff_sdp(void);
 
+static dissector_handle_t sdp_handle;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t sprt_handle;
 static dissector_handle_t msrp_handle;
@@ -3251,7 +3252,7 @@ proto_register_sdp(void)
      * Register the dissector by name, so other dissectors can
      * grab it by name rather than just referring to it directly.
      */
-    register_dissector("sdp", dissect_sdp, proto_sdp);
+    sdp_handle = register_dissector("sdp", dissect_sdp, proto_sdp);
 
     /* Register for tapping */
     sdp_tap = register_tap("sdp");
@@ -3264,8 +3265,6 @@ proto_register_sdp(void)
 void
 proto_reg_handoff_sdp(void)
 {
-    dissector_handle_t sdp_handle;
-
     rtcp_handle   = find_dissector_add_dependency("rtcp", proto_sdp);
     msrp_handle   = find_dissector_add_dependency("msrp", proto_sdp);
     sprt_handle   = find_dissector_add_dependency("sprt", proto_sdp);
@@ -3274,7 +3273,6 @@ proto_reg_handoff_sdp(void)
 
     proto_sprt    = dissector_handle_get_protocol_index(find_dissector("sprt"));
 
-    sdp_handle = find_dissector("sdp");
     dissector_add_string("media_type", "application/sdp", sdp_handle);
     dissector_add_uint("bctp.tpi", 0x20, sdp_handle);
 }

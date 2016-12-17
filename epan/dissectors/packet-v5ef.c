@@ -48,7 +48,8 @@ static int hf_v5ef_ea2 = -1;
 static gint ett_v5ef = -1;
 static gint ett_v5ef_address = -1;
 
-static dissector_handle_t v5dl_handle, lapd_handle;
+static dissector_handle_t v5dl_handle, lapd_handle, v5ef_handle;
+
 
 /*
  * Bits in the address field.
@@ -183,16 +184,12 @@ proto_register_v5ef(void)
 	proto_register_field_array (proto_v5ef, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("v5ef", dissect_v5ef, proto_v5ef);
-
+	v5ef_handle = register_dissector("v5ef", dissect_v5ef, proto_v5ef);
 }
 
 void
 proto_reg_handoff_v5ef(void)
 {
-	dissector_handle_t v5ef_handle;
-
-	v5ef_handle = find_dissector("v5ef");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_V5_EF, v5ef_handle);
 
 	lapd_handle = find_dissector_add_dependency("lapd", proto_v5ef);

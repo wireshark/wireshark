@@ -428,6 +428,8 @@ static gint ett_mtp3mg_upu_apc = -1;
 
 static expert_field ei_mtp3mg_unknown_message = EI_INIT;
 
+static dissector_handle_t mtp3mg_handle;
+
 static void
 dissect_mtp3mg_unknown_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1399,7 +1401,7 @@ proto_register_mtp3mg(void)
     /* Register the protocol name and description */
     proto_mtp3mg = proto_register_protocol("Message Transfer Part Level 3 Management",
                                            "MTP3MG", "mtp3mg");
-    register_dissector("mtp3mg", dissect_mtp3mg, proto_mtp3mg);
+    mtp3mg_handle = register_dissector("mtp3mg", dissect_mtp3mg, proto_mtp3mg);
 
     /* Required calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mtp3mg, hf, array_length(hf));
@@ -1412,10 +1414,6 @@ proto_register_mtp3mg(void)
 void
 proto_reg_handoff_mtp3mg(void)
 {
-    dissector_handle_t mtp3mg_handle;
-
-    mtp3mg_handle = find_dissector("mtp3mg");
-
     dissector_add_uint("mtp3.service_indicator", MTP_SI_SNM, mtp3mg_handle);
 
     /*  SI 1 is unused in ANSI and SI 2 is unused in ITU, so it's okay for us

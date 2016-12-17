@@ -273,6 +273,8 @@ static gint ett_opt_params      = -1;
 static gint ett_opt_param       = -1;
 static gint ett_dcs             = -1;
 
+static dissector_handle_t smpp_handle;
+
 /* Reassemble SMPP TCP segments */
 static gboolean reassemble_over_tcp = TRUE;
 
@@ -3741,7 +3743,7 @@ proto_register_smpp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Allow other dissectors to find this one by name. */
-    register_dissector("smpp", dissect_smpp, proto_smpp);
+    smpp_handle = register_dissector("smpp", dissect_smpp, proto_smpp);
 
     /* Register for tapping */
     smpp_tap = register_tap("smpp");
@@ -3760,8 +3762,6 @@ proto_register_smpp(void)
 void
 proto_reg_handoff_smpp(void)
 {
-    dissector_handle_t smpp_handle;
-
     /*
      * SMPP can be spoken on any port under TCP or X.25
      * ...how *do* we do that under X.25?
@@ -3771,7 +3771,6 @@ proto_reg_handoff_smpp(void)
      * to specify that a given X.25 circuit is to be dissected as SMPP,
      * however.
      */
-    smpp_handle = find_dissector("smpp");
     dissector_add_for_decode_as_with_preference("tcp.port", smpp_handle);
     heur_dissector_add("tcp", dissect_smpp_heur, "SMPP over TCP", "smpp_tcp", proto_smpp, HEURISTIC_ENABLE);
     heur_dissector_add("x.25", dissect_smpp_heur, "SMPP over X.25", "smpp_x25", proto_smpp, HEURISTIC_ENABLE);

@@ -294,6 +294,7 @@ extern int proto_pdcp_lte;
 static dissector_handle_t mac_lte_handle;
 static dissector_handle_t rlc_lte_handle;
 static dissector_handle_t pdcp_lte_handle;
+static dissector_handle_t catapult_dct2000_handle;
 
 static dissector_handle_t look_for_dissector(const char *protocol_name);
 static void parse_outhdr_string(const guchar *outhdr_string, gint outhdr_length);
@@ -2865,8 +2866,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 /******************************************************************************/
 void proto_reg_handoff_catapult_dct2000(void)
 {
-    dissector_handle_t catapult_dct2000_handle = find_dissector("dct2000");
-
     dissector_add_uint("wtap_encap", WTAP_ENCAP_CATAPULT_DCT2000, catapult_dct2000_handle);
 
     mac_lte_handle = find_dissector("mac-lte");
@@ -3315,7 +3314,7 @@ void proto_register_catapult_dct2000(void)
     expert_register_field_array(expert_catapult_dct2000, ei, array_length(ei));
 
     /* Allow dissector to find be found by name. */
-    register_dissector("dct2000", dissect_catapult_dct2000, proto_catapult_dct2000);
+    catapult_dct2000_handle = register_dissector("dct2000", dissect_catapult_dct2000, proto_catapult_dct2000);
 
     /* Preferences */
     catapult_dct2000_module = prefs_register_protocol(proto_catapult_dct2000, NULL);

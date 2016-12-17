@@ -134,6 +134,8 @@ static gint ett_mip_pmipv4_ext = -1;
 
 static expert_field ei_mip_data_not_dissected = EI_INIT;
 
+static dissector_handle_t mip_handle;
+
 /* Port used for Mobile IP */
 #define UDP_PORT_MIP    434
 
@@ -1462,7 +1464,7 @@ void proto_register_mip(void)
   proto_mip = proto_register_protocol("Mobile IP", "Mobile IP", "mip");
 
   /* Register the dissector by name */
-  register_dissector("mip", dissect_mip, proto_mip);
+  mip_handle = register_dissector("mip", dissect_mip, proto_mip);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_mip, hf, array_length(hf));
@@ -1477,9 +1479,6 @@ void proto_register_mip(void)
 void
 proto_reg_handoff_mip(void)
 {
-  dissector_handle_t mip_handle;
-
-  mip_handle = find_dissector("mip");
   ip_handle = find_dissector_add_dependency("ip", proto_mip);
   dissector_add_uint_with_preference("udp.port", UDP_PORT_MIP, mip_handle);
 

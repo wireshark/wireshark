@@ -41,6 +41,7 @@ static int ett_sipfrag = -1;
 
 void proto_reg_handoff_sipfrag(void);
 
+static dissector_handle_t sipfrag_handle;
 
 /* Main dissection function. */
 static int dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -115,12 +116,11 @@ void proto_register_sipfrag(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Allow other dissectors to find this one by name. */
-    register_dissector("sipfrag", dissect_sipfrag, proto_sipfrag);
+    sipfrag_handle = register_dissector("sipfrag", dissect_sipfrag, proto_sipfrag);
 }
 
 void proto_reg_handoff_sipfrag(void)
 {
-    dissector_handle_t sipfrag_handle = find_dissector("sipfrag");
     dissector_add_string("media_type", "message/sipfrag", sipfrag_handle);
 }
 

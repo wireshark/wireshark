@@ -47,6 +47,8 @@ static int hf_signature = -1;
 
 static gint ett_ayiya = -1;
 
+static dissector_handle_t ayiya_handle = NULL;
+
 static const value_string identity_types[] = {
     { 0x0, "None" },
     { 0x1, "Integer" },
@@ -197,7 +199,7 @@ proto_register_ayiya(void)
 
     proto_ayiya = proto_register_protocol("Anything in Anything Protocol",
                           "AYIYA", "ayiya");
-    register_dissector("ayiya", dissect_ayiya, proto_ayiya);
+    ayiya_handle = register_dissector("ayiya", dissect_ayiya, proto_ayiya);
     proto_register_field_array(proto_ayiya, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
@@ -205,9 +207,6 @@ proto_register_ayiya(void)
 void
 proto_reg_handoff_ayiya(void)
 {
-    dissector_handle_t ayiya_handle;
-
-    ayiya_handle = find_dissector("ayiya");
     dissector_add_uint_with_preference("udp.port", UDP_PORT_AYIYA, ayiya_handle);
 
     ip_dissector_table = find_dissector_table("ip.proto");

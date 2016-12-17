@@ -1458,7 +1458,7 @@ proto_register_xml(void)
 
     g_array_free(ett_arr, TRUE);
 
-    register_dissector("xml", dissect_xml, xml_ns.hf_tag);
+    xml_handle = register_dissector("xml", dissect_xml, xml_ns.hf_tag);
 
     init_xml_parser();
 
@@ -1476,8 +1476,6 @@ add_dissector_media(gpointer k, gpointer v _U_, gpointer p _U_)
 void
 proto_reg_handoff_xml(void)
 {
-    xml_handle = find_dissector("xml");
-
     g_hash_table_foreach(media_types, add_dissector_media, NULL);
     dissector_add_uint_range_with_preference("tcp.port", "", xml_handle);
 

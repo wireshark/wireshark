@@ -354,6 +354,8 @@ static gint ett_docsis_mdd = -1;
 static gint ett_tlv = -1;
 static gint ett_sub_tlv = -1;
 
+static dissector_handle_t docsis_mdd_handle;
+
 /* Dissection */
 static int
 dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -821,15 +823,12 @@ void proto_register_docsis_mdd (void)
   proto_register_field_array (proto_docsis_mdd, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_mdd", dissect_mdd, proto_docsis_mdd);
+  docsis_mdd_handle = register_dissector ("docsis_mdd", dissect_mdd, proto_docsis_mdd);
 }
 
 void
 proto_reg_handoff_docsis_mdd (void)
 {
-  dissector_handle_t docsis_mdd_handle;
-
-  docsis_mdd_handle = find_dissector ("docsis_mdd");
   dissector_add_uint ("docsis_mgmt", 33, docsis_mdd_handle);
 }
 

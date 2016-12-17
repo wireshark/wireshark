@@ -41,7 +41,7 @@ static expert_field ei_etherip_ver_3 = EI_INIT;
 static expert_field ei_etherip_reserved_0 = EI_INIT;
 
 static dissector_handle_t eth_withoutfcs_handle;
-
+static dissector_handle_t etherip_handle;
 
 /*
  * RFC 3378: EtherIP: Tunneling Ethernet Frames in IP Datagrams
@@ -125,16 +125,13 @@ proto_register_etherip(void)
   expert_etherip = expert_register_protocol(proto_etherip);
   expert_register_field_array(expert_etherip, ei, array_length(ei));
 
-  register_dissector("etherip", dissect_etherip, proto_etherip);
+  etherip_handle = register_dissector("etherip", dissect_etherip, proto_etherip);
 }
 
 void
 proto_reg_handoff_etherip(void)
 {
-  dissector_handle_t etherip_handle;
-
   eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_etherip);
-  etherip_handle = find_dissector("etherip");
   dissector_add_uint("ip.proto", IP_PROTO_ETHERIP, etherip_handle);
 }
 

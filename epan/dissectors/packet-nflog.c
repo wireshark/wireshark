@@ -141,6 +141,7 @@ static header_field_info hfi_nflog_tlv_unknown NFLOG_HFI_INIT =
 static dissector_handle_t ip_handle;
 static dissector_handle_t ip6_handle;
 static dissector_table_t ethertype_table;
+static dissector_handle_t nflog_handle;
 
 static int
 dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -357,7 +358,7 @@ proto_register_nflog(void)
     proto_nflog = proto_register_protocol("Linux Netfilter NFLOG", "NFLOG", "nflog");
     hfi_nflog = proto_registrar_get_nth(proto_nflog);
 
-    register_dissector("nflog", dissect_nflog, proto_nflog);
+    nflog_handle = register_dissector("nflog", dissect_nflog, proto_nflog);
 
     proto_register_fields(proto_nflog, hfi, array_length(hfi));
     proto_register_subtree_array(ett, array_length(ett));
@@ -367,12 +368,9 @@ proto_register_nflog(void)
 void
 proto_reg_handoff_nflog(void)
 {
-    dissector_handle_t nflog_handle;
-
     ip_handle   = find_dissector_add_dependency("ip", hfi_nflog->id);
     ip6_handle  = find_dissector_add_dependency("ipv6", hfi_nflog->id);
 
-    nflog_handle = find_dissector("nflog");
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NFLOG, nflog_handle);
     ethertype_table = find_dissector_table("ethertype");
 }
