@@ -376,7 +376,7 @@ install a newer version of the header file.])
 		AC_LANG_SOURCE(
 		  [[
 		    #include <pcap.h>
-		    main()
+		    int main()
 		    {
 		      pcap_if_t *devpointer;
 		      char errbuf[1];
@@ -979,9 +979,10 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 		    fi
 		    AC_TRY_LINK(
 			[
+#	include <krb5.h>
 			],
 			[
-			    krb5_kt_resolve();
+			    krb5_kt_resolve(0, 0, 0);
 			],
 			[
 			    #
@@ -1043,7 +1044,7 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 			    #include <krb5.h>
 			    #include <stdio.h>
 
-			    main()
+			    int main()
 			    {
 			      printf("%u\n", KEYTYPE_ARCFOUR_56);
 			    }
@@ -1213,7 +1214,7 @@ LDFLAGS="$LDFLAGS $LD_OPTION"
 can_add_to_ldflags=""
 AC_LINK_IFELSE(
   [
-    AC_LANG_SOURCE([[main() { return; }]])
+    AC_LANG_SOURCE([[int main() { return 0; }]])
   ],
   [
     AC_MSG_RESULT(yes)

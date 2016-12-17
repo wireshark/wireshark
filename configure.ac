@@ -657,6 +657,13 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wjump-misses-init, C)
 # so only enable this for C for now.
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wshorten-64-to-32, C)
 
+#
+# Implicit function declarations are an error in C++ and most
+# likely a programming error in C. Turn -Wimplicit-int and
+# -Wimplicit-function-declaration into an error by default.
+#
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Werror=implicit, C)
+
 # Clang only. Avoid "argument unused during compilation" warnings
 # (for example, when getting the -gsplit-dwarf option or
 # when combining -fwrapv with -fno-strict-overflow)

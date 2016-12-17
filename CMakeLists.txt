@@ -429,6 +429,13 @@ else()
 		# The Qt headers generate a ton of shortening errors on 64-bit systems
 		# so only enable this for C for now.
 		-Wshorten-64-to-32
+
+		#
+		# Implicit function declarations are an error in C++ and most
+		# likely a programming error in C. Turn -Wimplicit-int and
+		# -Wimplicit-function-declaration into an error by default.
+		#
+		-Werror=implicit
 	)
 
 	set(CXX_WARN_FLAGS
