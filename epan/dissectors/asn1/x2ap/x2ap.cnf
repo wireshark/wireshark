@@ -309,8 +309,8 @@ LAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_PLMN_Identity);
   dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
 
-#.FN_FTR BitRate
-  proto_item_append_text(actx->created_item, "bit/s");
+#.TYPE_ATTR
+BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
 
 #.TYPE_ATTR
 MME-Code TYPE = FT_UINT8 DISPLAY = BASE_DEC_HEX
@@ -360,8 +360,8 @@ MME-Group-ID TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
   }
 
-#.FN_FTR Time-UE-StayedInCell
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+Time-UE-StayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 Time-UE-StayedInCell-EnhancedGranularity DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_Time_UE_StayedInCell_EnhancedGranularity_fmt)
@@ -414,11 +414,11 @@ Threshold-RSRQ DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_Threshold_RSRQ_fmt)
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
   }
 
-#.FN_FTR ExpectedActivityPeriod
-proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+ExpectedActivityPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
-#.FN_FTR ExpectedIdlePeriod
-proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 RSRPMeasurementResult/_item/rSRPMeasured DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2ap_Threshold_RSRP_fmt)

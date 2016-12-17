@@ -2387,10 +2387,6 @@ dissect_x2ap_BitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
                                                             0U, G_GUINT64_CONSTANT(10000000000), NULL, FALSE);
 
-#line 313 "./asn1/x2ap/x2ap.cnf"
-  proto_item_append_text(actx->created_item, "bit/s");
-
-
   return offset;
 }
 
@@ -4029,10 +4025,6 @@ dissect_x2ap_ExpectedActivityPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 181U, NULL, FALSE);
 
-#line 418 "./asn1/x2ap/x2ap.cnf"
-proto_item_append_text(actx->created_item, "s");
-
-
   return offset;
 }
 
@@ -4042,10 +4034,6 @@ static int
 dissect_x2ap_ExpectedIdlePeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 181U, NULL, FALSE);
-
-#line 421 "./asn1/x2ap/x2ap.cnf"
-proto_item_append_text(actx->created_item, "s");
-
 
   return offset;
 }
@@ -4642,10 +4630,6 @@ static int
 dissect_x2ap_Time_UE_StayedInCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 4095U, NULL, FALSE);
-
-#line 364 "./asn1/x2ap/x2ap.cnf"
-  proto_item_append_text(actx->created_item, "s");
-
 
   return offset;
 }
@@ -12063,11 +12047,11 @@ void proto_register_x2ap(void) {
         NULL, HFILL }},
     { &hf_x2ap_expectedActivityPeriod,
       { "expectedActivityPeriod", "x2ap.expectedActivityPeriod",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
         NULL, HFILL }},
     { &hf_x2ap_expectedIdlePeriod,
       { "expectedIdlePeriod", "x2ap.expectedIdlePeriod",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
         NULL, HFILL }},
     { &hf_x2ap_sourceofUEActivityBehaviourInformation,
       { "sourceofUEActivityBehaviourInformation", "x2ap.sourceofUEActivityBehaviourInformation",
@@ -12123,19 +12107,19 @@ void proto_register_x2ap(void) {
         NULL, HFILL }},
     { &hf_x2ap_e_RAB_MaximumBitrateDL,
       { "e-RAB-MaximumBitrateDL", "x2ap.e_RAB_MaximumBitrateDL",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
         "BitRate", HFILL }},
     { &hf_x2ap_e_RAB_MaximumBitrateUL,
       { "e-RAB-MaximumBitrateUL", "x2ap.e_RAB_MaximumBitrateUL",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
         "BitRate", HFILL }},
     { &hf_x2ap_e_RAB_GuaranteedBitrateDL,
       { "e-RAB-GuaranteedBitrateDL", "x2ap.e_RAB_GuaranteedBitrateDL",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
         "BitRate", HFILL }},
     { &hf_x2ap_e_RAB_GuaranteedBitrateUL,
       { "e-RAB-GuaranteedBitrateUL", "x2ap.e_RAB_GuaranteedBitrateUL",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
         "BitRate", HFILL }},
     { &hf_x2ap_eNB_ID,
       { "eNB-ID", "x2ap.eNB_ID",
@@ -12215,7 +12199,7 @@ void proto_register_x2ap(void) {
         NULL, HFILL }},
     { &hf_x2ap_time_UE_StayedInCell,
       { "time-UE-StayedInCell", "x2ap.time_UE_StayedInCell",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
         NULL, HFILL }},
     { &hf_x2ap_undefined,
       { "undefined", "x2ap.undefined_element",
@@ -12607,11 +12591,11 @@ void proto_register_x2ap(void) {
         "Port_Number", HFILL }},
     { &hf_x2ap_uEaggregateMaximumBitRateDownlink,
       { "uEaggregateMaximumBitRateDownlink", "x2ap.uEaggregateMaximumBitRateDownlink",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
         "BitRate", HFILL }},
     { &hf_x2ap_uEaggregateMaximumBitRateUplink,
       { "uEaggregateMaximumBitRateUplink", "x2ap.uEaggregateMaximumBitRateUplink",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
         "BitRate", HFILL }},
     { &hf_x2ap_UE_HistoryInformation_item,
       { "LastVisitedCell-Item", "x2ap.LastVisitedCell_Item",
