@@ -96,8 +96,8 @@ ProtocolIE-Field/value ie_field_value
     }
 #.END
 
-#.FN_FTR BitRate
-  proto_item_append_text(actx->created_item, "bit/s");
+#.TYPE_ATTR
+BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
 
 #.FN_HDR SessionStartRequest
   col_set_str(actx->pinfo->cinfo, COL_INFO, "MBMS Session Start Request");
