@@ -680,6 +680,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
     /* Add the info to the existing RTP stream */
     strinfo->packet_count++;
     strinfo->stop_fd = pinfo->fd;
+    strinfo->stop_rel_time = pinfo->rel_ts;
 
     /* process RTP Event */
     if (tapinfo->rtp_evt_frame_num == pinfo->num) {
