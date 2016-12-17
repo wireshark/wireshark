@@ -307,6 +307,9 @@ static expert_field ei_lte_rrc_unexpected_length_value = EI_INIT;
 static expert_field ei_lte_rrc_too_many_group_a_rapids = EI_INIT;
 static expert_field ei_lte_rrc_invalid_drx_config = EI_INIT;
 
+static const unit_name_string units_sr_periods = { " SR period", " SR periods" };
+static const unit_name_string units_short_drx_cycles = { " shortDRX-Cycle", " shortDRX-Cycles" };
+
 static reassembly_table lte_rrc_sib11_reassembly_table;
 static reassembly_table lte_rrc_sib12_reassembly_table;
 

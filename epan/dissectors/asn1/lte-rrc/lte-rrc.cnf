@@ -363,7 +363,7 @@ if(ue_cap_tvb){
   }
 
   #.TYPE_RENAME
-IRAT-ParametersWLAN-r13/supportedBandListWLAN-r13 supportedBandListWLAN_r13
+IRAT-ParametersWLAN-r13/supportedBandListWLAN-r13 SupportedBandListWLAN_r13
 
 #.TYPE_ATTR
 MasterInformationBlock/schedulingInfoSIB1-BR-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_schedulingInfoSIB1_BR_r13_vals_ext
@@ -632,8 +632,10 @@ NeighCellConfig TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_neighCellCon
     asn1_ctx_t asn1_ctx;
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, actx->pinfo);
     dissect_per_constrained_integer(gnss_tod_msec_tvb, 0, &asn1_ctx, tree, hf_index, 0U, 3599999U, NULL, FALSE);
-    proto_item_append_text(actx->created_item, "ms");
   }
+
+#.TYPE_ATTR
+LocationInfo-r10/gnss-TOD-msec-r10 TYPE=FT_UINT24 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
 
 #.FN_BODY AbsoluteTimeInfo-r10 VAL_PTR = &abs_time_info_tvb
   tvbuff_t *abs_time_info_tvb = NULL;
@@ -864,9 +866,8 @@ SystemInformationBlockType16-r11/timeInfo-r11/dayLightSavingTime-r11 TYPE=FT_UIN
     actx->created_item = proto_tree_add_uint(tree, hf_index, daylight_saving_time_tvb, 0, 1, tvb_get_bits8(daylight_saving_time_tvb, 0, 2));
   }
 
-#.FN_BODY SystemInformationBlockType16-r11/timeInfo-r11/leapSeconds-r11
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+SystemInformationBlockType16-r11/timeInfo-r11/leapSeconds-r11 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 SystemInformationBlockType16-r11/timeInfo-r11/localTimeOffset-r11 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_localTimeOffset_fmt)
@@ -900,31 +901,26 @@ WLAN-Identifiers-r12/bssid-r12 TYPE=FT_ETHER
 #.TYPE_ATTR
 WLAN-Identifiers-r12/hessid-r12 TYPE=FT_ETHER
 
-#.FN_BODY RRCConnectionReject-r8-IEs/waitTime
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+RRCConnectionReject-r8-IEs/waitTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
-#.FN_BODY RRCConnectionReject-v1020-IEs/extendedWaitTime-r10
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+RRCConnectionReject-v1020-IEs/extendedWaitTime-r10 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
-#.FN_BODY RRCConnectionRelease-v1020-IEs/extendedWaitTime-r10
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+RRCConnectionRelease-v1020-IEs/extendedWaitTime-r10 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 SystemInformationBlockType1/cellSelectionInfo/q-RxLevMinOffset STRINGS=VALS(lte_rrc_q_RxLevMinOffset_vals)
 
-#.FN_BODY CellSelectionInfo-v920/q-QualMinOffset-r9
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+CellSelectionInfo-v920/q-QualMinOffset-r9 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
 #.TYPE_ATTR
 RLF-Report-r9/eag_1/timeConnFailure-r10 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_timeConnFailure_r10_fmt)
 
-#.FN_BODY LogMeasInfo-r10/relativeTimeStamp-r10
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+LogMeasInfo-r10/relativeTimeStamp-r10 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.FN_BODY BLER-Result-r12/blocksReceived-r12/n-r12 VAL_PTR = &n_r12_tvb HF_INDEX = -1
   tvbuff_t *n_r12_tvb = NULL;
@@ -949,9 +945,8 @@ BLER-Result-r12/blocksReceived-r12/m-r12 TYPE=FT_UINT8 DISPLAY=BASE_CUSTOM STRIN
 #.TYPE_ATTR
 BLER-Range-r12 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_BLER_Range_r12_vals_ext
 
-#.FN_BODY TimeSinceFailure-r11
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+TimeSinceFailure-r11 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 CarrierFreqUTRA-FDD/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
@@ -965,36 +960,29 @@ CarrierFreqUTRA-TDD/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc
 #.TYPE_ATTR
 CarrierFreqUTRA-TDD-r12/q-RxLevMin-r12 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
 
-#.FN_BODY CarrierFreqUTRA-FDD/p-MaxUTRA
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+CarrierFreqUTRA-FDD/p-MaxUTRA DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY CarrierFreqUTRA-FDD-Ext-r12/p-MaxUTRA-r12
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+CarrierFreqUTRA-FDD-Ext-r12/p-MaxUTRA-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY CarrierFreqUTRA-TDD/p-MaxUTRA
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+CarrierFreqUTRA-TDD/p-MaxUTRA DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY CarrierFreqUTRA-TDD-r12/p-MaxUTRA-r12
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+CarrierFreqUTRA-TDD-r12/p-MaxUTRA-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY CarrierFreqUTRA-FDD/q-QualMin
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+CarrierFreqUTRA-FDD/q-QualMin DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
-#.FN_BODY CarrierFreqUTRA-FDD-Ext-r12/q-QualMin-r12
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+CarrierFreqUTRA-FDD-Ext-r12/q-QualMin-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
 #.TYPE_ATTR
 CarrierFreqsInfoGERAN/commonInfo/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_geran_q_RxLevMin_vals_ext
 
-#.FN_BODY CarrierFreqsInfoGERAN/commonInfo/p-MaxGERAN
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+CarrierFreqsInfoGERAN/commonInfo/p-MaxGERAN DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
 #.TYPE_ATTR
 CQI-ReportConfig/nomPDSCH-RS-EPRE-Offset STRINGS=VALS(lte_rrc_nomPDSCH_RS_EPRE_Offset_vals)
@@ -1005,17 +993,14 @@ CQI-ReportConfig-r10/nomPDSCH-RS-EPRE-Offset STRINGS=VALS(lte_rrc_nomPDSCH_RS_EP
 #.TYPE_ATTR
 CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPDSCH_RS_EPRE_Offset_vals)
 
-#.FN_BODY P-C-AndCBSR-r11/p-C-r11
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+P-C-AndCBSR-r11/p-C-r11 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
-#.FN_BODY P-C-AndCBSR-r13/p-C-r13
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+P-C-AndCBSR-r13/p-C-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
-#.FN_BODY CSI-RS-Config-r10/csi-RS-r10/setup/p-C-r10
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+CSI-RS-Config-r10/csi-RS-r10/setup/p-C-r10 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
 #.FN_BODY IP-Address-r13/ipv4-r13 VAL_PTR=&ipv4_tvb HF_INDEX=-1
   tvbuff_t *ipv4_tvb = NULL;
@@ -1065,8 +1050,8 @@ IP-Address-r13/ipv6-r13 TYPE=FT_IPv6 DISPLAY=BASE_NONE
   guint32 timer;
 %(DEFAULT_BODY)s
 
-#.FN_FTR MAC-MainConfig/eag_1/sr-ProhibitTimer-r9
-  proto_item_append_text(actx->created_item, " SR period%s", (timer > 1) ? "s" : "");
+#.TYPE_ATTR
+MAC-MainConfig/eag_1/sr-ProhibitTimer-r9 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_sr_periods
 
 #.FN_BODY MAC-MainConfig/eag_2/mac-MainConfig-v1020/extendedBSR-Sizes-r10
   mac_lte_info* p_mac_lte_info;
@@ -1079,108 +1064,86 @@ IP-Address-r13/ipv6-r13 TYPE=FT_IPv6 DISPLAY=BASE_NONE
     set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, TRUE, actx->pinfo);
   }
 
-#.FN_BODY PDSCH-ConfigCommon/referenceSignalPower
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+PDSCH-ConfigCommon/referenceSignalPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY P-Max
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+P-Max DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY SPS-ConfigUL/setup/p0-Persistent/p0-NominalPUSCH-Persistent
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+SPS-ConfigUL/setup/p0-Persistent/p0-NominalPUSCH-Persistent DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY SPS-ConfigUL/setup/p0-Persistent/p0-UE-PUSCH-Persistent
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+SPS-ConfigUL/setup/p0-Persistent/p0-UE-PUSCH-Persistent DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
-#.FN_BODY SPS-ConfigUL/setup/eag_1/p0-PersistentSubframeSet2-r12/setup/p0-NominalPUSCH-PersistentSubframeSet2-r12
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+SPS-ConfigUL/setup/eag_1/p0-PersistentSubframeSet2-r12/setup/p0-NominalPUSCH-PersistentSubframeSet2-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY SPS-ConfigUL/setup/eag_1/p0-PersistentSubframeSet2-r12/setup/p0-UE-PUSCH-PersistentSubframeSet2-r12
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+SPS-ConfigUL/setup/eag_1/p0-PersistentSubframeSet2-r12/setup/p0-UE-PUSCH-PersistentSubframeSet2-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
 #.TYPE_ATTR
 UplinkPowerControlCommon/deltaPreambleMsg3 STRINGS=VALS(lte_rrc_deltaPreambleMsg3_vals)
 
-#.FN_BODY UplinkPowerControlCommon/p0-NominalPUSCH
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+UplinkPowerControlCommon/p0-NominalPUSCH DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
 #.TYPE_ATTR
 UplinkPowerControlCommonSCell-v1130/deltaPreambleMsg3-r11 STRINGS=VALS(lte_rrc_deltaPreambleMsg3_vals)
 
-#.FN_BODY UplinkPowerControlCommon/p0-NominalPUCCH
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+UplinkPowerControlCommon/p0-NominalPUCCH DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY UplinkPowerControlCommonPSCell-r12/p0-NominalPUCCH-r12
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+UplinkPowerControlCommonPSCell-r12/p0-NominalPUCCH-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY UplinkPowerControlCommonSCell-v1310/p0-NominalPUCCH
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+UplinkPowerControlCommonSCell-v1310/p0-NominalPUCCH DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY UplinkPowerControlCommonSCell-r10/p0-NominalPUSCH-r10
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+UplinkPowerControlCommonSCell-r10/p0-NominalPUSCH-r10 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY UplinkPowerControlDedicated/p0-UE-PUSCH
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+UplinkPowerControlDedicated/p0-UE-PUSCH DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
-#.FN_BODY UplinkPowerControlDedicated/p0-UE-PUCCH
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+UplinkPowerControlDedicated/p0-UE-PUCCH DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
-#.FN_BODY UplinkPowerControlDedicated-v1250/set2PowerControlParameter/setup/p0-NominalPUSCH-SubframeSet2-r12
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+UplinkPowerControlDedicated-v1250/set2PowerControlParameter/setup/p0-NominalPUSCH-SubframeSet2-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY UplinkPowerControlDedicated-v1250/set2PowerControlParameter/setup/p0-UE-PUSCH-SubframeSet2-r12
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+UplinkPowerControlDedicated-v1250/set2PowerControlParameter/setup/p0-UE-PUSCH-SubframeSet2-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
-#.FN_BODY UplinkPowerControlDedicatedSCell-r10/p0-UE-PUSCH-r10
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+UplinkPowerControlDedicatedSCell-r10/p0-UE-PUSCH-r10 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
-#.FN_BODY UplinkPowerControlDedicatedSCell-v1310/p0-UE-PUCCH
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+UplinkPowerControlDedicatedSCell-v1310/p0-UE-PUCCH DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
 #.TYPE_ATTR
 CellSelectionInfoNFreq-r13/q-RxLevMinOffset STRINGS=VALS(lte_rrc_q_RxLevMinOffset_vals)
 
-#.FN_BODY Q-QualMin-r9
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+Q-QualMin-r9 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
 #.TYPE_ATTR
 Q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_q_RxLevMin_vals_ext
 
-#.FN_BODY Q-OffsetRangeInterRAT
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+Q-OffsetRangeInterRAT DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
 #.TYPE_ATTR
 ReselectionThreshold DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_ReselectionThreshold_vals_ext
 
-#.FN_BODY ReselectionThresholdQ-r9
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+ReselectionThresholdQ-r9 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
-#.FN_BODY T-Reselection
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
-#.FN_BODY T-ReselectionEUTRA-CE-r13
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+T-ReselectionEUTRA-CE-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 Hysteresis DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_Hysteresis_vals_ext
@@ -1278,9 +1241,8 @@ MeasResultWLAN-r13/availableAdmissionCapacityWLAN-r13 DISPLAY=BASE_CUSTOM STRING
 #.TYPE_ATTR
 MeasResultForECID-r9/ue-RxTxTimeDiffResult-r9 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_ue_RxTxTimeDiffResult_fmt)
 
-#.FN_BODY MeasResultForRSSI-r13/channelOccupancy-r13
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, " percents");
+#.TYPE_ATTR
+MeasResultForRSSI-r13/channelOccupancy-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
 
 #.TYPE_ATTR
 UL-PDCP-DelayResult-r13/excessDelay-r13 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_excessDelay_r13_vals_ext
@@ -1843,7 +1805,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   }
 
 #.TYPE_RENAME
-PUCCH-ConfigDedicated-r13/pucch-Format-r13/channelSelection-r13/n1PUCCH-AN-CS-r13/setup/n1PUCCH-AN-CS-List-r13 n1PUCCH_AN_CS_List_r13
+PUCCH-ConfigDedicated-r13/pucch-Format-r13/channelSelection-r13/n1PUCCH-AN-CS-r13/setup/n1PUCCH-AN-CS-List-r13 N1PUCCH_AN_CS_List_r13
 
 #.FN_BODY RACH-ConfigCommon/preambleInfo
 %(DEFAULT_BODY)s
@@ -1874,9 +1836,8 @@ PUCCH-ConfigDedicated-r13/pucch-Format-r13/channelSelection-r13/n1PUCCH-AN-CS-r1
   /* Reset again */
   private_data_set_ra_preambles(actx, 0);
 
-#.FN_BODY RACH-ConfigCommon-v1250/txFailParams-r12/connEstFailOffset-r12
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+RACH-ConfigCommon-v1250/txFailParams-r12/connEstFailOffset-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
 #.FN_BODY DRX-Config/setup/onDurationTimer VAL_PTR=&value
   guint32 value;
@@ -2013,8 +1974,8 @@ PUCCH-ConfigDedicated-r13/pucch-Format-r13/channelSelection-r13/n1PUCCH-AN-CS-r1
 %(DEFAULT_BODY)s
   config->shortCycleTimer = timer;
 
-#.FN_FTR DRX-Config/setup/shortDRX/drxShortCycleTimer
-  proto_item_append_text(actx->created_item, " shortDRX-Cycle%s", plurality(timer, "", "s"));
+#.TYPE_ATTR
+DRX-Config/setup/shortDRX/drxShortCycleTimer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_short_drx_cycles
 
 #.FN_BODY DRX-Config-v1130/drx-RetransmissionTimer-v1130 VAL_PTR=&value
   guint32 value;
@@ -2192,9 +2153,8 @@ PUCCH-ConfigDedicated-r13/pucch-Format-r13/channelSelection-r13/n1PUCCH-AN-CS-r1
 #.TYPE_ATTR
 LWA-Parameters-r13/wlan-MAC-Address-r13 TYPE=FT_ETHER
 
-#.FN_BODY VisitedCellInfo-r12/timeSpent-r12
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+VisitedCellInfo-r12/timeSpent-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.FN_BODY WLAN-OffloadConfig-r12/thresholdChannelUtilization-r12/thresholdChannelUtilizationLow-r12
 %(DEFAULT_BODY)s
@@ -2212,22 +2172,19 @@ WLAN-OffloadConfig-r12/thresholdWLAN-RSSI-r12/thresholdWLAN-RSSI-High-r12 DISPLA
 
 #.FN_BODY WLAN-backhaulRate-r12
 %(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, " Kbps");
+  proto_item_append_text(actx->created_item, "Kbps");
 
-#.FN_BODY SL-DiscResourcePool-r12/eag_1/txParamsAddNeighFreq-r13/setup/referenceSignalPower
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+SL-DiscResourcePool-r12/eag_1/txParamsAddNeighFreq-r13/setup/referenceSignalPower DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
 #.TYPE_ATTR
 SL-DiscSysInfoReport-r13/cellSelectionInfo-r13/q-RxLevMinOffset-r13 STRINGS=VALS(lte_rrc_q_RxLevMinOffset_vals)
 
-#.FN_BODY SL-DiscSysInfoReport-r13/referenceSignalPower-r13
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+SL-DiscSysInfoReport-r13/referenceSignalPower-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY P0-SL-r12
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
 #
 # PC5-RRC-Definitions
@@ -2334,13 +2291,11 @@ SL-DiscSysInfoReport-r13/cellSelectionInfo-r13/q-RxLevMinOffset-r13 STRINGS=VALS
 #.TYPE_ATTR
 MasterInformationBlock-NB/schedulingInfoSIB1-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_schedulingInfoSIB1_NB_r13_vals_ext
 
-#.FN_BODY RRCConnectionReject-NB-r13-IEs/extendedWaitTime-r13
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+RRCConnectionReject-NB-r13-IEs/extendedWaitTime-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
-#.FN_BODY RRCConnectionRelease-NB-r13-IEs/extendedWaitTime-r13
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+RRCConnectionRelease-NB-r13-IEs/extendedWaitTime-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_RENAME
 SystemInformationBlockType2-NB-r13/multiBandInfoList-r13 AdditionalSpectrumEmission_r13
@@ -2348,13 +2303,11 @@ SystemInformationBlockType2-NB-r13/multiBandInfoList-r13 AdditionalSpectrumEmiss
 #.TYPE_ATTR
 AB-Config-NB-r13/ab-Category-r13 STRINGS=VALS(lte_rrc_eab_category_vals)
 
-#.FN_BODY NPDSCH-ConfigCommon-NB-r13/nrs-Power-r13
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+NPDSCH-ConfigCommon-NB-r13/nrs-Power-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
-#.FN_BODY RACH-ConfigCommon-NB-r13/connEstFailOffset-r13
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+RACH-ConfigCommon-NB-r13/connEstFailOffset-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
 #.FN_BODY DRB-ToAddMod-NB-r13
   struct mac_lte_info *p_mac_lte_info;
@@ -2420,13 +2373,11 @@ AB-Config-NB-r13/ab-Category-r13 STRINGS=VALS(lte_rrc_eab_category_vals)
     mapping->ul_priority_present = TRUE;
   }
 
-#.FN_BODY UplinkPowerControlCommon-NB-r13/p0-NominalNPUSCH-r13
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dBm");
+#.TYPE_ATTR
+UplinkPowerControlCommon-NB-r13/p0-NominalNPUSCH-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
 #.TYPE_ATTR
 UplinkPowerControlCommon-NB-r13/deltaPreambleMsg3-r13 STRINGS=VALS(lte_rrc_deltaPreambleMsg3_vals)
 
-#.FN_BODY UplinkPowerControlDedicated-NB-r13/p0-UE-NPUSCH-r13
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, "dB");
+#.TYPE_ATTR
+UplinkPowerControlDedicated-NB-r13/p0-UE-NPUSCH-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
