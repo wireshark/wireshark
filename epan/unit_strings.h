@@ -54,6 +54,8 @@ WS_DLL_PUBLIC const unit_name_string units_word_words;
 WS_DLL_PUBLIC const unit_name_string units_tick_ticks;
 WS_DLL_PUBLIC const unit_name_string units_meters;
 WS_DLL_PUBLIC const unit_name_string units_meter_meters;
+WS_DLL_PUBLIC const unit_name_string units_week_weeks;
+WS_DLL_PUBLIC const unit_name_string units_day_days;
 WS_DLL_PUBLIC const unit_name_string units_hour_hours;
 WS_DLL_PUBLIC const unit_name_string units_hours;
 WS_DLL_PUBLIC const unit_name_string units_minute_minutes;
