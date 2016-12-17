@@ -184,6 +184,12 @@ while(<PROTO_H>) {
         $bases_table .= "\t[\"$1\"] = $2,\n";
     }
 
+    if (/^#define\s+BASE_(UNIT_STRING)[ ]*((0x)?[0-9]+) / ) {
+        # Handle BASE_UNIT_STRING as a valid base value in Lua
+        my $num = hex($2);
+        $bases_table .= "\t[\"$1\"] = $num,\n";
+    }
+
     if (/^.define\s+PI_SEVERITY_MASK /) {
         $in_severity = 1;
         $skip_this = 1;
