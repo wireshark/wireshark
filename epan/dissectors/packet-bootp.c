@@ -475,8 +475,8 @@ static int hf_bootp_option_civic_location_country = -1;			/* 99 */
 static int hf_bootp_option_civic_location_ca_type = -1;			/* 99 */
 static int hf_bootp_option_civic_location_ca_length = -1;		/* 99 */
 static int hf_bootp_option_civic_location_ca_value = -1;		/* 99 */
-static int hf_bootp_option_tz_pcode = -1;                               /* 100 */
-static int hf_bootp_option_tz_tcode = -1;                               /* 101 */
+static int hf_bootp_option_tz_pcode = -1;				/* 100 */
+static int hf_bootp_option_tz_tcode = -1;				/* 101 */
 static int hf_bootp_option_netinfo_parent_server_address = -1;		/* 112 */
 static int hf_bootp_option_netinfo_parent_server_tag = -1;		/* 113 */
 static int hf_bootp_option_dhcp_auto_configuration = -1;		/* 116 */
@@ -533,7 +533,7 @@ static int hf_bootp_option_subnet_selection_option = -1;		/* 118 */
 static int hf_bootp_option_lost_server_domain_name = -1;		/* 137 */
 static int hf_bootp_option_capwap_access_controller = -1;		/* 138 */
 static int hf_bootp_option_tftp_server_address = -1;			/* 150 */
-static int hf_bootp_option_mudurl = -1;                                 /* 161 */
+static int hf_bootp_option_mudurl = -1;					/* 161 */
 static int hf_bootp_option_pxe_config_file = -1;			/* 209 */
 static int hf_bootp_option_pxe_path_prefix = -1;			/* 210 */
 static int hf_bootp_option_6RD_ipv4_mask_len = -1;			/* 212 */
@@ -1318,8 +1318,8 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /*  97 */ { "UUID/GUID-based Client Identifier",	special, NULL},
 /*  98 */ { "Open Group's User Authentication [TODO:RFC2485]",	opaque, NULL },
 /*  99 */ { "Civic Addresses Configuration",		special, NULL},
-/* 100 */ { "PCode", 			                string, &hf_bootp_option_tz_pcode },
-/* 101 */ { "TCode",			                string, &hf_bootp_option_tz_tcode },
+/* 100 */ { "PCode", 					string, &hf_bootp_option_tz_pcode },
+/* 101 */ { "TCode",					string, &hf_bootp_option_tz_tcode },
 /* 102 */ { "Removed/unassigned",			opaque, NULL },
 /* 103 */ { "Removed/unassigned",			opaque, NULL },
 /* 104 */ { "Removed/unassigned",			opaque, NULL },
@@ -1379,7 +1379,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 158 */ { "Unassigned",				opaque, NULL },
 /* 159 */ { "Unassigned",				opaque, NULL },
 /* 160 */ { "Unassigned",				opaque, NULL },
-/* 161 */ { "Manufacturer Usage Description",	        string, &hf_bootp_option_mudurl},
+/* 161 */ { "Manufacturer Usage Description",		string, &hf_bootp_option_mudurl},
 /* 162 */ { "Unassigned",				opaque, NULL },
 /* 163 */ { "Unassigned",				opaque, NULL },
 /* 164 */ { "Unassigned",				opaque, NULL },
