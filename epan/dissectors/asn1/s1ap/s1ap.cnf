@@ -765,8 +765,8 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS 
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
   }
 
-#.FN_FTR BitRate
-  proto_item_append_text(actx->created_item, "bit/s");
+#.TYPE_ATTR
+BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
 
 #.TYPE_ATTR
 MME-Code TYPE = FT_UINT8 DISPLAY = BASE_DEC_HEX
@@ -816,8 +816,8 @@ MME-Group-ID TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
   }
 
-#.FN_FTR Time-UE-StayedInCell
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+Time-UE-StayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 Time-UE-StayedInCell-EnhancedGranularity DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Time_UE_StayedInCell_EnhancedGranularity_fmt)
@@ -854,8 +854,8 @@ MessageIdentifier TYPE = FT_UINT16 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = 
     proto_tree_add_item(subtree, hf_s1ap_SerialNumber_upd_nb, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
 
-#.FN_FTR RepetitionPeriod
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+RepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.FN_BODY WarningType VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -906,8 +906,8 @@ MessageIdentifier TYPE = FT_UINT16 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = 
 #.TYPE_ATTR
 EUTRANRoundTripDelayEstimationInfo DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_EUTRANRoundTripDelayEstimationInfo_fmt)
 
-#.FN_FTR ExtendedRepetitionPeriod
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+ExtendedRepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.FN_BODY MeasurementsToActivate VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -950,14 +950,11 @@ LHN-ID TYPE=FT_STRING DISPLAY = STR_UNICODE
   actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
 #.END
 
-#.FN_FTR ExpectedActivityPeriod
-proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+ExpectedActivityPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
-#.FN_FTR ExpectedIdlePeriod
-proto_item_append_text(actx->created_item, "s");
-
-#.FN_FTR Time-UE-StayedInCell
-  proto_item_append_text(actx->created_item, "s");
+#.TYPE_ATTR
+ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
@@ -1566,7 +1563,6 @@ NB-IoT-Paging-eDRXInformation                   N s1ap.ies id-NB-IoT-Paging-eDRX
 UEUserPlaneCIoTSupportIndicator                 N s1ap.ies id-UEUserPlaneCIoTSupportIndicator
 CE-mode-B-SupportIndicator                      N s1ap.ies id-CE-mode-B-SupportIndicator
 NB-IoT-UEIdentityIndexValue                     N s1ap.ies id-NB-IoT-UEIdentityIndexValue
-SRVCCOperationPossible                          N s1ap.ies id-SRVCCOperationPossible
 SRVCCOperationNotPossible                       N s1ap.ies id-SRVCCOperationNotPossible
 
 #S1AP-PROTOCOL-IES-PAIR
