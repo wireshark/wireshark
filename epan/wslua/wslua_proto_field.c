@@ -137,13 +137,13 @@ static unsigned string_to_base(const gchar* str) {
 
 static value_string* value_string_from_table(lua_State* L, int idx) {
     GArray* vs = g_array_new(TRUE,TRUE,sizeof(value_string));
-    value_string* ret;
+    value_string* vs32;
 
     if(lua_isnil(L,idx)) {
         return NULL;
     } else if (!lua_istable(L,idx)) {
-        luaL_argerror(L,idx,"must be a table");
         g_array_free(vs,TRUE);
+        luaL_argerror(L,idx,"must be a table");
         return NULL;
     }
 
@@ -153,14 +153,24 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
         value_string v = {0,NULL};
 
         if (! lua_isnumber(L,-2)) {
-            luaL_argerror(L,idx,"All keys of a table used as value_string must be integers");
+            vs32 = (value_string *)(void *)vs->data;
+            while (vs32->strptr) {
+                g_free((gchar *)vs32->strptr);
+                vs32++;
+            }
             g_array_free(vs,TRUE);
+            luaL_argerror(L,idx,"All keys of a table used as value_string must be integers");
             return NULL;
         }
 
         if (! lua_isstring(L,-1)) {
-            luaL_argerror(L,idx,"All values of a table used as value_string must be strings");
+            vs32 = (value_string *)(void *)vs->data;
+            while (vs32->strptr) {
+                g_free((gchar *)vs32->strptr);
+                vs32++;
+            }
             g_array_free(vs,TRUE);
+            luaL_argerror(L,idx,"All values of a table used as value_string must be strings");
             return NULL;
         }
 
@@ -172,22 +182,22 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
 
-    ret = (value_string*)(void*)vs->data;
+    vs32 = (value_string*)(void*)vs->data;
 
     g_array_free(vs,FALSE);
 
-    return ret;
+    return vs32;
 }
 
 static val64_string* val64_string_from_table(lua_State* L, int idx) {
     GArray* vs = g_array_new(TRUE,TRUE,sizeof(val64_string));
-    val64_string* ret;
+    val64_string* vs64;
 
     if(lua_isnil(L,idx)) {
         return NULL;
     } else if (!lua_istable(L,idx)) {
-        luaL_argerror(L,idx,"must be a table");
         g_array_free(vs,TRUE);
+        luaL_argerror(L,idx,"must be a table");
         return NULL;
     }
 
@@ -197,14 +207,24 @@ static val64_string* val64_string_from_table(lua_State* L, int idx) {
         val64_string v = {0,NULL};
 
         if (! lua_isnumber(L,-2)) {
-            luaL_argerror(L,idx,"All keys of a table used as value string must be integers");
+            vs64 = (val64_string *)(void *)vs->data;
+            while (vs64->strptr) {
+                g_free((gchar *)vs64->strptr);
+                vs64++;
+            }
             g_array_free(vs,TRUE);
+            luaL_argerror(L,idx,"All keys of a table used as value string must be integers");
             return NULL;
         }
 
         if (! lua_isstring(L,-1)) {
-            luaL_argerror(L,idx,"All values of a table used as value string must be strings");
+            vs64 = (val64_string *)(void *)vs->data;
+            while (vs64->strptr) {
+                g_free((gchar *)vs64->strptr);
+                vs64++;
+            }
             g_array_free(vs,TRUE);
+            luaL_argerror(L,idx,"All values of a table used as value string must be strings");
             return NULL;
         }
 
@@ -216,63 +236,69 @@ static val64_string* val64_string_from_table(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
 
-    ret = (val64_string*)(void*)vs->data;
+    vs64 = (val64_string*)(void*)vs->data;
 
     g_array_free(vs,FALSE);
 
-    return ret;
+    return vs64;
 }
 
 static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
-    GArray* tfs = g_array_new(TRUE,TRUE,sizeof(true_false_string));
-    true_false_string* ret;
-    true_false_string tf = { g_strdup("True"), g_strdup("False") };
+    true_false_string* tfs;
 
     if (lua_isnil(L,idx)) {
         return NULL;
     } else if (!lua_istable(L,idx)) {
         luaL_argerror(L,idx,"must be a table");
-        g_array_free(tfs,TRUE);
         return NULL;
     }
+
+    tfs = (true_false_string *) g_malloc(sizeof(true_false_string));
+    tfs->true_string = g_strdup("True");
+    tfs->false_string = g_strdup("False");
 
     lua_pushnil(L);
 
     while (lua_next(L, idx)) {
 
         if (! lua_isnumber(L,-2)) {
+            g_free ((gchar *)tfs->true_string);
+            g_free ((gchar *)tfs->false_string);
+            g_free (tfs);
             luaL_argerror(L,idx,"All keys of a table used as true_false_string must be integers");
-            g_array_free(tfs,TRUE);
             return NULL;
         }
 
         if (! lua_isstring(L,-1)) {
+            g_free ((gchar *)tfs->true_string);
+            g_free ((gchar *)tfs->false_string);
+            g_free (tfs);
             luaL_argerror(L,idx,"All values of a table used as true_false_string must be strings");
-            g_array_free(tfs,TRUE);
             return NULL;
         }
 
-        /* arrays in LUA start with index number 1 */
-        if (lua_tointeger(L,-2) == 1) {
-            g_free((gchar *)tf.true_string);
-            tf.true_string = g_strdup(lua_tostring(L,-1));
-        }
-
-        if (lua_tointeger(L,-2) == 2) {
-            g_free((gchar *)tf.false_string);
-            tf.false_string = g_strdup(lua_tostring(L,-1));
+        /* Arrays in LUA start with index number 1 */
+        switch (lua_tointeger(L,-2)) {
+        case 1:
+            g_free((gchar *)tfs->true_string);
+            tfs->true_string = g_strdup(lua_tostring(L,-1));
+            break;
+        case 2:
+            g_free((gchar *)tfs->false_string);
+            tfs->false_string = g_strdup(lua_tostring(L,-1));
+            break;
+        default:
+            g_free ((gchar *)tfs->true_string);
+            g_free ((gchar *)tfs->false_string);
+            g_free (tfs);
+            luaL_argerror(L,idx,"The true_false_string table can have maximum two strings with key value 1 and 2");
+            return NULL;
         }
 
         lua_pop(L, 1);
     }
 
-    g_array_append_val(tfs,tf);
-
-    ret = (true_false_string*)(void*)tfs->data;
-
-    g_array_free(tfs,FALSE);
-
-    return ret;
+    return tfs;
 }
 
 static const gchar* check_field_name(lua_State* L, const int abbr_idx, const enum ftenum type) {
