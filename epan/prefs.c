@@ -4074,6 +4074,8 @@ deprecated_heur_dissector_pref(gchar *pref_name, const gchar *value)
         {"gvsp.enable_heuristic", "gvsp_udp", 0},
         {"hdcp2.enable", "hdcp2_tcp", 0},
         {"hislip.enable_heuristic", "hislip_tcp", 0},
+        {"infiniband.dissect_eoib", "mellanox_eoib", 1},
+        {"infiniband.identify_payload", "eth_over_ib", 0},
         {"jxta.udp.heuristic", "jxta_udp", 0},
         {"jxta.tcp.heuristic", "jxta_tcp", 0},
         {"jxta.sctp.heuristic", "jxta_sctp", 0},

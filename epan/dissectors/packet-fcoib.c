@@ -167,8 +167,6 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     gboolean    packet_match_manual;
     fc_data_t   fc_data;
 
-    tree = proto_tree_get_root(tree);   /* we don't want to add FCoIB under the Infiniband tree */
-
     frame_len = tvb_reported_length_remaining(tvb, 0) -
       FCOIB_HEADER_LEN - FCOIB_TRAILER_LEN;
     crc_offset = FCOIB_HEADER_LEN + frame_len;

@@ -391,7 +391,6 @@ proto_reg_handoff_iser(void)
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        create_dissector_handle(dissect_iser, proto_iser);
         heur_dissector_add("infiniband.payload", dissect_iser, "iSER Infiniband", "iser_infiniband", proto_iser, HEURISTIC_ENABLE);
         heur_dissector_add("infiniband.mad.cm.private", dissect_iser, "iSER in PrivateData of CM packets", "iser_ib_private", proto_iser, HEURISTIC_ENABLE);
 
