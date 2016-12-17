@@ -236,6 +236,7 @@ static gint ett_cms_Time = -1;
 static gint ett_cms_RC2CBCParameter = -1;
 static gint ett_cms_ExtendedCertificate = -1;
 static gint ett_cms_ExtendedCertificateInfo = -1;
+static gint ett_cms_DigestInfo = -1;
 static gint ett_cms_SMIMECapabilities = -1;
 static gint ett_cms_SMIMECapability = -1;
 static gint ett_cms_SMIMEEncryptionKeyPreference = -1;
@@ -330,7 +331,7 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
 int
 dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "./asn1/cms/cms.cnf"
+#line 89 "./asn1/cms/cms.cnf"
   	const char *name = NULL;
 
 	  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
@@ -350,7 +351,7 @@ dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_cms_T_content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 98 "./asn1/cms/cms.cnf"
+#line 99 "./asn1/cms/cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -368,7 +369,7 @@ static const ber_sequence_t ContentInfo_sequence[] = {
 
 int
 dissect_cms_ContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 79 "./asn1/cms/cms.cnf"
+#line 80 "./asn1/cms/cms.cnf"
   top_tree = tree;
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ContentInfo_sequence, hf_index, ett_cms_ContentInfo);
@@ -427,7 +428,7 @@ dissect_cms_DigestAlgorithmIdentifiers(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 102 "./asn1/cms/cms.cnf"
+#line 103 "./asn1/cms/cms.cnf"
 
   offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &content_tvb);
   proto_item_set_text(actx->created_item, "eContent (%u bytes)", tvb_reported_length (content_tvb));
@@ -458,7 +459,7 @@ dissect_cms_EncapsulatedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 129 "./asn1/cms/cms.cnf"
+#line 130 "./asn1/cms/cms.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
@@ -478,7 +479,7 @@ dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cms_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 139 "./asn1/cms/cms.cnf"
+#line 140 "./asn1/cms/cms.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -740,7 +741,7 @@ dissect_cms_T_otherRevInfoFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_cms_T_otherRevInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 123 "./asn1/cms/cms.cnf"
+#line 124 "./asn1/cms/cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -1077,7 +1078,7 @@ dissect_cms_T_keyAttrId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_cms_T_keyAttr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 118 "./asn1/cms/cms.cnf"
+#line 119 "./asn1/cms/cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -1265,7 +1266,7 @@ dissect_cms_T_oriType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_cms_T_oriValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 112 "./asn1/cms/cms.cnf"
+#line 113 "./asn1/cms/cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -1342,14 +1343,14 @@ dissect_cms_ContentEncryptionAlgorithmIdentifier(gboolean implicit_tag _U_, tvbu
 
 static int
 dissect_cms_EncryptedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 189 "./asn1/cms/cms.cnf"
+#line 190 "./asn1/cms/cms.cnf"
 	tvbuff_t *encrypted_tvb;
 	proto_item *item;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &encrypted_tvb);
 
-#line 194 "./asn1/cms/cms.cnf"
+#line 195 "./asn1/cms/cms.cnf"
 
 	item = actx->created_item;
 
@@ -1507,7 +1508,7 @@ dissect_cms_AuthenticatedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 143 "./asn1/cms/cms.cnf"
+#line 144 "./asn1/cms/cms.cnf"
   proto_item *pi;
   int old_offset = offset;
 
@@ -1582,7 +1583,7 @@ dissect_cms_Countersignature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_cms_RC2ParameterVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 179 "./asn1/cms/cms.cnf"
+#line 180 "./asn1/cms/cms.cnf"
   guint32 length = 0;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1632,10 +1633,25 @@ dissect_cms_RC2CBCParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
+static const ber_sequence_t DigestInfo_sequence[] = {
+  { &hf_cms_digestAlgorithm , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cms_DigestAlgorithmIdentifier },
+  { &hf_cms_digest          , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cms_Digest },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_cms_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DigestInfo_sequence, hf_index, ett_cms_DigestInfo);
+
+  return offset;
+}
+
+
 
 static int
 dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 161 "./asn1/cms/cms.cnf"
+#line 162 "./asn1/cms/cms.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
@@ -1656,7 +1672,7 @@ dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_cms_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 172 "./asn1/cms/cms.cnf"
+#line 173 "./asn1/cms/cms.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -2411,6 +2427,7 @@ void proto_register_cms(void) {
     &ett_cms_RC2CBCParameter,
     &ett_cms_ExtendedCertificate,
     &ett_cms_ExtendedCertificateInfo,
+    &ett_cms_DigestInfo,
     &ett_cms_SMIMECapabilities,
     &ett_cms_SMIMECapability,
     &ett_cms_SMIMEEncryptionKeyPreference,

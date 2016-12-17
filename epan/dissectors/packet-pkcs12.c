@@ -102,8 +102,6 @@ static int hf_pkcs12_macData = -1;                /* MacData */
 static int hf_pkcs12_mac = -1;                    /* DigestInfo */
 static int hf_pkcs12_macSalt = -1;                /* OCTET_STRING */
 static int hf_pkcs12_iterations = -1;             /* INTEGER */
-static int hf_pkcs12_digestAlgorithm = -1;        /* DigestAlgorithmIdentifier */
-static int hf_pkcs12_digest = -1;                 /* Digest */
 static int hf_pkcs12_AuthenticatedSafe_item = -1;  /* ContentInfo */
 static int hf_pkcs12_SafeContents_item = -1;      /* SafeBag */
 static int hf_pkcs12_bagId = -1;                  /* T_bagId */
@@ -146,7 +144,6 @@ static int hf_pkcs12_messageAuthScheme = -1;      /* AlgorithmIdentifier */
 #line 1 "./asn1/pkcs12/packet-pkcs12-ett.c"
 static gint ett_pkcs12_PFX = -1;
 static gint ett_pkcs12_MacData = -1;
-static gint ett_pkcs12_DigestInfo = -1;
 static gint ett_pkcs12_AuthenticatedSafe = -1;
 static gint ett_pkcs12_SafeContents = -1;
 static gint ett_pkcs12_SafeBag = -1;
@@ -490,21 +487,6 @@ dissect_pkcs12_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t DigestInfo_sequence[] = {
-  { &hf_pkcs12_digestAlgorithm, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cms_DigestAlgorithmIdentifier },
-  { &hf_pkcs12_digest       , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cms_Digest },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_pkcs12_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DigestInfo_sequence, hf_index, ett_pkcs12_DigestInfo);
-
-  return offset;
-}
-
-
 
 static int
 dissect_pkcs12_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -526,7 +508,7 @@ dissect_pkcs12_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static const ber_sequence_t MacData_sequence[] = {
-  { &hf_pkcs12_mac          , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkcs12_DigestInfo },
+  { &hf_pkcs12_mac          , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cms_DigestInfo },
   { &hf_pkcs12_macSalt      , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_pkcs12_OCTET_STRING },
   { &hf_pkcs12_iterations   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkcs12_INTEGER },
   { NULL, 0, 0, 0, NULL }
@@ -1302,14 +1284,6 @@ void proto_register_pkcs12(void) {
       { "iterations", "pkcs12.iterations",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
-    { &hf_pkcs12_digestAlgorithm,
-      { "digestAlgorithm", "pkcs12.digestAlgorithm_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "DigestAlgorithmIdentifier", HFILL }},
-    { &hf_pkcs12_digest,
-      { "digest", "pkcs12.digest",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_pkcs12_AuthenticatedSafe_item,
       { "ContentInfo", "pkcs12.ContentInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1451,7 +1425,6 @@ void proto_register_pkcs12(void) {
 #line 1 "./asn1/pkcs12/packet-pkcs12-ettarr.c"
     &ett_pkcs12_PFX,
     &ett_pkcs12_MacData,
-    &ett_pkcs12_DigestInfo,
     &ett_pkcs12_AuthenticatedSafe,
     &ett_pkcs12_SafeContents,
     &ett_pkcs12_SafeBag,

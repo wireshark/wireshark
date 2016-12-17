@@ -365,6 +365,12 @@ ExtendedCertificateInfo ::= SEQUENCE {
 
 Signature ::= BIT STRING
 
+-- PKCS #7 type that was removed from CMS
+
+DigestInfo ::= SEQUENCE {
+  digestAlgorithm DigestAlgorithmIdentifier,
+  digest Digest }
+
 -- From S/MIME
 
 SMIMECapabilities ::= SEQUENCE OF SMIMECapability

@@ -18,7 +18,7 @@ informationFramework
 Attribute
 	FROM InformationFramework informationFramework
 
-ContentInfo, --DigestInfo-- Digest, DigestAlgorithmIdentifier
+ContentInfo, DigestInfo, Digest, DigestAlgorithmIdentifier
 	FROM PKCS-7 {iso(1) member-body(2) us(840) rsadsi(113549)
 	pkcs(1) pkcs-7(7) modules(0) pkcs-7(1)}
 
@@ -65,12 +65,6 @@ MacData ::= SEQUENCE {
 	iterations	INTEGER DEFAULT 1
 -- Note: The default is for historical reasons and its use is
 -- deprecated. A higher value, like 1024 is recommended.
-}
-
--- Imported from PKCS#7
-DigestInfo ::= SEQUENCE {
-        digestAlgorithm DigestAlgorithmIdentifier,
-        digest		Digest
 }
 
 AuthenticatedSafe ::= SEQUENCE OF ContentInfo

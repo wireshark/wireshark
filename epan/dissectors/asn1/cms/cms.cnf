@@ -20,6 +20,7 @@ Countersignature
 Digest
 DigestAlgorithmIdentifier
 DigestAlgorithmIdentifiers
+DigestInfo
 EncapsulatedContentInfo
 EnvelopedData
 IssuerAndSerialNumber
