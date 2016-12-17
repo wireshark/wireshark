@@ -1,6 +1,6 @@
 /* packet-nbifom.c
  * Routines for Network-Based IP Flow Mobility (NBIFOM) dissection
- * 3GPP TS 24.161 V13.1.0 (2016-06) Release 13
+ * 3GPP TS 24.161 V13.3.0 (2016-12) Release 13
  * Copyright 2016, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
@@ -92,7 +92,7 @@ static const value_string nbifom_param_id_ue_to_nw_vals[] = {
     { 0x04, "NBIFOM routing rules" },
     { 0x05, "NBIFOM IP flow mapping" },
     { 0x06, "Not assigned" },
-    { 0x07, "NBIFOM RAN rules status" },
+    { 0x07, "NBIFOM access stratum status" },
     { 0x08, "NBIFOM access usability indication" },
     { 0, NULL }
 };
