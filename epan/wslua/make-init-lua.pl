@@ -180,7 +180,7 @@ my $skip_this = 0;
 while(<PROTO_H>) {
     $skip_this = 0;
 
-    if (/^\s+BASE_([A-Z_]+)[ ]*=[ ]*([0-9]+),/ ) {
+    if (/^\s+BASE_([A-Z_]+)[ ]*=[ ]*([0-9]+)[, ]+/ ) {
         $bases_table .= "\t[\"$1\"] = $2,\n";
     }
 
