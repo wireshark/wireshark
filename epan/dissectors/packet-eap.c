@@ -33,6 +33,7 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 
+#include "packet-eapol.h"
 #include "packet-wps.h"
 #include "packet-e212.h"
 
@@ -1713,6 +1714,7 @@ proto_reg_handoff_eap(void)
   ssl_handle = find_dissector_add_dependency("ssl", proto_eap);
 
   dissector_add_uint("ppp.protocol", PPP_EAP, eap_handle);
+  dissector_add_uint("eapol.type", EAPOL_EAP, eap_handle);
 }
 /*
  * Editor modelines

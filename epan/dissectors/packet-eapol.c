@@ -28,6 +28,8 @@
 #include <epan/etypes.h>
 #include <epan/eapol_keydes_types.h>
 
+#include "packet-eapol.h"
+
 void proto_register_eapol(void);
 void proto_reg_handoff_eapol(void);
 
@@ -51,25 +53,16 @@ static gint ett_eapol = -1;
 static gint ett_eapol_key_index = -1;
 static gint ett_keyinfo = -1;
 
+static dissector_table_t eapol_type_dissector_table;
 static dissector_table_t eapol_keydes_type_dissector_table;
 
 static dissector_handle_t eapol_handle;
-
-static dissector_handle_t eap_handle;
-static dissector_handle_t mka_handle;
 
 #define EAPOL_HDR_LEN   4
 
 #define EAPOL_2001      1
 #define EAPOL_2004      2
 #define EAPOL_2010      3
-
-#define EAP_PACKET              0
-#define EAPOL_START             1
-#define EAPOL_LOGOFF            2
-#define EAPOL_KEY               3
-#define EAPOL_ENCAP_ASF_ALERT   4
-#define EAPOL_MKA               5
 
 static const value_string eapol_version_vals[] = {
   { EAPOL_2001,   "802.1X-2001" },
@@ -79,7 +72,7 @@ static const value_string eapol_version_vals[] = {
 };
 
 static const value_string eapol_type_vals[] = {
-  { EAP_PACKET,            "EAP Packet" },
+  { EAPOL_EAP,             "EAP Packet" },
   { EAPOL_START,           "Start" },
   { EAPOL_LOGOFF,          "Logoff" },
   { EAPOL_KEY,             "Key" },
@@ -106,7 +99,6 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   int         offset = 0;
   guint8      eapol_type;
   guint16     eapol_len;
-  guint8      keydesc_type;
   guint       len;
   proto_tree *ti;
   proto_tree *eapol_tree;
@@ -136,35 +128,33 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   }
   offset += 2;
 
-  switch (eapol_type) {
-
-  case EAP_PACKET:
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(eap_handle, next_tvb, pinfo, eapol_tree);
-    break;
-
-  case EAPOL_KEY:
-    keydesc_type = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(eapol_tree, hf_eapol_keydes_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!dissector_try_uint_new(eapol_keydes_type_dissector_table,
-                                keydesc_type, next_tvb, pinfo, eapol_tree,
-                                FALSE, NULL))
-      proto_tree_add_item(eapol_tree, hf_eapol_keydes_body, tvb, offset, -1, ENC_NA);
-    break;
-
-  case EAPOL_MKA:
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(mka_handle, next_tvb, pinfo, eapol_tree);
-    break;
-
-  case EAPOL_ENCAP_ASF_ALERT:   /* XXX - is this an SNMP trap? */
-  default:
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_data_dissector(next_tvb, pinfo, eapol_tree);
-    break;
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
+  if (!dissector_try_uint_new(eapol_type_dissector_table,
+                            eapol_type, next_tvb, pinfo, tree,
+                            FALSE, eapol_tree)) {
+    call_data_dissector(next_tvb, pinfo, tree);
   }
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_eapol_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data)
+{
+  guint8 keydesc_type;
+  int offset = 0;
+  tvbuff_t   *next_tvb;
+  proto_tree* eapol_tree = (proto_tree*)data;
+
+  keydesc_type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(eapol_tree, hf_eapol_keydes_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
+  if (!dissector_try_uint_new(eapol_keydes_type_dissector_table,
+                              keydesc_type, next_tvb, pinfo, eapol_tree,
+                              FALSE, NULL)) {
+    proto_tree_add_item(eapol_tree, hf_eapol_keydes_body, tvb, offset, -1, ENC_NA);
+  }
+
   return tvb_captured_length(tvb);
 }
 
@@ -305,6 +295,10 @@ proto_register_eapol(void)
   proto_register_field_array(proto_eapol, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  eapol_type_dissector_table = register_dissector_table("eapol.type",
+                                                        "EAPOL Packet Type",
+                                                        proto_eapol, FT_UINT8,
+                                                        BASE_DEC);
   eapol_keydes_type_dissector_table = register_dissector_table("eapol.keydes.type",
                                                                "EAPOL Key Descriptor Type",
                                                                proto_eapol, FT_UINT8,
@@ -314,13 +308,7 @@ proto_register_eapol(void)
 void
 proto_reg_handoff_eapol(void)
 {
-  dissector_handle_t eapol_rc4_key_handle;
-
-  /*
-   * Get handles for the EAP and raw data dissectors.
-   */
-  eap_handle  = find_dissector_add_dependency("eap", proto_eapol);
-  mka_handle  = find_dissector_add_dependency("mka", proto_eapol);
+  dissector_handle_t eapol_rc4_key_handle, eapol_key_handle;
 
   dissector_add_uint("ethertype", ETHERTYPE_EAPOL, eapol_handle);
   dissector_add_uint("ethertype", ETHERTYPE_RSN_PREAUTH, eapol_handle);
@@ -328,9 +316,10 @@ proto_reg_handoff_eapol(void)
   /*
    * EAPOL key descriptor types.
    */
-  eapol_rc4_key_handle = create_dissector_handle(dissect_eapol_rc4_key,
-                                                     proto_eapol);
+  eapol_rc4_key_handle = create_dissector_handle(dissect_eapol_rc4_key, proto_eapol);
   dissector_add_uint("eapol.keydes.type", EAPOL_RC4_KEY, eapol_rc4_key_handle);
+  eapol_key_handle = create_dissector_handle(dissect_eapol_key, proto_eapol);
+  dissector_add_uint("eapol.type", EAPOL_KEY, eapol_key_handle);
 }
 
 /*

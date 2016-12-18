@@ -29,6 +29,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+#include "packet-eapol.h"
+
 #define BASIC_PARAM_SET_TYPE         1
 #define LIVE_PEER_LIST_TYPE          1
 #define POTENTIAL_PEER_LIST_TYPE     2
@@ -39,6 +41,7 @@
 #define ICV_TYPE                     255
 
 void proto_register_mka(void);
+void proto_reg_handoff_mka(void);
 
 static int proto_mka = -1;
 
@@ -775,6 +778,15 @@ proto_register_mka(void)
   expert_mka = expert_register_protocol(proto_mka);
   expert_register_field_array(expert_mka, ei, array_length(ei));
 
+}
+
+void
+proto_reg_handoff_mka(void)
+{
+  static dissector_handle_t mka_handle;
+
+  mka_handle = create_dissector_handle(dissect_mka, proto_mka);
+  dissector_add_uint("eapol.type", EAPOL_MKA, mka_handle);
 }
 
 /*
