@@ -1427,7 +1427,7 @@ puprouter         999/tcp #
 puprouter         999/udp # 
 cadlock2         1000/tcp # 
 cadlock2         1000/udp # 
-webpush          1001/tcp # HTTP Web Push [IESG] [IETF_Chair] 2016-11-01 [RFC-ietf-webpush-protocol-12]
+webpush          1001/tcp # HTTP Web Push [IESG] [IETF_Chair] 2016-11-01 [RFC8030]
 surf             1010/tcp # surf [Joseph_Geer] [Joseph_Geer]
 surf             1010/udp # surf [Joseph_Geer] [Joseph_Geer]
 exp1             1021/tcp # RFC3692-style Experiment 1 [IESG] [IETF_Chair] [1][RFC4727][RFC6335]
@@ -9492,6 +9492,7 @@ acctopus-cc      6868/tcp # Acctopus Command Channel [Stefan_Auweiler] [Stefan_A
 acctopus-st      6868/udp # Acctopus Status [Stefan_Auweiler] [Stefan_Auweiler] 2009-11-16
 muse             6888/tcp # MUSE [Muse_Communications] [Muse_Communications]
 muse             6888/udp # MUSE [Muse_Communications] [Muse_Communications]
+rtimeviewer      6900/tcp # R*TIME Viewer Data Interface [Curtiss-Wright_Corporation] [Robert_Ammon] 2016-12-14
 jetstream        6901/tcp # Novell Jetstream messaging protocol [Anil_Tyagi] [Anil_Tyagi] 2010-06-11
 ethoscan         6935/tcp # EthoScan Service [Marty_Campbell] [Marty_Campbell] 2011-06-10
 ethoscan         6935/udp # EthoScan Service [Marty_Campbell] [Marty_Campbell] 2011-06-10
@@ -11274,6 +11275,8 @@ kingdomsonline  30260/udp # Kingdoms Online (CraigAvenue) [Drake_Bankston] [Drak
 samsung-disc    30832/udp # Samsung Convergence Discovery Protocol [Samsung_2] [Young_Ki_Kim] 2013-05-29
 ovobs           30999/tcp # OpenView Service Desk Client [Service_Desk_Product] [Service_Desk_Product] 2006-05
 ovobs           30999/udp # OpenView Service Desk Client [Service_Desk_Product] [Service_Desk_Product] 2006-05
+ka-sddp         31016/tcp # Kollective Agent Secure Distributed Delivery Protocol [Kollective_Technology_Inc] [John_Wainwright] 2016-12-11
+ka-kdp          31016/udp # Kollective Agent Kollective Delivery Protocol [Kollective_Technology_Inc] [John_Wainwright] 2016-12-11
 autotrac-acp    31020/tcp # Autotrac ACP 245 [Roberto_Jorge_Dino] [Roberto_Jorge_Dino]
 yawn            31029/udp # YaWN - Yet Another Windows Notifier [David_Spivey] [David_Spivey] 2010-08-30
 pace-licensed   31400/tcp # PACE license server [PACE_Anti-Piracy] [Allen_Cronce] 2014-04-28
