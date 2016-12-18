@@ -31,6 +31,7 @@
 #include "packet-transum.h"
 #include "preferences.h"
 #include "extractors.h"
+#include "decoders.h"
 
 extern void add_detected_tcp_svc(guint16 port);
 extern TSUM_PREFERENCES preferences;
