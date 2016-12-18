@@ -302,10 +302,8 @@ static int hf_nfs3_pathconf_chown_restricted = -1;
 static int hf_nfs3_pathconf_case_insensitive = -1;
 static int hf_nfs3_pathconf_case_preserving = -1;
 static int hf_nfs3_gxfh_utlfield = -1;
-static int hf_nfs3_gxfh_utlfield_tree_r = -1;
-static int hf_nfs3_gxfh_utlfield_tree_w = -1;
+static int hf_nfs3_gxfh_utlfield_tree = -1;
 static int hf_nfs3_gxfh_utlfield_jun = -1;
-static int hf_nfs3_gxfh_utlfield_jun_not = -1;
 static int hf_nfs3_gxfh_utlfield_ver = -1;
 static int hf_nfs3_gxfh_volcnt = -1;
 static int hf_nfs3_gxfh_epoch = -1;
@@ -447,7 +445,14 @@ static int hf_nfs4_fsid_major = -1;
 static int hf_nfs4_fsid_minor = -1;
 static int hf_nfs4_acetype = -1;
 static int hf_nfs4_aceflags = -1;
-static int hf_nfs4_aceflag = -1;
+static int hf_nfs4_aceflag_file_inherit = -1;
+static int hf_nfs4_aceflag_dir_inherit = -1;
+static int hf_nfs4_aceflag_no_prop_inherit = -1;
+static int hf_nfs4_aceflag_inherit_only = -1;
+static int hf_nfs4_aceflag_successful_access = -1;
+static int hf_nfs4_aceflag_failed_access = -1;
+static int hf_nfs4_aceflag_id_group = -1;
+static int hf_nfs4_aceflag_inherited_ace = -1;
 static int hf_nfs4_acemask = -1;
 static int hf_nfs4_ace_permission = -1;
 static int hf_nfs4_delegate_type = -1;
@@ -886,6 +891,7 @@ static expert_field ei_nfs_not_vnx_file = EI_INIT;
 static expert_field ei_protocol_violation = EI_INIT;
 static expert_field ei_nfs_too_many_bitmaps = EI_INIT;
 
+static const true_false_string tfs_read_write = { "Read", "Write" };
 
 /* Types of fhandles we can dissect */
 static dissector_table_t nfs_fhandle_table;
@@ -1715,10 +1721,8 @@ static int
 dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	if (tree) {
-		proto_item *tf;
 		proto_tree *field_tree;
 		guint8      flags;
-		guint8      utility;
 		guint32     offset = 0;
 		static const int * fh_flags[] = {
 			&hf_nfs3_gxfh_sfhflags_resv1,
@@ -1744,30 +1748,15 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 			NULL
 		};
 
-		/* = utility = */
-		utility = tvb_get_guint8(tvb, offset);
-		tf = proto_tree_add_uint(tree, hf_nfs3_gxfh_utlfield, tvb,
-						offset, 1, utility);
+		static const int * utility_flags[] = {
+			&hf_nfs3_gxfh_utlfield_tree,
+			&hf_nfs3_gxfh_utlfield_jun,
+			&hf_nfs3_gxfh_utlfield_ver,
+			NULL
+		};
 
-		field_tree = proto_item_add_subtree(tf, ett_nfs3_gxfh_utlfield);
-		if (utility & NFS3GX_FH_TREE_MASK) {
-			proto_tree_add_uint(field_tree, hf_nfs3_gxfh_utlfield_tree_w, tvb,
-					    offset, 1, utility);
-		}
-		else {
-			proto_tree_add_uint(field_tree, hf_nfs3_gxfh_utlfield_tree_r, tvb,
-					    offset, 1, utility);
-		}
-		if (utility & NFS3GX_FH_JUN_MASK) {
-			proto_tree_add_uint(field_tree, hf_nfs3_gxfh_utlfield_jun, tvb,
-					    offset, 1, utility);
-		}
-		else {
-			proto_tree_add_uint(field_tree, hf_nfs3_gxfh_utlfield_jun_not, tvb,
-					    offset, 1, utility);
-		}
-		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_utlfield_ver, tvb,
-	                            offset, 1, utility);
+		/* = utility = */
+		proto_tree_add_bitmask(tree, tvb, offset, hf_nfs3_gxfh_utlfield, ett_nfs3_gxfh_utlfield, utility_flags, ENC_NA);
 
 		/* = volume count== */
 		proto_tree_add_item(tree, hf_nfs3_gxfh_volcnt, tvb, offset+1, 1, ENC_NA);
@@ -2781,9 +2770,7 @@ dissect_nfs2_sattr(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name
 	}
 
 	/* now we know, that sattr is shorter */
-	if (sattr_item) {
-		proto_item_set_len(sattr_item, offset - old_offset);
-	}
+	proto_item_set_len(sattr_item, offset - old_offset);
 
 	return offset;
 }
@@ -3592,11 +3579,7 @@ dissect_ftype3(tvbuff_t *tvb, int offset, proto_tree *tree, int hf,
 {
 	guint32 type;
 
-	type = tvb_get_ntohl(tvb, offset+0);
-
-	if (tree) {
-		proto_tree_add_uint(tree, hf, tvb, offset, 4, type);
-	}
+	proto_tree_add_item_ret_uint(tree, hf, tvb, offset, 4, ENC_BIG_ENDIAN, &type);
 
 	offset += 4;
 	*ftype3 = type;
@@ -4005,9 +3988,7 @@ dissect_set_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 	}
 
 	/* now we know, that set_mode3 is shorter */
-	if (set_mode3_item) {
-		proto_item_set_len(set_mode3_item, offset - old_offset);
-	}
+	proto_item_set_len(set_mode3_item, offset - old_offset);
 
 	return offset;
 }
@@ -4159,10 +4140,8 @@ dissect_set_atime(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 
 	switch (set_it) {
 		case SET_TO_CLIENT_TIME:
-			if (set_atime_item) {
-				offset = dissect_nfstime3(tvb, offset, set_atime_tree,
+			offset = dissect_nfstime3(tvb, offset, set_atime_tree,
 					hf_nfs_atime, hf_nfs_atime_sec, hf_nfs_atime_nsec);
-			}
 		break;
 		default:
 			/* void */
@@ -4198,10 +4177,8 @@ dissect_set_mtime(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 
 	switch (set_it) {
 		case SET_TO_CLIENT_TIME:
-			if (set_mtime_tree) {
-				offset = dissect_nfstime3(tvb, offset, set_mtime_tree,
+			offset = dissect_nfstime3(tvb, offset, set_mtime_tree,
 					hf_nfs_atime, hf_nfs_atime_sec, hf_nfs_atime_nsec);
-			}
 		break;
 		default:
 			/* void */
@@ -4894,11 +4871,7 @@ static const value_string names_stable_how[] = {
 static int
 dissect_stable_how(tvbuff_t *tvb, int offset, proto_tree *tree, int hfindex)
 {
-	guint32 stable_how;
-
-	stable_how = tvb_get_ntohl(tvb, offset+0);
-	if (tree)
-		proto_tree_add_uint(tree, hfindex, tvb,	offset, 4, stable_how);
+	proto_tree_add_item(tree, hfindex, tvb,	offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -5401,30 +5374,25 @@ static int
 dissect_entry3(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	       proto_tree *tree, void *data _U_)
 {
-	proto_item *entry_item = NULL;
-	proto_tree *entry_tree = NULL;
+	proto_item *entry_item;
+	proto_tree *entry_tree;
 	int	    old_offset = offset;
 	const char *name       = NULL;
 
-	if (tree) {
-		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, tvb,
-			offset+0, -1, ENC_NA);
-		entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
-	}
+	entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, tvb, offset+0, -1, ENC_NA);
+	entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
 
 	offset = dissect_rpc_uint64(tvb, entry_tree, hf_nfs3_readdir_entry_fileid, offset);
 
 	offset = dissect_nfs3_filename(tvb, offset, entry_tree,	hf_nfs3_readdir_entry_name, &name);
-	if (entry_item)
-		proto_item_set_text(entry_item, "Entry: name %s", name);
+	proto_item_set_text(entry_item, "Entry: name %s", name);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
 
 	offset = dissect_rpc_uint64(tvb, entry_tree, hf_nfs3_readdir_entry_cookie, offset);
 
 	/* now we know, that a readdir entry is shorter */
-	if (entry_item)
-		proto_item_set_len(entry_item, offset - old_offset);
+	proto_item_set_len(entry_item, offset - old_offset);
 
 	return offset;
 }
@@ -5436,7 +5404,6 @@ dissect_nfs3_readdir_reply(tvbuff_t *tvb, packet_info *pinfo,
 			   proto_tree *tree, void *data _U_)
 {
 	guint32	    status;
-	guint32	    eof_value;
 	const char *err;
 	int offset = 0;
 
@@ -5450,10 +5417,8 @@ dissect_nfs3_readdir_reply(tvbuff_t *tvb, packet_info *pinfo,
 			offset = dissect_nfs3_cookie_verf(tvb, offset, tree);
 			offset = dissect_rpc_list(tvb, pinfo, tree, offset,
 				dissect_entry3, NULL);
-			eof_value = tvb_get_ntohl(tvb, offset+0);
-			if (tree)
-				proto_tree_add_uint(tree, hf_nfs_readdir_eof, tvb,
-					offset+ 0, 4, eof_value);
+			proto_tree_add_item(tree, hf_nfs_readdir_eof, tvb,
+					offset+ 0, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 		break;
 		default:
@@ -5498,17 +5463,14 @@ static int
 dissect_nfs3_entryplus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, void *data)
 {
-	proto_item *entry_item = NULL;
-	proto_tree *entry_tree = NULL;
+	proto_item *entry_item;
+	proto_tree *entry_tree;
 	int	    old_offset = offset;
 	const char *name       = NULL;
 	rpc_call_info_value *civ = (rpc_call_info_value *)data;
 
-	if (tree) {
-		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, tvb,
-			offset+0, -1, ENC_NA);
-		entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
-	}
+	entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, tvb, offset+0, -1, ENC_NA);
+	entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
 
 	offset = dissect_rpc_uint64(tvb, entry_tree, hf_nfs3_readdirplus_entry_fileid, offset);
 
@@ -5528,8 +5490,7 @@ dissect_nfs3_entryplus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	if (entry_item)
-		proto_item_set_text(entry_item, "Entry: name %s", name);
+	proto_item_set_text(entry_item, "Entry: name %s", name);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
 
@@ -5541,8 +5502,7 @@ dissect_nfs3_entryplus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_nfs3_post_op_fh(tvb, offset, pinfo, entry_tree, "name_handle", civ);
 
 	/* now we know, that a readdirplus entry is shorter */
-	if (entry_item)
-		proto_item_set_len(entry_item, offset - old_offset);
+	proto_item_set_len(entry_item, offset - old_offset);
 
 	return offset;
 }
@@ -5553,7 +5513,6 @@ static int
 dissect_nfs3_readdirplus_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	guint32	    status;
-	guint32	    eof_value;
 	const char *err;
 	int offset = 0;
 
@@ -5567,10 +5526,8 @@ dissect_nfs3_readdirplus_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			offset = dissect_nfs3_cookie_verf(tvb, offset, tree);
 			offset = dissect_rpc_list(tvb, pinfo, tree, offset,
 				dissect_nfs3_entryplus, data);
-			eof_value = tvb_get_ntohl(tvb, offset+0);
-			if (tree)
-				proto_tree_add_uint(tree, hf_nfs_readdir_eof, tvb,
-					offset+ 0, 4, eof_value);
+			proto_tree_add_item(tree, hf_nfs_readdir_eof, tvb,
+					offset+ 0, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 		break;
 		default:
@@ -6291,50 +6248,31 @@ static const value_string names_acetype4[] = {
 };
 
 /* ACE flag values */
-static const value_string aceflag_names4[] = {
 #define ACE4_FLAG_FILE_INHERIT             0x00000001
-	{	ACE4_FLAG_FILE_INHERIT,            "File_Inherit"  },
 #define ACE4_FLAG_DIRECTORY_INHERIT        0x00000002
-	{	ACE4_FLAG_DIRECTORY_INHERIT,       "Directory_Inherit"  },
 #define ACE4_FLAG_NO_PROPAGATE_INHERIT     0x00000004
-	{	ACE4_FLAG_NO_PROPAGATE_INHERIT,    "No_Propagate_Inherit"  },
 #define ACE4_FLAG_INHERIT_ONLY             0x00000008
-	{	ACE4_FLAG_INHERIT_ONLY,            "Inherit_Only"  },
 #define ACE4_FLAG_SUCCESSFUL_ACCESS        0x00000010
-	{	ACE4_FLAG_SUCCESSFUL_ACCESS,       "Successful_Access"  },
 #define ACE4_FLAG_FAILED_ACCESS            0x00000020
-	{	ACE4_FLAG_FAILED_ACCESS,           "Failed_access"  },
 #define ACE4_FLAG_IDENTIFIER_GROUP         0x00000040
-	{	ACE4_FLAG_IDENTIFIER_GROUP,        "Identifier_Group"  },
 #define ACE4_FLAG_INHERITED_ACE            0x00000080
-	{	ACE4_FLAG_INHERITED_ACE,           "Inherited_ACE"  },
-	{	0,	NULL }
-};
 
 static int
 dissect_nfs_aceflags4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *ace_tree)
 {
-	guint32	    aceflags   = tvb_get_ntohl(tvb, offset);
-	guint32	    flag_bit   = 1;
-	gboolean    first_flag = TRUE;
-	proto_item *aceflag_item;
-	proto_tree *aceflag_tree;
+    static const int *flags[] = {
+        &hf_nfs4_aceflag_file_inherit,
+        &hf_nfs4_aceflag_dir_inherit,
+        &hf_nfs4_aceflag_no_prop_inherit,
+        &hf_nfs4_aceflag_inherit_only,
+        &hf_nfs4_aceflag_successful_access,
+        &hf_nfs4_aceflag_failed_access,
+        &hf_nfs4_aceflag_id_group,
+        &hf_nfs4_aceflag_inherited_ace,
+        NULL
+    };
 
-	aceflag_item = proto_tree_add_uint(ace_tree, hf_nfs4_aceflags, tvb, offset, 4, aceflags);
-	proto_item_append_text(aceflag_item, "  (");
-	aceflag_tree = proto_item_add_subtree(aceflag_item, ett_nfs4_aceflag);
-
-	while (flag_bit && flag_bit <= aceflags) {
-		if (flag_bit & aceflags) {
-			proto_tree_add_uint(aceflag_tree, hf_nfs4_aceflag, tvb, offset, 4, flag_bit);
-			proto_item_append_text(aceflag_item,
-				first_flag ? "%s" : ", %s",
-				val_to_str(flag_bit, aceflag_names4, "Unknown: %u"));
-			first_flag = FALSE;
-		}
-		flag_bit <<= 1;
-	}
-	proto_item_append_text(aceflag_item, ")");
+    proto_tree_add_bitmask(ace_tree, tvb, offset, hf_nfs4_aceflags, ett_nfs4_aceflag, flags, ENC_BIG_ENDIAN);
 	return offset += 4;
 }
 
@@ -12379,9 +12317,37 @@ proto_register_nfs(void)
 			"ACE flags", "nfs.aceflags4", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
-		{ &hf_nfs4_aceflag, {
-			"flag", "nfs.aceflag4", FT_UINT32, BASE_HEX,
-			VALS(aceflag_names4), 0, NULL, HFILL }},
+		{ &hf_nfs4_aceflag_file_inherit, {
+			"File_Inherit", "nfs.aceflag4.file_inherit", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), ACE4_FLAG_FILE_INHERIT, NULL, HFILL }},
+
+		{ &hf_nfs4_aceflag_dir_inherit, {
+			"Directory_Inherit", "nfs.aceflag4.dir_inherit", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), ACE4_FLAG_DIRECTORY_INHERIT, NULL, HFILL }},
+
+		{ &hf_nfs4_aceflag_no_prop_inherit, {
+			"No_Propagate_Inherit", "nfs.aceflag4.no_prop_inherit", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), ACE4_FLAG_NO_PROPAGATE_INHERIT, NULL, HFILL }},
+
+		{ &hf_nfs4_aceflag_inherit_only, {
+			"Inherit_Only", "nfs.aceflag4.inherit_only", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), ACE4_FLAG_INHERIT_ONLY, NULL, HFILL }},
+
+		{ &hf_nfs4_aceflag_successful_access, {
+			"Successful_Access", "nfs.aceflag4.successful_access", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), ACE4_FLAG_SUCCESSFUL_ACCESS, NULL, HFILL }},
+
+		{ &hf_nfs4_aceflag_failed_access, {
+			"Failed_access", "nfs.aceflag4.failed_access", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), ACE4_FLAG_FAILED_ACCESS, NULL, HFILL }},
+
+		{ &hf_nfs4_aceflag_id_group, {
+			"Identifier_Group", "nfs.aceflag4.id_group", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), ACE4_FLAG_IDENTIFIER_GROUP, NULL, HFILL }},
+
+		{ &hf_nfs4_aceflag_inherited_ace, {
+			"Inherited_ACE", "nfs.aceflag4.inherited_ace", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), ACE4_FLAG_INHERITED_ACE, NULL, HFILL }},
 
 		{ &hf_nfs4_acemask, {
 			"ACE mask", "nfs.acemask4", FT_UINT32, BASE_HEX,
@@ -12741,21 +12707,13 @@ proto_register_nfs(void)
 			"utility", "nfs.gxfh3.utility", FT_UINT8, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
-		{ &hf_nfs3_gxfh_utlfield_tree_r, {
-			"tree R", "nfs.gxfh3.utlfield.treeR", FT_UINT8, BASE_HEX,
-			NULL, NFS3GX_FH_TREE_MASK, NULL, HFILL }},
-
-		{ &hf_nfs3_gxfh_utlfield_tree_w, {
-			"tree W", "nfs.gxfh3.utlfield.treeW", FT_UINT8, BASE_HEX,
-			NULL, NFS3GX_FH_TREE_MASK, NULL, HFILL }},
+		{ &hf_nfs3_gxfh_utlfield_tree, {
+			"tree R/W", "nfs.gxfh3.utlfield.tree", FT_BOOLEAN, 8,
+			TFS(&tfs_read_write), NFS3GX_FH_TREE_MASK, NULL, HFILL }},
 
 		{ &hf_nfs3_gxfh_utlfield_jun, {
-			"broken junction", "nfs.gxfh3.utlfield.junction", FT_UINT8, BASE_HEX,
-			NULL, NFS3GX_FH_JUN_MASK, NULL, HFILL }},
-
-		{ &hf_nfs3_gxfh_utlfield_jun_not, {
-			"not broken junction", "nfs.gxfh3.utlfield.notjunction", FT_UINT8, BASE_HEX,
-			NULL, NFS3GX_FH_JUN_MASK, NULL, HFILL }},
+			"broken junction", "nfs.gxfh3.utlfield.junction", FT_BOOLEAN, 8,
+			TFS(&tfs_yes_no), NFS3GX_FH_JUN_MASK, NULL, HFILL }},
 
 		{ &hf_nfs3_gxfh_utlfield_ver, {
 			"file handle version", "nfs.gxfh3.utlfield.version", FT_UINT8, BASE_HEX,
