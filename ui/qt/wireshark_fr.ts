@@ -9541,57 +9541,57 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="712"/>
+        <location filename="main_window_slots.cpp" line="710"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="803"/>
+        <location filename="main_window_slots.cpp" line="801"/>
         <source>Saving %1</source>
         <translation>Sauvegarde en cours %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="843"/>
+        <location filename="main_window_slots.cpp" line="841"/>
         <source>No interface selected</source>
         <translation>Aucune interface sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="853"/>
+        <location filename="main_window_slots.cpp" line="851"/>
         <source>Invalid capture filter</source>
         <translation>Filtre de capture invalide</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1101"/>
+        <location filename="main_window_slots.cpp" line="1099"/>
         <source>Clear Menu</source>
         <translation>Effacer les fichiers récemment ouverts</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1584"/>
+        <location filename="main_window_slots.cpp" line="1582"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Veuillez patienter pendant que Wireshark s&apos;initialise. . .</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1674"/>
+        <location filename="main_window_slots.cpp" line="1672"/>
         <source> before closing the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1756"/>
+        <location filename="main_window_slots.cpp" line="1754"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Exporter Octets de Paquets Sélectionnés</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1822"/>
+        <location filename="main_window_slots.cpp" line="1820"/>
         <source>No Keys</source>
         <translation>Aucune clés</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1823"/>
+        <location filename="main_window_slots.cpp" line="1821"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Il y a aucune clé de Session SSL à sauvegarder.</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1829"/>
+        <location filename="main_window_slots.cpp" line="1827"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation type="unfinished">
@@ -9600,69 +9600,69 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1758"/>
+        <location filename="main_window_slots.cpp" line="1756"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1833"/>
+        <location filename="main_window_slots.cpp" line="1831"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1951"/>
+        <location filename="main_window_slots.cpp" line="1949"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Impossible de copier le texte. Essayer un autre item.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2361"/>
-        <location filename="main_window_slots.cpp" line="3472"/>
+        <location filename="main_window_slots.cpp" line="2359"/>
+        <location filename="main_window_slots.cpp" line="3470"/>
         <source>Unable to build conversation filter.</source>
         <translation>Impossible de construire un filtre de conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2511"/>
-        <location filename="main_window_slots.cpp" line="2524"/>
+        <location filename="main_window_slots.cpp" line="2509"/>
+        <location filename="main_window_slots.cpp" line="2522"/>
         <source> before reloading the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2558"/>
+        <location filename="main_window_slots.cpp" line="2556"/>
         <source>No filter available. Try another </source>
         <translation>Aucun filtre disponible. Essayer un autre</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3479"/>
+        <location filename="main_window_slots.cpp" line="3477"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Erreur dans la compilation du filtre pour cette conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3488"/>
+        <location filename="main_window_slots.cpp" line="3486"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Aucun paquet précédent/suivant dans la conversation</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3565"/>
+        <location filename="main_window_slots.cpp" line="3563"/>
         <source>No Interface Selected</source>
         <translation>Aucune Interface Sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3572"/>
+        <location filename="main_window_slots.cpp" line="3570"/>
         <source> before starting a new capture</source>
         <translation>avant de commencer une nouvelle capture</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3590"/>
+        <location filename="main_window_slots.cpp" line="3588"/>
         <source> before restarting the capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3800"/>
+        <location filename="main_window_slots.cpp" line="3798"/>
         <source>Wiki Page for %1</source>
         <translation>Page Wiki pour %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3801"/>
+        <location filename="main_window_slots.cpp" line="3799"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Le Wiki Wireshark est maintenu par la communauté&lt;/p&gt;
 &lt;p&gt;La page que vous vous apprêtez à charger peut être magnifique, incomplète, fausse ou inexistante&lt;/p&gt;
@@ -10290,52 +10290,52 @@ a:hover {
 <context>
     <name>PacketList</name>
     <message>
-        <location filename="packet_list.cpp" line="343"/>
+        <location filename="packet_list.cpp" line="334"/>
         <source>Summary as Text</source>
         <translation>Résumé en Texte</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="719"/>
+        <location filename="packet_list.cpp" line="710"/>
         <source>Align Left</source>
         <translation>Aligner à gauche</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="720"/>
+        <location filename="packet_list.cpp" line="711"/>
         <source>Align Center</source>
         <translation>Aligner au centre</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="721"/>
+        <location filename="packet_list.cpp" line="712"/>
         <source>Align Right</source>
         <translation>Aligner à droite</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="723"/>
+        <location filename="packet_list.cpp" line="714"/>
         <source>Column Preferences</source>
         <translation>Préferences de la colonne</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="724"/>
+        <location filename="packet_list.cpp" line="715"/>
         <source>Edit Column</source>
         <translation>Éditer la colonne</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="725"/>
+        <location filename="packet_list.cpp" line="716"/>
         <source>Resize To Contents</source>
         <translation>Ajuster la taille au contenu</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="726"/>
+        <location filename="packet_list.cpp" line="717"/>
         <source>Resolve Names</source>
         <translation>Résoudre les noms</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="731"/>
+        <location filename="packet_list.cpp" line="722"/>
         <source>Remove This Column</source>
         <translation>Supprimer cette colonne</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1085"/>
+        <location filename="packet_list.cpp" line="1088"/>
         <source>Frame %1: %2
 
 </source>
@@ -10344,7 +10344,7 @@ a:hover {
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1089"/>
+        <location filename="packet_list.cpp" line="1092"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Taille maximum de commentaire dépassé %1 Arrêt !]</translation>
     </message>
@@ -12016,33 +12016,102 @@ a:hover {
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="333"/>
+        <source>Unsynchronized Forward and Reverse Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.ui" line="411"/>
+        <source>Stream Synchronized Forward and Reverse Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.ui" line="414"/>
+        <source>Save the audio data for both channels synchronized to start of earlier stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.ui" line="419"/>
+        <source>Stream Synchronized Forward Stream Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.ui" line="422"/>
+        <source>Save the forward stream audio data synchronized to start of earlier stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.ui" line="427"/>
+        <source>Stream Synchronized Reverse Stream Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.ui" line="430"/>
+        <source>Save the reverse stream audio data synchronized to start of earlier stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.ui" line="435"/>
+        <source>File Synchronized Forward and Reverse Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.ui" line="438"/>
+        <source>Save the audio data for both channels synchronized to start of file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.ui" line="443"/>
+        <source>File Synchronized Forward Stream Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.ui" line="446"/>
+        <source>Save the forward stream audio data synchronized to start of file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.ui" line="451"/>
+        <source>File Synchronized Reverse Stream Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.ui" line="454"/>
+        <source>Save the reverse stream audio data synchronized to start of file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Audio</source>
-        <translation>Audio</translation>
+        <translation type="vanished">Audio</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="336"/>
-        <source>Save the audio data for both channels.</source>
-        <translation>Sauvegarder les données audio pour les deux canaux.</translation>
+        <source>Save the unsynchronized audio data for both channels.</source>
+        <oldsource>Save the audio data for both channels.</oldsource>
+        <translation type="unfinished">Sauvegarder les données audio pour les deux canaux.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="341"/>
-        <source>Forward Stream Audio</source>
-        <translation>Flux Audio Aller</translation>
+        <source>Unsynchronized Forward Stream Audio</source>
+        <oldsource>Forward Stream Audio</oldsource>
+        <translation type="unfinished">Flux Audio Aller</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="344"/>
-        <source>Save the forward stream audio data.</source>
-        <translation>Sauvegarder les données audio du flux aller.</translation>
+        <source>Save the unsynchronized forward stream audio data.</source>
+        <oldsource>Save the forward stream audio data.</oldsource>
+        <translation type="unfinished">Sauvegarder les données audio du flux aller.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="349"/>
-        <source>Reverse Stream Audio</source>
-        <translation>Flux Audio Retour</translation>
+        <source>Unsynchronized Reverse Stream Audio</source>
+        <oldsource>Reverse Stream Audio</oldsource>
+        <translation type="unfinished">Flux Audio Retour</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="352"/>
-        <source>Save the reverse stream audio data.</source>
-        <translation>Sauvegarder les données de flux audio retour.</translation>
+        <source>Save the unsynchronized reverse stream audio data.</source>
+        <oldsource>Save the reverse stream audio data.</oldsource>
+        <translation type="unfinished">Sauvegarder les données de flux audio retour.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="357"/>
@@ -12120,160 +12189,178 @@ a:hover {
         <translation>Analyse flux RTP</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="334"/>
+        <location filename="rtp_analysis_dialog.cpp" line="342"/>
         <source>Unable to save RTP data.</source>
         <translation>Impossible de sauvegarder les données RTP.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1488"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1272"/>
+        <source>Can&apos;t synchronize when only one channel is selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.cpp" line="1407"/>
+        <source>Save forward and reverse stream audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.cpp" line="1413"/>
+        <source>Raw (*.raw)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.cpp" line="1643"/>
         <source>SSRC value not found.</source>
         <translation>Valeur SSRC non trouvée.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="378"/>
+        <location filename="rtp_analysis_dialog.cpp" line="400"/>
         <source>No streams found.</source>
         <translation>Aucun flux trouvé.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="413"/>
+        <location filename="rtp_analysis_dialog.cpp" line="435"/>
         <source>%1 streams found.</source>
         <translation>%1 flux trouvés.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="432"/>
+        <location filename="rtp_analysis_dialog.cpp" line="454"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: Aller au paquet, N: Paquet à problème suivant</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="451"/>
+        <location filename="rtp_analysis_dialog.cpp" line="479"/>
         <source>No Audio</source>
         <translation>Pas d&apos;Audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="572"/>
+        <location filename="rtp_analysis_dialog.cpp" line="630"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="573"/>
+        <location filename="rtp_analysis_dialog.cpp" line="631"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="574"/>
+        <location filename="rtp_analysis_dialog.cpp" line="632"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="576"/>
+        <location filename="rtp_analysis_dialog.cpp" line="634"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="587"/>
+        <location filename="rtp_analysis_dialog.cpp" line="645"/>
         <source>Save Graph As</source>
         <translation>Sauvegarder le Graphique Sous</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="762"/>
+        <location filename="rtp_analysis_dialog.cpp" line="816"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>Ne peut sauvegarder dans un fichier: Longueur incorrecte des paquets capturés.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="774"/>
+        <location filename="rtp_analysis_dialog.cpp" line="828"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation>Ne peut sauvegarder dans un fichier: données RTP avec remplissage.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="811"/>
-        <location filename="rtp_analysis_dialog.cpp" line="841"/>
+        <location filename="rtp_analysis_dialog.cpp" line="861"/>
+        <location filename="rtp_analysis_dialog.cpp" line="870"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>Ne peut sauvegarder dans un fichier: Problème d&apos;E/S fichier.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="828"/>
+        <location filename="rtp_analysis_dialog.cpp" line="843"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation>Ne peut sauvegarder dans un fichier: Les données n&apos;ont pas toutes été capturées dans tous les paquets.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1046"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1400"/>
         <source>Save forward stream audio</source>
         <translation>Sauvegarder flux audio aller</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1049"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1403"/>
         <source>Save reverse stream audio</source>
         <translation>Sauvegarder flux audio retour</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1053"/>
         <source>Save audio</source>
-        <translation>Sauvegarder l&apos;audio</translation>
+        <translation type="vanished">Sauvegarder l&apos;audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1057"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1412"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1059"/>
         <source>;;Raw (*.raw)</source>
-        <translation>;;Raw (*.raw)</translation>
+        <translation type="vanished">;;Raw (*.raw)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1076"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1085"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1101"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1272"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1434"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1446"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1457"/>
         <source>Warning</source>
         <translation>Avertissement</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1076"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1434"/>
         <source>Unable to save in that format</source>
         <translation>Impossible de sauvegarder dans ce format</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1085"/>
         <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
-        <translation>Ne peut sauvegarder dans un fichier: sauvegarder au format &quot;au&quot; n&apos;est supporté que pour les flux alaw/ulaw</translation>
+        <translation type="vanished">Ne peut sauvegarder dans un fichier: sauvegarder au format &quot;au&quot; n&apos;est supporté que pour les flux alaw/ulaw</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1101"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1446"/>
         <source>Unable to save %1</source>
         <translation>Impossible de sauvegarder %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1105"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1450"/>
         <source>Saving %1</source>
         <translation>Sauvegarde en cours %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1327"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1457"/>
+        <source>Can save audio with 8000 Hz clock rate only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.cpp" line="1482"/>
         <source>Save forward stream CSV</source>
         <translation>Sauvegarder CSV flux aller</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1330"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1485"/>
         <source>Save reverse stream CSV</source>
         <translation>Sauvegarder CSV flux retour</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1334"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1489"/>
         <source>Save CSV</source>
         <translation>Sauvegarder le CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1340"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1495"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>Comma-separated values (*.csv)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1430"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1585"/>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1464"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1619"/>
         <source>Please select an RTPv2 packet with an SSRC value</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12602,42 +12689,42 @@ a:hover {
         <translation>Espace</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="166"/>
+        <location filename="rtp_player_dialog.cpp" line="173"/>
         <source>No devices available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="186"/>
+        <location filename="rtp_player_dialog.cpp" line="193"/>
         <source>Play Streams</source>
         <translation>Jouer Flux</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="292"/>
+        <location filename="rtp_player_dialog.cpp" line="299"/>
         <source>Out of Sequence</source>
         <translation>Hors de Séquence</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="307"/>
+        <location filename="rtp_player_dialog.cpp" line="314"/>
         <source>Jitter Drops</source>
         <translation>Chutes de Gigue</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="322"/>
+        <location filename="rtp_player_dialog.cpp" line="329"/>
         <source>Wrong Timestamps</source>
         <translation>Mauvais Cachets</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="337"/>
+        <location filename="rtp_player_dialog.cpp" line="344"/>
         <source>Inserted Silence</source>
         <translation>Silence Inséré</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="520"/>
+        <location filename="rtp_player_dialog.cpp" line="527"/>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
         <translation>%1. Appuyez sur &quot;G&quot; pour aller au paquet %2</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="707"/>
+        <location filename="rtp_player_dialog.cpp" line="714"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -13921,28 +14008,28 @@ a:hover {
         <translation>Flux d&apos;Appel</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="114"/>
+        <location filename="sequence_dialog.cpp" line="115"/>
         <source>Time</source>
         <translation type="unfinished">Temps</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="122"/>
+        <location filename="sequence_dialog.cpp" line="123"/>
         <source>Comment</source>
         <translation type="unfinished">Commentaire</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="168"/>
+        <location filename="sequence_dialog.cpp" line="169"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>Enregistrer sous</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="331"/>
+        <location filename="sequence_dialog.cpp" line="332"/>
         <source>No data</source>
         <translation>Pas de données</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="333"/>
+        <location filename="sequence_dialog.cpp" line="334"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%n noeud</numerusform>
@@ -13950,7 +14037,7 @@ a:hover {
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="334"/>
+        <location filename="sequence_dialog.cpp" line="335"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%n item</numerusform>
@@ -13958,32 +14045,32 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="360"/>
+        <location filename="sequence_dialog.cpp" line="361"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="361"/>
+        <location filename="sequence_dialog.cpp" line="362"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="362"/>
+        <location filename="sequence_dialog.cpp" line="363"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="364"/>
+        <location filename="sequence_dialog.cpp" line="365"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="365"/>
+        <location filename="sequence_dialog.cpp" line="366"/>
         <source>ASCII (*.txt)</source>
         <translation>ASCII (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="376"/>
+        <location filename="sequence_dialog.cpp" line="377"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>Sauvegarder le Graphique Sous</translation>
