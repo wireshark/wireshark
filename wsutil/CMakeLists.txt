@@ -249,7 +249,12 @@ if(NOT ${ENABLE_STATIC})
 	)
 endif()
 
-add_definitions( -DTOP_SRCDIR=\"${CMAKE_SOURCE_DIR}\" )
+# Export build-time datadir (note: the macro "DATAFILE_DIR" is defined in
+# config.h and points to the install-time data directory, hence the different
+# name).
+set_property(SOURCE filesystem.c APPEND PROPERTY
+	COMPILE_DEFINITIONS BUILD_TIME_DATAFILE_DIR="${DATAFILE_DIR}"
+)
 
 CHECKAPI(
 	NAME

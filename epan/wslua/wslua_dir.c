@@ -308,8 +308,7 @@ WSLUA_CONSTRUCTOR Dir_global_config_path(lua_State* L) {
         if (( ! file_exists(filename))) {
             /* Try the CMake output directory */
             g_free(filename);
-            filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-                                       get_progfile_dir(), fname);
+            filename = get_datafile_path(fname);
         }
     } else {
         filename = get_datafile_path(fname);

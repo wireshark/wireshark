@@ -886,7 +886,20 @@ get_datafile_dir(void)
          * Use the top-level source directory as the datafile directory
          * because most of our data files (radius/, COPYING) are there.
          */
-        datafile_dir = g_strdup(TOP_SRCDIR);
+#ifdef TOP_SRCDIR
+        /*
+         * When TOP_SRCDIR is defined, assume autotools where files are not
+         * copied to the build directory. This fallback location is relied on by
+         * wslua_get_actual_filename().
+         */
+        datafile_dir = TOP_SRCDIR;
+#else
+        /*
+         * Otherwise assume CMake. Here, data files (console.lua, radius/, etc.)
+         * are copied to the build directory during the build.
+         */
+        datafile_dir = BUILD_TIME_DATAFILE_DIR;
+#endif
         return datafile_dir;
     } else {
         if (g_getenv("WIRESHARK_DATA_DIR") && !started_with_special_privs()) {
