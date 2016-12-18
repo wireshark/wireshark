@@ -151,6 +151,7 @@ static const gchar *default_media_types[] = {
     "application/xml-dtd",
     "application/xpidf+xml",
     "application/xslt+xml",
+    "application/x-crd+xml",
     "application/x-wms-logconnectstats",
     "application/x-wms-logplaystats",
     "application/x-wms-sendevent",
