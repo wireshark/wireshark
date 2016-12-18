@@ -404,11 +404,11 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                 endtlvpos = pos + length - 1;
                 while (pos < endtlvpos)
                   {
+                    tlvtype = tvb_get_guint8 (tvb, pos);
                     burst_tree = proto_tree_add_subtree (tlv_tree, tvb, pos, -1,
                                                          ett_docsis_burst_tlv, &burst_item,
-                                                         val_to_str(type, burst_tlv_vals,
+                                                         val_to_str(tlvtype, burst_tlv_vals,
                                                          "Unknown TLV (%u)"));
-                    tlvtype = tvb_get_guint8 (tvb, pos);
                     proto_tree_add_uint (burst_tree, hf_docsis_ucd_burst_type, tvb, pos++, 1, tlvtype);
                     tlvlen = tvb_get_guint8 (tvb, pos);
                     proto_tree_add_uint (burst_tree, hf_docsis_ucd_burst_length, tvb, pos++, 1, tlvlen);
@@ -558,11 +558,11 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                 endtlvpos = pos + length - 1;
                 while (pos < endtlvpos)
                   {
+                    tlvtype = tvb_get_guint8 (tvb, pos);
                     burst_tree = proto_tree_add_subtree (tlv_tree, tvb, pos, -1,
                                                          ett_docsis_burst_tlv, &burst_item,
-                                                         val_to_str(type, burst_tlv_vals,
+                                                         val_to_str(tlvtype, burst_tlv_vals,
                                                          "Unknown TLV (%u)"));
-                    tlvtype = tvb_get_guint8 (tvb, pos);
                     proto_tree_add_uint (burst_tree, hf_docsis_ucd_burst_type, tvb, pos++, 1, tlvtype);
                     tlvlen = tvb_get_guint8 (tvb, pos);
                     proto_tree_add_uint (burst_tree, hf_docsis_ucd_burst_length, tvb, pos++, 1, tlvlen);
@@ -785,7 +785,7 @@ proto_register_docsis_ucd (void)
     },
     {&hf_docsis_ucd_burst_type,
      {"Type", "docsis_ucd.burst.tlvtype",
-      FT_UINT8, BASE_DEC, VALS(channel_tlv_vals), 0x0,
+      FT_UINT8, BASE_DEC, VALS(burst_tlv_vals), 0x0,
       "Burst TLV type", HFILL}
     },
     {&hf_docsis_ucd_burst_length,
