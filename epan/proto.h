@@ -502,6 +502,10 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
 /** FIELD_DISPLAY_E_MASK selects the field_display_e value. */
 #define FIELD_DISPLAY_E_MASK 0xFF
 
+/*
+ * Note that this enum values are parsed in make-init-lua.pl so make sure
+ * any changes here still makes valid entries in init.lua.
+ */
 typedef enum {
 /* Integral types */
 	BASE_NONE    = 0,   /**< none */
