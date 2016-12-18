@@ -522,11 +522,12 @@ typedef enum {
 	BASE_FLOAT   = BASE_NONE, /**< decimal-format float */
 
 /* String types */
-	STR_ASCII    = BASE_NONE, /**< shows non-printable ASCII characters as C-style escapes */
+	STR_ASCII    = 0,   /**< shows non-printable ASCII characters as C-style escapes */
 	/* XXX, support for format_text_wsp() ? */
 	STR_UNICODE  = 7,   /**< shows non-printable UNICODE characters as \\uXXXX (XXX for now non-printable characters display depends on UI) */
 
-/* Byte types */
+/* Byte separators */
+	SEP_NONE     = 0,   /**< hexadecimal bytes with no separator */
 	SEP_DOT      = 8,   /**< hexadecimal bytes with a period (.) between each byte */
 	SEP_DASH     = 9,   /**< hexadecimal bytes with a dash (-) between each byte */
 	SEP_COLON    = 10,  /**< hexadecimal bytes with a colon (:) between each byte */

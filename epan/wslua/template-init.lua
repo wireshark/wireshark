@@ -130,6 +130,12 @@ end
 
 -- %BASES%
 
+-- the following table is since 2.4
+-- %STRING_TYPES%
+
+-- the following table is since 2.4
+-- %BYTE_SEPARATORS%
+
 -- %ENCODINGS%
 
 -- %EXPERT%

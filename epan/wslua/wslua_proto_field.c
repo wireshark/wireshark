@@ -106,6 +106,15 @@ static const struct field_display_string_t base_displays[] = {
     {"base.DEC_HEX", BASE_DEC_HEX},
     {"base.HEX_DEC", BASE_HEX_DEC},
     {"base.UNIT_STRING", BASE_UNIT_STRING},
+    /* String types */
+    {"str.ASCII", STR_ASCII},
+    {"str.UNICODE", STR_UNICODE},
+    /* Byte separators */
+    {"sep.NONE", SEP_NONE},
+    {"sep.DOT", SEP_DOT},
+    {"sep.DASH", SEP_DASH},
+    {"sep.COLON", SEP_COLON},
+    {"sep.SPACE", SEP_SPACE},
     /* for FT_BOOLEAN, how wide the parent bitfield is */
     {"8",8},
     {"16",16},
@@ -534,6 +543,28 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
             return 0;
         }
         break;
+    case FT_STRING:
+    case FT_STRINGZ:
+        if (base != STR_ASCII && base != STR_UNICODE) {
+            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Display must be either str.ASCII or str.UNICODE");
+            return 0;
+        }
+        if (mask) {
+            WSLUA_OPTARG_ERROR(ProtoField_new,MASK,"This type can not have a bitmask");
+            return 0;
+        }
+        break;
+    case FT_BYTES:
+    case FT_UINT_BYTES:
+        if (base != SEP_NONE && (base < SEP_DOT || base > SEP_SPACE)) {
+            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Display must be either sep.NONE, sep.DOT, sep.DASH, sep.COLON or sep.SPACE");
+            return 0;
+        }
+        if (mask) {
+            WSLUA_OPTARG_ERROR(ProtoField_new,MASK,"This type can not have a bitmask");
+            return 0;
+        }
+        break;
     case FT_FLOAT:
     case FT_DOUBLE:
         if ((base & BASE_UNIT_STRING) &&
@@ -550,10 +581,6 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     case FT_IPXNET:
     case FT_ETHER:
     case FT_RELATIVE_TIME:
-    case FT_STRING:
-    case FT_STRINGZ:
-    case FT_BYTES:
-    case FT_UINT_BYTES:
     case FT_GUID:
     case FT_OID:
     case FT_PROTOCOL:
@@ -1010,6 +1037,93 @@ static int ProtoField_floating(lua_State* L,enum ftenum type) {
 PROTOFIELD_FLOATING(float,FT_FLOAT)
 PROTOFIELD_FLOATING(double,FT_DOUBLE)
 
+static int ProtoField_other_display(lua_State* L,enum ftenum type) {
+    ProtoField f;
+    const gchar* abbr = check_field_name(L,1,type);
+    const gchar* name = luaL_optstring(L,2,abbr);
+    unsigned base = BASE_NONE;
+    const gchar* blob;
+
+    if (!name[0]) {
+        luaL_argerror(L, 2, "cannot be an empty string");
+        return 0;
+    }
+
+    if (lua_isnumber(L, 3)) {
+        base = (unsigned)luaL_optinteger(L,3,BASE_NONE);
+        if (type == FT_STRING || type == FT_STRINGZ) {
+            if (base != STR_ASCII && base != STR_UNICODE) {
+                luaL_argerror(L, 3, "Display must be either str.ASCII or str.UNICODE");
+                return 0;
+            }
+        } else if (type == FT_BYTES || type == FT_UINT_BYTES) {
+            if (base != SEP_NONE && (base < SEP_DOT || base > SEP_SPACE)) {
+                luaL_argerror(L, 3, "Display must be either sep.NONE, sep.DOT, sep.DASH, sep.COLON or sep.SPACE");
+                return 0;
+            }
+        }
+
+        blob = luaL_optstring(L,4,NULL);
+    } else {
+        blob = luaL_optstring(L,3,NULL);
+    }
+
+    f = g_new(wslua_field_t,1);
+
+    f->hfid = -2;
+    f->ett = -1;
+    f->name = g_strdup(name);
+    f->abbrev = g_strdup(abbr);
+    f->type = type;
+    f->vs = NULL;
+    f->base = base;
+    f->mask = 0;
+    if (blob && strcmp(blob, f->name) != 0) {
+        f->blob = g_strdup(blob);
+    } else {
+        f->blob = NULL;
+    }
+
+    pushProtoField(L,f);
+
+    return 1;
+}
+
+#define PROTOFIELD_OTHER_DISPLAY(lower,FT) static int ProtoField_##lower(lua_State* L) { return ProtoField_other_display(L,FT); }
+/* _WSLUA_CONSTRUCTOR_ ProtoField_string Creates a `ProtoField` of a string value. */
+/* WSLUA_ARG_Protofield_string_ABBR Abbreviated name of the field (the string used in filters). */
+/* WSLUA_OPTARG_Protofield_string_NAME Actual name of the field (the string that appears in the tree). */
+/* WSLUA_OPTARG_Protofield_string_DISPLAY One of `str.ASCII` or `str.UNICODE`. */
+/* WSLUA_OPTARG_Protofield_string_DESC Description of the field. */
+/* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
+
+/* _WSLUA_CONSTRUCTOR_ ProtoField_stringz Creates a `ProtoField` of a zero-terminated string value. */
+/* WSLUA_ARG_Protofield_stringz_ABBR Abbreviated name of the field (the string used in filters). */
+/* WSLUA_OPTARG_Protofield_stringz_NAME Actual name of the field (the string that appears in the tree). */
+/* WSLUA_OPTARG_Protofield_stringz_DISPLAY One of `str.ASCII` or `str.UNICODE`. */
+/* WSLUA_OPTARG_Protofield_stringz_DESC Description of the field. */
+/* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
+
+/* _WSLUA_CONSTRUCTOR_ ProtoField_bytes Creates a `ProtoField` for an arbitrary number of bytes. */
+/* WSLUA_ARG_Protofield_bytes_ABBR Abbreviated name of the field (the string used in filters). */
+/* WSLUA_OPTARG_Protofield_bytes_NAME Actual name of the field (the string that appears in the tree). */
+/* WSLUA_OPTARG_Protofield_bytes_DISPLAY One of `sep.NONE`, `sep.DOT`, `sep.DASH`, `sep.COLON` or `sep.SPACE`. */
+/* WSLUA_OPTARG_Protofield_bytes_DESC Description of the field. */
+/* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
+
+/* _WSLUA_CONSTRUCTOR_ ProtoField_ubytes Creates a `ProtoField` for an arbitrary number of unsigned bytes. */
+/* WSLUA_ARG_Protofield_ubytes_ABBR Abbreviated name of the field (the string used in filters). */
+/* WSLUA_OPTARG_Protofield_ubytes_NAME Actual name of the field (the string that appears in the tree). */
+/* WSLUA_OPTARG_Protofield_ubytes_DISPLAY One of `sep.NONE`, `sep.DOT`, `sep.DASH`, `sep.COLON` or `sep.SPACE`. */
+/* WSLUA_OPTARG_Protofield_ubytes_DESC Description of the field. */
+/* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
+
+
+PROTOFIELD_OTHER_DISPLAY(string,FT_STRING)
+PROTOFIELD_OTHER_DISPLAY(stringz,FT_STRINGZ)
+PROTOFIELD_OTHER_DISPLAY(bytes,FT_BYTES)
+PROTOFIELD_OTHER_DISPLAY(ubytes,FT_UINT_BYTES)
+
 static int ProtoField_other(lua_State* L,enum ftenum type) {
     ProtoField f;
     const gchar* abbr = check_field_name(L,1,type);
@@ -1067,30 +1181,6 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
 /* WSLUA_OPTARG_Protofield_ether_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
 
-/* _WSLUA_CONSTRUCTOR_ ProtoField_string Creates a `ProtoField` of a string value. */
-/* WSLUA_ARG_Protofield_string_ABBR Abbreviated name of the field (the string used in filters). */
-/* WSLUA_OPTARG_Protofield_string_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_string_DESC Description of the field. */
-/* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
-
-/* _WSLUA_CONSTRUCTOR_ ProtoField_stringz Creates a `ProtoField` of a zero-terminated string value. */
-/* WSLUA_ARG_Protofield_stringz_ABBR Abbreviated name of the field (the string used in filters). */
-/* WSLUA_OPTARG_Protofield_stringz_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_stringz_DESC Description of the field. */
-/* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
-
-/* _WSLUA_CONSTRUCTOR_ ProtoField_bytes Creates a `ProtoField` for an arbitrary number of bytes. */
-/* WSLUA_ARG_Protofield_bytes_ABBR Abbreviated name of the field (the string used in filters). */
-/* WSLUA_OPTARG_Protofield_bytes_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_bytes_DESC Description of the field. */
-/* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
-
-/* _WSLUA_CONSTRUCTOR_ ProtoField_ubytes Creates a `ProtoField` for an arbitrary number of unsigned bytes. */
-/* WSLUA_ARG_Protofield_ubytes_ABBR Abbreviated name of the field (the string used in filters). */
-/* WSLUA_OPTARG_Protofield_ubytes_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_ubytes_DESC Description of the field. */
-/* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
-
 /* _WSLUA_CONSTRUCTOR_ ProtoField_guid Creates a `ProtoField` for a Globally Unique IDentifier (GUID). */
 /* WSLUA_ARG_Protofield_guid_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_guid_NAME Actual name of the field (the string that appears in the tree). */
@@ -1133,10 +1223,6 @@ PROTOFIELD_OTHER(ipv6,FT_IPv6)
 PROTOFIELD_OTHER(ipx,FT_IPXNET)
 PROTOFIELD_OTHER(ether,FT_ETHER)
 PROTOFIELD_OTHER(relative_time,FT_RELATIVE_TIME)
-PROTOFIELD_OTHER(string,FT_STRING)
-PROTOFIELD_OTHER(stringz,FT_STRINGZ)
-PROTOFIELD_OTHER(bytes,FT_BYTES)
-PROTOFIELD_OTHER(ubytes,FT_UINT_BYTES)
 PROTOFIELD_OTHER(guid,FT_GUID)
 PROTOFIELD_OTHER(oid,FT_OID)
 PROTOFIELD_OTHER(protocol,FT_PROTOCOL)
