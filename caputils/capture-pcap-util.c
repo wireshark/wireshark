@@ -886,7 +886,7 @@ get_data_link_types(pcap_t *pch, interface_options *interface_opts,
 		 */
 		pcap_close(pch);
 		if (err_str != NULL) {
-			if (nlt == PCAP_ERROR)
+			if (nlt == -1)
 				*err_str = g_strdup_printf("pcap_list_datalinks() failed: %s",
 				    pcap_geterr(pch));
 			else
