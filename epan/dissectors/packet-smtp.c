@@ -528,6 +528,10 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                * Check if we have reached end of the data chunk.
                */
               session_state->msg_read_len += tvb_reported_length_remaining(tvb, loffset);
+              /*
+               * Since we're grabbing the rest of the packet, update the offset accordingly
+               */
+              next_offset = tvb_reported_length(tvb);
 
               if (session_state->msg_read_len == session_state->msg_tot_len) {
                 /*
