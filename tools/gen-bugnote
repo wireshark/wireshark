@@ -49,14 +49,15 @@ if [ -z "$bug_id" ] ; then
     exit 1
 fi
 
-bug_title=`
-    curl -s -o - "https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=$bug_id" |
-    grep -i '<title>' |
-    sed \
+bug_title=$(
+    curl -s -o - "https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=$bug_id" \
+    | grep -i '<title>' \
+    | sed \
         -e 's:.*<title>.*ndash; ::' \
         -e 's:</title>.*::' \
         -e 's/[^\.]$/&./' \
-    `
+        -e 's/{/\\{/' \
+    )
 
 echo -e "* $bug_title (ws-buglink:$bug_id[])\n" \
         | $recode_cmd \
