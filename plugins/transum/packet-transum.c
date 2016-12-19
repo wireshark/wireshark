@@ -152,7 +152,7 @@ static const enum_val_t capture_position_vals[] = {
 static int fake_tap = 0xa7a7a7a7;
 
 
-void init_detected_tcp_svc(void)
+static void init_detected_tcp_svc(void)
 {
     for (int i = 0; i < 64 * 1024; i++)
         detected_tcp_svc[i] = FALSE;
@@ -164,7 +164,7 @@ void add_detected_tcp_svc(guint16 port)
 }
 
 
-void init_dcerpc_data(void)
+static void init_dcerpc_data(void)
 {
     for (int i = 0; i < 256; i++)
         dcerpc_req_pkt_type[i] = FALSE;
@@ -184,12 +184,12 @@ void init_dcerpc_data(void)
     return;
 }
 
-void clear_rrpd(RRPD *rrpd)
+static void clear_rrpd(RRPD *rrpd)
 {
     memset(rrpd, 0x00, sizeof(RRPD));
 }
 
-void init_rrpd_data(void)
+static void init_rrpd_data(void)
 {
     for (int i = 0; i < MAX_PACKETS; i++)
         output_rrpd[i] = NULL;
@@ -198,7 +198,7 @@ void init_rrpd_data(void)
 }
 
 /* This function should be called before any change to RTE data. */
-void null_output_rrpd_entries(RRPD *in_rrpd)
+static void null_output_rrpd_entries(RRPD *in_rrpd)
 {
     output_rrpd[in_rrpd->req_first_frame] = NULL;
     output_rrpd[in_rrpd->req_last_frame] = NULL;
@@ -207,7 +207,7 @@ void null_output_rrpd_entries(RRPD *in_rrpd)
 }
 
 /* This function should be called after any change to RTE data. */
-void update_output_rrpd(RRPD *in_rrpd)
+static void update_output_rrpd(RRPD *in_rrpd)
 {
     if (preferences.rte_on_first_req)
         output_rrpd[in_rrpd->req_first_frame] = in_rrpd;
@@ -305,7 +305,7 @@ int find_latest_rrpd(RRPD *in_rrpd, int state)
     return rrpd_index;
 }
 
-void update_rrpd_list_entry(int match_index, RRPD *in_rrpd)
+static void update_rrpd_list_entry(int match_index, RRPD *in_rrpd)
 {
     null_output_rrpd_entries(&rrpd_list[match_index]);
 
@@ -482,7 +482,7 @@ void update_rrpd_list_entry(int match_index, RRPD *in_rrpd)
 /*
     This function processes a sub-packet that is going from client-to-service.
  */
-void update_rrpd_list_entry_req(RRPD *in_rrpd)
+static void update_rrpd_list_entry_req(RRPD *in_rrpd)
 {
     int match_index = -1;
 
@@ -573,14 +573,14 @@ int find_temp_rsp_rrpd(RRPD *in_rrpd)
     return entry_index;
 }
 
-void update_temp_rsp_rrpd(int temp_list_index, RRPD *in_rrpd)
+static void update_temp_rsp_rrpd(int temp_list_index, RRPD *in_rrpd)
 {
     temp_rsp_rrpd_list[temp_list_index].rsp_last_frame = in_rrpd->rsp_last_frame;
     temp_rsp_rrpd_list[temp_list_index].rsp_last_rtime = in_rrpd->rsp_last_rtime;
 }
 
 /* This function migrates an entry from the temp_rsp_rrpd_list to the main rrpd_list. */
-void migrate_temp_rsp_rrpd(int main_list_index, int temp_list_index)
+static void migrate_temp_rsp_rrpd(int main_list_index, int temp_list_index)
 {
     update_rrpd_list_entry(main_list_index, &(temp_rsp_rrpd_list[temp_list_index]));
 
@@ -595,7 +595,7 @@ void migrate_temp_rsp_rrpd(int main_list_index, int temp_list_index)
     return;
 }
 
-void update_rrpd_list_entry_rsp(RRPD *in_rrpd)
+static void update_rrpd_list_entry_rsp(RRPD *in_rrpd)
 {
     int match_index = -1;
 
@@ -661,7 +661,7 @@ void update_rrpd_list_entry_rsp(RRPD *in_rrpd)
     is > 0 then the frame_no value and rtime values are updated.  If the
     frame_no is 0 then that particular frame_no and rtime value is not updated.
  */
-void update_rrpd_rte_data(RRPD *in_rrpd)
+static void update_rrpd_rte_data(RRPD *in_rrpd)
 {
     if (in_rrpd->c2s)
         update_rrpd_list_entry_req(in_rrpd);
@@ -670,7 +670,7 @@ void update_rrpd_rte_data(RRPD *in_rrpd)
 }
 
 /* This function initialises all of the sub_packets in the sub_packet array. */
-void init_sub_packet(void)
+static void init_sub_packet(void)
 {
     for (int i = 0; i < MAX_SUBPKTS_PER_PACKET; i++)
     {
@@ -716,6 +716,7 @@ void init_sub_packet(void)
     return;
 }
 
+#if 0
 void set_pkt_rrpd(PKT_INFO *current_pkt, guint8 ip_proto, guint32 stream_no, guint64 session_id, guint64 msg_id, gboolean requires_suffix)
 {
     current_pkt->rrpd.ip_proto = ip_proto;
@@ -730,13 +731,14 @@ void set_pkt_rrpd(PKT_INFO *current_pkt, guint8 ip_proto, guint32 stream_no, gui
 
     return;
 }
+#endif
 
 
 /*
     This function initialises the global variables and populates the
     tcp_svc_port table with information from the preference settings
  */
-void init_globals(void)
+static void init_globals(void)
 {
     /* The following achives two things; a) we avoid double registering the fake tap
        and b) we discard the fake tap when the "TRANSUM enabled" preference is changed.
@@ -846,7 +848,7 @@ void init_globals(void)
 /* This function adds the RTE data to the tree.  The summary ptr is currently
    not used but will be used for summariser information once this feature has
    been ported from the LUA code. */
-void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summary)
+static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summary)
 {
     nstime_t rte_art;
     nstime_t rte_st;
@@ -977,7 +979,7 @@ void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summary)
 
     Returns the number of sub-packets to be processed.
 */
-void set_proto_values(packet_info *pinfo, proto_tree *tree)
+static void set_proto_values(packet_info *pinfo, proto_tree *tree)
 {
     guint32 field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */

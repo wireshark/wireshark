@@ -183,3 +183,5 @@ typedef struct _HF_OF_INTEREST
 
     int data_data;
 } HF_OF_INTEREST;
+
+void add_detected_tcp_svc(guint16 port);
