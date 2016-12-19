@@ -367,7 +367,7 @@ static guint dissect_rpcrdma_reply_chunk(tvbuff_t *tvb, guint offset,
 
     chunk_count = get_reply_chunk_count(tvb, offset);
     item = proto_tree_add_uint_format(tree, hf_rpcordma_reply_count,
-                tvb, offset, 0, chunk_count,
+                tvb, offset, 4, chunk_count,
                 "Reply chunk (count: %u)", chunk_count);
 
     reply_chunk = proto_item_add_subtree(item, ett_rpcordma_reply_chunk);
