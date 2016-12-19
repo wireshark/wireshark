@@ -185,3 +185,16 @@ typedef struct _HF_OF_INTEREST
 } HF_OF_INTEREST;
 
 void add_detected_tcp_svc(guint16 port);
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
