@@ -1315,7 +1315,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 				tvb_get_ntohs(tvb, 4), tvb_get_ntohs(tvb,
 								     6),
 				tvb_get_letohs(tvb, 6));
-                if (iph != NULL) {
+		if (iph != NULL) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 					", ttl=%u",
 					iph->ip_ttl);
