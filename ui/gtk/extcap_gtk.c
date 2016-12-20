@@ -190,13 +190,13 @@ GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
             }
             break;
         case EXTCAP_ARG_TIMESTAMP: {
-                GTimeZone* tz = g_time_zone_new("UTC");
+                struct tm t;
                 gtk_calendar_get_date((GtkCalendar*)list_widget, &year, &month, &day);
-                GDateTime* datetime = g_date_time_new(tz, year, month, day, 0, 0, 0);
-                unix_ts = g_date_time_to_unix(datetime);
+                t.tm_year = year;
+                t.tm_mon = month;
+                t.tm_mday = day;
+                unix_ts = mktime(&t);
                 call_string = g_strdup_printf("%" G_GINT64_MODIFIER "u", unix_ts);
-                g_date_time_unref(datetime);
-                g_time_zone_unref(tz);
             }
             break;
         case EXTCAP_ARG_RADIO:
