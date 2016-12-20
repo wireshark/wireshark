@@ -1425,7 +1425,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		} else {
 			/* There is a collision between RFC 1812 and draft-ietf-mpls-icmp-02.
 			   We don't know how to decode the 128th and following bytes of the ICMP payload.
-			   According to draft-ietf-mpls-icmp-02, these bytes should be decoded as MPLS extensios
+			   According to draft-ietf-mpls-icmp-02, these bytes should be decoded as MPLS extensions
 			   whereas RFC 1812 tells us to decode them as a portion of the original packet.
 			   Let the user decide.
 
