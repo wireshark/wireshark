@@ -88,7 +88,7 @@ if test ! -z "$CXX"; then
 	# system, and AC_PROG_CXX looks for, among other things,
 	# "CC" as a C++ compiler, and, if you have a case-insensitive
 	# file system and a C compiler named "cc" (both true, by
-	# default, on OS X), AC_PROG_CXX may end up thinking it's
+	# default, on macOS), AC_PROG_CXX may end up thinking it's
 	# the C++ compiler.
 	#
 	# So we check by feeding the purported C++ compiler a
@@ -222,7 +222,7 @@ if test -z "$PKG_CONFIG"; then
 fi
 
 #
-# Add configure argument to select OSX deployment target.
+# Add configure argument to select macOS deployment target.
 #
 AC_WIRESHARK_OSX_DEPLOY_TARGET
 
@@ -523,7 +523,7 @@ AM_CONDITIONAL(HAVE_RPM, [test "x$have_rpm" = xyes])
 # Debian
 AC_CHECK_PROG(HAVE_DPKG_BUILDPACKAGE, dpkg-buildpackage, "yes", "no")
 
-# OS X
+# macOS
 AC_CHECK_PROG(HAVE_XCODEBUILD, xcodebuild, "yes", "no")
 AC_CHECK_PROG(HAVE_HDIUTIL, hdiutil, "yes", "no")
 AC_CHECK_PROG(HAVE_BLESS, bless, "yes", "no")
@@ -537,7 +537,7 @@ fi
 AC_SUBST(HAVE_OSX_PACKAGING)
 
 #
-# Use this as a proxy for "is this OS X" (just in case somebody actually
+# Use this as a proxy for "is this macOS" (just in case somebody actually
 # built and installed Darwin as an OS, perhaps with some X11-based GUI,
 # don't look for Darwin).
 #
@@ -1118,7 +1118,7 @@ AC_SUBST(LDFLAGS_BIGSHAREDLIB)
 AC_SUBST(LDFLAGS_SHAREDLIB)
 
 #
-# On "Darwin", which we assume to mean "OS X" rather than "iOS" or
+# On "Darwin", which we assume to mean "macOS" rather than "iOS" or
 # "just Darwin" (as we don't currently support iOS, and as I don't
 # think you can build and run "just Darwin" as an OS for PCs), we
 # arrange to build some programs with Application Services so they
@@ -1134,13 +1134,13 @@ have_os_x_frameworks=no
 case "$host_os" in
 darwin*)
 	have_os_x_frameworks=yes
-	AC_DEFINE(HAVE_OS_X_FRAMEWORKS, 1, [Define to 1 if you have OS X frameworks])
+	AC_DEFINE(HAVE_OS_X_FRAMEWORKS, 1, [Define to 1 if you have macOS frameworks])
 	APPLICATIONSERVICES_FRAMEWORKS="-framework ApplicationServices"
 	SYSTEMCONFIGURATION_FRAMEWORKS="-framework SystemConfiguration"
 	COREFOUNDATION_FRAMEWORKS="-framework CoreFoundation"
 
 	#
-	# OK, so we have the OS X frameworks; do they include
+	# OK, so we have the macOS frameworks; do they include
 	# CFPropertyListCreateWithStream, or do we have
 	# to fall back on CFPropertyListCreateFromStream?
 	# (They only differ in the error return, which we
@@ -1599,15 +1599,15 @@ fi
 if test "x$have_gtk" = "xyes"
 then
     #
-    # We have GTK+; do we want the OS X integration functions and,
+    # We have GTK+; do we want the macOS integration functions and,
     # if so, do we have them and, if so, which versions do we have,
     # the old Carbon-based ones or the new Cocoa-based ones?
     #
-    AC_MSG_CHECKING(whether to use OS X integration functions)
+    AC_MSG_CHECKING(whether to use macOS integration functions)
 
     AC_ARG_WITH(osx-integration,
       AC_HELP_STRING( [--with-osx-integration],
-		      [use OS X integration functions @<:@default=yes, if available@:>@]),
+		      [use macOS integration functions @<:@default=yes, if available@:>@]),
     [
 	if test $withval = no
 	then
@@ -3028,7 +3028,7 @@ AC_OUTPUT
 if test "x$have_gtk" = "xyes"; then
 	gtk_lib_message=" (with GTK+ v$GTK_VERSION"
 	if test "x$have_ige_mac" = "xyes"; then
-		gtk_lib_message="$gtk_lib_message and OS X integration)"
+		gtk_lib_message="$gtk_lib_message and macOS integration)"
 	else
 		gtk_lib_message="$gtk_lib_message)"
 	fi

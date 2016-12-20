@@ -5,23 +5,23 @@
 #
 # AC_WIRESHARK_OSX_DEPLOY_TARGET
 #
-# Checks for OSX deployment target and selects version.
+# Checks for macOS deployment target and selects version.
 #
 AC_DEFUN([AC_WIRESHARK_OSX_DEPLOY_TARGET],
 [dnl
 AC_ARG_ENABLE(osx-deploy-target,
   AC_HELP_STRING( [--enable-osx-deploy-target],
-    [choose an OS X deployment target @<:@default=major release on which you're building@:>@]),
+    [choose a macOS deployment target @<:@default=major release on which you're building@:>@]),
 [
 	#
-	# Is this OS X?
+	# Is this macOS?
 	#
 	case "$host_os" in
 	darwin*)
 		#
 		# Yes.
 		#
-		# Let the user specify an OS X release to use as a
+		# Let the user specify an macOS release to use as a
 		# deplayment target; if they specify that we should
 		# have a deployment target but don't specify the
 		# deployment target, then, if we have SDKs available,
@@ -30,7 +30,7 @@ AC_ARG_ENABLE(osx-deploy-target,
 		# rather than against the headers and libraries in
 		# /usr/include and /usr/lib.
 		#
-		# Check for an OS X deployment target early, so that
+		# Check for an macOS deployment target early, so that
 		# as many tests using the compiler are done using the
 		# flags that we'll be using when building.
 		#
@@ -47,7 +47,7 @@ AC_ARG_ENABLE(osx-deploy-target,
 			#
 			# The user said --enable-osx-deploy-target, but
 			# didn't say what version to target; target the
-			# major version number of the version of OS X on
+			# major version number of the version of macOS on
 			# which we're running.
 			#
 			# (We quote the command so that we can use
@@ -65,12 +65,12 @@ AC_ARG_ENABLE(osx-deploy-target,
 		# No.  Fail, because whatever the user intended for us to
 		# do, we can't do it.
 		#
-		AC_MSG_ERROR([--enable-osx-deploy-target specified on an OS other than OS X])
+		AC_MSG_ERROR([--enable-osx-deploy-target specified on an OS other than macOS])
 		;;
 	esac
 ],[
 	#
-	# Is this OS X?
+	# Is this macOS?
 	#
 	case "$host_os" in
 	darwin*)
@@ -78,7 +78,7 @@ AC_ARG_ENABLE(osx-deploy-target,
 		# Yes.
 		#
 		# If we have SDKs available, default to targeting the major
-		# version number of the version of OS X on which we're
+		# version number of the version of macOS on which we're
 		# running.
 		#
 		# (We quote the command so that we can use autoconf's
@@ -106,7 +106,24 @@ AC_ARG_ENABLE(osx-deploy-target,
 
 if test ! -z "$deploy_target"
 then
-	AC_MSG_CHECKING([whether we can build for OS X $deploy_target])
+	#
+	# Avoid anachronisms.
+	#
+	case $deploy_target in
+
+	10.0|10.1|10.2|10.3|10.4|10.5|10.6|10.7)
+		osname="Mac OS X"
+		;;
+
+	10.8|10.9|10.10|10.11)
+		osname="OS X"
+		;;
+
+	*)
+		osname="macOS"
+		;;
+	esac
+	AC_MSG_CHECKING([whether we can build for $osname $deploy_target])
 	case $deploy_target in
 
 	10.0|10.1|10.2)
@@ -114,7 +131,7 @@ then
 		# I'm not sure this would even work.
 		#
 		AC_MSG_RESULT(no)
-		AC_MSG_ERROR([We don't support building for OS X $deploy_target])
+		AC_MSG_ERROR([We don't support building for Mac OS X $deploy_target])
 		;;
 
 	10.3)
@@ -198,7 +215,7 @@ then
 		if test -z "$sdkpath"
 		then
 			AC_MSG_RESULT(no)
-			AC_MSG_ERROR([We couldn't find an SDK for OS X $deploy_target or later])
+			AC_MSG_ERROR([We couldn't find an SDK for $osname $deploy_target or later])
 		fi
 		SDKPATH="$sdkpath"
 		AC_MSG_RESULT([yes, with the 10.$sdk_real_version SDK])
@@ -251,7 +268,7 @@ then
 	esac
 else
 	#
-	# Is this OS X?
+	# Is this macOS?
 	#
 	case "$host_os" in
 	darwin*)
@@ -274,7 +291,7 @@ AC_SUBST(OSX_MIN_VERSION)
 #
 # AC_WIRESHARK_OSX_INTEGRATION_CHECK
 #
-# Checks for the presence of OS X integration functions in the GTK+ framework
+# Checks for the presence of macOS integration functions in the GTK+ framework
 # or as a separate library.
 #
 # GTK+ for MAC OS X now lives on www.gtk.org at:
@@ -321,7 +338,7 @@ AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 		AC_CHECK_LIB(Gtk, gtk_mac_menu_set_menu_bar,
 		[
 			AC_DEFINE(HAVE_IGE_MAC_INTEGRATION, 1,
-				[Define to 1 if the the Gtk+ framework or a separate library includes the Imendio IGE Mac OS X Integration functions.])
+				[Define to 1 if the the Gtk+ framework or a separate library includes the Imendio IGE macOS Integration functions.])
 			have_ige_mac=yes
 			# We don't want gtk stuff in LIBS (which is reset below) so
 			# manually set GTK_LIBS (which is more appropriate)
@@ -338,7 +355,7 @@ AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 		AC_CHECK_LIB(gtkmacintegration, gtk_mac_menu_set_menu_bar,
 		[
 			AC_DEFINE(HAVE_IGE_MAC_INTEGRATION, 1,
-				[Define to 1 if the the Gtk+ framework or a separate library includes the Imendio IGE Mac OS X Integration functions.])
+				[Define to 1 if the the Gtk+ framework or a separate library includes the Imendio IGE macOS Integration functions.])
 			have_ige_mac=yes
 			# We don't want gtk stuff in LIBS (which is reset below) so
 			# manually set GTK_LIBS (which is more appropriate)

@@ -1829,7 +1829,7 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 
 		#
 		# While we're at it, look for QtMacExtras.  (Presumably
-		# if we're not building for OS X, it won't be present.)
+		# if we're not building for macOS, it won't be present.)
 		#
 		# XXX - is there anything in QtX11Extras or QtWinExtras
 		# that we should be using?
