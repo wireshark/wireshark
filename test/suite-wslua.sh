@@ -334,6 +334,30 @@ wslua_step_proto_test() {
 	fi
 }
 
+wslua_step_protofield_test() {
+	if [ $HAVE_LUA -ne 0 ]; then
+		test_step_skipped
+		return
+	fi
+
+    # Tshark catches lua script failures, so we have to parse the output.
+    # perform this twice: once with a tree, once without
+    $TSHARK -r $CAPTURE_DIR/dns_port.pcap -X lua_script:$TESTS_DIR/lua/protofield.lua -V > testout.txt 2>&1
+    grep -q "All tests passed!" testout.txt
+    if [ $? -ne 0 ]; then
+        cat testout.txt
+        test_step_failed "lua_args_test test 1 failed"
+    fi
+
+    $TSHARK -r $CAPTURE_DIR/dns_port.pcap -X lua_script:$TESTS_DIR/lua/protofield.lua > testout.txt 2>&1
+    if grep -q "All tests passed!" testout.txt; then
+        test_step_ok
+    else
+        cat testout.txt
+        test_step_failed "didn't find pass marker"
+    fi
+}
+
 wslua_step_int64_test() {
 	if [ $HAVE_LUA -ne 0 ]; then
 		test_step_skipped
@@ -481,6 +505,7 @@ wslua_suite() {
 	test_step_add "wslua nstime" wslua_step_nstime_test
 	test_step_add "wslua pinfo" wslua_step_pinfo_test
 	test_step_add "wslua proto/protofield" wslua_step_proto_test
+	test_step_add "wslua protofield" wslua_step_protofield_test
 	test_step_add "wslua script arguments" wslua_step_args_test
 	test_step_add "wslua struct" wslua_step_struct_test
 	test_step_add "wslua tvb" wslua_step_tvb_test
