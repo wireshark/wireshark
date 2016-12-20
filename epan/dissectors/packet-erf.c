@@ -2088,7 +2088,7 @@ static proto_item *dissect_ptp_timeinterval(proto_tree *tree, const int hfindex,
 
   ti += (ti & 0x8000) << 1; /* rounding */
   ti_ns = ti >> 16;
-  t.secs = ti_ns / NS_PER_S;
+  t.secs = (time_t) (ti_ns / NS_PER_S);
   t.nsecs = (guint32)(ti_ns % NS_PER_S);
   if (t.nsecs >= NS_PER_S) {
     t.nsecs -= NS_PER_S;

@@ -59,7 +59,7 @@ dissect_ttag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     ttag_tree = proto_item_add_subtree(ti, ett_ttag);
 
     timestamp_value = tvb_get_guint48(tvb, offset, ENC_BIG_ENDIAN);
-    timestamp.secs = timestamp_value / G_GUINT64_CONSTANT(1000000000);
+    timestamp.secs = (time_t) (timestamp_value / G_GUINT64_CONSTANT(1000000000));
     timestamp.nsecs = (guint32)(timestamp_value - (timestamp.secs * G_GUINT64_CONSTANT(1000000000)));
 
     proto_item_append_text(ti, ", Timestamp: %lu.%d seconds", timestamp.secs, timestamp.nsecs);
