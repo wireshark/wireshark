@@ -888,7 +888,6 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
 /* WSLUA_OPTARG_Protofield_bool_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
 
-/* XXX: T/F strings */
 PROTOFIELD_BOOL(bool,FT_BOOLEAN)
 
 static int ProtoField_time(lua_State* L,enum ftenum type) {
