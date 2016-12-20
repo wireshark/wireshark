@@ -475,7 +475,7 @@ packet_is_rpcordma(tvbuff_t *tvb)
 }
 
 static int
-dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbuff_t *next_tvb;
     proto_item *ti;
@@ -599,7 +599,7 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     if (!packet_is_rpcordma(tvb))
         return FALSE;
-    dissect_rpcrdma(tvb, pinfo, tree);
+    dissect_rpcrdma(tvb, pinfo, tree, NULL);
     return TRUE;
 }
 
@@ -623,7 +623,7 @@ dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
     if (!packet_is_rpcordma(tvb))
         return FALSE;
 
-    dissect_rpcrdma(tvb, pinfo, tree);
+    dissect_rpcrdma(tvb, pinfo, tree, NULL);
     return TRUE;
 }
 
@@ -757,23 +757,14 @@ proto_register_rpcordma(void)
 void
 proto_reg_handoff_rpcordma(void)
 {
-    static gboolean initialized = FALSE;
+    heur_dissector_add("infiniband.payload", dissect_rpcrdma_ib_heur, "RPC-over-RDMA on Infiniband",
+                        "rpcrdma_infiniband", proto_rpcordma, HEURISTIC_ENABLE);
+    dissector_add_for_decode_as("infiniband", create_dissector_handle( dissect_rpcrdma, proto_rpcordma ) );
 
-    if (!initialized) {
-        heur_dissector_add("infiniband.payload", dissect_rpcrdma_ib_heur, "RPC-over-RDMA on Infiniband",
-                           "rpcrdma_infiniband", proto_rpcordma, HEURISTIC_ENABLE);
-        heur_dissector_add("iwarp_ddp_rdmap", dissect_rpcrdma_iwarp_heur, "RPC-over-RDMA on iWARP",
-                           "rpcrdma_iwarp", proto_rpcordma, HEURISTIC_ENABLE);
+    heur_dissector_add("iwarp_ddp_rdmap", dissect_rpcrdma_iwarp_heur, "RPC-over-RDMA on iWARP",
+                        "rpcrdma_iwarp", proto_rpcordma, HEURISTIC_ENABLE);
 
-        /* The following is never used: there are no known implementations, and no specification */
-        heur_dissector_add("infiniband.mad.cm.private", dissect_rpcrdma_ib_heur,
-                           "RPC over RDMA in PrivateData of CM packets",
-                           "rpcordma_ib_private", proto_rpcordma, HEURISTIC_ENABLE);
-
-        rpc_handler = find_dissector_add_dependency("rpc", proto_rpcordma);
-
-        initialized = TRUE;
-    }
+    rpc_handler = find_dissector_add_dependency("rpc", proto_rpcordma);
 }
 
 /*

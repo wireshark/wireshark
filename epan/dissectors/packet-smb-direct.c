@@ -514,15 +514,15 @@ dissect_smb_direct_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
 	return TRUE;
 }
 
-static gboolean
-dissect_smb_direct_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo,
+static int
+dissect_smb_direct_infiniband(tvbuff_t *tvb, packet_info *pinfo,
 				   proto_tree *parent_tree, void *data)
 {
 	struct infinibandinfo *info = (struct infinibandinfo *)data;
 	enum SMB_DIRECT_HDR_TYPE hdr_type;
 
 	if (info == NULL) {
-		return FALSE;
+		return 0;
 	}
 
 	switch (info->opCode) {
@@ -536,16 +536,23 @@ dissect_smb_direct_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo,
 	case RC_SEND_ONLY_INVAL:
 		break;
 	default:
-		return FALSE;
+		return 0;
 	}
 
 	hdr_type = is_smb_direct(tvb, pinfo);
 	if (hdr_type == SMB_DIRECT_HDR_UNKNOWN) {
-		return FALSE;
+		return 0;
 	}
 
 	dissect_smb_direct(tvb, pinfo, parent_tree, hdr_type);
-	return TRUE;
+	return tvb_captured_length(tvb);
+}
+
+static gboolean
+dissect_smb_direct_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo,
+				proto_tree *parent_tree, void *data)
+{
+	return (dissect_smb_direct_infiniband(tvb, pinfo, parent_tree, data) > 0);
 }
 
 void proto_register_smb_direct(void)
@@ -700,13 +707,14 @@ void
 proto_reg_handoff_smb_direct(void)
 {
 	heur_dissector_add("iwarp_ddp_rdmap",
-			   dissect_smb_direct_iwarp_heur,
-               "SMB Direct over iWARP", "smb_direct_iwarp",
-			   proto_smb_direct, HEURISTIC_ENABLE);
+				dissect_smb_direct_iwarp_heur,
+				"SMB Direct over iWARP", "smb_direct_iwarp",
+				proto_smb_direct, HEURISTIC_ENABLE);
 	heur_dissector_add("infiniband.payload",
-			   dissect_smb_direct_infiniband_heur,
-			   "SMB Direct Infiniband", "smb_direct_infiniband",
-			   proto_smb_direct, HEURISTIC_ENABLE);
+				dissect_smb_direct_infiniband_heur,
+				"SMB Direct Infiniband", "smb_direct_infiniband",
+				proto_smb_direct, HEURISTIC_ENABLE);
+	dissector_add_for_decode_as("infiniband", create_dissector_handle( dissect_smb_direct_infiniband, proto_smb_direct ) );
 
 }
 

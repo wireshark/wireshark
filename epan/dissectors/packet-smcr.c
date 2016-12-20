@@ -794,8 +794,8 @@ dissect_smcr_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return tvb_reported_length(tvb);
 }
 
-static void
-dissect_smcr_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_smcr_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint16 msg_len;
 	llc_message llc_msgid;
@@ -813,9 +813,6 @@ dissect_smcr_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ((llc_msgid != RMBE_CTRL) &&
 		(tvb_get_guint8(tvb, LLC_CMD_RSP_OFFSET) & LLC_FLAG_RESP))
 			col_append_str(pinfo->cinfo, COL_INFO, "(Resp)");
-
-	if (!tree)
-		return;
 
 	ti = proto_tree_add_item(tree, proto_smcr, tvb, 0, msg_len, ENC_NA);
 	smcr_tree = proto_item_add_subtree(ti, ett_smcr);
@@ -863,7 +860,8 @@ dissect_smcr_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Unknown Command */
 			break;
 	}
-	return;
+
+	return tvb_captured_length(tvb);
 }
 
 static guint
@@ -925,7 +923,7 @@ dissect_smcr_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if (msg_len != tvb_reported_length_remaining(tvb, LLC_CMD_OFFSET))
 		return FALSE;
 
-	dissect_smcr_infiniband(tvb, pinfo, tree);
+	dissect_smcr_infiniband(tvb, pinfo, tree, data);
 	return TRUE;
 }
 
@@ -1433,6 +1431,7 @@ proto_reg_handoff_smcr(void)
 {
 	heur_dissector_add("tcp", dissect_smcr_tcp_heur, "Shared Memory Communications over TCP", "smcr_tcp", proto_smcr, HEURISTIC_ENABLE);
 	heur_dissector_add("infiniband.payload", dissect_smcr_infiniband_heur, "Shared Memory Communications Infiniband", "smcr_infiniband", proto_smcr, HEURISTIC_ENABLE);
+	dissector_add_for_decode_as("infiniband", create_dissector_handle( dissect_smcr_infiniband, proto_smcr ) );
 }
 
 /*

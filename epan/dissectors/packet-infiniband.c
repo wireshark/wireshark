@@ -31,6 +31,7 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/show_exception.h>
+#include <epan/decode_as.h>
 #include <wiretap/erf.h>
 
 #include "packet-infiniband.h"
@@ -115,6 +116,8 @@ static dissector_handle_t ib_link_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t eth_handle;
 static dissector_table_t ethertype_dissector_table;
+
+static dissector_table_t subdissector_table;
 
 /* MAD_Data
 * Structure to hold information from the common MAD header.
@@ -1504,6 +1507,7 @@ static guint32 opCode_PAYLD[] = {
 
 /* settings to be set by the user via the preferences dialog */
 static guint pref_rroce_udp_port = DEFAULT_RROCE_UDP_PORT;
+static gboolean try_heuristic_first = TRUE;
 
 /* saves information about connections that have been/are in the process of being
    negotiated via ConnectionManagement packets */
@@ -1527,6 +1531,15 @@ static heur_dissector_list_t heur_dissectors_payload;
 static heur_dissector_list_t heur_dissectors_cm_private;
 
 /* ----- This sections contains various utility functions indirectly related to Infiniband dissection ---- */
+static void infiniband_payload_prompt(packet_info *pinfo _U_, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect Infiniband payload as");
+}
+
+static gpointer infiniband_payload_value(packet_info *pinfo _U_)
+{
+    return 0;
+}
 
 static void table_destroy_notify(gpointer data) {
     g_free(data);
@@ -2410,6 +2423,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
     tvbuff_t *volatile  next_tvb;
     gint                reported_length;
     heur_dtbl_entry_t  *hdtbl_entry;
+    gboolean            dissector_found = FALSE;
 
     if (!tvb_bytes_exist(tvb, *offset, length)) /* previously consumed bytes + offset was all the data - none or corrupt payload */
     {
@@ -2501,8 +2515,32 @@ static void parse_PAYLOAD(proto_tree *parentTree,
             reported_length -= crclen;
         next_tvb = tvb_new_subset_length(tvb, local_offset, reported_length);
 
-        /* Try any heuristic dissectors that requested a chance to try and dissect IB payloads */
-        if (!dissector_try_heuristic(heur_dissectors_payload, next_tvb, pinfo, top_tree, &hdtbl_entry, info)) {
+        if (try_heuristic_first)
+        {
+            if (dissector_try_heuristic(heur_dissectors_payload, next_tvb, pinfo, top_tree, &hdtbl_entry, info))
+                dissector_found = TRUE;
+        }
+
+        if (dissector_found == FALSE)
+        {
+            /* Functionality for choosing subdissector is controlled through Decode As as there
+               isn't a unique identifier to determine subdissector */
+            if (dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, top_tree, TRUE, info))
+            {
+                dissector_found = TRUE;
+            }
+            else
+            {
+                if (!try_heuristic_first)
+                {
+                    if (dissector_try_heuristic(heur_dissectors_payload, next_tvb, pinfo, top_tree, &hdtbl_entry, info))
+                        dissector_found = TRUE;
+                }
+            }
+        }
+
+        if (dissector_found == FALSE)
+        {
             /* No sub-dissector found.
                Label rest of packet as "Data" */
             call_data_dissector(next_tvb, pinfo, top_tree);
@@ -7913,6 +7951,12 @@ void proto_register_infiniband(void)
         &ett_eoib
     };
 
+    /* Decode As handling */
+    static build_valid_func infiniband_payload_da_build_value[1] = {infiniband_payload_value};
+    static decode_as_value_t infiniband_payload_da_values = {infiniband_payload_prompt, 1, infiniband_payload_da_build_value};
+    static decode_as_t infiniband_payload_da = {"infiniband", "Network", "infiniband", 1, 0, &infiniband_payload_da_values, NULL, NULL,
+                                        decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
     proto_infiniband = proto_register_protocol("InfiniBand", "IB", "infiniband");
     ib_handle = register_dissector("infiniband", dissect_infiniband, proto_infiniband);
 
@@ -7922,6 +7966,7 @@ void proto_register_infiniband(void)
     /* register the subdissector tables */
     heur_dissectors_payload = register_heur_dissector_list("infiniband.payload", proto_infiniband);
     heur_dissectors_cm_private = register_heur_dissector_list("infiniband.mad.cm.private", proto_infiniband);
+    subdissector_table = register_dissector_table("infiniband", "Infiniband Payload", proto_infiniband, FT_UINT16, BASE_DEC);
 
     /* register dissection preferences */
     infiniband_module = prefs_register_protocol(proto_infiniband, proto_reg_handoff_infiniband);
@@ -7931,6 +7976,10 @@ void proto_register_infiniband(void)
     prefs_register_uint_preference(infiniband_module, "rroce.port", "RRoce UDP Port(Default 1021)", "when set "
                                    "the Analyser will consider this as RRoce UDP Port and parse it accordingly",
                                     10, &pref_rroce_udp_port);
+    prefs_register_bool_preference(infiniband_module, "try_heuristic_first",
+        "Try heuristic sub-dissectors first",
+        "Try to decode a packet using an heuristic sub-dissector before using Decode As",
+        &try_heuristic_first);
 
     proto_infiniband_link = proto_register_protocol("InfiniBand Link", "InfiniBand Link", "infiniband_link");
     ib_link_handle = register_dissector("infiniband_link", dissect_infiniband_link, proto_infiniband_link);
@@ -7945,6 +7994,8 @@ void proto_register_infiniband(void)
     /* initialize the hash table */
     CM_context_table = g_hash_table_new_full(g_int64_hash, g_int64_equal,
                                              table_destroy_notify, table_destroy_notify);
+
+    register_decode_as(&infiniband_payload_da);
 }
 
 /* Reg Handoff.  Register dissectors we'll need for IPoIB and RoCE */

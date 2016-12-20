@@ -41,7 +41,7 @@ void proto_reg_handoff_ib_sdp(void);
    this is SDP traffic */
 #define SERVICE_ID_MASK 0x0000000000010000
 
-static int proto_infiniband = -1;   /* we'll need the Infiniband protocol index sometimes, so keep it here */
+static int proto_infiniband = -1;   /* we'll need the Infiniband protocol index for conversation data */
 
 /* Initialize the protocol and registered fields... */
 static int proto_ib_sdp = -1;
@@ -89,22 +89,6 @@ static int hf_ib_sdp_data = -1;
 static gint ett_ib_sdp = -1;
 static gint ett_ib_sdp_bsdh = -1;
 static gint ett_ib_sdp_hh = -1;
-
-/* global preferences */
-static gboolean gPREF_MAN_EN    = FALSE;
-static gint gPREF_TYPE[2]       = {0};
-static const char *gPREF_ID[2]  = {NULL};
-static guint gPREF_QP[2]        = {0};
-
-/* source/destination addresses from preferences menu (parsed from gPREF_TYPE[?], gPREF_ID[?]) */
-address manual_addr[2];
-void *manual_addr_data[2];
-
-static const enum_val_t pref_address_types[] = {
-    {"lid", "LID", 0},
-    {"gid", "GID", 1},
-    {NULL, NULL, -1}
-};
 
 typedef enum {
     Hello = 0x0,
@@ -157,66 +141,16 @@ static int
 dissect_ib_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int local_offset = 0;
-    proto_item *SDP_header_item = NULL;
-    proto_tree *SDP_header_tree = NULL;
-    proto_item *SDP_BSDH_header_item = NULL;
-    proto_tree *SDP_BSDH_header_tree = NULL;
-    proto_item *SDP_EH_header_item = NULL;
-    proto_tree *SDP_EH_header_tree = NULL;
+    proto_item *SDP_header_item;
+    proto_tree *SDP_header_tree;
+    proto_item *SDP_BSDH_header_item;
+    proto_tree *SDP_BSDH_header_tree;
+    proto_item *SDP_EH_header_item;
+    proto_tree *SDP_EH_header_tree;
     guint8 mid;
-    conversation_t *conv;
-    conversation_infiniband_data *convo_data = NULL;
-    dissector_handle_t infiniband_handle;
 
     if (tvb_captured_length(tvb) < 16)   /* check this has at least enough bytes for the BSDH */
         return 0;
-
-    if (gPREF_MAN_EN) {
-        /* If the manual settings are enabled see if this fits - in which case we can skip
-           the following checks entirely and go straight to dissecting */
-        if (    (addresses_equal(&pinfo->src, &manual_addr[0]) &&
-                 addresses_equal(&pinfo->dst, &manual_addr[1]) &&
-                 (pinfo->srcport == 0xffffffff /* is unknown */ || pinfo->srcport == gPREF_QP[0]) &&
-                 (pinfo->destport == 0xffffffff /* is unknown */ || pinfo->destport == gPREF_QP[1]))    ||
-                (addresses_equal(&pinfo->src, &manual_addr[1]) &&
-                 addresses_equal(&pinfo->dst, &manual_addr[0]) &&
-                 (pinfo->srcport == 0xffffffff /* is unknown */ || pinfo->srcport == gPREF_QP[1]) &&
-                 (pinfo->destport == 0xffffffff /* is unknown */ || pinfo->destport == gPREF_QP[0]))    )
-            goto manual_override;
-    }
-
-    /* first try to find a conversation between the two current hosts. in most cases this
-       will not work since we do not have the source QP. this WILL succeed when we're still
-       in the process of CM negotiations */
-    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                             PT_IBQP, pinfo->srcport, pinfo->destport, 0);
-
-    if (!conv) {
-        /* if not, try to find an established RC channel. recall Infiniband conversations are
-           registered with one side of the channel. since the packet is only guaranteed to
-           contain the qpn of the destination, we'll use this */
-        conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->dst,
-                                 PT_IBQP, pinfo->destport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
-
-        if (!conv)
-            return 0;   /* nothing to do with no conversation context */
-    }
-
-    if (proto_infiniband < 0) {     /* first time - get the infiniband protocol index*/
-        infiniband_handle = find_dissector("infiniband");
-        if (!infiniband_handle)
-            return 0;   /* no infiniband handle? can't get our proto-data; sorry, can't help you without this */
-        proto_infiniband = dissector_handle_get_protocol_index(infiniband_handle);
-    }
-    convo_data = (conversation_infiniband_data *)conversation_get_proto_data(conv, proto_infiniband);
-
-    if (!convo_data)
-        return 0;
-
-    if (!(convo_data->service_id & SERVICE_ID_MASK))
-        return 0;   /* the service id doesn't match that of SDP - nothing for us to do here */
-
-manual_override:
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SDP");
 
@@ -228,6 +162,9 @@ manual_override:
 
     mid =  tvb_get_guint8(tvb, local_offset);
     proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mid, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, "(SDP %s)",
+                    rval_to_str(mid, mid_meanings, "Unknown"));
 
     proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_flags, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_flags_oobpres, tvb, local_offset, 2, ENC_BIG_ENDIAN);
@@ -308,10 +245,45 @@ manual_override:
             break;
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "(SDP %s)",
-                    rval_to_str(mid, mid_meanings, "Unknown"));
-
     return tvb_captured_length(tvb);
+}
+
+static gboolean
+dissect_ib_sdp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    conversation_t *conv;
+    conversation_infiniband_data *convo_data = NULL;
+
+    if (tvb_captured_length(tvb) < 16)   /* check this has at least enough bytes for the BSDH */
+        return FALSE;
+
+    /* first try to find a conversation between the two current hosts. in most cases this
+       will not work since we do not have the source QP. this WILL succeed when we're still
+       in the process of CM negotiations */
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
+                             PT_IBQP, pinfo->srcport, pinfo->destport, 0);
+
+    if (!conv) {
+        /* if not, try to find an established RC channel. recall Infiniband conversations are
+           registered with one side of the channel. since the packet is only guaranteed to
+           contain the qpn of the destination, we'll use this */
+        conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->dst,
+                                 PT_IBQP, pinfo->destport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
+
+        if (!conv)
+            return FALSE;   /* nothing to do with no conversation context */
+    }
+
+    convo_data = (conversation_infiniband_data *)conversation_get_proto_data(conv, proto_infiniband);
+
+    if (!convo_data)
+        return FALSE;
+
+    if (!(convo_data->service_id & SERVICE_ID_MASK))
+        return FALSE;   /* the service id doesn't match that of SDP - nothing for us to do here */
+
+    dissect_ib_sdp(tvb, pinfo, tree, data);
+    return TRUE;
 }
 
 void
@@ -478,77 +450,33 @@ proto_register_ib_sdp(void)
     /* Register preferences */
     ib_sdp_module = prefs_register_protocol(proto_ib_sdp, proto_reg_handoff_ib_sdp);
 
-    prefs_register_bool_preference(ib_sdp_module, "manual_en", "Enable manual settings",
-        "Check to treat all traffic between the configured source/destination as SDP",
-        &gPREF_MAN_EN);
+    prefs_register_static_text_preference(ib_sdp_module, "use_decode_as",
+        "Heuristic matching preferences removed.  Use Infiniband protocol preferences or Decode As.",
+        "Simple heuristics can still be enable (may generate false positives) through Infiniband protocol preferences."
+        "To force Infiniband SDP dissection use Decode As");
 
-    prefs_register_static_text_preference(ib_sdp_module, "addr_a", "Address A",
-        "Side A of the manually-configured connection");
-    prefs_register_enum_preference(ib_sdp_module, "addr_a_type", "Address Type",
-        "Type of address specified", &gPREF_TYPE[0], pref_address_types, FALSE);
-    prefs_register_string_preference(ib_sdp_module, "addr_a_id", "ID",
-        "LID/GID of address A", &gPREF_ID[0]);
-    prefs_register_uint_preference(ib_sdp_module, "addr_a_qp", "QP Number",
-        "QP Number for address A", 10, &gPREF_QP[0]);
+    prefs_register_obsolete_preference(ib_sdp_module, "manual_en");
 
-    prefs_register_static_text_preference(ib_sdp_module, "addr_b", "Address B",
-        "Side B of the manually-configured connection");
-    prefs_register_enum_preference(ib_sdp_module, "addr_b_type", "Address Type",
-        "Type of address specified", &gPREF_TYPE[1], pref_address_types, FALSE);
-    prefs_register_string_preference(ib_sdp_module, "addr_b_id", "ID",
-        "LID/GID of address B", &gPREF_ID[1]);
-    prefs_register_uint_preference(ib_sdp_module, "addr_b_qp", "QP Number",
-        "QP Number for address B", 10, &gPREF_QP[1]);
+    prefs_register_obsolete_preference(ib_sdp_module, "addr_a");
+    prefs_register_obsolete_preference(ib_sdp_module, "addr_a_type");
+    prefs_register_obsolete_preference(ib_sdp_module, "addr_a_id");
+    prefs_register_obsolete_preference(ib_sdp_module, "addr_a_qp");
+
+    prefs_register_obsolete_preference(ib_sdp_module, "addr_b");
+    prefs_register_obsolete_preference(ib_sdp_module, "addr_b_type");
+    prefs_register_obsolete_preference(ib_sdp_module, "addr_b_id");
+    prefs_register_obsolete_preference(ib_sdp_module, "addr_b_qp");
 }
 
 void
 proto_reg_handoff_ib_sdp(void)
 {
-    static gboolean initialized = FALSE;
+    heur_dissector_add("infiniband.payload", dissect_ib_sdp_heur, "Infiniband SDP", "sdp_infiniband", proto_ib_sdp, HEURISTIC_ENABLE);
+    heur_dissector_add("infiniband.mad.cm.private", dissect_ib_sdp_heur, "Infiniband SDP in PrivateData of CM packets", "sdp_ib_private", proto_ib_sdp, HEURISTIC_ENABLE);
 
-    if (!initialized) {
-        heur_dissector_add("infiniband.payload", dissect_ib_sdp, "Infiniband SDP", "sdp_infiniband", proto_ib_sdp, HEURISTIC_ENABLE);
-        heur_dissector_add("infiniband.mad.cm.private", dissect_ib_sdp, "Infiniband SDP in PrivateData of CM packets", "sdp_ib_private", proto_ib_sdp, HEURISTIC_ENABLE);
+    dissector_add_for_decode_as("infiniband", create_dissector_handle( dissect_ib_sdp, proto_ib_sdp ) );
 
-        /* allocate enough space in the addresses to store the largest address (a GID) */
-        manual_addr_data[0] = wmem_alloc(wmem_epan_scope(), GID_SIZE);
-        manual_addr_data[1] = wmem_alloc(wmem_epan_scope(), GID_SIZE);
-
-        initialized = TRUE;
-    }
-
-    if (gPREF_MAN_EN) {
-        /* the manual setting is enabled, so parse the settings into the address type */
-        gboolean error_occured = FALSE;
-        char *not_parsed;
-        int i;
-
-        for (i = 0; i < 2; i++) {
-            if (gPREF_ID[i][0] == '\0') {
-                error_occured = TRUE;
-            } else if (gPREF_TYPE[i] == 0) {   /* LID */
-                errno = 0;  /* reset any previous error indicators */
-                *((guint16*)manual_addr_data[i]) = (guint16)strtoul(gPREF_ID[i], &not_parsed, 0);
-                if (errno || *not_parsed != '\0') {
-                    error_occured = TRUE;
-                } else {
-                    set_address(&manual_addr[i], AT_IB, sizeof(guint16), manual_addr_data[i]);
-                }
-            } else {    /* GID */
-                if (!str_to_ip6(gPREF_ID[i], manual_addr_data[i])) {
-                    error_occured = TRUE;
-                } else {
-                    set_address(&manual_addr[i], AT_IB, GID_SIZE, manual_addr_data[i]);
-                }
-            }
-
-            if (error_occured) {
-                /* an invalid id was specified - disable manual settings until it's fixed */
-                gPREF_MAN_EN = FALSE;
-                break;
-            }
-        }
-    }
+    proto_infiniband = proto_get_id_by_filter_name( "infiniband" );
 }
 
 /*
