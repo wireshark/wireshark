@@ -14,6 +14,7 @@
 %global with_portaudio 0
 %global with_spandsp 0
 %global with_nghttp2 1
+%global with_extcap 1
 
 # Set at most one of these two:
 # Note that setcap requires rpmbuild 4.7.0 or later.
@@ -276,6 +277,11 @@ This package contains the GTK+ Wireshark GUI and desktop integration files.
 %if %{with_spandsp}
   --with-spandsp \
 %endif
+%if %{with_extcap}
+  --with-extcap \
+  %else
+  --with-extcap=no \
+%endif
 %if %{with qt}
   --with-qt=4 \
 %else
@@ -470,6 +476,9 @@ fi
 %endif
 
 %changelog
+* Tue Dec 20 2016 Anders Broman
+- Add with extcap (as an option, defaulting to yes).
+
 * Mon Dec  5 2016 Jeff Morriss
 - Add spandsp (as an option, defaulting to not required).
 
