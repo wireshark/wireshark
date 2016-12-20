@@ -1063,6 +1063,22 @@ fi
 #
 AC_MSG_CHECKING(for platform-specific linker flags)
 case "$host_os" in
+aix*)
+	#
+	# If this is GCC or Clang, Add -Wl,-bbigtoc for big libraries.
+	# XXX - what if we're using xlc?  Is that necessary?  The
+	# xlc 7.0 manual says "Specifying -qpic=large has the same
+	# effect as passing -bbigtoc to ld"; do we need to tell xlc,
+	# when it's compiling, to generate different code for a large
+	# TOC, or is that just a linker flag?  For that matter, do we
+	# have to tell GCC or Clang to generate different code for a
+	# large TOC?
+	#
+	if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
+		LDFLAGS_BIGSHAREDLIB="-Wl,-bbigtoc"
+		AC_MSG_RESULT([AIX linker with GCC or Clang - added -Wl,-bbigtoc to large shared library linker flags and -Wl,-headerpad_max_install_names -Wl,-search_paths_first and -Wl,-headerpad_max_install_names to all linker flags])
+	fi
+	;;
 darwin*)
 	#
 	# Add -Wl,-single_module to the LDFLAGS used with shared
@@ -1092,12 +1108,13 @@ cygwin*)
 	# undefined symbols.
 	#
 	WS_LDFLAGS="$WS_LDFLAGS -no-undefined"
-	AC_MSG_RESULT(CygWin GNU ld - added -no-undefined)
+	AC_MSG_RESULT(Cygwin GNU ld - added -no-undefined)
 	;;
 *)
 	AC_MSG_RESULT(none needed)
 	;;
 esac
+AC_SUBST(LDFLAGS_BIGSHAREDLIB)
 AC_SUBST(LDFLAGS_SHAREDLIB)
 
 #
