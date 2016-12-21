@@ -38,8 +38,8 @@
 #include "extractors.h"
 #include "decoders.h"
 
+void proto_register_transum(void);
 void proto_reg_handoff_transum(void);
-
 
 #define CAPTURE_CLIENT 0
 #define CAPTURE_INTERMEDIATE 1
