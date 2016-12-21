@@ -57,7 +57,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 13.7.0 Release 13)
+ *   (3GPP TS 24.008 version 13.8.0 Release 13)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -5361,7 +5361,7 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
  */
 /* TFT operation code (octet 3) */
 static const value_string gsm_a_sm_tft_op_code_vals[] = {
-	{ 0,		"Spare"},
+	{ 0,		"Ignore this IE"},
 	{ 1,		"Create new TFT"},
 	{ 2,		"Delete existing TFT"},
 	{ 3,		"Add packet filters to existing TFT"},

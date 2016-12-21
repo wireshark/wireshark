@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * References: 3GPP TS 24.301 V13.7.0 (2016-09)
+ * References: 3GPP TS 24.301 V13.8.0 (2016-12)
  */
 
 #include "config.h"
@@ -116,8 +116,6 @@ static int hf_nas_eps_emm_toi = -1;
 static int hf_nas_eps_emm_toc = -1;
 static int hf_nas_eps_emm_EPS_attach_result = -1;
 static int hf_nas_eps_emm_spare_half_octet = -1;
-static int hf_nas_eps_emm_anb_up_ciot = -1;
-static int hf_nas_eps_emm_anb_cp_ciot = -1;
 static int hf_nas_eps_emm_add_upd_res = -1;
 static int hf_nas_eps_emm_pnb_ciot = -1;
 static int hf_nas_eps_emm_saf = -1;
@@ -840,14 +838,6 @@ nas_emm_elem_idx_t;
 /*
  * 9.9.3.0A  Additional update result
  */
-static const true_false_string nas_eps_emm_anb_up_ciot_value = {
-    "User plane EPS optimization accepted",
-    "User plane EPS optimization not accepted"
-};
-static const true_false_string nas_eps_emm_anb_cp_ciot_value = {
-    "Control plane CIoT EPS optimization accepted",
-    "Control plane CIoT EPS optimization not accepted"
-};
 static const value_string nas_eps_emm_add_upd_res_vals[] = {
     { 0x0, "No additional information"},
     { 0x1, "CS Fallback not preferred"},
@@ -865,10 +855,8 @@ de_emm_add_upd_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     curr_offset = offset;
     bit_offset  = (curr_offset<<3)+4;
 
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_anb_up_ciot, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset ++;
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_anb_cp_ciot, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset ++;
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset += 2;
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_add_upd_res, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
     curr_offset++;
 
@@ -2668,6 +2656,8 @@ const value_string nas_eps_esm_cause_vals[] = {
     { 0x36, "PDN connection does not exist"},
     { 0x37, "Multiple PDN connections for a given APN not allowed"},
     { 0x38, "Collision with network initiated request"},
+    { 0x39, "PDN type IPv4v6 only allowed"},
+    { 0x3a, "PDN type non IP only allowed"},
     { 0x3b, "Unsupported QCI value"},
     { 0x3c, "Bearer handling not supported"},
     { 0x41, "Maximum number of EPS bearers reached"},
@@ -4257,7 +4247,7 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324");
     /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
-    /* 68   Header compression configuration status Header compression configuration status 9.9.4.27 O  TLV  4 */
+    /* 68   Header compression configuration status Header compression configuration status 9.9.4.27 O  TLV  5-257 */
     ELEM_OPT_TLV(0x68, NAS_PDU_TYPE_ESM, DE_ESM_HDR_COMPR_CONFIG_STATUS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
@@ -4737,7 +4727,7 @@ nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
     ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
     /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
     ELEM_OPT_TLV(0x33, NAS_PDU_TYPE_ESM, DE_ESM_NBIFOM_CONT, NULL);
-    /* 66   Header compression configuration  Header compression configuration 9.9.4.22 O   TLV 3-TBD */
+    /* 66   Header compression configuration  Header compression configuration 9.9.4.22 O   TLV 5-257 */
     ELEM_OPT_TLV(0x66, NAS_PDU_TYPE_ESM, DE_ESM_HDR_COMPR_CONFIG, NULL);
     /* 9-   Control plane only indication  Control plane only indication 9.9.4.23 O   TV 1 */
     ELEM_OPT_TV_SHORT(0x90, NAS_PDU_TYPE_ESM, DE_ESM_CTRL_PLANE_ONLY_IND, NULL);
@@ -4892,7 +4882,7 @@ nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
     /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
     ELEM_OPT_TLV(0x33, NAS_PDU_TYPE_ESM, DE_ESM_NBIFOM_CONT, NULL);
-    /* 66   Header compression configuration  Header compression configuration 9.9.4.22 O   TLV 3-TBD */
+    /* 66   Header compression configuration  Header compression configuration 9.9.4.22 O   TLV 5-257 */
     ELEM_OPT_TLV(0x66, NAS_PDU_TYPE_ESM, DE_ESM_HDR_COMPR_CONFIG, NULL);
     /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
@@ -5011,6 +5001,8 @@ nas_esm_inf_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , NULL );
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
+    /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
+    ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5126,7 +5118,7 @@ nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
     /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
     ELEM_OPT_TLV(0x33, NAS_PDU_TYPE_ESM, DE_ESM_NBIFOM_CONT, NULL);
-    /* 66   Header compression configuration  Header compression configuration 9.9.4.22 O   TLV 3-TBD */
+    /* 66   Header compression configuration  Header compression configuration 9.9.4.22 O   TLV 5-257 */
     ELEM_OPT_TLV(0x66, NAS_PDU_TYPE_ESM, DE_ESM_HDR_COMPR_CONFIG, NULL);
     /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
@@ -5227,8 +5219,10 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
     /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
     ELEM_OPT_TLV(0x33, NAS_PDU_TYPE_ESM, DE_ESM_NBIFOM_CONT, NULL);
-    /* 66   Header compression configuration  Header compression configuration 9.9.4.22 O   TLV 3-TBD */
+    /* 66   Header compression configuration  Header compression configuration 9.9.4.22 O   TLV 5-257 */
     ELEM_OPT_TLV(0x66, NAS_PDU_TYPE_ESM, DE_ESM_HDR_COMPR_CONFIG, NULL);
+    /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
+    ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -6140,16 +6134,6 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_emm_spare_half_octet,
         { "Spare half octet","nas_eps.emm.spare_half_octet",
         FT_UINT8,BASE_DEC, NULL, 0x0,
-        NULL, HFILL }
-    },
-    { &hf_nas_eps_emm_anb_up_ciot,
-        { "Accepted Network Behavior UP CIoT","nas_eps.emm.anb_up_ciot",
-        FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_anb_up_ciot_value), 0x0,
-        NULL, HFILL }
-    },
-    { &hf_nas_eps_emm_anb_cp_ciot,
-        { "Accepted Network Behavior CP CIoT","nas_eps.emm.anb_cp_ciot",
-        FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_anb_cp_ciot_value), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_add_upd_res,
