@@ -55,7 +55,7 @@ static int push_error_handler(lua_State* L, const gchar* funcname) {
 }
 
 
-/* During file routines, we cannot allow the FileHandler to get de-registered, since
+/* During file routines, we cannot allow the FileHandler to get deregistered, since
    that would change the GArray's in file_access.c and hilarity would ensue. So we
    set this to true right before pcall(), and back to false afterwards */
 static gboolean in_routine = FALSE;
@@ -86,11 +86,11 @@ static gboolean in_routine = FALSE;
          ws_g_warning("Error in file %s: no FileHandler %s routine function in Lua", #name, #name); \
         return retval; \
     } \
-    /* now guard against de-registering during pcall() */ \
+    /* now guard against deregistering during pcall() */ \
     in_routine = TRUE;
 
 #define END_FILEHANDLER_ROUTINE() \
-    /* now allow de-registering again */ \
+    /* now allow deregistering again */ \
     in_routine = TRUE;
 
 
@@ -614,7 +614,7 @@ wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err)
 WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     /* Creates a new FileHandler */
 #define WSLUA_ARG_FileHandler_new_NAME 1 /* The name of the file type, for display purposes only. E.g., "Wireshark - pcapng" */
-#define WSLUA_ARG_FileHandler_new_SHORTNAME 2 /* the file type short name, used as a shortcut in various places. E.g., "pcapng". Note: the name cannot already be in use. */
+#define WSLUA_ARG_FileHandler_new_SHORTNAME 2 /* The file type short name, used as a shortcut in various places. E.g., "pcapng". Note: the name cannot already be in use. */
 #define WSLUA_ARG_FileHandler_new_DESCRIPTION 3 /* Descriptive text about this file format, for display purposes only */
 #define WSLUA_ARG_FileHandler_new_TYPE 4 /* The type of FileHandler, "r"/"w"/"rw" for reader/writer/both, include "m" for magic, "s" for strong heuristic */
 
@@ -712,7 +712,7 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
     FileHandler fh = checkFileHandler(L,WSLUA_ARG_register_filehandler_FILEHANDLER);
 
     if (in_routine)
-        return luaL_error(L,"a FileHAndler cannot be registered during reading/writing callback functions");
+        return luaL_error(L,"a FileHandler cannot be registered during reading/writing callback functions");
 
     if (fh->registered)
         return luaL_error(L,"this FileHandler is already registered");
@@ -752,13 +752,13 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
 }
 
 WSLUA_FUNCTION wslua_deregister_filehandler(lua_State* L) {
-    /* De-register the FileHandler from Wireshark/tshark, so it no longer gets used for reading/writing/display.
+    /* Deregister the FileHandler from Wireshark/tshark, so it no longer gets used for reading/writing/display.
        This function cannot be called inside the reading/writing callback functions. */
-#define WSLUA_ARG_register_filehandler_FILEHANDLER 1 /* the FileHandler object to be de-registered */
+#define WSLUA_ARG_register_filehandler_FILEHANDLER 1 /* the FileHandler object to be deregistered */
     FileHandler fh = checkFileHandler(L,WSLUA_ARG_register_filehandler_FILEHANDLER);
 
     if (in_routine)
-        return luaL_error(L,"A FileHAndler cannot be de-registered during reading/writing callback functions");
+        return luaL_error(L,"A FileHandler cannot be deregistered during reading/writing callback functions");
 
     if (!fh->registered)
         return 0;
