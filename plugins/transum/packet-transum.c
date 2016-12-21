@@ -223,7 +223,7 @@ static void update_output_rrpd(RRPD *in_rrpd)
 }
 
 /* Return the index of the RRPD that has been appended */
-int append_to_rrpd_list(RRPD *in_rrpd)
+static int append_to_rrpd_list(RRPD *in_rrpd)
 {
     if (next_free_rrpd > MAX_RRPDS)
         next_free_rrpd = 0;
@@ -260,7 +260,7 @@ An input state value of 0 means that we don't care about state.
 
 Returns the rrpd_list index value of the match or -1 if no match is found.
 */
-int find_latest_rrpd(RRPD *in_rrpd, int state)
+static int find_latest_rrpd(RRPD *in_rrpd, int state)
 {
     int i;
     int rrpd_index = -1;
@@ -539,7 +539,7 @@ static void update_rrpd_list_entry_req(RRPD *in_rrpd)
     This function inserts an RRPD into the temp_rsp_rrpd_list.  If this is
     successful return the index of the entry.  If there is no space return -1.
  */
-int insert_into_temp_rsp_rrpd_list(RRPD *in_rrpd)
+static int insert_into_temp_rsp_rrpd_list(RRPD *in_rrpd)
 {
     int i;
 
@@ -558,7 +558,7 @@ int insert_into_temp_rsp_rrpd_list(RRPD *in_rrpd)
     return -1;
 }
 
-int find_temp_rsp_rrpd(RRPD *in_rrpd)
+static int find_temp_rsp_rrpd(RRPD *in_rrpd)
 {
     int entry_index = -1;
 
