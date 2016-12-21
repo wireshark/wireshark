@@ -33,7 +33,6 @@
 #include "extractors.h"
 #include "decoders.h"
 
-extern void add_detected_tcp_svc(guint16 port);
 extern TSUM_PREFERENCES preferences;
 extern PKT_INFO *sub_packet;
 extern gboolean *dcerpc_req_pkt_type;
