@@ -2457,18 +2457,18 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const char *dis
 	hdtbl_entry->dissector = dissector;
 	hdtbl_entry->protocol  = find_protocol_by_id(proto);
 	hdtbl_entry->display_name = display_name;
-	hdtbl_entry->short_name = short_name;
+	hdtbl_entry->short_name = g_strdup(short_name);
 	hdtbl_entry->list_name = g_strdup(name);
 	hdtbl_entry->enabled   = (enable == HEURISTIC_ENABLE);
 
 	/* do the table insertion */
-	g_hash_table_insert(heuristic_short_names, (gpointer)short_name, hdtbl_entry);
+	g_hash_table_insert(heuristic_short_names, (gpointer)hdtbl_entry->short_name, hdtbl_entry);
 
 	sub_dissectors->dissectors = g_slist_prepend(sub_dissectors->dissectors,
 	    (gpointer)hdtbl_entry);
 
 	/* XXX - could be optimized to pass hdtbl_entry directly */
-	proto_add_heuristic_dissector(hdtbl_entry->protocol, short_name);
+	proto_add_heuristic_dissector(hdtbl_entry->protocol, hdtbl_entry->short_name);
 
 	/* Add the dissector as a dependency
 	  (some heuristic tables don't have protocol association, so there is
@@ -2507,6 +2507,7 @@ heur_dissector_delete(const char *name, heur_dissector_t dissector, const int pr
 		heur_dtbl_entry_t *found_hdtbl_entry = (heur_dtbl_entry_t *)(found_entry->data);
 		g_free(found_hdtbl_entry->list_name);
 		g_hash_table_remove(heuristic_short_names, found_hdtbl_entry->short_name);
+		g_free(found_hdtbl_entry->short_name);
 		g_slice_free(heur_dtbl_entry_t, found_entry->data);
 		sub_dissectors->dissectors = g_slist_delete_link(sub_dissectors->dissectors,
 		    found_entry);

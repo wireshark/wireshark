@@ -410,7 +410,7 @@ typedef struct heur_dtbl_entry {
 	protocol_t *protocol; /* this entry's protocol */
 	gchar *list_name;     /* the list name this entry is in the list of */
 	const gchar *display_name;     /* the string used to present heuristic to user */
-	const gchar *short_name;     /* string used for "internal" use to uniquely identify heuristic */
+	gchar *short_name;     /* string used for "internal" use to uniquely identify heuristic */
 	gboolean enabled;
 } heur_dtbl_entry_t;
 
