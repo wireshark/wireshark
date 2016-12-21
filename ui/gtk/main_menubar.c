@@ -2858,9 +2858,9 @@ menu_export_object_list(void)
 
     eo_data.action_group = gtk_action_group_new ("exportobject-list-group");
 
-    submenu_export_object = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjects");
+    submenu_export_object = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjectsMenu");
     if(!submenu_export_object){
-        g_warning("menu_export_object_list: No submenu_exportobject_list found, path= /Menubar/FileMenu/ExportObjects");
+        g_warning("menu_export_object_list: No submenu_exportobject_list found, path= /Menubar/FileMenu/ExportObjectsMenu");
     }
 
     gtk_ui_manager_insert_action_group (ui_manager_main_menubar, eo_data.action_group, 0);
