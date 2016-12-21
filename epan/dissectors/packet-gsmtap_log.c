@@ -27,6 +27,9 @@
 #include <epan/packet.h>
 #include "packet-gsmtap.h"
 
+void proto_register_gsmtap_log(void);
+void proto_reg_handoff_gsmtap_log(void);
+
 static int proto_gsmtap_log = -1;
 
 static int hf_log_ident = -1;
