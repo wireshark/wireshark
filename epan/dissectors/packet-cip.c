@@ -489,6 +489,7 @@ static int hf_port_number = -1;
 static int hf_port_min_node_num = -1;
 static int hf_port_max_node_num = -1;
 static int hf_port_name = -1;
+static int hf_port_num_comm_object_entries = -1;
 static int hf_conn_path_class = -1;
 static int hf_path_len_usint = -1;
 static int hf_path_len_uint = -1;
@@ -2659,6 +2660,13 @@ const range_string cip_port_type_vals[] = {
    { 0, 0, NULL }
 };
 
+const value_string cip_port_number_vals[] = {
+   { 0, "Reserved" },
+   { 1, "Backplane" },
+
+   { 0, NULL }
+};
+
 value_string_ext cip_class_names_vals_ext = VALUE_STRING_EXT_INIT(cip_class_names_vals);
 
 static void add_cip_class_to_info_column(packet_info *pinfo, guint32 class_id, int display_type)
@@ -3244,9 +3252,24 @@ int dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, proto_item 
       return total_len;
    }
 
+   // Look up the request data to get the CIP Class.
+   cip_req_info_t *cip_req_info;
+   cip_req_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
+
    for (i = 0; i < num_attr; ++i)
    {
-      proto_tree_add_item(tree, hf_attr_class_attr_num, tvb, offset + 2 + 2 * i, 2, ENC_LITTLE_ENDIAN);
+      proto_item* attr_item = proto_tree_add_item(tree, hf_attr_class_attr_num, tvb, offset + 2 + 2 * i, 2, ENC_LITTLE_ENDIAN);
+
+      // Display attribute name.
+      if (cip_req_info && cip_req_info->ciaData)
+      {
+          attribute_info_t* attr;
+          attr = cip_get_attribute(cip_req_info->ciaData->iClass, 1, i);
+          if (attr)
+          {
+              proto_item_append_text(attr_item, " (%s)", attr->text);
+          }
+      }
    }
 
    return 2 + num_attr * 2;
@@ -3286,6 +3309,22 @@ static int dissect_port_instance_info(packet_info *pinfo _U_, proto_tree *tree, 
    }
 
    return total_len;
+}
+
+static int dissect_port_associated_comm_objects(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+    int offset, int total_len _U_)
+{
+    guint32 num_entries;
+    proto_tree_add_item_ret_uint(tree, hf_port_num_comm_object_entries, tvb, offset, 1, ENC_LITTLE_ENDIAN, &num_entries);
+
+    int parsed_len = 1;
+    for (guint32 i = 0; i < num_entries; ++i)
+    {
+        parsed_len += dissect_padded_epath_len_usint(pinfo, tree, item, tvb, offset + parsed_len,
+            tvb_reported_length_remaining(tvb, offset + parsed_len));
+    }
+
+    return parsed_len;
 }
 
 static int dissect_padded_epath_len(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
@@ -3508,6 +3547,7 @@ static attribute_info_t cip_attribute_vals[] = {
    { 0xF4, FALSE, 7, 4, "Port Number and Node Address", cip_dissector_func, NULL, dissect_single_segment_padded_attr },
    { 0xF4, FALSE, 8, -1, "Port Node Range", cip_dissector_func, NULL, dissect_port_node_range },
    { 0xF4, FALSE, 9, -1, "Chassis Identity", cip_dissector_func, NULL, dissect_single_segment_packed_attr },
+   { 0xF4, FALSE, 11, -1, "Associated Communication Objects", cip_dissector_func, NULL, dissect_port_associated_comm_objects },
 };
 
 typedef struct attribute_val_array {
@@ -4169,7 +4209,7 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
             {
                it = proto_tree_add_boolean(path_seg_tree, hf_cip_port_ex_link_addr, tvb, 0, 0, segment_type & CI_PORT_SEG_EX_LINK_ADDRESS);
                PROTO_ITEM_SET_GENERATED(it);
-               it = proto_tree_add_uint(path_seg_tree, hf_cip_port, tvb, 0, 0, ( segment_type & 0x0F ) );
+               it = proto_tree_add_uint(path_seg_tree, hf_cip_port, tvb, 0, 0, ( segment_type & CI_PORT_SEG_PORT_ID_MASK ) );
                PROTO_ITEM_SET_GENERATED(it);
                port_tree = proto_tree_add_subtree(path_seg_tree, tvb, 0, 0, ett_port_path, &port_item, "Port Segment");
                PROTO_ITEM_SET_GENERATED(port_item);
@@ -4188,7 +4228,17 @@ static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int off
             }
 
             proto_item_append_text( path_seg_item, " (Port Segment)");
-            proto_item_append_text( epath_item, "Port: %d", port_id );
+
+            const gchar *port_name;
+            port_name = try_val_to_str(port_id, cip_port_number_vals);
+            if (port_name)
+            {
+                proto_item_append_text(epath_item, "Port: %s", port_name);
+            }
+            else
+            {
+                proto_item_append_text(epath_item, "Port: %d", port_id);
+            }
 
             if( segment_type & CI_PORT_SEG_EX_LINK_ADDRESS )
             {
@@ -5060,10 +5110,6 @@ static int dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_ite
    case cip_itime:
       proto_tree_add_item(tree, *(attr->phf), tvb, offset, 2, ENC_LITTLE_ENDIAN);
       consumed = 2;
-      break;
-   case cip_byte_array:
-      proto_tree_add_item(tree, *(attr->phf), tvb, offset, total_len, ENC_NA);
-      consumed = total_len;
       break;
    case cip_usint_array:
       for (i = 0; i < total_len; i++)
@@ -7496,7 +7542,7 @@ proto_register_cip(void)
       { &hf_cip_path_segment, { "Path Segment", "cip.path_segment", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_path_segment_type, { "Path Segment Type", "cip.path_segment.type", FT_UINT8, BASE_DEC, VALS(cip_path_seg_vals), CI_SEGMENT_TYPE_MASK, NULL, HFILL }},
       { &hf_cip_port_ex_link_addr, { "Extended Link Address", "cip.ex_linkaddress", FT_BOOLEAN, 8, TFS(&tfs_true_false), CI_PORT_SEG_EX_LINK_ADDRESS, NULL, HFILL }},
-      { &hf_cip_port, { "Port", "cip.port", FT_UINT8, BASE_DEC, NULL, CI_PORT_SEG_PORT_ID_MASK, "Port Identifier", HFILL }},
+      { &hf_cip_port, { "Port", "cip.port", FT_UINT8, BASE_DEC, VALS(cip_port_number_vals), CI_PORT_SEG_PORT_ID_MASK, "Port Identifier", HFILL } },
       { &hf_cip_port_extended,{ "Port Extended", "cip.port", FT_UINT16, BASE_HEX, NULL, 0, "Port Identifier Extended", HFILL } },
       { &hf_cip_link_address_byte, { "Link Address", "cip.linkaddress.byte", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_link_address_size, { "Link Address Size", "cip.linkaddress_size", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -7747,10 +7793,11 @@ proto_register_cip(void)
       { &hf_cip_security_state, { "State", "cip.security.state", FT_UINT8, BASE_DEC, VALS(cip_security_state_vals), 0, NULL, HFILL }},
       { &hf_port_entry_port, { "Entry Port", "cip.port.entry_port", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_port_type, { "Port Type", "cip.port.type", FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(cip_port_type_vals), 0, NULL, HFILL } },
-      { &hf_port_number, { "Port Number", "cip.port.number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_port_number, { "Port Number", "cip.port.number", FT_UINT16, BASE_DEC, VALS(cip_port_number_vals), 0, NULL, HFILL } },
       { &hf_port_min_node_num, { "Minimum Node Number", "cip.port.min_node", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_port_max_node_num, { "Maximum Node Number", "cip.port.max_node", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_port_name, { "Port Name", "cip.port.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+      { &hf_port_num_comm_object_entries, { "Number of entries", "cip.port.num_comm_object_entries", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_conn_path_class, { "CIP Connection Path Class", "cip.conn_path_class", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &cip_class_names_vals_ext, 0, NULL, HFILL }},
       { &hf_path_len_usint, { "Path Length (words)", "cip.path_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_path_len_uint, { "Path Length (words)", "cip.path_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },

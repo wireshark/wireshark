@@ -1529,6 +1529,13 @@ static int dissect_sercosiii_link_error_count_p1p2(packet_info *pinfo, proto_tre
    return 4;
 }
 
+static int dissect_sercosiii_safety_network_number(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+    int offset, int total_len _U_)
+{
+    proto_tree_add_item(tree, hf_cip_sercosiii_link_snn, tvb, offset, 6, ENC_NA);
+    return 6;
+}
+
 attribute_info_t cip_safety_attribute_vals[51] = {
 
    /* Safety Supervisor */
@@ -1583,7 +1590,7 @@ attribute_info_t cip_safety_attribute_vals[51] = {
    {0x3A, FALSE, 15, -1, "Producer/Consumer Fault Counters", cip_dissector_func, NULL, dissect_s_validator_prod_cons_fault_count},
 
    /* Sercos III Link */
-   {0x4C, FALSE, 1, -1, "Safety Network Number", cip_byte_array, &hf_cip_sercosiii_link_snn, NULL},
+   {0x4C, FALSE, 1, -1, "Safety Network Number", cip_dissector_func, NULL, dissect_sercosiii_safety_network_number},
    {0x4C, FALSE, 2, -1, "Communication Cycle Time", cip_dint, &hf_cip_sercosiii_link_communication_cycle_time, NULL},
    {0x4C, FALSE, 3, -1, "Interface Status", cip_word, &hf_cip_sercosiii_link_interface_status, NULL},
    {0x4C, FALSE, 4, -1, "Error counter MST-P/S", cip_int, &hf_cip_sercosiii_link_error_count_mstps, NULL},

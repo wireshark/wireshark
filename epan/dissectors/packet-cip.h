@@ -260,7 +260,6 @@ enum cip_datatype {
    cip_string2,
    cip_stringi,
    cip_byte,
-   cip_byte_array,
    cip_word,
    cip_dword,
    cip_lword,
