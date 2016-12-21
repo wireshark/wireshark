@@ -4103,7 +4103,7 @@ proto_register_sccp(void)
                              &num_sccp_users, UAT_AFFECTS_DISSECTION,
                              "ChSccpUsers", sccp_users_copy_cb,
                              sccp_users_update_cb, sccp_users_free_cb,
-                             NULL, users_flds );
+                             NULL, NULL, users_flds );
 
   /* Register the protocol name and description */
   proto_sccp = proto_register_protocol("Signalling Connection Control Part", "SCCP", "sccp");

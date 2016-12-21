@@ -1988,6 +1988,7 @@ void proto_register_lbtru(void)
         lbtru_tag_update_cb,
         lbtru_tag_free_cb,
         NULL,
+        NULL,
         lbtru_tag_array);
     prefs_register_uat_preference(lbtru_module,
         "tnw_lbtru_tags",

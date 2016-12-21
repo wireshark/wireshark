@@ -2495,6 +2495,7 @@ void proto_register_snmp(void) {
 				    snmp_users_update_cb,
 				    snmp_users_free_cb,
 				    renew_ue_cache,
+				    NULL,
 				    users_fields);
 
 	static uat_field_t specific_traps_flds[] = {
@@ -2515,6 +2516,7 @@ void proto_register_snmp(void) {
 					    snmp_specific_trap_copy_cb,
 					    NULL,
 					    snmp_specific_trap_free_cb,
+					    NULL,
 					    NULL,
 					    specific_traps_flds);
 

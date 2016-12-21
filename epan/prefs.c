@@ -306,6 +306,9 @@ prefs_cleanup(void)
      *  do what clean up we can.
      */
     prefs_modules_foreach(free_module_prefs, NULL);
+
+    /* Clean the uats */
+    uat_cleanup();
 }
 
 /*

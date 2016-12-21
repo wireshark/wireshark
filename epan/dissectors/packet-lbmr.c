@@ -6584,6 +6584,7 @@ void proto_register_lbmr(void)
         lbmr_tag_update_cb,
         lbmr_tag_free_cb,
         NULL,
+        NULL,
         lbmr_tag_array);
     prefs_register_uat_preference(lbmr_module,
         "tnw_lbmr_tags",

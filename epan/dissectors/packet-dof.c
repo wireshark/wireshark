@@ -10973,6 +10973,7 @@ static void dof_register(void)
                           secmode_list_update_cb,
                           secmode_list_free_cb,
                           secmode_list_post_update_cb,
+                          NULL,
                           secmode_uat_fields
                           );
 
@@ -10988,6 +10989,7 @@ static void dof_register(void)
                          seckey_list_update_cb,
                          seckey_list_free_cb,
                          seckey_list_post_update_cb,
+                         NULL,
                          seckey_uat_fields
                          );
 
@@ -11003,6 +11005,7 @@ static void dof_register(void)
                               identsecret_list_update_cb,
                               identsecret_list_free_cb,
                               identsecret_list_post_update_cb,
+                              NULL,
                               identsecret_uat_fields
                               );
 

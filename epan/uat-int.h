@@ -49,11 +49,11 @@ typedef struct _fld_data_t {
 } fld_data_t;
 
 struct epan_uat {
-    const char* name;
+    char* name;
     size_t record_size;
-    const char* filename;
+    char* filename;
     gboolean from_profile;
-    const char* help;
+    char* help;
     guint flags;
     void** user_ptr;    /**< Pointer to a dissector variable where an array of valid records are stored. */
     guint* nrows_p;     /**< Pointer to a dissector variable where the number of valid records in user_ptr are written. */
@@ -61,6 +61,7 @@ struct epan_uat {
     uat_update_cb_t update_cb;
     uat_free_cb_t free_cb;
     uat_post_update_cb_t post_update_cb;
+    uat_reset_cb_t reset_cb;
 
     uat_field_t* fields;
     guint ncols;
@@ -76,10 +77,6 @@ struct epan_uat {
 
 WS_DLL_PUBLIC
 gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing);
-
-void uat_init(void);
-
-void uat_reset(void);
 
 /**
  * Clones the given record and stores it internally in the UAT. If it is
@@ -113,8 +110,6 @@ void uat_insert_record_idx(uat_t *uat, guint rec_idx, const void *src_record);
  */
 WS_DLL_PUBLIC
 void uat_remove_record_idx(uat_t *uat, guint rec_idx);
-
-void uat_destroy(uat_t *uat);
 
 /**
  * Removes and destroys all records from the UAT.

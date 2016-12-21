@@ -1312,6 +1312,7 @@ proto_register_imf(void)
                                header_fields_update_cb,
                                header_fields_free_cb,
                                header_fields_initialize_cb,
+                               NULL,
                                attributes_flds);
 
   module_t *imf_module;

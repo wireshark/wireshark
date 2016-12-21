@@ -4905,6 +4905,7 @@ void proto_register_dmp (void)
                                   NULL,
                                   dmp_class_free_cb,
                                   NULL,
+                                  NULL,
                                   attributes_flds);
 
   module_t *dmp_module;

@@ -109,6 +109,14 @@ typedef void* (*uat_copy_cb_t)(void *dest, const void *source, size_t len);
 typedef void (*uat_free_cb_t)(void *record);
 
 /**
+ * Reset DB
+ *
+ * Used to free resources associated with a UAT loaded from file (e.g. post_update_cb)
+ * Optional.
+ */
+typedef void (*uat_reset_cb_t)(void);
+
+/**
  * Update CB
  * update(record,&error)
  *
@@ -283,7 +291,13 @@ uat_t* uat_new(const char* name,
 			   uat_update_cb_t update_cb,
 			   uat_free_cb_t free_cb,
 			   uat_post_update_cb_t post_update_cb,
+			   uat_reset_cb_t reset_cb,
 			   uat_field_t* flds_array);
+
+/** Cleanup all Uats
+ *
+ */
+void uat_cleanup(void);
 
 /** Populate a uat using its file.
  *

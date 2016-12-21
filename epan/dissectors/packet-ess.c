@@ -1515,6 +1515,7 @@ void proto_register_ess(void) {
                                   NULL,
                                   ess_free_cb,
                                   NULL,
+                                  NULL,
                                   attributes_flds);
 
   static module_t *ess_module;
@@ -1560,6 +1561,6 @@ void proto_reg_handoff_ess(void) {
 
 
 /*--- End of included file: packet-ess-dis-tab.c ---*/
-#line 203 "./asn1/ess/packet-ess-template.c"
+#line 204 "./asn1/ess/packet-ess-template.c"
 }
 

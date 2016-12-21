@@ -5044,6 +5044,7 @@ proto_register_sctp(void)
                             sctp_chunk_type_update_cb,
                             sctp_chunk_type_free_cb,
                             NULL,
+                            NULL,
                             custom_types_uat_fields
 );
 

@@ -1163,6 +1163,7 @@ proto_register_btrfcomm(void)
             NULL,
             NULL,
             NULL,
+            NULL,
             uat_rfcomm_channels_fields);
 
     prefs_register_uat_preference(module, "rfcomm.channels",

@@ -4225,6 +4225,7 @@ void proto_register_ieee802154(void)
             addr_uat_update_cb,         /* update callback */
             NULL,                       /* free callback */
             NULL,                       /* post update callback */
+            NULL,                       /* reset callback */
             addr_uat_flds);             /* UAT field definitions */
     prefs_register_uat_preference(ieee802154_module, "static_addr",
                 "Static Addresses",

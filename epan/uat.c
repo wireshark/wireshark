@@ -51,10 +51,6 @@
 
 static GPtrArray* all_uats = NULL;
 
-void uat_init(void) {
-    all_uats = g_ptr_array_new();
-}
-
 uat_t* uat_new(const char* name,
                size_t size,
                const char* filename,
@@ -67,6 +63,7 @@ uat_t* uat_new(const char* name,
                uat_update_cb_t update_cb,
                uat_free_cb_t free_cb,
                uat_post_update_cb_t post_update_cb,
+               uat_reset_cb_t reset_cb,
                uat_field_t* flds_array) {
     /* Create new uat */
     uat_t* uat = (uat_t *)g_malloc(sizeof(uat_t));
@@ -97,6 +94,7 @@ uat_t* uat_new(const char* name,
     uat->update_cb = update_cb;
     uat->free_cb = free_cb;
     uat->post_update_cb = post_update_cb;
+    uat->reset_cb = reset_cb;
     uat->fields = flds_array;
     uat->user_data = g_array_new(FALSE,FALSE,(guint)uat->record_size);
     uat->raw_data = g_array_new(FALSE,FALSE,(guint)uat->record_size);
@@ -106,7 +104,7 @@ uat_t* uat_new(const char* name,
     uat->from_global = FALSE;
     uat->rep = NULL;
     uat->free_rep = NULL;
-    uat->help = help;
+    uat->help = g_strdup(help);
     uat->flags = flags;
 
     for (i=0;flds_array[i].title;i++) {
@@ -390,12 +388,6 @@ gboolean uat_save(uat_t* uat, char** error) {
     return TRUE;
 }
 
-void uat_destroy(uat_t* uat) {
-    /* XXX still missing a destructor */
-    g_ptr_array_remove(all_uats,uat);
-
-}
-
 uat_t *uat_find(gchar *name) {
     guint i;
 
@@ -430,6 +422,10 @@ void uat_clear(uat_t* uat) {
 
     *((uat)->user_ptr) = NULL;
     *((uat)->nrows_p) = 0;
+
+    if (uat->reset_cb) {
+        uat->reset_cb();
+    }
 }
 
 void uat_unload_all(void) {
@@ -445,15 +441,27 @@ void uat_unload_all(void) {
     }
 }
 
-#if 0
-static void uat_cleanup(void) {
-    while( all_uats->len ) {
-        uat_destroy((uat_t*)all_uats->pdata);
+void uat_cleanup(void) {
+    guint i;
+    guint j;
+    uat_t* uat;
+
+    for (i = 0; i < all_uats->len; i++) {
+        uat = (uat_t *)g_ptr_array_index(all_uats, i);
+        uat_clear(uat);
+        g_free(uat->help);
+        g_free(uat->name);
+        g_free(uat->filename);
+        g_array_free(uat->user_data, TRUE);
+        g_array_free(uat->raw_data, TRUE);
+        g_array_free(uat->valid_data, TRUE);
+        for (j = 0; uat->fields[j].title; j++)
+            g_free(uat->fields[j].priv);
+        g_free(uat);
     }
 
     g_ptr_array_free(all_uats,TRUE);
 }
-#endif
 
 void uat_foreach_table(uat_cb_t cb,void* user_data) {
     guint i;
@@ -462,7 +470,6 @@ void uat_foreach_table(uat_cb_t cb,void* user_data) {
         cb(g_ptr_array_index(all_uats,i), user_data);
 
 }
-
 
 void uat_load_all(void) {
     guint i;

@@ -424,6 +424,7 @@ void proto_register_lbmpdm_tcp(void)
         lbmpdm_tcp_tag_update_cb,
         lbmpdm_tcp_tag_free_cb,
         NULL,
+        NULL,
         lbmpdm_tcp_tag_array);
     prefs_register_uat_preference(lbmpdm_tcp_module,
         "tnw_lbmpdm_tcp_tags",

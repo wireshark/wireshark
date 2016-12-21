@@ -3675,6 +3675,7 @@ proto_register_http(void)
 			      header_fields_update_cb,
 			      header_fields_free_cb,
 			      header_fields_initialize_cb,
+			      NULL,
 			      custom_header_uat_fields
 	);
 

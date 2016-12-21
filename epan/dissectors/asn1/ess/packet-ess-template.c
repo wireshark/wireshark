@@ -176,6 +176,7 @@ void proto_register_ess(void) {
                                   NULL,
                                   ess_free_cb,
                                   NULL,
+                                  NULL,
                                   attributes_flds);
 
   static module_t *ess_module;

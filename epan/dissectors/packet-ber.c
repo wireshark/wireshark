@@ -4522,6 +4522,7 @@ proto_register_ber(void)
                                NULL,
                                oid_free_cb,
                                ber_update_oids,
+                               NULL,
                                users_flds);
 
     proto_ber = proto_register_protocol("Basic Encoding Rules (ASN.1 X.690)", "BER", "ber");

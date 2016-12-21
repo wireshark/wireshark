@@ -5909,6 +5909,7 @@ proto_register_reload(void)
             NULL,
             uat_kindid_record_free_cb,
             NULL,
+            NULL,
             reloadkindidlist_uats_flds);
 
 

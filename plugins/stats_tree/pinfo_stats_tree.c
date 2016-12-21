@@ -314,6 +314,7 @@ void register_pinfo_stat_trees(void) {
 			uat_plen_record_update_cb,  /* update callback */
 			uat_plen_record_free_cb,    /* free callback */
 			uat_plen_record_post_update_cb, /* post update callback */
+			NULL,                       /* reset callback */
 			plen_uat_flds);             /* UAT field definitions */
 
 	prefs_register_uat_preference(stat_module, "packet_lengths",

@@ -5714,6 +5714,7 @@ void proto_register_fp(void)
             NULL,                             /* update callback */
             uat_umts_fp_record_free_cb,       /* free callback */
             NULL,                             /* post update callback */
+            NULL,                             /* reset callback */
             umts_fp_uat_flds);                /* UAT field definitions */
 
   prefs_register_uat_preference(fp_module,

@@ -792,6 +792,7 @@ void oid_pref_init(module_t *nameres)
                             NULL,
                             smi_mod_free_cb,
                             restart_needed_warning,
+                            NULL,
                             smi_paths_fields);
 
     prefs_register_uat_preference(nameres,
@@ -820,6 +821,7 @@ void oid_pref_init(module_t *nameres)
                               NULL,
                               smi_mod_free_cb,
                               restart_needed_warning,
+                              NULL,
                               smi_fields);
 
     prefs_register_uat_preference(nameres,

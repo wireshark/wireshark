@@ -2037,6 +2037,7 @@ void proto_register_c1222(void) {
       c1222_uat_data_update_cb,         /* update callback */
       NULL,                             /* free callback */
       NULL,                             /* post update callback */
+      NULL,                             /* reset callback */
       c1222_uat_flds);                  /* UAT field definitions */
 
   prefs_register_uat_preference(c1222_module,

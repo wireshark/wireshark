@@ -2939,6 +2939,7 @@ void proto_register_pdcp(void)
               uat_ue_keys_record_update_cb,    /* update callback */
               uat_ue_keys_record_free_cb,      /* free callback */
               NULL,                            /* post update callback */
+              NULL,                            /* reset callback */
               ue_keys_uat_flds);               /* UAT field definitions */
 
     prefs_register_uat_preference(pdcp_lte_module,

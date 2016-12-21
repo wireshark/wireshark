@@ -5767,6 +5767,7 @@ void proto_register_ldap(void) {
                            attribute_types_update_cb,
                            attribute_types_free_cb,
                            attribute_types_initialize_cb,
+                           NULL,
                            custom_attribute_types_uat_fields);
 
   prefs_register_uat_preference(ldap_module, "custom_ldap_attribute_types",
@@ -5876,7 +5877,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2314 "./asn1/ldap/packet-ldap-template.c"
+#line 2315 "./asn1/ldap/packet-ldap-template.c"
 
  dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE_LDAP, ldap_handle);
 }

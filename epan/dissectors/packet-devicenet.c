@@ -1050,6 +1050,7 @@ void proto_register_devicenet(void)
                             uat_devicenet_record_update_cb, /* update callback       */
                             NULL,   /* free callback         */
                             NULL,    /* post update callback  */
+                            NULL,   /* reset callback */
                             devicenet_uat_flds);    /* UAT field definitions */
 
     prefs_register_uat_preference(devicenet_module,

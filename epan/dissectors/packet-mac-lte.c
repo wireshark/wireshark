@@ -9222,6 +9222,7 @@ void proto_register_mac_lte(void)
                                     NULL,
                                     NULL,
                                     NULL,
+                                    NULL,
                                     lcid_drb_mapping_flds );
 
     prefs_register_uat_preference(mac_lte_module,

@@ -250,6 +250,7 @@ expert_packet_init(void)
 			uat_expert_update_cb,
 			uat_expert_free_cb,
 			uat_expert_post_update_cb,
+			NULL,
 			custom_expert_fields);
 
 		prefs_register_uat_preference(module_expert,

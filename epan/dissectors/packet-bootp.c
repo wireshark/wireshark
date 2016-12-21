@@ -8705,6 +8705,7 @@ proto_register_bootp(void)
 			uat_bootp_record_update_cb, /* update callback	     */
 			uat_bootp_record_free_cb,   /* free callback	     */
 			NULL,			    /* post update callback  */
+			NULL,				/* reset callback */
 			bootp_uat_flds);	    /* UAT field definitions */
 
 	prefs_register_uat_preference(bootp_module,

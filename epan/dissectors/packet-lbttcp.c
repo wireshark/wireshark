@@ -786,6 +786,7 @@ void proto_register_lbttcp(void)
         lbttcp_tag_update_cb,
         lbttcp_tag_free_cb,
         NULL,
+        NULL,
         lbttcp_tag_array);
     prefs_register_uat_preference(lbttcp_module,
         "tnw_lbttcp_tags",

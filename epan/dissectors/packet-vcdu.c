@@ -655,6 +655,7 @@ proto_register_vcdu(void)
         vcdu_uat_data_update_cb,
         NULL,
         NULL,
+        NULL,
         vcdu_uat_flds);
 
     prefs_register_uat_preference(vcdu_module,

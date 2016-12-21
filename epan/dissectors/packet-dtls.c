@@ -276,6 +276,13 @@ dtls_parse_uat(void)
 }
 
 static void
+dtls_reset_uat(void)
+{
+  g_hash_table_destroy(dtls_key_hash);
+  dtls_key_hash = NULL;
+}
+
+static void
 dtls_parse_old_keys(void)
 {
   gchar          **old_keys, **parts, *err;
@@ -1906,6 +1913,7 @@ proto_register_dtls(void)
                               NULL, /* dtlsdecrypt_update_cb? */
                               dtlsdecrypt_free_cb,
                               dtls_parse_uat,
+                              dtls_reset_uat,
                               dtlskeylist_uats_flds);
 
     prefs_register_uat_preference(dtls_module, "cfg",

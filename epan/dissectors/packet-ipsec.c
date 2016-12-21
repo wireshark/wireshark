@@ -2463,6 +2463,7 @@ proto_register_ipsec(void)
             uat_esp_sa_record_update_cb,    /* update callback */
             uat_esp_sa_record_free_cb,      /* free callback */
             NULL,                           /* post update callback */
+            NULL,                           /* reset callback */
             esp_uat_flds);                  /* UAT field definitions */
 
   prefs_register_uat_preference(esp_module,

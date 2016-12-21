@@ -429,6 +429,13 @@ ssl_parse_uat(void)
 }
 
 static void
+ssl_reset_uat(void)
+{
+    g_hash_table_destroy(ssl_key_hash);
+    ssl_key_hash = NULL;
+}
+
+static void
 ssl_parse_old_keys(void)
 {
     gchar **old_keys, **parts, *err;
@@ -4195,6 +4202,7 @@ proto_register_ssl(void)
             NULL,
             ssldecrypt_free_cb,
             ssl_parse_uat,
+            ssl_reset_uat,
             sslkeylist_uats_flds);
 
         prefs_register_uat_preference(ssl_module, "key_table",

@@ -323,6 +323,7 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
                                uat_key_record_update_cb,
                                uat_key_record_free_cb,
                                uat_key_record_post_update,
+                               NULL,
                                key_uat_fields );
 
     prefs_register_uat_preference(zbee_prefs,

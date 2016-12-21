@@ -1161,6 +1161,7 @@ void IOGraphDialog::loadProfileGraphs()
                        NULL,
                        io_graph_free_cb,
                        NULL,
+                       NULL,
                        io_graph_fields);
     char* err = NULL;
     if (!uat_load(iog_uat_, &err)) {

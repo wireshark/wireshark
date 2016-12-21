@@ -6887,6 +6887,7 @@ void proto_register_sip(void)
         header_fields_update_cb,
         header_fields_free_cb,
         header_fields_initialize_cb,
+        NULL,
         sip_custom_header_uat_fields
     );
 

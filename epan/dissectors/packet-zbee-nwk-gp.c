@@ -1857,7 +1857,7 @@ proto_register_zbee_nwk_gp(void)
 
     zbee_gp_sec_key_table_uat = uat_new("ZigBee GP Security Keys", sizeof(uat_key_record_t), "zigbee_gp_keys", TRUE,
         &gp_uat_key_records, &num_uat_key_records, UAT_AFFECTS_DISSECTION, NULL, uat_key_record_copy_cb,
-        uat_key_record_update_cb, uat_key_record_free_cb, uat_key_record_post_update_cb, key_uat_fields);
+        uat_key_record_update_cb, uat_key_record_free_cb, uat_key_record_post_update_cb, NULL, key_uat_fields);
 
     prefs_register_uat_preference(gp_zbee_prefs, "gp_key_table", "Pre-configured GP Security Keys",
         "Pre-configured GP Security Keys.", zbee_gp_sec_key_table_uat);

@@ -7156,6 +7156,7 @@ proto_register_isakmp(void)
       ikev1_uat_data_update_cb,
       NULL,
       NULL,
+      NULL,
       ikev1_uat_flds);
 
   prefs_register_uat_preference(isakmp_module,
@@ -7174,6 +7175,7 @@ proto_register_isakmp(void)
       "ChIKEv2DecryptionSection",
       NULL,
       ikev2_uat_data_update_cb,
+      NULL,
       NULL,
       NULL,
       ikev2_uat_flds);

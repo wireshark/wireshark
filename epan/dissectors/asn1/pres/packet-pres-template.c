@@ -422,6 +422,7 @@ void proto_register_pres(void) {
                              NULL,
                              pres_free_cb,
                              NULL,
+                             NULL,
                              users_flds);
 
   expert_module_t* expert_pres;
