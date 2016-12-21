@@ -1070,9 +1070,11 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			offset += 2;
 			break;
 		case 0x90: /* Negotiation Record I */
+			offset++; /* skip len field */
 			offset += dissect_om2k_negotiation_record1(tvb, offset, tree);
 			break;
 		case 0x91: /* Negotiation Record II */
+			offset++; /* skip len field */
 			offset += dissect_om2k_negotiation_record2(tvb, offset, tree);
 			break;
 		case 0x92: /* Encryption Algorithm */
