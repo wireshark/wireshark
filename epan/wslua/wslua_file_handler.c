@@ -280,7 +280,14 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
 
     switch ( lua_pcall(L,3,1,1) ) {
         case 0:
-            if (lua_isnumber(L,-1)) {
+            /*
+             * Return values for FileHandler:read():
+             * Integer is the number of read bytes.
+             * Boolean false indicates an error.
+             * XXX handling of boolean true is not documented. Currently it will
+             * succeed without advancing data offset. Should it fail instead?
+             */
+            if (lua_type(L, -1) == LUA_TNUMBER) {
                 *data_offset = wslua_togint64(L, -1);
                 retval = 1;
                 break;
@@ -330,15 +337,15 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
 
     switch ( lua_pcall(L,4,1,1) ) {
         case 0:
-            if (lua_isstring(L,-1)) {
-                size_t len = 0;
-                const gchar* fd = lua_tolstring(L, -1, &len);
-                if (len < WTAP_MAX_PACKET_SIZE)
-                    memcpy(ws_buffer_start_ptr(buf), fd, len);
-                retval = 1;
-                break;
-            }
-            retval = wslua_optboolint(L,-1,0);
+            /*
+             * Return values for FileHandler:seek_read():
+             * Boolean true for successful parsing, false/nil on error.
+             * Numbers (including zero) are interpreted as success for
+             * compatibility to match FileHandker:seek semantics.
+             * (Other values are unspecified/undocumented, but happen to be
+             * treated as success.)
+             */
+            retval = lua_toboolean(L, -1);
             break;
         CASE_ERROR_ERRINFO("seek_read")
     }
@@ -823,10 +830,11 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,read_open);
         3. A `FrameInfo` object
 
     The purpose of the Lua function set to this `read` field is to read the next packet from the file, and setting the parsed/read
-    packet into the frame buffer using `FrameInfo.data = foo` or `FrameInfo:read_data()`.
+    packet into the frame buffer using `FrameInfo.data = foo` or `FrameInfo:read_data(file, frame.captured_length)`.
 
     The called Lua function should return the file offset/position number where the packet begins, or false if it hit an
-    error.  The file offset will be saved by Wireshark and passed into the set `seek_read()` Lua function later. */
+    error.  The file offset will be saved by Wireshark and passed into the set `seek_read()` Lua function later.
+    */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,read);
 
 /* WSLUA_ATTRIBUTE FileHandler_seek_read WO The Lua function to be called when Wireshark wants to read a packet from the file at the given offset.
@@ -836,6 +844,23 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,read);
         2. A `CaptureInfo` object
         3. A `FrameInfo` object
         4. The file offset number previously set by the `read()` function call
+
+    The called Lua function should return true if the read was successful, or false if it hit an error.
+    Since 2.4.0, a number is also acceptable to signal success, this allows for reuse of `FileHandler:read`:
+    @code
+    local function fh_read(file, capture, frame) ... end
+    myfilehandler.read = fh_read
+
+    function myfilehandler.seek_read(file, capture, frame, offset)
+        if not file:seek("set", offset) then
+            -- Seeking failed, return failure
+            return false
+        end
+
+        -- Now try to read one frame
+        return fh_read(file, capture, frame)
+    end
+    @endcode
  */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,seek_read);
 
