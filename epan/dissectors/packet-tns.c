@@ -143,6 +143,10 @@ static int hf_tns_data_setp_cli_plat = -1;
 static int hf_tns_data_setp_version = -1;
 static int hf_tns_data_setp_banner = -1;
 
+static int hf_tns_data_sns_cli_vers = -1;
+static int hf_tns_data_sns_srv_vers = -1;
+static int hf_tns_data_sns_srvcnt = -1;
+
 static gint ett_tns = -1;
 static gint ett_tns_connect = -1;
 static gint ett_tns_accept = -1;
@@ -428,10 +432,25 @@ static guint get_data_func_id(tvbuff_t *tvb, int offset)
 	}
 }
 
+static void vsnum_to_vstext_basecustom(gchar *result, guint32 vsnum)
+{
+	/*
+	 * Translate hex value to human readable version value, described at
+	 * http://docs.oracle.com/cd/B28359_01/server.111/b28310/dba004.htm
+	 */
+	g_snprintf(result, ITEM_LABEL_LENGTH, "%d.%d.%d.%d.%d",
+		 vsnum >> 24,
+		(vsnum >> 20) & 0xf,
+		(vsnum >> 12) & 0xf,
+		(vsnum >>  8) & 0xf,
+		 vsnum & 0xff);
+}
+
 static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tns_tree)
 {
 	proto_tree *data_tree;
 	guint data_func_id;
+	gboolean is_request;
 	static const int * flags[] = {
 		&hf_tns_data_flag_send,
 		&hf_tns_data_flag_rc,
@@ -445,6 +464,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 		NULL
 	};
 
+	is_request = pinfo->match_uint == pinfo->destport;
 	data_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1, ett_tns_data, NULL, "Data");
 
 	proto_tree_add_bitmask(data_tree, tvb, offset, hf_tns_data_flag, ett_tns_data_flag, flags, ENC_BIG_ENDIAN);
@@ -471,7 +491,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			proto_tree *versions_tree;
 			proto_item *ti;
 			char sep;
-			if ( pinfo->match_uint == pinfo->destport ) /* check if is request */
+			if ( is_request )
 			{
 				versions_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1, ett_tns_acc_versions, &ti, "Accepted Versions");
 				sep = ':';
@@ -544,12 +564,28 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			break;
 
 		case SQLNET_SNS:
+		{
 			proto_tree_add_item(data_tree, hf_tns_data_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			proto_tree_add_item(data_tree, hf_tns_data_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+
+			if ( is_request )
+			{
+				proto_tree_add_item(data_tree, hf_tns_data_sns_cli_vers, tvb, offset, 4, ENC_BIG_ENDIAN);
+			}
+			else
+			{
+				proto_tree_add_item(data_tree, hf_tns_data_sns_srv_vers, tvb, offset, 4, ENC_BIG_ENDIAN);
+			}
+			offset += 4;
+
+			proto_tree_add_item(data_tree, hf_tns_data_sns_srvcnt, tvb, offset, 2, ENC_BIG_ENDIAN);
+
 			/* move back, to include data_id into data_dissector */
-			offset -= 4;
+			offset -= 10;
 			break;
+		}
 	}
 
 	call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, data_tree);
@@ -1272,6 +1308,16 @@ void proto_register_tns(void)
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_setp_banner, {
 			"Server Banner", "tns.data_setp_resp.banner", FT_STRINGZ, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_tns_data_sns_cli_vers, {
+			"Client Version", "tns.data_sns.cli_vers", FT_UINT32, BASE_CUSTOM,
+			CF_FUNC(vsnum_to_vstext_basecustom), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_sns_srv_vers, {
+			"Server Version", "tns.data_sns.srv_vers", FT_UINT32, BASE_CUSTOM,
+			CF_FUNC(vsnum_to_vstext_basecustom), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_sns_srvcnt, {
+			"Services", "tns.data_sns.srvcnt", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_reserved_byte, {
