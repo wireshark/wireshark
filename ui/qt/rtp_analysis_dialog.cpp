@@ -1141,7 +1141,7 @@ gboolean RtpAnalysisDialog::saveAudioAUSilence(size_t total_len, QFile *save_fil
     return TRUE;
 }
 
-gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t statinfo, QTemporaryFile *tempfile, QFile *save_file, size_t header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence)
+gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFile *tempfile, QFile *save_file, size_t header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence)
 {
     size_t nchars;
     gchar pd_out[2*4000];
@@ -1180,7 +1180,7 @@ gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t statinfo, QTemporar
     return TRUE;
 }
 
-gboolean RtpAnalysisDialog::saveAudioAUBidir(tap_rtp_stat_t fwd_statinfo, tap_rtp_stat_t rev_statinfo, QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, size_t header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev)
+gboolean RtpAnalysisDialog::saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_rtp_stat_t &rev_statinfo, QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, size_t header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev)
 {
     if (! saveAudioAUUnidir(fwd_statinfo, fwd_tempfile, save_file, header_end, stop_flag, TRUE, prefix_silence_fwd))
     {
