@@ -121,7 +121,6 @@ endif
 udpdump_LDADD = \
 	../writecap/libwritecap.a	\
 	../wsutil/libwsutil.la		\
-	../epan/libwireshark.la		\
 	@GLIB_LIBS@
 
 noinst_HEADERS = \

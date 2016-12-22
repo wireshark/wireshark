@@ -2599,7 +2599,7 @@ if(ENABLE_EXTCAP AND BUILD_udpdump)
 	set(udpdump_LIBS
 		${GLIB2_LIBRARIES}
 		${CMAKE_DL_LIBS}
-		${LIBEPAN_LIBS}
+		wsutil
 		writecap
 	)
 	set(udpdump_FILES

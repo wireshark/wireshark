@@ -70,6 +70,15 @@
 
 #define PKT_BUF_SIZE 65535
 
+#define UDPDUMP_EXPORT_HEADER_LEN 40
+
+/* Tags (from exported_pdu.h) */
+#define EXP_PDU_TAG_PROTO_NAME	12
+#define EXP_PDU_TAG_IPV4_SRC	20
+#define EXP_PDU_TAG_IPV4_DST	21
+#define EXP_PDU_TAG_SRC_PORT	25
+#define EXP_PDU_TAG_DST_PORT	26
+
 static gboolean run_loop = TRUE;
 
 enum {
@@ -182,45 +191,100 @@ static int setup_dumpfile(const char* fifo, FILE** fp)
 	return EXIT_SUCCESS;
 }
 
+static void add_proto_name(char* mbuf, guint* offset, const char* proto_name)
+{
+	guint proto_str_len = strlen(proto_name);
+	guint16 proto_name_len = ((proto_str_len + 3) & 0xfffffffc);
+
+	mbuf[*offset] = 0;
+	mbuf[*offset+1] = EXP_PDU_TAG_PROTO_NAME;
+	*offset += 2;
+	mbuf[*offset] = proto_name_len >> 8;
+	mbuf[*offset+1] = proto_name_len & 0xff;
+	*offset += 2;
+
+	memcpy(mbuf + *offset, proto_name, proto_str_len);
+	*offset += proto_name_len;
+}
+
+static void add_ip_source_address(char* mbuf, guint* offset, uint32_t source_address)
+{
+	mbuf[*offset] = 0x00;
+	mbuf[*offset+1] = EXP_PDU_TAG_IPV4_SRC;
+	mbuf[*offset+2] = 0;
+	mbuf[*offset+3] = 4;
+	*offset += 4;
+	memcpy(mbuf + *offset, &source_address, 4);
+	*offset += 4;
+}
+
+static void add_ip_dest_address(char* mbuf, guint* offset, uint32_t dest_address)
+{
+	mbuf[*offset] = 0;
+	mbuf[*offset+1] = EXP_PDU_TAG_IPV4_DST;
+	mbuf[*offset+2] = 0;
+	mbuf[*offset+3] = 4;
+	*offset += 4;
+	memcpy(mbuf + *offset, &dest_address, 4);
+	*offset += 4;
+}
+
+static void add_udp_source_port(char* mbuf, guint* offset, uint16_t src_port)
+{
+	uint32_t port = htonl(src_port);
+
+	mbuf[*offset] = 0;
+	mbuf[*offset+1] = EXP_PDU_TAG_SRC_PORT;
+	mbuf[*offset+2] = 0;
+	mbuf[*offset+3] = 4;
+	*offset += 4;
+	memcpy(mbuf + *offset, &port, 4);
+	*offset += 4;
+}
+
+static void add_udp_dst_port(char* mbuf, guint* offset, uint16_t dst_port)
+{
+	uint32_t port = htonl(dst_port);
+
+	mbuf[*offset] = 0;
+	mbuf[*offset+1] = EXP_PDU_TAG_DST_PORT;
+	mbuf[*offset+2] = 0;
+	mbuf[*offset+3] = 4;
+	*offset += 4;
+	memcpy(mbuf + *offset, &port, 4);
+	*offset += 4;
+}
+
+static void add_end_options(char* mbuf, guint* offset)
+{
+	memset(mbuf + *offset, 0x0, 4);
+	*offset += 4;
+}
+
 static int dump_packet(const char* proto_name, const guint16 listenport, const char* buf,
 		const ssize_t buflen, const struct sockaddr_in clientaddr, FILE* fp)
 {
+	char* mbuf;
+	guint offset = 0;
 	time_t curtime = time(NULL);
 	guint64 bytes_written = 0;
-	char srcaddr[INET_ADDRSTRLEN];
 	int err;
 	int ret = EXIT_SUCCESS;
-	packet_info pinfo;
-	char* mbuf;
-	exp_pdu_data_t* exp_pdu_data;
-	const uint32_t localhost = inet_addr("127.0.0.1");
-	const exp_pdu_data_item_t* user_encap_exp_pdu_items[] = {
-		&exp_pdu_data_src_ip,
-		&exp_pdu_data_dst_ip,
-		&exp_pdu_data_src_port,
-		&exp_pdu_data_dst_port,
-		NULL
-	};
 
-	g_debug("Incoming packet from %s:%u, size: %zd", ws_inet_ntop4(&clientaddr.sin_addr.s_addr,
-		srcaddr, INET_ADDRSTRLEN), ntohs(clientaddr.sin_port), buflen);
+	/* The space we need is the standard header + variable lengths */
+	mbuf = (char*)g_malloc0(UDPDUMP_EXPORT_HEADER_LEN + ((strlen(proto_name) + 3) & 0xfffffffc) + buflen);
 
-	pinfo.net_src.type = AT_IPv4;
-	pinfo.net_src.data = &clientaddr.sin_addr.s_addr;
-	pinfo.net_dst.type = AT_IPv4;
-	pinfo.net_dst.data = &localhost;
-	pinfo.srcport = clientaddr.sin_port;
-	pinfo.destport = listenport;
+	add_proto_name(mbuf, &offset, proto_name);
+	add_ip_source_address(mbuf, &offset, clientaddr.sin_addr.s_addr);
+	add_ip_dest_address(mbuf, &offset, inet_addr("127.0.0.1"));
+	add_udp_source_port(mbuf, &offset, clientaddr.sin_port);
+	add_udp_dst_port(mbuf, &offset, listenport);
+	add_end_options(mbuf, &offset);
 
-	exp_pdu_data = export_pdu_create_tags(&pinfo, proto_name, EXP_PDU_TAG_PROTO_NAME, user_encap_exp_pdu_items);
+	memcpy(mbuf + offset, buf, buflen);
+	offset += buflen;
 
-	mbuf = (char*)g_malloc(buflen + exp_pdu_data->tlv_buffer_len);
-
-	memcpy(mbuf, exp_pdu_data->tlv_buffer, exp_pdu_data->tlv_buffer_len);
-	memcpy(mbuf + exp_pdu_data->tlv_buffer_len, buf, buflen);
-
-	if (!libpcap_write_packet(fp, curtime, (guint32)(curtime / 1000), (guint)buflen + exp_pdu_data->tlv_buffer_len,
-			(guint)buflen + exp_pdu_data->tlv_buffer_len, mbuf, &bytes_written, &err)) {
+	if (!libpcap_write_packet(fp, curtime, (guint32)(curtime / 1000), offset, offset, mbuf, &bytes_written, &err)) {
 		g_warning("Can't write packet");
 		ret = EXIT_FAILURE;
 	}
@@ -290,7 +354,6 @@ int main(int argc, char *argv[])
 	char* help_header = NULL;
 	char* payload = NULL;
 	char* port_msg = NULL;
-
 #ifdef _WIN32
 	WSADATA wsaData;
 	attach_parent_console();
