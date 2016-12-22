@@ -1106,6 +1106,14 @@ static int hf_dvbci_sas_sess_state = -1;
 static int hf_dvbci_sas_msg_nb = -1;
 static int hf_dvbci_sas_msg_len = -1;
 
+static const int *dvb_ci_res_id_fields[] = {
+  &hf_dvbci_res_id_type,
+  &hf_dvbci_res_class,
+  &hf_dvbci_res_type,
+  &hf_dvbci_res_ver,
+  NULL
+};
+
 static const int *dvbci_opp_dlv_sys_hint_fields[] = {
     &hf_dvbci_dlv_sys_hint_t,
     &hf_dvbci_dlv_sys_hint_s,
@@ -2658,10 +2666,6 @@ static proto_item *
 dissect_res_id(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree, guint32 res_id, gboolean show_col_info)
 {
-    proto_item *ti;
-    proto_tree *res_tree;
-    gint        tvb_data_len;
-
     /* there's two possible inputs for this function
         the resource id is either in a tvbuff_t (tvb!=NULL, res_id==0)
         or in a guint32 (tvb==NULL, res_id!=0) */
@@ -2671,7 +2675,6 @@ dissect_res_id(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if (res_id!=0)
             return NULL;
         res_id = tvb_get_ntohl(tvb, offset);
-        tvb_data_len = RES_ID_LEN;
     }
     else {
         /* resource id comes in via guint32 */
@@ -2680,7 +2683,6 @@ dissect_res_id(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* we'll call proto_tree_add_...( tvb==NULL, offset==0, length==0 )
            this creates a filterable item without any reference to a tvb */
         offset = 0;
-        tvb_data_len = 0;
     }
 
     if (show_col_info) {
@@ -2690,22 +2692,9 @@ dissect_res_id(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 RES_VER(res_id));
     }
 
-    ti = proto_tree_add_uint(tree, hf_dvbci_res_id,
-            tvb, offset, tvb_data_len, res_id);
-    res_tree = proto_item_add_subtree(ti, ett_dvbci_res);
-
-    /* parameter "value" == complete resource id,
-       RES_..._MASK will be applied by the hf definition */
-    proto_tree_add_uint(res_tree, hf_dvbci_res_id_type,
-            tvb, offset, tvb_data_len, res_id);
-    proto_tree_add_uint(res_tree, hf_dvbci_res_class,
-            tvb, offset, tvb_data_len, res_id);
-    proto_tree_add_uint(res_tree, hf_dvbci_res_type,
-            tvb, offset, tvb_data_len, res_id);
-    proto_tree_add_uint(res_tree, hf_dvbci_res_ver,
-            tvb, offset, tvb_data_len, res_id);
-
-    return ti;
+    return proto_tree_add_bitmask_value_with_flags(tree, tvb, offset,
+            hf_dvbci_res_id, ett_dvbci_res, dvb_ci_res_id_fields, res_id,
+            BMT_NO_APPEND);
 }
 
 /* dissect the body of a resource manager apdu */
