@@ -374,6 +374,9 @@ int main(int argc, char *argv[])
 		goto end;
 	}
 
+	if (!payload)
+		payload = g_strdup("data");
+
 #ifdef _WIN32
 	result = WSAStartup(MAKEWORD(1,1), &wsaData);
 	if (result != 0) {
