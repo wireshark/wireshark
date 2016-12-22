@@ -921,6 +921,7 @@ static int hf_dvbci_spdu_tag = -1;
 static int hf_dvbci_sess_status = -1;
 static int hf_dvbci_sess_nb = -1;
 static int hf_dvbci_close_sess_status = -1;
+static int hf_dvbci_res_id = -1;
 static int hf_dvbci_res_id_type = -1;
 static int hf_dvbci_res_class = -1;
 static int hf_dvbci_res_type = -1;
@@ -2657,8 +2658,8 @@ static proto_item *
 dissect_res_id(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree, guint32 res_id, gboolean show_col_info)
 {
-    proto_item *ti       = NULL;
-    proto_tree *res_tree = NULL;
+    proto_item *ti;
+    proto_tree *res_tree;
     gint        tvb_data_len;
 
     /* there's two possible inputs for this function
@@ -2689,8 +2690,9 @@ dissect_res_id(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 RES_VER(res_id));
     }
 
-    res_tree = proto_tree_add_subtree_format(tree, tvb, offset, tvb_data_len,
-            ett_dvbci_res, &ti, "Resource ID: 0x%04x", res_id);
+    ti = proto_tree_add_uint(tree, hf_dvbci_res_id,
+            tvb, offset, tvb_data_len, res_id);
+    res_tree = proto_item_add_subtree(ti, ett_dvbci_res);
 
     /* parameter "value" == complete resource id,
        RES_..._MASK will be applied by the hf definition */
@@ -5443,6 +5445,10 @@ proto_register_dvbci(void)
         { &hf_dvbci_close_sess_status,
           { "Session Status", "dvb-ci.close_session_status",
             FT_UINT8, BASE_HEX, VALS(dvbci_close_sess_status), 0, NULL, HFILL }
+        },
+        { &hf_dvbci_res_id,
+          { "Resource ID", "dvb-ci.res.id",
+            FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_res_id_type,
           { "Resource ID Type", "dvb-ci.res.id_type",
