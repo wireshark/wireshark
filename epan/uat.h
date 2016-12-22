@@ -599,7 +599,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 #define UAT_RANGE_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* u2) {\
 	char* rng = g_strndup(buf,len);\
-		range_convert_str(&(((rec_t*)rec)->field_name), rng,GPOINTER_TO_UINT(u2)); \
+		range_convert_str(NULL, &(((rec_t*)rec)->field_name), rng,GPOINTER_TO_UINT(u2)); \
 		g_free(rng); \
 	} \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\

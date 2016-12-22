@@ -3131,7 +3131,7 @@ proto_register_iscsi(void)
                                    10,
                                    &bogus_pdu_data_length_threshold);
 
-    range_convert_str(&global_iscsi_port_range, TCP_PORT_ISCSI_RANGE, MAX_TCP_PORT);
+    range_convert_str(wmem_epan_scope(), &global_iscsi_port_range, TCP_PORT_ISCSI_RANGE, MAX_TCP_PORT);
     prefs_register_range_preference(iscsi_module,
                                     "target_ports",
                                     "Target Ports Range",

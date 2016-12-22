@@ -354,14 +354,14 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
             /* Not a number, try as range */
             const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_add_PATTERN);
             range_t *range = NULL;
-            if (range_convert_str(&range, pattern, G_MAXUINT32) == CVT_NO_ERROR) {
+            if (range_convert_str(NULL, &range, pattern, G_MAXUINT32) == CVT_NO_ERROR) {
                 dissector_add_uint_range(dt->name, range, handle);
             } else {
-                g_free (range);
+                wmem_free (NULL, range);
                 WSLUA_ARG_ERROR(DissectorTable_add,PATTERN,"invalid integer or range");
                 return  0;
             }
-            g_free (range);
+            wmem_free (NULL, range);
         }
     } else {
         luaL_error(L,"Strange type %d for a DissectorTable",type);
@@ -417,15 +417,15 @@ WSLUA_METHOD DissectorTable_set (lua_State *L) {
             /* Not a number, try as range */
             const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_set_PATTERN);
             range_t *range = NULL;
-            if (range_convert_str(&range, pattern, G_MAXUINT32) == CVT_NO_ERROR) {
+            if (range_convert_str(NULL, &range, pattern, G_MAXUINT32) == CVT_NO_ERROR) {
                 dissector_delete_all(dt->name, handle);
                 dissector_add_uint_range(dt->name, range, handle);
             } else {
-                g_free (range);
+                wmem_free (NULL, range);
                 WSLUA_ARG_ERROR(DissectorTable_set,PATTERN,"invalid integer or range");
                 return 0;
             }
-            g_free (range);
+            wmem_free (NULL, range);
         }
     } else {
         luaL_error(L,"Strange type %d for a DissectorTable",type);
@@ -472,14 +472,14 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
             /* Not a number, try as range */
             const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_remove_PATTERN);
             range_t *range = NULL;
-            if (range_convert_str(&range, pattern, G_MAXUINT32) == CVT_NO_ERROR)
+            if (range_convert_str(NULL, &range, pattern, G_MAXUINT32) == CVT_NO_ERROR)
                 dissector_delete_uint_range(dt->name, range, handle);
             else {
-                g_free (range);
+                wmem_free (NULL, range);
                 WSLUA_ARG_ERROR(DissectorTable_remove,PATTERN,"invalid integer or range");
                 return 0;
             }
-            g_free (range);
+            wmem_free (NULL, range);
         }
     }
 

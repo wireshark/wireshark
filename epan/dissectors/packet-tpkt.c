@@ -659,7 +659,7 @@ proto_register_tpkt(void)
         "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
         &tpkt_desegment);
 
-    range_convert_str(&tpkt_tcp_port_range, DEFAULT_TPKT_PORT_RANGE, MAX_TCP_PORT);
+    range_convert_str(wmem_epan_scope(), &tpkt_tcp_port_range, DEFAULT_TPKT_PORT_RANGE, MAX_TCP_PORT);
 
     prefs_register_range_preference(tpkt_module, "tcp.ports", "TPKT TCP ports",
                                   "TCP ports to be decoded as TPKT (default: "
@@ -670,12 +670,15 @@ proto_register_tpkt(void)
 void
 proto_reg_handoff_tpkt(void)
 {
-    static range_t *port_range;
+    static range_t *port_range = NULL;
 
     osi_tp_handle = find_dissector("ositp");
     dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_TPKT_RANGE, tpkt_handle);
 
-    port_range = range_copy(tpkt_tcp_port_range);
+    dissector_delete_uint_range("tcp.port", port_range, tpkt_handle);
+    wmem_free(wmem_epan_scope(), port_range);
+
+    port_range = range_copy(wmem_epan_scope(), tpkt_tcp_port_range);
     dissector_add_uint_range("tcp.port", port_range, tpkt_handle);
 
     /*

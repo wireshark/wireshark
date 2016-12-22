@@ -203,7 +203,6 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 static void
 gopher_prefs_apply(void) {
 
-    g_free(gopher_tcp_range);
     gopher_tcp_range = prefs_get_range_value("gopher", "tcp.port");
 }
 

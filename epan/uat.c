@@ -611,7 +611,7 @@ gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, guint len, const voi
 gboolean uat_fld_chk_range(void* u1 _U_, const char* strptr, guint len, const void* v _U_, const void* u3, char** err) {
     char* str = g_strndup(strptr,len);
     range_t* r = NULL;
-    convert_ret_t ret = range_convert_str(&r, str,GPOINTER_TO_UINT(u3));
+    convert_ret_t ret = range_convert_str(NULL, &r, str,GPOINTER_TO_UINT(u3));
     gboolean ret_value = FALSE;
 
     switch (  ret ) {
@@ -634,6 +634,7 @@ gboolean uat_fld_chk_range(void* u1 _U_, const char* strptr, guint len, const vo
     }
 
     g_free(str);
+    wmem_free(NULL, r);
     return ret_value;
 }
 

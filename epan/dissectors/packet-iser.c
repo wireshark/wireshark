@@ -348,7 +348,7 @@ proto_register_iser(void)
     prefs_register_obsolete_preference(iser_module, "addr_b_id");
     prefs_register_obsolete_preference(iser_module, "addr_b_qp");
 
-    range_convert_str(&gPORT_RANGE, TCP_PORT_ISER_RANGE, MAX_TCP_PORT);
+    range_convert_str(wmem_epan_scope(), &gPORT_RANGE, TCP_PORT_ISER_RANGE, MAX_TCP_PORT);
     prefs_register_range_preference(iser_module,
                                     "target_ports",
                                     "Target Ports Range",

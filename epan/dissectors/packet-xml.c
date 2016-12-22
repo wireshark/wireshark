@@ -83,8 +83,6 @@ static xml_ns_t *root_ns;
 
 static gboolean pref_heuristic_unicode    = FALSE;
 
-static range_t *xml_tcp_range        = NULL;
-
 
 #define XML_CDATA       -1000
 #define XML_SCOPED_NAME -1001
@@ -1461,10 +1459,6 @@ proto_register_xml(void)
     xml_handle = register_dissector("xml", dissect_xml, xml_ns.hf_tag);
 
     init_xml_parser();
-
-    xml_tcp_range = range_empty();
-
-
 }
 
 static void

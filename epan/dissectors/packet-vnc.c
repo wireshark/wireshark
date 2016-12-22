@@ -3460,7 +3460,6 @@ vnc_get_depth(packet_info *pinfo)
 /* Preference callbacks */
 static void
 apply_vnc_prefs(void) {
-    g_free(vnc_tcp_range);
     vnc_tcp_range = prefs_get_range_value("vnc", "tcp.port");
 }
 

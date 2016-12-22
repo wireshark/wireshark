@@ -264,9 +264,9 @@ free_pref(gpointer data, gpointer user_data _U_)
         break;
     case PREF_RANGE:
     case PREF_DECODE_AS_RANGE:
-        g_free(*pref->varp.range);
+        wmem_free(wmem_epan_scope(), *pref->varp.range);
         *pref->varp.range = NULL;
-        g_free(pref->default_val.range);
+        wmem_free(wmem_epan_scope(), pref->default_val.range);
         pref->default_val.range = NULL;
         break;
     case PREF_CUSTOM:
@@ -1180,9 +1180,9 @@ prefs_register_range_preference_common(module_t *module, const char *name,
      * If the value is a null pointer, make it an empty range.
      */
     if (*var == NULL)
-        *var = range_empty();
+        *var = range_empty(wmem_epan_scope());
     preference->varp.range = var;
-    preference->default_val.range = range_copy(*var);
+    preference->default_val.range = range_copy(wmem_epan_scope(), *var);
     preference->stashed_val.range = NULL;
 }
 
@@ -1204,17 +1204,17 @@ prefs_set_range_value_work(pref_t *pref, const gchar *value,
 {
     range_t *newrange;
 
-    if (range_convert_str_work(&newrange, value, pref->info.max_value,
+    if (range_convert_str_work(wmem_epan_scope(), &newrange, value, pref->info.max_value,
                                return_range_errors) != CVT_NO_ERROR) {
         return FALSE;        /* number was bad */
     }
 
     if (!ranges_are_equal(*pref->varp.range, newrange)) {
         *changed = TRUE;
-        g_free(*pref->varp.range);
+        wmem_free(wmem_epan_scope(), *pref->varp.range);
         *pref->varp.range = newrange;
     } else {
-        g_free(newrange);
+        wmem_free(wmem_epan_scope(), newrange);
     }
     return TRUE;
 }
@@ -3322,8 +3322,8 @@ reset_pref(pref_t *pref)
 
     case PREF_RANGE:
     case PREF_DECODE_AS_RANGE:
-        g_free(*pref->varp.range);
-        *pref->varp.range = range_copy(pref->default_val.range);
+        wmem_free(wmem_epan_scope(), *pref->varp.range);
+        *pref->varp.range = range_copy(wmem_epan_scope(), pref->default_val.range);
         break;
 
     case PREF_STATIC_TEXT:
@@ -3835,7 +3835,7 @@ range_t* prefs_get_range_value(const char *module_name, const char* pref_name)
     pref_t *pref = prefs_find_preference(prefs_find_module(module_name), pref_name);
     g_assert(pref != NULL);
 
-    return range_copy(*pref->varp.range);
+    return *pref->varp.range;
 }
 
 /*
@@ -4942,13 +4942,13 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             dissector_handle_t handle;
             guint32 i, j;
 
-            if (range_convert_str_work(&newrange, value, pref->info.max_value,
+            if (range_convert_str_work(wmem_epan_scope(), &newrange, value, pref->info.max_value,
                                        return_range_errors) != CVT_NO_ERROR) {
                 return PREFS_SET_SYNTAX_ERR;        /* number was bad */
             }
 
             if (!ranges_are_equal(*pref->varp.range, newrange)) {
-                g_free(*pref->varp.range);
+                wmem_free(wmem_epan_scope(), *pref->varp.range);
                 *pref->varp.range = newrange;
                 containing_module->prefs_changed = TRUE;
 
@@ -4983,7 +4983,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                     }
                 }
             } else {
-                g_free(newrange);
+                wmem_free(wmem_epan_scope(), newrange);
             }
             break;
         }

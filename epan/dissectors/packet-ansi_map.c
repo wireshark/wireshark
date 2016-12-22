@@ -16216,10 +16216,10 @@ proto_reg_handoff_ansi_map(void)
     else
     {
         range_foreach(ssn_range, range_delete_callback);
-        g_free(ssn_range);
+        wmem_free(wmem_epan_scope(), ssn_range);
     }
 
-    ssn_range = range_copy(global_ssn_range);
+    ssn_range = range_copy(wmem_epan_scope(), global_ssn_range);
 
     range_foreach(ssn_range, range_add_callback);
 }
@@ -19555,7 +19555,7 @@ void proto_register_ansi_map(void) {
     ansi_map_tap = register_tap("ansi_map");
 
 
-    range_convert_str(&global_ssn_range, "5-14", MAX_SSN);
+    range_convert_str(wmem_epan_scope(), &global_ssn_range, "5-14", MAX_SSN);
 
     ansi_map_module = prefs_register_protocol(proto_ansi_map, proto_reg_handoff_ansi_map);
 

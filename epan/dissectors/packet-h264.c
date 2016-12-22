@@ -3730,10 +3730,10 @@ proto_reg_handoff_h264(void)
         h264_prefs_initialized = TRUE;
     } else {
         range_foreach(dynamic_payload_type_range, range_delete_h264_rtp_pt_callback);
-        g_free(dynamic_payload_type_range);
+        wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
     }
 
-    dynamic_payload_type_range = range_copy(temp_dynamic_payload_type_range);
+    dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
     range_foreach(dynamic_payload_type_range, range_add_h264_rtp_pt_callback);
 }
 

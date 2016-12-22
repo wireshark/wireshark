@@ -8296,10 +8296,10 @@ void proto_reg_handoff_camel(void) {
 #line 1328 "./asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
-    g_free(ssn_range);
+    wmem_free(wmem_epan_scope(), ssn_range);
   }
 
-  ssn_range = range_copy(global_ssn_range);
+  ssn_range = range_copy(wmem_epan_scope(), global_ssn_range);
 
   range_foreach(ssn_range, range_add_callback);
 
@@ -10691,7 +10691,7 @@ void proto_register_camel(void) {
 
   /* Register our configuration options, particularly our SSNs */
   /* Set default SSNs */
-  range_convert_str(&global_ssn_range, "146", MAX_SSN);
+  range_convert_str(wmem_epan_scope(), &global_ssn_range, "146", MAX_SSN);
 
   camel_module = prefs_register_protocol(proto_camel, proto_reg_handoff_camel);
 

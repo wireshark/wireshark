@@ -4216,7 +4216,6 @@ version_convert( gchar *result, guint32 hexver )
 
 static void
 apply_tds_prefs(void) {
-    g_free(tds_tcp_ports);
     tds_tcp_ports = prefs_get_range_value("tds", "tcp.port");
 }
 

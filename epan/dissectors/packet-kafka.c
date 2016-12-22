@@ -3400,7 +3400,6 @@ dissect_kafka_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 apply_kafka_prefs(void) {
-    g_free(current_kafka_tcp_range);
     current_kafka_tcp_range = prefs_get_range_value("kafka", "tcp.port");
 }
 

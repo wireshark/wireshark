@@ -229,7 +229,7 @@ void packet_range_init(packet_range_t *range, capture_file *cf) {
 
     memset(range, 0, sizeof(packet_range_t));
     range->process    = range_process_all;
-    range->user_range = range_empty();
+    range->user_range = NULL;
     range->cf         = cf;
 
     /* calculate all packet range counters */
@@ -343,11 +343,11 @@ void packet_range_convert_str(packet_range_t *range, const gchar *es)
     convert_ret_t ret;
 
     if (range->user_range != NULL)
-        g_free(range->user_range);
+        wmem_free(NULL, range->user_range);
 
     g_assert(range->cf != NULL);
 
-    ret = range_convert_str(&new_range, es, range->cf->count);
+    ret = range_convert_str(NULL, &new_range, es, range->cf->count);
     if (ret != CVT_NO_ERROR) {
         /* range isn't valid */
         range->user_range                       = NULL;

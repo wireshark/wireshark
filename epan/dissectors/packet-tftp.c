@@ -693,7 +693,6 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 static void
 apply_tftp_prefs(void) {
-  g_free(global_tftp_port_range);
   global_tftp_port_range = prefs_get_range_value("tftp", "udp.port");
 }
 

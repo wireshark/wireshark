@@ -1128,21 +1128,8 @@ proto_register_transum(void)
     preferences.capture_position = TRACE_CAP_CLIENT;
     preferences.reassembly = TRUE;
 
-    tcp_svc_port_range_values = (range_t *)g_malloc((sizeof(guint) + (4 * sizeof(range_admin_t))));
-    tcp_svc_port_range_values->nranges = 4;
-    tcp_svc_port_range_values->ranges[0].low = 25;
-    tcp_svc_port_range_values->ranges[0].high = 25;
-    tcp_svc_port_range_values->ranges[1].low = 80;
-    tcp_svc_port_range_values->ranges[1].high = 80;
-    tcp_svc_port_range_values->ranges[2].low = 443;
-    tcp_svc_port_range_values->ranges[2].high = 443;
-    tcp_svc_port_range_values->ranges[3].low = 1433;
-    tcp_svc_port_range_values->ranges[3].high = 1433;
-
-    udp_svc_port_range_values = (range_t *)g_malloc((sizeof(guint) + (1 * sizeof(range_admin_t))));
-    udp_svc_port_range_values->nranges = 1;
-    udp_svc_port_range_values->ranges[0].low = 137;
-    udp_svc_port_range_values->ranges[0].high = 139;
+    range_convert_str(wmem_epan_scope(), &tcp_svc_port_range_values, "25, 80, 443, 1433", MAX_TCP_PORT);
+    range_convert_str(wmem_epan_scope(), &udp_svc_port_range_values, "137-139", MAX_UDP_PORT);
 
     preferences.orphan_ka_discard = FALSE;
     preferences.time_multiplier = RTE_TIME_SEC;

@@ -3686,7 +3686,7 @@ proto_register_tcap(void)
 #endif
 
   /* Set default SSNs */
-  range_convert_str(&global_ssn_range, "", MAX_SSN);
+  range_convert_str(wmem_epan_scope(), &global_ssn_range, "", MAX_SSN);
 
   prefs_register_range_preference(tcap_module, "ssn", "SCCP SSNs",
                                   "SCCP (and SUA) SSNs to decode as TCAP",
@@ -3739,7 +3739,7 @@ static void range_add_callback(guint32 ssn)
 
 static void init_tcap(void)
 {
-  ssn_range = range_copy(global_ssn_range);
+  ssn_range = range_copy(wmem_epan_scope(), global_ssn_range);
   range_foreach(ssn_range, range_add_callback);
   tcapsrt_init_routine();
 }
@@ -3747,7 +3747,7 @@ static void init_tcap(void)
 static void cleanup_tcap(void)
 {
   range_foreach(ssn_range, range_delete_callback);
-  g_free(ssn_range);
+  wmem_free(wmem_epan_scope(), ssn_range);
 }
 
 static int

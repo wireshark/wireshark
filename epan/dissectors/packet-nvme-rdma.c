@@ -1028,7 +1028,7 @@ proto_register_nvme_rdma(void)
     //nvme_rdma_module = prefs_register_protocol(proto_nvme_rdma, proto_reg_handoff_nvme_rdma);
     nvme_rdma_module = prefs_register_protocol(proto_nvme_rdma, NULL);
 
-    range_convert_str(&gPORT_RANGE, NVME_RDMA_TCP_PORT_RANGE, MAX_TCP_PORT);
+    range_convert_str(wmem_epan_scope(), &gPORT_RANGE, NVME_RDMA_TCP_PORT_RANGE, MAX_TCP_PORT);
     prefs_register_range_preference(nvme_rdma_module,
                                     "subsystem_ports",
                                     "Subsystem Ports Range",

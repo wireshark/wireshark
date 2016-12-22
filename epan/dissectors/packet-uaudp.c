@@ -358,7 +358,6 @@ static int dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 static void
 apply_uaudp_prefs(void) {
-    g_free(ua_udp_range);
     ua_udp_range = prefs_get_range_value("uaudp", "udp.port");
 
     if (*pref_sys_ip_s) {

@@ -895,14 +895,14 @@ void PreferencesDialog::rangePrefTextChanged(const QString &text)
         syntax_edit->setSyntaxState(SyntaxLineEdit::Empty);
     } else {
         range_t *newrange;
-        convert_ret_t ret = range_convert_str(&newrange, text.toUtf8().constData(), pref->info.max_value);
+        convert_ret_t ret = range_convert_str(NULL, &newrange, text.toUtf8().constData(), pref->info.max_value);
 
         if (ret == CVT_NO_ERROR) {
             syntax_edit->setSyntaxState(SyntaxLineEdit::Valid);
-            g_free(newrange);
         } else {
             syntax_edit->setSyntaxState(SyntaxLineEdit::Invalid);
         }
+        wmem_free(NULL, newrange);
     }
 }
 
@@ -916,10 +916,10 @@ void PreferencesDialog::rangePrefEditingFinished()
     if (!pref) return;
 
     range_t *newrange;
-    convert_ret_t ret = range_convert_str(&newrange, syntax_edit->text().toUtf8().constData(), pref->info.max_value);
+    convert_ret_t ret = range_convert_str(wmem_epan_scope(), &newrange, syntax_edit->text().toUtf8().constData(), pref->info.max_value);
 
     if (ret == CVT_NO_ERROR) {
-        g_free(pref->stashed_val.range);
+        wmem_free(wmem_epan_scope(), pref->stashed_val.range);
         pref->stashed_val.range = newrange;
     }
     pd_ui_->advancedTree->removeItemWidget(adv_ti, 3);

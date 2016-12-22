@@ -135,8 +135,7 @@ void proto_register_opa_fe(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     opa_fe_module = prefs_register_protocol(proto_opa_fe, proto_reg_handoff_opa_fe);
-    range_convert_str(&global_fe_ssl_range, OPA_FE_SSL_RANGE, 65535);
-    fe_ssl_range = range_empty();
+    range_convert_str(wmem_epan_scope(), &global_fe_ssl_range, OPA_FE_SSL_RANGE, 65535);
     prefs_register_range_preference(opa_fe_module, "ssl.port", "SSL/TLS Ports",
         "SSL/TLS Ports range",
         &global_fe_ssl_range, 65535);
@@ -154,8 +153,8 @@ void proto_reg_handoff_opa_fe(void)
     }
 
     range_foreach(fe_ssl_range, range_delete_fe_ssl_callback);
-    g_free(fe_ssl_range);
-    fe_ssl_range = range_copy(global_fe_ssl_range);
+    wmem_free(wmem_epan_scope(), fe_ssl_range);
+    fe_ssl_range = range_copy(wmem_epan_scope(), global_fe_ssl_range);
     range_foreach(fe_ssl_range, range_add_fe_ssl_callback);
 
 }

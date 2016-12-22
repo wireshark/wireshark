@@ -1051,8 +1051,7 @@ void dissector_add_uint_range_with_preference(const char *abbrev, const char* ra
 		table value would default to 0.
 		Set up a preference value with that information
 	 */
-	range = wmem_new(wmem_epan_scope(), range_t*);
-	*range = range_empty();
+	range = wmem_new0(wmem_epan_scope(), range_t*);
 
 	/* If the dissector already has a preference module, use it */
 	module = prefs_find_module(proto_get_protocol_filter_name(proto_id));
@@ -1089,7 +1088,7 @@ void dissector_add_uint_range_with_preference(const char *abbrev, const char* ra
 			g_assert_not_reached();
 		}
 
-		range_convert_str(range, range_str, max_value);
+		range_convert_str(wmem_epan_scope(), range, range_str, max_value);
 		prefs_register_decode_as_range_preference(module, abbrev, title, description, range, max_value);
 	}
 

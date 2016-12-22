@@ -13721,9 +13721,9 @@ proto_reg_handoff_pcap(void)
 #line 155 "./asn1/pcap/packet-pcap-template.c"
     } else {
         dissector_delete_uint_range("sccp.ssn", ssn_range, pcap_handle);
-        g_free(ssn_range);
+        wmem_free(wmem_epan_scope(), ssn_range);
     }
-    ssn_range = range_copy(global_ssn_range);
+    ssn_range = range_copy(wmem_epan_scope(), global_ssn_range);
     dissector_add_uint_range("sccp.ssn", ssn_range, pcap_handle);
 }
 
@@ -18732,7 +18732,7 @@ void proto_register_pcap(void) {
 
   /* Preferences */
   /* Set default SSNs */
-  range_convert_str(&global_ssn_range, "", MAX_SSN);
+  range_convert_str(wmem_epan_scope(), &global_ssn_range, "", MAX_SSN);
 
   prefs_register_range_preference(pcap_module, "ssn", "SCCP SSNs",
                                   "SCCP (and SUA) SSNs to decode as PCAP",

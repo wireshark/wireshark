@@ -999,11 +999,12 @@ pref_check(pref_t *pref, gpointer user_data)
     if (strlen(str_val) != 0) {
       range_t *newrange;
 
-      if (range_convert_str(&newrange, str_val, pref->info.max_value) != CVT_NO_ERROR) {
+      if (range_convert_str(NULL, &newrange, str_val, pref->info.max_value) != CVT_NO_ERROR) {
         *badpref = pref;
+        wmem_free(NULL, newrange);
         return PREFS_SET_SYNTAX_ERR;    /* range was bad */
       }
-      g_free(newrange);
+      wmem_free(NULL, newrange);
     }
     break;
 
@@ -1125,7 +1126,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
 
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
 
-    if (range_convert_str_work(&newrange, str_val, pref->info.max_value, TRUE) != CVT_NO_ERROR) {
+    if (range_convert_str_work(wmem_epan_scope(), &newrange, str_val, pref->info.max_value, TRUE) != CVT_NO_ERROR) {
 #if 0
       return PREFS_SET_SYNTAX_ERR;      /* range was bad */
 #else
@@ -1136,7 +1137,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
     if (!ranges_are_equal(*pref->varp.range, newrange)) {
         guint32 i, j;
 
-        g_free(*pref->varp.range);
+        wmem_free(wmem_epan_scope(), *pref->varp.range);
         *pref->varp.range = newrange;
         module->prefs_changed = TRUE;
 
@@ -1170,7 +1171,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
         }
 
     } else {
-        g_free(newrange);
+        wmem_free(wmem_epan_scope(), newrange);
     }
 
     break;

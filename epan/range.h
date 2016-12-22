@@ -64,7 +64,7 @@ typedef enum {
     CVT_NUMBER_TOO_BIG
 } convert_ret_t;
 
-WS_DLL_PUBLIC range_t *range_empty(void);
+WS_DLL_PUBLIC range_t *range_empty(wmem_allocator_t *scope);
 
 
 /*** Converts a range string to a fast comparable array of ranges.
@@ -84,15 +84,16 @@ WS_DLL_PUBLIC range_t *range_empty(void);
  *   20,30,40-      20, 30, and the range from 40 to the end
  *   20-10,30-25    Range from 10 to 20, and from 25 to 30
  *   -              All values
+ * @param scope memory scope for the range
  * @param range the range
  * @param es points to the string to be converted.
  * @param max_value specifies the maximum value in a range.
  * @return convert_ret_t
  */
-WS_DLL_PUBLIC convert_ret_t range_convert_str(range_t **range, const gchar *es,
+WS_DLL_PUBLIC convert_ret_t range_convert_str(wmem_allocator_t *scope, range_t **range, const gchar *es,
     guint32 max_value);
 
-WS_DLL_PUBLIC convert_ret_t range_convert_str_work(range_t **range, const gchar *es,
+WS_DLL_PUBLIC convert_ret_t range_convert_str_work(wmem_allocator_t *scope, range_t **range, const gchar *es,
     guint32 max_value, gboolean err_on_max);
 
 /** This function returns TRUE if a given value is within one of the ranges
@@ -105,19 +106,21 @@ WS_DLL_PUBLIC gboolean value_is_in_range(range_t *range, guint32 val);
 
 /** This function returns TRUE if val has successfully been added to
  * a range.  This may extend an existing range or create a new one
+ * @param scope memory scope of range (in case of reallocation)
  * @param range to add value
  * @param val value to add to range
  * @return TRUE if the value is successsfully added to range
  */
-WS_DLL_PUBLIC gboolean range_add_value(range_t **range, guint32 val);
+WS_DLL_PUBLIC gboolean range_add_value(wmem_allocator_t *scope, range_t **range, guint32 val);
 
 /** This function returns TRUE if val has successfully been removed from
  * a range.  This may remove an existing range.
+ * @param scope memory scope of range (in case of reallocation)
  * @param range to remove value
  * @param val value to remove within range
  * @return TRUE if the value is successsfully removed to range
  */
-WS_DLL_PUBLIC gboolean range_remove_value(range_t **range, guint32 val);
+WS_DLL_PUBLIC gboolean range_remove_value(wmem_allocator_t *scope, range_t **range, guint32 val);
 
 /** This function returns TRUE if the two given range_t's are equal.
  * @param a first range
@@ -139,11 +142,12 @@ WS_DLL_PUBLIC void range_foreach(range_t *range, void (*callback)(guint32 val));
 WS_DLL_PUBLIC char *range_convert_range(wmem_allocator_t *scope, const range_t *range);
 
 /**
- * Create a copy of a range.
+ * Create a (wmem-alloc()ed) copy of a range
+ * @param scope memory scope for the copied range
  * @param src the range to copy
  * @return ep allocated copy of the range
  */
-WS_DLL_PUBLIC range_t *range_copy(range_t *src);
+WS_DLL_PUBLIC range_t *range_copy(wmem_allocator_t *scope, range_t *src);
 
 #ifdef __cplusplus
 }

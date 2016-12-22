@@ -13493,11 +13493,11 @@ void proto_register_opa_mad(void)
     expert_opa_mad = expert_register_protocol(proto_opa_mad);
     expert_register_field_array(expert_opa_mad, ei, array_length(ei));
 
-    range_convert_str(&global_mad_vendor_class, OPA_VENDOR_RANGE_STR, 0xFF);
-    range_convert_str(&global_mad_vendor_rmpp_class, OPA_VENDOR_RMPP_RANGE_STR, 0xFF);
-    range_convert_str(&global_mad_application_class, OPA_APPLICATION_RANGE_STR, 0xFF);
-    range_convert_str(&global_mad_reserved_class, OPA_RESERVED_RANGE_STR, 0xFF);
-    range_convert_str(&global_mad_opa_class, OPA_MGMTCLASS_RANGE_STR, 0xFF);
+    range_convert_str(wmem_epan_scope(), &global_mad_vendor_class, OPA_VENDOR_RANGE_STR, 0xFF);
+    range_convert_str(wmem_epan_scope(), &global_mad_vendor_rmpp_class, OPA_VENDOR_RMPP_RANGE_STR, 0xFF);
+    range_convert_str(wmem_epan_scope(), &global_mad_application_class, OPA_APPLICATION_RANGE_STR, 0xFF);
+    range_convert_str(wmem_epan_scope(), &global_mad_reserved_class, OPA_RESERVED_RANGE_STR, 0xFF);
+    range_convert_str(wmem_epan_scope(), &global_mad_opa_class, OPA_MGMTCLASS_RANGE_STR, 0xFF);
 
     opa_mad_module = prefs_register_protocol(proto_opa_mad, proto_reg_handoff_opa_mad);
     prefs_register_bool_preference(opa_mad_module, "parse_mad_error",

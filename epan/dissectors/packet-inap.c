@@ -9422,10 +9422,10 @@ void proto_reg_handoff_inap(void) {
   }
   else {
     range_foreach(ssn_range, range_delete_callback);
-    g_free(ssn_range);
+    wmem_free(wmem_epan_scope(), ssn_range);
   }
 
-  ssn_range = range_copy(global_ssn_range);
+  ssn_range = range_copy(wmem_epan_scope(), global_ssn_range);
 
   range_foreach(ssn_range, range_add_callback);
 
@@ -11967,7 +11967,7 @@ void proto_register_inap(void) {
   register_ber_oid_dissector("0.4.0.1.1.1.0.0", dissect_inap, proto_inap, "cs1-ssp-to-scp");
 
   /* Set default SSNs */
-  range_convert_str(&global_ssn_range, "106,241", MAX_SSN);
+  range_convert_str(wmem_epan_scope(), &global_ssn_range, "106,241", MAX_SSN);
 
   inap_module = prefs_register_protocol(proto_inap, proto_reg_handoff_inap);
 

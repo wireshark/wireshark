@@ -3295,17 +3295,16 @@ range_add_http_ssl_callback(guint32 port) {
 }
 
 static void reinit_http(void) {
-	g_free(http_tcp_range);
 	http_tcp_range = prefs_get_range_value("http", "tcp.port");
 
 	dissector_delete_uint_range("sctp.port", http_sctp_range, http_sctp_handle);
-	g_free(http_sctp_range);
-	http_sctp_range = range_copy(global_http_sctp_range);
+	wmem_free(wmem_epan_scope(), http_sctp_range);
+	http_sctp_range = range_copy(wmem_epan_scope(), global_http_sctp_range);
 	dissector_add_uint_range("sctp.port", http_sctp_range, http_sctp_handle);
 
 	range_foreach(http_ssl_range, range_delete_http_ssl_callback);
-	g_free(http_ssl_range);
-	http_ssl_range = range_copy(global_http_ssl_range);
+	wmem_free(wmem_epan_scope(), http_ssl_range);
+	http_ssl_range = range_copy(wmem_epan_scope(), global_http_ssl_range);
 	range_foreach(http_ssl_range, range_add_http_ssl_callback);
 }
 
@@ -3652,14 +3651,12 @@ proto_register_http(void)
 #endif
 	prefs_register_obsolete_preference(http_module, "tcp_alternate_port");
 
-	range_convert_str(&global_http_sctp_range, SCTP_DEFAULT_RANGE, 65535);
-	http_sctp_range = range_empty();
+	range_convert_str(wmem_epan_scope(), &global_http_sctp_range, SCTP_DEFAULT_RANGE, 65535);
 	prefs_register_range_preference(http_module, "sctp.port", "SCTP Ports",
 					"SCTP Ports range",
 					&global_http_sctp_range, 65535);
 
-	range_convert_str(&global_http_ssl_range, SSL_DEFAULT_RANGE, 65535);
-	http_ssl_range = range_empty();
+	range_convert_str(wmem_epan_scope(), &global_http_ssl_range, SSL_DEFAULT_RANGE, 65535);
 	prefs_register_range_preference(http_module, "ssl.port", "SSL/TLS Ports",
 					"SSL/TLS Ports range",
 					&global_http_ssl_range, 65535);

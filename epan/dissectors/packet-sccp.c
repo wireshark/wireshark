@@ -3452,17 +3452,20 @@ sccp_users_update_cb(void *r, char **err)
   struct _sccp_ul *c;
   range_t *empty;
 
-  empty = range_empty();
+  empty = range_empty(NULL);
   if (ranges_are_equal(u->called_pc, empty)) {
           *err = g_strdup("Must specify a PC");
+          wmem_free(NULL, empty);
           return FALSE;
   }
 
   if (ranges_are_equal(u->called_ssn, empty)) {
           *err = g_strdup("Must specify an SSN");
+          wmem_free(NULL, empty);
           return FALSE;
   }
 
+  wmem_free(NULL, empty);
   for (c=user_list; c->handlep; c++) {
     if (c->id == u->user) {
       u->uses_tcap = c->uses_tcap;
@@ -3488,9 +3491,9 @@ sccp_users_copy_cb(void *n, const void *o, size_t siz _U_)
   un->handlep   = u->handlep;
 
   if (u->called_pc)
-    un->called_pc  = range_copy(u->called_pc);
+    un->called_pc  = range_copy(NULL, u->called_pc);
   if (u->called_ssn)
-    un->called_ssn = range_copy(u->called_ssn);
+    un->called_ssn = range_copy(NULL, u->called_ssn);
 
   return n;
 }
@@ -3499,8 +3502,8 @@ static void
 sccp_users_free_cb(void *r)
 {
   sccp_user_t *u = (sccp_user_t *)r;
-  if (u->called_pc) g_free(u->called_pc);
-  if (u->called_ssn) g_free(u->called_ssn);
+  if (u->called_pc) wmem_free(NULL, u->called_pc);
+  if (u->called_ssn) wmem_free(NULL, u->called_ssn);
 }
 
 

@@ -108,8 +108,8 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
         show = true;
         break;
     case PREF_RANGE:
-        g_free(new_range_);
-        new_range_ = range_copy(pref->stashed_val.range);
+        wmem_free(NULL, new_range_);
+        new_range_ = range_copy(NULL, pref->stashed_val.range);
         connect(ui->preferenceLineEdit, SIGNAL(textEdited(QString)),
                 this, SLOT(rangeLineEditTextEdited(QString)));
         show = true;
@@ -154,8 +154,8 @@ void PreferenceEditorFrame::rangeLineEditTextEdited(const QString &new_str)
 {
     range_t *new_range = NULL;
 
-    convert_ret_t ret = range_convert_str(&new_range, new_str.toUtf8().constData(), pref_->info.max_value);
-    g_free(new_range_);
+    convert_ret_t ret = range_convert_str(NULL, &new_range, new_str.toUtf8().constData(), pref_->info.max_value);
+    wmem_free(NULL, new_range_);
     new_range_ = new_range;
 
     if (ret == CVT_NO_ERROR) {
@@ -204,8 +204,8 @@ void PreferenceEditorFrame::on_buttonBox_accepted()
         break;
     case PREF_RANGE:
         if (!ranges_are_equal(pref_->stashed_val.range, new_range_)) {
-            g_free(pref_->stashed_val.range);
-            pref_->stashed_val.range = range_copy(new_range_);
+            wmem_free(wmem_epan_scope(), pref_->stashed_val.range);
+            pref_->stashed_val.range = range_copy(wmem_epan_scope(), new_range_);
             apply = true;
         }
         break;
@@ -245,7 +245,7 @@ void PreferenceEditorFrame::on_buttonBox_rejected()
 {
     pref_ = NULL;
     module_ = NULL;
-    g_free(new_range_);
+    wmem_free(NULL, new_range_);
     new_range_ = NULL;
     ui->preferenceLineEdit->clear();
     animatedHide();

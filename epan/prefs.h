@@ -641,7 +641,7 @@ prefs_set_pref_e prefs_set_preference_obsolete(pref_t *pref);
 WS_DLL_PUBLIC guint prefs_get_uint_value(const char *module_name, const char* pref_name);
 
 /*
- * Get the current range_copy()ed range preference value (so it needs to be freed). This allows the
+ * Get the current range preference value (maintained by pref, so it doesn't need to be freed). This allows the
  * preference structure to remain hidden from those that doesn't really need it.
  */
 WS_DLL_PUBLIC range_t* prefs_get_range_value(const char *module_name, const char* pref_name);

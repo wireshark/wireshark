@@ -70,8 +70,8 @@ pref_stash(pref_t *pref, gpointer unused _U_)
 
   case PREF_DECODE_AS_RANGE:
   case PREF_RANGE:
-    g_free(pref->stashed_val.range);
-    pref->stashed_val.range = range_copy(*pref->varp.range);
+    wmem_free(wmem_epan_scope(), pref->stashed_val.range);
+    pref->stashed_val.range = range_copy(wmem_epan_scope(), *pref->varp.range);
     break;
 
   case PREF_COLOR:
@@ -179,8 +179,8 @@ pref_unstash(pref_t *pref, gpointer unstash_data_p)
         }
       }
 
-      g_free(*pref->varp.range);
-      *pref->varp.range = range_copy(pref->stashed_val.range);
+      wmem_free(wmem_epan_scope(), *pref->varp.range);
+      *pref->varp.range = range_copy(wmem_epan_scope(), pref->stashed_val.range);
 
       if (unstash_data->handle_decode_as) {
         if ((sub_dissectors != NULL) && (handle != NULL)) {
@@ -204,8 +204,8 @@ pref_unstash(pref_t *pref, gpointer unstash_data_p)
   case PREF_RANGE:
     if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
       unstash_data->module->prefs_changed = TRUE;
-      g_free(*pref->varp.range);
-      *pref->varp.range = range_copy(pref->stashed_val.range);
+      wmem_free(wmem_epan_scope(), *pref->varp.range);
+      *pref->varp.range = range_copy(wmem_epan_scope(), pref->stashed_val.range);
     }
     break;
 
@@ -254,8 +254,8 @@ reset_stashed_pref(pref_t *pref) {
 
   case PREF_DECODE_AS_RANGE:
   case PREF_RANGE:
-    g_free(pref->stashed_val.range);
-    pref->stashed_val.range = range_copy(pref->default_val.range);
+    wmem_free(wmem_epan_scope(), pref->stashed_val.range);
+    pref->stashed_val.range = range_copy(wmem_epan_scope(), pref->default_val.range);
     break;
 
   case PREF_COLOR:
@@ -300,7 +300,7 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
   case PREF_DECODE_AS_RANGE:
   case PREF_RANGE:
     if (pref->stashed_val.range != NULL) {
-      g_free(pref->stashed_val.range);
+      wmem_free(wmem_epan_scope(), pref->stashed_val.range);
       pref->stashed_val.range = NULL;
     }
     break;

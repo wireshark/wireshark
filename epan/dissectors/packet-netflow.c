@@ -12011,8 +12011,8 @@ proto_register_netflow(void)
     netflow_module = prefs_register_protocol(proto_netflow, proto_reg_handoff_netflow);
 
     /* Set default Netflow port(s) */
-    range_convert_str(&global_netflow_ports, NETFLOW_UDP_PORTS, MAX_UDP_PORT);
-    range_convert_str(&global_ipfix_ports,  IPFIX_UDP_PORTS,   MAX_UDP_PORT);
+    range_convert_str(wmem_epan_scope(), &global_netflow_ports, NETFLOW_UDP_PORTS, MAX_UDP_PORT);
+    range_convert_str(wmem_epan_scope(), &global_ipfix_ports,  IPFIX_UDP_PORTS,   MAX_UDP_PORT);
 
     prefs_register_obsolete_preference(netflow_module, "udp.port");
 
@@ -12075,13 +12075,13 @@ proto_reg_handoff_netflow(void)
         dissector_add_uint_range_with_preference("tcp.port", IPFIX_UDP_PORTS, netflow_handle);
     } else {
         dissector_delete_uint_range("udp.port", netflow_ports, netflow_handle);
-        g_free(netflow_ports);
+        wmem_free(wmem_epan_scope(), netflow_ports);
         range_foreach(ipfix_ports, ipfix_delete_callback);
-        g_free(ipfix_ports);
+        wmem_free(wmem_epan_scope(), ipfix_ports);
     }
 
-    netflow_ports = range_copy(global_netflow_ports);
-    ipfix_ports = range_copy(global_ipfix_ports);
+    netflow_ports = range_copy(wmem_epan_scope(), global_netflow_ports);
+    ipfix_ports = range_copy(wmem_epan_scope(), global_ipfix_ports);
 
     dissector_add_uint_range("udp.port", netflow_ports, netflow_handle);
     range_foreach(ipfix_ports, ipfix_add_callback);

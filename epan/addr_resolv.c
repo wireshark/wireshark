@@ -526,15 +526,16 @@ parse_service_line (char *line)
         return;
     }
 
-    if (CVT_NO_ERROR != range_convert_str(&port_rng, port, max_port)) {
+    if (CVT_NO_ERROR != range_convert_str(NULL, &port_rng, port, max_port)) {
         /* some assertion here? */
+        wmem_free (NULL, port_rng);
         return;
     }
 
     cb_service = service;
     cb_proto = proto;
     range_foreach(port_rng, add_serv_port_cb);
-    g_free (port_rng);
+    wmem_free (NULL, port_rng);
     cb_proto = PT_NONE;
 } /* parse_service_line */
 

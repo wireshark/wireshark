@@ -2332,7 +2332,7 @@ proto_register_diameter(void)
 	diameter_expr_result_vnd_table = register_dissector_table("diameter.vnd_exp_res", "DIAMETER Experimental-Result-Code", proto_diameter, FT_UINT32, BASE_DEC);
 
 	/* Set default TCP ports */
-	range_convert_str(&global_diameter_sctp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_SCTP_PORT);
+	range_convert_str(wmem_epan_scope(), &global_diameter_sctp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_SCTP_PORT);
 
 	/* Register configuration options for ports */
 	diameter_module = prefs_register_protocol(proto_diameter, proto_reg_handoff_diameter);
@@ -2420,11 +2420,11 @@ proto_reg_handoff_diameter(void)
 		Initialized=TRUE;
 	} else {
 		dissector_delete_uint_range("sctp.port", diameter_sctp_port_range, diameter_sctp_handle);
-		g_free(diameter_sctp_port_range);
+		wmem_free(wmem_epan_scope(), diameter_sctp_port_range);
 	}
 
 	/* set port for future deletes */
-	diameter_sctp_port_range = range_copy(global_diameter_sctp_port_range);
+	diameter_sctp_port_range = range_copy(wmem_epan_scope(), global_diameter_sctp_port_range);
 	dissector_add_uint_range("sctp.port", diameter_sctp_port_range, diameter_sctp_handle);
 
 	exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);

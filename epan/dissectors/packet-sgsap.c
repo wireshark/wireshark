@@ -1713,7 +1713,7 @@ void proto_register_sgsap(void) {
     sgsap_handle = register_dissector(PFNAME, dissect_sgsap, proto_sgsap);
 
    /* Set default SCTP ports */
-    range_convert_str(&global_sgsap_port_range, SGSAP_SCTP_PORT_RANGE, MAX_SCTP_PORT);
+    range_convert_str(wmem_epan_scope(), &global_sgsap_port_range, SGSAP_SCTP_PORT_RANGE, MAX_SCTP_PORT);
 
     sgsap_module = prefs_register_protocol(proto_sgsap, proto_reg_handoff_sgsap);
 
@@ -1740,10 +1740,10 @@ proto_reg_handoff_sgsap(void)
         Initialized=TRUE;
     } else {
         dissector_delete_uint_range("sctp.port", sgsap_port_range, sgsap_handle);
-        g_free(sgsap_port_range);
+        wmem_free(wmem_epan_scope(), sgsap_port_range);
     }
 
-    sgsap_port_range = range_copy(global_sgsap_port_range);
+    sgsap_port_range = range_copy(wmem_epan_scope(), global_sgsap_port_range);
     dissector_add_uint_range("sctp.port", sgsap_port_range, sgsap_handle);
 }
 

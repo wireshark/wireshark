@@ -220,7 +220,7 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
                             module->prefs_changed = TRUE;
                             break;
                         case PREF_DECODE_AS_RANGE:
-                            range_add_value(pref_value->varp.range, (guint)long_value);
+                            range_add_value(wmem_epan_scope(), pref_value->varp.range, (guint)long_value);
                             module->prefs_changed = TRUE;
                             break;
                         default:

@@ -235,7 +235,7 @@ static range_t* get_range(lua_State *L, int idx_r, int idx_m)
     static range_t *ret = NULL;
     const gchar *pattern = luaL_checkstring(L, idx_r);
 
-    switch (range_convert_str(&ret, pattern, wslua_togint32(L, idx_m))) {
+    switch (range_convert_str(wmem_epan_scope(), &ret, pattern, wslua_togint32(L, idx_m))) {
         case CVT_NO_ERROR:
           break;
         case CVT_SYNTAX_ERROR:
