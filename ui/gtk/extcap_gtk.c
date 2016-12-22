@@ -135,10 +135,10 @@ GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
 
     int multi_num = 0;
 
-    guint year;
-    guint month;
-    guint day;
-    guint64 unix_ts;
+    guint year = 0;
+    guint month = 0;
+    guint day = 0;
+    guint64 unix_ts = 0;
 
     widget_list = (GSList *) g_object_get_data(G_OBJECT(widget),
     EXTCAP_GTK_DATA_KEY_WIDGETLIST);
@@ -195,6 +195,9 @@ GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
                 t.tm_year = year;
                 t.tm_mon = month;
                 t.tm_mday = day;
+                t.tm_hour = 0;
+                t.tm_min = 0;
+                t.tm_sec = 0;
                 unix_ts = mktime(&t);
                 call_string = g_strdup_printf("%" G_GINT64_MODIFIER "u", unix_ts);
             }
