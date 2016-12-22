@@ -1860,6 +1860,8 @@ dissect_rtp_rfc4571(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     if ( packet_len < 2 )
         return 0;
 
+    packet_len -= 2;
+
     /* Is packet longer than length item */
     rtp_packet_len = tvb_get_ntohs( tvb, offset );
     if (packet_len != rtp_packet_len)
