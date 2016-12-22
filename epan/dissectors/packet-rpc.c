@@ -2081,9 +2081,7 @@ looks_like_rpc_call(tvbuff_t *tvb, int offset)
 		if (version > 10)
 			return NULL;
 
-		rpc_prog = wmem_new(wmem_packet_scope(), rpc_prog_info_value);
-		rpc_prog->proto = NULL;
-		rpc_prog->proto_id = 0;
+		rpc_prog = wmem_new0(wmem_packet_scope(), rpc_prog_info_value);
 		rpc_prog->ett = ett_rpc_unknown_program;
 		rpc_prog->progname = wmem_strdup_printf(wmem_packet_scope(), "Unknown RPC program %u", rpc_prog_key);
 	}
@@ -2845,7 +2843,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		tmp_item=proto_tree_add_uint(ptree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
 		PROTO_ITEM_SET_GENERATED(tmp_item);
-		if (rpc_prog && (rpc_prog->procedure_hfs->len > vers) )
+		if (rpc_prog && rpc_prog->procedure_hfs && (rpc_prog->procedure_hfs->len > vers) )
 			procedure_hf = g_array_index(rpc_prog->procedure_hfs, int, vers);
 		else {
 			/*
