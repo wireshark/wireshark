@@ -2476,7 +2476,7 @@ static char *ed137_squ_only = "SQU";
 static char *ed137_ptt_and_squ = "PTT+SQU";
 
 static int
-dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
+dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     unsigned int hdr_extension_len;
     struct _rtp_info *rtp_info=(struct _rtp_info *)data;
@@ -2491,7 +2491,9 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         gboolean ed137_ptt = FALSE;
         gboolean ed137_squ = FALSE;
 
-        rtp_info->info_is_ed137 = TRUE;
+        if (rtp_info != NULL) {
+            rtp_info->info_is_ed137 = TRUE;
+        }
         if ( tree ) {
             proto_item *ti;
             ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, ENC_NA);
@@ -2590,7 +2592,7 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 }
 
 static int
-dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
+dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     unsigned int hdr_extension_len;
     struct _rtp_info *rtp_info=(struct _rtp_info *)data;
@@ -2605,7 +2607,9 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         gboolean ed137_ptt = FALSE;
         gboolean ed137_squ = FALSE;
 
-        rtp_info->info_is_ed137 = TRUE;
+        if (rtp_info != NULL) {
+            rtp_info->info_is_ed137 = TRUE;
+        }
         if ( tree ) {
             proto_item *ti;
             ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, ENC_NA);
