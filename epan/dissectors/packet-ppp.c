@@ -4520,6 +4520,8 @@ dissect_bcp_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         break;
     }
 
+    proto_item_set_len(ti, offset);
+
     if (!(flags & BCP_IS_BCONTROL)) {
         captured_length = tvb_captured_length_remaining(tvb, offset);
         reported_length = tvb_reported_length_remaining(tvb, offset);
