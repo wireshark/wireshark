@@ -3438,7 +3438,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
         case 0x036: /* LE Set Extended Advertising Parameters */
             proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset+=1;
-            item = proto_tree_add_item(tree, hf_bthci_cmd_advertising_event_properties, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_event_properties, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             item = proto_tree_add_item(tree, hf_bthci_cmd_le_advts_interval_min, tvb, offset, 3, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
