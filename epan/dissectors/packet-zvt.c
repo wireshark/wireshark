@@ -58,7 +58,7 @@
 #define ZVT_APDU_MIN_LEN 3
 
 
-static GHashTable *apdu_table = NULL, *bitmap_table = NULL;
+static GHashTable *apdu_table = NULL, *bitmap_table = NULL, *tlv_table = NULL;
 
 static wmem_tree_t *transactions = NULL;
 
@@ -185,6 +185,7 @@ static int ett_zvt = -1;
 static int ett_zvt_apdu = -1;
 static int ett_zvt_bitmap = -1;
 static int ett_zvt_tlv_dat_obj = -1;
+static int ett_zvt_tlv_subseq = -1;
 static int ett_zvt_tlv_tag = -1;
 
 static int hf_zvt_resp_in = -1;
@@ -261,11 +262,6 @@ static const value_string bitmap[] = {
 };
 static value_string_ext bitmap_ext = VALUE_STRING_EXT_INIT(bitmap);
 
-static const value_string tlv_tags[] = {
-    { 0, NULL }
-};
-static value_string_ext tlv_tags_ext = VALUE_STRING_EXT_INIT(tlv_tags);
-
 static const value_string tlv_tag_class[] = {
     { 0x00, "Universal" },
     { 0x01, "Application" },
@@ -275,7 +271,53 @@ static const value_string tlv_tag_class[] = {
 };
 static value_string_ext tlv_tag_class_ext = VALUE_STRING_EXT_INIT(tlv_tag_class);
 
+#define TLV_TAG_DISPLAY_TEXTS       0x24
+#define TLV_TAG_PAYMENT_TYPE        0x2F
 
+typedef struct _tlv_seq_info_t {
+    guint txt_enc;
+} tlv_seq_info_t;
+
+
+static gint
+dissect_zvt_tlv_seq(tvbuff_t *tvb, gint offset, guint16 seq_max_len,
+        packet_info *pinfo _U_, proto_tree *tree, tlv_seq_info_t *seq_info);
+
+typedef struct _tlv_info_t {
+    guint32 tag;
+    gint (*dissect_payload)(tvbuff_t *, gint, gint,
+            packet_info *, proto_tree *, tlv_seq_info_t *);
+} tlv_info_t;
+
+static gint dissect_zvt_tlv_subseq(
+        tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info);
+
+static const tlv_info_t tlv_info[] = {
+    { TLV_TAG_DISPLAY_TEXTS, dissect_zvt_tlv_subseq },
+    { TLV_TAG_PAYMENT_TYPE, dissect_zvt_tlv_subseq }
+};
+
+static const value_string tlv_tags[] = {
+    { TLV_TAG_DISPLAY_TEXTS, "Display texts" },
+    { TLV_TAG_PAYMENT_TYPE,  "Payment type" },
+    { 0, NULL }
+};
+static value_string_ext tlv_tags_ext = VALUE_STRING_EXT_INIT(tlv_tags);
+
+
+static gint dissect_zvt_tlv_subseq(
+        tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info)
+{
+    proto_tree *subseq_tree;
+
+    subseq_tree = proto_tree_add_subtree(tree,
+            tvb, offset, len, ett_zvt_tlv_subseq, NULL,
+            "Subsequence");
+
+    return dissect_zvt_tlv_seq(tvb, offset, len, pinfo, subseq_tree, seq_info);
+}
 
 
 static gint
@@ -351,27 +393,34 @@ dissect_zvt_tlv_len(tvbuff_t *tvb, gint offset,
     return len_bytes;
 }
 
- 
+
 static gint
-dissect_zvt_tlv_container(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree)
+dissect_zvt_tlv_seq(tvbuff_t *tvb, gint offset, guint16 seq_max_len,
+        packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info)
 {
-    gint        offset_start;
-    proto_item *dat_obj_it;
-    proto_tree *dat_obj_tree;
-    gint        tag_len;
-    guint32     tag;
-    gint        total_len_bytes, data_len_bytes;
-    guint16     data_len = 0;
+    gint            offset_start;
+    proto_item     *dat_obj_it;
+    proto_tree     *dat_obj_tree;
+    gint            tag_len;
+    guint32         tag;
+    gint            data_len_bytes;
+    guint16         data_len = 0;
+    tlv_info_t     *ti;
+    gint            ret;
+
+    if (!seq_info) {
+        seq_info = (tlv_seq_info_t *)wmem_alloc(
+                wmem_packet_scope(), sizeof(tlv_seq_info_t));
+
+        /* by default, text lines are using the CP437 charset
+           there's an object to change the encoding
+           (XXX - does this change apply only to the current message?) */
+        seq_info->txt_enc = ENC_CP437;
+    }
 
     offset_start = offset;
 
-    total_len_bytes = dissect_zvt_tlv_len(tvb, offset, pinfo,
-                tree, hf_zvt_tlv_total_len, NULL);
-    if (total_len_bytes > 0)
-        offset += total_len_bytes;
-
-    while (tvb_captured_length_remaining(tvb, offset) > 0) {
+    while (offset-offset_start < seq_max_len) {
         dat_obj_tree = proto_tree_add_subtree(tree,
             tvb, offset, -1, ett_zvt_tlv_dat_obj, &dat_obj_it,
             "TLV data object");
@@ -382,15 +431,53 @@ dissect_zvt_tlv_container(tvbuff_t *tvb, gint offset,
         offset += tag_len;
 
         data_len_bytes = dissect_zvt_tlv_len(tvb, offset, pinfo,
-                dat_obj_tree,hf_zvt_tlv_len, &data_len); 
+                dat_obj_tree,hf_zvt_tlv_len, &data_len);
         if (data_len_bytes > 0)
             offset += data_len_bytes;
 
-        /* XXX - dissect the data-element */
-        offset += data_len;
-
+        /* set the sequence length now that we know it
+           this way, we don't have to put the whole switch statement
+           under if (data_len > 0) */
         proto_item_set_len(dat_obj_it, tag_len + data_len_bytes + data_len);
+        if (data_len == 0)
+            continue;
+
+        ti = (tlv_info_t *)g_hash_table_lookup(
+            tlv_table, GUINT_TO_POINTER((guint)tag));
+        if (ti && ti->dissect_payload) {
+            ret = ti->dissect_payload(
+                    tvb, offset, (gint)data_len, pinfo, dat_obj_tree, seq_info);
+            if (ret <= 0) {
+                /* XXX - expert info */
+            }
+        }
+
+        offset += data_len;
     }
+
+    return offset - offset_start;
+}
+
+
+static gint
+dissect_zvt_tlv_container(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree)
+{
+    gint     offset_start;
+    gint     total_len_bytes, seq_len;
+    guint16  seq_max_len;
+
+    offset_start = offset;
+
+    total_len_bytes = dissect_zvt_tlv_len(tvb, offset, pinfo,
+                tree, hf_zvt_tlv_total_len, &seq_max_len);
+    if (total_len_bytes > 0)
+        offset += total_len_bytes;
+
+    seq_len = dissect_zvt_tlv_seq(
+            tvb, offset, seq_max_len, pinfo, tree, NULL);
+    if (seq_len  > 0)
+        offset += seq_len;
 
     return offset - offset_start;
 }
@@ -844,6 +931,7 @@ proto_register_zvt(void)
         &ett_zvt_apdu,
         &ett_zvt_bitmap,
         &ett_zvt_tlv_dat_obj,
+        &ett_zvt_tlv_subseq,
         &ett_zvt_tlv_tag
     };
     static hf_register_info hf[] = {
@@ -931,6 +1019,13 @@ proto_register_zvt(void)
         g_hash_table_insert(bitmap_table,
                             GUINT_TO_POINTER((guint)bitmap_info[i].bmp),
                             (gpointer)(&bitmap_info[i]));
+    }
+
+    tlv_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+    for(i=0; i<array_length(tlv_info); i++) {
+        g_hash_table_insert(tlv_table,
+                            GUINT_TO_POINTER((guint)tlv_info[i].tag),
+                            (gpointer)(&tlv_info[i]));
     }
 
     proto_zvt = proto_register_protocol("ZVT Kassenschnittstelle", "ZVT", "zvt");
