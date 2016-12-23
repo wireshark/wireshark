@@ -342,7 +342,7 @@ static int dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 					ranging_status_item = add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_rng_rsp_ranging_status, tvb, offset, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_DL_FREQ_OVERRIDE: {
-					add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_rng_rsp_dl_freq_override, tvb, offset, ENC_BIG_ENDIAN);
+					dl_freq_override_item = add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_rng_rsp_dl_freq_override, tvb, offset, ENC_BIG_ENDIAN);
 					break;
 				}
 				case RNG_RSP_UL_CHANNEL_ID_OVERRIDE:
@@ -512,6 +512,9 @@ static int dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 			}
 			offset = tlv_len + tlv_offset;
 		}	/* end of TLV process while loop */
+		/*
+		 * XXX - these should probably be expert info items.
+		 */
 		if (ranging_status_item && dl_freq_override_item)
 			proto_item_append_text(ranging_status_item, " (shall be set to 2 because Downlink Frequency Override is present)");
 		if (ss_mac_address_item && frame_number_item) {
