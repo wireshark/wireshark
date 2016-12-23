@@ -8035,7 +8035,7 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_gm_pco_pid,
 		  { "Protocol or Container ID", "gsm_a.gm.sm.pco_pid",
-		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_pco_app_spec_info,
