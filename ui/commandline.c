@@ -389,6 +389,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
     }
 
     /* Initialize with default values */
+    dissect_opts_init();
     global_commandline_info.jump_backwards = SD_FORWARD;
     global_commandline_info.go_to_packet = 0;
     global_commandline_info.jfilter = NULL;
