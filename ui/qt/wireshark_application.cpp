@@ -411,6 +411,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     proto_enable_all();
     if (gdp_path == NULL && dp_path == NULL) {
         set_disabled_protos_list();
+        set_enabled_protos_list();
         set_disabled_heur_dissector_list();
     }
 
@@ -1028,6 +1029,8 @@ _e_prefs *WiresharkApplication::readConfigurationFiles(char **gdp_path, char **d
 
     /* Read the disabled protocols file. */
     read_disabled_protos_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
+                              dp_path, &dp_open_errno, &dp_read_errno);
+    read_enabled_protos_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
                               dp_path, &dp_open_errno, &dp_read_errno);
     read_disabled_heur_dissector_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
                               dp_path, &dp_open_errno, &dp_read_errno);

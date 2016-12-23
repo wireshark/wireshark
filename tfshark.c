@@ -622,6 +622,8 @@ main(int argc, char *argv[])
   /* Read the disabled protocols file. */
   read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
                             &dp_path, &dp_open_errno, &dp_read_errno);
+  read_enabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
+                            &dp_path, &dp_open_errno, &dp_read_errno);
   read_disabled_heur_dissector_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
                             &dp_path, &dp_open_errno, &dp_read_errno);
   if (gdp_path != NULL) {
@@ -935,6 +937,7 @@ main(int argc, char *argv[])
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {
     set_disabled_protos_list();
+    set_enabled_protos_list();
     set_disabled_heur_dissector_list();
   }
 

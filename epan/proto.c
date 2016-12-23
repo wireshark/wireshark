@@ -6158,6 +6158,12 @@ proto_is_protocol_enabled(const protocol_t *protocol)
 }
 
 gboolean
+proto_is_protocol_enabled_by_default(const protocol_t *protocol)
+{
+	return protocol->enabled_by_default;
+}
+
+gboolean
 proto_can_toggle_protocol(const int proto_id)
 {
 	protocol_t *protocol;

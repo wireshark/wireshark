@@ -1024,6 +1024,8 @@ main(int argc, char *argv[])
   /* Read the disabled protocols file. */
   read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
                             &dp_path, &dp_open_errno, &dp_read_errno);
+  read_enabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
+                            &dp_path, &dp_open_errno, &dp_read_errno);
   read_disabled_heur_dissector_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
                             &dp_path, &dp_open_errno, &dp_read_errno);
   if (gdp_path != NULL) {
@@ -1385,6 +1387,7 @@ main(int argc, char *argv[])
     case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
     case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
     case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
+    case LONGOPT_ENABLE_PROTOCOL: /* enable dissection of protocol (that is disabled by default) */
       if (!dissect_opts_handle_opt(opt, optarg))
           return 1;
       break;
@@ -1737,6 +1740,7 @@ main(int argc, char *argv[])
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {
     set_disabled_protos_list();
+    set_enabled_protos_list();
     set_disabled_heur_dissector_list();
   }
 
@@ -1745,6 +1749,14 @@ main(int argc, char *argv[])
     for (proto_disable = global_dissect_options.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
     {
       proto_disable_proto_by_name((char*)proto_disable->data);
+    }
+  }
+
+  if(global_dissect_options.enable_protocol_slist) {
+    GSList *proto_enable;
+    for (proto_enable = global_dissect_options.enable_protocol_slist; proto_enable != NULL; proto_enable = g_slist_next(proto_enable))
+    {
+      proto_enable_proto_by_name((char*)proto_enable->data);
     }
   }
 

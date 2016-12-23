@@ -1,5 +1,6 @@
 /* disabled_protos.h
- * Declarations of routines for reading and writing the disabled protocols file.
+ * Declarations of routines for reading and writing protocols file that determine
+ * enabling and disabling of protocols.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -67,6 +68,48 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return);
 
 WS_DLL_PUBLIC void
 proto_disable_proto_by_name(const char *name);
+
+
+/*
+ * Read in a list of enabled protocols (who are disabled by default)
+ *
+ * On success, "*pref_path_return" is set to NULL.
+ * On error, "*pref_path_return" is set to point to the pathname of
+ * the file we tried to read - it should be freed by our caller -
+ * and "*open_errno_return" is set to the error if we couldn't open the file
+ * or "*read_errno_return" is set to the error if we got an error reading
+ * the file.
+ */
+WS_DLL_PUBLIC void
+read_enabled_protos_list(char **gpath_return, int *gopen_errno_return,
+			  int *gread_errno_return,
+			  char **path_return, int *open_errno_return,
+			  int *read_errno_return);
+
+/*
+ * Enable protocols (that default to disabled) as per the stored configuration
+ */
+WS_DLL_PUBLIC void
+set_enabled_protos_list(void);
+
+/*
+ * Write out a list of enabled protocols (that default to being disabled)
+ *
+ * On success, "*pref_path_return" is set to NULL.
+ * On error, "*pref_path_return" is set to point to the pathname of
+ * the file we tried to read - it should be freed by our caller -
+ * and "*errno_return" is set to the error.
+ */
+WS_DLL_PUBLIC void
+save_enabled_protos_list(char **pref_path_return, int *errno_return);
+
+
+/*
+ * Enable a particular protocol by name.  This will only enable
+ * protocols that are disabled by default.  All others will be ignored.
+ */
+WS_DLL_PUBLIC void
+proto_enable_proto_by_name(const char *name);
 
 /*
  * Read in a list of disabled protocols.

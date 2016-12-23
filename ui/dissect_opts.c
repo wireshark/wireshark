@@ -54,6 +54,7 @@ dissect_opts_init(void)
 {
     global_dissect_options.time_format = TS_NOT_SET;
     global_dissect_options.disable_protocol_slist = NULL;
+    global_dissect_options.enable_protocol_slist = NULL;
     global_dissect_options.enable_heur_slist = NULL;
     global_dissect_options.disable_heur_slist = NULL;
 }
@@ -149,6 +150,9 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
         break;
     case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
         global_dissect_options.disable_heur_slist = g_slist_append(global_dissect_options.disable_heur_slist, optarg_str_p);
+        break;
+    case LONGOPT_ENABLE_PROTOCOL: /* enable dissection of protocol (that is disableed by default) */
+        global_dissect_options.enable_protocol_slist = g_slist_append(global_dissect_options.enable_protocol_slist, optarg_str_p);
         break;
     default:
         /* the caller is responsible to send us only the right opt's */

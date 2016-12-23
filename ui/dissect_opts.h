@@ -56,6 +56,7 @@ extern "C" {
 #define LONGOPT_DISABLE_PROTOCOL  4096
 #define LONGOPT_ENABLE_HEURISTIC  4097
 #define LONGOPT_DISABLE_HEURISTIC 4098
+#define LONGOPT_ENABLE_PROTOCOL   4099
 
 /*
  * Options for dissecting common to all dissecting programs.
@@ -64,6 +65,7 @@ extern "C" {
     {"disable-protocol", required_argument, NULL, LONGOPT_DISABLE_PROTOCOL }, \
     {"enable-heuristic", required_argument, NULL, LONGOPT_ENABLE_HEURISTIC }, \
     {"disable-heuristic", required_argument, NULL, LONGOPT_DISABLE_HEURISTIC }, \
+    {"enable-protocol", required_argument, NULL, LONGOPT_ENABLE_PROTOCOL }, \
 
 #define OPTSTRING_DISSECT_COMMON \
     "d:K:nN:t:u:"
@@ -71,6 +73,7 @@ extern "C" {
 /** Capture options coming from user interface */
 typedef struct dissect_options_tag {
     ts_type time_format;
+    GSList *enable_protocol_slist; //enable protocols that are disabled by default
     GSList *disable_protocol_slist;
     GSList *enable_heur_slist;
     GSList *disable_heur_slist;

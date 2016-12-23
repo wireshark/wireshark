@@ -713,6 +713,7 @@ int main(int argc, char *qt_argv[])
     /* disabled protocols as per configuration file */
     if (gdp_path == NULL && dp_path == NULL) {
         set_disabled_protos_list();
+        set_enabled_protos_list();
         set_disabled_heur_dissector_list();
     }
 
@@ -721,6 +722,14 @@ int main(int argc, char *qt_argv[])
         for (proto_disable = global_dissect_options.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
         {
             proto_disable_proto_by_name((char*)proto_disable->data);
+        }
+    }
+
+    if(global_dissect_options.enable_protocol_slist) {
+        GSList *proto_enable;
+        for (proto_enable = global_dissect_options.enable_protocol_slist; proto_enable != NULL; proto_enable = g_slist_next(proto_enable))
+        {
+            proto_enable_proto_by_name((char*)proto_enable->data);
         }
     }
 

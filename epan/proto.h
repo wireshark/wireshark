@@ -2250,6 +2250,10 @@ WS_DLL_PUBLIC const char *proto_get_protocol_long_name(const protocol_t *protoco
  @return TRUE if decoding is enabled, FALSE if not */
 WS_DLL_PUBLIC gboolean proto_is_protocol_enabled(const protocol_t *protocol);
 
+/** Is protocol's enabled by default (most are)?
+ @return TRUE if decoding is enabled by default, FALSE if not */
+WS_DLL_PUBLIC gboolean proto_is_protocol_enabled_by_default(const protocol_t *protocol);
+
 /** Get a protocol's filter name by its item number.
  @param proto_id protocol id (0-indexed)
  @return its filter name. */

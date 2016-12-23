@@ -283,6 +283,15 @@ void EnabledProtocolsDialog::writeChanges()
             g_free(pf_path);
         }
 
+        save_enabled_protos_list(&pf_path, &pf_save_errno);
+        if (pf_path != NULL)
+        {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                        "Could not save to your enabled protocols file\n\"%s\": %s.",
+                        pf_path, g_strerror(pf_save_errno));
+            g_free(pf_path);
+        }
+
         save_disabled_heur_dissector_list(&pf_path, &pf_save_errno);
         if (pf_path != NULL)
         {

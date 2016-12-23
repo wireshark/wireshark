@@ -1971,6 +1971,8 @@ read_configuration_files(char **gdp_path, char **dp_path)
     /* Read the disabled protocols file. */
     read_disabled_protos_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
                               dp_path, &dp_open_errno, &dp_read_errno);
+    read_enabled_protos_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
+                              dp_path, &dp_open_errno, &dp_read_errno);
     read_disabled_heur_dissector_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
                               dp_path, &dp_open_errno, &dp_read_errno);
     if (*gdp_path != NULL) {
@@ -2462,6 +2464,7 @@ main(int argc, char *argv[])
     /* disabled protocols as per configuration file */
     if (gdp_path == NULL && dp_path == NULL) {
         set_disabled_protos_list();
+        set_enabled_protos_list();
         set_disabled_heur_dissector_list();
     }
 
@@ -2470,6 +2473,14 @@ main(int argc, char *argv[])
         for (proto_disable = global_dissect_options.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
         {
             proto_disable_proto_by_name((char*)proto_disable->data);
+        }
+    }
+
+    if(global_dissect_options.enable_protocol_slist) {
+        GSList *proto_enable;
+        for (proto_enable = global_dissect_options.enable_protocol_slist; proto_enable != NULL; proto_enable = g_slist_next(proto_enable))
+        {
+            proto_enable_proto_by_name((char*)proto_enable->data);
         }
     }
 
@@ -3346,6 +3357,7 @@ void change_configuration_profile (const gchar *profile_name)
     proto_enable_all();
     if (gdp_path == NULL && dp_path == NULL) {
         set_disabled_protos_list();
+        set_enabled_protos_list();
         set_disabled_heur_dissector_list();
     }
 

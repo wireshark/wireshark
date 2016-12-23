@@ -989,6 +989,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_disable_proto_by_name@Base 1.99.8
  proto_enable_all@Base 1.9.1
  proto_enable_heuristic_by_name@Base 1.99.8
+ proto_enable_proto_by_name@2.3.0
  proto_expert@Base 1.9.1
  proto_field_is_referenced@Base 1.9.1
  proto_field_display_to_string@Base 2.1.0
@@ -1014,6 +1015,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_heuristic_dissector_foreach@Base 2.0.0
  proto_initialize_all_prefixes@Base 1.9.1
  proto_is_protocol_enabled@Base 1.9.1
+ proto_is_protocol_enabled_by_default@Base 2.3.0
  proto_is_frame_protocol@Base 1.99.1
  proto_item_add_subtree@Base 1.9.1
  proto_item_append_text@Base 1.9.1
@@ -1271,6 +1273,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  save_decode_as_entries@Base 2.3.0
  save_disabled_heur_dissector_list@Base 1.99.8
  save_disabled_protos_list@Base 1.12.0~rc1
+ save_enabled_protos_list@Base 2.3.0
  sccp_address_signal_values@Base 1.9.1
  sccp_error_cause_values@Base 1.9.1
  sccp_message_type_acro_values@Base 1.9.1
@@ -1294,6 +1297,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  set_column_visible@Base 1.9.1
  set_disabled_heur_dissector_list@Base 1.99.8
  set_disabled_protos_list@Base 1.12.0~rc1
+ set_enabled_protos_list@Base 2.3.0
  set_fd_time@Base 1.9.1
  set_mac_lte_proto_data@Base 1.9.1
  set_srt_table_param_data@Base 1.99.8

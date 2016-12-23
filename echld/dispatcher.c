@@ -508,12 +508,14 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 
 	/* disabled protocols as per configuration file */
 	set_disabled_protos_list();
+	set_enabled_protos_list();
 	set_disabled_heur_dissector_list();
 
 	setlocale(LC_ALL, "");
 	DISP_DBG((1,"---5"));
 
 	read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno, &dp_path, &dp_open_errno, &dp_read_errno);
+	read_enabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno, &dp_path, &dp_open_errno, &dp_read_errno);
 	read_disabled_heur_dissector_list(&gdp_path, &gdp_open_errno, &gdp_read_errno, &dp_path, &dp_open_errno, &dp_read_errno);
 
 	DISP_DBG((1,"---6"));
