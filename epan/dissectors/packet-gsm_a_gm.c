@@ -4232,7 +4232,7 @@ de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
  */
 static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x0001, 0x0001, "P-CSCF IPv6 Address Request" },
-	{ 0x0002, 0x0002, "IM CN Subsystem Signalling Flag" },
+	{ 0x0002, 0x0002, "IM CN Subsystem Signaling Flag" },
 	{ 0x0003, 0x0003, "DNS Server IPv6 Address Request" },
 	{ 0x0004, 0x0004, "Not Supported" },
 	{ 0x0005, 0x0005, "MS Support of Network Requested Bearer Control indicator" },
@@ -4258,7 +4258,7 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 };
 static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x0001, 0x0001, "P-CSCF IPv6 Address" },
-	{ 0x0002, 0x0002, "IM CN Subsystem Signalling Flag" },
+	{ 0x0002, 0x0002, "IM CN Subsystem Signaling Flag" },
 	{ 0x0003, 0x0003, "DNS Server IPv6 Address" },
 	{ 0x0004, 0x0004, "Policy Control rejection code" },
 	{ 0x0005, 0x0005, "Selected Bearer Control Mode" },
