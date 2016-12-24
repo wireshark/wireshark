@@ -335,7 +335,8 @@ void ExtcapOptionsDialog::on_buttonBox_helpRequested()
     /* The help information is a file url and has been provided as-is by the extcap.
        Before attempting to open the it, check if it actually exists.
     */
-    if ( ! QFileInfo::exists(help_url.path()) )
+    QFileInfo help_file(help_url.path());
+    if ( !help_file.exists() )
     {
         QMessageBox::warning(this, tr("Extcap Help cannot be found"),
                 QString(tr("The help for the extcap interface %1 cannot be found. Given file: %2"))
