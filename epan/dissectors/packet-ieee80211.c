@@ -985,7 +985,7 @@ static const value_string frame_type_subtype_vals[] = {
   {CTRL_GRANT_ACK,            "Grant Acknowledgment"},
   {CTRL_SSW,                  "Sector Sweep"},
   {CTRL_SSW_FEEDBACK,         "Sector Sweep Feedback"},
-  {CTRL_SSW_ACK,              "Sector Sweep Acknoledgment"},
+  {CTRL_SSW_ACK,              "Sector Sweep Acknowledgment"},
 
   {0,                         NULL}
 };
