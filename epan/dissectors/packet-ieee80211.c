@@ -4572,6 +4572,7 @@ static int hf_ieee80211_ff_brp_chan_FBCK_CAP = -1;
 static int hf_ieee80211_ff_brp_tx_sector = -1;
 static int hf_ieee80211_ff_brp_other_aid = -1;
 static int hf_ieee80211_ff_brp_tx_antenna = -1;
+static int hf_ieee80211_ff_brp_reserved = -1;
 static int hf_ieee80211_ff_blm = -1;
 static int hf_ieee80211_ff_blm_unit_index = -1;
 static int hf_ieee80211_ff_blm_maint_value = -1;
@@ -8595,6 +8596,7 @@ add_ff_BRP_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int 
   proto_tree_add_item(brp_req_tree, hf_ieee80211_ff_brp_tx_sector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(brp_req_tree, hf_ieee80211_ff_brp_other_aid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(brp_req_tree, hf_ieee80211_ff_brp_tx_antenna, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(brp_req_tree, hf_ieee80211_ff_brp_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   return 4;
 }
 
@@ -19876,6 +19878,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ff_brp_tx_antenna,
      {"BRP Request TX Antenna ID", "wlan.brp.tx_antenna_id",
       FT_UINT32, BASE_DEC, NULL, 0x06000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_brp_reserved,
+     {"BRP Request Reserved", "wlan.brp.reserved",
+      FT_UINT32, BASE_HEX, NULL, 0xF8000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_blm,
