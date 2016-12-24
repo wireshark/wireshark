@@ -389,7 +389,7 @@ error:
  * and "*open_errno_return" is set to the error if an open failed
  * or "*read_errno_return" is set to the error if a read failed.
  */
-void
+static void
 read_protos_list(char **gpath_return, int *gopen_errno_return,
                           int *gread_errno_return,
                           char **path_return, int *open_errno_return,
