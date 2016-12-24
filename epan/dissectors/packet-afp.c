@@ -142,8 +142,8 @@ void proto_reg_handoff_afp(void);
 #define AFP_RMVCMT		57
 #define AFP_GETCMT		58
 
-#define AFP_ZZZ		       122
-#define AFP_ADDICON	       192
+#define AFP_ZZZ			122
+#define AFP_ADDICON		192
 
 /* AFP 3.0 new calls */
 #define AFP_BYTELOCK_EXT	59
@@ -156,21 +156,21 @@ void proto_reg_handoff_afp(void);
 #define AFP_CATSEARCH_EXT	67
 
 /* AFP 3.1 new calls */
-#define AFP_ENUMERATE_EXT2      68
+#define AFP_ENUMERATE_EXT2	68
 
 /* AFP 3.2 new calls */
-#define AFP_GETEXTATTR          69
-#define AFP_SETEXTATTR          70
-#define AFP_REMOVEATTR          71
-#define AFP_LISTEXTATTR         72
-#define AFP_GETACL              73
-#define AFP_SETACL              74
-#define AFP_ACCESS              75
+#define AFP_GETEXTATTR		69
+#define AFP_SETEXTATTR		70
+#define AFP_REMOVEATTR		71
+#define AFP_LISTEXTATTR		72
+#define AFP_GETACL		73
+#define AFP_SETACL		74
+#define AFP_ACCESS		75
 
 /* AFP 3.2 calls added in 10.5 */
-#define AFP_SPOTLIGHTRPC        76
-#define AFP_SYNCDIR             78
-#define AFP_SYNCFORK            79
+#define AFP_SPOTLIGHTRPC	76
+#define AFP_SYNCDIR		78
+#define AFP_SYNCFORK		79
 
 /* FPSpotlightRPC subcommand codes */
 #define SPOTLIGHT_CMD_GET_VOLPATH 4
@@ -203,9 +203,9 @@ static int hf_afp_user_type		    = -1;
 static int hf_afp_user_len		    = -1;
 static int hf_afp_user_name		    = -1;
 
-static int hf_afp_vol_flag	            = -1;
+static int hf_afp_vol_flag		    = -1;
 static int hf_afp_vol_flag_passwd	    = -1;
-static int hf_afp_vol_flag_has_config	= -1;
+static int hf_afp_vol_flag_has_config	    = -1;
 static int hf_afp_server_time		    = -1;
 
 static int hf_afp_vol_bitmap		    = -1;
@@ -504,10 +504,10 @@ static const value_string unicode_hint_vals[] = {
 	{  252,	"MacVT100" },
 	{  255,	"MacHFS" },
 	{  256,	"UnicodeDefault" },
-/* ?? {  257,  "UnicodeV1_1" },  */
+/* ??	{  257,	"UnicodeV1_1" }, */
 	{  257,	"ISO10646_1993" },
 	{  259,	"UnicodeV2_0" },
-/* ?? {  259,  "UnicodeV2_1" }, */
+/* ??	{  259,	"UnicodeV2_1" }, */
 	{  260,	"UnicodeV3_0" },
 	{  513,	"ISOLatin1" },
 	{  514,	"ISOLatin2" },
@@ -544,7 +544,7 @@ static const value_string unicode_hint_vals[] = {
 	{ 1058,	"DOSKorean" },
 	{ 1059,	"DOSChineseTrad" },
 	{ 1280,	"WindowsLatin1" },
-/* { 1280, "WindowsANSI" }, */
+/*	{ 1280, "WindowsANSI" }, */
 	{ 1281, "WindowsLatin2" },
 	{ 1282, "WindowsCyrillic" },
 	{ 1283, "WindowsGreek" },
@@ -607,112 +607,112 @@ static int hf_afp_vol_attribute_SupportsACLs		    = -1;
 static int hf_afp_vol_attribute_CaseSensitive		    = -1;
 static int hf_afp_vol_attribute_SupportsTMLockSteal	    = -1;
 
-static int hf_afp_dir_bitmap_Attributes     = -1;
-static int hf_afp_dir_bitmap_ParentDirID    = -1;
-static int hf_afp_dir_bitmap_CreateDate     = -1;
-static int hf_afp_dir_bitmap_ModDate        = -1;
-static int hf_afp_dir_bitmap_BackupDate     = -1;
-static int hf_afp_dir_bitmap_FinderInfo     = -1;
-static int hf_afp_dir_bitmap_LongName       = -1;
-static int hf_afp_dir_bitmap_ShortName      = -1;
-static int hf_afp_dir_bitmap_NodeID         = -1;
-static int hf_afp_dir_bitmap_OffspringCount = -1;
-static int hf_afp_dir_bitmap_OwnerID        = -1;
-static int hf_afp_dir_bitmap_GroupID        = -1;
-static int hf_afp_dir_bitmap_AccessRights   = -1;
-static int hf_afp_dir_bitmap_UTF8Name       = -1;
-static int hf_afp_dir_bitmap_UnixPrivs      = -1;
+static int hf_afp_dir_bitmap_Attributes			     = -1;
+static int hf_afp_dir_bitmap_ParentDirID		     = -1;
+static int hf_afp_dir_bitmap_CreateDate			     = -1;
+static int hf_afp_dir_bitmap_ModDate			     = -1;
+static int hf_afp_dir_bitmap_BackupDate			     = -1;
+static int hf_afp_dir_bitmap_FinderInfo			     = -1;
+static int hf_afp_dir_bitmap_LongName			     = -1;
+static int hf_afp_dir_bitmap_ShortName			     = -1;
+static int hf_afp_dir_bitmap_NodeID			     = -1;
+static int hf_afp_dir_bitmap_OffspringCount		     = -1;
+static int hf_afp_dir_bitmap_OwnerID			     = -1;
+static int hf_afp_dir_bitmap_GroupID			     = -1;
+static int hf_afp_dir_bitmap_AccessRights		     = -1;
+static int hf_afp_dir_bitmap_UTF8Name			     = -1;
+static int hf_afp_dir_bitmap_UnixPrivs			     = -1;
 
-static int hf_afp_dir_attribute               = -1;
-static int hf_afp_dir_attribute_Invisible     = -1;
-static int hf_afp_dir_attribute_IsExpFolder   = -1;
-static int hf_afp_dir_attribute_System        = -1;
-static int hf_afp_dir_attribute_Mounted       = -1;
-static int hf_afp_dir_attribute_InExpFolder   = -1;
-static int hf_afp_dir_attribute_BackUpNeeded  = -1;
-static int hf_afp_dir_attribute_RenameInhibit = -1;
-static int hf_afp_dir_attribute_DeleteInhibit = -1;
+static int hf_afp_dir_attribute				     = -1;
+static int hf_afp_dir_attribute_Invisible		     = -1;
+static int hf_afp_dir_attribute_IsExpFolder		     = -1;
+static int hf_afp_dir_attribute_System			     = -1;
+static int hf_afp_dir_attribute_Mounted			     = -1;
+static int hf_afp_dir_attribute_InExpFolder		     = -1;
+static int hf_afp_dir_attribute_BackUpNeeded		     = -1;
+static int hf_afp_dir_attribute_RenameInhibit		     = -1;
+static int hf_afp_dir_attribute_DeleteInhibit		     = -1;
 
-static int hf_afp_file_bitmap_Attributes       = -1;
-static int hf_afp_file_bitmap_ParentDirID      = -1;
-static int hf_afp_file_bitmap_CreateDate       = -1;
-static int hf_afp_file_bitmap_ModDate          = -1;
-static int hf_afp_file_bitmap_BackupDate       = -1;
-static int hf_afp_file_bitmap_FinderInfo       = -1;
-static int hf_afp_file_bitmap_LongName         = -1;
-static int hf_afp_file_bitmap_ShortName        = -1;
-static int hf_afp_file_bitmap_NodeID           = -1;
-static int hf_afp_file_bitmap_DataForkLen      = -1;
-static int hf_afp_file_bitmap_RsrcForkLen      = -1;
-static int hf_afp_file_bitmap_ExtDataForkLen   = -1;
-static int hf_afp_file_bitmap_LaunchLimit      = -1;
+static int hf_afp_file_bitmap_Attributes		     = -1;
+static int hf_afp_file_bitmap_ParentDirID		     = -1;
+static int hf_afp_file_bitmap_CreateDate		     = -1;
+static int hf_afp_file_bitmap_ModDate			     = -1;
+static int hf_afp_file_bitmap_BackupDate		     = -1;
+static int hf_afp_file_bitmap_FinderInfo		     = -1;
+static int hf_afp_file_bitmap_LongName			     = -1;
+static int hf_afp_file_bitmap_ShortName			     = -1;
+static int hf_afp_file_bitmap_NodeID			     = -1;
+static int hf_afp_file_bitmap_DataForkLen		     = -1;
+static int hf_afp_file_bitmap_RsrcForkLen		     = -1;
+static int hf_afp_file_bitmap_ExtDataForkLen		     = -1;
+static int hf_afp_file_bitmap_LaunchLimit	 	     = -1;
 
-static int hf_afp_file_bitmap_UTF8Name         = -1;
-static int hf_afp_file_bitmap_ExtRsrcForkLen   = -1;
-static int hf_afp_file_bitmap_UnixPrivs        = -1;
+static int hf_afp_file_bitmap_UTF8Name			     = -1;
+static int hf_afp_file_bitmap_ExtRsrcForkLen	 	     = -1;
+static int hf_afp_file_bitmap_UnixPrivs			     = -1;
 
-static int hf_afp_file_attribute               = -1;
-static int hf_afp_file_attribute_Invisible     = -1;
-static int hf_afp_file_attribute_MultiUser     = -1;
-static int hf_afp_file_attribute_System        = -1;
-static int hf_afp_file_attribute_DAlreadyOpen  = -1;
-static int hf_afp_file_attribute_RAlreadyOpen  = -1;
-static int hf_afp_file_attribute_WriteInhibit  = -1;
-static int hf_afp_file_attribute_BackUpNeeded  = -1;
-static int hf_afp_file_attribute_RenameInhibit = -1;
-static int hf_afp_file_attribute_DeleteInhibit = -1;
-static int hf_afp_file_attribute_CopyProtect   = -1;
-static int hf_afp_file_attribute_SetClear      = -1;
+static int hf_afp_file_attribute			     = -1;
+static int hf_afp_file_attribute_Invisible		     = -1;
+static int hf_afp_file_attribute_MultiUser		     = -1;
+static int hf_afp_file_attribute_System			     = -1;
+static int hf_afp_file_attribute_DAlreadyOpen		     = -1;
+static int hf_afp_file_attribute_RAlreadyOpen		     = -1;
+static int hf_afp_file_attribute_WriteInhibit		     = -1;
+static int hf_afp_file_attribute_BackUpNeeded		     = -1;
+static int hf_afp_file_attribute_RenameInhibit		     = -1;
+static int hf_afp_file_attribute_DeleteInhibit		     = -1;
+static int hf_afp_file_attribute_CopyProtect		     = -1;
+static int hf_afp_file_attribute_SetClear		     = -1;
 
-static int hf_afp_map_name_type     = -1;
-static int hf_afp_map_name	    = -1;
-static int hf_afp_map_id	    = -1;
-static int hf_afp_map_id_type	    = -1;
-static int hf_afp_map_id_reply_type = -1;
+static int hf_afp_map_name_type				     = -1;
+static int hf_afp_map_name				     = -1;
+static int hf_afp_map_id				     = -1;
+static int hf_afp_map_id_type				     = -1;
+static int hf_afp_map_id_reply_type			     = -1;
 
-static int hf_afp_request_bitmap_Attributes     = -1;
-static int hf_afp_request_bitmap_ParentDirID    = -1;
-static int hf_afp_request_bitmap_CreateDate     = -1;
-static int hf_afp_request_bitmap_ModDate        = -1;
-static int hf_afp_request_bitmap_BackupDate     = -1;
-static int hf_afp_request_bitmap_FinderInfo     = -1;
-static int hf_afp_request_bitmap_LongName       = -1;
-static int hf_afp_request_bitmap_DataForkLen    = -1;
-static int hf_afp_request_bitmap_OffspringCount = -1;
-static int hf_afp_request_bitmap_RsrcForkLen    = -1;
-static int hf_afp_request_bitmap_ExtDataForkLen = -1;
-static int hf_afp_request_bitmap_UTF8Name       = -1;
-static int hf_afp_request_bitmap_ExtRsrcForkLen = -1;
-static int hf_afp_request_bitmap_PartialNames   = -1;
+static int hf_afp_request_bitmap_Attributes		     = -1;
+static int hf_afp_request_bitmap_ParentDirID		     = -1;
+static int hf_afp_request_bitmap_CreateDate		     = -1;
+static int hf_afp_request_bitmap_ModDate		     = -1;
+static int hf_afp_request_bitmap_BackupDate		     = -1;
+static int hf_afp_request_bitmap_FinderInfo		     = -1;
+static int hf_afp_request_bitmap_LongName		     = -1;
+static int hf_afp_request_bitmap_DataForkLen		     = -1;
+static int hf_afp_request_bitmap_OffspringCount		     = -1;
+static int hf_afp_request_bitmap_RsrcForkLen		     = -1;
+static int hf_afp_request_bitmap_ExtDataForkLen		     = -1;
+static int hf_afp_request_bitmap_UTF8Name		     = -1;
+static int hf_afp_request_bitmap_ExtRsrcForkLen		     = -1;
+static int hf_afp_request_bitmap_PartialNames		     = -1;
 
 /* Spotlight stuff */
-static int ett_afp_spotlight_queries = -1;
-static int ett_afp_spotlight_query_line  = -1;
-static int ett_afp_spotlight_query = -1;
-static int ett_afp_spotlight_data = -1;
-static int ett_afp_spotlight_toc = -1;
+static int ett_afp_spotlight_queries			     = -1;
+static int ett_afp_spotlight_query_line			     = -1;
+static int ett_afp_spotlight_query			     = -1;
+static int ett_afp_spotlight_data			     = -1;
+static int ett_afp_spotlight_toc			     = -1;
 
-static int hf_afp_spotlight_request_flags = -1;
-static int hf_afp_spotlight_request_command = -1;
-static int hf_afp_spotlight_request_reserved = -1;
-static int hf_afp_spotlight_reply_reserved = -1;
-static int hf_afp_spotlight_volpath_server = -1;
-static int hf_afp_spotlight_volpath_client = -1;
-static int hf_afp_spotlight_returncode = -1;
-static int hf_afp_spotlight_volflags = -1;
-static int hf_afp_spotlight_reqlen = -1;
-static int hf_afp_spotlight_uuid = -1;
-static int hf_afp_spotlight_date = -1;
+static int hf_afp_spotlight_request_flags		     = -1;
+static int hf_afp_spotlight_request_command		     = -1;
+static int hf_afp_spotlight_request_reserved		     = -1;
+static int hf_afp_spotlight_reply_reserved		     = -1;
+static int hf_afp_spotlight_volpath_server		     = -1;
+static int hf_afp_spotlight_volpath_client		     = -1;
+static int hf_afp_spotlight_returncode			     = -1;
+static int hf_afp_spotlight_volflags			     = -1;
+static int hf_afp_spotlight_reqlen			     = -1;
+static int hf_afp_spotlight_uuid			     = -1;
+static int hf_afp_spotlight_date			     = -1;
 
 /* Status stuff from ASP or DSI */
-static int ett_afp_status = -1;
-static int ett_afp_uams   = -1;
-static int ett_afp_vers   = -1;
-static int ett_afp_server_addr   = -1;
-static int ett_afp_server_addr_line = -1;
-static int ett_afp_directory = -1;
-static int ett_afp_utf8_name = -1;
-static int ett_afp_status_server_flag = -1;
+static int ett_afp_status				     = -1;
+static int ett_afp_uams					     = -1;
+static int ett_afp_vers					     = -1;
+static int ett_afp_server_addr				     = -1;
+static int ett_afp_server_addr_line			     = -1;
+static int ett_afp_directory				     = -1;
+static int ett_afp_utf8_name				     = -1;
+static int ett_afp_status_server_flag			     = -1;
 
 static const value_string flag_vals[] = {
 	{0,	"Start" },
@@ -1504,11 +1504,11 @@ parse_UTF8_filename(proto_tree *tree, tvbuff_t *tvb, gint offset, gint org_offse
 	       */
 
 		tp_ofs = unameoff +org_offset;
-	       if (tp_ofs > offset) {
-		   PAD(4);
+		if (tp_ofs > offset) {
+			PAD(4);
 		}
 		else if (tp_ofs < offset) {
-		    tp_ofs = offset;
+			tp_ofs = offset;
 		}
 		proto_tree_add_item( tree, hf_afp_path_unicode_hint, tvb, tp_ofs, 4, ENC_BIG_ENDIAN);
 		tp_ofs += 4;
@@ -1967,16 +1967,16 @@ decode_name_label (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint off
 		sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, len +header,
 				ett_afp_path_name, NULL, label, name);
 
-		proto_tree_add_item(  sub_tree, hf_afp_path_type, tvb, offset,	 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item( sub_tree, hf_afp_path_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		if (type == 3) {
-			proto_tree_add_item( sub_tree, hf_afp_path_unicode_hint,  tvb, offset,	4, ENC_BIG_ENDIAN);
+			proto_tree_add_item( sub_tree, hf_afp_path_unicode_hint, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
-			proto_tree_add_item( sub_tree, hf_afp_path_unicode_len,	 tvb, offset,	2, ENC_BIG_ENDIAN);
+			proto_tree_add_item( sub_tree, hf_afp_path_unicode_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 		}
 		else {
-			proto_tree_add_item( sub_tree, hf_afp_path_len,	 tvb, offset,	1, ENC_BIG_ENDIAN);
+			proto_tree_add_item( sub_tree, hf_afp_path_len,	 tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 		}
 
@@ -2101,7 +2101,7 @@ dissect_reply_afp_get_server_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 					ett_afp_vol_flag, flags, ENC_BIG_ENDIAN);
 		offset++;
 
-		len  = tvb_get_guint8(tvb, offset) +1;
+		len = tvb_get_guint8(tvb, offset) +1;
 		rep = get_name(tvb, offset, 2);
 		proto_item_set_text(item, "%s", rep);
 		proto_item_set_len(item, len +1);
@@ -2423,16 +2423,16 @@ query_catsearch(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext)
 		}
 		if (f_bitmap == 0) {
 			/* Only for directory-only searches */
-			proto_tree_add_item(sub_tree, hf_afp_request_bitmap_OffspringCount	, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(sub_tree, hf_afp_request_bitmap_OffspringCount , tvb, offset, 4, ENC_BIG_ENDIAN);
 		}
 
-		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_UTF8Name	    , tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_UTF8Name , tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		if (d_bitmap == 0) {
 			/* Only for file-only searches */
-			proto_tree_add_item(sub_tree, hf_afp_request_bitmap_ExtRsrcForkLen	, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(sub_tree, hf_afp_request_bitmap_ExtRsrcForkLen , tvb, offset, 4, ENC_BIG_ENDIAN);
 		}
-		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_PartialNames	, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_PartialNames , tvb, offset, 4, ENC_BIG_ENDIAN);
 	}
 	offset += 4;
 
@@ -2673,7 +2673,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static gint
 dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, gint offset)
 {
-	int  param;
+	int param;
 
 
 	proto_tree_add_item(tree, hf_afp_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3490,37 +3490,37 @@ dissect_reply_afp_map_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	if (!len) {
 		len = tvb_get_guint8(tvb, offset +1);
 		if (!len) {
-		    /*
-		     * Assume it's kUserUUIDToUTF8Name or
-		     * kGroupUUIDToUTF8Name.
-		     */
-		    proto_tree_add_item(tree, hf_afp_map_id_reply_type, tvb, offset, 4, ENC_BIG_ENDIAN);
-		    offset += 4;
+			/*
+			 * Assume it's kUserUUIDToUTF8Name or
+			 * kGroupUUIDToUTF8Name.
+			 */
+			proto_tree_add_item(tree, hf_afp_map_id_reply_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
 
-		    proto_tree_add_item(tree, hf_afp_map_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-		    offset += 4;
+			proto_tree_add_item(tree, hf_afp_map_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
 
-		    size = 2;
-		    len = tvb_get_guint8(tvb, offset +1);
+			size = 2;
+			len = tvb_get_guint8(tvb, offset +1);
 
 		}
 		else {
-		    gint remain = tvb_reported_length_remaining(tvb,offset);
-		    if (remain == len +2) {
+			gint remain = tvb_reported_length_remaining(tvb,offset);
+			if (remain == len +2) {
 			size = 2;
-		    }
-		    else {
+			}
+			else {
 			/* give up */
 			len = remain;
 			size = 0;
-		    }
+			}
 		}
 	}
 	if (size) {
-	    proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, ENC_ASCII|ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, ENC_ASCII|ENC_BIG_ENDIAN);
 	}
 	else {
-	    proto_tree_add_item(tree, hf_afp_unknown, tvb, offset, len, ENC_NA);
+		proto_tree_add_item(tree, hf_afp_unknown, tvb, offset, len, ENC_NA);
 	}
 	offset += len +size;
 	return offset;
@@ -3569,7 +3569,7 @@ dissect_reply_afp_map_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 	/* We don't keep the type from the request */
 	/* If remain == 16, assume UUID */
-	remain =  tvb_reported_length(tvb);
+	remain = tvb_reported_length(tvb);
 	if (remain == 16) {
 		proto_tree_add_item(tree, hf_afp_UUID, tvb, offset, 16, ENC_BIG_ENDIAN);
 		offset += 16;
@@ -4076,11 +4076,11 @@ dissect_query_afp_with_did(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 #define SQ_TYPE_UUID    0x0e00
 #define SQ_TYPE_DATE    0x8600
 
-#define SQ_CPX_TYPE_ARRAY    		0x0a00
-#define SQ_CPX_TYPE_STRING   		0x0c00
+#define SQ_CPX_TYPE_ARRAY		0x0a00
+#define SQ_CPX_TYPE_STRING		0x0c00
 #define SQ_CPX_TYPE_UTF16_STRING	0x1c00
-#define SQ_CPX_TYPE_DICT     		0x0d00
-#define SQ_CPX_TYPE_CNIDS    		0x1a00
+#define SQ_CPX_TYPE_DICT		0x0d00
+#define SQ_CPX_TYPE_CNIDS		0x1a00
 #define SQ_CPX_TYPE_FILEMETA 		0x1b00
 
 #define SUBQ_SAFETY_LIM 20
@@ -4521,14 +4521,14 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 						i+1, toc_entry >> 32, val64_to_str_const((toc_entry & 0xffff0000) >> 16, cpx_qtype_string_values, "Unknown"),
 						(toc_entry & 0xffff) * 8);
 			break;
-        case SQ_CPX_TYPE_STRING:
-        case SQ_CPX_TYPE_UTF16_STRING:
+		case SQ_CPX_TYPE_STRING:
+		case SQ_CPX_TYPE_UTF16_STRING:
 			proto_tree_add_uint64_format(sub_tree_toc, hf_afp_toc_entry, tvb, offset, 8, toc_entry,
 						"%u: pad byte count: %" G_GINT64_MODIFIER "x, type: %s, offset: %" G_GINT64_MODIFIER "u",
 						i+1, 8 - (toc_entry >> 32), val64_to_str_const((toc_entry & 0xffff0000) >> 16, cpx_qtype_string_values, "Unknown"),
 						(toc_entry & 0xffff) * 8);
 			break;
-        default:
+		default:
 			proto_tree_add_uint64_format(sub_tree_toc, hf_afp_toc_entry, tvb, offset, 8, toc_entry,
 						"%u: unknown: 0x%08" G_GINT64_MODIFIER "x, type: %s, offset: %" G_GINT64_MODIFIER "u",
 						i+1, toc_entry >> 32, val64_to_str_const((toc_entry & 0xffff0000) >> 16, cpx_qtype_string_values, "Unknown"),
@@ -5127,7 +5127,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	request_val = (afp_request_val *) g_hash_table_lookup(
 								afp_request_hash, &request_key);
 
-	if (!request_val && !aspinfo->reply)  {
+	if (!request_val && !aspinfo->reply) {
 		afp_command = tvb_get_guint8(tvb, offset);
 		new_request_key = wmem_new(wmem_file_scope(), afp_request_key);
 		*new_request_key = request_key;
