@@ -164,11 +164,11 @@ typedef struct _bitmap_info_t {
 
 static gint dissect_zvt_tlv_container(
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
-static gint dissect_zvt_res_code(
+static inline gint dissect_zvt_res_code(
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
-static gint dissect_zvt_cc(
+static inline gint dissect_zvt_cc(
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
-static gint dissect_zvt_card_type(
+static inline gint dissect_zvt_card_type(
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
 
 static const bitmap_info_t bitmap_info[] = {
@@ -342,11 +342,11 @@ typedef struct _tlv_info_t {
             packet_info *, proto_tree *, tlv_seq_info_t *);
 } tlv_info_t;
 
-static gint dissect_zvt_tlv_text_lines(
+static inline gint dissect_zvt_tlv_text_lines(
         tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info);
 
-static gint dissect_zvt_tlv_subseq(
+static inline gint dissect_zvt_tlv_subseq(
         tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info);
 
@@ -374,7 +374,7 @@ static const value_string tlv_tags[] = {
 static value_string_ext tlv_tags_ext = VALUE_STRING_EXT_INIT(tlv_tags);
 
 
-static gint dissect_zvt_tlv_text_lines(
+static inline gint dissect_zvt_tlv_text_lines(
         tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo _U_, proto_tree *tree, tlv_seq_info_t *seq_info)
 {
@@ -384,7 +384,7 @@ static gint dissect_zvt_tlv_text_lines(
 }
 
 
-static gint dissect_zvt_tlv_subseq(
+static inline gint dissect_zvt_tlv_subseq(
         tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info)
 {
@@ -563,7 +563,7 @@ dissect_zvt_tlv_container(tvbuff_t *tvb, gint offset,
 }
 
 
-static gint dissect_zvt_res_code(
+static inline gint dissect_zvt_res_code(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_zvt_res_code, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -571,7 +571,7 @@ static gint dissect_zvt_res_code(
 }
 
 
-static gint dissect_zvt_cc(
+static inline gint dissect_zvt_cc(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_zvt_cc, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -579,7 +579,7 @@ static gint dissect_zvt_cc(
 }
 
 
-static gint dissect_zvt_card_type(
+static inline gint dissect_zvt_card_type(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_zvt_card_type, tvb, offset, 1, ENC_BIG_ENDIAN);
