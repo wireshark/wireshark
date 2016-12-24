@@ -4561,6 +4561,11 @@ static int hf_ieee80211_ff_sswf = -1;
 static int hf_ieee80211_ff_sswf_num_rx_dmg_ants = -1;
 static int hf_ieee80211_ff_sswf_poll_required = -1;
 static int hf_ieee80211_ff_sswf_total_sectors = -1;
+static int hf_ieee80211_ff_sswf_reserved1 = -1;
+static int hf_ieee80211_ff_sswf_reserved2 = -1;
+static int hf_ieee80211_ff_sswf_sector_select = -1;
+static int hf_ieee80211_ff_sswf_dmg_antenna_select = -1;
+static int hf_ieee80211_ff_sswf_snr_report = -1;
 static int hf_ieee80211_ff_brp = -1;
 static int hf_ieee80211_ff_brp_L_RX = -1;
 static int hf_ieee80211_ff_brp_TX_TRN_REQ = -1;
@@ -8602,14 +8607,31 @@ add_ff_BRP_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int 
 }
 
 static guint
-add_ff_sector_sweep_feedback(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+add_ff_sector_sweep_feedback_from_iss(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   proto_item *sswf_item = proto_tree_add_item(tree, hf_ieee80211_ff_sswf, tvb, offset, 3, ENC_LITTLE_ENDIAN);
   proto_tree *sswf_tree = proto_item_add_subtree(sswf_item, ett_sswf_tree);
 
   proto_tree_add_item(sswf_tree, hf_ieee80211_ff_sswf_total_sectors, tvb, offset, 3, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(sswf_tree, hf_ieee80211_ff_sswf_num_rx_dmg_ants, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(sswf_tree, hf_ieee80211_ff_sswf_reserved1, tvb, offset, 3, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(sswf_tree, hf_ieee80211_ff_sswf_poll_required, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(sswf_tree, hf_ieee80211_ff_sswf_reserved2, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+
+  return 3;
+}
+
+static guint
+add_ff_sector_sweep_feedback_to_iss(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_item *sswf_item = proto_tree_add_item(tree, hf_ieee80211_ff_sswf, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree *sswf_tree = proto_item_add_subtree(sswf_item, ett_sswf_tree);
+
+  proto_tree_add_item(sswf_tree, hf_ieee80211_ff_sswf_sector_select, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(sswf_tree, hf_ieee80211_ff_sswf_dmg_antenna_select, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(sswf_tree, hf_ieee80211_ff_sswf_snr_report, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(sswf_tree, hf_ieee80211_ff_sswf_poll_required, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(sswf_tree, hf_ieee80211_ff_sswf_reserved2, tvb, offset, 3, ENC_LITTLE_ENDIAN);
   return 3;
 }
 
@@ -17425,12 +17447,12 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         case CTRL_SSW: {
           offset += add_ff_sector_sweep(hdr_tree, tvb, pinfo, offset);
           /* offset += commented to avoid Clang warnings*/
-          add_ff_sector_sweep_feedback(hdr_tree, tvb, pinfo, offset);
+          add_ff_sector_sweep_feedback_from_iss(hdr_tree, tvb, pinfo, offset);
           break;
         }
         case CTRL_SSW_ACK:
         case CTRL_SSW_FEEDBACK: {
-          offset += add_ff_sector_sweep_feedback(hdr_tree, tvb, pinfo, offset);
+          offset += add_ff_sector_sweep_feedback_to_iss(hdr_tree, tvb, pinfo, offset);
           offset += add_ff_BRP_request(hdr_tree, tvb, pinfo, offset);
           /* offset += commented to avoid Clang warnings*/
           add_ff_beamformed_link(hdr_tree, tvb, pinfo, offset);
@@ -19812,6 +19834,32 @@ proto_register_ieee80211(void)
      {"Sector Sweep Feedback Poll required", "wlan.sswf.poll",
       FT_BOOLEAN, 24, NULL, 0x010000,
       NULL, HFILL }},
+
+    {&hf_ieee80211_ff_sswf_reserved1,
+     {"Sector Sweep Feedback Reserved", "wlan.sswf.reserved",
+      FT_UINT24, BASE_HEX, NULL, 0x00F800,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_sswf_reserved2,
+     {"Sector Sweep Feedback Reserved", "wlan.sswf.reserved",
+      FT_UINT24, BASE_HEX, NULL, 0xFE0000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_sswf_sector_select,
+     {"Sector Sweep Feedback Sector Select", "wlan.sswf.sector_select",
+      FT_UINT24, BASE_DEC, NULL, 0x00003F,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_sswf_dmg_antenna_select,
+     {"Sector Sweep Feedback DMG Antenna Select", "wlan.sswf.dmg_antenna_select",
+      FT_UINT24, BASE_DEC, NULL, 0x0001C0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_sswf_snr_report,
+     {"Sector Sweep Feedback SNR Report", "wlan.sswf.snr_report",
+      FT_UINT24, BASE_DEC, NULL, 0x00FE00,
+      NULL, HFILL }},
+
 
     {&hf_ieee80211_ff_brp,
      {"BRP Request", "wlan.brp",
