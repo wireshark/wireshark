@@ -1084,7 +1084,6 @@ size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, 
     gint16 sample;
     gchar pd[4];
 
-    sample_count = 0;
     if (payload_type == PT_PCMU) {
         /* Output sample count is same as input sample count for G.711 */
         sample_count = payload_len;
