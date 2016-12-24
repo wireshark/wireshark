@@ -526,7 +526,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
                 break;
             t_val = tvb_get_letohl(tvb, offset);
             acc_f = ppi_fixed6_4_to_gdouble(t_val);
-            ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_f, tvb, offset, 4, acc_f);
+            proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_f, tvb, offset, 4, acc_f);
             offset+=4;
             length_remaining-=4;
             break;
