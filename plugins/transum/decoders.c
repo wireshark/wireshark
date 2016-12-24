@@ -179,7 +179,7 @@ int decode_smb(packet_info *pinfo _U_, proto_tree *tree)
         sub_packet[0].rrpd.calculation = RTE_CALC_SMB2;
         sub_packet[0].pkt_of_interest = TRUE;
 
-        extract_si64(tree, hf_of_interest.smb2_msg_id, msg_id, &msg_id_count);
+        extract_ui64(tree, hf_of_interest.smb2_msg_id, msg_id, &msg_id_count);
         if (msg_id_count)  /* test for header information */
         {
             extract_ui64(tree, hf_of_interest.smb2_ses_id, ses_id, &ses_id_count);
