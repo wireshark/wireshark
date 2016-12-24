@@ -4741,6 +4741,7 @@ static int hf_ieee80211_tag_sector_id_order_present = -1;
 static int hf_ieee80211_tag_number_of_beams = -1;
 static int hf_ieee80211_tag_mid_extension = -1;
 static int hf_ieee80211_tag_capability_request = -1;
+static int hf_ieee80211_tag_beam_refine_reserved = -1;
 static int hf_ieee80211_tag_nextpcp_list = -1;
 static int hf_ieee80211_tag_nextpcp_token = -1;
 static int hf_ieee80211_tag_reamaining_BI = -1;
@@ -5131,7 +5132,7 @@ static const value_string rm_action_codes[] = {
 };
 static value_string_ext rm_action_codes_ext = VALUE_STRING_EXT_INIT(rm_action_codes);
 
-static const value_string number_of_taps_values[] = {
+static const val64_string number_of_taps_values[] = {
   {0x0, "1 tap"},
   {0x1, "5 taps"},
   {0x2, "15 taps"},
@@ -15896,48 +15897,35 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     }
     case TAG_DMG_BEAM_REFINEMENT:
     {
+      tag_len = 5;
       if (tag_len != 5)
       {
         expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be 5", tag_len);
         break;
       }
       offset += 2;
-      proto_tree_add_item(tree, hf_ieee80211_tag_initiator, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_tx_train_res, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_rx_train_res, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_tx_trn_ok, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_txss_fbck_req, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_bs_fbck, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_bs_fbck_antenna_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_snr_requested, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_channel_measurement_requested, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-
-      /*
-       * This is confusing.
-       * We don't support bitfields in fields bigger than 32 bits, and none
-       * of the bitfields boundaries line up with byte boundaries, so we have
-       * to slice this 40-bit field into overlapping pieces.
-       *
-       * The preceding piece had 16 bits, but the uppermost bit is the low-
-       * order bit of the 2-bit "Number of Taps Requested" bitfield, so
-       * we've only dissected the low-order 15 bits above.
-       *
-       * So we skip the first byte of those 16 bits, and fetch a 4-byte field
-       * that starts with the second byte of those 16 bits.
-       */
-      offset += 1;
-      proto_tree_add_item(tree, hf_ieee80211_tag_number_of_taps_requested, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_sector_id_order_req, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_snr_present, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_channel_measurement_present, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_tap_delay_present, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_number_of_taps_present, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_number_of_measurement, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_sector_id_order_present, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_number_of_beams, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_mid_extension, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_ieee80211_tag_capability_request, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      offset += 4;
+      proto_tree_add_item(tree, hf_ieee80211_tag_initiator, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_tx_train_res, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_rx_train_res, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_tx_trn_ok, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_txss_fbck_req, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_bs_fbck, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_bs_fbck_antenna_id, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_snr_requested, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_channel_measurement_requested, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_number_of_taps_requested, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_sector_id_order_req, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_snr_present, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_channel_measurement_present, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_tap_delay_present, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_number_of_taps_present, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_number_of_measurement, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_sector_id_order_present, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_number_of_beams, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_mid_extension, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_capability_request, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_beam_refine_reserved, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+      offset += 5;
       break;
     }
     case TAG_WAKEUP_SCHEDULE_AD:
@@ -20494,102 +20482,107 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_initiator,
      {"Initiator", "wlan.beam_refine.initiator",
-      FT_BOOLEAN, 16, NULL, 0x0001,
+      FT_BOOLEAN, 40, NULL, 0x0000000001,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_tx_train_res,
      {"TX-train-response", "wlan.beam_refine.tx_train_res",
-      FT_BOOLEAN, 16, NULL, 0x0002,
+      FT_BOOLEAN, 40, NULL, 0x0000000002,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_rx_train_res,
      {"RX-train-response", "wlan.beam_refine.rx_train_res",
-      FT_BOOLEAN, 16, NULL, 0x0004,
+      FT_BOOLEAN, 40, NULL, 0x0000000004,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_tx_trn_ok,
      {"TX-TRN-OK", "wlan.beam_refine.tx_trn_ok",
-      FT_BOOLEAN, 16, NULL, 0x0008,
+      FT_BOOLEAN, 40, NULL, 0x0000000008,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_txss_fbck_req,
      {"TXSS-FBCK-REQ", "wlan.beam_refine.txss_fbck_req",
-      FT_BOOLEAN, 16, NULL, 0x0010,
+      FT_BOOLEAN, 40, NULL, 0x0000000010,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_bs_fbck,
      {"BS-FBCK", "wlan.beam_refine.bs_fbck",
-      FT_UINT16, BASE_DEC, NULL, 0x07e0,
+      FT_UINT40, BASE_DEC, NULL, 0x00000007e0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_bs_fbck_antenna_id,
      {"BS-FBCK Anetenna ID", "wlan.beam_refine.bs_fbck_antenna_id",
-      FT_UINT16, BASE_DEC, NULL, 0x1800,
+      FT_UINT40, BASE_DEC, NULL, 0x0000001800,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_snr_requested,
      {"SNR Requested", "wlan.beam_refine.snr_req",
-      FT_BOOLEAN, 16, NULL, 0x2000,
+      FT_BOOLEAN, 40, NULL, 0x0000002000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_channel_measurement_requested,
      {"Channel Measurement Requested", "wlan.beam_refine.ch_measure_req",
-      FT_BOOLEAN, 16, NULL, 0x4000,
+      FT_BOOLEAN, 40, NULL, 0x0000004000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_number_of_taps_requested,
      {"Number of Taps Requested", "wlan.beam_refine.taps_req",
-      FT_UINT32, BASE_DEC, VALS(number_of_taps_values), 0x00000180,
+      FT_UINT40, BASE_DEC | BASE_VAL64_STRING, VALS64(number_of_taps_values), 0x0000018000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_sector_id_order_req,
      {"Sector ID Order Requested", "wlan.beam_refine.sector_id_req",
-      FT_BOOLEAN, 32, NULL, 0x00000200,
+      FT_BOOLEAN, 40, NULL, 0x0000020000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_snr_present,
      {"SNR Present", "wlan.beam_refine.snr_present",
-      FT_BOOLEAN, 32, NULL, 0x00000400,
+      FT_BOOLEAN, 40, NULL, 0x0000040000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_channel_measurement_present,
      {"Channel Measurement Present", "wlan.beam_refine.ch_measure_present",
-      FT_BOOLEAN, 32, NULL, 0x00000800,
+      FT_BOOLEAN, 40, NULL, 0x0000080000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_tap_delay_present,
      {"Tap Delay Present", "wlan.beam_refine.tap_delay_present",
-      FT_BOOLEAN, 32, NULL, 0x00001000,
+      FT_BOOLEAN, 40, NULL, 0x0000100000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_number_of_taps_present,
      {"Number of Taps Present", "wlan.beam_refine.taps_present",
-      FT_UINT32, BASE_DEC, VALS(number_of_taps_values), 0x00006000,
+      FT_UINT40, BASE_DEC | BASE_VAL64_STRING, VALS64(number_of_taps_values), 0x0000600000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_number_of_measurement,
      {"Number of Measurements", "wlan.beam_refine.num_measurement",
-      FT_UINT32, BASE_DEC, NULL, 0x003f8000,
+      FT_UINT40, BASE_DEC, NULL, 0x003f800000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_sector_id_order_present,
      {"Sector ID Order Present", "wlan.beam_refine.sector_id_present",
-      FT_BOOLEAN, 32, NULL, 0x00400000,
+      FT_BOOLEAN, 40, NULL, 0x0040000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_number_of_beams,
      {"Number of Beams", "wlan.beam_refine.num_beams",
-      FT_UINT32, BASE_DEC, NULL, 0x0f800000,
+      FT_UINT40, BASE_DEC, NULL, 0x0f80000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_mid_extension,
      {"MID Extension", "wlan.beam_refine.mid_ext",
-      FT_BOOLEAN, 32, NULL, 0x10000000,
+      FT_BOOLEAN, 40, NULL, 0x1000000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_capability_request,
      {"Capability Request", "wlan.beam_refine.cap_req",
-      FT_BOOLEAN, 32, NULL, 0x20000000,
+      FT_BOOLEAN, 40, NULL, 0x2000000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_beam_refine_reserved,
+     {"Reserved", "wlan.beam_refine.reserved",
+      FT_UINT40, BASE_DEC, NULL, 0xc000000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_nextpcp_list,
