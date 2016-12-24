@@ -2055,7 +2055,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item_append_text(item, " (%g msec)", tvb_get_letohs(tvb, offset)*1.25);
             offset += 2;
 
-            item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,         tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,                tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
             item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2152,7 +2152,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             item = proto_tree_add_item(tree, hf_bthci_evt_le_con_interval,        tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%g msec)", tvb_get_letohs(tvb, offset)*1.25);
             offset += 2;
-            item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,         tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,                tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%g sec)",                             tvb_get_letohs(tvb, offset)*0.01);
@@ -2193,7 +2193,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item_append_text(item, " (%g msec)", tvb_get_letohs(tvb, offset) * 1.25);
             offset += 2;
 
-            item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,         tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,                tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
             item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2264,7 +2264,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item_append_text(item, " (%g msec)", tvb_get_letohs(tvb, offset)*1.25);
             offset += 2;
 
-            item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,         tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_le_con_latency,                tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
             item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
