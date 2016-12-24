@@ -19875,7 +19875,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_brp_tx_antenna,
      {"BRP Request TX Antenna ID", "wlan.brp.tx_antenna_id",
-      FT_UINT32, BASE_DEC, NULL, 0x0600000,
+      FT_UINT32, BASE_DEC, NULL, 0x06000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_blm,
