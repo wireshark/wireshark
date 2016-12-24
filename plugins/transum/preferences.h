@@ -37,12 +37,10 @@
 * This is populated with preferences "service ports" data */
 typedef struct _TSUM_PREFERENCES
 {
-    gboolean tsumenabled;
     int      capture_position;
     gboolean reassembly;
-    guint8   tcp_svc_port[64 * 1024];
-    guint8   udp_svc_port[64 * 1024];
-    gboolean dcerpc_svc_port[64 * 1024];
+    wmem_map_t *tcp_svc_ports;
+    wmem_map_t *udp_svc_ports;
     gboolean orphan_ka_discard;
     int      time_multiplier;
     gboolean rte_on_first_req;

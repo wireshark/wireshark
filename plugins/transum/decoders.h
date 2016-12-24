@@ -23,12 +23,12 @@
 */
 #include "config.h"
 
-gboolean decode_syn(packet_info *pinfo, proto_tree *tree);
-gboolean decode_dcerpc(packet_info *pinfo, proto_tree *tree);
-gboolean decode_smb(packet_info *pinfo, proto_tree *tree);
-gboolean decode_gtcp(packet_info *pinfo, proto_tree *tree);
-gboolean decode_dns(packet_info *pinfo, proto_tree *tree);
-gboolean decode_gudp(packet_info *pinfo, proto_tree *tree);
+int decode_syn(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info);
+int decode_dcerpc(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info);
+int decode_smb(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info, PKT_INFO* subpackets);
+int decode_gtcp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info);
+int decode_dns(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info);
+int decode_gudp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info);
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

@@ -4122,6 +4122,36 @@ deprecated_heur_dissector_pref(gchar *pref_name, const gchar *value)
 }
 
 static gboolean
+deprecated_enable_dissector_pref(gchar *pref_name, const gchar *value)
+{
+    struct dissector_pref_name
+    {
+        const char* pref_name;
+        const char* short_name;
+    };
+
+    struct dissector_pref_name dissector_prefs[] = {
+        {"transum.tsumenabled", "TRANSUM"},
+    };
+
+    unsigned int i;
+    int proto_id;
+
+    for (i = 0; i < sizeof(dissector_prefs)/sizeof(struct dissector_pref_name); i++)
+    {
+        if (strcmp(pref_name, dissector_prefs[i].pref_name) == 0)
+        {
+            proto_id = proto_get_id_by_short_name(dissector_prefs[i].short_name);
+            if (proto_id >= 0)
+                proto_set_decoding(proto_id, ((g_ascii_strcasecmp(value, "true") == 0) ? TRUE : FALSE));
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+static gboolean
 deprecated_port_pref(gchar *pref_name, const gchar *value)
 {
     struct port_pref_name
@@ -4437,6 +4467,8 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         }
     } else if (deprecated_heur_dissector_pref(pref_name, value)) {
          /* Handled within deprecated_heur_dissector_pref() if found */
+    } else if (deprecated_enable_dissector_pref(pref_name, value)) {
+         /* Handled within deprecated_enable_dissector_pref() if found */
     } else if (deprecated_port_pref(pref_name, value)) {
          /* Handled within deprecated_port_pref() if found */
     } else {

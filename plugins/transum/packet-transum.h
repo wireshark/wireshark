@@ -47,13 +47,7 @@
 #define RTE_CALC_DCERPC 6
 #define RTE_CALC_DNS    7
 
-#define RRPD_SIZE 64
-
-#define MAX_STREAMS_PER_PROTOCOL 256*1024
-#define MAX_PACKETS 8000000  /* We support 8 million packets */
 #define MAX_SUBPKTS_PER_PACKET 16
-#define MAX_RRPDS 1000000  /* We support 4 million RRPDs */
-#define SIZE_OF_TEMP_RSP_RRPD_LIST 1024
 
 /*
     An RR pair is identified by a Fully Qualified Message ID (RRPD)
@@ -143,48 +137,59 @@ typedef struct _PKT_INFO
 
 } PKT_INFO;
 
-typedef struct _HF_OF_INTEREST
+typedef enum {
+    HF_INTEREST_IP_PROTO = 0,
+    HF_INTEREST_IPV6_NXT,
+
+    HF_INTEREST_TCP_RETRAN,
+    HF_INTEREST_TCP_KEEP_ALIVE,
+    HF_INTEREST_TCP_FLAGS_SYN,
+    HF_INTEREST_TCP_FLAGS_ACK,
+    HF_INTEREST_TCP_FLAGS_RESET,
+    HF_INTEREST_TCP_FLAGS_URG,
+    HF_INTEREST_TCP_SEQ,
+    HF_INTEREST_TCP_SRCPORT,
+    HF_INTEREST_TCP_DSTPORT,
+    HF_INTEREST_TCP_STREAM,
+    HF_INTEREST_TCP_LEN,
+
+    HF_INTEREST_UDP_SRCPORT,
+    HF_INTEREST_UDP_DSTPORT,
+    HF_INTEREST_UDP_STREAM,
+    HF_INTEREST_UDP_LENGTH,
+
+    HF_INTEREST_TDS_TYPE,
+    HF_INTEREST_TDS_LENGTH,
+
+    HF_INTEREST_SMB_MID,
+
+    HF_INTEREST_SMB2_SES_ID,
+    HF_INTEREST_SMB2_MSG_ID,
+    HF_INTEREST_SMB2_CMD,
+
+    HF_INTEREST_DCERPC_VER,
+    HF_INTEREST_DCERPC_PKT_TYPE,
+    HF_INTEREST_DCERPC_CN_CALL_ID,
+    HF_INTEREST_DCERPC_CN_CTX_ID,
+
+    HF_INTEREST_DNS_ID,
+
+    HF_INTEREST_END_OF_LIST
+} ehf_of_interest;
+
+typedef struct _HF_OF_INTEREST_INFO
 {
-    int ip_proto;
-    int ipv6_nxt;
+    int hf;
+    const char* proto_name;
 
-    int tcp_retran;
-    int tcp_keep_alive;
-    int tcp_flags_syn;
-    int tcp_flags_ack;
-    int tcp_flags_reset;
-    int tcp_flags_urg;
-    int tcp_seq;
-    int tcp_srcport;
-    int tcp_dstport;
-    int tcp_stream;
-    int tcp_len;
+} HF_OF_INTEREST_INFO;
 
-    int udp_srcport;
-    int udp_dstport;
-    int udp_stream;
-    int udp_length;
-
-    int tds_type;
-    int tds_length;
-
-    int smb_mid;
-
-    int smb2_ses_id;
-    int smb2_msg_id;
-    int smb2_cmd;
-
-    int dcerpc_ver;
-    int dcerpc_pkt_type;
-    int dcerpc_cn_call_id;
-    int dcerpc_cn_ctx_id;
-
-    int dns_id;
-
-    int data_data;
-} HF_OF_INTEREST;
+extern HF_OF_INTEREST_INFO hf_of_interest[HF_INTEREST_END_OF_LIST];
 
 void add_detected_tcp_svc(guint16 port);
+extern gboolean is_dcerpc_context_zero(guint32 pkt_type);
+extern gboolean is_dcerpc_req_pkt_type(guint32 pkt_type);
+
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
