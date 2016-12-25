@@ -193,8 +193,8 @@ static int setup_dumpfile(const char* fifo, FILE** fp)
 
 static void add_proto_name(char* mbuf, guint* offset, const char* proto_name)
 {
-	guint proto_str_len = strlen(proto_name);
-	guint16 proto_name_len = ((proto_str_len + 3) & 0xfffffffc);
+	size_t proto_str_len = strlen(proto_name);
+	guint16 proto_name_len = (guint16)((proto_str_len + 3) & 0xfffffffc);
 
 	mbuf[*offset] = 0;
 	mbuf[*offset+1] = EXP_PDU_TAG_PROTO_NAME;
@@ -282,7 +282,7 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 	add_end_options(mbuf, &offset);
 
 	memcpy(mbuf + offset, buf, buflen);
-	offset += buflen;
+	offset += (guint)buflen;
 
 	if (!libpcap_write_packet(fp, curtime, (guint32)(curtime / 1000), offset, offset, mbuf, &bytes_written, &err)) {
 		g_warning("Can't write packet");
