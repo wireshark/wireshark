@@ -4132,6 +4132,8 @@ deprecated_enable_dissector_pref(gchar *pref_name, const gchar *value)
 
     struct dissector_pref_name dissector_prefs[] = {
         {"transum.tsumenabled", "TRANSUM"},
+        {"snort.enable_snort_dissector", "Snort"},
+        {"prp.enable", "PRP"},
     };
 
     unsigned int i;

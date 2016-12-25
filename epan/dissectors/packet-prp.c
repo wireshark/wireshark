@@ -60,17 +60,6 @@ static int hf_prp_redundancy_control_trailer_version = -1;
 static gint ett_prp_redundancy_control_trailer = -1;
 
 
-/*  Post dissectors (such as the trailer dissector for this protocol)
- *  get called for every single frame anyone loads into Wireshark.
- *  Since this protocol is not of general interest we disable this
- *  protocol by default.
- *
- *  This is done separately from the disabled protocols list mainly so
- *  we can disable it by default.  XXX Maybe there's a better way.
- */
-static gboolean prp_enable_dissector = FALSE;
-
-
 /* Code to actually dissect the packets */
 static int
 dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
@@ -250,38 +239,29 @@ void proto_register_prp(void)
     };
 
     module_t *prp_module;
+    dissector_handle_t prp_handle;
 
     /* Register the protocol name and description */
-    proto_prp = proto_register_protocol("Parallel Redundancy Protocol (IEC62439 Part 3)",
-                        "PRP", "prp");
-    prp_module = prefs_register_protocol(proto_prp, proto_reg_handoff_prp);
+    proto_prp = proto_register_protocol("Parallel Redundancy Protocol (IEC62439 Part 3)", "PRP", "prp");
 
-    prefs_register_bool_preference(prp_module, "enable", "Enable dissector",
-                       "Enable this dissector (default is false)",
-                       &prp_enable_dissector);
+    /*  Post dissectors (such as the trailer dissector for this protocol)
+     *  get called for every single frame anyone loads into Wireshark.
+     *  Since this protocol is not of general interest we disable this
+     *  protocol by default.
+     */
+    proto_disable_by_default(proto_prp);
+
+    prp_module = prefs_register_protocol(proto_prp, NULL);
+
+    prefs_register_obsolete_preference(prp_module, "enable");
 
     /* Required function calls to register the header fields and subtree used */
     proto_register_field_array(proto_prp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-}
+    prp_handle = register_dissector("prp", dissect_prp_redundancy_control_trailer, proto_prp);
 
-void proto_reg_handoff_prp(void)
-{
-    static gboolean prefs_initialized = FALSE;
-
-    if (!prefs_initialized) {
-        dissector_handle_t prp_redundancy_control_trailer_handle;
-
-        prp_redundancy_control_trailer_handle = create_dissector_handle(dissect_prp_redundancy_control_trailer, proto_prp);
-        register_postdissector(prp_redundancy_control_trailer_handle);
-
-        prefs_initialized = TRUE;
-    }
-
-    if (!prp_enable_dissector)
-        proto_disable_by_default(proto_prp);
-    proto_set_decoding(proto_prp, prp_enable_dissector);
+    register_postdissector(prp_handle);
 }
 
 /*

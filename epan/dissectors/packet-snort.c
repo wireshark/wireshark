@@ -112,9 +112,6 @@ static expert_field ei_snort_content_not_matched = EI_INIT;
 /*****************************************/
 /* Preferences                           */
 
-/* Use explicit preference as want to disable this dissector by default */
-static gboolean snort_enable_dissector = FALSE;
-
 /* Where to look for alerts. */
 enum alerts_source {
     FromRunningSnort,
@@ -713,7 +710,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
         }
         /* Show Port vars */
         for (n=0; n < rule->relevant_vars.num_port_vars; n++) {
-            ti = proto_tree_add_none_format(rule_tree, hf_snort_rule_ip_var, tvb, 0, 0, "Port Var: ($%s -> %s)",
+            ti = proto_tree_add_none_format(rule_tree, hf_snort_rule_port_var, tvb, 0, 0, "Port Var: ($%s -> %s)",
                                             rule->relevant_vars.port_vars[n].name,
                                             rule->relevant_vars.port_vars[n].value);
             PROTO_ITEM_SET_GENERATED(ti);
@@ -1082,9 +1079,8 @@ static void snort_start(void)
     };
 
     /* Nothing to do if not enabled, but registered init function gets called anyway */
-    if (!snort_enable_dissector) {
+    if (!proto_is_protocol_enabled(find_protocol_by_id(proto_snort)))
         return;
-    }
 
     /* Create tree mapping packet_number -> Alerts_t*.  It will get recreated when packet list is reloaded */
     current_session.alerts_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
@@ -1199,9 +1195,6 @@ proto_reg_handoff_snort(void)
      * work as a non-root user (couldn't read stdin)
      * TODO: could run snort just to get the version number and check the config file is readable?
      * TODO: could make snort config parsing less forgiving and use that as a test? */
-
-    /* Our own preference for turning off completely.  Don't want to run at all unless turned on */
-    proto_set_decoding(proto_snort, snort_enable_dissector);
 }
 
 void
@@ -1312,6 +1305,9 @@ proto_register_snort(void)
 
     proto_snort = proto_register_protocol("Snort Alerts", "Snort", "snort");
 
+    /* Disable snort by default */
+    proto_disable_by_default(proto_snort);
+
     proto_register_field_array(proto_snort, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -1319,12 +1315,9 @@ proto_register_snort(void)
     expert_snort = expert_register_protocol(proto_snort);
     expert_register_field_array(expert_snort, ei, array_length(ei));
 
-    snort_module = prefs_register_protocol(proto_snort, proto_reg_handoff_snort);
+    snort_module = prefs_register_protocol(proto_snort, NULL);
 
-    prefs_register_bool_preference(snort_module, "enable_snort_dissector",
-                                   "Enable the snort dissector",
-                                   "Whether or not the snort post-dissector should run.",
-                                   &snort_enable_dissector);
+    prefs_register_obsolete_preference(snort_module, "enable_snort_dissector");
 
     prefs_register_enum_preference(snort_module, "alerts_source",
         "Source of Snort alerts",
