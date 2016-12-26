@@ -1014,8 +1014,7 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             memcpy(&wtp, pinfo->phdr, sizeof(wtp));
 
             /* Copying packet details into wtp for writing */
-            wtp.ts.secs = pinfo->fd->abs_ts.secs;
-            wtp.ts.nsecs = pinfo->fd->abs_ts.nsecs;
+            wtp.ts = pinfo->fd->abs_ts;
 
             /* NB: overwriting wtp.ts.nsecs so we can see packet number back if an alert is written for this frame!!!! */
             /* TODO: does this seriously affect snort's ability to reason about time?
