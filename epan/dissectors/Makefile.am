@@ -1007,6 +1007,8 @@ DISSECTOR_SRC = \
 	packet-ntlmssp.c	\
 	packet-ntp.c		\
 	packet-null.c		\
+	packet-nvme.c		\
+	packet-nvme-rdma.c	\
 	packet-nwmtp.c		\
 	packet-nwp.c		\
 	packet-oampdu.c		\
@@ -1643,6 +1645,7 @@ DISSECTOR_INCLUDES = \
 	packet-nlm.h		\
 	packet-ntlmssp.h	\
 	packet-ntp.h		\
+        packet-nvme.h		\
 	packet-ocsp.h		\
 	packet-opensafety.h	\
 	packet-osi.h		\

@@ -66,6 +66,8 @@ ISO 15765
 Local Service Discovery (LSD)
 M2 Application Protocol
 Nordic BLE Sniffer
+NVMe Fabrics RDMA
+NVMe
 RFTap Protocol
 SCTE-35 Digital Program Insertion Messages
 Snort Post-dissector
