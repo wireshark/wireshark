@@ -241,27 +241,6 @@ set(DISSECTOR_SRC
 	packet-afp.c
 	packet-afs.c
 	packet-agentx.c
-	packet-aim-admin.c
-	packet-aim-adverts.c
-	packet-aim-bos.c
-	packet-aim-buddylist.c
-	packet-aim-chat.c
-	packet-aim-chatnav.c
-	packet-aim-directory.c
-	packet-aim-email.c
-	packet-aim-generic.c
-	packet-aim-icq.c
-	packet-aim-invitation.c
-	packet-aim-location.c
-	packet-aim-messaging.c
-	packet-aim-oft.c
-	packet-aim-popup.c
-	packet-aim-signon.c
-	packet-aim-ssi.c
-	packet-aim-sst.c
-	packet-aim-stats.c
-	packet-aim-translate.c
-	packet-aim-userlookup.c
 	packet-aim.c
 	packet-ajp13.c
 	packet-alcap.c
