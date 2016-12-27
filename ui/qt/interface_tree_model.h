@@ -88,6 +88,10 @@ public:
 
     QVariant getColumnContent(int idx, int col, int role = Qt::DisplayRole);
 
+#ifdef HAVE_PCAP_REMOTE
+    bool isRemote(int idx);
+#endif
+
     static const QString DefaultNumericValue;
 
 public slots:

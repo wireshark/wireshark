@@ -66,6 +66,9 @@ public slots:
     void updateSelectedInterfaces();
     void interfaceListChanged();
     void toggleHiddenInterfaces();
+#ifdef HAVE_PCAP_REMOTE
+    void toggleRemoteInterfaces();
+#endif
     void getPoints(int idx, PointList *pts);
 
 protected:

@@ -2527,6 +2527,13 @@ prefs_register_modules(void)
                                    "Show all interfaces, including interfaces marked as hidden",
                                    &prefs.gui_interfaces_show_hidden);
 
+#ifdef HAVE_PCAP_REMOTE
+    prefs_register_bool_preference(gui_module, "interfaces_remote_display",
+                                   "Show Remote interfaces",
+                                   "Show remote interfaces in the interface selection",
+                                   &prefs.gui_interfaces_remote_display);
+#endif
+
     register_string_like_preference(gui_module, "interfaces_hidden_types", "Hide interface types in list",
         "Hide the given interface types in the startup list",
         &prefs.gui_interfaces_hide_types, PREF_STRING, NULL, TRUE);
@@ -3202,6 +3209,9 @@ pre_init_prefs(void)
     if (prefs.gui_interfaces_hide_types) g_free (prefs.gui_interfaces_hide_types);
     prefs.gui_interfaces_hide_types = g_strdup("");
     prefs.gui_interfaces_show_hidden = FALSE;
+#ifdef HAVE_PCAP_REMOTE
+    prefs.gui_interfaces_remote_display = TRUE;
+#endif
 
     prefs.gui_qt_packet_list_separator = FALSE;
 

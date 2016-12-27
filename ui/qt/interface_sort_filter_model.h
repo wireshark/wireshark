@@ -45,6 +45,13 @@ public:
     int interfacesHidden();
     void toggleFilterHidden();
 
+#ifdef HAVE_PCAP_REMOTE
+    void setRemoteDisplay(bool remoteDisplay);
+    bool remoteDisplay();
+    void toggleRemoteDisplay();
+    bool remoteInterfacesExist();
+#endif
+
     void setInterfaceTypeVisible(int ifType, bool visible);
     bool isInterfaceTypeShown(int ifType) const;
     void setFilterByType(bool filter, bool invert = false);
@@ -70,6 +77,10 @@ private:
     bool _filterTypes;
     bool _invertTypeFilter;
     bool _storeOnChange;
+
+#ifdef HAVE_PCAP_REMOTE
+    bool _remoteDisplay;
+#endif
 
     QList<int> displayHiddenTypes;
 

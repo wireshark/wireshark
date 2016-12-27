@@ -133,6 +133,17 @@ QMenu * InterfaceFrame::getSelectionMenu()
         ++it;
     }
 
+#ifdef HAVE_PCAP_REMOTE
+    if ( proxyModel->remoteInterfacesExist() )
+    {
+        QAction * toggleRemoteAction = new QAction(tr("Remote interfaces"), this);
+        toggleRemoteAction->setCheckable(true);
+        toggleRemoteAction->setChecked(! proxyModel->remoteDisplay());
+        connect(toggleRemoteAction, SIGNAL(triggered()), this, SLOT(toggleRemoteInterfaces()));
+        contextMenu->addAction(toggleRemoteAction);
+    }
+#endif
+
     contextMenu->addSeparator();
     QAction * toggleHideAction = new QAction(tr("Show hidden interfaces"), this);
     toggleHideAction->setCheckable(true);
@@ -213,6 +224,14 @@ void InterfaceFrame::toggleHiddenInterfaces()
 
     emit typeSelectionChanged();
 }
+
+#ifdef HAVE_PCAP_REMOTE
+void InterfaceFrame::toggleRemoteInterfaces()
+{
+    proxyModel->toggleRemoteDisplay();
+    emit typeSelectionChanged();
+}
+#endif
 
 void InterfaceFrame::resetInterfaceTreeDisplay()
 {

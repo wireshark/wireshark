@@ -46,6 +46,9 @@ void InterfaceSortFilterModel::resetAllFilter()
     _filterTypes = true;
     _invertTypeFilter = false;
     _storeOnChange = false;
+#ifdef HAVE_PCAP_REMOTE
+    _remoteDisplay = true;
+#endif
 
     /* Adding all columns, to have a default setting */
     for ( int col = 0; col < IFTREE_COL_MAX; col++ )
@@ -71,6 +74,48 @@ void InterfaceSortFilterModel::setFilterHidden(bool filter)
 
     invalidate();
 }
+
+#ifdef HAVE_PCAP_REMOTE
+void InterfaceSortFilterModel::setRemoteDisplay(bool remoteDisplay)
+{
+    _remoteDisplay = remoteDisplay;
+
+    invalidate();
+}
+
+bool InterfaceSortFilterModel::remoteDisplay()
+{
+    return _remoteDisplay;
+}
+
+void InterfaceSortFilterModel::toggleRemoteDisplay()
+{
+    _remoteDisplay = ! _remoteDisplay;
+
+    if ( _storeOnChange )
+    {
+        prefs.gui_interfaces_remote_display = ! _remoteDisplay;
+
+        prefs_main_write();
+    }
+
+    invalidateFilter();
+    invalidate();
+}
+
+bool InterfaceSortFilterModel::remoteInterfacesExist()
+{
+    bool exist = false;
+
+    if ( sourceModel()->rowCount() == 0 )
+        return exist;
+
+    for (int idx = 0; idx < sourceModel()->rowCount() && ! exist; idx++)
+        exist = ((InterfaceTreeModel *)sourceModel())->isRemote(idx);
+
+    return exist;
+}
+#endif
 
 void InterfaceSortFilterModel::setFilterByType(bool filter, bool invert)
 {
@@ -98,6 +143,9 @@ void InterfaceSortFilterModel::resetPreferenceData()
     }
 
     _filterHidden = ! prefs.gui_interfaces_show_hidden;
+#ifdef HAVE_PCAP_REMOTE
+    _remoteDisplay = prefs.gui_interfaces_remote_display;
+#endif
 
     invalidate();
 }
@@ -243,7 +291,19 @@ bool InterfaceSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex
         return false;
 
     if ( _filterTypes && ! isInterfaceTypeShown(type) )
+    {
+#ifdef HAVE_PCAP_REMOTE
+        /* Remote interfaces have the if type IF_WIRED, therefore would be filtered, if not explicitly checked here */
+        if ( ! _remoteDisplay || ! ((InterfaceTreeModel *)sourceModel())->isRemote(idx) )
+#endif
         return false;
+    }
+
+#ifdef HAVE_PCAP_REMOTE
+    if ( _remoteDisplay && ! ((InterfaceTreeModel *)sourceModel())->isRemote(idx) )
+        return false;
+#endif
+
 #endif
 
     return true;

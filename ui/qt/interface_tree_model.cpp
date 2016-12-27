@@ -319,6 +319,16 @@ QVariant InterfaceTreeModel::getColumnContent(int idx, int col, int role)
     return InterfaceTreeModel::data(index(idx, col), role);
 }
 
+#ifdef HAVE_PCAP_REMOTE
+bool InterfaceTreeModel::isRemote(int idx)
+{
+    interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
+    if ( device.remote_opts.src_type == CAPTURE_IFREMOTE )
+        return true;
+    return false;
+}
+#endif
+
 /**
  * The interface list has changed. global_capture_opts.all_ifaces may have been reloaded
  * or changed with current data. beginResetModel() and endResetModel() will signalize the
