@@ -102,9 +102,12 @@ RevocationInfoChoice/other		otherRIC
 #.FN_BODY EncapsulatedContentInfo/eContent
 
   offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &content_tvb);
-  proto_item_set_text(actx->created_item, "eContent (%%u bytes)", tvb_reported_length (content_tvb));
 
-  call_ber_oid_callback(object_identifier_id, content_tvb, 0, actx->pinfo, top_tree ? top_tree : tree, NULL);
+  if(content_tvb) {
+    proto_item_set_text(actx->created_item, "eContent (%%u bytes)", tvb_reported_length (content_tvb));
+
+    call_ber_oid_callback(object_identifier_id, content_tvb, 0, actx->pinfo, top_tree ? top_tree : tree, NULL);
+  }
 
 #.FN_PARS OtherRecipientInfo/oriType
   FN_VARIANT = _str  VAL_PTR = &object_identifier_id
