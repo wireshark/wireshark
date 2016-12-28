@@ -545,7 +545,7 @@ dissect_zvt_tlv_container(tvbuff_t *tvb, gint offset,
 {
     gint     offset_start;
     gint     total_len_bytes, seq_len;
-    guint16  seq_max_len;
+    guint16  seq_max_len = 0;
 
     offset_start = offset;
 
