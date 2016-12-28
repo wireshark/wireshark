@@ -169,7 +169,7 @@ static void parse_SUBNADMN(proto_tree *, packet_info *, tvbuff_t *, gint *offset
 static void parse_PERF(proto_tree *, tvbuff_t *, packet_info *, gint *offset);
 static void parse_BM(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_DEV_MGT(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset);
+static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, proto_tree* top_tree);
 static void parse_SNMP(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_VENDOR_MANAGEMENT(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_APPLICATION_MANAGEMENT(proto_tree *, tvbuff_t *, gint *offset);
@@ -2485,7 +2485,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
                 break;
                 case COM_MGT:
                     /* parse communication management */
-                    parse_COM_MGT(parentTree, pinfo, tvb, &local_offset);
+                    parse_COM_MGT(parentTree, pinfo, tvb, &local_offset, top_tree);
                 break;
                 case SNMP:
                     /* parse snmp tunneling */
@@ -3166,7 +3166,7 @@ static void parse_IP_CM_Req_Msg(proto_tree *parent_tree, tvbuff_t *tvb, gint loc
                         tvb, local_offset, 56, ENC_NA);
 }
 
-static void parse_CM_Req(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
                          MAD_Data *MadData, proto_tree *CM_header_tree, struct infinibandinfo *info)
 {
     tvbuff_t *next_tvb;
@@ -3272,7 +3272,7 @@ static void parse_CM_Req(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
 
     /* give a chance for subdissectors to analyze the private data */
     next_tvb = tvb_new_subset_length(tvb, local_offset, 92);
-    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, info);
+    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, top_tree, &hdtbl_entry, info);
 
     local_offset += 92;
     *offset = local_offset;
@@ -3372,7 +3372,7 @@ static void update_conversation_info(packet_info *pinfo,
     }
 }
 
-static void parse_CM_Rsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+static void parse_CM_Rsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
                          MAD_Data *MadData, proto_tree *CM_header_tree, struct infinibandinfo *info)
 {
     tvbuff_t *next_tvb;
@@ -3407,14 +3407,14 @@ static void parse_CM_Rsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
 
     /* give a chance for subdissectors to get the private data */
     next_tvb = tvb_new_subset_length(tvb, local_offset, 196);
-    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, info);
+    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, top_tree, &hdtbl_entry, info);
 
     local_offset += 196;
     *offset = local_offset;
 }
 
 static connection_context*
-try_connection_dissectors(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb,
+try_connection_dissectors(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb,
                           address *addr, MAD_Data *MadData, struct infinibandinfo *info,
                           gint pdata_offset, gint pdata_length)
 {
@@ -3425,12 +3425,12 @@ try_connection_dissectors(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     connection = lookup_connection(MadData->transactionID, addr);
 
     next_tvb = tvb_new_subset_length(tvb, pdata_offset, pdata_length);
-    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree,
+    dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, top_tree,
                             &hdtbl_entry, info);
     return connection;
 }
 
-static void parse_CM_Rtu(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+static void parse_CM_Rtu(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
                          MAD_Data *MadData, proto_tree *CM_header_tree,
                          struct infinibandinfo *info)
 {
@@ -3440,12 +3440,12 @@ static void parse_CM_Rtu(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
     proto_tree_add_item(CM_header_tree, hf_cm_rtu_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
     proto_tree_add_item(CM_header_tree, hf_cm_rtu_remotecommid, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
     proto_tree_add_item(CM_header_tree, hf_cm_rtu_privatedata, tvb, local_offset, 224, ENC_NA);
-    try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->src, MadData, info, local_offset, 224);
+    try_connection_dissectors(top_tree, pinfo, tvb, &pinfo->src, MadData, info, local_offset, 224);
     local_offset += 224;
     *offset = local_offset;
 }
 
-static void parse_CM_Rej(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+static void parse_CM_Rej(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
                          MAD_Data *MadData, proto_tree *CM_header_tree,
                          struct infinibandinfo *info)
 {
@@ -3462,12 +3462,12 @@ static void parse_CM_Rej(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *t
     proto_tree_add_item(CM_header_tree, hf_cm_rej_add_rej_info, tvb, local_offset, 72, ENC_NA); local_offset += 72;
     proto_tree_add_item(CM_header_tree, hf_cm_rej_private_data, tvb, local_offset, 148, ENC_NA);
 
-    try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->dst, MadData, info, local_offset, 148);
+    try_connection_dissectors(top_tree, pinfo, tvb, &pinfo->dst, MadData, info, local_offset, 148);
     local_offset += 148;
     *offset = local_offset;
 }
 
-static void parse_CM_DReq(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+static void parse_CM_DReq(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
                          MAD_Data *MadData, proto_tree *CM_header_tree,
                          struct infinibandinfo *info)
 {
@@ -3479,12 +3479,12 @@ static void parse_CM_DReq(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     proto_tree_add_item(CM_header_tree, hf_cm_dreq_remote_qpn, tvb, local_offset, 3, ENC_BIG_ENDIAN); local_offset += 3;
     proto_tree_add_item(CM_header_tree, hf_infiniband_reserved1, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_dreq_privatedata, tvb, local_offset, 220, ENC_NA);
-    try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->src, MadData, info, local_offset, 220);
+    try_connection_dissectors(top_tree, pinfo, tvb, &pinfo->src, MadData, info, local_offset, 220);
     local_offset += 220;
     *offset = local_offset;
 }
 
-static void parse_CM_DRsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+static void parse_CM_DRsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
                           MAD_Data *MadData, proto_tree *CM_header_tree,
                           struct infinibandinfo *info)
 {
@@ -3497,7 +3497,7 @@ static void parse_CM_DRsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     proto_tree_add_item(CM_header_tree, hf_cm_drsp_privatedata, tvb, local_offset, 224, ENC_NA);
 
     /* connection is closing so remove entry from the connection table */
-    connection = try_connection_dissectors(parentTree, pinfo, tvb, &pinfo->dst, MadData, info, local_offset, 224);
+    connection = try_connection_dissectors(top_tree, pinfo, tvb, &pinfo->dst, MadData, info, local_offset, 224);
     if (connection)
         remove_connection(MadData->transactionID, &pinfo->dst);
 
@@ -3509,7 +3509,7 @@ static void parse_CM_DRsp(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, proto_tree* top_tree)
 {
     MAD_Data    MadData;
     struct infinibandinfo info = { 0, FALSE, 0, NULL};
@@ -3534,30 +3534,31 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
 
     CM_header_tree = proto_item_add_subtree(CM_header_item, ett_cm);
 
+    info.payload_tree = parentTree;
     switch (MadData.attributeID) {
         case ATTR_CM_REQ:
             info.cm_attribute_id = ATTR_CM_REQ;
-            parse_CM_Req(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
+            parse_CM_Req(top_tree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
             break;
         case ATTR_CM_REP:
             info.cm_attribute_id = ATTR_CM_REP;
-            parse_CM_Rsp(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
+            parse_CM_Rsp(top_tree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
             break;
         case ATTR_CM_RTU:
             info.cm_attribute_id = ATTR_CM_RTU;
-            parse_CM_Rtu(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
+            parse_CM_Rtu(top_tree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
             break;
         case ATTR_CM_REJ:
             info.cm_attribute_id = ATTR_CM_REJ;
-            parse_CM_Rej(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
+            parse_CM_Rej(top_tree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
             break;
         case ATTR_CM_DREQ:
             info.cm_attribute_id = ATTR_CM_DREQ;
-            parse_CM_DReq(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
+            parse_CM_DReq(top_tree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
             break;
         case ATTR_CM_DRSP:
             info.cm_attribute_id = ATTR_CM_DRSP;
-            parse_CM_DRsp(parentTree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
+            parse_CM_DRsp(top_tree, pinfo, tvb, &local_offset, &MadData, CM_header_tree, &info);
             break;
         default:
             proto_item_append_text(CM_header_item, " (Dissector Not Implemented)"); local_offset += MAD_DATA_SIZE;
