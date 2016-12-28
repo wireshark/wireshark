@@ -227,6 +227,7 @@ static int hf_isakmp_ts_start_r_ctl = -1;
 static int hf_isakmp_ts_end_r_ctl = -1;
 static int hf_isakmp_ts_start_type = -1;
 static int hf_isakmp_ts_end_type = -1;
+static int hf_isakmp_reserved = -1;
 static int hf_isakmp_ts_data = -1;
 static int hf_isakmp_num_spis = -1;
 static int hf_isakmp_hash = -1;
@@ -5180,17 +5181,20 @@ dissect_ts(tvbuff_t *tvb, int offset, proto_tree *payload_tree)
     break;
 
   case IKEV2_TS_FC_ADDR_RANGE:
-    offset += 1; /* Reserved */
+    proto_tree_add_item(tree, hf_isakmp_reserved, tvb, offset, 1, ENC_NA);
+    offset += 1;
 
     proto_tree_add_item(tree, hf_isakmp_ts_selector_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    offset += 1; /* Reserved */
+    proto_tree_add_item(tree, hf_isakmp_reserved, tvb, offset, 1, ENC_NA);
+    offset += 1;
 
     proto_tree_add_item(tree, hf_isakmp_ts_start_addr_fc, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
-    offset += 1; /* Reserved */
+    proto_tree_add_item(tree, hf_isakmp_reserved, tvb, offset, 1, ENC_NA);
+    offset += 1;
 
     proto_tree_add_item(tree, hf_isakmp_ts_end_addr_fc, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
@@ -6381,6 +6385,10 @@ proto_register_isakmp(void)
     { &hf_isakmp_ts_end_type,
       { "Ending Type", "isakmp.ts.end_type",
         FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_reserved,
+      { "Reserved", "isakmp.reserved",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_ts_data,
       { "Traffic Selector", "isakmp.ts.data",
