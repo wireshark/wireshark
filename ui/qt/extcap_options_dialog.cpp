@@ -329,8 +329,10 @@ void ExtcapOptionsDialog::on_buttonBox_helpRequested()
     QUrl help_url(interface_help);
 
     /* The help is not a local file, open it and exit */
-    if (! help_url.scheme().compare("file"))
+    if (help_url.scheme().compare("file") != 0) {
         QDesktopServices::openUrl(help_url);
+        return;
+    }
 
     /* The help information is a file url and has been provided as-is by the extcap.
        Before attempting to open the it, check if it actually exists.
