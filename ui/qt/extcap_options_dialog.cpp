@@ -73,7 +73,7 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setWindowTitle(wsApp->windowTitleString(tr("Extcap Interface Options")));
+    setWindowTitle(wsApp->windowTitleString(tr("Interface Options")));
 
     ui->checkSaveOnStart->setCheckState(prefs.extcap_save_on_start ? Qt::Checked : Qt::Unchecked);
 
@@ -107,7 +107,7 @@ ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, QW
     resultDialog->device_name = QString(dev_name);
     resultDialog->device_idx = if_idx;
 
-    resultDialog->setWindowTitle(wsApp->windowTitleString(tr("Extcap Interface Options") + ": " + device.display_name));
+    resultDialog->setWindowTitle(wsApp->windowTitleString(tr("Interface Options") + ": " + device.display_name));
 
     resultDialog->updateWidgets();
 
