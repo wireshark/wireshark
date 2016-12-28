@@ -1669,7 +1669,7 @@ int main(int argc _U_, char **argv)
   /* Parse the input file */
   Parse(&lem);
   if( lem.errorcnt ) exit(lem.errorcnt);
-  if( lem.nrule==0 ){
+  if( lem.nrule==0 || lem.rule == NULL ){
     fprintf(stderr,"Empty grammar.\n");
     exit(1);
   }
