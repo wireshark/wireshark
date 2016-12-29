@@ -294,14 +294,17 @@ bool InterfaceSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex
     {
 #ifdef HAVE_PCAP_REMOTE
         /* Remote interfaces have the if type IF_WIRED, therefore would be filtered, if not explicitly checked here */
-        if ( ! _remoteDisplay || ! ((InterfaceTreeModel *)sourceModel())->isRemote(idx) )
+        if ( type != IF_WIRED || ! ((InterfaceTreeModel *)sourceModel())->isRemote(idx) )
 #endif
         return false;
     }
 
 #ifdef HAVE_PCAP_REMOTE
-    if ( _remoteDisplay && ! ((InterfaceTreeModel *)sourceModel())->isRemote(idx) )
-        return false;
+    if ( ((InterfaceTreeModel *)sourceModel())->isRemote(idx) )
+    {
+        if ( ! _remoteDisplay )
+            return false;
+    }
 #endif
 
 #endif
