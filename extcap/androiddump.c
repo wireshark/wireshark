@@ -49,6 +49,10 @@
     #include <arpa/inet.h>
 #endif
 
+#ifdef HAVE_SYS_TIME_H
+    #include <sys/time.h>
+#endif
+
 /* Configuration options */
 /* #define ANDROIDDUMP_USE_LIBPCAP */
 #define EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR    1
