@@ -350,6 +350,11 @@ static int hf_rtps_type_object_enum_constant_value              = -1;
 static int hf_rtps_type_object_element_shared                   = -1;
 static int hf_rtps_type_object_name                             = -1;
 static int hf_rtps_type_object_element_module_name              = -1;
+static int hf_rtps_pl_cdr_member                                = -1;
+static int hf_rtps_pl_cdr_member_id                             = -1;
+static int hf_rtps_pl_cdr_member_length                         = -1;
+static int hf_rtps_pl_cdr_member_id_ext                         = -1;
+static int hf_rtps_pl_cdr_member_length_ext                     = -1;
 
 /* Flag bits */
 static int hf_rtps_flag_reserved80                              = -1;
@@ -498,6 +503,7 @@ static gint ett_rtps_locator_list_tree                          = -1;
 static gint ett_rtps_topic_query_tree                           = -1;
 static gint ett_rtps_topic_query_selection_tree                 = -1;
 static gint ett_rtps_topic_query_filter_params_tree             = -1;
+static gint ett_rtps_data_member                                = -1;
 
 static expert_field ei_rtps_sm_octets_to_next_header_error = EI_INIT;
 static expert_field ei_rtps_port_invalid = EI_INIT;
@@ -6099,6 +6105,53 @@ static void dissect_APP_ACK_CONF(tvbuff_t *tvb,
   }
 }
 
+static void dissect_parametrized_serialized_data(proto_tree *tree, tvbuff_t *tvb,
+                       gint offset_input, int size, const guint encoding)
+{
+  guint32 member_id, member_length;
+  proto_item * ti;
+  proto_tree * data_tree, * member_tree;
+  gint offset = offset_input;
+  gint deserialized_size = 0;
+  data_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+          ett_rtps_serialized_data, &ti, "serializedData");
+  while (deserialized_size < size) {
+    ALIGN_ZERO(offset, 2, offset_input);
+    member_id = tvb_get_guint16(tvb, offset, encoding);
+    member_length = tvb_get_guint16(tvb, offset+2, encoding);
+
+    if ((member_id & PID_EXTENDED) == PID_EXTENDED) {
+      member_id = tvb_get_guint32(tvb, offset+4, encoding);
+      member_length = tvb_get_guint32(tvb, offset+8, encoding);
+      member_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, member_length + 12,
+              ett_rtps_data_member, NULL, "Member (id = %u, len = %u)", member_id, member_length);
+      proto_tree_add_item(member_tree, hf_rtps_pl_cdr_member_id_ext, tvb, offset+4, 4, encoding);
+      proto_tree_add_item(member_tree, hf_rtps_pl_cdr_member_length_ext, tvb, offset+8, 4, encoding);
+      offset += 12;
+      deserialized_size += 12;
+    } else if ((member_id & PID_LIST_END) == PID_LIST_END){
+      /* If this is the end of the list, don't add a tree.
+       * If we add more logic here in the future, take into account that
+       * offset is incremented by 4 */
+      deserialized_size += 4;
+      break;
+    } else {
+        member_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, member_length + 4,
+              ett_rtps_data_member, NULL, "Member (id = %u, len = %u)", member_id, member_length);
+      proto_tree_add_item(member_tree, hf_rtps_pl_cdr_member_id, tvb, offset, 2, encoding);
+      proto_tree_add_item(member_tree, hf_rtps_pl_cdr_member_length, tvb, offset+2, 2, encoding);
+      offset += 4;
+      deserialized_size += 4;
+    }
+
+    proto_tree_add_item(member_tree, hf_rtps_pl_cdr_member, tvb, offset,
+            member_length, encoding);
+    offset += member_length;
+    deserialized_size += member_length;
+  }
+  proto_item_set_len(ti, deserialized_size);
+}
+
 /* *********************************************************************** */
 /* * Serialized data dissector                                           * */
 /* *********************************************************************** */
@@ -6158,7 +6211,10 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
             dissect_parameter_sequence(rtps_parameter_sequence_tree, pinfo, tvb, offset,
                         encapsulation_encoding, size, label, 0x0200, NULL, vendor_id, FALSE);
           } else {
-            expert_add_info(pinfo, ti, &ei_rtps_unsupported_non_builtin_param_seq);
+              /* Instead of showing a warning like before, we know dissect the data as
+               * (id - length - value) members */
+              dissect_parametrized_serialized_data(rtps_parameter_sequence_tree,
+                      tvb, offset, size, encapsulation_encoding);
           }
           break;
 
@@ -11515,6 +11571,26 @@ void proto_register_rtps(void) {
       { "Number of sessions", "rtps.param.topic_query_publication_sessions",
         FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
     },
+    { &hf_rtps_pl_cdr_member,
+      { "Member value", "rtps.data.value",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_pl_cdr_member_id,
+      { "Member ID", "rtps.data.member_id",
+        FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_pl_cdr_member_length,
+      { "Member length", "rtps.data.member_length",
+        FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_pl_cdr_member_id_ext,
+      { "Member ID", "rtps.data.member_id",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_pl_cdr_member_length_ext,
+      { "Member length", "rtps.data.member_length",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
   };
 
   static gint *ett[] = {
@@ -11586,6 +11662,7 @@ void proto_register_rtps(void) {
     &ett_rtps_topic_query_tree,
     &ett_rtps_topic_query_selection_tree,
     &ett_rtps_topic_query_filter_params_tree,
+    &ett_rtps_data_member,
   };
 
   static ei_register_info ei[] = {
