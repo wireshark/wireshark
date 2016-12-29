@@ -245,11 +245,11 @@ proto_register_udld(void)
             NULL, HFILL }},
 
         { &hf_udld_flags_rt,
-          { "Recommended timeout",        "udld.flags.rt", FT_UINT8, BASE_HEX, NULL, 0x80,
+          { "Recommended timeout",        "udld.flags.rt", FT_UINT8, BASE_HEX, NULL, 0x01,
             NULL, HFILL }},
 
         { &hf_udld_flags_rsy,
-          { "ReSynch",        "udld.flags.rsy", FT_UINT8, BASE_HEX, NULL, 0x40,
+          { "ReSynch",        "udld.flags.rsy", FT_UINT8, BASE_HEX, NULL, 0x02,
             NULL, HFILL }},
 
         { &hf_udld_checksum,
