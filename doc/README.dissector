@@ -117,7 +117,7 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                   BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX, BASE_HEX_DEC,
                   BASE_CUSTOM, or BASE_NONE, possibly ORed with
                   BASE_RANGE_STRING, BASE_EXT_STRING, BASE_VAL64_STRING,
-                  BASE_ALLOW_ZERO or BASE_UNIT_STRING
+                  BASE_ALLOW_ZERO, BASE_UNIT_STRING or BASE_NO_DISPLAY_VALUE
 
                   BASE_NONE may be used with a non-NULL FIELDCONVERT when the
                   numeric value of the field itself is not of significance to
@@ -125,6 +125,11 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                   When this is the case the numeric value is not shown to the
                   user in the protocol decode nor is it used when preparing
                   filters for the field in question.
+
+                  BASE_NO_DISPLAY_VALUE will just display the field name with
+                  no value.  It is intended for byte arrays (FT_BYTES) or
+                  header fields above a subtree.  The value will still be
+                  filterable, just not displayed.
 
                 --For FT_UINT16:
 

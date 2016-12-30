@@ -547,11 +547,13 @@ typedef enum {
 
 /* Following constants have to be ORed with a field_display_e when dissector
  * want to use specials value-string MACROs for a header_field_info */
-#define BASE_RANGE_STRING 0x100
-#define BASE_EXT_STRING   0x200
-#define BASE_VAL64_STRING 0x400
-#define BASE_ALLOW_ZERO   0x800  /**< Display <none> instead of <MISSING> for zero sized byte array */
-#define BASE_UNIT_STRING  0x1000  /**< Add unit text to the field value */
+#define BASE_RANGE_STRING       0x0100
+#define BASE_EXT_STRING         0x0200
+#define BASE_VAL64_STRING       0x0400
+#define BASE_ALLOW_ZERO         0x0800  /**< Display <none> instead of <MISSING> for zero sized byte array */
+#define BASE_UNIT_STRING        0x1000  /**< Add unit text to the field value */
+#define BASE_NO_DISPLAY_VALUE   0x2000  /**< Just display the field name with no value.  Intended for
+                                             byte arrays or header fields above a subtree */
 
 /** BASE_ values that cause the field value to be displayed twice */
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)
