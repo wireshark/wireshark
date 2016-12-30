@@ -483,7 +483,7 @@ static const value_string cadr_type_vals[] = {
 /**************************************************************************/
 /*                      Error Code                                        */
 /**************************************************************************/
-/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/quic_protocol.h */
+/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/quic_error_codes.h */
 
 enum QuicErrorCode {
     QUIC_NO_ERROR = 0,
@@ -809,7 +809,7 @@ static value_string_ext error_code_vals_ext = VALUE_STRING_EXT_INIT(error_code_v
 /**************************************************************************/
 /*                      RST Stream Error Code                             */
 /**************************************************************************/
-/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/quic_protocol.h (enum QuicRstStreamErrorCode) */
+/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/core/quic_error_codes.h (enum QuicRstStreamErrorCode) */
 
 enum QuicRstStreamErrorCode {
   /* Complete response has been sent, sending a RST to ask the other endpoint to stop sending request data without discarding the response. */
