@@ -98,7 +98,7 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENC");
 
-  ench.af = tvb_get_ntohl(tvb, 0);
+  ench.af = tvb_get_h_guint32(tvb, 0);
   ench.spi = tvb_get_ntohl(tvb, 4);
 
   if (tree) {
@@ -109,9 +109,9 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                         ench.spi);
     enc_tree = proto_item_add_subtree(ti, ett_enc);
 
-    proto_tree_add_item(enc_tree, hf_enc_af, tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(enc_tree, hf_enc_af, tvb, 0, 4, ENC_HOST_ENDIAN);
     proto_tree_add_item(enc_tree, hf_enc_spi, tvb, 4, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_bitmask(enc_tree, tvb, 8, hf_enc_flags, ett_enc_flag, flags, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(enc_tree, tvb, 8, hf_enc_flags, ett_enc_flag, flags, ENC_HOST_ENDIAN);
   }
 
   /* Set the tvbuff for the payload after the header */
