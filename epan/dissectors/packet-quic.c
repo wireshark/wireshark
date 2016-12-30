@@ -162,6 +162,7 @@ static int hf_quic_tag_ctim = -1;
 static int hf_quic_tag_mids = -1;
 static int hf_quic_tag_fhol = -1;
 static int hf_quic_tag_sttl = -1;
+static int hf_quic_tag_smhl = -1;
 
 /* Public Reset Tags */
 static int hf_quic_tag_rnon = -1;
@@ -390,6 +391,7 @@ static const value_string message_tag_vals[] = {
 #define TAG_MIDS 0x4D494453
 #define TAG_FHOL 0x46484F4C
 #define TAG_STTL 0x5354544C
+#define TAG_SMHL 0x534D484C
 
 /* Public Reset Tag */
 #define TAG_RNON 0x524E4F4E
@@ -434,6 +436,7 @@ static const value_string tag_vals[] = {
     { TAG_MIDS, "Max incoming dynamic streams" },
     { TAG_FHOL, "Force Head Of Line blocking" },
     { TAG_STTL, "Server Config TTL" },
+    { TAG_SMHL, "Support Max Header List (size)" },
 
     { TAG_RNON, "Public Reset Nonce Proof" },
     { TAG_RSEQ, "Rejected Packet Number" },
@@ -1623,7 +1626,12 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 tag_offset += 8;
                 tag_len -= 8;
             break;
-
+            case TAG_SMHL:
+                proto_tree_add_item(tag_tree, hf_quic_tag_smhl, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
+                tag_offset += 4;
+                tag_len -= 4;
+            break;
             default:
                 proto_tree_add_item(tag_tree, hf_quic_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 expert_add_info_format(pinfo, ti_tag, &ei_quic_tag_undecoded,
@@ -2832,6 +2840,11 @@ proto_register_quic(void)
         },
         { &hf_quic_tag_sttl,
             { "Server Config TTL", "quic.tag.sttl",
+               FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_tag_smhl,
+            { "Support Max Header List (size)", "quic.tag.smhl",
                FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
