@@ -139,13 +139,13 @@ proto_register_enc(void)
       { "Payload encrypted", "enc.flags.payload_enc", FT_BOOLEAN, 32, NULL, BSD_ENC_M_CONF,
         NULL, HFILL }},
     { &hf_enc_flags_payload_auth,
-      { "Payload encrypted", "enc.flags.payload_auth", FT_BOOLEAN, 32, NULL, BSD_ENC_M_AUTH,
+      { "Payload authenticated", "enc.flags.payload_auth", FT_BOOLEAN, 32, NULL, BSD_ENC_M_AUTH,
         NULL, HFILL }},
     { &hf_enc_flags_payload_compress,
-      { "Payload encrypted", "enc.flags.payload_compress", FT_BOOLEAN, 32, NULL, BSD_ENC_M_COMP,
+      { "Payload compressed", "enc.flags.payload_compress", FT_BOOLEAN, 32, NULL, BSD_ENC_M_COMP,
         NULL, HFILL }},
     { &hf_enc_flags_header_auth,
-      { "Payload encrypted", "enc.flags.header_auth", FT_BOOLEAN, 32, NULL, BSD_ENC_M_AUTH_AH,
+      { "Header authenticated", "enc.flags.header_auth", FT_BOOLEAN, 32, NULL, BSD_ENC_M_AUTH_AH,
         NULL, HFILL }},
   };
   static gint *ett[] =
