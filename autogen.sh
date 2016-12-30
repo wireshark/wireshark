@@ -151,7 +151,7 @@ $AUTOCONF || exit 1
 
 if [ `uname -s` = Darwin ] ; then
     echo
-    echo "To configure Wireshark on OS X, you will need to type:"
+    echo "To configure Wireshark on {Mac} OS X/macOS, you will need to type:"
     echo "export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/X11/lib/pkgconfig"
     echo "before you can run configure."
 fi
