@@ -42,10 +42,12 @@ struct enchdr {
 };
 #define BSD_ENC_HDRLEN    12
 
-#define BSD_ENC_M_CONF          0x0400  /* payload encrypted */
-#define BSD_ENC_M_AUTH          0x0800  /* payload authenticated */
-#define BSD_ENC_M_COMP          0x1000  /* payload compressed */
-#define BSD_ENC_M_AUTH_AH       0x2000  /* header authenticated */
+#define BSD_ENC_M_CONF          0x00000400  /* payload encrypted */
+#define BSD_ENC_M_AUTH          0x00000800  /* payload authenticated */
+#define BSD_ENC_M_COMP          0x00001000  /* payload compressed */
+#define BSD_ENC_M_AUTH_AH       0x00002000  /* header authenticated */
+
+#define BSD_ENC_M_RESERVED      0xFFFFC3FF  /* Reserved/unused flags */
 
 static dissector_table_t enc_dissector_table;
 
@@ -58,6 +60,7 @@ static int hf_enc_flags_payload_enc = -1;
 static int hf_enc_flags_payload_auth = -1;
 static int hf_enc_flags_payload_compress = -1;
 static int hf_enc_flags_header_auth = -1;
+static int hf_enc_flags_reserved = -1;
 
 static gint ett_enc = -1;
 static gint ett_enc_flag = -1;
@@ -93,6 +96,7 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     &hf_enc_flags_payload_auth,
     &hf_enc_flags_payload_compress,
     &hf_enc_flags_header_auth,
+    &hf_enc_flags_reserved,
     NULL
   };
 
@@ -146,6 +150,9 @@ proto_register_enc(void)
         NULL, HFILL }},
     { &hf_enc_flags_header_auth,
       { "Header authenticated", "enc.flags.header_auth", FT_BOOLEAN, 32, NULL, BSD_ENC_M_AUTH_AH,
+        NULL, HFILL }},
+    { &hf_enc_flags_reserved,
+      { "Reserved", "enc.flags.reserved", FT_UINT32, BASE_HEX, NULL, BSD_ENC_M_RESERVED,
         NULL, HFILL }},
   };
   static gint *ett[] =
