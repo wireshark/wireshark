@@ -3345,7 +3345,32 @@ The arguments to udp_dissect_pdus are:
     a void pointer to user data that is passed to the length-determining
     routine, and the dissector routine referenced in the previous parameter.
 
-2.9 Creating Decode As functionality.
+2.9 PINOs (Protocols in name only)
+
+For the typical dissector there is a 1-1 relationship between it and it's
+protocol.  However, there are times when a protocol needs multiple "names"
+because it has multiple dissection functions going into the same dissector
+table. The muliple names removes confusion when picking dissection through
+Decode As functionality.
+
+Once the "main" protocol name has been created through proto_register_protocol,
+additional "pinos" can be created with proto_register_protocol_in_name_only.
+These pinos have all of the naming conventions of a protocol, but are stored
+separately as to remove confusion from real protocols.  "pinos" the main
+protocol's properties for things like enable/disable.  i.e.  If the "main"
+protocol has been disabled, all of its pinos will be disabled as well.
+Pinos should not have any fields registered with them or heuristic tables
+associated with them.
+
+Another use case for pinos is when a protocol contains a TLV design and it
+wants to create a dissector table to handle dissection of the "V". Dissector
+tables require a "protocol", but the dissection functions for that table
+typically aren't a protocol.  In this case proto_register_protocol_in_name_only
+creates the necessary placeholder for the dissector table.  In addition, because
+a dissector table exists, "V"s of the TLVs can be dissected outside of the
+original dissector file.
+
+2.10 Creating Decode As functionality.
 
 While the Decode As functionality is available through the GUI, the underlying
 functionality is controlled by dissectors themselves. To create Decode As
@@ -3381,7 +3406,11 @@ to the dissector table through Decode As GUI functionality.  For dissector
 tables that are an integer or string type, the provided "default" handling
 functions shown in the example should suffice.
 
-2.10 ptvcursors.
+All entries into a dissector table that use Decode As must have a unique
+protocol ID. If a protocol wants multiple entries into a dissector table,
+a pino should be used (see section 2.9)
+
+2.11 ptvcursors.
 
 The ptvcursor API allows a simpler approach to writing dissectors for
 simple protocols. The ptvcursor API works best for protocols whose fields
@@ -3414,7 +3443,7 @@ To use the ptvcursor API, include the "ptvcursor.h" file. The PGM dissector
 is an example of how to use it. You don't need to look at it as a guide;
 instead, the API description here should be good enough.
 
-2.10.1 ptvcursor API.
+2.11.1 ptvcursor API.
 
 ptvcursor_t*
 ptvcursor_new(proto_tree* tree, tvbuff_t* tvb, gint offset)
@@ -3470,7 +3499,7 @@ If the length is unknown, length may be defined as SUBTREE_UNDEFINED_LENGTH.
 In this case, at the next pop, the item length will be equal to the advancement
 of the cursor since the creation of the subtree.
 
-2.9.2 Miscellaneous functions.
+2.11.2 Miscellaneous functions.
 
 tvbuff_t*
 ptvcursor_tvbuff(ptvcursor_t* ptvc)
@@ -3493,7 +3522,7 @@ ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree);
     Creates a subtree and adds it to the cursor as the working tree but does
 not save the old working tree.
 
-2.11 Optimizations
+2.12 Optimizations
 
 A protocol dissector may be called in 2 different ways - with, or
 without a non-null "tree" argument.

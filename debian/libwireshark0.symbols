@@ -1017,6 +1017,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_is_protocol_enabled@Base 1.9.1
  proto_is_protocol_enabled_by_default@Base 2.3.0
  proto_is_frame_protocol@Base 1.99.1
+ proto_is_pino@Base 2.3.0
  proto_item_add_subtree@Base 1.9.1
  proto_item_append_text@Base 1.9.1
  proto_item_fill_label@Base 1.9.1
@@ -1034,6 +1035,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_register_fields_section@Base 1.12.0~rc1
  proto_register_prefix@Base 1.9.1
  proto_register_protocol@Base 1.9.1
+ proto_register_protocol_in_name_only@Base 2.3.0
  proto_register_subtree_array@Base 1.9.1
  proto_registrar_dump_fieldcount@Base 2.0.0
  proto_registrar_dump_fields@Base 1.9.1

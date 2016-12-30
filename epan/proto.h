@@ -554,6 +554,7 @@ typedef enum {
 #define BASE_UNIT_STRING        0x1000  /**< Add unit text to the field value */
 #define BASE_NO_DISPLAY_VALUE   0x2000  /**< Just display the field name with no value.  Intended for
                                              byte arrays or header fields above a subtree */
+#define BASE_PROTOCOL_INFO      0x4000  /**< protocol_t in [FIELDCONVERT].  Internal use only. */
 
 /** BASE_ values that cause the field value to be displayed twice */
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)
@@ -582,7 +583,7 @@ struct _header_field_info {
 	int			 display;           /**< [FIELDDISPLAY] one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
 	const void		*strings;           /**< [FIELDCONVERT] value_string, val64_string, range_string or true_false_string,
 				                         typically converted by VALS(), RVALS() or TFS().
-				                         If this is an FT_PROTOCOL then it points to the
+				                         If this is an FT_PROTOCOL or BASE_PROTOCOL_INFO then it points to the
 				                         associated protocol_t structure */
 	guint64			 bitmask;           /**< [BITMASK] bitmask of interesting bits */
 	const char		*blurb;             /**< [FIELDDESCR] Brief description of field */
@@ -2096,6 +2097,23 @@ proto_item_fill_label(field_info *fi, gchar *label_str);
 WS_DLL_PUBLIC int
 proto_register_protocol(const char *name, const char *short_name, const char *filter_name);
 
+/** Register a "helper" protocol (pino - protocol in name only).
+ This is for dissectors that need distinguishing names and don't need the other
+ features (like enable/disable).  One use case is a protocol with multiple dissection
+ functions in a single dissector table needing unique "dissector names" to remove
+ confusion with Decode As dialog.  Another use case is for a dissector table set
+ up to handle TLVs within a single protocol (and allow "external" TLVs being
+ registered through the dissector table).
+ @param name the full name of the new protocol
+ @param short_name abbreviated name of the new protocol
+ @param filter_name protocol name used for a display filter string
+ @param parent_proto the "real" protocol for the helper.  The parent decides enable/disable
+ @param field_type FT_PROTOCOL or FT_BYTES.  Allows removal of "protocol highlighting" (FT_BYTES)
+ if pino is part of TLV.
+ @return the new protocol handle */
+WS_DLL_PUBLIC int
+proto_register_protocol_in_name_only(const char *name, const char *short_name, const char *filter_name, int parent_proto, enum ftenum field_type);
+
 /** Deregister a protocol.
  @param short_name abbreviated name of the protocol
  @return TRUE if protocol is removed */
@@ -2255,6 +2273,10 @@ WS_DLL_PUBLIC gboolean proto_is_protocol_enabled(const protocol_t *protocol);
 /** Is protocol's enabled by default (most are)?
  @return TRUE if decoding is enabled by default, FALSE if not */
 WS_DLL_PUBLIC gboolean proto_is_protocol_enabled_by_default(const protocol_t *protocol);
+
+/** Is this a protocol in name only (i.e. not a real one)?
+ @return TRUE if helper, FALSE if not */
+WS_DLL_PUBLIC gboolean proto_is_pino(const protocol_t *protocol);
 
 /** Get a protocol's filter name by its item number.
  @param proto_id protocol id (0-indexed)

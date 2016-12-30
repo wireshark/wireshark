@@ -315,11 +315,16 @@ struct _protocol {
 	gboolean    is_enabled;         /* TRUE if protocol is enabled */
 	gboolean    enabled_by_default; /* TRUE if protocol is enabled by default */
 	gboolean    can_toggle;         /* TRUE if is_enabled can be changed */
+	int         parent_proto_id;    /* Used to identify "pino"s (Protocol In Name Only).
+                                       For dissectors that need a protocol name so they
+                                       can be added to a dissector table, but use the
+                                       parent_proto_id for things like enable/disable */
 	GList      *heur_list;          /* Heuristic dissectors associated with this protocol */
 };
 
 /* List of all protocols */
 static GList *protocols = NULL;
+static GList *pino_protocols = NULL;
 
 /* Deregistered fields */
 static GPtrArray *deregistered_fields = NULL;
@@ -568,6 +573,9 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 void
 proto_cleanup(void)
 {
+	protocol_t *protocol;
+	header_field_info *hfinfo;
+
 	/* Free the abbrev/ID hash table */
 	if (gpa_name_map) {
 		g_hash_table_destroy(gpa_name_map);
@@ -577,8 +585,7 @@ proto_cleanup(void)
 	last_field_name = NULL;
 
 	while (protocols) {
-		protocol_t        *protocol = (protocol_t *)protocols->data;
-		header_field_info *hfinfo;
+		protocol = (protocol_t *)protocols->data;
 		PROTO_REGISTRAR_GET_NTH(protocol->proto_id, hfinfo);
 		DISSECTOR_ASSERT(protocol->proto_id == hfinfo->id);
 
@@ -588,6 +595,17 @@ proto_cleanup(void)
 		}
 		g_list_free(protocol->heur_list);
 		protocols = g_list_remove(protocols, protocol);
+		g_free(protocol);
+	}
+
+	while (pino_protocols) {
+		protocol = (protocol_t *)pino_protocols->data;
+		PROTO_REGISTRAR_GET_NTH(protocol->proto_id, hfinfo);
+		DISSECTOR_ASSERT(protocol->proto_id == hfinfo->id);
+		DISSECTOR_ASSERT(protocol->fields == NULL); //helpers should not have any registered fields
+		g_slice_free(header_field_info, hfinfo);
+		DISSECTOR_ASSERT(protocol->heur_list == NULL); //helpers should not have a heuristic list
+		pino_protocols = g_list_remove(pino_protocols, protocol);
 		g_free(protocol);
 	}
 
@@ -5821,6 +5839,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	protocol->is_enabled = TRUE; /* protocol is enabled by default */
 	protocol->enabled_by_default = TRUE; /* see previous comment */
 	protocol->can_toggle = TRUE;
+	protocol->parent_proto_id = -1;
 	protocol->heur_list = NULL;
 	/* list will be sorted later by name, when all protocols completed registering */
 	protocols = g_list_prepend(protocols, protocol);
@@ -5842,6 +5861,77 @@ proto_register_protocol(const char *name, const char *short_name,
 	proto_id = proto_register_field_init(hfinfo, hfinfo->parent);
 	protocol->proto_id = proto_id;
 	return proto_id;
+}
+
+int
+proto_register_protocol_in_name_only(const char *name, const char *short_name, const char *filter_name, int parent_proto, enum ftenum field_type)
+{
+	protocol_t *protocol;
+	header_field_info *hfinfo;
+	guint i;
+	gchar c;
+	gboolean found_invalid = FALSE;
+
+	/*
+	 * Helper protocols don't need the strict rules as a "regular" protocol
+	 * Just register it in a list and make a hf_ field from it
+	 */
+	if ((field_type != FT_PROTOCOL) && (field_type != FT_BYTES)) {
+		g_error("Pino \"%s\" must be of type FT_PROTOCOL or FT_BYTES.", name);
+	}
+
+	if (parent_proto < 0) {
+		g_error("Must have a valid parent protocol for helper protocol \"%s\"!"
+			" This might be caused by an inappropriate plugin or a development error.", name);
+	}
+
+	for (i = 0; filter_name[i]; i++) {
+		c = filter_name[i];
+		if (!(g_ascii_islower(c) || g_ascii_isdigit(c) || c == '-' || c == '_' || c == '.')) {
+			found_invalid = TRUE;
+		}
+	}
+	if (found_invalid) {
+		g_error("Protocol filter name \"%s\" has one or more invalid characters."
+			" Allowed are lower characters, digits, '-', '_' and '.'."
+			" This might be caused by an inappropriate plugin or a development error.", filter_name);
+	}
+
+	/* Add this protocol to the list of helper protocols (just so it can be properly freed) */
+	protocol = g_new(protocol_t, 1);
+	protocol->name = name;
+	protocol->short_name = short_name;
+	protocol->filter_name = filter_name;
+	protocol->fields = NULL;
+
+	/* Enabling and toggling is really determined by parent protocol,
+	   but provide default values here */
+	protocol->is_enabled = TRUE;
+	protocol->enabled_by_default = TRUE;
+	protocol->can_toggle = TRUE;
+
+	protocol->parent_proto_id = parent_proto;
+	protocol->heur_list = NULL;
+	/* list will be sorted later by name, when all protocols completed registering */
+	pino_protocols = g_list_prepend(pino_protocols, protocol);
+
+	/* Here we allocate a new header_field_info struct */
+	hfinfo = g_slice_new(header_field_info);
+	hfinfo->name = name;
+	hfinfo->abbrev = filter_name;
+	hfinfo->type = field_type;
+	hfinfo->display = BASE_NONE;
+	if (field_type == FT_BYTES) {
+		hfinfo->display |= (BASE_NO_DISPLAY_VALUE|BASE_PROTOCOL_INFO);
+	}
+	hfinfo->strings = protocol;
+	hfinfo->bitmask = 0;
+	hfinfo->ref_type = HF_REF_TYPE_NONE;
+	hfinfo->blurb = NULL;
+	hfinfo->parent = -1; /* this field differentiates protos and fields */
+
+	protocol->proto_id = proto_register_field_init(hfinfo, hfinfo->parent);
+	return protocol->proto_id;
 }
 
 gboolean
@@ -5972,7 +6062,9 @@ find_protocol_by_id(const int proto_id)
 		return NULL;
 
 	PROTO_REGISTRAR_GET_NTH(proto_id, hfinfo);
-	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_PROTOCOL);
+	if (hfinfo->type != FT_PROTOCOL) {
+		DISSECTOR_ASSERT(hfinfo->display & BASE_PROTOCOL_INFO);
+	}
 	return (protocol_t *)hfinfo->strings;
 }
 
@@ -6150,16 +6242,29 @@ proto_is_frame_protocol(const wmem_list_t *layers, const char* proto_name)
 	return FALSE;
 }
 
+gboolean
+proto_is_pino(const protocol_t *protocol)
+{
+	return (protocol->parent_proto_id != -1);
+}
 
 gboolean
 proto_is_protocol_enabled(const protocol_t *protocol)
 {
+	//parent protocol determines enable/disable for helper dissectors
+	if (proto_is_pino(protocol))
+		return proto_is_protocol_enabled(find_protocol_by_id(protocol->parent_proto_id));
+
 	return protocol->is_enabled;
 }
 
 gboolean
 proto_is_protocol_enabled_by_default(const protocol_t *protocol)
 {
+	//parent protocol determines enable/disable for helper dissectors
+	if (proto_is_pino(protocol))
+		return proto_is_protocol_enabled_by_default(find_protocol_by_id(protocol->parent_proto_id));
+
 	return protocol->enabled_by_default;
 }
 
@@ -6169,6 +6274,10 @@ proto_can_toggle_protocol(const int proto_id)
 	protocol_t *protocol;
 
 	protocol = find_protocol_by_id(proto_id);
+	//parent protocol determines toggling for helper dissectors
+	if (proto_is_pino(protocol))
+		return proto_can_toggle_protocol(protocol->parent_proto_id);
+
 	return protocol->can_toggle;
 }
 
@@ -6179,6 +6288,7 @@ proto_disable_by_default(const int proto_id)
 
 	protocol = find_protocol_by_id(proto_id);
 	DISSECTOR_ASSERT(protocol->can_toggle);
+	DISSECTOR_ASSERT(proto_is_pino(protocol) == FALSE);
 	protocol->is_enabled = FALSE;
 	protocol->enabled_by_default = FALSE;
 }
@@ -6190,6 +6300,7 @@ proto_set_decoding(const int proto_id, const gboolean enabled)
 
 	protocol = find_protocol_by_id(proto_id);
 	DISSECTOR_ASSERT(protocol->can_toggle);
+	DISSECTOR_ASSERT(proto_is_pino(protocol) == FALSE);
 	protocol->is_enabled = enabled;
 }
 
@@ -6577,6 +6688,12 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				break;
 
 			//fallthrough
+		case FT_BYTES:
+			//allowed to support string if its a protocol (for pinos)
+			if (hfinfo->display & BASE_PROTOCOL_INFO)
+				break;
+
+			//fallthrough
 		default:
 			g_error("Field '%s' (%s) has a 'strings' value but is of type %s"
 				" (which is not allowed to have strings)\n",
@@ -6790,7 +6907,8 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
 					hfinfo->name, hfinfo->abbrev,
 					ftype_name(hfinfo->type));
-			if (hfinfo->strings != NULL)
+			//allowed to support string if its a protocol (for pinos)
+			if ((hfinfo->strings != NULL) && (!(hfinfo->display & BASE_PROTOCOL_INFO)))
 				g_error("Field '%s' (%s) is an %s but has a strings value\n",
 					hfinfo->name, hfinfo->abbrev,
 					ftype_name(hfinfo->type));
