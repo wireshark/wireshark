@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Wireshark</string>
 	<key>CFBundleGetInfoString</key>
-	<string>@VERSION@, Copyright 1998-2016 Wireshark Development Team</string>
+	<string>@VERSION@, Copyright 1998-2017 Wireshark Development Team</string>
 	<key>CFBundleIconFile</key>
 	<string>Wireshark.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -230,7 +230,7 @@
 	<key>CFBundleVersion</key>
 	<string>@VERSION@</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright 1998-2016 Wireshark Developers, GNU General Public License.</string>
+	<string>Copyright 1998-2017 Wireshark Developers, GNU General Public License.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSHighResolutionCapable</key>
