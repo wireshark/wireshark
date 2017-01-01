@@ -546,7 +546,7 @@ static const range_string gse_proto_str[] = {
 #define DVB_S2_GSE_CRC32_LEN            4
 
 /* *** helper functions *** */
-static gboolean check_crc8(tvbuff_t *p, guint8 len, guint8 offset, guint8 received_fcs)
+static guint8 compute_crc8(tvbuff_t *p, guint8 len, guint8 offset)
 {
     int    i;
     guint8 crc = 0, tmp;
@@ -555,10 +555,7 @@ static gboolean check_crc8(tvbuff_t *p, guint8 len, guint8 offset, guint8 receiv
         tmp = tvb_get_guint8(p, offset++);
         crc = crc8_table[crc ^ tmp];
     }
-    if (received_fcs == crc)
-        return TRUE;
-    else
-        return FALSE;
+    return crc;
 }
 
 /* *** Code to actually dissect the packets *** */
@@ -709,7 +706,7 @@ static gboolean test_dvb_s2_crc(tvbuff_t *tvb, guint offset) {
 
     input8 = tvb_get_guint8(tvb, offset + DVB_S2_BB_OFFS_CRC);
 
-    if (!check_crc8(tvb, DVB_S2_BB_HEADER_LEN - 1, offset, input8))
+    if (compute_crc8(tvb, DVB_S2_BB_HEADER_LEN - 1, offset) != input8)
         return FALSE;
     else
         return TRUE;
@@ -787,11 +784,9 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
     new_off += 2;
     proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_syncd, tvb, cur_off + DVB_S2_BB_OFFS_SYNCD, 2, ENC_BIG_ENDIAN);
 
-    input8 = tvb_get_guint8(tvb, cur_off + DVB_S2_BB_OFFS_CRC);
     new_off += 1;
-
     proto_tree_add_checksum(dvb_s2_bb_tree, tvb, cur_off + DVB_S2_BB_OFFS_CRC, hf_dvb_s2_bb_crc, hf_dvb_s2_bb_crc_status, &ei_dvb_s2_bb_crc, pinfo,
-        check_crc8(tvb, DVB_S2_BB_HEADER_LEN - 1, cur_off, input8), ENC_NA, PROTO_CHECKSUM_VERIFY);
+        compute_crc8(tvb, DVB_S2_BB_HEADER_LEN - 1, cur_off), ENC_NA, PROTO_CHECKSUM_VERIFY);
 
     while (bb_data_len) {
         /* start DVB-GSE dissector */
