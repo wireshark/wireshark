@@ -2746,8 +2746,9 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="extcap_options_dialog.cpp" line="76"/>
         <location filename="extcap_options_dialog.cpp" line="110"/>
-        <source>Extcap Interface Options</source>
-        <translation>Extcap 接口选项</translation>
+        <source>Interface Options</source>
+        <oldsource>Extcap Interface Options</oldsource>
+        <translation type="unfinished">Extcap 接口选项</translation>
     </message>
     <message>
         <location filename="extcap_options_dialog.cpp" line="80"/>
@@ -2755,12 +2756,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>开始</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="341"/>
+        <location filename="extcap_options_dialog.cpp" line="343"/>
         <source>Extcap Help cannot be found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="342"/>
+        <location filename="extcap_options_dialog.cpp" line="344"/>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4788,7 +4789,12 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_frame.cpp" line="137"/>
+        <location filename="interface_frame.cpp" line="139"/>
+        <source>Remote interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.cpp" line="148"/>
         <source>Show hidden interfaces</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4796,7 +4802,7 @@ for filter files: %2.</source>
 <context>
     <name>InterfaceSortFilterModel</name>
     <message>
-        <location filename="interface_sort_filter_model.cpp" line="314"/>
+        <location filename="interface_sort_filter_model.cpp" line="377"/>
         <source>No interfaces to be displayed. %1 interfaces filtered.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4903,32 +4909,32 @@ for filter files: %2.</source>
         <translation type="unfinished">捕获过滤器</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="357"/>
+        <location filename="interface_tree_model.cpp" line="367"/>
         <source>Addresses</source>
         <translation type="unfinished">地址</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="357"/>
+        <location filename="interface_tree_model.cpp" line="367"/>
         <source>Address</source>
         <translation type="unfinished">地址</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="364"/>
+        <location filename="interface_tree_model.cpp" line="374"/>
         <source>Extcap interface: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="369"/>
+        <location filename="interface_tree_model.cpp" line="379"/>
         <source>No addresses</source>
         <translation type="unfinished">无地址</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="376"/>
+        <location filename="interface_tree_model.cpp" line="386"/>
         <source>No capture filter</source>
         <translation type="unfinished">无捕获过滤器</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="381"/>
+        <location filename="interface_tree_model.cpp" line="391"/>
         <source>Capture filter</source>
         <translation type="unfinished">捕获过滤器</translation>
     </message>

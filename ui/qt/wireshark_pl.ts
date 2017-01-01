@@ -2746,8 +2746,9 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <message>
         <location filename="extcap_options_dialog.cpp" line="76"/>
         <location filename="extcap_options_dialog.cpp" line="110"/>
-        <source>Extcap Interface Options</source>
-        <translation>Opcje interfejsów Extcap</translation>
+        <source>Interface Options</source>
+        <oldsource>Extcap Interface Options</oldsource>
+        <translation type="unfinished">Opcje interfejsów Extcap</translation>
     </message>
     <message>
         <location filename="extcap_options_dialog.cpp" line="80"/>
@@ -2755,12 +2756,12 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="341"/>
+        <location filename="extcap_options_dialog.cpp" line="343"/>
         <source>Extcap Help cannot be found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="342"/>
+        <location filename="extcap_options_dialog.cpp" line="344"/>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4795,7 +4796,12 @@ dla plików filtrów: %2.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_frame.cpp" line="137"/>
+        <location filename="interface_frame.cpp" line="139"/>
+        <source>Remote interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_frame.cpp" line="148"/>
         <source>Show hidden interfaces</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4803,7 +4809,7 @@ dla plików filtrów: %2.</translation>
 <context>
     <name>InterfaceSortFilterModel</name>
     <message>
-        <location filename="interface_sort_filter_model.cpp" line="314"/>
+        <location filename="interface_sort_filter_model.cpp" line="377"/>
         <source>No interfaces to be displayed. %1 interfaces filtered.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4910,32 +4916,32 @@ dla plików filtrów: %2.</translation>
         <translation type="unfinished">Filtr przechwytywania</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="357"/>
+        <location filename="interface_tree_model.cpp" line="367"/>
         <source>Addresses</source>
         <translation type="unfinished">Adresy</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="357"/>
+        <location filename="interface_tree_model.cpp" line="367"/>
         <source>Address</source>
         <translation type="unfinished">Adres</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="364"/>
+        <location filename="interface_tree_model.cpp" line="374"/>
         <source>Extcap interface: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="369"/>
+        <location filename="interface_tree_model.cpp" line="379"/>
         <source>No addresses</source>
         <translation type="unfinished">Brak adresu</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="376"/>
+        <location filename="interface_tree_model.cpp" line="386"/>
         <source>No capture filter</source>
         <translation type="unfinished">Brak filtru przechwytywania</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="381"/>
+        <location filename="interface_tree_model.cpp" line="391"/>
         <source>Capture filter</source>
         <translation type="unfinished">Filtr przechwytywania</translation>
     </message>
