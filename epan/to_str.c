@@ -428,7 +428,7 @@ get_zonename(struct tm *tmp)
 	if ((tmp->tm_isdst != 0) && (tmp->tm_isdst != 1)) {
 		return "???";
 	}
-#  if !defined(HAVE_TZNAME)
+#  if defined(HAVE_TZNAME)
 	return tzname[tmp->tm_isdst];
 #  else
 	return tmp->tm_isdst ? "?DT" : "?ST";
