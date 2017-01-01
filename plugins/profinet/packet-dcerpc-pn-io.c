@@ -14622,11 +14622,11 @@ proto_register_pn_io (void)
     register_dissector("pnio", dissect_PNIO_heur, proto_pn_io);
 
     /* Created to remove Decode As confusion */
-    proto_pn_io_device = proto_register_protocol("PROFINET IO (Device)", "PNIO (Device Interface)", "pn_io_device");
-    proto_pn_io_controller = proto_register_protocol ("PROFINET IO (Controller)", "PNIO (Controller Interface)", "pn_io_controller");
-    proto_pn_io_supervisor = proto_register_protocol ("PROFINET IO (Supervisor)", "PNIO (Supervisor Interface)", "pn_io_supervisor");
-    proto_pn_io_parameterserver = proto_register_protocol ("PROFINET IO (Parameter Server)", "PNIO (Parameter Server Interface)", "pn_io_parameterserver");
-    proto_pn_io_implicitar = proto_register_protocol("PROFINET IO (Implicit Ar)", "PNIO (Implicit Ar)", "pn_io_implicitar");
+    proto_pn_io_device = proto_register_protocol_in_name_only("PROFINET IO (Device)", "PNIO (Device Interface)", "pn_io_device", proto_pn_io, FT_PROTOCOL);
+    proto_pn_io_controller = proto_register_protocol_in_name_only("PROFINET IO (Controller)", "PNIO (Controller Interface)", "pn_io_controller", proto_pn_io, FT_PROTOCOL);
+    proto_pn_io_supervisor = proto_register_protocol_in_name_only("PROFINET IO (Supervisor)", "PNIO (Supervisor Interface)", "pn_io_supervisor", proto_pn_io, FT_PROTOCOL);
+    proto_pn_io_parameterserver = proto_register_protocol_in_name_only("PROFINET IO (Parameter Server)", "PNIO (Parameter Server Interface)", "pn_io_parameterserver", proto_pn_io, FT_PROTOCOL);
+    proto_pn_io_implicitar = proto_register_protocol_in_name_only("PROFINET IO (Implicit Ar)", "PNIO (Implicit Ar)", "pn_io_implicitar", proto_pn_io, FT_PROTOCOL);
 
     proto_register_field_array (proto_pn_io, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));

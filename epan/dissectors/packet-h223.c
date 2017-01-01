@@ -1646,7 +1646,7 @@ void proto_register_h223 (void)
         proto_register_protocol ("ITU-T Recommendation H.223", "H.223", "h223");
     /* Create a H.223 "placeholder" to remove confusion with Decode As" */
     proto_h223_bitswapped =
-        proto_register_protocol ("ITU-T Recommendation H.223 (Bitswapped)", "H.223 (Bitswapped)", "h223_bitswapped");
+        proto_register_protocol_in_name_only ("ITU-T Recommendation H.223 (Bitswapped)", "H.223 (Bitswapped)", "h223_bitswapped", proto_h223, FT_PROTOCOL);
 
     proto_register_field_array (proto_h223, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));

@@ -10101,7 +10101,7 @@ proto_register_gtp(void)
 
     proto_gtp = proto_register_protocol("GPRS Tunneling Protocol", "GTP", "gtp");
     /* Created to remove Decode As confusion */
-    proto_gtpprime = proto_register_protocol("GPRS Tunneling Protocol Prime", "GTP (Prime)", "gtpprime");
+    proto_gtpprime = proto_register_protocol_in_name_only("GPRS Tunneling Protocol Prime", "GTP (Prime)", "gtpprime", proto_gtp, FT_PROTOCOL);
 
     proto_register_field_array(proto_gtp, hf_gtp, array_length(hf_gtp));
     proto_register_subtree_array(ett_gtp_array, array_length(ett_gtp_array));

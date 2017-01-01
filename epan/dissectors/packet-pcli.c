@@ -252,9 +252,9 @@ proto_register_pcli(void)
 
     proto_pcli = proto_register_protocol("Packet Cable Lawful Intercept", "PCLI", "pcli");
     /* Create "placeholders" to remove confusion with Decode As" */
-    proto_pcli8 = proto_register_protocol("Packet Cable Lawful Intercept (8 byte CCCID)", "PCLI8 (8 byte CCCID)", "pcli8");
-    proto_pcli12 = proto_register_protocol("Packet Cable Lawful Intercept (timestamp)", "PCLI12 (timestamp)", "pcli12");
-    proto_pcli20 = proto_register_protocol("Packet Cable Lawful Intercept (timestamp, case ID)", "PCLI20 (timestamp, case ID)", "pcli20");
+    proto_pcli8 = proto_register_protocol_in_name_only("Packet Cable Lawful Intercept (8 byte CCCID)", "PCLI8 (8 byte CCCID)", "pcli8", proto_pcli, FT_PROTOCOL);
+    proto_pcli12 = proto_register_protocol_in_name_only("Packet Cable Lawful Intercept (timestamp)", "PCLI12 (timestamp)", "pcli12", proto_pcli, FT_PROTOCOL);
+    proto_pcli20 = proto_register_protocol_in_name_only("Packet Cable Lawful Intercept (timestamp, case ID)", "PCLI20 (timestamp, case ID)", "pcli20", proto_pcli, FT_PROTOCOL);
 
     proto_register_field_array(proto_pcli,hf,array_length(hf));
     proto_register_subtree_array(ett,array_length(ett));

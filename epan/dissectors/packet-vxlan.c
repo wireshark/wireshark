@@ -278,7 +278,7 @@ proto_register_vxlan(void)
     proto_vxlan = proto_register_protocol("Virtual eXtensible Local Area Network", "VXLAN", "vxlan");
 
     /* Protocol registered just for Decode As */
-    proto_vxlan_gpe = proto_register_protocol("Virtual eXtensible Local Area Network (GPE)", "VXLAN (GPE)", "vxlan_gpe");
+    proto_vxlan_gpe = proto_register_protocol_in_name_only("Virtual eXtensible Local Area Network (GPE)", "VXLAN (GPE)", "vxlan_gpe", proto_vxlan, FT_PROTOCOL);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_vxlan, hf, array_length(hf));

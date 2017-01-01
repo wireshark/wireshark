@@ -7584,10 +7584,10 @@ proto_register_iphc_crtp(void)
 
     proto_iphc_crtp = proto_register_protocol("CRTP", "CRTP", "crtp");
     /* Created to remove Decode As confusion */
-    proto_iphc_crtp_cudp16 = proto_register_protocol("CRTP (CUDP 16)", "CRTP (CUDP 16)", "crtp_cudp16");
-    proto_iphc_crtp_cudp8 = proto_register_protocol("CRTP (CUDP 8)", "CRTP (CUDP 8)", "crtp_cudp8");
-    proto_iphc_crtp_cs = proto_register_protocol("CRTP (CS)", "CRTP (CS)", "crtp_cs");
-    proto_iphc_crtp_cntcp = proto_register_protocol("CRTP (CNTCP)", "CRTP (CNTCP)", "crtp_cntcp");
+    proto_iphc_crtp_cudp16 = proto_register_protocol_in_name_only("CRTP (CUDP 16)", "CRTP (CUDP 16)", "crtp_cudp16", proto_iphc_crtp, FT_PROTOCOL);
+    proto_iphc_crtp_cudp8 = proto_register_protocol_in_name_only("CRTP (CUDP 8)", "CRTP (CUDP 8)", "crtp_cudp8", proto_iphc_crtp, FT_PROTOCOL);
+    proto_iphc_crtp_cs = proto_register_protocol_in_name_only("CRTP (CS)", "CRTP (CS)", "crtp_cs", proto_iphc_crtp, FT_PROTOCOL);
+    proto_iphc_crtp_cntcp = proto_register_protocol_in_name_only("CRTP (CNTCP)", "CRTP (CNTCP)", "crtp_cntcp", proto_iphc_crtp, FT_PROTOCOL);
 
     proto_register_field_array(proto_iphc_crtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

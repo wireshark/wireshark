@@ -723,7 +723,7 @@ proto_register_mint(void)
 
 	proto_mint = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "mint");
 	/* Created to remove Decode As confusion */
-	proto_mint_data = proto_register_protocol("Media independent Network Transport Data", "MiNT (Data)", "mint_data");
+	proto_mint_data = proto_register_protocol_in_name_only("Media independent Network Transport Data", "MiNT (Data)", "mint_data", proto_mint, FT_PROTOCOL);
 
 	hfi_mint = proto_registrar_get_nth(proto_mint);
 	proto_register_fields(proto_mint, hfi, array_length(hfi));
