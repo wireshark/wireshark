@@ -517,14 +517,11 @@ proto_register_lwapp(void)
     };
     module_t *lwapp_module;
 
-    proto_lwapp = proto_register_protocol ("LWAPP Encapsulated Packet",
-                                         "LWAPP", "lwapp");
+    proto_lwapp = proto_register_protocol ("LWAPP Encapsulated Packet", "LWAPP", "lwapp");
 
-    proto_lwapp_l3 = proto_register_protocol ("LWAPP Layer 3 Packet",
-                                         "LWAPP-L3", "lwapp-l3");
+    proto_lwapp_l3 = proto_register_protocol_in_name_only ("LWAPP Layer 3 Packet", "LWAPP-L3", "lwapp-l3", proto_lwapp, FT_PROTOCOL);
 
-    proto_lwapp_control = proto_register_protocol ("LWAPP Control Message",
-                                         "LWAPP-CNTL", "lwapp-cntl");
+    proto_lwapp_control = proto_register_protocol_in_name_only ("LWAPP Control Message", "LWAPP-CNTL", "lwapp-cntl", proto_lwapp, FT_PROTOCOL);
     proto_register_field_array(proto_lwapp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

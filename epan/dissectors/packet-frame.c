@@ -925,7 +925,7 @@ proto_register_frame(void)
 	}
 
 	proto_frame = proto_register_protocol("Frame", "Frame", "frame");
-	proto_pkt_comment = proto_register_protocol("Packet comments", "Pkt_Comment", "pkt_comment");
+	proto_pkt_comment = proto_register_protocol_in_name_only("Packet comments", "Pkt_Comment", "pkt_comment", proto_frame, FT_PROTOCOL);
 	proto_syscall = proto_register_protocol("System Call", "Syscall", "syscall");
 
 	proto_register_field_array(proto_frame, hf, array_length(hf));
