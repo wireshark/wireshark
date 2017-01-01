@@ -114,11 +114,12 @@ static expert_field ei_snort_content_not_matched = EI_INIT;
 
 /* Where to look for alerts. */
 enum alerts_source {
+    FromNowhere,      /* disabled */
     FromRunningSnort,
     FromUserComments  /* see https://blog.packet-foo.com/2015/08/verifying-iocs-with-snort-and-tracewrangler/ */
 };
-/* By default schoose to run Snort to look for alerts */
-static gint pref_snort_alerts_source = (gint)FromRunningSnort;
+/* By default, dissector is effectively disabled */
+static gint pref_snort_alerts_source = (gint)FromNowhere;
 
 /* Snort binary and config file */
 #ifndef _WIN32
@@ -961,8 +962,13 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 {
     Alerts_t *alerts;
 
+    /* If not looking for alerts, return quickly */
+    if (pref_snort_alerts_source == FromNowhere) {
+        return 0;
+    }
+
     /* Are we looking for alerts in user comments? */
-    if (pref_snort_alerts_source == FromUserComments) {
+    else if (pref_snort_alerts_source == FromUserComments) {
         /* Look for user comments containing alerts */
         const char *alert_string = get_user_comment_string(tree);
         if (alert_string) {
@@ -1078,8 +1084,10 @@ static void snort_start(void)
     };
 
     /* Nothing to do if not enabled, but registered init function gets called anyway */
-    if (!proto_is_protocol_enabled(find_protocol_by_id(proto_snort)))
+    if ((pref_snort_alerts_source == FromNowhere) ||
+        !proto_is_protocol_enabled(find_protocol_by_id(proto_snort))) {
         return;
+    }
 
     /* Create tree mapping packet_number -> Alerts_t*.  It will get recreated when packet list is reloaded */
     current_session.alerts_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
@@ -1286,8 +1294,9 @@ proto_register_snort(void)
     };
 
     static const enum_val_t alerts_source_vals[] = {
-        {"from-running-snort",      "From running Snort",     FromRunningSnort},
-        {"from-user-comments",      "From user comments",     FromUserComments},
+        {"from-nowhere",            "Not looking for Snort alerts", FromNowhere},
+        {"from-running-snort",      "From running Snort",           FromRunningSnort},
+        {"from-user-comments",      "From user comments",           FromUserComments},
         {NULL, NULL, -1}
     };
 
@@ -1303,9 +1312,6 @@ proto_register_snort(void)
     module_t *snort_module;
 
     proto_snort = proto_register_protocol("Snort Alerts", "Snort", "snort");
-
-    /* Disable snort by default */
-    proto_disable_by_default(proto_snort);
 
     proto_register_field_array(proto_snort, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

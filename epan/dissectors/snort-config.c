@@ -701,7 +701,7 @@ static gboolean parse_rule(SnortConfig_t *snort_config, char *line, const char *
     gboolean in_quotes = FALSE;
     int options_start_index = 0, options_index = 0, colon_offset = 0;
     char c;
-    int length;
+    int length = 0; /*  CID 1398227 (bogus - read_token() always sets it) */
     Rule_t *rule = NULL;
 
     /* Rule will begin with alert */
