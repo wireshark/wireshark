@@ -378,16 +378,7 @@ static const char mon_names[12][4] = {
 static const gchar *
 get_zonename(struct tm *tmp)
 {
-#if defined(HAVE_TM_ZONE)
-	return tmp->tm_zone;
-#else
-	if ((tmp->tm_isdst != 0) && (tmp->tm_isdst != 1)) {
-		return "???";
-	}
-# if defined(HAVE_TZNAME)
-	return tzname[tmp->tm_isdst];
-
-# elif defined(_WIN32)
+#if defined(_WIN32)
 	/* Windows C Runtime:                                                 */
 	/*   _tzname is encoded using the "system default ansi code page"     */
 	/*     ("which is not necessarily the same as the C library locale"). */
@@ -405,26 +396,39 @@ get_zonename(struct tm *tmp)
 	/*    on a "Japanese version of Windows XP" when trying to copy       */
 	/*    the date/time string (containing a copy of _tz_name) to the     */
 	/*    clipboard).                                                     */
+	static char *ws_tzname[2] = {NULL, NULL};
 
-	{
-		static char *ws_tzname[2] = {NULL, NULL};
-
-		/* The g_malloc'd value returned from g_locale_to_utf8() is   */
-		/*  cached for all further use so there's no need to ever     */
-		/*  g_free() that value.                                      */
+	/* The g_malloc'd value returned from g_locale_to_utf8() is   */
+	/*  cached for all further use so there's no need to ever     */
+	/*  g_free() that value.                                      */
+	if (ws_tzname[tmp->tm_isdst] == NULL) {
+		ws_tzname[tmp->tm_isdst] = g_locale_to_utf8(_tzname[tmp->tm_isdst], -1, NULL, NULL, NULL);
 		if (ws_tzname[tmp->tm_isdst] == NULL) {
-			ws_tzname[tmp->tm_isdst] = g_locale_to_utf8(_tzname[tmp->tm_isdst], -1, NULL, NULL, NULL);
-			if (ws_tzname[tmp->tm_isdst] == NULL) {
-				ws_tzname[tmp->tm_isdst] = "???";
-			}
+			ws_tzname[tmp->tm_isdst] = "???";
 		}
-		return ws_tzname[tmp->tm_isdst];
 	}
-# else
+	return ws_tzname[tmp->tm_isdst];
+#else
+	/*
+	 * UN*X.
+	 *
+	 * If we have tm_zone in struct tm, use that.
+	 * Otherwise, if we have tzname[], use it, otherwise just
+	 * say "we don't know.
+	 */
+#if defined(HAVE_TM_ZONE)
+	return tmp->tm_zone;
+# else /* HAVE_TM_ZONE */
+	if ((tmp->tm_isdst != 0) && (tmp->tm_isdst != 1)) {
+		return "???";
+	}
+#  if defined(HAVE_TZNAME)
+	return tzname[tmp->tm_isdst];
+#  else
 	return tmp->tm_isdst ? "?DT" : "?ST";
-
-# endif
-#endif
+#  endif /* HAVE_TZNAME */
+# endif /* HAVE_TM_ZONE */
+#endif /* _WIN32 */
 }
 
 gchar *
