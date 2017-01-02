@@ -4768,7 +4768,7 @@ dissect_config(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_
     proto_tree_add_item(tree, hf_isakmp_cfg_type_v1,tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_isakmp_cfg_identifier,tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_isakmp_cfg_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
   } else if (isakmp_version == 2) {
