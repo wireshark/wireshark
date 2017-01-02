@@ -78,6 +78,7 @@ SUBDIRS =		\
 	mms		\
 	mpeg-audio	\
 	mpeg-pes	\
+	mudurl 		\
 	nbap		\
 	novell_pkis		\
 	ns_cert_exts	\

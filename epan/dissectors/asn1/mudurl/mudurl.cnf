@@ -1,0 +1,18 @@
+# mudurl.cnf
+# mudurl conformation file
+
+#.INCLUDE ../x509af/x509af-exp.cnf
+
+#.MODULE_IMPORT
+EXTENSION x509af
+
+#.EXPORTS
+
+#.REGISTER
+MUDURLSyntax		B	"1.3.6.1.5.5.7.1.25" "id-pe-mud-url"
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END

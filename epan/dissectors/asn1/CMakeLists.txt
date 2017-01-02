@@ -77,6 +77,7 @@ set(ASN1_SRC_DIRS
 	mms
 	mpeg-audio
 	mpeg-pes
+	mudurl
 	nbap
 	ns_cert_exts
 	novell_pkis
