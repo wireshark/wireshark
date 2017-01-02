@@ -192,6 +192,9 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'epan/crypt/airpdcap.c': [
         'BSD (3 clause) GPL (v2)'
     ],
+    'epan/crypt/airpdcap_debug.c': [
+        'BSD (3 clause) GPL (v2)'
+    ],
     'epan/crypt/airpdcap_debug.h': [
         'BSD (3 clause) GPL (v2)'
     ],
