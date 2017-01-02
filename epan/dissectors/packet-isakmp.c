@@ -3856,26 +3856,32 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
   offset += 1;
   length -= 1;
 
-  protocol_id= tvb_get_guint8(tvb, offset);
-  if (protocol_id == 0)
-    proto_tree_add_uint_format_value(tree, hf_isakmp_id_protoid, tvb, offset,1,
-                               protocol_id, "Unused");
-  else
-    proto_tree_add_item(tree, hf_isakmp_id_protoid, tvb, offset, 1, ENC_BIG_ENDIAN);
+  if (isakmp_version == 1) {
+    protocol_id = tvb_get_guint8(tvb, offset);
+    if (protocol_id == 0)
+      proto_tree_add_uint_format_value(tree, hf_isakmp_id_protoid, tvb, offset, 1,
+                                 protocol_id, "Unused");
+    else
+      proto_tree_add_item(tree, hf_isakmp_id_protoid, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-  offset += 1;
-  length -= 1;
+    offset += 1;
+    length -= 1;
 
-  port = tvb_get_ntohs(tvb, offset);
-  if (port == 0)
-    proto_tree_add_uint_format_value(tree, hf_isakmp_id_port, tvb, offset, 2,
-                               port, "Unused");
-  else
-    proto_tree_add_item(tree, hf_isakmp_id_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    port = tvb_get_ntohs(tvb, offset);
+    if (port == 0)
+      proto_tree_add_uint_format_value(tree, hf_isakmp_id_port, tvb, offset, 2,
+                                 port, "Unused");
+    else
+      proto_tree_add_item(tree, hf_isakmp_id_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-  offset += 2;
-  length -= 2;
+    offset += 2;
+    length -= 2;
 
+  } else if (isakmp_version == 2) {
+    /* Reserved */
+    offset += 3;
+    length -= 3;
+  }
 
   /*
    * It shows strings of all types though some of types are not
