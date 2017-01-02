@@ -139,19 +139,24 @@ void reset_srt_table(GArray* srt_array, srt_gui_reset_cb gui_callback, void *cal
 
 static GSList *registered_srt_tables = NULL;
 
+static gint
+find_matching_srt(gconstpointer arg1, gconstpointer arg2)
+{
+    register_srt_t *srt = (register_srt_t*)arg1;
+    const gchar   *name   = (const gchar *)arg2;
+
+    return strcmp(proto_get_protocol_filter_name(srt->proto_id), name);
+}
+
 register_srt_t* get_srt_table_by_name(const char* name)
 {
-    guint i, size = g_slist_length(registered_srt_tables);
-    register_srt_t* srt;
-    GSList   *slist;
+    GSList *found_srt;
 
-    for (i = 0; i < size; i++) {
-        slist = g_slist_nth(registered_srt_tables, i);
-        srt = (register_srt_t*)slist->data;
+    found_srt = g_slist_find_custom(registered_srt_tables,
+                    (gpointer)name, find_matching_srt);
 
-        if (strcmp(name, proto_get_protocol_filter_name(srt->proto_id)) == 0)
-            return srt;
-    }
+    if (found_srt)
+        return (register_srt_t*)found_srt->data;
 
     return NULL;
 }

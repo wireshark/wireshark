@@ -86,19 +86,24 @@ export_object_gui_reset_cb get_eo_reset_func(register_eo_t* eo)
     return eo->reset_cb;
 }
 
+static gint
+find_matching_eo(gconstpointer arg1, gconstpointer arg2)
+{
+    register_eo_t *eo = (register_eo_t*)arg1;
+    const gchar   *name   = (const gchar *)arg2;
+
+    return strcmp(proto_get_protocol_filter_name(eo->proto_id), name);
+}
+
 register_eo_t* get_eo_by_name(const char* name)
 {
-    guint i, size = g_slist_length(registered_eo_tables);
-    register_eo_t* eo;
-    GSList   *slist;
+    GSList *found_eo;
 
-    for (i = 0; i < size; i++) {
-        slist = g_slist_nth(registered_eo_tables, i);
-        eo = (register_eo_t*)slist->data;
+    found_eo = g_slist_find_custom(registered_eo_tables,
+                    (gpointer)name, find_matching_eo);
 
-        if (strcmp(name, proto_get_protocol_filter_name(eo->proto_id)) == 0)
-            return eo;
-    }
+    if (found_eo)
+        return (register_eo_t*)found_eo->data;
 
     return NULL;
 }

@@ -120,19 +120,24 @@ follow_tap_func get_follow_tap_handler(register_follow_t* follower)
 }
 
 
+static gint
+find_matching_follower(gconstpointer arg1, gconstpointer arg2)
+{
+  register_follow_t *follower = (register_follow_t *)arg1;
+  const gchar          *name   = (const gchar *)arg2;
+
+  return strcmp(proto_get_protocol_short_name(find_protocol_by_id(follower->proto_id)), name);
+}
+
 register_follow_t* get_follow_by_name(const char* proto_short_name)
 {
-  guint i, size = g_slist_length(registered_followers);
-  register_follow_t *follower;
-  GSList   *slist;
+  GSList *found_follower;
 
-  for (i = 0; i < size; i++) {
-    slist = g_slist_nth(registered_followers, i);
-    follower = (register_follow_t*)slist->data;
+  found_follower = g_slist_find_custom(registered_followers,
+                    (gpointer)proto_short_name, find_matching_follower);
 
-    if (strcmp(proto_short_name, proto_get_protocol_short_name(find_protocol_by_id(follower->proto_id))) == 0)
-      return follower;
-  }
+  if (found_follower)
+    return (register_follow_t*)found_follower->data;
 
   return NULL;
 }

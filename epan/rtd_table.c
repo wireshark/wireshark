@@ -130,19 +130,24 @@ void reset_rtd_table(rtd_stat_table* table, rtd_gui_reset_cb gui_callback, void 
 
 }
 
+static gint
+find_matching_rtd(gconstpointer arg1, gconstpointer arg2)
+{
+    register_rtd_t *rtd = (register_rtd_t*)arg1;
+    const gchar   *name   = (const gchar *)arg2;
+
+    return strcmp(proto_get_protocol_filter_name(rtd->proto_id), name);
+}
+
 register_rtd_t* get_rtd_table_by_name(const char* name)
 {
-    guint i, size = g_slist_length(registered_rtd_tables);
-    register_rtd_t* rtd;
-    GSList   *slist;
+    GSList *found_rtd;
 
-    for (i = 0; i < size; i++) {
-        slist = g_slist_nth(registered_rtd_tables, i);
-        rtd = (register_rtd_t*)slist->data;
+    found_rtd = g_slist_find_custom(registered_rtd_tables,
+                    (gpointer)name, find_matching_rtd);
 
-        if (strcmp(name, proto_get_protocol_filter_name(rtd->proto_id)) == 0)
-            return rtd;
-    }
+    if (found_rtd)
+        return (register_rtd_t*)found_rtd->data;
 
     return NULL;
 }

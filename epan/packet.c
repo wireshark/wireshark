@@ -3046,11 +3046,18 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 
 }
 
+static gint
+find_matching_proto_name(gconstpointer arg1, gconstpointer arg2)
+{
+	const char    *protocol_name = (const char*)arg1;
+	const gchar   *name   = (const gchar *)arg2;
+
+	return strcmp(protocol_name, name);
+}
+
 gboolean register_depend_dissector(const char* parent, const char* dependent)
 {
-	guint                  i, list_size;
 	GSList                *list_entry;
-	const char            *protocol_name;
 	depend_dissector_list_t sub_dissectors;
 
 	if ((parent == NULL) || (dependent == NULL))
@@ -3068,14 +3075,9 @@ gboolean register_depend_dissector(const char* parent, const char* dependent)
 	}
 
 	/* Verify that sub-dissector is not already in the list */
-	list_size = g_slist_length(sub_dissectors->dissectors);
-	for (i = 0; i < list_size; i++)
-	{
-		list_entry = g_slist_nth(sub_dissectors->dissectors, i);
-		protocol_name = (const char*)list_entry->data;
-		if (strcmp(dependent, protocol_name) == 0)
-			return TRUE; /* Dependency already exists */
-	}
+	list_entry = g_slist_find_custom(sub_dissectors->dissectors, (gpointer)dependent, find_matching_proto_name);
+	if (list_entry != NULL)
+		return TRUE; /* Dependency already exists */
 
 	sub_dissectors->dissectors = g_slist_prepend(sub_dissectors->dissectors, (gpointer)g_strdup(dependent));
 	return TRUE;
