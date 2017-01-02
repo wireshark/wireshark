@@ -542,14 +542,14 @@ sub update_automake_lib_releases
 	# changes with *most* releases.
 	#
 	# http://www.gnu.org/software/libtool/manual/libtool.html#Updating-version-info
-	for $filedir ("epan", "wiretap") {	# "wsutil"
+	for $filedir ("$srcdir/epan", "$srcdir/wiretap") {	# "$srcdir/wsutil"
 		$contents = "";
 		$filepath = $filedir . "/Makefile.am";
 		open(MAKEFILE_AM, "< $filepath") || die "Can't read $filepath!";
 		while ($line = <MAKEFILE_AM>) {
 			# libwireshark_la_LDFLAGS = -version-info 2:1:1 -export-symbols
 
-			if ($line =~ /^(lib\w+_la_LDFLAGS.*version-info\s+\d+:)\d+(:\d+.*)/) {
+			if ($line =~ /^(lib\w+_la_LDFLAGS.*version-info\s+\d+:)\d+(:\d+.*[\r\n]+)$/) {
 				$line = sprintf("$1%d$2\n", $version_pref{"version_micro"});
 			}
 			$contents .= $line
@@ -571,14 +571,14 @@ sub update_cmake_lib_releases
 	my $filedir;
 	my $filepath;
 
-	for $filedir ("epan", "wiretap") {	# "wsutil"
+	for $filedir ("$srcdir/epan", "$srcdir/wiretap") {	# "$srcdir/wsutil"
 		$contents = "";
 		$filepath = $filedir . "/CMakeLists.txt";
 		open(CMAKELISTS_TXT, "< $filepath") || die "Can't read $filepath!";
 		while ($line = <CMAKELISTS_TXT>) {
 			# set(FULL_SO_VERSION "0.0.0")
 
-			if ($line =~ /^(set\s*\(\s*FULL_SO_VERSION\s+"\d+\.\d+\.)\d+(".*)/) {
+			if ($line =~ /^(set\s*\(\s*FULL_SO_VERSION\s+"\d+\.\d+\.)\d+(".*[\r\n]+)$/) {
 				$line = sprintf("$1%d$2\n", $version_pref{"version_micro"});
 			}
 			$contents .= $line
