@@ -4036,6 +4036,9 @@ dissect_handle(proto_tree *tree, packet_info *pinfo, gint hf,
 }
 
 static gint
+btatt_dissect_attribute_handle(guint16 handle, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btatt_data_t *att_data);
+
+static gint
 dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *pinfo, tvbuff_t *old_tvb,
         gint old_offset, gint length, guint16 handle, bluetooth_uuid_t uuid, btatt_data_t *att_data)
 {
@@ -4069,7 +4072,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         p_add_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_HANDLE, value_data);
     }
 
-    if (dissector_try_uint_new(att_handle_dissector_table, handle, tvb, pinfo, tree, TRUE, att_data))
+    if (btatt_dissect_attribute_handle(handle, tvb, pinfo, tree, att_data))
         return old_offset + length;
 
     if (p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
@@ -9223,6 +9226,39 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
     }
 
     return old_offset + offset;
+}
+
+static gint
+btatt_dissect_attribute_handle(guint16 handle, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btatt_data_t *att_data)
+{
+    proto_item  *main_item;
+    proto_tree  *main_tree;
+    proto_item  *patron_item = NULL;
+    bluetooth_uuid_t uuid;
+    dissector_handle_t attribute_handler;
+    const char* attribute_name;
+
+    attribute_handler = dissector_get_uint_handle(att_handle_dissector_table, handle);
+    if (attribute_handler == NULL)
+        return 0;
+
+    main_item = proto_tree_add_item(tree, dissector_handle_get_protocol_index(attribute_handler), tvb, 0, tvb_captured_length(tvb), ENC_NA);
+    main_tree = proto_item_add_subtree(main_item, ett_btgatt);
+
+    attribute_name = dissector_handle_get_short_name(attribute_handler);
+    if (strlen(attribute_name) > 7) {
+        uuid.size = 2;
+        uuid.bt_uuid = (guint16) g_ascii_strtoull(attribute_name + strlen(attribute_name) - 7, NULL, 16);
+        uuid.data[1] = uuid.bt_uuid & 0xFF;
+        uuid.data[0] = (uuid.bt_uuid >> 8) & 0xFF;
+    } else {
+        uuid.size = 2;
+        uuid.bt_uuid = 0;
+    }
+
+    return dissect_attribute_value(main_tree, patron_item, pinfo, tvb,
+            0, tvb_captured_length(tvb), 0, uuid, att_data);
+
 }
 
 static int
