@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V13.3.0 (2016-07)
+-- 3GPP TS 25.331 V13.5.0 (2016-12)
 --
 -- 11.2	PDU definitions
 --
@@ -4043,7 +4043,7 @@ InterRATHandoverInfo ::= SEQUENCE {
 	},
 	ue-CapabilityContainer			CHOICE {
 		absent							NULL,
-		-- present is an octet aligned string containing IE UE-RadioAccessCapabilityInfo
+		-- present is an octet aligned string containing Ie UE-RadioAccessCapabilityInfo
 		present							OCTET STRING (SIZE (0..63))
 	},
 	-- Non critical extensions
@@ -4180,17 +4180,9 @@ InterRATHandoverInfo-NonCriticalExtension-v6b0-IEs ::=	SEQUENCE {
 												vb70NonCriticalExtensions			SEQUENCE {
 													interRATHandoverInfo-vb70ext
 																InterRATHandoverInfo-vb70ext-IEs,
-													vbc0NonCriticalExtensions			SEQUENCE {
-														interRATHandoverInfo-vbc0ext
-																InterRATHandoverInfo-vbc0ext-IEs,
-														vc50NonCriticalExtensions	SEQUENCE {
-																interRATHandoverInfo-vc50ext
-																	InterRATHandoverInfo-vc50ext-IEs, 
-															vd20NonCriticalExtensions	SEQUENCE {																interRATHandoverInfo-vd20ext																			InterRATHandoverInfo-vd20ext-IEs,
-																	nonCriticalExtensions	SEQUENCE {}	OPTIONAL
-															}	OPTIONAL
-														}	OPTIONAL
-													} 	OPTIONAL
+													laterNonCriticalExtensions
+												InterRATHandoverInfo-LaterNonCriticalExtensions
+															OPTIONAL
 												}	OPTIONAL
 											}	OPTIONAL
 										}	OPTIONAL
@@ -4293,6 +4285,17 @@ InterRATHandoverInfo-vb70ext-IEs ::=	SEQUENCE {
 
 InterRATHandoverInfo-vbc0ext-IEs ::= SEQUENCE {
 		ue-RadioAccessCapabilityInfo-vbc0ext	UE-RadioAccessCapability-vbc0ext		OPTIONAL
+}
+
+InterRATHandoverInfo-LaterNonCriticalExtensions ::=	SEQUENCE {
+		interRATHandoverInfo-vbc0ext		InterRATHandoverInfo-vbc0ext-IEs,
+		vc50NonCriticalExtensions			SEQUENCE {
+			interRATHandoverInfo-vc50ext			InterRATHandoverInfo-vc50ext-IEs,
+			vd20NonCriticalExtensions				SEQUENCE {
+				interRATHandoverInfo-vd20ext			InterRATHandoverInfo-vd20ext-IEs,
+				nonCriticalExtensions					SEQUENCE {}				OPTIONAL
+			}	OPTIONAL
+		}	OPTIONAL
 }
 
 InterRATHandoverInfo-vc50ext-IEs ::=	SEQUENCE {
@@ -4747,16 +4750,8 @@ MeasurementReport ::= SEQUENCE {
 													vb50NonCriticalExtensions		SEQUENCE {
 														measurementReport-vb50ext	
 																	MeasurementReport-vb50ext-IEs,
-														vc50NonCriticalExtensions		SEQUENCE {
-															measurementReport-vc50ext	
-																	MeasurementReport-vc50ext-IEs,
-															vd20NonCriticalExtensions	SEQUENCE {
-																measurementReport-vd20ext	
-																	MeasurementReport-vd20ext-IEs,
-																nonCriticalExtensions
-																	SEQUENCE {}		OPTIONAL
-															}		OPTIONAL
-														}		OPTIONAL
+														laterNonCriticalExtensions
+									MeasurementReport-LaterNonCriticalExtensions	OPTIONAL
 													}		OPTIONAL
 												}		OPTIONAL
 											}		OPTIONAL
@@ -4842,6 +4837,14 @@ MeasurementReport-vb50ext-IEs ::=	SEQUENCE {
 	cSGProximityIndication				CSGProximityIndication-vb50ext			OPTIONAL,
 	eutra-MeasuredResults					EUTRA-MeasuredResults-vb50ext			OPTIONAL,
 	eutra-EventResults						EUTRA-EventResults-vb50ext				OPTIONAL
+}
+
+MeasurementReport-LaterNonCriticalExtensions ::=	SEQUENCE {
+	measurementReport-vc50ext			MeasurementReport-vc50ext-IEs,
+	vd20NonCriticalExtensions			SEQUENCE {
+		measurementReport-vd20ext			MeasurementReport-vd20ext-IEs,
+		nonCriticalExtensions				SEQUENCE {}							OPTIONAL
+	}		OPTIONAL
 }
 
 MeasurementReport-vc50ext-IEs ::=	SEQUENCE {
