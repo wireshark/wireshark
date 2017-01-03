@@ -2756,6 +2756,17 @@ again:
                 /* TCP analysis already flags this (in COL_INFO) as a retransmission--if it's enabled */
             }
 
+            /* Fix for bug 3264: look up ipfd for this (first) segment,
+               so can add tcp.reassembled_in generated field on this code path. */
+            ipfd_head = fragment_get(&tcp_reassembly_table, pinfo, pinfo->num, NULL);
+            if (ipfd_head) {
+                if (ipfd_head->reassembled_in != 0) {
+                    item = proto_tree_add_uint(tcp_tree, hf_tcp_reassembled_in, tvb, 0,
+                                       0, ipfd_head->reassembled_in);
+                    PROTO_ITEM_SET_GENERATED(item);
+                }
+            }
+
             nbytes = tvb_reported_length_remaining(tvb, offset);
 
             proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, offset,
@@ -2764,7 +2775,7 @@ again:
             return;
         }
 
-        /* The above code only finds retransmission if the PDU boundaries and the seq coinside I think
+        /* The above code only finds retransmission if the PDU boundaries and the seq coincide I think
          * If we have sequence analysis active use the TCP_A_RETRANSMISSION flag.
          * XXXX Could the above code be improved?
          */
