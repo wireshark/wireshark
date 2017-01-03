@@ -2705,7 +2705,7 @@ static gboolean dissect_eth_over_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
     guint16  etype, reserved;
     const char *saved_proto;
-    int offset = 0;
+    volatile int offset = 0;
     tvbuff_t   *next_tvb;
     struct infinibandinfo *info = (struct infinibandinfo *)data;
     volatile gboolean   dissector_found = FALSE;
