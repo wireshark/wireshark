@@ -2705,7 +2705,6 @@ static gboolean dissect_eth_over_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
     guint16  etype, reserved;
     const char *saved_proto;
-    volatile int offset = 0;
     tvbuff_t   *next_tvb;
     struct infinibandinfo *info = (struct infinibandinfo *)data;
     volatile gboolean   dissector_found = FALSE;
@@ -2715,13 +2714,13 @@ static gboolean dissect_eth_over_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         return FALSE;
     }
 
-    etype    = tvb_get_ntohs(tvb, offset);
-    reserved = tvb_get_ntohs(tvb, offset + 2);
+    etype    = tvb_get_ntohs(tvb, 0);
+    reserved = tvb_get_ntohs(tvb, 2);
 
     if (reserved != 0)
         return FALSE;
 
-    next_tvb = tvb_new_subset_remaining(tvb, offset+4);
+    next_tvb = tvb_new_subset_remaining(tvb, 4);
 
     /* Look for sub-dissector, and call it if found.
         Catch exceptions, so that if the reported length of "next_tvb"
@@ -2757,14 +2756,13 @@ static gboolean dissect_eth_over_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         proto_tree *PAYLOAD_header_tree;
 
         /* now create payload entry to show Ethertype */
-        PAYLOAD_header_item = proto_tree_add_item(info->payload_tree, hf_infiniband_payload, tvb, offset, tvb_reported_length_remaining(tvb, offset)-6, ENC_NA);
+        PAYLOAD_header_item = proto_tree_add_item(info->payload_tree, hf_infiniband_payload, tvb, 0,
+            tvb_reported_length(tvb) - 6, ENC_NA);
         proto_item_set_text(PAYLOAD_header_item, "%s", "IBA Payload - appears to be EtherType encapsulated");
         PAYLOAD_header_tree = proto_item_add_subtree(PAYLOAD_header_item, ett_payload);
 
-        proto_tree_add_item(PAYLOAD_header_tree, hf_infiniband_etype, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        proto_tree_add_item(PAYLOAD_header_tree, hf_infiniband_reserved16_RWH, tvb, offset, 2, ENC_BIG_ENDIAN);
-
+        proto_tree_add_uint(PAYLOAD_header_tree, hf_infiniband_etype, tvb, 0, 2, etype);
+        proto_tree_add_uint(PAYLOAD_header_tree, hf_infiniband_reserved16_RWH, tvb, 2, 2, reserved);
     }
 
     return dissector_found;
