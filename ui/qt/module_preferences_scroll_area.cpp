@@ -457,13 +457,7 @@ void ModulePreferencesScrollArea::rangeSyntaxLineEditTextEdited(const QString &n
     pref_t *pref = range_se->property(pref_prop_).value<pref_t *>();
     if (!pref) return;
 
-    range_t *newrange;
-    convert_ret_t ret = range_convert_str(wmem_epan_scope(), &newrange, new_str.toUtf8().constData(), pref->info.max_value);
-
-    if (ret == CVT_NO_ERROR) {
-        wmem_free(wmem_epan_scope(), pref->stashed_val.range);
-        pref->stashed_val.range = newrange;
-
+    if (prefs_set_stashed_range_value(pref, new_str.toUtf8().constData())) {
         if (new_str.isEmpty()) {
             range_se->setSyntaxState(SyntaxLineEdit::Empty);
         } else {

@@ -94,7 +94,7 @@ public:
     void updatePref() { emitDataChanged(); }
 
     virtual QVariant data(int column, int role) const {
-        bool is_default = stashedPrefIsDefault();
+        bool is_default = prefs_pref_is_default(pref_);
         switch (role) {
         case Qt::DisplayRole:
             switch (column) {
@@ -158,67 +158,6 @@ public:
     }
 
 private:
-    // Copied from prefs.c:prefs_pref_is_default. We may want to move this to
-    // prefs.c as well.
-    bool stashedPrefIsDefault() const
-    {
-        if (!pref_) return false;
-
-        switch (pref_->type) {
-
-        case PREF_DECODE_AS_UINT:
-            if (pref_->default_val.uint == pref_->stashed_val.uint)
-                return true;
-            break;
-        case PREF_UINT:
-            if (pref_->default_val.uint == pref_->stashed_val.uint)
-                return true;
-            break;
-
-        case PREF_BOOL:
-            if (pref_->default_val.boolval == pref_->stashed_val.boolval)
-                return true;
-            break;
-
-        case PREF_ENUM:
-            if (pref_->default_val.enumval == pref_->stashed_val.enumval)
-                return true;
-            break;
-
-        case PREF_STRING:
-        case PREF_FILENAME:
-        case PREF_DIRNAME:
-            if (!(g_strcmp0(pref_->default_val.string, pref_->stashed_val.string)))
-                return true;
-            break;
-
-        case PREF_DECODE_AS_RANGE:
-        case PREF_RANGE:
-        {
-            if ((ranges_are_equal(pref_->default_val.range, pref_->stashed_val.range)))
-                return true;
-            break;
-        }
-
-        case PREF_COLOR:
-        {
-            if ((pref_->default_val.color.red == pref_->stashed_val.color.red) &&
-                    (pref_->default_val.color.green == pref_->stashed_val.color.green) &&
-                    (pref_->default_val.color.blue == pref_->stashed_val.color.blue))
-                return true;
-            break;
-        }
-
-        case PREF_CUSTOM:
-        case PREF_OBSOLETE:
-        case PREF_STATIC_TEXT:
-        case PREF_UAT:
-            return false;
-            break;
-        }
-        return false;
-    }
-
     pref_t *pref_;
     module_t *module_;
 };
@@ -915,13 +854,7 @@ void PreferencesDialog::rangePrefEditingFinished()
     pref_t *pref = adv_ti->pref();
     if (!pref) return;
 
-    range_t *newrange;
-    convert_ret_t ret = range_convert_str(wmem_epan_scope(), &newrange, syntax_edit->text().toUtf8().constData(), pref->info.max_value);
-
-    if (ret == CVT_NO_ERROR) {
-        wmem_free(wmem_epan_scope(), pref->stashed_val.range);
-        pref->stashed_val.range = newrange;
-    }
+    prefs_set_stashed_range_value(pref, syntax_edit->text().toUtf8().constData());
     pd_ui_->advancedTree->removeItemWidget(adv_ti, 3);
     adv_ti->updatePref();
 }

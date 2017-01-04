@@ -1228,6 +1228,56 @@ prefs_set_range_value(pref_t *pref, const gchar *value, gboolean *changed)
     return prefs_set_range_value_work(pref, value, TRUE, changed);
 }
 
+gboolean
+prefs_set_stashed_range_value(pref_t *pref, const gchar *value)
+{
+    range_t *newrange;
+
+    if (range_convert_str_work(wmem_epan_scope(), &newrange, value, pref->info.max_value,
+                               TRUE) != CVT_NO_ERROR) {
+        return FALSE;        /* number was bad */
+    }
+
+    if (!ranges_are_equal(pref->stashed_val.range, newrange)) {
+        wmem_free(wmem_epan_scope(), pref->stashed_val.range);
+        pref->stashed_val.range = newrange;
+    } else {
+        wmem_free(wmem_epan_scope(), newrange);
+    }
+    return TRUE;
+
+}
+
+gboolean
+prefs_set_stashed_range(pref_t *pref, range_t *value)
+{
+    if (!ranges_are_equal(pref->stashed_val.range, value)) {
+        wmem_free(wmem_epan_scope(), pref->stashed_val.range);
+        pref->stashed_val.range = range_copy(wmem_epan_scope(), value);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+range_t *
+prefs_get_stashed_range(pref_t *pref)
+{
+    return pref->stashed_val.range;
+}
+
+void
+prefs_range_add_value(pref_t *pref, guint32 val)
+{
+    range_add_value(wmem_epan_scope(), pref->varp.range, val);
+}
+
+void
+prefs_range_remove_value(pref_t *pref, guint32 val)
+{
+    range_remove_value(wmem_epan_scope(), pref->varp.range, val);
+}
+
 /*
  * Register a static text 'preference'.  It can be used to add explanatory
  * text inline with other preferences in the GUI.
@@ -1384,6 +1434,284 @@ prefs_set_preference_obsolete(pref_t *pref)
         return PREFS_SET_OK;
     }
     return PREFS_SET_NO_SUCH_PREF;
+}
+
+guint
+pref_stash(pref_t *pref, gpointer unused _U_)
+{
+    switch (pref->type) {
+
+    case PREF_DECODE_AS_UINT:
+        pref->stashed_val.uint = *pref->varp.uint;
+        break;
+
+    case PREF_UINT:
+        pref->stashed_val.uint = *pref->varp.uint;
+        break;
+
+    case PREF_BOOL:
+        pref->stashed_val.boolval = *pref->varp.boolp;
+        break;
+
+    case PREF_ENUM:
+        pref->stashed_val.enumval = *pref->varp.enump;
+        break;
+
+    case PREF_STRING:
+    case PREF_FILENAME:
+    case PREF_DIRNAME:
+        g_free(pref->stashed_val.string);
+        pref->stashed_val.string = g_strdup(*pref->varp.string);
+        break;
+
+    case PREF_DECODE_AS_RANGE:
+    case PREF_RANGE:
+        wmem_free(wmem_epan_scope(), pref->stashed_val.range);
+        pref->stashed_val.range = range_copy(wmem_epan_scope(), *pref->varp.range);
+        break;
+
+    case PREF_COLOR:
+        pref->stashed_val.color = *pref->varp.colorp;
+        break;
+
+    case PREF_STATIC_TEXT:
+    case PREF_UAT:
+    case PREF_CUSTOM:
+        break;
+
+    case PREF_OBSOLETE:
+        g_assert_not_reached();
+        break;
+    }
+    return 0;
+}
+
+guint
+pref_unstash(pref_t *pref, gpointer unstash_data_p)
+{
+    pref_unstash_data_t *unstash_data = (pref_unstash_data_t *)unstash_data_p;
+    dissector_table_t sub_dissectors = NULL;
+    dissector_handle_t handle = NULL;
+
+    /* Revert the preference to its saved value. */
+    switch (pref->type) {
+
+    case PREF_DECODE_AS_UINT:
+        if (*pref->varp.uint != pref->stashed_val.uint) {
+            unstash_data->module->prefs_changed = TRUE;
+
+            if (unstash_data->handle_decode_as) {
+                if (*pref->varp.uint != pref->default_val.uint) {
+                    dissector_reset_uint(pref->name, *pref->varp.uint);
+                }
+            }
+
+            *pref->varp.uint = pref->stashed_val.uint;
+
+            if (unstash_data->handle_decode_as) {
+                sub_dissectors = find_dissector_table(pref->name);
+                if (sub_dissectors != NULL) {
+                    handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)unstash_data->module->title);
+                    if (handle != NULL) {
+                        dissector_change_uint(pref->name, *pref->varp.uint, handle);
+                    }
+                }
+            }
+        }
+        break;
+
+    case PREF_UINT:
+        if (*pref->varp.uint != pref->stashed_val.uint) {
+            unstash_data->module->prefs_changed = TRUE;
+            *pref->varp.uint = pref->stashed_val.uint;
+        }
+        break;
+
+    case PREF_BOOL:
+        if (*pref->varp.boolp != pref->stashed_val.boolval) {
+            unstash_data->module->prefs_changed = TRUE;
+            *pref->varp.boolp = pref->stashed_val.boolval;
+        }
+        break;
+
+    case PREF_ENUM:
+        if (*pref->varp.enump != pref->stashed_val.enumval) {
+            unstash_data->module->prefs_changed = TRUE;
+            *pref->varp.enump = pref->stashed_val.enumval;
+        }
+        break;
+
+    case PREF_STRING:
+    case PREF_FILENAME:
+    case PREF_DIRNAME:
+        if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0) {
+            unstash_data->module->prefs_changed = TRUE;
+            g_free(*pref->varp.string);
+            *pref->varp.string = g_strdup(pref->stashed_val.string);
+        }
+        break;
+
+    case PREF_DECODE_AS_RANGE:
+        if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
+            guint32 i, j;
+            unstash_data->module->prefs_changed = TRUE;
+
+            if (unstash_data->handle_decode_as) {
+                sub_dissectors = find_dissector_table(pref->name);
+                if (sub_dissectors != NULL) {
+                    handle = dissector_table_get_dissector_handle(sub_dissectors, (gchar*)unstash_data->module->title);
+                    if (handle != NULL) {
+                        /* Delete all of the old values from the dissector table */
+                        for (i = 0; i < (*pref->varp.range)->nranges; i++) {
+                            for (j = (*pref->varp.range)->ranges[i].low; j < (*pref->varp.range)->ranges[i].high; j++) {
+                                dissector_delete_uint(pref->name, j, handle);
+                                decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(j), NULL, NULL);
+                            }
+
+                            dissector_delete_uint(pref->name, (*pref->varp.range)->ranges[i].high, handle);
+                            decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER((*pref->varp.range)->ranges[i].high), NULL, NULL);
+                        }
+                    }
+                }
+            }
+
+            wmem_free(wmem_epan_scope(), *pref->varp.range);
+            *pref->varp.range = range_copy(wmem_epan_scope(), pref->stashed_val.range);
+
+            if (unstash_data->handle_decode_as) {
+                if ((sub_dissectors != NULL) && (handle != NULL)) {
+
+                    /* Add new values to the dissector table */
+                    for (i = 0; i < (*pref->varp.range)->nranges; i++) {
+
+                        for (j = (*pref->varp.range)->ranges[i].low; j < (*pref->varp.range)->ranges[i].high; j++) {
+                            dissector_change_uint(pref->name, j, handle);
+                            decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(j), NULL, NULL);
+                        }
+
+                        dissector_change_uint(pref->name, (*pref->varp.range)->ranges[i].high, handle);
+                        decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER((*pref->varp.range)->ranges[i].high), NULL, NULL);
+                    }
+                }
+            }
+        }
+        break;
+
+    case PREF_RANGE:
+        if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
+            unstash_data->module->prefs_changed = TRUE;
+            wmem_free(wmem_epan_scope(), *pref->varp.range);
+            *pref->varp.range = range_copy(wmem_epan_scope(), pref->stashed_val.range);
+        }
+    break;
+
+    case PREF_COLOR:
+        *pref->varp.colorp = pref->stashed_val.color;
+        break;
+
+    case PREF_STATIC_TEXT:
+    case PREF_UAT:
+    case PREF_CUSTOM:
+        break;
+
+    case PREF_OBSOLETE:
+        g_assert_not_reached();
+        break;
+    }
+    return 0;
+}
+
+void
+reset_stashed_pref(pref_t *pref) {
+    switch (pref->type) {
+
+    case PREF_DECODE_AS_UINT:
+        pref->stashed_val.uint = pref->default_val.uint;
+        break;
+
+    case PREF_UINT:
+        pref->stashed_val.uint = pref->default_val.uint;
+        break;
+
+    case PREF_BOOL:
+        pref->stashed_val.boolval = pref->default_val.boolval;
+        break;
+
+    case PREF_ENUM:
+        pref->stashed_val.enumval = pref->default_val.enumval;
+        break;
+
+    case PREF_STRING:
+    case PREF_FILENAME:
+    case PREF_DIRNAME:
+        g_free(pref->stashed_val.string);
+        pref->stashed_val.string = g_strdup(pref->default_val.string);
+        break;
+
+    case PREF_DECODE_AS_RANGE:
+    case PREF_RANGE:
+        wmem_free(wmem_epan_scope(), pref->stashed_val.range);
+        pref->stashed_val.range = range_copy(wmem_epan_scope(), pref->default_val.range);
+        break;
+
+    case PREF_COLOR:
+        memcpy(&pref->stashed_val.color, &pref->default_val.color, sizeof(color_t));
+        break;
+
+    case PREF_STATIC_TEXT:
+    case PREF_UAT:
+    case PREF_CUSTOM:
+        break;
+
+    case PREF_OBSOLETE:
+        g_assert_not_reached();
+        break;
+    }
+}
+
+guint
+pref_clean_stash(pref_t *pref, gpointer unused _U_)
+{
+    switch (pref->type) {
+
+    case PREF_UINT:
+    case PREF_DECODE_AS_UINT:
+        break;
+
+    case PREF_BOOL:
+        break;
+
+    case PREF_ENUM:
+        break;
+
+    case PREF_STRING:
+    case PREF_FILENAME:
+    case PREF_DIRNAME:
+        if (pref->stashed_val.string != NULL) {
+            g_free(pref->stashed_val.string);
+            pref->stashed_val.string = NULL;
+        }
+        break;
+
+    case PREF_DECODE_AS_RANGE:
+    case PREF_RANGE:
+        if (pref->stashed_val.range != NULL) {
+            wmem_free(wmem_epan_scope(), pref->stashed_val.range);
+            pref->stashed_val.range = NULL;
+        }
+        break;
+
+    case PREF_STATIC_TEXT:
+    case PREF_UAT:
+    case PREF_COLOR:
+    case PREF_CUSTOM:
+        break;
+
+    case PREF_OBSOLETE:
+        g_assert_not_reached();
+        break;
+    }
+    return 0;
 }
 
 #if 0
@@ -5219,7 +5547,7 @@ prefs_pref_type_description(pref_t *pref)
     return g_strdup(type_desc);
 }
 
-static gboolean
+gboolean
 prefs_pref_is_default(pref_t *pref)
 {
     int type;

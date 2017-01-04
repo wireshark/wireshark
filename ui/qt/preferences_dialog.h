@@ -66,7 +66,6 @@ protected:
     void keyPressEvent(QKeyEvent *evt);
 
 private:
-    bool stashedPrefIsDefault(pref_t *pref);
     void updateItem(QTreeWidgetItem &item);
 
     Ui::PreferencesDialog *pd_ui_;

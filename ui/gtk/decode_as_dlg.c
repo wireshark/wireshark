@@ -708,7 +708,7 @@ decode_simple (GtkWidget *notebook_pg)
                             *pref_value->varp.uint = pref_value->default_val.uint;
                             break;
                         case PREF_DECODE_AS_RANGE:
-                            range_remove_value(wmem_epan_scope(), pref_value->varp.range, GPOINTER_TO_UINT(value_ptr));
+                            prefs_range_remove_value(pref_value, GPOINTER_TO_UINT(value_ptr));
                             break;
                         default:
                             break;
@@ -734,7 +734,7 @@ decode_simple (GtkWidget *notebook_pg)
                         *pref_value->varp.uint = GPOINTER_TO_UINT(value_ptr);
                         break;
                     case PREF_DECODE_AS_RANGE:
-                        range_add_value(wmem_epan_scope(), pref_value->varp.range, GPOINTER_TO_UINT(value_ptr));
+                        prefs_range_add_value(pref_value, GPOINTER_TO_UINT(value_ptr));
                         break;
                     default:
                         break;

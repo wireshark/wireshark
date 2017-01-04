@@ -109,7 +109,7 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
         break;
     case PREF_RANGE:
         wmem_free(NULL, new_range_);
-        new_range_ = range_copy(NULL, pref->stashed_val.range);
+        new_range_ = range_copy(NULL, prefs_get_stashed_range(pref));
         connect(ui->preferenceLineEdit, SIGNAL(textEdited(QString)),
                 this, SLOT(rangeLineEditTextEdited(QString)));
         show = true;
@@ -203,11 +203,7 @@ void PreferenceEditorFrame::on_buttonBox_accepted()
         }
         break;
     case PREF_RANGE:
-        if (!ranges_are_equal(pref_->stashed_val.range, new_range_)) {
-            wmem_free(wmem_epan_scope(), pref_->stashed_val.range);
-            pref_->stashed_val.range = range_copy(wmem_epan_scope(), new_range_);
-            apply = true;
-        }
+        apply = prefs_set_stashed_range(pref_, new_range_);
         break;
     default:
         break;

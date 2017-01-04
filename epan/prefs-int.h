@@ -24,6 +24,10 @@
 #ifndef __PREFS_INT_H__
 #define __PREFS_INT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <stdio.h>
 #include "ws_symbol_export.h"
 #include <epan/wmem/wmem.h>
@@ -184,6 +188,28 @@ WS_DLL_PUBLIC
 gboolean
 prefs_set_range_value(pref_t *pref, const gchar *value, gboolean *changed);
 
+WS_DLL_PUBLIC
+gboolean
+prefs_set_stashed_range_value(pref_t *pref, const gchar *value);
+
+WS_DLL_PUBLIC
+gboolean
+prefs_set_stashed_range(pref_t *pref, range_t *value);
+
+WS_DLL_PUBLIC
+range_t *
+prefs_get_stashed_range(pref_t *pref);
+
+/** Add a range value of a range preference. */
+WS_DLL_PUBLIC
+void
+prefs_range_add_value(pref_t *pref, guint32 val);
+
+/** Remove a range value of a range preference. */
+WS_DLL_PUBLIC
+void
+prefs_range_remove_value(pref_t *pref, guint32 val);
+
 /** Set the value of an enum preference. */
 WS_DLL_PUBLIC
 void
@@ -195,6 +221,59 @@ prefs_set_enum_value(pref_t *pref, const gchar *value, gboolean *changed);
 WS_DLL_PUBLIC
 int
 read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct, void *private_data);
+
+WS_DLL_PUBLIC
+gboolean
+prefs_pref_is_default(pref_t *pref);
+
+/** "Stash" a preference.
+ * Copy a preference to its stashed value. Can be called from prefs_pref_foreach().
+ *
+ * @param pref A preference.
+ * @param unused unused
+ */
+WS_DLL_PUBLIC
+guint pref_stash(pref_t *pref, gpointer unused _U_);
+
+typedef struct pref_unstash_data
+{
+    /* Used to set prefs_changed member to TRUE if the preference
+       differs from its stashed values. Also used by "decode as" types
+       to look up dissector short name */
+    module_t *module;
+    /* Qt uses stashed values to then "applies" them
+      during unstash.  Use this flag for that behavior */
+    gboolean handle_decode_as;
+} pref_unstash_data_t;
+
+/** "Unstash" a preference.
+ * Set a preference to its stashed value. Can be called from prefs_pref_foreach().
+ *
+ * @param pref A preference.
+ * @param unstash_data_p A pointer to a pref_unstash_data_t structure.
+ *
+ * @return Always returns 0.
+ */
+WS_DLL_PUBLIC
+guint pref_unstash(pref_t *pref, gpointer unstash_data_p);
+
+/** Clean up a stashed preference.
+ * Can be called from prefs_pref_foreach().
+ *
+ * @param pref A preference.
+ * @param unused unused
+ *
+ * @return Always returns 0.
+ */
+WS_DLL_PUBLIC
+guint pref_clean_stash(pref_t *pref, gpointer unused _U_);
+
+/** Set a stashed preference to its default value.
+ *
+ *@param pref A preference.
+ */
+WS_DLL_PUBLIC
+void reset_stashed_pref(pref_t *pref);
 
 /** Convert a string list preference to a preference string.
  *
@@ -208,5 +287,9 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
 WS_DLL_PUBLIC
 char *
 join_string_list(GList *sl);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* prefs-int.h */

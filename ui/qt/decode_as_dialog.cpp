@@ -642,7 +642,7 @@ void DecodeAsDialog::applyChanges()
                                     *pref_value->varp.uint = pref_value->default_val.uint;
                                     break;
                                 case PREF_DECODE_AS_RANGE:
-                                    range_remove_value(wmem_epan_scope(), pref_value->varp.range, GPOINTER_TO_UINT(selector_value));
+                                    prefs_range_remove_value(pref_value, GPOINTER_TO_UINT(selector_value));
                                     break;
                                 default:
                                     break;
@@ -670,7 +670,7 @@ void DecodeAsDialog::applyChanges()
                                 *pref_value->varp.uint = GPOINTER_TO_UINT(selector_value);
                                 break;
                             case PREF_DECODE_AS_RANGE:
-                                range_add_value(wmem_epan_scope(), pref_value->varp.range, GPOINTER_TO_UINT(selector_value));
+                                prefs_range_add_value(pref_value, GPOINTER_TO_UINT(selector_value));
                                 break;
                             default:
                                 break;

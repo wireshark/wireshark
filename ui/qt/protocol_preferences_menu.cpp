@@ -120,33 +120,7 @@ public:
     {
         QString title = pref_->title;
 
-        switch(pref_->type) {
-        case PREF_UINT:
-        {
-            int base = 10;
-            switch(pref_->info.base) {
-            case 8:
-                base = 8;
-                break;
-            case 16:
-                base = 16;
-                break;
-            default:
-                break;
-            }
-            title.append(QString(": %1" UTF8_HORIZONTAL_ELLIPSIS).arg(QString::number(*pref->varp.uint, base)));
-            break;
-        }
-        case PREF_STRING:
-            title.append(QString(": %1" UTF8_HORIZONTAL_ELLIPSIS).arg(*pref->varp.string));
-            break;
-        case PREF_RANGE:
-            title.append(QString(": %1" UTF8_HORIZONTAL_ELLIPSIS).arg(range_to_qstring(*pref->varp.range)));
-            break;
-        default:
-            // We shouldn't be here.
-            break;
-        }
+        title.append(QString(": %1" UTF8_HORIZONTAL_ELLIPSIS).arg(gchar_free_to_qstring(prefs_pref_to_str(pref_, pref_current))));
 
         setText(title);
     }
