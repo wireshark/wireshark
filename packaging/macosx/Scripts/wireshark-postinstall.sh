@@ -24,6 +24,10 @@ BIN_PATH="$2/Wireshark.app/Contents/Resources/bin"
 # For some reason, packagemaker isn't including Contents/Resources/bin
 # in the app bundle, so let's just construct it ourselves.
 #
+if [ ! -d "$BIN_PATH" ]
+then
+	mkdir -m u=rwx,g=rx,o=rx "$BIN_PATH"
+fi
 for i in capinfos dftest dumpcap editcap mergecap randpkt rawshark \
     tshark text2pcap
 do
