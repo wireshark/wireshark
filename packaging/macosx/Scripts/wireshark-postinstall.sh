@@ -31,9 +31,9 @@ fi
 for i in capinfos dftest dumpcap editcap mergecap randpkt rawshark \
     tshark text2pcap
 do
-	ln -s "$BIN_PATH/$i" ../../MacOS/"$i"
+	ln -s ../../MacOS/"$i" "$BIN_PATH/$i"
 done
-ln -s "$BIN_PATH/wireshark" ../../MacOS/Wireshark
+ln -s ../../MacOS/Wireshark "$BIN_PATH/wireshark"
 
 # Setting PATH
 # if /etc/paths.d/Wireshark already exists we overwrite it.
