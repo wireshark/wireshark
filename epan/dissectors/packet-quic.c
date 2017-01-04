@@ -2341,7 +2341,7 @@ proto_register_quic(void)
               "Specifying one less than the number of sequential nacks in the range", HFILL }
         },
         { &hf_quic_frame_type_ack_num_revived,
-            { "Num Ranges", "quic.frame_type.ack.num_revived",
+            { "Num Revived", "quic.frame_type.ack.num_revived",
                FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifying the number of revived packets, recovered via FEC", HFILL }
         },
