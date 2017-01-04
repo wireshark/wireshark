@@ -22,7 +22,7 @@ done
 # Setting PATH
 # if /etc/paths.d/Wireshark already exists we overwrite it.
 #
-WSPATH="$2/Wireshark.app/Contents/Resources/bin"
+WSPATH="$2/Wireshark.app/Contents/MacOS"
 
 if [ ! -d /etc/paths.d ]
 then
