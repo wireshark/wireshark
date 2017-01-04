@@ -89,6 +89,37 @@ static GHashTable *extcap_prefs_dynamic_vals = NULL;
 typedef gboolean(*extcap_cb_t)(const gchar *extcap, const gchar *ifname, gchar *output, void *data,
                                gchar **err_str);
 
+guint extcap_count(void)
+{
+    const char *dirname = get_extcap_dir();
+    GDir *dir;
+    guint count;
+
+    count = 0;
+
+    if ((dir = g_dir_open(dirname, 0, NULL)) != NULL)
+    {
+        GString *extcap_path = NULL;
+        const gchar *file;
+
+        extcap_path = g_string_new("");
+        while ((file = g_dir_read_name(dir)) != NULL)
+        {
+            /* full path to extcap binary */
+            g_string_printf(extcap_path, "%s" G_DIR_SEPARATOR_S "%s", dirname, file);
+            /* treat anything executable as an extcap binary */
+            if (g_file_test(extcap_path->str, G_FILE_TEST_IS_EXECUTABLE))
+            {
+                count++;
+            }
+        }
+
+        g_dir_close(dir);
+        g_string_free(extcap_path, TRUE);
+    }
+    return count;
+}
+
 static gboolean
 extcap_if_exists(const gchar *ifname)
 {
@@ -175,11 +206,10 @@ extcap_tool_add(const gchar *extcap, const extcap_interface *interface)
 
 /* Note: args does not need to be NULL-terminated. */
 static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
-                           void *cb_data, char **err_str, const char *ifname _U_)
+                           void *cb_data, char **err_str, const char *ifname)
 {
     const char *dirname = get_extcap_dir();
     GDir *dir;
-    const gchar *file;
     gboolean keep_going;
 
     keep_going = TRUE;
@@ -187,6 +217,7 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
     if ((dir = g_dir_open(dirname, 0, NULL)) != NULL)
     {
         GString *extcap_path = NULL;
+        const gchar *file;
 
         extcap_path = g_string_new("");
         while (keep_going && (file = g_dir_read_name(dir)) != NULL)

@@ -33,6 +33,10 @@
 #include "epan/wslua/init_wslua.h"
 #endif
 
+#ifdef HAVE_EXTCAP
+#include "../../extcap.h"
+#endif
+
 // Uncomment to slow the update progress
 //#define THROTTLE_STARTUP 1
 
@@ -58,7 +62,10 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
     // RA_DISSECTORS -> RA_PLUGIN_REGISTER) minus two.
     int register_add = 5;
 #ifdef HAVE_LUA
-      register_add += wslua_count_plugins();   /* get count of lua plugins */
+    register_add += wslua_count_plugins();   /* get count of lua plugins */
+#endif
+#ifdef HAVE_EXTCAP
+    register_add += extcap_count(); /* get count of extcap binaries */
 #endif
     so_ui_->progressBar->setMaximum((int)register_count() + register_add);
     elapsed_timer_.start();

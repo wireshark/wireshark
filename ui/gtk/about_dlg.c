@@ -39,6 +39,9 @@
 #ifdef HAVE_LUA
 #include <epan/wslua/init_wslua.h>
 #endif
+#ifdef HAVE_EXTCAP
+#include "../../extcap.h"
+#endif
 
 #include "../../log.h"
 #include "../../register.h"
@@ -257,6 +260,9 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
                                           preferences, interfaces and configuration */
 #ifdef HAVE_LUA
       ul_count += wslua_count_plugins (); /* get count of lua plugins */
+#endif
+#ifdef HAVE_EXTCAP
+      ul_count += extcap_count(); /* get count of extcap binaries */
 #endif
     }
 

@@ -63,6 +63,10 @@ struct _extcap_arg;
 extern "C" {
 #endif /* __cplusplus */
 
+/* Count the number of extcap binaries */
+guint
+extcap_count(void);
+
 /* Registers preferences for all interfaces */
 void
 extcap_register_preferences(void);
