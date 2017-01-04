@@ -5710,7 +5710,7 @@ void proto_register_infiniband(void)
         },
         { &hf_infiniband_etype, {
                 "Ethertype", "infiniband.rwh.etype",
-                FT_UINT16, BASE_HEX, NULL /*VALS(etype_vals)*/, 0x0, "Type", HFILL }
+                FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0, "Type", HFILL }
         },
 
         /* Reliable Datagram Extended Transport Header (RDETH) */
