@@ -4228,10 +4228,11 @@ int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int max_len, gb
 {
   int compr_len;
   const guchar *name;
+  guint name_len;
 
   /* The name data MUST start at offset 0 of the tvb */
-  compr_len = expand_dns_name(tvb, offset, max_len, 0, &name);
-  g_strlcpy(str, name, max_len);
+  compr_len = get_dns_name(tvb, offset, max_len, 0, &name, &name_len);
+  g_strlcpy(str, name, name_len);
   return offset + compr_len;
 }
 
@@ -5640,7 +5641,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2155 "./asn1/ldap/packet-ldap-template.c"
+#line 2156 "./asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5714,7 +5715,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2169 "./asn1/ldap/packet-ldap-template.c"
+#line 2170 "./asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {

@@ -46,6 +46,7 @@
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
 #include <epan/ipv6.h>
+#include <epan/strutil.h>
 
 #include "packet-ber.h"
 #include "packet-dns.h"
@@ -1520,6 +1521,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
     int         opt_len;
     int         opt_offset;
     tvbuff_t   *opt_tvb;
+    guint       used_bytes;
 
     while ((int)tvb_reported_length(tvb) > offset) {
         /* there are more options */
@@ -2287,10 +2289,10 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                         opt_offset += padd_length;
                         break;
                     }
-                    dnssl_len = get_dns_name(tvb, opt_offset, 0, opt_offset, &dnssl_name);
-                    proto_tree_add_string(icmp6opt_tree, hf_icmpv6_opt_dnssl, tvb, opt_offset, dnssl_len, dnssl_name);
+                    used_bytes = get_dns_name(tvb, opt_offset, 0, opt_offset, &dnssl_name, &dnssl_len);
+                    proto_tree_add_string(icmp6opt_tree, hf_icmpv6_opt_dnssl, tvb, opt_offset, used_bytes, format_text(dnssl_name, dnssl_len));
                     proto_item_append_text(ti, " %s", dnssl_name);
-                    opt_offset += dnssl_len;
+                    opt_offset += used_bytes;
 
                 }
                 break;
@@ -3390,6 +3392,7 @@ static int
 dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tree *tree, guint8 icmp6_type, guint8 icmp6_code)
 {
     guint16     qtype;
+    guint       used_bytes;
     static const int * ni_flags[] = {
         &hf_icmpv6_ni_flag_g,
         &hf_icmpv6_ni_flag_s,
@@ -3430,8 +3433,9 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
             case ICMP6_NI_SUBJ_FQDN: {
                 int fqdn_len;
                 const guchar *fqdn_name;
-                fqdn_len = get_dns_name(tvb, ni_offset, 0, ni_offset, &fqdn_name);
-                proto_tree_add_string(tree, hf_icmpv6_ni_query_subject_fqdn, tvb, ni_offset, fqdn_len, fqdn_name);
+                used_bytes = get_dns_name(tvb, ni_offset, 0, ni_offset, &fqdn_name, &fqdn_len);
+                proto_tree_add_string(tree, hf_icmpv6_ni_query_subject_fqdn, tvb, ni_offset, used_bytes,
+                    format_text(fqdn_name, fqdn_len));
                 ni_offset += fqdn_len;
                 break;
             }
@@ -3446,7 +3450,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
             case NI_QTYPE_NOOP:
                 break;
             case NI_QTYPE_NODENAME: {
-                int node_len;
+                int node_name_len;
                 const guchar *node_name;
                 /* TTL */
                 proto_tree_add_item(tree, hf_icmpv6_ni_reply_node_ttl, tvb, ni_offset, 4, ENC_BIG_ENDIAN);
@@ -3461,9 +3465,10 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
                         break;
                     }
                     /* Node Name */
-                    node_len = get_dns_name(tvb, ni_offset, 0, ni_offset, &node_name);
-                    proto_tree_add_string(tree, hf_icmpv6_ni_reply_node_name, tvb, ni_offset, node_len, node_name);
-                    ni_offset += node_len;
+                    used_bytes = get_dns_name(tvb, ni_offset, 0, ni_offset, &node_name, &node_name_len);
+                    proto_tree_add_string(tree, hf_icmpv6_ni_reply_node_name, tvb, ni_offset, used_bytes,
+                        format_text(node_name, node_name_len));
+                    ni_offset += used_bytes;
                 }
                 break;
             }

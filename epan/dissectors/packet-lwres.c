@@ -27,6 +27,7 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <epan/strutil.h>
 
 #include "packet-dns.h"
 
@@ -473,7 +474,9 @@ static void dissect_a_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int o
 static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int offset)
 {
     guint32 i, curr;
-    guint16 /*len, namelen,*/ priority, weight, port, dlen;
+    guint16 /*len, namelen,*/ priority, weight, port;
+    guint dlen;
+    guint used_bytes;
     const guchar *dname;
 
     proto_item* srv_rec_tree, *rec_tree;
@@ -493,7 +496,7 @@ static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int
         port     = tvb_get_ntohs(tvb, curr + 6);
         /*namelen = len - 8;*/
 
-        dlen = get_dns_name(tvb, curr + 8, 0, curr + 8, &dname);
+        used_bytes = get_dns_name(tvb, curr + 8, 0, curr + 8, &dname, &dlen);
 
         rec_tree = proto_tree_add_subtree_format(srv_rec_tree, tvb, curr, 6,
                     ett_srv_rec_item, NULL,
@@ -526,10 +529,10 @@ static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int
                             hf_srv_dname,
                             tvb,
                             curr + 8,
-                            dlen,
-                            dname);
+                            used_bytes,
+                            format_text(dname, dlen));
 
-        curr+=(int)((sizeof(short)*4) + dlen);
+        curr+=(int)((sizeof(short)*4) + used_bytes);
 
     }
 
@@ -539,7 +542,9 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 {
 
     guint i, curr;
-    guint /*len, namelen,*/ priority, dlen;
+    guint priority;
+    guint dlen;
+    guint used_bytes;
     const guchar *dname;
 
     proto_tree* mx_rec_tree, *rec_tree;
@@ -554,10 +559,10 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
     for(i=0; i < nrec; i++)
     {
         /*len =       tvb_get_ntohs(tvb, curr);*/
-        priority =  tvb_get_ntohs(tvb, curr + 2);
+        priority = tvb_get_ntohs(tvb, curr + 2);
         /*namelen  =  len - 4;*/
 
-        dlen  = get_dns_name(tvb, curr + 4, 0, curr + 4, &dname);
+        used_bytes  = get_dns_name(tvb, curr + 4, 0, curr + 4, &dname, &dlen);
 
         rec_tree = proto_tree_add_subtree_format(mx_rec_tree, tvb, curr,6,ett_mx_rec_item,NULL,
                         "MX record: pri=%d,dname=%s", priority,dname);
@@ -574,10 +579,10 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
                             hf_srv_dname,
                             tvb,
                             curr + 4,
-                            dlen,
-                            dname);
+                            used_bytes,
+                            format_text(dname, dlen));
 
-        curr+=(int)((sizeof(short)*2) + dlen);
+        curr+=(int)((sizeof(short)*2) + used_bytes);
 
 
     }
@@ -587,8 +592,9 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, int offset)
 {
     guint i, curr;
-    guint /*len, namelen,*/ dlen;
+    guint dlen;
     const guchar *dname;
+    guint used_bytes;
 
     proto_tree* ns_rec_tree, *rec_tree;
 
@@ -604,7 +610,7 @@ static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
         /*len = tvb_get_ntohs(tvb, curr);*/
         /*namelen = len - 2;*/
 
-        dlen = get_dns_name(tvb, curr + 2, 0, curr + 2, &dname);
+        used_bytes = get_dns_name(tvb, curr + 2, 0, curr + 2, &dname, &dlen);
 
         rec_tree = proto_tree_add_subtree_format(ns_rec_tree, tvb, curr,4, ett_ns_rec_item, NULL, "NS record: dname=%s",dname);
 
@@ -612,9 +618,9 @@ static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
                             hf_ns_dname,
                             tvb,
                             curr + 2,
-                            dlen,
-                            dname);
-        curr+=(int)(sizeof(short) + dlen);
+                            used_bytes,
+                            format_text(dname, dlen));
+        curr+=(int)(sizeof(short) + used_bytes);
 
     }
 

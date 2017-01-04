@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/strutil.h>
 #include "packet-smb-common.h"
 
 #include "packet-dns.h"
@@ -125,11 +126,12 @@ int dissect_ms_compressed_string(tvbuff_t *tvb, proto_tree *tree, int offset, in
 				 const char **data)
 {
 	int           compr_len;
+	guint         str_len;
 	const guchar *str = NULL;
 
 	/* The name data MUST start at offset 0 of the tvb */
-	compr_len = expand_dns_name(tvb, offset, MAX_UNICODE_STR_LEN+3+1, 0, &str);
-	proto_tree_add_string(tree, hf_index, tvb, offset, compr_len, str);
+	compr_len = get_dns_name(tvb, offset, MAX_UNICODE_STR_LEN+3+1, 0, &str, &str_len);
+	proto_tree_add_string(tree, hf_index, tvb, offset, compr_len, format_text(str, str_len));
 
 	if (data)
 		*data = str;

@@ -347,11 +347,11 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
     int           name_type;
     char         *pname_ret;
     size_t        idx = 0;
+    guint         used_bytes;
 
     nbname_buf = (char *)wmem_alloc(wmem_packet_scope(), NBNAME_BUF_LEN);
     nbname = nbname_buf;
-    /* XXX Fix data len */
-    name_len = get_dns_name(tvb, offset, 0, nbns_data_offset, &name);
+    used_bytes = get_dns_name(tvb, offset, 0, nbns_data_offset, &name, &name_len);
 
     /* OK, now undo the first-level encoding. */
     pname = &name[0];
@@ -417,7 +417,7 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
     }
     if (name_type_ret != NULL)
         *name_type_ret = name_type;
-    return name_len;
+    return used_bytes;
 
 bad:
     if (name_type_ret != NULL)
@@ -425,7 +425,7 @@ bad:
     /* This is only valid because nbname is always assigned an error string
      * before jumping to bad: Otherwise nbname wouldn't be \0 terminated */
     g_snprintf(pname_ret, name_ret_len-(gulong)(pname_ret-name_ret), "%s", nbname);
-    return name_len;
+    return used_bytes;
 }
 
 

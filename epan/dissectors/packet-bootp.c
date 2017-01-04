@@ -124,6 +124,7 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/oui.h>
+#include <epan/strutil.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 void proto_register_bootp(void);
@@ -1756,6 +1757,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 	guint8		 s_option;
 	guint8		 s_len;
 	const guchar	*dns_name;
+	guint			dns_name_len;
 	gboolean	 option_handled = TRUE;
 
 	struct basic_types_hfs default_hfs = {
@@ -2360,9 +2362,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode2, tvb, optoff+2, 1, ENC_BIG_ENDIAN);
 		if (optlen > 3) {
 			if (fqdn_flags & F_FQDN_E) {
-				get_dns_name(tvb, optoff+3, optlen-3, optoff+3, &dns_name);
+				get_dns_name(tvb, optoff+3, optlen-3, optoff+3, &dns_name, &dns_name_len);
 				proto_tree_add_string(v_tree, hf_bootp_fqdn_name,
-				    tvb, optoff+3, optlen-3, dns_name);
+				    tvb, optoff+3, optlen-3, format_text(dns_name, dns_name_len));
 			} else {
 				proto_tree_add_item(v_tree, hf_bootp_fqdn_asciiname,
 				    tvb, optoff+3, optlen-3, ENC_ASCII|ENC_NA);
@@ -2603,7 +2605,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 
 			while (offset < tvb_reported_length(rfc3396_dns_domain_search_list.tvb_composite)) {
 				/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
-				consumedx = get_dns_name(rfc3396_dns_domain_search_list.tvb_composite, offset, tvb_reported_length(rfc3396_dns_domain_search_list.tvb_composite), 0, &dns_name);
+				consumedx = get_dns_name(rfc3396_dns_domain_search_list.tvb_composite, offset,
+					tvb_reported_length(rfc3396_dns_domain_search_list.tvb_composite), 0, &dns_name, &dns_name_len);
 				if (rfc3396_dns_domain_search_list.total_number_of_block == 1) {
 					/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
 					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_fqdn, tvb, optoff + offset, consumedx, dns_name);
@@ -2667,14 +2670,15 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 
 				while (offset < tvb_reported_length(rfc3396_sip_server.tvb_composite)) {
 					/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
-					consumedx = get_dns_name(rfc3396_sip_server.tvb_composite, offset, tvb_reported_length(rfc3396_sip_server.tvb_composite), 1 /* ignore enc */, &dns_name);
+					consumedx = get_dns_name(rfc3396_sip_server.tvb_composite, offset, tvb_reported_length(rfc3396_sip_server.tvb_composite),
+						1 /* ignore enc */, &dns_name, &dns_name_len);
 
 					if (rfc3396_sip_server.total_number_of_block == 1) {
 						/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
 						proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, optoff + offset, consumedx, dns_name);
 					} else {
 						/* RFC 3396 is used, so the option is split into several option 120. We don't link fqdn with v_tree. */
-						proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, 0, 0, dns_name);
+						proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, 0, 0, format_text(dns_name, dns_name_len));
 					}
 					offset += consumedx;
 				}
@@ -5657,6 +5661,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	proto_item   *vti;
 	int	      max_timer_val = 255;
 	const guchar *dns_name;
+	guint         dns_name_len;
 
 	subopt = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
@@ -5699,8 +5704,8 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 		switch (prov_type) {
 
 		case 0:
-			get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name);
-			proto_item_append_text(vti, "%s (%u byte%s)", dns_name,
+			get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name, &dns_name_len);
+			proto_item_append_text(vti, "%s (%u byte%s)", format_text(dns_name, dns_name_len),
 					       subopt_len - 1, plurality(subopt_len, "", "s") );
 			break;
 
@@ -5757,8 +5762,8 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 		break;
 
 	case PKT_CCC_KRB_REALM: /* String values */
-		get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name);
-		proto_item_append_text(vti, "%s (%u byte%s)", dns_name,
+		get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name, &dns_name_len);
+		proto_item_append_text(vti, "%s (%u byte%s)", format_text(dns_name, dns_name_len),
 				       subopt_len, plurality(subopt_len, "", "s") );
 		suboptoff += subopt_len;
 		break;
