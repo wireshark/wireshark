@@ -2406,28 +2406,28 @@ main(int argc, char *argv[])
                     g_free(err_str);
                     exit(2);
                 }
-            if (caps->data_link_types == NULL) {
-                cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
-                exit(2);
-            }
+                if (caps->data_link_types == NULL) {
+                    cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
+                    exit(2);
+                }
 #ifdef _WIN32
-            create_console();
+                create_console();
 #endif /* _WIN32 */
 #if defined(HAVE_PCAP_CREATE)
-            capture_opts_print_if_capabilities(caps, device.name, device.monitor_mode_supported);
+                capture_opts_print_if_capabilities(caps, device.name, device.monitor_mode_supported);
 #else
-            capture_opts_print_if_capabilities(caps, device.name, FALSE);
+                capture_opts_print_if_capabilities(caps, device.name, FALSE);
 #endif
 #ifdef _WIN32
-            destroy_console();
+                destroy_console();
 #endif /* _WIN32 */
-            free_if_capabilities(caps);
+                free_if_capabilities(caps);
             }
         }
         exit(0);
     }
-  capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
-  capture_opts_trim_ring_num_files(&global_capture_opts);
+    capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
+    capture_opts_trim_ring_num_files(&global_capture_opts);
 #endif /* HAVE_LIBPCAP */
 
     /* Notify all registered modules that have had any of their preferences
