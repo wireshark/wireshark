@@ -25,7 +25,7 @@ BIN_PATH="$2/Wireshark.app/Contents/Resources/bin"
 # in the app bundle, so let's just construct it ourselves.
 #
 for i in capinfos dftest dumpcap editcap mergecap randpkt rawshark \
-    tshark text2pcap      
+    tshark text2pcap
 do
 	ln -s "$BIN_PATH/$i" ../../MacOS/"$i"
 done
