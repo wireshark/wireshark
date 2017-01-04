@@ -284,11 +284,18 @@ create_bundle() {
 	done
 
 	#
-	# Links to executables
+	# Executable launchers in $pkgbin
 	#
-	ln -s ../../MacOS/Wireshark $pkgbin/wireshark
+	# We can't just symbolically link to the executables, as
+	# that means that the executable won't be in Contents/MacOS,
+	# which means that all @executable_path-relative references
+	# will go to the wrong place if we run the executables using
+	# the symlink, which means that the executables could fail
+	# (they *do* fail to find the Cocoa Qt plugin, for example).
+	#
+	cp utility-launcher/wireshark $pkgbin
 	for binary in $cli_binary_list ; do
-		ln -s ../../MacOS/$binary $pkgbin/$binary
+		ln -s ./wireshark $pkgbin/$binary
 	done
 
 	# The rest of the Wireshark installation (we handled bin above)

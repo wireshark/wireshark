@@ -19,26 +19,10 @@ do
 	rm -f "$PLUGINS_PATH"/$plugin.so "$PLUGINS_PATH"/$plugin.la
 done
 
-BIN_PATH="$2/Wireshark.app/Contents/Resources/bin"
-#
-# For some reason, packagemaker isn't including Contents/Resources/bin
-# in the app bundle, so let's just construct it ourselves.
-#
-if [ ! -d "$BIN_PATH" ]
-then
-	mkdir -m u=rwx,g=rx,o=rx "$BIN_PATH"
-fi
-for i in capinfos dftest dumpcap editcap mergecap randpkt rawshark \
-    tshark text2pcap      
-do
-	ln -s ../../MacOS/"$i" "$BIN_PATH/$i"
-done
-ln -s ../../MacOS/Wireshark "$BIN_PATH/wireshark"
-
 # Setting PATH
 # if /etc/paths.d/Wireshark already exists we overwrite it.
 #
-WSPATH="$BIN_PATH"
+WSPATH="$2/Wireshark.app/Contents/MacOS"
 
 if [ ! -d /etc/paths.d ]
 then
