@@ -18,4 +18,14 @@ fi
 
 APP_NAME=`basename "$0"`
 
-exec "$WIRESHARK_APP_DIR/Contents/Resources/bin/$APP_NAME" "$@"
+APP_CONTENTS="$WIRESHARK_APP_DIR/Contents"
+if [ -f "$APP_CONTENTS/Frameworks/QtWidgets" -o -d "$APP_CONTENTS/Frameworks/QtWidgets.framework" ] ; then
+	# Qt
+	if [ "$APP_NAME" = "wireshark" ] ; then
+		APP_NAME=Wireshark
+	fi
+	exec "$APP_CONTENTS/MacOS/$APP_NAME" "$@"
+else
+	# GTK+
+	exec "$APP_CONTENTS/Resources/bin/$APP_NAME" "$@"
+fi
