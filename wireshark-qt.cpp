@@ -124,6 +124,21 @@
 #include <QTextCodec>
 #endif
 
+//#define DEBUG_STARTUP_TIME 1
+/*
+# Log level
+# Console log level (for debugging)
+# A bitmask of log levels:
+# ERROR    = 4
+# CRITICAL = 8
+# WARNING  = 16
+# MESSAGE  = 32
+# INFO     = 64
+# DEBUG    = 128
+
+*/
+#define DEBUG_STARTUP_TIME_LOGLEVEL 252
+
 /* update the main window */
 void main_window_update(void)
 {
@@ -340,7 +355,15 @@ int main(int argc, char *qt_argv[])
     GString             *runtime_info_str = NULL;
 
     QString              dfilter, read_filter;
-
+    /* Start time in microseconds*/
+    guint64 start_time = g_get_monotonic_time();
+#ifdef DEBUG_STARTUP_TIME
+    /* At least on Windows there is a problem with the loging as the preferences is taken
+     * into account and the preferences are loaded pretty late in the startup process.
+     */
+    prefs.console_log_level = DEBUG_STARTUP_TIME_LOGLEVEL;
+    prefs.gui_console_open = console_open_always;
+#endif /* DEBUG_STARTUP_TIME */
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
     // In Qt 5, C strings are treated always as UTF-8 when converted to
@@ -528,6 +551,9 @@ int main(int argc, char *qt_argv[])
 #endif
 
     set_console_log_handler();
+#ifdef DEBUG_STARTUP_TIME
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "set_console_log_handler, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+#endif
 
 #ifdef HAVE_LIBPCAP
     /* Set the initial values in the capture options. This might be overwritten
@@ -557,7 +583,9 @@ int main(int argc, char *qt_argv[])
     register_all_codecs();
 
     splash_update(RA_DISSECTORS, NULL, NULL);
-
+#ifdef DEBUG_STARTUP_TIME
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling epan init, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+#endif
     /* Register all dissectors; we must do this before checking for the
        "-G" flag, as the "-G" flag dumps information registered by the
        dissectors, and we must do it before we read the preferences, in
@@ -567,6 +595,12 @@ int main(int argc, char *qt_argv[])
         SimpleDialog::displayQueuedMessages(main_w);
         return 2;
     }
+#ifdef DEBUG_STARTUP_TIME
+    /* epan_init resets the preferences */
+    prefs.console_log_level = DEBUG_STARTUP_TIME_LOGLEVEL;
+    prefs.gui_console_open = console_open_always;
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "epan done, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+#endif
 
     // Read the dynamic part of the recent file. This determines whether or
     // not the recent list appears in the main window so the earlier we can
@@ -579,7 +613,9 @@ int main(int argc, char *qt_argv[])
     }
 
     splash_update(RA_LISTENERS, NULL, NULL);
-
+#ifdef DEBUG_STARTUP_TIME
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Register all tap listeners, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+#endif
     /* Register all tap listeners; we do this before we parse the arguments,
        as the "-z" argument can specify a registered tap. */
 
@@ -602,11 +638,14 @@ int main(int argc, char *qt_argv[])
     }
 
 #ifdef HAVE_EXTCAP
+#ifdef DEBUG_STARTUP_TIME
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling extcap_register_preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+#endif
     splash_update(RA_EXTCAP, NULL, NULL);
     extcap_register_preferences();
 #endif
-
     splash_update(RA_PREFERENCES, NULL, NULL);
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling module preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 
     global_commandline_info.prefs_p = ws_app.readConfigurationFiles(&gdp_path, &dp_path, false);
 
@@ -630,6 +669,9 @@ int main(int argc, char *qt_argv[])
     timestamp_set_seconds_type (recent.gui_seconds_format);
 
 #ifdef HAVE_LIBPCAP
+#ifdef DEBUG_STARTUP_TIME
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling fill_in_local_interfaces, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+#endif
     splash_update(RA_INTERFACES, NULL, NULL);
 
     fill_in_local_interfaces(main_window_update);
@@ -689,9 +731,13 @@ int main(int argc, char *qt_argv[])
     capture_opts_trim_ring_num_files(&global_capture_opts);
 #endif /* HAVE_LIBPCAP */
 
+
     /* Notify all registered modules that have had any of their preferences
        changed either from one of the preferences file or from the command
        line that their preferences have changed. */
+#ifdef DEBUG_STARTUP_TIME
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling prefs_apply_all, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
+#endif
     prefs_apply_all();
     wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
 
@@ -789,7 +835,7 @@ int main(int argc, char *qt_argv[])
 #endif /* HAVE_LIBPCAP */
 
     wsApp->allSystemsGo();
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go, elapsed time %" G_GUINT64_FORMAT "us \n", g_get_monotonic_time() - start_time);
     SimpleDialog::displayQueuedMessages(main_w);
 
     /* User could specify filename, or display filter, or both */
