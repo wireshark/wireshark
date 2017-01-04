@@ -35,6 +35,7 @@ typedef enum {
   RA_NONE,              /* For initialization */
   RA_DISSECTORS,        /* Initializing dissectors */
   RA_LISTENERS,         /* Tap listeners */
+  RA_EXTCAP,            /* extcap register preferences */
   RA_REGISTER,          /* Built-in register */
   RA_PLUGIN_REGISTER,   /* Plugin register */
   RA_HANDOFF,           /* Built-in handoff */

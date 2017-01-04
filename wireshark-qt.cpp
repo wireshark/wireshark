@@ -588,10 +588,6 @@ int main(int argc, char *qt_argv[])
     register_all_plugin_tap_listeners();
 #endif
 
-#ifdef HAVE_EXTCAP
-    extcap_register_preferences();
-#endif
-
     register_all_tap_listeners();
     conversation_table_set_gui_info(init_conversation_table);
     hostlist_table_set_gui_info(init_endpoint_table);
@@ -602,6 +598,11 @@ int main(int argc, char *qt_argv[])
     if (ex_opt_count("read_format") > 0) {
         in_file_type = open_info_name_to_type(ex_opt_get_next("read_format"));
     }
+
+#ifdef HAVE_EXTCAP
+    splash_update(RA_EXTCAP, NULL, NULL);
+    extcap_register_preferences();
+#endif
 
     splash_update(RA_PREFERENCES, NULL, NULL);
 

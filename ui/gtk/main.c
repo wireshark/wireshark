@@ -2331,16 +2331,17 @@ main(int argc, char *argv[])
     register_all_plugin_tap_listeners();
 #endif
 
-#ifdef HAVE_EXTCAP
-    extcap_register_preferences();
-#endif
-
     register_all_tap_listeners();
     conversation_table_set_gui_info(init_conversation_table);
     hostlist_table_set_gui_info(init_hostlist_table);
     srt_table_iterate_tables(register_service_response_tables, NULL);
     rtd_table_iterate_tables(register_response_time_delay_tables, NULL);
     new_stat_tap_iterate_tables(register_simple_stat_tables, NULL);
+
+#ifdef HAVE_EXTCAP
+    splash_update(RA_EXTCAP, NULL, (gpointer)splash_win);
+    extcap_register_preferences();
+#endif
 
     splash_update(RA_PREFERENCES, NULL, (gpointer)splash_win);
 

@@ -215,6 +215,9 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
       case RA_LISTENERS:
         action_msg = "Initializing tap listeners ...";
         break;
+      case RA_EXTCAP:
+        action_msg = "Initializing extcap ...";
+        break;
       case RA_REGISTER:
         action_msg = "Registering dissector ...";
         break;
