@@ -420,15 +420,15 @@ sub update_cmakelists_txt
 
 	open(CFGIN, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CFGIN>) {
-		if ($line =~ /^set *\( *GIT_REVISION .*([\r\n]+)$/) {
+		if ($line =~ /^set *\( *GIT_REVISION .*?([\r\n]+)$/) {
 			$line = sprintf("set(GIT_REVISION %d)$1", $num_commits);
-		} elsif ($line =~ /^set *\( *PROJECT_MAJOR_VERSION .*([\r\n]+)$/) {
+		} elsif ($line =~ /^set *\( *PROJECT_MAJOR_VERSION .*?([\r\n]+)$/) {
 			$line = sprintf("set(PROJECT_MAJOR_VERSION %d)$1", $version_pref{"version_major"});
-		} elsif ($line =~ /^set *\( *PROJECT_MINOR_VERSION .*([\r\n]+)$/) {
+		} elsif ($line =~ /^set *\( *PROJECT_MINOR_VERSION .*?([\r\n]+)$/) {
 			$line = sprintf("set(PROJECT_MINOR_VERSION %d)$1", $version_pref{"version_minor"});
-		} elsif ($line =~ /^set *\( *PROJECT_PATCH_VERSION .*([\r\n]+)$/) {
+		} elsif ($line =~ /^set *\( *PROJECT_PATCH_VERSION .*?([\r\n]+)$/) {
 			$line = sprintf("set(PROJECT_PATCH_VERSION %d)$1", $version_pref{"version_micro"});
-		} elsif ($line =~ /^set *\( *PROJECT_VERSION_EXTENSION .*([\r\n]+)$/) {
+		} elsif ($line =~ /^set *\( *PROJECT_VERSION_EXTENSION .*?([\r\n]+)$/) {
 			$line = sprintf("set(PROJECT_VERSION_EXTENSION \"%s\")$1", $package_string);
 		}
 		$contents .= $line
@@ -453,13 +453,13 @@ sub update_configure_ac
 
 	open(CFGIN, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CFGIN>) {
-		if ($line =~ /^m4_define\( *\[?version_major\]? *,.*([\r\n]+)$/) {
+		if ($line =~ /^m4_define\( *\[?version_major\]? *,.*?([\r\n]+)$/) {
 			$line = sprintf("m4_define([version_major], [%d])$1", $version_pref{"version_major"});
-		} elsif ($line =~ /^m4_define\( *\[?version_minor\]? *,.*([\r\n]+)$/) {
+		} elsif ($line =~ /^m4_define\( *\[?version_minor\]? *,.*?([\r\n]+)$/) {
 			$line = sprintf("m4_define([version_minor], [%d])$1", $version_pref{"version_minor"});
-		} elsif ($line =~ /^m4_define\( *\[?version_micro\]? *,.*([\r\n]+)$/) {
+		} elsif ($line =~ /^m4_define\( *\[?version_micro\]? *,.*?([\r\n]+)$/) {
 			$line = sprintf("m4_define([version_micro], [%d])$1", $version_pref{"version_micro"});
-		} elsif ($line =~ /^m4_define\( *\[?version_extra\]? *,.*([\r\n]+)$/) {
+		} elsif ($line =~ /^m4_define\( *\[?version_extra\]? *,.*?([\r\n]+)$/) {
 			$line = sprintf("m4_define([version_extra], [%s])$1", $package_string);
 		}
 		$contents .= $line
@@ -484,7 +484,7 @@ sub update_attributes_asciidoc
 	while ($line = <ADOC_CONF>) {
 		# :wireshark-version: 2.3.1
 
-		if ($line =~ /^:wireshark-version:.*([\r\n]+)$/) {
+		if ($line =~ /^:wireshark-version:.*?([\r\n]+)$/) {
 			$line = sprintf(":wireshark-version: %d.%d.%d$1",
 					$version_pref{"version_major"},
 					$version_pref{"version_minor"},
@@ -511,7 +511,8 @@ sub update_debian_changelog
 	open(CHANGELOG, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CHANGELOG>) {
 		if ($set_version && CHANGELOG->input_line_number() == 1) {
-			$line = sprintf("wireshark (%d.%d.%d) unstable; urgency=low\n",
+			$line =~ /^.*?([\r\n]+)$/;
+			$line = sprintf("wireshark (%d.%d.%d) unstable; urgency=low$1",
 					$version_pref{"version_major"},
 					$version_pref{"version_minor"},
 					$version_pref{"version_micro"},
@@ -550,7 +551,7 @@ sub update_automake_lib_releases
 			# libwireshark_la_LDFLAGS = -version-info 2:1:1 -export-symbols
 
 			if ($line =~ /^(lib\w+_la_LDFLAGS.*version-info\s+\d+:)\d+(:\d+.*[\r\n]+)$/) {
-				$line = sprintf("$1%d$2\n", $version_pref{"version_micro"});
+				$line = sprintf("$1%d$2", $version_pref{"version_micro"});
 			}
 			$contents .= $line
 		}
@@ -579,7 +580,7 @@ sub update_cmake_lib_releases
 			# set(FULL_SO_VERSION "0.0.0")
 
 			if ($line =~ /^(set\s*\(\s*FULL_SO_VERSION\s+"\d+\.\d+\.)\d+(".*[\r\n]+)$/) {
-				$line = sprintf("$1%d$2\n", $version_pref{"version_micro"});
+				$line = sprintf("$1%d$2", $version_pref{"version_micro"});
 			}
 			$contents .= $line
 		}
