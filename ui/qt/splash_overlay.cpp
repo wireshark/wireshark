@@ -58,9 +58,10 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
 {
     so_ui_->setupUi(this);
 
-    // Number of register action transitions (e.g. RA_NONE -> RA_DISSECTORS,
-    // RA_DISSECTORS -> RA_PLUGIN_REGISTER) minus two.
-    int register_add = 5;
+    // 6 for:
+    // dissectors, listeners, registering plugins, handingoff plugins,
+    // preferences, and interfaces
+    int register_add = 6;
 #ifdef HAVE_LUA
     register_add += wslua_count_plugins();   /* get count of lua plugins */
 #endif

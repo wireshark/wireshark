@@ -556,6 +556,8 @@ int main(int argc, char *qt_argv[])
     /* Register all audio codec plugins. */
     register_all_codecs();
 
+    splash_update(RA_DISSECTORS, NULL, NULL);
+
     /* Register all dissectors; we must do this before checking for the
        "-G" flag, as the "-G" flag dumps information registered by the
        dissectors, and we must do it before we read the preferences, in
