@@ -7972,8 +7972,8 @@ void proto_register_infiniband(void)
 
     prefs_register_obsolete_preference(infiniband_module, "identify_payload");
     prefs_register_obsolete_preference(infiniband_module, "dissect_eoib");
-    prefs_register_uint_preference(infiniband_module, "rroce.port", "RRoce UDP Port(Default 1021)", "when set "
-                                   "the Analyser will consider this as RRoce UDP Port and parse it accordingly",
+    prefs_register_uint_preference(infiniband_module, "rroce.port", "RRoce UDP Port",
+                                   "The UDP port for RROCE messages (default " G_STRINGIFY(DEFAULT_RROCE_UDP_PORT) ")",
                                     10, &pref_rroce_udp_port);
     prefs_register_bool_preference(infiniband_module, "try_heuristic_first",
         "Try heuristic sub-dissectors first",
