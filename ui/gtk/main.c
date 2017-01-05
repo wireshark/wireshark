@@ -2350,7 +2350,6 @@ main(int argc, char *argv[])
      * https://code.wireshark.org/review/gitweb?p=wireshark.git;a=commit;h=9e277ae6154fd04bf6a0a34ec5655a73e5a736a3
      */
 
-    splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
     cap_file_init(&cfile);
 
     /* Fill in capture options with values from the preferences */

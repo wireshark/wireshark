@@ -242,9 +242,6 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
       case RA_INTERFACES:
         action_msg = "Finding local interfaces ...";
         break;
-      case RA_CONFIGURATION:
-        action_msg = "Loading configuration files ...";
-        break;
       default:
         action_msg = "(Unknown action)";
         break;
@@ -254,10 +251,10 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
     }
 
     if(ul_count == 0) { /* get the count of dissectors */
-      ul_count = register_count() + 7; /* additional 7 for:
+      ul_count = register_count() + 6; /* additional 7 for:
                                           dissectors, listeners,
                                           registering plugins, handingoff plugins,
-                                          preferences, interfaces and configuration */
+                                          preferences, and interfaces */
 #ifdef HAVE_LUA
       ul_count += wslua_count_plugins (); /* get count of lua plugins */
 #endif

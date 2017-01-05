@@ -173,9 +173,6 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
     case RA_INTERFACES:
         action_msg = tr("Finding local interfaces");
         break;
-    case RA_CONFIGURATION:
-        action_msg = tr("Loading configuration files");
-        break;
     default:
         action_msg = tr("(Unknown action)");
         break;
