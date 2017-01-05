@@ -1500,8 +1500,27 @@ de_emm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     sub_tree = proto_item_add_subtree(item, ett_nas_eps_nas_msg_cont);
 
     new_tvb = tvb_new_subset_length(tvb, curr_offset, len);
-    if (gsm_a_dtap_handle)
-        call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, sub_tree);
+
+    if (gsm_a_dtap_handle) {
+        if (tvb_get_bits8(tvb, 0, 4) == 5) {
+            /* Integrity protected and partially ciphered NAS message */
+            /* If pd is in plaintext this message probably isn't ciphered */
+            if (tvb_get_bits8(new_tvb, 4, 4) != 9) {
+                proto_tree_add_item(sub_tree, hf_nas_eps_ciphered_msg, new_tvb, 0, len, ENC_NA);
+            } else {
+                TRY {
+                    /* Potential plain NAS message: let's try to decode it and catch exceptions */
+                    call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, sub_tree);
+                } CATCH_BOUNDS_ERRORS {
+                    /* Dissection exception: message was probably ciphered and heuristic was too weak */
+                    show_exception(new_tvb, pinfo, sub_tree, EXCEPT_CODE, GET_MESSAGE);
+                } ENDTRY
+            }
+        } else {
+            /* Plain NAS message */
+            call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, sub_tree);
+        }
+    }
 
     return(len);
 }
