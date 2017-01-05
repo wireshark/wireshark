@@ -4553,8 +4553,10 @@ static int hf_ieee80211_ff_bf_is_init = -1;
 static int hf_ieee80211_ff_bf_is_resp = -1;
 static int hf_ieee80211_ff_bf_num_sectors = -1;
 static int hf_ieee80211_ff_bf_num_rx_dmg_ants = -1;
+static int hf_ieee80211_ff_bf_b12b15 = -1;
 static int hf_ieee80211_ff_bf_rxss_len = -1;
 static int hf_ieee80211_ff_bf_rxss_rate = -1;
+static int hf_ieee80211_ff_bf_b10b15 = -1;
 static int hf_ieee80211_addr_nav_da = -1;
 static int hf_ieee80211_addr_nav_sa = -1;
 static int hf_ieee80211_ff_sswf = -1;
@@ -8555,9 +8557,11 @@ add_ff_beamforming_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
   if((isInit==TRUE) && (isResp==TRUE) && isGrant) {
     proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_num_sectors, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_num_rx_dmg_ants, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_b12b15, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   } else {
     proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_rxss_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_rxss_rate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_b10b15, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   }
   return 2;
 }
@@ -19796,6 +19800,11 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 16, NULL, 0x0200,
       NULL, HFILL }},
 
+    {&hf_ieee80211_ff_bf_b10b15,
+     {"Reserved (B10-B15)", "wlan.bf.reserved",
+      FT_UINT16, BASE_DEC, NULL, 0xFC00,
+      NULL, HFILL }},
+
     {&hf_ieee80211_ff_bf_num_sectors,
      {"Beam Forming Total Number of Sectors", "wlan.bf.num_sectors",
       FT_UINT16, BASE_DEC, NULL, 0x03f8,
@@ -19804,6 +19813,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ff_bf_num_rx_dmg_ants,
      {"Beam Forming Number of DMG Antennas", "wlan.bf.num_dmg_ants",
       FT_UINT16, BASE_DEC, NULL, 0x0c00,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_bf_b12b15,
+     {"Reserved (B12-B15)", "wlan.bf.reserved",
+      FT_UINT16, BASE_DEC, NULL, 0xF000,
       NULL, HFILL }},
 
     {&hf_ieee80211_addr_nav_da,
