@@ -8549,9 +8549,9 @@ add_ff_beamforming_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
   guint16 bf_field = tvb_get_letohs(tvb, offset);
   gboolean isInit = (bf_field & 0x2) >> 1;
   gboolean isResp = (bf_field & 0x4) >> 2;
-  proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_train, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_is_init, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_is_resp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_train, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_is_init, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_is_resp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   if((isInit==TRUE) && (isResp==TRUE) && isGrant) {
     proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_num_sectors, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(bf_tree, hf_ieee80211_ff_bf_num_rx_dmg_ants, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -19773,37 +19773,37 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_bf_train,
      {"Beam Forming Training", "wlan.bf.train",
-      FT_BOOLEAN, 8, NULL, 0x01,
+      FT_BOOLEAN, 16, NULL, 0x0001,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bf_is_init,
      {"Beam Forming Is InitiatorTXSS", "wlan.bf.isInit",
-      FT_BOOLEAN, 8, NULL, 0x02,
+      FT_BOOLEAN, 16, NULL, 0x0002,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bf_is_resp,
      {"Beam Forming Is ResponderTXSS", "wlan.bf.isResp",
-      FT_BOOLEAN, 8, NULL, 0x4,
+      FT_BOOLEAN, 16, NULL, 0x0004,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bf_rxss_len,
      {"Beam Forming RXSS Length", "wlan.bf.rxss_len",
-      FT_UINT16, BASE_DEC, NULL, 0x1f8,
+      FT_UINT16, BASE_DEC, NULL, 0x01f8,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bf_rxss_rate,
      {"Beam Forming RXSS Rate", "wlan.bf.rxss_rate",
-      FT_BOOLEAN, 16, NULL, 0x200,
+      FT_BOOLEAN, 16, NULL, 0x0200,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bf_num_sectors,
      {"Beam Forming Total Number of Sectors", "wlan.bf.num_sectors",
-      FT_UINT16, BASE_DEC, NULL, 0x3f8,
+      FT_UINT16, BASE_DEC, NULL, 0x03f8,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bf_num_rx_dmg_ants,
      {"Beam Forming Number of DMG Antennas", "wlan.bf.num_dmg_ants",
-      FT_UINT16, BASE_DEC, NULL, 0xc00,
+      FT_UINT16, BASE_DEC, NULL, 0x0c00,
       NULL, HFILL }},
 
     {&hf_ieee80211_addr_nav_da,
