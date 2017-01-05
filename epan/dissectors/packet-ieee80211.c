@@ -19702,7 +19702,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_dynamic_allocation,
-     {"Response Offset", "wlan.dynamic_allocation",
+     {"Dynamic Allocation", "wlan.dynamic_allocation",
       FT_UINT40, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
