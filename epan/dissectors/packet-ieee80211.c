@@ -4599,6 +4599,7 @@ static int hf_ieee80211_ff_bic_NBI_abft = -1;
 static int hf_ieee80211_ff_bic_abft_count = -1;
 static int hf_ieee80211_ff_bic_nabft = -1;
 static int hf_ieee80211_ff_bic_pcp = -1;
+static int hf_ieee80211_ff_bic_reserved = -1;
 static int hf_ieee80211_ff_dmg_params = -1;
 static int hf_ieee80211_ff_dmg_params_bss = -1;
 static int hf_ieee80211_ff_dmg_params_cbap_only = -1;
@@ -8525,20 +8526,21 @@ add_ff_beacon_interval_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
   proto_item *bic_item = proto_tree_add_item(tree, hf_ieee80211_ff_bic, tvb, offset, 6, ENC_LITTLE_ENDIAN);
   proto_tree *bic_tree = proto_item_add_subtree(bic_item, ett_bic_tree);
 
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_cc_present, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_discovery_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_next_beacon, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_ati_present, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_abft_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_fss, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_is_resp, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_next_abft, tvb, offset+1, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_frag_txss, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_txss_span, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_NBI_abft, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_abft_count, tvb, offset+3, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_nabft, tvb, offset+4, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_pcp, tvb, offset+5, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_cc_present, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_discovery_mode, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_next_beacon, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_ati_present, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_abft_len, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_fss, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_is_resp, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_next_abft, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_frag_txss, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_txss_span, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_NBI_abft, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_abft_count, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_nabft, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_pcp, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bic_tree, hf_ieee80211_ff_bic_reserved, tvb, offset, 6, ENC_LITTLE_ENDIAN);
   return 6;
 }
 
@@ -19963,72 +19965,78 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_bic_cc_present,
      {"Clustering Control Present", "wlan.bic.cc",
-      FT_BOOLEAN, 8, NULL, 0x01,
+      FT_BOOLEAN, 48, NULL, 0x000000000001,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_discovery_mode,
      {"Discovery Mode", "wlan.bic.discovery_mode",
-      FT_BOOLEAN, 8, NULL, 0x02,
+      FT_BOOLEAN, 48, NULL, 0x000000000002,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_next_beacon,
      {"Next Beacon", "wlan.bic.next_beacon",
-      FT_UINT8, BASE_DEC, NULL, 0x3c,
+      FT_UINT48, BASE_DEC, NULL, 0x00000000003c,
+
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_ati_present,
      {"ATI Present", "wlan.bic.ati",
-      FT_BOOLEAN, 8, NULL, 0x40,
+      FT_BOOLEAN, 48, NULL, 0x000000000040,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_abft_len,
      {"A-BFT length", "wlan.bic.abft_len",
-      FT_UINT16, BASE_DEC, NULL, 0x0380,
+      FT_UINT48, BASE_DEC, NULL, 0x000000000380,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_fss,
      {"FSS", "wlan.bic.fss",
-      FT_UINT8, BASE_DEC, NULL, 0x3c,
+      FT_UINT48, BASE_DEC, NULL, 0x000000003c00,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_is_resp,
      {"Is TXSS Responder", "wlan.bic.is_responder",
-      FT_BOOLEAN, 8, NULL, 0x40,
+      FT_BOOLEAN, 48, NULL, 0x000000004000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_next_abft,
      {"Next A-BFT", "wlan.bic.next_abft",
-      FT_UINT16, BASE_DEC, NULL, 0x0780,
+      FT_UINT48, BASE_DEC, NULL, 0x000000078000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_frag_txss,
      {"Fragmented TXSS", "wlan.bic.frag_txss",
-      FT_BOOLEAN, 8, NULL, 0x08,
+      FT_BOOLEAN, 48, NULL, 0x000000080000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_txss_span,
      {"TXSS span", "wlan.bic.txss_span",
-      FT_UINT16, BASE_DEC, NULL, 0x07f0,
+      FT_UINT48, BASE_DEC, NULL, 0x000007f00000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_NBI_abft,
      {"Number of Beacon Intervals that are needed to allocate A-BFT", "wlan.bic.NBI_abft",
-      FT_UINT8, BASE_DEC, NULL, 0x78,
+      FT_UINT48, BASE_DEC, NULL, 0x00078000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_abft_count,
      {"A-BFT Count", "wlan.bic.abft_count",
-      FT_UINT16, BASE_DEC, NULL, 0x1f80,
+      FT_UINT48, BASE_DEC, NULL, 0x001f80000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_nabft,
      {"Number of A-BFT's received from each Antenna", "wlan.bic.nabft",
-      FT_UINT16, BASE_DEC, NULL, 0x07e0,
+      FT_UINT48, BASE_DEC, NULL, 0x07e000000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bic_pcp,
      {"PCP Association Ready", "wlan.bic.pcp",
-      FT_BOOLEAN, 8, NULL, 0x08,
+      FT_BOOLEAN, 48, NULL, 0x080000000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_bic_reserved,
+     {"Reserved", "wlan.bic.reserved",
+      FT_UINT48, BASE_HEX, NULL, 0xF00000000000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_dmg_params,
