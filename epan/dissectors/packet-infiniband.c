@@ -8047,11 +8047,15 @@ void proto_reg_handoff_infiniband(void)
     {
         dissector_delete_uint("udp.port", prev_rroce_udp_port, rroce_handle);
     }
-    /*we are saving the previous value of rroce udp port so we will be able to remove the dissector
+    /* We are saving the previous value of rroce udp port so we will be able to remove the dissector
      * the next time user pref is updated and we get called back to proto_reg_handoff_infiniband.
-       "Auto" preference not used because port isn't for infiniband protocol itself */
+     * "Auto" preference not used because port isn't for the Infiniband protocol itself.
+     */
     prev_rroce_udp_port = pref_rroce_udp_port;
     dissector_add_uint("udp.port", pref_rroce_udp_port, rroce_handle);
+
+    /* RROCE over IPv4 isn't standardized but it's been seen in the wild */
+    dissector_add_for_decode_as("ip.proto", rroce_handle);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_INFINIBAND, ib_handle);
     heur_dissector_add("infiniband.payload", dissect_mellanox_eoib, "Mellanox EoIB", "mellanox_eoib", proto_mellanox_eoib, HEURISTIC_ENABLE);
