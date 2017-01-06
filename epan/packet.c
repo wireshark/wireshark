@@ -148,7 +148,9 @@ static GHashTable* heuristic_short_names  = NULL;
 static void
 destroy_heuristic_dissector_entry(gpointer data, gpointer user_data _U_)
 {
-	g_free(((heur_dtbl_entry_t*)data)->list_name);
+	heur_dtbl_entry_t *hdtbl_entry = (heur_dtbl_entry_t *)data;
+	g_free(hdtbl_entry->list_name);
+	g_free(hdtbl_entry->short_name);
 	g_slice_free(heur_dtbl_entry_t, data);
 }
 
