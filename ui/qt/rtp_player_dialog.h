@@ -99,7 +99,10 @@ private slots:
     void resetXAxis();
 
     void setPlayPosition(double secs);
-    void setPlaybackError(const QString playback_error) { playback_error_ = playback_error; }
+    void setPlaybackError(const QString playback_error) {
+        playback_error_ = playback_error;
+        updateHintLabel();
+    }
     void on_playButton_clicked();
     void on_stopButton_clicked();
     void on_actionReset_triggered();

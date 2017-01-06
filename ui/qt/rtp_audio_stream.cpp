@@ -549,6 +549,11 @@ void RtpAudioStream::startPlaying()
 {
     if (audio_output_) return;
 
+    if (audio_out_rate_ == 0) {
+        emit playbackError(tr("RTP stream is empty or codec is unsupported."));
+        return;
+    }
+
     QAudioDeviceInfo cur_out_device = QAudioDeviceInfo::defaultOutputDevice();
     QString cur_out_name = parent()->property("currentOutputDeviceName").toString();
     foreach (QAudioDeviceInfo out_device, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
