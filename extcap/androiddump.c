@@ -2584,6 +2584,7 @@ int main(int argc, char **argv) {
     const char      *default_bt_local_ip = "127.0.0.1";
     unsigned short   default_bt_local_tcp_port  = 4330;
     extcap_parameters * extcap_conf = NULL;
+    char            *help_url;
     char            *help_header = NULL;
 
 #ifdef _WIN32
@@ -2594,8 +2595,10 @@ int main(int argc, char **argv) {
 
     extcap_conf = g_new0(extcap_parameters, 1);
 
+    help_url = data_file_url("androiddump.html");
     extcap_base_set_util_info(extcap_conf, argv[0], ANDROIDDUMP_VERSION_MAJOR, ANDROIDDUMP_VERSION_MINOR,
-        ANDROIDDUMP_VERSION_RELEASE, data_file_url("androiddump.html"));
+        ANDROIDDUMP_VERSION_RELEASE, help_url);
+    g_free(help_url);
 
     help_header = g_strdup_printf(
         " %s --extcap-interfaces [--adb-server-ip=<arg>] [--adb-server-tcp-port=<arg>]\n"

@@ -338,6 +338,7 @@ int main(int argc, char **argv)
 	guint32 count = 0;
 	int ret = EXIT_FAILURE;
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
+	char* help_url;
 	char* help_header = NULL;
 
 #ifdef _WIN32
@@ -346,8 +347,10 @@ int main(int argc, char **argv)
 	attach_parent_console();
 #endif  /* _WIN32 */
 
+	help_url = data_file_url("sshdump.html");
 	extcap_base_set_util_info(extcap_conf, argv[0], SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR,
-		SSHDUMP_VERSION_RELEASE, data_file_url("sshdump.html"));
+		SSHDUMP_VERSION_RELEASE, help_url);
+	g_free(help_url);
 	extcap_base_register_interface(extcap_conf, SSH_EXTCAP_INTERFACE, "SSH remote capture", 147, "Remote capture dependent DLT");
 
 	help_header = g_strdup_printf(
