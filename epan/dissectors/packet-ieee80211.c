@@ -4007,6 +4007,8 @@ static int hf_ieee80211_vht_group_id_management = -1;
 static int hf_ieee80211_vht_membership_status_array = -1;
 static int hf_ieee80211_vht_user_position_array = -1;
 static int hf_ieee80211_vht_operation_mode_notification = -1;
+static int hf_ieee80211_vht_membership_status_field = -1;
+static int hf_ieee80211_vht_user_position_field = -1;
 
 static int hf_ieee80211_tag_neighbor_report_bssid = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info = -1;
@@ -4898,6 +4900,8 @@ static gint ett_ff_vhtmimo_beamforming_report_snr = -1;
 static gint ett_ff_vhtmimo_beamforming_report_feedback_matrices = -1;
 
 static gint ett_vht_grpidmgmt = -1;
+static gint ett_vht_msa = -1;
+static gint ett_vht_upa = -1;
 
 static gint ett_ht_info_delimiter1_tree = -1;
 static gint ett_ht_info_delimiter2_tree = -1;
@@ -9074,6 +9078,8 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
   /* Extract values for beamforming use */
   vht_mimo = tvb_get_letoh24(tvb, offset);
   offset += 3;
+
+  /* Extract values for beamforming use */
   nc = (vht_mimo & 0x7) + 1;
   nr = ((vht_mimo & 0x38) >> 3) + 1;
   chan_width = (vht_mimo & 0xC0) >> 6;
@@ -9167,9 +9173,14 @@ static guint
 add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   guint start = offset;
-  guint8 vht_action;
+  guint8 vht_action, field_val;
+  guint64 msa_value;
+  guint64 upa_value, temp_val;
+  int m;
   proto_item *ti;
   proto_tree *ti_tree;
+  proto_item *msa, *upa;
+  proto_tree *msa_tree, *upa_tree;
 
   offset += add_ff_category_code(tree, tvb, pinfo, offset);
 
@@ -9187,12 +9198,39 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
                           offset, -1, ENC_NA);
       ti_tree = proto_item_add_subtree(ti, ett_vht_grpidmgmt);
 
-      proto_tree_add_item(ti_tree, hf_ieee80211_vht_membership_status_array, tvb,
+      msa_value = tvb_get_letoh64(tvb, offset);
+      msa = proto_tree_add_item(ti_tree, hf_ieee80211_vht_membership_status_array, tvb,
                                 offset, 8, ENC_NA);
+      msa_tree = proto_item_add_subtree(msa, ett_vht_msa);
+      for (m = 0; m < 64; m++) {
+          if (msa_value & (G_GINT64_CONSTANT(1) << m))
+              proto_tree_add_uint_format(msa_tree, hf_ieee80211_vht_membership_status_field,
+                                               tvb, offset + (m/8), 1, 1, "Membership Status in Group ID %d: 1", m);
+      }
       offset += 8;
-      proto_tree_add_item(ti_tree, hf_ieee80211_vht_user_position_array, tvb,
-                                offset, 16, ENC_NA);
-      /*expert_add_info(pinfo, ti, &ei_ieee80211_vht_action); */
+
+      upa = proto_tree_add_item(ti_tree, hf_ieee80211_vht_user_position_array, tvb,
+                                      offset, 16, ENC_NA);
+      upa_tree = proto_item_add_subtree(upa, ett_vht_upa);
+
+      upa_value = tvb_get_letoh64(tvb, offset);
+      for (m = 0; m < 32; m++) {
+          if (msa_value & (G_GINT64_CONSTANT(1) << m)) {
+              temp_val = ((guint64) pow(4,m))*3;
+              field_val = (guint8) ((upa_value & temp_val) >> m*2);
+              proto_tree_add_uint_format(upa_tree, hf_ieee80211_vht_user_position_field,
+                                               tvb, offset + (m/4), 1, field_val, "User Position in Group ID %d: %u", m, field_val);
+              }
+      }
+      upa_value = tvb_get_letoh64(tvb, offset+8);
+      for (m = 0; m < 32; m++) {
+          if (msa_value & (G_GINT64_CONSTANT(1) << (32+m))) {
+              temp_val = ((guint64) pow(4,m))*3;
+              field_val = (guint8) ((upa_value & temp_val) >> m*2);
+              proto_tree_add_uint_format(upa_tree, hf_ieee80211_vht_user_position_field,
+                                               tvb, (offset + 8) + (m/4), 1, field_val, "User Position in Group ID %d: %u", m, field_val);
+              }
+      }
       offset += tvb_reported_length_remaining(tvb, offset);
     }
     break;
@@ -17183,7 +17221,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
               sta_info = tvb_get_letohs(tvb, offset);
 
-              if (sta_info & 0x0010)
+              if (sta_info & 0x1000)
                 proto_tree_add_uint(sta_info_tree,
                                     hf_ieee80211_vht_ndp_annc_sta_info_nc_index,
                                     tvb, offset, 2, sta_info);
@@ -20964,10 +21002,20 @@ proto_register_ieee80211(void)
        FT_BYTES, BASE_NONE, NULL, 0,
        NULL, HFILL }},
 
-    {&hf_ieee80211_vht_user_position_array,
-      {"User Position Array", "wlan.vht.user_position_array",
-       FT_BYTES, BASE_NONE, NULL, 0,
-       NULL, HFILL }},
+      {&hf_ieee80211_vht_user_position_array,
+        {"User Position Array", "wlan.vht.user_position_array",
+         FT_BYTES, BASE_NONE, NULL, 0,
+         NULL, HFILL }},
+
+      {&hf_ieee80211_vht_membership_status_field,
+        {"Membership Status Field", "wlan.vht.membership_status_array.field",
+         FT_UINT8, BASE_DEC, NULL, 0,
+         NULL, HFILL }},
+
+      {&hf_ieee80211_vht_user_position_field,
+        {"User Position Field", "wlan.vht.user_position_array.field",
+         FT_UINT8, BASE_DEC, NULL, 0,
+         NULL, HFILL }},
 
     {&hf_ieee80211_vht_operation_mode_notification,
       {"Operation Mode Notification", "wlan.vht.operation_mode_notification",
@@ -27236,6 +27284,8 @@ proto_register_ieee80211(void)
     &ett_ff_vhtmimo_beamforming_report_feedback_matrices,
 
     &ett_vht_grpidmgmt,
+    &ett_vht_msa,
+    &ett_vht_upa,
 
     &ett_ht_info_delimiter1_tree,
     &ett_ht_info_delimiter2_tree,
