@@ -19,6 +19,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+ADD_CUSTOM_CMAKE_INCLUDE()
+
 # All .h files which inherit from QObject aka which use the Q_OBJECT macro
 # need to go here.
 set(WIRESHARK_QT_HEADERS
@@ -164,6 +166,7 @@ set(WIRESHARK_QT_HEADERS
 	wireshark_application.h
 	wireshark_dialog.h
 	wlan_statistics_dialog.h
+	${WIRESHARK_CUSTOM_QT_HEADERS}
 )
 
 if(HAVE_PCAP_REMOTE)
@@ -329,6 +332,7 @@ set(WIRESHARK_QT_SRC
 	wireless_frame.cpp
 	wireshark_application.cpp
 	wireshark_dialog.cpp
+	${WIRESHARK_CUSTOM_QT_SRCS}
 )
 
 if(HAVE_PCAP_REMOTE)
@@ -363,6 +367,7 @@ set(WIRESHARK_QT_TAP_SRC
 	sctp_assoc_analyse_dialog.cpp
 	stats_tree_dialog.cpp
 	wlan_statistics_dialog.cpp
+	${WIRESHARK_CUSTOM_TAP_SRC}
 )
 
 set(WIRESHARK_QT_FILES
