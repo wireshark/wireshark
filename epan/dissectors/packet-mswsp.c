@@ -294,6 +294,8 @@ struct CTableColumn {
 	guint16 lengthoffset;
 	char name[PROP_LENGTH];
 };
+/* minimum size in bytes on the wire CTableColumn can be */
+#define MIN_CTABLECOL_SIZE 8
 
 /* 2.2.3.10 */
 
@@ -5922,7 +5924,7 @@ static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmsetbinding_acolumns, tvb, offset, size-4, ENC_NA);
 
 		/* Sanity check size value */
-		column_size = num*sizeof(struct CTableColumn);
+		column_size = num*MIN_CTABLECOL_SIZE;
 		if (column_size > tvb_reported_length_remaining(tvb, offset))
 		{
 			expert_add_info(pinfo, ti, &ei_mswsp_msg_cpmsetbinding_ccolumns);
