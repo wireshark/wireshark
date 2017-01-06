@@ -54,6 +54,30 @@ static int hf_nvme_cmd_mptr = -1;
 static int hf_nvme_cmd_sgl = -1;
 static int hf_nvme_cmd_sgl_desc_type = -1;
 static int hf_nvme_cmd_sgl_desc_sub_type = -1;
+static int hf_nvme_cmd_sgl_desc_addr = -1;
+static int hf_nvme_cmd_sgl_desc_addr_rsvd = -1;
+static int hf_nvme_cmd_sgl_desc_len = -1;
+static int hf_nvme_cmd_sgl_desc_rsvd = -1;
+static int hf_nvme_cmd_sgl_desc_key = -1;
+static int hf_nvme_cmd_slba = -1;
+static int hf_nvme_cmd_nlb = -1;
+static int hf_nvme_cmd_rsvd2 = -1;
+static int hf_nvme_cmd_prinfo = -1;
+static int hf_nvme_cmd_prinfo_prchk_lbrtag = -1;
+static int hf_nvme_cmd_prinfo_prchk_apptag = -1;
+static int hf_nvme_cmd_prinfo_prchk_guard = -1;
+static int hf_nvme_cmd_prinfo_pract = -1;
+static int hf_nvme_cmd_fua = -1;
+static int hf_nvme_cmd_lr = -1;
+static int hf_nvme_cmd_eilbrt = -1;
+static int hf_nvme_cmd_elbat = -1;
+static int hf_nvme_cmd_elbatm = -1;
+static int hf_nvme_cmd_dsm = -1;
+static int hf_nvme_cmd_dsm_access_freq = -1;
+static int hf_nvme_cmd_dsm_access_lat = -1;
+static int hf_nvme_cmd_dsm_seq_req = -1;
+static int hf_nvme_cmd_dsm_incompressible = -1;
+static int hf_nvme_cmd_rsvd3 = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -191,6 +215,28 @@ static const value_string sgl_sub_type_tbl[] = {
     { NVME_CMD_SGL_SUB_DESC_ADDR,      "Address"},
     { NVME_CMD_SGL_SUB_DESC_OFFSET,    "Offset"},
     { NVME_CMD_SGL_SUB_DESC_TRANSPORT, "Transport specific"},
+    { 0, NULL}
+};
+
+
+static const value_string dsm_acc_freq_tbl[] = {
+    { 0, "No frequency"},
+    { 1, "Typical"},
+    { 2, "Infrequent Read/Write"},
+    { 3, "Infrequent Writes, Frequent Reads"},
+    { 4, "Frequent Writes, Infrequent Reads"},
+    { 5, "Frequent Read/Write"},
+    { 6, "One time read"},
+    { 7, "Speculative read"},
+    { 8, "Likely tobe overwritten"},
+    { 0, NULL}
+};
+
+static const value_string dsm_acc_lat_tbl[] = {
+    { 0, "None"},
+    { 1, "Idle (Longer)"},
+    { 2, "Normal (Typical)"},
+    { 3, "Low (Smallest)"},
     { 0, NULL}
 };
 
@@ -357,6 +403,115 @@ void dissect_nvme_cmd_sgl(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
                                         offset + 15, 1, ENC_LITTLE_ENDIAN);
     proto_item_append_text(sub_type_item, " %s",
                            val_to_str(desc_sub_type, sgl_sub_type_tbl, "Reserved"));
+
+    switch (desc_type) {
+    case NVME_CMD_SGL_DATA_DESC:
+    case NVME_CMD_SGL_LAST_SEGMENT_DESC:
+    case NVME_CMD_SGL_SEGMENT_DESC:
+        proto_tree_add_item(sgl_tree, hf_nvme_cmd_sgl_desc_addr, cmd_tvb,
+                            offset, 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sgl_tree, hf_nvme_cmd_sgl_desc_len, cmd_tvb,
+                            offset + 8, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sgl_tree, hf_nvme_cmd_sgl_desc_rsvd, cmd_tvb,
+                            offset + 12, 3, ENC_NA);
+        break;
+    case NVME_CMD_SGL_BIT_BUCKET_DESC:
+        proto_tree_add_item(sgl_tree, hf_nvme_cmd_sgl_desc_addr_rsvd, cmd_tvb,
+                            offset, 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sgl_tree, hf_nvme_cmd_sgl_desc_len, cmd_tvb,
+                            offset + 8, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sgl_tree, hf_nvme_cmd_sgl_desc_rsvd, cmd_tvb,
+                            offset + 12, 3, ENC_NA);
+        break;
+    case NVME_CMD_SGL_KEYED_DATA_DESC:
+        proto_tree_add_item(sgl_tree, hf_nvme_cmd_sgl_desc_addr, cmd_tvb,
+                            offset, 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sgl_tree, hf_nvme_cmd_sgl_desc_len, cmd_tvb,
+                            offset + 8, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sgl_tree, hf_nvme_cmd_sgl_desc_key, cmd_tvb,
+                            offset + 11, 4, ENC_LITTLE_ENDIAN);
+        break;
+    case NVME_CMD_SGL_VENDOR_DESC:
+    default:
+        break;
+    }
+}
+
+static void
+dissect_nvme_rwc_common_word_10_11_12_14_15(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
+{
+    proto_item *ti, *prinfo_tree;
+    guint16 num_lba;
+
+    /* word 10, 11 */
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_slba, cmd_tvb,
+                        40, 8, ENC_LITTLE_ENDIAN);
+    /* add 1 for readability, as its zero based value */
+    num_lba = tvb_get_guint16(cmd_tvb, 48, ENC_LITTLE_ENDIAN) + 1;
+
+    /* word 12 */
+    proto_tree_add_uint(cmd_tree, hf_nvme_cmd_nlb,
+                        cmd_tvb, 48, 2, num_lba);
+
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_rsvd2, cmd_tvb,
+                        50, 2, ENC_LITTLE_ENDIAN);
+
+    ti = proto_tree_add_item(cmd_tree, hf_nvme_cmd_prinfo, cmd_tvb, 50,
+                             1, ENC_NA);
+    prinfo_tree = proto_item_add_subtree(ti, ett_data);
+
+    proto_tree_add_item(prinfo_tree, hf_nvme_cmd_prinfo_prchk_lbrtag, cmd_tvb,
+                        50, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(prinfo_tree, hf_nvme_cmd_prinfo_prchk_apptag, cmd_tvb,
+                        50, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(prinfo_tree, hf_nvme_cmd_prinfo_prchk_guard, cmd_tvb,
+                        50, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(prinfo_tree, hf_nvme_cmd_prinfo_pract, cmd_tvb,
+                        50, 2, ENC_LITTLE_ENDIAN);
+
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_fua, cmd_tvb,
+                        50, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_lr, cmd_tvb,
+                        50, 2, ENC_LITTLE_ENDIAN);
+
+    /* word 14, 15 */
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_eilbrt, cmd_tvb,
+                        56, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_elbat, cmd_tvb,
+                        60, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_elbatm, cmd_tvb,
+                        62, 2, ENC_LITTLE_ENDIAN);
+}
+
+static void dissect_nvme_rw_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
+{
+    proto_item *ti, *dsm_tree, *item;
+    guint8 val;
+
+    dissect_nvme_rwc_common_word_10_11_12_14_15(cmd_tvb, cmd_tree);
+
+    ti = proto_tree_add_item(cmd_tree, hf_nvme_cmd_dsm, cmd_tvb, 52,
+                             1, ENC_NA);
+    dsm_tree = proto_item_add_subtree(ti, ett_data);
+
+    val = tvb_get_guint8(cmd_tvb, 52) & 0x0f;
+    item = proto_tree_add_item(dsm_tree, hf_nvme_cmd_dsm_access_freq, cmd_tvb,
+                               52, 1, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(item, " %s",
+                           val_to_str(val, dsm_acc_freq_tbl, "Reserved"));
+
+    val = (tvb_get_guint8(cmd_tvb, 52) & 0x30) >> 4;
+    item = proto_tree_add_item(dsm_tree, hf_nvme_cmd_dsm_access_lat, cmd_tvb,
+                               52, 1, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(item, " %s",
+                           val_to_str(val, dsm_acc_lat_tbl, "Reserved"));
+
+    proto_tree_add_item(dsm_tree, hf_nvme_cmd_dsm_seq_req, cmd_tvb,
+                        52, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(dsm_tree, hf_nvme_cmd_dsm_incompressible, cmd_tvb,
+                        52, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_rsvd3, cmd_tvb,
+                        53, 3, ENC_NA);
 }
 
 void
@@ -398,11 +553,20 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_nsid, cmd_tvb,
                         4, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_rsvd1, cmd_tvb,
-                        8, 8, ENC_LITTLE_ENDIAN);
+                        8, 8, ENC_NA);
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_mptr, cmd_tvb,
                         16, 8, ENC_LITTLE_ENDIAN);
 
     dissect_nvme_cmd_sgl(cmd_tvb, cmd_tree, hf_nvme_cmd_sgl);
+
+    switch (opcode) {
+    case NVME_IOQ_OPC_READ:
+    case NVME_IOQ_OPC_WRITE:
+        dissect_nvme_rw_cmd(cmd_tvb, cmd_tree);
+        break;
+    default:
+        break;
+    }
 }
 
 void
@@ -466,7 +630,7 @@ proto_register_nvme(void)
         },
         { &hf_nvme_cmd_rsvd1,
             { "Reserved", "nvme.cmd.rsvd1",
-               FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL}
+               FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
         },
         { &hf_nvme_cmd_mptr,
             { "Metadata Pointer", "nvme.cmd.mptr",
@@ -480,10 +644,110 @@ proto_register_nvme(void)
             { "Descriptor Sub Type", "nvme.cmd.sgl.subtype",
                FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL}
         },
-
         { &hf_nvme_cmd_sgl_desc_type,
             { "Descriptor Type", "nvme.cmd.sgl.type",
                FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_sgl_desc_addr,
+            { "Address", "nvme.cmd.sgl1.addr",
+               FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_sgl_desc_addr_rsvd,
+            { "Reserved", "nvme.cmd.sgl1.addr_rsvd",
+               FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_sgl_desc_len,
+            { "Length", "nvme.cmd.sgl1.len",
+               FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_sgl_desc_key,
+            { "Key", "nvme.cmd.sgl1.key",
+               FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_sgl_desc_rsvd,
+            { "Reserved", "nvme.cmd.sgl1.rsvd",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_slba,
+            { "Start LBA", "nvme.cmd.slba",
+               FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_nlb,
+            { "Absolute Number of Logical Blocks", "nvme.cmd.nlb",
+               FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_rsvd2,
+            { "Reserved", "nvme.cmd.rsvd2",
+               FT_UINT16, BASE_HEX, NULL, 0x03ff, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_prinfo,
+            { "Protection info fields",
+              "nvme.cmd.prinfo",
+               FT_UINT16, BASE_HEX, NULL, 0x0400, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_prinfo_prchk_lbrtag,
+            { "check Logical block reference tag",
+              "nvme.cmd.prinfo.lbrtag",
+               FT_UINT16, BASE_HEX, NULL, 0x0400, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_prinfo_prchk_apptag,
+            { "check application tag field",
+              "nvme.cmd.prinfo.apptag",
+               FT_UINT16, BASE_HEX, NULL, 0x0800, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_prinfo_prchk_guard,
+            { "check guard field",
+              "nvme.cmd.prinfo.guard",
+               FT_UINT16, BASE_HEX, NULL, 0x1000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_prinfo_pract,
+            { "action",
+              "nvme.cmd.prinfo.action",
+               FT_UINT16, BASE_HEX, NULL, 0x2000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_fua,
+            { "Force Unit Access", "nvme.cmd.fua",
+               FT_UINT16, BASE_HEX, NULL, 0x4000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_lr,
+            { "Limited Retry", "nvme.cmd.lr",
+               FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_eilbrt,
+            { "Expected Initial Logical Block Reference Tag", "nvme.cmd.eilbrt",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_elbat,
+            { "Expected Logical Block Application Tag Mask", "nvme.cmd.elbat",
+               FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_elbatm,
+            { "Expected Logical Block Application Tag", "nvme.cmd.elbatm",
+               FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_dsm,
+            { "DSM Flags", "nvme.cmd.dsm",
+               FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_dsm_access_freq,
+            { "Access frequency", "nvme.cmd.dsm.access_freq",
+               FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_dsm_access_lat,
+            { "Access latency", "nvme.cmd.dsm.access_lat",
+               FT_UINT8, BASE_HEX, NULL, 0x30, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_dsm_seq_req,
+            { "Sequential Request", "nvme.cmd.dsm.seq_req",
+               FT_UINT8, BASE_HEX, NULL, 0x40, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_dsm_incompressible,
+            { "Incompressible", "nvme.cmd.dsm.incompressible",
+               FT_UINT8, BASE_HEX, NULL, 0x40, NULL, HFILL}
+        },
+        { &hf_nvme_cmd_rsvd3 ,
+            { "Reserved", "nvme.cmd.rsvd3",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
 
         /* NVMe Response fields */
@@ -496,7 +760,7 @@ proto_register_nvme(void)
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_cqe_rsvd,
-            { "Reserved", "nvme.cqe.sqhd",
+            { "Reserved", "nvme.cqe.rsvd",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_cqe_cid,
