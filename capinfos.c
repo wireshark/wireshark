@@ -1720,7 +1720,7 @@ main(int argc, char *argv[])
         fprintf(stderr, "(%s)\n", err_info);
         g_free(err_info);
       }
-      overall_error_status = 1; /* remember that an error has occurred */
+      overall_error_status = 2; /* remember that an error has occurred */
       if (!continue_after_wtap_open_offline_failure)
         goto exit;
     }

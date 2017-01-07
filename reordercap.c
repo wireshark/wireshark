@@ -295,7 +295,7 @@ main(int argc, char *argv[])
             fprintf(stderr, "(%s)\n", err_info);
             g_free(err_info);
         }
-        exit(1);
+        exit(2);
     }
     DEBUG_PRINT("file_type_subtype is %d\n", wtap_file_type_subtype(wth));
 
