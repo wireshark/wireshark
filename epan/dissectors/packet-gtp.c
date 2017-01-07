@@ -10138,8 +10138,8 @@ proto_register_gtp(void)
     gtp_handle = register_dissector("gtp", dissect_gtp, proto_gtp);
     gtp_prime_handle = register_dissector("gtpprime", dissect_gtpprime, proto_gtpprime);
 
-    gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP PRIVATE EXT", proto_gtp, FT_UINT16, BASE_DEC);
-    gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP DATA RECORD TYPE", proto_gtp, FT_UINT16, BASE_DEC);
+    gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP Private Extension", proto_gtp, FT_UINT16, BASE_DEC);
+    gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP Data Record Type", proto_gtp, FT_UINT16, BASE_DEC);
 
     register_init_routine(gtp_init);
     register_cleanup_routine(gtp_cleanup);

@@ -526,8 +526,8 @@ void proto_register_h245(void) {
 
   nsp_object_dissector_table = register_dissector_table("h245.nsp.object", "H.245 NonStandardParameter (object)", proto_h245, FT_STRING, BASE_NONE);
   nsp_h221_dissector_table = register_dissector_table("h245.nsp.h221", "H.245 NonStandardParameter (h221)", proto_h245, FT_UINT32, BASE_HEX);
-  gef_name_dissector_table = register_dissector_table("h245.gef.name", "H.245 Generic Extensible Framework (names)", proto_h245, FT_STRING, BASE_NONE);
-  gef_content_dissector_table = register_dissector_table("h245.gef.content", "H.245 Generic Extensible Framework", proto_h245, FT_STRING, BASE_NONE);
+  gef_name_dissector_table = register_dissector_table("h245.gef.name", "H.245 Generic Extensible Framework Name", proto_h245, FT_STRING, BASE_NONE);
+  gef_content_dissector_table = register_dissector_table("h245.gef.content", "H.245 Generic Extensible Framework Content", proto_h245, FT_STRING, BASE_NONE);
 
   h245_tap = register_tap("h245");
   h245dg_tap = register_tap("h245dg");

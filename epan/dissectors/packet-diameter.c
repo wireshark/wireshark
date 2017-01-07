@@ -2329,12 +2329,12 @@ proto_register_diameter(void)
 	proto_register_prefix("diameter", register_diameter_fields);
 
 	/* Register dissector table(s) to do sub dissection of AVPs (OctetStrings) */
-	diameter_dissector_table = register_dissector_table("diameter.base", "DIAMETER_BASE_AVPS", proto_diameter, FT_UINT32, BASE_DEC);
-	diameter_3gpp_avp_dissector_table = register_dissector_table("diameter.3gpp", "DIAMETER_3GPP_AVPS", proto_diameter, FT_UINT32, BASE_DEC);
-	diameter_ericsson_avp_dissector_table = register_dissector_table("diameter.ericsson", "DIAMETER_ERICSSON_AVPS", proto_diameter, FT_UINT32, BASE_DEC);
+	diameter_dissector_table = register_dissector_table("diameter.base", "Diameter Base AVP", proto_diameter, FT_UINT32, BASE_DEC);
+	diameter_3gpp_avp_dissector_table = register_dissector_table("diameter.3gpp", "Diameter 3GPP AVP", proto_diameter, FT_UINT32, BASE_DEC);
+	diameter_ericsson_avp_dissector_table = register_dissector_table("diameter.ericsson", "Diameter Ericsson AVP", proto_diameter, FT_UINT32, BASE_DEC);
 	diameter_verizon_avp_dissector_table = register_dissector_table("diameter.verizon", "DIAMETER_VERIZON_AVPS", proto_diameter, FT_UINT32, BASE_DEC);
 
-	diameter_expr_result_vnd_table = register_dissector_table("diameter.vnd_exp_res", "DIAMETER Experimental-Result-Code", proto_diameter, FT_UINT32, BASE_DEC);
+	diameter_expr_result_vnd_table = register_dissector_table("diameter.vnd_exp_res", "Diameter Experimental-Result-Code", proto_diameter, FT_UINT32, BASE_DEC);
 
 	/* Set default TCP ports */
 	range_convert_str(wmem_epan_scope(), &global_diameter_sctp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_SCTP_PORT);

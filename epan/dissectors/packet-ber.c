@@ -4564,7 +4564,7 @@ proto_register_ber(void)
                                   " and the syntax of any associated values",
                                   users_uat);
 
-    ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", proto_ber, FT_STRING, BASE_NONE);
+    ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID", proto_ber, FT_STRING, BASE_NONE);
     ber_syntax_dissector_table = register_dissector_table("ber.syntax", "BER syntax", proto_ber, FT_STRING, BASE_NONE);
     syntax_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free); /* oid to syntax */
 

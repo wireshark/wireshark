@@ -1909,7 +1909,7 @@ proto_register_dtls(void)
   proto_dtls = proto_register_protocol("Datagram Transport Layer Security",
                                        "DTLS", "dtls");
 
-  dtls_associations = register_dissector_table("dtls.port", "DTLS Dissector", proto_dtls, FT_UINT16, BASE_DEC);
+  dtls_associations = register_dissector_table("dtls.port", "DTLS Port", proto_dtls, FT_UINT16, BASE_DEC);
 
   /* Required function calls to register the header fields and
    * subtrees used */

@@ -466,7 +466,7 @@ proto_register_flip(void)
     proto_register_field_array(proto_flip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    subdissector_table = register_dissector_table("flip.payload", "FLIP subdissector", proto_flip, FT_UINT32, BASE_HEX);
+    subdissector_table = register_dissector_table("flip.payload", "FLIP payload", proto_flip, FT_UINT32, BASE_HEX);
 
     flip_module = prefs_register_protocol(proto_flip, NULL);
 

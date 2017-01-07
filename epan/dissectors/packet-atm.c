@@ -1979,8 +1979,8 @@ proto_register_atm(void)
 
   proto_atm_lane = proto_register_protocol("ATM LAN Emulation", "ATM LANE", "lane");
 
-  atm_type_aal2_table = register_dissector_table("atm.aal2.type", "ATM AAL_2 type subdissector", proto_atm, FT_UINT32, BASE_DEC);
-  atm_type_aal5_table = register_dissector_table("atm.aal5.type", "ATM AAL_5 type subdissector", proto_atm, FT_UINT32, BASE_DEC);
+  atm_type_aal2_table = register_dissector_table("atm.aal2.type", "ATM AAL_2 type", proto_atm, FT_UINT32, BASE_DEC);
+  atm_type_aal5_table = register_dissector_table("atm.aal5.type", "ATM AAL_5 type", proto_atm, FT_UINT32, BASE_DEC);
 
   register_capture_dissector_table("atm.aal5.type", "ATM AAL_5");
   register_capture_dissector_table("atm_lane", "ATM LAN Emulation");

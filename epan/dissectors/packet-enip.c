@@ -4378,7 +4378,7 @@ proto_register_enip(void)
    subdissector_srrd_table = register_dissector_table("enip.srrd.iface",
                                                       "ENIP SendRequestReplyData.Interface Handle", proto_enip, FT_UINT32, BASE_HEX);
 
-   subdissector_io_table = register_dissector_table("enip.io", "ENIP IO dissector", proto_enip, FT_UINT32, BASE_DEC);
+   subdissector_io_table = register_dissector_table("enip.io", "ENIP IO Payload", proto_enip, FT_UINT32, BASE_DEC);
 
    enip_request_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), enip_request_hash, enip_request_equal);
    enip_conn_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), enip_conn_hash, enip_conn_equal);

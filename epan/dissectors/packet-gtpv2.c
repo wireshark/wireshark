@@ -9363,7 +9363,7 @@ void proto_register_gtpv2(void)
 
     register_dissector("gtpv2", dissect_gtpv2, proto_gtpv2);
     /* Dissector table for private extensions */
-    gtpv2_priv_ext_dissector_table = register_dissector_table("gtpv2.priv_ext", "GTPv2 PRIVATE EXT", proto_gtpv2, FT_UINT16, BASE_DEC);
+    gtpv2_priv_ext_dissector_table = register_dissector_table("gtpv2.priv_ext", "GTPv2 Private Extension", proto_gtpv2, FT_UINT16, BASE_DEC);
 }
 
 void

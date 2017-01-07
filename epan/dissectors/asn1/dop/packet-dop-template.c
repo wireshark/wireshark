@@ -261,7 +261,7 @@ void proto_register_dop(void) {
 
   dop_handle = register_dissector("dop", dissect_dop, proto_dop);
 
-  dop_dissector_table = register_dissector_table("dop.oid", "DOP OID Dissectors", proto_dop, FT_STRING, BASE_NONE);
+  dop_dissector_table = register_dissector_table("dop.oid", "DOP OID", proto_dop, FT_STRING, BASE_NONE);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_dop, hf, array_length(hf));

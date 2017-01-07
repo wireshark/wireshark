@@ -4201,7 +4201,7 @@ proto_register_ssl(void)
     proto_ssl = proto_register_protocol("Secure Sockets Layer",
                                         "SSL", "ssl");
 
-    ssl_associations = register_dissector_table("ssl.port", "SSL TCP Dissector", proto_ssl, FT_UINT16, BASE_DEC);
+    ssl_associations = register_dissector_table("ssl.port", "SSL Port", proto_ssl, FT_UINT16, BASE_DEC);
 
     /* Required function calls to register the header fields and
      * subtrees used */
