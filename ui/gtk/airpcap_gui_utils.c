@@ -304,9 +304,9 @@ get_wep_key(pref_t *pref, gpointer ud)
     /* Retrieve user data info */
     user_data = (keys_cb_data_t*)ud;
 
-    if (g_ascii_strcasecmp(pref->name, "wep_key_table") == 0 && pref->type == PREF_UAT)
+    if (g_ascii_strcasecmp(prefs_get_name(pref), "wep_key_table") == 0 && prefs_get_type(pref) == PREF_UAT)
     {
-        uat = pref->varp.uat;
+        uat = prefs_get_uat_value(pref);
         /* This is just a sanity check.  UAT should be loaded */
         if (!uat->loaded)
         {
@@ -368,9 +368,9 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
     /* Retrieve user data info */
     user_data = (keys_cb_data_t*)ud;
 
-    if (g_ascii_strcasecmp(pref->name, "wep_key_table") == 0 && pref->type == PREF_UAT)
+    if (g_ascii_strcasecmp(prefs_get_name(pref), "wep_key_table") == 0 && prefs_get_type(pref) == PREF_UAT)
     {
-        uat = pref->varp.uat;
+        uat = prefs_get_uat_value(pref);
         if (!uat->loaded)
         {
             /* UAT will only be loaded if previous keys exist, so it may need
@@ -1099,18 +1099,13 @@ static guint
 test_if_on(pref_t *pref, gpointer ud)
 {
     gboolean *is_on;
-    gboolean  number;
 
     /* Retrieve user data info */
     is_on = (gboolean*)ud;
 
-
-    if (g_ascii_strncasecmp(pref->name, "enable_decryption", 17) == 0 && pref->type == PREF_BOOL)
+    if (g_ascii_strncasecmp(prefs_get_name(pref), "enable_decryption", 17) == 0 && prefs_get_gui_type(pref) == PREF_BOOL)
     {
-        number = *pref->varp.boolp;
-
-        if (number) *is_on = TRUE;
-        else *is_on = FALSE;
+        *is_on = prefs_get_bool_value(pref, pref_current);
 
         return 1;
     }
@@ -1446,14 +1441,9 @@ set_on_off(pref_t *pref, gpointer ud)
     /* Retrieve user data info */
     is_on = (gboolean*)ud;
 
-    if (g_ascii_strncasecmp(pref->name, "enable_decryption", 17) == 0 && pref->type == PREF_BOOL)
+    if (g_ascii_strncasecmp(prefs_get_name(pref), "enable_decryption", 17) == 0 && prefs_get_type(pref) == PREF_BOOL)
     {
-
-        if (*is_on)
-            *pref->varp.boolp = TRUE;
-        else
-            *pref->varp.boolp = FALSE;
-
+        prefs_set_bool_value(pref, *is_on, pref_current);
         return 1;
     }
     return 0;

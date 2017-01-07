@@ -49,13 +49,13 @@ public:
         QAction(NULL),
         pref_(pref)
     {
-        setText(pref_->title);
+        setText(prefs_get_title(pref_));
         setCheckable(true);
-        setChecked(*pref->varp.boolp);
+        setChecked(prefs_get_bool_value(pref_, pref_current));
     }
 
     void setBoolValue() {
-        *pref_->varp.boolp = isChecked();
+        prefs_set_bool_value(pref_, isChecked(), pref_current);
     }
 
 private:
@@ -76,11 +76,7 @@ public:
     }
 
     bool setEnumValue() {
-        if (*pref_->varp.enump != enumval_) {
-            *pref_->varp.enump = enumval_;
-            return true;
-        }
-        return false;
+        return prefs_set_enum_value(pref_, enumval_, pref_current);
     }
 
 private:
@@ -95,11 +91,11 @@ public:
         QAction(NULL),
         pref_(pref)
     {
-        setText(QString("%1" UTF8_HORIZONTAL_ELLIPSIS).arg(pref_->title));
+        setText(QString("%1" UTF8_HORIZONTAL_ELLIPSIS).arg(prefs_get_title(pref_)));
     }
 
     void showUatDialog() {
-        UatDialog uat_dlg(parentWidget(), pref_->varp.uat);
+        UatDialog uat_dlg(parentWidget(), prefs_get_uat_value(pref_));
         uat_dlg.exec();
         // Emitting PacketDissectionChanged directly from a QDialog can cause
         // problems on OS X.
@@ -118,7 +114,7 @@ public:
         QAction(NULL),
         pref_(pref)
     {
-        QString title = pref_->title;
+        QString title = prefs_get_title(pref_);
 
         title.append(QString(": %1" UTF8_HORIZONTAL_ELLIPSIS).arg(gchar_free_to_qstring(prefs_pref_to_str(pref_, pref_current))));
 
@@ -203,7 +199,7 @@ void ProtocolPreferencesMenu::setModule(const char *module_name)
 
 void ProtocolPreferencesMenu::addMenuItem(preference *pref)
 {
-    switch (pref->type) {
+    switch (prefs_get_type(pref)) {
     case PREF_BOOL:
     {
         BoolPreferenceAction *bpa = new BoolPreferenceAction(pref);
@@ -214,10 +210,10 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     case PREF_ENUM:
     {
         QActionGroup *ag = new QActionGroup(this);
-        QMenu *enum_menu = addMenu(pref->title);
-        for (const enum_val_t *enum_valp = pref->info.enum_info.enumvals; enum_valp->name; enum_valp++) {
+        QMenu *enum_menu = addMenu(prefs_get_title(pref));
+        for (const enum_val_t *enum_valp = prefs_get_enumvals(pref); enum_valp->name; enum_valp++) {
             EnumPreferenceAction *epa = new EnumPreferenceAction(pref, enum_valp->description, enum_valp->value, ag);
-            if (*pref->varp.enump == enum_valp->value) {
+            if (prefs_get_enum_value(pref, pref_current) == enum_valp->value) {
                 epa->setChecked(true);
             }
             enum_menu->addAction(epa);
@@ -248,7 +244,7 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     default:
         // A type we currently don't handle (e.g. PREF_FILENAME). Just open
         // the prefs dialog.
-        QString title = QString("%1" UTF8_HORIZONTAL_ELLIPSIS).arg(pref->title);
+        QString title = QString("%1" UTF8_HORIZONTAL_ELLIPSIS).arg(prefs_get_title(pref));
         QAction *mpa = addAction(title);
         connect(mpa, SIGNAL(triggered(bool)), this, SLOT(modulePreferencesTriggered()));
         break;

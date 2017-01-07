@@ -116,57 +116,6 @@ typedef enum {
 	GUI_QT
 } gui_type_t;
 
-/** Struct to hold preference data */
-struct preference {
-    const char *name;                /**< name of preference */
-    const char *title;               /**< title to use in GUI */
-    const char *description;         /**< human-readable description of preference */
-    int ordinal;                     /**< ordinal number of this preference */
-    int type;                        /**< type of that preference */
-    gui_type_t gui;                  /**< type of the GUI (QT, GTK or both) the preference is registered for */
-    union {                          /* The Qt preference code assumes that these will all be pointers (and unique) */
-        guint *uint;
-        gboolean *boolp;
-        gint *enump;
-        char **string;
-        range_t **range;
-        struct epan_uat* uat;
-        color_t *colorp;
-        GList** list;
-    } varp;                          /**< pointer to variable storing the value */
-    union {
-        guint uint;
-        gboolean boolval;
-        gint enumval;
-        char *string;
-        range_t *range;
-        color_t color;
-        GList* list;
-    } stashed_val;                     /**< original value, when editing from the GUI */
-    union {
-        guint uint;
-        gboolean boolval;
-        gint enumval;
-        char *string;
-        range_t *range;
-        color_t color;
-        GList* list;
-    } default_val;                   /**< the default value of the preference */
-    union {
-      guint base;                    /**< input/output base, for PREF_UINT */
-      guint32 max_value;             /**< maximum value of a range */
-      struct {
-        const enum_val_t *enumvals;  /**< list of name & values */
-        gboolean radio_buttons;      /**< TRUE if it should be shown as
-                                          radio buttons rather than as an
-                                          option menu or combo box in
-                                          the preferences tab */
-      } enum_info;                   /**< for PREF_ENUM */
-    } info;                          /**< display/text file information */
-    struct pref_custom_cbs custom_cbs;   /**< for PREF_CUSTOM */
-    void    *control;                /**< handle for GUI control for this preference. GTK+ only? */
-};
-
 /* read_prefs_file: read in a generic config file and do a callback to */
 /* pref_set_pair_fct() for every key/value pair found */
 /**
@@ -178,27 +127,35 @@ struct preference {
  */
 typedef prefs_set_pref_e (*pref_set_pair_cb) (gchar *key, const gchar *value, void *private_data, gboolean return_range_errors);
 
-/** Set the value of a string-like preference. */
 WS_DLL_PUBLIC
-void
-prefs_set_string_like_value(pref_t *pref, const gchar *value, gboolean *changed);
+const char* prefs_get_description(pref_t *pref);
 
-/** Set the value of a range preference.  Return FALSE on error, TRUE otherwise. */
 WS_DLL_PUBLIC
-gboolean
-prefs_set_range_value(pref_t *pref, const gchar *value, gboolean *changed);
+const char* prefs_get_title(pref_t *pref);
+
+WS_DLL_PUBLIC
+const char* prefs_get_name(pref_t *pref);
+
+WS_DLL_PUBLIC
+int prefs_get_type(pref_t *pref);
+
+WS_DLL_PUBLIC
+gui_type_t prefs_get_gui_type(pref_t *pref);
+
+WS_DLL_PUBLIC guint32 prefs_get_max_value(pref_t *pref);
+
+// GTK only
+WS_DLL_PUBLIC void* prefs_get_control(pref_t *pref);
+WS_DLL_PUBLIC void prefs_set_control(pref_t *pref, void* control);
+WS_DLL_PUBLIC int prefs_get_ordinal(pref_t *pref);
+
+WS_DLL_PUBLIC
+gboolean prefs_set_range_value_work(pref_t *pref, const gchar *value,
+                           gboolean return_range_errors, gboolean *changed);
 
 WS_DLL_PUBLIC
 gboolean
 prefs_set_stashed_range_value(pref_t *pref, const gchar *value);
-
-WS_DLL_PUBLIC
-gboolean
-prefs_set_stashed_range(pref_t *pref, range_t *value);
-
-WS_DLL_PUBLIC
-range_t *
-prefs_get_stashed_range(pref_t *pref);
 
 /** Add a range value of a range preference. */
 WS_DLL_PUBLIC
@@ -210,10 +167,36 @@ WS_DLL_PUBLIC
 void
 prefs_range_remove_value(pref_t *pref, guint32 val);
 
-/** Set the value of an enum preference. */
-WS_DLL_PUBLIC
-void
-prefs_set_enum_value(pref_t *pref, const gchar *value, gboolean *changed);
+
+WS_DLL_PUBLIC gboolean prefs_set_bool_value(pref_t *pref, gboolean value, pref_source_t source);
+WS_DLL_PUBLIC gboolean prefs_get_bool_value(pref_t *pref, pref_source_t source);
+WS_DLL_PUBLIC void prefs_invert_bool_value(pref_t *pref, pref_source_t source);
+
+WS_DLL_PUBLIC gboolean prefs_set_uint_value(pref_t *pref, guint value, pref_source_t source);
+WS_DLL_PUBLIC guint prefs_get_uint_base(pref_t *pref);
+WS_DLL_PUBLIC guint prefs_get_uint_value_real(pref_t *pref, pref_source_t source);
+
+
+WS_DLL_PUBLIC gboolean prefs_set_enum_value(pref_t *pref, gint value, pref_source_t source);
+WS_DLL_PUBLIC gint prefs_get_enum_value(pref_t *pref, pref_source_t source);
+WS_DLL_PUBLIC const enum_val_t* prefs_get_enumvals(pref_t *pref);
+WS_DLL_PUBLIC gboolean prefs_get_enum_radiobuttons(pref_t *pref);
+
+WS_DLL_PUBLIC gboolean prefs_set_color_value(pref_t *pref, color_t value, pref_source_t source);
+WS_DLL_PUBLIC color_t* prefs_get_color_value(pref_t *pref, pref_source_t source);
+
+WS_DLL_PUBLIC gboolean prefs_set_string_value(pref_t *pref, const char* value, pref_source_t source);
+WS_DLL_PUBLIC char* prefs_get_string_value(pref_t *pref, pref_source_t source);
+
+WS_DLL_PUBLIC struct epan_uat* prefs_get_uat_value(pref_t *pref);
+
+WS_DLL_PUBLIC gboolean prefs_set_range_value(pref_t *pref, range_t *value, pref_source_t source);
+WS_DLL_PUBLIC range_t* prefs_get_range_value_real(pref_t *pref, pref_source_t source);
+
+WS_DLL_PUBLIC gboolean prefs_add_decode_as_value(pref_t *pref, guint value, gboolean replace);
+WS_DLL_PUBLIC gboolean prefs_remove_decode_as_value(pref_t *pref, guint value, gboolean set_default);
+
+WS_DLL_PUBLIC void reset_pref(pref_t *pref);
 
 /** read the preferences file (or similar) and call the callback
  * function to set each key/value pair found

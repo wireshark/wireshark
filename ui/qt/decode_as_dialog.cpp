@@ -567,6 +567,10 @@ void DecodeAsDialog::gatherChangedEntries(const gchar *table_name,
 
 void DecodeAsDialog::applyChanges()
 {
+    dissector_table_t sub_dissectors;
+    module_t *module;
+    pref_t* pref_value;
+    dissector_handle_t handle;
     // Reset all dissector tables, then apply all rules from GUI.
 
     // We can't call g_hash_table_removed from g_hash_table_foreach, which
@@ -578,6 +582,18 @@ void DecodeAsDialog::applyChanges()
     // instead.
     dissector_all_tables_foreach_changed(gatherChangedEntries, this);
     foreach (UintPair uint_entry, changed_uint_entries_) {
+        /* Set "Decode As preferences" to default values */
+        sub_dissectors = find_dissector_table(uint_entry.first);
+        handle = dissector_get_uint_handle(sub_dissectors, uint_entry.second);
+        if (handle != NULL) {
+            module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(handle)));
+            pref_value = prefs_find_preference(module, uint_entry.first);
+            if (pref_value != NULL) {
+                module->prefs_changed = TRUE;
+                reset_pref(pref_value);
+            }
+        }
+
         dissector_reset_uint(uint_entry.first, uint_entry.second);
     }
     changed_uint_entries_.clear();
@@ -605,9 +621,6 @@ void DecodeAsDialog::applyChanges()
             if (!g_strcmp0(decode_as_entry->table_name, ui_name_to_name_[item->text(table_col_)])) {
                 gpointer  selector_value;
                 QByteArray byteArray;
-                module_t *module;
-                pref_t* pref_value;
-                dissector_table_t sub_dissectors;
 
                 switch (selector_type) {
                 case FT_UINT8:
@@ -638,17 +651,7 @@ void DecodeAsDialog::applyChanges()
                             pref_value = prefs_find_preference(module, decode_as_entry->table_name);
                             if (pref_value != NULL) {
                                 module->prefs_changed = TRUE;
-                                switch(pref_value->type)
-                                {
-                                case PREF_DECODE_AS_UINT:
-                                    *pref_value->varp.uint = pref_value->default_val.uint;
-                                    break;
-                                case PREF_DECODE_AS_RANGE:
-                                    prefs_range_remove_value(pref_value, GPOINTER_TO_UINT(selector_value));
-                                    break;
-                                default:
-                                    break;
-                                }
+                                prefs_remove_decode_as_value(pref_value, GPOINTER_TO_UINT(selector_value), TRUE);
                             }
                         }
                     }
@@ -663,20 +666,7 @@ void DecodeAsDialog::applyChanges()
                         pref_value = prefs_find_preference(module, decode_as_entry->table_name);
                         if (pref_value != NULL) {
                             module->prefs_changed = TRUE;
-                            switch(pref_value->type)
-                            {
-                            case PREF_DECODE_AS_UINT:
-                                /* This doesn't support multiple values for a dissector in Decode As because the
-                                    preference only supports a single value. This leads to a "last port for
-                                    dissector in Decode As wins" */
-                                *pref_value->varp.uint = GPOINTER_TO_UINT(selector_value);
-                                break;
-                            case PREF_DECODE_AS_RANGE:
-                                prefs_range_add_value(pref_value, GPOINTER_TO_UINT(selector_value));
-                                break;
-                            default:
-                                break;
-                            }
+                            prefs_add_decode_as_value(pref_value, GPOINTER_TO_UINT(selector_value), FALSE);
                         }
                     }
                     break;

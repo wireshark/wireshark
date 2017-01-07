@@ -74,8 +74,8 @@ void CapturePreferencesFrame::updateWidgets()
     interface_t device;
     QString default_device_string;
 
-    if (pref_device_->stashed_val.string) {
-        default_device_string = pref_device_->stashed_val.string;
+    if (prefs_get_string_value(pref_device_, pref_stashed)) {
+        default_device_string = prefs_get_string_value(pref_device_, pref_stashed);
     }
     ui->defaultInterfaceComboBox->clear();
     if (global_capture_opts.all_ifaces->len == 0) {
@@ -111,37 +111,36 @@ void CapturePreferencesFrame::updateWidgets()
         ui->defaultInterfaceComboBox->clearEditText();
     }
 
-    ui->capturePromModeCheckBox->setChecked(pref_prom_mode_->stashed_val.boolval);
-    ui->capturePcapNgCheckBox->setChecked(pref_pcap_ng_->stashed_val.boolval);
-    ui->captureRealTimeCheckBox->setChecked(pref_real_time_->stashed_val.boolval);
-    ui->captureAutoScrollCheckBox->setChecked(pref_auto_scroll_->stashed_val.boolval);
+    ui->capturePromModeCheckBox->setChecked(prefs_get_bool_value(pref_prom_mode_, pref_stashed));
+    ui->capturePcapNgCheckBox->setChecked(prefs_get_bool_value(pref_pcap_ng_, pref_stashed));
+    ui->captureRealTimeCheckBox->setChecked(prefs_get_bool_value(pref_real_time_, pref_stashed));
+    ui->captureAutoScrollCheckBox->setChecked(prefs_get_bool_value(pref_auto_scroll_, pref_stashed));
 #endif // HAVE_LIBPCAP
 }
 
 void CapturePreferencesFrame::on_defaultInterfaceComboBox_editTextChanged(const QString &new_iface)
 {
-    g_free((void *)pref_device_->stashed_val.string);
-    pref_device_->stashed_val.string = g_strdup(new_iface.toUtf8().constData());
+    prefs_set_string_value(pref_device_, new_iface.toUtf8().constData(), pref_stashed);
 }
 
 void CapturePreferencesFrame::on_capturePromModeCheckBox_toggled(bool checked)
 {
-    pref_prom_mode_->stashed_val.boolval = checked;
+    prefs_set_bool_value(pref_prom_mode_, checked, pref_stashed);
 }
 
 void CapturePreferencesFrame::on_capturePcapNgCheckBox_toggled(bool checked)
 {
-    pref_pcap_ng_->stashed_val.boolval = checked;
+    prefs_set_bool_value(pref_pcap_ng_, checked, pref_stashed);
 }
 
 void CapturePreferencesFrame::on_captureRealTimeCheckBox_toggled(bool checked)
 {
-    pref_real_time_->stashed_val.boolval = checked;
+    prefs_set_bool_value(pref_real_time_, checked, pref_stashed);
 }
 
 void CapturePreferencesFrame::on_captureAutoScrollCheckBox_toggled(bool checked)
 {
-    pref_auto_scroll_->stashed_val.boolval = checked;
+    prefs_set_bool_value(pref_auto_scroll_, checked, pref_stashed);
 }
 
 /*

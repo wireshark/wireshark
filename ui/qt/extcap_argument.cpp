@@ -699,7 +699,7 @@ QString ExtcapArgument::prefKey(const QString & device_name)
 
     pref = extcap_pref_for_argument(device_name.toStdString().c_str(), _argument);
     if ( pref != NULL )
-        return QString(pref->name);
+        return QString(prefs_get_name(pref));
 
     return QString();
 }

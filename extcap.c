@@ -48,7 +48,6 @@
 #include <log.h>
 
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>

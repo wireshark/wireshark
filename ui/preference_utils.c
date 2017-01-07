@@ -101,17 +101,9 @@ prefs_store_ext_helper(const char * module_name, const char *pref_name, const ch
   if (!pref)
     return FALSE;
 
-  if ( pref->type == PREF_STRING )
+  if (prefs_get_type(pref) == PREF_STRING )
   {
-    g_free((void *)pref->stashed_val.string);
-    pref->stashed_val.string = (gchar *) g_strdup(pref_value);
-    /* unstash - taken from preferences_util */
-    if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0)
-    {
-      pref_changed = TRUE;
-      g_free(*pref->varp.string);
-      *pref->varp.string = g_strdup(pref->stashed_val.string);
-    }
+    pref_changed = prefs_set_string_value(pref, pref_value, pref_stashed);
   }
 
   return pref_changed;

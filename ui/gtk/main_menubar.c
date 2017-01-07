@@ -4822,11 +4822,11 @@ set_menus_for_selected_packet(capture_file *cf)
 static void
 menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
 {
-    gboolean *value  = (gboolean *)data;
+    pref_t *pref = (pref_t*)data;
     module_t *module = (module_t *)g_object_get_data (G_OBJECT(w), "module");
 
     module->prefs_changed = TRUE;
-    *value = !(*value);
+    prefs_invert_bool_value(pref, pref_current);
 
     prefs_apply (module);
     if (!prefs.gui_use_pref_save) {
@@ -4839,16 +4839,15 @@ menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
 static void
 menu_prefs_change_enum (GtkWidget *w, gpointer data)
 {
-    gint     *value     = (gint *)data;
+    pref_t   *pref      = (pref_t*)data;
     module_t *module    = (module_t *)g_object_get_data (G_OBJECT(w), "module");
     gint      new_value = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(w), "enumval"));
 
     if (!gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(w)))
         return;
 
-    if (*value != new_value) {
+    if (prefs_set_enum_value(pref, new_value, pref_current)) {
         module->prefs_changed = TRUE;
-        *value = new_value;
 
         prefs_apply (module);
         if (!prefs.gui_use_pref_save) {
@@ -4876,25 +4875,22 @@ menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
     gchar       *p;
     guint        uval;
 
-    switch (pref->type) {
+    switch (prefs_get_type(pref)) {
     case PREF_UINT:
-        uval = (guint)strtoul(new_value, &p, pref->info.base);
+        uval = (guint)strtoul(new_value, &p, prefs_get_uint_base(pref));
         if (p == new_value || *p != '\0') {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                           "The value \"%s\" isn't a valid number.",
                           new_value);
             return;
         }
-        if (*pref->varp.uint != uval) {
-            module->prefs_changed = TRUE;
-            *pref->varp.uint = uval;
-        }
+        module->prefs_changed |= prefs_set_uint_value(pref, uval, pref_current);
         break;
     case PREF_STRING:
-        prefs_set_string_like_value(pref, new_value, &module->prefs_changed);
+        module->prefs_changed |= prefs_set_string_value(pref, new_value, pref_current);
         break;
     case PREF_RANGE:
-        if (!prefs_set_range_value(pref, new_value, &module->prefs_changed)) {
+        if (!prefs_set_range_value_work(pref, new_value, TRUE, &module->prefs_changed)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                           "The value \"%s\" isn't a valid range.",
                           new_value);
@@ -4931,41 +4927,12 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 {
     pref_t    *pref   = (pref_t *)data;
     module_t  *module = (module_t *)g_object_get_data (G_OBJECT(w), "module");
-    gchar     *value  = NULL, *tmp_value, *label_str;
+    gchar     *value  = NULL, *label_str;
 
     GtkWidget *win, *main_grid, *main_vb, *bbox, *cancel_bt, *ok_bt;
     GtkWidget *entry, *label;
 
-    switch (pref->type) {
-    case PREF_UINT:
-        switch (pref->info.base) {
-        case 8:
-            value = g_strdup_printf("%o", *pref->varp.uint);
-            break;
-        case 10:
-            value = g_strdup_printf("%u", *pref->varp.uint);
-            break;
-        case 16:
-            value = g_strdup_printf("%x", *pref->varp.uint);
-            break;
-        default:
-            g_assert_not_reached();
-            break;
-        }
-        break;
-    case PREF_STRING:
-        value = g_strdup(*pref->varp.string);
-        break;
-    case PREF_RANGE:
-        /* Convert wmem to g_alloc memory */
-        tmp_value = range_convert_range(NULL, *pref->varp.range);
-        value = g_strdup(tmp_value);
-        wmem_free(NULL, tmp_value);
-        break;
-    default:
-        g_assert_not_reached();
-        break;
-    }
+    value = prefs_pref_to_str(pref, pref_current);
 
     win = dlg_window_new(module->description);
 
@@ -4980,19 +4947,19 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
     gtk_box_pack_start(GTK_BOX(main_vb), main_grid, FALSE, FALSE, 0);
     ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 10);
 
-    label_str = g_strdup_printf("%s:", pref->title);
+    label_str = g_strdup_printf("%s:", prefs_get_title(pref));
     label = gtk_label_new(label_str);
     g_free(label_str);
     ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), label, 0, 1, 1, 1);
     gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
-    if (pref->description)
-        gtk_widget_set_tooltip_text(label, pref->description);
+    if (prefs_get_description(pref))
+        gtk_widget_set_tooltip_text(label, prefs_get_description(pref));
 
     entry = gtk_entry_new();
     ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), entry, 1, 1, 1, 1);
     gtk_entry_set_text(GTK_ENTRY(entry), value);
-    if (pref->description)
-        gtk_widget_set_tooltip_text(entry, pref->description);
+    if (prefs_get_description(pref))
+        gtk_widget_set_tooltip_text(entry, prefs_get_description(pref));
 
     bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
     gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
@@ -5024,17 +4991,17 @@ add_protocol_prefs_generic_menu(pref_t *pref, gpointer data, GtkUIManager *ui_me
     const enum_val_t *enum_valp;
     gchar            *label  = NULL, *tmp_str;
 
-    switch (pref->type) {
+    switch (prefs_get_type(pref)) {
     case PREF_UINT:
-        switch (pref->info.base) {
+        switch (prefs_get_uint_base(pref)) {
         case 8:
-            label = g_strdup_printf ("%s: %o", pref->title, *pref->varp.uint);
+            label = g_strdup_printf ("%s: %o", prefs_get_title(pref), prefs_get_uint_value_real(pref, pref_current));
             break;
         case 10:
-            label = g_strdup_printf ("%s: %u", pref->title, *pref->varp.uint);
+            label = g_strdup_printf ("%s: %u", prefs_get_title(pref), prefs_get_uint_value_real(pref, pref_current));
             break;
         case 16:
-            label = g_strdup_printf ("%s: %x", pref->title, *pref->varp.uint);
+            label = g_strdup_printf ("%s: %x", prefs_get_title(pref), prefs_get_uint_value_real(pref, pref_current));
             break;
         default:
             g_assert_not_reached();
@@ -5046,40 +5013,40 @@ add_protocol_prefs_generic_menu(pref_t *pref, gpointer data, GtkUIManager *ui_me
         g_free (label);
         break;
     case PREF_BOOL:
-        menu_item = gtk_check_menu_item_new_with_label(pref->title);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), *pref->varp.boolp);
+        menu_item = gtk_check_menu_item_new_with_label(prefs_get_title(pref));
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), prefs_get_bool_value(pref, pref_current));
         g_object_set_data (G_OBJECT(menu_item), "module", module);
-        g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_toggle_bool), pref->varp.boolp);
+        g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_toggle_bool), pref);
         break;
     case PREF_ENUM:
-        menu_item = gtk_menu_item_new_with_label(pref->title);
+        menu_item = gtk_menu_item_new_with_label(prefs_get_title(pref));
         sub_menu = gtk_menu_new();
         gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_item), sub_menu);
-        enum_valp = pref->info.enum_info.enumvals;
+        enum_valp = prefs_get_enumvals(pref);
         while (enum_valp->name != NULL) {
             menu_sub_item = gtk_radio_menu_item_new_with_label(group, enum_valp->description);
             group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menu_sub_item));
-            if (enum_valp->value == *pref->varp.enump) {
+            if (enum_valp->value == prefs_get_enum_value(pref, pref_current)) {
                 gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_sub_item), TRUE);
             }
             g_object_set_data (G_OBJECT(menu_sub_item), "module", module);
             g_object_set_data (G_OBJECT(menu_sub_item), "enumval", GINT_TO_POINTER(enum_valp->value));
-            g_signal_connect(menu_sub_item, "activate", G_CALLBACK(menu_prefs_change_enum), pref->varp.enump);
+            g_signal_connect(menu_sub_item, "activate", G_CALLBACK(menu_prefs_change_enum), pref);
             gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_sub_item);
             gtk_widget_show (menu_sub_item);
             enum_valp++;
         }
         break;
     case PREF_STRING:
-        label = g_strdup_printf ("%s: %s", pref->title, *pref->varp.string);
+        label = g_strdup_printf ("%s: %s", prefs_get_title(pref), prefs_get_string_value(pref, pref_current));
         menu_item = gtk_menu_item_new_with_label(label);
         g_object_set_data (G_OBJECT(menu_item), "module", module);
         g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_edit_dlg), pref);
         g_free (label);
         break;
     case PREF_RANGE:
-        tmp_str = range_convert_range (NULL, *pref->varp.range);
-        label = g_strdup_printf ("%s: %s", pref->title, tmp_str);
+        tmp_str = range_convert_range (NULL, prefs_get_range_value_real(pref, pref_current));
+        label = g_strdup_printf ("%s: %s", prefs_get_title(pref), tmp_str);
         wmem_free(NULL, tmp_str);
         menu_item = gtk_menu_item_new_with_label(label);
         g_object_set_data (G_OBJECT(menu_item), "module", module);
@@ -5087,9 +5054,9 @@ add_protocol_prefs_generic_menu(pref_t *pref, gpointer data, GtkUIManager *ui_me
         g_free (label);
         break;
     case PREF_UAT:
-        label = g_strdup_printf ("%s...", pref->title);
+        label = g_strdup_printf ("%s...", prefs_get_title(pref));
         menu_item = gtk_menu_item_new_with_label(label);
-        g_signal_connect (menu_item, "activate", G_CALLBACK(uat_window_cb), pref->varp.uat);
+        g_signal_connect (menu_item, "activate", G_CALLBACK(uat_window_cb), prefs_get_uat_value(pref));
         g_free (label);
         break;
 

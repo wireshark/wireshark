@@ -645,7 +645,7 @@ decode_simple (GtkWidget *notebook_pg)
     GtkTreeIter         iter;
     decode_as_t        *entry;
     gchar              *table_name, *abbrev;
-    dissector_handle_t  handle;
+    dissector_handle_t  handle, temp_handle;
     guint               value_loop, *selector_type;
     gpointer            ptr, value_ptr;
     gint                requested_index = 0;
@@ -683,15 +683,14 @@ decode_simple (GtkWidget *notebook_pg)
     for (value_loop = 0; value_loop < entry->values[requested_index].num_values; value_loop++)
     {
         pref_t* pref_value;
-        dissector_handle_t  temp_handle;
         module_t *module;
 
         guint8 saved_curr_layer_num = cfile.edt->pi.curr_layer_num;
         cfile.edt->pi.curr_layer_num = (guint8)GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_CURR_LAYER_NUM));
         value_ptr = entry->values[requested_index].build_values[value_loop](&cfile.edt->pi);
+        /* Find the handle currently associated with the value */
+        temp_handle = dissector_get_uint_handle(sub_dissectors, GPOINTER_TO_UINT(value_ptr));
         if (abbrev != NULL && strcmp(abbrev, "(default)") == 0) {
-            /* Find the handle currently associated with the value */
-            temp_handle = dissector_get_uint_handle(sub_dissectors, GPOINTER_TO_UINT(value_ptr));
 
             add_reset_list = entry->reset_value(table_name, value_ptr);
 
@@ -702,17 +701,7 @@ decode_simple (GtkWidget *notebook_pg)
                     pref_value = prefs_find_preference(module, table_name);
                     if (pref_value != NULL) {
                         module->prefs_changed = TRUE;
-                        switch(pref_value->type)
-                        {
-                        case PREF_DECODE_AS_UINT:
-                            *pref_value->varp.uint = pref_value->default_val.uint;
-                            break;
-                        case PREF_DECODE_AS_RANGE:
-                            prefs_range_remove_value(pref_value, GPOINTER_TO_UINT(value_ptr));
-                            break;
-                        default:
-                            break;
-                        }
+                        prefs_remove_decode_as_value(pref_value, GPOINTER_TO_UINT(value_ptr), TRUE);
                     }
                 }
             }
@@ -721,24 +710,24 @@ decode_simple (GtkWidget *notebook_pg)
 
             /* For now, only numeric dissector tables can use preferences */
             if (IS_FT_UINT(dissector_table_get_type(sub_dissectors))) {
-                module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(handle)));
-                pref_value = prefs_find_preference(module, table_name);
-                if (pref_value != NULL) {
-                    module->prefs_changed = TRUE;
-                    switch(pref_value->type)
-                    {
-                    case PREF_DECODE_AS_UINT:
-                        /* This doesn't support multiple values for a dissector in Decode As because the
-                            preference only supports a single value. This leads to a "last port for
-                            dissector in Decode As wins" */
-                        *pref_value->varp.uint = GPOINTER_TO_UINT(value_ptr);
-                        break;
-                    case PREF_DECODE_AS_RANGE:
-                        prefs_range_add_value(pref_value, GPOINTER_TO_UINT(value_ptr));
-                        break;
-                    default:
-                        break;
+                if (requested_action != E_DECODE_NO) {
+                    module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(handle)));
+                    pref_value = prefs_find_preference(module, table_name);
+                    if (pref_value != NULL) {
+                        module->prefs_changed = TRUE;
+                        prefs_add_decode_as_value(pref_value, GPOINTER_TO_UINT(value_ptr), FALSE);
                     }
+                }
+                else {
+                    if (temp_handle != NULL) {
+                        module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(temp_handle)));
+                        pref_value = prefs_find_preference(module, table_name);
+                        if (pref_value != NULL) {
+                            module->prefs_changed = TRUE;
+                            prefs_remove_decode_as_value(pref_value, GPOINTER_TO_UINT(value_ptr), FALSE);
+                        }
+                    }
+
                 }
             }
         }

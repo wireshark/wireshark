@@ -112,11 +112,11 @@ public:
             case adv_name_col_:
             {
                 QString full_name = QString(module_->name ? module_->name : module_->parent->name);
-                full_name += QString(".%1").arg(pref_->name);
+                full_name += QString(".%1").arg(prefs_get_name(pref_));
                 return full_name;
             }
             case adv_status_col_:
-                if ((pref_->type == PREF_UAT && (pref_->gui == GUI_ALL || pref_->gui == GUI_QT))|| pref_->type == PREF_CUSTOM) {
+                if ((prefs_get_type(pref_) == PREF_UAT && (prefs_get_gui_type(pref_) == GUI_ALL || prefs_get_gui_type(pref_) == GUI_QT))|| prefs_get_type(pref_) == PREF_CUSTOM) {
                     return QObject::tr("Unknown");
                 } else if (is_default) {
                     return QObject::tr("Default");
@@ -137,7 +137,7 @@ public:
         case Qt::ToolTipRole:
             switch (column) {
             case adv_name_col_:
-                return QString("<span>%1</span>").arg(pref_->description);
+                return QString("<span>%1</span>").arg(prefs_get_description(pref_));
             case adv_status_col_:
                 return QObject::tr("Has this preference been changed?");
             case adv_type_col_:
@@ -243,7 +243,7 @@ fill_advanced_prefs(module_t *module, gpointer root_ptr)
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
         pref_t *pref = (pref_t *) pref_l->data;
 
-        if (pref->type == PREF_OBSOLETE || pref->type == PREF_STATIC_TEXT) continue;
+        if (prefs_get_type(pref) == PREF_OBSOLETE || prefs_get_type(pref) == PREF_STATIC_TEXT) continue;
 
         const char *type_name = prefs_pref_type_name(pref);
         if (!type_name) continue;
@@ -254,8 +254,8 @@ fill_advanced_prefs(module_t *module, gpointer root_ptr)
         tl_children << item;
 
         // .uat is a void * so it wins the "useful key value" prize.
-        if (pref->varp.uat) {
-            prefInsertPrefPtr(pref->varp.uat, pref);
+        if (prefs_get_uat_value(pref)) {
+            prefInsertPrefPtr( prefs_get_uat_value(pref), pref);
         }
     }
     tl_item->addChildren(tl_children);
@@ -342,7 +342,7 @@ module_prefs_unstash(module_t *module, gpointer data)
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
         pref_t *pref = (pref_t *) pref_l->data;
 
-        if (pref->type == PREF_OBSOLETE || pref->type == PREF_STATIC_TEXT) continue;
+        if (prefs_get_type(pref) == PREF_OBSOLETE || prefs_get_type(pref) == PREF_STATIC_TEXT) continue;
 
         unstashed_data.module = module;
         pref_unstash(pref, &unstashed_data);
@@ -366,7 +366,7 @@ module_prefs_clean_stash(module_t *module, gpointer)
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
         pref_t *pref = (pref_t *) pref_l->data;
 
-        if (pref->type == PREF_OBSOLETE || pref->type == PREF_STATIC_TEXT) continue;
+        if (prefs_get_type(pref) == PREF_OBSOLETE || prefs_get_type(pref) == PREF_STATIC_TEXT) continue;
 
         pref_clean_stash(pref, NULL);
     }
@@ -644,36 +644,30 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
     } else {
         QWidget *editor = NULL;
 
-        switch (pref->type) {
+        switch (prefs_get_type(pref)) {
         case PREF_DECODE_AS_UINT:
-        {
-            cur_line_edit_ = new QLineEdit();
-//            cur_line_edit_->setInputMask("0000000009;");
-            saved_string_pref_ = QString::number(pref->stashed_val.uint, pref->info.base);
-            connect(cur_line_edit_, SIGNAL(editingFinished()), this, SLOT(uintPrefEditingFinished()));
-            editor = cur_line_edit_;
-            break;
-        }
         case PREF_UINT:
         {
+            char* tmpstr = prefs_pref_to_str(pref, pref_stashed);
             cur_line_edit_ = new QLineEdit();
 //            cur_line_edit_->setInputMask("0000000009;");
-            saved_string_pref_ = QString::number(pref->stashed_val.uint, pref->info.base);
+            saved_string_pref_ = tmpstr;
+            g_free(tmpstr);
             connect(cur_line_edit_, SIGNAL(editingFinished()), this, SLOT(uintPrefEditingFinished()));
             editor = cur_line_edit_;
             break;
         }
         case PREF_BOOL:
-            pref->stashed_val.boolval = !pref->stashed_val.boolval;
+            prefs_invert_bool_value(pref, pref_stashed);
             adv_ti->updatePref();
             break;
         case PREF_ENUM:
         {
             cur_combo_box_ = new QComboBox();
             const enum_val_t *ev;
-            for (ev = pref->info.enum_info.enumvals; ev && ev->description; ev++) {
+            for (ev = prefs_get_enumvals(pref); ev && ev->description; ev++) {
                 cur_combo_box_->addItem(ev->description, QVariant(ev->value));
-                if (pref->stashed_val.enumval == ev->value)
+                if (prefs_get_enum_value(pref, pref_stashed) == ev->value)
                     cur_combo_box_->setCurrentIndex(cur_combo_box_->count() - 1);
             }
             saved_combo_idx_ = cur_combo_box_->currentIndex();
@@ -684,7 +678,7 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
         case PREF_STRING:
         {
             cur_line_edit_ = new QLineEdit();
-            saved_string_pref_ = pref->stashed_val.string;
+            saved_string_pref_ = prefs_get_string_value(pref, pref_stashed);
             connect(cur_line_edit_, SIGNAL(editingFinished()), this, SLOT(stringPrefEditingFinished()));
             editor = cur_line_edit_;
             break;
@@ -694,16 +688,15 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
         {
             QString filename;
 
-            if (pref->type == PREF_FILENAME) {
-                filename = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(pref->title),
-                                                        pref->stashed_val.string);
+            if (prefs_get_type(pref) == PREF_FILENAME) {
+                filename = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(prefs_get_title(pref)),
+                                                        prefs_get_string_value(pref, pref_stashed));
             } else {
-                filename = QFileDialog::getExistingDirectory(this, wsApp->windowTitleString(pref->title),
-                                                             pref->stashed_val.string);
+                filename = QFileDialog::getExistingDirectory(this, wsApp->windowTitleString(prefs_get_title(pref)),
+                                                             prefs_get_string_value(pref, pref_stashed));
             }
             if (!filename.isEmpty()) {
-                g_free((void *)pref->stashed_val.string);
-                pref->stashed_val.string = qstring_strdup(QDir::toNativeSeparators(filename));
+                prefs_set_string_value(pref, QDir::toNativeSeparators(filename).toStdString().c_str(), pref_stashed);
                 adv_ti->updatePref();
             }
             break;
@@ -723,25 +716,27 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
         case PREF_COLOR:
         {
             QColorDialog color_dlg;
+            color_t color = *prefs_get_color_value(pref, pref_stashed);
 
             color_dlg.setCurrentColor(QColor(
-                                          pref->stashed_val.color.red >> 8,
-                                          pref->stashed_val.color.green >> 8,
-                                          pref->stashed_val.color.blue >> 8
+                                          color.red >> 8,
+                                          color.green >> 8,
+                                          color.blue >> 8
                                           ));
             if (color_dlg.exec() == QDialog::Accepted) {
                 QColor cc = color_dlg.currentColor();
-                pref->stashed_val.color.red = cc.red() << 8 | cc.red();
-                pref->stashed_val.color.green = cc.green() << 8 | cc.green();
-                pref->stashed_val.color.blue = cc.blue() << 8 | cc.blue();
+                color.red = cc.red() << 8 | cc.red();
+                color.green = cc.green() << 8 | cc.green();
+                color.blue = cc.blue() << 8 | cc.blue();
+                prefs_set_color_value(pref, color, pref_stashed);
                 adv_ti->updatePref();
             }
             break;
         }
         case PREF_UAT:
         {
-            if (pref->gui == GUI_ALL || pref->gui == GUI_QT) {
-                UatDialog uat_dlg(this, pref->varp.uat);
+            if (prefs_get_gui_type(pref) == GUI_ALL || prefs_get_gui_type(pref) == GUI_QT) {
+                UatDialog uat_dlg(this, prefs_get_uat_value(pref));
                 uat_dlg.exec();
             }
             break;
@@ -749,7 +744,7 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
         default:
             break;
         }
-        cur_pref_type_ = pref->type;
+        cur_pref_type_ = prefs_get_type(pref);
         if (cur_line_edit_) {
             cur_line_edit_->setText(saved_string_pref_);
             cur_line_edit_->selectAll();
@@ -799,9 +794,9 @@ void PreferencesDialog::uintPrefEditingFinished()
     if (!pref) return;
 
     bool ok;
-    guint new_val = cur_line_edit_->text().toUInt(&ok, pref->info.base);
+    guint new_val = cur_line_edit_->text().toUInt(&ok, prefs_get_uint_base(pref));
 
-    if (ok) pref->stashed_val.uint = new_val;
+    if (ok) prefs_set_uint_value(pref, new_val, pref_stashed);
     pd_ui_->advancedTree->removeItemWidget(adv_ti, 3);
     adv_ti->updatePref();
 }
@@ -814,7 +809,7 @@ void PreferencesDialog::enumPrefCurrentIndexChanged(int index)
     pref_t *pref = adv_ti->pref();
     if (!pref) return;
 
-    pref->stashed_val.enumval = cur_combo_box_->itemData(index).toInt();
+    prefs_set_uint_value(pref, cur_combo_box_->itemData(index).toInt(), pref_stashed);
     adv_ti->updatePref();
 }
 
@@ -826,8 +821,7 @@ void PreferencesDialog::stringPrefEditingFinished()
     pref_t *pref = adv_ti->pref();
     if (!pref) return;
 
-    g_free((void *)pref->stashed_val.string);
-    pref->stashed_val.string = qstring_strdup(cur_line_edit_->text());
+    prefs_set_string_value(pref, cur_line_edit_->text().toStdString().c_str(), pref_stashed);
     pd_ui_->advancedTree->removeItemWidget(adv_ti, 3);
     adv_ti->updatePref();
 }
@@ -845,7 +839,7 @@ void PreferencesDialog::rangePrefTextChanged(const QString &text)
         syntax_edit->setSyntaxState(SyntaxLineEdit::Empty);
     } else {
         range_t *newrange;
-        convert_ret_t ret = range_convert_str(NULL, &newrange, text.toUtf8().constData(), pref->info.max_value);
+        convert_ret_t ret = range_convert_str(NULL, &newrange, text.toUtf8().constData(), prefs_get_max_value(pref));
 
         if (ret == CVT_NO_ERROR) {
             syntax_edit->setSyntaxState(SyntaxLineEdit::Valid);

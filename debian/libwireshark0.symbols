@@ -924,6 +924,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  port_with_resolution_to_str_buf@Base 2.0.0
  postseq_cleanup_all_protocols@Base 1.9.1
  prefs@Base 1.9.1
+ prefs_add_decode_as_value@Base 2.3.0
  prefs_apply@Base 1.9.1
  prefs_apply_all@Base 1.9.1
  prefs_capture_device_monitor_mode@Base 1.9.1
@@ -931,10 +932,29 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_clear_string_list@Base 1.9.1
  prefs_find_module@Base 1.9.1
  prefs_find_preference@Base 1.9.1
+ prefs_get_bool_value@Base 2.3.0
+ prefs_get_color_value@Base 2.3.0
+ prefs_get_control@Base 2.3.0
+ prefs_get_description@Base 2.3.0
+ prefs_get_enum_value@Base 2.3.0
+ prefs_get_enum_radiobuttons@Base 2.3.0
+ prefs_get_enumvals@Base 2.3.0
+ prefs_get_gui_type@Base 2.3.0
+ prefs_get_max_value@Base 2.3.0
+ prefs_get_name@Base 2.3.0
+ prefs_get_ordinal@Base 2.3.0
  prefs_get_range_value@Base 2.3.0
+ prefs_get_range_value_real@Base 2.3.0
  prefs_get_string_list@Base 1.9.1
+ prefs_get_string_value@Base 2.3.0
+ prefs_get_title@Base 2.3.0
  prefs_get_title_by_name@Base 1.9.1
+ prefs_get_type@Base 2.3.0
+ prefs_get_uat_value@Base 2.3.0
+ prefs_get_uint_base@Base 2.3.0
  prefs_get_uint_value@Base 2.3.0
+ prefs_get_uint_value_real@Base 2.3.0
+ prefs_invert_bool_value@Base 2.3.0
  prefs_is_capture_device_hidden@Base 1.9.1
  prefs_is_registered_protocol@Base 1.9.1
  prefs_module_has_submodules@Base 1.9.1
@@ -961,9 +981,17 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_register_uat_preference_qt@Base 1.12.0~rc1
  prefs_register_uint_preference@Base 1.9.1
  prefs_reset@Base 1.9.1
+ prefs_remove_decode_as_value@Base 2.3.0
+ prefs_set_bool_value@Base 2.3.0
+ prefs_set_color_value@Base 2.3.0
+ prefs_set_control@Base 2.3.0
+ prefs_set_enum_value@Base 2.3.0
  prefs_set_pref@Base 1.9.1
  prefs_set_range_value@Base 2.1.0
- prefs_set_string_like_value@Base 2.1.0
+ prefs_set_range_value_work@Base 2.3.0
+ prefs_set_stashed_range_value@Base 2.3.0
+ prefs_set_string_value@Base 2.3.0
+ prefs_set_uint_value@Base 2.3.0
  print_bookmark@Base 1.12.0~rc1
  print_finale@Base 1.12.0~rc1
  print_hex_data@Base 1.12.0~rc1
@@ -1236,6 +1264,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  req_resp_hdrs_do_reassembly@Base 1.9.1
  reset_conversation_table_data@Base 1.99.0
  reset_hostlist_table_data@Base 1.99.0
+ reset_pref@Base 2.3.0
  reset_rtd_table@Base 1.99.8
  reset_srt_table@Base 1.99.8
  reset_stat_table@Base 1.99.8

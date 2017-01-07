@@ -121,28 +121,28 @@ void MainWindowPreferencesFrame::showEvent(QShowEvent *)
 void MainWindowPreferencesFrame::updateWidgets()
 {
     // Yes, this means we're potentially clobbering two prefs in favor of one.
-    if (pref_geometry_save_position_->stashed_val.boolval || pref_geometry_save_size_->stashed_val.boolval || pref_geometry_save_maximized_->stashed_val.boolval) {
+    if (prefs_get_bool_value(pref_geometry_save_position_, pref_stashed) || prefs_get_bool_value(pref_geometry_save_size_, pref_stashed) || prefs_get_bool_value(pref_geometry_save_maximized_, pref_stashed)) {
         ui->geometryCheckBox->setChecked(true);
     } else {
         ui->geometryCheckBox->setChecked(false);
     }
 
-    if (pref_fileopen_style_->stashed_val.enumval == FO_STYLE_LAST_OPENED) {
+    if (prefs_get_enum_value(pref_fileopen_style_, pref_stashed) == FO_STYLE_LAST_OPENED) {
         ui->foStyleLastOpenedRadioButton->setChecked(true);
     } else {
         ui->foStyleSpecifiedRadioButton->setChecked(true);
     }
 
-    ui->foStyleSpecifiedLineEdit->setText(pref_fileopen_dir_->stashed_val.string);
+    ui->foStyleSpecifiedLineEdit->setText(prefs_get_string_value(pref_fileopen_dir_, pref_stashed));
 
-    ui->maxFilterLineEdit->setText(QString::number(pref_recent_df_entries_max_->stashed_val.uint));
-    ui->maxRecentLineEdit->setText(QString::number(pref_recent_files_count_max_->stashed_val.uint));
+    ui->maxFilterLineEdit->setText(QString::number(prefs_get_uint_value_real(pref_recent_df_entries_max_, pref_stashed)));
+    ui->maxRecentLineEdit->setText(QString::number(prefs_get_uint_value_real(pref_recent_files_count_max_, pref_stashed)));
 
-    ui->confirmUnsavedCheckBox->setChecked(pref_ask_unsaved_->stashed_val.boolval);
-    ui->autoScrollCheckBox->setChecked(pref_auto_scroll_on_expand_->stashed_val.boolval);
-    ui->autoScrollPercentageLineEdit->setText(QString::number(pref_auto_scroll_on_expand_->stashed_val.uint));
+    ui->confirmUnsavedCheckBox->setChecked(prefs_get_bool_value(pref_ask_unsaved_, pref_stashed));
+    ui->autoScrollCheckBox->setChecked(prefs_get_bool_value(pref_auto_scroll_on_expand_, pref_stashed));
+    ui->autoScrollPercentageLineEdit->setText(QString::number(prefs_get_uint_value_real(pref_auto_scroll_on_expand_, pref_stashed)));
 
-    ui->mainToolbarComboBox->setCurrentIndex(pref_toolbar_main_style_->stashed_val.enumval);
+    ui->mainToolbarComboBox->setCurrentIndex(prefs_get_enum_value(pref_toolbar_main_style_, pref_stashed));
 
     for (int i = 0; i < ui->languageComboBox->count(); i += 1) {
         if (QString(language) == ui->languageComboBox->itemData(i).toString()) {
@@ -154,30 +154,29 @@ void MainWindowPreferencesFrame::updateWidgets()
 
 void MainWindowPreferencesFrame::on_geometryCheckBox_toggled(bool checked)
 {
-    pref_geometry_save_position_->stashed_val.boolval = checked;
-    pref_geometry_save_size_->stashed_val.boolval = checked;
-    pref_geometry_save_maximized_->stashed_val.boolval = checked;
+    prefs_set_bool_value(pref_geometry_save_position_, checked, pref_stashed);
+    prefs_set_bool_value(pref_geometry_save_size_, checked, pref_stashed);
+    prefs_set_bool_value(pref_geometry_save_maximized_, checked, pref_stashed);
 }
 
 void MainWindowPreferencesFrame::on_foStyleLastOpenedRadioButton_toggled(bool checked)
 {
     if (checked) {
-        pref_fileopen_style_->stashed_val.enumval = FO_STYLE_LAST_OPENED;
+        prefs_set_enum_value(pref_fileopen_style_, FO_STYLE_LAST_OPENED, pref_stashed);
     }
 }
 
 void MainWindowPreferencesFrame::on_foStyleSpecifiedRadioButton_toggled(bool checked)
 {
     if (checked) {
-        pref_fileopen_style_->stashed_val.enumval = FO_STYLE_SPECIFIED;
+        prefs_set_enum_value(pref_fileopen_style_, FO_STYLE_SPECIFIED, pref_stashed);
     }
 }
 
 void MainWindowPreferencesFrame::on_foStyleSpecifiedLineEdit_textEdited(const QString &new_dir)
 {
-    g_free(pref_fileopen_dir_->stashed_val.string);
-    pref_fileopen_dir_->stashed_val.string = qstring_strdup(new_dir);
-    pref_fileopen_style_->stashed_val.enumval = FO_STYLE_SPECIFIED;
+    prefs_set_string_value(pref_fileopen_dir_, new_dir.toStdString().c_str(), pref_stashed);
+    prefs_set_enum_value(pref_fileopen_style_, FO_STYLE_SPECIFIED, pref_stashed);
     updateWidgets();
 }
 
@@ -188,42 +187,41 @@ void MainWindowPreferencesFrame::on_foStyleSpecifiedPushButton_clicked()
     if (specified_dir.isEmpty()) return;
 
     ui->foStyleSpecifiedLineEdit->setText(specified_dir);
-    g_free(pref_fileopen_dir_->stashed_val.string);
-    pref_fileopen_dir_->stashed_val.string = qstring_strdup(specified_dir);
-    pref_fileopen_style_->stashed_val.enumval = FO_STYLE_SPECIFIED;
+    prefs_set_string_value(pref_fileopen_dir_, specified_dir.toStdString().c_str(), pref_stashed);
+    prefs_set_enum_value(pref_fileopen_style_, FO_STYLE_SPECIFIED, pref_stashed);
     updateWidgets();
 }
 
 void MainWindowPreferencesFrame::on_maxFilterLineEdit_textEdited(const QString &new_max)
 {
-    pref_recent_df_entries_max_->stashed_val.uint = new_max.toUInt();
+    prefs_set_uint_value(pref_recent_df_entries_max_, new_max.toUInt(), pref_stashed);
 }
 
 void MainWindowPreferencesFrame::on_maxRecentLineEdit_textEdited(const QString &new_max)
 {
-    pref_recent_files_count_max_->stashed_val.uint = new_max.toUInt();
+    prefs_set_uint_value(pref_recent_files_count_max_, new_max.toUInt(), pref_stashed);
 }
 
 void MainWindowPreferencesFrame::on_confirmUnsavedCheckBox_toggled(bool checked)
 {
-    pref_ask_unsaved_->stashed_val.boolval = checked;
+    prefs_set_bool_value(pref_ask_unsaved_, checked, pref_stashed);
 }
 
 void MainWindowPreferencesFrame::on_autoScrollCheckBox_toggled(bool checked)
 {
-    pref_auto_scroll_on_expand_->stashed_val.boolval = checked;
+    prefs_set_bool_value(pref_auto_scroll_on_expand_, checked, pref_stashed);
 }
 
 void MainWindowPreferencesFrame::on_autoScrollPercentageLineEdit_textEdited(const QString &new_pct)
 {
-    pref_auto_scroll_percentage_->stashed_val.uint = new_pct.toUInt();
-    pref_auto_scroll_on_expand_->stashed_val.boolval = TRUE;
+    prefs_set_uint_value(pref_auto_scroll_percentage_, new_pct.toUInt(), pref_stashed);
+    prefs_set_bool_value(pref_auto_scroll_on_expand_, TRUE, pref_stashed);
     ui->autoScrollCheckBox->setChecked(true);
 }
 
 void MainWindowPreferencesFrame::on_mainToolbarComboBox_currentIndexChanged(int index)
 {
-    pref_toolbar_main_style_->stashed_val.enumval = index;
+    prefs_set_enum_value(pref_toolbar_main_style_, index, pref_stashed);
 }
 
 void MainWindowPreferencesFrame::on_languageComboBox_currentIndexChanged(int index)

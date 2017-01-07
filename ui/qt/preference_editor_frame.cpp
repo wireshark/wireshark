@@ -79,10 +79,10 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
     ui->modulePreferencesToolButton->setText(tr("Open %1 preferences" UTF8_HORIZONTAL_ELLIPSIS).arg(module_->title));
 
     pref_stash(pref_, NULL);
-    ui->preferenceTitleLabel->setText(QString("%1:").arg(pref->title));
+    ui->preferenceTitleLabel->setText(QString("%1:").arg(prefs_get_title(pref)));
 
     // Convert the pref description from plain text to rich text.
-    QString description = html_escape(pref->description);
+    QString description = html_escape(prefs_get_description(pref));
     description.replace('\n', "<br>");
     QString tooltip = QString("<span>%1</span>").arg(description);
     ui->preferenceTitleLabel->setToolTip(tooltip);
@@ -94,22 +94,22 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
 
     bool show = false;
 
-    switch (pref_->type) {
+    switch (prefs_get_type(pref_)) {
     case PREF_UINT:
-        new_uint_ = pref->stashed_val.uint;
+        new_uint_ = prefs_get_uint_value_real(pref_, pref_stashed);
         connect(ui->preferenceLineEdit, SIGNAL(textEdited(QString)),
                 this, SLOT(uintLineEditTextEdited(QString)));
         show = true;
         break;
     case PREF_STRING:
-        new_str_ = pref->stashed_val.string;
+        new_str_ = prefs_get_string_value(pref_, pref_stashed);
         connect(ui->preferenceLineEdit, SIGNAL(textEdited(QString)),
                 this, SLOT(stringLineEditTextEdited(QString)));
         show = true;
         break;
     case PREF_RANGE:
         wmem_free(NULL, new_range_);
-        new_range_ = range_copy(NULL, prefs_get_stashed_range(pref));
+        new_range_ = range_copy(NULL, prefs_get_range_value_real(pref_, pref_stashed));
         connect(ui->preferenceLineEdit, SIGNAL(textEdited(QString)),
                 this, SLOT(rangeLineEditTextEdited(QString)));
         show = true;
@@ -127,7 +127,7 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
 void PreferenceEditorFrame::uintLineEditTextEdited(const QString &new_str)
 {
     if (new_str.isEmpty()) {
-        new_uint_ = pref_->stashed_val.uint;
+        new_uint_ = prefs_get_uint_value_real(pref_, pref_stashed);
         ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
         return;
@@ -139,7 +139,7 @@ void PreferenceEditorFrame::uintLineEditTextEdited(const QString &new_str)
         new_uint_ = new_uint;
         ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Valid);
     } else {
-        new_uint_ = pref_->stashed_val.uint;
+        new_uint_ = prefs_get_uint_value_real(pref_, pref_stashed);
         ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Invalid);
     }
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok);
@@ -154,7 +154,7 @@ void PreferenceEditorFrame::rangeLineEditTextEdited(const QString &new_str)
 {
     range_t *new_range = NULL;
 
-    convert_ret_t ret = range_convert_str(NULL, &new_range, new_str.toUtf8().constData(), pref_->info.max_value);
+    convert_ret_t ret = range_convert_str(NULL, &new_range, new_str.toUtf8().constData(), prefs_get_max_value(pref_));
     wmem_free(NULL, new_range_);
     new_range_ = new_range;
 
@@ -188,22 +188,15 @@ void PreferenceEditorFrame::on_preferenceLineEdit_returnPressed()
 void PreferenceEditorFrame::on_buttonBox_accepted()
 {
     bool apply = false;
-    switch(pref_->type) {
+    switch(prefs_get_type(pref_)) {
     case PREF_UINT:
-        if (pref_->stashed_val.uint != new_uint_) {
-            pref_->stashed_val.uint = new_uint_;
-            apply = true;
-        }
+        apply = prefs_set_uint_value(pref_, new_uint_, pref_stashed);
         break;
     case PREF_STRING:
-        if (new_str_.compare(pref_->stashed_val.string) != 0) {
-            g_free(pref_->stashed_val.string);
-            pref_->stashed_val.string = qstring_strdup(new_str_);
-            apply = true;
-        }
+        apply = prefs_set_string_value(pref_, new_str_.toStdString().c_str(), pref_stashed);
         break;
     case PREF_RANGE:
-        apply = prefs_set_stashed_range(pref_, new_range_);
+        apply = prefs_set_range_value(pref_, new_range_, pref_stashed);
         break;
     default:
         break;

@@ -152,13 +152,14 @@ static GSList *dissector_reset_list = NULL;
  */
 static prefs_set_pref_e
 read_set_decode_as_entries(gchar *key, const gchar *value,
-                           void *user_data _U_,
+                           void *user_data,
                            gboolean return_range_errors _U_)
 {
     gchar *values[4] = {NULL, NULL, NULL, NULL};
     gchar delimiter[4] = {',', ',', ',','\0'};
     gchar *pch;
     guint i, j;
+    GHashTable* processed_entries = (GHashTable*)user_data;
     dissector_table_t sub_dissectors;
     prefs_set_pref_e retval = PREFS_SET_OK;
     gboolean is_valid = FALSE;
@@ -182,6 +183,7 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
             ftenum_t selector_type;
             pref_t* pref_value;
             module_t *module;
+            const char* proto_name;
 
             selector_type = dissector_table_get_type(sub_dissectors);
 
@@ -207,26 +209,21 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
                     }
 
                     /* Now apply the value data back to dissector table preference */
-                    module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(handle)));
+                    proto_name = proto_get_protocol_filter_name(dissector_handle_get_protocol_index(handle));
+                    module = prefs_find_module(proto_name);
                     pref_value = prefs_find_preference(module, values[0]);
                     if (pref_value != NULL) {
-                        switch(pref_value->type)
-                        {
-                        case PREF_DECODE_AS_UINT:
-                            /* This doesn't support multiple values for a dissector in Decode As because the
-                               preference only supports a single value. This leads to a "last port for
-                               dissector in Decode As wins" */
-                            *pref_value->varp.uint = (guint)long_value;
-                            module->prefs_changed = TRUE;
-                            break;
-                        case PREF_DECODE_AS_RANGE:
-                            prefs_range_add_value(pref_value, (guint)long_value);
-                            module->prefs_changed = TRUE;
-                            break;
-                        default:
-                            /* XXX - Worth asserting over? */
-                            break;
+                        gboolean replace = FALSE;
+                        if (g_hash_table_lookup(processed_entries, proto_name) == NULL) {
+                            /* First decode as entry for this protocol, ranges may be replaced */
+                            replace = TRUE;
+
+                            /* Remember we've processed this protocol */
+                            g_hash_table_insert(processed_entries, (gpointer)proto_name, (gpointer)proto_name);
                         }
+
+                        prefs_add_decode_as_value(pref_value, (guint)long_value, replace);
+                        module->prefs_changed = TRUE;
                     }
 
                 }
@@ -260,7 +257,10 @@ load_decode_as_entries(void)
 
     daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE);
     if ((daf = ws_fopen(daf_path, "r")) != NULL) {
-        read_prefs_file(daf_path, daf, read_set_decode_as_entries, NULL);
+        /* Store saved entries for better range processing */
+        GHashTable* processed_entries = g_hash_table_new(g_str_hash, g_str_equal);
+        read_prefs_file(daf_path, daf, read_set_decode_as_entries, processed_entries);
+        g_hash_table_destroy(processed_entries);
         fclose(daf);
     }
     g_free(daf_path);

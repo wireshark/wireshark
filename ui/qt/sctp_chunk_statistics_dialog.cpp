@@ -98,7 +98,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
     FILE* fp = NULL;
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");
-    uat_t *uat = pref->varp.uat;
+    uat_t *uat = prefs_get_uat_value(pref);
     gchar* fname = uat_get_actual_filename(uat,TRUE);
     bool init = false;
 
@@ -212,7 +212,7 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");
 
-    uat_t *uat = pref->varp.uat;
+    uat_t *uat = prefs_get_uat_value(pref);
 
     gchar* fname = uat_get_actual_filename(uat,TRUE);
 
@@ -284,16 +284,16 @@ void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
     gchar* err = NULL;
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");
-    uat_t *uat = pref->varp.uat;
+    uat_t *uat = prefs_get_uat_value(pref);
     uat_clear(uat);
 
-    if (!uat_load(pref->varp.uat, &err)) {
+    if (!uat_load(uat, &err)) {
         /* XXX - report this through the GUI */
-        printf("Error loading table '%s': %s",pref->varp.uat->name,err);
+        printf("Error loading table '%s': %s", uat->name,err);
         g_free(err);
     }
 
-    UatDialog *uatdialog = new UatDialog(this, pref->varp.uat);
+    UatDialog *uatdialog = new UatDialog(this, uat);
     uatdialog->exec();
     // Emitting PacketDissectionChanged directly from a QDialog can cause
     // problems on OS X.

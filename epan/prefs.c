@@ -204,6 +204,102 @@ static const enum_val_t gui_packet_list_elide_mode[] = {
     {NULL, NULL, -1}
 };
 
+/** Struct to hold preference data */
+struct preference {
+    const char *name;                /**< name of preference */
+    const char *title;               /**< title to use in GUI */
+    const char *description;         /**< human-readable description of preference */
+    int ordinal;                     /**< ordinal number of this preference */
+    int type;                        /**< type of that preference */
+    gui_type_t gui;                  /**< type of the GUI (QT, GTK or both) the preference is registered for */
+    union {                          /* The Qt preference code assumes that these will all be pointers (and unique) */
+        guint *uint;
+        gboolean *boolp;
+        gint *enump;
+        char **string;
+        range_t **range;
+        struct epan_uat* uat;
+        color_t *colorp;
+        GList** list;
+    } varp;                          /**< pointer to variable storing the value */
+    union {
+        guint uint;
+        gboolean boolval;
+        gint enumval;
+        char *string;
+        range_t *range;
+        color_t color;
+        GList* list;
+    } stashed_val;                     /**< original value, when editing from the GUI */
+    union {
+        guint uint;
+        gboolean boolval;
+        gint enumval;
+        char *string;
+        range_t *range;
+        color_t color;
+        GList* list;
+    } default_val;                   /**< the default value of the preference */
+    union {
+      guint base;                    /**< input/output base, for PREF_UINT */
+      guint32 max_value;             /**< maximum value of a range */
+      struct {
+        const enum_val_t *enumvals;  /**< list of name & values */
+        gboolean radio_buttons;      /**< TRUE if it should be shown as
+                                          radio buttons rather than as an
+                                          option menu or combo box in
+                                          the preferences tab */
+      } enum_info;                   /**< for PREF_ENUM */
+    } info;                          /**< display/text file information */
+    struct pref_custom_cbs custom_cbs;   /**< for PREF_CUSTOM */
+    void    *control;                /**< handle for GUI control for this preference. GTK+ only? */
+};
+
+const char* prefs_get_description(pref_t *pref)
+{
+    return pref->description;
+}
+
+const char* prefs_get_title(pref_t *pref)
+{
+    return pref->title;
+}
+
+int prefs_get_type(pref_t *pref)
+{
+    return pref->type;
+}
+
+gui_type_t prefs_get_gui_type(pref_t *pref)
+{
+    return pref->gui;
+}
+
+const char* prefs_get_name(pref_t *pref)
+{
+    return pref->name;
+}
+
+guint32 prefs_get_max_value(pref_t *pref)
+{
+    return pref->info.max_value;
+}
+
+void* prefs_get_control(pref_t *pref)
+{
+    return pref->control;
+}
+
+void prefs_set_control(pref_t *pref, void* control)
+{
+    pref->control = control;
+}
+
+int prefs_get_ordinal(pref_t *pref)
+{
+    return pref->ordinal;
+}
+
 /*
  * List of all modules with preference settings.
  */
@@ -1036,6 +1132,78 @@ prefs_register_bool_preference(module_t *module, const char *name,
     preference->default_val.boolval = *var;
 }
 
+gboolean prefs_set_bool_value(pref_t *pref, gboolean value, pref_source_t source)
+{
+    gboolean changed = FALSE;
+
+    switch (source)
+    {
+    case pref_default:
+        if (pref->default_val.boolval != value) {
+            pref->default_val.boolval = value;
+            changed = TRUE;
+        }
+        break;
+    case pref_stashed:
+        if (pref->stashed_val.boolval != value) {
+            pref->stashed_val.boolval = value;
+            changed = TRUE;
+        }
+        break;
+    case pref_current:
+        if (*pref->varp.boolp != value) {
+            *pref->varp.boolp = value;
+            changed = TRUE;
+        }
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+
+    return changed;
+}
+
+void prefs_invert_bool_value(pref_t *pref, pref_source_t source)
+{
+    switch (source)
+    {
+    case pref_default:
+        pref->default_val.boolval = !pref->default_val.boolval;
+        break;
+    case pref_stashed:
+        pref->stashed_val.boolval = !pref->stashed_val.boolval;
+        break;
+    case pref_current:
+        *pref->varp.boolp = !(*pref->varp.boolp);
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+}
+
+gboolean prefs_get_bool_value(pref_t *pref, pref_source_t source)
+{
+    switch (source)
+    {
+    case pref_default:
+        return pref->default_val.boolval;
+        break;
+    case pref_stashed:
+        return pref->stashed_val.boolval;
+        break;
+    case pref_current:
+        return *pref->varp.boolp;
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+
+    return FALSE;
+}
+
 /*
  * Register a preference with an enumerated value.
  */
@@ -1053,6 +1221,69 @@ prefs_register_enum_preference(module_t *module, const char *name,
     preference->default_val.enumval = *var;
     preference->info.enum_info.enumvals = enumvals;
     preference->info.enum_info.radio_buttons = radio_buttons;
+}
+
+gboolean prefs_set_enum_value(pref_t *pref, gint value, pref_source_t source)
+{
+    gboolean changed = FALSE;
+
+    switch (source)
+    {
+    case pref_default:
+        if (pref->default_val.enumval != value) {
+            pref->default_val.enumval = value;
+            changed = TRUE;
+        }
+        break;
+    case pref_stashed:
+        if (pref->stashed_val.enumval != value) {
+            pref->stashed_val.enumval = value;
+            changed = TRUE;
+        }
+        break;
+    case pref_current:
+        if (*pref->varp.enump != value) {
+            *pref->varp.enump = value;
+            changed = TRUE;
+        }
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+
+    return changed;
+}
+
+gint prefs_get_enum_value(pref_t *pref, pref_source_t source)
+{
+    switch (source)
+    {
+    case pref_default:
+        return pref->default_val.enumval;
+        break;
+    case pref_stashed:
+        return pref->stashed_val.enumval;
+        break;
+    case pref_current:
+        return *pref->varp.enump;
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+
+    return 0;
+}
+
+const enum_val_t* prefs_get_enumvals(pref_t *pref)
+{
+    return pref->info.enum_info.enumvals;
+}
+
+gboolean prefs_get_enum_radiobuttons(pref_t *pref)
+{
+    return pref->info.enum_info.radio_buttons;
 }
 
 static void
@@ -1097,18 +1328,70 @@ register_string_like_preference(module_t *module, const char *name,
 /*
  * For use by UI code that sets preferences.
  */
-void
-prefs_set_string_like_value(pref_t *pref, const gchar *value, gboolean *changed)
+gboolean
+prefs_set_string_value(pref_t *pref, const char* value, pref_source_t source)
 {
-    if (*pref->varp.string) {
-        if (strcmp(*pref->varp.string, value) != 0) {
-            *changed = TRUE;
-            g_free(*pref->varp.string);
+    gboolean changed = FALSE;
+
+    switch (source)
+    {
+    case pref_default:
+        if (*pref->default_val.string) {
+            if (strcmp(pref->default_val.string, value) != 0) {
+                changed = TRUE;
+                g_free(pref->default_val.string);
+                pref->default_val.string = g_strdup(value);
+            }
+        } else if (value) {
+            pref->default_val.string = g_strdup(value);
+        }
+        break;
+    case pref_stashed:
+        if (pref->stashed_val.string) {
+            if (strcmp(pref->stashed_val.string, value) != 0) {
+                changed = TRUE;
+                g_free(pref->stashed_val.string);
+                pref->stashed_val.string = g_strdup(value);
+            }
+        } else if (value) {
+            pref->stashed_val.string = g_strdup(value);
+        }
+        break;
+    case pref_current:
+        if (*pref->varp.string) {
+            if (strcmp(*pref->varp.string, value) != 0) {
+                changed = TRUE;
+                g_free(*pref->varp.string);
+                *pref->varp.string = g_strdup(value);
+            }
+        } else if (value) {
             *pref->varp.string = g_strdup(value);
         }
-    } else if (value) {
-        *pref->varp.string = g_strdup(value);
+        break;
+    default:
+        g_assert_not_reached();
+        break;
     }
+
+    return changed;
+}
+
+char* prefs_get_string_value(pref_t *pref, pref_source_t source)
+{
+    switch (source)
+    {
+    case pref_default:
+        return pref->default_val.string;
+    case pref_stashed:
+        return pref->stashed_val.string;
+    case pref_current:
+        return *pref->varp.string;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+
+    return NULL;
 }
 
 /*
@@ -1201,7 +1484,7 @@ prefs_register_range_preference(module_t *module, const char *name,
                 description, var, max_value, PREF_RANGE);
 }
 
-static gboolean
+gboolean
 prefs_set_range_value_work(pref_t *pref, const gchar *value,
                            gboolean return_range_errors, gboolean *changed)
 {
@@ -1226,12 +1509,6 @@ prefs_set_range_value_work(pref_t *pref, const gchar *value,
  * For use by UI code that sets preferences.
  */
 gboolean
-prefs_set_range_value(pref_t *pref, const gchar *value, gboolean *changed)
-{
-    return prefs_set_range_value_work(pref, value, TRUE, changed);
-}
-
-gboolean
 prefs_set_stashed_range_value(pref_t *pref, const gchar *value)
 {
     range_t *newrange;
@@ -1251,22 +1528,64 @@ prefs_set_stashed_range_value(pref_t *pref, const gchar *value)
 
 }
 
-gboolean
-prefs_set_stashed_range(pref_t *pref, range_t *value)
+gboolean prefs_set_range_value(pref_t *pref, range_t *value, pref_source_t source)
 {
-    if (!ranges_are_equal(pref->stashed_val.range, value)) {
-        wmem_free(wmem_epan_scope(), pref->stashed_val.range);
-        pref->stashed_val.range = range_copy(wmem_epan_scope(), value);
-        return TRUE;
+    gboolean changed = FALSE;
+
+    switch (source)
+    {
+    case pref_default:
+        if (!ranges_are_equal(pref->default_val.range, value)) {
+            wmem_free(wmem_epan_scope(), pref->default_val.range);
+            pref->default_val.range = range_copy(wmem_epan_scope(), value);
+            changed = TRUE;
+        }
+        break;
+    case pref_stashed:
+        if (!ranges_are_equal(pref->stashed_val.range, value)) {
+            wmem_free(wmem_epan_scope(), pref->stashed_val.range);
+            pref->stashed_val.range = range_copy(wmem_epan_scope(), value);
+            changed = TRUE;
+        }
+        break;
+    case pref_current:
+        if (!ranges_are_equal(*pref->varp.range, value)) {
+            wmem_free(wmem_epan_scope(), *pref->varp.range);
+            *pref->varp.range = range_copy(wmem_epan_scope(), value);
+            changed = TRUE;
+        }
+        break;
+    default:
+        g_assert_not_reached();
+        break;
     }
 
-    return FALSE;
+    return changed;
 }
 
-range_t *
-prefs_get_stashed_range(pref_t *pref)
+range_t* prefs_get_range_value_real(pref_t *pref, pref_source_t source)
 {
-    return pref->stashed_val.range;
+    switch (source)
+    {
+    case pref_default:
+        return pref->default_val.range;
+    case pref_stashed:
+        return pref->stashed_val.range;
+        break;
+    case pref_current:
+        return *pref->varp.range;
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+
+    return NULL;
+}
+
+range_t* prefs_get_range_value(const char *module_name, const char* pref_name)
+{
+    return prefs_get_range_value_real(prefs_find_preference(prefs_find_module(module_name), pref_name), pref_current);
 }
 
 void
@@ -1326,6 +1645,11 @@ prefs_register_uat_preference_qt(module_t *module, const char *name,
     preference->gui = GUI_QT;
 }
 
+struct epan_uat* prefs_get_uat_value(pref_t *pref)
+{
+    return pref->varp.uat;
+}
+
 /*
  * Register a color preference.
  */
@@ -1338,6 +1662,64 @@ prefs_register_color_preference(module_t *module, const char *name,
 
     preference->varp.colorp = color;
     preference->default_val.color = *color;
+}
+
+gboolean prefs_set_color_value(pref_t *pref, color_t value, pref_source_t source)
+{
+    gboolean changed = FALSE;
+
+    switch (source)
+    {
+    case pref_default:
+        if ((pref->default_val.color.red != value.red) &&
+            (pref->default_val.color.green != value.green) &&
+            (pref->default_val.color.blue != value.blue)) {
+            changed = TRUE;
+            pref->default_val.color = value;
+        }
+        break;
+    case pref_stashed:
+        if ((pref->stashed_val.color.red != value.red) &&
+            (pref->stashed_val.color.green != value.green) &&
+            (pref->stashed_val.color.blue != value.blue)) {
+            changed = TRUE;
+            pref->stashed_val.color = value;
+        }
+        break;
+    case pref_current:
+        if ((pref->varp.colorp->red != value.red) &&
+            (pref->varp.colorp->green != value.green) &&
+            (pref->varp.colorp->blue != value.blue)) {
+            changed = TRUE;
+            *pref->varp.colorp = value;
+        }
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+
+    return changed;
+}
+
+color_t* prefs_get_color_value(pref_t *pref, pref_source_t source)
+{
+    switch (source)
+    {
+    case pref_default:
+        return &pref->default_val.color;
+    case pref_stashed:
+        return &pref->stashed_val.color;
+        break;
+    case pref_current:
+        return pref->varp.colorp;
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+
+    return NULL;
 }
 
 /*
@@ -1403,6 +1785,58 @@ void prefs_register_decode_as_preference(module_t *module, const char *name,
     preference->default_val.uint = *var;
     /* XXX - Presume base 10 for now */
     preference->info.base = 10;
+}
+
+gboolean prefs_add_decode_as_value(pref_t *pref, guint value, gboolean replace)
+{
+    switch(pref->type)
+    {
+    case PREF_DECODE_AS_UINT:
+        /* This doesn't support multiple values for a dissector in Decode As because the
+            preference only supports a single value. This leads to a "last port for
+            dissector in Decode As wins" */
+        *pref->varp.uint = value;
+        break;
+    case PREF_DECODE_AS_RANGE:
+        if (replace)
+        {
+            /* If range has single value, replace it */
+            if (((*pref->varp.range)->nranges == 1) &&
+                ((*pref->varp.range)->ranges[0].low == (*pref->varp.range)->ranges[0].high)) {
+                wmem_free(wmem_epan_scope(), *pref->varp.range);
+                *pref->varp.range = range_empty(wmem_epan_scope());
+            }
+        }
+
+        prefs_range_add_value(pref, value);
+        break;
+    default:
+        /* XXX - Worth asserting over? */
+        break;
+    }
+
+    return TRUE;
+}
+
+gboolean prefs_remove_decode_as_value(pref_t *pref, guint value, gboolean set_default)
+{
+    switch(pref->type)
+    {
+    case PREF_DECODE_AS_UINT:
+        if (set_default) {
+            *pref->varp.uint = pref->default_val.uint;
+        } else {
+            *pref->varp.uint = 0;
+        }
+        break;
+    case PREF_DECODE_AS_RANGE:
+        prefs_range_remove_value(pref, value);
+        break;
+    default:
+        break;
+    }
+
+    return TRUE;
 }
 
 /*
@@ -1920,7 +2354,7 @@ column_hidden_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
     fmt_data    *cfmt;
     pref_t  *format_pref;
 
-    prefs_set_string_like_value(pref, value, changed);
+    (*changed) |= prefs_set_string_value(pref, value, pref_current);
 
     /*
      * Set the "visible" flag for the existing columns; we need to
@@ -2433,8 +2867,7 @@ capture_column_to_str_cb(pref_t* pref, gboolean default_val)
 static prefs_set_pref_e
 colorized_frame_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
 {
-    prefs_set_string_like_value(pref, value, changed);
-
+    (*changed) |= prefs_set_string_value(pref, value, pref_current);
     return PREFS_SET_OK;
 }
 
@@ -3604,7 +4037,7 @@ pre_init_prefs(void)
 /*
  * Reset a single dissector preference.
  */
-static void
+void
 reset_pref(pref_t *pref)
 {
     int type;
@@ -4153,20 +4586,66 @@ prefs_set_pref(char *prefarg)
     return ret;
 }
 
-guint prefs_get_uint_value(const char *module_name, const char* pref_name)
+guint prefs_get_uint_value_real(pref_t *pref, pref_source_t source)
 {
-    pref_t *pref = prefs_find_preference(prefs_find_module(module_name), pref_name);
-    g_assert(pref != NULL);
+    switch (source)
+    {
+    case pref_default:
+        return pref->default_val.uint;
+        break;
+    case pref_stashed:
+        return pref->stashed_val.uint;
+        break;
+    case pref_current:
+        return *pref->varp.uint;
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
 
-    return *pref->varp.uint;
+    return 0;
 }
 
-range_t* prefs_get_range_value(const char *module_name, const char* pref_name)
+guint prefs_get_uint_value(const char *module_name, const char* pref_name)
 {
-    pref_t *pref = prefs_find_preference(prefs_find_module(module_name), pref_name);
-    g_assert(pref != NULL);
+    return prefs_get_uint_value_real(prefs_find_preference(prefs_find_module(module_name), pref_name), pref_current);
+}
 
-    return *pref->varp.range;
+gboolean prefs_set_uint_value(pref_t *pref, guint value, pref_source_t source)
+{
+    gboolean changed = FALSE;
+    switch (source)
+    {
+    case pref_default:
+        if (pref->default_val.uint != value) {
+            pref->default_val.uint = value;
+            changed = TRUE;
+        }
+        break;
+    case pref_stashed:
+        if (pref->stashed_val.uint != value) {
+            pref->stashed_val.uint = value;
+            changed = TRUE;
+        }
+        break;
+    case pref_current:
+        if (*pref->varp.uint != value) {
+            *pref->varp.uint = value;
+            changed = TRUE;
+        }
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+
+    return changed;
+}
+
+guint prefs_get_uint_base(pref_t *pref)
+{
+    return pref->info.base;
 }
 
 /*
@@ -4693,7 +5172,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
                 pref = prefs_find_preference(module, port_range_prefs[i].table_name);
                 if (pref != NULL)
                 {
-                    if (!prefs_set_range_value(pref, value, &module->prefs_changed))
+                    if (!prefs_set_range_value_work(pref, value, TRUE, &module->prefs_changed))
                     {
                         return FALSE;        /* number was bad */
                     }
@@ -5253,7 +5732,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         case PREF_STRING:
         case PREF_FILENAME:
         case PREF_DIRNAME:
-            prefs_set_string_like_value(pref, value, &containing_module->prefs_changed);
+            containing_module->prefs_changed |= prefs_set_string_value(pref, value, pref_current);
             break;
 
         case PREF_RANGE:

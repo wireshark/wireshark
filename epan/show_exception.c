@@ -100,7 +100,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			pref_t *display_pref = prefs_find_preference(frame_module, "disable_packet_size_limited_in_summary");
 			if (display_pref)
 			{
-				if (*display_pref->varp.boolp)
+				if (prefs_get_bool_value(display_pref, pref_current))
 					display_info = FALSE;
 			}
 		}
