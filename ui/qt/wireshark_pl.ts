@@ -10577,7 +10577,7 @@ text-decoration: underline;
         <translation>Wartość</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="452"/>
+        <location filename="preferences_dialog.cpp" line="391"/>
         <source>Preferences</source>
         <translation>Preferencje</translation>
     </message>
@@ -10862,27 +10862,27 @@ text-decoration: underline;
 <context>
     <name>ProtocolPreferencesMenu</name>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="177"/>
+        <location filename="protocol_preferences_menu.cpp" line="151"/>
         <source>Protocol Preferences</source>
         <translation>Ustawienia protokołów</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="198"/>
+        <location filename="protocol_preferences_menu.cpp" line="172"/>
         <source>No protocol preferences available</source>
         <translation>Brak dostępnych ustawień protokołu</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="203"/>
+        <location filename="protocol_preferences_menu.cpp" line="177"/>
         <source>Disable %1</source>
         <translation>Wyłączony %1</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="208"/>
+        <location filename="protocol_preferences_menu.cpp" line="182"/>
         <source>%1 has no preferences</source>
         <translation>%1 nie ma ustawień</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="217"/>
+        <location filename="protocol_preferences_menu.cpp" line="191"/>
         <source>Open %1 preferences</source>
         <translation>Otwiera ustawienia %1</translation>
     </message>
@@ -10910,33 +10910,33 @@ text-decoration: underline;
         <translation>Domyślna wartość jest pusta</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="76"/>
+        <location filename="tcp_stream_dialog.cpp" line="77"/>
         <source>Average Througput (bits/s)</source>
         <oldsource>Avgerage Througput (bits/s)</oldsource>
         <translation>Średnia przepustowość (bit/s)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="77"/>
+        <location filename="tcp_stream_dialog.cpp" line="78"/>
         <source>Round Trip Time (ms)</source>
         <translation>Czas podróży (ms)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="78"/>
+        <location filename="tcp_stream_dialog.cpp" line="79"/>
         <source>Segment Length (B)</source>
         <translation>Długość Segmentu (B)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="79"/>
+        <location filename="tcp_stream_dialog.cpp" line="80"/>
         <source>Sequence Number (B)</source>
         <translation>Numer Sekwencyjny (B)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="80"/>
+        <location filename="tcp_stream_dialog.cpp" line="81"/>
         <source>Time (s)</source>
         <translation>Czas (s)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="81"/>
+        <location filename="tcp_stream_dialog.cpp" line="82"/>
         <source>Window Size (B)</source>
         <translation>Rozmiar okna (B)</translation>
     </message>
@@ -11487,12 +11487,12 @@ text-decoration: underline;
         <translation>DLT %1</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="816"/>
+        <location filename="../../wireshark-qt.cpp" line="865"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished">Niepoprawny filtr</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="817"/>
+        <location filename="../../wireshark-qt.cpp" line="866"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12416,7 +12416,12 @@ text-decoration: underline;
 <context>
     <name>RtpAudioStream</name>
     <message>
-        <location filename="rtp_audio_stream.cpp" line="572"/>
+        <location filename="rtp_audio_stream.cpp" line="553"/>
+        <source>RTP stream is empty or codec is unsupported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_audio_stream.cpp" line="577"/>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14639,63 +14644,67 @@ text-decoration: underline;
         <translation>Formularz</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="137"/>
+        <location filename="splash_overlay.cpp" line="145"/>
         <source>Initializing dissectors</source>
         <translation>Inicjacja dekoderów</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="140"/>
+        <location filename="splash_overlay.cpp" line="148"/>
         <source>Initializing tap listeners</source>
         <translation>Inicjacja kanałów komunikacyjnych</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="143"/>
+        <location filename="splash_overlay.cpp" line="151"/>
+        <source>Initializing extcap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="splash_overlay.cpp" line="154"/>
         <source>Registering dissectors</source>
         <translation>Rejestracja dekoderów</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="146"/>
+        <location filename="splash_overlay.cpp" line="157"/>
         <source>Registering plugins</source>
         <oldsource>Registering dissector</oldsource>
         <translation>Rejestracja wtyczek</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="149"/>
+        <location filename="splash_overlay.cpp" line="160"/>
         <source>Handing off dissectors</source>
         <translation>Finalizowanie dekoderów</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="152"/>
+        <location filename="splash_overlay.cpp" line="163"/>
         <source>Handing off plugins</source>
         <translation>Finalizowanie wtyczek</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="155"/>
+        <location filename="splash_overlay.cpp" line="166"/>
         <source>Loading Lua plugins</source>
         <translation>Ładowanie wtyczek Lua</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="158"/>
+        <location filename="splash_overlay.cpp" line="169"/>
         <source>Removing Lua plugins</source>
         <translation>Usuwanie wtyczek Lua</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="161"/>
+        <location filename="splash_overlay.cpp" line="172"/>
         <source>Loading module preferences</source>
         <translation>Ładowanie preferencji modułów</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="164"/>
+        <location filename="splash_overlay.cpp" line="175"/>
         <source>Finding local interfaces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="167"/>
         <source>Loading configuration files</source>
-        <translation>Ładowanie plików konfiguracyjnych</translation>
+        <translation type="vanished">Ładowanie plików konfiguracyjnych</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="170"/>
+        <location filename="splash_overlay.cpp" line="178"/>
         <source>(Unknown action)</source>
         <translation>(Nieznana akcja)</translation>
     </message>
@@ -14906,456 +14915,456 @@ text-decoration: underline;
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="97"/>
+        <location filename="tcp_stream_dialog.ui" line="104"/>
         <source>MA Window (s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="107"/>
-        <source>Allow ACKs as well as data packets to be selected by clicking on the graph</source>
+        <location filename="tcp_stream_dialog.ui" line="114"/>
+        <source>Allow SACK segments as well as data packets to be selected by clicking on the graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="110"/>
-        <source>select ACKs</source>
+        <location filename="tcp_stream_dialog.ui" line="117"/>
+        <source>select SACKs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="130"/>
+        <location filename="tcp_stream_dialog.ui" line="140"/>
         <source>Stream</source>
         <translation>Strumień</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="140"/>
+        <location filename="tcp_stream_dialog.ui" line="150"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zmień kierunek przepływu w połączeniu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="143"/>
-        <location filename="tcp_stream_dialog.ui" line="371"/>
+        <location filename="tcp_stream_dialog.ui" line="153"/>
+        <location filename="tcp_stream_dialog.ui" line="387"/>
         <source>Switch Direction</source>
         <translation>Odwróć kierunek</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="154"/>
+        <location filename="tcp_stream_dialog.ui" line="164"/>
         <source>Mouse</source>
         <translation>Mysz</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="161"/>
+        <location filename="tcp_stream_dialog.ui" line="171"/>
         <source>Drag using the mouse button.</source>
         <translation>Przeciągnij przy użyciu myszy.</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="164"/>
+        <location filename="tcp_stream_dialog.ui" line="174"/>
         <source>drags</source>
         <translation>przesuwanie</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="177"/>
+        <location filename="tcp_stream_dialog.ui" line="190"/>
         <source>Select using the mouse button.</source>
         <translation>Wybieranie przy pomocy myszy.</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="180"/>
+        <location filename="tcp_stream_dialog.ui" line="193"/>
         <source>zooms</source>
         <translation>zmiana rozmiaru</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="206"/>
+        <location filename="tcp_stream_dialog.ui" line="222"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resetuj wykres do ustawień początkowych&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="209"/>
+        <location filename="tcp_stream_dialog.ui" line="225"/>
         <source>Reset</source>
         <translation>Resetuj</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="228"/>
+        <location filename="tcp_stream_dialog.ui" line="244"/>
         <source>Reset Graph</source>
         <translation>Resetuj wykres</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="231"/>
+        <location filename="tcp_stream_dialog.ui" line="247"/>
         <source>Reset the graph to its initial state.</source>
         <translation>Resetuj wykres do stanu początkowego.</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="234"/>
+        <location filename="tcp_stream_dialog.ui" line="250"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="239"/>
-        <location filename="tcp_stream_dialog.ui" line="242"/>
+        <location filename="tcp_stream_dialog.ui" line="255"/>
+        <location filename="tcp_stream_dialog.ui" line="258"/>
         <source>Zoom In</source>
         <translation>Powiększ</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="245"/>
+        <location filename="tcp_stream_dialog.ui" line="261"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="250"/>
-        <location filename="tcp_stream_dialog.ui" line="253"/>
+        <location filename="tcp_stream_dialog.ui" line="266"/>
+        <location filename="tcp_stream_dialog.ui" line="269"/>
         <source>Zoom Out</source>
         <translation>Pomniejsz</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="256"/>
+        <location filename="tcp_stream_dialog.ui" line="272"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="261"/>
-        <location filename="tcp_stream_dialog.ui" line="264"/>
+        <location filename="tcp_stream_dialog.ui" line="277"/>
+        <location filename="tcp_stream_dialog.ui" line="280"/>
         <source>Move Up 10 Pixels</source>
         <translation>Przesuń w górę o 10 pikseli</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="267"/>
+        <location filename="tcp_stream_dialog.ui" line="283"/>
         <source>Up</source>
         <translation>W górę</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="272"/>
-        <location filename="tcp_stream_dialog.ui" line="275"/>
+        <location filename="tcp_stream_dialog.ui" line="288"/>
+        <location filename="tcp_stream_dialog.ui" line="291"/>
         <source>Move Left 10 Pixels</source>
         <translation>Przesuń w lewo o 10 pikseli</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="278"/>
+        <location filename="tcp_stream_dialog.ui" line="294"/>
         <source>Left</source>
         <translation>W lewo</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="283"/>
-        <location filename="tcp_stream_dialog.ui" line="286"/>
+        <location filename="tcp_stream_dialog.ui" line="299"/>
+        <location filename="tcp_stream_dialog.ui" line="302"/>
         <source>Move Right 10 Pixels</source>
         <translation>Przesuń w prawo o 10 pikseli</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="289"/>
+        <location filename="tcp_stream_dialog.ui" line="305"/>
         <source>Right</source>
         <translation>W prawo</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="294"/>
-        <location filename="tcp_stream_dialog.ui" line="297"/>
+        <location filename="tcp_stream_dialog.ui" line="310"/>
+        <location filename="tcp_stream_dialog.ui" line="313"/>
         <source>Move Down 10 Pixels</source>
         <translation>Przesuń w dół o 10 pikseli</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="300"/>
+        <location filename="tcp_stream_dialog.ui" line="316"/>
         <source>Down</source>
         <translation>W dół</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="305"/>
-        <location filename="tcp_stream_dialog.ui" line="308"/>
+        <location filename="tcp_stream_dialog.ui" line="321"/>
+        <location filename="tcp_stream_dialog.ui" line="324"/>
         <source>Move Up 1 Pixel</source>
         <translation>Przesuń w górę o 1 piksel</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="311"/>
+        <location filename="tcp_stream_dialog.ui" line="327"/>
         <source>Shift+Up</source>
         <translation>Shift+w górę</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="316"/>
-        <location filename="tcp_stream_dialog.ui" line="319"/>
+        <location filename="tcp_stream_dialog.ui" line="332"/>
+        <location filename="tcp_stream_dialog.ui" line="335"/>
         <source>Move Left 1 Pixel</source>
         <translation>Przesuń w lewo o 1 piksel</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="322"/>
+        <location filename="tcp_stream_dialog.ui" line="338"/>
         <source>Shift+Left</source>
         <translation>Shift+w lewo</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="327"/>
-        <location filename="tcp_stream_dialog.ui" line="330"/>
+        <location filename="tcp_stream_dialog.ui" line="343"/>
+        <location filename="tcp_stream_dialog.ui" line="346"/>
         <source>Move Right 1 Pixel</source>
         <translation>Przesuń w prawo o 1 piksel</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="333"/>
+        <location filename="tcp_stream_dialog.ui" line="349"/>
         <source>Shift+Right</source>
         <translation>Shift+w prawo</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="338"/>
-        <location filename="tcp_stream_dialog.ui" line="341"/>
+        <location filename="tcp_stream_dialog.ui" line="354"/>
+        <location filename="tcp_stream_dialog.ui" line="357"/>
         <source>Move Down 1 Pixel</source>
         <translation>Przesuń w dół o 1 piksel</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="344"/>
+        <location filename="tcp_stream_dialog.ui" line="360"/>
         <source>Shift+Down</source>
         <translation>Shift+w dół</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="349"/>
+        <location filename="tcp_stream_dialog.ui" line="365"/>
         <source>Next Stream</source>
         <translation>Następny strumień</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="352"/>
+        <location filename="tcp_stream_dialog.ui" line="368"/>
         <source>Go to the next stream in the capture</source>
         <translation>Idź do następnego strumienia</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="355"/>
+        <location filename="tcp_stream_dialog.ui" line="371"/>
         <source>PgUp</source>
         <translation>PgUp</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="360"/>
+        <location filename="tcp_stream_dialog.ui" line="376"/>
         <source>Previous Stream</source>
         <translation>Poprzedni strumień</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="363"/>
+        <location filename="tcp_stream_dialog.ui" line="379"/>
         <source>Go to the previous stream in the capture</source>
         <translation>Idź do poprzedniego strumienia</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="366"/>
+        <location filename="tcp_stream_dialog.ui" line="382"/>
         <source>PgDown</source>
         <translation>PgDown</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="374"/>
+        <location filename="tcp_stream_dialog.ui" line="390"/>
         <source>Switch direction (swap TCP endpoints)</source>
         <translation>Odwróć kierunk (zamień punkty krańcowe TCP)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="377"/>
+        <location filename="tcp_stream_dialog.ui" line="393"/>
         <source>D</source>
         <translation>D</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="382"/>
+        <location filename="tcp_stream_dialog.ui" line="398"/>
         <source>Go To Packet Under Cursor</source>
         <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="385"/>
+        <location filename="tcp_stream_dialog.ui" line="401"/>
         <source>Go to packet currently under the cursor</source>
         <translation>Idź do pakietu pod kursorem</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="388"/>
+        <location filename="tcp_stream_dialog.ui" line="404"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="393"/>
+        <location filename="tcp_stream_dialog.ui" line="409"/>
         <source>Drag / Zoom</source>
         <translation>Przeciągnij / Powiększ/pomniejsz</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="396"/>
+        <location filename="tcp_stream_dialog.ui" line="412"/>
         <source>Toggle mouse drag / zoom behavior</source>
         <translation>Przełącz mysz pomiędzy funkcją przeciągnięcia a powiększenia/pomniejszenia</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="399"/>
+        <location filename="tcp_stream_dialog.ui" line="415"/>
         <source>Z</source>
         <translation>Z</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="404"/>
+        <location filename="tcp_stream_dialog.ui" line="420"/>
         <source>Relative / Absolute Sequence Numbers</source>
         <translation>Relatywne/Absolutne numery sekwencyjne</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="407"/>
+        <location filename="tcp_stream_dialog.ui" line="423"/>
         <source>Toggle relative / absolute sequence numbers</source>
         <translation>Przałącz pomiędzy relatywnymi a absolutnymi numerami sekwencyjnymi</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="410"/>
+        <location filename="tcp_stream_dialog.ui" line="426"/>
         <source>S</source>
         <translation>S</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="415"/>
+        <location filename="tcp_stream_dialog.ui" line="431"/>
         <source>Capture / Session Time Origin</source>
         <translation>Czas sesji / przechwytywania</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="418"/>
+        <location filename="tcp_stream_dialog.ui" line="434"/>
         <source>Toggle capture / session time origin</source>
         <translation>Przełącz między czasem przechwytywania a sesji</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="421"/>
+        <location filename="tcp_stream_dialog.ui" line="437"/>
         <source>T</source>
         <translation>T</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="426"/>
+        <location filename="tcp_stream_dialog.ui" line="442"/>
         <source>Crosshairs</source>
         <translation>Wskaźniki</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="429"/>
+        <location filename="tcp_stream_dialog.ui" line="445"/>
         <source>Toggle crosshairs</source>
         <translation>Przełącz wskaźnik wykresu</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="432"/>
+        <location filename="tcp_stream_dialog.ui" line="448"/>
         <source>Space</source>
         <translation>Spacja</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="437"/>
-        <location filename="tcp_stream_dialog.cpp" line="811"/>
+        <location filename="tcp_stream_dialog.ui" line="453"/>
+        <location filename="tcp_stream_dialog.cpp" line="875"/>
         <source>Round Trip Time</source>
         <translation>Czas podróży</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="440"/>
+        <location filename="tcp_stream_dialog.ui" line="456"/>
         <source>Switch to the Round Trip Time graph</source>
         <translation>Przełącz na wykres czasu podróży</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="443"/>
+        <location filename="tcp_stream_dialog.ui" line="459"/>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="448"/>
-        <location filename="tcp_stream_dialog.cpp" line="711"/>
+        <location filename="tcp_stream_dialog.ui" line="464"/>
+        <location filename="tcp_stream_dialog.cpp" line="775"/>
         <source>Throughput</source>
         <translation>Przepustowość</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="451"/>
+        <location filename="tcp_stream_dialog.ui" line="467"/>
         <source>Switch to the Throughput graph</source>
         <translation>Przełącz na wykres przepustowości</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="454"/>
+        <location filename="tcp_stream_dialog.ui" line="470"/>
         <source>2</source>
         <translation>2</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="459"/>
+        <location filename="tcp_stream_dialog.ui" line="475"/>
         <source>Time / Sequence (Stevens)</source>
         <translation>Czas / Sekwencja (Stevens)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="462"/>
+        <location filename="tcp_stream_dialog.ui" line="478"/>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
         <translation>Przełącz na wykres czasu/sekwencji Stevensa</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="465"/>
+        <location filename="tcp_stream_dialog.ui" line="481"/>
         <source>3</source>
         <translation>3</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="470"/>
-        <location filename="tcp_stream_dialog.cpp" line="865"/>
+        <location filename="tcp_stream_dialog.ui" line="486"/>
+        <location filename="tcp_stream_dialog.cpp" line="929"/>
         <source>Window Scaling</source>
         <translation>Okno skalowania</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="473"/>
+        <location filename="tcp_stream_dialog.ui" line="489"/>
         <source>Switch to the Window Scaling graph</source>
         <translation>Przełącz do wykresu okna skalowania</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="476"/>
+        <location filename="tcp_stream_dialog.ui" line="492"/>
         <source>5</source>
         <translation>5</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="481"/>
+        <location filename="tcp_stream_dialog.ui" line="497"/>
         <source>Time / Sequence (tcptrace)</source>
         <translation>Czas / Sekwencja (tcptrace)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="484"/>
+        <location filename="tcp_stream_dialog.ui" line="500"/>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
         <translation>Przełącz do wykresu w stylu czasu/sekwencji programu tcptrace</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="487"/>
+        <location filename="tcp_stream_dialog.ui" line="503"/>
         <source>4</source>
         <translation>4</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="492"/>
-        <location filename="tcp_stream_dialog.ui" line="495"/>
+        <location filename="tcp_stream_dialog.ui" line="508"/>
+        <location filename="tcp_stream_dialog.ui" line="511"/>
         <source>Zoom In X Axis</source>
         <translation>Zwiększ zakres osi X</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="498"/>
+        <location filename="tcp_stream_dialog.ui" line="514"/>
         <source>X</source>
         <translation>X</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="503"/>
-        <location filename="tcp_stream_dialog.ui" line="506"/>
+        <location filename="tcp_stream_dialog.ui" line="519"/>
+        <location filename="tcp_stream_dialog.ui" line="522"/>
         <source>Zoom Out X Axis</source>
         <translation>Zmniejsz zakres osi X</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="509"/>
+        <location filename="tcp_stream_dialog.ui" line="525"/>
         <source>Shift+X</source>
         <translation>Shift+X</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="514"/>
-        <location filename="tcp_stream_dialog.ui" line="517"/>
+        <location filename="tcp_stream_dialog.ui" line="530"/>
+        <location filename="tcp_stream_dialog.ui" line="533"/>
         <source>Zoom In Y Axis</source>
         <translation>Zwiększ zakres osi Y</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="520"/>
+        <location filename="tcp_stream_dialog.ui" line="536"/>
         <source>Y</source>
         <translation>Y</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="525"/>
-        <location filename="tcp_stream_dialog.ui" line="528"/>
+        <location filename="tcp_stream_dialog.ui" line="541"/>
+        <location filename="tcp_stream_dialog.ui" line="544"/>
         <source>Zoom Out Y Axis</source>
         <translation>Zmniejsz zakres osi Y</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="531"/>
+        <location filename="tcp_stream_dialog.ui" line="547"/>
         <source>Shift+Y</source>
         <translation>Shift+Y</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="246"/>
+        <location filename="tcp_stream_dialog.cpp" line="269"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>Zapisz jako</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="431"/>
+        <location filename="tcp_stream_dialog.cpp" line="465"/>
         <source>No Capture Data</source>
         <translation>Brak przechwyconych danych</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="495"/>
+        <location filename="tcp_stream_dialog.cpp" line="534"/>
         <source>%1 %2 pkts, %3 %4 %5 pkts, %6 </source>
         <translation>%1 %2 pakietów, %3 %4 %5 punktów, %6 </translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="628"/>
+        <location filename="tcp_stream_dialog.cpp" line="667"/>
         <source>Sequence Numbers (Stevens)</source>
         <translation>Numery sekwencyjne (Stevens)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="653"/>
+        <location filename="tcp_stream_dialog.cpp" line="692"/>
         <source>Sequence Numbers (tcptrace)</source>
         <translation>Numery sekwencyjne (tcptrace)</translation>
     </message>
@@ -15364,77 +15373,77 @@ text-decoration: underline;
         <translation type="vanished"> (1s MA)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="713"/>
+        <location filename="tcp_stream_dialog.cpp" line="777"/>
         <source> (MA)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="715"/>
+        <location filename="tcp_stream_dialog.cpp" line="779"/>
         <source> (%1 Segment MA)</source>
         <translation> (%1 Segment MA)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="734"/>
+        <location filename="tcp_stream_dialog.cpp" line="798"/>
         <source> [not enough data]</source>
         <translation> [niewystarczające dane]</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="892"/>
+        <location filename="tcp_stream_dialog.cpp" line="956"/>
         <source> for %1:%2 %3 %4:%5</source>
         <translation> dla %1:%2 %3 %4:%5</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1075"/>
+        <location filename="tcp_stream_dialog.cpp" line="1139"/>
         <source>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</source>
         <translation>%1 %2 (%3s rozmiar %4 numer sekwencyjny %5 potwierdzone %6 wygrane %7)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1076"/>
+        <location filename="tcp_stream_dialog.cpp" line="1140"/>
         <source>Click to select packet</source>
         <translation>Kliknij by wybrać pakiet</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1076"/>
+        <location filename="tcp_stream_dialog.cpp" line="1140"/>
         <source>Packet</source>
         <translation>Pakiet</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1090"/>
+        <location filename="tcp_stream_dialog.cpp" line="1154"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>Powiększenie, x = %1 do %2, y = %3 do %4</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1096"/>
+        <location filename="tcp_stream_dialog.cpp" line="1160"/>
         <source>Unable to select range.</source>
         <translation>Niemożna wybrać danego zakresu.</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1099"/>
+        <location filename="tcp_stream_dialog.cpp" line="1163"/>
         <source>Click to select a portion of the graph.</source>
         <translation>Kliknij by wybrać obszar wykresu.</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1142"/>
+        <location filename="tcp_stream_dialog.cpp" line="1206"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Dokument PDF (*.pdf)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1143"/>
+        <location filename="tcp_stream_dialog.cpp" line="1207"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Obraz PNG (*.png)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1144"/>
+        <location filename="tcp_stream_dialog.cpp" line="1208"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1146"/>
+        <location filename="tcp_stream_dialog.cpp" line="1210"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1153"/>
+        <location filename="tcp_stream_dialog.cpp" line="1217"/>
         <source>Save Graph As</source>
         <translation>Zapisz wykres jako</translation>
     </message>

@@ -10526,7 +10526,7 @@ a:hover {
         <translation>値</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="452"/>
+        <location filename="preferences_dialog.cpp" line="391"/>
         <source>Preferences</source>
         <translation>設定</translation>
     </message>
@@ -10811,27 +10811,27 @@ a:hover {
 <context>
     <name>ProtocolPreferencesMenu</name>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="177"/>
+        <location filename="protocol_preferences_menu.cpp" line="151"/>
         <source>Protocol Preferences</source>
         <translation>プロトコル設定</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="198"/>
+        <location filename="protocol_preferences_menu.cpp" line="172"/>
         <source>No protocol preferences available</source>
         <translation>プロトコル設定が利用できません</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="203"/>
+        <location filename="protocol_preferences_menu.cpp" line="177"/>
         <source>Disable %1</source>
         <translation>%1を無効化する</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="208"/>
+        <location filename="protocol_preferences_menu.cpp" line="182"/>
         <source>%1 has no preferences</source>
         <translation>%1には設定がありません</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="217"/>
+        <location filename="protocol_preferences_menu.cpp" line="191"/>
         <source>Open %1 preferences</source>
         <translation>%1 設定を開く</translation>
     </message>
@@ -10859,33 +10859,33 @@ a:hover {
         <translation>デフォルト値は空です</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="76"/>
+        <location filename="tcp_stream_dialog.cpp" line="77"/>
         <source>Average Througput (bits/s)</source>
         <oldsource>Avgerage Througput (bits/s)</oldsource>
         <translation>平均スループット(ビット毎秒)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="77"/>
+        <location filename="tcp_stream_dialog.cpp" line="78"/>
         <source>Round Trip Time (ms)</source>
         <translation>往復遅延時間(ミリ秒)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="78"/>
+        <location filename="tcp_stream_dialog.cpp" line="79"/>
         <source>Segment Length (B)</source>
         <translation>セグメント長(バイト)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="79"/>
+        <location filename="tcp_stream_dialog.cpp" line="80"/>
         <source>Sequence Number (B)</source>
         <translation>シーケンス番号(バイト)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="80"/>
+        <location filename="tcp_stream_dialog.cpp" line="81"/>
         <source>Time (s)</source>
         <translation>時間(秒)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="81"/>
+        <location filename="tcp_stream_dialog.cpp" line="82"/>
         <source>Window Size (B)</source>
         <translation>ウインドウサイズ(バイト)</translation>
     </message>
@@ -11436,12 +11436,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="816"/>
+        <location filename="../../wireshark-qt.cpp" line="865"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished">無効な表示フィルタ</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="817"/>
+        <location filename="../../wireshark-qt.cpp" line="866"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12365,7 +12365,12 @@ a:hover {
 <context>
     <name>RtpAudioStream</name>
     <message>
-        <location filename="rtp_audio_stream.cpp" line="572"/>
+        <location filename="rtp_audio_stream.cpp" line="553"/>
+        <source>RTP stream is empty or codec is unsupported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_audio_stream.cpp" line="577"/>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14557,63 +14562,67 @@ a:hover {
         <translation>フォーム</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="137"/>
+        <location filename="splash_overlay.cpp" line="145"/>
         <source>Initializing dissectors</source>
         <translation>ダイセクターを初期化中</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="140"/>
+        <location filename="splash_overlay.cpp" line="148"/>
         <source>Initializing tap listeners</source>
         <translation>タップリスナを初期化中</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="143"/>
+        <location filename="splash_overlay.cpp" line="151"/>
+        <source>Initializing extcap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="splash_overlay.cpp" line="154"/>
         <source>Registering dissectors</source>
         <translation>ダイセクターを登録中</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="146"/>
+        <location filename="splash_overlay.cpp" line="157"/>
         <source>Registering plugins</source>
         <oldsource>Registering dissector</oldsource>
         <translation>プラグインを登録中</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="149"/>
+        <location filename="splash_overlay.cpp" line="160"/>
         <source>Handing off dissectors</source>
         <translation>ダイセクターを除去中</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="152"/>
+        <location filename="splash_overlay.cpp" line="163"/>
         <source>Handing off plugins</source>
         <translation>プラグインを除去中</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="155"/>
+        <location filename="splash_overlay.cpp" line="166"/>
         <source>Loading Lua plugins</source>
         <translation>Luaプラグインを読込中</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="158"/>
+        <location filename="splash_overlay.cpp" line="169"/>
         <source>Removing Lua plugins</source>
         <translation>Luaプラグインを削除中</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="161"/>
+        <location filename="splash_overlay.cpp" line="172"/>
         <source>Loading module preferences</source>
         <translation>モジュール設定を読込中</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="164"/>
+        <location filename="splash_overlay.cpp" line="175"/>
         <source>Finding local interfaces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="167"/>
         <source>Loading configuration files</source>
-        <translation>設定ファイルを読込中</translation>
+        <translation type="vanished">設定ファイルを読込中</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="170"/>
+        <location filename="splash_overlay.cpp" line="178"/>
         <source>(Unknown action)</source>
         <translation>(不明な動作)</translation>
     </message>
@@ -14829,456 +14838,456 @@ a:hover {
         <translation>種別</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="97"/>
+        <location filename="tcp_stream_dialog.ui" line="104"/>
         <source>MA Window (s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="107"/>
-        <source>Allow ACKs as well as data packets to be selected by clicking on the graph</source>
+        <location filename="tcp_stream_dialog.ui" line="114"/>
+        <source>Allow SACK segments as well as data packets to be selected by clicking on the graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="110"/>
-        <source>select ACKs</source>
+        <location filename="tcp_stream_dialog.ui" line="117"/>
+        <source>select SACKs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="130"/>
+        <location filename="tcp_stream_dialog.ui" line="140"/>
         <source>Stream</source>
         <translation>ストリーム</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="140"/>
+        <location filename="tcp_stream_dialog.ui" line="150"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;接続の向きを切り替えます (反対側のフローを表示します)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="143"/>
-        <location filename="tcp_stream_dialog.ui" line="371"/>
+        <location filename="tcp_stream_dialog.ui" line="153"/>
+        <location filename="tcp_stream_dialog.ui" line="387"/>
         <source>Switch Direction</source>
         <translation>向きを切り替え</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="154"/>
+        <location filename="tcp_stream_dialog.ui" line="164"/>
         <source>Mouse</source>
         <translation>マウス</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="161"/>
+        <location filename="tcp_stream_dialog.ui" line="171"/>
         <source>Drag using the mouse button.</source>
         <translation>マウスボタンを使ってドラッグします</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="164"/>
+        <location filename="tcp_stream_dialog.ui" line="174"/>
         <source>drags</source>
         <translation>ドラッグ</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="177"/>
+        <location filename="tcp_stream_dialog.ui" line="190"/>
         <source>Select using the mouse button.</source>
         <translation>マウスボタンを使うことを選択します</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="180"/>
+        <location filename="tcp_stream_dialog.ui" line="193"/>
         <source>zooms</source>
         <translation>ズーム</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="206"/>
+        <location filename="tcp_stream_dialog.ui" line="222"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;グラフを初期状態にリセットします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="209"/>
+        <location filename="tcp_stream_dialog.ui" line="225"/>
         <source>Reset</source>
         <translation>リセット</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="228"/>
+        <location filename="tcp_stream_dialog.ui" line="244"/>
         <source>Reset Graph</source>
         <translation>グラフをリセット</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="231"/>
+        <location filename="tcp_stream_dialog.ui" line="247"/>
         <source>Reset the graph to its initial state.</source>
         <translation>グラフを初期状態にリセットします</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="234"/>
+        <location filename="tcp_stream_dialog.ui" line="250"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="239"/>
-        <location filename="tcp_stream_dialog.ui" line="242"/>
+        <location filename="tcp_stream_dialog.ui" line="255"/>
+        <location filename="tcp_stream_dialog.ui" line="258"/>
         <source>Zoom In</source>
         <translation>ズームイン</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="245"/>
+        <location filename="tcp_stream_dialog.ui" line="261"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="250"/>
-        <location filename="tcp_stream_dialog.ui" line="253"/>
+        <location filename="tcp_stream_dialog.ui" line="266"/>
+        <location filename="tcp_stream_dialog.ui" line="269"/>
         <source>Zoom Out</source>
         <translation>ズームアウト</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="256"/>
+        <location filename="tcp_stream_dialog.ui" line="272"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="261"/>
-        <location filename="tcp_stream_dialog.ui" line="264"/>
+        <location filename="tcp_stream_dialog.ui" line="277"/>
+        <location filename="tcp_stream_dialog.ui" line="280"/>
         <source>Move Up 10 Pixels</source>
         <translation>上に10ピクセル移動</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="267"/>
+        <location filename="tcp_stream_dialog.ui" line="283"/>
         <source>Up</source>
         <translation>上</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="272"/>
-        <location filename="tcp_stream_dialog.ui" line="275"/>
+        <location filename="tcp_stream_dialog.ui" line="288"/>
+        <location filename="tcp_stream_dialog.ui" line="291"/>
         <source>Move Left 10 Pixels</source>
         <translation>左に10ピクセル移動</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="278"/>
+        <location filename="tcp_stream_dialog.ui" line="294"/>
         <source>Left</source>
         <translation>左</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="283"/>
-        <location filename="tcp_stream_dialog.ui" line="286"/>
+        <location filename="tcp_stream_dialog.ui" line="299"/>
+        <location filename="tcp_stream_dialog.ui" line="302"/>
         <source>Move Right 10 Pixels</source>
         <translation>右に10ピクセル移動</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="289"/>
+        <location filename="tcp_stream_dialog.ui" line="305"/>
         <source>Right</source>
         <translation>右</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="294"/>
-        <location filename="tcp_stream_dialog.ui" line="297"/>
+        <location filename="tcp_stream_dialog.ui" line="310"/>
+        <location filename="tcp_stream_dialog.ui" line="313"/>
         <source>Move Down 10 Pixels</source>
         <translation>下に10ピクセル移動</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="300"/>
+        <location filename="tcp_stream_dialog.ui" line="316"/>
         <source>Down</source>
         <translation>下</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="305"/>
-        <location filename="tcp_stream_dialog.ui" line="308"/>
+        <location filename="tcp_stream_dialog.ui" line="321"/>
+        <location filename="tcp_stream_dialog.ui" line="324"/>
         <source>Move Up 1 Pixel</source>
         <translation>上に1ピクセル移動</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="311"/>
+        <location filename="tcp_stream_dialog.ui" line="327"/>
         <source>Shift+Up</source>
         <translation>Shift+Up</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="316"/>
-        <location filename="tcp_stream_dialog.ui" line="319"/>
+        <location filename="tcp_stream_dialog.ui" line="332"/>
+        <location filename="tcp_stream_dialog.ui" line="335"/>
         <source>Move Left 1 Pixel</source>
         <translation>左に1ピクセル移動</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="322"/>
+        <location filename="tcp_stream_dialog.ui" line="338"/>
         <source>Shift+Left</source>
         <translation>Shift+Left</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="327"/>
-        <location filename="tcp_stream_dialog.ui" line="330"/>
+        <location filename="tcp_stream_dialog.ui" line="343"/>
+        <location filename="tcp_stream_dialog.ui" line="346"/>
         <source>Move Right 1 Pixel</source>
         <translation>右に1ピクセル移動</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="333"/>
+        <location filename="tcp_stream_dialog.ui" line="349"/>
         <source>Shift+Right</source>
         <translation>Shift+Right</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="338"/>
-        <location filename="tcp_stream_dialog.ui" line="341"/>
+        <location filename="tcp_stream_dialog.ui" line="354"/>
+        <location filename="tcp_stream_dialog.ui" line="357"/>
         <source>Move Down 1 Pixel</source>
         <translation>下に1ピクセル移動</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="344"/>
+        <location filename="tcp_stream_dialog.ui" line="360"/>
         <source>Shift+Down</source>
         <translation>Shift+Down</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="349"/>
+        <location filename="tcp_stream_dialog.ui" line="365"/>
         <source>Next Stream</source>
         <translation>次のストリーム</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="352"/>
+        <location filename="tcp_stream_dialog.ui" line="368"/>
         <source>Go to the next stream in the capture</source>
         <translation>キャプチャにある次のストリームへ移動します</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="355"/>
+        <location filename="tcp_stream_dialog.ui" line="371"/>
         <source>PgUp</source>
         <translation>ページアップ</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="360"/>
+        <location filename="tcp_stream_dialog.ui" line="376"/>
         <source>Previous Stream</source>
         <translation>前のストリーム</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="363"/>
+        <location filename="tcp_stream_dialog.ui" line="379"/>
         <source>Go to the previous stream in the capture</source>
         <translation>キャプチャにある前のストリームへ移動します</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="366"/>
+        <location filename="tcp_stream_dialog.ui" line="382"/>
         <source>PgDown</source>
         <translation>ページダウン</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="374"/>
+        <location filename="tcp_stream_dialog.ui" line="390"/>
         <source>Switch direction (swap TCP endpoints)</source>
         <translation>向きを切り替え(TCP終端を入替)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="377"/>
+        <location filename="tcp_stream_dialog.ui" line="393"/>
         <source>D</source>
         <translation>D</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="382"/>
+        <location filename="tcp_stream_dialog.ui" line="398"/>
         <source>Go To Packet Under Cursor</source>
         <translation>カーソル位置のパケットへ移動</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="385"/>
+        <location filename="tcp_stream_dialog.ui" line="401"/>
         <source>Go to packet currently under the cursor</source>
         <translation>現在のカーソル位置にあるパケットへ移動します</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="388"/>
+        <location filename="tcp_stream_dialog.ui" line="404"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="393"/>
+        <location filename="tcp_stream_dialog.ui" line="409"/>
         <source>Drag / Zoom</source>
         <translation>ドラッグ/ズーム</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="396"/>
+        <location filename="tcp_stream_dialog.ui" line="412"/>
         <source>Toggle mouse drag / zoom behavior</source>
         <translation>マウスのドラッグ/ズームの動作を切り替えます</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="399"/>
+        <location filename="tcp_stream_dialog.ui" line="415"/>
         <source>Z</source>
         <translation>Z</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="404"/>
+        <location filename="tcp_stream_dialog.ui" line="420"/>
         <source>Relative / Absolute Sequence Numbers</source>
         <translation>相対的/絶対的シーケンス番号</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="407"/>
+        <location filename="tcp_stream_dialog.ui" line="423"/>
         <source>Toggle relative / absolute sequence numbers</source>
         <translation>相対的/絶対的シーケンス番号を切り替えます</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="410"/>
+        <location filename="tcp_stream_dialog.ui" line="426"/>
         <source>S</source>
         <translation>S</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="415"/>
+        <location filename="tcp_stream_dialog.ui" line="431"/>
         <source>Capture / Session Time Origin</source>
         <translation>キャプチャ/セッション時間起点</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="418"/>
+        <location filename="tcp_stream_dialog.ui" line="434"/>
         <source>Toggle capture / session time origin</source>
         <translation>キャプチャ/セッション時間起点を切り替えます</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="421"/>
+        <location filename="tcp_stream_dialog.ui" line="437"/>
         <source>T</source>
         <translation>T</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="426"/>
+        <location filename="tcp_stream_dialog.ui" line="442"/>
         <source>Crosshairs</source>
         <translation>十字カーソル</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="429"/>
+        <location filename="tcp_stream_dialog.ui" line="445"/>
         <source>Toggle crosshairs</source>
         <translation>十字カーソルの表示を切り替えます</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="432"/>
+        <location filename="tcp_stream_dialog.ui" line="448"/>
         <source>Space</source>
         <translation>スペース</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="437"/>
-        <location filename="tcp_stream_dialog.cpp" line="811"/>
+        <location filename="tcp_stream_dialog.ui" line="453"/>
+        <location filename="tcp_stream_dialog.cpp" line="875"/>
         <source>Round Trip Time</source>
         <translation>往復遅延時間</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="440"/>
+        <location filename="tcp_stream_dialog.ui" line="456"/>
         <source>Switch to the Round Trip Time graph</source>
         <translation>往復遅延グラフに切り替えます</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="443"/>
+        <location filename="tcp_stream_dialog.ui" line="459"/>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="448"/>
-        <location filename="tcp_stream_dialog.cpp" line="711"/>
+        <location filename="tcp_stream_dialog.ui" line="464"/>
+        <location filename="tcp_stream_dialog.cpp" line="775"/>
         <source>Throughput</source>
         <translation>スループット</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="451"/>
+        <location filename="tcp_stream_dialog.ui" line="467"/>
         <source>Switch to the Throughput graph</source>
         <translation>スループットグラフに切り替えます</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="454"/>
+        <location filename="tcp_stream_dialog.ui" line="470"/>
         <source>2</source>
         <translation>2</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="459"/>
+        <location filename="tcp_stream_dialog.ui" line="475"/>
         <source>Time / Sequence (Stevens)</source>
         <translation>時間/シーケンス(Stevens)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="462"/>
+        <location filename="tcp_stream_dialog.ui" line="478"/>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
         <translation>Stevens形式の時間/シーケンスグラフに切り替えます</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="465"/>
+        <location filename="tcp_stream_dialog.ui" line="481"/>
         <source>3</source>
         <translation>3</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="470"/>
-        <location filename="tcp_stream_dialog.cpp" line="865"/>
+        <location filename="tcp_stream_dialog.ui" line="486"/>
+        <location filename="tcp_stream_dialog.cpp" line="929"/>
         <source>Window Scaling</source>
         <translation>ウインドウスケーリング</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="473"/>
+        <location filename="tcp_stream_dialog.ui" line="489"/>
         <source>Switch to the Window Scaling graph</source>
         <translation>ウインドウスケーリンググラフに切り替えます</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="476"/>
+        <location filename="tcp_stream_dialog.ui" line="492"/>
         <source>5</source>
         <translation>5</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="481"/>
+        <location filename="tcp_stream_dialog.ui" line="497"/>
         <source>Time / Sequence (tcptrace)</source>
         <translation>時間/シーケンス(tcptrace)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="484"/>
+        <location filename="tcp_stream_dialog.ui" line="500"/>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
         <translation>tcptrace形式の時間/シーケンスグラフに切り替えます</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="487"/>
+        <location filename="tcp_stream_dialog.ui" line="503"/>
         <source>4</source>
         <translation>4</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="492"/>
-        <location filename="tcp_stream_dialog.ui" line="495"/>
+        <location filename="tcp_stream_dialog.ui" line="508"/>
+        <location filename="tcp_stream_dialog.ui" line="511"/>
         <source>Zoom In X Axis</source>
         <translation>X軸をズームイン</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="498"/>
+        <location filename="tcp_stream_dialog.ui" line="514"/>
         <source>X</source>
         <translation>X</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="503"/>
-        <location filename="tcp_stream_dialog.ui" line="506"/>
+        <location filename="tcp_stream_dialog.ui" line="519"/>
+        <location filename="tcp_stream_dialog.ui" line="522"/>
         <source>Zoom Out X Axis</source>
         <translation>X軸をズームアウト</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="509"/>
+        <location filename="tcp_stream_dialog.ui" line="525"/>
         <source>Shift+X</source>
         <translation>Shift+X</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="514"/>
-        <location filename="tcp_stream_dialog.ui" line="517"/>
+        <location filename="tcp_stream_dialog.ui" line="530"/>
+        <location filename="tcp_stream_dialog.ui" line="533"/>
         <source>Zoom In Y Axis</source>
         <translation>Y軸をズームイン</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="520"/>
+        <location filename="tcp_stream_dialog.ui" line="536"/>
         <source>Y</source>
         <translation>Y</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="525"/>
-        <location filename="tcp_stream_dialog.ui" line="528"/>
+        <location filename="tcp_stream_dialog.ui" line="541"/>
+        <location filename="tcp_stream_dialog.ui" line="544"/>
         <source>Zoom Out Y Axis</source>
         <translation>Y軸をズームアウト</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.ui" line="531"/>
+        <location filename="tcp_stream_dialog.ui" line="547"/>
         <source>Shift+Y</source>
         <translation>Shift+Y</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="246"/>
+        <location filename="tcp_stream_dialog.cpp" line="269"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>として保存</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="431"/>
+        <location filename="tcp_stream_dialog.cpp" line="465"/>
         <source>No Capture Data</source>
         <translation>キャプチャデータがありません</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="495"/>
+        <location filename="tcp_stream_dialog.cpp" line="534"/>
         <source>%1 %2 pkts, %3 %4 %5 pkts, %6 </source>
         <translation>%1 %2 pkts, %3 %4 %5 pkts, %6 </translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="628"/>
+        <location filename="tcp_stream_dialog.cpp" line="667"/>
         <source>Sequence Numbers (Stevens)</source>
         <translation>シーケンス番号 (Stevens)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="653"/>
+        <location filename="tcp_stream_dialog.cpp" line="692"/>
         <source>Sequence Numbers (tcptrace)</source>
         <translation>シーケンス番号 (tcptrace)</translation>
     </message>
@@ -15287,77 +15296,77 @@ a:hover {
         <translation type="vanished"> (1s MA)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="713"/>
+        <location filename="tcp_stream_dialog.cpp" line="777"/>
         <source> (MA)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="715"/>
+        <location filename="tcp_stream_dialog.cpp" line="779"/>
         <source> (%1 Segment MA)</source>
         <translation> (%1 セグメント MA)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="734"/>
+        <location filename="tcp_stream_dialog.cpp" line="798"/>
         <source> [not enough data]</source>
         <translation> [十分なデータがありません]</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="892"/>
+        <location filename="tcp_stream_dialog.cpp" line="956"/>
         <source> for %1:%2 %3 %4:%5</source>
         <translation>for %1:%2 %3 %4:%5</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1075"/>
+        <location filename="tcp_stream_dialog.cpp" line="1139"/>
         <source>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</source>
         <translation>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1076"/>
+        <location filename="tcp_stream_dialog.cpp" line="1140"/>
         <source>Click to select packet</source>
         <translation>クリックしてパケットを選んでください</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1076"/>
+        <location filename="tcp_stream_dialog.cpp" line="1140"/>
         <source>Packet</source>
         <translation>パケット</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1090"/>
+        <location filename="tcp_stream_dialog.cpp" line="1154"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>離してズーム, x = %1 から %2, y = %3 から %4</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1096"/>
+        <location filename="tcp_stream_dialog.cpp" line="1160"/>
         <source>Unable to select range.</source>
         <translation>範囲を選択できません</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1099"/>
+        <location filename="tcp_stream_dialog.cpp" line="1163"/>
         <source>Click to select a portion of the graph.</source>
         <translation>クリックしてグラフの割合を選びます</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1142"/>
+        <location filename="tcp_stream_dialog.cpp" line="1206"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1143"/>
+        <location filename="tcp_stream_dialog.cpp" line="1207"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1144"/>
+        <location filename="tcp_stream_dialog.cpp" line="1208"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Winodwsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1146"/>
+        <location filename="tcp_stream_dialog.cpp" line="1210"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1153"/>
+        <location filename="tcp_stream_dialog.cpp" line="1217"/>
         <source>Save Graph As</source>
         <translation>としてグラフを保存</translation>
     </message>
