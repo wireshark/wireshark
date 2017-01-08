@@ -8826,6 +8826,7 @@ checkoutdb       5505/udp # Checkout Database [Dirk_Stoop] [Dirk_Stoop] 2007-04
 amc              5506/tcp # Amcom Mobile Connect [Aaron_Fracht_Monroe] [Aaron_Fracht_Monroe] 2010-06-03
 amc              5506/udp # Amcom Mobile Connect [Aaron_Fracht_Monroe] [Aaron_Fracht_Monroe] 2010-06-03
 psl-management   5507/tcp # PowerSysLab Electrical Management [PowerSysLab] [Lucas_Lorensi] 2015-07-20
+cbus             5550/tcp # Model Railway control using the CBUS message protocol [MERG] [Pete_Brownlow] 2017-01-03
 sgi-eventmond    5553/tcp # SGI Eventmond Port [Andrei_Vilkotski] [Andrei_Vilkotski] 2003-06
 sgi-eventmond    5553/udp # SGI Eventmond Port [Andrei_Vilkotski] [Andrei_Vilkotski] 2003-06
 sgi-esphttp      5554/tcp # SGI ESP HTTP [Vladimir_Legalov] [Vladimir_Legalov]
