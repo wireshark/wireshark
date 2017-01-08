@@ -87,6 +87,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
     { OUI_DCBX,             "Data Center Bridging Capabilities Exchange" },
     { OUI_AVAYA,            "Avaya" },
     { OUI_MERU,             "Meru Network (Fortinet)" },
+    { OUI_ZEBRA_EXTREME,    "Extreme (Zebra)" },
     { 0,                    NULL }
 };
 

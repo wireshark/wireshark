@@ -4332,6 +4332,12 @@ static int hf_ieee80211_vs_meru_subtype = -1;
 static int hf_ieee80211_vs_meru_sublength = -1;
 static int hf_ieee80211_vs_meru_subdata = -1;
 
+static int hf_ieee80211_vs_extreme_subtype = -1;
+static int hf_ieee80211_vs_extreme_subdata = -1;
+static int hf_ieee80211_vs_extreme_unknown = -1;
+static int hf_ieee80211_vs_extreme_ap_length = -1;
+static int hf_ieee80211_vs_extreme_ap_name = -1;
+
 static int hf_ieee80211_rsn_ie_pmkid = -1;
 static int hf_ieee80211_rsn_ie_unknown = -1;
 
@@ -10581,6 +10587,50 @@ dissect_vendor_ie_meru(proto_item *item _U_, proto_tree *ietree,
   }
 }
 
+static const value_string ieee80211_vs_extreme_subtype_vals[] = {
+  { 1, "AP Name"},
+  { 0, NULL }
+};
+
+static void
+dissect_vendor_ie_extreme(proto_item *item _U_, proto_tree *ietree,
+                          tvbuff_t *tvb, int offset, guint32 tag_len,
+                          packet_info *pinfo)
+{
+  guint32 type, length;
+  proto_item *ti_len;
+
+  proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_extreme_subtype, tvb, offset, 1, ENC_NA, &type);
+  offset += 1;
+  tag_len -= 1;
+
+  proto_tree_add_item(ietree, hf_ieee80211_vs_extreme_subdata, tvb, offset, tag_len, ENC_NA);
+
+  switch(type){
+    case 1: /* Unknown (7 bytes) + AP Name Length (1 byte) + AP Name */
+
+      proto_tree_add_item(ietree, hf_ieee80211_vs_extreme_unknown, tvb, offset, 7, ENC_NA);
+      offset += 7;
+      tag_len -= 1;
+
+      ti_len = proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_extreme_ap_length, tvb, offset, 1, ENC_NA, &length);
+      offset += 1;
+      tag_len -= 1;
+
+      if (tag_len < length) {
+        expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag length < AP Length");
+        length = tag_len;
+      }
+
+    proto_tree_add_item(ietree, hf_ieee80211_vs_extreme_ap_name, tvb, offset, length, ENC_ASCII|ENC_NA);
+
+    break;
+    default:
+    /* Expert info ? */
+    break;
+  }
+}
+
 /* 802.11-2012 8.4.2.37 QoS Capability element */
 static int
 dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int ftype)
@@ -15220,6 +15270,9 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           break;
         case OUI_MERU:
           dissect_vendor_ie_meru(ti, tree, tvb, offset, tag_vs_len, pinfo);
+          break;
+        case OUI_ZEBRA_EXTREME:
+          dissect_vendor_ie_extreme(ti, tree, tvb, offset, tag_vs_len, pinfo);
           break;
         default:
           proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
@@ -26054,6 +26107,32 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_vs_meru_subdata,
      {"Subdata", "wlan.vs.meru.subdata",
       FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    /* Vendor Specific : Extreme (Zebra) */
+    {&hf_ieee80211_vs_extreme_subtype,
+     {"Subtype", "wlan.vs.extreme.subtype",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_vs_extreme_subtype_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_extreme_subdata,
+     {"Subdata", "wlan.vs.extreme.subdata",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_extreme_unknown,
+     {"Unknown", "wlan.vs.extreme.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_extreme_ap_length,
+     {"AP Length", "wlan.vs.extreme.ap_length",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_extreme_ap_name,
+     {"AP Name", "wlan.vs.extreme.ap_name",
+      FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tsinfo,
