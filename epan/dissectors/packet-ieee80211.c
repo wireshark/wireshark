@@ -17451,9 +17451,17 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           break;
         }
         case CTRL_SSW: {
+          guint32 sector_sweep;
+
+          sector_sweep = tvb_get_letoh24(tvb, offset);
           offset += add_ff_sector_sweep(hdr_tree, tvb, pinfo, offset);
           /* offset += commented to avoid Clang warnings*/
-          add_ff_sector_sweep_feedback_from_iss(hdr_tree, tvb, pinfo, offset);
+          /* if Sector Sweep Direction = Responder, use SW Feedback field format when not transmitted as part of an ISS */
+          if(sector_sweep & 0x00001) {
+            add_ff_sector_sweep_feedback_to_iss(hdr_tree, tvb, pinfo, offset);
+          } else {
+            add_ff_sector_sweep_feedback_from_iss(hdr_tree, tvb, pinfo, offset);
+          }
           break;
         }
         case CTRL_SSW_ACK:
