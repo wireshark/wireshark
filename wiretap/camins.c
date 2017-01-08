@@ -104,6 +104,76 @@ typedef enum {
 #define DVB_CI_PSEUDO_HDR_HOST_TO_CAM 0xFE
 
 
+/* Detect a camins file by looking at the blocks that access the 16bit
+   size register. The matching blocks to access the upper and lower 8bit
+   must be no further than 5 blocks apart.
+   A file may have errors that affect the size blocks. Therefore, we
+   read the entire file and require that we have much more valid pairs
+   than errors. */
+static gboolean detect_camins_file(FILE_T fh)
+{
+    int      err;
+    gchar   *err_info;
+    guint8   block[2];
+    guint8   search_block = 0;
+    guint8   gap_count = 0;
+    guint32  valid_pairs = 0, invalid_pairs = 0;
+
+    while (wtap_read_bytes(fh, block, sizeof(block), &err, &err_info)) {
+        if (err == WTAP_ERR_SHORT_READ)
+            break;
+
+       if (search_block != 0) {
+           /* We're searching for a matching block to complete the pair. */
+
+            if (block[1] == search_block) {
+                /* We found it */
+                valid_pairs++;
+                search_block = 0;
+            }
+            else {
+                /* We didn't find it. */
+                gap_count++;
+                if (gap_count > 5) {
+                    /* Give up the search, we have no pair. */
+                    invalid_pairs++;
+                    search_block = 0;
+                }
+            }
+        }
+        else {
+            /* We're not searching for a matching block at the moment.
+               If we see a size read/write block of one type, the matching
+               block is the the other type and we can start searching. */
+
+            if (block[1] == TRANS_READ_SIZE_LOW) {
+                search_block = TRANS_READ_SIZE_HIGH;
+                gap_count = 0;
+            }
+            else if (block[1] == TRANS_READ_SIZE_HIGH) {
+                search_block = TRANS_READ_SIZE_LOW;
+                gap_count = 0;
+            }
+            else if (block[1] == TRANS_WRITE_SIZE_LOW) {
+                search_block = TRANS_WRITE_SIZE_HIGH;
+                gap_count = 0;
+            }
+            else if (block[1] == TRANS_WRITE_SIZE_HIGH) {
+                search_block = TRANS_WRITE_SIZE_LOW;
+                gap_count = 0;
+            }
+        }
+    }
+
+    /* For valid_pairs == invalid_pairs == 0, this isn't a camins file.
+       Don't change > into >= */
+    if (valid_pairs > 10 * invalid_pairs)
+        return TRUE;
+
+    return FALSE;
+}
+
+
 /* find the transaction type for the data bytes of the next packet
     and the number of data bytes in that packet
    the fd is moved such that it can be used in a subsequent call
@@ -302,28 +372,9 @@ camins_seek_read(wtap *wth, gint64 seek_off,
 
 
 
-wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info _U_)
 {
-    guint8  found_start_blocks = 0;
-    guint8  count = 0;
-    guint8  block[2];
-
-    /* all CAM Inspector files I've looked at have at least two blocks of
-       0x00 0xE1 within the first 20 bytes */
-    do {
-        if (!wtap_read_bytes(wth->fh, block, sizeof(block), err, err_info)) {
-            if (*err == WTAP_ERR_SHORT_READ)
-                break;
-            return WTAP_OPEN_ERROR;
-        }
-
-        if (block[0]==0x00 && block[1] == 0xE1)
-            found_start_blocks++;
-
-        count++;
-    } while (count<20);
-
-    if (found_start_blocks < 2)
+    if (!detect_camins_file(wth->fh))
         return WTAP_OPEN_NOT_MINE;   /* no CAM Inspector file */
 
     /* rewind the fh so we re-read from the beginning */
