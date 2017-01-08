@@ -1478,7 +1478,7 @@ void TCPStreamDialog::GraphUpdater::triggerUpdate(int timeout, bool reset_axes)
         graph_update_timer_->setSingleShot(true);
         dialog_->connect(graph_update_timer_, SIGNAL(timeout()), dialog_, SLOT(updateGraph()));
     }
-    reset_axes_ = (reset_axes || reset_axes);
+    reset_axes_ = (reset_axes_ || reset_axes);
     graph_update_timer_->start(timeout);
 }
 
