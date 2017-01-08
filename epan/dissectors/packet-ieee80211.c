@@ -4534,6 +4534,7 @@ static int hf_hs20_anqp_oper_class_indic = -1;
 /* IEEE Std 802.11ad */
 static int hf_ieee80211_block_ack_RBUFCAP = -1;
 static int hf_ieee80211_cf_response_offset = -1;
+static int hf_ieee80211_grant_ack_reserved = -1;
 static int hf_ieee80211_ff_dynamic_allocation = -1;
 static int hf_ieee80211_ff_TID = -1;
 static int hf_ieee80211_ff_alloc_type = -1;
@@ -17441,7 +17442,8 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           gboolean isGrant;
           if(ctrl_type_subtype != CTRL_GRANT_ACK) {
             offset += add_ff_dynamic_allocation(hdr_tree, tvb, pinfo, offset);
-          } else { /* CTRL_GRANT_ACK have 5 octets that are reserved thus not shown.*/
+          } else { /* CTRL_GRANT_ACK have 5 octets that are reserved*/
+            proto_tree_add_item(hdr_tree, hf_ieee80211_grant_ack_reserved, tvb, offset, 5, ENC_NA);
             offset += 5;
           }
           isGrant = ((ctrl_type_subtype==CTRL_GRANT)||(ctrl_type_subtype==CTRL_GRANT_ACK));
@@ -19712,6 +19714,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_cf_response_offset,
      {"Response Offset", "wlan.res_offset",
       FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_grant_ack_reserved,
+     {"Reserved", "wlan.grant_ack.reserved",
+      FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_dynamic_allocation,
