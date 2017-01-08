@@ -64,6 +64,8 @@ static int hf_itdm_ctl_cksum     = -1;
 static gint ett_itdm       = -1;
 static gint ett_itdm_ctl   = -1;
 
+static dissector_handle_t itdm_handle;
+
 /* ZZZZ some magic number.. */
 static guint gbl_ItdmMPLSLabel = 0x99887;
 static guint gbl_ItdmCTLFlowNo = 0;
@@ -439,6 +441,7 @@ proto_register_itdm(void)
   module_t *itdm_module;
 
   proto_itdm = proto_register_protocol("Internal TDM", "ITDM", "itdm");
+  itdm_handle = register_dissector("itdm", dissect_itdm, proto_itdm);
 
   proto_register_field_array(proto_itdm, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -460,11 +463,9 @@ void
 proto_reg_handoff_itdm(void)
 {
   static gboolean Initialized=FALSE;
-  static dissector_handle_t itdm_handle;
   static guint ItdmMPLSLabel;
 
   if (!Initialized) {
-    itdm_handle = create_dissector_handle( dissect_itdm, proto_itdm );
     Initialized=TRUE;
   } else {
     dissector_delete_uint("mpls.label", ItdmMPLSLabel, itdm_handle);

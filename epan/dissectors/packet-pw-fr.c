@@ -67,7 +67,7 @@ static const value_string vals_frg[] = {
 
 
 static dissector_handle_t fr_stripped_address_handle;
-
+static dissector_handle_t pw_fr_mpls_handle;
 
 static int
 dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_ )
@@ -305,17 +305,14 @@ static hf_register_info hf[] = {
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_pwfr = expert_register_protocol(proto_encaps);
 	expert_register_field_array(expert_pwfr, ei, array_length(ei));
+	pw_fr_mpls_handle = register_dissector("pw_fr", dissect_pw_fr, proto_encaps );
 }
 
 
 void
 proto_reg_handoff_pw_fr(void)
 {
-	dissector_handle_t pw_fr_mpls_handle;
-
-	pw_fr_mpls_handle = create_dissector_handle( dissect_pw_fr, proto_encaps );
 	dissector_add_for_decode_as("mpls.label", pw_fr_mpls_handle);
-
 	fr_stripped_address_handle = find_dissector_add_dependency("fr_stripped_address", proto_encaps);
 }
 

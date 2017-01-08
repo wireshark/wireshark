@@ -1905,6 +1905,10 @@ proto_register_pw_atm_ata(void)
 	dh_control_word = register_dissector("mpls_pw_atm_control_word"	,dissect_control_word	,proto_control_word);
 	dh_cell = register_dissector("mpls_pw_atm_cell"	,dissect_cell		,proto_cell);
 	dh_cell_header = register_dissector("mpls_pw_atm_cell_header",dissect_cell_header	,proto_cell_header);
+	register_dissector("mpls_pw_atm_aal5_sdu"	,dissect_aal5_sdu	,proto_aal5_sdu);
+	register_dissector("mpls_pw_atm_11_or_aal5_pdu"	,dissect_11_or_aal5_pdu	,proto_11_or_aal5_pdu);
+	register_dissector("mpls_pw_atm_n1_cw"		,dissect_n1_cw		,proto_n1_cw);
+	register_dissector("mpls_pw_atm_n1_nocw"	,dissect_n1_nocw	,proto_n1_nocw);
 	{
 		static const char description_allow_cw_length_nonzero[] =
 			"Enable to allow non-zero Length in Control Word."
@@ -1955,13 +1959,13 @@ void
 proto_reg_handoff_pw_atm_ata(void)
 {
 	dissector_handle_t h;
-	h = create_dissector_handle( dissect_n1_cw, proto_n1_cw );
+	h = find_dissector("mpls_pw_atm_n1_cw");
 	dissector_add_for_decode_as( "mpls.label", h );
-	h = create_dissector_handle( dissect_n1_nocw, proto_n1_nocw );
+	h = find_dissector("mpls_pw_atm_n1_nocw");
 	dissector_add_for_decode_as( "mpls.label", h );
-	h = create_dissector_handle( dissect_11_or_aal5_pdu, proto_11_or_aal5_pdu );
+	h = find_dissector("mpls_pw_atm_11_or_aal5_pdu");
 	dissector_add_for_decode_as( "mpls.label", h );
-	h = create_dissector_handle( dissect_aal5_sdu, proto_aal5_sdu );
+	h = find_dissector("mpls_pw_atm_aal5_sdu");
 	dissector_add_for_decode_as( "mpls.label", h );
 
 	dh_atm_truncated   = find_dissector("atm_pw_truncated");

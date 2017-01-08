@@ -121,6 +121,7 @@ static expert_field ei_mpls_pw_mcw_error_processing_message = EI_INIT;
 static expert_field ei_mpls_invalid_label = EI_INIT;
 
 static dissector_handle_t mpls_handle;
+static dissector_handle_t mpls_pwcw_handle;
 
 #if 0 /*not used yet*/
 /*
@@ -641,6 +642,7 @@ proto_register_mpls(void)
     expert_register_field_array(expert_mpls, ei, array_length(ei));
 
     mpls_handle = register_dissector("mpls", dissect_mpls, proto_mpls);
+    mpls_pwcw_handle = register_dissector("mplspwcw", dissect_pw_mcw, proto_pw_mcw );
 
     /* FF: mpls subdissector table is indexed by label */
     mpls_subdissector_table = register_dissector_table("mpls.label",
@@ -667,8 +669,6 @@ proto_register_mpls(void)
 void
 proto_reg_handoff_mpls(void)
 {
-    dissector_handle_t mpls_pwcw_handle;
-
     dissector_add_uint("ethertype", ETHERTYPE_MPLS, mpls_handle);
     dissector_add_uint("ethertype", ETHERTYPE_MPLS_MULTI, mpls_handle);
     dissector_add_uint("ppp.protocol", PPP_MPLS_UNI, mpls_handle);
@@ -688,7 +688,6 @@ proto_reg_handoff_mpls(void)
     dissector_add_uint_with_preference("udp.port", UDP_PORT_MPLS_OVER_UDP, mpls_handle);
     dissector_add_uint("vxlan.next_proto", VXLAN_MPLS, mpls_handle);
 
-    mpls_pwcw_handle = create_dissector_handle( dissect_pw_mcw, proto_pw_mcw );
     dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, mpls_pwcw_handle );
 
     dissector_ipv6                  = find_dissector_add_dependency("ipv6", proto_pw_mcw );
