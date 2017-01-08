@@ -8552,9 +8552,8 @@ add_ff_beacon_interval_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
 }
 
 static guint
-add_ff_beamforming_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+add_ff_beamforming_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, gboolean isGrant)
 {
-  gboolean isGrant = *((gboolean*)(p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_CTRL_GRANT_OR_GRANT_ACK_KEY)));
   proto_item *bf_item = proto_tree_add_item(tree, hf_ieee80211_ff_bf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   proto_tree *bf_tree = proto_item_add_subtree(bf_item, ett_bf_tree);
   guint16 bf_field = tvb_get_letohs(tvb, offset);
@@ -15841,7 +15840,6 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       }
       offset += 2;
       isGrant = ((ftype==CTRL_GRANT)||(ftype==CTRL_GRANT_ACK));
-      p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_CTRL_GRANT_OR_GRANT_ACK_KEY, &isGrant);
       for(i=0; i < tag_len; i+=15) {
         alloc_tree = proto_tree_add_subtree_format(tree, tvb, offset, 15, ett_allocation_tree, NULL, "Allocation %d", i/15);
         proto_tree_add_item(alloc_tree, hf_ieee80211_tag_allocation_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -15852,7 +15850,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         proto_tree_add_item(alloc_tree, hf_ieee80211_tag_pcp_active, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(alloc_tree, hf_ieee80211_tag_lp_sc_used, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
-        offset += add_ff_beamforming_ctrl(alloc_tree, tvb, pinfo, offset);
+        offset += add_ff_beamforming_ctrl(alloc_tree, tvb, pinfo, offset, isGrant);
         proto_tree_add_item(alloc_tree, hf_ieee80211_tag_src_aid, tvb, offset, 1, ENC_NA);
         offset += 1;
         proto_tree_add_item(alloc_tree, hf_ieee80211_tag_dest_aid, tvb, offset, 1, ENC_NA);
@@ -16047,8 +16045,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       proto_tree_add_item(tree, hf_ieee80211_tag_tspec_dest_aid, tvb, offset, 3, ENC_LITTLE_ENDIAN);
       offset += 3;
       isGrant = ((ftype==CTRL_GRANT)||(ftype==CTRL_GRANT_ACK));
-      p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_CTRL_GRANT_OR_GRANT_ACK_KEY, &isGrant);
-      offset += add_ff_beamforming_ctrl(tree, tvb, pinfo, 2);
+      offset += add_ff_beamforming_ctrl(tree, tvb, pinfo, 2, isGrant);
       proto_tree_add_item(tree, hf_ieee80211_tag_tspec_allocation_period, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
       proto_tree_add_item(tree, hf_ieee80211_tag_tspec_min_allocation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -17500,8 +17497,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
             offset += 5;
           }
           isGrant = ((ctrl_type_subtype==CTRL_GRANT)||(ctrl_type_subtype==CTRL_GRANT_ACK));
-          p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_CTRL_GRANT_OR_GRANT_ACK_KEY, &isGrant);
-          add_ff_beamforming_ctrl(hdr_tree, tvb, pinfo, offset);
+          add_ff_beamforming_ctrl(hdr_tree, tvb, pinfo, offset, isGrant);
           /* offset += 2; */
           break;
         }
