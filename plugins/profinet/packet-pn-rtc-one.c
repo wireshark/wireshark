@@ -76,7 +76,6 @@
 #include "packet-pn.h"
 
 
-#define MAX_LINE_LENGTH          1024   /* used for fgets() */
 #define F_MESSAGE_TRAILER_4BYTE  4      /* PROFIsafe: Defines the Amount of Bytes for CRC and Status-/Controlbyte */
 #define PN_INPUT_CR              1      /* PROFINET Input Connect Request value */
 #define PN_INPUT_DATADESCRITPION 1      /* PROFINET Input Data Description value */
