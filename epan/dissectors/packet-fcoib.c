@@ -152,13 +152,18 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     if (version != 0)
         ver = wmem_strdup_printf(wmem_packet_scope(), ver, "ver %d ", version);
 
+    if (tvb_bytes_exist(tvb, 0, 1))
+        sig = tvb_get_guint8(tvb, 0) >> 6;
+
     eof_str = "none";
     if (tvb_bytes_exist(tvb, eof_offset, 1)) {
+        eof = tvb_get_guint8(tvb, eof_offset);
         eof_str = val_to_str(eof, fcoib_eof_vals, "0x%x");
     }
 
     sof_str = "none";
     if (tvb_bytes_exist(tvb, sof_offset, 1)) {
+        sof = tvb_get_guint8(tvb, sof_offset);
         sof_str = val_to_str(sof, fcoib_sof_vals, "0x%x");
     }
 
@@ -221,8 +226,9 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     if (eof != FCOIB_EOFn) {
         fc_data.sof_eof |= FC_DATA_EOF_LAST_FRAME;
-    } else if (eof != FCOIB_EOFt) {
-        fc_data.sof_eof |= FC_DATA_EOF_INVALID;
+        if (eof != FCOIB_EOFt) {
+            fc_data.sof_eof |= FC_DATA_EOF_INVALID;
+        }
     }
 
     /* Call the FC Dissector if this is carrying an FC frame */
