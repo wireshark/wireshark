@@ -17432,7 +17432,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         case CTRL_POLL: {
                 proto_tree_add_item(hdr_tree, hf_ieee80211_cf_response_offset,
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                /* offset += 2; commented to avoid Clang warnings*/
+
                 break;
         }
         case CTRL_GRANT:
@@ -17444,10 +17444,10 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           } else { /* CTRL_GRANT_ACK have 5 octets that are reserved thus not shown.*/
             offset += 5;
           }
-          /* offset += commented to avoid Clang warnings*/
           isGrant = ((ctrl_type_subtype==CTRL_GRANT)||(ctrl_type_subtype==CTRL_GRANT_ACK));
           p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_CTRL_GRANT_OR_GRANT_ACK_KEY, &isGrant);
           add_ff_beamforming_ctrl(hdr_tree, tvb, pinfo, offset);
+          /* offset += 2; */
           break;
         }
         case CTRL_SSW: {
@@ -17455,28 +17455,28 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
           sector_sweep = tvb_get_letoh24(tvb, offset);
           offset += add_ff_sector_sweep(hdr_tree, tvb, pinfo, offset);
-          /* offset += commented to avoid Clang warnings*/
           /* if Sector Sweep Direction = Responder, use SW Feedback field format when not transmitted as part of an ISS */
           if(sector_sweep & 0x00001) {
             add_ff_sector_sweep_feedback_to_iss(hdr_tree, tvb, pinfo, offset);
           } else {
             add_ff_sector_sweep_feedback_from_iss(hdr_tree, tvb, pinfo, offset);
           }
+          /* offset += 3; */
           break;
         }
         case CTRL_SSW_ACK:
         case CTRL_SSW_FEEDBACK: {
           offset += add_ff_sector_sweep_feedback_to_iss(hdr_tree, tvb, pinfo, offset);
           offset += add_ff_BRP_request(hdr_tree, tvb, pinfo, offset);
-          /* offset += commented to avoid Clang warnings*/
           add_ff_beamformed_link(hdr_tree, tvb, pinfo, offset);
+          /* offset += 1; */
           break;
         }
         case CTRL_DMG_DTS: {
           proto_tree_add_item(hdr_tree, hf_ieee80211_addr_nav_sa, tvb, offset, 6, ENC_NA);
           offset += 6;
           proto_tree_add_item(hdr_tree, hf_ieee80211_addr_nav_da, tvb, offset, 6, ENC_NA);
-          /* offset += 6; commented to avoid Clang warnings*/
+          /* offset += 6; */
           break;
         }
         default:
