@@ -15926,7 +15926,6 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     }
     case TAG_DMG_BEAM_REFINEMENT:
     {
-      tag_len = 5;
       if (tag_len != 5)
       {
         expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be 5", tag_len);
