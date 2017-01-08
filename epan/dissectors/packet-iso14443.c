@@ -269,6 +269,7 @@ static int hf_iso14443_pwr_lvl_ind = -1;
 static int hf_iso14443_wtxm = -1;
 static int hf_iso14443_inf = -1;
 static int hf_iso14443_crc = -1;
+static int hf_iso14443_crc_status = -1;
 
 static const int *ats_ta1_fields[] = {
     &hf_iso14443_same_d,
@@ -284,36 +285,6 @@ static const int *ats_ta1_fields[] = {
 static expert_field ei_iso14443_unknown_cmd = EI_INIT;
 static expert_field ei_iso14443_wrong_crc = EI_INIT;
 static expert_field ei_iso14443_uid_inval_size = EI_INIT;
-
-
-/* dissect and verify the CRC
-   the tvb includes the message followed by the CRC
-   bytes 0 to crc_offset-1 contain the message, the CRC starts at
-   crc_offset and is CRC_LEN bytes long */
-static int dissect_iso14443_crc(tvbuff_t *tvb, gint crc_offset,
-        packet_info *pinfo, proto_tree *tree, iso14443_type_t type)
-{
-    proto_item *crc_pi;
-    guint16 crc_recv, crc_calc;
-
-    crc_recv = tvb_get_letohs(tvb, crc_offset);
-    if (type == ISO14443_A)
-        crc_calc = crc16_iso14443a_tvb_offset(tvb, 0, crc_offset);
-    else if (type == ISO14443_B)
-        crc_calc = crc16_ccitt_tvb_offset(tvb, 0, crc_offset);
-    else
-        return -1;
-
-    crc_pi = proto_tree_add_item(tree, hf_iso14443_crc,
-            tvb, crc_offset, CRC_LEN, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(crc_pi, crc_recv==crc_calc ?
-            " (correct)" : " (wrong)");
-    /* add an expert info to allow filtering on packets with wrong crc */
-    if (crc_recv != crc_calc)
-        expert_add_info(pinfo, crc_pi, &ei_iso14443_wrong_crc);
-
-    return CRC_LEN;
-}
 
 
 static int
@@ -485,8 +456,13 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     if (prot_inf_len>3)
         offset++;
 
-    if (!crc_dropped)
-        offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_B);
+    if (!crc_dropped) {
+        proto_tree_add_checksum(tree, tvb, offset,
+                hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
+                 crc16_ccitt_tvb_offset(tvb, 0, offset),
+                ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+        offset += CRC_LEN;
+    }
 
     return offset;
 }
@@ -524,8 +500,13 @@ dissect_iso14443_cmd_type_wupb(tvbuff_t *tvb, packet_info *pinfo,
                 "%d", (guint8)pow(2, param&0x07));
         offset++;
 
-        if (!crc_dropped)
-            offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_B);
+        if (!crc_dropped) {
+            proto_tree_add_checksum(tree, tvb, offset,
+                    hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
+                    crc16_ccitt_tvb_offset(tvb, 0, offset),
+                    ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            offset += CRC_LEN;
+        }
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         offset = dissect_iso14443_atqb(tvb, offset, pinfo, tree, crc_dropped);
@@ -549,8 +530,13 @@ dissect_iso14443_cmd_type_hlta(tvbuff_t *tvb, packet_info *pinfo,
             tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    if (!crc_dropped)
-        offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_A);
+    if (!crc_dropped) {
+        proto_tree_add_checksum(tree, tvb, offset,
+                hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
+                crc16_iso14443a_tvb_offset(tvb, 0, offset),
+                ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+        offset += CRC_LEN;
+    }
 
     return offset;
 }
@@ -600,8 +586,13 @@ dissect_iso14443_cmd_type_uid(tvbuff_t *tvb, packet_info *pinfo,
             col_set_str(pinfo->cinfo, COL_INFO, "Select");
             proto_item_append_text(ti, ": Select");
             offset = dissect_iso14443_uid_part(tvb, offset, pinfo, tree);
-            if (!crc_dropped)
-                offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_A);
+            if (!crc_dropped) {
+                proto_tree_add_checksum(tree, tvb, offset,
+                        hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
+                        crc16_iso14443a_tvb_offset(tvb, 0, offset),
+                        ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+                offset += CRC_LEN;
+            }
         }
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
@@ -613,8 +604,13 @@ dissect_iso14443_cmd_type_uid(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_item(tree, hf_iso14443_uid_complete,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            if (!crc_dropped)
-                offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_A);
+            if (!crc_dropped) {
+                proto_tree_add_checksum(tree, tvb, offset,
+                        hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
+                        crc16_iso14443a_tvb_offset(tvb, 0, offset),
+                        ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+                offset += CRC_LEN;
+            }
         }
         else if (tvb_reported_length_remaining(tvb, offset) == 5) {
             col_set_str(pinfo->cinfo, COL_INFO, "UID");
@@ -714,8 +710,13 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
                 tvb, offset, hist_len, ENC_NA);
         offset += hist_len;
     }
-    if (!crc_dropped)
-        offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_A);
+    if (!crc_dropped) {
+        proto_tree_add_checksum(tree, tvb, offset,
+                hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
+                crc16_iso14443a_tvb_offset(tvb, 0, offset),
+                ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+        offset += CRC_LEN;
+    }
 
     return offset;
 }
@@ -750,8 +751,13 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_cid,
                 tvb, offset*8+4, 4, cid, "%d", cid);
         offset++;
-        if (!crc_dropped)
-            offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_A);
+        if (!crc_dropped) {
+            proto_tree_add_checksum(tree, tvb, offset,
+                    hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
+                    crc16_iso14443a_tvb_offset(tvb, 0, offset),
+                    ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            offset += CRC_LEN;
+        }
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         offset = dissect_iso14443_ats(tvb, offset, pinfo, tree, crc_dropped);
@@ -826,8 +832,13 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
     if (hl_inf_len > 0) {
         offset += hl_inf_len;
     }
-    if (!crc_dropped)
-        offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_B);
+    if (!crc_dropped) {
+        proto_tree_add_checksum(tree, tvb, offset,
+                hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
+                crc16_ccitt_tvb_offset(tvb, 0, offset),
+                ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+        offset += CRC_LEN;
+    }
 
     return offset;
 }
@@ -871,8 +882,13 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
             offset += hl_resp_len;
         }
 
-        if (!crc_dropped)
-            offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, ISO14443_B);
+        if (!crc_dropped) {
+            proto_tree_add_checksum(tree, tvb, offset,
+                    hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
+                    crc16_ccitt_tvb_offset(tvb, 0, offset),
+                    ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            offset += CRC_LEN;
+        }
     }
 
     return offset;
@@ -998,7 +1014,6 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
         offset += inf_len;
     }
 
-
     if (!crc_dropped) {
         iso14443_type_t t;
         circuit_t *circuit;
@@ -1007,7 +1022,14 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
         if (circuit) {
             t = (iso14443_type_t)GPOINTER_TO_UINT(
                     (gpointer)circuit_get_proto_data(circuit, proto_iso14443));
-            offset += dissect_iso14443_crc(tvb, offset, pinfo, tree, t);
+
+            proto_tree_add_checksum(tree, tvb, offset,
+                    hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
+                    (t == ISO14443_A) ?
+                    crc16_iso14443a_tvb_offset(tvb, 0, offset) :
+                    crc16_ccitt_tvb_offset(tvb, 0, offset),
+                    ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            offset += CRC_LEN;
         }
     }
 
@@ -1622,6 +1644,10 @@ proto_register_iso14443(void)
         { &hf_iso14443_crc,
             { "CRC", "iso14443.crc",
                 FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_crc_status,
+            { "CRC Status", "iso14443.crc.status",
+                FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0, NULL, HFILL }
         }
    };
 
