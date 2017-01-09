@@ -949,7 +949,7 @@ static void dissect_batadv_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_???");
 
-		length_remaining = tvb_captured_length_remaining(tvb, 0);
+		length_remaining = tvb_reported_length_remaining(tvb, 0);
 		if (length_remaining > 0) {
 			next_tvb = tvb_new_subset_remaining(tvb, 0);
 			call_data_dissector(next_tvb, pinfo, tree);
@@ -1621,7 +1621,7 @@ static void dissect_batadv_iv_ogm(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	switch (version) {
 	case 15:
 		while (offset != -1 &&
-		       tvb_captured_length_remaining(tvb, offset) >= IV_OGM_PACKET_V15_SIZE) {
+		       tvb_reported_length_remaining(tvb, offset) >= IV_OGM_PACKET_V15_SIZE) {
 			offset = dissect_batadv_iv_ogm_v15(tvb, offset, pinfo, tree);
 		}
 		break;
@@ -2301,7 +2301,7 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
@@ -2393,7 +2393,7 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 	offset += 2;
 
 	/* rr data available? */
-	length_remaining = tvb_captured_length_remaining(tvb, offset);
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining >= BAT_RR_LEN * 6) {
 		dissect_batadv_icmp_rr_v15(batadv_icmp_tree, tvb, offset,
 					   icmp_packeth->rr_ptr);
@@ -2402,9 +2402,9 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 	tap_queue_packet(batadv_tap, pinfo, icmp_packeth);
 
-	length_remaining = tvb_captured_length_remaining(tvb, offset);
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
@@ -3741,7 +3741,7 @@ static void dissect_batadv_coded_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 	tap_queue_packet(batadv_tap, pinfo, coded_packeth);
 
-	length_remaining = tvb_captured_length_remaining(tvb, offset);
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
@@ -3874,7 +3874,7 @@ static void dissect_batadv_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 	tvbuff_t *next_tvb;
 	proto_tree *batadv_tvlv_tree = NULL;
 
-	while (offset != -1 && tvb_captured_length_remaining(tvb, offset) >= 4) {
+	while (offset != -1 && tvb_reported_length_remaining(tvb, offset) >= 4) {
 
 		type = tvb_get_guint8(tvb, offset + 0);
 		version = tvb_get_guint8(tvb, offset + 1);
@@ -4094,11 +4094,11 @@ static void dissect_batadv_tvlv_v15_tt(tvbuff_t *tvb, packet_info *pinfo,
 		offset = dissect_batadv_tvlv_v15_tt_vlan(tvb, pinfo, tree,
 							 offset);
 
-	length_remaining = tvb_captured_length_remaining(tvb, offset);
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	while (length_remaining > 0) {
 		offset = dissect_batadv_tvlv_v15_tt_change(tvb, pinfo, tree,
 							   offset);
-		length_remaining = tvb_captured_length_remaining(tvb, offset);
+		length_remaining = tvb_reported_length_remaining(tvb, offset);
 	}
 }
 
