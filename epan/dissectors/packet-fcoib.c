@@ -112,7 +112,6 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     gint        frame_len;
     guint       version;
     const char *ver;
-    gint        bytes_remaining;
     guint8      sof          = 0;
     guint8      eof          = 0;
     guint8      sig          = 0;
@@ -138,10 +137,7 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         return 0;   /* this packet isn't even long enough to contain the header+trailer w/o FC payload! */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCoIB");
-    bytes_remaining = tvb_captured_length_remaining(tvb, FCOIB_HEADER_LEN);
-    if (bytes_remaining > frame_len)
-        bytes_remaining = frame_len;        /* backing length */
-    next_tvb = tvb_new_subset(tvb, FCOIB_HEADER_LEN, bytes_remaining, frame_len);
+    next_tvb = tvb_new_subset_length(tvb, FCOIB_HEADER_LEN, frame_len);
 
     /*
      * Only version 0 is defined at this point.
