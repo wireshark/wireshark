@@ -33,7 +33,7 @@
 
 void proto_register_openflow_v4(void);
 void proto_reg_handoff_openflow_v4(void);
-static void dissect_openflow_payload_v4(tvbuff_t *, packet_info *, proto_tree *, int, guint16, guint8);
+static int dissect_openflow_message_v4(tvbuff_t *, packet_info *, proto_tree *, int);
 
 static dissector_handle_t eth_withoutfcs_handle;
 
@@ -1642,7 +1642,6 @@ dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     case OFPET_TABLE_FEATURES_FAILED: {
         /* uint8_t data[0]; contains at least the first 64 bytes of the failed request. */
         gboolean save_in_error_pkt;
-        guint8 type;
 
         data_ti = proto_tree_add_item(tree, hf_openflow_v4_error_data_body, tvb, offset, length - 20, ENC_NA);
         data_tree = proto_item_add_subtree(data_ti, ett_openflow_v4_error_data);
@@ -1654,10 +1653,7 @@ dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         /* Disable update/change of column info */
         col_set_writable(pinfo->cinfo, -1, FALSE);
 
-        type  = tvb_get_guint8(tvb, offset+1);
-        offset = dissect_openflow_header_v4(tvb, pinfo, data_tree, offset, length);
-
-        dissect_openflow_payload_v4(tvb, pinfo, data_tree, offset, length, type);
+        dissect_openflow_message_v4(tvb, pinfo, data_tree, offset);
 
         /* Restore the "we're inside an error packet" flag. */
         pinfo->flags.in_error_pkt = save_in_error_pkt;
@@ -4588,9 +4584,19 @@ dissect_openflow_metermod_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 }
 
 
-static void
-dissect_openflow_payload_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openflow_tree, int offset, guint16 length, guint8 type)
+static int
+dissect_openflow_message_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openflow_tree, int offset)
 {
+
+    guint8 type;
+    guint16 length;
+    gint32 msg_end;
+
+    type = tvb_get_guint8(tvb, offset + 1);
+    length = tvb_get_ntohs(tvb, offset + 2);
+    msg_end = offset + length;
+
+    offset = dissect_openflow_header_v4(tvb, pinfo, openflow_tree, offset, length);
 
     switch(type){
     case OFPT_HELLO:
@@ -4684,6 +4690,7 @@ dissect_openflow_payload_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openf
         break;
     }
 
+    return msg_end;
 }
 
 static int
@@ -4693,10 +4700,8 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     proto_tree *openflow_tree;
     guint offset = 0;
     guint8 type;
-    guint16 length;
 
     type   = tvb_get_guint8(tvb, 1);
-    length = tvb_get_ntohs(tvb, 2);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
                   val_to_str_ext_const(type, &openflow_v4_type_values_ext, "Unknown message type"));
@@ -4705,9 +4710,7 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     ti = proto_tree_add_item(tree, proto_openflow_v4, tvb, 0, -1, ENC_NA);
     openflow_tree = proto_item_add_subtree(ti, ett_openflow_v4);
 
-    offset = dissect_openflow_header_v4(tvb, pinfo, openflow_tree, offset, length);
-
-    dissect_openflow_payload_v4(tvb, pinfo, openflow_tree, offset, length, type);
+    dissect_openflow_message_v4(tvb, pinfo, openflow_tree, offset);
 
     return tvb_reported_length(tvb);
 }
