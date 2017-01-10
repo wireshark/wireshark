@@ -1153,6 +1153,22 @@ add_subdirectory( tools/lemon )
 add_subdirectory( ui )
 add_subdirectory( wiretap )
 add_subdirectory( writecap )
+
+# Location of our data files. This should be set to a value that allows
+# running from the build directory on Windows, on OS X when building an
+# application bundle, and on UNIX if WIRESHARK_RUN_FROM_BUILD_DIRECTORY
+# is set.
+if(ENABLE_APPLICATION_BUNDLE)
+	set(_datafile_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Resources/share/wireshark")
+else()
+	get_target_property(_libwireshark_location epan LOCATION)
+	get_filename_component(_datafile_dir "${_libwireshark_location}" PATH)
+endif()
+
+set(DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.")
+
+# wsutil must be added after DATAFILE_DIR is set such that filesystem.c can
+# learn about the directory location.
 add_subdirectory( wsutil )
 
 if(NOT WIN32)
@@ -1170,19 +1186,6 @@ endif()
 if(BUILD_wireshark AND QT_FOUND)
 	add_subdirectory( ui/qt )
 endif()
-
-# Location of our data files. This should be set to a value that allows
-# running from the build directory on Windows, on OS X when building an
-# application bundle, and on UNIX if WIRESHARK_RUN_FROM_BUILD_DIRECTORY
-# is set.
-if(ENABLE_APPLICATION_BUNDLE)
-	set(_datafile_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Resources/share/wireshark")
-else()
-	get_target_property(_libwireshark_location epan LOCATION)
-	get_filename_component(_datafile_dir "${_libwireshark_location}" PATH)
-endif()
-
-set(DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.")
 
 if(ENABLE_EXTCAP)
 	# Target platform locations
