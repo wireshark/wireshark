@@ -479,29 +479,51 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 
     /*
-     * No, there isn't, so use the 1st nibble logic (see BCP 4928,
-     * RFC 4385 and 5586).
+     * No, there isn't, so use a mix of the 1st nibble logic (see BCP 4928,
+     * RFC 4385 and 5586) + heuristic.
      */
     switch(first_nibble) {
     case 4:
-        /*
-         * XXX - this could be from an Ethernet pseudo-wire without a
-         * control word, with the MAC address's first nibble being 4.
-         */
-        call_dissector(dissector_ip, next_tvb, pinfo, tree);
-        /* IP dissector may reduce the length of the tvb.
-           We need to do the same, so that ethernet trailer is detected. */
-        set_actual_length(tvb, offset+tvb_reported_length(next_tvb));
+        {
+            /*
+             * This could be from an Ethernet pseudo-wire without a
+             * control word, with the MAC address's first nibble being 4
+             * or an IPv4 packet (or something else).
+             */
+            guint iplen = tvb_get_ntohs(next_tvb, 2);
+            guint reported_len = tvb_reported_length(next_tvb);
+            if (iplen >= (reported_len - 4) && iplen <= reported_len) {
+                /* the supposed IP total len is equal to the reported len plus
+                   the possible padding, we have a good indication this is IP */
+                call_dissector(dissector_ip, next_tvb, pinfo, tree);
+                /* IP dissector may reduce the length of the tvb.
+                   We need to do the same, so that ethernet trailer is detected. */
+                set_actual_length(tvb, offset + tvb_reported_length(next_tvb));
+                break;
+            }
+            /* last resort */
+            call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
+        }
         break;
     case 6:
-        /*
-         * XXX - this could be from an Ethernet pseudo-wire without a
-         * control word, with the MAC address's first nibble being 6.
-         */
-        call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
-        /* IPv6 dissector may reduce the length of the tvb.
-           We need to do the same, so that ethernet trailer is detected. */
-        set_actual_length(tvb, offset+tvb_reported_length(next_tvb));
+        {
+            /*
+             * This could be from an Ethernet pseudo-wire without a
+             * control word, with the MAC address's first nibble being 6
+             * or an IPv6 packet (or something else).
+             */
+            guint ip6len = tvb_get_guint16(next_tvb, offset + 4, ENC_BIG_ENDIAN);
+            guint reported_len = tvb_reported_length(next_tvb);
+            if (ip6len >= (reported_len - 4) && ip6len <= reported_len) {
+                call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
+                /* IPv6 dissector may reduce the length of the tvb.
+                   We need to do the same, so that ethernet trailer is detected. */
+                set_actual_length(tvb, offset + tvb_reported_length(next_tvb));
+                break;
+            }
+            /* last resort */
+            call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
+        }
         break;
     case 1:
         /*

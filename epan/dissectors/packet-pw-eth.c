@@ -108,27 +108,32 @@ dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 /*
- * FF: this function returns TRUE if the first 12 bytes in tvb looks like
- *     two valid ethernet addresses.  FALSE otherwise.
+ * FF: this function returns 2 if the first 12 bytes in tvb looks like
+ *     two valid ethernet addresses, 1 if either one of them contains a
+ *     registered OUI and 0 otherwise.
  */
-static gboolean
+static int
 looks_like_plain_eth(tvbuff_t *tvb _U_)
 {
     const gchar *manuf_name_da;
     const gchar *manuf_name_sa;
 
     if (tvb_reported_length_remaining(tvb, 0) < 14) {
-        return FALSE;
+        return 0;
     }
 
     manuf_name_da = tvb_get_manuf_name_if_known(tvb, 0);
     manuf_name_sa = tvb_get_manuf_name_if_known(tvb, 6);
 
     if (manuf_name_da && manuf_name_sa) {
-        return TRUE;
+        return 2;
     }
 
-    return FALSE;
+    if (manuf_name_da || manuf_name_sa) {
+        return 1;
+    }
+
+    return 0;
 }
 
 static int
