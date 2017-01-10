@@ -739,11 +739,11 @@ amount of parameters:
     if (new_tvb) { /* take it all */
         next_tvb = new_tvb;
     } else { /* make a new subset */
-        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
     }
 }
 else { /* Not fragmented */
-    next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
 }
 
 .....

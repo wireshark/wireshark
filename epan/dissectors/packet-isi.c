@@ -917,7 +917,7 @@ static int dissect_isi_sim(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitre
 					proto_tree_add_item(tree, hf_isi_sim_imsi_length, tvb, 3, 1, ENC_BIG_ENDIAN);
 
 					/*
-					next_tvb = tvb_new_subset_length_caplen(tvb, 0, -1, -1);
+					next_tvb = tvb_new_subset_remaining(tvb, 0);
 					proto_tree_add_item(tree, hf_isi_sim_imsi_byte_1, next_tvb, 4, 1, ENC_LITTLE_ENDIAN);
 					dissect_e212_mcc_mnc(next_tvb, pinfo, tree, 4, FALSE );
 					proto_tree_add_item(tree, hf_E212_msin, tvb, 2, 7, FALSE);

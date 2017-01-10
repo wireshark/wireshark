@@ -6949,7 +6949,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                 else
                 {
                     /* This is either a beggining or middle fragment on second dissection */
-                    frag_tvb = tvb_new_subset_length_caplen(tvb, 0, -1, -1);
+                    frag_tvb = tvb_new_subset_remaining(tvb, 0);
                     if (request_value->nds_frag)
                     {
                       col_add_fstr(pinfo->cinfo, COL_INFO, "[NDS Fragment 0x%08x]", frags[frag_count].nds_frag);
@@ -6972,12 +6972,12 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
             /*
              * There are no bytes so Dissect this
              */
-            frag_tvb = tvb_new_subset_length_caplen(tvb, 0, -1, -1);
+            frag_tvb = tvb_new_subset_remaining(tvb, 0);
         }
         if (frag_tvb == NULL)
         {
             /* This is a fragment packet */
-            frag_tvb = tvb_new_subset_length_caplen(tvb, 0, -1, -1);
+            frag_tvb = tvb_new_subset_remaining(tvb, 0);
             nds_data_handle = find_dissector("data");
             call_dissector(nds_data_handle, frag_tvb, pinfo, tree);
         }

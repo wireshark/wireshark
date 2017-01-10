@@ -5978,7 +5978,7 @@ static int dissect_c15ch_inc_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item(c15ch_inc_gwe_tree, hf_c15ch_inc_gwe_datatype,
                             tvb, 10, 1, ENC_BIG_ENDIAN);
     }
-    next_tvb = tvb_new_subset_length_caplen(tvb, 11, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, 11);
     /*third level dissection*/
     retv = 11 + dissector_try_uint(c15ch_inc_gwe_dissector_table, type_num, next_tvb, pinfo, tree);
     return retv;
@@ -6641,7 +6641,7 @@ static int dissect_c15ch_out_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item(c15ch_out_gwe_tree, hf_c15ch_out_gwe_gwe_data_type,
                             tvb, 14, 1, ENC_BIG_ENDIAN);
     }
-    next_tvb = tvb_new_subset_length_caplen(tvb, 15, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, 15);
 
     dissector_try_uint(c15ch_out_gwe_dissector_table, data_type, next_tvb, pinfo, tree);
     return tvb_reported_length(tvb);
@@ -7208,7 +7208,7 @@ static int dissect_c15ch_tone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_tree_add_item(c15ch_tone_tree, hf_c15ch_tone_msg_type,
                             tvb, 0, 1, ENC_BIG_ENDIAN);
     }
-    next_tvb = tvb_new_subset_length_caplen(tvb, 1, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, 1);
     retv = 1 + dissector_try_uint(c15ch_tone_dissector_table, msg_type, next_tvb, pinfo, tree);
     return retv;
 }
