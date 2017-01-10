@@ -67,11 +67,14 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
 
         if (field->mode == PT_TXTMOD_HEXBYTES) {
             char* temp_str = bytes_to_str(NULL, (const guint8 *) str, length);
+            g_free(str);
             QString qstr(temp_str);
             wmem_free(NULL, temp_str);
             return qstr;
         } else {
-            return QString::fromUtf8(str);
+            QString qstr(str);
+            g_free(str);
+            return qstr;
         }
     }
 
@@ -248,6 +251,11 @@ bool UatModel::copyRow(int dst_row, int src_row)
 
     const void *src_record = UAT_INDEX_PTR(uat_, src_row);
     void *dst_record = UAT_INDEX_PTR(uat_, dst_row);
+    // insertRows always initializes the record with empty value. Before copying
+    // over the new values, be sure to clear the old fields.
+    if (uat_->free_cb) {
+        uat_->free_cb(dst_record);
+    }
     if (uat_->copy_cb) {
       uat_->copy_cb(dst_record, src_record, uat_->record_size);
     } else {
