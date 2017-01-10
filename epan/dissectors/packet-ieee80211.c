@@ -17968,7 +17968,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
             item=proto_tree_add_uint(hdr_tree, hf_ieee80211_fc_analysis_retransmission_frame, tvb, 0, 0, fnum);
             PROTO_ITEM_SET_GENERATED(item);
           }
-          next_tvb = tvb_new_subset(tvb, hdr_len, len, reported_len);
+          next_tvb = tvb_new_subset_length_caplen(tvb, hdr_len, len, reported_len);
           call_data_dissector(next_tvb, pinfo, tree);
           goto end_of_wlan;
         }
@@ -18195,7 +18195,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
        * WEP decode impossible or failed, treat payload as raw data
        * and don't attempt fragment reassembly or further dissection.
        */
-      next_tvb = tvb_new_subset(tvb, hdr_len + ivlen, len, reported_len);
+      next_tvb = tvb_new_subset_length_caplen(tvb, hdr_len + ivlen, len, reported_len);
 
       if (tree) {
         if (algorithm == PROTECTION_ALG_WEP) {
@@ -18312,7 +18312,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
       /* First fragment, or not fragmented.  Dissect what we have here. */
 
       /* Get a tvbuff for the payload. */
-      next_tvb = tvb_new_subset(next_tvb, hdr_len, len, reported_len);
+      next_tvb = tvb_new_subset_length_caplen(next_tvb, hdr_len, len, reported_len);
 
       /*
        * If this is the first fragment, but not the only fragment,
@@ -18328,7 +18328,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
   if (next_tvb == NULL) {
     /* Just show this as an incomplete fragment. */
     col_set_str(pinfo->cinfo, COL_INFO, "Fragmented IEEE 802.11 frame");
-    next_tvb = tvb_new_subset(tvb, hdr_len, len, reported_len);
+    next_tvb = tvb_new_subset_length_caplen(tvb, hdr_len, len, reported_len);
     call_data_dissector(next_tvb, pinfo, tree);
     pinfo->fragmented = save_fragmented;
     goto end_of_wlan;

@@ -267,7 +267,7 @@ static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
          hdr_offset += init_itf_name_len;
          proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name, tvb, hdr_offset, resp_itf_name_len, ENC_ASCII|ENC_NA);
       } else {
-         next_tvb = tvb_new_subset(tvb, offset,
+         next_tvb = tvb_new_subset_length_caplen(tvb, offset,
                                    MIN(plen, tvb_captured_length_remaining(tvb, offset)), plen);
          call_dissector(x25_handle, next_tvb, pinfo, tree);
       }
@@ -295,7 +295,7 @@ static int dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
    while (offset <= offset_max - XOT_HEADER_LENGTH){
       int plen = get_xot_pdu_len(pinfo, tvb, offset, NULL);
-      next_tvb = tvb_new_subset(tvb, offset,plen, plen);
+      next_tvb = tvb_new_subset_length_caplen(tvb, offset,plen, plen);
                                 /*MIN(plen,tvb_captured_length_remaining(tvb, offset)),plen*/
 
       dissect_xot_pdu(next_tvb, pinfo, tree, data);

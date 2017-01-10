@@ -227,7 +227,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         case ISO15765_MESSAGE_TYPES_SINGLE_FRAME: {
             offset = ae + ISO15765_PCI_OFFSET + ISO15765_PCI_LEN;
             data_length = masked_guint8_value(pci, ISO15765_MESSAGE_DATA_LENGTH_MASK);
-            next_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
+            next_tvb = tvb_new_subset_length_caplen(tvb, offset, data_length, data_length);
             complete = TRUE;
 
             /* Show some info */
@@ -366,7 +366,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 next_tvb = new_tvb;
                 complete = TRUE;
             } else {
-                next_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
+                next_tvb = tvb_new_subset_length_caplen(tvb, offset, data_length, data_length);
             }
         }
     }

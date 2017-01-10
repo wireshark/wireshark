@@ -1585,7 +1585,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if(finfo == NULL || !desegment_rtp) {
         /* Hand the whole lot off to the subdissector */
-        newtvb = tvb_new_subset(tvb, offset, data_len, data_reported_len);
+        newtvb = tvb_new_subset_length_caplen(tvb, offset, data_len, data_reported_len);
         process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type);
         return;
     }
@@ -1672,7 +1672,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #ifdef DEBUG_FRAGMENTS
         g_debug("\tRTP non-fragment payload");
 #endif
-        newtvb = tvb_new_subset( tvb, offset, data_len, data_reported_len );
+        newtvb = tvb_new_subset_length_caplen( tvb, offset, data_len, data_reported_len );
 
         /* Hand off to the subdissector */
         process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type);

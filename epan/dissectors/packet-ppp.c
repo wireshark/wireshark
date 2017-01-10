@@ -1910,7 +1910,7 @@ decode_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fh_tree, int fcs_decod
             reported_len -= 2;
             if (len > reported_len)
                 len = reported_len;
-            next_tvb = tvb_new_subset(tvb, proto_offset, len, reported_len);
+            next_tvb = tvb_new_subset_length_caplen(tvb, proto_offset, len, reported_len);
         } else {
             /*
              * We have the entire packet, and it includes a 2-byte FCS.
@@ -1918,7 +1918,7 @@ decode_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fh_tree, int fcs_decod
              */
             len -= 2;
             reported_len -= 2;
-            next_tvb = tvb_new_subset(tvb, proto_offset, len, reported_len);
+            next_tvb = tvb_new_subset_length_caplen(tvb, proto_offset, len, reported_len);
 
             /*
              * Compute the FCS and put it into the tree.
@@ -1952,7 +1952,7 @@ decode_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fh_tree, int fcs_decod
             reported_len -= 4;
             if (len > reported_len)
                 len = reported_len;
-            next_tvb = tvb_new_subset(tvb, proto_offset, len, reported_len);
+            next_tvb = tvb_new_subset_length_caplen(tvb, proto_offset, len, reported_len);
         } else {
             /*
              * We have the entire packet, and it includes a 4-byte FCS.
@@ -1960,7 +1960,7 @@ decode_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fh_tree, int fcs_decod
              */
             len -= 4;
             reported_len -= 4;
-            next_tvb = tvb_new_subset(tvb, proto_offset, len, reported_len);
+            next_tvb = tvb_new_subset_length_caplen(tvb, proto_offset, len, reported_len);
 
             /*
              * Compute the FCS and put it into the tree.
@@ -4574,7 +4574,7 @@ dissect_bcp_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             reported_length -= pad_length;
             if (captured_length > reported_length)
                 captured_length = reported_length;
-            next_tvb = tvb_new_subset(tvb, offset, captured_length,
+            next_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_length,
                 reported_length);
             switch (mac_type) {
 

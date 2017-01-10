@@ -1344,7 +1344,7 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 		return;
 	}
 
-	sub_tvb = tvb_new_subset(tvb, off, MIN((int)len, tvb_captured_length_remaining(tvb, off)), len);
+	sub_tvb = tvb_new_subset_length_caplen(tvb, off, MIN((int)len, tvb_captured_length_remaining(tvb, off)), len);
 
 	dissector(sub_tvb, pinfo, sub_tree, si);
 }
@@ -4891,7 +4891,7 @@ dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *t
 
 	remaining = tvb_captured_length_remaining(raw_tvb, offset);
 
-	tvb = tvb_new_subset(raw_tvb, offset,
+	tvb = tvb_new_subset_length_caplen(raw_tvb, offset,
 			     MIN((int)datalen, remaining),
 			     datalen);
 

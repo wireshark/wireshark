@@ -296,7 +296,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
             cdblen=tvb_captured_length_remaining(tvb, offset);
         }
         if(cdblen){
-            cdb_tvb=tvb_new_subset(tvb, offset, cdblen, cdbrlen);
+            cdb_tvb=tvb_new_subset_length_caplen(tvb, offset, cdblen, cdbrlen);
             dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, itlq, itl);
         }
         return tvb_captured_length(tvb);

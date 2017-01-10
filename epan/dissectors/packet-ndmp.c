@@ -1364,7 +1364,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb_rlen=tvb_reported_length_remaining(tvb, offset);
 		if(tvb_rlen>16)
 			tvb_rlen=16;
-		cdb_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
+		cdb_tvb=tvb_new_subset_length_caplen(tvb, offset, tvb_len, tvb_rlen);
 
 		if(ndmp_conv_data->task && !ndmp_conv_data->task->itlq){
 			ndmp_conv_data->task->itlq=wmem_new(wmem_file_scope(), itlq_nexus_t);
@@ -1417,7 +1417,7 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 		tvb_rlen=tvb_reported_length_remaining(tvb, offset);
 		if(tvb_rlen>(int)payload_len)
 			tvb_rlen=payload_len;
-		data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
+		data_tvb=tvb_new_subset_length_caplen(tvb, offset, tvb_len, tvb_rlen);
 
 		if(ndmp_conv_data->task && ndmp_conv_data->task->itlq){
 			/* ndmp conceptually always send both read and write

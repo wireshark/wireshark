@@ -1182,7 +1182,7 @@ static int dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		length = reported_payload_length;
 	if ((guint)reported_length > reported_payload_length)
 		reported_length = reported_payload_length;
-	next_tvb = tvb_new_subset(tvb,(6 + credit_offset),
+	next_tvb = tvb_new_subset_length_caplen(tvb,(6 + credit_offset),
 				(length - credit_offset),
 				(reported_length - credit_offset));
 	call_dissector(ppp_handle,next_tvb,pinfo,tree);

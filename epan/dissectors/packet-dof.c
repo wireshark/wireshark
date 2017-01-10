@@ -2522,7 +2522,7 @@ static int dissect_2008_16_security_2(tvbuff_t *tvb, packet_info *pinfo, proto_t
     {
         proto_item *ti = proto_tree_add_item(tree, hf_security_2_permission, tvb, offset, -1, ENC_NA);
         proto_tree *subtree = proto_item_add_subtree(ti, ett_security_2_permission);
-        tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         gint len = dissect_2008_16_security_1(next_tvb, pinfo, subtree, NULL);
         proto_item_set_len(ti, len);
         offset += len;
@@ -2564,7 +2564,7 @@ static int dissect_2008_16_security_3_1(tvbuff_t *tvb, packet_info *pinfo, proto
     /* Security Node Identifier */
     {
         int block_length;
-        tvbuff_t *start = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         proto_tree *subtree;
         ti = proto_tree_add_item(tree, hf_security_3_1_security_node_identifier, tvb, offset, 0, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_security_3_1_security_node_identifier);
@@ -2641,7 +2641,7 @@ static int dissect_2008_16_security_4(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     {
         int block_length;
-        tvbuff_t *start = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         proto_item *ti;
         proto_tree *subtree;
         dof_2008_16_security_3_1 return_3_1;
@@ -2659,7 +2659,7 @@ static int dissect_2008_16_security_4(tvbuff_t *tvb, packet_info *pinfo, proto_t
     }
 
     {
-        tvbuff_t *start = tvb_new_subset(tvb, offset, (flag & 0x0F) + 1, (flag & 0x0F) + 1);
+        tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, (flag & 0x0F) + 1, (flag & 0x0F) + 1);
         if (return_data)
             return_data->nonce = start;
 
@@ -2669,7 +2669,7 @@ static int dissect_2008_16_security_4(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     {
         int block_length;
-        tvbuff_t *start = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         proto_item *ti;
         proto_tree *subtree;
 
@@ -2717,7 +2717,7 @@ static int dissect_2008_16_security_6_1(tvbuff_t *tvb, packet_info *pinfo, proto
     /* Desired Security Mode */
     {
         int block_length;
-        tvbuff_t *start = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         proto_item *ti;
         proto_tree *subtree;
 
@@ -2741,7 +2741,7 @@ static int dissect_2008_16_security_6_1(tvbuff_t *tvb, packet_info *pinfo, proto
     {
         int block_length;
         dof_2008_16_security_4 output;
-        tvbuff_t *start = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         proto_item *ti;
         proto_tree *subtree;
 
@@ -2774,7 +2774,7 @@ static int dissect_2008_16_security_6_2(tvbuff_t *tvb, packet_info *pinfo, proto
     {
         int block_length;
         dof_2008_16_security_4 output;
-        tvbuff_t *start = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         proto_item *ti;
         proto_tree *subtree;
 
@@ -2808,7 +2808,7 @@ static int dissect_2008_16_security_6_3(tvbuff_t *tvb, packet_info *pinfo, proto
     /* Session Security Scope */
     {
         int block_length;
-        tvbuff_t *start = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         proto_item *ti;
         proto_tree *subtree;
 
@@ -2822,7 +2822,7 @@ static int dissect_2008_16_security_6_3(tvbuff_t *tvb, packet_info *pinfo, proto
     /* Initiator Validation */
     {
         int block_length;
-        tvbuff_t *start = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         proto_item *ti;
         proto_tree *subtree;
 
@@ -2836,7 +2836,7 @@ static int dissect_2008_16_security_6_3(tvbuff_t *tvb, packet_info *pinfo, proto
     /* Responder Validation */
     {
         int block_length;
-        tvbuff_t *start = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         proto_item *ti;
         proto_tree *subtree;
 
@@ -2982,7 +2982,7 @@ static int dissect_2008_16_security_11(tvbuff_t *tvb, packet_info *pinfo, proto_
     {
         proto_item *ti = proto_tree_add_item(tree, hf_security_11_permission_security_scope, tvb, offset, -1, ENC_NA);
         proto_tree *subtree = proto_item_add_subtree(ti, ett_security_11_permission_security_scope);
-        tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         gint len;
         len = dissect_2008_16_security_12(next_tvb, pinfo, subtree, NULL);
         proto_item_set_len(ti, len);
@@ -3122,7 +3122,7 @@ static gint dissect_2009_11_type_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         do
         {
-            tvbuff_t *packet = tvb_new_subset(tvb, offset, -1, -1);
+            tvbuff_t *packet = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
             proto_tree *attribute_tree;
             gint attribute_length;
 
@@ -3194,7 +3194,7 @@ static int dissect_2009_11_type_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     case 0:
     case 2:
     {
-        tvbuff_t *packet = tvb_new_subset(tvb, offset, attribute_length_byte, attribute_length_byte);
+        tvbuff_t *packet = tvb_new_subset_length_caplen(tvb, offset, attribute_length_byte, attribute_length_byte);
         proto_tree *attribute_tree;
 
         ti = proto_tree_add_item(tree, hf_oid_attribute_oid, tvb, offset, -1, ENC_NA);
@@ -5672,7 +5672,7 @@ static int dissect_tunnel_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         opcode = tvb_get_guint8(tvb, offset + 3);
         if (opcode == 3)
         {
-            tvbuff_t *next_tvb = tvb_new_subset(tvb, offset + 5, -1, -1);
+            tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset + 5, -1, -1);
 
             dissect_dof_common(next_tvb, pinfo, tree, &ref->api_data);
         }
@@ -6097,7 +6097,7 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
              * multiple DPS packets in a single Wireshark frame.
              */
             {
-                tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, packet_length, packet_length);
+                tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, packet_length, packet_length);
                 tcp_dof_packet_ref *ref;
                 gint raw_offset = tvb_raw_offset(tvb) + offset;
                 gboolean ref_is_new = FALSE;
@@ -6324,7 +6324,7 @@ static int dissect_tunnel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             * multiple DPS packets in a single Wireshark frame.
             */
             {
-                tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, packet_length, packet_length);
+                tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, packet_length, packet_length);
                 tcp_dof_packet_ref *ref;
                 gint raw_offset = tvb_raw_offset(tvb) + offset;
                 gboolean ref_is_new = FALSE;
@@ -6678,7 +6678,7 @@ static int dissect_dnp_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
         /* We have a packet. */
         {
-            tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, encapsulated_length, tvb_reported_length(tvb) - offset);
+            tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, encapsulated_length, tvb_reported_length(tvb) - offset);
             offset += dof_dissect_dpp_common(next_tvb, pinfo, proto_item_get_parent(tree), data);
         }
     }
@@ -6819,7 +6819,7 @@ static int dissect_dpp_v2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         oid_tree = proto_tree_add_subtree(opid_tree, tvb, offset, 0, ett_2009_12_dpp_2_opid, NULL, "Source Identifier");
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb) - offset);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, tvb_reported_length(tvb) - offset);
         opid_len = call_dissector_only(dof_oid_handle, next_tvb, pinfo, oid_tree, NULL);
 
         learn_sender_sid(api_data, opid_len, tvb_get_ptr(next_tvb, 0, opid_len));
@@ -7004,7 +7004,7 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                 oid_tree = proto_tree_add_subtree(opid_tree, tvb, offset, 0, ett_2009_12_dpp_2_opid, NULL, "Source Identifier");
 
-                next_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb) - offset);
+                next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, tvb_reported_length(tvb) - offset);
                 opid_len = call_dissector_only(dof_oid_handle, next_tvb, pinfo, oid_tree, NULL);
                 proto_item_set_len(oid_tree, opid_len);
 
@@ -7364,7 +7364,7 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         */
         {
             guint16 app;
-            tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb) - offset);
+            tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, tvb_reported_length(tvb) - offset);
 
             read_c2(tvb, offset, &app, NULL);
             if (app == 0x7FFF)
@@ -7388,7 +7388,7 @@ static int dissect_options(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto
     while (offset < (gint)tvb_captured_length(tvb))
     {
         proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_2008_1_dsp_12_option, NULL, "Option");
-        tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         gint len = dissect_2008_1_dsp_1(next_tvb, pinfo, subtree);
         proto_item_set_len(proto_tree_get_parent(subtree), len);
         offset += len;
@@ -7976,7 +7976,7 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 * buffer we need to adjust the length of the existing buffer.
                 */
                 g_free(buf);
-                app = tvb_new_subset(tvb, offset, e_len - session->mac_len, e_len - session->mac_len);
+                app = tvb_new_subset_length_caplen(tvb, offset, e_len - session->mac_len, e_len - session->mac_len);
                 dof_packet->decrypted_tvb = app;
                 dof_packet->decrypted_offset = 0;
             }
@@ -8844,7 +8844,7 @@ static int dissect_sgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             offset = dof_dissect_pdu_as_field(dissect_2008_16_security_9, tvb, pinfo, sgmp_tree,
                                               offset, hf_initial_state, ett_initial_state, NULL);
 #if 0 /*TODO check this */
-            initial_state = tvb_new_subset(tvb, start_offset, offset - start_offset, offset - start_offset);
+            initial_state = tvb_new_subset_length_caplen(tvb, start_offset, offset - start_offset, offset - start_offset);
 #endif
         }
 
@@ -8994,7 +8994,7 @@ static int dissect_sgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 offset = dof_dissect_pdu_as_field(dissect_2008_16_security_9, tvb, pinfo, sgmp_tree,
                                                   offset, hf_initial_state, ett_initial_state, NULL);
 #if 0 /*TODO check this */
-                initial_state = tvb_new_subset(tvb, start_offset, offset - start_offset, offset - start_offset);
+                initial_state = tvb_new_subset_length_caplen(tvb, start_offset, offset - start_offset, offset - start_offset);
 #endif
             }
 
@@ -9197,7 +9197,7 @@ static int dissect_sgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                         {
                             dof_secmode_api_data setup_data;
                             gint block_length;
-                            tvbuff_t *ntvb = tvb_new_subset(tvb, A_offset, -1, -1);
+                            tvbuff_t *ntvb = tvb_new_subset_length_caplen(tvb, A_offset, -1, -1);
 
                             setup_data.context = INITIALIZE;
                             setup_data.security_mode_offset = 0;
@@ -9300,7 +9300,7 @@ static int dissect_2008_4_tep_2_2_1(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     /* Initial State */
     {
         int block_length;
-        tvbuff_t *start = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         ti = proto_tree_add_item(tree, hf_tep_2_2_1_initial_state, tvb, offset, 0, ENC_NA);
         ti = proto_item_add_subtree(ti, ett_tep_2_2_1_initial_state);
         block_length = dof_dissect_pdu(dissect_2008_16_security_9, start, pinfo, ti, NULL);
@@ -9585,7 +9585,7 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             if (rekey_data && rekey_data->is_rekey)
             {
                 int block_length;
-                tvbuff_t *start = tvb_new_subset(tvb, offset, -1, -1);
+                tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
                 ti = proto_tree_add_item(tep_tree, hf_tep_2_2_responder_initialization, tvb, offset, 0, ENC_NA);
                 ti = proto_item_add_subtree(ti, ett_tep_2_2_responder_initialization);
                 block_length = dissect_2008_4_tep_2_2_1(start, pinfo, ti, &ssid, data);
@@ -12598,7 +12598,7 @@ static void dof_packet_delete_proto_data(dof_packet_data *packet, int proto)
 static gint dof_dissect_pdu_as_field(dissector_t dissector, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int item, int ett, void *result)
 {
     int block_length;
-    tvbuff_t *start = tvb_new_subset(tvb, offset, -1, -1);
+    tvbuff_t *start = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
     proto_tree *my_tree;
     proto_item *ti = proto_tree_add_item(tree, item, tvb, offset, -1, ENC_NA);
     my_tree = proto_item_add_subtree(ti, ett);

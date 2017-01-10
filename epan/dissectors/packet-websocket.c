@@ -275,7 +275,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
     return;
   }
   /* Right now this is exactly the same, this may change when exts. are added.
-  tvb_appdata = tvb_new_subset(tvb, offset, length, length);
+  tvb_appdata = tvb_new_subset_length_caplen(tvb, offset, length, length);
   */
   tvb_appdata = tvb;
 
@@ -362,7 +362,7 @@ dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       tvb_set_child_real_data_tvbuff(tvb, tvb_payload);
       add_new_data_source(pinfo, tvb_payload, "Unmasked data");
     } else {
-      tvb_payload = tvb_new_subset(tvb, payload_offset, payload_length, payload_length);
+      tvb_payload = tvb_new_subset_length_caplen(tvb, payload_offset, payload_length, payload_length);
     }
     dissect_websocket_payload(tvb_payload, pinfo, tree, ws_tree, opcode);
   }

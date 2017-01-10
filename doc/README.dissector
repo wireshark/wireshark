@@ -2225,7 +2225,7 @@ that are relevant to the next dissector).
 
 The syntax for creating a new TVBUFF_SUBSET is:
 
-next_tvb = tvb_new_subset(tvb, offset, length, reported_length)
+next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, reported_length)
 
 or, in the common case where it should just run to the end of the packet,
 

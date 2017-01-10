@@ -1015,7 +1015,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
             interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
             TRY {
-                call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset(tvb, offset, captured_length, reported_length),
+                call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, captured_length, reported_length),
                                          pinfo, packet_data_tree, &interface_description->link_type);
             }
             CATCH_BOUNDS_ERRORS {
@@ -1216,7 +1216,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
             interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
             TRY {
-                call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset(tvb, offset, captured_length, reported_length),
+                call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, captured_length, reported_length),
                                          pinfo, packet_data_tree, &interface_description->link_type);
             }
             CATCH_BOUNDS_ERRORS {

@@ -162,7 +162,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     bytes_remaining = tvb_captured_length_remaining(tvb, header_len);
     if (bytes_remaining > frame_len)
         bytes_remaining = frame_len;        /* backing length */
-    next_tvb = tvb_new_subset(tvb, header_len, bytes_remaining, frame_len);
+    next_tvb = tvb_new_subset_length_caplen(tvb, header_len, bytes_remaining, frame_len);
 
     eof_str = "none";
     if (tvb_bytes_exist(tvb, eof_offset, 1)) {

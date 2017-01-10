@@ -253,7 +253,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				offset, 2, ENC_BIG_ENDIAN);
 
 			/* NPDU - call the Vendor specific dissector */
-			next_tvb = tvb_new_subset(tvb, offset+2,
+			next_tvb = tvb_new_subset_length_caplen(tvb, offset+2,
 				mstp_tvb_pdu_len-2, mstp_frame_pdu_len);
 		}
 

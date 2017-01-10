@@ -286,7 +286,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
  * BACnet NPDU
  */
 	npdu_length = packet_length - bvlc_length;
-	next_tvb = tvb_new_subset(tvb,bvlc_length,-1,npdu_length);
+	next_tvb = tvb_new_subset_length_caplen(tvb,bvlc_length,-1,npdu_length);
 	/* Code from Guy Harris */
 	if (!dissector_try_uint(bvlc_dissector_table,
 	    bvlc_function, next_tvb, pinfo, tree)) {

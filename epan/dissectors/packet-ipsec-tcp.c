@@ -147,7 +147,7 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	}
 
 	/* Create the tvbuffer for the next dissector */
-	next_tvb = tvb_new_subset(tvb, 0, reported_length - TRAILERLENGTH , -1);
+	next_tvb = tvb_new_subset_length_caplen(tvb, 0, reported_length - TRAILERLENGTH , -1);
 	if (protocol == TCP_ENCAP_P_UDP) {
 		call_dissector(udp_handle, next_tvb, pinfo, tree);
 	} else { /* Hopefully ESP */

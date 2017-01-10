@@ -1063,7 +1063,7 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
     }
 
     if(mpl > 0) {
-        pdu_tvb = tvb_new_subset(tvb, offset, len, mpl);
+        pdu_tvb = tvb_new_subset_length_caplen(tvb, offset, len, mpl);
         if(errors != -1) {
             dissect_mux_payload(pdu_tvb,pinfo,pkt_offset+offset,pdu_tree,call_info,mc,end_of_mux_sdu, ctype, circuit_id);
         } else {

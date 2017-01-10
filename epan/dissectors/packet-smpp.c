@@ -1961,7 +1961,7 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             /* Set SMPP source and destination address */
             set_address(&(pinfo->src), AT_STRINGZ, 1+(int)strlen(src_str), src_str);
             set_address(&(pinfo->dst), AT_STRINGZ, 1+(int)strlen(dst_str), dst_str);
-            tvb_msg = tvb_new_subset (tvb, offset,
+            tvb_msg = tvb_new_subset_length_caplen (tvb, offset,
                     MIN(length, tvb_reported_length(tvb) - offset), length);
             call_dissector (gsm_sms_handle, tvb_msg, pinfo, top_tree);
             /* Restore original addresses */
@@ -2391,7 +2391,7 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 return offset;
             if (pdu_real_len > pdu_len)
                 pdu_real_len = pdu_len;
-            pdu_tvb = tvb_new_subset(tvb, offset, pdu_real_len, pdu_len);
+            pdu_tvb = tvb_new_subset_length_caplen(tvb, offset, pdu_real_len, pdu_len);
             dissect_smpp_pdu(pdu_tvb, pinfo, tree, data);
             offset += pdu_len;
             first = FALSE;
@@ -2493,11 +2493,11 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
          * Reported length: command_length
          */
         if (tvb_captured_length_remaining(tvb, offset - 16 + command_length) > 0) {
-            pdu_tvb = tvb_new_subset(tvb, offset - 16,
+            pdu_tvb = tvb_new_subset_length_caplen(tvb, offset - 16,
                     command_length,     /* Physical length */
                     command_length);    /* Length reported by the protocol */
         } else {
-            pdu_tvb = tvb_new_subset(tvb, offset - 16,
+            pdu_tvb = tvb_new_subset_length_caplen(tvb, offset - 16,
                     tvb_captured_length_remaining(tvb, offset - 16),/* Physical length */
                     command_length);    /* Length reported by the protocol */
         }
@@ -2549,7 +2549,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
              */
             if (command_length <= tvb_reported_length(pdu_tvb))
             {
-                tvbuff_t *tmp_tvb = tvb_new_subset(pdu_tvb, 16,
+                tvbuff_t *tmp_tvb = tvb_new_subset_length_caplen(pdu_tvb, 16,
                         -1, command_length - 16);
                 if (command_id & 0x80000000)
                 {

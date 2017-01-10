@@ -300,7 +300,7 @@ static void dissect_simple_link16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     case SIMPLE_LINK16_FIXED_FORMAT:
         memset(&state, 0, sizeof(state));
         for (i = 0; i < word_count; i += 5) {
-            newtvb = tvb_new_subset(tvb, offset, 10, -1);
+            newtvb = tvb_new_subset_length_caplen(tvb, offset, 10, -1);
             add_new_data_source(pinfo, newtvb, "Link 16 Word");
             call_dissector_with_data(link16_handle, newtvb, pinfo, tree, &state);
             offset += 10;

@@ -361,7 +361,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 			tree2 = proto_item_add_subtree(item, ett);
 			{
 				tvbuff_t* tvb;
-				tvb = tvb_new_subset(tvb_original, PWC_SIZEOF_CW + payload_size, padding_size, -1);
+				tvb = tvb_new_subset_length_caplen(tvb_original, PWC_SIZEOF_CW + payload_size, padding_size, -1);
 				call_dissector(pw_padding_handle, tvb, pinfo, tree2);
 			}
 		}

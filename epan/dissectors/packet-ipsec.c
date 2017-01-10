@@ -2103,7 +2103,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   */
   if(!g_esp_enable_encryption_decode && g_esp_enable_authentication_check && sad_is_present)
   {
-    next_tvb = tvb_new_subset(tvb, 8, len - 8 - esp_auth_len, -1);
+    next_tvb = tvb_new_subset_length_caplen(tvb, 8, len - 8 - esp_auth_len, -1);
     export_ipsec_pdu(data_handle, pinfo, next_tvb);
     call_dissector(data_handle, next_tvb, pinfo, esp_tree);
 

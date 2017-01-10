@@ -126,7 +126,7 @@ static int dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     ti = proto_tree_add_item(igrp_tree, hf_igrp_interior_routes, tvb, 4, 2, ENC_BIG_ENDIAN);
     for( ; ninterior>0 ; ninterior-- ) {
       igrp_vektor_tree =  proto_item_add_subtree(ti,ett_igrp_vektor);
-      next_tvb = tvb_new_subset(tvb, offset, IGRP_ENTRY_LENGTH, -1);
+      next_tvb = tvb_new_subset_length_caplen(tvb, offset, IGRP_ENTRY_LENGTH, -1);
       dissect_vektor_igrp (next_tvb,igrp_vektor_tree,network);
       offset+=IGRP_ENTRY_LENGTH;
     }
@@ -134,7 +134,7 @@ static int dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     ti = proto_tree_add_item(igrp_tree, hf_igrp_system_routes, tvb, 6, 2, ENC_BIG_ENDIAN);
     for( ; nsystem>0 ; nsystem-- ) {
       igrp_vektor_tree =  proto_item_add_subtree(ti,ett_igrp_vektor);
-      next_tvb = tvb_new_subset(tvb, offset, IGRP_ENTRY_LENGTH, -1);
+      next_tvb = tvb_new_subset_length_caplen(tvb, offset, IGRP_ENTRY_LENGTH, -1);
       dissect_vektor_igrp (next_tvb,igrp_vektor_tree,0);
       offset+=IGRP_ENTRY_LENGTH;
     }
@@ -142,7 +142,7 @@ static int dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     ti = proto_tree_add_item(igrp_tree, hf_igrp_exterior_routes, tvb, 8, 2, ENC_BIG_ENDIAN);
     for( ; nexterior>0 ; nexterior-- ) {
       igrp_vektor_tree =  proto_item_add_subtree(ti,ett_igrp_vektor);
-      next_tvb = tvb_new_subset(tvb, offset, IGRP_ENTRY_LENGTH, -1);
+      next_tvb = tvb_new_subset_length_caplen(tvb, offset, IGRP_ENTRY_LENGTH, -1);
       dissect_vektor_igrp (next_tvb,igrp_vektor_tree,0);
       offset+=IGRP_ENTRY_LENGTH;
     }

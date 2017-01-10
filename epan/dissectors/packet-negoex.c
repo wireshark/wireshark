@@ -448,7 +448,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
        * Construct a new TVB covering just this message and pass to the
        * sub-dissector
        */
-      msg_tvb = tvb_new_subset(tvb,
+      msg_tvb = tvb_new_subset_length_caplen(tvb,
                                start_offset,
                                MIN(message_len, tvb_captured_length(tvb)),
                                message_len);

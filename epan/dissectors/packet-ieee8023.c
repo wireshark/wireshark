@@ -78,7 +78,7 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
   captured_length = tvb_captured_length_remaining(tvb, offset_after_length);
   if (captured_length > length)
     captured_length = length;
-  next_tvb = tvb_new_subset(tvb, offset_after_length, captured_length, length);
+  next_tvb = tvb_new_subset_length_caplen(tvb, offset_after_length, captured_length, length);
 
   /* Dissect the payload either as IPX or as an LLC frame.
      Catch non-fatal exceptions, so that if the reported length

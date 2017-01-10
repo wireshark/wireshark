@@ -311,7 +311,7 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
                 if (reported_length > length)
                         reported_length = length;
 
-                next_tvb = tvb_new_subset(tvb, *offset, available_length,
+                next_tvb = tvb_new_subset_length_caplen(tvb, *offset, available_length,
                                           reported_length);
                 /* Set the information columns read-only so that they
                  * reflect the MSDP packet rather than the

@@ -258,7 +258,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
         offset += 4;
 
         /* CDBBuffer */
-        scsi_cdb = tvb_new_subset(tvb,
+        scsi_cdb = tvb_new_subset_length_caplen(tvb,
                                   offset,
                                   cdb_length,
                                   tvb_reported_length_remaining(tvb, offset));
@@ -359,7 +359,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
             if (tvb_rlen > (int)data_transfer_length)
                 tvb_rlen = data_transfer_length;
 
-            data_tvb = tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
+            data_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len, tvb_rlen);
 
             if (rsvd_conv_data->task && rsvd_conv_data->task->itlq) {
                 rsvd_conv_data->task->itlq->task_flags = SCSI_DATA_READ |

@@ -555,7 +555,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		else {
 			/* create a new tvb to pass to the subdissector
 			   '-16': length of header + 2 CRC bytes */
-			sub_tvb = tvb_new_subset(tvb, offset, tvbsize - 16, framesize - 16);
+			sub_tvb = tvb_new_subset_length_caplen(tvb, offset, tvbsize - 16, framesize - 16);
 
 			/* call subdissector */
 			switch (frame_type) {

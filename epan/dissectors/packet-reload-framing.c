@@ -343,7 +343,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree_add_item(message_tree, hf_reload_framing_message_length, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     proto_tree_add_item(message_tree, hf_reload_framing_message_data, tvb, offset, message_length, ENC_NA);
-    next_tvb = tvb_new_subset(tvb, offset, effective_length - offset, message_length);
+    next_tvb = tvb_new_subset_length_caplen(tvb, offset, effective_length - offset, message_length);
     if (reload_handle == NULL) {
       expert_add_info(pinfo, ti, &ei_reload_no_dissector);
       return tvb_captured_length(tvb);

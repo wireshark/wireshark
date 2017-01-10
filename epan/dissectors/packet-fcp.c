@@ -546,7 +546,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
     if (rsplen) {
         tvbuff_t *rspinfo_tvb;
 
-        rspinfo_tvb = tvb_new_subset(tvb, offset, MIN(rsplen, tvb_captured_length_remaining(tvb, offset)), rsplen);
+        rspinfo_tvb = tvb_new_subset_length_caplen(tvb, offset, MIN(rsplen, tvb_captured_length_remaining(tvb, offset)), rsplen);
         dissect_fcp_rspinfo(rspinfo_tvb, tree, 0);
 
         offset += rsplen;
@@ -556,7 +556,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
     if (snslen) {
         tvbuff_t *sns_tvb;
 
-        sns_tvb = tvb_new_subset(tvb, offset, MIN(snslen, tvb_captured_length_remaining(tvb, offset)), snslen);
+        sns_tvb = tvb_new_subset_length_caplen(tvb, offset, MIN(snslen, tvb_captured_length_remaining(tvb, offset)), snslen);
         dissect_scsi_snsinfo(sns_tvb, pinfo, parent_tree, 0,
                               snslen,
                               (request_data != NULL) ? request_data->itlq : &empty_itlq, &itl);

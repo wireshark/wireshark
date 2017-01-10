@@ -807,7 +807,7 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     offset+=4+2*1;
-    mac=tvb_new_subset(tvb,offset,-1, phr & IEEE802154_PHY_LENGTH_MASK);
+    mac=tvb_new_subset_length_caplen(tvb,offset,-1, phr & IEEE802154_PHY_LENGTH_MASK);
 
     /* Call the common dissector. */
     dissect_ieee802154(mac, pinfo, ieee802154_tree, NULL);
@@ -862,7 +862,7 @@ dissect_ieee802154_nofcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
      * checks to ensure that the new reported length is not longer than the old
      * reported length (why?), and will throw an exception.
      */
-    new_tvb = tvb_new_subset(tvb, 0, -1, tvb_reported_length(tvb)+IEEE802154_FCS_LEN);
+    new_tvb = tvb_new_subset_length_caplen(tvb, 0, -1, tvb_reported_length(tvb)+IEEE802154_FCS_LEN);
     /* Call the common dissector. */
     dissect_ieee802154_common(new_tvb, pinfo, tree, 0);
     return tvb_captured_length(tvb);
@@ -906,7 +906,7 @@ dissect_zboss_specific(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
             proto_tree_add_item(zboss_tree, zboss_trace_number, tvb, off, 4, ENC_LITTLE_ENDIAN);
             off += 4;
 
-            return tvb_new_subset(tvb, off, tvb_captured_length(tvb) - off, tvb_captured_length(tvb) - off);
+            return tvb_new_subset_length_caplen(tvb, off, tvb_captured_length(tvb) - off, tvb_captured_length(tvb) - off);
         }
     }
     return tvb;
@@ -1518,7 +1518,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             gint            reported_len = tvb_reported_length(tvb)-offset-IEEE802154_FCS_LEN;
             gint            captured_len = tvb_captured_length(tvb)-offset;
             if (reported_len < captured_len) captured_len = reported_len;
-            payload_tvb = tvb_new_subset(tvb, offset, captured_len, reported_len);
+            payload_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_len, reported_len);
         }
 
         /* Display the reason for failure, and abort if the error was fatal. */
@@ -1573,7 +1573,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         gint            reported_len = tvb_reported_length(tvb)-offset-IEEE802154_FCS_LEN;
         gint            captured_len = tvb_captured_length(tvb)-offset;
         if (reported_len < captured_len) captured_len = reported_len;
-        payload_tvb = tvb_new_subset(tvb, offset, captured_len, reported_len);
+        payload_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_len, reported_len);
     }
 
     /* presense of Payload IEs is defined by the termination of the Header IEs */
@@ -3060,7 +3060,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb, guint offset, packet_info *pinfo, ieee
         }
 
         /* Create a tvbuff for the plaintext. This might result in a zero-length tvbuff. */
-        ptext_tvb = tvb_new_subset(tvb, offset, captured_len, reported_len);
+        ptext_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_len, reported_len);
         *status = DECRYPT_PACKET_SUCCEEDED;
     }
 

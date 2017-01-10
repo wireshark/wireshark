@@ -806,7 +806,7 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
 
                 if (crci_bit == 0 || !p_fp_info->is_uplink) {
-                    next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
+                    next_tvb = tvb_new_subset_length_caplen(tvb, offset + bit_offset/8,
                                               ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8, -1);
 
 
@@ -894,7 +894,7 @@ dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         if (preferences_call_mac_dissectors /*&& !rlc_is_ciphered(pinfo)*/) {
             tvbuff_t *next_tvb;
-            next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
+            next_tvb = tvb_new_subset_length_caplen(tvb, offset + bit_offset/8,
                                       ((bit_offset % 8) + length + 7)/8, -1);
             call_dissector_with_data(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree, data);
             dissected = TRUE;
@@ -959,7 +959,7 @@ dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         if (preferences_call_mac_dissectors  /*&& !rlc_is_ciphered(pinfo)*/) {
 
-            tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, length, -1);
+            tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, -1);
 
 
             fpi->cur_tb = pdu;    /*Set proper pdu index for MAC and higher layers*/
@@ -2845,7 +2845,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         tvbuff_t *next_tvb;
                         pinfo->fd->subnum = macd_idx; /* set subframe number to current TB */
                         /* create new TVB and pass further on */
-                        next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
+                        next_tvb = tvb_new_subset_length_caplen(tvb, offset + bit_offset/8,
                                 ((bit_offset % 8) + size + 7) / 8, -1);
 
 

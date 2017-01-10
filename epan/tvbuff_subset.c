@@ -144,7 +144,7 @@ tvb_new_with_subset(tvbuff_t *backing, const gint reported_length,
 }
 
 tvbuff_t *
-tvb_new_subset(tvbuff_t *backing, const gint backing_offset, const gint backing_length, const gint reported_length)
+tvb_new_subset_length_caplen(tvbuff_t *backing, const gint backing_offset, const gint backing_length, const gint reported_length)
 {
 	tvbuff_t *tvb;
 	guint	  subset_tvb_offset;

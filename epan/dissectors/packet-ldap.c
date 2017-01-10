@@ -3919,7 +3919,7 @@ one_more_pdu:
      */
     length = length_remaining;
     if (length > msg_len) length = msg_len;
-    msg_tvb = tvb_new_subset(tvb, offset, length, msg_len);
+    msg_tvb = tvb_new_subset_length_caplen(tvb, offset, length, msg_len);
 
     /*
      * Now dissect the LDAP message.
@@ -4108,7 +4108,7 @@ static void
     */
     length = length_remaining;
     if (length > sasl_msg_len) length = sasl_msg_len;
-    sasl_tvb = tvb_new_subset(tvb, offset, length, sasl_msg_len);
+    sasl_tvb = tvb_new_subset_length_caplen(tvb, offset, length, sasl_msg_len);
 
     proto_tree_add_uint(ldap_tree, hf_ldap_sasl_buffer_length, sasl_tvb, 0, 4, sasl_len);
 
@@ -4134,7 +4134,7 @@ static void
         tmp_length = tvb_reported_length_remaining(sasl_tvb, 4);
         if ((guint)tmp_length > sasl_len)
           tmp_length = sasl_len;
-        gssapi_tvb = tvb_new_subset(sasl_tvb, 4, tmp_length, sasl_len);
+        gssapi_tvb = tvb_new_subset_length_caplen(sasl_tvb, 4, tmp_length, sasl_len);
 
         /* Attempt decryption of the GSSAPI wrapped data if possible */
         gssapi_encrypt.gssapi_data_encrypted = FALSE;

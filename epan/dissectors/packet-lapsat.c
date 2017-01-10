@@ -512,7 +512,7 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
 		payload = tvb_new_child_real_data(tvb, data, plen, plen);
 	} else {
 		/* Last nibble doesn't need merging */
-		payload = tvb_new_subset(tvb, hlen, plen, plen);
+		payload = tvb_new_subset_length_caplen(tvb, hlen, plen, plen);
 	}
 
 	add_new_data_source(pinfo, payload, "LAPSat Payload");

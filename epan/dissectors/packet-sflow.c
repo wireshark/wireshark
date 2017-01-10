@@ -673,7 +673,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
 
     /* hand the header off to the appropriate dissector.  It's probably
      * a short frame, so ignore any exceptions. */
-    next_tvb = tvb_new_subset(tvb, offset, header_length, frame_length);
+    next_tvb = tvb_new_subset_length_caplen(tvb, offset, header_length, frame_length);
 
     /* save some state */
     save_writable = col_get_writable(pinfo->cinfo, -1);

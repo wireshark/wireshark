@@ -1159,7 +1159,7 @@ static const value_string zero_is_none_vals[] = {
       unsigned char eventcode;                                        \
       const char *sent;                                               \
       proto_tree *event_proto_tree;                                   \
-      next_tvb = tvb_new_subset(tvb, offset, next_offset - offset,    \
+      next_tvb = tvb_new_subset_length_caplen(tvb, offset, next_offset - offset,    \
                                 next_offset - offset);                \
       eventcode = tvb_get_guint8(next_tvb, 0);                        \
       sent = (eventcode & 0x80) ? "Sent-" : "";                       \
@@ -1273,7 +1273,7 @@ static const value_string zero_is_none_vals[] = {
       }                                                               \
       if (length_remaining > plen)                                    \
             length_remaining = plen;                                  \
-      next_tvb = tvb_new_subset(tvb, offset, length_remaining, plen); \
+      next_tvb = tvb_new_subset_length_caplen(tvb, offset, length_remaining, plen); \
                                                                       \
       if (sep == NULL) {                                              \
             col_set_str(pinfo->cinfo, COL_INFO, str);                 \
@@ -4698,7 +4698,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
             length = length_remaining;
             if (length > plen)
                   length = plen;
-            next_tvb = tvb_new_subset(tvb, offset, length, plen);
+            next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, plen);
 
             /*
              * Set the column appropriately.

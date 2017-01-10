@@ -1382,7 +1382,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * which, if no content length was specified,
 		 * is -1, i.e. "to the end of the frame.
 		 */
-		next_tvb = tvb_new_subset(tvb, offset, datalen,
+		next_tvb = tvb_new_subset_length_caplen(tvb, offset, datalen,
 		    reported_datalen);
 
 		/*
@@ -1854,7 +1854,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		if (new_tvb != NULL && chunk_size != 0) {
 			tvbuff_t *chunk_tvb = NULL;
 
-			chunk_tvb = tvb_new_subset(tvb, chunk_offset,
+			chunk_tvb = tvb_new_subset_length_caplen(tvb, chunk_offset,
 			    chunk_size, datalen);
 
 			tvb_composite_append(new_tvb, chunk_tvb);

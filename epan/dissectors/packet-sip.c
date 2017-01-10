@@ -1714,7 +1714,7 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo
 
         /* If we have a SIP diagnostics sub dissector call it */
         if (sip_uri_userinfo_handle) {
-            next_tvb = tvb_new_subset(tvb, uri_offsets->uri_user_start, uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1,
+            next_tvb = tvb_new_subset_length_caplen(tvb, uri_offsets->uri_user_start, uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1,
                                       uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1);
             call_dissector(sip_uri_userinfo_handle, next_tvb, pinfo, uri_item_tree);
         }
@@ -2594,7 +2594,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                         if (sip_via_branch_handle && g_ascii_strcasecmp (param_name, "branch") == 0)
                         {
                             tvbuff_t *next_tvb;
-                            next_tvb = tvb_new_subset(tvb, parameter_name_end + 1, current_offset - parameter_name_end - 1, current_offset - parameter_name_end - 1);
+                            next_tvb = tvb_new_subset_length_caplen(tvb, parameter_name_end + 1, current_offset - parameter_name_end - 1, current_offset - parameter_name_end - 1);
 
                             call_dissector (sip_via_branch_handle, next_tvb, pinfo, tree);
                         }
@@ -4273,7 +4273,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     message_body_tree = proto_item_add_subtree(ti_a, ett_sip_message_body);
                 }
             } else {
-                next_tvb = tvb_new_subset(tvb, offset, datalen, reported_datalen);
+                next_tvb = tvb_new_subset_length_caplen(tvb, offset, datalen, reported_datalen);
                 if(sip_tree) {
                     ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
                                          ENC_NA);
@@ -4281,7 +4281,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                 }
             }
         }else{
-            next_tvb = tvb_new_subset(tvb, offset, datalen, reported_datalen);
+            next_tvb = tvb_new_subset_length_caplen(tvb, offset, datalen, reported_datalen);
             if(sip_tree) {
                 ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
                                      ENC_NA);

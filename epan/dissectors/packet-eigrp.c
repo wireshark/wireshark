@@ -1076,7 +1076,7 @@ dissect_eigrp_metric_flags (proto_tree *tree, tvbuff_t *tvb, int offset, int lim
 
     /* Decode the route flags field */
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, limit, ett_eigrp_metric_flags, NULL, "Flags");
-    sub_tvb = tvb_new_subset(tvb, offset, limit, -1);
+    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, limit, -1);
 
     /* just care about 'flags' byte, there are no MP flags for now */
     proto_tree_add_item(sub_tree, hf_eigrp_metric_flags_srcwd, sub_tvb, 0, 1,
@@ -1297,7 +1297,7 @@ dissect_eigrp_services (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 
     remaining = tvb_captured_length_remaining(tvb, offset);
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, remaining, ett_eigrp_tlv_metric, &sub_ti, "SAF Service ");
-    sub_tvb = tvb_new_subset(tvb, offset, remaining, -1);
+    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, remaining, -1);
     sub_offset = 0;
 
     for (; tvb_reported_length_remaining(sub_tvb, sub_offset) > 0; ) {
@@ -1332,7 +1332,7 @@ dissect_eigrp_services (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
          */
         reach_tree = proto_tree_add_subtree(sub_tree, sub_tvb, sub_offset, 22,
                                        ett_eigrp_saf_reachability, NULL, "Reachability");
-        reach_tvb = tvb_new_subset(sub_tvb, sub_offset, 22, -1);
+        reach_tvb = tvb_new_subset_length_caplen(sub_tvb, sub_offset, 22, -1);
 
         afi = tvb_get_ntohs(reach_tvb, 0);
         proto_tree_add_item(reach_tree, hf_eigrp_saf_reachability_afi,
@@ -1427,7 +1427,7 @@ dissect_eigrp_legacy_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
     tvbuff_t   *sub_tvb;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_eigrp_tlv_metric, NULL, "Legacy Metric");
-    sub_tvb = tvb_new_subset(tvb, offset, 16, -1);
+    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, 16, -1);
 
     proto_tree_add_item(sub_tree, hf_eigrp_legacy_metric_delay, sub_tvb,
                         0, 4, ENC_BIG_ENDIAN);
@@ -1488,7 +1488,7 @@ dissect_eigrp_ipx_extdata (proto_tree *tree, tvbuff_t *tvb, int offset)
     int         sub_offset = 0;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 20, ett_eigrp_tlv_extdata, NULL, "External Data");
-    sub_tvb = tvb_new_subset(tvb, offset, 20, -1);
+    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, 20, -1);
 
     /* Decode the external route source info */
     proto_tree_add_item(sub_tree, hf_eigrp_ipx_extdata_routerid, sub_tvb,
@@ -1555,7 +1555,7 @@ dissect_eigrp_extdata (proto_tree *tree, tvbuff_t *tvb, int offset)
     int         sub_offset = 0;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 20, ett_eigrp_tlv_extdata, NULL, "External Data");
-    sub_tvb = tvb_new_subset(tvb, offset, 20, -1);
+    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, 20, -1);
 
     /* Decode the external route source info */
     proto_tree_add_item(sub_tree, hf_eigrp_extdata_origrid, sub_tvb,
@@ -2145,7 +2145,7 @@ dissect_eigrp_wide_metric_attr (proto_tree *tree, tvbuff_t *tvb,
     limit *= 2;   /* words to bytes */
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, limit, ett_eigrp_tlv_attr, NULL, "Attributes");
-    sub_tvb    = tvb_new_subset(tvb, offset, limit, -1);
+    sub_tvb    = tvb_new_subset_length_caplen(tvb, offset, limit, -1);
     sub_offset = 0;
 
     while (limit > 0) {
@@ -2175,7 +2175,7 @@ dissect_eigrp_wide_metric_attr (proto_tree *tree, tvbuff_t *tvb,
 
         case EIGRP_ATTR_COMM:
             dissect_eigrp_metric_comm(sub_tree,
-                                      tvb_new_subset(sub_tvb, sub_offset, 8, -1),
+                                      tvb_new_subset_length_caplen(sub_tvb, sub_offset, 8, -1),
                                       sub_offset, limit);
             break;
 
@@ -2247,7 +2247,7 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
     guint64     big_num;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_eigrp_tlv_metric, NULL, "Wide Metric");
-    sub_tvb = tvb_new_subset(tvb, offset, 24, -1);
+    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, 24, -1);
 
     attr_size = tvb_get_guint8(sub_tvb, 0);
 

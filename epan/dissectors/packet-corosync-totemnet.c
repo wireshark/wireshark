@@ -347,7 +347,7 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
     dissect_corosync_totemnet_security_header(decrypted_tvb, pinfo, parent_tree,
                                               check_crypt_type, key_for_trial);
 
-    next_tvb = tvb_new_subset(decrypted_tvb,
+    next_tvb = tvb_new_subset_length_caplen(decrypted_tvb,
                               SHA1_DIGEST_LEN + SALT_SIZE,
                               io_len - (SHA1_DIGEST_LEN + SALT_SIZE),
                               io_len - (SHA1_DIGEST_LEN + SALT_SIZE));

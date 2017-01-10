@@ -1532,7 +1532,7 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             if (length > reported_length)
                 length = reported_length;
 
-            stub_tvb = tvb_new_subset(tvb, 0, length, reported_length);
+            stub_tvb = tvb_new_subset_length_caplen(tvb, 0, length, reported_length);
             auth_pad_len = dissector_data->auth_info->auth_pad_len;
             auth_pad_offset = reported_length;
         } else {
@@ -1604,7 +1604,7 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                                         length, plurality(length, "", "s"));
             }
 
-            payload_tvb = tvb_new_subset(stub_tvb, 0, length, length);
+            payload_tvb = tvb_new_subset_length_caplen(stub_tvb, 0, length, length);
             offset = sub_dissect(payload_tvb, 0, pinfo, sub_tree,
                             dissector_data->info, dissector_data->drep);
 
@@ -3768,7 +3768,7 @@ dissect_dcerpc_cn_auth(tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
                 /*
                  * Dissect the authentication data.
                  */
-                auth_info->auth_tvb = tvb_new_subset(tvb, offset,
+                auth_info->auth_tvb = tvb_new_subset_length_caplen(tvb, offset,
                                               MIN(hdr->auth_len,tvb_reported_length_remaining(tvb, offset)),
                                               hdr->auth_len);
 
@@ -4215,7 +4215,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     reported_length -= auth_info->auth_size;
     if (length > reported_length)
         length = reported_length;
-    payload_tvb = tvb_new_subset(tvb, offset, length, reported_length);
+    payload_tvb = tvb_new_subset_length_caplen(tvb, offset, length, reported_length);
 
     /* Decrypt the PDU if it is encrypted */
 
@@ -5434,7 +5434,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * offset otherwise.
      */
     subtvb_len = MIN(hdr.frag_len, tvb_reported_length(tvb));
-    fragment_tvb = tvb_new_subset(tvb, start_offset,
+    fragment_tvb = tvb_new_subset_length_caplen(tvb, start_offset,
                                   subtvb_len /* length */,
                                   hdr.frag_len /* reported_length */);
 
@@ -5913,7 +5913,7 @@ dissect_dcerpc_dg_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
              * XXX - authentication info?
              */
             pinfo->fragmented = (hdr->flags1 & PFCL1_FRAG);
-            next_tvb = tvb_new_subset(tvb, offset, length,
+            next_tvb = tvb_new_subset_length_caplen(tvb, offset, length,
                                       reported_length);
             dcerpc_try_handoff(pinfo, tree, dcerpc_tree, next_tvb, TRUE, hdr->drep, di, NULL);
         } else {

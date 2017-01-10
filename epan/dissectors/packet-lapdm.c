@@ -287,7 +287,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     if( !MIN(len, available_length) )
         return 2;
 
-    payload = tvb_new_subset(tvb, LAPDM_HEADER_LEN, MIN(len,available_length), len);
+    payload = tvb_new_subset_length_caplen(tvb, LAPDM_HEADER_LEN, MIN(len,available_length), len);
 
     /* Potentially segmented I frame
      */

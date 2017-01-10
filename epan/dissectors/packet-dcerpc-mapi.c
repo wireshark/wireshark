@@ -4278,7 +4278,7 @@ mapi_dissect_element_EcDoRpc_response__(tvbuff_t *tvb _U_, int offset _U_, packe
 	guint16		length;
 	tvbuff_t	*subtvb;
 	length = tvb_get_letohs(tvb, offset);
-	subtvb = tvb_new_subset(tvb, offset, length, length);
+	subtvb = tvb_new_subset_length_caplen(tvb, offset, length, length);
 	offset += 2;
 	while (offset < length) {
 		offset = mapi_dissect_struct_EcDoRpc_MAPI_REPL(subtvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_response_mapi_repl, length - offset);
@@ -9118,7 +9118,7 @@ mapi_dissect_element_OpenMessage_recipients_recipients_headers(tvbuff_t *tvb _U_
 		guint32 saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep, hf_mapi_OpenMessage_recipients_recipients_headers_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset(tvb, offset, (const gint)size, -1);
+		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const gint)size, -1);
 		mapi_dissect_element_OpenMessage_recipients_recipients_headers_(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;

@@ -105,7 +105,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	  if (data_len < reported_len) {
 	    reported_len = data_len;
 	  }
-	  next_tvb = tvb_new_subset(tvb, TURNCHANNEL_HDR_LEN, new_len,
+	  next_tvb = tvb_new_subset_length_caplen(tvb, TURNCHANNEL_HDR_LEN, new_len,
 				    reported_len);
 
 

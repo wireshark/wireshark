@@ -117,7 +117,7 @@ dissect_e100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         } /* if(tree) */
         bytes_captured = tvb_get_ntohl(tvb, e100_bytes_cap.offset);
         bytes_original = tvb_get_ntohl(tvb, e100_bytes_orig.offset);
-        next_tvb = tvb_new_subset(tvb, e100_encap_len, bytes_captured, bytes_original);
+        next_tvb = tvb_new_subset_length_caplen(tvb, e100_encap_len, bytes_captured, bytes_original);
         call_dissector(eth_handle, next_tvb, pinfo, tree);
 
         return tvb_captured_length(tvb);

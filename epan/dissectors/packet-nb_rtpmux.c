@@ -149,7 +149,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     captured_length = tvb_reported_length_remaining(tvb, offset + 5);
                     if (captured_length > (gint)length)
                         captured_length = length;
-                    next_tvb = tvb_new_subset(tvb, offset+5, captured_length,
+                    next_tvb = tvb_new_subset_length_caplen(tvb, offset+5, captured_length,
                                               length);
 
                     if (first_rtp_payload_seen)

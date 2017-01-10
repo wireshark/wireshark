@@ -1684,7 +1684,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         length = length_remaining;
         if (length > plen)
             length = plen;
-        next_tvb = tvb_new_subset(tvb, offset, length, plen);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, plen);
 
         dissect_nbss_packet(next_tvb, pinfo, tree, is_cifs);
 

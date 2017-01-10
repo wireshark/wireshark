@@ -1464,7 +1464,7 @@ static int dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			proto_item_append_text(it104, ": %s", wmem_strbuf_get_str(res));
 
 			if (type == I_TYPE)
-				call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off + APCI_LEN, -1, len - APCI_DATA_LEN), pinfo, tree);
+				call_dissector(iec104asdu_handle, tvb_new_subset_length_caplen(tvb, Off + APCI_LEN, -1, len - APCI_DATA_LEN), pinfo, tree);
 
 			/* Don't search more the APCI_START */
 			break;

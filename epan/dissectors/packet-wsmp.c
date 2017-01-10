@@ -185,7 +185,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     wsmdata_tree = proto_tree_add_subtree(wsmp_tree, tvb, offset, wsmlength,
                                         ett_wsmdata, NULL, "Wave Short Message");
 
-    wsmdata_tvb  = tvb_new_subset(tvb, offset, -1, wsmlength);
+    wsmdata_tvb  = tvb_new_subset_length_caplen(tvb, offset, -1, wsmlength);
 
     /* TODO: Branch on the application context and display accordingly
      * Default: call the data dissector

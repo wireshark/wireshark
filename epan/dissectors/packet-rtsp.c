@@ -388,7 +388,7 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
      */
     if (length_remaining > rf_len)
         length_remaining = rf_len;
-    next_tvb = tvb_new_subset(tvb, offset, length_remaining, rf_len);
+    next_tvb = tvb_new_subset_length_caplen(tvb, offset, length_remaining, rf_len);
 
     conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
         pinfo->srcport, pinfo->destport, 0);
@@ -1324,7 +1324,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * which, if no content length was specified,
          * is -1, i.e. "to the end of the frame.
          */
-        new_tvb = tvb_new_subset(tvb, offset, datalen,
+        new_tvb = tvb_new_subset_length_caplen(tvb, offset, datalen,
                 reported_datalen);
 
         if (media_type_str_lower_case &&

@@ -721,7 +721,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 
     /* Create a new tvb without the padding and/or the (assumed) fcs */
     if (fcs_len==4)
-      real_trailer_tvb = tvb_new_subset(trailer_tvb, padding_length,
+      real_trailer_tvb = tvb_new_subset_length_caplen(trailer_tvb, padding_length,
                                 trailer_length, trailer_reported_length);
     else
       real_trailer_tvb = tvb_new_subset_remaining(trailer_tvb, padding_length);
@@ -788,7 +788,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     total_trailer_length = eth_trailer_length + (eth_assume_fcs ? 4 : 0);
 
     /* Dissect the tvb up to, but not including the trailer */
-    next_tvb = tvb_new_subset(tvb, 0,
+    next_tvb = tvb_new_subset_length_caplen(tvb, 0,
                               tvb_captured_length(tvb) - total_trailer_length,
                               tvb_reported_length(tvb) - total_trailer_length);
     fh_tree = dissect_eth_common(next_tvb, pinfo, tree, 0);

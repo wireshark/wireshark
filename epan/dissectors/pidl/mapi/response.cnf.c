@@ -172,7 +172,7 @@ mapi_dissect_element_EcDoRpc_response__(tvbuff_t *tvb _U_, int offset _U_, packe
 	tvbuff_t	*subtvb;
 
 	length = tvb_get_letohs(tvb, offset);
-	subtvb = tvb_new_subset(tvb, offset, length, length);
+	subtvb = tvb_new_subset_length_caplen(tvb, offset, length, length);
 	offset += 2;
 
 	while (offset < length) {

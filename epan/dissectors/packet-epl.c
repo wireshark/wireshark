@@ -2259,7 +2259,7 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 			size = tvb_captured_length_remaining(tvb, offset);
 			reported_len = tvb_reported_length_remaining(tvb, offset);
 
-			next_tvb = tvb_new_subset(tvb, offset, size, reported_len);
+			next_tvb = tvb_new_subset_length_caplen(tvb, offset, size, reported_len);
 			/* Manufacturer specific entries for ASND services */
 			if ( svid >= 0xA0 && svid < 0xFF )
 			{

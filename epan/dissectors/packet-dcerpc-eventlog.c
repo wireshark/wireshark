@@ -287,7 +287,7 @@ eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, int offset, packet_i
 	 * NDR encoded at all and there are byte offsets into this buffer
 	 * encoded therein.
 	 */
-	record_tvb=tvb_new_subset(tvb, offset, MIN((gint)len, tvb_captured_length_remaining(tvb, offset)), len);
+	record_tvb=tvb_new_subset_length_caplen(tvb, offset, MIN((gint)len, tvb_captured_length_remaining(tvb, offset)), len);
 	eventlog_dissect_struct_Record(record_tvb, 0, pinfo, tree, di, drep, hf_eventlog_Record, 0);
 	offset+=len;
 	return offset;
@@ -312,7 +312,7 @@ eventlog_dissect_element_Record_sid_offset(tvbuff_t *tvb, int offset, packet_inf
 		/* this blob contains an NT SID.
 		 * tvb starts at the beginning of the record.
 		 */
-		sid_tvb=tvb_new_subset(tvb, sid_offset, MIN((gint)sid_length, tvb_captured_length_remaining(tvb, offset)), sid_length);
+		sid_tvb=tvb_new_subset_length_caplen(tvb, sid_offset, MIN((gint)sid_length, tvb_captured_length_remaining(tvb, offset)), sid_length);
 		dissect_nt_sid(sid_tvb, 0, tree, "SID", NULL, -1);
 	}
 	return offset;

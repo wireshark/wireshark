@@ -327,7 +327,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (length > data_len)
             length = data_len;
 
-        next_tvb = tvb_new_subset(tvb, offset,length, data_len);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset,length, data_len);
 
         /*
          * Call the subdissector.
@@ -531,7 +531,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         length = length_remaining - 4;
         if (length > data_len)
             length = data_len;
-        next_tvb = tvb_new_subset(tvb, offset, length, data_len);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, data_len);
 
         /*
          * Call the subdissector.

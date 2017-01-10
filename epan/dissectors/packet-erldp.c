@@ -499,7 +499,7 @@ static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       break;
 
     case VERSION_MAGIC:
-      next_tvb = tvb_new_subset(tvb, offset, -1, 4 + msg_len - offset);
+      next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, 4 + msg_len - offset);
       offset += dissect_etf_pdu(next_tvb, pinfo, erldp_tree, "DistributionHeader");
       if ((tvb_get_guint8(tvb, offset) == SMALL_TUPLE_EXT) && (tvb_get_guint8(tvb, offset + 2) == SMALL_INTEGER_EXT)) {
         ctl_op = tvb_get_guint8(tvb, offset + 3);

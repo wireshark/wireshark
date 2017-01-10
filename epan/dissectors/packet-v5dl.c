@@ -251,7 +251,7 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		/*
 		 * Remove the V5DL header *and* the checksum.
 		 */
-		next_tvb = tvb_new_subset(tvb, v5dl_header_len,
+		next_tvb = tvb_new_subset_length_caplen(tvb, v5dl_header_len,
 		    tvb_captured_length_remaining(tvb, v5dl_header_len) - 2,
 		    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
 	} else {
@@ -266,7 +266,7 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			 * Remove that byte from the captured length
 			 * and both bytes from the reported length.
 			 */
-			next_tvb = tvb_new_subset(tvb, v5dl_header_len,
+			next_tvb = tvb_new_subset_length_caplen(tvb, v5dl_header_len,
 			    tvb_captured_length_remaining(tvb, v5dl_header_len) - 1,
 			    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
 		} else {
@@ -276,7 +276,7 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			 * Just remove the checksum from the reported
 			 * length.
 			 */
-			next_tvb = tvb_new_subset(tvb, v5dl_header_len,
+			next_tvb = tvb_new_subset_length_caplen(tvb, v5dl_header_len,
 			    tvb_captured_length_remaining(tvb, v5dl_header_len),
 			    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
 		}

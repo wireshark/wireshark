@@ -1182,7 +1182,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             pinfo->fragmented = save_fragmented;
 
           } else { /* this data is NOT fragmented */
-            next_tvb = tvb_new_subset(tvb, offset, tvb_len, size);
+            next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len, size);
             call_dissector(ssl_handle, next_tvb, pinfo, eap_tree);
           }
         }

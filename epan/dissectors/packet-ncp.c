@@ -1263,7 +1263,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } else {
             /*
              * XXX - do this by using -1 and -1 as the length
-             * arguments to "tvb_new_subset()" and then calling
+             * arguments to "tvb_new_subset_length_caplen()" and then calling
              * "tvb_set_reported_length()"?  That'll throw an
              * exception if "data_len" goes past the reported
              * length of the packet, but that's arguably a
@@ -1273,7 +1273,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (length_remaining > data_len)
                 length_remaining = data_len;
             if (data_len != 0) {
-                call_data_dissector(tvb_new_subset(tvb, offset,
+                call_data_dissector(tvb_new_subset_length_caplen(tvb, offset,
                     length_remaining, data_len),
                     pinfo, ncp_tree);
             }

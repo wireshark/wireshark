@@ -2917,7 +2917,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer_(tvbuff_t *tvb _U_, i
 		guint32 saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DnssrvEnumRecords2_record_buffer_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset(tvb, offset, (const gint)size, -1);
+		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const gint)size, -1);
 		dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer__(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;

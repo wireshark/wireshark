@@ -3016,7 +3016,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 				 * we'll throw the right exception if
 				 * it's too short.
 				 */
-				gssapi_tvb = tvb_new_subset(
+				gssapi_tvb = tvb_new_subset_length_caplen(
 					tvb, offset, sbloblen, bc);
 
 				call_dissector(
@@ -4661,7 +4661,7 @@ dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		bc = datalen;
 	}
 	tvblen = tvb_reported_length_remaining(tvb, offset);
-	dcerpc_tvb = tvb_new_subset(tvb, offset, tvblen, bc);
+	dcerpc_tvb = tvb_new_subset_length_caplen(tvb, offset, tvblen, bc);
 	dissect_pipe_dcerpc(dcerpc_tvb, pinfo, top_tree, tree, fid, data);
 	if (bc > tvblen)
 		offset += tvblen;
@@ -7456,7 +7456,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			 * data available from the blob, so that we'll
 			 * throw the right exception if it's too short.
 			 */
-			blob_tvb = tvb_new_subset(tvb, offset, sbloblen_short,
+			blob_tvb = tvb_new_subset_length_caplen(tvb, offset, sbloblen_short,
 						  sbloblen);
 
 			if (si && si->ct && si->ct->raw_ntlmssp &&
@@ -8798,7 +8798,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		break;
 	case NT_TRANS_IOCTL:
 		/* ioctl data */
-		ioctl_tvb = tvb_new_subset(tvb, offset, MIN((int)bc, tvb_reported_length_remaining(tvb, offset)), bc);
+		ioctl_tvb = tvb_new_subset_length_caplen(tvb, offset, MIN((int)bc, tvb_reported_length_remaining(tvb, offset)), bc);
 		if (nti) {
 			dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree_global, nti->ioctl_function, TRUE, NULL);
 		}
@@ -9395,7 +9395,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case NT_TRANS_IOCTL:
 		/* ioctl data */
-		ioctl_tvb = tvb_new_subset(tvb, offset, MIN((int)len, tvb_reported_length_remaining(tvb, offset)), len);
+		ioctl_tvb = tvb_new_subset_length_caplen(tvb, offset, MIN((int)len, tvb_reported_length_remaining(tvb, offset)), len);
 		dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree_global, nti->ioctl_function, FALSE, NULL);
 
 		offset += len;
@@ -14142,7 +14142,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			if (pc > 0) {
 				if (pc>tvb_reported_length_remaining(tvb, po)) {
-					p_tvb = tvb_new_subset(tvb, po, tvb_reported_length_remaining(tvb, po), pc);
+					p_tvb = tvb_new_subset_length_caplen(tvb, po, tvb_reported_length_remaining(tvb, po), pc);
 				} else {
 					p_tvb = tvb_new_subset_length(tvb, po, pc);
 				}
@@ -14151,7 +14151,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			if (dc > 0) {
 				if (dc>tvb_reported_length_remaining(tvb, od)) {
-					d_tvb = tvb_new_subset(tvb, od, tvb_reported_length_remaining(tvb, od), dc);
+					d_tvb = tvb_new_subset_length_caplen(tvb, od, tvb_reported_length_remaining(tvb, od), dc);
 				} else {
 					d_tvb = tvb_new_subset_length(tvb, od, dc);
 				}
@@ -14160,7 +14160,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			if (sl) {
 				if (sl>tvb_reported_length_remaining(tvb, so)) {
-					s_tvb = tvb_new_subset(tvb, so, tvb_reported_length_remaining(tvb, so), sl);
+					s_tvb = tvb_new_subset_length_caplen(tvb, so, tvb_reported_length_remaining(tvb, so), sl);
 				} else {
 					s_tvb = tvb_new_subset_length(tvb, so, sl);
 				}
@@ -16646,7 +16646,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* if there were any setup bytes, put them in a tvb for later */
 	if (sc) {
 		if ((2*sc) > tvb_reported_length_remaining(tvb, offset)) {
-			s_tvb = tvb_new_subset(tvb, offset, tvb_reported_length_remaining(tvb, offset), 2*sc);
+			s_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_reported_length_remaining(tvb, offset), 2*sc);
 		} else {
 			s_tvb = tvb_new_subset_length(tvb, offset, 2*sc);
 		}
@@ -16718,12 +16718,12 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			min = MIN(pc, tvb_reported_length_remaining(tvb, po));
 			reported_min = MIN(pc, tvb_reported_length_remaining(tvb, po));
 			if (min && reported_min) {
-				p_tvb = tvb_new_subset(tvb, po, min, reported_min);
+				p_tvb = tvb_new_subset_length_caplen(tvb, po, min, reported_min);
 			}
 			min = MIN(dc, tvb_reported_length_remaining(tvb, od));
 			reported_min = MIN(dc, tvb_reported_length_remaining(tvb, od));
 			if (min && reported_min) {
-				d_tvb = tvb_new_subset(tvb, od, min, reported_min);
+				d_tvb = tvb_new_subset_length_caplen(tvb, od, min, reported_min);
 			}
 			/*
 			 * A tvbuff containing the parameters

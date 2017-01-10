@@ -1792,7 +1792,7 @@ dissect_krb5_AD_WIN2K_PAC_struct(proto_tree *tree, tvbuff_t *tvb, int offset, as
 	proto_tree_add_uint(tr, hf_krb_w2k_pac_offset, tvb, offset, 4, pac_offset);
 	offset += 8;
 
-	next_tvb=tvb_new_subset(tvb, pac_offset, pac_size, pac_size);
+	next_tvb=tvb_new_subset_length_caplen(tvb, pac_offset, pac_size, pac_size);
 	switch(pac_type){
 	case PAC_LOGON_INFO:
 		dissect_krb5_PAC_LOGON_INFO(tr, next_tvb, 0, actx);

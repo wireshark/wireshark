@@ -251,7 +251,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 				captured_length = reported_length;
 		}
 	}
-	next_tvb = tvb_new_subset(tvb, ethertype_data->offset_after_ethertype, captured_length,
+	next_tvb = tvb_new_subset_length_caplen(tvb, ethertype_data->offset_after_ethertype, captured_length,
 				  reported_length);
 
 	p_add_proto_data(pinfo->pool, pinfo, proto_ethertype, 0, GUINT_TO_POINTER((guint)ethertype_data->etype));

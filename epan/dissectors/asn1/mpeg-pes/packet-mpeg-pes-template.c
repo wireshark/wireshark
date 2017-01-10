@@ -496,7 +496,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				return TRUE;
 			}
 
-			es = tvb_new_subset(tvb, offset / 8, -1, length);
+			es = tvb_new_subset_length_caplen(tvb, offset / 8, -1, length);
 			if (tvb_get_ntoh24(es, 0) == PES_PREFIX)
 				dissect_mpeg_pes(es, pinfo, tree, NULL);
 			else if (tvb_get_guint8(es, 0) == 0xff)

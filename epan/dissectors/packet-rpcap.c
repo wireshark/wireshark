@@ -874,7 +874,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
     return;
   }
 
-  new_tvb = tvb_new_subset (tvb, offset, caplen, len);
+  new_tvb = tvb_new_subset_length_caplen (tvb, offset, caplen, len);
   if (decode_content && linktype != -1) {
     TRY {
       call_dissector_with_data(pcap_pktdata_handle, new_tvb, pinfo, top_tree, &linktype);

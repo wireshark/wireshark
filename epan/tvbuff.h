@@ -75,7 +75,7 @@ typedef struct tvbuff tvbuff_t;
  *
  * A dissector:
  *  - Can chain new tvbs (subset, real, composite) to the
- *    tvb handed to the dissector using tvb_new_subset(),
+ *    tvb handed to the dissector using tvb_new_subset_length_caplen(),
  *    tvb_new_subset_length(), tvb_new_subset_remaining(),
  *    tvb_new_child_real_data(), tvb_set_child_real_data_tvbuff(),
  *    tvb_composite_finalize(), and tvb_child_uncompress(). (Composite
@@ -185,19 +185,19 @@ WS_DLL_PUBLIC tvbuff_t *tvb_new_real_data(const guint8 *data,
  * Will throw BoundsError if 'backing_offset'/'length'
  * is beyond the bounds of the backing tvbuff.
  * Can throw ReportedBoundsError. */
-WS_DLL_PUBLIC tvbuff_t *tvb_new_subset(tvbuff_t *backing,
+WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length_caplen(tvbuff_t *backing,
     const gint backing_offset, const gint backing_length,
     const gint reported_length);
 
 /**
- * Similar to tvb_new_subset() but with captured length calculated
+ * Similar to tvb_new_subset_length_caplen() but with captured length calculated
  * to fit within the existing captured length and the specified
  * backing length (which is used as the reported length).
  * Can throw ReportedBoundsError. */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length(tvbuff_t *backing,
     const gint backing_offset, const gint backing_length);
 
-/** Similar to tvb_new_subset() but with backing_length and reported_length set
+/** Similar to tvb_new_subset_length_caplen() but with backing_length and reported_length set
  * to -1.  Can throw ReportedBoundsError. */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_remaining(tvbuff_t *backing,
     const gint backing_offset);

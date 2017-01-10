@@ -423,7 +423,7 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       }
       payload_len = (length + FRAME_HEADER_LEN) - offset;
       if (cptbitmap & DATA_PACKLEN_FLAG) {
-        payload_tvb = tvb_new_subset(tvb, offset, payload_len, reported_payload_len);
+        payload_tvb = tvb_new_subset_length_caplen(tvb, offset, payload_len, reported_payload_len);
         if (cptbitmap & DATA_DLT_FLAG) {
           dissector_try_uint(subdissector_dlt_table, datalink_type, payload_tvb, pinfo, tree);
 

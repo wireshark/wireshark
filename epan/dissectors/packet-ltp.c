@@ -404,7 +404,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 				}
 			}
 
-			datatvb = tvb_new_subset(new_tvb, parse_offset, (int)parse_length - parse_offset, tvb_captured_length(new_tvb));
+			datatvb = tvb_new_subset_length_caplen(new_tvb, parse_offset, (int)parse_length - parse_offset, tvb_captured_length(new_tvb));
 			bundle_size = call_dissector(bundle_handle, datatvb, pinfo, ltp_data_data_tree);
 			if(bundle_size == 0) {  /*Couldn't parse bundle*/
 				col_set_str(pinfo->cinfo, COL_INFO, "Dissection Failed");

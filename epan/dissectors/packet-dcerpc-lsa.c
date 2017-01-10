@@ -1572,7 +1572,7 @@ lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset
 	if (len > tvb_captured_length_remaining(tvb, offset)) {
 		len = tvb_captured_length_remaining(tvb, offset);
 	}
-	next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
+	next_tvb = tvb_new_subset_length_caplen(tvb, offset, len, reported_len);
 	efsblob_handle = find_dissector("efsblob");
 	if (efsblob_handle) {
 		call_dissector(efsblob_handle, next_tvb, pinfo, tree);

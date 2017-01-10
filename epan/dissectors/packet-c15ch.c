@@ -4253,7 +4253,7 @@ static int dissect_c15ch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         proto_tree_add_item(c15ch_tree, hf_c15ch_realtime, tvb, 32, 4, ENC_BIG_ENDIAN);
     }
 
-    next_tvb = tvb_new_subset(tvb, HEADER_SZ, -1, payload_length);
+    next_tvb = tvb_new_subset_length_caplen(tvb, HEADER_SZ, -1, payload_length);
     /* call dissector to dissect the rest of the packet, based on msg_type */
     retv = HEADER_SZ + dissector_try_uint(c15ch_dissector_table, msg_type, next_tvb, pinfo, tree);
     return retv;
@@ -4621,7 +4621,7 @@ static int dissect_c15ch_encap_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                             tvb, 1, 4, ENC_BIG_ENDIAN);
 
         /*length of ISUP portion == expected length == 268 */
-        next_tvb = tvb_new_subset(tvb, 5, 268, 268);
+        next_tvb = tvb_new_subset_length_caplen(tvb, 5, 268, 268);
         call_dissector(general_isup_handle, next_tvb, pinfo, tree);
     }
 
@@ -4696,7 +4696,7 @@ static int dissect_c15ch_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                             tvb, 41, 8, ENC_NA);
 
         /*length of ISUP portion == expected length == 271 */
-        next_tvb = tvb_new_subset(tvb, 49, 271, 271);
+        next_tvb = tvb_new_subset_length_caplen(tvb, 49, 271, 271);
         call_dissector(general_isup_handle, next_tvb, pinfo, tree);
     }
 
@@ -5470,7 +5470,7 @@ static int dissect_c15ch_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                             tvb, 9, 4, ENC_BIG_ENDIAN);
         if (q931_msg_len && bytes_to_skip)
         {
-            next_tvb = tvb_new_subset(tvb, 13 + bytes_to_skip, q931_msg_len - bytes_to_skip, q931_msg_len - bytes_to_skip);
+            next_tvb = tvb_new_subset_length_caplen(tvb, 13 + bytes_to_skip, q931_msg_len - bytes_to_skip, q931_msg_len - bytes_to_skip);
             call_dissector(general_q931_handle, next_tvb, pinfo, tree);
         }
     }
@@ -5658,7 +5658,7 @@ static int dissect_c15ch_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                             tvb, 298, 4, ENC_BIG_ENDIAN);
 
         /* skip bytes to get to SCCP message type */
-        next_tvb = tvb_new_subset(tvb, 23 + 2,
+        next_tvb = tvb_new_subset_length_caplen(tvb, 23 + 2,
                                     275 - 2, 275 - 2);
 
         /* sccp dissector call */
@@ -5978,7 +5978,7 @@ static int dissect_c15ch_inc_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item(c15ch_inc_gwe_tree, hf_c15ch_inc_gwe_datatype,
                             tvb, 10, 1, ENC_BIG_ENDIAN);
     }
-    next_tvb = tvb_new_subset(tvb, 11, -1, -1);
+    next_tvb = tvb_new_subset_length_caplen(tvb, 11, -1, -1);
     /*third level dissection*/
     retv = 11 + dissector_try_uint(c15ch_inc_gwe_dissector_table, type_num, next_tvb, pinfo, tree);
     return retv;
@@ -6641,7 +6641,7 @@ static int dissect_c15ch_out_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item(c15ch_out_gwe_tree, hf_c15ch_out_gwe_gwe_data_type,
                             tvb, 14, 1, ENC_BIG_ENDIAN);
     }
-    next_tvb = tvb_new_subset(tvb, 15, -1, -1);
+    next_tvb = tvb_new_subset_length_caplen(tvb, 15, -1, -1);
 
     dissector_try_uint(c15ch_out_gwe_dissector_table, data_type, next_tvb, pinfo, tree);
     return tvb_reported_length(tvb);
@@ -7208,7 +7208,7 @@ static int dissect_c15ch_tone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_tree_add_item(c15ch_tone_tree, hf_c15ch_tone_msg_type,
                             tvb, 0, 1, ENC_BIG_ENDIAN);
     }
-    next_tvb = tvb_new_subset(tvb, 1, -1, -1);
+    next_tvb = tvb_new_subset_length_caplen(tvb, 1, -1, -1);
     retv = 1 + dissector_try_uint(c15ch_tone_dissector_table, msg_type, next_tvb, pinfo, tree);
     return retv;
 }

@@ -778,7 +778,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
               call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
             } else {
               /* Otherwise treat as Data */
-              tvbuff_t *payload_tvb = tvb_new_subset(tvb, hdrlen, (len_sid - 4), -1);
+              tvbuff_t *payload_tvb = tvb_new_subset_length_caplen(tvb, hdrlen, (len_sid - 4), -1);
               call_data_dissector(payload_tvb, pinfo, docsis_tree);
             }
           } else {
@@ -832,7 +832,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
            * docsis frames are dissected. */
           while (concatlen > 0)
           {
-            next_tvb = tvb_new_subset (tvb, concatpos, -1, concatlen);
+            next_tvb = tvb_new_subset_length_caplen (tvb, concatpos, -1, concatlen);
             call_dissector (docsis_handle, next_tvb, pinfo, docsis_tree);
           }
           concatlen = 0;

@@ -7867,7 +7867,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         length = length_remaining;
         if (length > bgp_len)
             length = bgp_len;
-        next_tvb = tvb_new_subset(tvb, offset, length, bgp_len);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, bgp_len);
 
         /*
          * Dissect the PDU.

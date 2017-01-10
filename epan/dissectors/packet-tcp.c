@@ -3475,7 +3475,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         length = captured_length_remaining;
         if (length > plen)
             length = plen;
-        next_tvb = tvb_new_subset(tvb, offset, length, plen);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, plen);
 
         /*
          * Dissect the PDU.

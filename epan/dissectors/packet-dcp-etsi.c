@@ -570,7 +570,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   pt = tvb_get_guint8 (tvb, offset);
   proto_tree_add_item (af_tree, hf_edcp_pt, tvb, offset, 1, ENC_ASCII|ENC_NA);
   offset += 1;
-  next_tvb = tvb_new_subset (tvb, offset, payload_len, payload_len);
+  next_tvb = tvb_new_subset_length_caplen (tvb, offset, payload_len, payload_len);
   offset += payload_len;
   ci = proto_tree_add_item (af_tree, hf_edcp_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
   if (ver & 0x80) { /* crc valid */
@@ -621,7 +621,7 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
             offset, 8+bytes, NULL,
             "%s (%u bits)", tag, bits);
 
-    next_tvb = tvb_new_subset (tvb, offset+8, bytes, bytes);
+    next_tvb = tvb_new_subset_length_caplen (tvb, offset+8, bytes, bytes);
     dissector_try_string(tpl_dissector_table, tag, next_tvb, pinfo, tree, NULL);
 
     offset += (8+bytes);

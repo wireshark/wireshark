@@ -1919,7 +1919,7 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     tvbuff_t *next_tvb;
 
-    next_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
+    next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
 
     col_append_str(pinfo->cinfo, COL_INFO, "Connection oriented channel");
 
@@ -2248,7 +2248,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     /*pass up to higher layer if we have a complete packet*/
     if (segment == 0x00) {
-        next_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset) - 2, length);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset) - 2, length);
     }
     if (next_tvb) {
         if (psm) {
@@ -2608,7 +2608,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
-        next_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
 
         /* call next dissector */
         if (!dissector_try_uint_new(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
@@ -2662,11 +2662,11 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 2;
                 proto_tree_add_item(btl2cap_tree, hf_btl2cap_fcs, tvb, tvb_reported_length(tvb) - 2, 2, ENC_LITTLE_ENDIAN);
 
-                next_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset)-2, length);
+                next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset)-2, length);
             }
         }
         else {
-            next_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
+            next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
         }
         /* call next dissector */
         if (next_tvb && !dissector_try_uint_new(l2cap_cid_dissector_table, (guint32) cid,

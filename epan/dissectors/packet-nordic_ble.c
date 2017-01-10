@@ -307,7 +307,7 @@ dissect_nordic_ble(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     context = wmem_new0(wmem_packet_scope(), btle_context_t);
 
     offset = dissect_header(tvb, pinfo, tree, context, &bad_length);
-    payload_tvb = tvb_new_subset(tvb, offset, -1, tvb_captured_length(tvb) - offset);
+    payload_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, tvb_captured_length(tvb) - offset);
 
     if (!bad_length) {
         call_dissector_with_data(btle_dissector_handle, payload_tvb, pinfo, tree, context);

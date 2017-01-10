@@ -368,7 +368,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   header_tvb = tvb_new_subset_length(message_tvb, 0, 8);
   dissect_cpfi_header(header_tvb, pinfo, cpfi_tree);
 
-  body_tvb = tvb_new_subset(message_tvb, 8, body_length, reported_body_length);
+  body_tvb = tvb_new_subset_length_caplen(message_tvb, 8, body_length, reported_body_length);
   fc_data.ethertype = 0;
   call_dissector_with_data(fc_handle, body_tvb, pinfo, tree, &fc_data);
 
@@ -377,7 +377,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   col_prepend_fstr(pinfo->cinfo, COL_INFO, direction_and_port_string, left, arrow, right);
 
   /* Do the footer */
-  footer_tvb = tvb_new_subset(message_tvb, 8+body_length, length, 8);
+  footer_tvb = tvb_new_subset_length_caplen(message_tvb, 8+body_length, length, 8);
   dissect_cpfi_footer(footer_tvb, cpfi_tree);
 
   return(tvb_reported_length(message_tvb));

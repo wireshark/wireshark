@@ -720,7 +720,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         }
                     }
 
-                    next_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), tvb_captured_length_remaining(tvb, offset));
+                    next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), tvb_captured_length_remaining(tvb, offset));
                     call_dissector_with_data(adb_service_handle, next_tvb, pinfo, tree, &adb_service_data);
 
                 } else {

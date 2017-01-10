@@ -394,7 +394,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   switch (mtype)
   {
     case CAP_EXCHANGE:
-      dissect_dlsw_capex(tvb_new_subset(tvb, hlen, mlen, -1), pinfo, dlsw_data_tree, ti2);
+      dissect_dlsw_capex(tvb_new_subset_length_caplen(tvb, hlen, mlen, -1), pinfo, dlsw_data_tree, ti2);
       break;
     case IFCM:
     case INFOFRAME:

@@ -1438,7 +1438,7 @@ static int dissect_uftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree_add_item(uftp_tree, hf_uftp_destaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    next_tvb = tvb_new_subset(tvb, offset, -1, blsize);
+    next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, blsize);
 
     switch (mes_type) {
         case ANNOUNCE:

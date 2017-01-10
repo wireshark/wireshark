@@ -2258,7 +2258,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 		/* Functionality for choosing subdissector is controlled through Decode As as NFS doesn't
 		   have a unique identifier to determine subdissector */
-		fh_tvb = tvb_new_subset(tvb, offset, fhlen, fhlen);
+		fh_tvb = tvb_new_subset_length_caplen(tvb, offset, fhlen, fhlen);
 		if (!dissector_try_uint(nfs_fhandle_table, 0, fh_tvb, pinfo, tree))
 			dissect_fhandle_data_unknown(fh_tvb, pinfo, tree, NULL);
 	}

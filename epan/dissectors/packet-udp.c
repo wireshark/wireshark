@@ -593,7 +593,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
       len = reported_len;
   }
 
-  next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
+  next_tvb = tvb_new_subset_length_caplen(tvb, offset, len, reported_len);
 
   /* If the user has a "Follow UDP Stream" window loading, pass a pointer
    * to the payload tvb through the tap system. */
@@ -784,7 +784,7 @@ udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      length = captured_length_remaining;
      if (length > plen)
        length = plen;
-     next_tvb = tvb_new_subset(tvb, offset, length, plen);
+     next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, plen);
 
      /*
       * Dissect the PDU.

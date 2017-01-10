@@ -1193,7 +1193,7 @@ dissect_tds_nt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     tvbuff_t *nt_tvb;
 
-    nt_tvb = tvb_new_subset(tvb, offset, -1, length);
+    nt_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, length);
     if(tvb_strneql(tvb, offset, "NTLMSSP", 7) == 0)
         call_dissector(ntlmssp_handle, nt_tvb, pinfo, tree);
     else
@@ -4074,7 +4074,7 @@ dissect_tds_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
         length = length_remaining;
         if (length > plen)
             length = plen;
-        next_tvb = tvb_new_subset(tvb, offset, length, plen);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, plen);
 
         /*
          * Dissect the Netlib buffer.

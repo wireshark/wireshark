@@ -1280,7 +1280,7 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 captured_length = reported_length;
 
             if (captured_length > 0) {
-                opa_tvb = tvb_new_subset(tvb, offset, captured_length, reported_length);
+                opa_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_length, reported_length);
                 call_dissector(opa_mad_handle, opa_tvb, pinfo, tree);
                 offset += captured_length;
             }

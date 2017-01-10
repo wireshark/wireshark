@@ -417,7 +417,7 @@ dissect_bcp_data(proto_tree *bcp_tree, packet_info *pinfo, tvbuff_t *tvb,
     if (handle)
     {
         /* Generate a new tvb for the rest. */
-        next_tvb = tvb_new_subset(tvb, *offset, len, len);
+        next_tvb = tvb_new_subset_length_caplen(tvb, *offset, len, len);
 
         /* Call the sub-dissector. */
         call_dissector(handle, next_tvb, pinfo, bcp_tree);

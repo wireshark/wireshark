@@ -424,7 +424,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
     /* Show data in tree */
     if (bytes > 0) {
-      data_tvb = tvb_new_subset(tvb, offset, -1, bytes);
+      data_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, bytes);
       call_data_dissector(data_tvb, pinfo, tree);
     }
 

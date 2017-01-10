@@ -430,7 +430,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             length = tvb_captured_length_remaining(tvb, offset);
         }
 
-        next_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
         call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
     } else if (fragmented && acl_reassembly) {
         multi_fragment_pdu_t *mfp = NULL;

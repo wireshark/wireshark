@@ -358,32 +358,32 @@ run_tests(void)
 
 	subset_length[0]	  = 8;
 	subset_reported_length[0] = 9;
-	tvb_subset[0]		  = tvb_new_subset(tvb_small[0], 0, 8, 9);
+	tvb_subset[0]		  = tvb_new_subset_length_caplen(tvb_small[0], 0, 8, 9);
 	subset[0]		  = &small[0][0];
 
 	subset_length[1]	  = 10;
 	subset_reported_length[1] = 11;
-	tvb_subset[1]		  = tvb_new_subset(tvb_large[0], -10, 10, 11);
+	tvb_subset[1]		  = tvb_new_subset_length_caplen(tvb_large[0], -10, 10, 11);
 	subset[1]		  = &large[0][9];
 
 	subset_length[2]	  = 16;
 	subset_reported_length[2] = 17;
-	tvb_subset[2]		  = tvb_new_subset(tvb_small[1], -16, -1, 17);
+	tvb_subset[2]		  = tvb_new_subset_length_caplen(tvb_small[1], -16, -1, 17);
 	subset[2]		  = &small[1][0];
 
 	subset_length[3]	  = 3;
 	subset_reported_length[3] = 4;
-	tvb_subset[3]		  = tvb_new_subset(tvb_subset[0], 0, 3, 4);
+	tvb_subset[3]		  = tvb_new_subset_length_caplen(tvb_subset[0], 0, 3, 4);
 	subset[3]		  = &small[0][0];
 
 	subset_length[4]	  = 5;
 	subset_reported_length[4] = 6;
-	tvb_subset[4]		  = tvb_new_subset(tvb_subset[1], -5, 5, 6);
+	tvb_subset[4]		  = tvb_new_subset_length_caplen(tvb_subset[1], -5, 5, 6);
 	subset[4]		  = &large[0][14];
 
 	subset_length[5]	  = 8;
 	subset_reported_length[5] = 9;
-	tvb_subset[5]		  = tvb_new_subset(tvb_subset[2], 4, 8, 9);
+	tvb_subset[5]		  = tvb_new_subset_length_caplen(tvb_subset[2], 4, 8, 9);
 	subset[5]		  = &small[1][4];
 
 	/* Test the TVBUFF_SUBSET objects. */

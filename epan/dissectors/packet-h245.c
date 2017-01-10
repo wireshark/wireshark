@@ -3641,7 +3641,7 @@ dissect_h245_CapabilityIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	PROTO_ITEM_SET_HIDDEN(ti);
-    dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset(tvb, offset>>3, 0, 0), actx->pinfo, tree, actx);
+    dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, actx);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
 
@@ -3709,7 +3709,7 @@ dissect_h245_ParameterIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	PROTO_ITEM_SET_HIDDEN(ti);
-    dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset(tvb, offset>>3, 0, 0), actx->pinfo, tree, actx);
+    dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset_length_caplen(tvb, offset>>3, 0, 0), actx->pinfo, tree, actx);
   }
   actx->private_data = gefx;  /* subdissector could overwrite it */
 

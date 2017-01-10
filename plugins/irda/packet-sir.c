@@ -140,7 +140,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root, void* data _U_)
 		} else {
 			guint preamble_len = bof_offset - offset;
 			gint data_offset = bof_offset + 1;
-			tvbuff_t* next_tvb = tvb_new_subset(tvb,
+			tvbuff_t* next_tvb = tvb_new_subset_length_caplen(tvb,
 				data_offset, eof_offset - data_offset, -1);
 			next_tvb = unescape_data(next_tvb, pinfo);
 			if (root) {

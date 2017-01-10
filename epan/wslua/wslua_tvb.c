@@ -407,7 +407,7 @@ WSLUA_METHOD TvbRange_tvb(lua_State *L) {
         tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
         tvb->expired = FALSE;
         tvb->need_free = FALSE;
-        tvb->ws_tvb = tvb_new_subset(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len, tvbr->len);
+        tvb->ws_tvb = tvb_new_subset_length_caplen(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len, tvbr->len);
         return push_wsluaTvb(L, tvb);
     } else {
         luaL_error(L,"Out Of Bounds");

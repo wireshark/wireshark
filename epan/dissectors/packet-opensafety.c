@@ -741,7 +741,7 @@ dissect_data_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, 
 
         if (len > 0)
         {
-                payload_tvb = tvb_new_subset(tvb, off, len, tvb_reported_length_remaining(tvb, offset) );
+                payload_tvb = tvb_new_subset_length_caplen(tvb, off, len, tvb_reported_length_remaining(tvb, offset) );
                 if ( ! dissector_try_heuristic(heur_opensafety_spdo_subdissector_list, payload_tvb, pinfo, epl_tree, &hdtbl_entry, &msgType))
                         call_dissector(data_dissector, payload_tvb, pinfo, epl_tree);
 
@@ -2163,14 +2163,14 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             if ( global_display_intergap_data == TRUE && gapStart != frameOffset )
             {
                 /* Storing the gap data in subset, and calling the data dissector to display it */
-                gap_tvb = tvb_new_subset(message_tvb, gapStart, (frameOffset - gapStart), reported_len);
+                gap_tvb = tvb_new_subset_length_caplen(message_tvb, gapStart, (frameOffset - gapStart), reported_len);
                 call_dissector(data_dissector, gap_tvb, pinfo, tree);
             }
             /* Setting the gap to the next offset */
             gapStart = frameOffset + frameLength;
 
             /* Adding second data source */
-            next_tvb = tvb_new_subset ( message_tvb, frameOffset, frameLength, reported_len );
+            next_tvb = tvb_new_subset_length_caplen ( message_tvb, frameOffset, frameLength, reported_len );
 
             /* Adding a visual aid to the dissector tree */
             add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
@@ -2256,7 +2256,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
         if ( frameOffset < length && global_display_intergap_data == TRUE && gapStart != frameOffset )
         {
             /* Storing the gap data in subset, and calling the data dissector to display it */
-            gap_tvb = tvb_new_subset(message_tvb, gapStart, (length - gapStart), reported_len);
+            gap_tvb = tvb_new_subset_length_caplen(message_tvb, gapStart, (length - gapStart), reported_len);
             call_dissector(data_dissector, gap_tvb, pinfo, tree);
         }
     }

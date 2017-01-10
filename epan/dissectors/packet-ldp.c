@@ -3199,7 +3199,7 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         length = length_remaining;
         if (length > plen + 4)
             length = plen + 4;
-        next_tvb = tvb_new_subset(tvb, offset, length, plen + 4);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, plen + 4);
 
         /*
          * Dissect the LDP packet.

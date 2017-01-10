@@ -1217,7 +1217,7 @@ dissect_multipath_lookup_response(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(multipath_tree, hf_value, tvb, offset, result_len,
                         ENC_ASCII | ENC_NA);
     if (result_len > 0) {
-        json_tvb = tvb_new_subset(tvb, offset, result_len, result_len);
+        json_tvb = tvb_new_subset_length_caplen(tvb, offset, result_len, result_len);
         call_dissector(json_handle, json_tvb, pinfo, multipath_tree);
     }
     offset += result_len;
@@ -1267,7 +1267,7 @@ dissect_multipath_mutation_response(tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_item(multipath_tree, hf_value, tvb, offset, result_len,
                           ENC_ASCII | ENC_NA);
       if (result_len > 0) {
-        json_tvb = tvb_new_subset(tvb, offset, result_len, result_len);
+        json_tvb = tvb_new_subset_length_caplen(tvb, offset, result_len, result_len);
         call_dissector(json_handle, json_tvb, pinfo, multipath_tree);
       }
       offset += result_len;
@@ -1473,7 +1473,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else if (!request && has_json_value(opcode)) {
       tvbuff_t *json_tvb;
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
-      json_tvb = tvb_new_subset(tvb, offset, value_len, value_len);
+      json_tvb = tvb_new_subset_length_caplen(tvb, offset, value_len, value_len);
       call_dissector(json_handle, json_tvb, pinfo, tree);
 
     } else if (opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP ||
@@ -1683,7 +1683,7 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                         ENC_ASCII | ENC_NA);
     if (status == PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET) {
       tvbuff_t *json_tvb;
-      json_tvb = tvb_new_subset(tvb, offset, bodylen, bodylen);
+      json_tvb = tvb_new_subset_length_caplen(tvb, offset, bodylen, bodylen);
       call_dissector(json_handle, json_tvb, pinfo, couchbase_tree);
 
     } else if (opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP) {

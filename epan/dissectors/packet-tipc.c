@@ -1474,14 +1474,14 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 					col_set_fence(pinfo->cinfo, COL_INFO);
 					dissect_tipc(new_tvb, pinfo, top_tree, NULL);
 				} else { /* make a new subset */
-					data_tvb = tvb_new_subset(tipc_tvb, offset, len, reported_len);
+					data_tvb = tvb_new_subset_length_caplen(tipc_tvb, offset, len, reported_len);
 					call_data_dissector(data_tvb, pinfo, top_tree);
 				}
 
 				pinfo->fragmented = save_fragmented;
 			} else {
 				/* don't reassemble is set in the "preferences" */
-				data_tvb = tvb_new_subset(tipc_tvb, offset, len, reported_len);
+				data_tvb = tvb_new_subset_length_caplen(tipc_tvb, offset, len, reported_len);
 				call_data_dissector(data_tvb, pinfo, top_tree);
 			}
 
@@ -1809,7 +1809,7 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, i
 	/* TIPCv2 data */
 	len = (msg_size - (orig_hdr_size<<2));
 	reported_len = tvb_reported_length_remaining(tipc_tvb, offset);
-	data_tvb = tvb_new_subset(tipc_tvb, offset, len, reported_len);
+	data_tvb = tvb_new_subset_length_caplen(tipc_tvb, offset, len, reported_len);
 
 	call_tipc_v2_data_subdissectors(data_tvb, pinfo, name_type_p, user);
 }

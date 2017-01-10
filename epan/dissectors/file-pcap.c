@@ -187,7 +187,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         if (pref_dissect_next_layer) {
             TRY {
-                call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset(tvb, offset, length, origin_length), pinfo, packet_data_tree, &link_type);
+                call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, length, origin_length), pinfo, packet_data_tree, &link_type);
             }
             CATCH_BOUNDS_ERRORS {
                 show_exception(tvb, pinfo, packet_data_tree, EXCEPT_CODE, GET_MESSAGE);

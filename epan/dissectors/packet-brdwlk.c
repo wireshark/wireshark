@@ -312,7 +312,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     }
 
     fc_data.ethertype = ETHERTYPE_BRDWALK;
-    next_tvb = tvb_new_subset(tvb, 2, len, reported_len);
+    next_tvb = tvb_new_subset_length_caplen(tvb, 2, len, reported_len);
     call_dissector_with_data(fc_dissector_handle, next_tvb, pinfo, tree, &fc_data);
     return tvb_captured_length(tvb);
 }

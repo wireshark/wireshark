@@ -779,7 +779,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	if (dissect_it) {
 		tvbuff_t *opaque_tvb;
 
-		opaque_tvb = tvb_new_subset(tvb, data_offset, string_length_copy,
+		opaque_tvb = tvb_new_subset_length_caplen(tvb, data_offset, string_length_copy,
 					    string_length);
 
 		return (*dissect_it)(opaque_tvb, offset, pinfo, tree, NULL);
@@ -1362,7 +1362,7 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 			length = opaque_length;
 		if ((guint32)reported_length > opaque_length)
 			reported_length = opaque_length;
-		new_tvb = tvb_new_subset(tvb, offset, length, reported_length);
+		new_tvb = tvb_new_subset_length_caplen(tvb, offset, length, reported_length);
 		len_consumed = call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
 		offset += len_consumed;
 	}
@@ -3359,7 +3359,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb_len = len;
 	if (tvb_reported_len > (gint)len)
 		tvb_reported_len = len;
-	frag_tvb = tvb_new_subset(tvb, offset, tvb_len,
+	frag_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len,
 	    tvb_reported_len);
 
 	/*

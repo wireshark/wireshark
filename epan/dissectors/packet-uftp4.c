@@ -898,7 +898,7 @@ static gint dissect_uftp_encinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     if (keylen > 0) {
         gint parsed = 0;
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, keylen);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, keylen);
         blobtype = tvb_get_guint8(tvb, offset);
         switch (blobtype) {
         case KEYBLOB_RSA:
@@ -913,7 +913,7 @@ static gint dissect_uftp_encinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     if (dhlen > 0) {
         gint parsed = 0;
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, dhlen);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, dhlen);
         blobtype = tvb_get_guint8(tvb, offset);
         switch (blobtype) {
         case KEYBLOB_RSA:
@@ -995,7 +995,7 @@ static void dissect_uftp_announce(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     while (extlen_total > 0) {
         gint parsed = 0;
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, extlen_total);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, extlen_total);
         ext_type = tvb_get_guint8(tvb, offset);
         switch (ext_type) {
         case EXT_ENC_INFO:
@@ -1111,7 +1111,7 @@ static void dissect_uftp_clientkey(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     if (keylen > 0) {
         gint parsed = 0;
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, keylen);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, keylen);
         blobtype = tvb_get_guint8(tvb, offset);
         switch (blobtype) {
         case KEYBLOB_RSA:
@@ -1460,7 +1460,7 @@ static void dissect_uftp_fileseg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     while (extlen_total > 0) {
         gint parsed = 0;
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, extlen_total);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, extlen_total);
         ext_type = tvb_get_guint8(tvb, offset);
         switch (ext_type) {
         case EXT_TFMCC_DATA_INFO:
@@ -1619,7 +1619,7 @@ static void dissect_uftp_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     while (extlen_total > 0) {
         gint parsed = 0;
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, extlen_total);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, extlen_total);
         ext_type = tvb_get_guint8(tvb, offset);
         switch (ext_type) {
         case EXT_TFMCC_ACK_INFO:
@@ -1715,7 +1715,7 @@ static void dissect_uftp_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     while (extlen_total > 0) {
         gint parsed = 0;
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, extlen_total);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, extlen_total);
         ext_type = tvb_get_guint8(tvb, offset);
         switch (ext_type) {
         case EXT_FREESPACE_INFO:
@@ -1824,7 +1824,7 @@ static void dissect_uftp_hbreq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     if (keylen > 0) {
         gint parsed = 0;
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, keylen);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, keylen);
         blobtype = tvb_get_guint8(tvb, offset);
         switch (blobtype) {
         case KEYBLOB_RSA:
@@ -1947,7 +1947,7 @@ static void dissect_uftp_proxykey(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     if (keylen > 0) {
         gint parsed = 0;
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, keylen);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, keylen);
         blobtype = tvb_get_guint8(tvb, offset);
         switch (blobtype) {
         case KEYBLOB_RSA:
@@ -1962,7 +1962,7 @@ static void dissect_uftp_proxykey(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     if (dhlen > 0) {
         gint parsed = 0;
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, dhlen);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, dhlen);
         blobtype = tvb_get_guint8(tvb, offset);
         switch (blobtype) {
         case KEYBLOB_RSA:
@@ -2081,7 +2081,7 @@ static void dissect_uftp_ccack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     while (extlen_total > 0) {
         gint parsed = 0;
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, extlen_total);
+        next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, extlen_total);
         ext_type = tvb_get_guint8(tvb, offset);
         switch (ext_type) {
         case EXT_TFMCC_ACK_INFO:
@@ -2221,7 +2221,7 @@ static int dissect_uftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree_add_item(uftp_tree, hf_uftp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    next_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb) - UFTP_LEN);
+    next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, tvb_reported_length(tvb) - UFTP_LEN);
 
     switch (mes_type) {
         case ANNOUNCE:

@@ -474,7 +474,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		sectionlen = tvb_find_dot_line(tvb, tvb_sectionbegin, -1, &tvb_sectionend);
 		if (sectionlen != -1)
 		{
-			dissect_mgcp_message(tvb_new_subset(tvb, tvb_sectionbegin,
+			dissect_mgcp_message(tvb_new_subset_length_caplen(tvb, tvb_sectionbegin,
 						sectionlen, sectionlen),
 					pinfo, tree, mgcp_tree, ti);
 			tvb_sectionbegin = tvb_sectionend;
@@ -577,7 +577,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		sectionlen = tvb_find_line_end(tvb, 0, -1, &tvb_sectionend, FALSE);
 		if (sectionlen > 0)
 		{
-			dissect_mgcp_firstline(tvb_new_subset(tvb, tvb_sectionbegin,
+			dissect_mgcp_firstline(tvb_new_subset_length_caplen(tvb, tvb_sectionbegin,
 			                       sectionlen, sectionlen), pinfo,
 			                       mgcp_tree, mi);
 		}
@@ -590,7 +590,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			                                &tvb_sectionend);
 			if (sectionlen > 0)
 			{
-				dissect_mgcp_params(tvb_new_subset(tvb, tvb_sectionbegin, sectionlen, sectionlen),
+				dissect_mgcp_params(tvb_new_subset_length_caplen(tvb, tvb_sectionbegin, sectionlen, sectionlen),
 				                                   mgcp_tree, mi);
 			}
 		}

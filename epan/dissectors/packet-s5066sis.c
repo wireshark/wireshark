@@ -1049,7 +1049,7 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	reported_length = pdu_size - offset;
 	available_length = tvb_captured_length(tvb) - offset;
 
-	next_tvb = tvb_new_subset(tvb, offset, MIN(available_length, reported_length), reported_length);
+	next_tvb = tvb_new_subset_length_caplen(tvb, offset, MIN(available_length, reported_length), reported_length);
 
 	if(dissector_try_uint(s5066sis_dissector_table, client_app_id, next_tvb, pinfo, tree) == 0) {
 		call_data_dissector(next_tvb, pinfo, tree);

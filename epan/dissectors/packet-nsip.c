@@ -344,7 +344,7 @@ decode_iei_ns_pdu(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_tree_add_bytes_format(bi->nsip_tree, hf_nsip_ns_pdu, bi->tvb, ie_start_offset,
                       ie->total_length, NULL,
                       "NS PDU (%u bytes)", ie->value_length);
-  next_tvb = tvb_new_subset(bi->tvb, bi->offset, ie->value_length, -1);
+  next_tvb = tvb_new_subset_length_caplen(bi->tvb, bi->offset, ie->value_length, -1);
   if (nsip_handle) {
     gboolean was_recursive;
     was_recursive = nsip_is_recursive;

@@ -2116,7 +2116,7 @@ dissect_h264_pacsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint off
         else
         {
             /* Make a new subset of the existing buffer for the NAL unit */
-            nalu_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb,offset), nal_unit_size);
+            nalu_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb,offset), nal_unit_size);
             /* Decode the NAL unit */
             dissect_h264(nalu_tvb, pinfo, tree, NULL);
             offset += nal_unit_size;
@@ -2165,7 +2165,7 @@ dissect_h264_stap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint 
         else
         {
             /* Make a new subset of the existing buffer for the NAL unit */
-            nalu_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), nal_unit_size);
+            nalu_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), nal_unit_size);
             /* Decode the NAL unit */
             dissect_h264(nalu_tvb, pinfo, tree, NULL);
             offset += nal_unit_size;
@@ -2222,7 +2222,7 @@ dissect_h264_mtap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint 
         else
         {
             /* Make a new subset of the existing buffer for the NAL unit */
-            nalu_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), nal_unit_size);
+            nalu_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), nal_unit_size);
             /* Decode the NAL unit */
             dissect_h264(nalu_tvb, pinfo, tree, NULL);
             offset += nal_unit_size;
@@ -2288,7 +2288,7 @@ dissect_h264_nalu_extension (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             else
             {
                 /* Make a new subset of the existing buffer for the NAL unit */
-                nalu_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), nal_unit_size);
+                nalu_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), nal_unit_size);
                 /* Decode the NAL unit */
                 dissect_h264(nalu_tvb, pinfo, nimtap_tree, NULL);
                 offset += nal_unit_size;

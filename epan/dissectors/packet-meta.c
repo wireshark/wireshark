@@ -595,7 +595,7 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     break;
                 case META_PROTO_DXT_HDLC:
                     next_dissector = mtp2_handle;
-                    next_tvb = tvb_new_subset(tvb, item_len + META_HEADER_SIZE,
+                    next_tvb = tvb_new_subset_length_caplen(tvb, item_len + META_HEADER_SIZE,
                         tvb_reported_length(tvb)-item_len-META_HEADER_SIZE-2, -1);
                     break;
                 default:

@@ -4346,7 +4346,7 @@ dissect_complete_request_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     offset += 1;
 
     /* Add the Complete Request Message */
-    new_tvb = tvb_new_subset(tvb, offset, length-1, length-1);
+    new_tvb = tvb_new_subset_length_caplen(tvb, offset, length-1, length-1);
     call_dissector(nas_eps_handle, new_tvb, pinfo, tree);
 
 }

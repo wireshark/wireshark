@@ -205,7 +205,7 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                     pinfo->pseudo_header->bthci.channel = BTHCI_CHANNEL_ACL;
                 }
 
-                next_tvb = tvb_new_subset(tvb, offset, length, length);
+                next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, length);
                 call_dissector(hci_h1_handle, next_tvb, pinfo, payload_tree);
                 break;
             case 1002: /* H4 */
@@ -213,7 +213,7 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 pinfo->abs_ts = timestamp;
                 pinfo->p2p_dir = (flags & 0x01) ? P2P_DIR_RECV : P2P_DIR_SENT;
 
-                next_tvb = tvb_new_subset(tvb, offset, length, length);
+                next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, length);
                 call_dissector(hci_h4_handle, next_tvb, pinfo, payload_tree);
                 break;
             case 2001: /* Linux Monitor */
@@ -223,7 +223,7 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 pinfo->pseudo_header->btmon.opcode = flags & 0xFFFF;
                 pinfo->pseudo_header->btmon.adapter_id = flags >> 16;
 
-                next_tvb = tvb_new_subset(tvb, offset, length, length);
+                next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, length);
                 call_dissector(hci_mon_handle, next_tvb, pinfo, payload_tree);
                 break;
 

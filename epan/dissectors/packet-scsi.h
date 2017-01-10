@@ -264,7 +264,7 @@ extern value_string_ext scsi_asc_val_ext;
 	guint32   try_end_data_offset=0;				\
 									\
 	try_short_packet=pinfo->fd->cap_len<pinfo->fd->pkt_len;		\
-	try_tvb=tvb_new_subset(tvb_a, offset_a, tvb_captured_length_remaining(tvb_a, offset_a), length_arg); \
+	try_tvb=tvb_new_subset_length_caplen(tvb_a, offset_a, tvb_captured_length_remaining(tvb_a, offset_a), length_arg); \
 	try_offset=0;							\
 	TRY {
 

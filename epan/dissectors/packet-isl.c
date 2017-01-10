@@ -202,7 +202,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
           the packet doesn't have "length" bytes worth of
           captured data left in it - or it may not even have
           "length" bytes worth of data in it, period -
-          so the "tvb_new_subset()" creating "payload_tvb"
+          so the "tvb_new_subset_length_caplen()" creating "payload_tvb"
           threw an exception
 
          or
@@ -214,7 +214,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
          In either case, this means that all the data in the frame
          is within the length value, so we give all the data to the
          next protocol and have no trailer. */
-      payload_tvb = tvb_new_subset(tvb, 14, -1, length);
+      payload_tvb = tvb_new_subset_length_caplen(tvb, 14, -1, length);
       trailer_tvb = NULL;
     }
     ENDTRY;
@@ -263,7 +263,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
       if (captured_length > length)
         captured_length = length;
 
-      next_tvb = tvb_new_subset(payload_tvb, 12, captured_length, length);
+      next_tvb = tvb_new_subset_length_caplen(payload_tvb, 12, captured_length, length);
 
       /* Dissect the payload as an Ethernet frame.
 
