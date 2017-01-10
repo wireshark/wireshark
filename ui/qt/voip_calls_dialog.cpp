@@ -86,11 +86,11 @@ public:
     }
 
     void drawData() {
-        guint callDuration = nstime_to_sec(&(call_info_->stop_fd->abs_ts)) - nstime_to_sec(&(call_info_->start_fd->abs_ts));
         if (!call_info_) {
             setText(start_time_col_, QObject::tr("Error"));
             return;
         }
+        guint callDuration = nstime_to_sec(&(call_info_->stop_fd->abs_ts)) - nstime_to_sec(&(call_info_->start_fd->abs_ts));
 
         if (mTimeOfDay_) {
             setText(start_time_col_, QDateTime::fromTime_t(nstime_to_sec(&(call_info_->start_fd->abs_ts))).toTimeSpec(Qt::LocalTime).toString("yyyy-MM-dd hh:mm:ss"));
