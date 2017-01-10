@@ -102,7 +102,7 @@ protected slots:
 
 private:
     QVariant toolTipForInterface(int idx) const;
-    QMap<QString, PointList *> points;
+    QMap<QString, PointList> points;
 
 #ifdef HAVE_LIBPCAP
     if_stat_cache_t *stat_cache_;

@@ -648,7 +648,7 @@ void CaptureInterfacesDialog::updateInterfaces()
             InterfaceTreeWidgetItem *ti = new InterfaceTreeWidgetItem(ui->interfaceTree);
             ti->setFlags(ti->flags() | Qt::ItemIsEditable);
             ti->setData(col_interface_, Qt::UserRole, QString(device->name));
-            ti->setData(col_traffic_, Qt::UserRole, qVariantFromValue(&ti->points));
+            ti->setData(col_traffic_, Qt::UserRole, qVariantFromValue(ti->points));
 
             ti->setText(col_interface_, device->display_name);
             if (device->no_addresses > 0) {
@@ -766,8 +766,8 @@ void CaptureInterfacesDialog::updateStatistics(void)
             if (device_name.compare(device->display_name) || device->hidden || device->type == IF_PIPE) {
                 continue;
             }
-            QList<int> *points = ti->data(col_traffic_, Qt::UserRole).value<QList<int> *>();
-            points->append(device->packet_diff);
+            QList<int> points = ti->data(col_traffic_, Qt::UserRole).value<QList<int> >();
+            points.append(device->packet_diff);
             ti->setData(col_traffic_, Qt::UserRole, qVariantFromValue(points));
         }
     }
@@ -1101,14 +1101,14 @@ interface_t *CaptureInterfacesDialog::getDeviceByName(const QString device_name)
 //
 bool InterfaceTreeWidgetItem::operator< (const QTreeWidgetItem &other) const {
     if (treeWidget()->sortColumn() == col_traffic_) {
-        QList<int> *points = data(col_traffic_, Qt::UserRole).value<QList<int> *>();
-        QList<int> *other_points = other.data(col_traffic_, Qt::UserRole).value<QList<int> *>();
+        QList<int> points = data(col_traffic_, Qt::UserRole).value<QList<int> >();
+        QList<int> other_points = other.data(col_traffic_, Qt::UserRole).value<QList<int> >();
         double avg = 0, other_avg = 0;
-        foreach (int point, *points) {
-            avg += (double) point / points->length();
+        foreach (int point, points) {
+            avg += (double) point / points.length();
         }
-        foreach (int point, *other_points) {
-            other_avg += (double) point / other_points->length();
+        foreach (int point, other_points) {
+            other_avg += (double) point / other_points.length();
         }
         return avg < other_avg;
     }

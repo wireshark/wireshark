@@ -338,12 +338,6 @@ void InterfaceTreeModel::interfaceListChanged()
 {
     emit beginResetModel();
 
-    QMap<QString, PointList *>::const_iterator it = points.constBegin();
-    while(it != points.constEnd())
-    {
-        it.value()->clear();
-        ++it;
-    }
     points.clear();
 
     emit endResetModel();
@@ -435,9 +429,6 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
 
     struct pcap_stat stats;
 
-    if ( !points.contains(device.name) )
-        points.insert(device.name, new PointList());
-
     diff = 0;
     if ( capture_stats(stat_cache_, device.name, &stats) )
     {
@@ -452,7 +443,7 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
         g_array_insert_val(global_capture_opts.all_ifaces, idx, device);
     }
 
-    points[device.name]->append(diff);
+    points[device.name].append(diff);
     emit dataChanged(index(idx, IFTREE_COL_STATS), index(idx, IFTREE_COL_STATS));
 #else
     Q_UNUSED(idx);
@@ -467,7 +458,7 @@ void InterfaceTreeModel::getPoints(int idx, PointList *pts)
 
     interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
     if ( points.contains(device.name) )
-        pts->append(*points[device.name]);
+        pts->append(points[device.name]);
 #else
     Q_UNUSED(idx);
     Q_UNUSED(pts);
