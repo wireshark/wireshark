@@ -59,6 +59,562 @@ static const value_string zbee_zcl_se_reporting_status_names[] = {
 /*************************/
 
 /* ########################################################################## */
+/* #### (0x0702) METERING CLUSTER ########################################## */
+/* ########################################################################## */
+
+/* Attributes */
+/* Client: Notification AttributeSet / Server: Reading Information Set */
+#define ZBEE_ZCL_ATTR_ID_MET_FUNC_NOTI_FLAGS_CUR_SUM_DEL       0x0000
+#define ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS2_CUR_SUM_RECV           0x0001
+#define ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS3_CUR_MAX_DE_DEL         0x0002
+#define ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS4_CUR_MAX_DE_RECV        0x0003
+#define ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS5_DFT_SUM                0x0004
+#define ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS6_DAI_FREE_TIME          0x0005
+#define ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS7_POW_FAC                0x0006
+#define ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS8_READ_SNAP_TIME         0x0007
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_MAX_DEMAND_DEL_TIME           0x0008
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_MAX_DEMAND_RECV_TIME          0x0009
+#define ZBEE_ZCL_ATTR_ID_MET_DEFAULT_UPDATE_PERIOD             0x000A
+#define ZBEE_ZCL_ATTR_ID_MET_FAST_POLL_UPDATE_PERIOD           0x000B
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_BLOCK_PER_CON_DEL             0x000C
+#define ZBEE_ZCL_ATTR_ID_MET_DAILY_CON_TARGET                  0x000D
+#define ZBEE_ZCL_ATTR_ID_MET_CURRENT_BLOCK                     0x000E
+#define ZBEE_ZCL_ATTR_ID_MET_PROFILE_INTERVAL_PERIOD           0x000F
+/* #define ZBEE_ZCL_ATTR_ID_MET_DEPRECATED                        0x0010 */
+#define ZBEE_ZCL_ATTR_ID_MET_PRESET_READING_TIME               0x0011
+#define ZBEE_ZCL_ATTR_ID_MET_VOLUME_PER_REPORT                 0x0012
+#define ZBEE_ZCL_ATTR_ID_MET_FLOW_RESTRICTION                  0x0013
+#define ZBEE_ZCL_ATTR_ID_MET_SUPPLY_STATUS                     0x0014
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_INLET_ENER_CAR_SUM            0x0015
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_OUTLET_ENER_CAR_SUM           0x0016
+#define ZBEE_ZCL_ATTR_ID_MET_INLET_TEMPERATURE                 0x0017
+#define ZBEE_ZCL_ATTR_ID_MET_OUTLET_TEMPERATURE                0x0018
+#define ZBEE_ZCL_ATTR_ID_MET_CONTROL_TEMPERATURE               0x0019
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_INLET_ENER_CAR_DEM            0x001A
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_OUTLET_ENER_CAR_DEM           0x001B
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_BLOCK_CON_DEL                0x001C
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_BLOCL_CON_RECV               0x001D
+#define ZBEE_ZCL_ATTR_ID_MET_CURRENT_BLOCK_RECEIVED            0x001E
+#define ZBEE_ZCL_ATTR_ID_MET_DFT_SUMMATION_RECEIVED            0x001F
+#define ZBEE_ZCL_ATTR_ID_MET_ACTIVE_REG_TIER_DEL               0x0020
+#define ZBEE_ZCL_ATTR_ID_MET_ACTIVE_REG_TIER_RECV              0x0021
+#define ZBEE_ZCL_ATTR_ID_MET_LAST_BLOCK_SWITCH_TIME            0x0022
+/* Summation TOU Information Set */
+#define ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_1_SUM_DEL            0x0100
+#define ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_2_SUM_DEL            0x0102
+#define ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_3_SUM_DEL            0x0104
+#define ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_4_SUM_DEL            0x0106
+/* Meter Status Attribute Set */
+#define ZBEE_ZCL_ATTR_ID_MET_STATUS                            0x0200
+#define ZBEE_ZCL_ATTR_ID_MET_REMAIN_BAT_LIFE_DAYS              0x0205
+#define ZBEE_ZCL_ATTR_ID_MET_CURRENT_METER_ID                  0x0206
+#define ZBEE_ZCL_ATTR_ID_MET_AMBIENT_CON_IND                   0x0207
+/* Formatting */
+#define ZBEE_ZCL_ATTR_ID_MET_UNIT_OF_MEASURE                   0x0300
+#define ZBEE_ZCL_ATTR_ID_MET_MULTIPLIER                        0x0301
+#define ZBEE_ZCL_ATTR_ID_MET_DIVISOR                           0x0302
+#define ZBEE_ZCL_ATTR_ID_MET_SUMMATION_FORMATTING              0x0303
+#define ZBEE_ZCL_ATTR_ID_MET_METERING_DEVICE_TYPE              0x0306
+#define ZBEE_ZCL_ATTR_ID_MET_SITE_ID                           0x0307
+#define ZBEE_ZCL_ATTR_ID_MET_CUSTOMER_ID_NUMBER                0x0311
+#define ZBEE_ZCL_ATTR_ID_MET_ALT_UNIT_OF_MEASURE               0x0312
+#define ZBEE_ZCL_ATTR_ID_MET_ALT_CON_FORMATTING                0x0314
+/* Historical Consumption Attribute */
+#define ZBEE_ZCL_ATTR_ID_MET_INSTANT_DEMAND                    0x0400
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_DAY_CON_DEL                   0x0401
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_CON_DEL                  0x0403
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_2_DAY_CON_DEL                0x0420
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_3_DAY_CON_DEL                0x0422
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_4_DAY_CON_DEL                0x0424
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_5_DAY_CON_DEL                0x0426
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_6_DAY_CON_DEL                0x0428
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_7_DAY_CON_DEL                0x042A
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_8_DAY_CON_DEL                0x042C
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_WEEK_CON_DEL                  0x0430
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_CON_DEL                 0x0432
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_2_CON_DEL               0x0434
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_3_CON_DEL               0x0436
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_4_CON_DEL               0x0438
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_5_CON_DEL               0x043A
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_MONTH_CON_DEL                 0x0440
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_CON_DEL                0x0442
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_2_CON_DEL              0x0444
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_3_CON_DEL              0x0446
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_4_CON_DEL              0x0448
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_5_CON_DEL              0x044A
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_6_CON_DEL              0x044C
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_7_CON_DEL              0x044E
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_8_CON_DEL              0x0450
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_9_CON_DEL              0x0452
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_10_CON_DEL             0x0454
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_11_CON_DEL             0x0456
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_12_CON_DEL             0x0458
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_13_CON_DEL             0x045A
+/* Supply Limit Attributes */
+#define ZBEE_ZCL_ATTR_ID_MET_SUPPLY_TAMPER_STATE               0x0607
+#define ZBEE_ZCL_ATTR_ID_MET_SUPPLY_DEPLETION_STATE            0x0608
+/* Block Information Attribute Set (Delivered) */
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_1_SUM_DEL       0x0700
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_2_SUM_DEL       0x0701
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_3_SUM_DEL       0x0702
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_4_SUM_DEL       0x0703
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_1_SUM_DEL        0x0710
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_2_SUM_DEL        0x0711
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_3_SUM_DEL        0x0712
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_4_SUM_DEL        0x0713
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_1_SUM_DEL        0x0720
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_2_SUM_DEL        0x0721
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_3_SUM_DEL        0x0722
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_4_SUM_DEL        0x0723
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_1_SUM_DEL        0x0730
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_2_SUM_DEL        0x0731
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_3_SUM_DEL        0x0732
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_4_SUM_DEL        0x0733
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_1_SUM_DEL        0x0740
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_2_SUM_DEL        0x0741
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_3_SUM_DEL        0x0742
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_4_SUM_DEL        0x0743
+/* Meter Billing Attribute Set */
+#define ZBEE_ZCL_ATTR_ID_MET_BILL_TO_DATE_DELIVERED            0x0A00
+#define ZBEE_ZCL_ATTR_ID_MET_BILL_TO_DATE_TIMESTAMP_DEL        0x0A01
+#define ZBEE_ZCL_ATTR_ID_MET_BILL_DELIVERED_TRAILING_DIGIT     0x0A04
+/* Alternative Historical Consumption Attribute Set */
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_DAY_ALT_CON_DEL               0x0C01
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_ALT_CON_DEL              0x0C03
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_2_ALT_CON_DEL            0x0C20
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_3_ALT_CON_DEL            0x0C22
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_4_ALT_CON_DEL            0x0C24
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_5_ALT_CON_DEL            0x0C26
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_6_ALT_CON_DEL            0x0C28
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_7_ALT_CON_DEL            0x0C2A
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_8_ALT_CON_DEL            0x0C2C
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_WEEK_ALT_CON_DEL              0x0C30
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_ALT_CON_DEL             0x0C32
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_2_ALT_CON_DEL           0x0C34
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_3_ALT_CON_DEL           0x0C36
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_4_ALT_CON_DEL           0x0C38
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_5_ALT_CON_DEL           0x0C3A
+#define ZBEE_ZCL_ATTR_ID_MET_CUR_MONTH_ALT_CON_DEL             0x0C40
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_ALT_CON_DEL            0x0C42
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_2_ALT_CON_DEL          0x0C44
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_3_ALT_CON_DEL          0x0C46
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_4_ALT_CON_DEL          0x0C48
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_5_ALT_CON_DEL          0x0C4A
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_6_ALT_CON_DEL          0x0C4C
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_7_ALT_CON_DEL          0x0C4E
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_8_ALT_CON_DEL          0x0C50
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_9_ALT_CON_DEL          0x0C52
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_10_ALT_CON_DEL         0x0C54
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_11_ALT_CON_DEL         0x0C56
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_12_ALT_CON_DEL         0x0C58
+#define ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_13_ALT_CON_DEL         0x0C5A
+
+static const value_string zbee_zcl_met_attr_names[] = {
+    /* Client: Notification AttributeSet / Server: Reading Information Set */
+    { ZBEE_ZCL_ATTR_ID_MET_FUNC_NOTI_FLAGS_CUR_SUM_DEL,        "Client: Functional Notification Flags / Server: Current Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS2_CUR_SUM_RECV,            "Client: Notification Flag 2 / Server: Current Summation Received" },
+    { ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS3_CUR_MAX_DE_DEL,          "Client: Notification Flag 3 / Server: Current Max Demand Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS4_CUR_MAX_DE_RECV,         "Client: Notification Flag 4 / Server: Current Max Demand Received" },
+    { ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS5_DFT_SUM,                 "Client: Notification Flag 5 / Server: DFTSummation" },
+    { ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS6_DAI_FREE_TIME,           "Client: Notification Flag 6 / Server: Daily Freeze Time" },
+    { ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS7_POW_FAC,                 "Client: Notification Flag 7 / Server: Power Factor" },
+    { ZBEE_ZCL_ATTR_ID_MET_NOT_FLAGS8_READ_SNAP_TIME,          "Client: Notification Flag 8 / Server: Reading Snapshot Time" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_MAX_DEMAND_DEL_TIME,            "Current Max Demand Delivered Time" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_MAX_DEMAND_RECV_TIME,           "Current Max Demand Received Time" },
+    { ZBEE_ZCL_ATTR_ID_MET_DEFAULT_UPDATE_PERIOD,              "Default Update Period" },
+    { ZBEE_ZCL_ATTR_ID_MET_FAST_POLL_UPDATE_PERIOD,            "Fast Poll Update Period" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_BLOCK_PER_CON_DEL,              "Current Block Period Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_DAILY_CON_TARGET,                   "Daily Consumption Target" },
+    { ZBEE_ZCL_ATTR_ID_MET_CURRENT_BLOCK,                      "Current Block" },
+    { ZBEE_ZCL_ATTR_ID_MET_PROFILE_INTERVAL_PERIOD,            "Profile Interval Period" },
+/*    { ZBEE_ZCL_ATTR_ID_MET_DEPRECATED,                         "Deprecated" }, */
+    { ZBEE_ZCL_ATTR_ID_MET_PRESET_READING_TIME,                "Preset Reading Time" },
+    { ZBEE_ZCL_ATTR_ID_MET_VOLUME_PER_REPORT,                  "Volume Per Report" },
+    { ZBEE_ZCL_ATTR_ID_MET_FLOW_RESTRICTION,                   "Flow Restriction" },
+    { ZBEE_ZCL_ATTR_ID_MET_SUPPLY_STATUS,                      "Supply Status" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_INLET_ENER_CAR_SUM,             "Current Inlet Energy Carrier Summation" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_OUTLET_ENER_CAR_SUM,            "Current Outlet Energy Carrier Summation" },
+    { ZBEE_ZCL_ATTR_ID_MET_INLET_TEMPERATURE,                  "Inlet Temperature" },
+    { ZBEE_ZCL_ATTR_ID_MET_OUTLET_TEMPERATURE,                 "Outlet Temperature" },
+    { ZBEE_ZCL_ATTR_ID_MET_CONTROL_TEMPERATURE,                "Control Temperature" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_INLET_ENER_CAR_DEM,             "Current Inlet Energy Carrier Demand" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_OUTLET_ENER_CAR_DEM,            "Current Outlet Energy Carrier Demand" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_BLOCK_CON_DEL,                 "Previous Block Period Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_BLOCL_CON_RECV,                "Current Block Period Consumption Received" },
+    { ZBEE_ZCL_ATTR_ID_MET_CURRENT_BLOCK_RECEIVED,             "Current Block Received" },
+    { ZBEE_ZCL_ATTR_ID_MET_DFT_SUMMATION_RECEIVED,             "DFT Summation Received" },
+    { ZBEE_ZCL_ATTR_ID_MET_ACTIVE_REG_TIER_DEL,                "Active Register Tier Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_ACTIVE_REG_TIER_RECV,               "Active Register Tier Received" },
+    { ZBEE_ZCL_ATTR_ID_MET_LAST_BLOCK_SWITCH_TIME,             "Last Block Switch Time" },
+    /* Summation TOU Information Set */
+    { ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_1_SUM_DEL,             "Current Tier 1 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_2_SUM_DEL,             "Current Tier 2 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_3_SUM_DEL,             "Current Tier 3 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_4_SUM_DEL,             "Current Tier 4 Summation Delivered" },
+    /* Meter Status Attribute Set */
+    { ZBEE_ZCL_ATTR_ID_MET_STATUS,                             "Status" },
+    { ZBEE_ZCL_ATTR_ID_MET_REMAIN_BAT_LIFE_DAYS,               "Remaining Battery Life in Days" },
+    { ZBEE_ZCL_ATTR_ID_MET_CURRENT_METER_ID,                   "Current Meter ID" },
+    { ZBEE_ZCL_ATTR_ID_MET_AMBIENT_CON_IND,                    "Ambient Consumption Indicator" },
+    /* Formatting */
+    { ZBEE_ZCL_ATTR_ID_MET_UNIT_OF_MEASURE,                    "Unit of Measure" },
+    { ZBEE_ZCL_ATTR_ID_MET_MULTIPLIER,                         "Multiplier" },
+    { ZBEE_ZCL_ATTR_ID_MET_DIVISOR,                            "Divisor" },
+    { ZBEE_ZCL_ATTR_ID_MET_SUMMATION_FORMATTING,               "Summation Formatting" },
+    { ZBEE_ZCL_ATTR_ID_MET_METERING_DEVICE_TYPE,               "Metering Device Type" },
+    { ZBEE_ZCL_ATTR_ID_MET_SITE_ID,                            "Site ID" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUSTOMER_ID_NUMBER,                 "Customer ID Number" },
+    { ZBEE_ZCL_ATTR_ID_MET_ALT_UNIT_OF_MEASURE,                "Alternative Unit of Measure" },
+    { ZBEE_ZCL_ATTR_ID_MET_ALT_CON_FORMATTING,                 "Alternative Consumption Formatting" },
+    /* Historical Consumption Attribute */
+    { ZBEE_ZCL_ATTR_ID_MET_INSTANT_DEMAND,                     "Instantaneous Demand" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_DAY_CON_DEL,                    "Current Day Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_CON_DEL,                   "Previous Day Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_2_DAY_CON_DEL,                 "Previous Day 2 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_3_DAY_CON_DEL,                 "Previous Day 3 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_4_DAY_CON_DEL,                 "Previous Day 4 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_5_DAY_CON_DEL,                 "Previous Day 5 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_6_DAY_CON_DEL,                 "Previous Day 6 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_7_DAY_CON_DEL,                 "Previous Day 7 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_8_DAY_CON_DEL,                 "Previous Day 8 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_WEEK_CON_DEL,                   "Current Week Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_CON_DEL,                  "Previous Week Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_2_CON_DEL,                "Previous Week 2 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_3_CON_DEL,                "Previous Week 3 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_4_CON_DEL,                "Previous Week 4 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_5_CON_DEL,                "Previous Week 5 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_MONTH_CON_DEL,                  "Current Month Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_CON_DEL,                 "Previous Month Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_2_CON_DEL,               "Previous Month 2 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_3_CON_DEL,               "Previous Month 3 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_4_CON_DEL,               "Previous Month 4 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_5_CON_DEL,               "Previous Month 5 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_6_CON_DEL,               "Previous Month 6 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_7_CON_DEL,               "Previous Month 7 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_8_CON_DEL,               "Previous Month 8 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_9_CON_DEL,               "Previous Month 9 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_10_CON_DEL,              "Previous Month 10 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_11_CON_DEL,              "Previous Month 11 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_12_CON_DEL,              "Previous Month 12 Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_13_CON_DEL,              "Previous Month 13 Consumption Delivered" },
+    /* Supply Limit Attributes */
+    { ZBEE_ZCL_ATTR_ID_MET_SUPPLY_TAMPER_STATE,                "Supply Tamper State" },
+    { ZBEE_ZCL_ATTR_ID_MET_SUPPLY_DEPLETION_STATE,             "Supply Depletion State" },
+    /* Block Information Attribute Set (Delivered) */
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_1_SUM_DEL,        "Current No Tier Block 1 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_2_SUM_DEL,        "Current No Tier Block 2 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_3_SUM_DEL,        "Current No Tier Block 3 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_4_SUM_DEL,        "Current No Tier Block 4 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_1_SUM_DEL,         "Current Tier 1 Block 1 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_2_SUM_DEL,         "Current Tier 1 Block 2 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_3_SUM_DEL,         "Current Tier 1 Block 3 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_4_SUM_DEL,         "Current Tier 1 Block 4 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_1_SUM_DEL,         "Current Tier 2 Block 1 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_2_SUM_DEL,         "Current Tier 2 Block 2 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_3_SUM_DEL,         "Current Tier 2 Block 3 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_4_SUM_DEL,         "Current Tier 2 Block 4 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_1_SUM_DEL,         "Current Tier 3 Block 1 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_2_SUM_DEL,         "Current Tier 3 Block 2 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_3_SUM_DEL,         "Current Tier 3 Block 3 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_4_SUM_DEL,         "Current Tier 3 Block 4 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_1_SUM_DEL,         "Current Tier 4 Block 1 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_2_SUM_DEL,         "Current Tier 4 Block 2 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_3_SUM_DEL,         "Current Tier 4 Block 3 Summation Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_4_SUM_DEL,         "Current Tier 4 Block 4 Summation Delivered" },
+    /* Meter Billing Attribute Set */
+    { ZBEE_ZCL_ATTR_ID_MET_BILL_TO_DATE_DELIVERED,             "Bill To Date Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_BILL_TO_DATE_TIMESTAMP_DEL,         "BillToDateTimeStampDelivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_BILL_DELIVERED_TRAILING_DIGIT,      "Bill Delivered Trailing Digit" },
+    /* Alternative Historical Consumption Attribute Set */
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_DAY_ALT_CON_DEL,                "Current Day Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_ALT_CON_DEL,               "Previous Day Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_2_ALT_CON_DEL,             "Previous Day 2 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_3_ALT_CON_DEL,             "Previous Day 3 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_4_ALT_CON_DEL,             "Previous Day 4 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_5_ALT_CON_DEL,             "Previous Day 5 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_6_ALT_CON_DEL,             "Previous Day 6 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_7_ALT_CON_DEL,             "Previous Day 7 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_8_ALT_CON_DEL,             "Previous Day 8 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_WEEK_ALT_CON_DEL,               "Current Week Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_ALT_CON_DEL,              "Previous Week Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_2_ALT_CON_DEL,            "Previous Week 2 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_3_ALT_CON_DEL,            "Previous Week 3 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_4_ALT_CON_DEL,            "Previous Week 4 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_5_ALT_CON_DEL,            "Previous Week 5 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_CUR_MONTH_ALT_CON_DEL,              "Current Month Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_ALT_CON_DEL,             "Previous Month Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_2_ALT_CON_DEL,           "Previous Month 2 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_3_ALT_CON_DEL,           "Previous Month 3 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_4_ALT_CON_DEL,           "Previous Month 4 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_5_ALT_CON_DEL,           "Previous Month 5 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_6_ALT_CON_DEL,           "Previous Month 6 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_7_ALT_CON_DEL,           "Previous Month 7 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_8_ALT_CON_DEL,           "Previous Month 8 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_9_ALT_CON_DEL,           "Previous Month 9 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_10_ALT_CON_DEL,          "Previous Month 10 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_11_ALT_CON_DEL,          "Previous Month 11 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_12_ALT_CON_DEL,          "Previous Month 12 Alternative Consumption Delivered" },
+    { ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_13_ALT_CON_DEL,          "Previous Month 13 Alternative Consumption Delivered" },
+    /* Smart Energy */
+    ZBEE_ZCL_SE_ATTR_NAMES,
+    { 0, NULL }
+};
+
+/* Server Commands Received */
+#define ZBEE_ZCL_CMD_ID_MET_REQUEST_MIRROR_RSP                  0x01
+#define ZBEE_ZCL_CMD_ID_MET_GET_SNAPSHOT                        0x06
+#define ZBEE_ZCL_CMD_ID_MET_GET_SAMPLED_DATA                    0x08
+#define ZBEE_ZCL_CMD_ID_MET_LOCAL_CHANGE_SUPPLY                 0x0C
+
+/* Server Commands Generated */
+#define ZBEE_ZCL_CMD_ID_MET_REQUEST_MIRROR                      0x01
+#define ZBEE_ZCL_CMD_ID_MET_PUBLISH_SNAPSHOT                    0x06
+#define ZBEE_ZCL_CMD_ID_MET_GET_SAMPLED_DATA_RSP                0x07
+#define ZBEE_ZCL_CMD_ID_MET_CONFIGURE_MIRROR                    0x08
+#define ZBEE_ZCL_CMD_ID_MET_GET_NOTIFIED_MESSAGE                0x0B
+
+/*************************/
+/* Function Declarations */
+/*************************/
+void proto_register_zbee_zcl_met(void);
+void proto_reg_handoff_zbee_zcl_met(void);
+
+/* Attribute Dissector Helpers */
+static void dissect_zcl_met_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+
+static dissector_handle_t met_handle;
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_met = -1;
+
+static int hf_zbee_zcl_met_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_met_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_met_attr_id = -1;
+static int hf_zbee_zcl_met_attr_reporting_status = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_met = -1;
+
+/* Server Commands Received */
+static const value_string zbee_zcl_met_srv_rx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_MET_REQUEST_MIRROR_RSP,                   "Request Mirror Response" },
+    { ZBEE_ZCL_CMD_ID_MET_GET_SNAPSHOT,                         "Get Snapshot" },
+    { ZBEE_ZCL_CMD_ID_MET_GET_SAMPLED_DATA,                     "Get Sampled Data" },
+    { ZBEE_ZCL_CMD_ID_MET_LOCAL_CHANGE_SUPPLY,                  "Local Change Supply" },
+    { 0, NULL }
+};
+
+/* Server Commands Generated */
+static const value_string zbee_zcl_met_srv_tx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_MET_REQUEST_MIRROR,                       "Request Mirror" },
+    { ZBEE_ZCL_CMD_ID_MET_PUBLISH_SNAPSHOT,                     "Publish Snapshot" },
+    { ZBEE_ZCL_CMD_ID_MET_GET_SAMPLED_DATA_RSP,                 "Get Sampled Data Response" },
+    { ZBEE_ZCL_CMD_ID_MET_CONFIGURE_MIRROR,                     "Configure Mirror" },
+    { ZBEE_ZCL_CMD_ID_MET_GET_NOTIFIED_MESSAGE,                 "Get Notified Message" },
+    { 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
+static void
+dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    switch (attr_id) {
+        /* applies to all SE clusters */
+        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS:
+            proto_tree_add_item(tree, hf_zbee_zcl_met_attr_reporting_status, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        default: /* Catch all */
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+} /*dissect_zcl_met_attr_data*/
+
+/**
+ *ZigBee ZCL Metering cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+static int
+dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_met_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_met_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_met, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_MET_REQUEST_MIRROR_RSP:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_MET_GET_SNAPSHOT:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_MET_GET_SAMPLED_DATA:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_MET_LOCAL_CHANGE_SUPPLY:
+                    /* Add function to dissect payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_met_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_met_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_met, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_MET_REQUEST_MIRROR:
+                    /* No payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_MET_PUBLISH_SNAPSHOT:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_MET_GET_SAMPLED_DATA_RSP:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_MET_CONFIGURE_MIRROR:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_MET_GET_NOTIFIED_MESSAGE:
+                    /* Add function to dissect payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_met*/
+
+/**
+ *This function registers the ZCL Metering dissector
+ *
+*/
+void
+proto_register_zbee_zcl_met(void)
+{
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_met_attr_id,
+            { "Attribute", "zbee_zcl_se.met.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_met_attr_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_attr_reporting_status,                         /* common to all SE clusters */
+            { "Attribute Reporting Status", "zbee_zcl_se.met.attr.attr_reporting_status",
+            FT_UINT8, BASE_HEX, VALS(zbee_zcl_se_reporting_status_names), 0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_srv_tx_cmd_id,
+            { "Command", "zbee_zcl_se.met.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_met_srv_tx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_srv_rx_cmd_id,
+            { "Command", "zbee_zcl_se.met.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_met_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+    };
+
+    /* ZCL Metering subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_met,
+    };
+
+    /* Register the ZigBee ZCL Metering cluster protocol name and description */
+    proto_zbee_zcl_met = proto_register_protocol("ZigBee ZCL Metering", "ZCL Metering", ZBEE_PROTOABBREV_ZCL_MET);
+    proto_register_field_array(proto_zbee_zcl_met, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Metering dissector. */
+    met_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_MET, dissect_zbee_zcl_met, proto_zbee_zcl_met);
+} /*proto_register_zbee_zcl_met*/
+
+/**
+ *Hands off the Zcl Metering dissector.
+ *
+*/
+void
+proto_reg_handoff_zbee_zcl_met(void)
+{
+    /* Register our dissector with the ZigBee application dissectors. */
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_SIMPLE_METERING, met_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_met,
+                            ett_zbee_zcl_met,
+                            ZBEE_ZCL_CID_SIMPLE_METERING,
+                            hf_zbee_zcl_met_attr_id,
+                            hf_zbee_zcl_met_srv_rx_cmd_id,
+                            hf_zbee_zcl_met_srv_tx_cmd_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_met_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_met*/
+
+/* ########################################################################## */
 /* #### (0x0703) MESSAGING CLUSTER ########################################## */
 /* ########################################################################## */
 
@@ -123,6 +679,8 @@ static void decode_zcl_msg_duration             (gchar *s, guint16 value);
 /*************************/
 /* Global Variables      */
 /*************************/
+
+static dissector_handle_t msg_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_msg = -1;
@@ -659,7 +1217,7 @@ proto_register_zbee_zcl_msg(void)
     expert_register_field_array(expert_zbee_zcl_msg, ei, array_length(ei));
 
     /* Register the ZigBee ZCL Messaging dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_MSG, dissect_zbee_zcl_msg, proto_zbee_zcl_msg);
+    msg_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_MSG, dissect_zbee_zcl_msg, proto_zbee_zcl_msg);
 } /*proto_register_zbee_zcl_msg*/
 
 /**
@@ -669,10 +1227,7 @@ proto_register_zbee_zcl_msg(void)
 void
 proto_reg_handoff_zbee_zcl_msg(void)
 {
-    dissector_handle_t msg_handle;
-
     /* Register our dissector with the ZigBee application dissectors. */
-    msg_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_MSG);
     dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_MESSAGE, msg_handle);
 
     zbee_zcl_init_cluster(  proto_zbee_zcl_msg,
@@ -730,6 +1285,8 @@ static void dissect_zcl_tun_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *
 /*************************/
 /* Global Variables      */
 /*************************/
+
+static dissector_handle_t tun_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_tun = -1;
@@ -1281,7 +1838,7 @@ proto_register_zbee_zcl_tun(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Messaging dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_TUN, dissect_zbee_zcl_tun, proto_zbee_zcl_tun);
+    tun_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_TUN, dissect_zbee_zcl_tun, proto_zbee_zcl_tun);
 
 } /* proto_register_zbee_zcl_tun */
 
@@ -1292,14 +1849,11 @@ proto_register_zbee_zcl_tun(void)
 void
 proto_reg_handoff_zbee_zcl_tun(void)
 {
-    dissector_handle_t msg_handle;
-
     ipv4_handle = find_dissector("ipv4");
     ipv6_handle = find_dissector("ipv6");
 
     /* Register our dissector with the ZigBee application dissectors. */
-    msg_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_TUN);
-    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_TUNNELING, msg_handle);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_TUNNELING, tun_handle);
 
     zbee_zcl_init_cluster(  proto_zbee_zcl_tun,
                             ett_zbee_zcl_tun,
@@ -1339,6 +1893,8 @@ void proto_reg_handoff_zbee_zcl_ke(void);
 /*************************/
 /* Global Variables      */
 /*************************/
+
+static dissector_handle_t ke_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_ke = -1;
@@ -1881,7 +2437,7 @@ proto_register_zbee_zcl_ke(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Messaging dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_KE, dissect_zbee_zcl_ke, proto_zbee_zcl_ke);
+    ke_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_KE, dissect_zbee_zcl_ke, proto_zbee_zcl_ke);
 } /*proto_register_zbee_zcl_ke*/
 
 /**
@@ -1891,10 +2447,7 @@ proto_register_zbee_zcl_ke(void)
 void
 proto_reg_handoff_zbee_zcl_ke(void)
 {
-    dissector_handle_t ke_handle;
-
     /* Register our dissector with the ZigBee application dissectors. */
-    ke_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_KE);
     dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_KE, ke_handle);
 
     zbee_zcl_init_cluster(  proto_zbee_zcl_ke,
