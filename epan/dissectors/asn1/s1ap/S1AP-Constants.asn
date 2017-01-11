@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V13.4.0 (2016-09)
+-- 3GPP TS 36.413 V13.5.0 (2016-12)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -161,7 +161,7 @@ id-eNB-UE-S1AP-ID									ProtocolIE-ID ::= 8
 --WS extension
 id-Unknown-9										ProtocolIE-ID ::= 9
 id-Unknown-10										ProtocolIE-ID ::= 10
-id-Unknown-11										ProtocolIE-ID ::= 11 
+id-Unknown-11										ProtocolIE-ID ::= 11
 id-E-RABSubjecttoDataForwardingList					ProtocolIE-ID ::= 12
 id-E-RABtoReleaseListHOCmd							ProtocolIE-ID ::= 13
 id-E-RABDataForwardingItem							ProtocolIE-ID ::= 14
@@ -402,5 +402,6 @@ id-UEUserPlaneCIoTSupportIndicator 					ProtocolIE-ID ::= 241
 id-CE-mode-B-SupportIndicator 						ProtocolIE-ID ::= 242
 id-SRVCCOperationNotPossible						ProtocolIE-ID ::= 243
 id-NB-IoT-UEIdentityIndexValue 						ProtocolIE-ID ::= 244
+id-RRC-Resume-Cause									ProtocolIE-ID ::= 245
 
 END

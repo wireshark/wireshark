@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V13.4.0 (2016-09)
+-- 3GPP TS 36.413 V13.5.0 (2016-12)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -377,7 +377,8 @@ FROM S1AP-Containers
 	id-NB-IoT-DefaultPagingDRX,
 	id-NB-IoT-Paging-eDRXInformation,
 	id-CE-mode-B-SupportIndicator,
-	id-NB-IoT-UEIdentityIndexValue
+	id-NB-IoT-UEIdentityIndexValue,
+	id-RRC-Resume-Cause
 
 
 FROM S1AP-Constants;
@@ -1274,7 +1275,7 @@ PagingIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-CSG-IdList						CRITICALITY ignore	TYPE CSG-IdList							PRESENCE optional}|
 	{ ID id-PagingPriority					CRITICALITY ignore	TYPE PagingPriority						PRESENCE optional}|
 	{ ID id-UERadioCapabilityForPaging		CRITICALITY ignore	TYPE UERadioCapabilityForPaging			PRESENCE optional}|
--- Extension for Release 13 to support Paging Optimisation and Coverage Enhancement paging –-
+-- Extension for Release 13 to support Paging Optimisation and Coverage Enhancement paging ï¿½-
 	{ ID id-AssistanceDataForPaging			CRITICALITY ignore	TYPE AssistanceDataForPaging			PRESENCE optional}|
 	{ ID id-Paging-eDRXInformation			CRITICALITY ignore	TYPE Paging-eDRXInformation				PRESENCE optional}|
 	{ ID id-extended-UEIdentityIndexValue	CRITICALITY ignore	TYPE Extended-UEIdentityIndexValue	PRESENCE optional}|
@@ -1362,7 +1363,7 @@ UEContextReleaseComplete-IEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-UserLocationInformation						CRITICALITY ignore	TYPE UserLocationInformation				PRESENCE optional}|
 -- Extension for Release 13 to support Paging Optimisation
 	{ ID id-InformationOnRecommendedCellsAndENBsForPaging	CRITICALITY ignore	TYPE InformationOnRecommendedCellsAndENBsForPaging		PRESENCE optional}|
--- Extension for Release 13 to support coverage enhancement paging –
+-- Extension for Release 13 to support coverage enhancement paging ï¿½
 	{ ID id-CellIdentifierAndCELevelForCECapableUEs		CRITICALITY ignore	TYPE CellIdentifierAndCELevelForCECapableUEs	PRESENCE optional},
 	...
 }
@@ -2777,7 +2778,8 @@ UEContextResumeRequest ::= SEQUENCE {
 UEContextResumeRequestIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-MME-UE-S1AP-ID										CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory}|
 	{ ID id-eNB-UE-S1AP-ID									CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory}|
-	{ ID id-E-RABFailedToResumeListResumeReq 				CRITICALITY reject	TYPE E-RABFailedToResumeListResumeReq		PRESENCE optional},
+	{ ID id-E-RABFailedToResumeListResumeReq 				CRITICALITY reject	TYPE E-RABFailedToResumeListResumeReq		PRESENCE optional}|
+	{ ID id-RRC-Resume-Cause								CRITICALITY ignore	TYPE RRC-Establishment-Cause	PRESENCE optional},
 	...
 }
 

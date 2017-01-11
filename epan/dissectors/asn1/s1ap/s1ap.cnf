@@ -1371,6 +1371,7 @@ id-UEUserPlaneCIoTSupportIndicator                  ProtocolIE-ID
 id-CE-mode-B-SupportIndicator                       ProtocolIE-ID
 id-SRVCCOperationNotPossible                        ProtocolIE-ID
 id-NB-IoT-UEIdentityIndexValue                      ProtocolIE-ID
+id-RRC-Resume-Cause                                 ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1563,8 +1564,9 @@ E-RABFailedToResumeItemResumeRes                N s1ap.ies id-E-RABFailedToResum
 NB-IoT-Paging-eDRXInformation                   N s1ap.ies id-NB-IoT-Paging-eDRXInformation
 UEUserPlaneCIoTSupportIndicator                 N s1ap.ies id-UEUserPlaneCIoTSupportIndicator
 CE-mode-B-SupportIndicator                      N s1ap.ies id-CE-mode-B-SupportIndicator
-NB-IoT-UEIdentityIndexValue                     N s1ap.ies id-NB-IoT-UEIdentityIndexValue
 SRVCCOperationNotPossible                       N s1ap.ies id-SRVCCOperationNotPossible
+NB-IoT-UEIdentityIndexValue                     N s1ap.ies id-NB-IoT-UEIdentityIndexValue
+RRC-Establishment-Cause                         N s1ap.ies id-RRC-Resume-Cause
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem

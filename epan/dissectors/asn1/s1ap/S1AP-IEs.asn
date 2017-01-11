@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V13.4.0 (2016-09)
+-- 3GPP TS 36.413 V13.5.0 (2016-12)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -1107,7 +1107,7 @@ M5period ::= ENUMERATED {ms1024, ms2048, ms5120, ms10240, min1, ... }
 M6Configuration ::= SEQUENCE {
 	m6report-Interval	M6report-Interval,
 	m6delay-threshold	M6delay-threshold		OPTIONAL,
--- This IE shall be present if the M6 Links to log IE is set to “uplink” or to “both-uplink-and-downlink” --
+-- This IE shall be present if the M6 Links to log IE is set to ï¿½uplinkï¿½ or to ï¿½both-uplink-and-downlinkï¿½ --
 	m6-links-to-log		Links-to-log,
 	iE-Extensions		ProtocolExtensionContainer { { M6Configuration-ExtIEs} } OPTIONAL,
 	...
@@ -1655,10 +1655,10 @@ SONConfigurationTransfer ::= SEQUENCE {
 SONConfigurationTransfer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 10 to transfer the IP addresses of the eNB initiating the ANR action --
 	{ID id-x2TNLConfigurationInfo		CRITICALITY ignore	EXTENSION X2TNLConfigurationInfo				PRESENCE conditional
-	-- This IE shall be present if the SON Information IE contains the SON Information Request IE and the SON Information Request IE is set to “X2TNL Configuration Info” --}|
+	-- This IE shall be present if the SON Information IE contains the SON Information Request IE and the SON Information Request IE is set to ï¿½X2TNL Configuration Infoï¿½ --}|
 -- Extension for Release 12 to transfer information concerning the source cell of synchronisation and the aggressor cell --
 	{ID id-Synchronisation-Information	CRITICALITY ignore	EXTENSION SynchronisationInformation			PRESENCE conditional
-	-- This IE shall be present if the SON Information IE contains the SON Information Request IE set to “ Activate Muting ” --},
+	-- This IE shall be present if the SON Information IE contains the SON Information Request IE set to ï¿½ Activate Muting ï¿½ --},
 	...
 }
 
