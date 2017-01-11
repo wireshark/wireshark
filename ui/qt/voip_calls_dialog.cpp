@@ -88,7 +88,6 @@ public:
             setText(start_time_col_, QObject::tr("Error"));
             return;
         }
-        guint callDuration = nstime_to_sec(&(call_info_->stop_fd->abs_ts)) - nstime_to_sec(&(call_info_->start_fd->abs_ts));
 
         // XXX Pull digit count from capture file precision
         setText(start_time_col_, QString::number(nstime_to_sec(&(call_info_->start_rel_ts)), 'f', 6));
