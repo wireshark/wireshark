@@ -1,5 +1,5 @@
--- 3GPP TS 36.423 V13.5.0 (2016-09)
--- 9.3.7	Constant Definitions
+-- 3GPP TS 36.423 V13.6.0 (2017-01)
+-- 9.3.7	Constant definitions
 -- **************************************************************
 --
 -- Constant definitions
@@ -272,5 +272,7 @@ id-resumeID																	ProtocolIE-ID ::= 172
 id-UE-ContextInformationRetrieve											ProtocolIE-ID ::= 173
 id-E-RABs-ToBeSetupRetrieve-Item											ProtocolIE-ID ::= 174
 id-NewEUTRANCellIdentifier													ProtocolIE-ID ::= 175
+id-OffsetOfNbiotChannelNumberToDL-EARFCN									ProtocolIE-ID ::= 177
+id-OffsetOfNbiotChannelNumberToUL-EARFCN									ProtocolIE-ID ::= 178
 
 END

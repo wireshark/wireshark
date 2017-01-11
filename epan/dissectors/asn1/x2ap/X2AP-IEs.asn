@@ -1,5 +1,5 @@
--- 3GPP TS 36.423 V13.5.0 (2016-09)
--- 9.3.5	Information Element Definitions
+-- 3GPP TS 36.423 V13.6.0 (2017-01)
+-- 9.3.5	Information Element definitions
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -42,6 +42,8 @@ IMPORTS
 	id-ProSeUEtoNetworkRelaying,
 	id-M6Configuration,
 	id-M7Configuration,
+	id-OffsetOfNbiotChannelNumberToDL-EARFCN,
+	id-OffsetOfNbiotChannelNumberToUL-EARFCN,
 	maxnoofBearers,
 	maxCellineNB,
 	maxEARFCN,
@@ -728,7 +730,9 @@ FDD-Info ::= SEQUENCE {
 
 FDD-Info-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-UL-EARFCNExtension		CRITICALITY reject	EXTENSION EARFCNExtension		PRESENCE optional}|
-	{ ID id-DL-EARFCNExtension		CRITICALITY reject	EXTENSION EARFCNExtension		PRESENCE optional},
+	{ ID id-DL-EARFCNExtension		CRITICALITY reject	EXTENSION EARFCNExtension		PRESENCE optional}|
+	{ ID id-OffsetOfNbiotChannelNumberToDL-EARFCN	CRITICALITY reject	EXTENSION OffsetOfNbiotChannelNumberToEARFCN		PRESENCE optional}|
+	{ ID id-OffsetOfNbiotChannelNumberToUL-EARFCN	CRITICALITY reject	EXTENSION OffsetOfNbiotChannelNumberToEARFCN		PRESENCE optional},
 	...
 }
 
@@ -1187,6 +1191,31 @@ Number-of-Antennaports ::= ENUMERATED {
 }
 
 -- O
+
+OffsetOfNbiotChannelNumberToEARFCN ::= ENUMERATED {
+		minusTen,
+		minusNine,
+		minusEight,
+		minusSeven,
+		minusSix,
+		minusFive,
+		minusFour,
+		minusThree,
+		minusTwo,
+		minusOne,
+		minusZeroDotFive,
+		zero,
+		one,
+		two,
+		three,
+		four,
+		five,
+		six,
+		seven,
+		eight,
+		nine,
+		...
+}
 
 Oneframe ::= BIT STRING (SIZE (6))
 
@@ -1703,7 +1732,8 @@ Transmission-Bandwidth ::= ENUMERATED {
 	 	bw50,
 		bw75,
 		bw100,
-		...
+		...,
+		bw1
 }
 
 TransportLayerAddress			::= BIT STRING (SIZE(1..160, ...))

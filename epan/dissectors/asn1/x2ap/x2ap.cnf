@@ -22,6 +22,7 @@ ProcedureCode
 CauseRadioNetwork
 ProcedureCode
 ProtocolIE-ID
+OffsetOfNbiotChannelNumberToEARFCN
 
 #.TYPE_RENAME
 ProtocolIE-Field/value     ProtocolIE_Field_value
@@ -768,6 +769,8 @@ id-resumeID																	ProtocolIE-ID
 id-UE-ContextInformationRetrieve											ProtocolIE-ID
 id-E-RABs-ToBeSetupRetrieve-Item											ProtocolIE-ID
 id-NewEUTRANCellIdentifier													ProtocolIE-ID
+id-OffsetOfNbiotChannelNumberToDL-EARFCN									ProtocolIE-ID
+id-OffsetOfNbiotChannelNumberToUL-EARFCN									ProtocolIE-ID
 
 #.REGISTER
 
@@ -947,6 +950,8 @@ Correlation-ID							N x2ap.extension id-Correlation-ID
 Correlation-ID							N x2ap.extension id-SIPTO-Correlation-ID
 CellReportingIndicator						N x2ap.extension id-CellReportingIndicator
 BearerType							N x2ap.extension id-BearerType
+OffsetOfNbiotChannelNumberToEARFCN				N x2ap.extension id-OffsetOfNbiotChannelNumberToDL-EARFCN
+OffsetOfNbiotChannelNumberToEARFCN				N x2ap.extension id-OffsetOfNbiotChannelNumberToUL-EARFCN
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE

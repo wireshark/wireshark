@@ -24,7 +24,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Ref:
- * 3GPP TS 36.423 V13.5.0 (2016-09)
+ * 3GPP TS 36.423 V13.6.0 (2017-01)
  */
 
 #include "config.h"
