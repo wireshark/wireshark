@@ -135,13 +135,13 @@ fi
 
 $DIE
 
+LTARGS=" --copy --force"
+echo $LIBTOOLIZE $LTARGS
+$LIBTOOLIZE $LTARGS || exit 1
 aclocal_flags="-I m4"
 aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags";
 echo $ACLOCAL $aclocalinclude
 $ACLOCAL $aclocalinclude || exit 1
-LTARGS=" --copy --force"
-echo $LIBTOOLIZE $LTARGS
-$LIBTOOLIZE $LTARGS || exit 1
 echo $AUTOHEADER
 $AUTOHEADER || exit 1
 echo $AUTOMAKE --add-missing --gnu $am_opt
