@@ -24,8 +24,6 @@
 
 #include "traffic_table_dialog.h"
 
-Q_DECLARE_METATYPE(hostlist_talker_t *)
-
 class EndpointTreeWidget : public TrafficTableTreeWidget
 {
     Q_OBJECT

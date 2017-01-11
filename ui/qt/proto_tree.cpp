@@ -28,6 +28,8 @@
 
 #include "color_utils.h"
 
+#include <ui/qt/variant_pointer.h>
+
 #include <QApplication>
 #include <QContextMenuEvent>
 #include <QDesktopServices>
@@ -136,7 +138,7 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     }
 
     item->setText(0, label);
-    item->setData(0, Qt::UserRole, qVariantFromValue(fi));
+    item->setData(0, Qt::UserRole, VariantPointer<field_info>::asQVariant(fi));
 
     if (is_branch) {
         if (tree_expanded(fi->tree_type)) {
@@ -310,7 +312,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     field_info *fi = NULL;
     const char *module_name = NULL;
     if (selectedItems().count() > 0) {
-        fi = selectedItems()[0]->data(0, Qt::UserRole).value<field_info *>();
+        fi = VariantPointer<field_info>::asPtr(selectedItems()[0]->data(0, Qt::UserRole));
         if (fi && fi->hfinfo) {
             if (fi->hfinfo->parent == -1) {
                 module_name = fi->hfinfo->abbrev;
@@ -322,7 +324,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     proto_prefs_menu_.setModule(module_name);
 
     foreach (QAction *action, copy_actions_) {
-        action->setData(QVariant::fromValue<field_info *>(fi));
+        action->setData(VariantPointer<field_info>::asQVariant(fi));
     }
 
     decode_as_->setData(qVariantFromValue(true));
@@ -398,7 +400,7 @@ void ProtoTree::goToField(int hf_id)
 
     QTreeWidgetItemIterator iter(this);
     while (*iter) {
-        field_info *fi = (*iter)->data(0, Qt::UserRole).value<field_info *>();
+        field_info *fi = VariantPointer<field_info>::asPtr((*iter)->data(0, Qt::UserRole));
 
         if (fi && fi->hfinfo) {
             if (fi->hfinfo->id == hf_id) {
@@ -416,7 +418,7 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item)
         field_info *fi;
         QString item_info;
 
-        fi = item->data(0, Qt::UserRole).value<field_info *>();
+        fi = VariantPointer<field_info>::asPtr(item->data(0, Qt::UserRole));
         if (!fi || !fi->hfinfo) return;
 
         if (fi->hfinfo->blurb != NULL && fi->hfinfo->blurb[0] != '\0') {
@@ -471,7 +473,7 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item)
 void ProtoTree::expand(const QModelIndex & index) {
     field_info *fi;
 
-    fi = index.data(Qt::UserRole).value<field_info *>();
+    fi = VariantPointer<field_info>::asPtr(index.data(Qt::UserRole));
     if (!fi) return;
 
     if(prefs.gui_auto_scroll_on_expand) {
@@ -500,7 +502,7 @@ void ProtoTree::expand(const QModelIndex & index) {
 void ProtoTree::collapse(const QModelIndex & index) {
     field_info *fi;
 
-    fi = index.data(Qt::UserRole).value<field_info *>();
+    fi = VariantPointer<field_info>::asPtr(index.data(Qt::UserRole));
     if (!fi) return;
 
     /*
@@ -568,7 +570,7 @@ void ProtoTree::collapseAll()
 void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int) {
     field_info *fi;
 
-    fi = item->data(0, Qt::UserRole).value<field_info *>();
+    fi = VariantPointer<field_info>::asPtr(item->data(0, Qt::UserRole));
     if (!fi || !fi->hfinfo) return;
 
     if (fi->hfinfo->type == FT_FRAMENUM) {
@@ -592,7 +594,7 @@ void ProtoTree::selectField(field_info *fi)
 {
     QTreeWidgetItemIterator iter(this);
     while (*iter) {
-        if (fi == (*iter)->data(0, Qt::UserRole).value<field_info *>()) {
+        if (fi == VariantPointer<field_info>::asPtr((*iter)->data(0, Qt::UserRole))) {
             setCurrentItem(*iter);
             scrollToItem(*iter);
             break;
@@ -609,7 +611,7 @@ static QList<int> serializeAsPath(QTreeWidgetItem *item)
 {
     QList<int> path;
     do {
-        field_info *fi = item->data(0, Qt::UserRole).value<field_info *>();
+        field_info *fi = VariantPointer<field_info>::asPtr(item->data(0, Qt::UserRole));
         path.prepend(fi->hfinfo->id);
     } while ((item = item->parent()));
     return path;
@@ -628,7 +630,7 @@ void ProtoTree::restoreSelectedField()
     int last_hf_id = selected_field_path_.last();
     QTreeWidgetItemIterator iter(this);
     while (*iter) {
-        field_info *fi = (*iter)->data(0, Qt::UserRole).value<field_info *>();
+        field_info *fi = VariantPointer<field_info>::asPtr((*iter)->data(0, Qt::UserRole));
         if (last_hf_id == fi->hfinfo->id &&
             serializeAsPath(*iter) == selected_field_path_) {
             setCurrentItem(*iter);

@@ -26,6 +26,8 @@
 #include "uat_dialog.h"
 #include "wireshark_application.h"
 
+#include <ui/qt/variant_pointer.h>
+
 #include <epan/prefs-int.h>
 
 #include <wsutil/utf8_entities.h>
@@ -42,8 +44,6 @@
 #include <QRadioButton>
 #include <QScrollBar>
 #include <QSpacerItem>
-
-Q_DECLARE_METATYPE(pref_t *)
 
 const char *pref_prop_ = "pref_ptr";
 
@@ -82,7 +82,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         hb->addWidget(label);
         QLineEdit *uint_le = new QLineEdit();
         uint_le->setToolTip(tooltip);
-        uint_le->setProperty(pref_prop_, qVariantFromValue(pref));
+        uint_le->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
         uint_le->setMinimumWidth(uint_le->fontMetrics().height() * 8);
         hb->addWidget(uint_le);
         hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
@@ -93,7 +93,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     {
         QCheckBox *bool_cb = new QCheckBox(title_to_shortcut(pref->title));
         bool_cb->setToolTip(tooltip);
-        bool_cb->setProperty(pref_prop_, qVariantFromValue(pref));
+        bool_cb->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
         vb->addWidget(bool_cb);
         break;
     }
@@ -111,7 +111,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
                 QRadioButton *enum_rb = new QRadioButton(title_to_shortcut(ev->description));
                 enum_rb->setToolTip(tooltip);
                 QStyleOption style_opt;
-                enum_rb->setProperty(pref_prop_, qVariantFromValue(pref));
+                enum_rb->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
                 enum_rb->setStyleSheet(QString(
                                       "QRadioButton {"
                                       "  margin-left: %1px;"
@@ -125,7 +125,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
             QHBoxLayout *hb = new QHBoxLayout();
             QComboBox *enum_cb = new QComboBox();
             enum_cb->setToolTip(tooltip);
-            enum_cb->setProperty(pref_prop_, qVariantFromValue(pref));
+            enum_cb->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
             for (ev = pref->info.enum_info.enumvals; ev && ev->description; ev++) {
                 enum_cb->addItem(ev->description, QVariant(ev->value));
             }
@@ -144,7 +144,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         hb->addWidget(label);
         QLineEdit *string_le = new QLineEdit();
         string_le->setToolTip(tooltip);
-        string_le->setProperty(pref_prop_, qVariantFromValue(pref));
+        string_le->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
         string_le->setMinimumWidth(string_le->fontMetrics().height() * 20);
         hb->addWidget(string_le);
         hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
@@ -160,7 +160,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         hb->addWidget(label);
         SyntaxLineEdit *range_se = new SyntaxLineEdit();
         range_se->setToolTip(tooltip);
-        range_se->setProperty(pref_prop_, qVariantFromValue(pref));
+        range_se->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
         range_se->setMinimumWidth(range_se->fontMetrics().height() * 20);
         hb->addWidget(range_se);
         hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
@@ -183,7 +183,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         hb->addWidget(label);
         QPushButton *uat_pb = new QPushButton(QObject::tr("Edit" UTF8_HORIZONTAL_ELLIPSIS));
         uat_pb->setToolTip(tooltip);
-        uat_pb->setProperty(pref_prop_, qVariantFromValue(pref));
+        uat_pb->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
         hb->addWidget(uat_pb);
         hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
         vb->addLayout(hb);
@@ -199,7 +199,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         QLineEdit *path_le = new QLineEdit();
         path_le->setToolTip(tooltip);
         QStyleOption style_opt;
-        path_le->setProperty(pref_prop_, qVariantFromValue(pref));
+        path_le->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
         path_le->setMinimumWidth(path_le->fontMetrics().height() * 20);
         path_le->setStyleSheet(QString(
                               "QLineEdit {"
@@ -209,7 +209,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
                           .arg(path_le->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left()));
         hb->addWidget(path_le);
         QPushButton *path_pb = new QPushButton(QObject::tr("Browse" UTF8_HORIZONTAL_ELLIPSIS));
-        path_pb->setProperty(pref_prop_, qVariantFromValue(pref));
+        path_pb->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
         hb->addWidget(path_pb);
         hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
         vb->addLayout(hb);
@@ -249,7 +249,7 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
     prefs_pref_foreach(module, pref_show, (gpointer) ui->verticalLayout);
 
     foreach (QLineEdit *le, findChildren<QLineEdit *>()) {
-        pref_t *pref = le->property(pref_prop_).value<pref_t *>();
+        pref_t *pref = VariantPointer<pref_t>::asPtr(le->property(pref_prop_));
         if (!pref) continue;
 
         switch (pref->type) {
@@ -274,7 +274,7 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
     }
 
     foreach (QCheckBox *cb, findChildren<QCheckBox *>()) {
-        pref_t *pref = cb->property(pref_prop_).value<pref_t *>();
+        pref_t *pref = VariantPointer<pref_t>::asPtr(cb->property(pref_prop_));
         if (!pref) continue;
 
         if (pref->type == PREF_BOOL) {
@@ -283,7 +283,7 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
     }
 
     foreach (QRadioButton *rb, findChildren<QRadioButton *>()) {
-        pref_t *pref = rb->property(pref_prop_).value<pref_t *>();
+        pref_t *pref = VariantPointer<pref_t>::asPtr(rb->property(pref_prop_));
         if (!pref) continue;
 
         if (pref->type == PREF_ENUM && pref->info.enum_info.radio_buttons) {
@@ -292,7 +292,7 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
     }
 
     foreach (QComboBox *combo, findChildren<QComboBox *>()) {
-        pref_t *pref = combo->property(pref_prop_).value<pref_t *>();
+        pref_t *pref = VariantPointer<pref_t>::asPtr(combo->property(pref_prop_));
         if (!pref) continue;
 
         if (pref->type == PREF_ENUM && !pref->info.enum_info.radio_buttons) {
@@ -301,7 +301,7 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
     }
 
     foreach (QPushButton *pb, findChildren<QPushButton *>()) {
-        pref_t *pref = pb->property(pref_prop_).value<pref_t *>();
+        pref_t *pref = VariantPointer<pref_t>::asPtr(pb->property(pref_prop_));
         if (!pref) continue;
 
         if (pref->type == PREF_UAT) {
@@ -340,14 +340,14 @@ void ModulePreferencesScrollArea::resizeEvent(QResizeEvent *evt)
 void ModulePreferencesScrollArea::updateWidgets()
 {
     foreach (QLineEdit *le, findChildren<QLineEdit *>()) {
-        pref_t *pref = le->property(pref_prop_).value<pref_t *>();
+        pref_t *pref = VariantPointer<pref_t>::asPtr(le->property(pref_prop_));
         if (!pref) continue;
 
         le->setText(gchar_free_to_qstring(prefs_pref_to_str(pref, pref_stashed)).remove(QRegExp("\n\t")));
     }
 
     foreach (QCheckBox *cb, findChildren<QCheckBox *>()) {
-        pref_t *pref = cb->property(pref_prop_).value<pref_t *>();
+        pref_t *pref = VariantPointer<pref_t>::asPtr(cb->property(pref_prop_));
         if (!pref) continue;
 
         if (pref->type == PREF_BOOL) {
@@ -356,7 +356,7 @@ void ModulePreferencesScrollArea::updateWidgets()
     }
 
     foreach (QRadioButton *enum_rb, findChildren<QRadioButton *>()) {
-        pref_t *pref = enum_rb->property(pref_prop_).value<pref_t *>();
+        pref_t *pref = VariantPointer<pref_t>::asPtr(enum_rb->property(pref_prop_));
         if (!pref) continue;
 
         QButtonGroup *enum_bg = enum_rb->group();
@@ -370,7 +370,7 @@ void ModulePreferencesScrollArea::updateWidgets()
     }
 
     foreach (QComboBox *enum_cb, findChildren<QComboBox *>()) {
-        pref_t *pref = enum_cb->property(pref_prop_).value<pref_t *>();
+        pref_t *pref = VariantPointer<pref_t>::asPtr(enum_cb->property(pref_prop_));
         if (!pref) continue;
 
         if (pref->type == PREF_ENUM && !pref->info.enum_info.radio_buttons) {
@@ -388,7 +388,7 @@ void ModulePreferencesScrollArea::uintLineEditTextEdited(const QString &new_str)
     QLineEdit *uint_le = qobject_cast<QLineEdit*>(sender());
     if (!uint_le) return;
 
-    pref_t *pref = uint_le->property(pref_prop_).value<pref_t *>();
+    pref_t *pref = VariantPointer<pref_t>::asPtr(uint_le->property(pref_prop_));
     if (!pref) return;
 
     bool ok;
@@ -403,7 +403,7 @@ void ModulePreferencesScrollArea::boolCheckBoxToggled(bool checked)
     QCheckBox *bool_cb = qobject_cast<QCheckBox*>(sender());
     if (!bool_cb) return;
 
-    pref_t *pref = bool_cb->property(pref_prop_).value<pref_t *>();
+    pref_t *pref = VariantPointer<pref_t>::asPtr(bool_cb->property(pref_prop_));
     if (!pref) return;
 
     pref->stashed_val.boolval = checked;
@@ -418,7 +418,7 @@ void ModulePreferencesScrollArea::enumRadioButtonToggled(bool checked)
     QButtonGroup *enum_bg = enum_rb->group();
     if (!enum_bg) return;
 
-    pref_t *pref = enum_rb->property(pref_prop_).value<pref_t *>();
+    pref_t *pref = VariantPointer<pref_t>::asPtr(enum_rb->property(pref_prop_));
     if (!pref) return;
 
     if (enum_bg->checkedId() >= 0) {
@@ -431,7 +431,7 @@ void ModulePreferencesScrollArea::enumComboBoxCurrentIndexChanged(int index)
     QComboBox *enum_cb = qobject_cast<QComboBox*>(sender());
     if (!enum_cb) return;
 
-    pref_t *pref = enum_cb->property(pref_prop_).value<pref_t *>();
+    pref_t *pref = VariantPointer<pref_t>::asPtr(enum_cb->property(pref_prop_));
     if (!pref) return;
 
     pref->stashed_val.enumval = enum_cb->itemData(index).toInt();
@@ -442,7 +442,7 @@ void ModulePreferencesScrollArea::stringLineEditTextEdited(const QString &new_st
     QLineEdit *string_le = qobject_cast<QLineEdit*>(sender());
     if (!string_le) return;
 
-    pref_t *pref = string_le->property(pref_prop_).value<pref_t *>();
+    pref_t *pref = VariantPointer<pref_t>::asPtr(string_le->property(pref_prop_));
     if (!pref) return;
 
     g_free((void *)pref->stashed_val.string);
@@ -454,7 +454,7 @@ void ModulePreferencesScrollArea::rangeSyntaxLineEditTextEdited(const QString &n
     SyntaxLineEdit *range_se = qobject_cast<SyntaxLineEdit*>(sender());
     if (!range_se) return;
 
-    pref_t *pref = range_se->property(pref_prop_).value<pref_t *>();
+    pref_t *pref = VariantPointer<pref_t>::asPtr(range_se->property(pref_prop_));
     if (!pref) return;
 
     if (prefs_set_stashed_range_value(pref, new_str.toUtf8().constData())) {
@@ -473,7 +473,7 @@ void ModulePreferencesScrollArea::uatPushButtonPressed()
     QPushButton *uat_pb = qobject_cast<QPushButton*>(sender());
     if (!uat_pb) return;
 
-    pref_t *pref = uat_pb->property(pref_prop_).value<pref_t *>();
+    pref_t *pref = VariantPointer<pref_t>::asPtr(uat_pb->property(pref_prop_));
     if (!pref) return;
 
     UatDialog uat_dlg(this, pref->varp.uat);
@@ -485,7 +485,7 @@ void ModulePreferencesScrollArea::filenamePushButtonPressed()
     QPushButton *filename_pb = qobject_cast<QPushButton*>(sender());
     if (!filename_pb) return;
 
-    pref_t *pref = filename_pb->property(pref_prop_).value<pref_t *>();
+    pref_t *pref = VariantPointer<pref_t>::asPtr(filename_pb->property(pref_prop_));
     if (!pref) return;
 
     QString filename = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(pref->title),
@@ -504,7 +504,7 @@ void ModulePreferencesScrollArea::dirnamePushButtonPressed()
     QPushButton *dirname_pb = qobject_cast<QPushButton*>(sender());
     if (!dirname_pb) return;
 
-    pref_t *pref = dirname_pb->property(pref_prop_).value<pref_t *>();
+    pref_t *pref = VariantPointer<pref_t>::asPtr(dirname_pb->property(pref_prop_));
     if (!pref) return;
 
     QString dirname = QFileDialog::getExistingDirectory(this, wsApp->windowTitleString(pref->title),

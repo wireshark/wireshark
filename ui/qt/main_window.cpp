@@ -1795,8 +1795,6 @@ void MainWindow::initShowHideMainWidgets()
     connect(show_hide_actions_, SIGNAL(triggered(QAction*)), this, SLOT(showHideMainWidgets(QAction*)));
 }
 
-Q_DECLARE_METATYPE(ts_type)
-
 void MainWindow::initTimeDisplayFormatMenu()
 {
     if (time_display_actions_) {
@@ -1823,8 +1821,6 @@ void MainWindow::initTimeDisplayFormatMenu()
 
     connect(time_display_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setTimestampFormat(QAction*)));
 }
-
-Q_DECLARE_METATYPE(ts_precision)
 
 void MainWindow::initTimePrecisionFormatMenu()
 {

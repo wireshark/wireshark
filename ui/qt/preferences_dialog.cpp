@@ -42,6 +42,8 @@
 #include "uat_dialog.h"
 #include "wireshark_application.h"
 
+#include <ui/qt/variant_pointer.h>
+
 #include <QColorDialog>
 #include <QComboBox>
 #include <QFileDialog>
@@ -53,15 +55,24 @@
 #include <QSpacerItem>
 #include <QTreeWidgetItemIterator>
 
-Q_DECLARE_METATYPE(ModulePreferencesScrollArea *)
-Q_DECLARE_METATYPE(pref_t *)
-Q_DECLARE_METATYPE(QStackedWidget *)
-
 // XXX Should we move this to ui/preference_utils?
-static QHash<void *, pref_t *> pref_ptr_to_pref_;
+static GHashTable * pref_ptr_to_pref_ = NULL;
 pref_t *prefFromPrefPtr(void *pref_ptr)
 {
-    return pref_ptr_to_pref_[pref_ptr];
+    return (pref_t *)g_hash_table_lookup(pref_ptr_to_pref_, (gpointer) pref_ptr);
+}
+
+static void prefInsertPrefPtr(void * pref_ptr, pref_t * pref)
+{
+    if ( ! pref_ptr_to_pref_ )
+        pref_ptr_to_pref_ = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+
+    gpointer key = (gpointer) pref_ptr;
+    gpointer val = (gpointer) pref;
+
+    /* Already existing entries will be ignored */
+    if ( (pref = (pref_t *)g_hash_table_lookup(pref_ptr_to_pref_, key) ) == NULL )
+        g_hash_table_insert(pref_ptr_to_pref_, key, val);
 }
 
 enum {
@@ -244,7 +255,7 @@ fill_advanced_prefs(module_t *module, gpointer root_ptr)
 
         // .uat is a void * so it wins the "useful key value" prize.
         if (pref->varp.uat) {
-            pref_ptr_to_pref_[pref->varp.uat] = pref;
+            prefInsertPrefPtr(pref->varp.uat, pref);
         }
     }
     tl_item->addChildren(tl_children);
@@ -268,7 +279,7 @@ fill_module_prefs(module_t *module, gpointer ti_ptr)
 
     if (!item) return 0;
 
-    QStackedWidget *stacked_widget = item->data(0, stacked_role_).value<QStackedWidget *>();
+    QStackedWidget *stacked_widget = VariantPointer<QStackedWidget>::asPtr(item->data(0, stacked_role_));
 
     if (!stacked_widget) return 0;
 
@@ -434,7 +445,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     while (tmp_item.childCount() > 0) {
         tmp_item.removeChild(tmp_item.child(0));
     }
-    tmp_item.setData(0, stacked_role_, qVariantFromValue(pd_ui_->stackedWidget));
+    tmp_item.setData(0, stacked_role_, VariantPointer<QStackedWidget>::asQVariant(pd_ui_->stackedWidget));
     prefs_modules_foreach_submodules(NULL, fill_module_prefs, (gpointer) &tmp_item);
     pd_ui_->prefsTree->invisibleRootItem()->insertChildren(
                 pd_ui_->prefsTree->invisibleRootItem()->childCount() - 1, tmp_item.takeChildren());

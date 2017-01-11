@@ -29,6 +29,8 @@
 
 #include "ui/profile.h"
 
+#include <ui/qt/variant_pointer.h>
+
 #include "profile_dialog.h"
 #include <ui_profile_dialog.h>
 #include "wireshark_application.h"
@@ -41,8 +43,6 @@
 #include <QPushButton>
 #include <QTreeWidgetItem>
 #include <QUrl>
-
-Q_DECLARE_METATYPE(GList *)
 
 ProfileDialog::ProfileDialog(QWidget *parent) :
     GeometryStateDialog(parent),
@@ -75,7 +75,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
         profile = (profile_def *) fl_entry->data;
         QTreeWidgetItem *item = new QTreeWidgetItem(pd_ui_->profileTreeWidget);
         item->setText(0, profile->name);
-        item->setData(0, Qt::UserRole, qVariantFromValue(fl_entry));
+        item->setData(0, Qt::UserRole, VariantPointer<GList>::asQVariant(fl_entry));
 
         if (profile->is_global || profile->status == PROF_STAT_DEFAULT) {
             QFont ti_font = item->font(0);
@@ -146,7 +146,7 @@ void ProfileDialog::updateWidgets()
     profile_def *current_profile = NULL;
 
     if (item) {
-        current_profile = (profile_def *) item->data(0, Qt::UserRole).value<GList *>()->data;
+        current_profile = (profile_def *) VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole))->data;
         enable_new = true;
         enable_copy = true;
         if (!current_profile->is_global && current_profile->status != PROF_STAT_DEFAULT) {
@@ -194,7 +194,7 @@ void ProfileDialog::updateWidgets()
         profile_def *profile;
         for (int i = 0; i < pd_ui_->profileTreeWidget->topLevelItemCount(); i++) {
             item = pd_ui_->profileTreeWidget->topLevelItem(i);
-            profile = (profile_def *) item->data(0, Qt::UserRole).value<GList *>()->data;
+            profile = (profile_def *) VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole))->data;
             if (profile->is_global) {
                 item->setToolTip(0, tr("This is a system provided profile."));
                 continue;
@@ -235,7 +235,7 @@ void ProfileDialog::on_newToolButton_clicked()
 
     profile = (profile_def *) fl_entry->data;
     item->setText(0, profile->name);
-    item->setData(0, Qt::UserRole, qVariantFromValue(fl_entry));
+    item->setData(0, Qt::UserRole, VariantPointer<GList>::asQVariant(fl_entry));
     item->setFlags(item->flags() | Qt::ItemIsEditable);
     pd_ui_->profileTreeWidget->addTopLevelItem(item);
     pd_ui_->profileTreeWidget->setCurrentItem(item);
@@ -247,7 +247,7 @@ void ProfileDialog::on_deleteToolButton_clicked()
     QTreeWidgetItem *item = pd_ui_->profileTreeWidget->currentItem();
 
     if (item) {
-        GList *fl_entry = item->data(0, Qt::UserRole).value<GList *>();
+        GList *fl_entry = VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole));
         profile_def *profile = (profile_def *) fl_entry->data;
         if (profile->is_global || profile->status == PROF_STAT_DEFAULT) {
             return;
@@ -266,7 +266,7 @@ void ProfileDialog::on_copyToolButton_clicked()
     QTreeWidgetItem *cur_item = pd_ui_->profileTreeWidget->currentItem();
     if (!cur_item) return;
 
-    profile_def *cur_profile = (profile_def *) cur_item->data(0, Qt::UserRole).value<GList *>()->data;
+    profile_def *cur_profile = (profile_def *) VariantPointer<GList>::asPtr(cur_item->data(0, Qt::UserRole))->data;
     if (!cur_profile) return;
 
     QTreeWidgetItem *new_item = new QTreeWidgetItem();
@@ -291,7 +291,7 @@ void ProfileDialog::on_copyToolButton_clicked()
     fl_entry = add_to_profile_list(new_name, parent, PROF_STAT_COPY, FALSE, cur_profile->from_global);
     new_profile = (profile_def *) fl_entry->data;
     new_item->setText(0, new_profile->name);
-    new_item->setData(0, Qt::UserRole, qVariantFromValue(fl_entry));
+    new_item->setData(0, Qt::UserRole, VariantPointer<GList>::asQVariant(fl_entry));
     new_item->setFlags(new_item->flags() | Qt::ItemIsEditable);
     pd_ui_->profileTreeWidget->addTopLevelItem(new_item);
     pd_ui_->profileTreeWidget->setCurrentItem(new_item);
@@ -312,7 +312,7 @@ void ProfileDialog::on_buttonBox_accepted()
     }
 
     if (item) {
-        profile_def *profile = (profile_def *) item->data(0, Qt::UserRole).value<GList *>()->data;
+        profile_def *profile = (profile_def *) VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole))->data;
         if (profile_exists (profile->name, FALSE) || profile_exists (profile->name, TRUE)) {
             /* The new profile exists, change */
             wsApp->setConfigurationProfile (profile->name);
@@ -334,7 +334,7 @@ void ProfileDialog::editingFinished()
     QTreeWidgetItem *item = pd_ui_->profileTreeWidget->currentItem();
 
     if (item) {
-        profile_def *profile = (profile_def *) item->data(0, Qt::UserRole).value<GList *>()->data;
+        profile_def *profile = (profile_def *) VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole))->data;
         if (item->text(0).compare(profile->name) != 0) {
             g_free(profile->name);
             profile->name = qstring_strdup(item->text(0));

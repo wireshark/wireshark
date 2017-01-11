@@ -24,8 +24,6 @@
 
 #include "traffic_table_dialog.h"
 
-Q_DECLARE_METATYPE(conv_item_t *)
-
 class ConversationTreeWidget : public TrafficTableTreeWidget
 {
     Q_OBJECT

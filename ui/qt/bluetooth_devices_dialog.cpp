@@ -34,6 +34,8 @@
 #include "epan/dissectors/packet-bluetooth.h"
 #include "epan/dissectors/packet-bthci_evt.h"
 
+#include <ui/qt/variant_pointer.h>
+
 #include "ui/simple_dialog.h"
 
 #include <QClipboard>
@@ -52,13 +54,6 @@ static const int column_number_hci_version = 6;
 static const int column_number_hci_revision = 7;
 static const int column_number_is_local_adapter = 8;
 
-typedef struct _item_data_t {
-        guint32  interface_id;
-        guint32  adapter_id;
-        guint32  frame_number;
-} item_data_t;
-
-Q_DECLARE_METATYPE(item_data_t *)
 
 static gboolean
 bluetooth_device_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
@@ -171,10 +166,10 @@ void BluetoothDevicesDialog::tableContextMenu(const QPoint &pos)
 
 void BluetoothDevicesDialog::tableItemDoubleClicked(QTreeWidgetItem *item, int column _U_)
 {
-    item_data_t            *item_data;
+    bluetooth_item_data_t            *item_data;
     BluetoothDeviceDialog  *bluetooth_device_dialog;
 
-    item_data = item->data(0, Qt::UserRole).value<item_data_t *>();
+    item_data = VariantPointer<bluetooth_item_data_t>::asPtr(item->data(0, Qt::UserRole));
     bluetooth_device_dialog = new BluetoothDeviceDialog(*this, cap_file_, item->text(column_number_bd_addr), item->text(column_number_name), item_data->interface_id, item_data->adapter_id, !item->text(column_number_is_local_adapter).isEmpty());
     connect(bluetooth_device_dialog, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
@@ -324,7 +319,7 @@ gboolean BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo
 
         while (*i_item) {
             QTreeWidgetItem *current_item = static_cast<QTreeWidgetItem*>(*i_item);
-            item_data_t *item_data = current_item->data(0, Qt::UserRole).value<item_data_t *>();
+            bluetooth_item_data_t *item_data = VariantPointer<bluetooth_item_data_t>::asPtr(current_item->data(0, Qt::UserRole));
 
             if ((tap_device->has_bd_addr && current_item->text(column_number_bd_addr) == bd_addr) ||
                     (tap_device->is_local &&
@@ -346,11 +341,11 @@ gboolean BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo
             item->setText(column_number_is_local_adapter,  tr("true"));
         }
 
-        item_data_t *item_data = wmem_new(wmem_file_scope(), item_data_t);
+        bluetooth_item_data_t *item_data = wmem_new(wmem_file_scope(), bluetooth_item_data_t);
         item_data->interface_id = tap_device->interface_id;
         item_data->adapter_id = tap_device->adapter_id;
         item_data->frame_number = pinfo->num;
-        item->setData(0, Qt::UserRole, QVariant::fromValue<item_data_t *>(item_data));
+        item->setData(0, Qt::UserRole, VariantPointer<bluetooth_item_data_t>::asQVariant(item_data));
     }
 
     if (tap_device->type == BLUETOOTH_DEVICE_BD_ADDR) {
@@ -402,7 +397,7 @@ void BluetoothDevicesDialog::on_tableTreeWidget_itemActivated(QTreeWidgetItem *i
     if (file_closed_)
         return;
 
-    item_data_t *item_data = item->data(0, Qt::UserRole).value<item_data_t *>();
+    bluetooth_item_data_t *item_data = VariantPointer<bluetooth_item_data_t>::asPtr(item->data(0, Qt::UserRole));
 
     emit goToPacket(item_data->frame_number);
 

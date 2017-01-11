@@ -60,6 +60,7 @@
 #include <ui/preference_utils.h>
 
 #include <ui/qt/wireshark_application.h>
+#include <ui/qt/variant_pointer.h>
 
 #include <ui/qt/extcap_argument.h>
 #include <ui/qt/extcap_argument_file.h>
@@ -278,7 +279,7 @@ void ExtcapOptionsDialog::updateWidgets()
             editWidget = argument->createEditor((QWidget *) this);
             if ( editWidget != NULL )
             {
-                editWidget->setProperty(QString("extcap").toLocal8Bit(), QVariant::fromValue(argument));
+                editWidget->setProperty(QString("extcap").toLocal8Bit(), VariantPointer<ExtcapArgument>::asQVariant(argument));
                 layout->addWidget(editWidget, counter, 1, Qt::AlignVCenter);
             }
 
@@ -415,9 +416,9 @@ void ExtcapOptionsDialog::resetValues()
                 ExtcapArgument * arg = 0;
                 QVariant prop = child->property(QString("extcap").toLocal8Bit());
 
-                if ( prop.isValid() && prop.canConvert<ExtcapArgument *>())
+                if ( prop.isValid() )
                 {
-                    arg = prop.value<ExtcapArgument *>();
+                    arg = VariantPointer<ExtcapArgument>::asPtr(prop);
 
                     /* value<> can fail */
                     if (arg)
@@ -429,7 +430,7 @@ void ExtcapOptionsDialog::resetValues()
                         QWidget * editWidget = arg->createEditor((QWidget *) this);
                         if ( editWidget != NULL )
                         {
-                            editWidget->setProperty(QString("extcap").toLocal8Bit(), QVariant::fromValue(arg));
+                            editWidget->setProperty(QString("extcap").toLocal8Bit(), VariantPointer<ExtcapArgument>::asQVariant(arg));
                             layout->addWidget(editWidget, row, 1, Qt::AlignVCenter);
                         }
                     }

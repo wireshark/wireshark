@@ -78,6 +78,8 @@
 #include "ui/all_files_wildcard.h"
 #include "ui/qt/simple_dialog.h"
 
+#include <ui/qt/variant_pointer.h>
+
 #ifdef HAVE_SOFTWARE_UPDATE
 #include "ui/software_update.h"
 #endif
@@ -2185,8 +2187,6 @@ void MainWindow::showHideMainWidgets(QAction *action)
     }
 }
 
-Q_DECLARE_METATYPE(ts_type)
-
 void MainWindow::setTimestampFormat(QAction *action)
 {
     if (!action) {
@@ -2206,8 +2206,6 @@ void MainWindow::setTimestampFormat(QAction *action)
         }
     }
 }
-
-Q_DECLARE_METATYPE(ts_precision)
 
 void MainWindow::setTimestampPrecision(QAction *action)
 {
@@ -3733,14 +3731,12 @@ void MainWindow::showExtcapOptionsDialog(QString &device_name)
 }
 #endif
 
-// Q_DECLARE_METATYPE(field_info *) called in proto_tree.h
-
 void MainWindow::on_actionContextCopyBytesHexTextDump_triggered()
 {
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
 
-    field_info *fi = ca->data().value<field_info *>();
+    field_info *fi = VariantPointer<field_info>::asPtr(ca->data());
 
     byte_view_tab_->copyData(ByteViewTab::copyDataHexTextDump, fi);
 }
@@ -3750,7 +3746,7 @@ void MainWindow::on_actionContextCopyBytesHexDump_triggered()
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
 
-    field_info *fi = ca->data().value<field_info *>();
+    field_info *fi = VariantPointer<field_info>::asPtr(ca->data());
 
     byte_view_tab_->copyData(ByteViewTab::copyDataHexDump, fi);
 }
@@ -3760,7 +3756,7 @@ void MainWindow::on_actionContextCopyBytesPrintableText_triggered()
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
 
-    field_info *fi = ca->data().value<field_info *>();
+    field_info *fi = VariantPointer<field_info>::asPtr(ca->data());
 
     byte_view_tab_->copyData(ByteViewTab::copyDataPrintableText, fi);
 }
@@ -3770,7 +3766,7 @@ void MainWindow::on_actionContextCopyBytesHexStream_triggered()
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
 
-    field_info *fi = ca->data().value<field_info *>();
+    field_info *fi = VariantPointer<field_info>::asPtr(ca->data());
 
     byte_view_tab_->copyData(ByteViewTab::copyDataHexStream, fi);
 }
@@ -3780,7 +3776,7 @@ void MainWindow::on_actionContextCopyBytesBinary_triggered()
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
 
-    field_info *fi = ca->data().value<field_info *>();
+    field_info *fi = VariantPointer<field_info>::asPtr(ca->data());
 
     byte_view_tab_->copyData(ByteViewTab::copyDataBinary, fi);
 }
@@ -3790,7 +3786,7 @@ void MainWindow::on_actionContextCopyBytesEscapedString_triggered()
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
 
-    field_info *fi = ca->data().value<field_info *>();
+    field_info *fi = VariantPointer<field_info>::asPtr(ca->data());
 
     byte_view_tab_->copyData(ByteViewTab::copyDataEscapedString, fi);
 }

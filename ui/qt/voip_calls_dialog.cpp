@@ -64,8 +64,6 @@ const int packets_col_ = 7;
 const int state_col_ = 8;
 const int comments_col_ = 9;
 
-Q_DECLARE_METATYPE(voip_calls_info_t*)
-
 enum { voip_calls_type_ = 1000 };
 
 class VoipCallsTreeWidgetItem : public QTreeWidgetItem

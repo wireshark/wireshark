@@ -34,6 +34,8 @@
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
+#include <ui/qt/variant_pointer.h>
+
 #include <QPushButton>
 #include <QDialogButtonBox>
 #include <QListWidgetItem>
@@ -59,8 +61,6 @@ enum {
     contains_op_,
     matches_op_
 };
-
-Q_DECLARE_METATYPE(header_field_info *)
 
 DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     GeometryStateDialog(parent),
@@ -148,7 +148,7 @@ void DisplayFilterExpressionDialog::fillTree()
             QTreeWidgetItem *field_ti = new QTreeWidgetItem(field_type_);
             QString label = QString("%1 " UTF8_MIDDLE_DOT " %3").arg(hfinfo->abbrev).arg(hfinfo->name);
             field_ti->setText(0, label);
-            field_ti->setData(0, Qt::UserRole, qVariantFromValue(hfinfo));
+            field_ti->setData(0, Qt::UserRole, VariantPointer<header_field_info>::asQVariant(hfinfo));
             field_list << field_ti;
 
             field_count++;
@@ -294,7 +294,7 @@ void DisplayFilterExpressionDialog::on_fieldTreeWidget_itemSelectionChanged()
         ftype_ = FT_PROTOCOL;
         field_ = proto_get_protocol_filter_name(cur_fti->data(0, Qt::UserRole).toInt());
     } else if (cur_fti && cur_fti->type() == field_type_) {
-        header_field_info *hfinfo = cur_fti->data(0, Qt::UserRole).value<header_field_info*>();
+        header_field_info *hfinfo = VariantPointer<header_field_info>::asPtr(cur_fti->data(0, Qt::UserRole));
         if (hfinfo) {
             ftype_ = hfinfo->type;
             field_ = hfinfo->abbrev;

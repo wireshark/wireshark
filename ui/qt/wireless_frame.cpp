@@ -148,7 +148,6 @@ void WirelessFrame::timerEvent(QTimerEvent *event)
     }
 }
 
-Q_DECLARE_METATYPE(struct ws80211_interface *)
 void WirelessFrame::updateWidgets()
 {
     bool enable_interface = false;

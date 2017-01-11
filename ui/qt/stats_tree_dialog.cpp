@@ -27,14 +27,14 @@
 
 #include "qt_ui_utils.h"
 
+#include <ui/qt/variant_pointer.h>
+
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
 
 const int item_col_ = 0;
-
-Q_DECLARE_METATYPE(stat_node *)
 
 const int sn_type_ = 1000;
 class StatsTreeWidgetItem : public QTreeWidgetItem
@@ -48,8 +48,8 @@ public:
     }
     bool operator< (const QTreeWidgetItem &other) const
     {
-        stat_node *thisnode = data(item_col_, Qt::UserRole).value<stat_node *>();
-        stat_node *othernode = other.data(item_col_, Qt::UserRole).value<stat_node *>();
+        stat_node *thisnode = VariantPointer<stat_node>::asPtr(data(item_col_, Qt::UserRole));
+        stat_node *othernode = VariantPointer<stat_node>::asPtr(other.data(item_col_, Qt::UserRole));
         Qt::SortOrder order = treeWidget()->header()->sortIndicatorOrder();
         int result;
 
@@ -96,7 +96,7 @@ void StatsTreeDialog::setupNode(stat_node* node)
     QTreeWidgetItem *ti = new StatsTreeWidgetItem(), *parent = NULL;
 
     ti->setText(item_col_, node->name);
-    ti->setData(item_col_, Qt::UserRole, qVariantFromValue(node));
+    ti->setData(item_col_, Qt::UserRole, VariantPointer<stat_node>::asQVariant(node));
     node->pr = (st_node_pres *) ti;
     if (node->parent && node->parent->pr) {
         parent = (QTreeWidgetItem *) node->parent->pr;
@@ -176,7 +176,7 @@ void StatsTreeDialog::drawTreeItems(void *st_ptr)
     int node_count = 0;
 
     while (*iter) {
-        stat_node *node = (*iter)->data(item_col_, Qt::UserRole).value<stat_node *>();
+        stat_node *node = VariantPointer<stat_node>::asPtr((*iter)->data(item_col_, Qt::UserRole));
         if (node) {
             gchar **valstrs = stats_tree_get_values_from_node(node);
             for (int count = 0; count<st->num_columns; count++) {

@@ -75,6 +75,9 @@ namespace Ui {
     class MainWindow;
 }
 
+Q_DECLARE_METATYPE(ts_type)
+Q_DECLARE_METATYPE(ts_precision)
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

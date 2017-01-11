@@ -32,6 +32,8 @@
 
 #include "qt_ui_utils.h"
 
+#include <ui/qt/variant_pointer.h>
+
 #include "color_utils.h"
 #include "qcustomplot.h"
 #include "progress_frame.h"
@@ -166,9 +168,6 @@ static void io_graph_free_cb(void* p) {
 }
 
 } // extern "C"
-
-
-Q_DECLARE_METATYPE(IOGraph *)
 
 IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
@@ -326,7 +325,7 @@ IOGraphDialog::~IOGraphDialog()
 {
     cap_file_.stopLoading();
     for (int i = 0; i < ui->graphTreeWidget->topLevelItemCount(); i++) {
-        IOGraph *iog = qvariant_cast<IOGraph *>(ui->graphTreeWidget->topLevelItem(i)->data(name_col_, Qt::UserRole));
+        IOGraph *iog = VariantPointer<IOGraph>::asPtr(ui->graphTreeWidget->topLevelItem(i)->data(name_col_, Qt::UserRole));
         delete iog;
     }
     delete ui;
@@ -339,7 +338,7 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, int co
     ui->graphTreeWidget->addTopLevelItem(ti);
 
     IOGraph *iog = new IOGraph(ui->ioPlot);
-    ti->setData(name_col_, Qt::UserRole, qVariantFromValue(iog));
+    ti->setData(name_col_, Qt::UserRole, VariantPointer<IOGraph>::asQVariant(iog));
     ti->setCheckState(name_col_, checked ? Qt::Checked : Qt::Unchecked);
     ti->setText(name_col_, name);
     ti->setText(dfilter_col_, dfilter);
@@ -408,7 +407,7 @@ void IOGraphDialog::addDefaultGraph(bool enabled, int idx)
 void IOGraphDialog::syncGraphSettings(QTreeWidgetItem *item)
 {
     if (!item) return;
-    IOGraph *iog = item->data(name_col_, Qt::UserRole).value<IOGraph *>();
+    IOGraph *iog = VariantPointer<IOGraph>::asPtr(item->data(name_col_, Qt::UserRole));
     if (!iog) return;
 
     bool visible = item->checkState(name_col_) == Qt::Checked;
@@ -583,7 +582,7 @@ void IOGraphDialog::reject()
             QTreeWidgetItem *item = ui->graphTreeWidget->topLevelItem(i);
             IOGraph *iog = NULL;
             if (item) {
-                iog = item->data(name_col_, Qt::UserRole).value<IOGraph *>();
+                iog = VariantPointer<IOGraph>::asPtr(item->data(name_col_, Qt::UserRole));
                 io_graph_settings_t iogs;
                 QColor color(iog->color());
                 iogs.enabled = iog->visible() ? 1 : 0;
@@ -721,7 +720,7 @@ void IOGraphDialog::getGraphInfo()
         QTreeWidgetItem *item = ui->graphTreeWidget->topLevelItem(i);
         IOGraph *iog = NULL;
         if (item) {
-            iog = item->data(name_col_, Qt::UserRole).value<IOGraph *>();
+            iog = VariantPointer<IOGraph>::asPtr(item->data(name_col_, Qt::UserRole));
             QCPGraph *graph = iog->graph();
             QCPBars *bars = iog->bars();
             int style = item->data(style_col_, Qt::UserRole).toInt();
@@ -760,7 +759,7 @@ void IOGraphDialog::updateLegend()
         QTreeWidgetItem *ti = ui->graphTreeWidget->topLevelItem(i);
         IOGraph *iog = NULL;
         if (ti && ti->checkState(name_col_) == Qt::Checked) {
-            iog = ti->data(name_col_, Qt::UserRole).value<IOGraph *>();
+            iog = VariantPointer<IOGraph>::asPtr(ti->data(name_col_, Qt::UserRole));
             vu_label_set.insert(iog->valueUnitLabel());
         }
     }
@@ -790,7 +789,7 @@ void IOGraphDialog::updateLegend()
         QTreeWidgetItem *ti = ui->graphTreeWidget->topLevelItem(i);
         IOGraph *iog = NULL;
         if (ti) {
-            iog = ti->data(name_col_, Qt::UserRole).value<IOGraph *>();
+            iog = VariantPointer<IOGraph>::asPtr(ti->data(name_col_, Qt::UserRole));
             if (ti->checkState(name_col_) == Qt::Checked) {
                 iog->addToLegend();
             } else {
@@ -888,7 +887,7 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
             QTreeWidgetItem *ti = ui->graphTreeWidget->topLevelItem(0);
             IOGraph *iog = NULL;
             if (ti) {
-                iog = ti->data(name_col_, Qt::UserRole).value<IOGraph *>();
+                iog = VariantPointer<IOGraph>::asPtr(ti->data(name_col_, Qt::UserRole));
                 interval_packet = iog->packetFromTime(ts);
             }
         }
@@ -1181,7 +1180,7 @@ void IOGraphDialog::on_intervalComboBox_currentIndexChanged(int)
         QTreeWidgetItem *item = ui->graphTreeWidget->topLevelItem(i);
         IOGraph *iog = NULL;
         if (item) {
-            iog = item->data(name_col_, Qt::UserRole).value<IOGraph *>();
+            iog = VariantPointer<IOGraph>::asPtr(item->data(name_col_, Qt::UserRole));
             if (iog) {
                 iog->setInterval(interval);
                 if (iog->visible()) {
@@ -1399,7 +1398,7 @@ void IOGraphDialog::on_deleteToolButton_clicked()
     QTreeWidgetItem *item = ui->graphTreeWidget->currentItem();
     if (!item) return;
 
-    IOGraph *iog = qvariant_cast<IOGraph *>(item->data(name_col_, Qt::UserRole));
+    IOGraph *iog = VariantPointer<IOGraph>::asPtr(item->data(name_col_, Qt::UserRole));
     delete iog;
 
     delete item;
@@ -1600,7 +1599,7 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
     for (int i = 0; i < ui->graphTreeWidget->topLevelItemCount(); i++) {
         QTreeWidgetItem *ti = ui->graphTreeWidget->topLevelItem(i);
         if (ti && ti->checkState(name_col_) == Qt::Checked) {
-            IOGraph *iog = ti->data(name_col_, Qt::UserRole).value<IOGraph *>();
+            IOGraph *iog = VariantPointer<IOGraph>::asPtr(ti->data(name_col_, Qt::UserRole));
             activeGraphs.append(iog);
             if (max_interval < iog->maxInterval()) {
                 max_interval = iog->maxInterval();

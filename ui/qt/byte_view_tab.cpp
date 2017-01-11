@@ -28,6 +28,8 @@
 #include <QTabBar>
 #include <QTreeWidgetItem>
 
+#include <ui/qt/variant_pointer.h>
+
 // To do:
 // - We might want to add a callback to free_data_sources in so that we
 //   don't have to blindly call clear().
@@ -273,7 +275,7 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
     if (current && cap_file_) {
         field_info *fi;
 
-        fi = current->data(0, Qt::UserRole).value<field_info *>();
+        fi = VariantPointer<field_info>::asPtr(current->data(0, Qt::UserRole));
 
         int i = 0;
         ByteViewText *byte_view_text = qobject_cast<ByteViewText*>(widget(i));
@@ -291,7 +293,7 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                     parent = parent->parent();
                 }
                 if (parent) {
-                    parent_fi = parent->data(0, Qt::UserRole).value<field_info *>();
+                    parent_fi = VariantPointer<field_info>::asPtr(parent->data(0, Qt::UserRole));
                 }
                 if (parent_fi && parent_fi->ds_tvb == fi->ds_tvb) {
                     p_start = parent_fi->start;

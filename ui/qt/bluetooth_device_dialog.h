@@ -51,6 +51,13 @@ typedef struct _bluetooth_device_tapinfo_t {
     guint          *changes;
 } bluetooth_device_tapinfo_t;
 
+typedef struct _bluetooth_item_data_t {
+        guint32  interface_id;
+        guint32  adapter_id;
+        guint32  frame_number;
+        gint     changes;
+} bluetooth_item_data_t;
+
 namespace Ui {
 class BluetoothDeviceDialog;
 }

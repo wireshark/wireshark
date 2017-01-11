@@ -31,8 +31,6 @@
 #include <QTreeWidget>
 #include <QMenu>
 
-Q_DECLARE_METATYPE(field_info *)
-
 class ProtoTree : public QTreeWidget
 {
     Q_OBJECT

@@ -35,6 +35,8 @@
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
+#include <ui/qt/variant_pointer.h>
+
 #include <QComboBox>
 #include <QFont>
 #include <QFontMetrics>
@@ -335,7 +337,7 @@ void DecodeAsDialog::buildChangedList(const gchar *table_name, ftenum_t, gpointe
     dissector_info_t  *dissector_info = new dissector_info_t();
     dissector_info->proto_name = current_proto_name;
     dissector_info->dissector_handle = current_dh;
-    item->setData(proto_col_, Qt::UserRole, QVariant::fromValue<dissector_info_t *>(dissector_info));
+    item->setData(proto_col_, Qt::UserRole, VariantPointer<dissector_info_t>::asQVariant(dissector_info));
 
     da_dlg->ui->decodeAsTreeWidget->addTopLevelItem(item);
 }
@@ -496,7 +498,7 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
     while (i.hasNext()) {
         dissector_info_t  *dissector_info = i.next();
 
-        cur_proto_combo_box_->addItem(dissector_info->proto_name, QVariant::fromValue<dissector_info_t *>(dissector_info));
+        cur_proto_combo_box_->addItem(dissector_info->proto_name, VariantPointer<dissector_info_t>::asQVariant(dissector_info));
     }
 
     cur_proto_combo_box_->model()->sort(0);
@@ -595,7 +597,7 @@ void DecodeAsDialog::applyChanges()
             continue;
         }
 
-        dissector_info = variant.value<dissector_info_t *>();
+        dissector_info = VariantPointer<dissector_info_t>::asPtr(variant);
 
         for (GList *cur = decode_as_list; cur; cur = cur->next) {
             decode_as_entry = (decode_as_t *) cur->data;

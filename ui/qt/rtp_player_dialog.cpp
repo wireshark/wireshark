@@ -40,9 +40,6 @@
 #include <QMenu>
 #include <QVBoxLayout>
 
-Q_DECLARE_METATYPE(RtpAudioStream *)
-Q_DECLARE_METATYPE(QCPGraph *)
-
 #endif // QT_MULTIMEDIA_LIB
 
 #include <QPushButton>

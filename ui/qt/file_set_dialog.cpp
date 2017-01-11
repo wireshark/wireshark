@@ -28,6 +28,8 @@
 
 #include "ui/help_url.h"
 
+#include <ui/qt/variant_pointer.h>
+
 #include <wsutil/str_util.h>
 
 #include "file_set_dialog.h"
@@ -41,8 +43,6 @@
 #include <QFont>
 #include <QTreeWidgetItem>
 #include <QUrl>
-
-Q_DECLARE_METATYPE(fileset_entry *)
 
 /* this file is a part of the current file set, add it to the dialog */
 void
@@ -124,7 +124,7 @@ void FileSetDialog::addFile(fileset_entry *entry) {
 
     entry_item = new QTreeWidgetItem(fs_ui_->fileSetTree);
     entry_item->setToolTip(0, QString(tr("Open this capture file")));
-    entry_item->setData(0, Qt::UserRole, qVariantFromValue(entry));
+    entry_item->setData(0, Qt::UserRole, VariantPointer<fileset_entry>::asQVariant(entry));
 
     entry_item->setText(0, entry->name);
     entry_item->setText(1, created);
@@ -184,7 +184,7 @@ void FileSetDialog::on_fileSetTree_currentItemChanged(QTreeWidgetItem *current, 
     if (!current)
         return;
 
-    entry = current->data(0, Qt::UserRole).value<fileset_entry *>();
+    entry = VariantPointer<fileset_entry>::asPtr(current->data(0, Qt::UserRole));
 
     if (!entry || entry->current)
         return;

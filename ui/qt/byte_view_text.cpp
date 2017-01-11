@@ -32,6 +32,8 @@
 #include "wireshark_application.h"
 #include "ui/recent.h"
 
+#include <ui/qt/variant_pointer.h>
+
 #include <QActionGroup>
 #include <QMouseEvent>
 #include <QPainter>
@@ -258,7 +260,7 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
         // XXX - This should probably be a ProtoTree method.
         QTreeWidgetItemIterator iter(tree_widget_);
         while (*iter) {
-            if (fi == (*iter)->data(0, Qt::UserRole).value<field_info *>()) {
+            if (fi == VariantPointer<field_info>::asPtr((*iter)->data(0, Qt::UserRole))) {
                 tree_widget_->setCurrentItem((*iter));
                 tree_widget_->scrollToItem((*iter));
             }

@@ -25,6 +25,9 @@
 #include "cfile.h"
 
 #include "ui/proto_hier_stats.h"
+
+#include <ui/qt/variant_pointer.h>
+
 #include <wsutil/utf8_entities.h>
 
 #include "qt_ui_utils.h"
@@ -56,8 +59,6 @@ const int end_packets_col_ = 6;
 const int end_bytes_col_ = 7;
 const int end_bandwidth_col_ = 8;
 
-Q_DECLARE_METATYPE(ph_stats_t*)
-
 class ProtocolHierarchyTreeWidgetItem : public QTreeWidgetItem
 {
 public:
@@ -75,7 +76,7 @@ public:
         filter_name_ = ph_stats_node.hfinfo->abbrev;
 
         if (!parent) return;
-        ph_stats_t *ph_stats = parent->treeWidget()->invisibleRootItem()->data(0, Qt::UserRole).value<ph_stats_t*>();
+        ph_stats_t *ph_stats = VariantPointer<ph_stats_t>::asPtr(parent->treeWidget()->invisibleRootItem()->data(0, Qt::UserRole));
 
         if (!ph_stats || ph_stats->tot_packets < 1) return;
         percent_packets_ = total_packets_ * 100.0 / ph_stats->tot_packets;
@@ -182,7 +183,7 @@ ProtocolHierarchyDialog::ProtocolHierarchyDialog(QWidget &parent, CaptureFile &c
     ui->hierStatsTreeWidget->setItemDelegateForColumn(pct_bytes_col_, &percent_bar_delegate_);
     ph_stats_t *ph_stats = ph_stats_new(cap_file_.capFile());
     if (ph_stats) {
-        ui->hierStatsTreeWidget->invisibleRootItem()->setData(0, Qt::UserRole, qVariantFromValue(ph_stats));
+        ui->hierStatsTreeWidget->invisibleRootItem()->setData(0, Qt::UserRole, VariantPointer<ph_stats_t>::asQVariant(ph_stats));
         g_node_children_foreach(ph_stats->stats_tree, G_TRAVERSE_ALL, addTreeNode, ui->hierStatsTreeWidget->invisibleRootItem());
         ph_stats_free(ph_stats);
     }
