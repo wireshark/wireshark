@@ -275,12 +275,14 @@ dtls_parse_uat(void)
   dissector_add_for_decode_as("udp.port", dtls_handle);
 }
 
+#if defined(HAVE_LIBGCRYPT) && defined(HAVE_LIBGNUTLS)
 static void
 dtls_reset_uat(void)
 {
   g_hash_table_destroy(dtls_key_hash);
   dtls_key_hash = NULL;
 }
+#endif
 
 static void
 dtls_parse_old_keys(void)
