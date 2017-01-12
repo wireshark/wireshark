@@ -5127,6 +5127,10 @@
 		Note: The AVP codes from 1526 to 1599 are reserved for TS 29.273
 		-->
 
+		<avp name="Emergency-Indication" code="1538" may-encrypt="no" vendor-bit="must" vendor-id="TGPP" mandatory="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+
 		<avp name="MME-Location-Information" code="1600" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="E-UTRAN-Cell-Global-Identity"/>

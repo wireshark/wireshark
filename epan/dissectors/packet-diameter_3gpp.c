@@ -320,6 +320,8 @@ static int hf_diameter_3gpp_tmgi_deallocation_result_bit1 = -1;
 static int hf_diameter_3gpp_tmgi_deallocation_result_bit2 = -1;
 static int hf_diameter_3gpp_sar_flags = -1;
 static int hf_diameter_3gpp_sar_flags_flags_bit0 = -1;
+static int hf_diameter_3gpp_emergency_ind_flags = -1;
+static int hf_diameter_3gpp_emergency_ind_flags_bit0 = -1;
 
 static int hf_diameter_3gpp_uar_flags_flags_spare_bits = -1;
 static int hf_diameter_3gpp_feature_list1_sh_flags_spare_bits = -1;
@@ -352,6 +354,7 @@ static int hf_diameter_3gpp_mbms_bearer_event_spare_bits = -1;
 static int hf_diameter_3gpp_mbms_bearer_result_spare_bits = -1;
 static int hf_diameter_3gpp_tmgi_allocation_result_spare_bits = -1;
 static int hf_diameter_3gpp_tmgi_deallocation_result_spare_bits = -1;
+static int hf_diameter_3gpp_emergency_ind_flags_spare_bits = -1;
 
 static gint diameter_3gpp_path_ett = -1;
 static gint diameter_3gpp_feature_list_ett = -1;
@@ -378,6 +381,7 @@ static gint diameter_3gpp_mbms_bearer_result_ett = -1;
 static gint diameter_3gpp_tmgi_allocation_result_ett = -1;
 static gint diameter_3gpp_tmgi_deallocation_result_ett = -1;
 static gint diameter_3gpp_sar_flags_ett = -1;
+static gint diameter_3gpp_emergency_ind_flags_ett = -1;
 
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit1 = -1;
@@ -1864,6 +1868,21 @@ dissect_diameter_3gpp_der_s6b_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     return 4;
 }
 
+/* AVP Code: 1538 Emergency-Indication */
+static int
+dissect_diameter_3gpp_emergency_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static const int *flags[] = {
+        &hf_diameter_3gpp_emergency_ind_flags_spare_bits,
+        &hf_diameter_3gpp_emergency_ind_flags_bit0,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_emergency_ind_flags, diameter_3gpp_emergency_ind_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    return 4;
+
+}
+
 /* AVP Code: 2516 EUTRAN-Positioning-Data */
 static int
 dissect_diameter_3gpp_eutran_positioning_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -2184,6 +2203,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1523 DER-S6b-Flags */
     dissector_add_uint("diameter.3gpp", 1523, create_dissector_handle(dissect_diameter_3gpp_der_s6b_flags, proto_diameter_3gpp));
+
+    /* AVP Code: 1538 Emergency-Indication */
+    dissector_add_uint("diameter.3gpp", 1538, create_dissector_handle(dissect_diameter_3gpp_emergency_indication, proto_diameter_3gpp));
 
     /* AVP Code: 2516 EUTRAN-Positioning-Data */
     dissector_add_uint("diameter.3gpp", 2516, create_dissector_handle(dissect_diameter_3gpp_eutran_positioning_data, proto_diameter_3gpp));
@@ -4038,6 +4060,21 @@ proto_register_diameter_3gpp(void)
           FT_UINT16, BASE_DEC, VALS(diameter_3gpp_IKEv2_error_type_vals), 0x0,
           NULL, HFILL}
         },
+        { &hf_diameter_3gpp_emergency_ind_flags,
+        { "Emergency-Indication Flags", "diameter.3gpp.emergency_ind_flags",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_emergency_ind_flags_bit0,
+        { "Emergency services", "diameter.3gpp.emergency_ind_flags_bit0",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_emergency_ind_flags_spare_bits,
+        { "Spare", "diameter.3gpp.emergency_ind_flags_spare",
+          FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFE,
+          NULL, HFILL}
+        },
 };
 
 
@@ -4068,6 +4105,7 @@ proto_register_diameter_3gpp(void)
         &diameter_3gpp_tmgi_allocation_result_ett,
         &diameter_3gpp_tmgi_deallocation_result_ett,
         &diameter_3gpp_sar_flags_ett,
+        &diameter_3gpp_emergency_ind_flags_ett,
     };
 
     expert_module_t *expert_diameter_3gpp;
