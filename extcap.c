@@ -741,9 +741,9 @@ static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gcha
                     else
                     {
                         /* Been here before, restore stored value */
-                        if (! arg->pref_valptr && pref->varp.string && strlen(*pref->varp.string))
+                        if (arg->pref_valptr == NULL)
                         {
-                            arg->pref_valptr = pref->varp.string;
+                            arg->pref_valptr = (gchar**)g_hash_table_lookup(extcap_prefs_dynamic_vals, pref_ifname);
                         }
                     }
 
