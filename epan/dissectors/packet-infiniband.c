@@ -1971,7 +1971,8 @@ skip_lrh:
             case RETH:
                 parse_RETH(all_headers_tree, tvb, &offset);
 
-                /*packetLength -= 16;*/ /* RETH */
+                packetLength -= 16; /* RETH */
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
 
                 break;
             case AETH_PAYLD:
