@@ -295,7 +295,7 @@ struct CTableColumn {
 	char name[PROP_LENGTH];
 };
 /* minimum size in bytes on the wire CTableColumn can be */
-#define MIN_CTABLECOL_SIZE 8
+#define MIN_CTABLECOL_SIZE 32
 
 /* 2.2.3.10 */
 
@@ -471,7 +471,6 @@ static int hf_mswsp_msg_cpmcreatequery_size = -1;
 static int hf_mswsp_msg_cpmcreatequery_ccolumnsetpresent = -1;
 static int hf_mswsp_msg_cpmcreatequery_crestrictionpresent = -1;
 static int hf_mswsp_msg_cpmcreatequery_csortpresent = -1;
-static int hf_mswsp_msg_cpmcreatequery_csortset_xxx = -1;
 static int hf_mswsp_msg_cpmcreatequery_ccategpresent = -1;
 static int hf_mswsp_msg_cpmcreatequery_ccateg_count = -1;
 static int hf_mswsp_msg_cpmcreatequery_trueseq = -1;
@@ -3293,7 +3292,7 @@ static int parse_CTableColumn(tvbuff_t *tvb, int offset, proto_tree *parent_tree
 
 	used = tvb_get_guint8(tvb, offset);
 	col->statusused = used;
-	proto_tree_add_uint(tree, hf_mswsp_ctablecolumn_statused, tvb, offset, 2, used);
+	proto_tree_add_uint(tree, hf_mswsp_ctablecolumn_statused, tvb, offset, 1, used);
 	offset += 1;
 
 	if (used) {
@@ -3305,12 +3304,12 @@ static int parse_CTableColumn(tvbuff_t *tvb, int offset, proto_tree *parent_tree
 	}
 
 	used = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_ctablecolumn_lenused, tvb, offset, 2, used);
+	proto_tree_add_uint(tree, hf_mswsp_ctablecolumn_lenused, tvb, offset, 1, used);
 	col->lengthused = used;
 	offset += 1;
 
 	if (used) {
-		offset = parse_padding(tvb, offset, 2, pad_tree, "padding_Lenght");
+		offset = parse_padding(tvb, offset, 2, pad_tree, "padding_Length");
 
 		col->lengthoffset = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_mswsp_ctablecolumn_lenoffset, tvb, offset, 2, col->lengthoffset);
@@ -4874,7 +4873,7 @@ static int parse_CInGroupSortAggregSet(tvbuff_t *tvb, int offset, proto_tree *pa
 		offset = parse_CBaseStorageVariant(tvb, offset, tree, pad_tree, &id, "inGroupId");
 	}
 
-	offset = parse_CSortAggregSet(tvb, offset, tree, pad_tree, "SortAggregSet");
+	offset = parse_CSortSet(tvb, offset, tree, pad_tree, "SortSet");
 
 	proto_item_set_end(item, tvb, offset);
 	return offset;
@@ -5283,17 +5282,19 @@ static int parse_VariantColVector(tvbuff_t *tvb, int offset, proto_tree *tree, g
 	sub_tree = proto_tree_add_subtree(tree, tvb, buf_offset, 0, ett_CRowVariant_Vector, NULL, "values");
 	for (i = 0; i < count; i++) {
 		guint64 item_address = 0;
+		gint address_of_address = 0;
 		int size;
 		union vt_single value;
 		int len;
 		if (is_64bit) {
 			size = 8;
-			item_address = tvb_get_letoh64(tvb, buf_offset + (i * size));
-			proto_tree_add_uint64_format(sub_tree, hf_mswsp_rowvariant_item_address64, tvb, buf_offset, size, item_address, "address[%d] 0x%" G_GINT64_MODIFIER "x", i, item_address);
+			address_of_address = buf_offset + (i * size);
+			item_address = tvb_get_letoh64(tvb, address_of_address);
+			proto_tree_add_uint64_format(sub_tree, hf_mswsp_rowvariant_item_address64, tvb, address_of_address, size, item_address, "address[%d] 0x%" G_GINT64_MODIFIER "x", i, item_address);
 		} else {
 			size = 4;
 			item_address = tvb_get_letohl(tvb, buf_offset + (i * size));
-			proto_tree_add_uint_format(sub_tree, hf_mswsp_rowvariant_item_address32, tvb, buf_offset, size, (guint32)item_address, "address[%d] 0x%x", i, (guint32)item_address);
+			proto_tree_add_uint_format(sub_tree, hf_mswsp_rowvariant_item_address32, tvb, address_of_address, size, (guint32)item_address, "address[%d] 0x%x", i, (guint32)item_address);
 		}
 		strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
 		if (vt_list_type->size == -1) {
@@ -5609,11 +5610,8 @@ static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		if (CSortSetPresent) {
 			offset = parse_padding(tvb, offset, 4, tree, "paddingCSortSetPresent");
+			offset = parse_CInGroupSortAggregSets(tvb, offset, tree, pad_tree, "GroupSortAggregSets");
 
-			proto_tree_add_item(tree, hf_mswsp_msg_cpmcreatequery_csortset_xxx, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-			offset += 8;
-
-			offset = parse_CSortSet(tvb, offset, tree, pad_tree, "SortSet");
 		}
 
 		CCategorizationSetPresent = tvb_get_guint8(tvb, offset);
@@ -7310,13 +7308,6 @@ proto_register_mswsp(void)
 			{
 				"CSortPresent", "mswsp.cpmcreatequery.csortpresent",
 				FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL
-			}
-		},
-		{
-			&hf_mswsp_msg_cpmcreatequery_csortset_xxx,
-			{
-				"XXX - (undocumented bytes)", "mswsp.cpmcreatequery.csortset.xxx",
-				FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL
 			}
 		},
 		{
