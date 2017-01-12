@@ -597,7 +597,8 @@ noinst_HEADERS = \
 	qcustomplot.h		\
 	qt_ui_utils.h		\
 	stock_icon.h		\
-	tango_colors.h
+	tango_colors.h		\
+	variant_pointer.h
 
 if HAVE_EXTCAP
 NODIST_GENERATED_HEADER_FILES += \
