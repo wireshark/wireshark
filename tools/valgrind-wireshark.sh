@@ -86,7 +86,25 @@ fi
 
 if [ $VALID -eq 0 ]
 then
-    printf "Usage: $0 [-2] [-a file] [-b bin_dir] [-c] [-e] [-C config_profile] [-l] [-m] [-n] [-p] [-r] [-s] [-t] [-T] [-w] [-v] /path/to/file.pcap\n"
+    printf "\nUsage: $(basename $0) [-2] [-a file] [-b bin_dir] [-c] [-e] [-C config_profile] "
+    printf "[-l] [-m] [-n] [-p] [-r] [-s] [-t] [-T] [-w] [-v] /path/to/file.pcap\n"
+    printf "\n"
+    printf "[-2]: run tshark with 2-pass analysis\n"
+    printf "[-a]: additional valgrind suppression file\n"
+    printf "[-b]: tshark binary dir\n"
+    printf "[-e]: use 'editcap -E 0.02' instead of tshark\n"
+    printf "[-c]: use capinfos instead of tshark\n"
+    printf "[-C]: binary profile file\n"
+    printf "[-l]: add valgring option --leak-check=full\n"
+    printf "[-m]: use valgrind massif tool\n"
+    printf "[-n]: print binary version\n"
+    printf "[-p]: use callgrind massif tool\n"
+    printf "[-r]: add valgrind option --show-reachable=yes\n"
+    printf "[-s]: add valgrind option --gen-suppressions=yes\n"
+    printf "[-t]: add valgrind option --track-origins=yes\n"
+    printf "[-T]: build the tshark tree (-Vx)\n"
+    printf "[-w]: use wireshark instead of tshark\n"
+    printf "[-v]: run in verbose mode (--num-callers=256)\n"
     exit 1
 fi
 
