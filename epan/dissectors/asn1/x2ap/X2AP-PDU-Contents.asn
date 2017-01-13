@@ -457,7 +457,7 @@ HandoverReport-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-Cause										CRITICALITY ignore	TYPE Cause													PRESENCE mandatory}|
 	{ ID id-SourceCellECGI								CRITICALITY ignore	TYPE ECGI													PRESENCE mandatory}|
 	{ ID id-FailureCellECGI								CRITICALITY ignore	TYPE ECGI													PRESENCE mandatory}|
-	{ ID id-Re-establishmentCellECGI					CRITICALITY ignore	TYPE ECGI													PRESENCE conditional} -- The IE shall be present if the Handover Report Type IE is set to “HO to Wrong Cell” -- |
+	{ ID id-Re-establishmentCellECGI					CRITICALITY ignore	TYPE ECGI													PRESENCE conditional} -- The IE shall be present if the Handover Report Type IE is set to "HO to Wrong Cell" -- |
 	{ ID id-TargetCellInUTRAN							CRITICALITY ignore	TYPE TargetCellInUTRAN									PRESENCE conditional} -- The IE shall be present if the Handover Report Type IE is set to "InterRAT ping-pong" --|
 	{ ID id-SourceCellCRNTI								CRITICALITY ignore	TYPE CRNTI													PRESENCE optional}|
 	{ ID id-MobilityInformation							CRITICALITY ignore	TYPE MobilityInformation									PRESENCE optional}|
@@ -799,7 +799,7 @@ ResourceStatusRequest ::= SEQUENCE {
 
 ResourceStatusRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-ENB1-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
-	{ ID id-ENB2-Measurement-ID			CRITICALITY ignore	TYPE Measurement-ID					PRESENCE conditional}|-- The IE shall be present if the Registration Request IE is set to “Stop”, “Partial stop” or to “Add”--
+	{ ID id-ENB2-Measurement-ID			CRITICALITY ignore	TYPE Measurement-ID					PRESENCE conditional}|-- The IE shall be present if the Registration Request IE is set to "Stop", "Partial stop" or to "Add"--
 	{ ID id-Registration-Request		CRITICALITY reject	TYPE Registration-Request			PRESENCE mandatory}|
 	{ ID id-ReportCharacteristics		CRITICALITY reject	TYPE ReportCharacteristics			PRESENCE optional}|
 	{ ID id-CellToReport				CRITICALITY ignore	TYPE CellToReport-List				PRESENCE mandatory}|
@@ -1207,9 +1207,9 @@ SeNBAdditionRequest ::= SEQUENCE {
 SeNBAdditionRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-MeNB-UE-X2AP-ID					CRITICALITY reject	TYPE UE-X2AP-ID							PRESENCE mandatory}|
 	{ ID id-UE-SecurityCapabilities			CRITICALITY reject	TYPE UESecurityCapabilities				PRESENCE conditional}|
-	-- This IE shall be present if the Bearer Option IE is set to the value “SCG bearer” --
+	-- This IE shall be present if the Bearer Option IE is set to the value "SCG bearer" --
 	{ ID id-SeNBSecurityKey					CRITICALITY reject	TYPE SeNBSecurityKey					PRESENCE conditional}|
-	-- This IE shall be present if the Bearer Option IE is set to the value “SCG bearer” --
+	-- This IE shall be present if the Bearer Option IE is set to the value "SCG bearer" --
 	{ ID id-SeNBUEAggregateMaximumBitRate	CRITICALITY reject	TYPE UEAggregateMaximumBitRate			PRESENCE mandatory}|
 	{ ID id-ServingPLMN						CRITICALITY ignore	TYPE PLMN-Identity						PRESENCE optional}|
 	{ ID id-E-RABs-ToBeAdded-List			CRITICALITY reject	TYPE E-RABs-ToBeAdded-List				PRESENCE mandatory}|

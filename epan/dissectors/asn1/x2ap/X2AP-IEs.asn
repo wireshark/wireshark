@@ -1042,7 +1042,7 @@ M5period ::= ENUMERATED {ms1024, ms2048, ms5120, ms10240, min1, ... }
 M6Configuration ::= SEQUENCE {
 	m6report-interval	M6report-interval,
 	m6delay-threshold	M6delay-threshold	OPTIONAL,
--- This IE shall be present if the M6 Links to log IE is set to “uplink” or to “both-uplink-and-downlink” --
+-- This IE shall be present if the M6 Links to log IE is set to "uplink" or to "both-uplink-and-downlink" --
 	m6-links-to-log		Links-to-log,
 	iE-Extensions		ProtocolExtensionContainer { { M6Configuration-ExtIEs} } OPTIONAL,
 	...
