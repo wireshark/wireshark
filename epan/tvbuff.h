@@ -846,7 +846,8 @@ typedef struct dgt_set_t
 dgt_set_t;
 
 WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb,
-    const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first);
+    const gint offset, const gint len, const dgt_set_t *dgt,
+    gboolean skip_first);
 
 /** Locate a sub-tvbuff within another tvbuff, starting at position
  * 'haystack_offset'. Returns the index of the beginning of 'needle' within

@@ -3426,14 +3426,14 @@ tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset
  * A pointer to the packet scope allocated string will be returned.
  * Note a tvbuff content of 0xf is considered a 'filler' and will end the conversion.
  */
-static dgt_set_t Dgt1_9_bcd = {
+static const dgt_set_t Dgt1_9_bcd = {
 	{
 		/*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f*/
 		'0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
 	}
 };
 const gchar *
-tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first)
+tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len, const dgt_set_t *dgt, gboolean skip_first)
 {
 	int     length;
 	guint8  octet;
