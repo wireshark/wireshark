@@ -51,6 +51,7 @@ static int hf_svhdx_tunnel_scsi_srb_flags = -1;
 static int hf_svhdx_tunnel_scsi_data_transfer_length = -1;
 static int hf_svhdx_tunnel_scsi_reserved3 = -1;
 static int hf_svhdx_tunnel_scsi_cdb = -1;
+static int hf_svhdx_tunnel_scsi_cdb_padding = -1;
 static int hf_svhdx_tunnel_scsi_data = -1;
 static int hf_svhdx_tunnel_scsi_auto_generated_sense = -1;
 static int hf_svhdx_tunnel_scsi_srb_status = -1;
@@ -264,6 +265,15 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
                                   tvb_reported_length_remaining(tvb, offset));
         proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_cdb, tvb, offset, cdb_length, ENC_NA);
         offset += cdb_length;
+        if (cdb_length < 16) {
+            /*
+             * CDBBuffer is always 16 bytes - see https://msdn.microsoft.com/en-us/library/dn393496.aspx
+             * If CDB is actually smaller, we need to define padding bytes
+             */
+            guint32 cdb_padding_length = 16 - cdb_length;
+            proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_cdb_padding, tvb, offset, cdb_padding_length, ENC_NA);
+            offset += cdb_padding_length;
+        }
 
         /* Reserved3 */
         proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_reserved3, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -699,6 +709,10 @@ proto_register_rsvd(void)
 
                 { &hf_svhdx_tunnel_scsi_cdb,
                   { "CDB", "rsvd.svhdx_scsi_cdb", FT_BYTES, BASE_NONE,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_scsi_cdb_padding,
+                  { "CDBPadding", "rsvd.svhdx_scsi_cdb_padding", FT_BYTES, BASE_NONE,
                     NULL, 0, NULL, HFILL }},
 
                 { &hf_svhdx_tunnel_scsi_data,
