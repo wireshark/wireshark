@@ -1072,7 +1072,7 @@ static guint32 get_len_missing_packet(guint8 frame_type){
 
 static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint16 len_pkn, quic_info_data_t *quic_info){
     guint8 frame_type;
-    guint8 num_ranges, num_revived, num_blocks, num_timestamp;
+    guint8 num_ranges, num_revived, num_blocks = 0, num_timestamp;
     guint32 len_stream = 0, len_offset = 0, len_data = 0, len_largest_observed = 1, len_missing_packet = 1;
     guint32 message_tag;
 
@@ -1277,18 +1277,16 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offse
                         }
                         num_blocks = tvb_get_guint8(tvb, offset);
                         offset += 1;
+                    }
 
-                        if(num_blocks){
-                            /* First Ack Block Length */
-                            offset += len_missing_packet;
+                    /* First Ack Block Length */
+                    offset += len_missing_packet;
+                    if(num_blocks){
+                        /* Gap to next block */
+                        offset += 1;
 
-                            /* Gap to next block */
-                            offset += 1;
-
-                            num_blocks -= 1;
-                            offset += (num_blocks - 1)*len_missing_packet;
-                        }
-
+                        num_blocks -= 1;
+                        offset += (num_blocks - 1)*len_missing_packet;
                     }
 
                     /* Timestamp */
@@ -1660,7 +1658,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
     proto_item *ti, *ti_ft, *ti_ftflags /*, *expert_ti*/;
     proto_tree *ft_tree, *ftflags_tree;
     guint8 frame_type;
-    guint8 num_ranges, num_revived, num_blocks, num_timestamp;
+    guint8 num_ranges, num_revived, num_blocks = 0, num_timestamp;
     guint32 tag_number;
     guint32 len_stream = 0, len_offset = 0, len_data = 0, len_largest_observed = 1, len_missing_packet = 1;
 
@@ -1946,26 +1944,25 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                     proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_blocks, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     num_blocks = tvb_get_guint8(tvb, offset);
                     offset += 1;
+                }
 
-                    if(num_blocks){
-                        /* First Ack Block Length */
-                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_first_ack_block_length, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
+                /* First Ack Block Length */
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_first_ack_block_length, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
+                offset += len_missing_packet;
+
+                if(num_blocks){
+                    /* Gap to next block */
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_gap_to_next_block, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    offset += 1;
+
+                    num_blocks -= 1;
+                    while(num_blocks){
+                        /* Ack Block Length */
+                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_ack_block_length, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
                         offset += len_missing_packet;
 
-                        /* Gap to next block */
-                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_gap_to_next_block, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                        offset += 1;
-
-                        num_blocks -= 1;
-                        while(num_blocks){
-                            /* Ack Block Length */
-                            proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_ack_block_length, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
-                            offset += len_missing_packet;
-
-                            num_blocks--;
-                        }
+                        num_blocks--;
                     }
-
                 }
 
                 /* Timestamp */
