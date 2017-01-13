@@ -293,9 +293,10 @@ geoip_db_lookup_latlon4(guint32 addr, float *lat, float *lon) {
                 case GEOIP_CITY_EDITION_REV0:
                 case GEOIP_CITY_EDITION_REV1:
                     gir = GeoIP_record_by_ipnum(gi, addr);
-                    if(gir) {
+                    if (gir) {
                         *lat = gir->latitude;
                         *lon = gir->longitude;
+                        GeoIPRecord_delete(gir);
                         return 0;
                     }
                     return -1;
@@ -365,6 +366,8 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
                 } else if (gir && gir->city) {
                     ret = db_val_to_utf_8(gir->city, gi);
                 }
+                if (gir)
+                    GeoIPRecord_delete(gir);
                 break;
 
             case GEOIP_ORG_EDITION:
