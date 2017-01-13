@@ -428,12 +428,14 @@ ssl_parse_uat(void)
     ssl_debug_flush();
 }
 
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
 static void
 ssl_reset_uat(void)
 {
     g_hash_table_destroy(ssl_key_hash);
     ssl_key_hash = NULL;
 }
+#endif
 
 static void
 ssl_parse_old_keys(void)
