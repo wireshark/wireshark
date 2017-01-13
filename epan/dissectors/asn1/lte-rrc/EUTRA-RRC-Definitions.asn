@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V13.3.0 (2016-09)
+-- 3GPP TS 36.331 V13.4.0 (2016-12)
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1593,7 +1593,12 @@ SCPTMConfiguration-r13 ::=		SEQUENCE {
 	sc-mtch-InfoList-r13			SC-MTCH-InfoList-r13,
 	scptm-NeighbourCellList-r13		SCPTM-NeighbourCellList-r13			OPTIONAL,	-- Need OP
 	lateNonCriticalExtension		OCTET STRING						OPTIONAL,
-	nonCriticalExtension			SEQUENCE {}							OPTIONAL
+	nonCriticalExtension			SCPTMConfiguration-v1340							OPTIONAL
+}
+
+SCPTMConfiguration-v1340 ::= SEQUENCE {
+	p-b-r13								INTEGER (0..3)			OPTIONAL,	-- Need ON
+	nonCriticalExtension				SEQUENCE {}				OPTIONAL
 }
 
 
@@ -1864,7 +1869,7 @@ SystemInformationBlockType1-v1320-IEs ::=	SEQUENCE {
 			interval-TDD-r13					ENUMERATED { int5, int10, int20, int40}
 		}																	OPTIONAL,	-- Need OR
 		mpdcch-pdsch-HoppingOffset-r13			INTEGER (1..maxAvailNarrowBands-r13)	OPTIONAL	-- Need OR
-	}																OPTIONAL,	-- Cond SI-Hopping
+	}																OPTIONAL,	-- Cond Hopping
 	nonCriticalExtension						SEQUENCE {}					OPTIONAL
 }
 
@@ -3694,7 +3699,7 @@ CSI-RS-ConfigNonPrecoded-r13 ::=			SEQUENCE {
 	codebookConfigN1-r13					ENUMERATED {n1, n2, n3, n4, n8},
 	codebookConfigN2-r13					ENUMERATED {n1, n2, n3, n4, n8},
 	codebookOverSamplingRateConfig-O1-r13	ENUMERATED {n4, n8}				OPTIONAL,	-- Need OR
-	codebookOverSamplingRateConfig-O2-r13	ENUMERATED {n4,n8}				OPTIONAL,	-- Need OR
+	codebookOverSamplingRateConfig-O2-r13	ENUMERATED {n4,	n8}				OPTIONAL,	-- Need OR
 	codebookConfig-r13						INTEGER (1..4),
 	csi-IM-ConfigIdList-r13					SEQUENCE (SIZE (1..2)) OF CSI-IM-ConfigId-r13	OPTIONAL,	-- Need OR
 	csi-RS-ConfigNZP-EMIMO-r13				CSI-RS-ConfigNZP-EMIMO-r13		OPTIONAL	-- Need ON
@@ -4119,11 +4124,11 @@ PDCCH-CandidateReductionValue-r13 ::= ENUMERATED {n0, n33, n66, n100}
 PDCCH-CandidateReductions-r13 ::= CHOICE {
 	release							NULL,
 	setup							SEQUENCE {
-		pdcch-candidateReductionAL1		PDCCH-CandidateReductionValue-r13,
-		pdcch-candidateReductionAL2		PDCCH-CandidateReductionValue-r13,
-		pdcch-candidateReductionAL3		PDCCH-CandidateReductionValue-r13,
-		pdcch-candidateReductionAL4		PDCCH-CandidateReductionValue-r13,
-		pdcch-candidateReductionAL5		PDCCH-CandidateReductionValue-r13
+		pdcch-candidateReductionAL1-r13		PDCCH-CandidateReductionValue-r13,
+		pdcch-candidateReductionAL2-r13		PDCCH-CandidateReductionValue-r13,
+		pdcch-candidateReductionAL3-r13		PDCCH-CandidateReductionValue-r13,
+		pdcch-candidateReductionAL4-r13		PDCCH-CandidateReductionValue-r13,
+		pdcch-candidateReductionAL5-r13		PDCCH-CandidateReductionValue-r13
 	}
 }
 
@@ -5058,11 +5063,11 @@ FreqHoppingParameters-r13 ::=		SEQUENCE {
 	interval-ULHoppingConfigCommonModeA-r13	CHOICE {
 		interval-FDD-r13						ENUMERATED {int1, int2, int4, int8},
 		interval-TDD-r13						ENUMERATED {int1, int5, int10, int20}
-	} 																		OPTIONAL,	-- Need OR
+	} 																		OPTIONAL,	-- Cond MP-A
 	interval-ULHoppingConfigCommonModeB-r13	CHOICE {
 		interval-FDD-r13						ENUMERATED {int2, int4, int8, int16},
 		interval-TDD-r13						ENUMERATED { int5, int10, int20, int40}
-	} 																		OPTIONAL,	-- Need OR
+	} 																		OPTIONAL,	-- Cond MP-B
 	mpdcch-pdsch-HoppingOffset-r13				INTEGER (1..maxAvailNarrowBands-r13)
 																			OPTIONAL	-- Cond HO
 }
@@ -6852,8 +6857,8 @@ UL-PDCP-DelayResult-r13 ::=			SEQUENCE {
 
 MeasResultSSTD-r13 ::=						SEQUENCE {
 	sfn-OffsetResult-r13						INTEGER (0..1023),
-	frameBoundaryOffsetResult-r13				INTEGER (-4..5),
-	subframeBoundaryOffsetResult-r13			INTEGER (0..63)
+	frameBoundaryOffsetResult-r13				INTEGER (-5..4),
+	subframeBoundaryOffsetResult-r13			INTEGER (0..127)
 }
 
 
@@ -7552,10 +7557,15 @@ UE-EUTRA-Capability-v1320-IEs ::= SEQUENCE {
 }
 
 UE-EUTRA-Capability-v1330-IEs ::= SEQUENCE {
-	ue-CategoryDL-v13xy					INTEGER (18..19)						OPTIONAL,
+	ue-CategoryDL-v1330					INTEGER (18..19)						OPTIONAL,
 	phyLayerParameters-v1330			PhyLayerParameters-v1330				OPTIONAL,
 	ue-CE-NeedULGaps-r13				ENUMERATED {true}					OPTIONAL,
-	nonCriticalExtension				SEQUENCE {}								OPTIONAL
+	nonCriticalExtension				UE-EUTRA-Capability-v1340-IEs								OPTIONAL
+}
+
+UE-EUTRA-Capability-v1340-IEs ::= SEQUENCE {
+	ue-CategoryUL-v1340				INTEGER (15)							OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
 
 UE-EUTRA-CapabilityAddXDD-Mode-r9 ::=	SEQUENCE {
@@ -8632,7 +8642,11 @@ SC-MTCH-Info-r13 ::= 				SEQUENCE	{
 	g-RNTI-r13								BIT STRING(SIZE(16)),
 	sc-mtch-schedulingInfo-r13				SC-MTCH-SchedulingInfo-r13			OPTIONAL,	-- Need OP
 	sc-mtch-neighbourCell-r13				BIT STRING (SIZE(maxNeighCell-SCPTM-r13))	OPTIONAL,	-- Need OP
-	...
+	...,
+	[[	p-a-r13								ENUMERATED {
+												dB-6, dB-4dot77, dB-3, dB-1dot77,
+												dB0, dB1, dB2, dB3}		OPTIONAL	-- Need ON
+	]]
 }
 
 MBMSSessionInfo-r13 ::=				SEQUENCE	{
@@ -9135,8 +9149,6 @@ P0-SL-r12 ::=							INTEGER (-126..31)
 SL-TxPoolIdentity-r12 ::=			INTEGER (1.. maxSL-TxPool-r12)
 
 SL-TxPoolIdentity-v1310 ::=		INTEGER (maxSL-TxPool-r12Plus1-r13.. maxSL-TxPool-r13)
-
-SL-TxPoolIdentity-r13 ::=		INTEGER (1.. maxSL-TxPool-r13)
 
 
 SL-TxPoolToReleaseList-r12 ::=	SEQUENCE (SIZE (1..maxSL-TxPool-r12)) OF SL-TxPoolIdentity-r12
