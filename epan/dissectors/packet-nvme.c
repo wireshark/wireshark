@@ -519,7 +519,6 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
                  struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx)
 {
     proto_tree *cmd_tree;
-    tvbuff_t *cmd_tvb;
     proto_item *ti, *opc_item;
     guint8 opcode;
 
@@ -528,10 +527,9 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
                              NVME_CMD_SIZE, ENC_NA);
     proto_item_append_text(ti, " (Cmd)");
     cmd_tree = proto_item_add_subtree(ti, ett_data);
-    cmd_tvb = tvb_new_subset_length(nvme_tvb, 0, NVME_CMD_SIZE);
 
-    opcode = tvb_get_guint8(cmd_tvb, 0);
-    opc_item = proto_tree_add_item(cmd_tree, hf_nvme_cmd_opc, cmd_tvb,
+    opcode = tvb_get_guint8(nvme_tvb, 0);
+    opc_item = proto_tree_add_item(cmd_tree, hf_nvme_cmd_opc, nvme_tvb,
                         0, 1, ENC_LITTLE_ENDIAN);
     if (q_ctx->qid)
         proto_item_append_text(opc_item, " %s",
@@ -540,29 +538,29 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
         proto_item_append_text(opc_item, " %s",
                                val_to_str(opcode, aq_opc_tbl, "Reserved"));
 
-    nvme_publish_cmd_to_cqe_link(cmd_tree, cmd_tvb, hf_nvme_cqe_pkt, cmd_ctx);
+    nvme_publish_cmd_to_cqe_link(cmd_tree, nvme_tvb, hf_nvme_cqe_pkt, cmd_ctx);
 
-    proto_tree_add_item(cmd_tree, hf_nvme_cmd_fuse_op, cmd_tvb,
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_fuse_op, nvme_tvb,
                         1, 1, ENC_NA);
-    proto_tree_add_item(cmd_tree, hf_nvme_cmd_rsvd, cmd_tvb,
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_rsvd, nvme_tvb,
                         1, 1, ENC_NA);
-    proto_tree_add_item(cmd_tree, hf_nvme_cmd_psdt, cmd_tvb,
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_psdt, nvme_tvb,
                         1, 1, ENC_NA);
-    proto_tree_add_item(cmd_tree, hf_nvme_cmd_cid, cmd_tvb,
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_cid, nvme_tvb,
                         2, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cmd_tree, hf_nvme_cmd_nsid, cmd_tvb,
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_nsid, nvme_tvb,
                         4, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cmd_tree, hf_nvme_cmd_rsvd1, cmd_tvb,
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_rsvd1, nvme_tvb,
                         8, 8, ENC_NA);
-    proto_tree_add_item(cmd_tree, hf_nvme_cmd_mptr, cmd_tvb,
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_mptr, nvme_tvb,
                         16, 8, ENC_LITTLE_ENDIAN);
 
-    dissect_nvme_cmd_sgl(cmd_tvb, cmd_tree, hf_nvme_cmd_sgl);
+    dissect_nvme_cmd_sgl(nvme_tvb, cmd_tree, hf_nvme_cmd_sgl);
 
     switch (opcode) {
     case NVME_IOQ_OPC_READ:
     case NVME_IOQ_OPC_WRITE:
-        dissect_nvme_rw_cmd(cmd_tvb, cmd_tree);
+        dissect_nvme_rw_cmd(nvme_tvb, cmd_tree);
         break;
     default:
         break;

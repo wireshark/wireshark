@@ -180,6 +180,13 @@ static int hf_nvme_rdma_cmd_connect_cattr = -1;
 static int hf_nvme_rdma_cmd_connect_rsvd2 = -1;
 static int hf_nvme_rdma_cmd_connect_kato = -1;
 static int hf_nvme_rdma_cmd_connect_rsvd3 = -1;
+static int hf_nvme_rdma_cmd_data = -1;
+static int hf_nvme_rdma_cmd_connect_data_hostid = -1;
+static int hf_nvme_rdma_cmd_connect_data_cntlid = -1;
+static int hf_nvme_rdma_cmd_connect_data_rsvd = -1;
+static int hf_nvme_rdma_cmd_connect_data_subnqn = -1;
+static int hf_nvme_rdma_cmd_connect_data_hostnqn = -1;
+static int hf_nvme_rdma_cmd_connect_data_rsvd1 = -1;
 
 static int hf_nvme_rdma_cmd_prop_attr_rsvd = -1;
 static int hf_nvme_rdma_cmd_prop_attr_rsvd1 = -1;
@@ -530,56 +537,96 @@ dissect_nvme_fabric_cmd(tvbuff_t *nvme_tvb, proto_tree *nvme_tree,
                         struct nvme_rdma_cmd_ctx *cmd_ctx)
 {
     proto_tree *cmd_tree;
-    tvbuff_t *cmd_tvb;
     proto_item *ti, *opc_item, *fctype_item;
     guint8 fctype;
 
     fctype = tvb_get_guint8(nvme_tvb, 4);
     cmd_ctx->fctype = fctype;
 
-    cmd_tvb = tvb_new_subset_length(nvme_tvb, 0, NVME_FABRIC_CMD_SIZE);
-
-    ti = proto_tree_add_item(nvme_tree, hf_nvme_rdma_cmd, cmd_tvb, 0,
+    ti = proto_tree_add_item(nvme_tree, hf_nvme_rdma_cmd, nvme_tvb, 0,
                              NVME_FABRIC_CMD_SIZE, ENC_NA);
     cmd_tree = proto_item_add_subtree(ti, ett_data);
 
-    opc_item = proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_opc, cmd_tvb,
+    opc_item = proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_opc, nvme_tvb,
                                    0, 1, ENC_LITTLE_ENDIAN);
     proto_item_append_text(opc_item, "%s", " Fabric Cmd");
 
-    nvme_publish_cmd_to_cqe_link(cmd_tree, cmd_tvb, hf_nvme_rdma_cqe_pkt,
+    nvme_publish_cmd_to_cqe_link(cmd_tree, nvme_tvb, hf_nvme_rdma_cqe_pkt,
                                  &cmd_ctx->n_cmd_ctx);
 
-    proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_rsvd, cmd_tvb,
+    proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_rsvd, nvme_tvb,
                         1, 1, ENC_NA);
-    proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_cid, cmd_tvb,
+    proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_cid, nvme_tvb,
                         2, 2, ENC_LITTLE_ENDIAN);
 
-    fctype_item = proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_fctype, cmd_tvb,
+    fctype_item = proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_fctype,
+                                      nvme_tvb,
                                       4, 1, ENC_LITTLE_ENDIAN);
     proto_item_append_text(fctype_item, " %s",
                            val_to_str(fctype, fctype_tbl, "Unknown FcType"));
 
     switch(fctype) {
     case NVME_FCTYPE_CONNECT:
-        dissect_nvme_fabric_connect_cmd(cmd_tree, cmd_tvb);
+        dissect_nvme_fabric_connect_cmd(cmd_tree, nvme_tvb);
         break;
     case NVME_FCTYPE_PROP_GET:
-        dissect_nvme_fabric_prop_get_cmd(cmd_tree, cmd_tvb);
+        dissect_nvme_fabric_prop_get_cmd(cmd_tree, nvme_tvb);
         break;
     case NVME_FCTYPE_PROP_SET:
-        dissect_nvme_fabric_prop_set_cmd(cmd_tree, cmd_tvb);
+        dissect_nvme_fabric_prop_set_cmd(cmd_tree, nvme_tvb);
         break;
     case NVME_FCTYPE_AUTH_RECV:
     default:
-        dissect_nvme_fabric_generic_cmd(cmd_tree, cmd_tvb);
+        dissect_nvme_fabric_generic_cmd(cmd_tree, nvme_tvb);
+        break;
+    }
+}
+
+static void
+dissect_nvme_fabric_connect_cmd_data(tvbuff_t *data_tvb, proto_tree *data_tree,
+                                     guint offset)
+{
+    proto_tree_add_item(data_tree, hf_nvme_rdma_cmd_connect_data_hostid, data_tvb,
+                        offset, 16, ENC_NA);
+    proto_tree_add_item(data_tree, hf_nvme_rdma_cmd_connect_data_cntlid, data_tvb,
+                        offset + 16, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(data_tree, hf_nvme_rdma_cmd_connect_data_rsvd, data_tvb,
+                        offset + 18, 238, ENC_NA);
+    proto_tree_add_item(data_tree, hf_nvme_rdma_cmd_connect_data_subnqn, data_tvb,
+                        offset + 256, 256, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(data_tree, hf_nvme_rdma_cmd_connect_data_hostnqn, data_tvb,
+                        offset + 512, 256, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(data_tree, hf_nvme_rdma_cmd_connect_data_rsvd1, data_tvb,
+                        offset + 768, 256, ENC_NA);
+}
+
+static void
+dissect_nvme_fabric_data(tvbuff_t *nvme_tvb, proto_tree *nvme_tree,
+                         guint len, guint8 fctype)
+{
+    proto_tree *data_tree;
+    proto_item *ti;
+
+    ti = proto_tree_add_item(nvme_tree, hf_nvme_rdma_cmd_data, nvme_tvb, 0,
+                             len, ENC_NA);
+    data_tree = proto_item_add_subtree(ti, ett_data);
+
+    switch (fctype) {
+    case NVME_FCTYPE_CONNECT:
+        dissect_nvme_fabric_connect_cmd_data(nvme_tvb, data_tree,
+                                             NVME_FABRIC_CMD_SIZE);
+        break;
+    default:
+        proto_tree_add_item(data_tree, hf_nvme_rdma_from_host_unknown_data,
+                            nvme_tvb, 0, len, ENC_NA);
         break;
     }
 }
 
 static void
 dissect_nvme_rdma_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
-                      proto_tree *nvme_tree, struct nvme_rdma_q_ctx *q_ctx)
+                      proto_tree *nvme_tree, struct nvme_rdma_q_ctx *q_ctx,
+                      guint len)
 {
     struct nvme_rdma_cmd_ctx *cmd_ctx;
     guint16 cmd_id;
@@ -591,6 +638,9 @@ dissect_nvme_rdma_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_t
     if (opcode == NVME_FABRIC_OPC) {
         cmd_ctx->n_cmd_ctx.fabric = TRUE;
         dissect_nvme_fabric_cmd(nvme_tvb, nvme_tree, cmd_ctx);
+        len -= NVME_FABRIC_CMD_SIZE;
+        if (len)
+            dissect_nvme_fabric_data(nvme_tvb, nvme_tree, len, cmd_ctx->fctype);
     } else {
         cmd_ctx->n_cmd_ctx.fabric = FALSE;
         dissect_nvme_cmd(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx,
@@ -608,8 +658,8 @@ dissect_nvme_from_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
 {
     switch (info->opCode) {
     case RC_SEND_ONLY:
-        if (len == NVME_FABRIC_CMD_SIZE)
-            dissect_nvme_rdma_cmd(nvme_tvb, pinfo, root_tree, nvme_tree, q_ctx);
+        if (len >= NVME_FABRIC_CMD_SIZE)
+            dissect_nvme_rdma_cmd(nvme_tvb, pinfo, root_tree, nvme_tree, q_ctx, len);
         else
             proto_tree_add_item(nvme_tree, hf_nvme_rdma_from_host_unknown_data, nvme_tvb,
                     0, len, ENC_NA);
@@ -657,9 +707,6 @@ dissect_nvme_fabric_cqe(tvbuff_t *nvme_tvb,
 {
     proto_tree *cqe_tree;
     proto_item *ti;
-    tvbuff_t *cqe_tvb;
-
-    cqe_tvb = tvb_new_subset_length(nvme_tvb, 0, NVME_FABRIC_CQE_SIZE);
 
     ti = proto_tree_add_item(nvme_tree, hf_nvme_rdma_cqe, nvme_tvb,
                              0, NVME_FABRIC_CQE_SIZE, ENC_NA);
@@ -668,20 +715,21 @@ dissect_nvme_fabric_cqe(tvbuff_t *nvme_tvb,
 
     cqe_tree = proto_item_add_subtree(ti, ett_data);
 
-    nvme_publish_cqe_to_cmd_link(cqe_tree, cqe_tvb, hf_nvme_rdma_cmd_pkt, &cmd_ctx->n_cmd_ctx);
+    nvme_publish_cqe_to_cmd_link(cqe_tree, nvme_tvb, hf_nvme_rdma_cmd_pkt,
+                                 &cmd_ctx->n_cmd_ctx);
     nvme_publish_cmd_latency(cqe_tree, &cmd_ctx->n_cmd_ctx, hf_nvme_rdma_cmd_latency);
 
-    dissect_nvme_rdma_cqe_status_8B(cqe_tree, cqe_tvb, cmd_ctx);
+    dissect_nvme_rdma_cqe_status_8B(cqe_tree, nvme_tvb, cmd_ctx);
 
-    proto_tree_add_item(cqe_tree, hf_nvme_rdma_cqe_sqhd, cqe_tvb,
+    proto_tree_add_item(cqe_tree, hf_nvme_rdma_cqe_sqhd, nvme_tvb,
                         8, 2, ENC_NA);
-    proto_tree_add_item(cqe_tree, hf_nvme_rdma_cqe_rsvd, cqe_tvb,
+    proto_tree_add_item(cqe_tree, hf_nvme_rdma_cqe_rsvd, nvme_tvb,
                         10, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvme_rdma_cqe_cid, cqe_tvb,
+    proto_tree_add_item(cqe_tree, hf_nvme_rdma_cqe_cid, nvme_tvb,
                         12, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvme_rdma_cqe_status, cqe_tvb,
+    proto_tree_add_item(cqe_tree, hf_nvme_rdma_cqe_status, nvme_tvb,
                         14, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cqe_tree, hf_nvme_rdma_cqe_status_rsvd, cqe_tvb,
+    proto_tree_add_item(cqe_tree, hf_nvme_rdma_cqe_status_rsvd, nvme_tvb,
                         14, 2, ENC_LITTLE_ENDIAN);
 }
 
@@ -893,6 +941,34 @@ proto_register_nvme_rdma(void)
         },
         { &hf_nvme_rdma_cmd_connect_rsvd3,
             { "Reserved", "nvme-rdma.cmd.connect.rsvd3",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_cmd_data,
+            { "Data", "nvme-rdma.cmd.data",
+               FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_cmd_connect_data_hostid,
+            { "Host Identifer", "nvme-rdma.cmd.connect.data.hostid",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_cmd_connect_data_cntlid,
+            { "Controller ID", "nvme-rdma.cmd.connect.data.cntrlid",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_cmd_connect_data_rsvd,
+            { "Reserved", "nvme-rdma.cmd.connect.data.rsvd",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_cmd_connect_data_subnqn,
+            { "Subsystem NQN", "nvme-rdma.cmd.connect.data.subnqn",
+               FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_cmd_connect_data_hostnqn,
+            { "Host NQN", "nvme-rdma.cmd.connect.data.hostnqn",
+               FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_cmd_connect_data_rsvd1,
+            { "Reserved", "nvme-rdma.cmd.connect.data.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_prop_attr_rsvd,
