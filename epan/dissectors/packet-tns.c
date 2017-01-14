@@ -137,6 +137,11 @@ static int hf_tns_data_id = -1;
 static int hf_tns_data_length = -1;
 static int hf_tns_data_oci_id = -1;
 static int hf_tns_data_piggyback_id = -1;
+static int hf_tns_data_unused = -1;
+
+static int hf_tns_data_opi_version2_banner_len = -1;
+static int hf_tns_data_opi_version2_banner = -1;
+static int hf_tns_data_opi_version2_vsnum = -1;
 
 static int hf_tns_data_setp_acc_version = -1;
 static int hf_tns_data_setp_cli_plat = -1;
@@ -557,6 +562,47 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			proto_tree_add_item(data_tree, hf_tns_data_oci_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
+
+		case SQLNET_RETURN_OPI_PARAM:
+		{
+			/*
+			 * Version2 response has a following pattern:
+			 * ..(.?)Orac[le.+](.?)(....)$
+			 * ||                     |_ vsnum
+			 * ||
+			 * ||_ Indicates the banner length. If equal to 0 then next byte indicates the length.
+			 * |
+			 * |_ Unnecessary byte, skip it.
+			 *
+			 * These differences (to skip 1 or 2 bytes) due to differences in the drivers.
+			 */
+			guint8 skip = 0;
+			                                  /* Orac[le.+] */
+			if ( tvb_get_ntohl(tvb, offset+2) == 0x4f726163 )
+				skip = 1;
+			if ( tvb_get_ntohl(tvb, offset+3) == 0x4f726163 )
+				skip = 2;
+
+			if ( skip ) /* is Version2 response */
+			{
+				gint len;
+
+				proto_tree_add_item(data_tree, hf_tns_data_unused, tvb, offset, skip, ENC_NA);
+				offset += skip;
+
+				len = tvb_get_guint8(tvb, offset);
+
+				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_banner_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+				offset += 1;
+
+				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_banner, tvb, offset, len, ENC_ASCII|ENC_NA);
+				offset += len + (skip == 1 ? 1 : 0);
+
+				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_vsnum, tvb, offset, 4, skip == 1 ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
+				offset += 4;
+			}
+			break;
+		}
 
 		case SQLNET_PIGGYBACK_FUNC:
 			proto_tree_add_item(data_tree, hf_tns_data_piggyback_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1297,6 +1343,10 @@ void proto_register_tns(void)
 			"Call ID", "tns.data_piggyback.id", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
 			&tns_data_oci_subfuncs_ext, 0x00, NULL, HFILL }},
 
+		{ &hf_tns_data_unused, {
+			"Unused", "tns.data.unused", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+
 		{ &hf_tns_data_setp_acc_version, {
 			"Accepted Version", "tns.data_setp_req.acc_vers", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -1319,6 +1369,16 @@ void proto_register_tns(void)
 		{ &hf_tns_data_sns_srvcnt, {
 			"Services", "tns.data_sns.srvcnt", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_tns_data_opi_version2_banner_len, {
+			"Banner Length", "tns.data_opi.vers2.banner_len", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_opi_version2_banner, {
+			"Banner", "tns.data_opi.vers2.banner", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_opi_version2_vsnum, {
+			"Version", "tns.data_opi.vers2.version", FT_UINT32, BASE_CUSTOM,
+			CF_FUNC(vsnum_to_vstext_basecustom), 0x0, NULL, HFILL }},
 
 		{ &hf_tns_reserved_byte, {
 			"Reserved Byte", "tns.reserved_byte", FT_BYTES, BASE_NONE,
