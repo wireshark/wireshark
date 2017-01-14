@@ -402,7 +402,6 @@ char *pn_fgets(char *str, int n, FILE *stream)
               /* No more data, exit now */
               break;
           }
-          comment_start = next_line;
           comment_end = strstr(next_line, XML_COMMENT_END);
       }
     }
