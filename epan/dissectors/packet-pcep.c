@@ -59,6 +59,11 @@
     Constrained Point-to-Multipoint (P2MP) Inter-Domain Traffic Engineering
     Label Switched Paths" (RFC 7334)
  * (c) Copyright 2016 Simon Zhong <szhong[AT]juniper.net>
+ *
+ * Added support of "Extensions to the Path Computation Element Communication Protocol (PCEP)
+ *  to compute service aware Label Switched Path (LSP)." (draft-ietf-pce-pcep-service-aware-13)
+ * Updated support of "PCEP Extensions for Segment Routing" (draft-ietf-pce-segment-routing-08)
+ * (c) Copyright 2017 Simon Zhong <szhong[AT]juniper.net>
  */
 
 #include "config.h"
@@ -103,6 +108,7 @@ void proto_reg_handoff_pcep(void);
 #define PCEP_OBJ_LSP                    32
 #define PCEP_OBJ_SRP                    33
 #define PCEP_OBJ_VENDOR_INFORMATION     34 /* RFC 7470 */
+#define PCEP_OBJ_BU                     35 /* draft-ietf-pce-pcep-service-aware */
 #define PCEP_ASSOCIATION_OBJ           255 /* TODO temp to be adjusted */
 
 /*Subobjects of EXPLICIT ROUTE Object*/
@@ -296,10 +302,20 @@ void proto_reg_handoff_pcep(void);
 /* Mask for the flags of ASSOCIATION Object */
 #define PCEP_OBJ_ASSOCIATION_FLAGS_R 0x0001
 
+/* Mask for the flags of SR PCE Capability TLV */
+#define PCEP_TLV_SR_PCE_CAPABILITY_L    0x01
+
+/* Mask for the flags of Subobjevct SR*/
+#define PCEP_SUBOBJ_SR_FLAGS_M  0x001
+#define PCEP_SUBOBJ_SR_FLAGS_C  0x002
+#define PCEP_SUBOBJ_SR_FLAGS_S  0x004
+#define PCEP_SUBOBJ_SR_FLAGS_F  0x008
+
 static int proto_pcep = -1;
 
 static gint hf_pcep_endpoint_p2mp_leaf= -1;
 static gint hf_pcep_hdr_msg_flags_reserved= -1;
+static gint hf_pcep_hdr_obj_flags = -1;
 static gint hf_pcep_hdr_obj_flags_reserved= -1;
 static gint hf_pcep_hdr_obj_flags_p= -1;
 static gint hf_pcep_hdr_obj_flags_i= -1;
@@ -397,6 +413,7 @@ static gint hf_PCEPF_OBJ_LSP = -1;
 static gint hf_PCEPF_OBJ_SRP = -1;
 static gint hf_PCEPF_OBJ_ASSOCIATION = -1;
 static gint hf_PCEPF_OBJ_VENDOR_INFORMATION = -1;
+static gint hf_PCEPF_OBJ_BU = -1;
 static gint hf_PCEPF_SUBOBJ = -1;
 static gint hf_PCEPF_SUBOBJ_7F = -1;
 static gint hf_PCEPF_SUBOBJ_IPv4 = -1;
@@ -444,6 +461,7 @@ static gint hf_pcep_obj_branch_node_capability_type = -1;
 static gint hf_pcep_obj_lsp_type = -1;
 static gint hf_pcep_obj_srp_type = -1;
 static gint hf_pcep_obj_vendor_information_type = -1;
+static gint hf_pcep_obj_bu_type = -1;
 static gint hf_pcep_obj_association_type = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
@@ -580,9 +598,22 @@ static int hf_pcep_subobj_sr_flags_c = -1;
 static int hf_pcep_subobj_sr_flags_s = -1;
 static int hf_pcep_subobj_sr_flags_f = -1;
 static int hf_pcep_subobj_sr_sid = -1;
+static int hf_pcep_subobj_sr_sid_label = -1;
+static int hf_pcep_subobj_sr_sid_tc = -1;
+static int hf_pcep_subobj_sr_sid_s = -1;
+static int hf_pcep_subobj_sr_sid_ttl = -1;
 static int hf_pcep_subobj_sr_nai_ipv4_node = -1;
 static int hf_pcep_subobj_sr_nai_ipv6_node = -1;
+static int hf_pcep_subobj_sr_nai_local_ipv4_addr = -1;
+static int hf_pcep_subobj_sr_nai_remote_ipv4_addr = -1;
+static int hf_pcep_subobj_sr_nai_local_ipv6_addr = -1;
+static int hf_pcep_subobj_sr_nai_remote_ipv6_addr = -1;
+static int hf_pcep_subobj_sr_nai_local_node_id = -1;
+static int hf_pcep_subobj_sr_nai_local_interface_id = -1;
+static int hf_pcep_subobj_sr_nai_remote_node_id = -1;
+static int hf_pcep_subobj_sr_nai_remote_interface_id = -1;
 
+static int hf_pcep_stateful_pce_capability_flags = -1;
 static int hf_pcep_lsp_update_capability = -1;
 static int hf_pcep_include_db_version = -1;
 static int hf_pcep_lsp_instantiation_capability = -1;
@@ -618,9 +649,10 @@ static int hf_pcep_lsp_state_db_version_number = -1;
 static int hf_pcep_speaker_entity_id = -1;
 static int hf_pcep_path_setup_type_reserved24 = -1;
 static int hf_pcep_path_setup_type = -1;
-static int hf_pcep_sr_capability_reserved16 = -1;
-static int hf_pcep_sr_capability_flags_reserved = -1;
-static int hf_pcep_sr_capability_msd = -1;
+static int hf_pcep_sr_pce_capability_reserved = -1;
+static int hf_pcep_sr_pce_capability_flags = -1;
+static int hf_pcep_sr_pce_capability_flags_l = -1;
+static int hf_pcep_sr_pce_capability_msd = -1;
 static int hf_pcep_association_reserved = -1;
 static int hf_pcep_association_flags = -1;
 static int hf_pcep_association_flags_r = -1;
@@ -637,6 +669,10 @@ static int hf_pcep_enterprise_number = -1;
 static int hf_pcep_enterprise_specific_info = -1;
 static int hf_pcep_tlv_enterprise_number = -1;
 static int hf_pcep_tlv_enterprise_specific_info = -1;
+
+static int hf_pcep_bu_reserved = -1;
+static int hf_pcep_bu_butype = -1;
+static int hf_pcep_bu_utilization = -1;
 
 static gint ett_pcep = -1;
 static gint ett_pcep_hdr = -1;
@@ -668,6 +704,7 @@ static gint ett_pcep_obj_branch_node_capability = -1;
 static gint ett_pcep_obj_lsp = -1;
 static gint ett_pcep_obj_srp = -1;
 static gint ett_pcep_obj_vendor_information = -1;
+static gint ett_pcep_obj_bu = -1;
 static gint ett_pcep_obj_unknown = -1;
 static gint ett_pcep_obj_sero = -1;
 static gint ett_pcep_obj_srro = -1;
@@ -743,6 +780,7 @@ static const value_string pcep_class_vals[] = {
     {PCEP_OBJ_LSP,                    "LSP OBJECT"                             },
     {PCEP_OBJ_SRP,                    "SRP OBJECT"                             },
     {PCEP_OBJ_VENDOR_INFORMATION,     "VENDOR-INFORMATION OBJECT"              },
+    {PCEP_OBJ_BU,                     "BU OBJECT"                              },
     {PCEP_ASSOCIATION_OBJ,            "ASSOCIATION OBJECT"                     },
     {0, NULL }
 };
@@ -906,6 +944,11 @@ static const value_string pcep_obj_vendor_information_type_vals[] = {
     {0, NULL }
 };
 
+static const value_string pcep_obj_bu_type_vals[] = {
+    {1, "BU"},
+    {0, NULL }
+};
+
 static const value_string pcep_obj_association_type_vals[] = {
     {1, "IPv4"},
     {2, "IPv6"},
@@ -945,7 +988,7 @@ static const value_string pcep_no_path_obj_vals[] = {
 
 /*Different values of "Type (T)" in the METRIC Obj */
 static const value_string pcep_metric_obj_vals[] = {
-    { 0, "not defined"                     },
+    { 0, "Reserved"                        },
     { 1, "IGP Metric"                      },
     { 2, "TE Metric"                       },
     { 3, "Hop Counts"                      },
@@ -956,6 +999,13 @@ static const value_string pcep_metric_obj_vals[] = {
     { 8, "P2MP IGM metric"                 },
     { 9, "P2MP TE metric"                  },
     {10, "P2MP hop count metric"           },
+    {11, "Segment-ID (SID) Depth"          },   /* draft-ietf-pce-segment-routing */
+    {12, "Path Delay metric"               },   /* draft-ietf-pce-pcep-service-aware */
+    {13, "Path Delay Variation metric"     },   /* draft-ietf-pce-pcep-service-aware */
+    {14, "Path Loss metric"                },   /* draft-ietf-pce-pcep-service-aware */
+    {15, "P2MP Path Delay metric"          },   /* draft-ietf-pce-pcep-service-aware */
+    {16, "P2MP Path Delay variation metric"},   /* draft-ietf-pce-pcep-service-aware */
+    {17, "P2MP Path Loss metric"           },   /* draft-ietf-pce-pcep-service-aware */
     {0, NULL }
 };
 
@@ -1023,14 +1073,26 @@ static const value_string pcep_tlvs_vals[] = {
 
 /*Values of Objective Functions*/
 static const value_string pcep_of_vals[] = {
-    {1, "Minimum Cost Path (MCP)"                              },
-    {2, "Minimum Load Path (MLP)"                              },
-    {3, "Maximum residual Bandwidth Path (MBP)"                },
-    {4, "Minimize aggregate Bandwidth Consumption (MBC)"       },
-    {5, "Minimize the Load of the most loaded Link (MLL)"      },
-    {6, "Minimize the Cumulative Cost of a set of paths (MCC)" },
-    {7, "Shortest Path Tree (SPT)"                             }, /* RFC 6006 */
-    {8, "Minimum Cost Tree (MCT)"                              }, /* RFC 6006 */
+    { 1, "Minimum Cost Path (MCP)"                              },
+    { 2, "Minimum Load Path (MLP)"                              },
+    { 3, "Maximum residual Bandwidth Path (MBP)"                },
+    { 4, "Minimize aggregate Bandwidth Consumption (MBC)"       },
+    { 5, "Minimize the Load of the most loaded Link (MLL)"      },
+    { 6, "Minimize the Cumulative Cost of a set of paths (MCC)" },
+    { 7, "Shortest Path Tree (SPT)"                             }, /* RFC 6006 */
+    { 8, "Minimum Cost Tree (MCT)"                              }, /* RFC 6006 */
+    { 9, "Minimum Packet Loss Path (MPLP)"                      }, /* draft-ietf-pce-pcep-service-aware */
+    {10, "Maximum Under-Utilized Path (MUP)"                    }, /* draft-ietf-pce-pcep-service-aware */
+    {11, "Maximum Reserved Under-Utilized Path (MRUP)"          }, /* draft-ietf-pce-pcep-service-aware */
+    {0, NULL }
+};
+
+
+/*Values of Bandwidth Utilization (BU) Object bandwidth utilization Type */
+static const value_string pcep_bu_butype_vals[] = {
+    {0, "Reserved"                                   }, /* draft-ietf-pce-pcep-service-aware */
+    {1, "LBU (Link Bandwidth Utilization)"           }, /* draft-ietf-pce-pcep-service-aware */
+    {2, "LRBU (Link Residual Bandwidth Utilization)" }, /* draft-ietf-pce-pcep-service-aware */
     {0, NULL }
 };
 
@@ -1087,6 +1149,7 @@ static const value_string pcep_error_value_4_vals[] = {
     {1, "Not supported object class"},
     {2, "Not supported object type"},
     {4, "Not supported parameter"},
+    {5, "Unsupported network performance constraint"},  /* draft-ietf-pce-pcep-service-aware*/
     {0, NULL}
 };
 
@@ -1099,6 +1162,7 @@ static const value_string pcep_error_value_5_vals[] = {
     {5, "Global concurrent optimization not allowed"},
     {6, "Monitoring message supported but rejected due to policy violation"},
     {7, "P2MP path computation is not allowed"},
+    {8, "Not allowed network performance constraint"},  /* draft-ietf-pce-pcep-service-aware*/
     {0, NULL}
 };
 
@@ -1300,6 +1364,21 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
     int         i, j;
     int         padding = 0;
 
+    static const int *tlv_stateful_pce_capability_flags[] = {
+        &hf_pcep_lsp_update_capability,
+        &hf_pcep_include_db_version,
+        &hf_pcep_lsp_instantiation_capability,
+        &hf_pcep_triggered_resync,
+        &hf_pcep_delta_lsp_sync_capability,
+        &hf_pcep_triggered_initial_sync,
+        NULL
+    };
+
+    static const int *tlv_sr_pce_capability_flags[] = {
+        &hf_pcep_sr_pce_capability_flags_l,
+        NULL
+    };
+
     for (j = 0; j < length; j += 4 + tlv_length + padding) {
         tlv_type = tvb_get_ntohs(tvb, offset+j);
         tlv_length = tvb_get_ntohs(tvb, offset + j + 2);
@@ -1338,12 +1417,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 break;
 
             case 16:    /* STATEFUL-PCE-CAPABILITY TLV */
-                proto_tree_add_item(tlv, hf_pcep_lsp_update_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_include_db_version, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_lsp_instantiation_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_triggered_resync, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_delta_lsp_sync_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_triggered_initial_sync, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(tlv, tvb, offset+4+j, hf_pcep_stateful_pce_capability_flags, ett_pcep_obj, tlv_stateful_pce_capability_flags, ENC_NA);
                 break;
 
             case 17:    /* SYMBOLIC-PATH-NAME TLV */
@@ -1383,9 +1457,9 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 break;
 
             case 26:    /* SR-PCE-CAPABILITY TLV */
-                proto_tree_add_item(tlv, hf_pcep_sr_capability_reserved16, tvb, offset + 4 + j, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_sr_capability_flags_reserved, tvb, offset + 4 + j + 2, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_sr_capability_msd, tvb, offset + 4 + j + 3, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_sr_pce_capability_reserved, tvb, offset + 4 + j, 2, ENC_NA);
+                proto_tree_add_bitmask(tlv, tvb, offset+4+j, hf_pcep_sr_pce_capability_flags, ett_pcep_obj, tlv_sr_pce_capability_flags, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_sr_pce_capability_msd, tvb, offset + 4 + j + 3, 1, ENC_NA);
                 break;
 
             case 27:    /* PATH-SETUP-TYPE TLV (FF: squatted pre IANA assignment) */
@@ -1611,8 +1685,14 @@ dissect_subobj_sr(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tv
 {
     proto_tree *pcep_subobj_sr_tree = NULL;
     proto_item *ti = NULL;
-    guint32 sid = 0;
-    guint8 st = 0;
+    proto_tree *sid_tree = NULL;
+    proto_item *sid_item = NULL;
+    guint16 flags;
+    guint8  j = 0, st = 0;
+    guint8  octet0, octet1, octet2;
+    guint32 label;
+    guint8  tc, bos, ttl;
+
     static const int *subobj_sr_flags[] = {
         &hf_pcep_subobj_sr_flags_m,
         &hf_pcep_subobj_sr_flags_c,
@@ -1630,54 +1710,78 @@ dissect_subobj_sr(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tv
         return;
     }
 
-    sid = tvb_get_ntohl(tvb, offset + 4) >> 12;
-    proto_item_append_text(ti, ": %u", sid);
+    flags = tvb_get_guint16(tvb, offset+2, ENC_NA);
     st = ((tvb_get_guint8(tvb, offset + 2)) >> 4);
 
-    switch (obj_class) {
-        case PCEP_EXPLICIT_ROUTE_OBJ:
+    if (obj_class == PCEP_EXPLICIT_ROUTE_OBJ || obj_class == PCEP_RECORD_ROUTE_OBJ) {
+        if (obj_class == PCEP_EXPLICIT_ROUTE_OBJ) {
             proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_l, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(pcep_subobj_sr_tree, hf_PCEPF_SUBOBJ_7F, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_length, tvb, offset + 1, 1, ENC_NA);
-            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_st, tvb, offset + 2, 1, ENC_NA);
-            proto_tree_add_bitmask(pcep_subobj_sr_tree, tvb, offset + 2, hf_pcep_subobj_sr_flags, ett_pcep_obj, subobj_sr_flags, ENC_NA);
-            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_sid, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-            if ((st == 1) && (length == 12)) {
-                /* FF 'IPv4 Node ID' is specified as an IPv4 address. In this case, ST
-                 * value is 1, and the Length is 8 or 12 depending on either SID or
-                 * NAI or both are included in the subobject.
-                 */
-                proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_ipv4_node, tvb,
-                                    offset + 8, 4, ENC_BIG_ENDIAN);
-            }
-            if ((st == 2) && (length == 24)) {
-                /* FF 'IPv6 Node ID' is specified as an IPv6 address. In this case, ST
-                 * value is 2, and the Length is 8 or 24 depending on either SID or
-                 * NAI or both are included in the subobject.
-                 */
-                proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_ipv6_node, tvb,
-                                    offset + 8, 16, ENC_NA);
-            }
-            break;
-        case PCEP_RECORD_ROUTE_OBJ:
+        }
+        else {
             proto_tree_add_item(pcep_subobj_sr_tree, hf_PCEPF_SUBOBJ, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_length, tvb, offset + 1, 1, ENC_NA);
-            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_st, tvb, offset + 2, 1, ENC_NA);
-            proto_tree_add_bitmask(pcep_subobj_sr_tree, tvb, offset + 2, hf_pcep_subobj_sr_flags, ett_pcep_obj, subobj_sr_flags, ENC_NA);
-            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_sid, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-            if ((st == 1) && (length == 12)) {
-                proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_ipv4_node, tvb,
-                                    offset + 8, 4, ENC_BIG_ENDIAN);
+        }
+
+        proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_length, tvb, offset + 1, 1, ENC_NA);
+        proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_st, tvb, offset + 2, 1, ENC_NA);
+        proto_tree_add_bitmask(pcep_subobj_sr_tree, tvb, offset + 2, hf_pcep_subobj_sr_flags, ett_pcep_obj, subobj_sr_flags, ENC_NA);
+
+        if ( ! (flags & PCEP_SUBOBJ_SR_FLAGS_S) ) { /* S flag is not set, SID exists */
+            j = 4;
+            sid_item = proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_sid, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+
+            if (flags & PCEP_SUBOBJ_SR_FLAGS_M) { /* M flag is set, SID represents MPLS label stack */
+                sid_tree = proto_item_add_subtree(sid_item, ett_pcep_obj);
+                proto_tree_add_item(sid_tree, hf_pcep_subobj_sr_sid_label, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sid_tree, hf_pcep_subobj_sr_sid_tc,    tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sid_tree, hf_pcep_subobj_sr_sid_s ,    tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sid_tree, hf_pcep_subobj_sr_sid_ttl,   tvb, offset+4, 4, ENC_BIG_ENDIAN);
+
+                octet0 = tvb_get_guint8(tvb, offset+4);
+                octet1 = tvb_get_guint8(tvb, offset+5);
+                octet2 = tvb_get_guint8(tvb, offset+6);
+                label = (octet0 << 12) + (octet1 << 4) + ((octet2 >> 4) & 0xff);
+                tc = (octet2 >> 1) & 0x7;
+                bos = (octet2 & 0x1);
+                ttl = tvb_get_guint8(tvb, offset+7);
+                proto_item_append_text(sid_tree, " (Label: %u, TC: %u, S: %u, TTL: %u)", label, tc, bos, ttl);
             }
-            if ((st == 2) && (length == 24)) {
-                proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_ipv6_node, tvb,
-                                    offset + 8, 16, ENC_NA);
+        }
+
+        if ( ! (flags & PCEP_SUBOBJ_SR_FLAGS_F) ) { /* F flag is not set, NAI exists */
+            switch (st) {
+                case 1: /* IPv4 Node ID */
+                    proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_ipv4_node, tvb, offset+j+4, 4, ENC_BIG_ENDIAN);
+                    break;
+
+                case 2: /* IPv6 Node ID */
+                    proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_ipv6_node, tvb, offset+j+4, 16, ENC_NA);
+                    break;
+
+                case 3: /* IPv4 Adjacency */
+                    proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_local_ipv4_addr,  tvb, offset+j+4, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_remote_ipv4_addr, tvb, offset+j+8, 4, ENC_BIG_ENDIAN);
+                    break;
+
+                case 4: /* IPv6 Adjacency */
+                    proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_local_ipv6_addr,  tvb, offset+j+4,  16, ENC_NA);
+                    proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_remote_ipv6_addr, tvb, offset+j+20, 16, ENC_NA);
+                    break;
+
+                case 5: /* Unnumbered Adjacency with IPv4 NodeIDs */
+                    proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_local_node_id,       tvb, offset+j+4,  4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_local_interface_id,  tvb, offset+j+8,  4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_remote_node_id,      tvb, offset+j+12, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_remote_interface_id, tvb, offset+j+16, 4, ENC_BIG_ENDIAN);
+                    break;
+
+                default:
+                    break;
             }
-            break;
-        default:
-            expert_add_info_format(pinfo, ti, &ei_pcep_non_defined_subobject,
-                                   "Non defined subobject for this object");
-            break;
+        }
+    }
+    else {
+        expert_add_info_format(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object");
     }
 }
 
@@ -3192,6 +3296,28 @@ dissect_pcep_obj_vendor_information(proto_tree *pcep_object_tree, packet_info *p
                         obj_length - OBJ_HDR_LEN - 4, ENC_STR_HEX);
 }
 
+/*------------------------------------------------------------------------------
+ * BU OBJECT
+ *------------------------------------------------------------------------------*/
+#define OBJ_BU_LEN 8 /* The BU object body has a fixed length of 8 bytes */
+
+static void
+dissect_pcep_obj_bu(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2,
+                                    int obj_length) {
+
+    if (obj_length != OBJ_HDR_LEN + OBJ_BU_LEN) {
+        proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_subobject_bad_length,
+                                     tvb, offset2, obj_length,
+                                     "Bad BU object length %u, should be %u",
+                                     obj_length, OBJ_HDR_LEN + OBJ_BU_LEN);
+        return;
+    }
+
+    proto_tree_add_item(pcep_object_tree, hf_pcep_bu_reserved,    tvb, offset2,   3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pcep_object_tree, hf_pcep_bu_butype,      tvb, offset2+3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pcep_object_tree, hf_pcep_bu_utilization, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
+}
+
 /*----------------------------------------------------------------------------
  * ASSOCIATION OBJECT
  *----------------------------------------------------------------------------*/
@@ -3284,7 +3410,13 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
     int         type;
     proto_tree *pcep_object_tree;
     proto_item *pcep_object_item;
-    proto_tree *pcep_header_obj_flags;
+
+    static const int *pcep_hdr_obj_flags[] = {
+        &hf_pcep_hdr_obj_flags_i,
+        &hf_pcep_hdr_obj_flags_p,
+        &hf_pcep_hdr_obj_flags_reserved,
+        NULL
+    };
 
     while (len < msg_length) {
         obj_class = tvb_get_guint8(tvb, offset);
@@ -3428,6 +3560,11 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
             case PCEP_OBJ_VENDOR_INFORMATION:
                 pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_VENDOR_INFORMATION, tvb, offset, -1, ENC_NA);
                 pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_vendor_information);
+                break;
+
+            case PCEP_OBJ_BU:
+                pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_BU, tvb, offset, -1, ENC_NA);
+                pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_bu);
                 break;
 
             case PCEP_SERO_OBJ:
@@ -3578,6 +3715,10 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
                 proto_tree_add_item(pcep_object_tree, hf_pcep_obj_vendor_information_type, tvb, offset+1, 1, ENC_NA);
                 break;
 
+            case PCEP_OBJ_BU:
+                proto_tree_add_item(pcep_object_tree, hf_pcep_obj_bu_type, tvb, offset+1, 1, ENC_NA);
+                break;
+
             case PCEP_ASSOCIATION_OBJ:
                 proto_tree_add_item(pcep_object_tree, hf_pcep_obj_association_type, tvb, offset+1, 1, ENC_NA);
                 break;
@@ -3590,10 +3731,8 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
 
         ot_res_p_i = tvb_get_guint8(tvb, offset+1);
         type = (ot_res_p_i & MASK_OBJ_TYPE)>>4;
-        pcep_header_obj_flags = proto_tree_add_subtree(pcep_object_tree, tvb, offset+1, 1, ett_pcep_hdr, NULL, "Flags");
-        proto_tree_add_item(pcep_header_obj_flags, hf_pcep_hdr_obj_flags_reserved, tvb, offset+1, 1, ENC_NA);
-        proto_tree_add_item(pcep_header_obj_flags, hf_pcep_hdr_obj_flags_p,        tvb, offset+1, 1, ENC_NA);
-        proto_tree_add_item(pcep_header_obj_flags, hf_pcep_hdr_obj_flags_i,        tvb, offset+1, 1, ENC_NA);
+
+        proto_tree_add_bitmask(pcep_object_tree, tvb, offset+1, hf_pcep_hdr_obj_flags, ett_pcep_hdr, pcep_hdr_obj_flags, ENC_NA);
 
         proto_tree_add_item(pcep_object_tree, hf_pcep_object_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
@@ -3719,6 +3858,10 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
                 dissect_pcep_obj_vendor_information(pcep_object_tree, pinfo, tvb, offset+4, obj_length);
                 break;
 
+            case PCEP_OBJ_BU:
+                dissect_pcep_obj_bu(pcep_object_tree, pinfo, tvb, offset+4, obj_length);
+                break;
+
             case PCEP_SERO_OBJ:
                 dissect_pcep_explicit_route_obj(pcep_object_tree, pinfo, tvb, offset+4, obj_length, obj_class);
                 break;
@@ -3829,24 +3972,29 @@ proto_register_pcep(void)
             NULL, HFILL }
         },
         { &hf_pcep_hdr_msg_flags_reserved,
-          { "Reserved Flags", "pcep.hdr.msg.flags.reserved",
+          { "Reserved Flags", "pcep.msg.hdr.flags.reserved",
             FT_BOOLEAN, 8, TFS(&tfs_set_notset), PCEP_HDR_MSG_RESERVED,
             NULL, HFILL }
         },
 
         /*Object header*/
+        { &hf_pcep_hdr_obj_flags,
+          { "Object Header Flags", "pcep.obj.hdr.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0F,
+            NULL, HFILL }
+        },
         { &hf_pcep_hdr_obj_flags_reserved,
-          { "Reserved Flags", "pcep.hdr.obj.flags.reserved",
+          { "Reserved Flags", "pcep.obj.hdr.flags.reserved",
             FT_BOOLEAN, 4, TFS(&tfs_set_notset), PCEP_HDR_OBJ_RESERVED,
             NULL, HFILL }
         },
         { &hf_pcep_hdr_obj_flags_p,
-          { "Processing-Rule (P)", "pcep.hdr.obj.flags.p",
+          { "Processing-Rule (P)", "pcep.obj.hdr.flags.p",
             FT_BOOLEAN, 4, TFS(&tfs_set_notset), PCEP_HDR_OBJ_P,
             NULL, HFILL }
         },
         { &hf_pcep_hdr_obj_flags_i,
-          { "Ignore (I)", "pcep.hdr.obj.flags.i",
+          { "Ignore (I)", "pcep.obj.hdr.flags.i",
             FT_BOOLEAN, 4, TFS(&tfs_set_notset), PCEP_HDR_OBJ_I,
             NULL, HFILL }
         },
@@ -4285,6 +4433,12 @@ proto_register_pcep(void)
             NULL, HFILL }
         },
 
+        { &hf_PCEPF_OBJ_BU,
+          { "BU object", "pcep.obj.bu",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         { &hf_PCEPF_OBJ_ASSOCIATION,
           { "ASSOCIATION object", "pcep.obj.association",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -4427,6 +4581,12 @@ proto_register_pcep(void)
             FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0080,
             NULL, HFILL }
         },
+        { &hf_pcep_stateful_pce_capability_flags,
+          { "Flags", "pcep.stateful-pce-capability.flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         { &hf_pcep_lsp_update_capability,
           { "LSP-UPDATE-CAPABILITY (U)", "pcep.stateful-pce-capability.lsp-update",
             FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_U,
@@ -4457,20 +4617,25 @@ proto_register_pcep(void)
             FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_F,
             NULL, HFILL }
         },
-        { &hf_pcep_sr_capability_reserved16,
-          { "Reserved", "pcep.sr.capability.reserved",
+        { &hf_pcep_sr_pce_capability_reserved,
+          { "Reserved", "pcep.tlv.sr-pce-capability.reserved",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pcep_sr_capability_flags_reserved,
-          { "Flags (reserved)", "pcep.sr.capability.flags.reserved",
+        { &hf_pcep_sr_pce_capability_flags,
+          { "Flags", "pcep.tlv.sr-pce-capability.flags",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pcep_sr_capability_msd,
-          { "SR Capability (maximum SID depth)", "pcep.sr.capability.msd",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+        { &hf_pcep_sr_pce_capability_flags_l,
+          { "L-flag", "pcep.tlv.sr-pce-capability.flags.l",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), PCEP_TLV_SR_PCE_CAPABILITY_L,
             NULL, HFILL }
+        },
+        { &hf_pcep_sr_pce_capability_msd,
+          { "MSD", "pcep.tlv.sr-pce-capability.msd",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "MSD (Maximum SID Depth)", HFILL }
         },
         { &hf_pcep_path_setup_type_reserved24,
           { "Reserved", "pcep.pst.reserved",
@@ -4483,9 +4648,9 @@ proto_register_pcep(void)
             NULL, HFILL }
         },
         { &hf_PCEPF_SUBOBJ_SR,
-          { "SUBOBJECT: SR", "pcep.subobj.sr",
+          { "SR", "pcep.subobj.sr",
             FT_NONE, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
+            "Segment Routing (SR)", HFILL }
         },
         { &hf_pcep_subobj_sr_l,
           { "L", "pcep.subobj.sr.l",
@@ -4509,28 +4674,48 @@ proto_register_pcep(void)
         },
         { &hf_pcep_subobj_sr_flags_m,
           { "SID value represents an MPLS label w/o TC, S, and TTL (M)", "pcep.subobj.sr.flags.m",
-            FT_BOOLEAN, 12, TFS(&tfs_set_notset), 0x01,
+            FT_BOOLEAN, 12, TFS(&tfs_set_notset), PCEP_SUBOBJ_SR_FLAGS_M,
             NULL, HFILL }
         },
         { &hf_pcep_subobj_sr_flags_c,
           { "SID value represents an MPLS label w/ TC, S, and TTL (C)", "pcep.subobj.sr.flags.c",
-            FT_BOOLEAN, 12, TFS(&tfs_set_notset), 0x02,
+            FT_BOOLEAN, 12, TFS(&tfs_set_notset), PCEP_SUBOBJ_SR_FLAGS_C,
             NULL, HFILL }
         },
         { &hf_pcep_subobj_sr_flags_s,
           { "SID value is null (S)", "pcep.subobj.sr.flags.s",
-            FT_BOOLEAN, 12, TFS(&tfs_set_notset), 0x04,
+            FT_BOOLEAN, 12, TFS(&tfs_set_notset), PCEP_SUBOBJ_SR_FLAGS_S,
             NULL, HFILL }
         },
         { &hf_pcep_subobj_sr_flags_f,
           { "NAI value is null (F)", "pcep.subobj.sr.flags.f",
-            FT_BOOLEAN, 12, TFS(&tfs_set_notset), 0x08,
+            FT_BOOLEAN, 12, TFS(&tfs_set_notset), PCEP_SUBOBJ_SR_FLAGS_F,
             NULL, HFILL }
         },
         { &hf_pcep_subobj_sr_sid,
           { "SID", "pcep.subobj.sr.sid",
-            FT_UINT32, BASE_DEC, NULL, 0xFFFFF000,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_sid_label,
+          { "SID/Label", "pcep.subobj.sr.sid.label",
+            FT_UINT32, BASE_DEC, NULL, 0xfffff000,
+            "SID represent MPLS Lable stack: Lable", HFILL }
+        },
+        { &hf_pcep_subobj_sr_sid_tc,
+          {"SID/TC", "pcep.subobj.sr.sid.tc",
+            FT_UINT32, BASE_DEC, NULL, 0x00000E00,
+            "SID represent MPLS Lable stack: Traffic Class field", HFILL }
+        },
+        { &hf_pcep_subobj_sr_sid_s,
+          {"SID/S", "pcep.subobj.sr.sid.s",
+            FT_UINT32, BASE_DEC, NULL, 0x00000100,
+            "SID represent MPLS Lable stack: Bottom of Stack", HFILL }
+        },
+        { &hf_pcep_subobj_sr_sid_ttl,
+          {"SID/TTL", "pcep.subobj.sr.sid.ttl",
+            FT_UINT32, BASE_DEC, NULL, 0x0000000FF,
+            "SID represent MPLS Lable stack: Time to Live", HFILL }
         },
         { &hf_pcep_subobj_sr_nai_ipv4_node,
           { "NAI (IPv4 Node ID)", "pcep.subobj.sr.nai.ipv4node",
@@ -4541,6 +4726,46 @@ proto_register_pcep(void)
           { "NAI (IPv6 Node ID)", "pcep.subobj.sr.nai.ipv6node",
             FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_nai_local_ipv4_addr,
+          { "Local IPv4 address", "pcep.subobj.sr.nai.localipv4addr",
+            FT_IPv4, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_nai_remote_ipv4_addr,
+          { "Remote IPv4 address", "pcep.subobj.sr.nai.remoteipv4addr",
+            FT_IPv4, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_nai_local_ipv6_addr,
+          { "Local IPv6 address", "pcep.subobj.sr.nai.localipv6addr",
+            FT_IPv6, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_nai_remote_ipv6_addr,
+          { "Remote IPv6 address", "pcep.subobj.sr.nai.remoteipv6addr",
+            FT_IPv6, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_nai_local_node_id,
+          { "Local Node-ID", "pcep.subobj.sr.nai.localnodeid",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_nai_local_interface_id,
+          { "Local Interface ID", "pcep.subobj.sr.nai.localinterfaceid",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_nai_remote_node_id,
+          { "Remote Node-ID", "pcep.subobj.sr.nai.remotenodeid",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_nai_remote_interface_id,
+          { "Remote Interface ID", "pcep.subobj.sr.nai.remoteinterfaceid",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }
         },
 
         /* Generated from convert_proto_tree_add_text.pl */
@@ -5364,6 +5589,21 @@ proto_register_pcep(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pcep_bu_reserved,
+          { "Reserved", "pcep.obj.bu.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_bu_butype,
+          { "Type", "pcep.obj.bu.butype",
+            FT_UINT8, BASE_DEC, VALS(pcep_bu_butype_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_bu_utilization,
+          { "Bandwidth Utilization", "pcep.obj.bu.utilization",
+            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            "The bandwidth utilization quantified as a percentage and encoded in IEEE floating point format", HFILL }
+        },
         { &hf_pcep_obj_open_type,
           { "OPEN Object-Type", "pcep.obj.open.type",
             FT_UINT8, BASE_DEC, VALS(pcep_obj_open_type_vals), MASK_OBJ_TYPE,
@@ -5544,6 +5784,12 @@ proto_register_pcep(void)
             NULL, HFILL }
         },
 
+        { &hf_pcep_obj_bu_type,
+          { "BU Object-Type", "pcep.obj.bu.type",
+            FT_UINT8, BASE_DEC, VALS(pcep_obj_bu_type_vals), MASK_OBJ_TYPE,
+            NULL, HFILL }
+        },
+
         { &hf_pcep_obj_association_type,
           { "ASSOCIATION Object-Type", "pcep.obj.association.type",
             FT_UINT8, BASE_DEC, VALS(pcep_obj_association_type_vals), MASK_OBJ_TYPE,
@@ -5582,6 +5828,7 @@ proto_register_pcep(void)
         &ett_pcep_obj_lsp,
         &ett_pcep_obj_srp,
         &ett_pcep_obj_vendor_information,
+        &ett_pcep_obj_bu,
         &ett_pcep_obj_association,
         &ett_pcep_obj_unknown
     };
