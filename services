@@ -8161,6 +8161,9 @@ netxms-sync      4702/tcp # NetXMS Server Synchronization [Victor_Kirhenshtein] 
 netxms-sync      4702/udp # NetXMS Server Synchronization [Victor_Kirhenshtein] [Victor_Kirhenshtein] 2006-07
 npqes-test       4703/tcp # Network Performance Quality Evaluation System Test Service [Zhengli] [Zhengli] 2010-06-28
 assuria-ins      4704/tcp # Assuria Insider [Nick_Connor] [Nick_Connor] 2010-06-30
+trinity-dist     4711/tcp # Trinity Trust Network Node Communication [P3KI_GmbH] [Gregor_Jehle] 2017-01-12
+trinity-dist     4711/udp # Trinity Trust Network Node Communication [P3KI_GmbH] [Gregor_Jehle] 2017-01-12
+trinity-dist     4711/sctp # Trinity Trust Network Node Communication [P3KI_GmbH] [Gregor_Jehle] 2017-01-12
 truckstar        4725/tcp # TruckStar Service [Brian_Toothill] [Brian_Toothill] 2010-10-15
 truckstar        4725/udp # TruckStar Service [Brian_Toothill] [Brian_Toothill] 2010-10-15
 a26-fap-fgw      4726/udp # A26 (FAP-FGW) [David_Ott] [David_Ott] 2010-10-15
