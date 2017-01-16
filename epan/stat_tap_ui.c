@@ -283,6 +283,18 @@ void free_stat_tables(stat_tap_table_ui* new_stat, new_stat_tap_gui_free_cb gui_
     g_array_set_size(new_stat->tables, 0);
 }
 
+static void
+stat_cmd_arg_list_free(gpointer p, gpointer user_data _U_)
+{
+    g_free(p);
+}
+
+void stat_tap_table_cleanup(void)
+{
+    g_slist_free(registered_stat_tables);
+    g_list_foreach(stat_cmd_arg_list, stat_cmd_arg_list_free, NULL);
+    g_list_free(stat_cmd_arg_list);
+}
 
 /*
  * Editor modelines

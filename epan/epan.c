@@ -56,6 +56,7 @@
 #include "capture_dissectors.h"
 #include "exported_pdu.h"
 #include "export_object.h"
+#include "stat_tap_ui.h"
 
 #ifdef HAVE_LUA
 #include <lua.h>
@@ -209,6 +210,7 @@ epan_cleanup(void)
 	capture_dissector_cleanup();
 	export_pdu_cleanup();
 	export_object_cleanup();
+	stat_tap_table_cleanup();
 #ifdef HAVE_LUA
 	wslua_cleanup();
 #endif

@@ -200,6 +200,8 @@ WS_DLL_PUBLIC void list_stat_cmd_args(void);
 
 WS_DLL_PUBLIC void start_requested_stats(void);
 
+extern void stat_tap_table_cleanup(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
