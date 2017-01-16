@@ -229,6 +229,8 @@ WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_orig_frame_num;
 
 extern void export_pdu_init(void);
 
+extern void export_pdu_cleanup(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

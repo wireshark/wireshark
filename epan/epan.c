@@ -206,6 +206,7 @@ epan_cleanup(void)
 	packet_cleanup();
 	expert_cleanup();
 	capture_dissector_cleanup();
+	export_pdu_cleanup();
 #ifdef HAVE_LUA
 	wslua_cleanup();
 #endif
