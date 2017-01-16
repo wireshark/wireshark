@@ -121,6 +121,12 @@ struct depend_dissector_list {
 /* Maps char *dissector_name to depend_dissector_list_t */
 static GHashTable *depend_dissector_lists = NULL;
 
+/* List of routines that are called before we make a pass through a capture file
+ * and dissect all its packets. See register_init_routine and
+ * register_cleanup_routine in packet.h */
+static GSList *init_routines = NULL;
+static GSList *cleanup_routines = NULL;
+
 static void
 destroy_depend_dissector_list(void *data)
 {
@@ -212,6 +218,8 @@ packet_cache_proto_handles(void)
 void
 packet_cleanup(void)
 {
+	g_slist_free(init_routines);
+	g_slist_free(cleanup_routines);
 	g_hash_table_destroy(dissector_tables);
 	g_hash_table_destroy(registered_dissectors);
 	g_hash_table_destroy(depend_dissector_lists);
@@ -236,12 +244,6 @@ set_actual_length(tvbuff_t *tvb, const guint specified_len)
 		tvb_set_reported_length(tvb, specified_len);
 	}
 }
-
-/* List of routines that are called before we make a pass through a capture file
- * and dissect all its packets. See register_init_routine and
- * register_cleanup_routine in packet.h */
-static GSList *init_routines = NULL;
-static GSList *cleanup_routines = NULL;
 
 void
 register_init_routine(void (*func)(void))
