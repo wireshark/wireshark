@@ -55,6 +55,7 @@
 #include "print.h"
 #include "capture_dissectors.h"
 #include "exported_pdu.h"
+#include "export_object.h"
 
 #ifdef HAVE_LUA
 #include <lua.h>
@@ -207,6 +208,7 @@ epan_cleanup(void)
 	expert_cleanup();
 	capture_dissector_cleanup();
 	export_pdu_cleanup();
+	export_object_cleanup();
 #ifdef HAVE_LUA
 	wslua_cleanup();
 #endif

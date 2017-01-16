@@ -135,6 +135,10 @@ WS_DLL_PUBLIC const char *eo_ct2ext(const char *content_type);
  */
 WS_DLL_PUBLIC void eo_free_entry(export_object_entry_t *entry);
 
+/** Free the export objects table
+ */
+extern void export_object_cleanup(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

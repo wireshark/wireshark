@@ -197,6 +197,21 @@ void eo_free_entry(export_object_entry_t *entry)
 
     g_free(entry);
 }
+
+static void
+free_eo_table(gpointer p, gpointer user_data _U_)
+{
+    register_eo_t *table = (register_eo_t*)p;
+    g_free((gpointer)table->tap_listen_str);
+    g_free(table);
+}
+
+void export_object_cleanup(void)
+{
+    g_slist_foreach(registered_eo_tables, free_eo_table, NULL);
+    g_slist_free(registered_eo_tables);
+}
+
 /*
  * Editor modelines
  *
