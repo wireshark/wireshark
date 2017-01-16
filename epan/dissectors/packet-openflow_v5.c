@@ -33,6 +33,7 @@
 
 void proto_register_openflow_v5(void);
 void proto_reg_handoff_openflow_v5(void);
+static int dissect_openflow_message_v5(tvbuff_t *, packet_info *, proto_tree *, int);
 
 static dissector_handle_t eth_withoutfcs_handle;
 
@@ -1783,6 +1784,7 @@ static void
 dissect_openflow_error_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
 {
     proto_tree *data_tree;
+    proto_item *data_ti;
     guint16 error_type;
 
     /* uint16_t type; */
@@ -1872,14 +1874,30 @@ dissect_openflow_error_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     case OFPET_SWITCH_CONFIG_FAILED:
     case OFPET_ROLE_REQUEST_FAILED:
     case OFPET_METER_MOD_FAILED:
-    case OFPET_TABLE_FEATURES_FAILED:
+    case OFPET_TABLE_FEATURES_FAILED: {
         /* uint8_t data[0]; contains at least the first 64 bytes of the failed request. */
-        data_tree = proto_tree_add_subtree(tree, tvb, offset, length - offset, ett_openflow_v5_error_data, NULL, "Data");
+        gboolean save_in_error_pkt;
 
-        offset = dissect_openflow_header_v5(tvb, pinfo, data_tree, offset, length);
+        data_ti = proto_tree_add_item(tree, hf_openflow_v5_error_data_body, tvb, offset, length - 20, ENC_NA);
+        data_tree = proto_item_add_subtree(data_ti, ett_openflow_v5_error_data);
 
-        proto_tree_add_item(data_tree, hf_openflow_v5_error_data_body, tvb, offset, length - 20, ENC_NA);
+        /* Save error pkt */
+        save_in_error_pkt = pinfo->flags.in_error_pkt;
+        pinfo->flags.in_error_pkt = TRUE;
+
+        /* Disable update/change of column info */
+        col_set_writable(pinfo->cinfo, -1, FALSE);
+
+        dissect_openflow_message_v5(tvb, pinfo, data_tree, offset);
+
+        /* Restore the "we're inside an error packet" flag. */
+        pinfo->flags.in_error_pkt = save_in_error_pkt;
+
+        /* Restore the capability of update/change column info */
+        col_set_writable(pinfo->cinfo, -1, TRUE);
+
         /*offset += length - 12;*/
+        }
         break;
 
     case OFPET_EXPERIMENTER:
