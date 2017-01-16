@@ -725,12 +725,12 @@ wmem_tree_print_nodes(const char *prefix, wmem_tree_node_t *node, guint32 level,
             (void *)node->left, (void *)node->right,
             node->color?"Black":"Red", node->key,
             node->is_subtree?"tree":"data", node->data);
-    if(key_printer) {
+    if (key_printer) {
         wmem_print_indent(level);
         key_printer(node->key);
         ws_debug_printf("\n");
     }
-    if(data_printer) {
+    if (data_printer && !node->is_subtree) {
         wmem_print_indent(level);
         data_printer(node->data);
         ws_debug_printf("\n");
