@@ -400,6 +400,13 @@ static int hf_bthci_evt_service_data = -1;
 static int hf_bthci_evt_receive_status = -1;
 static int hf_bthci_evt_fragment = -1;
 static int hf_bthci_evt_data = -1;
+static int hf_bthci_evt_le_number_of_reports = -1;
+static int hf_bthci_evt_le_report = -1;
+static int hf_bthci_evt_le_event_type = -1;
+static int hf_bthci_evt_le_direct_address_type = -1;
+static int hf_bthci_evt_le_direct_bd_addr = -1;
+static int hf_bthci_evt_le_address_type = -1;
+static int hf_bthci_evt_le_rssi = -1;
 
 static const int *hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_encryption,
@@ -433,6 +440,7 @@ static gint ett_ptype_subtree = -1;
 static gint ett_le_state_subtree = -1;
 static gint ett_le_channel_map = -1;
 static gint ett_le_features = -1;
+static gint ett_le_report = -1;
 static gint ett_mws_transport_layers = -1;
 static gint ett_mws_transport_layers_item = -1;
 static gint ett_mws_to_mws_baud_rates = -1;
@@ -817,6 +825,11 @@ static const value_string fragment_vals[] = {
     { 0x01,  "Start" },
     { 0x01,  "End" },
     { 0x01,  "No Fragmentation" },
+    { 0, NULL }
+};
+
+static const value_string event_type_vals[] = {
+    { 0x01,  "Connectable directed advertising (ADV_DIRECT_IND)" },
     { 0, NULL }
 };
 
@@ -2351,7 +2364,43 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             break;
         case 0x0B: /* LE Direct Advertising Report */
-/* TODO */
+            {
+            guint8  number_of_reports;
+            guint8  report_id = 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_le_number_of_reports, tvb, offset, 1, ENC_NA);
+            number_of_reports = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            while (number_of_reports) {
+                proto_item *report_item;
+                proto_tree *report_tree;
+
+                report_item = proto_tree_add_none_format(tree, hf_bthci_evt_le_report, tvb, offset, 16, "Item %u",
+                        report_id);
+                report_tree = proto_item_add_subtree(report_item, ett_le_report);
+
+                proto_tree_add_item(report_tree, hf_bthci_evt_le_event_type, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(report_tree, hf_bthci_evt_le_direct_address_type, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                offset = dissect_bd_addr(hf_bthci_evt_le_direct_bd_addr, pinfo, report_tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+
+                proto_tree_add_item(report_tree, hf_bthci_evt_le_address_type, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, report_tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+
+                proto_tree_add_item(report_tree, hf_bthci_evt_le_rssi, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                report_id += 1;
+            }
+
+            }
+            break;
         default:
             break;
     }
@@ -7267,6 +7316,41 @@ proto_register_bthci_evt(void)
           { "Data",                                        "bthci_evt.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_number_of_reports,
+          { "Number of Reports",                           "bthci_evt.number_of_reports",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_report,
+          { "Report",                                      "bthci_evt.report",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_event_type,
+          { "Event Type",                           "bthci_evt.event_type",
+            FT_UINT8, BASE_HEX, VALS(event_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_direct_bd_addr,
+          { "Direct BD_ADDR",          "bthci_evt.direct_bd_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_bthci_evt_le_direct_address_type,
+          { "Direct Address Type", "bthci_evt.le_direct_address_type",
+            FT_UINT8, BASE_HEX, VALS(bthci_cmd_address_types_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_address_type,
+          { "Address Type", "bthci_evt.le_address_type",
+            FT_UINT8, BASE_HEX, VALS(bthci_cmd_address_types_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_rssi,
+          { "RSSI (dBm)", "bthci_evt.le_rssi",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
         }
     };
 
@@ -7289,6 +7373,7 @@ proto_register_bthci_evt(void)
         &ett_le_state_subtree,
         &ett_le_channel_map,
         &ett_le_features,
+        &ett_le_report,
         &ett_mws_transport_layers,
         &ett_mws_transport_layers_item,
         &ett_mws_to_mws_baud_rates,
