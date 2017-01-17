@@ -2076,12 +2076,14 @@ static int capture_android_logcat_text(char *interface, char *fifo,
             time_t     seconds;
             time_t     secs = 0;
             int        nsecs = 0;
+            time_t     t;
 
             length = (gssize)(pos - packet) + 1;
 
+            t = time(NULL);
+            date = *localtime(&t);
             if (6 == sscanf(packet + exported_pdu_headers_size, "%d-%d %d:%d:%d.%d", &date.tm_mon, &date.tm_mday, &date.tm_hour,
                             &date.tm_min, &date.tm_sec, &ms)) {
-                date.tm_year = 70;
                 date.tm_mon -= 1;
                 seconds = mktime(&date);
                 secs = (time_t) seconds;
