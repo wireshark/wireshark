@@ -77,15 +77,23 @@ static const value_string gmhdr_ftype_timestamp[] = {
 #define GMHDR_SRCPORT_H_PID_SHFT    0
 
 static const value_string gmhdr_plfm_str[] = {
-  { 0, "Reserved" },
-  { 1, "GV-2404" },
-  { 2, "GV-420" },
-  { 3, "GV-MP" },
-  { 4, "HD4" },
-  { 5, "HD8" },
-  { 6, "GV-212" },
-  { 7, "HB1" },
-  { 8, "HC2" },
+  { 0,  "Reserved" },
+  { 1,  "GV-2404" },
+  { 2,  "GV-420" },
+  { 3,  "GV-MP" },
+  { 4,  "HD4" },
+  { 5,  "HD8" },
+  { 6,  "GV-212" },
+  { 7,  "HB1" },
+  { 8,  "HC2" },
+  { 9,  "TA1" },
+  { 10, "TA10" },
+  { 11, "TA40" },
+  { 12, "LY2" },
+  { 13, "TA100" },
+  { 14, "TACX" },
+  { 15, "HC1" },
+  { 16, "HC3" },
   { 0, NULL }
 };
 
