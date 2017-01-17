@@ -88,12 +88,21 @@ static gint ett_svhdx_tunnel_scsi_request = -1;
 static gint ett_svhdx_tunnel_file_info_response = -1;
 
 static const value_string rsvd_operation_code_vals[] = {
-        { 1, "RSVD_TUNNEL_GET_FILE_INFO" },
-        { 2, "RSVD_TUNNEL_SCSI" },
-        { 3, "RSVD_TUNNEL_CHECK_CONNECTION_STATUS" },
-        { 4, "RSVD_TUNNEL_SRB_STATUS" },
-        { 5, "RSVD_TUNNEL_GET_DISK_INFO" },
-        { 6, "RSVD_TUNNEL_VALIDATE_DISK" },
+        { 0x02001001, "RSVD_TUNNEL_GET_INITIAL_INFO" },
+        { 0x02001002, "RSVD_TUNNEL_SCSI" },
+        { 0x02001003, "RSVD_TUNNEL_CHECK_CONNECTION_STATUS" },
+        { 0x02001004, "RSVD_TUNNEL_SRB_STATUS" },
+        { 0x02001005, "RSVD_TUNNEL_GET_DISK_INFO" },
+        { 0x02001006, "RSVD_TUNNEL_VALIDATE_DISK" },
+        { 0x02002101, "RSVD_TUNNEL_META_OPERATION_START" },
+        { 0x02002002, "RSVD_TUNNEL_META_OPERATION_QUERY_PROGRESS" },
+        { 0x02002005, "RSVD_TUNNEL_VHDSET_QUERY_INFORMATION" },
+        { 0x02002006, "RSVD_TUNNEL_DELETE_SNAPSHOT" },
+        { 0x02002008, "RSVD_TUNNEL_CHANGE_TRACKING_GET_PARAMETERS" },
+        { 0x02002009, "RSVD_TUNNEL_CHANGE_TRACKING_START" },
+        { 0x0200200A, "RSVD_TUNNEL_CHANGE_TRACKING_STOP" },
+        { 0x0200200C, "RSVD_TUNNEL_QUERY_VIRTUAL_DISK_CHANGES" },
+        { 0x0200200D, "RSVD_TUNNEL_QUERY_SAFE_SIZE" },
         { 0, NULL }
 };
 
@@ -150,13 +159,13 @@ get_itl_nexus(packet_info *pinfo)
 }
 
 static int
-dissect_RSVD_GET_FILE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD_GET_INITIAL_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
 {
     if (!request) {
         proto_tree *gfi_sub_tree;
         proto_item *gfi_sub_item _U_;
 
-        gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_GET_FILE_INFO_RESPONSE");
+        gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_GET_INITIAL_INFO_RESPONSE");
 
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_file_info_server_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
@@ -544,7 +553,7 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     guint32 header_bytes = 0;
     guint proto_id = 0;
     guint proto_version = 0;
-    guint operation_code = 0;
+    guint32 operation_code = 0;
     proto_item *ti;
     proto_tree *rsvd_tree;
     proto_item *sub_item;
@@ -569,7 +578,7 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     header_bytes = tvb_get_letohl(tvb, 0); /* Get the header bytes */
     proto_id = header_bytes >> 24;
     proto_version = (header_bytes >> 12) & 0x0FFF;
-    operation_code = header_bytes & 0x0FFF;
+    operation_code = header_bytes;
 
     ti = proto_tree_add_item(parent_tree, proto_rsvd, tvb, offset, -1, ENC_NA);
 
@@ -596,30 +605,30 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     proto_tree_add_item(sub_tree, hf_svhdx_request_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
 
-   col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
                     val_to_str(operation_code,
                                rsvd_operation_code_vals,
-                               "Unknown Operation Code (0x%03X)"),
+                               "Unknown Operation Code (0x%08X)"),
                     request ? "Request" : "Response");
 
-   proto_item_append_text(ti, ", %s %s",
+    proto_item_append_text(ti, ", %s %s",
                           val_to_str(operation_code,
                                      rsvd_operation_code_vals,
-                                     "Unknown Operation Code (0x%03X)"),
+                                     "Unknown Operation Code (0x%08X)"),
                           request ? "Request" : "Response");
     /*
      * Now process the individual requests ...
      */
     switch (operation_code) {
-    case 0x001:
-        offset += dissect_RSVD_GET_FILE_INFO(tvb, pinfo, rsvd_tree, offset, len - offset, request);
+    case 0x02001001:
+        offset += dissect_RSVD_GET_INITIAL_INFO(tvb, pinfo, rsvd_tree, offset, len - offset, request);
         break;
 
-    case 0x002:
+    case 0x02001002:
         offset += dissect_RSVD_TUNNEL_SCSI(tvb, pinfo, rsvd_tree, offset, len - offset, request, request_id);
         break;
 
-    case 0x003:
+    case 0x02001003:
 
         /*
          * There is nothing more here.
@@ -627,17 +636,19 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 
         break;
 
-    case 0x004:
+    case 0x02001004:
         offset += dissect_RSVD_SRB_STATUS(tvb, pinfo, rsvd_tree, offset, len - offset, request);
         break;
 
-    case 0x005:
+    case 0x02001005:
         offset += dissect_RSVD_GET_DISK_INFO(tvb, pinfo, rsvd_tree, offset, len - offset, request);
         break;
 
-    case 0x006:
+    case 0x02001006:
         offset += dissect_RSVD_VALIDATE_DISK(tvb, pinfo, rsvd_tree, offset, len - offset, request);
         break;
+
+    /* TODO: implement dissectors for RSVD v2 */
 
     default:
         break;
@@ -660,7 +671,7 @@ proto_register_rsvd(void)
                      NULL, 0, NULL, HFILL }},
 
                 { &hf_svhdx_operation_code,
-                  { "OperationCode", "rsvd.svhdx_operation_code", FT_UINT16, BASE_HEX,
+                  { "OperationCode", "rsvd.svhdx_operation_code", FT_UINT32, BASE_HEX,
                      VALS(rsvd_operation_code_vals), 0, "Operation Code", HFILL }},
 
                 { &hf_svhdx_status,

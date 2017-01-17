@@ -1569,6 +1569,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x00090314, "FSCTL_DELETE_EXTERNAL_BACKING"},
 	{0x00090318, "FSCTL_ENUM_EXTERNAL_BACKING"},
 	{0x0009031F, "FSCTL_ENUM_OVERLAY"},
+	{0x00090364, "FSCTL_SVHDX_ASYNC_TUNNEL_REQUEST"},             /* dissector implemented */
 	{0x000940B3, "FSCTL_ENUM_USN_DATA"},
 	{0x000940B7, "FSCTL_SECURITY_ID_CHECK"},
 	{0x000940BB, "FSCTL_READ_USN_JOURNAL"},
@@ -6222,6 +6223,7 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 			dissect_smb2_FSCTL_QUERY_SHARED_VIRTUAL_DISK_SUPPORT(tvb, pinfo, tree, 0, dc);
 		break;
 	case 0x00090304: /* FSCTL_SVHDX_SYNC_TUNNEL or response */
+	case 0x00090364: /* FSCTL_SVHDX_ASYNC_TUNNEL or response */
 		call_dissector_with_data(rsvd_handle, tvb, pinfo, top_tree, &data_in);
 		break;
 	case 0x0009C040: /* FSCTL_SET_COMPRESSION */
