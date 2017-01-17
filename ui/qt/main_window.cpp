@@ -169,7 +169,7 @@ static void plugin_if_mainwindow_get_ws_info(gconstpointer user_data)
         g_free(ws_info->cf_filename);
         ws_info->cf_filename = g_strdup(cf->filename);
 
-        if (cf->state == FILE_READ_DONE) {
+        if (cf->state == FILE_READ_DONE && cf->current_frame) {
             ws_info->cf_framenr = cf->current_frame->num;
             ws_info->frame_passed_dfilter = (cf->current_frame->flags.passed_dfilter == 1);
         } else {
