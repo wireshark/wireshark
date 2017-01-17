@@ -89,6 +89,7 @@ const unit_name_string units_microwatts = { UTF8_MICRO_SIGN "W", NULL };
 const unit_name_string units_meter_sec = { "m/s", NULL };
 const unit_name_string units_meter_sec_squared = { "m/s" UTF8_SUPERSCRIPT_TWO , NULL };
 const unit_name_string units_segment_remaining = { " segment remaining", " segments remaining" };
+const unit_name_string units_frame_frames = { " frame", " frames" };
 
 
 /*

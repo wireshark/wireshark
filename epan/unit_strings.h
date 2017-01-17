@@ -88,6 +88,7 @@ WS_DLL_PUBLIC const unit_name_string units_meter_sec;
 WS_DLL_PUBLIC const unit_name_string units_meter_sec_squared;
 WS_DLL_PUBLIC const unit_name_string units_bit_sec;
 WS_DLL_PUBLIC const unit_name_string units_segment_remaining;
+WS_DLL_PUBLIC const unit_name_string units_frame_frames;
 
 #ifdef __cplusplus
 }

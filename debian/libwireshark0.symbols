@@ -1654,6 +1654,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_decibals@Base 2.3.0
  units_degree_degrees@Base 2.3.0
  units_foot_feet@Base 2.3.0
+ units_frame_frames@Base 2.3.0
  units_ghz@Base 2.3.0
  units_hz@Base 2.3.0
  units_hz_s@Base 2.3.0

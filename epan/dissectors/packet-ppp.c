@@ -111,16 +111,13 @@ static int hf_ppp_magic_number = -1;
 static int hf_ppp_oui = -1;
 static int hf_ppp_kind = -1;
 static int hf_ppp_data = -1;
-static int hf_ppp_opt_type = -1;
-static int hf_ppp_opt_type_copy = -1;
-static int hf_ppp_opt_type_class = -1;
-static int hf_ppp_opt_type_number = -1;
 static int hf_ppp_fcs_16 = -1;
 static int hf_ppp_fcs_32 = -1;
 static int hf_ppp_fcs_status = -1;
 
 static gint ett_ppp = -1;
 static gint ett_ppp_opt_type = -1;
+static gint ett_ppp_unknown_opt = -1;
 
 static expert_field ei_ppp_opt_len_invalid = EI_INIT;
 static expert_field ei_ppp_fcs = EI_INIT;
@@ -134,6 +131,33 @@ static int hf_ppp_hdlc_fragment = -1;
 static gint ett_ppp_hdlc_data = -1;
 
 static int proto_lcp = -1;
+static int proto_lcp_option_vendor = -1;
+static int proto_lcp_option_mru = -1;
+static int proto_lcp_option_async_map = -1;
+static int proto_lcp_option_authprot = -1;
+static int proto_lcp_option_qualprot = -1;
+static int proto_lcp_option_magicnumber = -1;
+static int proto_lcp_option_linkqualmon = -1;
+static int proto_lcp_option_field_compress = -1;
+static int proto_lcp_option_addr_field_compress = -1;
+static int proto_lcp_option_fcs_alternatives = -1;
+static int proto_lcp_option_self_desc_pad = -1;
+static int proto_lcp_option_numbered_mode = -1;
+static int proto_lcp_option_callback = -1;
+static int proto_lcp_option_compound_frames = -1;
+static int proto_lcp_option_nomdataencap = -1;
+static int proto_lcp_option_multilink_mrru = -1;
+static int proto_lcp_option_multilink_ssnh = -1;
+static int proto_lcp_option_multilink_ep_disc = -1;
+static int proto_lcp_option_dce_identifier = -1;
+static int proto_lcp_option_multilink_pp = -1;
+static int proto_lcp_option_link_discrim = -1;
+static int proto_lcp_option_auth = -1;
+static int proto_lcp_option_cobs = -1;
+static int proto_lcp_option_prefix_elision = -1;
+static int proto_lcp_option_multilink_hdr_fmt = -1;
+static int proto_lcp_option_internationalization = -1;
+static int proto_lcp_option_sonet_sdh = -1;
 
 static gint ett_lcp = -1;
 static gint ett_lcp_options = -1;
@@ -164,9 +188,23 @@ static gint ett_lcp_cobs_opt = -1;
 static gint ett_lcp_prefix_elision_opt = -1;
 static gint ett_multilink_hdr_fmt_opt = -1;
 static gint ett_lcp_internationalization_opt = -1;
-static gint ett_lcp_simple_opt = -1;
+static gint ett_lcp_sonet_sdh_opt = -1;
+
+static dissector_table_t lcp_option_table;
 
 static int proto_ipcp = -1;
+static int proto_ipcp_option_addrs = -1;
+static int proto_ipcp_option_compress = -1;
+static int proto_ipcp_option_addr = -1;
+static int proto_ipcp_option_mobileipv4 = -1;
+static int proto_ipcp_option_pri_dns = -1;
+static int proto_ipcp_option_pri_nbns = -1;
+static int proto_ipcp_option_sec_dns = -1;
+static int proto_ipcp_option_sec_nbns = -1;
+static int proto_ipcp_rohc_option_profiles = -1;
+static int proto_ipcp_iphc_option_rtp_compress = -1;
+static int proto_ipcp_iphc_option_enhanced_rtp_compress = -1;
+static int proto_ipcp_iphc_option_neghdrcomp = -1;
 
 static gint ett_ipcp = -1;
 static gint ett_ipcp_options = -1;
@@ -184,8 +222,25 @@ static gint ett_ipcp_iphc_enhanced_rtp_compress_opt = -1;
 static gint ett_ipcp_iphc_neghdrcomp_opt = -1;
 static gint ett_ipcp_rohc_profiles_opt = -1;
 
-static int proto_vsncp = -1;
+static dissector_table_t ipcp_option_table;
+static dissector_table_t ipcp_rohc_suboption_table;
+static dissector_table_t ipcp_iphc_suboption_table;
 
+static int proto_vsncp = -1;
+static int proto_vsncp_option_pdnid = -1;
+static int proto_vsncp_option_apname = -1;
+static int proto_vsncp_option_pdntype = -1;
+static int proto_vsncp_option_pdnaddress = -1;
+static int proto_vsncp_option_pco = -1;
+static int proto_vsncp_option_errorcode = -1;
+static int proto_vsncp_option_attachtype = -1;
+static int proto_vsncp_option_ipv4address = -1;
+static int proto_vsncp_option_addressalloc = -1;
+static int proto_vsncp_option_apn_ambr = -1;
+static int proto_vsncp_option_ipv6_hsgw_lla_iid = -1;
+
+static int hf_vsncp_opt_type = -1;
+static int hf_vsncp_opt_length = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_vsncp_protocol_configuration_length = -1;
 static int hf_vsncp_error_code = -1;
@@ -207,6 +262,19 @@ static int hf_vsncp_pdn_ipv6 = -1;
 
 static gint ett_vsncp = -1;
 static gint ett_vsncp_options = -1;
+static gint ett_vsncp_pdnid_opt = -1;
+static gint ett_vsncp_apname_opt = -1;
+static gint ett_vsncp_pdntype_opt = -1;
+static gint ett_vsncp_pdnaddress_opt = -1;
+static gint ett_vsncp_pco_opt = -1;
+static gint ett_vsncp_errorcode_opt = -1;
+static gint ett_vsncp_attachtype_opt = -1;
+static gint ett_vsncp_ipv4address_opt = -1;
+static gint ett_vsncp_addressalloc_opt = -1;
+static gint ett_vsncp_apn_ambr_opt = -1;
+static gint ett_vsncp_ipv6_hsgw_lla_iid_opt = -1;
+
+static dissector_table_t vsncp_option_table;
 
 static int proto_vsnp = -1;
 static gint hf_vsnp_pdnid = -1;
@@ -214,10 +282,13 @@ static gint hf_vsnp_pdnid = -1;
 static gint ett_vsnp =-1;
 
 static int proto_osinlcp = -1;
+static int proto_osinlcp_option_align_npdu = -1;
 
 static gint ett_osinlcp = -1;
 static gint ett_osinlcp_options = -1;
 static gint ett_osinlcp_align_npdu_opt = -1;
+
+static dissector_table_t osinlcp_option_table;
 
 static int proto_bcp_bpdu = -1;
 static int hf_bcp_bpdu_flags = -1;
@@ -232,6 +303,17 @@ static gint ett_bcp_bpdu = -1;
 static gint ett_bcp_bpdu_flags = -1;
 
 static int proto_bcp_ncp = -1;
+static int proto_bcp_ncp_option_bridge_id = -1;
+static int proto_bcp_ncp_option_line_id = -1;
+static int proto_bcp_ncp_option_mac_sup = -1;
+static int proto_bcp_ncp_option_tinygram_comp = -1;
+static int proto_bcp_ncp_option_lan_id = -1;
+static int proto_bcp_ncp_option_mac_addr = -1;
+static int proto_bcp_ncp_option_stp = -1;
+static int proto_bcp_ncp_option_ieee_802_tagged_frame = -1;
+static int proto_bcp_ncp_option_management_inline = -1;
+static int proto_bcp_ncp_option_bcp_ind = -1;
+
 static int hf_bcp_ncp_opt_type = -1;
 static int hf_bcp_ncp_opt_length = -1;
 static int hf_bcp_ncp_lan_seg_no = -1;
@@ -256,7 +338,25 @@ static gint ett_bcp_ncp_lan_id_opt = -1;
 static gint ett_bcp_ncp_mac_addr_opt = -1;
 static gint ett_bcp_ncp_stp_opt = -1;
 
+static dissector_table_t bcp_ncp_option_table;
+
 static int proto_ccp = -1;
+static int proto_ccp_option_oui = -1;
+static int proto_ccp_option_predict1 = -1;
+static int proto_ccp_option_predict2 = -1;
+static int proto_ccp_option_puddle = -1;
+static int proto_ccp_option_hpppc = -1;
+static int proto_ccp_option_stac = -1;
+static int proto_ccp_option_stac_ascend = -1;
+static int proto_ccp_option_mppe = -1;
+static int proto_ccp_option_gfza = -1;
+static int proto_ccp_option_v42bis = -1;
+static int proto_ccp_option_bsdcomp = -1;
+static int proto_ccp_option_lzsdcp = -1;
+static int proto_ccp_option_mvrca = -1;
+static int proto_ccp_option_dce = -1;
+static int proto_ccp_option_deflate = -1;
+static int proto_ccp_option_v44lzjh = -1;
 
 static gint ett_ccp = -1;
 static gint ett_ccp_options = -1;
@@ -278,8 +378,16 @@ static gint ett_ccp_dce_opt = -1;
 static gint ett_ccp_deflate_opt = -1;
 static gint ett_ccp_v44lzjh_opt = -1;
 
-static int proto_cbcp = -1;
+static dissector_table_t ccp_option_table;
 
+static int proto_cbcp = -1;
+static int proto_cbcp_option_no_callback = -1;
+static int proto_cbcp_option_callback_user = -1;
+static int proto_cbcp_option_callback_admin = -1;
+static int proto_cbcp_option_callback_list = -1;
+
+static int hf_cbcp_opt_type = -1;
+static int hf_cbcp_opt_length = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_cbcp_address_type = -1;
 static int hf_cbcp_address = -1;
@@ -290,11 +398,20 @@ static gint ett_cbcp = -1;
 static gint ett_cbcp_options = -1;
 static gint ett_cbcp_callback_opt = -1;
 static gint ett_cbcp_callback_opt_addr = -1;
+static gint ett_cbcp_no_callback = -1;
+static gint ett_cbcp_callback_user = -1;
+static gint ett_cbcp_callback_admin = -1;
+static gint ett_cbcp_callback_list = -1;
 
 static expert_field ei_cbcp_address = EI_INIT;
 
-static int proto_bacp = -1;
+static dissector_table_t cbcp_option_table;
 
+static int proto_bacp = -1;
+static int proto_bacp_option_favored_peer = -1;
+
+static int hf_bacp_opt_type = -1;
+static int hf_bacp_opt_length = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_bacp_link_speed = -1;
 static int hf_bacp_magic_number = -1;
@@ -304,8 +421,18 @@ static gint ett_bacp = -1;
 static gint ett_bacp_options = -1;
 static gint ett_bacp_favored_peer_opt = -1;
 
-static int proto_bap = -1;
+static dissector_table_t bacp_option_table;
 
+static int proto_bap = -1;
+static int proto_bap_option_link_type = -1;
+static int proto_bap_option_phone_delta = -1;
+static int proto_bap_option_no_phone = -1;
+static int proto_bap_option_reason = -1;
+static int proto_bap_option_link_disc = -1;
+static int proto_bap_option_call_status = -1;
+
+static int hf_bap_opt_type = -1;
+static int hf_bap_opt_length = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_bap_sub_option_length = -1;
 static int hf_bap_call_status = -1;
@@ -328,8 +455,13 @@ static gint ett_bap_link_type_opt = -1;
 static gint ett_bap_phone_delta_opt = -1;
 static gint ett_bap_phone_delta_subopt = -1;
 static gint ett_bap_call_status_opt = -1;
+static gint ett_bap_no_phone_opt = -1;
+static gint ett_bap_reason_opt = -1;
+static gint ett_bap_link_disc_opt = -1;
 
 static expert_field ei_bap_sub_option_length = EI_INIT;
+
+static dissector_table_t bap_option_table;
 
 static dissector_handle_t ppp_hdlc_handle, ppp_handle;
 
@@ -339,9 +471,12 @@ static int proto_comp_data = -1;
 static gint ett_comp_data = -1;
 #endif
 static int proto_pppmuxcp = -1;
+static int proto_pppmuxcp_option_def_pid = -1;
 
 static int hf_pppmux_flags_pid = -1;
 static int hf_pppmux_flags_field_length = -1;
+static int hf_pppmuxcp_opt_type = -1;
+static int hf_pppmuxcp_opt_length = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_pppmux_sub_frame_length = -1;
 static int hf_pppmux_flags = -1;
@@ -349,6 +484,9 @@ static int hf_pppmux_def_prot_id = -1;
 
 static gint ett_pppmuxcp = -1;
 static gint ett_pppmuxcp_options = -1;
+static gint ett_pppmuxcp_def_pid_opt = -1;
+
+static dissector_table_t pppmuxcp_option_table;
 
 static int proto_pppmux = -1;
 static int hf_pppmux_protocol = -1;
@@ -451,14 +589,20 @@ static gint hf_chap_message = -1;
 static int hf_chap_stuff = -1;
 
 static int proto_ipv6cp = -1;  /* IPv6CP vars */
+static int proto_ipv6cp_option_if_id = -1;
+static int proto_ipv6cp_option_compress = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
+static int hf_ipv6cp_opt_type = -1;
+static int hf_ipv6cp_opt_length = -1;
 static int hf_ipv6cp_interface_identifier = -1;
 
 static gint ett_ipv6cp = -1;
 static gint ett_ipv6cp_options = -1;
 static gint ett_ipv6cp_if_id_opt = -1;
 static gint ett_ipv6cp_compress_opt = -1;
+
+static dissector_table_t ipv6cp_option_table;
 
 static int proto_iphc_crtp = -1;            /* CRTP vars */
 static int proto_iphc_crtp_cudp16 = -1;
@@ -1092,123 +1236,154 @@ static int hf_lcp_opt_max_susp_classes = -1;
 static int hf_lcp_opt_MIBenum = -1;
 static int hf_lcp_opt_language_tag = -1;
 
-static void dissect_lcp_vendor_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_lcp_mru_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_lcp_authprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_lcp_qualprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_lcp_magicnumber_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_lcp_linkqualmon_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_lcp_simple_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_lcp_fcs_alternatives_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
-    proto_tree *tree, void *data _U_);
-static void dissect_lcp_self_describing_pad_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
-    proto_tree *tree, void *data _U_);
-static void dissect_lcp_numbered_mode_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
-    proto_tree *tree, void *data _U_);
-static void dissect_lcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_lcp_multilink_mrru_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
-    proto_tree *tree, void *data _U_);
-static void dissect_lcp_multilink_ep_disc_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
-        proto_tree *tree, void *data _U_);
-static void dissect_lcp_dce_identifier_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
-    proto_tree *tree, void *data _U_);
-static void dissect_lcp_multilink_pp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_lcp_bacp_link_discriminator_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
-    proto_tree *tree, void *data _U_);
-static void dissect_lcp_auth_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_lcp_cobs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_lcp_prefix_elision_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
-    proto_tree *tree, void *data _U_);
-static void dissect_lcp_multilink_hdr_fmt_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
-    proto_tree *tree, void *data _U_);
-static void dissect_lcp_internationalization_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
-    proto_tree *tree, void *data _U_);
+static gboolean
+ppp_option_len_check(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, int proto, guint len, guint optlen)
+{
+    if (len != optlen) {
+        /* Bogus - option length isn't what it's supposed to be for this option. */
+        proto_tree_add_expert_format(tree, pinfo, &ei_ppp_opt_len_invalid, tvb, 0, len,
+                            "%s (with option length = %u byte%s; should be %u)",
+                            proto_get_protocol_short_name(find_protocol_by_id(proto)),
+                            len, plurality(len, "", "s"), optlen);
+        return FALSE;
+    }
 
-static const ip_tcp_opt lcp_opts[] = {
-    {CI_VENDORSPECIFIC, "Vendor Specific", &ett_lcp_vendor_opt,
-        OPT_LEN_VARIABLE_LENGTH, 6, dissect_lcp_vendor_opt},
-    {CI_MRU, "Maximum Receive Unit", &ett_lcp_mru_opt,
-        OPT_LEN_FIXED_LENGTH, 4, dissect_lcp_mru_opt},
-    {CI_ASYNCMAP, "Async Control Character Map", &ett_lcp_asyncmap_opt,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_lcp_async_map_opt},
-    {CI_AUTHPROT, "Authentication Protocol", &ett_lcp_authprot_opt,
-        OPT_LEN_VARIABLE_LENGTH, 4, dissect_lcp_authprot_opt},
-    {CI_QUALITY, "Quality Protocol", &ett_lcp_qualprot_opt,
-        OPT_LEN_VARIABLE_LENGTH, 4, dissect_lcp_qualprot_opt},
-    {CI_MAGICNUMBER, "Magic Number", &ett_lcp_magicnumber_opt,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_lcp_magicnumber_opt},
-    {CI_LINKQUALMON, "Link Quality Monitoring", &ett_lcp_linkqualmon_opt,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_lcp_linkqualmon_opt},
-    {CI_PCOMPRESSION, "Protocol Field Compression", &ett_lcp_pcomp_opt,
-        OPT_LEN_FIXED_LENGTH, 2, dissect_lcp_simple_opt},
-    {CI_ACCOMPRESSION, "Address and Control Field Compression", &ett_lcp_acccomp_opt,
-        OPT_LEN_FIXED_LENGTH, 2, dissect_lcp_simple_opt},
-    {CI_FCS_ALTERNATIVES, "FCS Alternatives", &ett_lcp_fcs_alternatives_opt,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_lcp_fcs_alternatives_opt},
-    {CI_SELF_DESCRIBING_PAD, "Self Describing Pad", &ett_lcp_self_desc_pad_opt,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_lcp_self_describing_pad_opt},
-    {CI_NUMBERED_MODE, "Numbered Mode", &ett_lcp_numbered_mode_opt,
-        OPT_LEN_VARIABLE_LENGTH, 4, dissect_lcp_numbered_mode_opt},
-    /* TODO? CI_MULTILINK_PROC */
-    {CI_CALLBACK, "Callback", &ett_lcp_callback_opt,
-        OPT_LEN_VARIABLE_LENGTH, 3, dissect_lcp_callback_opt},
-    /* TODO? CI_CONNECTTIME */
-    {CI_COMPOUND_FRAMES, "Compound Frames (Deprecated)", &ett_lcp_compound_frames_opt,
-        OPT_LEN_FIXED_LENGTH, 2, dissect_lcp_simple_opt},
-    {CI_NOMDATAENCAP, "Nominal Data Encapsulation (Deprecated)", &ett_lcp_nomdataencap_opt,
-        OPT_LEN_FIXED_LENGTH, 2, dissect_lcp_simple_opt},
-    {CI_MULTILINK_MRRU, "Multilink MRRU", &ett_lcp_multilink_mrru_opt,
-        OPT_LEN_FIXED_LENGTH, 4, dissect_lcp_multilink_mrru_opt},
-    {CI_MULTILINK_SSNH, "Multilink Short Sequence Number Header", &ett_lcp_multilink_ssnh_opt,
-        OPT_LEN_FIXED_LENGTH, 2, dissect_lcp_simple_opt},
-    {CI_MULTILINK_EP_DISC, "Multilink Endpoint Discriminator", &ett_lcp_multilink_ep_disc_opt,
-        OPT_LEN_VARIABLE_LENGTH, 3, dissect_lcp_multilink_ep_disc_opt},
-    /* TODO? CI_PROP_KEN: ken@funk.com: www.funk.com => www.juniper.net */
-    {CI_DCE_IDENTIFIER, "DCE Identifier", &ett_lcp_dce_identifier_opt,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_lcp_dce_identifier_opt},
-    {CI_MULTILINK_PLUS_PROC, "Multi Link Plus Procedure", &ett_lcp_multilink_pp_opt,
-        OPT_LEN_FIXED_LENGTH, 4, dissect_lcp_multilink_pp_opt},
-    {CI_LINK_DISC_FOR_BACP, "Link Discriminator for BACP", &ett_lcp_bacp_link_discrim_opt,
-        OPT_LEN_FIXED_LENGTH, 4, dissect_lcp_bacp_link_discriminator_opt},
-    {CI_LCP_AUTHENTICATION, "LCP Authentication Option", &ett_lcp_auth_opt,
-        OPT_LEN_VARIABLE_LENGTH, 3, dissect_lcp_auth_opt},
-    {CI_COBS, "Consistent Overhead Byte Stuffing (COBS)", &ett_lcp_cobs_opt,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_lcp_cobs_opt},
-    {CI_PREFIX_ELISION, "Prefix Elision", &ett_lcp_prefix_elision_opt,
-        OPT_LEN_VARIABLE_LENGTH, 2, dissect_lcp_prefix_elision_opt},
-    {CI_MULTILINK_HDR_FMT, "Multilink header format", &ett_multilink_hdr_fmt_opt,
-        OPT_LEN_FIXED_LENGTH, 4, dissect_lcp_multilink_hdr_fmt_opt},
-    {CI_INTERNATIONALIZATION, "Internationalization", &ett_lcp_internationalization_opt,
-        OPT_LEN_VARIABLE_LENGTH, 7, dissect_lcp_internationalization_opt},
-    {CI_SDL_ON_SONET_SDH, "Simple Data Link on SONET/SDH", &ett_lcp_simple_opt,
-        OPT_LEN_FIXED_LENGTH, 2, dissect_lcp_simple_opt}
-    /* TODO? CI_UNASSIGNED */
-};
+    return TRUE;
+}
 
-#define N_LCP_OPTS      (sizeof lcp_opts / sizeof lcp_opts[0])
+ /* Started as a copy of dissect_ip_tcp_options(), but was changed to support
+    options as a dissector table */
+static void
+ppp_dissect_options(tvbuff_t *tvb, int offset, guint length, dissector_table_t const option_dissectors,
+                       packet_info *pinfo, proto_tree *opt_tree)
+{
+    guchar            opt;
+    guint             optlen;
+    const char       *name;
+    dissector_handle_t option_dissector = NULL;
+    tvbuff_t         *next_tvb;
+
+    while (length > 0) {
+        opt = tvb_get_guint8(tvb, offset);
+        --length;      /* account for type byte */
+        if (option_dissectors != NULL) {
+            option_dissector = dissector_get_uint_handle(option_dissectors, opt);
+            if (option_dissector == NULL) {
+                name = wmem_strdup_printf(wmem_packet_scope(), "Unknown (0x%02x)", opt);
+            } else {
+                name = dissector_handle_get_short_name(option_dissector);
+            }
+        } else {
+            name = wmem_strdup_printf(wmem_packet_scope(), "Unknown (0x%02x)", opt);
+        }
+
+        /* Option has a length. Is it in the packet? */
+        if (length == 0) {
+            /* Bogus - packet must at least include option code byte and
+                length byte! */
+            proto_tree_add_expert_format(opt_tree, pinfo, &ei_ppp_opt_len_invalid, tvb, offset, 1,
+                                            "%s (length byte past end of options)", name);
+            return;
+        }
+
+        optlen = tvb_get_guint8(tvb, offset + 1);  /* total including type, len */
+        --length;    /* account for length byte */
+
+        if (optlen < 2) {
+            /* Bogus - option length is too short to include option code and
+                option length. */
+            proto_tree_add_expert_format(opt_tree, pinfo, &ei_ppp_opt_len_invalid, tvb, offset, 2,
+                                "%s (with too-short option length = %u byte%s)",
+                                name, optlen, plurality(optlen, "", "s"));
+            return;
+        } else if (optlen - 2 > length) {
+            /* Bogus - option goes past the end of the header. */
+            proto_tree_add_expert_format(opt_tree, pinfo, &ei_ppp_opt_len_invalid, tvb, offset, length,
+                                "%s (option length = %u byte%s says option goes past end of options)",
+                                name, optlen, plurality(optlen, "", "s"));
+            return;
+        }
+
+        if (option_dissector == NULL) {
+            proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen, ett_ppp_unknown_opt, NULL, "%s (%u byte%s)",
+                                            name, optlen, plurality(optlen, "", "s"));
+        } else {
+            next_tvb = tvb_new_subset_length(tvb, offset, optlen);
+            call_dissector(option_dissector, next_tvb, pinfo, opt_tree);
+            proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s", name);
+        }
+        offset += optlen;
+        length -= (optlen-2); //already accounted for type and len bytes
+    }
+}
+
+static void
+dissect_lcp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
+    const char *name)
+{
+    guint8 type;
+
+    type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format_value(tree, hf_lcp_opt_type, tvb, offset, 1,
+        type, "%s (%u)", name, type);
+    proto_tree_add_item(tree, hf_lcp_opt_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+}
+
+static gboolean
+dissect_lcp_fixed_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    if (!ppp_option_len_check(tree, pinfo, tvb, proto, tvb_reported_length(tvb), expected_length))
+        return FALSE;
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, expected_length, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_lcp_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
+}
+
+static gboolean
+dissect_lcp_var_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    int len = tvb_reported_length(tvb);
+
+    if (len < expected_length) {
+        /* Bogus - option length isn't what it's supposed to be for this option. */
+        proto_tree_add_expert_format(tree, pinfo, &ei_ppp_opt_len_invalid, tvb, 0, len,
+                            "%s (with option length = %u byte%s; should be at least %u)",
+                            proto_get_protocol_short_name(find_protocol_by_id(proto_lcp_option_vendor)),
+                            len, plurality(len, "", "s"), 6);
+        return FALSE;
+    }
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, -1, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_lcp_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
+}
+
+/* Used for:
+ *  Protocol Field Compression
+ *  Address and Control Field Compression
+ *  Compound Frames (Deprecated)
+ *  Nominal Data Encapsulation (Deprecated)
+ *  Multilink Short Sequence Number Header
+ *  Simple Data Link on SONET/SDH
+ */
+static int
+dissect_lcp_simple_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int proto, int ett)
+{
+    proto_tree *field_tree;
+    proto_item *ti;
+
+    dissect_lcp_fixed_opt(tvb, pinfo, tree, proto, ett, 2, &field_tree, &ti);
+    return tvb_captured_length(tvb);
+}
 
 /* 3GPP2 X.S0057-B v1.0
  * 9.1.4.1 3GPP2 VSNCP Configuration Options
@@ -1226,56 +1401,6 @@ static const ip_tcp_opt lcp_opts[] = {
 #define CI_ADDRESS_ALLOC        9
 #define CI_APN_AMBR             10
 #define CI_IPv6_HSGW_LLA_IID    11
-
-static void dissect_vsncp_pdnid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_vsncp_apname_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_vsncp_pdntype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_vsncp_pco_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_vsncp_errorcode_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_vsncp_attachtype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_vsncp_ipv4address_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_vsncp_apn_ambr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_vsncp_ipv6_hsgw_lla_iid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-
-static const ip_tcp_opt vsncp_opts[] = {
-    {CI_PDN_IDENTIFIER, "PDN Identifier", NULL,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_vsncp_pdnid_opt},
-    {CI_ACCESS_POINT_NM, "Access Point Name", NULL,
-        OPT_LEN_VARIABLE_LENGTH, 2, dissect_vsncp_apname_opt},
-    {CI_PDN_TYPE, "PDN Type", NULL,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_vsncp_pdntype_opt},
-    {CI_PDN_ADDRESS, "PDN Address", NULL,
-        OPT_LEN_VARIABLE_LENGTH, 3, dissect_vsncp_pdnaddress_opt},
-    {CI_PROTOCOL_CONFIG, "Protocol Configuration Options", NULL,
-        OPT_LEN_VARIABLE_LENGTH, 3, dissect_vsncp_pco_opt},
-    {CI_ERROR_CODE, "Error Code", NULL,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_vsncp_errorcode_opt},
-    {CI_ATTACH_TYPE, "Attach Type", NULL,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_vsncp_attachtype_opt},
-    {CI_IPv4DEFAULT_ROUTER, "IPv4 Default Router Address", NULL,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_vsncp_ipv4address_opt},
-    {CI_ADDRESS_ALLOC, "Address Allocation Cause", NULL,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_vsncp_addressalloc_opt},
-    {CI_APN_AMBR, "APN Aggregate Maximum Bit Rate(APN-AMBR)", NULL,
-        OPT_LEN_VARIABLE_LENGTH, 4, dissect_vsncp_apn_ambr_opt},
-    {CI_IPv6_HSGW_LLA_IID, "IPv6 HSGW Link Local Address IID", NULL,
-        OPT_LEN_FIXED_LENGTH, 10, dissect_vsncp_ipv6_hsgw_lla_iid_opt}
-};
-
-#define N_VSNCP_OPTS    (sizeof vsncp_opts / sizeof vsncp_opts[0])
 
 /*
  * CHAP Algorithms
@@ -1344,53 +1469,6 @@ static int hf_ipcp_opt_iphc_type = -1;
 static int hf_ipcp_opt_iphc_length = -1;
 static int hf_ipcp_opt_iphc_param = -1;
 
-static void dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ipcp_rohc_profiles_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
-    proto_tree *tree, void *data _U_);
-static void dissect_ipcp_iphc_simple_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ipcp_iphc_neghdrcomp_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
-    proto_tree *tree, void *data _U_);
-static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ipcp_mobileipv4_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ipcp_pri_dns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ipcp_pri_nbns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ipcp_sec_dns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ipcp_sec_nbns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-
-static const ip_tcp_opt ipcp_opts[] = {
-    {CI_ADDRS, "IP Addresses (deprecated)", &ett_ipcp_ipaddrs_opt,
-        OPT_LEN_FIXED_LENGTH, 10, dissect_ipcp_addrs_opt},
-    {CI_COMPRESS_PROTO, "IP Compression Protocol", &ett_ipcp_compress_opt,
-        OPT_LEN_VARIABLE_LENGTH, 4, dissect_ipcp_compress_opt},
-    {CI_ADDR, "IP address", &ett_ipcp_ipaddr_opt,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_ipcp_addr_opt},
-    {CI_MOBILE_IPv4, "Mobile Node's Home IP Address", &ett_ipcp_mobileipv4_opt,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_ipcp_mobileipv4_opt},
-    {CI_PRI_DNS, "Primary DNS Server IP Address", &ett_ipcp_pridns_opt,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_ipcp_pri_dns_opt},
-    {CI_PRI_NBNS, "Primary NBNS Server IP Address", &ett_ipcp_prinbns_opt,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_ipcp_pri_nbns_opt},
-    {CI_SEC_DNS, "Secondary DNS Server IP Address", &ett_ipcp_secdns_opt,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_ipcp_sec_dns_opt},
-    {CI_SEC_NBNS, "Secondary NBNS Server IP Address", &ett_ipcp_secnbns_opt,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_ipcp_sec_nbns_opt}
-};
-
-#define N_IPCP_OPTS     (sizeof ipcp_opts / sizeof ipcp_opts[0])
-
-
 /*
  * IP Compression options
  */
@@ -1418,20 +1496,6 @@ static const value_string ipcp_iphc_parameter_vals[] = {
     {0, NULL}
 };
 
-static const ip_tcp_opt ipcp_iphc_subopts[] = {
-    {IPCP_IPHC_CRTP, "RTP compression (RFC2508)",
-        &ett_ipcp_iphc_rtp_compress_opt, OPT_LEN_FIXED_LENGTH, 2,
-        dissect_ipcp_iphc_simple_opt},
-    {IPCP_IPHC_ECRTP, "Enhanced RTP compression (RFC3545)",
-        &ett_ipcp_iphc_enhanced_rtp_compress_opt, OPT_LEN_FIXED_LENGTH, 2,
-        dissect_ipcp_iphc_simple_opt},
-    {IPCP_IPHC_NEGHC, "Negotiating header compression (RFC3545)",
-        &ett_ipcp_iphc_neghdrcomp_opt, OPT_LEN_FIXED_LENGTH, 3,
-        dissect_ipcp_iphc_neghdrcomp_opt}
-};
-
-#define N_IPCP_IPHC_SUBOPTS (sizeof ipcp_iphc_subopts / sizeof ipcp_iphc_subopts[0])
-
 
 /* ROHC suboptions */
 #define IPCP_ROHC_PROFILES      1
@@ -1443,16 +1507,6 @@ static const value_string ipcp_rohc_profile_vals[] = {
     {0x0003, "ROHC ESP -- ESP/IP compression"},
     {0,      NULL}
 };
-
-static const ip_tcp_opt ipcp_rohc_subopts[] = {
-    {IPCP_ROHC_PROFILES, "Profiles (RFC3241)", &ett_ipcp_rohc_profiles_opt,
-        OPT_LEN_VARIABLE_LENGTH, 2, dissect_ipcp_rohc_profiles_opt}
-};
-
-#define N_IPCP_ROHC_SUBOPTS (sizeof ipcp_rohc_subopts / sizeof ipcp_rohc_subopts[0])
-
-static ip_tcp_opt_type PPP_OPT_TYPES = {&hf_ppp_opt_type, &ett_ppp_opt_type,
-    &hf_ppp_opt_type_copy, &hf_ppp_opt_type_class, &hf_ppp_opt_type_number};
 
 /*
 * Options.  (bcp_ncp)
@@ -1479,73 +1533,6 @@ static ip_tcp_opt_type PPP_OPT_TYPES = {&hf_ppp_opt_type, &ett_ppp_opt_type,
 #define CI_BCPNCP_MANAGEMENT_INLINE 9
 #define CI_BCPNCP_BCP_IND 10
 
-
-
-static void dissect_bcp_ncp_bridge_id(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo,
-    proto_tree *tree, void *data _U_);
-
-static void dissect_bcp_ncp_line_id(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo,
-    proto_tree *tree, void *data _U_);
-
-static void dissect_bcp_ncp_mac_sup(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo,
-    proto_tree *tree, void *data _U_);
-
-static void dissect_bcp_ncp_tinygram_comp(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo,
-    proto_tree *tree, void *data _U_);
-
-static void dissect_bcp_ncp_lan_id(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo,
-    proto_tree *tree, void *data _U_);
-
-static void dissect_bcp_ncp_mac_addr(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo,
-    proto_tree *tree, void *data _U_);
-
-static void dissect_bcp_ncp_stp(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo,
-    proto_tree *tree, void *data _U_);
-
-static void dissect_bcp_ncp_ieee_802_tagged_frame(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo,
-    proto_tree *tree, void *data _U_);
-
-static void dissect_bcp_ncp_management_inline(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo,
-    proto_tree *tree, void *data _U_);
-
-static void dissect_bcp_ncp_bcp_ncp_bcp_ind(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo,
-    proto_tree *tree, void *data _U_);
-
-static const ip_tcp_opt bcp_ncp_opts[] = {
-    { CI_BCPNCP_BRIDGE_ID, "Bridge-Identification", &ett_bcp_ncp_bridge_id_opt,
-    OPT_LEN_FIXED_LENGTH, 4, dissect_bcp_ncp_bridge_id },
-    { CI_BCPNCP_LINE_ID, "Line-Identification", &ett_bcp_ncp_line_id_opt,
-    OPT_LEN_FIXED_LENGTH, 4, dissect_bcp_ncp_line_id },
-    { CI_BCPNCP_MAC_SUPPORT, "MAC-Support", &ett_bcp_ncp_mac_sup_opt,
-    OPT_LEN_FIXED_LENGTH, 3, dissect_bcp_ncp_mac_sup },
-    { CI_BCPNCP_TINYGRAM_COMP, "Tinygram-Compression", &ett_bcp_ncp_tinygram_comp_opt,
-    OPT_LEN_FIXED_LENGTH, 3, dissect_bcp_ncp_tinygram_comp },
-    { CI_BCPNCP_LAN_ID, "LAN-Identification (obsoleted)", &ett_bcp_ncp_lan_id_opt,
-    OPT_LEN_FIXED_LENGTH, 3, dissect_bcp_ncp_lan_id },
-    { CI_BCPNCP_MAC_ADDRESS, "MAC-Address", &ett_bcp_ncp_mac_addr_opt,
-    OPT_LEN_FIXED_LENGTH, 8, dissect_bcp_ncp_mac_addr },
-    { CI_BCPNCP_STP, "Spanning-Tree-Protocol (old formatted)", &ett_bcp_ncp_stp_opt,
-    OPT_LEN_VARIABLE_LENGTH, 3, dissect_bcp_ncp_stp },
-    { CI_BCPNCP_IEEE_802_TAGGED_FRAME, "IEEE 802 Tagged Frame", &ett_bcp_ncp_ieee_802_tagged_frame_opt,
-    OPT_LEN_FIXED_LENGTH, 3, dissect_bcp_ncp_ieee_802_tagged_frame },
-    { CI_BCPNCP_MANAGEMENT_INLINE, "Management Inline", &ett_bcp_ncp_management_inline_opt,
-    OPT_LEN_FIXED_LENGTH, 2, dissect_bcp_ncp_management_inline },
-    { CI_BCPNCP_BCP_IND, "Bridge Control Packet Indicator", &ett_bcp_ncp_bcp_ind_opt,
-    OPT_LEN_FIXED_LENGTH, 2, dissect_bcp_ncp_bcp_ncp_bcp_ind }
-};
-
-#define N_BCPLCP_OPTS   (sizeof bcp_ncp_opts / sizeof bcp_ncp_opts[0])
-
 /*
  * Options.  (OSINLCP)
  */
@@ -1554,17 +1541,6 @@ static const ip_tcp_opt bcp_ncp_opts[] = {
 static int hf_osinlcp_opt_type = -1;
 static int hf_osinlcp_opt_length = -1;
 static int hf_osinlcp_opt_alignment = -1;
-
-static void dissect_osinlcp_align_npdu_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo,
-    proto_tree *tree, void *data _U_);
-
-static const ip_tcp_opt osinlcp_opts[] = {
-    {CI_OSINLCP_ALIGN_NPDU, "Align-NPDU", &ett_osinlcp_align_npdu_opt,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_osinlcp_align_npdu_opt}
-};
-
-#define N_OSINLCP_OPTS   (sizeof osinlcp_opts / sizeof osinlcp_opts[0])
 
 /*
  * Options.  (CCP)
@@ -1622,75 +1598,6 @@ static int hf_ccp_opt_mode_dictcount = -1;
 static int hf_ccp_opt_dict_size = -1;
 static int hf_ccp_opt_history_length = -1;
 
-static void dissect_ccp_oui_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ccp_other_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-#define dissect_ccp_predict1_opt    dissect_ccp_other_opt
-#define dissect_ccp_predict2_opt    dissect_ccp_other_opt
-#define dissect_ccp_puddle_opt      dissect_ccp_other_opt
-#define dissect_ccp_hpppc_opt       dissect_ccp_other_opt
-static void dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ccp_mppe_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ccp_gfza_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-#define dissect_ccp_v42bis_opt      dissect_ccp_other_opt
-static void dissect_ccp_bsdcomp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ccp_mvrca_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ccp_dce_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ccp_deflate_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-static void dissect_ccp_v44lzjh_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
-
-static const ip_tcp_opt ccp_opts[] = {
-
-    {CI_CCP_OUI, "OUI", &ett_ccp_oui_opt,
-        OPT_LEN_VARIABLE_LENGTH, 6, dissect_ccp_oui_opt},
-    {CI_CCP_PREDICT1, "Predictor type 1", &ett_ccp_predict1_opt,
-        OPT_LEN_VARIABLE_LENGTH, 2, dissect_ccp_predict1_opt},
-    {CI_CCP_PREDICT2, "Predictor type 2", &ett_ccp_predict2_opt,
-        OPT_LEN_VARIABLE_LENGTH, 2, dissect_ccp_predict2_opt},
-    {CI_CCP_PUDDLE, "Puddle Jumper", &ett_ccp_puddle_opt,
-        OPT_LEN_VARIABLE_LENGTH, 2, dissect_ccp_puddle_opt},
-    {CI_CCP_HPPPC, "Hewlett-Packard PPC", &ett_ccp_hpppc_opt,
-        OPT_LEN_VARIABLE_LENGTH, 2, dissect_ccp_hpppc_opt},
-    {CI_CCP_STAC, "Stac Electronics LZS", &ett_ccp_stac_opt,
-        /* In RFC 1974, this is a fixed-length field of size 5, but in
-         * Ascend Proprietary STAC compression this field is 6 octets. */
-        OPT_LEN_VARIABLE_LENGTH, 5, dissect_ccp_stac_opt},
-    {CI_CCP_MPPE, "Microsoft PPE/PPC", &ett_ccp_mppe_opt,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_ccp_mppe_opt},
-    {CI_CCP_GFZA, "Gandalf FZA", &ett_ccp_gfza_opt,
-        OPT_LEN_VARIABLE_LENGTH, 3, dissect_ccp_gfza_opt},
-    {CI_CCP_V42BIS, "V.42bis compression", &ett_ccp_v42bis_opt,
-        OPT_LEN_VARIABLE_LENGTH, 2, dissect_ccp_v42bis_opt},
-    {CI_CCP_BSDLZW, "BSD LZW Compress", &ett_ccp_bsdcomp_opt,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_ccp_bsdcomp_opt},
-    {CI_CCP_LZSDCP, "LZS-DCP", &ett_ccp_lzsdcp_opt,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_ccp_lzsdcp_opt},
-    {CI_CCP_MVRCA, "MVRCA (Magnalink)", &ett_ccp_mvrca_opt,
-        OPT_LEN_FIXED_LENGTH, 4, dissect_ccp_mvrca_opt},
-    {CI_CCP_DCE,
-        "PPP for Data Compression in Data Circuit-Terminating Equipment (DCE)",
-        &ett_ccp_dce_opt,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_ccp_dce_opt},
-    {CI_CCP_DEFLATE, "Deflate", &ett_ccp_deflate_opt,
-        /* RFC1979 says the length is 3 but it's actually 4. */
-        OPT_LEN_FIXED_LENGTH, 4, dissect_ccp_deflate_opt},
-    {CI_CCP_V44LZJH, "V.44/LZJH compression", &ett_ccp_v44lzjh_opt,
-        OPT_LEN_VARIABLE_LENGTH, 4, dissect_ccp_v44lzjh_opt}
-};
-
-#define N_CCP_OPTS      (sizeof ccp_opts / sizeof ccp_opts[0])
-
 /*
  * Options.  (CBCP)
  */
@@ -1700,40 +1607,10 @@ static const ip_tcp_opt ccp_opts[] = {
                                       administrator specified number */
 #define CI_CBCP_CB_ANY          4  /* Callback to any of a list of numbers */
 
-static void dissect_cbcp_no_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-
-static void dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-
-static const ip_tcp_opt cbcp_opts[] = {
-    {CI_CBCP_NO_CALLBACK, "No callback", NULL,
-        OPT_LEN_FIXED_LENGTH, 2, dissect_cbcp_no_callback_opt},
-    {CI_CBCP_CB_USER, "Callback to a user-specified number", &ett_cbcp_callback_opt,
-        OPT_LEN_VARIABLE_LENGTH, 4, dissect_cbcp_callback_opt},
-    {CI_CBCP_CB_PRE, "Callback to a pre-specified or admin-specified number", &ett_cbcp_callback_opt,
-        OPT_LEN_FIXED_LENGTH, 3, dissect_cbcp_callback_opt},
-    {CI_CBCP_CB_ANY, "Callback to any of a list of numbers", &ett_cbcp_callback_opt,
-        OPT_LEN_VARIABLE_LENGTH, 4, dissect_cbcp_callback_opt}
-};
-
-#define N_CBCP_OPTS     (sizeof cbcp_opts / sizeof cbcp_opts[0])
-
 /*
  * Options.  (BACP)
  */
 #define CI_BACP_FAVORED_PEER    1  /* Favored-Peer */
-
-static void dissect_bacp_favored_peer_opt(const ip_tcp_opt *optp,
-    tvbuff_t *tvb, int offset, guint length, packet_info *pinfo,
-    proto_tree *tree, void *data _U_);
-
-static const ip_tcp_opt bacp_opts[] = {
-    {CI_BACP_FAVORED_PEER, "Favored-Peer", &ett_bacp_favored_peer_opt,
-        OPT_LEN_FIXED_LENGTH, 6, dissect_bacp_favored_peer_opt}
-};
-
-#define N_BACP_OPTS     (sizeof bacp_opts / sizeof bacp_opts[0])
 
 /*
  * Options.  (BAP)
@@ -1744,34 +1621,6 @@ static const ip_tcp_opt bacp_opts[] = {
 #define CI_BAP_REASON              4  /* Reason */
 #define CI_BAP_LINK_DISC           5  /* Link Discriminator */
 #define CI_BAP_CALL_STATUS         6  /* Call Status */
-
-static void dissect_bap_link_type_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_bap_link_disc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_bap_reason_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_bap_call_status_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-
-static const ip_tcp_opt bap_opts[] = {
-    {CI_BAP_LINK_TYPE, "Link Type", &ett_bap_link_type_opt,
-        OPT_LEN_FIXED_LENGTH, 5, dissect_bap_link_type_opt},
-    {CI_BAP_PHONE_DELTA, "Phone Delta", &ett_bap_phone_delta_opt,
-        OPT_LEN_VARIABLE_LENGTH, 4, dissect_bap_phone_delta_opt},
-    {CI_BAP_NO_PHONE_NUM_NEEDED, "No Phone Number Needed", NULL,
-        OPT_LEN_FIXED_LENGTH, 2, NULL},
-    {CI_BAP_REASON, "Reason", NULL,
-        OPT_LEN_VARIABLE_LENGTH, 2, dissect_bap_reason_opt},
-    {CI_BAP_LINK_DISC, "Link Discriminator", NULL,
-        OPT_LEN_FIXED_LENGTH, 4, dissect_bap_link_disc_opt},
-    {CI_BAP_CALL_STATUS, "Call Status", &ett_bap_call_status_opt,
-        OPT_LEN_FIXED_LENGTH, 4, dissect_bap_call_status_opt}
-};
-
-#define N_BAP_OPTS     (sizeof bap_opts / sizeof bap_opts[0])
 
 static int dissect_ppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
@@ -1807,36 +1656,13 @@ static const value_string pppmuxcp_vals[] = {
 
 #define CI_DEFAULT_PID   1
 
-static void dissect_pppmuxcp_def_pid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-
-
-static const ip_tcp_opt pppmuxcp_opts[] = {
-    {CI_DEFAULT_PID, "Default Protocol ID", NULL,
-        OPT_LEN_FIXED_LENGTH, 4, dissect_pppmuxcp_def_pid_opt}
-};
-
 static const true_false_string tfs_pppmux_length_field = { "2 bytes", "1 byte" };
-
-#define N_PPPMUXCP_OPTS (sizeof pppmuxcp_opts / sizeof pppmuxcp_opts[0])
 
 /*
  * Options.  (IPv6CP)
  */
 #define CI_IPV6CP_IF_ID         1       /* Interface Identifier (RFC 2472) */
 #define CI_IPV6CP_COMPRESSTYPE  2       /* Compression Type (RFC 2472) */
-
-static void dissect_ipv6cp_if_id_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
-
-static const ip_tcp_opt ipv6cp_opts[] = {
-    {CI_IPV6CP_IF_ID, "Interface Identifier", &ett_ipv6cp_if_id_opt,
-        OPT_LEN_FIXED_LENGTH, 10, dissect_ipv6cp_if_id_opt},
-    {CI_COMPRESS_PROTO, "IPv6 compression", &ett_ipv6cp_compress_opt,
-        OPT_LEN_VARIABLE_LENGTH, 4, dissect_ipcp_compress_opt}
-};
-
-#define N_IPV6CP_OPTS   (sizeof ipv6cp_opts / sizeof ipv6cp_opts[0])
 
 /*
 *******************************************************************************
@@ -1994,30 +1820,21 @@ capture_ppp_hdlc(const guchar *pd, int offset, int len, capture_packet_info_t *c
     return try_capture_dissector("ppp_hdlc", pntoh16(&pd[offset + 2]), pd, offset + 4, len, cpinfo, pseudo_header);
 }
 
-static void
-dissect_lcp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
-    const char *name)
-{
-    guint8 type;
-
-    type = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint_format_value(tree, hf_lcp_opt_type, tvb, offset, 1,
-        type, "%s (%u)", name, type);
-    proto_tree_add_item(tree, hf_lcp_opt_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-}
-
-static void
-dissect_lcp_vendor_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_vendor_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
     proto_item *ti;
     guint32 oui;
     const gchar *manuf;
+    int offset = 0;
+    int len = tvb_reported_length(tvb);
+
+    if (!dissect_lcp_var_opt(tvb, pinfo, tree, proto_lcp_option_vendor, ett_lcp_vendor_opt, 6,
+                             &field_tree, &ti))
+        return tvb_captured_length(tvb);
 
     oui = tvb_get_ntoh24(tvb, offset + 2);
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
     ti = proto_tree_add_uint_format_value(field_tree, hf_lcp_opt_oui, tvb,
         offset + 2, 3, oui, "%02x:%02x:%02x",
         (oui >> 16) & 0xff, (oui >> 8) & 0xff, oui & 0xff);
@@ -2027,32 +1844,39 @@ dissect_lcp_vendor_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
     proto_tree_add_item(field_tree, hf_lcp_opt_kind, tvb, offset + 5, 1,
         ENC_BIG_ENDIAN);
-    if (length > 6) {
+    if (len > 6) {
         proto_tree_add_item(field_tree, hf_lcp_opt_data, tvb, offset + 6,
-            length - 6, ENC_NA);
+            len - 6, ENC_NA);
     }
+
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_lcp_mru_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_mru_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *ti;
+    guint32 mru;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-                    *optp->subtree_index, NULL, "%s: %u", optp->name,
-                    tvb_get_ntohs(tvb, offset + 2));
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_mru, tvb, offset + 2, 2,
-        ENC_BIG_ENDIAN);
+    if (!dissect_lcp_fixed_opt(tvb, pinfo, tree,
+                             proto_lcp_option_mru, ett_lcp_mru_opt, 4,
+                             &field_tree, &ti))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_mru, tvb, offset + 2, 2,
+        ENC_BIG_ENDIAN, &mru);
+    proto_item_append_text(ti, ": %u", mru);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_async_map_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
     proto_item *tf, *ti;
+    int offset = 0;
     static const int *asyncmap_fields[] = {
         &hf_lcp_opt_asyncmap_us,  &hf_lcp_opt_asyncmap_rs,
         &hf_lcp_opt_asyncmap_gs,  &hf_lcp_opt_asyncmap_fs,
@@ -2080,22 +1904,27 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         "CAN", "EM",        "SUB", "ESC",        "FS",  "GS",  "RS",  "US"
     };
 
-    gboolean anyctrlchars;
     guint32 map;
+    gboolean anyctrlchars;
     int i;
 
+    if (!dissect_lcp_fixed_opt(tvb, pinfo, tree,
+                             proto_lcp_option_async_map, ett_lcp_asyncmap_opt, 6,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
     map = tvb_get_ntohl(tvb, offset + 2);
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, *optp->subtree_index, &tf, "%s: 0x%08x (",
-        optp->name, map);
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
+    proto_item_append_text(tf, ": 0x%08x", map);
+
     ti = proto_tree_add_bitmask(field_tree, tvb, offset + 2,
-        hf_lcp_opt_asyncmap, *optp->subtree_index, asyncmap_fields,
+        hf_lcp_opt_asyncmap, ett_lcp_asyncmap_opt, asyncmap_fields,
         ENC_BIG_ENDIAN);
+
     if (map == 0x00000000) {
-        proto_item_append_text(tf, "None)");
+        proto_item_append_text(tf, " (None)");
         proto_item_append_text(ti, " (None)");
     } else if (map == 0xffffffff) {
-        proto_item_append_text(tf, "All)");
+        proto_item_append_text(tf, " (All)");
         proto_item_append_text(ti, " (All)");
     } else {
         for (anyctrlchars = FALSE, i = 31; i >= 0; i--) {
@@ -2110,22 +1939,27 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         }
         proto_item_append_text(tf, ")");
     }
+
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_lcp_authprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_authprot_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
-    guint16 protocol;
+    proto_item *ti;
+    guint32 protocol;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    protocol = tvb_get_ntohs(tvb, offset + 2);
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, *optp->subtree_index, NULL,
-        "%s: %s (0x%02x)", optp->name, val_to_str_ext_const(protocol, &ppp_vals_ext, "Unknown"),
+    if (!dissect_lcp_var_opt(tvb, pinfo, tree, proto_lcp_option_authprot, ett_lcp_authprot_opt, 4,
+                             &field_tree, &ti))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_auth_protocol, tvb, offset + 2,
+        2, ENC_BIG_ENDIAN, &protocol);
+    proto_item_append_text(ti, ": %s (0x%02x)", val_to_str_ext_const(protocol, &ppp_vals_ext, "Unknown"),
         protocol);
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_auth_protocol, tvb, offset + 2,
-        2, ENC_BIG_ENDIAN);
 
     if (length > 4) {
         offset += 4;
@@ -2142,85 +1976,99 @@ dissect_lcp_authprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                 length, ENC_NA);
         }
     }
+
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_lcp_qualprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_qualprot_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
-    guint16 protocol;
+    proto_item *ti;
+    guint32 protocol;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    protocol = tvb_get_ntohs(tvb, offset + 2);
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, *optp->subtree_index, NULL, "%s: %s (0x%02x)",
-        optp->name, val_to_str_ext_const(protocol, &ppp_vals_ext, "Unknown"),
+    if (!dissect_lcp_var_opt(tvb, pinfo, tree, proto_lcp_option_qualprot, ett_lcp_qualprot_opt, 4,
+                             &field_tree, &ti))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_quality_protocol, tvb, offset + 2,
+        2, ENC_BIG_ENDIAN, &protocol);
+    proto_item_append_text(ti, ": %s (0x%02x)", val_to_str_ext_const(protocol, &ppp_vals_ext, "Unknown"),
         protocol);
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_quality_protocol, tvb,
-        offset + 2, 2, ENC_BIG_ENDIAN);
 
     if (length > 4) {
         proto_tree_add_item(field_tree, hf_lcp_opt_data, tvb, offset + 4,
             length + 4, ENC_NA);
     }
+
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_lcp_magicnumber_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_magicnumber_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *ti;
+    guint32 magic_number;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, *optp->subtree_index, NULL, "%s: 0x%08x",
-        optp->name, tvb_get_ntohl(tvb, offset + 2));
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_magic_number, tvb, offset + 2,
-        4, ENC_BIG_ENDIAN);
+    if (!dissect_lcp_fixed_opt(tvb, pinfo, tree,
+                             proto_lcp_option_magicnumber, ett_lcp_magicnumber_opt, 6,
+                             &field_tree, &ti))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_magic_number, tvb, offset + 2,
+        4, ENC_BIG_ENDIAN, &magic_number);
+    proto_item_append_text(ti, ": 0x%08x", magic_number);
+
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_lcp_linkqualmon_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_linkqualmon_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *ti, *tf;
     guint32 reportingperiod;
+    int offset = 0;
 
-    reportingperiod = tvb_get_ntohl(tvb, offset + 2);
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %u microsecond%s%s", optp->name, reportingperiod,
-        plurality(reportingperiod, "", "s"),
-        reportingperiod ? "" : " [illegal]");
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_uint_format_value(field_tree, hf_lcp_opt_reportingperiod,
-        tvb, offset + 2, 4, reportingperiod, "%u microsecond%s%s",
-        reportingperiod, plurality(reportingperiod, "", "s"),
-        reportingperiod ? "" : "[illegal]");
+    if (!dissect_lcp_fixed_opt(tvb, pinfo, tree,
+                             proto_lcp_option_linkqualmon, ett_lcp_linkqualmon_opt, 6,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    ti = proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_reportingperiod,
+        tvb, offset + 2, 4, ENC_BIG_ENDIAN, &reportingperiod);
+    proto_item_append_text(tf, ": %u microsecond%s", reportingperiod, plurality(reportingperiod, "", "s"));
+    if (reportingperiod == 0)
+    {
+        proto_item_append_text(ti, " [illegal]");
+        proto_item_append_text(tf, " [illegal]");
+    }
+
+    return tvb_captured_length(tvb);
 }
 
-/* Used for:
- *  Protocol Field Compression
- *  Address and Control Field Compression
- *  Compound Frames (Deprecated)
- *  Nominal Data Encapsulation (Deprecated)
- *  Multilink Short Sequence Number Header
- *  Simple Data Link on SONET/SDH
- */
-static void
-dissect_lcp_simple_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_field_compress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *field_tree;
-
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
+    return dissect_lcp_simple_opt(tvb, pinfo, tree, proto_lcp_option_field_compress, ett_lcp_pcomp_opt);
 }
 
-static void
-dissect_lcp_fcs_alternatives_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree,
-    void *data _U_)
+static int
+dissect_lcp_addr_field_compress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_lcp_simple_opt(tvb, pinfo, tree, proto_lcp_option_addr_field_compress, ett_lcp_acccomp_opt);
+}
+
+static int
+dissect_lcp_fcs_alternatives_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
     static const int *fcs_alternatives_fields[] = {
         &hf_lcp_opt_fcs_alternatives_ccitt32,
         &hf_lcp_opt_fcs_alternatives_ccitt16,
@@ -2228,56 +2076,70 @@ dissect_lcp_fcs_alternatives_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
         NULL
     };
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: 0x%02x",
-        optp->name, tvb_get_guint8(tvb, offset + 2));
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
+    if (!dissect_lcp_fixed_opt(tvb, pinfo, tree,
+                             proto_lcp_option_fcs_alternatives, ett_lcp_fcs_alternatives_opt, 3,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
     proto_tree_add_bitmask(field_tree, tvb, offset + 2,
-        hf_lcp_opt_fcs_alternatives, *optp->subtree_index,
+        hf_lcp_opt_fcs_alternatives, ett_lcp_fcs_alternatives_opt,
         fcs_alternatives_fields, ENC_NA);
+    proto_item_append_text(tf, ": 0x%02x", tvb_get_guint8(tvb, offset + 2));
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_lcp_self_describing_pad_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree,
-    void *data _U_)
+static int
+dissect_lcp_self_describing_pad_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
-    guint8 maximum;
+    proto_item *tf, *ti;
+    guint32 maximum;
+    int offset = 0;
 
-    maximum = tvb_get_guint8(tvb, offset + 2);
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %u octet%s%s",
-        optp->name, maximum, plurality(maximum, "", "s"),
-        maximum ? "" : " [invalid]");
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_uint_format_value(field_tree, hf_lcp_opt_maximum, tvb,
-        offset + 2, 1, maximum, "%u octet%s%s", maximum,
-        plurality(maximum, "", "s"), maximum ? "" : " [invalid]");
+    if (!dissect_lcp_fixed_opt(tvb, pinfo, tree,
+                             proto_lcp_option_self_desc_pad, ett_lcp_self_desc_pad_opt, 3,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    ti = proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_maximum, tvb,
+        offset + 2, 1, ENC_BIG_ENDIAN, &maximum);
+    proto_item_append_text(tf, ": %u octet%s", maximum, plurality(maximum, "", "s"));
+    if (maximum == 0)
+    {
+        proto_item_append_text(ti, " [invalid]");
+        proto_item_append_text(tf, " [invalid]");
+    }
+
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_lcp_numbered_mode_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree,
-    void *data _U_)
+static int
+dissect_lcp_numbered_mode_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
-    guint8 window;
+    proto_item *tf, *ti;
+    guint32 window;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    window = tvb_get_guint8(tvb, offset + 2);
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %u frame%s%s",
-        optp->name, window, plurality(window, "", "s"),
-        (window == 0 || window > 127) ? " [invalid]" : "");
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_uint_format_value(field_tree, hf_lcp_opt_window, tvb,
-        offset + 2, 1, window, "%u frame%s%s", window,
-        plurality(window, "", "s"),
-        (window == 0 || window > 127) ? " [invalid]" : "");
+    if (!dissect_lcp_var_opt(tvb, pinfo, tree, proto_lcp_option_numbered_mode, ett_lcp_numbered_mode_opt, 3,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    ti = proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_window, tvb,
+        offset + 2, 1, ENC_BIG_ENDIAN, &window);
+    proto_item_append_text(tf, ": %u frame%s", window, plurality(window, "", "s"));
+    if (window == 0 || window > 127)
+    {
+        proto_item_append_text(ti, " [invalid]");
+        proto_item_append_text(tf, " [invalid]");
+    }
     if (length > 3) {
         proto_tree_add_item(field_tree, hf_lcp_opt_hdlc_address, tvb,
             offset + 3, length - 3, ENC_NA);
     }
+
+    return tvb_captured_length(tvb);
 }
 
 /* http://tools.ietf.org/html/rfc1570#section-2.3 only lists 0-4, but
@@ -2298,41 +2160,66 @@ static const value_string callback_op_vals[] = {
     {0, NULL}
 };
 
-static void
-dissect_lcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_callback_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
-    guint8 operation;
+    proto_item *tf;
+    guint32 operation;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    operation = tvb_get_guint8(tvb, offset + 2);
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %s", optp->name,
-        val_to_str_const(operation, callback_op_vals, "Unknown"));
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_operation, tvb, offset + 2, 1,
-        ENC_BIG_ENDIAN);
+    if (!dissect_lcp_var_opt(tvb, pinfo, tree, proto_lcp_option_callback, ett_lcp_callback_opt, 3,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_operation, tvb, offset + 2, 1,
+        ENC_BIG_ENDIAN, &operation);
+    proto_item_append_text(tf, ": %s", val_to_str_const(operation, callback_op_vals, "Unknown"));
 
     if (length > 3) {
         proto_tree_add_item(field_tree, hf_lcp_opt_message, tvb, offset + 3,
             length - 3, ENC_NA);
     }
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_lcp_compound_frames_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_lcp_simple_opt(tvb, pinfo, tree, proto_lcp_option_compound_frames, ett_lcp_compound_frames_opt);
+}
+
+static int
+dissect_lcp_nomdataencap_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_lcp_simple_opt(tvb, pinfo, tree, proto_lcp_option_nomdataencap, ett_lcp_nomdataencap_opt);
 }
 
 /* http://tools.ietf.org/html/rfc1990#section-5.1.1 */
-static void
-dissect_lcp_multilink_mrru_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree,
-    void *data _U_)
+static int
+dissect_lcp_multilink_mrru_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    guint32 mrru;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %u", optp->name,
-        tvb_get_ntohs(tvb, offset + 2));
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_mrru, tvb, offset + 2, 2,
-        ENC_BIG_ENDIAN);
+    if (!dissect_lcp_fixed_opt(tvb, pinfo, tree,
+                             proto_lcp_option_multilink_mrru, ett_lcp_multilink_mrru_opt, 4,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_mrru, tvb, offset + 2, 2,
+        ENC_BIG_ENDIAN, &mrru);
+    proto_item_append_text(tf, ": %u", mrru);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_lcp_multilink_ssnh_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_lcp_simple_opt(tvb, pinfo, tree, proto_lcp_option_multilink_ssnh, ett_lcp_multilink_ssnh_opt);
 }
 
 #define CLASS_NULL                      0
@@ -2352,27 +2239,25 @@ static const value_string multilink_ep_disc_class_vals[] = {
     {0,                           NULL}
 };
 
-static void
-dissect_lcp_multilink_ep_disc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree,
-    void *data _U_)
+static int
+dissect_lcp_multilink_ep_disc_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *field_tree;
-    proto_tree *magic_tree;
-    proto_item *tm;
-    guint8 ep_disc_class;
+    proto_tree *field_tree, *magic_tree;
+    proto_item *tf, *tm;
+    guint32 ep_disc_class;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    ep_disc_class = tvb_get_guint8(tvb, offset + 2);
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: Class: %s",
-        optp->name, val_to_str_const(ep_disc_class,
-            multilink_ep_disc_class_vals, "Unknown"));
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_ep_disc_class, tvb, offset + 2,
-        1, ENC_BIG_ENDIAN);
+    if (!dissect_lcp_var_opt(tvb, pinfo, tree, proto_lcp_option_multilink_ep_disc, ett_lcp_multilink_ep_disc_opt, 3,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_ep_disc_class, tvb, offset + 2,
+        1, ENC_BIG_ENDIAN, &ep_disc_class);
+    proto_item_append_text(tf, ": Class: %s", val_to_str_const(ep_disc_class, multilink_ep_disc_class_vals, "Unknown"));
 
     if (length <= 3)
-        return;
+        return tvb_captured_length(tvb);
 
     length -= 3;
     offset += 3;
@@ -2430,6 +2315,7 @@ dissect_lcp_multilink_ep_disc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
             ENC_NA);
         break;
     }
+    return tvb_captured_length(tvb);
 }
 
 static const value_string dce_id_mode_vals[] = {
@@ -2438,84 +2324,101 @@ static const value_string dce_id_mode_vals[] = {
     {0, NULL}
 };
 
-static void
-dissect_lcp_dce_identifier_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_dce_identifier_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
-    guint8 mode;
+    proto_item *tf;
+    int offset = 0;
+    guint32 mode;
 
-    mode = tvb_get_guint8(tvb, offset + 2);
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %s", optp->name,
-        val_to_str_const(mode, dce_id_mode_vals, "Unknown"));
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_mode, tvb, offset + 2, 1,
-        ENC_BIG_ENDIAN);
+    if (!dissect_lcp_fixed_opt(tvb, pinfo, tree,
+                             proto_lcp_option_dce_identifier, ett_lcp_dce_identifier_opt, 3,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_mode, tvb, offset + 2, 1,
+        ENC_BIG_ENDIAN, &mode);
+    proto_item_append_text(tf, ": %s", val_to_str_const(mode, dce_id_mode_vals, "Unknown"));
+
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_lcp_multilink_pp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_multilink_pp_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_unused, tvb, offset + 2, 2,
-        ENC_NA);
+    if (!dissect_lcp_fixed_opt(tvb, pinfo, tree,
+                             proto_lcp_option_multilink_pp, ett_lcp_multilink_pp_opt, 4,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_lcp_opt_unused, tvb, offset + 2, 2, ENC_NA);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_lcp_bacp_link_discriminator_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_bacp_link_discriminator_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+    guint32 link_discrim;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %u (0x%04x)",
-        optp->name, tvb_get_ntohs(tvb, offset + 2),
-        tvb_get_ntohs(tvb, offset + 2));
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_link_discrim, tvb, offset + 2,
-        2, ENC_BIG_ENDIAN);
+    if (!dissect_lcp_fixed_opt(tvb, pinfo, tree,
+                             proto_lcp_option_link_discrim, ett_lcp_bacp_link_discrim_opt, 4,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_link_discrim, tvb, offset + 2,
+        2, ENC_BIG_ENDIAN, &link_discrim);
+    proto_item_append_text(tf, ": %u (0x%04x)", link_discrim, link_discrim);
+    return tvb_captured_length(tvb);
 }
 
 /* Assuming it's this one:
  * http://tools.ietf.org/html/draft-ietf-pppext-link-negot-00
  */
-static void
-dissect_lcp_auth_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_auth_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
-    guint8 id_len;
+    proto_item *tf;
+    guint32 id_len;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_id, tvb, offset + 2, 1, ENC_NA);
+    if (!dissect_lcp_var_opt(tvb, pinfo, tree, proto_lcp_option_auth, ett_lcp_auth_opt, 3,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item_ret_uint(field_tree, hf_lcp_opt_id, tvb, offset + 2, 1, ENC_BIG_ENDIAN, &id_len);
 
     if (length > 3) {
-        id_len = tvb_get_guint8(tvb, offset + 2);
         length -= 3;
         offset += 3;
-        if (id_len < length) {
+        if ((int)id_len < length) {
             length -= id_len;
             offset += id_len;
             proto_tree_add_item(field_tree, hf_lcp_opt_data, tvb, offset,
                 length, ENC_NA);
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Assuming it's this one:
  * http://tools.ietf.org/html/draft-ietf-pppext-cobs-00
  */
-static void
-dissect_lcp_cobs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_cobs_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
     static const int *cobs_flags_fields[] = {
         &hf_lcp_opt_cobs_flags_res,
         &hf_lcp_opt_cobs_flags_pre,
@@ -2523,21 +2426,28 @@ dissect_lcp_cobs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         NULL
     };
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
+    if (!dissect_lcp_fixed_opt(tvb, pinfo, tree,
+                             proto_lcp_option_cobs, ett_lcp_cobs_opt, 3,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
     proto_tree_add_bitmask(field_tree, tvb, offset + 2, hf_lcp_opt_cobs_flags,
-        *optp->subtree_index, cobs_flags_fields, ENC_NA);
+        ett_lcp_cobs_opt, cobs_flags_fields, ENC_NA);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_lcp_prefix_elision_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_prefix_elision_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
     guint8 pre_len;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
+    if (!dissect_lcp_var_opt(tvb, pinfo, tree, proto_lcp_option_prefix_elision, ett_lcp_prefix_elision_opt, 2,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     if (length > 2) {
         length -= 2;
@@ -2546,7 +2456,7 @@ dissect_lcp_prefix_elision_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
             proto_tree_add_item(field_tree, hf_lcp_opt_class, tvb, offset, 1,
                 ENC_BIG_ENDIAN);
             pre_len = tvb_get_guint8(tvb, offset + 1);
-            if ((guint)(pre_len + 2) <= length) {
+            if (pre_len + 2 <= length) {
                 proto_tree_add_item(field_tree, hf_lcp_opt_prefix, tvb,
                     offset + 2, 1, ENC_NA);
                 length -= (2 + pre_len);
@@ -2556,6 +2466,8 @@ dissect_lcp_prefix_elision_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
             }
         }
     }
+
+    return tvb_captured_length(tvb);
 }
 
 static const value_string ml_hdr_fmt_code_vals[] = {
@@ -2564,18 +2476,22 @@ static const value_string ml_hdr_fmt_code_vals[] = {
     {0, NULL}
 };
 
-static void
-dissect_lcp_multilink_hdr_fmt_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_multilink_hdr_fmt_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_code, tvb, offset + 2, 1,
-        ENC_BIG_ENDIAN);
+    if (!dissect_lcp_fixed_opt(tvb, pinfo, tree,
+                             proto_lcp_option_multilink_hdr_fmt, ett_multilink_hdr_fmt_opt, 4,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_lcp_opt_code, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_lcp_opt_max_susp_classes, tvb,
         offset + 3, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -2842,18 +2758,29 @@ static const value_string charset_vals[] = {
 };
 value_string_ext charset_vals_ext = VALUE_STRING_EXT_INIT(charset_vals);
 
-static void
-dissect_lcp_internationalization_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_lcp_internationalization_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_lcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_lcp_opt_MIBenum, tvb, offset + 2, 4,
-        ENC_BIG_ENDIAN);
+    if (!dissect_lcp_var_opt(tvb, pinfo, tree, proto_lcp_option_internationalization, ett_lcp_internationalization_opt, 7,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_lcp_opt_MIBenum, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_lcp_opt_language_tag, tvb, offset + 6,
         length - 6, ENC_ASCII|ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_lcp_sonet_sdh_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_lcp_simple_opt(tvb, pinfo, tree, proto_lcp_option_sonet_sdh, ett_lcp_sonet_sdh_opt);
 }
 
 static void
@@ -2868,22 +2795,38 @@ dissect_ipcp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
     proto_tree_add_item(tree, hf_ipcp_opt_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 }
 
+static gboolean
+dissect_ipcp_fixed_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    if (!ppp_option_len_check(tree, pinfo, tvb, proto, tvb_reported_length(tvb), expected_length))
+        return FALSE;
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, expected_length, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_ipcp_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
+}
+
 /* http://tools.ietf.org/html/rfc1172#section-5.1 */
-static void
-dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_ipcp_addrs_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: Src: %s, Dst: %s",
-        optp->name, tvb_ip_to_str(tvb, offset + 2),
-        tvb_ip_to_str(tvb, offset + 6));
-    dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
+    if (!dissect_ipcp_fixed_opt(tvb, pinfo, tree, proto_ipcp_option_addrs , ett_ipcp_ipaddrs_opt, 10,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
     proto_tree_add_item(field_tree, hf_ipcp_opt_src_address, tvb, offset + 2,
         4, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_ipcp_opt_dst_address, tvb, offset + 6,
         4, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 static const true_false_string tfs_comp_slot_id = {
@@ -2892,21 +2835,21 @@ static const true_false_string tfs_comp_slot_id = {
 };
 
 /* http://tools.ietf.org/html/rfc1332#section-3.2 */
-static void
-dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_ipcp_compress_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
     guint16     us;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %s", optp->name,
-        val_to_str_const(tvb_get_ntohs(tvb, offset + 2),
-            ipcp_compress_proto_vals, "Unknown"));
-    dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
+    tf = proto_tree_add_item(tree, proto_ipcp_option_compress, tvb, 0, length, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett_ipcp_compress_opt);
+
+    dissect_ipcp_opt_type_len(tvb, 0, field_tree, proto_registrar_get_name(proto_ipcp_option_compress));
     proto_tree_add_item(field_tree, hf_ipcp_opt_compress_proto, tvb,
         offset + 2, 2, ENC_BIG_ENDIAN);
-
     us = tvb_get_ntohs(tvb, offset + 2);
     switch (us) {
     case IPCP_ROHC:
@@ -2924,9 +2867,9 @@ dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
             offset += 10;
             length -= 10;
             subopt_tree = proto_tree_add_subtree_format(field_tree, tvb, offset, length,
-                *optp->subtree_index, NULL, "Suboptions: (%u byte%s)", length, plurality(length, "", "s"));
-            dissect_ip_tcp_options(tvb, offset, length, ipcp_rohc_subopts,
-                N_IPCP_ROHC_SUBOPTS, -1, &PPP_OPT_TYPES, &ei_ppp_opt_len_invalid, pinfo, subopt_tree, NULL, NULL);
+                ett_ipcp_compress_opt, NULL, "Suboptions: (%u byte%s)", length, plurality(length, "", "s"));
+
+            ppp_dissect_options(tvb, offset, length, ipcp_rohc_suboption_table, pinfo, subopt_tree);
         }
         break;
 
@@ -2961,9 +2904,8 @@ dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
             offset += 14;
             length -= 14;
             subopt_tree = proto_tree_add_subtree_format(field_tree, tvb, offset, length,
-                *optp->subtree_index, NULL, "Suboptions: (%u byte%s)", length, plurality(length, "", "s"));
-            dissect_ip_tcp_options(tvb, offset, length, ipcp_iphc_subopts,
-                N_IPCP_IPHC_SUBOPTS, -1, &PPP_OPT_TYPES, &ei_ppp_opt_len_invalid, pinfo, subopt_tree, NULL, NULL);
+                ett_ipcp_compress_opt, NULL, "Suboptions: (%u byte%s)", length, plurality(length, "", "s"));
+            ppp_dissect_options(tvb, offset, length, ipcp_iphc_suboption_table, pinfo, subopt_tree);
         }
         break;
 
@@ -2974,6 +2916,8 @@ dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         }
         break;
     }
+
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -2989,21 +2933,26 @@ dissect_ipcp_opt_rohc_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
         ENC_BIG_ENDIAN);
 }
 
-static void
-dissect_ipcp_rohc_profiles_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_ipcp_rohc_profiles_opt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int length = tvb_reported_length(tvb);
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ipcp_opt_rohc_type_len(tvb, offset, field_tree, optp->name);
+    tf = proto_tree_add_item(tree, proto_ipcp_rohc_option_profiles, tvb, offset, length, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett_ipcp_rohc_profiles_opt);
+
+    dissect_ipcp_opt_rohc_type_len(tvb, offset, field_tree, proto_registrar_get_name(proto_ipcp_rohc_option_profiles));
     if (length <= 2)
-        return;
+        return tvb_captured_length(tvb);
 
     for (offset += 2, length -= 2; length >= 2; length -= 2, offset += 2) {
         proto_tree_add_item(field_tree, hf_ipcp_opt_rohc_profile, tvb,
             offset, 2, ENC_BIG_ENDIAN);
     }
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -3019,113 +2968,155 @@ dissect_ipcp_opt_iphc_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
         ENC_BIG_ENDIAN);
 }
 
-static void
-dissect_ipcp_iphc_simple_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static gboolean
+dissect_ipcp_iphc_fixed_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
 {
-    proto_tree *field_tree;
+    if (!ppp_option_len_check(tree, pinfo, tvb, proto, tvb_reported_length(tvb), expected_length))
+        return FALSE;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ipcp_opt_iphc_type_len(tvb, offset, field_tree, optp->name);
-}
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, expected_length, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
 
-static void
-dissect_ipcp_iphc_neghdrcomp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-    proto_tree *field_tree;
-
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ipcp_opt_iphc_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_ipcp_opt_iphc_param, tvb, offset + 2, 1,
-        ENC_BIG_ENDIAN);
-}
-
-static void
-dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-    proto_tree *field_tree;
-
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %s", optp->name,
-        tvb_ip_to_str(tvb, offset + 2));
-    dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_ipcp_opt_ip_address, tvb, offset + 2, 4,
-        ENC_BIG_ENDIAN);
-}
-
-static void
-dissect_ipcp_mobileipv4_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-    proto_tree *field_tree;
-
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %s", optp->name,
-        tvb_ip_to_str(tvb, offset + 2));
-    dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_ipcp_opt_mobilenodehomeaddr, tvb,
-        offset + 2, 4, ENC_BIG_ENDIAN);
-}
-
-static void
-dissect_ipcp_pri_dns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-    proto_tree *field_tree;
-
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %s", optp->name,
-        tvb_ip_to_str(tvb, offset + 2));
-    dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_ipcp_opt_pri_dns_address, tvb,
-        offset + 2, 4, ENC_BIG_ENDIAN);
-}
-
-static void
-dissect_ipcp_pri_nbns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-    proto_tree *field_tree;
-
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %s", optp->name,
-        tvb_ip_to_str(tvb, offset + 2));
-    dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_ipcp_opt_pri_nbns_address, tvb,
-        offset + 2, 4, ENC_BIG_ENDIAN);
-}
-
-static void
-dissect_ipcp_sec_dns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-    proto_tree *field_tree;
-
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %s", optp->name,
-        tvb_ip_to_str(tvb, offset + 2));
-    dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_ipcp_opt_sec_dns_address, tvb,
-        offset + 2, 4, ENC_BIG_ENDIAN);
-}
-
-static void
-dissect_ipcp_sec_nbns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-    proto_tree *field_tree;
-
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: %s", optp->name,
-        tvb_ip_to_str(tvb, offset + 2));
-    dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_ipcp_opt_sec_nbns_address, tvb,
-        offset + 2, 4, ENC_BIG_ENDIAN);
+    dissect_ipcp_opt_iphc_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
 }
 
 static int
+dissect_ipcp_iphc_rtp_compress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+
+    dissect_ipcp_iphc_fixed_opt(tvb, pinfo, tree, proto_ipcp_iphc_option_rtp_compress, ett_ipcp_iphc_rtp_compress_opt, 2,
+                                  &field_tree, &tf);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_ipcp_iphc_enhanced_rtp_compress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+
+    dissect_ipcp_iphc_fixed_opt(tvb, pinfo, tree, proto_ipcp_iphc_option_enhanced_rtp_compress, ett_ipcp_iphc_enhanced_rtp_compress_opt, 2,
+                                  &field_tree, &tf);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_ipcp_iphc_neghdrcomp_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+
+    if (!dissect_ipcp_iphc_fixed_opt(tvb, pinfo, tree, proto_ipcp_iphc_option_neghdrcomp, ett_ipcp_iphc_neghdrcomp_opt, 3,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_ipcp_opt_iphc_param, tvb, offset + 2, 1,
+        ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_ipcp_addr_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+
+    if (!dissect_ipcp_fixed_opt(tvb, pinfo, tree, proto_ipcp_option_addr, ett_ipcp_ipaddr_opt, 6,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_ipcp_opt_ip_address, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_ipcp_mobileipv4_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+
+    if (!dissect_ipcp_fixed_opt(tvb, pinfo, tree, proto_ipcp_option_mobileipv4, ett_ipcp_mobileipv4_opt, 6,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_ipcp_opt_mobilenodehomeaddr, tvb,
+        offset + 2, 4, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_ipcp_pri_dns_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+
+    if (!dissect_ipcp_fixed_opt(tvb, pinfo, tree, proto_ipcp_option_pri_dns, ett_ipcp_pridns_opt, 6,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_ipcp_opt_pri_dns_address, tvb,
+        offset + 2, 4, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_ipcp_pri_nbns_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+
+    if (!dissect_ipcp_fixed_opt(tvb, pinfo, tree, proto_ipcp_option_pri_nbns, ett_ipcp_prinbns_opt, 6,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_ipcp_opt_pri_nbns_address, tvb,
+        offset + 2, 4, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_ipcp_sec_dns_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+
+    if (!dissect_ipcp_fixed_opt(tvb, pinfo, tree, proto_ipcp_option_sec_dns, ett_ipcp_secdns_opt, 6,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_ipcp_opt_sec_dns_address, tvb,
+        offset + 2, 4, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_ipcp_sec_nbns_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+
+    if (!dissect_ipcp_fixed_opt(tvb, pinfo, tree, proto_ipcp_option_sec_nbns, ett_ipcp_secnbns_opt, 6,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_ipcp_opt_sec_nbns_address, tvb,
+        offset + 2, 4, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
+}
+
+static void
 dissect_bcp_ncp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
     const char *name)
 {
@@ -3137,9 +3128,21 @@ dissect_bcp_ncp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
     offset++;
     proto_tree_add_item(tree, hf_bcp_ncp_opt_length, tvb, offset, 1,
         ENC_BIG_ENDIAN);
-    offset++;
+}
 
-    return offset;
+static gboolean
+dissect_bcp_ncp_fixed_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    if (!ppp_option_len_check(tree, pinfo, tvb, proto, tvb_reported_length(tvb), expected_length))
+        return FALSE;
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, expected_length, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_bcp_ncp_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
 }
 
 /*
@@ -3150,19 +3153,21 @@ dissect_bcp_ncp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 */
-static void
-dissect_bcp_ncp_bridge_id(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bcp_ncp_bridge_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *field_tree;
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s",
-        optp->name);
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(field_tree, hf_bcp_ncp_lan_seg_no, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(field_tree, hf_bcp_ncp_bridge_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+    if (!dissect_bcp_ncp_fixed_opt(tvb, pinfo, tree, proto_bcp_ncp_option_bridge_id, ett_bcp_ncp_bridge_id_opt, 4,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
+    proto_tree_add_item(field_tree, hf_bcp_ncp_lan_seg_no, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_bcp_ncp_bridge_no, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -3172,19 +3177,20 @@ dissect_bcp_ncp_bridge_id(const ip_tcp_opt *optp, tvbuff_t *tvb,
 |     Type      |    Length     | LAN Segment Number    |Bridge#|
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-static void
-dissect_bcp_ncp_line_id(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bcp_ncp_line_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *field_tree;
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s",
-        optp->name);
+    if (!dissect_bcp_ncp_fixed_opt(tvb, pinfo, tree, proto_bcp_ncp_option_line_id, ett_bcp_ncp_line_id_opt, 4,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
-    proto_tree_add_item(tree, hf_bcp_ncp_lan_seg_no, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bcp_ncp_bridge_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_bcp_ncp_lan_seg_no, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_bcp_ncp_bridge_no, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -3205,20 +3211,19 @@ MAC Type
 12: FDDI                 with canonical addresses
 
 */
-static void
-dissect_bcp_ncp_mac_sup(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bcp_ncp_mac_sup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *field_tree;
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s",
-        optp->name);
+    if (!dissect_bcp_ncp_fixed_opt(tvb, pinfo, tree, proto_bcp_ncp_option_mac_sup, ett_bcp_ncp_mac_sup_opt, 3,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
-
-    proto_tree_add_item(tree, hf_bcp_bpdu_mac_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-
+    proto_tree_add_item(field_tree, hf_bcp_bpdu_mac_type, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -3229,33 +3234,31 @@ dissect_bcp_ncp_mac_sup(const ip_tcp_opt *optp, tvbuff_t *tvb,
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 */
-static void
-dissect_bcp_ncp_tinygram_comp(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bcp_ncp_tinygram_comp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *field_tree;
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s",
-        optp->name);
+    if (!dissect_bcp_ncp_fixed_opt(tvb, pinfo, tree, proto_bcp_ncp_option_tinygram_comp, ett_bcp_ncp_tinygram_comp_opt, 3,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
-
-    proto_tree_add_item(tree, hf_bcp_ncp_tinygram_comp, tvb, offset, 1, ENC_BIG_ENDIAN);
-
+    proto_tree_add_item(field_tree, hf_bcp_ncp_tinygram_comp, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_bcp_ncp_lan_id(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bcp_ncp_lan_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *field_tree;
+    proto_tree* field_tree;
+    proto_item* tf;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s",
-        optp->name);
-
-    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    dissect_bcp_ncp_fixed_opt(tvb, pinfo, tree, proto_bcp_ncp_option_lan_id, ett_bcp_ncp_lan_id_opt, 3,
+                                  &field_tree, &tf);
+    /* XXX - missing a field? */
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -3267,21 +3270,21 @@ dissect_bcp_ncp_lan_id(const ip_tcp_opt *optp, tvbuff_t *tvb,
 |  MAC byte 3   |  MAC byte 4   |  MAC byte 5   |  MAC byte 6   |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-static void
-dissect_bcp_ncp_mac_addr(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bcp_ncp_mac_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *field_tree;
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s",
-        optp->name);
+    if (!dissect_bcp_ncp_fixed_opt(tvb, pinfo, tree, proto_bcp_ncp_option_mac_addr, ett_bcp_ncp_mac_addr_opt, 8,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
-
-    proto_tree_add_item(tree, hf_bcp_ncp_mac, tvb, offset, 6, ENC_NA);
-    proto_tree_add_item(tree, hf_bcp_ncp_mac_l, tvb, offset, 6, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bcp_ncp_mac_m, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_bcp_ncp_mac, tvb, offset+2, 6, ENC_NA);
+    proto_tree_add_item(field_tree, hf_bcp_ncp_mac_l, tvb, offset+2, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_bcp_ncp_mac_m, tvb, offset+2, 6, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -3302,24 +3305,27 @@ static const value_string bcp_ncp_stp_prot_vals[] = {
     { 0,            NULL }
 };
 
-static void
-dissect_bcp_ncp_stp(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bcp_ncp_stp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s",
-        optp->name);
+    tf = proto_tree_add_item(tree, proto_bcp_ncp_option_stp, tvb, offset, length, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett_bcp_ncp_stp_opt);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
-    length = length - 2;
+    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, proto_registrar_get_name(proto_bcp_ncp_option_stp));
+    offset += 2;
+    length -= 2;
 
     while (length != 0) {
-        proto_tree_add_item(tree, hf_bcp_ncp_stp_prot, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_bcp_ncp_stp_prot, tvb, offset, 1, ENC_BIG_ENDIAN);
         length--;
         offset++;
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -3330,20 +3336,19 @@ dissect_bcp_ncp_stp(const ip_tcp_opt *optp, tvbuff_t *tvb,
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 */
-static void
-dissect_bcp_ncp_ieee_802_tagged_frame(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bcp_ncp_ieee_802_tagged_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *field_tree;
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s",
-        optp->name);
+    if (!dissect_bcp_ncp_fixed_opt(tvb, pinfo, tree, proto_bcp_ncp_option_ieee_802_tagged_frame,
+                                  ett_bcp_ncp_ieee_802_tagged_frame_opt, 3, &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
-
-    proto_tree_add_item(tree, hf_bcp_ncp_ieee_802_tagged_frame, tvb, offset, 1, ENC_BIG_ENDIAN);
-
+    proto_tree_add_item(field_tree, hf_bcp_ncp_ieee_802_tagged_frame, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -3354,18 +3359,15 @@ dissect_bcp_ncp_ieee_802_tagged_frame(const ip_tcp_opt *optp, tvbuff_t *tvb,
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 */
-static void
-dissect_bcp_ncp_management_inline(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bcp_ncp_management_inline(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *field_tree;
+    proto_tree* field_tree;
+    proto_item* tf;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s",
-        optp->name);
-
-    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
-
+    dissect_bcp_ncp_fixed_opt(tvb, pinfo, tree, proto_bcp_ncp_option_management_inline, ett_bcp_ncp_management_inline_opt, 3,
+                                  &field_tree, &tf);
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -3376,18 +3378,15 @@ dissect_bcp_ncp_management_inline(const ip_tcp_opt *optp, tvbuff_t *tvb,
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 */
-static void
-dissect_bcp_ncp_bcp_ncp_bcp_ind(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length _U_, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bcp_ncp_bcp_ncp_bcp_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *field_tree;
+    proto_tree* field_tree;
+    proto_item* tf;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s",
-        optp->name);
-
-    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
-
+    dissect_bcp_ncp_fixed_opt(tvb, pinfo, tree, proto_bcp_ncp_option_bcp_ind, ett_bcp_ncp_bcp_ind_opt, 3,
+                                  &field_tree, &tf);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -3404,26 +3403,77 @@ dissect_osinlcp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
         ENC_BIG_ENDIAN);
 }
 
-static void
-dissect_osinlcp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static gboolean
+dissect_osinlcp_fixed_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    if (!ppp_option_len_check(tree, pinfo, tvb, proto, tvb_reported_length(tvb), expected_length))
+        return FALSE;
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, expected_length, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_osinlcp_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
+}
+
+static int
+dissect_osinlcp_align_npdu_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        *optp->subtree_index, NULL, "%s: Alignment: %u",
-        optp->name, tvb_get_guint8(tvb, offset + 2));
-    dissect_osinlcp_opt_type_len(tvb, offset, field_tree, optp->name);
+    if (!dissect_osinlcp_fixed_opt(tvb, pinfo, tree, proto_osinlcp_option_align_npdu, ett_osinlcp_align_npdu_opt, 3,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
     proto_tree_add_item(field_tree, hf_osinlcp_opt_alignment, tvb, offset + 2,
         1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 static void
-dissect_pppmuxcp_def_pid_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-    guint length _U_, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_pppmuxcp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
+    const char *name)
 {
-    pppmux_def_prot_id = tvb_get_ntohs(tvb, offset + 2);
-    proto_tree_add_item(tree, hf_pppmux_def_prot_id, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    guint8 type;
+
+    type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format_value(tree, hf_pppmuxcp_opt_type, tvb, offset, 1,
+        type, "%s (%u)", name, type);
+    proto_tree_add_item(tree, hf_pppmuxcp_opt_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+}
+
+static gboolean
+dissect_pppmuxcp_fixed_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    if (!ppp_option_len_check(tree, pinfo, tvb, proto, tvb_reported_length(tvb), expected_length))
+        return FALSE;
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, expected_length, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_pppmuxcp_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
+}
+
+static int
+dissect_pppmuxcp_def_pid_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
+
+    if (!dissect_pppmuxcp_fixed_opt(tvb, pinfo, tree, proto_pppmuxcp_option_def_pid, ett_pppmuxcp_def_pid_opt, 4,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item_ret_uint(tree, hf_pppmux_def_prot_id, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &pppmux_def_prot_id);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -3439,18 +3489,60 @@ dissect_ccp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
     proto_tree_add_item(tree, hf_ccp_opt_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 }
 
+static gboolean
+dissect_ccp_fixed_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    if (!ppp_option_len_check(tree, pinfo, tvb, proto, tvb_reported_length(tvb), expected_length))
+        return FALSE;
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, expected_length, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_ccp_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
+}
+
+static gboolean
+dissect_ccp_var_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    int len = tvb_reported_length(tvb);
+
+    if (len < expected_length) {
+        /* Bogus - option length isn't what it's supposed to be for this option. */
+        proto_tree_add_expert_format(tree, pinfo, &ei_ppp_opt_len_invalid, tvb, 0, len,
+                            "%s (with option length = %u byte%s; should be at least %u)",
+                            proto_get_protocol_short_name(find_protocol_by_id(proto)),
+                            len, plurality(len, "", "s"), expected_length);
+        return FALSE;
+    }
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, -1, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_ccp_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
+}
+
+
 /* http://tools.ietf.org/html/rfc1962 */
-static void dissect_ccp_oui_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_ccp_oui_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
-    proto_item *ti;
+    proto_item *tf, *ti;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
     guint32 oui;
     const gchar *manuf;
 
+    if (!dissect_ccp_var_opt(tvb, pinfo, tree, proto_ccp_option_oui, ett_ccp_oui_opt, 6,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
     oui = tvb_get_ntoh24(tvb, offset + 2);
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
     ti = proto_tree_add_uint_format_value(field_tree, hf_ccp_opt_oui, tvb,
         offset + 2, 3, oui, "%02x:%02x:%02x",
         (oui >> 16) & 0xff, (oui >> 8) & 0xff, oui & 0xff);
@@ -3464,6 +3556,7 @@ static void dissect_ccp_oui_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
         proto_tree_add_item(field_tree, hf_ccp_opt_data, tvb, offset + 6,
             length - 6, ENC_NA);
     }
+    return tvb_captured_length(tvb);
 }
 
 /* The following configuration option types are mentioned at
@@ -3477,50 +3570,81 @@ static void dissect_ccp_oui_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
  *      16) Hewlett-Packard PPC
  *      20) V.42bis compression
  */
-static void dissect_ccp_other_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_ccp_other_opt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int proto, int ett)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+    tf = proto_tree_add_item(tree, proto, tvb, 0, length, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett);
+
+    dissect_ccp_opt_type_len(tvb, offset, field_tree, proto_registrar_get_name(proto));
 
     if (length > 2) {
         proto_tree_add_item(field_tree, hf_ccp_opt_data, tvb, offset + 2,
             length - 2, ENC_NA);
     }
+
+    return tvb_captured_length(tvb);
+}
+
+static int dissect_ccp_predict1_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_ccp_other_opt(tvb, pinfo, tree, proto_ccp_option_predict1, ett_ccp_predict1_opt);
+}
+
+static int dissect_ccp_predict2_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_ccp_other_opt(tvb, pinfo, tree, proto_ccp_option_predict2, ett_ccp_predict2_opt);
+}
+
+static int dissect_ccp_puddle_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_ccp_other_opt(tvb, pinfo, tree, proto_ccp_option_puddle, ett_ccp_puddle_opt);
+}
+
+static int dissect_ccp_hpppc_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_ccp_other_opt(tvb, pinfo, tree, proto_ccp_option_hpppc, ett_ccp_hpppc_opt);
 }
 
 /* http://tools.ietf.org/html/rfc1974 */
-static void
-dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_ccp_stac_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
-    const char *stac_ascend = "Stac Electronics LZS (Ascend Proprietary version)";
+    proto_item *tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
     static const int *check_mode_fields[] = {
         &hf_ccp_opt_cm_reserved,
         &hf_ccp_opt_cm_check_mode,
         NULL
     };
 
-    if (length == 6) {
-        field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, stac_ascend);
-        dissect_ccp_opt_type_len(tvb, offset, field_tree, stac_ascend);
+    /* In RFC 1974, this is a fixed-length field of size 5, but in
+     * Ascend Proprietary STAC compression this field is 6 octets. */
 
+    if (!dissect_ccp_var_opt(tvb, pinfo, tree,
+                                  (length == 6) ? proto_ccp_option_stac_ascend : proto_ccp_option_stac,
+                                  ett_ccp_stac_opt, 5, &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+
+    if (length == 6) {
         /* We don't know how to decode the following 4 octets, since
            there are no public documents that describe their usage. */
         proto_tree_add_item(field_tree, hf_ccp_opt_data, tvb, offset + 2,
             length - 2, ENC_NA);
     } else {
-        field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-        dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
-
         proto_tree_add_item(field_tree, hf_ccp_opt_history_count, tvb,
             offset + 2, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(field_tree, tvb, offset + 4, hf_ccp_opt_cm,
             ett_ccp_stac_opt_check_mode, check_mode_fields, ENC_NA);
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -3561,11 +3685,12 @@ static const true_false_string ccp_mppe_c_tfs = {
 
 /* http://tools.ietf.org/html/rfc2118,
  * http://tools.ietf.org/html/rfc3078 */
-static void
-dissect_ccp_mppe_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_ccp_mppe_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
     static const int *supported_bits_fields[] = {
         &hf_ccp_opt_supported_bits_h,
         &hf_ccp_opt_supported_bits_m,
@@ -3576,22 +3701,27 @@ dissect_ccp_mppe_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         NULL
     };
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+    if (!dissect_ccp_fixed_opt(tvb, pinfo, tree, proto_ccp_option_mppe, ett_ccp_mppe_opt, 6,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     proto_tree_add_bitmask(field_tree, tvb, offset + 2,
         hf_ccp_opt_supported_bits, ett_ccp_mppe_opt_supp_bits,
         supported_bits_fields, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 /* http://tools.ietf.org/html/rfc1993 */
-static void dissect_ccp_gfza_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_ccp_gfza_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+    if (!dissect_ccp_var_opt(tvb, pinfo, tree, proto_ccp_option_gfza, ett_ccp_gfza_opt, 3,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     proto_tree_add_item(field_tree, hf_ccp_opt_history, tvb, offset + 2, 1,
         ENC_BIG_ENDIAN);
@@ -3600,36 +3730,47 @@ static void dissect_ccp_gfza_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
         proto_tree_add_item(field_tree, hf_ccp_opt_version, tvb, offset + 3,
             length - 3, ENC_NA);
     }
+    return tvb_captured_length(tvb);
+}
+
+static int dissect_ccp_v42bis_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_ccp_other_opt(tvb, pinfo, tree, proto_ccp_option_v42bis, ett_ccp_v42bis_opt);
 }
 
 /* http://tools.ietf.org/html/rfc1977 */
-static void
-dissect_ccp_bsdcomp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_ccp_bsdcomp_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
     static const int *vd_fields[] = {
         &hf_ccp_opt_vd_vers,
         &hf_ccp_opt_vd_dict,
         NULL
     };
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+    if (!dissect_ccp_fixed_opt(tvb, pinfo, tree, proto_ccp_option_bsdcomp, ett_ccp_bsdcomp_opt, 3,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     proto_tree_add_bitmask(field_tree, tvb, offset + 2, hf_ccp_opt_vd,
-        *optp->subtree_index, vd_fields, ENC_BIG_ENDIAN);
+        ett_ccp_bsdcomp_opt, vd_fields, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 /* http://tools.ietf.org/html/rfc1967 */
-static void
-dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_ccp_lzsdcp_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+    if (!dissect_ccp_fixed_opt(tvb, pinfo, tree, proto_ccp_option_lzsdcp, ett_ccp_lzsdcp_opt, 6,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     proto_tree_add_item(field_tree, hf_ccp_opt_history_count, tvb,
         offset + 2, 2, ENC_BIG_ENDIAN);
@@ -3637,17 +3778,20 @@ dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_ccp_opt_process_mode, tvb, offset + 5,
         1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 /* http://tools.ietf.org/html/rfc1975 */
-static void
-dissect_ccp_mvrca_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_ccp_mvrca_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+    if (!dissect_ccp_fixed_opt(tvb, pinfo, tree, proto_ccp_option_mvrca, ett_ccp_mvrca_opt, 4,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     proto_tree_add_item(field_tree, hf_ccp_opt_fe, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_ccp_opt_p, tvb, offset + 2, 1, ENC_NA);
@@ -3655,20 +3799,24 @@ dissect_ccp_mvrca_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_ccp_opt_contexts, tvb, offset + 3, 1,
         ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 /* http://tools.ietf.org/html/rfc1976 */
-static void
-dissect_ccp_dce_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_ccp_dce_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+    if (!dissect_ccp_fixed_opt(tvb, pinfo, tree, proto_ccp_option_dce, ett_ccp_dce_opt, 3,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     proto_tree_add_item(field_tree, hf_ccp_opt_mode, tvb, offset + 2, 1,
         ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 static const value_string deflate_method_vals[] = {
@@ -3682,15 +3830,18 @@ static const value_string deflate_chk_vals[] = {
 };
 
 /* http://tools.ietf.org/html/rfc1979 */
-static void
-dissect_ccp_deflate_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_ccp_deflate_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
     guint8 window;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+    /* RFC1979 says the length is 3 but it's actually 4. */
+    if (!dissect_ccp_fixed_opt(tvb, pinfo, tree, proto_ccp_option_deflate, ett_ccp_deflate_opt, 4,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     window = tvb_get_guint8(tvb, offset + 2);
     proto_tree_add_uint_format_value(field_tree, hf_ccp_opt_window, tvb,
@@ -3701,6 +3852,7 @@ dissect_ccp_deflate_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_ccp_opt_chk, tvb, offset + 3, 1,
         ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 static const range_string v44lzjh_mode_dict_rvals[] = {
@@ -3713,13 +3865,16 @@ static const range_string v44lzjh_mode_dict_rvals[] = {
 };
 
 /* http://www.watersprings.org/pub/id/draft-heath-ppp-v44-01.txt */
-static void dissect_ccp_v44lzjh_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_ccp_v44lzjh_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+    if (!dissect_ccp_var_opt(tvb, pinfo, tree, proto_ccp_option_v44lzjh, ett_ccp_v44lzjh_opt, 4,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     proto_tree_add_item(field_tree, hf_ccp_opt_mode_dictcount, tvb, offset + 2,
         2, ENC_BIG_ENDIAN);
@@ -3732,34 +3887,23 @@ static void dissect_ccp_v44lzjh_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                 offset + 6, 2, ENC_BIG_ENDIAN);
         }
     }
+    return tvb_captured_length(tvb);
 }
 
-
-static void
-dissect_cbcp_no_callback_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_cbcp_callback_opt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length)
 {
-    proto_tree_add_item(tree, hf_cbcp_no_callback, tvb, offset, length, ENC_NA);
-}
-
-static void
-dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-    proto_tree *field_tree;
     proto_tree *addr_tree;
     proto_item *ti;
     guint8      addr_type;
     guint       addr_len;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
-
-    proto_tree_add_item(field_tree, hf_cbcp_callback_delay, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cbcp_callback_delay, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
     offset += 3;
     length -= 3;
 
     while (length > 0) {
-        addr_tree = proto_tree_add_subtree(field_tree, tvb, offset, length,
+        addr_tree = proto_tree_add_subtree(tree, tvb, offset, length,
             ett_cbcp_callback_opt_addr, NULL, "Callback Address");
         addr_type = tvb_get_guint8(tvb, offset);
         ti = proto_tree_add_uint_format_value(addr_tree, hf_cbcp_address_type, tvb, offset, 1, addr_type,
@@ -3767,7 +3911,7 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         offset++;
         length--;
         addr_len = tvb_strsize(tvb, offset);
-        if (addr_len > length) {
+        if (addr_len > (guint)length) {
             expert_add_info(pinfo, ti, &ei_cbcp_address);
             break;
         }
@@ -3775,42 +3919,229 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         offset += addr_len;
         length -= addr_len;
     }
+
+    return tvb_captured_length(tvb);
 }
 
 static void
-dissect_bacp_favored_peer_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_cbcp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
+    const char *name)
 {
-    proto_tree *field_tree;
+    guint8 type;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
+    type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format_value(tree, hf_cbcp_opt_type, tvb, offset, 1,
+        type, "%s (%u)", name, type);
+    proto_tree_add_item(tree, hf_cbcp_opt_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+}
+
+static int
+dissect_cbcp_no_callback_opt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    tf = proto_tree_add_item(tree, proto_cbcp_option_no_callback, tvb, offset, length, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett_cbcp_no_callback);
+
+    dissect_cbcp_opt_type_len(tvb, offset, field_tree, proto_registrar_get_name(proto_cbcp_option_no_callback));
+    proto_tree_add_item(field_tree, hf_cbcp_no_callback, tvb, offset+2, length-2, ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_cbcp_callback_user_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    if (length < 4) {
+        /* Bogus - option length isn't what it's supposed to be for this option. */
+        proto_tree_add_expert_format(tree, pinfo, &ei_ppp_opt_len_invalid, tvb, 0, length,
+                            "%s (with option length = %u byte%s; should be at least %u)",
+                            proto_get_protocol_short_name(find_protocol_by_id(proto_cbcp_option_callback_user)),
+                            length, plurality(length, "", "s"), 4);
+        return tvb_captured_length(tvb);
+    }
+
+    tf = proto_tree_add_item(tree, proto_cbcp_option_callback_user, tvb, offset, length, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett_cbcp_callback_user);
+
+    dissect_cbcp_opt_type_len(tvb, offset, field_tree, proto_registrar_get_name(proto_cbcp_option_callback_user));
+
+    return dissect_cbcp_callback_opt_common(tvb, pinfo, tree, 0, tvb_reported_length(tvb));
+}
+
+static int
+dissect_cbcp_callback_admin_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
+
+    if (!ppp_option_len_check(tree, pinfo, tvb, proto_cbcp_option_callback_admin, tvb_reported_length(tvb), 4))
+        return tvb_captured_length(tvb);
+
+    tf = proto_tree_add_item(tree, proto_cbcp_option_callback_admin, tvb, offset, -1, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett_cbcp_callback_admin);
+
+    dissect_cbcp_opt_type_len(tvb, offset, field_tree, proto_registrar_get_name(proto_cbcp_option_callback_admin));
+
+    return dissect_cbcp_callback_opt_common(tvb, pinfo, tree, 0, tvb_reported_length(tvb));
+}
+
+static int
+dissect_cbcp_callback_list_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    if (length < 4) {
+        /* Bogus - option length isn't what it's supposed to be for this option. */
+        proto_tree_add_expert_format(tree, pinfo, &ei_ppp_opt_len_invalid, tvb, 0, length,
+                            "%s (with option length = %u byte%s; should be at least %u)",
+                            proto_get_protocol_short_name(find_protocol_by_id(proto_cbcp_option_callback_list)),
+                            length, plurality(length, "", "s"), 4);
+        return tvb_captured_length(tvb);
+    }
+
+    tf = proto_tree_add_item(tree, proto_cbcp_option_callback_list, tvb, offset, length, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett_cbcp_callback_list);
+
+    dissect_cbcp_opt_type_len(tvb, offset, field_tree, proto_registrar_get_name(proto_cbcp_option_callback_list));
+
+    return dissect_cbcp_callback_opt_common(tvb, pinfo, tree, 0, tvb_reported_length(tvb));
+}
+
+static void
+dissect_bacp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
+    const char *name)
+{
+    guint8 type;
+
+    type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format_value(tree, hf_bacp_opt_type, tvb, offset, 1,
+        type, "%s (%u)", name, type);
+    proto_tree_add_item(tree, hf_bacp_opt_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+}
+
+static gboolean
+dissect_bacp_fixed_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    if (!ppp_option_len_check(tree, pinfo, tvb, proto, tvb_reported_length(tvb), expected_length))
+        return FALSE;
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, expected_length, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_bacp_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
+}
+
+static int
+dissect_bacp_favored_peer_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
+
+    if (!dissect_bacp_fixed_opt(tvb, pinfo, tree, proto_bacp_option_favored_peer, ett_bacp_favored_peer_opt, 6,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     proto_tree_add_item(field_tree, hf_bacp_magic_number, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 static void
-dissect_bap_link_type_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_bap_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
+    const char *name)
 {
-    proto_tree *field_tree;
+    guint8 type;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
+    type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format_value(tree, hf_bap_opt_type, tvb, offset, 1,
+        type, "%s (%u)", name, type);
+    proto_tree_add_item(tree, hf_bap_opt_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+}
+
+static gboolean
+dissect_bap_fixed_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    if (!ppp_option_len_check(tree, pinfo, tvb, proto, tvb_reported_length(tvb), expected_length))
+        return FALSE;
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, expected_length, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_bap_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
+}
+
+static gboolean
+dissect_bap_var_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    int len = tvb_reported_length(tvb);
+
+    if (len < expected_length) {
+        /* Bogus - option length isn't what it's supposed to be for this option. */
+        proto_tree_add_expert_format(tree, pinfo, &ei_ppp_opt_len_invalid, tvb, 0, len,
+                            "%s (with option length = %u byte%s; should be at least %u)",
+                            proto_get_protocol_short_name(find_protocol_by_id(proto)),
+                            len, plurality(len, "", "s"), expected_length);
+        return FALSE;
+    }
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, -1, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_bap_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
+}
+
+static int
+dissect_bap_link_type_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
+
+    if (!dissect_bap_fixed_opt(tvb, pinfo, tree, proto_bap_option_link_type, ett_bap_link_type_opt, 5,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     proto_tree_add_item(field_tree, hf_bacp_link_speed, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_bacp_link_type, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bap_phone_delta_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
     proto_tree *suboption_tree;
-    proto_item *ti;
+    proto_item *tf, *ti;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
     guint8      subopt_type;
     guint8      subopt_len;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
+    if (!dissect_bap_var_opt(tvb, pinfo, tree, proto_bap_option_phone_delta, ett_bap_phone_delta_opt, 4,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     offset += 2;
     length -= 2;
@@ -3828,12 +4159,12 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         if (subopt_len < 2) {
             expert_add_info_format(pinfo, ti, &ei_bap_sub_option_length,
                 "Sub-Option Length invalid, must be >= 2");
-            return;
+            break;
         }
         if (subopt_len > length) {
             expert_add_info_format(pinfo, ti, &ei_bap_sub_option_length,
                 "Sub-Option Length invalid, must be <= length remaining in option %u)", length);
-            return;
+            break;
         }
 
         switch (subopt_type) {
@@ -3873,41 +4204,108 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         offset += subopt_len;
         length -= subopt_len;
     }
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_bap_reason_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bap_no_phone_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    if (length > 2) {
-        proto_tree_add_item(tree, hf_bap_reason, tvb, offset+2, length-2, ENC_NA|ENC_ASCII);
-    }
+    proto_tree* field_tree;
+    proto_item* tf;
+
+    dissect_bap_fixed_opt(tvb, pinfo, tree, proto_bap_option_no_phone, ett_bap_no_phone_opt, 2,
+                                  &field_tree, &tf);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_bap_link_disc_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-    guint length _U_, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bap_reason_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_bap_link_descriminator, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    if (!dissect_bap_var_opt(tvb, pinfo, tree, proto_bap_option_reason, ett_bap_reason_opt, 2,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_bap_reason, tvb, offset+2, length-2, ENC_NA|ENC_ASCII);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_bap_call_status_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_bap_link_disc_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *field_tree;
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree(tree, tvb, offset, length, *optp->subtree_index, NULL, optp->name);
+    if (!dissect_bap_fixed_opt(tvb, pinfo, tree, proto_bap_option_link_disc, ett_bap_link_disc_opt, 4,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_bap_link_descriminator, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_bap_call_status_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
+
+    if (!dissect_bap_fixed_opt(tvb, pinfo, tree, proto_bap_option_call_status, ett_bap_call_status_opt, 4,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
     proto_tree_add_item(field_tree, hf_bap_call_status, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_bap_call_action, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 static void
-dissect_vsncp_pdnid_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-    guint length _U_, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_vsncp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
+    const char *name)
 {
-    proto_tree_add_item(tree, hf_vsncp_pdn_identifier, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    guint8 type;
+
+    type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format_value(tree, hf_vsncp_opt_type, tvb, offset, 1,
+        type, "%s (%u)", name, type);
+    proto_tree_add_item(tree, hf_vsncp_opt_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+}
+
+static gboolean
+dissect_vsncp_fixed_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    if (!ppp_option_len_check(tree, pinfo, tvb, proto, tvb_reported_length(tvb), expected_length))
+        return FALSE;
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, expected_length, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_vsncp_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
+}
+
+static int
+dissect_vsncp_pdnid_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+
+    if (!dissect_vsncp_fixed_opt(tvb, pinfo, tree,
+                             proto_vsncp_option_pdnid, ett_vsncp_pdnid_opt, 3,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_vsncp_pdn_identifier, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 static const value_string vsncp_attach_vals[] = {
@@ -3916,11 +4314,20 @@ static const value_string vsncp_attach_vals[] = {
     {0, NULL}
 };
 
-static void
-dissect_vsncp_attachtype_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-    guint length _U_, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_vsncp_attachtype_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_vsncp_attach_type, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+
+    if (!dissect_vsncp_fixed_opt(tvb, pinfo, tree,
+                             proto_vsncp_option_attachtype, ett_vsncp_attachtype_opt, 3,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_vsncp_attach_type, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 static const value_string vsncp_pdntype_vals[] = {
@@ -3931,11 +4338,20 @@ static const value_string vsncp_pdntype_vals[] = {
     {0, NULL}
 };
 
-static void
-dissect_vsncp_pdntype_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-    guint length _U_, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_vsncp_pdntype_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_vsncp_pdn_type, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+
+    if (!dissect_vsncp_fixed_opt(tvb, pinfo, tree,
+                             proto_vsncp_option_pdntype, ett_vsncp_pdntype_opt, 3,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_vsncp_pdn_type, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 static const value_string vsncp_errorcode_vals[] = {
@@ -3957,26 +4373,56 @@ static const value_string vsncp_errorcode_vals[] = {
     {0,  NULL}
 };
 
-static void
-dissect_vsncp_errorcode_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-    guint length _U_, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_vsncp_errorcode_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_vsncp_error_code, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    if (length < 3) {
+        /* Bogus - option length isn't what it's supposed to be for this option. */
+        proto_tree_add_expert_format(tree, pinfo, &ei_ppp_opt_len_invalid, tvb, 0, length,
+                            "%s (with option length = %u byte%s; should be at least %u)",
+                            proto_get_protocol_short_name(find_protocol_by_id(proto_vsncp_option_errorcode )),
+                            length, plurality(length, "", "s"), 3);
+        return tvb_captured_length(tvb);
+    }
+
+    tf = proto_tree_add_item(tree, proto_vsncp_option_errorcode, tvb, 0, length, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett_vsncp_errorcode_opt);
+
+    dissect_vsncp_opt_type_len(tvb, 0, field_tree, proto_registrar_get_name(proto_vsncp_option_pdnaddress));
+
+    proto_tree_add_item(field_tree, hf_vsncp_error_code, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_vsncp_pdnaddress_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint8 pdnaddtype;
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+    guint32 pdnaddtype;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        ett_lcp_options, NULL, "%s: (%d byte%s)",
-        optp->name, length, plurality(length, "", "s"));
+    if (length < 3) {
+        /* Bogus - option length isn't what it's supposed to be for this option. */
+        proto_tree_add_expert_format(tree, pinfo, &ei_ppp_opt_len_invalid, tvb, 0, length,
+                            "%s (with option length = %u byte%s; should be at least %u)",
+                            proto_get_protocol_short_name(find_protocol_by_id(proto_vsncp_option_pdnaddress )),
+                            length, plurality(length, "", "s"), 3);
+        return tvb_captured_length(tvb);
+    }
 
-    pdnaddtype = tvb_get_guint8(tvb, offset + 2);
-    proto_tree_add_item(field_tree, hf_vsncp_pdn_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    tf = proto_tree_add_item(tree, proto_vsncp_option_pdnaddress, tvb, 0, length, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett_vsncp_pdnaddress_opt);
+
+    dissect_vsncp_opt_type_len(tvb, 0, field_tree, proto_registrar_get_name(proto_vsncp_option_pdnaddress));
+
+    proto_tree_add_item_ret_uint(field_tree, hf_vsncp_pdn_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN, &pdnaddtype);
 
     switch (pdnaddtype) {
     case 1:
@@ -4018,24 +4464,38 @@ dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     default:
         break;
     }
+
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_vsncp_ipv4address_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
-    int offset, guint length _U_, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-    proto_tree_add_item(tree, hf_vsncp_default_router_address, tvb, offset+2, 4, ENC_BIG_ENDIAN);
-}
-
-static void
-dissect_vsncp_apname_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_vsncp_ipv4address_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        ett_lcp_options, NULL, "%s: (%d byte%s)",
-        optp->name, length, plurality(length, "", "s"));
+    if (!dissect_vsncp_fixed_opt(tvb, pinfo, tree,
+                             proto_vsncp_option_ipv4address, ett_vsncp_ipv4address_opt, 6,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_vsncp_default_router_address, tvb, offset+2, 4, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_vsncp_apname_opt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    tf = proto_tree_add_item(tree, proto_vsncp_option_apname, tvb, 0, length, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett_vsncp_apname_opt);
+
+    dissect_vsncp_opt_type_len(tvb, 0, field_tree, proto_registrar_get_name(proto_vsncp_option_apname));
 
     if (length > 2) {
         guint8 i = 0;
@@ -4054,6 +4514,7 @@ dissect_vsncp_apname_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
             i += lengthofapn + 1;
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 static const value_string vsncp_alloc_vals[] = {
@@ -4063,43 +4524,53 @@ static const value_string vsncp_alloc_vals[] = {
     {0,   NULL}
 };
 
-static void
-dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
-    int offset, guint length _U_, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-    proto_tree_add_item(tree, hf_vsncp_address_allocation_cause, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-}
-
-static void
-dissect_vsncp_apn_ambr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                           int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_vsncp_addressalloc_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
 
-    if (tree) {
+    if (!dissect_vsncp_fixed_opt(tvb, pinfo, tree,
+                             proto_vsncp_option_addressalloc, ett_vsncp_addressalloc_opt, 3,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
 
-        field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-                                 ett_lcp_options, NULL, "%s: (%d byte%s)",
-                                 optp->name, length, plurality(length, "", "s"));
-
-        /*de_esm_apn_aggr_max_br(tvb, field_tree, pinfo, offset, length, NULL, 0);*/
-        proto_tree_add_item(field_tree, hf_vsncp_ambr_data, tvb, offset, length, ENC_NA);
-    }
+    proto_tree_add_item(field_tree, hf_vsncp_address_allocation_cause, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_vsncp_ipv6_hsgw_lla_iid_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
-                                    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_vsncp_apn_ambr_opt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
 
-    if (tree) {
-        field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-                                 ett_lcp_options, NULL, "%s: (%d byte%s)",
-                                 optp->name, length, plurality(length, "", "s"));
+    tf = proto_tree_add_item(tree, proto_vsncp_option_apn_ambr, tvb, 0, length, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett_vsncp_apn_ambr_opt);
 
-        proto_tree_add_item(field_tree, hf_vsncp_ipv6_interface_identifier, tvb, offset, length, ENC_NA);
-    }
+    dissect_vsncp_opt_type_len(tvb, 0, field_tree, proto_registrar_get_name(proto_vsncp_option_apn_ambr ));
+    proto_tree_add_item(field_tree, hf_vsncp_ambr_data, tvb, offset+2, length-2, ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_vsncp_ipv6_hsgw_lla_iid_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+    int offset = 0;
+
+    if (!dissect_vsncp_fixed_opt(tvb, pinfo, tree,
+                             proto_vsncp_option_ipv6_hsgw_lla_iid, ett_vsncp_ipv6_hsgw_lla_iid_opt, 10,
+                             &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_vsncp_ipv6_interface_identifier, tvb, offset+2, 8, ENC_NA);
+    return tvb_captured_length(tvb);
 }
 
 /* Ch 10.5.6.3 3GPP TS 24.008 version 11.5.0 Release 11 */
@@ -4114,36 +4585,40 @@ static const value_string vsncp_pco_vals[] = {
     {0,      NULL}
 };
 
-static void
-dissect_vsncp_pco_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int
+dissect_vsncp_pco_opt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-    int off = offset + 3;
-    guint8  i = 0;
     guint8 len;
     proto_tree *field_tree;
+    proto_item *tf;
+    int length = tvb_reported_length(tvb);
+    int offset = 3;
+    guint8  i = 0;
 
-    field_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
-        ett_lcp_options, NULL, "%s: (%d byte%s)",
-        optp->name, length, plurality(length, "", "s"));
+    tf = proto_tree_add_item(tree, proto_vsncp_option_pco, tvb, 0, length, ENC_NA);
+    field_tree = proto_item_add_subtree(tf, ett_vsncp_pco_opt);
+
+    dissect_vsncp_opt_type_len(tvb, 0, field_tree, proto_registrar_get_name(proto_vsncp_option_pco));
 
     while (i < (length - 3)) {
-        len = tvb_get_guint8(tvb, (off + 2));
-        proto_tree_add_item(field_tree, hf_vsncp_protocol, tvb, off, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(field_tree, hf_vsncp_protocol_configuration_length, tvb, off + 2, 1, ENC_BIG_ENDIAN);
+        len = tvb_get_guint8(tvb, (offset + 2));
+        proto_tree_add_item(field_tree, hf_vsncp_protocol, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_vsncp_protocol_configuration_length, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
         if (len > 0) {
-            proto_tree_add_item(field_tree, hf_vsncp_protocol_configuration_data, tvb, off + 3, len, ENC_NA);
+            proto_tree_add_item(field_tree, hf_vsncp_protocol_configuration_data, tvb, offset + 3, len, ENC_NA);
         }
 
-        off += 3 + len;
+        offset += 3 + len;
         i += 3 + len;
     }
+
+    return tvb_captured_length(tvb);
 }
 
 static void
 dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
     const value_string *proto_vals, int options_subtree_index,
-    const ip_tcp_opt *opts, int nopts, packet_info *pinfo, proto_tree *tree)
+    dissector_table_t option_table, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *fh_tree = NULL;
@@ -4209,8 +4684,7 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 
             field_tree = proto_tree_add_subtree_format(fh_tree, tvb, offset, length,
                 options_subtree_index, NULL, "Options: (%d byte%s)", length, plurality(length, "", "s"));
-            dissect_ip_tcp_options(tvb, offset, length, opts, nopts, -1, &PPP_OPT_TYPES,
-                &ei_ppp_opt_len_invalid, pinfo, field_tree, NULL, NULL);
+            ppp_dissect_options(tvb, offset, length, option_table, pinfo, field_tree);
         }
         break;
 
@@ -4376,8 +4850,7 @@ dissect_ppp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_lcp_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_ip_tcp_options(tvb, 0, tvb_reported_length(tvb), lcp_opts,
-        N_LCP_OPTS, -1, &PPP_OPT_TYPES, &ei_ppp_opt_len_invalid, pinfo, tree, NULL, NULL);
+    ppp_dissect_options(tvb, 0, tvb_reported_length(tvb), lcp_option_table, pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -4387,8 +4860,7 @@ dissect_lcp_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 static int
 dissect_lcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_cp(tvb, proto_lcp, ett_lcp, lcp_vals, ett_lcp_options, lcp_opts,
-        N_LCP_OPTS, pinfo, tree);
+    dissect_cp(tvb, proto_lcp, ett_lcp, lcp_vals, ett_lcp_options, lcp_option_table, pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -4431,8 +4903,7 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             field_tree = proto_tree_add_subtree_format(fh_tree, tvb, offset, length,
                                      ett_vsncp_options, NULL, "Options: (%d byte%s)", length,
                                      plurality(length, "", "s"));
-            dissect_ip_tcp_options(tvb, offset, length, vsncp_opts, N_VSNCP_OPTS, -1, &PPP_OPT_TYPES,
-                                    &ei_ppp_opt_len_invalid, pinfo, field_tree, NULL, NULL);
+            ppp_dissect_options(tvb, offset, length, vsncp_option_table, pinfo, field_tree);
         }
         break;
 
@@ -4477,8 +4948,8 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 static int
 dissect_ipcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_cp(tvb, proto_ipcp, ett_ipcp, cp_vals, ett_ipcp_options, ipcp_opts,
-        N_IPCP_OPTS, pinfo, tree);
+    dissect_cp(tvb, proto_ipcp, ett_ipcp, cp_vals, ett_ipcp_options, ipcp_option_table,
+                pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -4615,7 +5086,7 @@ static int
 dissect_bcp_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_bcp_ncp, ett_bcp_ncp, lcp_vals, ett_bcp_ncp_options,
-        bcp_ncp_opts, N_BCPLCP_OPTS, pinfo, tree);
+        bcp_ncp_option_table, pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -4625,8 +5096,8 @@ dissect_bcp_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 static int
 dissect_osinlcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_cp(tvb, proto_osinlcp, ett_osinlcp, cp_vals, ett_osinlcp_options,
-        osinlcp_opts, N_OSINLCP_OPTS, pinfo, tree);
+    dissect_cp(tvb, proto_osinlcp, ett_osinlcp, cp_vals, ett_osinlcp_options, osinlcp_option_table,
+        pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -4636,8 +5107,7 @@ dissect_osinlcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 static int
 dissect_ccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_cp(tvb, proto_ccp, ett_ccp, ccp_vals, ett_ccp_options, ccp_opts,
-        N_CCP_OPTS, pinfo, tree);
+    dissect_cp(tvb, proto_ccp, ett_ccp, ccp_vals, ett_ccp_options, ccp_option_table, pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -4650,7 +5120,7 @@ static int
 dissect_cbcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_cbcp, ett_cbcp, cbcp_vals, ett_cbcp_options,
-        cbcp_opts, N_CBCP_OPTS, pinfo, tree);
+        cbcp_option_table, pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -4660,8 +5130,8 @@ dissect_cbcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 static int
 dissect_bacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_cp(tvb, proto_bacp, ett_bacp, cp_vals, ett_bacp_options, bacp_opts,
-        N_BACP_OPTS, pinfo, tree);
+    dissect_cp(tvb, proto_bacp, ett_bacp, cp_vals, ett_bacp_options, bacp_option_table,
+                pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -4701,8 +5171,7 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (length > 0) {
         field_tree = proto_tree_add_subtree_format(fh_tree, tvb, offset, length,
                                  ett_bap_options, NULL, "Data (%d byte%s)", length, plurality(length, "", "s"));
-        dissect_ip_tcp_options(tvb, offset, length, bap_opts, N_BAP_OPTS, -1, &PPP_OPT_TYPES,
-                                &ei_ppp_opt_len_invalid, pinfo, field_tree, NULL, NULL);
+        ppp_dissect_options(tvb, offset, length, bap_option_table, pinfo, field_tree);
     }
     return tvb_captured_length(tvb);
 }
@@ -4742,7 +5211,7 @@ static int
 dissect_pppmuxcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_pppmuxcp, ett_pppmuxcp, pppmuxcp_vals,
-        ett_pppmuxcp_options, pppmuxcp_opts, N_PPPMUXCP_OPTS,pinfo, tree);
+        ett_pppmuxcp_options, pppmuxcp_option_table, pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -5228,7 +5697,7 @@ static int
 dissect_mplscp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_mplscp, ett_mplscp, cp_vals, ett_mplscp_options,
-        NULL, 0, pinfo, tree);
+        NULL, pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -5240,7 +5709,7 @@ static int
 dissect_cdpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_cdpcp, ett_cdpcp, cp_vals, ett_cdpcp_options, NULL,
-        0, pinfo, tree);
+        pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -5927,16 +6396,50 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 static int
 dissect_ipv6cp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_cp(tvb, proto_ipv6cp, ett_ipv6cp, cp_vals, ett_ipv6cp_options,
-        ipv6cp_opts, N_IPV6CP_OPTS, pinfo, tree);
+    dissect_cp(tvb, proto_ipv6cp, ett_ipv6cp, cp_vals, ett_ipv6cp_options, ipv6cp_option_table, pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
 static void
-dissect_ipv6cp_if_id_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-    guint length _U_, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_ipv6cp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
+    const char *name)
 {
-    proto_tree_add_item(tree, hf_ipv6cp_interface_identifier, tvb, offset+2, 8, ENC_NA);
+    guint8 type;
+
+    type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format_value(tree, hf_ipv6cp_opt_type, tvb, offset, 1,
+        type, "%s (%u)", name, type);
+    proto_tree_add_item(tree, hf_ipv6cp_opt_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+}
+
+static gboolean
+dissect_ipv6cp_fixed_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                             int proto, int ett, int expected_length,
+                             proto_tree** ret_tree, proto_item** ret_item)
+{
+    if (!ppp_option_len_check(tree, pinfo, tvb, proto, tvb_reported_length(tvb), expected_length))
+        return FALSE;
+
+    *ret_item = proto_tree_add_item(tree, proto, tvb, 0, expected_length, ENC_NA);
+    *ret_tree = proto_item_add_subtree(*ret_item, ett);
+
+    dissect_ipv6cp_opt_type_len(tvb, 0, *ret_tree, proto_registrar_get_name(proto));
+    return TRUE;
+}
+
+static int
+dissect_ipv6cp_if_id_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree* field_tree;
+    proto_item* tf;
+    int offset = 0;
+
+    if (!dissect_ipv6cp_fixed_opt(tvb, pinfo, tree, proto_ipv6cp_option_if_id, ett_ipv6cp_if_id_opt, 10,
+                                  &field_tree, &tf))
+        return tvb_captured_length(tvb);
+
+    proto_tree_add_item(field_tree, hf_ipv6cp_interface_identifier, tvb, offset+2, 8, ENC_NA);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -5976,18 +6479,6 @@ proto_register_ppp(void)
         { &hf_ppp_data,
             { "Data", "ppp.data", FT_BYTES, BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
-        { &hf_ppp_opt_type,
-            { "Type", "ppp.opt.type", FT_UINT8, BASE_DEC,
-                NULL, 0x0, NULL, HFILL}},
-        { &hf_ppp_opt_type_copy,
-            { "Copy on fragmentation", "ppp.opt.type.copy", FT_BOOLEAN, 8,
-                TFS(&tfs_yes_no), IPOPT_COPY_MASK, NULL, HFILL}},
-        { &hf_ppp_opt_type_class,
-            { "Class", "ppp.opt.type.class", FT_UINT8, BASE_DEC,
-                VALS(ipopt_type_class_vals), IPOPT_CLASS_MASK, NULL, HFILL}},
-        { &hf_ppp_opt_type_number,
-            { "Number", "ppp.opt.type.number", FT_UINT8, BASE_DEC,
-                VALS(ipopt_type_number_vals), IPOPT_NUMBER_MASK, NULL, HFILL}},
         { &hf_ppp_fcs_16,
             { "FCS 16", "ppp.fcs_16", FT_UINT16, BASE_HEX,
                 NULL, 0x0, NULL, HFILL }},
@@ -6000,7 +6491,8 @@ proto_register_ppp(void)
     };
     static gint *ett[] = {
         &ett_ppp,
-        &ett_ppp_opt_type
+        &ett_ppp_opt_type,
+        &ett_ppp_unknown_opt
     };
     static ei_register_info ei[] = {
         { &ei_ppp_opt_len_invalid, { "ppp.opt.len.invalid", PI_PROTOCOL, PI_WARN, "Invalid length for option", EXPFILL }},
@@ -6335,7 +6827,7 @@ proto_register_lcp(void)
                 NULL, 0x0, NULL, HFILL }},
         { &hf_lcp_opt_reportingperiod,
             { "Reporting Period", "lcp.opt.reporting_period", FT_UINT32,
-                BASE_DEC, NULL, 0x0,
+                BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0,
                 "Maximum time in micro-seconds that the remote end should "
                 "wait between transmission of LCP Link-Quality-Report packets",
                 HFILL }},
@@ -6352,11 +6844,11 @@ proto_register_lcp(void)
             { "CCITT 32-bit", "lcp.opt.fcs_alternatives.ccitt32", FT_BOOLEAN,
                 8, NULL, 0x04, NULL, HFILL }},
         { &hf_lcp_opt_maximum,
-            { "Maximum", "lcp.opt.maximum", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Maximum", "lcp.opt.maximum", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
                 "The largest number of padding octets which may be added "
                 "to the frame.", HFILL }},
         { &hf_lcp_opt_window,
-            { "Window", "lcp.opt.window", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Window", "lcp.opt.window", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_frame_frames, 0x0,
                 "The number of frames the receiver will buffer.", HFILL }},
         { &hf_lcp_opt_hdlc_address,
             { "Address", "lcp.opt.hdlc_address", FT_BYTES, BASE_NONE, NULL,
@@ -6460,13 +6952,46 @@ proto_register_lcp(void)
         &ett_lcp_prefix_elision_opt,
         &ett_multilink_hdr_fmt_opt,
         &ett_lcp_internationalization_opt,
-        &ett_lcp_simple_opt
+        &ett_lcp_sonet_sdh_opt
     };
 
-    proto_lcp = proto_register_protocol("PPP Link Control Protocol", "PPP LCP",
-        "lcp");
+    proto_lcp = proto_register_protocol("PPP Link Control Protocol", "PPP LCP", "lcp");
     proto_register_field_array(proto_lcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    lcp_option_table = register_dissector_table("lcp.option", "PPP LCP Options", proto_lcp, FT_UINT8, BASE_DEC);
+
+    /* Register LCP options as their own protocols so we can get the name of the option */
+    proto_lcp_option_vendor = proto_register_protocol_in_name_only("Vendor Specific", "Vendor Specific", "lcp.opt.vendor", proto_lcp, FT_BYTES);
+    proto_lcp_option_mru = proto_register_protocol_in_name_only("Maximum Receive Unit", "Maximum Receive Unit", "lcp.opt.mtu_bytes", proto_lcp, FT_BYTES);
+    proto_lcp_option_async_map = proto_register_protocol_in_name_only("Async Control Character Map", "Async Control Character Map", "lcp.opt.asyncmap_bytes", proto_lcp, FT_BYTES);
+    proto_lcp_option_authprot = proto_register_protocol_in_name_only("Authentication Protocol", "Authentication Protocol", "lcp.opt.auth_protocol_bytes", proto_lcp, FT_BYTES);
+    proto_lcp_option_qualprot = proto_register_protocol_in_name_only("Quality Protocol", "Quality Protocol", "lcp.opt.quality_protocol_bytes", proto_lcp, FT_BYTES);
+    proto_lcp_option_magicnumber = proto_register_protocol_in_name_only("Magic Number", "Magic Number", "lcp.opt.magic_number_bytes", proto_lcp, FT_BYTES);
+    proto_lcp_option_linkqualmon = proto_register_protocol_in_name_only("Link Quality Monitoring", "Link Quality Monitoring", "lcp.opt.linkqualmon", proto_lcp, FT_BYTES);
+    proto_lcp_option_field_compress = proto_register_protocol_in_name_only("Protocol Field Compression", "Protocol Field Compression", "lcp.opt.field_compress", proto_lcp, FT_BYTES);
+    proto_lcp_option_addr_field_compress = proto_register_protocol_in_name_only("Address and Control Field Compression", "Address and Control Field Compression", "lcp.opt.addr_field_compress", proto_lcp, FT_BYTES);
+    proto_lcp_option_fcs_alternatives = proto_register_protocol_in_name_only("FCS Alternatives", "FCS Alternatives", "lcp.opt.fcs_alternatives_bytes", proto_lcp, FT_BYTES);
+    proto_lcp_option_self_desc_pad = proto_register_protocol_in_name_only("Self Describing Pad", "Self Describing Pad", "lcp.opt.self_desc_pad", proto_lcp, FT_BYTES);
+    proto_lcp_option_numbered_mode = proto_register_protocol_in_name_only("Numbered Mode", "Numbered Mode", "lcp.opt.numbered_mode", proto_lcp, FT_BYTES);
+    /* TODO? CI_MULTILINK_PROC */
+    proto_lcp_option_callback = proto_register_protocol_in_name_only("Callback", "Callback", "lcp.opt.callback", proto_lcp, FT_BYTES);
+    /* TODO? CI_CONNECTTIME */
+    proto_lcp_option_compound_frames = proto_register_protocol_in_name_only("Compound Frames (Deprecated)", "Compound Frames (Deprecated)", "lcp.opt.compound_frames", proto_lcp, FT_BYTES);
+    proto_lcp_option_nomdataencap = proto_register_protocol_in_name_only("Nominal Data Encapsulation (Deprecated)", "Nominal Data Encapsulation (Deprecated)", "lcp.opt.nomdataencap", proto_lcp, FT_BYTES);
+    proto_lcp_option_multilink_mrru = proto_register_protocol_in_name_only("Multilink MRRU", "Multilink MRRU", "lcp.opt.multilink_mrru", proto_lcp, FT_BYTES);
+    proto_lcp_option_multilink_ssnh = proto_register_protocol_in_name_only("Multilink Short Sequence Number Header", "Multilink Short Sequence Number Header", "lcp.opt.multilink_ssnh", proto_lcp, FT_BYTES);
+    proto_lcp_option_multilink_ep_disc = proto_register_protocol_in_name_only("Multilink Endpoint Discriminator", "Multilink Endpoint Discriminator", "lcp.opt.multilink_ep_disc", proto_lcp, FT_BYTES);
+    /* TODO? CI_PROP_KEN: ken@funk.com: www.funk.com => www.juniper.net */
+    proto_lcp_option_dce_identifier = proto_register_protocol_in_name_only("DCE Identifier", "DCE Identifier", "lcp.opt.dce_identifier", proto_lcp, FT_BYTES);
+    proto_lcp_option_multilink_pp = proto_register_protocol_in_name_only("Multi Link Plus Procedure", "Multi Link Plus Procedure", "lcp.opt.multilink_pp", proto_lcp, FT_BYTES);
+    proto_lcp_option_link_discrim = proto_register_protocol_in_name_only("Link Discriminator for BACP", "Link Discriminator for BACP", "lcp.opt.link_discrim_bytes", proto_lcp, FT_BYTES);
+    proto_lcp_option_auth = proto_register_protocol_in_name_only("Authentication Option", "Authentication Option", "lcp.opt.auth", proto_lcp, FT_BYTES);
+    proto_lcp_option_cobs = proto_register_protocol_in_name_only("Consistent Overhead Byte Stuffing (COBS)", "Consistent Overhead Byte Stuffing (COBS)", "lcp.opt.cobs", proto_lcp, FT_BYTES);
+    proto_lcp_option_prefix_elision = proto_register_protocol_in_name_only("Prefix Elision", "Prefix Elision", "lcp.opt.prefix_elision", proto_lcp, FT_BYTES);
+    proto_lcp_option_multilink_hdr_fmt = proto_register_protocol_in_name_only("Multilink header format", "Multilink header format", "lcp.opt.multilink_hdr_fmt", proto_lcp, FT_BYTES);
+    proto_lcp_option_internationalization = proto_register_protocol_in_name_only("Internationalization", "Internationalization", "lcp.opt.internationalization", proto_lcp, FT_BYTES);
+    proto_lcp_option_sonet_sdh = proto_register_protocol_in_name_only("Simple Data Link on SONET/SDH", "Simple Data Link on SONET/SDH", "lcp.opt.sonet_sdh", proto_lcp, FT_BYTES);
 }
 
 void
@@ -6500,12 +7025,46 @@ proto_reg_handoff_lcp(void)
      * for GSM-A / MobileL3 / GPRS SM / PCO
      */
     dissector_add_uint("sm_pco.protocol", PPP_LCP, lcp_handle);
+
+    /* Create dissection function handles for all LCP options */
+    dissector_add_uint("lcp.option", CI_VENDORSPECIFIC, create_dissector_handle( dissect_lcp_vendor_opt, proto_lcp_option_vendor ));
+    dissector_add_uint("lcp.option", CI_MRU, create_dissector_handle( dissect_lcp_mru_opt, proto_lcp_option_mru ));
+    dissector_add_uint("lcp.option", CI_ASYNCMAP, create_dissector_handle( dissect_lcp_async_map_opt, proto_lcp_option_async_map ));
+    dissector_add_uint("lcp.option", CI_AUTHPROT, create_dissector_handle( dissect_lcp_authprot_opt, proto_lcp_option_authprot ));
+    dissector_add_uint("lcp.option", CI_QUALITY, create_dissector_handle( dissect_lcp_qualprot_opt, proto_lcp_option_qualprot ));
+    dissector_add_uint("lcp.option", CI_MAGICNUMBER, create_dissector_handle( dissect_lcp_magicnumber_opt, proto_lcp_option_magicnumber ));
+    dissector_add_uint("lcp.option", CI_LINKQUALMON, create_dissector_handle( dissect_lcp_linkqualmon_opt, proto_lcp_option_linkqualmon ));
+    dissector_add_uint("lcp.option", CI_PCOMPRESSION, create_dissector_handle( dissect_lcp_field_compress, proto_lcp_option_field_compress ));
+    dissector_add_uint("lcp.option", CI_ACCOMPRESSION, create_dissector_handle( dissect_lcp_addr_field_compress, proto_lcp_option_addr_field_compress ));
+    dissector_add_uint("lcp.option", CI_FCS_ALTERNATIVES, create_dissector_handle( dissect_lcp_fcs_alternatives_opt, proto_lcp_option_fcs_alternatives ));
+    dissector_add_uint("lcp.option", CI_SELF_DESCRIBING_PAD, create_dissector_handle( dissect_lcp_self_describing_pad_opt, proto_lcp_option_self_desc_pad ));
+    dissector_add_uint("lcp.option", CI_NUMBERED_MODE, create_dissector_handle( dissect_lcp_numbered_mode_opt, proto_lcp_option_numbered_mode ));
+    /* TODO? CI_MULTILINK_PROC */
+    dissector_add_uint("lcp.option", CI_CALLBACK, create_dissector_handle( dissect_lcp_callback_opt, proto_lcp_option_callback ));
+    /* TODO? CI_CONNECTTIME */
+    dissector_add_uint("lcp.option", CI_COMPOUND_FRAMES, create_dissector_handle( dissect_lcp_compound_frames_opt, proto_lcp_option_compound_frames ));
+    dissector_add_uint("lcp.option", CI_NOMDATAENCAP, create_dissector_handle( dissect_lcp_nomdataencap_opt, proto_lcp_option_nomdataencap ));
+    dissector_add_uint("lcp.option", CI_MULTILINK_MRRU, create_dissector_handle( dissect_lcp_multilink_mrru_opt, proto_lcp_option_multilink_mrru ));
+    dissector_add_uint("lcp.option", CI_MULTILINK_SSNH, create_dissector_handle( dissect_lcp_multilink_ssnh_opt, proto_lcp_option_multilink_ssnh ));
+    dissector_add_uint("lcp.option", CI_MULTILINK_EP_DISC, create_dissector_handle( dissect_lcp_multilink_ep_disc_opt, proto_lcp_option_multilink_ep_disc ));
+    /* TODO? CI_PROP_KEN: ken@funk.com: www.funk.com => www.juniper.net */
+    dissector_add_uint("lcp.option", CI_DCE_IDENTIFIER, create_dissector_handle( dissect_lcp_dce_identifier_opt, proto_lcp_option_dce_identifier ));
+    dissector_add_uint("lcp.option", CI_MULTILINK_PLUS_PROC, create_dissector_handle( dissect_lcp_multilink_pp_opt, proto_lcp_option_multilink_pp ));
+    dissector_add_uint("lcp.option", CI_LINK_DISC_FOR_BACP, create_dissector_handle( dissect_lcp_bacp_link_discriminator_opt, proto_lcp_option_link_discrim ));
+    dissector_add_uint("lcp.option", CI_LCP_AUTHENTICATION, create_dissector_handle( dissect_lcp_auth_opt, proto_lcp_option_auth ));
+    dissector_add_uint("lcp.option", CI_COBS, create_dissector_handle( dissect_lcp_cobs_opt, proto_lcp_option_cobs ));
+    dissector_add_uint("lcp.option", CI_PREFIX_ELISION, create_dissector_handle( dissect_lcp_prefix_elision_opt, proto_lcp_option_prefix_elision ));
+    dissector_add_uint("lcp.option", CI_MULTILINK_HDR_FMT, create_dissector_handle( dissect_lcp_multilink_hdr_fmt_opt, proto_lcp_option_multilink_hdr_fmt ));
+    dissector_add_uint("lcp.option", CI_INTERNATIONALIZATION, create_dissector_handle( dissect_lcp_internationalization_opt, proto_lcp_option_internationalization ));
+    dissector_add_uint("lcp.option", CI_SDL_ON_SONET_SDH, create_dissector_handle( dissect_lcp_sonet_sdh_opt, proto_lcp_option_sonet_sdh ));
 }
 
 void
 proto_register_vsncp(void)
 {
     static hf_register_info hf[] = {
+      { &hf_vsncp_opt_type, { "Type", "vsncp.opt.type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_vsncp_opt_length, { "Length", "vsncp.opt.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_vsncp_pdn_identifier, { "PDN Identifier", "vsncp.pdn_identifier", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_vsncp_attach_type, { "Attach Type", "vsncp.attach_type", FT_UINT8, BASE_HEX, VALS(vsncp_attach_vals), 0x0, NULL, HFILL }},
@@ -6528,13 +7087,38 @@ proto_register_vsncp(void)
 
     static gint *ett[] = {
         &ett_vsncp,
-        &ett_vsncp_options
+        &ett_vsncp_options,
+        &ett_vsncp_pdnid_opt,
+        &ett_vsncp_apname_opt,
+        &ett_vsncp_pdntype_opt,
+        &ett_vsncp_pdnaddress_opt,
+        &ett_vsncp_pco_opt,
+        &ett_vsncp_errorcode_opt,
+        &ett_vsncp_attachtype_opt,
+        &ett_vsncp_ipv4address_opt,
+        &ett_vsncp_addressalloc_opt,
+        &ett_vsncp_apn_ambr_opt,
+        &ett_vsncp_ipv6_hsgw_lla_iid_opt,
     };
 
-    proto_vsncp = proto_register_protocol("Vendor Specific Control Protocol",
-        "VSNCP", "vsncp");
+    proto_vsncp = proto_register_protocol("Vendor Specific Control Protocol", "VSNCP", "vsncp");
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_vsncp, hf, array_length(hf));
+
+    vsncp_option_table = register_dissector_table("vsncp.option", "PPP VSNCP Options", proto_vsncp, FT_UINT8, BASE_DEC);
+
+    /* Register VSNCP options as their own protocols so we can get the name of the option */
+    proto_vsncp_option_pdnid = proto_register_protocol_in_name_only("PDN Identifier", "PDN Identifier", "vsncp.opt.pdnid", proto_vsncp, FT_BYTES);
+    proto_vsncp_option_apname = proto_register_protocol_in_name_only("Access Point Name", "Access Point Name", "vsncp.opt.apname", proto_vsncp, FT_BYTES);
+    proto_vsncp_option_pdntype = proto_register_protocol_in_name_only("PDN Type", "PDN Type", "vsncp.opt.pdntype", proto_vsncp, FT_BYTES);
+    proto_vsncp_option_pdnaddress = proto_register_protocol_in_name_only("PDN Address", "PDN Address", "vsncp.opt.pdnaddress", proto_vsncp, FT_BYTES);
+    proto_vsncp_option_pco = proto_register_protocol_in_name_only("Protocol Configuration Options", "Protocol Configuration Options", "vsncp.opt.pco", proto_vsncp, FT_BYTES);
+    proto_vsncp_option_errorcode = proto_register_protocol_in_name_only("Error Code", "Error Code", "vsncp.opt.errorcode", proto_vsncp, FT_BYTES);
+    proto_vsncp_option_attachtype = proto_register_protocol_in_name_only("Attach Type", "Attach Type", "vsncp.opt.attachtype", proto_vsncp, FT_BYTES);
+    proto_vsncp_option_ipv4address = proto_register_protocol_in_name_only("IPv4 Default Router Address", "IPv4 Default Router Address", "vsncp.opt.ipv4address", proto_vsncp, FT_BYTES);
+    proto_vsncp_option_addressalloc = proto_register_protocol_in_name_only("Address Allocation Cause", "Address Allocation Cause", "vsncp.opt.addressalloc", proto_vsncp, FT_BYTES);
+    proto_vsncp_option_apn_ambr = proto_register_protocol_in_name_only("APN Aggregate Maximum Bit Rate(APN-AMBR)", "APN Aggregate Maximum Bit Rate(APN-AMBR)", "vsncp.opt.apn_ambr", proto_vsncp, FT_BYTES);
+    proto_vsncp_option_ipv6_hsgw_lla_iid = proto_register_protocol_in_name_only("IPv6 HSGW Link Local Address IID", "IPv6 HSGW Link Local Address IID", "vsncp.opt.ipv6_hsgw_lla_iid", proto_vsncp, FT_BYTES);
 }
 
 void
@@ -6544,6 +7128,18 @@ proto_reg_handoff_vsncp(void)
 
     vsncp_handle = create_dissector_handle(dissect_vsncp, proto_vsncp);
     dissector_add_uint("ppp.protocol", PPP_VSNCP, vsncp_handle);
+
+    dissector_add_uint("vsncp.option", CI_PDN_IDENTIFIER, create_dissector_handle( dissect_vsncp_pdnid_opt, proto_vsncp_option_pdnid ));
+    dissector_add_uint("vsncp.option", CI_ACCESS_POINT_NM, create_dissector_handle( dissect_vsncp_apname_opt, proto_vsncp_option_apname ));
+    dissector_add_uint("vsncp.option", CI_PDN_TYPE, create_dissector_handle( dissect_vsncp_pdntype_opt, proto_vsncp_option_pdntype ));
+    dissector_add_uint("vsncp.option", CI_PDN_ADDRESS, create_dissector_handle( dissect_vsncp_pdnaddress_opt, proto_vsncp_option_pdnaddress ));
+    dissector_add_uint("vsncp.option", CI_PROTOCOL_CONFIG, create_dissector_handle( dissect_vsncp_pco_opt, proto_vsncp_option_pco ));
+    dissector_add_uint("vsncp.option", CI_ERROR_CODE, create_dissector_handle( dissect_vsncp_errorcode_opt, proto_vsncp_option_errorcode ));
+    dissector_add_uint("vsncp.option", CI_ATTACH_TYPE, create_dissector_handle( dissect_vsncp_attachtype_opt, proto_vsncp_option_attachtype ));
+    dissector_add_uint("vsncp.option", CI_IPv4DEFAULT_ROUTER, create_dissector_handle( dissect_vsncp_ipv4address_opt, proto_vsncp_option_ipv4address ));
+    dissector_add_uint("vsncp.option", CI_ADDRESS_ALLOC, create_dissector_handle( dissect_vsncp_addressalloc_opt, proto_vsncp_option_addressalloc ));
+    dissector_add_uint("vsncp.option", CI_APN_AMBR, create_dissector_handle( dissect_vsncp_apn_ambr_opt, proto_vsncp_option_apn_ambr ));
+    dissector_add_uint("vsncp.option", CI_IPv6_HSGW_LLA_IID, create_dissector_handle( dissect_vsncp_ipv6_hsgw_lla_iid_opt, proto_vsncp_option_ipv6_hsgw_lla_iid ));
 }
 
 void
@@ -6680,10 +7276,29 @@ proto_register_ipcp(void)
         &ett_ipcp_rohc_profiles_opt
     };
 
-    proto_ipcp = proto_register_protocol("PPP IP Control Protocol", "PPP IPCP",
-        "ipcp");
+    proto_ipcp = proto_register_protocol("PPP IP Control Protocol", "PPP IPCP", "ipcp");
     proto_register_field_array(proto_ipcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    ipcp_option_table = register_dissector_table("ipcp.option", "PPP IPCP Options", proto_ipcp, FT_UINT8, BASE_DEC);
+    ipcp_rohc_suboption_table = register_dissector_table("ipcp.rohc.option", "PPP IPCP ROHC Options", proto_ipcp, FT_UINT8, BASE_DEC);
+    ipcp_iphc_suboption_table = register_dissector_table("ipcp.iphc.option", "PPP IPCP IPHC Options", proto_ipcp, FT_UINT8, BASE_DEC);
+
+    /* Register IPCP options as their own protocols so we can get the name of the option */
+    proto_ipcp_option_addrs = proto_register_protocol_in_name_only("IP Addresses (deprecated)", "IP Addresses (deprecated)", "ipcp.opt.addrs", proto_ipcp, FT_BYTES);
+    proto_ipcp_option_compress = proto_register_protocol_in_name_only("IP Compression Protocol", "IP Compression Protocol", "ipcp.opt.compress", proto_ipcp, FT_BYTES);
+    proto_ipcp_option_addr = proto_register_protocol_in_name_only("IP Address", "IP Address", "ipcp.opt.addr", proto_ipcp, FT_BYTES);
+    proto_ipcp_option_mobileipv4 = proto_register_protocol_in_name_only("Mobile Node's Home IP Address", "Mobile Node's Home IP Address", "ipcp.opt.mobileipv4", proto_ipcp, FT_BYTES);
+    proto_ipcp_option_pri_dns = proto_register_protocol_in_name_only("Primary DNS Server IP Address", "Primary DNS Server IP Address", "ipcp.opt.pri_dns", proto_ipcp, FT_BYTES);
+    proto_ipcp_option_pri_nbns = proto_register_protocol_in_name_only("Primary NBNS Server IP Address", "Primary NBNS Server IP Address", "ipcp.opt.pri_nbns", proto_ipcp, FT_BYTES);
+    proto_ipcp_option_sec_dns = proto_register_protocol_in_name_only("Secondary DNS Server IP Address", "Secondary DNS Server IP Address", "ipcp.opt.sec_dns", proto_ipcp, FT_BYTES);
+    proto_ipcp_option_sec_nbns = proto_register_protocol_in_name_only("Secondary NBNS Server IP Address", "Secondary NBNS Server IP Address", "ipcp.opt.sec_nbns", proto_ipcp, FT_BYTES);
+
+    proto_ipcp_rohc_option_profiles = proto_register_protocol_in_name_only("Profiles (RFC3241)", "Profiles (RFC3241)", "ipcp.opt.rohc.profile_bytes", proto_ipcp, FT_BYTES);
+
+    proto_ipcp_iphc_option_rtp_compress = proto_register_protocol_in_name_only("RTP compression (RFC2508)", "RTP compression (RFC2508)", "ipcp.opt.iphc.rtp_compress", proto_ipcp, FT_BYTES);
+    proto_ipcp_iphc_option_enhanced_rtp_compress = proto_register_protocol_in_name_only("Enhanced RTP compression (RFC3545)", "Enhanced RTP compression (RFC3545)", "ipcp.opt.iphc.enhanced_rtp_compress", proto_ipcp, FT_BYTES);
+    proto_ipcp_iphc_option_neghdrcomp = proto_register_protocol_in_name_only("Negotiating header compression (RFC3545)", "Negotiating header compression (RFC3545)", "ipcp.opt.iphc.neghdrcomp", proto_ipcp, FT_BYTES);
 }
 
 void
@@ -6704,6 +7319,21 @@ proto_reg_handoff_ipcp(void)
      * for GSM-A / MobileL3 / GPRS SM / PCO
      */
     dissector_add_uint("sm_pco.protocol", PPP_IPCP, ipcp_handle);
+
+    dissector_add_uint("ipcp.option", CI_ADDRS, create_dissector_handle( dissect_ipcp_addrs_opt, proto_ipcp_option_addrs ));
+    dissector_add_uint("ipcp.option", CI_COMPRESS_PROTO, create_dissector_handle( dissect_ipcp_compress_opt, proto_ipcp_option_compress ));
+    dissector_add_uint("ipcp.option", CI_ADDR, create_dissector_handle( dissect_ipcp_addr_opt, proto_ipcp_option_addr ));
+    dissector_add_uint("ipcp.option", CI_MOBILE_IPv4, create_dissector_handle( dissect_ipcp_mobileipv4_opt, proto_ipcp_option_mobileipv4 ));
+    dissector_add_uint("ipcp.option", CI_PRI_DNS, create_dissector_handle( dissect_ipcp_pri_dns_opt, proto_ipcp_option_pri_dns ));
+    dissector_add_uint("ipcp.option", CI_PRI_NBNS, create_dissector_handle( dissect_ipcp_pri_nbns_opt, proto_ipcp_option_pri_nbns ));
+    dissector_add_uint("ipcp.option", CI_SEC_DNS, create_dissector_handle( dissect_ipcp_sec_dns_opt, proto_ipcp_option_sec_dns ));
+    dissector_add_uint("ipcp.option", CI_SEC_NBNS, create_dissector_handle( dissect_ipcp_sec_nbns_opt, proto_ipcp_option_sec_nbns ));
+
+    dissector_add_uint("ipcp.rohc.option", IPCP_ROHC_PROFILES, create_dissector_handle( dissect_ipcp_rohc_profiles_opt, proto_ipcp_rohc_option_profiles ));
+
+    dissector_add_uint("ipcp.iphc.option", IPCP_IPHC_CRTP, create_dissector_handle( dissect_ipcp_iphc_rtp_compress, proto_ipcp_iphc_option_rtp_compress ));
+    dissector_add_uint("ipcp.iphc.option", IPCP_IPHC_ECRTP, create_dissector_handle( dissect_ipcp_iphc_enhanced_rtp_compress, proto_ipcp_iphc_option_enhanced_rtp_compress ));
+    dissector_add_uint("ipcp.iphc.option", IPCP_IPHC_NEGHC, create_dissector_handle( dissect_ipcp_iphc_neghdrcomp_opt, proto_ipcp_iphc_option_neghdrcomp ));
 }
 
 void
@@ -6809,10 +7439,23 @@ proto_register_bcp_ncp(void)
         &ett_bcp_ncp_stp_opt
     };
 
-    proto_bcp_ncp = proto_register_protocol("PPP Bridging Control Protocol Network Control Protocol",
-        "PPP BCP NCP", "bcp_ncp");
+    proto_bcp_ncp = proto_register_protocol("PPP Bridging Control Protocol Network Control Protocol", "PPP BCP NCP", "bcp_ncp");
     proto_register_field_array(proto_bcp_ncp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    bcp_ncp_option_table = register_dissector_table("bcp_ncp.option", "PPP BCP NCP Options", proto_bcp_ncp, FT_UINT8, BASE_DEC);
+
+    /* Register BCP NCP options as their own protocols so we can get the name of the option */
+    proto_bcp_ncp_option_bridge_id = proto_register_protocol_in_name_only("Bridge-Identification", "Bridge-Identification", "bcp_ncp.opt.bridge_id", proto_bcp_ncp, FT_BYTES);
+    proto_bcp_ncp_option_line_id = proto_register_protocol_in_name_only("Line-Identification", "Line-Identification", "bcp_ncp.opt.line_id", proto_bcp_ncp, FT_BYTES);
+    proto_bcp_ncp_option_mac_sup = proto_register_protocol_in_name_only("MAC-Support", "MAC-Support", "bcp_ncp.opt.mac_sup", proto_bcp_ncp, FT_BYTES);
+    proto_bcp_ncp_option_tinygram_comp = proto_register_protocol_in_name_only("Tinygram-Compression", "Tinygram-Compression", "bcp_ncp.opt.tinygram_comp", proto_bcp_ncp, FT_BYTES);
+    proto_bcp_ncp_option_lan_id = proto_register_protocol_in_name_only("LAN-Identification (obsoleted)", "LAN-Identification (obsoleted)", "bcp_ncp.opt.lan_id", proto_bcp_ncp, FT_BYTES);
+    proto_bcp_ncp_option_mac_addr = proto_register_protocol_in_name_only("MAC-Address", "MAC-Address", "bcp_ncp.opt.mac_addr", proto_bcp_ncp, FT_BYTES);
+    proto_bcp_ncp_option_stp = proto_register_protocol_in_name_only("Spanning-Tree-Protocol (old formatted)", "Spanning-Tree-Protocol (old formatted)", "bcp_ncp.opt.stp", proto_bcp_ncp, FT_BYTES);
+    proto_bcp_ncp_option_ieee_802_tagged_frame = proto_register_protocol_in_name_only("IEEE 802 Tagged Frame", "IEEE 802 Tagged Frame", "bcp_ncp.opt.ieee_802_tagged_frame", proto_bcp_ncp, FT_BYTES);
+    proto_bcp_ncp_option_management_inline = proto_register_protocol_in_name_only("Management Inline", "Management Inline", "bcp_ncp.opt.management_inline", proto_bcp_ncp, FT_BYTES);
+    proto_bcp_ncp_option_bcp_ind = proto_register_protocol_in_name_only("Bridge Control Packet Indicator", "Bridge Control Packet Indicator", "bcp_ncp.opt.bcp_ind", proto_bcp_ncp, FT_BYTES);
 }
 
 void
@@ -6823,6 +7466,17 @@ proto_reg_handoff_bcp_ncp(void)
     bcp_ncp_handle = create_dissector_handle(dissect_bcp_ncp, proto_bcp_ncp);
 
     dissector_add_uint("ppp.protocol", PPP_BCP_NCP, bcp_ncp_handle);
+
+    dissector_add_uint("bcp_ncp.option", CI_BCPNCP_BRIDGE_ID, create_dissector_handle( dissect_bcp_ncp_bridge_id, proto_bcp_ncp_option_bridge_id ));
+    dissector_add_uint("bcp_ncp.option", CI_BCPNCP_LINE_ID, create_dissector_handle( dissect_bcp_ncp_line_id, proto_bcp_ncp_option_line_id ));
+    dissector_add_uint("bcp_ncp.option", CI_BCPNCP_MAC_SUPPORT, create_dissector_handle( dissect_bcp_ncp_mac_sup, proto_bcp_ncp_option_mac_sup ));
+    dissector_add_uint("bcp_ncp.option", CI_BCPNCP_TINYGRAM_COMP, create_dissector_handle( dissect_bcp_ncp_tinygram_comp, proto_bcp_ncp_option_tinygram_comp ));
+    dissector_add_uint("bcp_ncp.option", CI_BCPNCP_LAN_ID, create_dissector_handle( dissect_bcp_ncp_lan_id, proto_bcp_ncp_option_lan_id ));
+    dissector_add_uint("bcp_ncp.option", CI_BCPNCP_MAC_ADDRESS, create_dissector_handle( dissect_bcp_ncp_mac_addr, proto_bcp_ncp_option_mac_addr ));
+    dissector_add_uint("bcp_ncp.option", CI_BCPNCP_STP, create_dissector_handle( dissect_bcp_ncp_stp, proto_bcp_ncp_option_stp ));
+    dissector_add_uint("bcp_ncp.option", CI_BCPNCP_IEEE_802_TAGGED_FRAME, create_dissector_handle( dissect_bcp_ncp_ieee_802_tagged_frame, proto_bcp_ncp_option_ieee_802_tagged_frame ));
+    dissector_add_uint("bcp_ncp.option", CI_BCPNCP_MANAGEMENT_INLINE, create_dissector_handle( dissect_bcp_ncp_management_inline, proto_bcp_ncp_option_management_inline ));
+    dissector_add_uint("bcp_ncp.option", CI_BCPNCP_BCP_IND, create_dissector_handle( dissect_bcp_ncp_bcp_ncp_bcp_ind, proto_bcp_ncp_option_bcp_ind ));
 }
 
 void
@@ -6846,10 +7500,14 @@ proto_register_osinlcp(void)
         &ett_osinlcp_align_npdu_opt
     };
 
-    proto_osinlcp = proto_register_protocol(
-        "PPP OSI Network Layer Control Protocol", "PPP OSINLCP", "osinlcp");
+    proto_osinlcp = proto_register_protocol("PPP OSI Network Layer Control Protocol", "PPP OSINLCP", "osinlcp");
     proto_register_field_array(proto_osinlcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    osinlcp_option_table = register_dissector_table("osinlcp.option", "PPP OSINLCP Options", proto_osinlcp, FT_UINT8, BASE_DEC);
+
+    /* Register OSINLCP options as their own protocols so we can get the name of the option */
+    proto_osinlcp_option_align_npdu = proto_register_protocol_in_name_only("Align-NPDU", "Align-NPDU", "osinlcp.opt.def_pid", proto_osinlcp, FT_BYTES);
 }
 
 
@@ -6866,6 +7524,8 @@ proto_reg_handoff_osinlcp(void)
      * registering with the "ethertype" dissector table.
      */
     dissector_add_uint("ethertype", PPP_OSINLCP, osinlcp_handle);
+
+    dissector_add_uint("osinlcp.option", CI_OSINLCP_ALIGN_NPDU, create_dissector_handle( dissect_osinlcp_align_npdu_opt, proto_osinlcp_option_align_npdu ));
 }
 
 void
@@ -7003,10 +7663,29 @@ proto_register_ccp(void)
         &ett_ccp_v44lzjh_opt
     };
 
-    proto_ccp = proto_register_protocol("PPP Compression Control Protocol",
-        "PPP CCP", "ccp");
+    proto_ccp = proto_register_protocol("PPP Compression Control Protocol", "PPP CCP", "ccp");
     proto_register_field_array(proto_ccp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    ccp_option_table = register_dissector_table("ccp.option", "PPP CCP Options", proto_ccp, FT_UINT8, BASE_DEC);
+
+    /* Register CCP options as their own protocols so we can get the name of the option */
+    proto_ccp_option_oui = proto_register_protocol_in_name_only("OUI", "OUI", "ccp.opt.oui", proto_ccp, FT_BYTES);
+    proto_ccp_option_predict1 = proto_register_protocol_in_name_only("Predictor type 1", "Predictor type 1", "ccp.opt.predict1", proto_ccp, FT_BYTES);
+    proto_ccp_option_predict2 = proto_register_protocol_in_name_only("Predictor type 2", "Predictor type 2", "ccp.opt.predict2", proto_ccp, FT_BYTES);
+    proto_ccp_option_puddle = proto_register_protocol_in_name_only("Puddle Jumper", "Puddle Jumper", "ccp.opt.puddle", proto_ccp, FT_BYTES);
+    proto_ccp_option_hpppc = proto_register_protocol_in_name_only("Hewlett-Packard PPC", "Hewlett-Packard PPC", "ccp.opt.hpppc", proto_ccp, FT_BYTES);
+    proto_ccp_option_stac = proto_register_protocol_in_name_only("Stac Electronics LZS", "Stac Electronics LZS", "ccp.opt.stac", proto_ccp, FT_BYTES);
+    proto_ccp_option_stac_ascend = proto_register_protocol_in_name_only("Stac Electronics LZS (Ascend Proprietary version)", "Stac Electronics LZS (Ascend Proprietary version)", "ccp.opt.stac_ascend", proto_ccp, FT_BYTES);
+    proto_ccp_option_mppe = proto_register_protocol_in_name_only("Microsoft PPE/PPC", "Microsoft PPE/PPC", "ccp.opt.mppe", proto_ccp, FT_BYTES);
+    proto_ccp_option_gfza = proto_register_protocol_in_name_only("Gandalf FZA", "Gandalf FZA", "ccp.opt.gfza", proto_ccp, FT_BYTES);
+    proto_ccp_option_v42bis = proto_register_protocol_in_name_only("V.42bis compression", "V.42bis compression", "ccp.opt.v42bis", proto_ccp, FT_BYTES);
+    proto_ccp_option_bsdcomp = proto_register_protocol_in_name_only("BSD LZW Compress", "BSD LZW Compress", "ccp.opt.bsdcomp", proto_ccp, FT_BYTES);
+    proto_ccp_option_lzsdcp = proto_register_protocol_in_name_only("LZS-DCP", "LZS-DCP", "ccp.opt.lzsdcp", proto_ccp, FT_BYTES);
+    proto_ccp_option_mvrca = proto_register_protocol_in_name_only("MVRCA (Magnalink)", "MVRCA (Magnalink)", "ccp.opt.mvrca", proto_ccp, FT_BYTES);
+    proto_ccp_option_dce = proto_register_protocol_in_name_only("PPP for Data Compression in Data Circuit-Terminating Equipment (DCE)", "PPP for Data Compression in Data Circuit-Terminating Equipment (DCE)", "ccp.opt.dce", proto_ccp, FT_BYTES);
+    proto_ccp_option_deflate = proto_register_protocol_in_name_only("Deflate", "Deflate", "ccp.opt.deflate", proto_ccp, FT_BYTES);
+    proto_ccp_option_v44lzjh = proto_register_protocol_in_name_only("V.44/LZJH compression", "V.44/LZJH compression", "ccp.opt.v44lzjh", proto_ccp, FT_BYTES);
 }
 
 void
@@ -7022,12 +7701,30 @@ proto_reg_handoff_ccp(void)
      * registering with the "ethertype" dissector table.
      */
     dissector_add_uint("ethertype", PPP_CCP, ccp_handle);
+
+    dissector_add_uint("ccp.option", CI_CCP_OUI, create_dissector_handle( dissect_ccp_oui_opt, proto_ccp_option_oui ));
+    dissector_add_uint("ccp.option", CI_CCP_PREDICT1, create_dissector_handle( dissect_ccp_predict1_opt, proto_ccp_option_predict1 ));
+    dissector_add_uint("ccp.option", CI_CCP_PREDICT2, create_dissector_handle( dissect_ccp_predict2_opt, proto_ccp_option_predict2 ));
+    dissector_add_uint("ccp.option", CI_CCP_PUDDLE, create_dissector_handle( dissect_ccp_puddle_opt, proto_ccp_option_puddle ));
+    dissector_add_uint("ccp.option", CI_CCP_HPPPC, create_dissector_handle( dissect_ccp_hpppc_opt, proto_ccp_option_hpppc ));
+    dissector_add_uint("ccp.option", CI_CCP_STAC, create_dissector_handle( dissect_ccp_stac_opt, proto_ccp_option_stac ));
+    dissector_add_uint("ccp.option", CI_CCP_MPPE, create_dissector_handle( dissect_ccp_mppe_opt, proto_ccp_option_mppe ));
+    dissector_add_uint("ccp.option", CI_CCP_GFZA, create_dissector_handle( dissect_ccp_gfza_opt, proto_ccp_option_gfza ));
+    dissector_add_uint("ccp.option", CI_CCP_V42BIS, create_dissector_handle( dissect_ccp_v42bis_opt, proto_ccp_option_v42bis ));
+    dissector_add_uint("ccp.option", CI_CCP_BSDLZW, create_dissector_handle( dissect_ccp_bsdcomp_opt, proto_ccp_option_bsdcomp ));
+    dissector_add_uint("ccp.option", CI_CCP_LZSDCP, create_dissector_handle( dissect_ccp_lzsdcp_opt, proto_ccp_option_lzsdcp ));
+    dissector_add_uint("ccp.option", CI_CCP_MVRCA, create_dissector_handle( dissect_ccp_mvrca_opt, proto_ccp_option_mvrca ));
+    dissector_add_uint("ccp.option", CI_CCP_DCE, create_dissector_handle( dissect_ccp_dce_opt, proto_ccp_option_dce ));
+    dissector_add_uint("ccp.option", CI_CCP_DEFLATE, create_dissector_handle( dissect_ccp_deflate_opt, proto_ccp_option_deflate ));
+    dissector_add_uint("ccp.option", CI_CCP_V44LZJH, create_dissector_handle( dissect_ccp_v44lzjh_opt, proto_ccp_option_v44lzjh ));
 }
 
 void
 proto_register_cbcp(void)
 {
     static hf_register_info hf[] = {
+      { &hf_cbcp_opt_type, { "Type", "cbcp.opt.type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_cbcp_opt_length, { "Length", "cbcp.opt.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_cbcp_callback_delay, { "Callback delay", "cbcp.callback_delay", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cbcp_address_type, { "Address Type", "cbcp.address_type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -7039,7 +7736,11 @@ proto_register_cbcp(void)
         &ett_cbcp,
         &ett_cbcp_options,
         &ett_cbcp_callback_opt,
-        &ett_cbcp_callback_opt_addr
+        &ett_cbcp_callback_opt_addr,
+        &ett_cbcp_no_callback,
+        &ett_cbcp_callback_user,
+        &ett_cbcp_callback_admin,
+        &ett_cbcp_callback_list,
     };
 
     static ei_register_info ei[] = {
@@ -7048,12 +7749,19 @@ proto_register_cbcp(void)
 
     expert_module_t* expert_cbcp;
 
-    proto_cbcp = proto_register_protocol("PPP Callback Control Protocol",
-        "PPP CBCP", "cbcp");
+    proto_cbcp = proto_register_protocol("PPP Callback Control Protocol", "PPP CBCP", "cbcp");
     proto_register_field_array(proto_cbcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_cbcp = expert_register_protocol(proto_cbcp);
     expert_register_field_array(expert_cbcp, ei, array_length(ei));
+
+    cbcp_option_table = register_dissector_table("cbcp.option", "PPP CBCP Options", proto_cbcp, FT_UINT8, BASE_DEC);
+
+    /* Register CBCP options as their own protocols so we can get the name of the option */
+    proto_cbcp_option_no_callback = proto_register_protocol_in_name_only("No callback", "No callback", "cbcp.opt.no_callback", proto_cbcp, FT_BYTES);
+    proto_cbcp_option_callback_user = proto_register_protocol_in_name_only("Callback to a user-specified number", "Callback to a user-specified number", "cbcp.opt.callback_user", proto_cbcp, FT_BYTES);
+    proto_cbcp_option_callback_admin = proto_register_protocol_in_name_only("Callback to a pre-specified or admin-specified number", "Callback to a pre-specified or admin-specified number", "cbcp.opt.callback_admin", proto_cbcp, FT_BYTES);
+    proto_cbcp_option_callback_list = proto_register_protocol_in_name_only("Callback to any of a list of numbers", "Callback to any of a list of numbers", "cbcp.opt.callback_list", proto_cbcp, FT_BYTES);
 }
 
 void
@@ -7069,12 +7777,19 @@ proto_reg_handoff_cbcp(void)
      * registering with the "ethertype" dissector table.
      */
     dissector_add_uint("ethertype", PPP_CBCP, cbcp_handle);
+
+    dissector_add_uint("cbcp.option", CI_CBCP_NO_CALLBACK, create_dissector_handle( dissect_cbcp_no_callback_opt, proto_cbcp_option_no_callback ));
+    dissector_add_uint("cbcp.option", CI_CBCP_CB_USER, create_dissector_handle( dissect_cbcp_callback_user_opt, proto_cbcp_option_callback_user ));
+    dissector_add_uint("cbcp.option", CI_CBCP_CB_PRE, create_dissector_handle( dissect_cbcp_callback_admin_opt, proto_cbcp_option_callback_admin ));
+    dissector_add_uint("cbcp.option", CI_CBCP_CB_ANY, create_dissector_handle( dissect_cbcp_callback_list_opt, proto_cbcp_option_callback_list ));
 }
 
 void
 proto_register_bacp(void)
 {
     static hf_register_info hf[] = {
+      { &hf_bacp_opt_type, { "Type", "bacp.opt.type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_bacp_opt_length, { "Length", "bacp.opt.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_bacp_magic_number, { "Magic number", "bacp.magic_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_bacp_link_speed, { "Link Speed", "bacp.link_speed", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0, NULL, HFILL }},
@@ -7087,10 +7802,14 @@ proto_register_bacp(void)
         &ett_bacp_favored_peer_opt
     };
 
-    proto_bacp = proto_register_protocol(
-        "PPP Bandwidth Allocation Control Protocol", "PPP BACP", "bacp");
+    proto_bacp = proto_register_protocol("PPP Bandwidth Allocation Control Protocol", "PPP BACP", "bacp");
     proto_register_field_array(proto_bacp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    bacp_option_table = register_dissector_table("bacp.option", "PPP BACP Options", proto_bacp, FT_UINT8, BASE_DEC);
+
+    /* Register BACP options as their own protocols so we can get the name of the option */
+    proto_bacp_option_favored_peer = proto_register_protocol_in_name_only("Favored-Peer", "Favored-Peer", "bacp.opt.favored_peer", proto_bacp, FT_BYTES);
 }
 
 void
@@ -7106,12 +7825,16 @@ proto_reg_handoff_bacp(void)
      * registering with the "ethertype" dissector table.
      */
     dissector_add_uint("ethertype", PPP_BACP, bacp_handle);
+
+    dissector_add_uint("bacp.option", CI_BACP_FAVORED_PEER, create_dissector_handle( dissect_bacp_favored_peer_opt, proto_bacp_option_favored_peer ));
 }
 
 void
 proto_register_bap(void)
 {
     static hf_register_info hf[] = {
+      { &hf_bap_opt_type, { "Type", "bap.opt.type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_bap_opt_length, { "Length", "bap.opt.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_bap_sub_option_type, { "Sub-Option Type", "bap.sub_option_type", FT_UINT8, BASE_DEC, VALS(bap_phone_delta_subopt_vals), 0x0, NULL, HFILL }},
       { &hf_bap_sub_option_length, { "Sub-Option Length", "bap.sub_option_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -7135,7 +7858,10 @@ proto_register_bap(void)
         &ett_bap_link_type_opt,
         &ett_bap_phone_delta_opt,
         &ett_bap_phone_delta_subopt,
-        &ett_bap_call_status_opt
+        &ett_bap_call_status_opt,
+        &ett_bap_no_phone_opt,
+        &ett_bap_reason_opt,
+        &ett_bap_link_disc_opt,
     };
 
     static ei_register_info ei[] = {
@@ -7149,6 +7875,16 @@ proto_register_bap(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_bap = expert_register_protocol(proto_bap);
     expert_register_field_array(expert_bap, ei, array_length(ei));
+
+    bap_option_table = register_dissector_table("bap.option", "PPP BAP Options", proto_bap, FT_UINT8, BASE_DEC);
+
+    /* Register BAP options as their own protocols so we can get the name of the option */
+    proto_bap_option_link_type = proto_register_protocol_in_name_only("Link Type", "Link Type", "bap.opt.link_type", proto_bap, FT_BYTES);
+    proto_bap_option_phone_delta = proto_register_protocol_in_name_only("Phone Delta", "Phone Delta", "bap.opt.phone_delta", proto_bap, FT_BYTES);
+    proto_bap_option_no_phone = proto_register_protocol_in_name_only("No Phone Number Needed", "No Phone Number Needed", "bap.opt.no_phone", proto_bap, FT_BYTES);
+    proto_bap_option_reason = proto_register_protocol_in_name_only("Reason", "Reason", "bap.opt.reason", proto_bap, FT_BYTES);
+    proto_bap_option_link_disc = proto_register_protocol_in_name_only("Link Discriminator", "Link Discriminator", "bap.opt.link_disc", proto_bap, FT_BYTES);
+    proto_bap_option_call_status = proto_register_protocol_in_name_only("Call Status", "Call Status", "bap.opt.call_status", proto_bap, FT_BYTES);
 }
 
 void
@@ -7164,6 +7900,13 @@ proto_reg_handoff_bap(void)
      * registering with the "ethertype" dissector table.
      */
     dissector_add_uint("ethertype", PPP_BAP, bap_handle);
+
+    dissector_add_uint("bap.option", CI_BAP_LINK_TYPE, create_dissector_handle( dissect_bap_link_type_opt, proto_bap_option_link_type ));
+    dissector_add_uint("bap.option", CI_BAP_PHONE_DELTA, create_dissector_handle( dissect_bap_phone_delta_opt, proto_bap_option_phone_delta ));
+    dissector_add_uint("bap.option", CI_BAP_NO_PHONE_NUM_NEEDED, create_dissector_handle( dissect_bap_no_phone_opt, proto_bap_option_no_phone ));
+    dissector_add_uint("bap.option", CI_BAP_REASON, create_dissector_handle( dissect_bap_reason_opt, proto_bap_option_reason ));
+    dissector_add_uint("bap.option", CI_BAP_LINK_DISC, create_dissector_handle( dissect_bap_link_disc_opt, proto_bap_option_link_disc ));
+    dissector_add_uint("bap.option", CI_BAP_CALL_STATUS, create_dissector_handle( dissect_bap_call_status_opt, proto_bap_option_call_status ));
 }
 
 void
@@ -7354,6 +8097,13 @@ proto_register_pppmuxcp(void)
         { &hf_pppmux_flags_field_length,
             { "Length field", "pppmuxcp.flags.field_length", FT_BOOLEAN, 8, TFS(&tfs_pppmux_length_field), 0x40,
                 NULL, HFILL }},
+        { &hf_pppmuxcp_opt_type,
+            { "Type", "pppmuxcp.opt.type", FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+        { &hf_pppmuxcp_opt_length,
+            { "Length", "pppmuxcp.opt.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+
         /* Generated from convert_proto_tree_add_text.pl */
         { &hf_pppmux_flags, { "PFF/LXT", "pppmuxcp.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_pppmux_sub_frame_length, { "Sub-frame Length", "pppmuxcp.sub_frame_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -7362,13 +8112,18 @@ proto_register_pppmuxcp(void)
 
     static gint *ett[] = {
         &ett_pppmuxcp,
-        &ett_pppmuxcp_options
+        &ett_pppmuxcp_options,
+        &ett_pppmuxcp_def_pid_opt
     };
 
-    proto_pppmuxcp = proto_register_protocol("PPPMux Control Protocol",
-        "PPP PPPMuxCP", "pppmuxcp");
+    proto_pppmuxcp = proto_register_protocol("PPPMux Control Protocol", "PPP PPPMuxCP", "pppmuxcp");
     proto_register_field_array(proto_pppmuxcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    pppmuxcp_option_table = register_dissector_table("pppmuxcp.option", "PPP PPPMuxCP Options", proto_pppmuxcp, FT_UINT8, BASE_DEC);
+
+    /* Register PPPMuxCP options as their own protocols so we can get the name of the option */
+    proto_pppmuxcp_option_def_pid = proto_register_protocol_in_name_only("Default Protocol ID", "Default Protocol ID", "pppmuxcp.opt.def_pid", proto_pppmuxcp, FT_BYTES);
 }
 
 
@@ -7385,6 +8140,8 @@ proto_reg_handoff_pppmuxcp(void)
      * registering with the "ethertype" dissector table.
      */
     dissector_add_uint("ethertype", PPP_MUXCP, muxcp_handle);
+
+    dissector_add_uint("pppmuxcp.option", CI_DEFAULT_PID, create_dissector_handle( dissect_pppmuxcp_def_pid_opt, proto_pppmuxcp_option_def_pid ));
 }
 
 
@@ -7487,6 +8244,8 @@ void
 proto_register_ipv6cp(void)
 {
     static hf_register_info hf[] = {
+      { &hf_ipv6cp_opt_type, { "Type", "ipv6cp.opt.type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ipv6cp_opt_length, { "Length", "ipv6cp.opt.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_ipv6cp_interface_identifier, { "Interface Identifier", "ipv6cp.interface_identifier", FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL }},
     };
@@ -7497,10 +8256,15 @@ proto_register_ipv6cp(void)
         &ett_ipv6cp_compress_opt
     };
 
-    proto_ipv6cp = proto_register_protocol("PPP IPv6 Control Protocol",
-        "PPP IPV6CP", "ipv6cp");
+    proto_ipv6cp = proto_register_protocol("PPP IPv6 Control Protocol", "PPP IPV6CP", "ipv6cp");
     proto_register_field_array(proto_ipv6cp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    ipv6cp_option_table = register_dissector_table("ipv6cp.option", "PPP IPV6CP Options", proto_ipv6cp, FT_UINT8, BASE_DEC);
+
+    /* Register IPV6CP options as their own protocols so we can get the name of the option */
+    proto_ipv6cp_option_if_id = proto_register_protocol_in_name_only("Interface Identifier", "Interface Identifier", "ipv6cp.opt.interface_identifier", proto_ipv6cp, FT_BYTES);
+    proto_ipv6cp_option_compress = proto_register_protocol_in_name_only("IPv6 compression", "IPv6 compression", "ipv6cp.opt.compress", proto_ipv6cp, FT_BYTES);
 }
 
 void
@@ -7521,6 +8285,9 @@ proto_reg_handoff_ipv6cp(void)
      * for GSM-A / MobileL3 / GPRS SM / PCO
      */
     dissector_add_uint("sm_pco.protocol", PPP_IPV6CP, ipv6cp_handle);
+
+    dissector_add_uint("ipv6cp.option", CI_IPV6CP_IF_ID, create_dissector_handle( dissect_ipv6cp_if_id_opt, proto_ipv6cp_option_if_id ));
+    dissector_add_uint("ipv6cp.option", CI_COMPRESS_PROTO, create_dissector_handle( dissect_ipcp_compress_opt, proto_ipv6cp_option_compress ));
 }
 
 void
