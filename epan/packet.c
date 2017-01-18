@@ -127,6 +127,12 @@ static GHashTable *depend_dissector_lists = NULL;
 static GSList *init_routines = NULL;
 static GSList *cleanup_routines = NULL;
 
+/* Allow protocols to register a "cleanup" routine to be
+ * run after the initial sequential run through the packets.
+ * Note that the file can still be open after this; this is not
+ * the final cleanup. */
+static GSList *postseq_cleanup_routines;
+
 static void
 destroy_depend_dissector_list(void *data)
 {
@@ -220,6 +226,7 @@ packet_cleanup(void)
 {
 	g_slist_free(init_routines);
 	g_slist_free(cleanup_routines);
+	g_slist_free(postseq_cleanup_routines);
 	g_hash_table_destroy(dissector_tables);
 	g_hash_table_destroy(registered_dissectors);
 	g_hash_table_destroy(depend_dissector_lists);
@@ -322,12 +329,6 @@ cleanup_dissection(void)
 	 */
 	host_name_lookup_cleanup();
 }
-
-/* Allow protocols to register a "cleanup" routine to be
- * run after the initial sequential run through the packets.
- * Note that the file can still be open after this; this is not
- * the final cleanup. */
-static GSList *postseq_cleanup_routines;
 
 void
 register_postseq_cleanup_routine(void_func_t func)
