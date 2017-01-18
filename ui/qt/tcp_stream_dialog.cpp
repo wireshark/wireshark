@@ -254,8 +254,13 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     tracer_ = new QCPItemTracer(sp);
     sp->addItem(tracer_);
 
-    // Triggers fillGraph().
-    ui->graphTypeComboBox->setCurrentIndex(graph_idx);
+    // Triggers fillGraph() [ UNLESS the index is already graph_idx!! ]
+    if (graph_idx != ui->graphTypeComboBox->currentIndex())
+        // changing the current index will call fillGraph
+        ui->graphTypeComboBox->setCurrentIndex(graph_idx);
+    else
+        // the current index is what we want - so fillGraph() manually
+        fillGraph();
 
     sp->setMouseTracking(true);
 
@@ -870,24 +875,109 @@ void TCPStreamDialog::fillThroughput()
     tput_graph_->setData(tput_time, tput);
 }
 
+// rtt_selectively_ack_range:
+//    "Helper" function for fillRoundTripTime
+//    given an rtt_unack list, two pointers to a range of segments in the list,
+//    and the [left,right) edges of a SACK block, selectively ACKs the range
+//    from "begin" to "end" - possibly splitting one segment in the range
+//    into two (and relinking the new segment in order after the first)
+//
+// Assumptions:
+//    "begin must be non-NULL
+//    "begin" must precede "end" (or "end" must be NULL)
+//    [ there are minor optimizations that could be added if
+//        the range from "begin" to "end" are in sequence number order.
+//        (this function would preserve that as an invariant). ]
+static struct rtt_unack *
+rtt_selectively_ack_range(QVector<double>& rel_times, QVector<double>& rtt,
+                    struct rtt_unack **list,
+                    struct rtt_unack *begin, struct rtt_unack *end,
+                    unsigned int left, unsigned int right, double rt_val) {
+    struct rtt_unack *cur, *next;
+    // sanity check:
+    if (tcp_seq_eq_or_after(left, right))
+        return begin;
+    // real work:
+    for (cur = begin; cur != end; cur = next) {
+        next = cur->next;
+        // check #1: does [left,right) intersect current unack at all?
+        //   (if not, we can just move on to the next unack)
+        if (tcp_seq_eq_or_after(cur->seqno, right) ||
+            tcp_seq_eq_or_after(left, cur->end_seqno)) {
+            // no intersection - just skip this.
+            continue;
+        }
+        // yes, we intersect!
+        int left_end_acked = tcp_seq_eq_or_after(cur->seqno, left);
+        int right_end_acked = tcp_seq_eq_or_after(right, cur->end_seqno);
+        // check #2 - did we fully ack the current unack?
+        //   (if so, we can delete it and move on)
+        if (left_end_acked && right_end_acked) {
+            // ACK the whole segment
+            rel_times.append(cur->time);
+            rtt.append((rt_val - cur->time) * 1000.0);
+            // in this case, we will delete current unack
+            // [ update "begin" if necessary - we will return it to the
+            //     caller to let them know we deleted it ]
+            if (cur == begin)
+                begin = next;
+             rtt_delete_unack_from_list(list, cur);
+             continue;
+        }
+        // check #3 - did we ACK the left-hand side of the current unack?
+        //   (if so, we can just modify it and move on)
+        if (left_end_acked) { // and right_end_not_acked
+            // ACK the left end
+            rel_times.append(cur->time);
+            rtt.append((rt_val - cur->time) * 1000.0);
+            // in this case, "right" marks the start of remaining bytes
+            cur->seqno = right;
+            continue;
+        }
+        // check #4 - did we ACK the right-hand side of the current unack?
+        //   (if so, we can just modify it and move on)
+        if (right_end_acked) { // and left_end_not_acked
+            // ACK the right end
+            rel_times.append(cur->time);
+            rtt.append((rt_val - cur->time) * 1000.0);
+            // in this case, "left" is just beyond the remaining bytes
+            cur->end_seqno = left;
+            continue;
+        }
+        // at this point, we know:
+        //   - the SACK block does intersect this unack, but
+        //   - it does not intersect the left or right endpoints
+        // Therefore, it must intersect the middle, so we must split the unack
+        //   into left and right unacked segments:
+        // ACK the SACK block
+        rel_times.append(cur->time);
+        rtt.append((rt_val - cur->time) * 1000.0);
+        // then split cur into two unacked segments
+        //   (linking the right-hand unack after the left)
+        cur->next = rtt_get_new_unack(cur->time, right, cur->end_seqno - right);
+        cur->next->next = next;
+        cur->end_seqno = left;
+    }
+    return begin;
+}
+
 void TCPStreamDialog::fillRoundTripTime()
 {
     QString dlg_title = QString(tr("Round Trip Time")) + streamDescription();
     setWindowTitle(dlg_title);
     title_->setText(dlg_title);
-    sequence_num_map_.clear();
 
     QCustomPlot *sp = ui->streamPlot;
-    sp->xAxis->setLabel(sequence_number_label_);
-    sp->xAxis->setNumberFormat("f");
-    sp->xAxis->setNumberPrecision(0);
+
     sp->yAxis->setLabel(round_trip_time_ms_label_);
+    sp->yAxis->setNumberFormat("gb");
+    sp->yAxis->setNumberPrecision(3);
 
     base_graph_->setLineStyle(QCPGraph::lsLine);
 
-    QVector<double> seq_no, rtt;
+    QVector<double> rel_times, rtt;
     guint32 seq_base = 0;
-    struct unack *unack = NULL, *u = NULL;
+    struct rtt_unack *unack_list = NULL, *u = NULL;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         if (compareHeaders(seg)) {
             seq_base = seg->th_seq;
@@ -897,31 +987,59 @@ void TCPStreamDialog::fillRoundTripTime()
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         if (compareHeaders(seg)) {
             guint32 seqno = seg->th_seq - seq_base;
-            if (seg->th_seglen && !rtt_is_retrans(unack, seqno)) {
+            if (seg->th_seglen && !rtt_is_retrans(unack_list, seqno)) {
                 double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
-                u = rtt_get_new_unack(rt_val, seqno);
-                if (!u) return;
-                rtt_put_unack_on_list(&unack, u);
+                u = rtt_get_new_unack(rt_val, seqno, seg->th_seglen);
+                if (!u) {
+                    // make sure to free list before returning!
+                    rtt_destroy_unack_list(&unack_list);
+                    return;
+                }
+                rtt_put_unack_on_list(&unack_list, u);
             }
         } else {
             guint32 ack_no = seg->th_ack - seq_base;
             double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
-            struct unack *v;
+            struct rtt_unack *v;
 
-            for (u = unack; u; u = v) {
-                if (ack_no > u->seqno) {
-                    seq_no.append(u->seqno);
+            for (u = unack_list; u; u = v) {
+                if (tcp_seq_after(ack_no, u->seqno)) {
+                    // full or partial ack of seg by ack_no
+                    rel_times.append(u->time);
                     rtt.append((rt_val - u->time) * 1000.0);
-                    sequence_num_map_.insert(u->seqno, seg);
-                    v = u->next;
-                    rtt_delete_unack_from_list(&unack, u);
-                } else {
-                    v = u->next;
+                    if (tcp_seq_eq_or_after(ack_no, u->end_seqno)) {
+                        // fully acked segment - nothing more to see here
+                        v = u->next;
+                        rtt_delete_unack_from_list(&unack_list, u);
+                        // no need to compare SACK blocks for fully ACKed seg
+                        continue;
+                    } else {
+                        // partial ack of GSO seg
+                        u->seqno = ack_no;
+                        // (keep going - still need to compare SACK blocks...)
+                    }
+                }
+                v = u->next;
+                // selectively acking u more than once
+                //   can shatter it into multiple intervals.
+                //   If we link those back into the list between u and v,
+                //   then each subsequent SACK selectively ACKs that range.
+                for (int i = 0; i < seg->num_sack_ranges; ++i) {
+                    guint32 left = seg->sack_left_edge[i] - seq_base;
+                    guint32 right = seg->sack_right_edge[i] - seq_base;
+                    u = rtt_selectively_ack_range(rel_times, rtt,
+                                                  &unack_list, u, v,
+                                                  left, right, rt_val);
+                    // if range is empty after selective ack, we can
+                    //   skip the rest of the SACK blocks
+                    if (u == v) break;
                 }
             }
         }
     }
-    base_graph_->setData(seq_no, rtt);
+    // it's possible there's still unacked segs - so be sure to free list!
+    rtt_destroy_unack_list(&unack_list);
+    base_graph_->setData(rel_times, rtt);
 }
 
 void TCPStreamDialog::fillWindowScale()
@@ -1144,10 +1262,9 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
             case GRAPH_TSEQ_TCPTRACE:
             case GRAPH_THROUGHPUT:
             case GRAPH_WSCALE:
+            case GRAPH_RTT:
                 packet_seg = time_stamp_map_.value(tr_key, NULL);
                 break;
-            case GRAPH_RTT:
-                packet_seg = sequence_num_map_.value(tr_key, NULL);
             default:
                 break;
             }

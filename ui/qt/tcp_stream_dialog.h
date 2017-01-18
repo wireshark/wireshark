@@ -68,7 +68,6 @@ private:
     QMap<double, struct segment *> time_stamp_map_;
     double ts_offset_;
     bool ts_origin_conn_;
-    QMap<double, struct segment *> sequence_num_map_;
     double seq_offset_;
     bool seq_origin_zero_;
     struct tcp_graph graph_;

@@ -103,16 +103,33 @@ int get_num_acks(struct tcp_graph *, int * );
 struct tcpheader *select_tcpip_session(capture_file *, struct segment * );
 
 /* This is used by rtt module only */
-struct unack {
-    struct unack *next;
+struct rtt_unack {
+    struct rtt_unack *next;
     double        time;
     unsigned int  seqno;
+    unsigned int  end_seqno;
 };
 
-int rtt_is_retrans(struct unack * , unsigned int );
-struct unack *rtt_get_new_unack(double , unsigned int );
-void rtt_put_unack_on_list(struct unack ** , struct unack * );
-void rtt_delete_unack_from_list(struct unack ** , struct unack * );
+int rtt_is_retrans(struct rtt_unack * , unsigned int );
+struct rtt_unack *rtt_get_new_unack(double , unsigned int , unsigned int );
+void rtt_put_unack_on_list(struct rtt_unack ** , struct rtt_unack * );
+void rtt_delete_unack_from_list(struct rtt_unack ** , struct rtt_unack * );
+void rtt_destroy_unack_list(struct rtt_unack ** );
+
+static inline int
+tcp_seq_before(guint32 s1, guint32 s2) {
+    return (gint32)(s1 - s2) < 0;
+}
+
+static inline int
+tcp_seq_eq_or_after(guint32 s1, guint32 s2) {
+    return !tcp_seq_before(s1, s2);
+}
+
+static inline int
+tcp_seq_after(guint32 s1, guint32 s2) {
+    return (s1 != s2) && !tcp_seq_before(s1, s2);
+}
 
 static inline int
 tcp_seq_before(guint32 s1, guint32 s2) {

@@ -364,31 +364,34 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     return th.tcphdrs[0];
 }
 
-int rtt_is_retrans(struct unack *list, unsigned int seqno)
+int rtt_is_retrans(struct rtt_unack *list, unsigned int seqno)
 {
-    struct unack *u;
+    struct rtt_unack *u;
 
     for (u=list; u; u=u->next) {
-        if (u->seqno == seqno)
+        if (tcp_seq_eq_or_after(seqno, u->seqno) &&
+            tcp_seq_before(seqno, u->end_seqno))
             return TRUE;
     }
     return FALSE;
 }
 
-struct unack *rtt_get_new_unack(double time_val, unsigned int seqno)
+struct rtt_unack *
+rtt_get_new_unack(double time_val, unsigned int seqno, unsigned int seglen)
 {
-    struct unack *u;
+    struct rtt_unack *u;
 
-    u = (struct unack * )g_malloc(sizeof(struct unack));
+    u = (struct rtt_unack * )g_malloc(sizeof(struct rtt_unack));
     u->next  = NULL;
     u->time  = time_val;
     u->seqno = seqno;
+    u->end_seqno = seqno + seglen;
     return u;
 }
 
-void rtt_put_unack_on_list(struct unack **l, struct unack *new_unack)
+void rtt_put_unack_on_list(struct rtt_unack **l, struct rtt_unack *new_unack)
 {
-    struct unack *u, *list = *l;
+    struct rtt_unack *u, *list = *l;
 
     for (u=list; u; u=u->next) {
         if (!u->next)
@@ -400,9 +403,9 @@ void rtt_put_unack_on_list(struct unack **l, struct unack *new_unack)
         *l = new_unack;
 }
 
-void rtt_delete_unack_from_list(struct unack **l, struct unack *dead)
+void rtt_delete_unack_from_list(struct rtt_unack **l, struct rtt_unack *dead)
 {
-    struct unack *u, *list = *l;
+    struct rtt_unack *u, *list = *l;
 
     if (!dead || !list)
         return;
@@ -418,6 +421,14 @@ void rtt_delete_unack_from_list(struct unack **l, struct unack *dead)
                 break;
             }
         }
+    }
+}
+
+void rtt_destroy_unack_list(struct rtt_unack **l ) {
+    while (*l) {
+        struct rtt_unack *head = *l;
+        *l = head->next;
+        g_free(head);
     }
 }
 
