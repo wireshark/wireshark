@@ -266,7 +266,6 @@ register_cleanup_routine(void (*func)(void))
 
 typedef void (*void_func_t)(void);
 
-/* Initialize all data structures used for dissection. */
 static void
 call_routine(gpointer routine, gpointer dummy _U_)
 {
@@ -274,6 +273,7 @@ call_routine(gpointer routine, gpointer dummy _U_)
 	(*func)();
 }
 
+/* Initialize all data structures used for dissection. */
 void
 init_dissection(void)
 {
@@ -338,18 +338,11 @@ register_postseq_cleanup_routine(void_func_t func)
 }
 
 /* Call all the registered "postseq_cleanup" routines. */
-static void
-call_postseq_cleanup_routine(gpointer routine, gpointer dummy _U_)
-{
-	void_func_t func = (void_func_t)routine;
-	(*func)();
-}
-
 void
 postseq_cleanup_all_protocols(void)
 {
 	g_slist_foreach(postseq_cleanup_routines,
-			&call_postseq_cleanup_routine, NULL);
+			&call_routine, NULL);
 }
 
 /*
@@ -431,19 +424,11 @@ register_final_registration_routine(void (*func)(void))
 }
 
 /* Call all the registered "final_registration" routines. */
-static void
-call_final_registration_routine(gpointer routine, gpointer dummy _U_)
-{
-	void_func_t func = (void_func_t)routine;
-
-	(*func)();
-}
-
 void
 final_registration_all_protocols(void)
 {
 	g_slist_foreach(final_registration_routines,
-			&call_final_registration_routine, NULL);
+			&call_routine, NULL);
 }
 
 
