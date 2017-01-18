@@ -931,23 +931,50 @@ void TCPStreamDialog::fillWindowScale()
     title_->setText(dlg_title);
 
     QCustomPlot *sp = ui->streamPlot;
-    base_graph_->setLineStyle(QCPGraph::lsLine);
+    // use base_graph_ to represent unacked window size
+    //  (estimate of congestion window)
+    base_graph_->setLineStyle(QCPGraph::lsStepLeft);
+    // use rwin_graph_ here to show rwin window scale
+    //  (derived from ACK packets)
+    rwin_graph_->setVisible(true);
 
     QVector<double> rel_time, win_size;
+    QVector<double> cwnd_time, cwnd_size;
+    guint32 last_ack = 0;
+    bool found_first_ack = false;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
-        if (!compareHeaders(seg)) {
-            continue;
-        }
-
         double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
-        guint16 flags = seg->th_flags;
 
-        if ((flags & (TH_SYN|TH_RST)) == 0) {
-            rel_time.append(ts - ts_offset_);
-            win_size.append(seg->th_win);
+        // The receive window that applies to this flow comes
+        //   from packets in the opposite direction
+        if (compareHeaders(seg)) {
+            // compute bytes_in_flight for cwnd graph
+            guint32 end_seq = seg->th_seq + seg->th_seglen;
+            if (found_first_ack &&
+                tcp_seq_eq_or_after(end_seq, last_ack)) {
+                cwnd_time.append(ts - ts_offset_);
+                cwnd_size.append((double)(end_seq - last_ack));
+            }
+        } else {
+            // packet in opposite direction - has advertised rwin
+            guint16 flags = seg->th_flags;
+
+            if ((flags & (TH_SYN|TH_RST)) == 0) {
+                rel_time.append(ts - ts_offset_);
+                win_size.append(seg->th_win);
+            }
+            if ((flags & (TH_ACK)) != 0) {
+                // use this to update last_ack
+                if (!found_first_ack ||
+                    tcp_seq_eq_or_after(seg->th_ack, last_ack)) {
+                    last_ack = seg->th_ack;
+                    found_first_ack = true;
+                }
+            }
         }
     }
-    base_graph_->setData(rel_time, win_size);
+    base_graph_->setData(cwnd_time, cwnd_size);
+    rwin_graph_->setData(rel_time, win_size);
     sp->yAxis->setLabel(window_size_label_);
 }
 
