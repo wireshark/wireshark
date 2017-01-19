@@ -55,7 +55,8 @@ enum {
 	OPT_REMOTE_FILTER,
 	OPT_SSHKEY,
 	OPT_SSHKEY_PASSPHRASE,
-	OPT_REMOTE_COUNT
+	OPT_REMOTE_COUNT,
+	OPT_REMOTE_SUDO
 };
 
 static struct option longopts[] = {
@@ -64,6 +65,7 @@ static struct option longopts[] = {
 	{ "version", no_argument, NULL, OPT_VERSION},
 	SSH_BASE_OPTIONS,
 	{ "remote-capture-command", required_argument, NULL, OPT_REMOTE_CAPTURE_COMMAND},
+	{ "remote-sudo", required_argument, NULL, OPT_REMOTE_SUDO },
 	{ 0, 0, 0, 0}
 };
 
@@ -122,8 +124,8 @@ static char* local_interfaces_to_filter(const guint16 remote_port)
 	return filter;
 }
 
-static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command, const char* iface, const char* cfilter,
-		const guint32 count)
+static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command, const gboolean use_sudo, const char* iface,
+		const char* cfilter, const guint32 count)
 {
 	gchar* cmdline;
 	ssh_channel channel;
@@ -159,8 +161,8 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 		if (count > 0)
 			count_str = g_strdup_printf("-c %u", count);
 
-		cmdline = g_strdup_printf("tcpdump -U -i %s -w - %s %s", quoted_iface, count_str ? count_str : "",
-			quoted_filter);
+		cmdline = g_strdup_printf("%s tcpdump -U -i %s -w - %s %s", use_sudo ? "sudo" : "", quoted_iface,
+			count_str ? count_str : "", quoted_filter);
 	}
 
 	g_debug("Running: %s", cmdline);
@@ -182,7 +184,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 
 static int ssh_open_remote_connection(const char* hostname, const unsigned int port, const char* username, const char* password,
 	const char* sshkey, const char* sshkey_passphrase, const char* iface, const char* cfilter, const char* capture_command,
-	const guint32 count, const char* fifo)
+	const gboolean use_sudo, const guint32 count, const char* fifo)
 {
 	ssh_session sshs = NULL;
 	ssh_channel channel = NULL;
@@ -206,7 +208,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 		goto cleanup;
 	}
 
-	channel = run_ssh_command(sshs, capture_command, iface, cfilter, count);
+	channel = run_ssh_command(sshs, capture_command, use_sudo, iface, cfilter, count);
 
 	if (!channel) {
 		g_warning("Can't run ssh command");
@@ -292,7 +294,9 @@ static int list_config(char *interface, unsigned int remote_port)
 		"{type=string}{default=eth0}{tooltip=The remote network interface used for capture"
 		"}\n", inc++);
 	printf("arg {number=%u}{call=--remote-capture-command}{display=Remote capture command}"
-		"{type=string}{tooltip=The remote command used to capture.}\n", inc++);
+		"{type=string}{tooltip=The remote command used to capture}\n", inc++);
+	printf("arg {number=%u}{call=--remote-sudo}{display=Use sudo on the remote machine}"
+		"{type=boolean}{tooltip=Prepend the capture command with sudo on the remote machine}\n", inc++);
 	printf("arg {number=%u}{call=--remote-filter}{display=Remote capture filter}"
 		"{type=string}{tooltip=The remote capture filter}", inc++);
 	if (ipfilter)
@@ -340,6 +344,7 @@ int main(int argc, char **argv)
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
 	char* help_url;
 	char* help_header = NULL;
+	gboolean use_sudo = FALSE;
 
 #ifdef _WIN32
 	WSADATA wsaData;
@@ -373,6 +378,7 @@ int main(int argc, char **argv)
 	extcap_help_add_option(extcap_conf, "--sshkey-passphrase <public key passphrase>", "the passphrase to unlock public ssh");
 	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface (default: eth0)");
 	extcap_help_add_option(extcap_conf, "--remote-capture-command <capture command>", "the remote capture command");
+	extcap_help_add_option(extcap_conf, "--remote-sudo yes", "use sudo on the remote machine to capture");
 	extcap_help_add_option(extcap_conf, "--remote-filter <filter>", "a filter for remote capture (default: don't "
 		"listen on local interfaces IPs)");
 	extcap_help_add_option(extcap_conf, "--remote-count <count>", "the number of packets to capture");
@@ -443,6 +449,10 @@ int main(int argc, char **argv)
 			remote_capture_command = g_strdup(optarg);
 			break;
 
+		case OPT_REMOTE_SUDO:
+			use_sudo = TRUE;
+			break;
+
 		case OPT_REMOTE_FILTER:
 			g_free(remote_filter);
 			remote_filter = g_strdup(optarg);
@@ -504,7 +514,7 @@ int main(int argc, char **argv)
 		filter = concat_filters(extcap_conf->capture_filter, remote_filter);
 		ret = ssh_open_remote_connection(remote_host, remote_port, remote_username,
 			remote_password, sshkey, sshkey_passphrase, remote_interface,
-			filter, remote_capture_command, count, extcap_conf->fifo);
+			filter, remote_capture_command, use_sudo, count, extcap_conf->fifo);
 		g_free(filter);
 	} else {
 		g_debug("You should not come here... maybe some parameter missing?");
