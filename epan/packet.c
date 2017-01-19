@@ -244,6 +244,7 @@ packet_cleanup(void)
 	g_hash_table_destroy(heur_dissector_lists);
 	g_hash_table_destroy(heuristic_short_names);
 	g_slist_foreach(shutdown_routines, &call_routine, NULL);
+	g_slist_free(shutdown_routines);
 }
 
 /*
