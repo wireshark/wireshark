@@ -2518,7 +2518,7 @@ write_pdml_packet(capture_file *cf, frame_data *fdata,
   epan_dissect_run(&args->edt, cf->cd_t, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
 
   /* Write out the information in that tree. */
-  write_pdml_proto_tree(NULL, NULL, &args->edt, args->fh);
+  write_pdml_proto_tree(NULL, NULL, PF_NONE, &args->edt, args->fh);
 
   epan_dissect_reset(&args->edt);
 
@@ -2812,7 +2812,7 @@ write_json_packet(capture_file *cf, frame_data *fdata,
   epan_dissect_run(&args->edt, cf->cd_t, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
 
   /* Write out the information in that tree. */
-  write_json_proto_tree(NULL, args->print_args, NULL, &args->edt, args->fh);
+  write_json_proto_tree(NULL, args->print_args, NULL, PF_NONE, &args->edt, args->fh);
 
   epan_dissect_reset(&args->edt);
 

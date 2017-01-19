@@ -188,6 +188,7 @@ static print_stream_t *print_stream;
 
 static output_fields_t* output_fields  = NULL;
 static gchar **protocolfilter = NULL;
+static pf_flags protocolfilter_flags = PF_NONE;
 
 /* The line separator used between packets, changeable via the -S option */
 static const char *separator = "";
@@ -387,8 +388,11 @@ print_usage(FILE *output)
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|json|ek|text|fields\n");
   fprintf(output, "                           format of text output (def: text)\n");
-  fprintf(output, "  -j <protocolfilter>      protocols layers filter if -T ek|pdml|json selected,\n");
-  fprintf(output, "                           (e.g. \"http tcp ip\",\n");
+  fprintf(output, "  -j <protocolfilter>      protocols layers filter if -T ek|pdml|json selected\n");
+  fprintf(output, "                           (e.g. \"ip ip.flags text\", filter does not expand child\n");
+  fprintf(output, "                           nodes, unless child is specified also in the filter)\n");
+  fprintf(output, "  -J <protocolfilter>      top level protocol filter if -T ek|pdml|json selected\n");
+  fprintf(output, "                           (e.g. \"http tcp\", filter which expands all child nodes)\n");
   fprintf(output, "  -e <field>               field to print if -Tfields selected (e.g. tcp.port,\n");
   fprintf(output, "                           _ws.col.Info)\n");
   fprintf(output, "                           this option can be repeated to print multiple fields\n");
@@ -717,7 +721,7 @@ main(int argc, char *argv[])
  * We do *not* use a leading - because the behavior of a leading - is
  * platform-dependent.
  */
-#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:e:E:F:gG:hH:j:lo:O:PqQr:R:S:T:U:vVw:W:xX:Y:z:"
+#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:e:E:F:gG:hH:j:J:lo:O:PqQr:R:S:T:U:vVw:W:xX:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1190,6 +1194,10 @@ main(int argc, char *argv[])
       }
       break;
     case 'j':
+      protocolfilter = wmem_strsplit(wmem_epan_scope(), optarg, " ", -1);
+      break;
+    case 'J':
+      protocolfilter_flags = PF_INCLUDE_CHILDREN;
       protocolfilter = wmem_strsplit(wmem_epan_scope(), optarg, " ", -1);
       break;
     case 'W':        /* Select extra information to save in our capture file */
@@ -3997,7 +4005,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       break;
 
     case WRITE_XML:
-      write_pdml_proto_tree(output_fields, protocolfilter, edt, stdout);
+      write_pdml_proto_tree(output_fields, protocolfilter, protocolfilter_flags, edt, stdout);
       printf("\n");
       return !ferror(stdout);
     case WRITE_FIELDS:
@@ -4006,12 +4014,12 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       return !ferror(stdout);
     case WRITE_JSON:
       print_args.print_hex = print_hex;
-      write_json_proto_tree(output_fields, &print_args, protocolfilter, edt, stdout);
+      write_json_proto_tree(output_fields, &print_args, protocolfilter, protocolfilter_flags, edt, stdout);
       printf("\n");
       return !ferror(stdout);
     case WRITE_EK:
       print_args.print_hex = print_hex;
-      write_ek_proto_tree(output_fields, &print_args, protocolfilter, edt, stdout);
+      write_ek_proto_tree(output_fields, &print_args, protocolfilter, protocolfilter_flags, edt, stdout);
       printf("\n");
       return !ferror(stdout);
     }

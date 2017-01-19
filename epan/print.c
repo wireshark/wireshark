@@ -60,6 +60,7 @@ typedef struct {
     FILE           *fh;
     GSList         *src_list;
     gchar         **filter;
+    pf_flags filter_flags;
 } write_pdml_data;
 
 typedef struct {
@@ -67,6 +68,7 @@ typedef struct {
     FILE           *fh;
     GSList         *src_list;
     gchar         **filter;
+    pf_flags filter_flags;
     gboolean        print_hex;
 } write_json_data;
 
@@ -302,7 +304,7 @@ static gboolean check_protocolfilter(gchar **protocolfilter, const char *str)
 }
 
 void
-write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
+write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh)
 {
     write_pdml_data data;
 
@@ -321,6 +323,7 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, epan_diss
         data.fh       = fh;
         data.src_list = edt->pi.data_src;
         data.filter   = protocolfilter;
+        data.filter_flags   = protocolfilter_flags;
 
         proto_tree_children_foreach(edt->tree, proto_tree_write_node_pdml,
                                     &data);
@@ -333,7 +336,7 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, epan_diss
 }
 
 void
-write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
+write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh)
 {
     write_json_data data;
     char ts[30];
@@ -368,6 +371,7 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
         data.fh       = fh;
         data.src_list = edt->pi.data_src;
         data.filter   = protocolfilter;
+        data.filter_flags = protocolfilter_flags;
         data.print_hex = print_args->print_hex;
 
         proto_tree_children_foreach(edt->tree, proto_tree_write_node_json,
@@ -384,7 +388,7 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
 }
 
 void
-write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **protocolfilter, epan_dissect_t *edt, FILE *fh)
+write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh)
 {
     write_json_data data;
     char ts[30];
@@ -411,6 +415,7 @@ write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **p
         data.fh       = fh;
         data.src_list = edt->pi.data_src;
         data.filter   = protocolfilter;
+        data.filter_flags = protocolfilter_flags;
         data.print_hex = print_args->print_hex;
 
         proto_tree_children_foreach(edt->tree, proto_tree_write_node_ek,
@@ -644,10 +649,22 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
     /* We print some levels for PDML. Recurse here. */
     if (node->first_child != NULL) {
         if (pdata->filter == NULL || check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
+            gchar **_filter = NULL;
+            /* Remove protocol filter for children, if children should be included */
+            if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                _filter = pdata->filter;
+                pdata->filter = NULL;
+            }
+
             pdata->level++;
             proto_tree_children_foreach(node,
                                         proto_tree_write_node_pdml, pdata);
             pdata->level--;
+
+            /* Put protocol filter back */
+            if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                pdata->filter = _filter;
+            }
         } else {
             /* Indent to the correct level */
             for (i = -2; i < pdata->level; i++) {
@@ -861,9 +878,21 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
     /* We print some levels for JSON. Recurse here. */
     if (node->first_child != NULL) {
         if (pdata->filter == NULL || check_protocolfilter(pdata->filter, fi->hfinfo->abbrev)) {
+            gchar **_filter = NULL;
+            /* Remove protocol filter for children, if children should be included */
+            if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                _filter = pdata->filter;
+                pdata->filter = NULL;
+            }
+
             pdata->level++;
             proto_tree_children_foreach(node, proto_tree_write_node_json, pdata);
             pdata->level--;
+
+            /* Put protocol filter back */
+            if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                pdata->filter = _filter;
+            }
         } else {
             /* Indent to the correct level */
             for (i = -4; i < pdata->level; i++) {
@@ -1078,9 +1107,21 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
             }
 
             if(check_protocolfilter(pdata->filter, fi->hfinfo->abbrev) || check_protocolfilter(pdata->filter, abbrev_escaped)) {
+                gchar **_filter = NULL;
+                /* Remove protocol filter for children, if children should be included */
+                if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                    _filter = pdata->filter;
+                    pdata->filter = NULL;
+                }
+
                 pdata->level++;
                 proto_tree_children_foreach(node, proto_tree_write_node_ek, pdata);
                 pdata->level--;
+
+                /* Put protocol filter back */
+                if ((pdata->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                    pdata->filter = _filter;
+                }
             } else {
                 /* print dummy field */
                 fputs("\"filtered\": \"", pdata->fh);
