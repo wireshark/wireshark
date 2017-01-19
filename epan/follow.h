@@ -211,6 +211,10 @@ WS_DLL_PUBLIC void follow_reset_stream(follow_info_t* info);
  */
 WS_DLL_PUBLIC void follow_info_free(follow_info_t* follow_info);
 
+/** Free the internal structures
+ */
+extern void follow_cleanup(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -245,6 +245,19 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
     return FALSE;
 }
 
+static void
+clear_follower(gpointer p, gpointer user_data _U_)
+{
+    g_free(p);
+}
+
+void
+follow_cleanup(void)
+{
+    g_slist_foreach(registered_followers, clear_follower, NULL);
+    g_slist_free(registered_followers);
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
