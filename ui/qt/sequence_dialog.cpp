@@ -74,7 +74,6 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     sequence_w_(1)
 {
     ui->setupUi(this);
-    loadGeometry(parent.width(), parent.height() * 4 / 5);
 
     QCustomPlot *sp = ui->sequencePlot;
     setWindowSubtitle(info_ ? tr("Call Flow") : tr("Flow"));
@@ -174,6 +173,8 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     }
 
     ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
+
+    loadGeometry(parent.width(), parent.height() * 4 / 5);
 
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(hScrollBarChanged(int)));
     connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(vScrollBarChanged(int)));
