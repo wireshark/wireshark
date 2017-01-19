@@ -39,6 +39,15 @@ typedef struct {
   proto_node *rsn_first_non_ft_akm_suite;
 } association_sanity_check_t;
 
+typedef struct ieee80211_tagged_field_data
+{
+  int ftype;
+  association_sanity_check_t* sanity_check;
+  gboolean isDMG;
+  proto_item* item_tag;
+  proto_item* item_tag_length;
+} ieee80211_tagged_field_data_t;
+
 void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                          int offset, gint size);
 int dissect_wifi_p2p_public_action(packet_info *pinfo, proto_tree *tree,
