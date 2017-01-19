@@ -5011,6 +5011,13 @@ dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
 
 }
 
+static void
+giop_shutdown(void)
+{
+	g_slist_free(giop_sub_list);
+	g_hash_table_destroy(giop_module_hash);
+}
+
 void
 proto_register_giop (void)
 {
@@ -5561,6 +5568,7 @@ proto_register_giop (void)
 
   giop_module_hash = g_hash_table_new(giop_hash_module_hash, giop_hash_module_equal);
 
+  register_shutdown_routine(giop_shutdown);
 }
 
 
