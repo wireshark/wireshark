@@ -218,6 +218,7 @@ static gint ett_radiotap_vht_user = -1;
 static expert_field ei_radiotap_data_past_header = EI_INIT;
 static expert_field ei_radiotap_present_reserved = EI_INIT;
 static expert_field ei_radiotap_present = EI_INIT;
+static expert_field ei_radiotap_invalid_data_rate = EI_INIT;
 
 static dissector_handle_t ieee80211_radio_handle;
 
@@ -1804,15 +1805,17 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 					}
 
 					if (can_calculate_rate && mcs <= MAX_MCS_VHT_INDEX &&
-					    nss <= MAX_VHT_NSS &&
-					    ieee80211_vhtvalid[mcs].valid[bandwidth][nss]) {
+					    nss <= MAX_VHT_NSS ) {
 						float rate = ieee80211_vhtinfo[mcs].rates[bandwidth][gi_length] * nss;
-						if (rate != 0.0f && user_tree) {
+						if (rate != 0.0f ) {
 							rate_ti = proto_tree_add_float_format(user_tree,
 									hf_radiotap_vht_datarate[i],
 									tvb, offset, 12, rate,
 									"Data Rate: %.1f Mb/s", rate);
 							PROTO_ITEM_SET_GENERATED(rate_ti);
+							if (ieee80211_vhtvalid[mcs].valid[bandwidth][nss] == FALSE)
+								expert_add_info(pinfo, rate_ti, &ei_radiotap_invalid_data_rate);
+
 						}
 					}
 				}
@@ -2743,6 +2746,7 @@ void proto_register_radiotap(void)
 		{ &ei_radiotap_present, { "radiotap.present.radiotap_and_vendor", PI_MALFORMED, PI_ERROR, "Both radiotap and vendor namespace specified in bitmask word", EXPFILL }},
 		{ &ei_radiotap_present_reserved, { "radiotap.present.reserved.unknown", PI_UNDECODED, PI_NOTE, "Unknown Radiotap fields, code not implemented, Please check radiotap documentation, Contact Wireshark developers if you want this supported", EXPFILL }},
 		{ &ei_radiotap_data_past_header, { "radiotap.data_past_header", PI_MALFORMED, PI_ERROR, "Radiotap data goes past the end of the radiotap header", EXPFILL }},
+		{ &ei_radiotap_invalid_data_rate, { "radiotap.vht.datarate.invalid", PI_PROTOCOL, PI_WARN, "Data rate invalid", EXPFILL }},
 	};
 
 	module_t *radiotap_module;
