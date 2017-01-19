@@ -942,6 +942,27 @@ proto_enable_heuristic_by_name(const char *name, gboolean enable)
   }
 }
 
+static void
+disabled_protos_free(gpointer p, gpointer user_data _U_)
+{
+  protocol_def* pd = (protocol_def*)p;
+  g_free(pd->name);
+  g_free(p);
+}
+
+void
+disabled_protos_cleanup(void)
+{
+  g_list_foreach(global_disabled_heuristics, disabled_protos_free, NULL);
+  g_list_free(global_disabled_heuristics);
+  g_list_foreach(disabled_heuristics, disabled_protos_free, NULL);
+  g_list_free(disabled_heuristics);
+  g_list_foreach(global_disabled_protos, disabled_protos_free, NULL);
+  g_list_free(global_disabled_protos);
+  g_list_foreach(disabled_protos, disabled_protos_free, NULL);
+  g_list_free(disabled_protos);
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

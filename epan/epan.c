@@ -58,6 +58,7 @@
 #include "export_object.h"
 #include "stat_tap_ui.h"
 #include "follow.h"
+#include "disabled_protos.h"
 
 #ifdef HAVE_LUA
 #include <lua.h>
@@ -213,6 +214,7 @@ epan_cleanup(void)
 	export_object_cleanup();
 	stat_tap_table_cleanup();
 	follow_cleanup();
+	disabled_protos_cleanup();
 #ifdef HAVE_LUA
 	wslua_cleanup();
 #endif

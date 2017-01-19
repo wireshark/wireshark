@@ -150,6 +150,11 @@ save_disabled_heur_dissector_list(char **pref_path_return, int *errno_return);
 WS_DLL_PUBLIC void
 proto_enable_heuristic_by_name(const char *name, gboolean enable);
 
+/*
+ * Free the internal structures
+ */
+extern void
+disabled_protos_cleanup(void);
 
 #ifdef __cplusplus
 }
