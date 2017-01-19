@@ -213,6 +213,8 @@ static int hf_isakmp_vid_cisco_unity_major = -1;
 static int hf_isakmp_vid_cisco_unity_minor = -1;
 static int hf_isakmp_vid_ms_nt5_isakmpoakley = -1;
 static int hf_isakmp_vid_aruba_via_auth_profile = -1;
+static int hf_isakmp_vid_fortinet_fortigate_release = -1;
+static int hf_isakmp_vid_fortinet_fortigate_build = -1;
 static int hf_isakmp_ts_number_of_ts = -1;
 static int hf_isakmp_ts_type = -1;
 static int hf_isakmp_ts_protoid = -1;
@@ -2773,6 +2775,10 @@ static const guint8 VID_MS_IKEE_20080212_MS_NDC[] = { /* MS-Negotiation Discover
         0x16, 0xb7, 0xe5, 0xbe, 0x08, 0x55, 0xf1, 0x20
 };
 
+static const guint8 VID_FORTINET_FORTIGATE[] = { /* Fortigate (Fortinet) */
+        0x82, 0x99, 0x03, 0x17, 0x57, 0xA3, 0x60, 0x82,
+        0xC6, 0xA6, 0x21, 0xDE
+};
 /* Based from value_string.c/h */
 static const byte_string vendor_id[] = {
   { VID_SSH_IPSEC_EXPRESS_1_1_0, sizeof(VID_SSH_IPSEC_EXPRESS_1_1_0), "Ssh Communications Security IPSEC Express version 1.1.0" },
@@ -2881,6 +2887,7 @@ static const byte_string vendor_id[] = {
   { VID_ARUBA_VIA_AUTH_PROFILE, sizeof(VID_ARUBA_VIA_AUTH_PROFILE), "VIA Auth Profile (Aruba Networks)" },
   { VID_MS_IKEE_20080212_CGA1, sizeof(VID_MS_IKEE_20080212_CGA1), "IKE CGA Version 1" },
   { VID_MS_IKEE_20080212_MS_NDC, sizeof(VID_MS_IKEE_20080212_MS_NDC), "MS-Negotiation Discovery Capable" },
+  { VID_FORTINET_FORTIGATE, sizeof(VID_FORTINET_FORTIGATE), "Fortigate (Fortinet)" },
   { 0, 0, NULL }
 };
 
@@ -4800,6 +4807,16 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     proto_tree_add_item(tree, hf_isakmp_vid_aruba_via_auth_profile, tvb, offset, length-19, ENC_ASCII|ENC_NA);
     offset += 4;
   }
+
+  /* VID_FORTIGATE (Fortinet) */
+  if (length >= 12 && memcmp(pVID, VID_FORTINET_FORTIGATE, 12) == 0)
+  {
+    offset += 12;
+    proto_tree_add_item(tree, hf_isakmp_vid_fortinet_fortigate_release, tvb, offset, 2, ENC_ASCII|ENC_NA);
+    offset += 2;
+    proto_tree_add_item(tree, hf_isakmp_vid_fortinet_fortigate_build, tvb, offset, 2, ENC_ASCII|ENC_NA);
+    offset += 2;
+  }
   return offset;
 }
 
@@ -6359,6 +6376,16 @@ proto_register_isakmp(void)
       { "Auth Profile", "isakmp.vid.aruba_via_auth_profile",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Aruba Networks Auth Profile for VIA Client", HFILL }},
+
+    { &hf_isakmp_vid_fortinet_fortigate_release,
+      { "Release", "isakmp.vid.fortinet.fortigate.release",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Release of Fortigate", HFILL }},
+
+    { &hf_isakmp_vid_fortinet_fortigate_build,
+      { "Build", "isakmp.vid.fortinet.fortigate.build",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Build of Fortigate", HFILL }},
 
     { &hf_isakmp_ts_number_of_ts,
       { "Number of Traffic Selectors", "isakmp.ts.number",
