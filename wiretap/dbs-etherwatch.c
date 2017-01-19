@@ -66,7 +66,7 @@ Protocol 08-00 00 00-00-00-00-00,   50 byte buffer at 10-OCT-2001 10:20:45.17
 
 /* Magic text to check for DBS-ETHERWATCH-ness of file */
 static const char dbs_etherwatch_hdr_magic[]  =
-{ 'E', 'T', 'H', 'E', 'R', 'W', 'A', 'T', 'C', 'H', ' ', ' '};
+{ 'E', 'T', 'H', 'E', 'R', 'W', 'A', 'T', 'C', 'H', ' '};
 #define DBS_ETHERWATCH_HDR_MAGIC_SIZE  \
         (sizeof dbs_etherwatch_hdr_magic  / sizeof dbs_etherwatch_hdr_magic[0])
 
