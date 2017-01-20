@@ -828,6 +828,19 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
     }
 }
 
+static void
+ct_table_free(gpointer p, gpointer user_data _U_)
+{
+    g_free(p);
+}
+
+void
+conversation_table_cleanup(void)
+{
+    g_slist_foreach(registered_ct_tables, ct_table_free, NULL);
+    g_slist_free(registered_ct_tables);
+}
+
 /*
  * Editor modelines
  *

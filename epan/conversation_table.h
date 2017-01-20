@@ -340,6 +340,10 @@ add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, co
 void add_hostlist_table_data(conv_hash_t *ch, const address *addr,
                              guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, port_type port_type_val);
 
+/** Cleanup internal structures
+ */
+void conversation_table_cleanup(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

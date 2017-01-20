@@ -61,6 +61,7 @@
 #include "disabled_protos.h"
 #include "decode_as.h"
 #include "dissector_filters.h"
+#include "conversation_table.h"
 
 #ifdef HAVE_LUA
 #include <lua.h>
@@ -210,6 +211,7 @@ epan_cleanup(void)
 	proto_cleanup();
 	prefs_cleanup();
 	decode_clear_all();
+	conversation_table_cleanup();
 	conversation_filters_cleanup();
 	packet_cleanup();
 	expert_cleanup();
