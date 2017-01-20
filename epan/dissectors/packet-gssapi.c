@@ -563,6 +563,12 @@ dissect_gssapi_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 	return dissect_gssapi_work_wrapper(tvb, pinfo, tree, (gssapi_encrypt_info_t*)data, TRUE);
 }
 
+static void
+gssapi_shutdown(void)
+{
+	g_hash_table_destroy(gssapi_oids);
+}
+
 void
 proto_register_gssapi(void)
 {
@@ -641,9 +647,10 @@ proto_register_gssapi(void)
 	gssapi_handle = register_dissector("gssapi", dissect_gssapi, proto_gssapi);
 	register_dissector("gssapi_verf", dissect_gssapi_verf, proto_gssapi);
 
-	gssapi_oids = g_hash_table_new(gssapi_oid_hash, gssapi_oid_equal);
+	gssapi_oids = g_hash_table_new_full(gssapi_oid_hash, gssapi_oid_equal, g_free, g_free);
 	register_init_routine(gssapi_reassembly_init);
 	register_cleanup_routine(gssapi_reassembly_cleanup);
+	register_shutdown_routine(gssapi_shutdown);
 }
 
 static int
