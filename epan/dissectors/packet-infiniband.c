@@ -5541,6 +5541,12 @@ skip_lrh:
     return;
 }
 
+static void
+infiniband_shutdown(void)
+{
+    g_hash_table_destroy(CM_context_table);
+}
+
 /* Protocol Registration */
 void proto_register_infiniband(void)
 {
@@ -7996,6 +8002,8 @@ void proto_register_infiniband(void)
                                              table_destroy_notify, table_destroy_notify);
 
     register_decode_as(&infiniband_payload_da);
+
+    register_shutdown_routine(infiniband_shutdown);
 }
 
 /* Reg Handoff.  Register dissectors we'll need for IPoIB and RoCE */
