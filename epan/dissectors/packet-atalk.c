@@ -1612,7 +1612,8 @@ asp_reinit( void)
 static void
 asp_shutdown(void)
 {
-  g_hash_table_destroy(asp_request_hash);
+  if (asp_request_hash)
+    g_hash_table_destroy(asp_request_hash);
 }
 
 void
