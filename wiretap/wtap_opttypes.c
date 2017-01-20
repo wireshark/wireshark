@@ -1192,7 +1192,7 @@ void wtap_opttypes_initialize(void)
     num_custom_blocks = 0;
 
     /*
-     * Registser the SHB and the options that can appear in it.
+     * Register the SHB and the options that can appear in it.
      */
     wtap_opttype_block_register(WTAP_BLOCK_NG_SECTION, &shb_block);
     wtap_opttype_option_register(&shb_block, OPT_SHB_HARDWARE, &shb_hardware);
