@@ -4277,6 +4277,12 @@ oid_has_dissector(const char *oid) {
     return(dissector_get_string_handle(ber_oid_dissector_table, oid) != NULL);
 }
 
+static void
+ber_shutdown(void)
+{
+    g_hash_table_destroy(syntax_table);
+}
+
 void
 proto_register_ber(void)
 {
@@ -4569,12 +4575,13 @@ proto_register_ber(void)
 
     ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", proto_ber, FT_STRING, BASE_NONE);
     ber_syntax_dissector_table = register_dissector_table("ber.syntax", "BER syntax", proto_ber, FT_STRING, BASE_NONE);
-    syntax_table = g_hash_table_new(g_str_hash, g_str_equal); /* oid to syntax */
+    syntax_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free); /* oid to syntax */
 
     register_ber_syntax_dissector("ASN.1", proto_ber, dissect_ber_syntax);
 
     register_init_routine(ber_defragment_init);
     register_cleanup_routine(ber_defragment_cleanup);
+    register_shutdown_routine(ber_shutdown);
 
     register_decode_as(&ber_da);
 }
