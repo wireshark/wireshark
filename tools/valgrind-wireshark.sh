@@ -39,7 +39,7 @@ TOOL="memcheck"
 while getopts ":2a:b:C:lmnpP:rstTYwcevWdG" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
-        a) ADDITIONAL_SUPPRESSION_FILE="--suppressions=$OPTARG" ;;
+        a) ADDITIONAL_SUPPRESSION_FILE="$ADDITIONAL_SUPPRESSION_FILE --suppressions=$OPTARG" ;;
         b) WIRESHARK_BIN_DIR=$OPTARG ;;
         C) COMMAND_ARGS="-C $OPTARG $COMMAND_ARGS" ;;
         l) LEAK_CHECK="--leak-check=full" ;;
