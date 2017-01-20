@@ -1,5 +1,5 @@
 /* packet-dvb-s2-bb.c
- * Routines for DVB Dynamic Mode Adaption dissection
+ * Routines for DVB Dynamic Mode Adaptation dissection
  *  refer to
  *    http://satlabs.org/pdf/sl_561_Mode_Adaptation_Input_and_Output_Interfaces_for_DVB-S2_Equipment_v1.3.pdf
  *
@@ -7,6 +7,7 @@
  *  ETSI EN 302 307 - Digital Video Broadcasting (DVB) - Framing Structure
  *  ETSI TS 102 606 - Digital Video Broadcasting (DVB) - Generic Stream Encapsulation (GSE) Protocol
  *  ETSI TS 102 771 - Digital Video Broadcasting (DVB) - GSE implementation guidelines
+ *  SatLabs sl_561 - Mode Adaptation Interfaces for DVB-S2 equipment
  *
  * Copyright 2012, Tobias Rutz <tobias.rutz@work-microwave.de>
  *
@@ -39,9 +40,19 @@
 #define BIT_IS_SET(var, bit) ((var) & (1 << (bit)))
 #define BIT_IS_CLEAR(var, bit) !BIT_IS_SET(var, bit)
 
-#define DVB_S2_MODEADAPT_MINSIZE        (DVB_S2_MODEADAPT_OUTSIZE  + DVB_S2_BB_OFFS_CRC + 1)
-#define DVB_S2_MODEADAPT_INSIZE         2
-#define DVB_S2_MODEADAPT_OUTSIZE        4
+#define DVB_S2_MODEADAPT_MINSIZE        (DVB_S2_BB_OFFS_CRC + 1)
+
+/* Types of mode adaptation headers supported. */
+#define DVB_S2_MODEADAPT_TYPE_L1        1
+#define DVB_S2_MODEADAPT_TYPE_L2        2
+#define DVB_S2_MODEADAPT_TYPE_L3        3
+#define DVB_S2_MODEADAPT_TYPE_L4        4
+
+#define DVB_S2_MODEADAPT_L1SIZE         0
+#define DVB_S2_MODEADAPT_L2SIZE         2
+#define DVB_S2_MODEADAPT_L3SIZE         4
+#define DVB_S2_MODEADAPT_L4SIZE         3
+
 
 /* CRC table crc-8, poly=0xD5 */
 static guint8 crc8_table[256] = {
@@ -130,13 +141,14 @@ static gint ett_dvb_s2_gse = -1;
 static gint ett_dvb_s2_gse_hdr = -1;
 
 static expert_field ei_dvb_s2_bb_crc = EI_INIT;
+static expert_field ei_dvb_s2_bb_header_ambiguous = EI_INIT;
 static expert_field ei_dvb_s2_bb_issy_invalid = EI_INIT;
 static expert_field ei_dvb_s2_bb_npd_invalid = EI_INIT;
 static expert_field ei_dvb_s2_bb_upl_invalid = EI_INIT;
 static expert_field ei_dvb_s2_bb_reserved = EI_INIT;
 
 
-/* *** DVB-S2 Modeadaption Header *** */
+/* *** DVB-S2 Mode Adaptation Header *** */
 
 /* first byte */
 #define DVB_S2_MODEADAPT_OFFS_SYNCBYTE          0
@@ -864,12 +876,10 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
 
 static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int         cur_off = 0, dvb_s2_modeadapt_len = -1;
+    int         cur_off = 0, modeadapt_len, modeadapt_type, matched_headers = 0;
 
     proto_item *ti;
     proto_tree *dvb_s2_modeadapt_tree;
-
-    guint8      byte;
 
     static const int * modeadapt_acm_bitfields[] = {
         &hf_dvb_s2_modeadapt_acm_fecframe,
@@ -879,50 +889,97 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     };
 
     /* Check that there's enough data */
-    if (tvb_captured_length(tvb) < 1)
+    if (tvb_captured_length(tvb) < DVB_S2_MODEADAPT_MINSIZE)
         return 0;
 
-    /* Check if first byte is valid for this dissector */
-    byte = tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE);
-    cur_off++;
-    if (byte != DVB_S2_MODEADAPT_SYNCBYTE)
-        return 0;
+    /* There are four different mode adaptation formats, with different
+       length headers. Two of them have a sync byte at the beginning, but
+       the other two do not. In every case, the mode adaptation header is
+       followed by the baseband header, which is protected by a CRC-8.
+       The CRC-8 is weak protection, so it can match by accident, leading
+       to an ambiguity in identifying which format is in use. We will
+       check for ambiguity and report it. */
+    /* Try L.1 format: no header. */
+    if (test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L1SIZE)) {
+        matched_headers++;
+        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L1;
+        modeadapt_len = DVB_S2_MODEADAPT_L1SIZE;
+    }
 
-    /* Check if BB-Header CRC is valid and determine input or output */
+    /* Try L.2 format: header includes sync byte */
+    if ((tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
+        test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L2SIZE)) {
+        matched_headers++;
+        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L2;
+        modeadapt_len = DVB_S2_MODEADAPT_L2SIZE;
+    }
 
-    if (test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_INSIZE)) {
-        dvb_s2_modeadapt_len = 2;
-    } else if (test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_OUTSIZE)) {
-        dvb_s2_modeadapt_len = 4;
-    } else {
+    /* Try L.3 format: header includes sync byte */
+    if ((tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
+        test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L3SIZE)) {
+        matched_headers++;
+        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L3;
+        modeadapt_len = DVB_S2_MODEADAPT_L3SIZE;
+    }
+
+    /* Try L.4 format: header does not include sync byte */
+    if (test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L4SIZE)) {
+        matched_headers++;
+        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L4;
+        modeadapt_len = DVB_S2_MODEADAPT_L4SIZE;
+    }
+
+    if (matched_headers == 0) {
+        /* This does not look like a DVB-S2-BB frame at all. We are a
+           heuristic dissector, so we should just punt and let another
+           dissector have a try at this one. */
         return 0;
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DVB-S2 ");
     col_set_str(pinfo->cinfo, COL_INFO,     "DVB-S2 ");
 
-    /* create display subtree for the protocol */
-    ti = proto_tree_add_item(tree, proto_dvb_s2_modeadapt, tvb, 0, dvb_s2_modeadapt_len, ENC_NA);
-    dvb_s2_modeadapt_tree = proto_item_add_subtree(ti, ett_dvb_s2_modeadapt);
+    /* If there's a mode adaptation header, create display subtree for it */
+    if (modeadapt_len > 0) {
+        /* ti = proto_tree_add_item(tree, proto_dvb_s2_modeadapt, tvb, 0, modeadapt_len, ENC_NA); */
+        ti = proto_tree_add_protocol_format(tree, proto_dvb_s2_modeadapt, tvb, 0, modeadapt_len,
+            "DVB-S2 Mode Adaptation Header L.%d", modeadapt_type);
+        dvb_s2_modeadapt_tree = proto_item_add_subtree(ti, ett_dvb_s2_modeadapt);
 
-    proto_tree_add_item(dvb_s2_modeadapt_tree, hf_dvb_s2_modeadapt_sync, tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE, 1, ENC_BIG_ENDIAN);
+        if (matched_headers > 1) {
+            expert_add_info_format(pinfo, ti, &ei_dvb_s2_bb_header_ambiguous,
+                "Mode adaptation header format is ambiguous. Assuming L.%d", modeadapt_type);
+        }
 
-    cur_off++;
+        /* SYNC byte if used in this header format; value has already been checked */
+        if (modeadapt_type == DVB_S2_MODEADAPT_TYPE_L2 ||
+            modeadapt_type == DVB_S2_MODEADAPT_TYPE_L3) {
+            proto_tree_add_item(dvb_s2_modeadapt_tree, hf_dvb_s2_modeadapt_sync, tvb, cur_off, 1, ENC_BIG_ENDIAN);
+            cur_off++;
+        }
 
-    proto_tree_add_bitmask_with_flags(dvb_s2_modeadapt_tree, tvb, DVB_S2_MODEADAPT_OFFS_ACMBYTE, hf_dvb_s2_modeadapt_acm,
-        ett_dvb_s2_modeadapt_acm, modeadapt_acm_bitfields, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
+        /* ACM byte and subfields if used in this header format */
+        if (modeadapt_type == DVB_S2_MODEADAPT_TYPE_L2 ||
+            modeadapt_type == DVB_S2_MODEADAPT_TYPE_L3 ||
+            modeadapt_type == DVB_S2_MODEADAPT_TYPE_L4) {
+            proto_tree_add_bitmask_with_flags(dvb_s2_modeadapt_tree, tvb, DVB_S2_MODEADAPT_OFFS_ACMBYTE, hf_dvb_s2_modeadapt_acm,
+                ett_dvb_s2_modeadapt_acm, modeadapt_acm_bitfields, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
+            cur_off++;
+        }
 
-    if (dvb_s2_modeadapt_len > 2) {
-        cur_off++;
-        proto_tree_add_item(dvb_s2_modeadapt_tree, hf_dvb_s2_modeadapt_cni, tvb, DVB_S2_MODEADAPT_OFFS_CNI, 1, ENC_BIG_ENDIAN);
+        /* CNI and Frame No if used in this header format */
+        if (modeadapt_type == DVB_S2_MODEADAPT_TYPE_L3 ||
+            modeadapt_type == DVB_S2_MODEADAPT_TYPE_L4) {
+            proto_tree_add_item(dvb_s2_modeadapt_tree, hf_dvb_s2_modeadapt_cni, tvb, cur_off, 1, ENC_BIG_ENDIAN);
+            cur_off++;
 
-        cur_off++;
-        proto_tree_add_item(dvb_s2_modeadapt_tree, hf_dvb_s2_modeadapt_frameno, tvb, DVB_S2_MODEADAPT_OFFS_FNO, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(dvb_s2_modeadapt_tree, hf_dvb_s2_modeadapt_frameno, tvb, cur_off, 1, ENC_BIG_ENDIAN);
+            cur_off++;
+        }
     }
 
     /* start DVB-BB dissector */
     cur_off = dissect_dvb_s2_bb(tvb, cur_off, tree, pinfo);
-
 
     return cur_off;
 }
@@ -1155,11 +1212,12 @@ void proto_register_dvb_s2_modeadapt(void)
         { &ei_dvb_s2_bb_npd_invalid, {"dvb-s2_bb.npd_invalid", PI_PROTOCOL, PI_WARN, "NPD is active, which is not allowed for GSE packets", EXPFILL }},
         { &ei_dvb_s2_bb_upl_invalid, {"dvb-s2_bb.upl_invalid", PI_PROTOCOL, PI_WARN, "User Packet Length non-zero, which is not allowed for GSE packets", EXPFILL }},
         { &ei_dvb_s2_bb_reserved, {"dvb-s2_bb.reserved", PI_PROTOCOL, PI_WARN, "Reserved frame format in TS/GS is not defined", EXPFILL }},
+        { &ei_dvb_s2_bb_header_ambiguous, { "dvb-s2_bb.header_ambiguous", PI_ASSUMPTION, PI_WARN, "Mode Adaptation header ambiguous", EXPFILL }},
     };
 
     expert_module_t* expert_dvb_s2_bb;
 
-    proto_dvb_s2_modeadapt = proto_register_protocol("DVB-S2 Modeadaption Header", "DVB-S2", "dvb-s2_modeadapt");
+    proto_dvb_s2_modeadapt = proto_register_protocol("DVB-S2 Mode Adaptation Header", "DVB-S2", "dvb-s2_modeadapt");
 
     proto_dvb_s2_bb = proto_register_protocol("DVB-S2 Baseband Frame", "DVB-S2-BB", "dvb-s2_bb");
 
