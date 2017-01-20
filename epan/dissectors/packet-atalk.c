@@ -1609,6 +1609,12 @@ asp_reinit( void)
 
 }
 
+static void
+asp_shutdown(void)
+{
+  g_hash_table_destroy(asp_request_hash);
+}
+
 void
 proto_register_atalk(void)
 {
@@ -2038,6 +2044,8 @@ proto_register_atalk(void)
                                                  FT_UINT8, BASE_HEX);
 
   atalk_address_type = address_type_dissector_register("AT_ATALK", "Appletalk DDP", atalk_to_str, atalk_str_len, NULL, atalk_col_filter_str, atalk_len, NULL, NULL);
+
+  register_shutdown_routine(asp_shutdown);
 }
 
 void
