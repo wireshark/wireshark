@@ -455,4 +455,9 @@ WS_DLL_PUBLIC gboolean
 show_fragment_seq_tree(fragment_head *ipfd_head, const fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi);
 
+/* Cleanup internal structures
+ */
+extern void
+reassembly_table_cleanup(void);
+
 #endif

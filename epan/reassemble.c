@@ -41,6 +41,8 @@ typedef struct _fragment_addresses_key {
 	guint32 id;
 } fragment_addresses_key;
 
+GList* reassembly_table_list = NULL;
+
 static guint
 fragment_addresses_hash(gconstpointer k)
 {
@@ -463,6 +465,8 @@ reassembly_table_init(reassembly_table *table,
 		table->reassembled_table = g_hash_table_new_full(reassembled_hash,
 		    reassembled_equal, reassembled_key_free, NULL);
 	}
+
+	reassembly_table_list = g_list_append(reassembly_table_list, table);
 }
 
 /*
@@ -2784,6 +2788,19 @@ show_fragment_seq_tree(fragment_head *fd_head, const fragment_items *fit,
 	}
 
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);
+}
+
+void
+reassembly_table_free(gpointer p, gpointer user_data _U_)
+{
+	reassembly_table_destroy((reassembly_table*)p);
+}
+
+void
+reassembly_table_cleanup(void)
+{
+	g_list_foreach(reassembly_table_list, reassembly_table_free, NULL);
+	g_list_free(reassembly_table_list);
 }
 
 /*

@@ -62,6 +62,7 @@
 #include "decode_as.h"
 #include "dissector_filters.h"
 #include "conversation_table.h"
+#include "reassemble.h"
 
 #ifdef HAVE_LUA
 #include <lua.h>
@@ -213,6 +214,7 @@ epan_cleanup(void)
 	decode_clear_all();
 	conversation_table_cleanup();
 	conversation_filters_cleanup();
+	reassembly_table_cleanup();
 	packet_cleanup();
 	expert_cleanup();
 	capture_dissector_cleanup();
