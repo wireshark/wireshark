@@ -1295,7 +1295,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
   if (len < 0) {
     len = offset - start_offset;
   }
-  if (len < min_len) {
+  if ((len < min_len) || (len > min_len && *name_len == 0)) {
     THROW(ReportedBoundsError);
   }
   return len;
@@ -1793,13 +1793,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
                                 (data_offset - data_start) + data_len,
                                 ett_dns_rr, &trr, "%s: type %s, class %s",
                                 name_out, type_name, class_name);
-      add_rr_to_tree(rr_tree, tvb, offsetx, name, used_bytes - 4,
+      add_rr_to_tree(rr_tree, tvb, offsetx, name_out, used_bytes - 4,
                                dns_type, pinfo, is_mdns);
     } else  {
       rr_tree = proto_tree_add_subtree_format(dns_tree, tvb, offsetx,
                                 (data_offset - data_start) + data_len,
                                 ett_dns_rr, &trr, "%s: type %s", name_out, type_name);
-      add_opt_rr_to_tree(rr_tree, tvb, offsetx, name, used_bytes - 4, is_mdns);
+      add_opt_rr_to_tree(rr_tree, tvb, offsetx, name_out, used_bytes - 4, is_mdns);
     }
     if (is_mdns && flush) {
       proto_item_append_text(trr, ", cache flush");
