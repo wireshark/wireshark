@@ -111,6 +111,7 @@ UDLD
 There is no new or updated capture file support in this release.
 
 --sort-and-group--
+Daintree SNA
 DBS Etherwatch
 --sort-and-group--
 
