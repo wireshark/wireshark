@@ -59,6 +59,7 @@
 #include "stat_tap_ui.h"
 #include "follow.h"
 #include "disabled_protos.h"
+#include "decode_as.h"
 
 #ifdef HAVE_LUA
 #include <lua.h>
@@ -207,6 +208,7 @@ epan_cleanup(void)
 	dfilter_cleanup();
 	proto_cleanup();
 	prefs_cleanup();
+	decode_clear_all();
 	packet_cleanup();
 	expert_cleanup();
 	capture_dissector_cleanup();
