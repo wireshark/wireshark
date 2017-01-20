@@ -868,6 +868,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     wsApp->quit();
 }
 
+// XXX On windows the drag description is "Copy". It should be "Open" or
+// "Merge" as appropriate. It looks like we need access to IDataObject in
+// order to set DROPDESCRIPTION.
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
     bool accept = false;
@@ -882,14 +885,44 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 
 void MainWindow::dropEvent(QDropEvent *event)
 {
+    QList<QByteArray> local_files;
+
     foreach (QUrl drop_url, event->mimeData()->urls()) {
-        QString local_file = drop_url.toLocalFile();
-        if (!local_file.isEmpty()) {
-            event->acceptProposedAction();
-            openCaptureFile(local_file);
-            break;
+        QString drop_file = drop_url.toLocalFile();
+        if (!drop_file.isEmpty()) {
+            local_files << drop_file.toUtf8();
         }
     }
+
+    if (local_files.size() < 1) {
+        return;
+    }
+    event->acceptProposedAction();
+
+
+    if (local_files.size() == 1) {
+        openCaptureFile(local_files.at(0));
+        return;
+    }
+
+    char **in_filenames = (char **)g_malloc(sizeof(char*) * local_files.size());
+    char *tmpname = NULL;
+
+    for (int i = 0; i < local_files.size(); i++) {
+        in_filenames[i] = (char *) local_files.at(i).constData();
+    }
+
+    /* merge the files in chronological order */
+    if (cf_merge_files_to_tempfile(&tmpname, local_files.size(), in_filenames,
+                                   WTAP_FILE_TYPE_SUBTYPE_PCAPNG, FALSE) == CF_OK) {
+        /* Merge succeeded; close the currently-open file and try
+           to open the merged capture file. */
+        openCaptureFile(tmpname, QString(), WTAP_TYPE_AUTO, TRUE);
+    }
+
+    g_free(tmpname);
+    g_free(in_filenames);
+
 }
 
 // Apply recent settings to the main window geometry.

@@ -254,7 +254,7 @@ public slots:
      * @return True on success, false on failure.
      */
     // XXX We might want to return a cf_read_status_t or a CaptureFile.
-    bool openCaptureFile(QString cf_path, QString display_filter, unsigned int type);
+    bool openCaptureFile(QString cf_path, QString display_filter, unsigned int type, gboolean is_tempfile = FALSE);
     bool openCaptureFile(QString cf_path = QString(), QString display_filter = QString()) { return openCaptureFile(cf_path, display_filter, WTAP_TYPE_AUTO); }
     void filterPackets(QString new_filter = QString(), bool force = false);
     void updateForUnsavedChanges();

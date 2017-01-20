@@ -178,7 +178,7 @@
 
 static const char *dfe_property_ = "display filter expression"; //TODO : Fix Translate
 
-bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned int type)
+bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned int type, gboolean is_tempfile)
 {
     QString file_name = "";
     dfilter_t *rfcode = NULL;
@@ -232,7 +232,7 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
 
         /* Try to open the capture file. This closes the current file if it succeeds. */
         CaptureFile::globalCapFile()->window = this;
-        if (cf_open(CaptureFile::globalCapFile(), cf_path.toUtf8().constData(), type, FALSE, &err) != CF_OK) {
+        if (cf_open(CaptureFile::globalCapFile(), cf_path.toUtf8().constData(), type, is_tempfile, &err) != CF_OK) {
             /* We couldn't open it; don't dismiss the open dialog box,
                just leave it around so that the user can, after they
                dismiss the alert box popped up for the open error,
