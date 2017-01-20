@@ -12,10 +12,10 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2016-63[]
-+
-A dissector went awry.
-(ws-buglink:xxxx[])
+//* ws-salink:2016-63[]
+//+
+//A dissector went awry.
+//(ws-buglink:xxxx[])
 //cve-idlink:2015-XXXX[]
 // Fixed in master: xxxx
 // Fixed in master-2.2: xxxx
@@ -28,6 +28,26 @@ The following bugs have been fixed:
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.10rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Duplicated Interfaces instances while refreshing. (ws-buglink:11553[])
+
+* Time zone name needs to be converted to UTF-8 on Windows. (ws-buglink:11785[])
+
+* Crash on fast local interface changes. (ws-buglink:12263[])
+
+* SMTP BDAT dissector not reverting to command-code after DATA. (ws-buglink:13030[])
+
+* Wireshark fails to recognize V6 DBS Etherwatch capture files. (ws-buglink:13093[])
+
+* PPP BCP BPDU size reports not header size, but all data underneath and its header size in UI. (ws-buglink:13188[])
+
+* Uninitialized memcmp on data in daintree-sna.c. (ws-buglink:13246[])
+
+* UDLD flags are at other end of octet. (ws-buglink:13280[])
+
+* MS-WSP dissector no longer works since commit 8c2fa5b5cf789e6d0d19cd0dd34479d0203d177a. (ws-buglink:13299[])
+
+* TBCD string decoded wrongly in MAP ATI message. (ws-buglink:13316[])
 
 === New and Updated Features
 
@@ -46,13 +66,23 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+DVB-CI
+GSM MAP
+ISAKMP
+MS-WSP
+PPP
+QUIC
+SMTP
+UDLD
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 There is no new or updated capture file support in this release.
-//--sort-and-group--
-//--sort-and-group--
+--sort-and-group--
+Daintree SNA
+DBS Etherwatch
+--sort-and-group--
 
 === New and Updated Capture Interfaces support
 
