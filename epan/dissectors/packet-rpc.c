@@ -4072,6 +4072,12 @@ rpc_prog_stat_free_table_item(stat_tap_table* table _U_, guint row _U_, guint co
 	g_free((char*)field_data->value.string_value);
 }
 
+static void
+rpc_shutdown(void)
+{
+	g_hash_table_destroy(rpc_progs);
+}
+
 /* will be called once from register.c at startup time */
 void
 proto_register_rpc(void)
@@ -4420,6 +4426,8 @@ proto_register_rpc(void)
 			NULL, rpc_prog_free_val);
 
 	authgss_contexts=wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+	register_shutdown_routine(rpc_shutdown);
 }
 
 void
