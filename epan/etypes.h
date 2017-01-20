@@ -545,6 +545,10 @@ extern "C" {
 #define ETHERTYPE_VNTAG			0x8926	/* VN-Tag */
 #endif
 
+#ifndef ETHERTYPE_SEL_L2
+#define ETHERTYPE_SEL_L2		0x892B	/* Schweitzer Engineering Labs Layer 2 */
+#endif
+
 #ifndef ETHERTYPE_HSR
 #define ETHERTYPE_HSR			0x892F	/* High-availability Seamless Redundancy (IEC62439 Part 3) */
 #endif
