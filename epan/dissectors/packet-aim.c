@@ -3843,6 +3843,19 @@ static const aim_subtype aim_fnac_family_userlookup[] = {
 	{ 0, NULL, NULL }
 };
 
+static void
+family_free(gpointer p, gpointer user_data _U_)
+{
+	g_free(p);
+}
+
+static void
+aim_shutdown(void)
+{
+	g_list_foreach(families, family_free, NULL);
+	g_list_free(families);
+}
+
 void
 proto_register_aim(void)
 {
@@ -4540,6 +4553,8 @@ proto_register_aim(void)
 				       "Whether the AIM dissector should reassemble messages spanning multiple TCP segments."
 				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &aim_desegment);
+
+	register_shutdown_routine(aim_shutdown);
 }
 
 void
