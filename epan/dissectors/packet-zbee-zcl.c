@@ -1986,6 +1986,19 @@ void decode_zcl_time_in_minutes(gchar *s, guint16 value)
     return;
 } /*decode_zcl_time_in_minutes*/
 
+static void
+cluster_desc_free(gpointer p, gpointer user_data _U_)
+{
+    g_free(p);
+}
+
+static void
+zbee_shutdown(void)
+{
+    g_list_foreach(acluster_desc, cluster_desc_free, NULL);
+    g_list_free(acluster_desc);
+}
+
 /**
  *ZigBee ZCL protocol registration routine.
  *
@@ -2268,6 +2281,8 @@ void proto_register_zbee_zcl(void)
     /* Register the ZCL dissector and subdissector list. */
     zbee_zcl_dissector_table = register_dissector_table("zbee.zcl.cluster", "ZigBee ZCL Cluster ID", proto_zbee_zcl, FT_UINT16, BASE_HEX);
     register_dissector(ZBEE_PROTOABBREV_ZCL, dissect_zbee_zcl, proto_zbee_zcl);
+
+    register_shutdown_routine(zbee_shutdown);
 } /* proto_register_zbee_zcl */
 
 /**
