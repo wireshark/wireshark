@@ -46,6 +46,9 @@ WS_DLL_PUBLIC void register_conversation_filter(const char *proto_name, const ch
 
 WS_DLL_PUBLIC struct conversation_filter_s* find_conversation_filter(const char *proto_name);
 
+/* Cleanup internal structures */
+extern void conversation_filters_cleanup(void);
+
 /*** THE FOLLOWING SHOULD NOT BE USED BY ANY DISSECTORS!!! ***/
 
 typedef struct conversation_filter_s {

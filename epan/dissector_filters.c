@@ -62,6 +62,17 @@ struct conversation_filter_s* find_conversation_filter(const char *name)
     return NULL;
 }
 
+static void conversation_filter_free(gpointer p, gpointer user_data _U_)
+{
+    g_free(p);
+}
+
+void conversation_filters_cleanup(void)
+{
+    g_list_foreach(conv_filter_list, conversation_filter_free, NULL);
+    g_list_free(conv_filter_list);
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
