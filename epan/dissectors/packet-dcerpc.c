@@ -6488,6 +6488,21 @@ dcerpc_cleanup_protocol(void)
     g_hash_table_destroy(dcerpc_matched);
 }
 
+static void
+dcerpc_auth_subdissector_list_free(gpointer p, gpointer user_data _U_)
+{
+    g_free(p);
+}
+
+static void
+dcerpc_shutdown(void)
+{
+    g_slist_foreach(dcerpc_auth_subdissector_list, dcerpc_auth_subdissector_list_free, NULL);
+    g_slist_free(dcerpc_auth_subdissector_list);
+    g_hash_table_destroy(dcerpc_uuids);
+    tvb_free(tvb_trailer_signature);
+}
+
 void
 proto_register_dcerpc(void)
 {
@@ -6954,7 +6969,7 @@ proto_register_dcerpc(void)
                                    "Whether the DCE/RPC dissector should reassemble fragmented DCE/RPC PDUs",
                                    &dcerpc_reassemble);
     register_init_routine(dcerpc_reassemble_init);
-    dcerpc_uuids = g_hash_table_new(dcerpc_uuid_hash, dcerpc_uuid_equal);
+    dcerpc_uuids = g_hash_table_new_full(dcerpc_uuid_hash, dcerpc_uuid_equal, g_free, g_free);
     dcerpc_tap = register_tap("dcerpc");
 
     register_decode_as(&dcerpc_da);
@@ -6964,6 +6979,8 @@ proto_register_dcerpc(void)
     tvb_trailer_signature = tvb_new_real_data(TRAILER_SIGNATURE,
                                               sizeof(TRAILER_SIGNATURE),
                                               sizeof(TRAILER_SIGNATURE));
+
+    register_shutdown_routine(dcerpc_shutdown);
 }
 
 void
