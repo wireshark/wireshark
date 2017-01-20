@@ -127,6 +127,9 @@ static GHashTable *depend_dissector_lists = NULL;
  * the final cleanup. */
 static GSList *postseq_cleanup_routines;
 
+static GPtrArray* post_dissectors = NULL;
+static guint num_of_postdissectors = 0;
+
 static void
 destroy_depend_dissector_list(void *data)
 {
@@ -245,6 +248,8 @@ packet_cleanup(void)
 	g_hash_table_destroy(heuristic_short_names);
 	g_slist_foreach(shutdown_routines, &call_routine, NULL);
 	g_slist_free(shutdown_routines);
+	if (post_dissectors)
+		g_ptr_array_free(post_dissectors, TRUE);
 }
 
 /*
@@ -3231,9 +3236,6 @@ dissector_dump_dissector_tables(void)
 	g_list_foreach(list, dissector_dump_dissector_tables_display, NULL);
 	g_list_free(list);
 }
-
-static GPtrArray* post_dissectors = NULL;
-static guint num_of_postdissectors = 0;
 
 void
 register_postdissector(dissector_handle_t handle)
