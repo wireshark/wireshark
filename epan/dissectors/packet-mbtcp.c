@@ -141,8 +141,14 @@ static int hf_modbus_more_follows = -1;
 static int hf_modbus_next_object_id = -1;
 static int hf_modbus_object_str_value = -1;
 static int hf_modbus_object_value = -1;
-static int hf_modbus_reg16 = -1;
-static int hf_modbus_reg32 = -1;
+static int hf_modbus_regnum16 = -1;
+static int hf_modbus_regnum32 = -1;
+static int hf_modbus_regval_uint16 = -1;
+static int hf_modbus_regval_int16 = -1;
+static int hf_modbus_regval_uint32 = -1;
+static int hf_modbus_regval_int32 = -1;
+static int hf_modbus_regval_ieee_float = -1;
+static int hf_modbus_regval_modicon_float = -1;
 static int hf_mbrtu_unitid = -1;
 static int hf_mbrtu_crc16 = -1;
 static int hf_mbrtu_crc16_status = -1;
@@ -157,6 +163,7 @@ static gint ett_events_recv = -1;
 static gint ett_events_send = -1;
 static gint ett_device_id_objects = -1;
 static gint ett_device_id_object_items = -1;
+static gint ett_register = -1;
 
 static expert_field ei_mbrtu_crc16_incorrect = EI_INIT;
 static expert_field ei_modbus_data_decode = EI_INIT;
@@ -845,6 +852,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
     guint32 data32, modflt_comb;
     gfloat data_float, modfloat;
     proto_item    *register_item = NULL;
+    proto_tree    *register_tree = NULL;
     tvbuff_t *next_tvb;
 
     reported_len = tvb_reported_length_remaining(tvb, payload_start);
@@ -887,41 +895,61 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                 switch (register_format) {
                     case MODBUS_PREF_REGISTER_FORMAT_UINT16: /* Standard-size unsigned integer 16-bit register */
                         data16 = tvb_get_ntohs(next_tvb, data_offset);
-                        proto_tree_add_uint_format(tree, hf_modbus_reg16, next_tvb, data_offset, 2, reg_num,
-                                                    "Register %u (UINT16): %u", reg_num, data16);
+                        register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 2,
+                            ett_register, NULL, "Register %u (UINT16): %u", reg_num, data16);
+
+                        proto_tree_add_uint(register_tree, hf_modbus_regnum16, next_tvb, data_offset, 2, reg_num);
+                        proto_tree_add_uint(register_tree, hf_modbus_regval_uint16, next_tvb, data_offset, 2, data16);
+
                         data_offset += 2;
                         reg_num += 1;
                         break;
                     case MODBUS_PREF_REGISTER_FORMAT_INT16: /* Standard-size signed integer 16-bit register */
                         data16s = tvb_get_ntohs(next_tvb, data_offset);
-                        proto_tree_add_uint_format(tree, hf_modbus_reg16, next_tvb, data_offset, 2, reg_num,
-                                                    "Register %u (INT16): %d", reg_num, data16s);
+                        register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 2,
+                            ett_register, NULL, "Register %u (INT16): %d", reg_num, data16s);
+
+                        proto_tree_add_uint(register_tree, hf_modbus_regnum16, next_tvb, data_offset, 2, reg_num);
+                        proto_tree_add_int(register_tree, hf_modbus_regval_int16, next_tvb, data_offset, 2, data16s);
+
                         data_offset += 2;
                         reg_num += 1;
                         break;
-                    case MODBUS_PREF_REGISTER_FORMAT_UINT32: /* Double-size unsigned integer 2 x 16-bit registers */
+                    case MODBUS_PREF_REGISTER_FORMAT_UINT32: /* Double-size 32-bit unsigned integer (2 sequential 16-bit registers) */
                         data32 = tvb_get_ntohl(next_tvb, data_offset);
-                        proto_tree_add_uint_format(tree, hf_modbus_reg32, next_tvb, data_offset, 4, reg_num,
-                                                    "Register %u (UINT32): %u", reg_num, data32);
+                        register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 4,
+                            ett_register, NULL, "Register %u (UINT32): %u", reg_num, data32);
+
+                        proto_tree_add_uint(register_tree, hf_modbus_regnum32, next_tvb, data_offset, 4, reg_num);
+                        proto_tree_add_uint(register_tree, hf_modbus_regval_uint32, next_tvb, data_offset, 4, data32);
+
                         data_offset += 4;
                         reg_num += 2;
                         break;
-                    case MODBUS_PREF_REGISTER_FORMAT_INT32: /* Double-size signed integer 2 x 16-bit registers */
+                    case MODBUS_PREF_REGISTER_FORMAT_INT32: /* Double-size 32-bit signed integer (2 sequential 16-bit registers) */
                         data32s = tvb_get_ntohl(next_tvb, data_offset);
-                        proto_tree_add_uint_format(tree, hf_modbus_reg32, next_tvb, data_offset, 4, reg_num,
-                                                    "Register %u (INT32): %d", reg_num, data32s);
+                        register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 4,
+                            ett_register, NULL, "Register %u (INT32): %d", reg_num, data32s);
+
+                        proto_tree_add_uint(register_tree, hf_modbus_regnum32, next_tvb, data_offset, 4, reg_num);
+                        proto_tree_add_int(register_tree, hf_modbus_regval_int32, next_tvb, data_offset, 4, data32s);
+
                         data_offset += 4;
                         reg_num += 2;
                         break;
-                    case MODBUS_PREF_REGISTER_FORMAT_IEEE_FLOAT: /* IEEE Floating Point, 2 x 16-bit registers */
+                    case MODBUS_PREF_REGISTER_FORMAT_IEEE_FLOAT: /* 32-bit IEEE Floating Point, (2 sequential 16-bit registers) */
                         data_float = tvb_get_ntohieee_float(next_tvb, data_offset);
 
-                        proto_tree_add_uint_format(tree, hf_modbus_reg32, next_tvb, data_offset, 4, reg_num,
-                                                    "Register %u (IEEE Float): %f", reg_num, data_float);
+                        register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 4,
+                            ett_register, NULL, "Register %u (IEEE Float): %f", reg_num, data_float);
+
+                        proto_tree_add_uint(register_tree, hf_modbus_regnum32, next_tvb, data_offset, 4, reg_num);
+                        proto_tree_add_float(register_tree, hf_modbus_regval_ieee_float, next_tvb, data_offset, 4, data_float);
+
                         data_offset += 4;
                         reg_num += 2;
                         break;
-                    case MODBUS_PREF_REGISTER_FORMAT_MODICON_FLOAT: /* Modicon Floating Point (word-swap), 2 x 16-bit registers */
+                    case MODBUS_PREF_REGISTER_FORMAT_MODICON_FLOAT: /* Modicon Floating Point (word-swapped, 2 sequential 16-bit registers) */
                         /* Modicon-style Floating Point values are stored in reverse-word order.                     */
                         /* ie: a standard IEEE float value 59.991459 is equal to 0x426ff741                          */
                         /*     while the Modicon equivalent to this value is 0xf741426f                              */
@@ -936,8 +964,12 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                         modflt_comb = (guint32)(modflt_hi<<16) | modflt_lo;
                         memcpy(&modfloat, &modflt_comb, 4);
 
-                        proto_tree_add_uint_format(tree, hf_modbus_reg32, next_tvb, data_offset, 4, reg_num,
-                                                    "Register %u (Modicon Float): %f", reg_num, modfloat);
+                        register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 4,
+                            ett_register, NULL, "Register %u (Modicon Float): %f", reg_num, modfloat);
+
+                        proto_tree_add_uint(register_tree, hf_modbus_regnum32, next_tvb, data_offset, 4, reg_num);
+                        proto_tree_add_float(register_tree, hf_modbus_regval_modicon_float, next_tvb, data_offset, 4, modfloat);
+
                         data_offset += 4;
                         reg_num += 2;
                         break;
@@ -1945,17 +1977,47 @@ proto_register_modbus(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_modbus_reg16,
-            { "Register Value (16-bit)", "modbus.reg16",
+        { &hf_modbus_regnum16,
+            { "Register Number", "modbus.regnum16",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_modbus_reg32,
-            { "Register Value (32-bit)", "modbus.reg32",
+        { &hf_modbus_regnum32,
+            { "Register Number", "modbus.regnum32",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-    };
+        { &hf_modbus_regval_uint16,
+            { "Register Value (UINT16)", "modbus.regval_uint16",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_modbus_regval_int16,
+            { "Register Value (INT16)", "modbus.regval_int16",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_modbus_regval_uint32,
+            { "Register Value (UINT32)", "modbus.regval_uint32",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_modbus_regval_int32,
+            { "Register Value (INT32)", "modbus.regval_int32",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_modbus_regval_ieee_float,
+            { "Register Value (IEEE Float)", "modbus.regval_float",
+            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_modbus_regval_modicon_float,
+            { "Register Value (Modicon Float)", "modbus.regval_float",
+            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
@@ -1967,7 +2029,8 @@ proto_register_modbus(void)
         &ett_events_recv,
         &ett_events_send,
         &ett_device_id_objects,
-        &ett_device_id_object_items
+        &ett_device_id_object_items,
+        &ett_register
     };
 
     static ei_register_info ei[] = {
