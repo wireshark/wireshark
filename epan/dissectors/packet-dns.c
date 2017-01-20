@@ -1244,6 +1244,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
 
           default:
             *name="<Unknown extended label>";
+            *name_len = (guint)strlen(*name);
             /* Parsing will probably fail from here on, since the */
             /* label length is unknown... */
             len = offset - start_offset;
@@ -1276,6 +1277,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
            looping. */
         if (chars_processed >= data_size) {
           *name="<Name contains a pointer that loops>";
+          *name_len = (guint)strlen(*name);
           if (len < min_len) {
             THROW(ReportedBoundsError);
           }
