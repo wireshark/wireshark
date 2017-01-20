@@ -131,22 +131,6 @@ tcp_seq_after(guint32 s1, guint32 s2) {
     return (s1 != s2) && !tcp_seq_before(s1, s2);
 }
 
-static inline int
-tcp_seq_before(guint32 s1, guint32 s2) {
-    return (gint32)(s1 - s2) < 0;
-}
-
-static inline int
-tcp_seq_eq_or_after(guint32 s1, guint32 s2) {
-    return !tcp_seq_before(s1, s2);
-}
-
-static inline int
-tcp_seq_after(guint32 s1, guint32 s2) {
-    return (s1 != s2) && !tcp_seq_before(s1, s2);
-}
-
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
