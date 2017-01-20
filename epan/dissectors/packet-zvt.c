@@ -1015,6 +1015,13 @@ dissect_zvt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     return zvt_len;
 }
 
+static void
+zvt_shutdown(void)
+{
+    g_hash_table_destroy(tlv_table);
+    g_hash_table_destroy(apdu_table);
+    g_hash_table_destroy(bitmap_table);
+}
 
 void
 proto_register_zvt(void)
@@ -1144,6 +1151,8 @@ proto_register_zvt(void)
 
     /* register by name to allow mapping to a user DLT */
     register_dissector("zvt", dissect_zvt, proto_zvt);
+
+    register_shutdown_routine(zvt_shutdown);
 }
 
 
