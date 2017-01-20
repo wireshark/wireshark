@@ -418,6 +418,11 @@ dissect_corosynec_totemnet(tvbuff_t *tvb,
   return call_dissector(corosync_totemsrp_handle, tvb, pinfo, parent_tree);
 }
 
+static void
+corosync_totemnet_shutdown(void)
+{
+  g_strfreev(corosync_totemnet_private_keys_list);
+}
 
 void
 proto_register_corosync_totemnet(void)
@@ -457,6 +462,8 @@ proto_register_corosync_totemnet(void)
   prefs_register_string_preference(corosync_totemnet_module, "private_keys", "Private keys",
                                    "Semicolon-separated  list of keys for decryption(e.g. key1;key2;..." ,
                                    (const gchar **)&corosync_totemnet_private_keys);
+
+  register_shutdown_routine(corosync_totemnet_shutdown);
 }
 
 void
