@@ -2582,6 +2582,12 @@ dissect_6lowpan_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_data_dissector(data_tvb, pinfo, proto_tree_get_root(tree));
 } /* dissect_6lowpan_unknown */
 
+static void
+proto_shutdown_6lowpan(void)
+{
+    g_hash_table_destroy(lowpan_context_table);
+}
+
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      proto_register_6lowpan
@@ -2880,6 +2886,7 @@ proto_register_6lowpan(void)
     /* Register the dissector init function */
     register_init_routine(proto_init_6lowpan);
     register_cleanup_routine(proto_cleanup_6lowpan);
+    register_shutdown_routine(proto_shutdown_6lowpan);
 
     /* Initialize the context preferences. */
     memset((gchar*)lowpan_context_prefs, 0, sizeof(lowpan_context_prefs));
