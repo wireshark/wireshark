@@ -60,6 +60,7 @@ public slots:
 protected:
     void showEvent(QShowEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
 
 private:
@@ -75,6 +76,7 @@ private:
     QString stream_desc_;
     QCPGraph *base_graph_; // Clickable packets
     QCPGraph *tput_graph_;
+    QCPGraph *goodput_graph_;
     QCPGraph *seg_graph_;
     QCPGraph *ack_graph_;
     QCPGraph *sack_graph_;
@@ -148,6 +150,11 @@ private slots:
     void on_otherDirectionButton_clicked();
     void on_dragRadioButton_toggled(bool checked);
     void on_zoomRadioButton_toggled(bool checked);
+    void on_showSegLengthCheckBox_stateChanged(int state);
+    void on_showThroughputCheckBox_stateChanged(int state);
+    void on_showGoodputCheckBox_stateChanged(int state);
+    void on_showRcvWinCheckBox_stateChanged(int state);
+    void on_showBytesOutCheckBox_stateChanged(int state);
     void on_actionZoomIn_triggered();
     void on_actionZoomInX_triggered();
     void on_actionZoomInY_triggered();

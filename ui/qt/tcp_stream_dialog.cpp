@@ -22,6 +22,10 @@
 #include "tcp_stream_dialog.h"
 #include <ui_tcp_stream_dialog.h>
 
+#include <algorithm> // for std::sort
+#include <utility> // for std::pair
+#include <vector>
+
 #include "epan/to_str.h"
 
 #include "wsutil/str_util.h"
@@ -74,7 +78,7 @@ const double pkt_point_size_ = 3.0;
 // in zoom mode.
 const int min_zoom_pixels_ = 20;
 
-const QString average_throughput_label_ = QObject::tr("Average Througput (bits/s)");
+const QString average_throughput_label_ = QObject::tr("Average Throughput (bits/s)");
 const QString round_trip_time_ms_label_ = QObject::tr("Round Trip Time (ms)");
 const QString segment_length_label_ = QObject::tr("Segment Length (B)");
 const QString sequence_number_label_ = QObject::tr("Sequence Number (B)");
@@ -92,6 +96,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     title_(NULL),
     base_graph_(NULL),
     tput_graph_(NULL),
+    goodput_graph_(NULL),
     seg_graph_(NULL),
     ack_graph_(NULL),
     rwin_graph_(NULL),
@@ -202,6 +207,24 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ui->maWindowSizeSpinBox->blockSignals(false);
 #endif
 
+    // set which Throughput graphs are displayed by default
+    ui->showSegLengthCheckBox->blockSignals(true);
+    ui->showSegLengthCheckBox->setChecked(true);
+    ui->showSegLengthCheckBox->blockSignals(false);
+
+    ui->showThroughputCheckBox->blockSignals(true);
+    ui->showThroughputCheckBox->setChecked(true);
+    ui->showThroughputCheckBox->blockSignals(false);
+
+    // set which WScale graphs are displayed by default
+    ui->showRcvWinCheckBox->blockSignals(true);
+    ui->showRcvWinCheckBox->setChecked(true);
+    ui->showRcvWinCheckBox->blockSignals(false);
+
+    ui->showBytesOutCheckBox->blockSignals(true);
+    ui->showBytesOutCheckBox->setChecked(true);
+    ui->showBytesOutCheckBox->blockSignals(false);
+
     QCustomPlot *sp = ui->streamPlot;
     QCPPlotTitle *file_title = new QCPPlotTitle(sp, cf_get_display_name(cap_file_));
     file_title->setFont(sp->xAxis->labelFont());
@@ -214,10 +237,14 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     // Base Graph - enables selecting segments (both data and SACKs)
     base_graph_ = sp->addGraph();
     base_graph_->setPen(QPen(QBrush(graph_color_1), 0.25));
-    // Throughput Graph
+    // Throughput Graph - rate of sent bytes
     tput_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2);
     tput_graph_->setPen(QPen(QBrush(graph_color_2), 0.5));
     tput_graph_->setLineStyle(QCPGraph::lsStepLeft);
+    // Goodput Graph - rate of ACKed bytes
+    goodput_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2);
+    goodput_graph_->setPen(QPen(QBrush(graph_color_3), 0.5));
+    goodput_graph_->setLineStyle(QCPGraph::lsStepLeft);
     // Seg Graph - displays forward data segments on tcptrace graph
     seg_graph_ = sp->addGraph();
     seg_graph_->setErrorType(QCPGraph::etValue);
@@ -416,6 +443,14 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
     QDialog::keyPressEvent(event);
 }
 
+void TCPStreamDialog::mousePressEvent(QMouseEvent *event)
+{
+    // if no-one else wants the event, then this is a click on blank space.
+    //   Use this opportunity to set focus back to default, and accept event.
+    ui->streamPlot->setFocus();
+    event->accept();
+}
+
 void TCPStreamDialog::mouseReleaseEvent(QMouseEvent *event)
 {
     mouseReleased(event);
@@ -460,7 +495,9 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
 
     sp->xAxis->setLabel(time_s_label_);
     sp->xAxis->setNumberFormat("gb");
-    sp->xAxis->setNumberPrecision(6);
+    // Use enough precision to mark microseconds
+    //    when zooming in on a <100s capture
+    sp->xAxis->setNumberPrecision(8);
     sp->yAxis->setNumberFormat("f");
     sp->yAxis->setNumberPrecision(0);
     sp->yAxis2->setVisible(false);
@@ -548,7 +585,9 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
         resetAxes();
     else
         sp->replot();
-    tracer_->setGraph(base_graph_);
+    // Throughput and Window Scale graphs can hide base_graph_
+    if (base_graph_ && base_graph_->visible())
+        tracer_->setGraph(base_graph_);
 
     // XXX QCustomPlot doesn't seem to draw any sort of focus indicator.
     if (set_focus)
@@ -557,23 +596,37 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
 
 void TCPStreamDialog::showWidgetsForGraphType()
 {
-#ifdef MA_1_SECOND
     if (graph_.type == GRAPH_THROUGHPUT) {
+#ifdef MA_1_SECOND
         ui->maWindowSizeLabel->setVisible(true);
         ui->maWindowSizeSpinBox->setVisible(true);
+#else
+        ui->maWindowSizeLabel->setVisible(false);
+        ui->maWindowSizeSpinBox->setVisible(false);
+#endif
+        ui->showSegLengthCheckBox->setVisible(true);
+        ui->showThroughputCheckBox->setVisible(true);
+        ui->showGoodputCheckBox->setVisible(true);
     } else {
         ui->maWindowSizeLabel->setVisible(false);
         ui->maWindowSizeSpinBox->setVisible(false);
+        ui->showSegLengthCheckBox->setVisible(false);
+        ui->showThroughputCheckBox->setVisible(false);
+        ui->showGoodputCheckBox->setVisible(false);
     }
-#else
-    ui->maWindowSizeLabel->setVisible(false);
-    ui->maWindowSizeSpinBox->setVisible(false);
-#endif
 
     if (graph_.type == GRAPH_TSEQ_TCPTRACE) {
         ui->selectSACKsCheckBox->setVisible(true);
     } else {
         ui->selectSACKsCheckBox->setVisible(false);
+    }
+
+    if (graph_.type == GRAPH_WSCALE) {
+        ui->showRcvWinCheckBox->setVisible(true);
+        ui->showBytesOutCheckBox->setVisible(true);
+    } else {
+        ui->showRcvWinCheckBox->setVisible(false);
+        ui->showBytesOutCheckBox->setVisible(false);
     }
 }
 
@@ -646,7 +699,7 @@ void TCPStreamDialog::resetAxes()
     double pixel_pad = 10.0; // per side
 
     sp->rescaleAxes(true);
-    tput_graph_->rescaleValueAxis(false, true);
+//    tput_graph_->rescaleValueAxis(false, true);
 //    base_graph_->rescaleAxes(false, true);
 //    for (int i = 0; i < sp->graphCount(); i++) {
 //        sp->graph(i)->rescaleValueAxis(false, true);
@@ -775,6 +828,261 @@ void TCPStreamDialog::fillTcptrace()
     rwin_graph_->setData(ackrwin_time, rwin);
 }
 
+// If the current implementation of incorporating SACKs in goodput calc
+//   is slow, comment out the following line to ignore SACKs in goodput calc.
+#define USE_SACKS_IN_GOODPUT_CALC
+
+#ifdef USE_SACKS_IN_GOODPUT_CALC
+// to incorporate SACKED segments into goodput calculation,
+//   need to keep track of all the SACK blocks we haven't yet
+//   fully ACKed.
+// I expect this to be _relatively_ small, so using vector to store
+//   them.  If this performs badly, it can be refactored with std::list
+//   or std::map.
+typedef std::pair<guint32, guint32> sack_t;
+typedef std::vector<sack_t> sack_list_t;
+static inline bool compare_sack(const sack_t& s1, const sack_t& s2) {
+    return tcp_seq_before(s1.first, s2.first);
+}
+
+// Helper function to adjust an acked seglen for goodput:
+//   - removes previously sacked ranges from seglen (and from old_sacks),
+//   - adds newly sacked ranges to seglen (and to old_sacks)
+static void
+goodput_adjust_for_sacks(guint32 *seglen, guint32 last_ack,
+                         sack_list_t& new_sacks, guint8 num_sack_ranges,
+                         sack_list_t& old_sacks) {
+
+    // Step 1 - For any old_sacks acked by last_ack,
+    //   delete their acked length from seglen,
+    //   and remove the sack block (or portion)
+    //   from (sorted) old_sacks.
+    sack_list_t::iterator unacked = old_sacks.begin();
+    while (unacked != old_sacks.end()) {
+        // break on first sack not fully acked
+        if (tcp_seq_before(last_ack, unacked->second)) {
+            if (tcp_seq_after(last_ack, unacked->first)) {
+                // partially acked - modify to remove acked part
+                *seglen -= (last_ack - unacked->first);
+                unacked->first = last_ack;
+            }
+            break;
+        }
+        // remove fully acked sacks from seglen and move on
+        //   (we'll actually remove from the list when loop is done)
+        *seglen -= (unacked->second - unacked->first);
+        ++unacked;
+    }
+    // actually remove all fully acked sacks from old_sacks list
+    if (unacked != old_sacks.begin())
+        old_sacks.erase(old_sacks.begin(), unacked);
+
+    // Step 2 - for any new_sacks that precede last_ack,
+    //   ignore them. (These would generally be SACKed dup-acks of
+    //   a retransmitted seg).
+    //   [ in the unlikely case that any new SACK straddles last_ack,
+    //       the sack block will be modified to remove the acked portion ]
+    int next_new_idx = 0;
+    while (next_new_idx < num_sack_ranges) {
+        if (tcp_seq_before(last_ack, new_sacks[next_new_idx].second)) {
+            // if a new SACK block is unacked by its own packet, then it's
+            //   likely fully unacked, but let's check for partial ack anyway,
+            //   and truncate the SACK so that it's fully unacked:
+            if (tcp_seq_before(new_sacks[next_new_idx].first, last_ack))
+                new_sacks[next_new_idx].first = last_ack;
+            break;
+        }
+        ++next_new_idx;
+    }
+
+    // Step 3 - for any byte ranges in remaining new_sacks
+    //   that don't already exist in old_sacks, add
+    //   their length to seglen
+    //   and add that range (by extension, if possible) to
+    //   the list of old_sacks.
+
+    sack_list_t::iterator next_old = old_sacks.begin();
+
+    while (next_new_idx < num_sack_ranges &&
+           next_old != old_sacks.end()) {
+        sack_t* next_new = &new_sacks[next_new_idx];
+
+        // Assumptions / Invariants:
+        //  - new and old lists are sorted
+        //  - span of leftmost to rightmost endpt. is less than half uint32 range
+        //      [ensures transitivity - e.g. before(a,b) and before(b,c) ==> before(a,c)]
+        //  - all SACKs are non-empty (sack.left before sack.right)
+        //  - adjacent SACKs in list always have a gap between them
+        //      (sack.right before next_sack.left)
+
+        // Given these assumptions, and noting that there are only three
+        //   possible comparisons for a pair of points (before/equal/after),
+        //   there are only a few possible relative configurations
+        //   of next_old and next_new:
+        // next_new:
+        //                         [-------------)
+        // next_old:
+        //  1.             [---)
+        //  2.             [-------)
+        //  3.             [----------------)
+        //  4.             [---------------------)
+        //  5.             [----------------------------)
+        //  6.                     [--------)
+        //  7.                     [-------------)
+        //  8.                     [--------------------)
+        //  9.                          [---)
+        // 10.                          [--------)
+        // 11.                          [---------------)
+        // 12.                                   [------)
+        // 13.                                       [--)
+
+        // Case 1: end of next_old is before beginning of next_new
+        // next_new:
+        //                         [-------------) ... <end>
+        // next_old:
+        //  1.             [---) ... <end>
+        if (tcp_seq_before(next_old->second, next_new->first)) {
+            // Actions:
+            //   advance to the next sack in old_sacks
+            ++next_old;
+            //   retry from the top
+            continue;
+        }
+
+        // Case 13: end of next_new is before beginning of next_old
+        // next_new:
+        //                         [-------------)   ... <end>
+        // next_old:
+        // 13.                                       [--) ... <end>
+        if (tcp_seq_before(next_new->second, next_old->first)) {
+            // Actions:
+            //   add then entire length of next_new into seglen
+            *seglen += (next_new->second - next_new->first);
+            //   insert next_new before next_old in old_sacks
+            // (be sure to save and restore next_old iterator around insert!)
+            int next_old_idx = next_old - old_sacks.begin();
+            old_sacks.insert(next_old, *next_new);
+            next_old = old_sacks.begin() + next_old_idx + 1;
+            //   advance to the next remaining sack in new_sacks
+            ++next_new_idx;
+            //   retry from the top
+            continue;
+        }
+
+        // Remaining possible configurations:
+        // next_new:
+        //                         [-------------)
+        // next_old:
+        //  2.             [-------)
+        //  3.             [----------------)
+        //  4.             [---------------------)
+        //  5.             [----------------------------)
+        //  6.                     [--------)
+        //  7.                     [-------------)
+        //  8.                     [--------------------)
+        //  9.                          [---)
+        // 10.                          [--------)
+        // 11.                          [---------------)
+        // 12.                                   [------)
+
+        // Cases 2,3,6,9: end of next_old is before end of next_new
+        // next_new:
+        //                         [-------------)
+        // next_old:
+        //  2.             [-------)
+        //  3.             [----------------)
+        //  6.                     [--------)
+        //  9.                          [---)
+        // Actions:
+        //   until end of next_old is equal or after end of next_new,
+        //     repeatedly extend next_old, coalescing with next_next_old
+        //     if necessary.  (and add extended bytes to seglen)
+        while (tcp_seq_before(next_old->second, next_new->second)) {
+            // if end of next_new doesn't collide with start of next_next_old,
+            if (((next_old+1) == old_sacks.end()) ||
+                tcp_seq_before(next_new->second, (next_old + 1)->first)) {
+                // extend end of next_old up to end of next_new,
+                // adding extended bytes to seglen
+                *seglen += (next_new->second - next_old->second);
+                next_old->second = next_new->second;
+            }
+            // otherwise, coalesce next_old with next_next_old
+            else {
+                // add bytes to close gap between sacks to seglen
+                *seglen += ((next_old + 1)->first - next_old->second);
+                // coalesce next_next_old into next_old
+                next_old->second = (next_old + 1)->second;
+                old_sacks.erase(next_old + 1);
+            }
+        }
+        // This operation turns:
+        //   Cases 2 and 3 into Case 4 or 5
+        //   Case 6 into Case 7
+        //   Case 9 into Case 10
+        // Leaving:
+
+        // Remaining possible configurations:
+        // next_new:
+        //                         [-------------)
+        // next_old:
+        //  4.             [---------------------)
+        //  5.             [----------------------------)
+        //  7.                     [-------------)
+        //  8.                     [--------------------)
+        // 10.                          [--------)
+        // 11.                          [---------------)
+        // 12.                                   [------)
+
+        // Cases 10,11,12: start of next_new is before start of next_old
+        // next_new:
+        //                         [-------------)
+        // next_old:
+        // 10.                          [--------)
+        // 11.                          [---------------)
+        // 12.                                   [------)
+        if (tcp_seq_before(next_new->first, next_old->first)) {
+            // Actions:
+            //   add the unaccounted bytes in next_new to seglen
+            *seglen += (next_old->first - next_new->first);
+            //   then pull the start of next_old back to the start of next_new
+            next_old->first = next_new->first;
+        }
+        // This operation turns:
+        //   Case 10 into Case 7
+        //   Cases 11 and 12 into Case 8
+        // Leaving:
+
+        // Remaining possible configurations:
+        // next_new:
+        //                         [-------------)
+        // next_old:
+        //  4.             [---------------------)
+        //  5.             [----------------------------)
+        //  7.                     [-------------)
+        //  8.                     [--------------------)
+
+        // In these cases, the bytes in next_new are fully accounted
+        //   by the bytes in next_old, so we can move on to look at
+        //   the next sack block in new_sacks
+        ++next_new_idx;
+    }
+    // Conditions for leaving loop:
+    //   - we processed all remaining new_sacks - nothing left to do
+    //     (next_new_idx == num_sack_ranges)
+    //  OR
+    //   - all remaining new_sacks start at least one byte after
+    //       the rightmost edge of the last old_sack
+    //     (meaning we can just add the remaining new_sacks to old_sacks list,
+    //      and add them directly to the goodput seglen)
+    while (next_new_idx < num_sack_ranges) {
+        sack_t* next_new = &new_sacks[next_new_idx];
+        *seglen += (next_new->second - next_new->first);
+        old_sacks.push_back(*next_new);
+        ++next_new_idx;
+    }
+}
+#endif // USE_SACKS_IN_GOODPUT_CALC
+
 void TCPStreamDialog::fillThroughput()
 {
     QString dlg_title = QString(tr("Throughput")) + streamDescription();
@@ -793,7 +1101,9 @@ void TCPStreamDialog::fillThroughput()
     sp->yAxis2->setTickLabelColor(QColor(graph_color_2));
     sp->yAxis2->setVisible(true);
 
-    tput_graph_->setVisible(true);
+    base_graph_->setVisible(ui->showSegLengthCheckBox->isChecked());
+    tput_graph_->setVisible(ui->showThroughputCheckBox->isChecked());
+    goodput_graph_->setVisible(ui->showGoodputCheckBox->isChecked());
 
 #ifdef MA_1_SECOND
     if (!graph_.segments) {
@@ -804,9 +1114,38 @@ void TCPStreamDialog::fillThroughput()
         return;
     }
 
-    QVector<double> rel_time, seg_len, tput_time, tput;
-    int oldest = 0;
-    guint64 sum = 0;
+    QVector<double> seg_rel_times, ack_rel_times;
+    QVector<double> seg_lens, ack_lens;
+    QVector<double> tput_times, gput_times;
+    QVector<double> tputs, gputs;
+    int oldest_seg = 0, oldest_ack = 0;
+    guint64 seg_sum = 0, ack_sum = 0;
+    guint32 seglen = 0;
+
+#ifdef USE_SACKS_IN_GOODPUT_CALC
+    // to incorporate SACKED segments into goodput calculation,
+    //   need to keep track of all the SACK blocks we haven't yet
+    //   fully ACKed.
+    sack_list_t old_sacks, new_sacks;
+    new_sacks.reserve(MAX_TCP_SACK_RANGES);
+    // statically allocate current_sacks vector
+    //   [ std::array might be better, but that is C++11 ]
+    for (int i = 0; i < MAX_TCP_SACK_RANGES; ++i) {
+        new_sacks.push_back(sack_t(0,0));
+    }
+    old_sacks.reserve(2*MAX_TCP_SACK_RANGES);
+#endif // USE_SACKS_IN_GOODPUT_CALC
+
+    // need first acked sequence number to jump-start
+    //    computation of acked bytes per packet
+    guint32 last_ack = 0;
+    for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
+        // first reverse packet with ACK flag tells us first acked sequence #
+        if (!compareHeaders(seg) && (seg->th_flags & TH_ACK)) {
+            last_ack = seg->th_ack;
+            break;
+        }
+    }
     // Financial charts don't show MA data until a full period has elapsed.
     //  [ NOTE - this is because they assume that there's old data that they
     //      don't have access to - but in our case we know that there's NO
@@ -822,57 +1161,95 @@ void TCPStreamDialog::fillThroughput()
 #else
     for (struct segment *seg = graph_.segments->next; seg != NULL; seg = seg->next) {
 #endif
-        if (!compareHeaders(seg)) {
-            continue;
-        }
+        bool is_forward_seg = compareHeaders(seg);
+        QVector<double>& r_pkt_times = is_forward_seg ? seg_rel_times : ack_rel_times;
+        QVector<double>& r_lens = is_forward_seg ? seg_lens : ack_lens;
+        QVector<double>& r_Xput_times = is_forward_seg ? tput_times : gput_times;
+        QVector<double>& r_Xputs = is_forward_seg ? tputs : gputs;
+        int& r_oldest = is_forward_seg ? oldest_seg : oldest_ack;
+        guint64& r_sum = is_forward_seg ? seg_sum : ack_sum;
 
         double ts = (seg->rel_secs + seg->rel_usecs / 1000000.0) - ts_offset_;
 
-        rel_time.append(ts);
-        seg_len.append(seg->th_seglen);
+        if (is_forward_seg) {
+            seglen = seg->th_seglen;
+        } else {
+            if ((seg->th_flags & TH_ACK) &&
+                tcp_seq_eq_or_after(seg->th_ack, last_ack)) {
+                seglen = seg->th_ack - last_ack;
+                last_ack = seg->th_ack;
+#ifdef USE_SACKS_IN_GOODPUT_CALC
+                // copy any sack_ranges into new_sacks, and sort.
+                for(int i = 0; i < seg->num_sack_ranges; ++i) {
+                    new_sacks[i].first = seg->sack_left_edge[i];
+                    new_sacks[i].second = seg->sack_right_edge[i];
+                }
+                std::sort(new_sacks.begin(),
+                          new_sacks.begin() + seg->num_sack_ranges,
+                          compare_sack);
+
+                // adjust the seglen based on new and old sacks,
+                //   and update the old_sacks list
+                goodput_adjust_for_sacks(&seglen, last_ack,
+                                         new_sacks, seg->num_sack_ranges,
+                                         old_sacks);
+#endif // USE_SACKS_IN_GOODPUT_CALC
+            } else {
+                seglen = 0;
+            }
+        }
+
+        r_pkt_times.append(ts);
+        r_lens.append(seglen);
 
 #ifdef MA_1_SECOND
-        while (ts - rel_time[oldest] > ma_window_size_ && oldest < rel_time.size()) {
-            sum -= seg_len[oldest];
+        while (ts - r_pkt_times[r_oldest] > ma_window_size_ && r_oldest < r_pkt_times.size()) {
+            r_sum -= r_lens[r_oldest];
             // append points where a packet LEAVES the MA window
             //   (as well as, below, where they ENTER the MA window)
-            tput.append(sum * 8.0 / ma_window_size_);
-            tput_time.append(rel_time[oldest] + ma_window_size_);
-            oldest++;
+            r_Xputs.append(r_sum * 8.0 / ma_window_size_);
+            r_Xput_times.append(r_pkt_times[r_oldest] + ma_window_size_);
+            r_oldest++;
         }
 #else
-        if (seg_len.size() > moving_avg_period_) {
-            sum -= seg_len[oldest];
-            oldest++;
+        if (r_lens.size() > moving_avg_period_) {
+            r_sum -= r_lens[r_oldest];
+            r_oldest++;
         }
 #endif
 
-        double av_tput;
-        sum += seg->th_seglen;
+        // av_Xput computes Xput, i.e.:
+        //    throughput for forward packets
+        //    goodput for reverse packets
+        double av_Xput;
+        r_sum += seglen;
 #ifdef MA_1_SECOND
         // for time-based MA, delta_t is constant
-        av_tput = sum * 8.0 / ma_window_size_;
+        av_Xput = r_sum * 8.0 / ma_window_size_;
 #else
-        double dtime = ts - rel_time[oldest];
+        double dtime = 0.0;
+        if (r_oldest > 0)
+            dtime = ts - r_pkt_times[r_oldest-1];
         if (dtime > 0.0) {
-            av_tput = sum * 8.0 / dtime;
+            av_Xput = r_sum * 8.0 / dtime;
         } else {
-            av_tput = 0.0;
+            av_Xput = 0.0;
         }
 #endif
 
         // Add a data point only if our time window has advanced. Otherwise
         // update the most recent point. (We might want to show a warning
         // for out-of-order packets.)
-        if (tput_time.size() > 0 && ts <= tput_time.last()) {
-            tput[tput.size() - 1] = av_tput;
+        if (r_Xput_times.size() > 0 && ts <= r_Xput_times.last()) {
+            r_Xputs[r_Xputs.size() - 1] = av_Xput;
         } else {
-            tput.append(av_tput);
-            tput_time.append(ts);
+            r_Xputs.append(av_Xput);
+            r_Xput_times.append(ts);
         }
     }
-    base_graph_->setData(rel_time, seg_len);
-    tput_graph_->setData(tput_time, tput);
+    base_graph_->setData(seg_rel_times, seg_lens);
+    tput_graph_->setData(tput_times, tputs);
+    goodput_graph_->setData(gput_times, gputs);
 }
 
 // rtt_selectively_ack_range:
@@ -1054,7 +1431,8 @@ void TCPStreamDialog::fillWindowScale()
     base_graph_->setLineStyle(QCPGraph::lsStepLeft);
     // use rwin_graph_ here to show rwin window scale
     //  (derived from ACK packets)
-    rwin_graph_->setVisible(true);
+    base_graph_->setVisible(ui->showBytesOutCheckBox->isChecked());
+    rwin_graph_->setVisible(ui->showRcvWinCheckBox->isChecked());
 
     QVector<double> rel_time, win_size;
     QVector<double> cwnd_time, cwnd_size;
@@ -1144,12 +1522,13 @@ QRectF TCPStreamDialog::getZoomRanges(QRect zoom_rect)
 {
     QRectF zoom_ranges = QRectF();
 
-    if (zoom_rect.width() < min_zoom_pixels_ && zoom_rect.height() < min_zoom_pixels_) {
+    QCustomPlot *sp = ui->streamPlot;
+    QRect zr = zoom_rect.normalized();
+
+    if (zr.width() < min_zoom_pixels_ && zr.height() < min_zoom_pixels_) {
         return zoom_ranges;
     }
 
-    QCustomPlot *sp = ui->streamPlot;
-    QRect zr = zoom_rect.normalized();
     QRect ar = sp->axisRect()->rect();
     if (ar.intersects(zr)) {
         QRect zsr = ar.intersected(zr);
@@ -1168,6 +1547,9 @@ QRectF TCPStreamDialog::getZoomRanges(QRect zoom_rect)
 void TCPStreamDialog::graphClicked(QMouseEvent *event)
 {
     QCustomPlot *sp = ui->streamPlot;
+
+    // mouse press on graph should reset focus to graph
+    sp->setFocus();
 
     if (event->button() == Qt::RightButton) {
         // XXX We should find some way to get streamPlot to handle a
@@ -1198,11 +1580,8 @@ void TCPStreamDialog::axisClicked(QCPAxis *axis, QCPAxis::SelectablePart, QMouse
         case GRAPH_TSEQ_STEVENS:
         case GRAPH_TSEQ_TCPTRACE:
         case GRAPH_WSCALE:
-            ts_origin_conn_ = ts_origin_conn_ ? false : true;
-            fillGraph();
-            break;
         case GRAPH_RTT:
-            seq_origin_zero_ = seq_origin_zero_ ? false : true;
+            ts_origin_conn_ = ts_origin_conn_ ? false : true;
             fillGraph();
             break;
         default:
@@ -1313,7 +1692,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
 
 void TCPStreamDialog::mouseReleased(QMouseEvent *event)
 {
-    if (rubber_band_) {
+    if (rubber_band_ && rubber_band_->isVisible()) {
         rubber_band_->hide();
         if (!mouse_drags_) {
             QRectF zoom_ranges = getZoomRanges(QRect(rb_origin_, event->pos()));
@@ -1443,17 +1822,70 @@ void TCPStreamDialog::on_otherDirectionButton_clicked()
 
 void TCPStreamDialog::on_dragRadioButton_toggled(bool checked)
 {
-    if (checked) mouse_drags_ = true;
-    ui->streamPlot->setInteractions(
-                QCP::iRangeDrag |
-                QCP::iRangeZoom
-                );
+    if (checked) {
+        mouse_drags_ = true;
+        if (rubber_band_ && rubber_band_->isVisible())
+            rubber_band_->hide();
+        ui->streamPlot->setInteractions(
+                    QCP::iRangeDrag |
+                    QCP::iRangeZoom
+                    );
+    }
 }
 
 void TCPStreamDialog::on_zoomRadioButton_toggled(bool checked)
 {
-    if (checked) mouse_drags_ = false;
-    ui->streamPlot->setInteractions(0);
+    if (checked) {
+        mouse_drags_ = false;
+        ui->streamPlot->setInteractions(0);
+    }
+}
+
+void TCPStreamDialog::on_showSegLengthCheckBox_stateChanged(int state)
+{
+    bool visible = (state != 0);
+    if (graph_.type == GRAPH_THROUGHPUT && base_graph_ != NULL) {
+        base_graph_->setVisible(visible);
+        tracer_->setGraph(visible ? base_graph_ : NULL);
+        ui->streamPlot->replot();
+    }
+}
+
+void TCPStreamDialog::on_showThroughputCheckBox_stateChanged(int state)
+{
+    bool visible = (state != 0);
+    if (graph_.type == GRAPH_THROUGHPUT && tput_graph_ != NULL) {
+        tput_graph_->setVisible(visible);
+        ui->streamPlot->replot();
+    }
+}
+
+void TCPStreamDialog::on_showGoodputCheckBox_stateChanged(int state)
+{
+    bool visible = (state != 0);
+    if (graph_.type == GRAPH_THROUGHPUT && goodput_graph_ != NULL) {
+        goodput_graph_->setVisible(visible);
+        ui->streamPlot->replot();
+    }
+}
+
+void TCPStreamDialog::on_showRcvWinCheckBox_stateChanged(int state)
+{
+    bool visible = (state != 0);
+    if (graph_.type == GRAPH_WSCALE && rwin_graph_ != NULL) {
+        rwin_graph_->setVisible(visible);
+        ui->streamPlot->replot();
+    }
+}
+
+void TCPStreamDialog::on_showBytesOutCheckBox_stateChanged(int state)
+{
+    bool visible = (state != 0);
+    if (graph_.type == GRAPH_WSCALE && base_graph_ != NULL) {
+        base_graph_->setVisible(visible);
+        tracer_->setGraph(visible ? base_graph_ : NULL);
+        ui->streamPlot->replot();
+    }
 }
 
 void TCPStreamDialog::on_actionZoomIn_triggered()

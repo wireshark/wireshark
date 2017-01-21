@@ -99,6 +99,19 @@
       </widget>
      </item>
      <item>
+      <spacer name="horizontalSpacer_1a">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QLabel" name="maWindowSizeLabel">
        <property name="text">
         <string>MA Window (s)</string>
@@ -122,7 +135,7 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
+      <spacer name="horizontalSpacer_1b">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -204,7 +217,85 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_2">
+      <spacer name="horizontalSpacer_2a">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="showSegLengthCheckBox">
+       <property name="toolTip">
+        <string>Display graph of Segment Length vs Time</string>
+       </property>
+       <property name="text">
+        <string>Segment Length</string>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="showThroughputCheckBox">
+       <property name="toolTip">
+        <string>Display graph of Mean Transmitted Bytes vs Time</string>
+       </property>
+       <property name="text">
+        <string>Throughput</string>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="showGoodputCheckBox">
+       <property name="toolTip">
+        <string>Display graph of Mean ACKed Bytes vs Time</string>
+       </property>
+       <property name="text">
+        <string>Goodput</string>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="showRcvWinCheckBox">
+       <property name="toolTip">
+        <string>Display graph of Receive Window Size vs Time</string>
+       </property>
+       <property name="text">
+        <string>Rcv Win</string>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="showBytesOutCheckBox">
+       <property name="toolTip">
+        <string>Display graph of Outstanding Bytes vs Time</string>
+       </property>
+       <property name="text">
+        <string>Bytes Out</string>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2b">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
