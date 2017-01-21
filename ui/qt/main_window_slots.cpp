@@ -756,6 +756,19 @@ void MainWindow::captureFileRetapFinished()
     thaw();
 }
 
+void MainWindow::captureFileMergeStarted()
+{
+    main_ui_->statusBar->popFileStatus();
+    QString msg = tr("Merging files");
+    QString msgtip = QString();
+    main_ui_->statusBar->pushFileStatus(msg, msgtip);
+}
+
+void MainWindow::captureFileMergeFinished()
+{
+    main_ui_->statusBar->popFileStatus();
+}
+
 void MainWindow::captureFileFlushTapsData()
 {
     draw_tap_listeners(FALSE);

@@ -542,6 +542,10 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(captureFileRetapStarted()));
     connect(&capture_file_, SIGNAL(captureFileRetapFinished()),
             this, SLOT(captureFileRetapFinished()));
+    connect(&capture_file_, SIGNAL(captureFileMergeStarted()),
+            this, SLOT(captureFileMergeStarted()));
+    connect(&capture_file_, SIGNAL(captureFileMergeFinished()),
+            this, SLOT(captureFileMergeFinished()));
     connect(&capture_file_, SIGNAL(captureFileFlushTapsData()),
             this, SLOT(captureFileFlushTapsData()));
     connect(&capture_file_, SIGNAL(captureFileClosing()),
@@ -1088,17 +1092,17 @@ void MainWindow::mergeCaptureFile()
             /* chronological order */
             in_filenames[0] = g_strdup(capture_file_.capFile()->filename);
             in_filenames[1] = qstring_strdup(file_name);
-            merge_status = cf_merge_files_to_tempfile(&tmpname, 2, in_filenames, file_type, FALSE);
+            merge_status = cf_merge_files_to_tempfile(this, &tmpname, 2, in_filenames, file_type, FALSE);
         } else if (merge_dlg.mergeType() <= 0) {
             /* prepend file */
             in_filenames[0] = qstring_strdup(file_name);
             in_filenames[1] = g_strdup(capture_file_.capFile()->filename);
-            merge_status = cf_merge_files_to_tempfile(&tmpname, 2, in_filenames, file_type, TRUE);
+            merge_status = cf_merge_files_to_tempfile(this, &tmpname, 2, in_filenames, file_type, TRUE);
         } else {
             /* append file */
             in_filenames[0] = g_strdup(capture_file_.capFile()->filename);
             in_filenames[1] = qstring_strdup(file_name);
-            merge_status = cf_merge_files_to_tempfile(&tmpname, 2, in_filenames, file_type, TRUE);
+            merge_status = cf_merge_files_to_tempfile(this, &tmpname, 2, in_filenames, file_type, TRUE);
         }
 
         g_free(in_filenames[0]);

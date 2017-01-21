@@ -221,6 +221,14 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         emit captureFileFlushTapsData();
         emit captureFileRetapFinished();
         break;
+    case(cf_cb_file_merge_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Merge started");
+        emit captureFileMergeStarted();
+        break;
+    case(cf_cb_file_merge_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Merge finished");
+        emit captureFileMergeFinished();
+        break;
 
     case(cf_cb_file_fast_save_finished):
         // gtk/main.c calls main_cf_cb_file_rescan_finished. Should we do

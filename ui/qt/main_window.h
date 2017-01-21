@@ -282,6 +282,8 @@ public slots:
     void captureFileRescanStarted() { setMenusForCaptureFile(true); captureFileReadStarted(tr("Rescanning")); }
     void captureFileRetapStarted();
     void captureFileRetapFinished();
+    void captureFileMergeStarted();
+    void captureFileMergeFinished();
     void captureFileFlushTapsData();
     void captureFileClosing();
     void captureFileClosed();

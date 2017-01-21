@@ -73,6 +73,8 @@ typedef enum {
     cf_cb_file_rescan_finished,
     cf_cb_file_retap_started,
     cf_cb_file_retap_finished,
+    cf_cb_file_merge_started, /* Qt only */
+    cf_cb_file_merge_finished, /* Qt only */
     cf_cb_file_fast_save_finished, /* GTK+ only? */
     cf_cb_packet_selected, /* GTK+ only. */
     cf_cb_packet_unselected, /* GTK+ only. */
@@ -634,6 +636,7 @@ void cf_unignore_frame(capture_file *cf, frame_data *frame);
  * Merge two or more capture files into a temporary file.
  * @todo is this the right place for this function? It doesn't have to do a lot with capture_file.
  *
+ * @param pd_window Window pointer suitable for use by delayed_create_progress_dlg.
  * @param out_filenamep Points to a pointer that's set to point to the
  *        pathname of the temporary file; it's allocated with g_malloc()
  * @param in_file_count the number of input files to merge
@@ -643,9 +646,9 @@ void cf_unignore_frame(capture_file *cf, frame_data *frame);
  * @return one of cf_status_t
  */
 cf_status_t
-cf_merge_files_to_tempfile(char **out_filenamep, int in_file_count,
-                           char *const *in_filenames, int file_type,
-                           gboolean do_append);
+cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
+                           int in_file_count, char *const *in_filenames,
+                           int file_type, gboolean do_append);
 
 
 /**

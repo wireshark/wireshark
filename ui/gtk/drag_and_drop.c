@@ -208,7 +208,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
         }
     } else {
         /* merge the files in chronological order */
-        if (cf_merge_files_to_tempfile(&tmpname, in_file_count, in_filenames,
+        if (cf_merge_files_to_tempfile(top_level, &tmpname, in_file_count, in_filenames,
                                        WTAP_FILE_TYPE_SUBTYPE_PCAPNG, FALSE) == CF_OK) {
             /* Merge succeeded; close the currently-open file and try
                to open the merged capture file. */
