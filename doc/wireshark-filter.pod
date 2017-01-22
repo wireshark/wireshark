@@ -55,9 +55,9 @@ C-like symbols:
 
 Additional operators exist expressed only in English, not C-like syntax:
 
-    contains  Does the protocol, field or slice contain a value
-    matches   Does the protocol or text string match the given Perl
-              regular expression
+    contains     Does the protocol, field or slice contain a value
+    matches, ~   Does the protocol or text string match the given Perl
+                 regular expression
 
 The "contains" operator allows a filter to search for a sequence of
 characters, expressed as a string (quoted or unquoted), or bytes,
@@ -69,7 +69,7 @@ URL in a capture, the following filter can be used:
 The "contains" operator cannot be used on atomic fields,
 such as numbers or IP addresses.
 
-The "matches" operator allows a filter to apply to a specified
+The "matches"  or "~" operator allows a filter to apply to a specified
 Perl-compatible regular expression (PCRE).  The "matches" operator is only
 implemented for protocols and for protocol fields with a text string
 representation.  For example, to search for a given WAP WSP User-Agent,
