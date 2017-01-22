@@ -5996,7 +5996,7 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
       }
       else if (preq_info->connInfo->safety.format == CIP_SAFETY_BASE_FORMAT)
       {
-         safety_tree = proto_tree_add_subtree( tree, tvb, offset+28, 10, ett_cip_cm_safety, NULL, "Safety Application Reply Data");
+         safety_tree = proto_tree_add_subtree( tree, tvb, offset+26, 10, ett_cip_cm_safety, NULL, "Safety Application Reply Data");
          proto_tree_add_item( safety_tree, hf_cip_cm_consumer_number, tvb, offset+26, 2, ENC_LITTLE_ENDIAN);
          pid_tree = proto_tree_add_subtree( safety_tree, tvb, offset+28, 8, ett_cip_cm_pid, NULL, "PID/CID");
          proto_tree_add_item( pid_tree, hf_cip_cm_targ_vendor_id, tvb, offset+28, 2, ENC_LITTLE_ENDIAN);
@@ -6008,7 +6008,7 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
       }
       else if (preq_info->connInfo->safety.format == CIP_SAFETY_EXTENDED_FORMAT)
       {
-         safety_tree = proto_tree_add_subtree( tree, tvb, offset+28, 14, ett_cip_cm_safety, NULL, "Safety Application Reply Data");
+         safety_tree = proto_tree_add_subtree( tree, tvb, offset+26, 14, ett_cip_cm_safety, NULL, "Safety Application Reply Data");
          proto_tree_add_item( safety_tree, hf_cip_cm_consumer_number, tvb, offset+26, 2, ENC_LITTLE_ENDIAN);
          pid_tree = proto_tree_add_subtree( safety_tree, tvb, offset+28, 12, ett_cip_cm_pid, NULL, "PID/CID");
          proto_tree_add_item( pid_tree, hf_cip_cm_targ_vendor_id, tvb, offset+28, 2, ENC_LITTLE_ENDIAN);
