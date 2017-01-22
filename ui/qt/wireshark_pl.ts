@@ -13632,33 +13632,33 @@ text-decoration: underline;
 <context>
     <name>SequenceDialog</name>
     <message>
-        <location filename="sequence_dialog.cpp" line="83"/>
+        <location filename="sequence_dialog.cpp" line="82"/>
         <source>Call Flow</source>
         <translation>Przepływy połączeń</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="117"/>
+        <location filename="sequence_dialog.cpp" line="116"/>
         <source>Time</source>
         <translation>Czas</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="125"/>
+        <location filename="sequence_dialog.cpp" line="124"/>
         <source>Comment</source>
         <translation>Komentarz</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="171"/>
+        <location filename="sequence_dialog.cpp" line="170"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>Zapisz jako</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="338"/>
+        <location filename="sequence_dialog.cpp" line="339"/>
         <source>No data</source>
         <translation>Brak danych</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="340"/>
+        <location filename="sequence_dialog.cpp" line="341"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%Ln węzeł</numerusform>
@@ -13667,7 +13667,7 @@ text-decoration: underline;
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="341"/>
+        <location filename="sequence_dialog.cpp" line="342"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%Ln obiekt</numerusform>
@@ -13676,38 +13676,38 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="367"/>
+        <location filename="sequence_dialog.cpp" line="368"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Dokument PDF (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="368"/>
+        <location filename="sequence_dialog.cpp" line="369"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Obraz PNG (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="369"/>
+        <location filename="sequence_dialog.cpp" line="370"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="371"/>
+        <location filename="sequence_dialog.cpp" line="372"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="372"/>
+        <location filename="sequence_dialog.cpp" line="373"/>
         <source>ASCII (*.txt)</source>
         <translation>ASCII (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="383"/>
+        <location filename="sequence_dialog.cpp" line="384"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>Zapisz wykres jako</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="83"/>
+        <location filename="sequence_dialog.cpp" line="82"/>
         <source>Flow</source>
         <translation>Przepływ</translation>
     </message>
