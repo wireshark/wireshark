@@ -70,6 +70,14 @@ static int hf_cql_uuid = -1;
 static int hf_cql_bytes = -1;
 static int hf_cql_inet = -1;
 */
+/* Batch flags */
+
+static int hf_cql_batch_flag_serial_consistency = -1;
+static int hf_cql_batch_flag_default_timestamp = -1;
+static int hf_cql_batch_flag_with_name_for_values = -1;
+static int hf_cql_batch_flags_bitmap = -1;
+static int ett_cql_batch_flags_bitmap = -1;
+
 static int hf_cql_consistency = -1;
 static int hf_cql_string_length = -1;
 static int hf_cql_string_map_size = -1;
@@ -149,6 +157,11 @@ static const value_string cql_direction_names[] = {
 	{ 0x0, NULL }
 };
 
+typedef enum {
+	CQL_BATCH_FLAG_SERIAL_CONSISTENCY = 0x10,
+	CQL_BATCH_FLAG_DEFAULT_TIMESTAMP = 0x020,
+	CQL_BATCH_FLAG_WITH_NAME_FOR_VALUES = 0x040
+} cql_batch_flags;
 
 typedef enum {
 	CQL_OPCODE_ERROR = 0x00,
@@ -567,6 +580,13 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	cql_transaction_type* cql_trans = NULL;
 	cql_compression_level compression_level = CQL_COMPRESSION_NONE;
 
+	static const int * cql_batch_flags_bitmaps[] = {
+		&hf_cql_batch_flag_serial_consistency,
+		&hf_cql_batch_flag_default_timestamp,
+		&hf_cql_batch_flag_with_name_for_values,
+		NULL
+	};
+
 	static const int * cql_header_bitmaps_v3[] = {
 		&hf_cql_flag_compression,
 		&hf_cql_flag_tracing,
@@ -836,6 +856,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 
 				for (i = 0; i < batch_size; ++i) {
 					proto_tree_add_item_ret_uint(cql_subtree, hf_cql_batch_query_type, tvb, offset, 1, ENC_BIG_ENDIAN, &batch_query_type);
+					batch_query_type = tvb_get_guint8(tvb, offset);
 					offset += 1;
 					if (batch_query_type == 0) {
 						/* Query */
@@ -847,11 +868,32 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 						/* Query parameters */
 						offset = dissect_cql_query_parameters(cql_subtree, tvb, offset, 0);
 					} else if (batch_query_type == 1) {
-						/* short ID from preparation before. */
-						proto_tree_add_item(cql_subtree, hf_cql_query_id, tvb, offset, 2, ENC_NA);
+						guint64 k;
+						guint32 value_count = 0;
+						guint32 query_id_bytes_length;
+
+						/* Query ID */
+						proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &query_id_bytes_length);
 						offset += 2;
+						proto_tree_add_item(cql_subtree, hf_cql_query_id, tvb, offset, query_id_bytes_length, ENC_NA);
+						offset += query_id_bytes_length;
+
+						proto_tree_add_item_ret_uint(cql_subtree, hf_cql_value_count, tvb, offset, 2, ENC_BIG_ENDIAN, &value_count);
+						offset += 2;
+						for (k = 0; k < value_count; ++k) {
+							guint32 batch_bytes_length = 0;
+							proto_tree_add_item_ret_int(cql_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &batch_bytes_length);
+							offset += 4;
+							proto_tree_add_item(cql_subtree, hf_cql_bytes, tvb, offset, batch_bytes_length, ENC_NA);
+							offset += batch_bytes_length;
+						}
+
 					}
 				}
+				/* consistency */
+				proto_tree_add_item(cql_subtree, hf_cql_consistency, tvb, offset, 2, ENC_BIG_ENDIAN);
+				offset += 2;
+				proto_tree_add_bitmask(cql_subtree, tvb, offset, hf_cql_batch_flags_bitmap, ett_cql_batch_flags_bitmap, cql_batch_flags_bitmaps, ENC_BIG_ENDIAN);
 				break;
 
 			case CQL_OPCODE_REGISTER:
@@ -1101,6 +1143,42 @@ proto_register_cql(void)
 {
 	expert_module_t* expert_cql;
 	static hf_register_info hf[] = {
+		{
+			&hf_cql_batch_flag_serial_consistency,
+			{
+				"Serial Consistency", "cql.batch.flags.serial_consistency",
+				FT_BOOLEAN, 8,
+				NULL, CQL_BATCH_FLAG_SERIAL_CONSISTENCY,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_batch_flag_default_timestamp,
+			{
+				"Default Timestamp", "cql.batch.flags.default_timestamp",
+				FT_BOOLEAN, 8,
+				NULL, CQL_BATCH_FLAG_DEFAULT_TIMESTAMP,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_batch_flag_with_name_for_values,
+			{
+				"With Name For Value", "cql.batch.flags.with_name_for_values",
+				FT_BOOLEAN, 8,
+				NULL, CQL_BATCH_FLAG_WITH_NAME_FOR_VALUES,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_batch_flags_bitmap,
+			{
+				"Flags", "cql.batch.flags",
+				FT_UINT8, BASE_HEX,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
 		{
 			&hf_cql_version,
 			{
@@ -1622,6 +1700,7 @@ proto_register_cql(void)
 		&ett_cql_result_rows,
 		&ett_cql_header_flags_bitmap,
 		&ett_cql_query_flags_bitmap,
+		&ett_cql_batch_flags_bitmap,
 	};
 
 	proto_cql = proto_register_protocol("Cassandra CQL Protocol", "CQL", "cql" );
