@@ -5114,6 +5114,14 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     return packet_len;
 }
 
+static void
+dvbci_shutdown(void)
+{
+    if (spdu_table)
+        g_hash_table_destroy(spdu_table);
+    if (apdu_table)
+        g_hash_table_destroy(apdu_table);
+}
 
 void
 proto_register_dvbci(void)
@@ -6348,6 +6356,8 @@ proto_register_dvbci(void)
         dissect_dvbci_exported_sac_msg, proto_dvbci);
 
     exported_pdu_tap = register_export_pdu_tap("DVB-CI");
+
+    register_shutdown_routine(dvbci_shutdown);
 }
 
 
