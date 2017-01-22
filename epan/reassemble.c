@@ -2790,7 +2790,7 @@ show_fragment_seq_tree(fragment_head *fd_head, const fragment_items *fit,
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);
 }
 
-void
+static void
 reassembly_table_free(gpointer p, gpointer user_data _U_)
 {
 	reassembly_table_destroy((reassembly_table*)p);
