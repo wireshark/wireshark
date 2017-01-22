@@ -873,14 +873,27 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 // order to set DROPDESCRIPTION.
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
-    bool accept = false;
+    if (!main_ui_->actionFileOpen->isEnabled()) {
+        // We could alternatively call setAcceptDrops(!capture_in_progress)
+        // in setMenusForCaptureInProgress but that wouldn't provide feedback.
+
+        main_ui_->statusBar->pushTemporaryStatus(tr("Unable to drop files during capture."));
+        event->setDropAction(Qt::IgnoreAction);
+        event->ignore();
+        return;
+    }
+
+    bool have_files = false;
     foreach (QUrl drag_url, event->mimeData()->urls()) {
         if (!drag_url.toLocalFile().isEmpty()) {
-            accept = true;
+            have_files = true;
             break;
         }
     }
-    if (accept) event->acceptProposedAction();
+
+    if (have_files) {
+        event->acceptProposedAction();
+    }
 }
 
 void MainWindow::dropEvent(QDropEvent *event)

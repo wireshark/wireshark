@@ -251,7 +251,7 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
         if((global_capture_session.state != CAPTURE_STOPPED)) {
             simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTN_OK,
-                        "%sDrag and Drop currently not possible!%s\n\n"
+                        "%sDrag and Drop currently not possible.%s\n\n"
                         "Dropping a file isn't possible while a capture is in progress.",
                         simple_dialog_primary_start(), simple_dialog_primary_end());
             return;
@@ -262,7 +262,7 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
         if(cfile.state == FILE_READ_IN_PROGRESS) {
             simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTN_OK,
-                        "%sDrag and Drop currently not possible!%s\n\n"
+                        "%sDrag and Drop currently not possible.%s\n\n"
                         "Dropping a file isn't possible while loading another capture file.",
                         simple_dialog_primary_start(), simple_dialog_primary_end());
             return;
