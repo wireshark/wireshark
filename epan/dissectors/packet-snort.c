@@ -34,8 +34,9 @@
  *      at an inopportune time
  * - would be good if could set [Snort Running] in the title bar while Snort is running,
  *   but don't see how a dissector could do that.
+ * - looked into writing a tap that could provide an interface for error messages/events and snort stats,
+ *   but not easy as taps are not usually listening when alerts are detected
  * - for a content match, find all protocol fields that cover same bytes and show in tree
- * - after tcp.reassembled_in fixed, offer to move alert to that frame?
  * - other use-cases as suggested in https://sharkfesteurope.wireshark.org/assets/presentations16eu/14.pptx
  */
 
@@ -78,6 +79,9 @@ static int hf_snort_rule_filename = -1;
 static int hf_snort_rule_line_number = -1;
 static int hf_snort_rule_ip_var = -1;
 static int hf_snort_rule_port_var = -1;
+
+static int hf_snort_reassembled_in = -1;
+static int hf_snort_reassembled_from = -1;
 
 /* Patterns to match */
 static int hf_snort_content = -1;
@@ -137,10 +141,8 @@ static gboolean snort_show_rule_stats = FALSE;
 /* Should alerts be added as expert info? */
 static gboolean snort_show_alert_expert_info = FALSE;
 
-#if 0
 /* Should we try to attach the alert to the tcp.reassembled_in frame instead of current one? */
 static gboolean snort_alert_in_reassembled_frame = FALSE;
-#endif
 
 
 
@@ -192,6 +194,9 @@ typedef struct Alert_t {
 
     Rule_t     *matched_rule;      /* Link to corresponding rule from snort config */
 
+    guint32    original_frame;
+    guint32    reassembled_frame;
+
     /* Stats for this alert among the capture file. */
     unsigned int overall_match_number;
     unsigned int rule_match_number;
@@ -206,7 +211,9 @@ typedef struct Alerts_t {
 } Alerts_t;
 
 
-/* Add an alert to the map stored in current_session */
+/* Add an alert to the map stored in current_session.
+ * N.B. even if preference 'snort_alert_in_reassembled_frame' is set,
+ * need to set to original frame now, and try to update it in the 2nd pass... */
 static void add_alert_to_session_tree(guint frame_number, Alert_t *alert)
 {
     /* First look up tree to see if there is an existing entry */
@@ -214,6 +221,7 @@ static void add_alert_to_session_tree(guint frame_number, Alert_t *alert)
     if (alerts == NULL) {
         /* Create a new entry for the table */
         alerts = (Alerts_t*)g_malloc(sizeof(Alerts_t));
+        /* Deep copy of alert */
         alerts->alerts[0] = *alert;
         alerts->num_alerts = 1;
         wmem_tree_insert32(current_session.alerts_tree, frame_number, alerts);
@@ -221,6 +229,7 @@ static void add_alert_to_session_tree(guint frame_number, Alert_t *alert)
     else {
         /* See if there is room in the existing Alerts_t struct for this frame */
         if (alerts->num_alerts < MAX_ALERTS_PER_FRAME) {
+            /* Deep copy of alert */
             alerts->alerts[alerts->num_alerts++] = *alert;
         }
     }
@@ -246,6 +255,7 @@ static void fill_alert_config(SnortConfig_t *snort_config, Alert_t *alert)
     /* Inform the config/rule about the alert */
     rule_set_alert(snort_config, alert->matched_rule,
                    &global_match_number, &rule_match_number);
+
     /* Copy updated counts into the alert */
     alert->overall_match_number = global_match_number;
     alert->rule_match_number = rule_match_number;
@@ -514,6 +524,7 @@ static gboolean snort_fast_output(GIOChannel *source, GIOCondition condition, gp
         while ((line = strchr(buf, '\n'))) {
             /* Have a whole line, so can parse */
             Alert_t alert;
+            memset(&alert, 0, sizeof(alert));
 
             /* Terminate received line */
             *line = '\0';
@@ -539,7 +550,6 @@ static gboolean snort_fast_output(GIOChannel *source, GIOCondition condition, gp
                 /* Add parsed alert into session->tree */
                 /* Store in tree. pfino->fd->num is hidden in usec time field. */
                 add_alert_to_session_tree((guint)alert.tv.tv_usec, &alert);
-
             }
             else {
                 g_print("snort_fast_output() line: '%s'\n", buf);
@@ -605,14 +615,64 @@ static guint get_content_start_match(Rule_t *rule, proto_tree *tree)
     return get_protocol_payload_start(rule->protocol, tree);
 }
 
+/* Where this frame is later part of a reassembled complete PDU running over TCP, look up
+   and return that frame number. */
+static guint get_reassembled_in_frame(proto_tree *tree)
+{
+    guint value = 0;
+
+    if (tree != NULL) {
+        GPtrArray *items = proto_all_finfos(tree);
+        if (items) {
+            guint i;
+            for (i=0; i< items->len; i++) {
+                field_info *field = (field_info *)g_ptr_array_index(items,i);
+                if (strcmp(field->hfinfo->abbrev, "tcp.reassembled_in") == 0) {
+                    value = field->value.value.uinteger;
+                    break;
+                }
+            }
+            g_ptr_array_free(items,TRUE);
+        }
+    }
+    return value;
+}
+
+
 /* Show the Snort protocol tree based on the info in alert */
 static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, Alert_t *alert)
 {
     proto_tree *snort_tree = NULL;
-    unsigned int n;
+    guint n;
     proto_item *ti, *rule_ti;
     proto_tree *rule_tree;
     Rule_t *rule = alert->matched_rule;
+
+    /* May need to move to reassembled frame to show there instead of here */
+
+    if (snort_alert_in_reassembled_frame && pinfo->fd->flags.visited && (tree != NULL)) {
+        guint reassembled_frame = get_reassembled_in_frame(tree);
+
+        if (reassembled_frame && (reassembled_frame != pinfo->num)) {
+            Alerts_t *alerts;
+
+            /* Look up alerts for this frame */
+            alerts = (Alerts_t*)wmem_tree_lookup32(current_session.alerts_tree, pinfo->num);
+
+            if (!alerts->alerts[0].reassembled_frame) {
+                /* Update all alerts from this frame! */
+                for (n=0; n < alerts->num_alerts; n++) {
+
+                    /* Set forward/back frame numbers */
+                    alerts->alerts[n].original_frame = pinfo->num;
+                    alerts->alerts[n].reassembled_frame = reassembled_frame;
+
+                    /* Add these alerts to reassembled frame */
+                    add_alert_to_session_tree(reassembled_frame, &alerts->alerts[n]);
+                }
+            }
+        }
+    }
 
     /* Can only find start if we have the rule and know the protocol */
     guint content_start_match = 0;
@@ -631,6 +691,33 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                                                               "User Comment" :
                                                               "Running Snort");
     snort_tree = proto_item_add_subtree(alert_ti, ett_snort);
+
+    if (snort_alert_in_reassembled_frame && (alert->reassembled_frame != 0)) {
+        if (alert->original_frame == pinfo->num) {
+            /* Show link forward to where alert is now shown! */
+            ti = proto_tree_add_uint(tree, hf_snort_reassembled_in, tvb, 0, 0,
+                                     alert->reassembled_frame);
+            PROTO_ITEM_SET_GENERATED(ti);
+            return;
+        }
+        else {
+            tvbuff_t *reassembled_tvb;
+            /* Show link back to segment where alert was detected. */
+            ti = proto_tree_add_uint(tree, hf_snort_reassembled_from, tvb, 0, 0,
+                                     alert->original_frame);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            /* Should find this if look late enough.. */
+            reassembled_tvb = get_data_source_tvb_by_name(pinfo, "Reassembled TCP");
+            if (reassembled_tvb) {
+                /* Will look for content using the TVB instead of just this frame's one */
+                tvb = reassembled_tvb;
+            }
+            /* TODO: for correctness, would be good to lookup + remember the offset of the source
+             * frame within the reassembled PDU frame, to make sure we find the content in the
+             * correct place for every alert */
+        }
+    }
 
     /* Show in expert info if configured to. */
     if (snort_show_alert_expert_info) {
@@ -930,31 +1017,6 @@ static const char *get_user_comment_string(proto_tree *tree)
 }
 
 
-#if 0
-/* TODO: unfortunately, the first frame in a series of frames to be reassembled has often been
- * seen to lack this field, despite being referenced in the reassmbled frame! */
-static guint get_reassembled_in_frame(proto_tree *tree)
-{
-    guint value = 0;
-
-    if (tree != NULL) {
-        GPtrArray *items = proto_all_finfos(tree);
-        if (items) {
-            guint i;
-            for (i=0; i< items->len; i++) {
-                field_info *field = (field_info *)g_ptr_array_index(items,i);
-                if (strcmp(field->hfinfo->abbrev, "tcp.reassembled_in") == 0) {
-                    value = field->value.value.uinteger;
-                    break;
-                }
-            }
-            g_ptr_array_free(items,TRUE);
-        }
-    }
-    return value;
-}
-#endif
-
 /********************************************************************************/
 /* Main (post-)dissector function.                                              */
 static int
@@ -1250,6 +1312,12 @@ proto_register_snort(void)
         { &hf_snort_rule_port_var,
             { "Port variable used in rule", "snort.rule-port-var", FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }},
+        { &hf_snort_reassembled_in,
+            { "Reassembled frame where alert is shown", "snort.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }},
+        { &hf_snort_reassembled_from,
+            { "Segment where alert was triggered", "snort.reassembled_from", FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }},
         { &hf_snort_content,
             { "Content", "snort.content", FT_STRINGZ, BASE_NONE, NULL, 0x00,
             "Snort content field", HFILL }},
@@ -1347,12 +1415,10 @@ proto_register_snort(void)
                                    "Show alerts in expert info",
                                    "Whether or not expert info should be used to highlight fired alerts",
                                    &snort_show_alert_expert_info);
-#if 0
     prefs_register_bool_preference(snort_module, "show_alert_in_reassembled_frame",
                                    "Try to show alerts in reassembled frame",
                                    "Attempt to show alert in reassembled frame where possible",
                                    &snort_alert_in_reassembled_frame);
-#endif
 
 
     snort_handle = create_dissector_handle(snort_dissector, proto_snort);

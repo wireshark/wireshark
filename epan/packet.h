@@ -696,6 +696,7 @@ WS_DLL_PUBLIC void remove_last_data_source(packet_info *pinfo);
 struct data_source;
 WS_DLL_PUBLIC char *get_data_source_name(const struct data_source *src);
 WS_DLL_PUBLIC tvbuff_t *get_data_source_tvb(const struct data_source *src);
+WS_DLL_PUBLIC tvbuff_t *get_data_source_tvb_by_name(packet_info *pinfo, const char *name);
 
 /*
  * Free up a frame's list of data sources.
