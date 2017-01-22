@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2017-01-13)
+(last updated 2017-01-21)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -80179,8 +80179,8 @@ d'Abomey-Calavi
       informatica.seguridad&winterthur.es
 20156
   Lowe's Companies, Inc.
-    Eric Lawson
-      eric.l.lawson&lowes.com
+    Shawn Haigler
+      shawn.m.haigler&lowes.com
 20157
   High Desert Education Service District
     Wade Holmes
@@ -95434,9 +95434,9 @@ Bahia
     Rüdiger Wolff
       wolff&leiner-wolff.de
 23967
-  Tallence GmbH
-    Stefan Bethke
-      s.bethke&tallence.com
+  Tallence AG
+    Ronald Ebel
+      pen-admin&tallence.com
 23968
   Netvoyager PLC
     Jamil Aboulzelof
@@ -133471,9 +133471,9 @@ Decentralization / Helenic Public Administra
     Michael Sittig
       michael.sittig&sittig.de
 33473
-  Dataman International B.V.
-    Alexander Kaasjager
-      a.kaasjager&dataman.nl
+  Unassigned
+    Returned 2017-01-20
+      ---none---
 33474
   Regex
     M. van Buytene
@@ -137195,9 +137195,9 @@ Decentralization / Helenic Public Administra
     Jan Dennis Bungart
       info&unseregedanken.de
 34404
-  Unassigned
-    Removed 2014-07-15
-      ---none---
+  skyenet
+    Laura Eckardt
+      iana&comsound.de
 34405
   City of Cape Town
     Alan Moon
@@ -148824,8 +148824,8 @@ Decentralization / Helenic Public Administra
     Agoston Deim
       deim.agoston&netacademia.net
 37311
-  N@team Leibniz-Gymnasium Remscheid
-    Dominik George
+  Leibniz-Gymnasium Remscheid (formerly 'N@team Leibniz-Gymnasium Remscheid')
+    Klaus Rörig
       netzwerk&leibniz-remscheid.de
 37312
   ULC Systems Inc.
@@ -149002,7 +149002,7 @@ Decentralization / Helenic Public Administra
 37355
   Norris Communications
     Sam Norris
-      SAM&ChangeIP.com
+      SAM&MrNorris.com
 37356
   Deutschmann Automation GmbH & Co. KG
     Dominik Litzinger
@@ -152076,9 +152076,9 @@ Decentralization / Helenic Public Administra
     juan pablo gaviria
       juanpablo&kinkajougames.com
 38124
-  Thomson Video Networks
+  Harmonic France (formerly 'Thomson Video Networks')
     Patrick Gendron
-      patrick.gendron&thomson-networks.com
+      patrick.gendron&harmonicinc.com
 38125
   EuroDNS SA
     Xavier Buck
@@ -181714,7 +181714,7 @@ Decentralization / Helenic Public Administra
 45533
   Red Arrow (Southampton) Group Limited
     Alex Martin
-      Alex.Martin&redarrow.co.uk
+      iana&redarrow.co.uk
 45534
   WestNet
     Paul Cunnane
@@ -191605,8 +191605,8 @@ Decentralization / Helenic Public Administra
       shelly_chang&zycast.com.tw
 48006
   Nandex, Inc
-    Steven Hughes
-      flyingpenguinpie&gmail.com
+    Vladmir Komarov
+      vladimir.komarov&nandex.org
 48007
   Netskope
     Nauman Tahir
@@ -196002,7 +196002,7 @@ Decentralization / Helenic Public Administra
 49105
   tetrardus.net
     Paul McMath
-      paulm&tetrardus.net
+      paul.mcmath&gmail.com
 49106
   Hindog.com
     Aaron Hiniker
@@ -196559,6 +196559,218 @@ Decentralization / Helenic Public Administra
   Söderenergi AB  
     Sylwe Wedholm
       sylwe.wedholm&soderenergi.se
+49245
+  The University of Kansas Health System
+    James Beeson
+      jbeeson&kumc.edu
+49246
+  Initium Novum LLC
+    Joshua Marvel
+      joshuam&initiumnovumllc.com
+49247
+  Genesis Cancer Center
+    Laura Sellers
+      lsellers&genesiscancercenter.com
+49248
+  Leipziger Versorgungs- und Verkehrsgesellschaft mbH
+    Michael Pilz
+      michael.pilz&l.de
+49249
+  GBSD Technologies, Inc. (GBSDTech)
+    Michael Powers
+      mike.powers&gbsdtech.com
+49250
+  Robiquity Limited
+    Anthony de Broise
+      adebroise&robiquity.com
+49251
+  Blue Grass Airport
+    IT Director
+      gatekeeper&bluegrassairport.com
+49252
+  Cincinnati Bell
+    Dan Trees
+      dan.trees&cinbell.com
+49253
+  Timrå Kommun
+    Robin Nylander
+      robin.nylander&timra.se
+49254
+  Factory Systemes
+    Fabien Serre
+      fabien.serre&factorysystemes.fr
+49255
+  econ solutions GmbH
+    Christoph Rust
+      christoph.rust&econ-solutions.de
+49256
+  Weatherford International 
+    Lawrence Baumle
+      larry.baumle&weatherford.com
+49257
+  ECSC Group plc
+    Adam Shore
+      adam.shore&ecsc.co.uk
+49258
+  DR-ARP
+    Mark Matties
+      mmatties&gmail.com
+49259
+  NINTEGRATE, INC.
+    Hakan Berg
+      hakan.berg&nintegrate.com
+49260
+  Bims Laboratories
+    Harry Bims
+      harrybims&me.com
+49261
+  Contact Wave Limited
+    Meena Anton
+      manton&contactwave.co.uk
+49262
+  Scientific RT GmbH
+    Markus Alber
+      markus&scientific-rt.com
+49263
+  Connect and Exchange
+    Martin Meuwese
+      m.meuwese&cande.nl
+49264
+  Benelec Pty Ltd
+    Grant Pinkney
+      service&benelec.com.au 
+49265
+  Kivu GmbH
+    DI Jan van Oort
+      jan&kivu.tech
+49266
+  Ashenden Capital
+    Richard Bibb
+      richard.bibb&ashendencapital.com
+49267
+  Government of Western Australia, Department of Finance
+    Nikhil Mugi
+      ICT-ServerTeam&finance.wa.gov.au
+49268
+  Profamilia Bundesverband
+    Thomas Elsaesser
+      thomas.elsaesser&animate.de
+49269
+  Franck d.d.
+    Alen Santic
+      alen.santic&franck.hr
+49270
+  Locata Corporation Pty. Ltd.
+    Tony Griffiths
+      engineering&locata.com
+49271
+  Wireless Technology, Inc.
+    Chris Richardson
+      chris&gotowti.com
+49272
+  AREA S.p.A.
+    SNMP customer support
+      snmp&area.it
+49273
+  BIZMEDTECH
+    CEDRIC DAIMO
+      it&bizmedtech.com
+49274
+  Belgian Mobile ID
+    Wim Coulier
+      wim.coulier&sixdots.be
+49275
+  Royal Society of Chemistry
+    Andrew Preston
+      technology&rsc.org
+49276
+  Integramed Fertility
+    Kelsey Smith
+      kelsey.smith&integramed.com
+49277
+  Stafford County Public Schools
+    Barton Hunter Matheson III
+      mathesonbh&staffordschools.net
+49278
+  Ayasdi, Inc.
+    Scott Mikusko
+      ops&ayasdi.com
+49279
+  Tesla
+    Thaddeus Fortenberry
+      tfortenberry&tesla.com
+49280
+  Trapper
+    Alejandro Del Cid
+      delcid.alejandro.z&gmail.com
+49281
+  Plexonics Technologies Pvt. Ltd.
+    Sumit Agarwal
+      sumit.agarwal&plexonics.com
+49282
+  medimaps
+    pascal vergnaud
+      pvergnaud&medimapsgroup.com
+49283
+  Credit Union of Colorado
+    Tom E Gonzales
+      iana&cuofco.org
+49284
+  LankaClear (Pvt) Ltd. 
+    Duleep Liyanage
+      duleep.liyanage&lankaclear.com
+49285
+  Lightbend Inc
+    Christopher Hunt
+      admin&typesafe.com
+49286
+  IMOTIONS
+    Imotions Support
+      support&videobutler.nl
+49287
+  Millson Custom Solutions
+    Jay Gibson
+      it&millson.net
+49288
+  Bitoptimum
+    Dragos Ilie
+      dragos&bitoptimum.com
+49289
+  Praniskom Solutions Private Limited
+    Devang Tanna
+      sales&praniskom.com
+49290
+  consultec sas di Sartor P. & c.
+    Piero Sartor
+      pierosartor&tiscali.it
+49291
+  Access Denied bvba
+    Johan Loos
+      iana&accessdenied.be
+49292
+  Biblioteca - Casa Mulas
+    Giovanni Mulas
+      biblioteca&casamulas.it
+49293
+  Nanjing Juming Network technology Co.,Ltd
+    tangjun
+      tangjun&juminfo.com
+49294
+  Hargs Bruk AB
+    Lotta Wallin
+      lotta.wallin&hargsbruk.se
+49295
+  Direction du numerique UPPA
+    DAUBA Christophe
+      christophe.dauba&univ-pau.fr
+49296
+  Fraunhofer MEVIS
+    Ruben Stein
+      ruben.stein&mevis.fraunhofer.de
+49297
+  Avicenna Health Group Inc
+    Mohammadreza Hemmati
+      hemmati&avicennapp.com
 
 
 End of Document
