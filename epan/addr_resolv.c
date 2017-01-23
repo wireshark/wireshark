@@ -549,7 +549,7 @@ add_serv_port_cb(const guint32 port)
 }
 
 
-static void
+static gboolean
 parse_services_file(const char * path)
 {
     FILE *serv_p;
@@ -560,13 +560,14 @@ parse_services_file(const char * path)
     serv_p = ws_fopen(path, "r");
 
     if (serv_p == NULL)
-        return;
+        return FALSE;
 
     while (fgetline(&buf, &size, serv_p) >= 0) {
         parse_service_line(buf);
     }
 
     fclose(serv_p);
+    return TRUE;
 }
 
 /* -----------------
@@ -643,6 +644,7 @@ serv_name_lookup(port_type proto, guint port)
 static void
 initialize_services(void)
 {
+    gboolean parse_file = TRUE;
     g_assert(serv_port_hashtable == NULL);
     serv_port_hashtable = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
 
@@ -654,9 +656,17 @@ initialize_services(void)
 
     /* Compute the pathname of the personal services file */
     if (g_pservices_path == NULL) {
-        g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE);
+        /* Check profile directory before personal configuration */
+        g_pservices_path = get_persconffile_path(ENAME_SERVICES, TRUE);
+        if (!parse_services_file(g_pservices_path)) {
+            g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE);
+        } else {
+            parse_file = FALSE;
+        }
     }
-    parse_services_file(g_pservices_path);
+    if (parse_file) {
+        parse_services_file(g_pservices_path);
+    }
 }
 
 static void
@@ -2302,9 +2312,18 @@ subnet_name_lookup_init(void)
         subnet_length_entries[i].mask = g_htonl(ip_get_subnet_mask(length));
     }
 
-    subnetspath = get_persconffile_path(ENAME_SUBNETS, FALSE);
-    if (!read_subnets_file(subnetspath) && errno != ENOENT) {
-        report_open_failure(subnetspath, errno, FALSE);
+    /* Check profile directory before personal configuration */
+    subnetspath = get_persconffile_path(ENAME_SUBNETS, TRUE);
+    if (!read_subnets_file(subnetspath)) {
+        if (errno != ENOENT) {
+            report_open_failure(subnetspath, errno, FALSE);
+        }
+
+        g_free(subnetspath);
+        subnetspath = get_persconffile_path(ENAME_SUBNETS, FALSE);
+        if (!read_subnets_file(subnetspath) && errno != ENOENT) {
+            report_open_failure(subnetspath, errno, FALSE);
+        }
     }
     g_free(subnetspath);
 

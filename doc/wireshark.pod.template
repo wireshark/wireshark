@@ -2656,6 +2656,8 @@ will not be consulted for capture filter name resolution.
 
 If an IPv4 address cannot be translated via name resolution (no exact
 match is found) then a partial match is attempted via the F<subnets> file.
+Both the global F<subnets> file and personal F<subnets> files are used
+if they exist.
 
 Each line of this file consists of an IPv4 address, a subnet mask length
 separated only by a / and a name separated by whitespace. While the address
@@ -2725,6 +2727,8 @@ preferences file.
 =item Name Resolution (services)
 
 The F<services> file is used to translate port numbers into names.
+Both the global F<services> file and personal F<services> files are used
+if they exist.
 
 The file has the standard F<services> file syntax; each line contains one
 (service) name and one transport identifier separated by white space.  The
