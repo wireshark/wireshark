@@ -3474,7 +3474,9 @@ gint rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
     return offset + seq_length;
   }
 
-  proto_tree_add_item(tree, hf_id, tvb, offset, seq_length, ENC_NA);
+  if (seq_length) {
+    proto_tree_add_item(tree, hf_id, tvb, offset, seq_length, ENC_NA);
+  }
 
   return offset + seq_length;
 }
@@ -7921,26 +7923,20 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       proto_tree *guid_tree;
       guint32 kind;
       guint32 encapsulation_id, encapsulation_len;
-      /*int encapsulation_little_endian = 0;*/
       proto_item *ti;
       rtps_pm_tree = proto_tree_add_subtree(tree, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
                         ett_rtps_part_message_data, &ti, "ParticipantMessageData");
 
       /* Encapsulation ID */
-      proto_tree_add_item_ret_uint(rtps_pm_tree, hf_rtps_encapsulation_kind, tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_id);
+      proto_tree_add_item_ret_uint(rtps_pm_tree, hf_rtps_param_serialize_encap_kind, tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_id);
       offset += 2;
 
-#if 0 /* XXX: encapsulation_little_endian not actually used anywhere ?? */
-      /* Sets the correct values for encapsulation_le */
-      if (encapsulation_id == ENCAPSULATION_CDR_LE ||
-          encapsulation_id == ENCAPSULATION_PL_CDR_LE) {
-        encapsulation_little_endian = 1;
-      }
-#endif
+      encoding = (encapsulation_id == ENCAPSULATION_CDR_LE)
+        ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
       /* Encapsulation length (or option) */
-      proto_tree_add_item_ret_uint(rtps_pm_tree, hf_rtps_encapsulation_options, tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_len);
+      proto_tree_add_item_ret_uint(rtps_pm_tree, hf_rtps_param_serialize_encap_len, tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_len);
       offset += 2;
 
       guid_tree = proto_item_add_subtree(ti, ett_rtps_part_message_data);
@@ -7954,7 +7950,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       offset += 4;
 
       rtps_util_add_seq_octets(rtps_pm_tree, pinfo, tvb, offset, encoding,
-                               octets_to_next_header - (offset - old_offset), hf_rtps_data_serialize_data);
+                               octets_to_next_header - (offset - old_offset) + 4, hf_rtps_data_serialize_data);
 
     } else if (wid == ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_WRITER) {
       /* PGM stands for Participant Generic Message */
