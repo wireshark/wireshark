@@ -139,9 +139,9 @@ static int hf_rtps_param_type_name              = -1;
 static int hf_rtps_param_user_data              = -1;
 static int hf_rtps_param_group_data             = -1;
 static int hf_rtps_param_topic_data             = -1;
-static int hf_rtps_param_content_filter_name    = -1;
+static int hf_rtps_param_content_filter_topic_name = -1;
 static int hf_rtps_param_related_topic_name     = -1;
-static int hf_rtps_param_filter_name            = -1;
+static int hf_rtps_param_filter_class_name      = -1;
 static int hf_rtps_issue_data                   = -1;
 static int hf_rtps_durability_service_cleanup_delay     = -1;
 static int hf_rtps_liveliness_lease_duration            = -1;
@@ -236,8 +236,8 @@ static int hf_rtps_bitmap_num_bits              = -1;
 static int hf_rtps_param_partition_num          = -1;
 static int hf_rtps_param_partition              = -1;
 static int hf_rtps_param_filter_expression      = -1;
-static int hf_rtps_param_filter_parameters_num  = -1;
-static int hf_rtps_param_filter_parameters      = -1;
+static int hf_rtps_param_expression_parameters_num  = -1;
+static int hf_rtps_param_expression_parameters      = -1;
 static int hf_rtps_locator_filter_list_num_channels = -1;
 static int hf_rtps_locator_filter_list_filter_name  = -1;
 static int hf_rtps_locator_filter_list_filter_exp   = -1;
@@ -5199,11 +5199,11 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
      * |                              ...                              |
      * +---------------+---------------+---------------+---------------+
      *
-     * String1: ContentFilterName
+     * String1: ContentFilterTopicName
      * String2: RelatedTopicName
-     * String3: FilterName
+     * String3: FilterClassName
      * String4: FilterExpression
-     * FilterParameters: sequence of Strings
+     * ExpressionParameters: sequence of Strings
      *
      * Note: those strings starts all to a word-aligned (4 bytes) offset
      */
@@ -5211,16 +5211,16 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
       guint32 temp_offset = offset;
       ENSURE_LENGTH(20);
       temp_offset = rtps_util_add_string(rtps_parameter_tree, tvb, temp_offset,
-                    hf_rtps_param_content_filter_name, encoding);
+                    hf_rtps_param_content_filter_topic_name, encoding);
       temp_offset = rtps_util_add_string(rtps_parameter_tree, tvb, temp_offset,
                     hf_rtps_param_related_topic_name, encoding);
       temp_offset = rtps_util_add_string(rtps_parameter_tree, tvb, temp_offset,
-                    hf_rtps_param_filter_name, encoding);
+                    hf_rtps_param_filter_class_name, encoding);
       temp_offset = rtps_util_add_string(rtps_parameter_tree, tvb, temp_offset,
                     hf_rtps_param_filter_expression, encoding);
       /*temp_offset = */rtps_util_add_seq_string(rtps_parameter_tree, tvb, temp_offset,
-                    encoding, param_length, hf_rtps_param_filter_parameters_num,
-                    hf_rtps_param_filter_parameters, "filterParameters");
+                    encoding, param_length, hf_rtps_param_expression_parameters_num,
+                    hf_rtps_param_expression_parameters, "expressionParameters");
       break;
       }
 
@@ -10123,14 +10123,14 @@ void proto_register_rtps(void) {
 
 
     /* Parameter / Content Filter Name ------------------------------------- */
-    { &hf_rtps_param_content_filter_name, {
-        "contentFilterName",
-        "rtps.param.contentFilterName",
+    { &hf_rtps_param_content_filter_topic_name, {
+        "contentFilterTopicName",
+        "rtps.param.contentFilterTopicName",
         FT_STRINGZ,
         BASE_NONE,
         NULL,
         0,
-        "Value of the content filter name as sent in a PID_CONTENT_FILTER_PROPERTY parameter",
+        "Value of the content filter topic name as sent in a PID_CONTENT_FILTER_PROPERTY parameter",
         HFILL }
     },
     { &hf_rtps_param_related_topic_name, {
@@ -10143,14 +10143,14 @@ void proto_register_rtps(void) {
         "Value of the related topic name as sent in a PID_CONTENT_FILTER_PROPERTY parameter",
         HFILL }
     },
-    { &hf_rtps_param_filter_name, {
-        "filterName",
-        "rtps.param.filterName",
+    { &hf_rtps_param_filter_class_name, {
+        "filterClassName",
+        "rtps.param.filterClassName",
         FT_STRINGZ,
         BASE_NONE,
         NULL,
         0,
-        "Value of the filter name as sent in a PID_CONTENT_FILTER_PROPERTY parameter",
+        "Value of the filter class name as sent in a PID_CONTENT_FILTER_PROPERTY parameter",
         HFILL }
     },
 
@@ -10830,8 +10830,8 @@ void proto_register_rtps(void) {
         NULL, HFILL }
     },
 
-    { &hf_rtps_param_filter_parameters_num,
-      { "Size", "rtps.param.filter_parameters_num",
+    { &hf_rtps_param_expression_parameters_num,
+      { "Number of expression params", "rtps.param.expression_parameters_num",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
@@ -10848,8 +10848,8 @@ void proto_register_rtps(void) {
         NULL, HFILL }
     },
 
-    { &hf_rtps_param_filter_parameters,
-      { "filterParameters", "rtps.param.filter_parameters",
+    { &hf_rtps_param_expression_parameters,
+      { "expressionParameters", "rtps.param.expression_parameters",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
