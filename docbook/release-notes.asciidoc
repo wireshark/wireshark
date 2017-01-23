@@ -12,23 +12,14 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2017-01[]
+* ws-salink:2017-03[]
 +
-The ASTERIX dissector could go into an infinite loop.
-(ws-buglink:13344[])
+A dissector went awry.
+(ws-buglink:XXXX[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: 781f035
-// Fixed in master-2.2: bb235f1
-// Fixed in master-2.0: efdff1f
-
-* ws-salink:2017-02[]
-+
-The DHCPv6 dissector could go into a large loop.
-(ws-buglink:13345[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 57894f7
-// Fixed in master-2.2: f291d1f
-// Fixed in master-2.0: 12723d7
+// Fixed in master: XXXX
+// Fixed in master-2.2: XXXX
+// Fixed in master-2.0: XXXX
 
 The following bugs have been fixed:
 
@@ -36,51 +27,8 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.4rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.5rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* TCP reassembly: tcp.reassembled_in is not set in first packet. (ws-buglink:3264[])
-
-* Duplicated Interfaces instances while refreshing. (ws-buglink:11553[])
-
-* Time zone name needs to be converted to UTF-8 on Windows. (ws-buglink:11785[])
-
-* Crash on fast local interface changes. (ws-buglink:12263[])
-
-* Please align columns in tshark's output. (ws-buglink:12502[])
-
-* Display data rate fields for VHT rates invalid with BCC modulation. (ws-buglink:12859[])
-
-* plugin_if_get_ws_info causes Access Violation if called during rescan. (ws-buglink:12973[])
-
-* SMTP BDAT dissector not reverting to command-code after DATA. (ws-buglink:13030[])
-
-* Wireshark fails to recognize V6 DBS Etherwatch capture files. (ws-buglink:13093[])
-
-* Runtime Error when try to merge .pcap files (Wireshark crashes). (ws-buglink:13175[])
-
-* PPP BCP BPDU size reports not header size, but all data underneath and its header size in UI. (ws-buglink:13188[])
-
-* In-line UDP checksum bytes in 6LoWPAN IPHC are swapped. (ws-buglink:13233[])
-
-* Uninitialized memcmp on data in daintree-sna.c. (ws-buglink:13246[])
-
-* Crash when dissect WDBRPC Version 2 protocol with 'Dissect unknown program numbers' enabled. (ws-buglink:13266[])
-
-* Contents/Resources/bin directory isn't in the app bundle after installation. (ws-buglink:13270[])
-
-* Regression: IEEE17221 (AVDECC) decoded as IEEE1722 (AVB Transportation Protocol). (ws-buglink:13274[])
-
-* Can't decode packets captured with OpenBSD enc(4) encapsulating. (ws-buglink:13279[])
-
-* UDLD flags are at other end of octet. (ws-buglink:13280[])
-
-* MS-WSP dissector no longer works since commit 8c2fa5b5cf789e6d0d19cd0dd34479d0203d177a. (ws-buglink:13299[])
-
-* TBCD string decoded wrongly in MAP ATI message. (ws-buglink:13316[])
-
-* Filter Documentation: The tilde (~) operator is not documented. (ws-buglink:13320[])
-
-* VoIP Flow Sequence Causes Application Crash. (ws-buglink:13329[])
 
 === New and Updated Features
 
@@ -99,22 +47,6 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-6LoWPAN
-DVB-CI
-ENC
-GSM MAP
-IEEE 1722
-IEEE 1722.1
-ISAKMP
-MS-WSP
-PPP
-QUIC
-Radiotap
-RPC
-SMTP
-TCP
-UCD
-UDLD
 --sort-and-group--
 
 === New and Updated Capture File Support
@@ -122,8 +54,6 @@ UDLD
 There is no new or updated capture file support in this release.
 
 --sort-and-group--
-Daintree SNA
-DBS Etherwatch
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
