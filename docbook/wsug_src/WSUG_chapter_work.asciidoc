@@ -292,6 +292,9 @@ You can use English and C-like terms in the same way, they can even be  mixed in
 |lt |<  |Less than. `frame.len < 128`
 |ge |>= |Greater than or equal to. `frame.len ge 0x100`
 |le |\<= |Less than or equal to. `frame.len <= 0x20`
+|contains||Protocol, field or slice contains a value. `sip.To contains "a1762"`
+|matches|~|Protocol or text field match Perl regualar expression. `http.host matches "acme\.(org\|com\|net)"`
+|bitwise_and|&|Compare bit field value. `tcp.flags & 0x02`
 |===============
 
 In addition, all protocol fields have a type. <<ChWorkFieldTypes>> provides a list
@@ -349,6 +352,28 @@ IPv6 address::
 
 Text string::
   +http.request.uri == "https://www.wireshark.org/"+
+
+----
+udp contains 81:60:03
+----
+The example above match packets that contains the 3-byte sequence 0x81, 0x60,
+0x03 anywhere in the UDP header or payload.
+----
+sip.To contains "a1762"
+----
+Above example match packets where SIP To-header contains the string "a1762"
+anywhere in the header.
+----
+http.host matches "acme\.(org|com|net)"
+----
+The example above match HTTP packets where the HOST header contains acme.org or acme.com
+or acme.net. Note: Wireshark needs to be built with libpcre in order to be able to use the
++matches+ resp. +~+ operator.
+----
+tcp.flags & 0x02
+----
+That expression will match all packets that contain a "tcp.flags" field with the 0x02 bit,
+i.e. the SYN bit, set.
 
 ==== Combining expressions
 
