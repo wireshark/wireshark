@@ -768,7 +768,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
     /* There must be at least five octets left to be a valid sub element */
     if (optend <= 0) {
         expert_add_info_format(pinfo, v_item, &ei_dhcpv6_no_suboption_len, "Sub element %d: no room left in option for suboption length", subopt);
-        return (optend);
+        return (suboptoff - optoff);
     }
     /* g_print("dissect packetcable ccc option subopt_len=%d optend=%d\n\n", subopt_len, optend); */
 
@@ -892,7 +892,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
     /* There must be at least five octets left to be a valid sub element */
     if (optend <= 0) {
         expert_add_info_format(pinfo, v_item, &ei_dhcpv6_no_suboption_len, "Sub element %d: no room left in option for suboption length", subopt);
-        return (optend);
+        return (suboptoff - optoff);
     }
 
     vti = proto_tree_add_item(v_tree, hf_packetcable_cccV6_suboption, tvb, optoff, 2, ENC_BIG_ENDIAN);
@@ -1006,21 +1006,21 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
 static void
 dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_info *pinfo, tvbuff_t *tvb, int voff, int len)
 {
-    guint16 type,
-            tlv_len, /* holds the number of elements in the tlv */
-            opt_len, /* holds the length of the suboption */
-            sub_value;
+    guint type,
+          sub_value;
     proto_item *ti;
     proto_item *ti2;
     proto_tree *subtree;
     proto_tree *subtree2;
-    gint tlv5_cap_index,
-         tlv5_counter,
-         tlv5_cap_len;
+    int tlv5_cap_index,
+        tlv5_counter,
+        tlv5_cap_len;
     int off = voff,
         sub_off, /** The offset for the sub-option */
         i,
+        tlv_len, /* holds the number of elements in the tlv */
         field_len, /* holds the length of one occurrence of a field */
+        opt_len, /* holds the length of the suboption */
         field_value;
     gchar *device_type = NULL;
 
