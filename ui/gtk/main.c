@@ -1273,7 +1273,7 @@ main_cf_cb_file_closing(capture_file *cf)
      * rather than, say, a progress spinner, here! */
     if(cf->count > 10000) {
         close_dlg = (GtkWidget *)simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE,
-                                  "%sClosing file!%s\n\nPlease wait ...",
+                                  "%sClosing file.%s\n\nPlease wait ...",
                                   simple_dialog_primary_start(),
                                   simple_dialog_primary_end());
         gtk_window_set_position(GTK_WINDOW(close_dlg), GTK_WIN_POS_CENTER_ON_PARENT);

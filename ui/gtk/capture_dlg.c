@@ -5642,7 +5642,7 @@ capture_dlg_prep(gpointer parent_w) {
         global_capture_opts.autostop_filesize = tmp;
       } else {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-          "%sMultiple files: Requested filesize too large!%s\n\n"
+          "%sMultiple files: Requested file size too large.%s\n\n"
           "The setting \"Next file every x byte(s)\" can't be greater than %u bytes (2GiB).",
           simple_dialog_primary_start(), simple_dialog_primary_end(), (guint32)G_MAXINT + 1);
         return FALSE;
@@ -5652,13 +5652,13 @@ capture_dlg_prep(gpointer parent_w) {
     /* test if the settings are ok for a ringbuffer */
     if (global_capture_opts.save_file == NULL) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        "%sMultiple files: No capture file name given!%s\n\n"
+        "%sMultiple files: No capture file name given.%s\n\n"
         "You must specify a filename if you want to use multiple files.",
         simple_dialog_primary_start(), simple_dialog_primary_end());
       return FALSE;
     } else if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        "%sMultiple files: No file limit given!%s\n\n"
+        "%sMultiple files: No file limit given.%s\n\n"
         "You must specify a file size or duration at which is switched to the next capture file\n"
         "if you want to use multiple files.",
         simple_dialog_primary_start(), simple_dialog_primary_end());
@@ -5676,7 +5676,7 @@ capture_dlg_prep(gpointer parent_w) {
         global_capture_opts.autostop_filesize = tmp;
       } else {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-          "%sStop Capture: Requested filesize too large!%s\n\n"
+          "%sStop Capture: Requested file size too large.%s\n\n"
           "The setting \"after x byte(s)\" can't be greater than %u bytes (2GiB).",
           simple_dialog_primary_start(), simple_dialog_primary_end(), (guint32)G_MAXINT + 1);
         return FALSE;

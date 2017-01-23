@@ -2254,7 +2254,7 @@ capture_if_details_open_win(char *iface)
          * XXX - We should use the TurboCap API to get info about TurboCap adapters.
          */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "%sCould not open adapter %s!%s"
+            "%sCould not open adapter %s.%s"
             "\n\nHas it been unplugged?",
             simple_dialog_primary_start(), iface, simple_dialog_primary_end());
         return;
