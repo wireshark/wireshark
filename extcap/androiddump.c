@@ -103,14 +103,16 @@
 
 #define ANDROIDDUMP_VERSION_MAJOR    "1"
 #define ANDROIDDUMP_VERSION_MINOR    "0"
-#define ANDROIDDUMP_VERSION_RELEASE  "4"
+#define ANDROIDDUMP_VERSION_RELEASE  "5"
 
 #define SERIAL_NUMBER_LENGTH_MAX  512
 #define MODEL_NAME_LENGTH_MAX      64
 
 #define PACKET_LENGTH 65535
 
-#define SOCKET_SEND_TIMEOUT_MS 500
+#define SOCKET_RW_TIMEOUT_MS          500
+#define SOCKET_CONNECT_TIMEOUT_TRIES   10
+#define SOCKET_CONNECT_DELAY_US      1000 /* (1000us = 1ms) * SOCKET_CONNECT_TIMEOUT_TRIES (10) = 10ms worst-case  */
 
 enum exit_code {
     EXIT_CODE_SUCCESS = 0,
@@ -257,13 +259,13 @@ static inline int is_specified_interface(char *interface, const char *interface_
 static void useSndTimeout(socket_handle_t  sock) {
     int res;
 #ifdef _WIN32
-    const DWORD socket_timeout = SOCKET_SEND_TIMEOUT_MS;
+    const DWORD socket_timeout = SOCKET_RW_TIMEOUT_MS;
 
     res = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char *) &socket_timeout, (socklen_t)sizeof(socket_timeout));
 #else
     const struct timeval socket_timeout = {
-        .tv_sec = SOCKET_SEND_TIMEOUT_MS / 1000,
-        .tv_usec = (SOCKET_SEND_TIMEOUT_MS % 1000) * 1000
+        .tv_sec = SOCKET_RW_TIMEOUT_MS / 1000,
+        .tv_usec = (SOCKET_RW_TIMEOUT_MS % 1000) * 1000
     };
 
     res = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &socket_timeout, (socklen_t)sizeof(socket_timeout));
@@ -271,6 +273,48 @@ static void useSndTimeout(socket_handle_t  sock) {
     if (res != 0)
         g_debug("Can't set socket timeout, using default");
 }
+
+static void useNonBlockingConnectTimeout(socket_handle_t  sock) {
+    int res_snd;
+    int res_rcv;
+#ifdef _WIN32
+    const DWORD socket_timeout = SOCKET_RW_TIMEOUT_MS;
+
+    res_snd = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char *) &socket_timeout, sizeof(socket_timeout));
+    res_rcv = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char *) &socket_timeout, sizeof(socket_timeout));
+#else
+    const struct timeval socket_timeout = {
+        .tv_sec = SOCKET_RW_TIMEOUT_MS / 1000,
+        .tv_usec = (SOCKET_RW_TIMEOUT_MS % 1000) * 1000
+    };
+
+    res_snd = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &socket_timeout, sizeof(socket_timeout));
+    res_rcv = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &socket_timeout, sizeof(socket_timeout));
+#endif
+    if (res_snd != 0)
+        g_debug("Can't set socket timeout, using default");
+    if (res_rcv != 0)
+        g_debug("Can't set socket timeout, using default");
+}
+
+static void useNormalConnectTimeout(socket_handle_t  sock) {
+    int res_rcv;
+#ifdef _WIN32
+    const DWORD socket_timeout = 0;
+
+    res_rcv = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char *) &socket_timeout, sizeof(socket_timeout));
+#else
+    const struct timeval socket_timeout = {
+        .tv_sec = SOCKET_RW_TIMEOUT_MS / 1000,
+        .tv_usec = (SOCKET_RW_TIMEOUT_MS % 1000) * 1000
+    };
+
+    res_rcv = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &socket_timeout, sizeof(socket_timeout));
+#endif
+    if (res_rcv != 0)
+        g_debug("Can't set socket timeout, using default");
+}
+
 
 static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     struct extcap_dumper extcap_dumper;
@@ -398,6 +442,8 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
     socklen_t          length;
     struct sockaddr_in server;
     struct sockaddr_in client;
+    int                status;
+    int                tries = 0;
 
     memset(&server, 0x0, sizeof(server));
 
@@ -410,9 +456,17 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
         return INVALID_SOCKET;
     }
 
-    useSndTimeout(sock);
+    useNonBlockingConnectTimeout(sock);
+    while (tries < SOCKET_CONNECT_TIMEOUT_TRIES) {
+        status = connect(sock, (struct sockaddr *) &server, (socklen_t)sizeof(server));
+        tries += 1;
+        if (status != SOCKET_ERROR)
+            break;
+        g_usleep(SOCKET_CONNECT_DELAY_US);
+    }
+    useNormalConnectTimeout(sock);
 
-    if (connect(sock, (struct sockaddr *) &server, (socklen_t)sizeof(server)) == SOCKET_ERROR) {
+    if (status == SOCKET_ERROR) {
 #if 0
 /* NOTE: This does not work well - make significant delay while initializing Wireshark.
          Do fork() then call "adb" also does not make sense, because there is need to
