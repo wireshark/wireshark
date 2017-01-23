@@ -12,14 +12,23 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-//* ws-salink:2016-63[]
-//+
-//A dissector went awry.
-//(ws-buglink:xxxx[])
+* ws-salink:2017-01[]
++
+The ASTERIX dissector could go into an infinite loop.
+(ws-buglink:13344[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: xxxx
-// Fixed in master-2.2: xxxx
-// Fixed in master-2.0: xxxx
+// Fixed in master: 781f035
+// Fixed in master-2.2: bb235f1
+// Fixed in master-2.0: efdff1f
+
+* ws-salink:2017-02[]
++
+The DHCPv6 dissector could go into a large loop.
+(ws-buglink:13345[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 57894f7
+// Fixed in master-2.2: f291d1f
+// Fixed in master-2.0: 12723d7
 
 The following bugs have been fixed:
 
@@ -68,6 +77,8 @@ The following bugs have been fixed:
 * MS-WSP dissector no longer works since commit 8c2fa5b5cf789e6d0d19cd0dd34479d0203d177a. (ws-buglink:13299[])
 
 * TBCD string decoded wrongly in MAP ATI message. (ws-buglink:13316[])
+
+* Filter Documentation: The tilde (~) operator is not documented. (ws-buglink:13320[])
 
 * VoIP Flow Sequence Causes Application Crash. (ws-buglink:13329[])
 
