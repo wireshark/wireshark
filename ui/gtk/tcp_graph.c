@@ -4265,7 +4265,7 @@ static void rtt_initialize(struct gtk_graph *g)
         } else if (first) {
             guint32       ackno    = tmp->th_ack - seq_base;
             double        time_val = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
-            struct rtt_unack *v;
+            struct rtt_unack *v = NULL;
 
             for (u=unack; u; u=v) {
                 if (tcp_seq_after(ackno, u->seqno)) {
@@ -4336,7 +4336,7 @@ static void rtt_make_elmtlist(struct gtk_graph *g)
         } else {
             guint32       ackno    = tmp->th_ack - seq_base;
             double        time_val = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
-            struct rtt_unack *v;
+            struct rtt_unack *v = NULL;
 
             for (u=unack; u; u=v) {
                 if (tcp_seq_after(ackno, u->seqno)) {
