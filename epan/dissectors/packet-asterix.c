@@ -2760,7 +2760,7 @@ static void asterix_build_subtree (tvbuff_t *, guint, proto_tree *, const Asteri
 static void twos_complement (gint64 *, guint8);
 static guint8 byte_length (guint8);
 static guint8 asterix_bit (guint8, guint8);
-static guint8 asterix_fspec_len (tvbuff_t *, guint);
+static guint asterix_fspec_len (tvbuff_t *, guint);
 static guint8 asterix_field_exists (tvbuff_t *, guint, int);
 static guint8 asterix_get_active_uap (tvbuff_t *, guint, guint8);
 static int asterix_field_length (tvbuff_t *, guint, const AsterixField *);
@@ -8602,10 +8602,11 @@ static void twos_complement (gint64 *v, guint8 bit_len)
     }
 }
 
-static guint8 asterix_fspec_len (tvbuff_t *tvb, guint offset)
+static guint asterix_fspec_len (tvbuff_t *tvb, guint offset)
 {
-    guint8 i;
-    for (i = 0; (tvb_get_guint8 (tvb, offset + i) & 1) && i < tvb_reported_length (tvb) - offset; i++);
+    guint i;
+    guint max_length = tvb_reported_length (tvb) - offset;
+    for (i = 0; (tvb_get_guint8 (tvb, offset + i) & 1) && i < max_length; i++);
     return i + 1;
 }
 
