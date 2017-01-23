@@ -586,7 +586,7 @@ extern void rtps_util_add_durability_service_qos(proto_tree *tree, tvbuff_t * tv
 extern void rtps_util_add_liveliness_qos(proto_tree *tree, tvbuff_t * tvb, gint offset,
                                          const guint encoding);
 extern gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t* tvb, gint offset,
-                              const guint encoding, int param_length, int hf_numstring,
+                              const guint encoding, int hf_numstring,
                               int hf_string, const char *label);
 extern gint rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t* tvb,
                               gint offset, const guint encoding, int param_length, int hf_id);

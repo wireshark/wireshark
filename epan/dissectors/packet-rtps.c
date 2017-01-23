@@ -2344,18 +2344,24 @@ static void rtps_util_add_product_version(proto_tree *tree, tvbuff_t *tvb, gint 
  * Returns the new updated offset
  */
 gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t *tvb, gint offset,
-                              const guint encoding, int param_length, int hf_numstring,
+                              const guint encoding, int hf_numstring,
                               int hf_string, const char *label) {
   guint32 size;
   gint32 i, num_strings;
   const guint8 *retVal;
   proto_tree *string_tree;
+  gint start;
 
   proto_tree_add_item_ret_int(tree, hf_numstring, tvb, offset, 4, encoding, &num_strings);
   offset += 4;
 
+  if (num_strings == 0) {
+    return offset;
+  }
+
+  start = offset;
   /* Create the string node with a fake string, the replace it later */
-  string_tree = proto_tree_add_subtree(tree, tvb, offset, param_length-8, ett_rtps_seq_string, NULL, label);
+  string_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_seq_string, NULL, label);
 
   for (i = 0; i < num_strings; ++i) {
     size = tvb_get_guint32(tvb, offset, encoding);
@@ -2368,6 +2374,7 @@ gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t *tvb, gint offset,
     offset += (4 + ((size + 3) & 0xfffffffc));
   }
 
+  proto_item_set_len(string_tree, offset - start);
   return offset;
 }
 
@@ -4931,7 +4938,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_PARTITION:
       ENSURE_LENGTH(4);
       rtps_util_add_seq_string(rtps_parameter_tree, tvb, offset, encoding,
-                    param_length, hf_rtps_param_partition_num, hf_rtps_param_partition, "name");
+                               hf_rtps_param_partition_num, hf_rtps_param_partition, "name");
       break;
 
     /* 0...2...........7...............15.............23...............31
@@ -5219,7 +5226,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
       temp_offset = rtps_util_add_string(rtps_parameter_tree, tvb, temp_offset,
                     hf_rtps_param_filter_expression, encoding);
       /*temp_offset = */rtps_util_add_seq_string(rtps_parameter_tree, tvb, temp_offset,
-                    encoding, param_length, hf_rtps_param_expression_parameters_num,
+                    encoding, hf_rtps_param_expression_parameters_num,
                     hf_rtps_param_expression_parameters, "expressionParameters");
       break;
       }
@@ -10825,7 +10832,7 @@ void proto_register_rtps(void) {
     },
 
     { &hf_rtps_param_partition_num,
-      { "Size", "rtps.param.partition_num",
+      { "Number of partition names", "rtps.param.partition_num",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
