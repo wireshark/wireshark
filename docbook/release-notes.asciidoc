@@ -49,6 +49,8 @@ The following bugs have been fixed:
 
 * TBCD string decoded wrongly in MAP ATI message. (ws-buglink:13316[])
 
+* Filter Documentation: The tilde (~) operator is not documented. (ws-buglink:13320[])
+
 === New and Updated Features
 
 There are no new features in this release.
