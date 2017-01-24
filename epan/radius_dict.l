@@ -92,6 +92,33 @@
 #include <epan/dissectors/packet-radius.h>
 #include <wsutil/file_util.h>
 
+/*
+ * See
+ *
+ *	http://freeradius.org/radiusd/man/dictionary.html
+ *
+ * for the format of RADIUS dictionary files.
+ *
+ * XXX - features not currently supported:
+ *
+ *	dotted number values for the oid field;
+ *
+ *	integer64, ipv4prefix, combo-prefix, bool, size, decimal,
+ *	timeval, struct, extended, long-extended, vsa, evs, vendor,
+ *	cidr, uint{8,16,32,64}, int{8,16,32,64} as attribute types
+ *	(some of these aren't documented);
+ *
+ *	octets[N], where N is an integer, as an attribute type
+ *	(not documented in the man page);
+ *
+ *	internal, array, concat, and virtual as attribute flags;
+ *
+ *	format= for BEGIN-VENDOR.
+ *
+ * We should, perhaps, adopt FreeRADIUS's dictionary-parsing code in
+ * src/lib/dict.c and use that, rather than writing our own parser.
+ * See bug 13176.
+ */
 #define YY_USER_INIT BEGIN WS_OUT;
 
 #ifdef _WIN32
