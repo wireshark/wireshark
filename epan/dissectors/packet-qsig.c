@@ -35,6 +35,7 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
+#include <wsutil/strtoi.h>
 
 #include "packet-ber.h"
 #include "packet-qsig.h"
@@ -489,7 +490,7 @@ static const value_string qsig_str_operation[] = {
   { 120, "mIDMailboxID" },
 
 /*--- End of included file: packet-qsig-table10.c ---*/
-#line 272 "./asn1/qsig/packet-qsig-template.c"
+#line 273 "./asn1/qsig/packet-qsig-template.c"
   {   0, NULL}
 };
 
@@ -682,7 +683,7 @@ static const value_string qsig_str_error[] = {
   { 1008, "unspecified" },
 
 /*--- End of included file: packet-qsig-table20.c ---*/
-#line 277 "./asn1/qsig/packet-qsig-template.c"
+#line 278 "./asn1/qsig/packet-qsig-template.c"
   {   0, NULL}
 };
 
@@ -1577,7 +1578,7 @@ static int hf_qsig_mid_multipleExtension = -1;    /* SEQUENCE_OF_Extension */
 static int hf_qsig_mid_multipleExtension_item = -1;  /* Extension */
 
 /*--- End of included file: packet-qsig-hf.c ---*/
-#line 293 "./asn1/qsig/packet-qsig-template.c"
+#line 294 "./asn1/qsig/packet-qsig-template.c"
 
 static int *hf_qsig_ie_type_arr[] = {
   NULL,
@@ -2037,7 +2038,7 @@ static gint ett_qsig_mid_MIDExtensions = -1;
 static gint ett_qsig_mid_SEQUENCE_OF_Extension = -1;
 
 /*--- End of included file: packet-qsig-ett.c ---*/
-#line 310 "./asn1/qsig/packet-qsig-template.c"
+#line 311 "./asn1/qsig/packet-qsig-template.c"
 static gint ett_cnq_PSS1InformationElement = -1;
 
 /* static expert_field ei_qsig_unsupported_arg_type = EI_INIT; */
@@ -2051,8 +2052,6 @@ static dissector_handle_t q931_ie_handle = NULL;
 
 /* Global variables */
 static const char *extension_oid = NULL;
-static GHashTable *qsig_opcode2oid_hashtable = NULL;
-static GHashTable *qsig_oid2op_hashtable = NULL;
 
 /* Dissector tables */
 static dissector_table_t extension_dissector_table;
@@ -11931,7 +11930,7 @@ static int dissect_qsig_mid_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-qsig-fn.c ---*/
-#line 330 "./asn1/qsig/packet-qsig-template.c"
+#line 329 "./asn1/qsig/packet-qsig-template.c"
 
 typedef struct _qsig_op_t {
   gint32 opcode;
@@ -12153,7 +12152,7 @@ static const qsig_op_t qsig_op_tab[] = {
   /* mIDMailboxID             */ { 120, dissect_qsig_mid_MIDMailboxIDArg_PDU, dissect_qsig_mid_MIDDummyRes_PDU },
 
 /*--- End of included file: packet-qsig-table11.c ---*/
-#line 339 "./asn1/qsig/packet-qsig-template.c"
+#line 338 "./asn1/qsig/packet-qsig-template.c"
 };
 
 typedef struct _qsig_err_t {
@@ -12350,7 +12349,7 @@ static const qsig_err_t qsig_err_tab[] = {
   /* unspecified              */ { 1008, dissect_qsig_mid_Extension_PDU },
 
 /*--- End of included file: packet-qsig-table21.c ---*/
-#line 348 "./asn1/qsig/packet-qsig-template.c"
+#line 347 "./asn1/qsig/packet-qsig-template.c"
 };
 
 static const qsig_op_t *get_op(gint32 opcode) {
@@ -12384,9 +12383,9 @@ static int
 dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset = 0;
   rose_ctx_t *rctx;
-  gint32 opcode = 0, service;
-  const qsig_op_t *op_ptr;
-  const gchar *p;
+  gint32 opcode = 0, service, oid_num;
+  const qsig_op_t *op_ptr = NULL;
+  const gchar *p, *oid;
   proto_item *ti, *ti_tmp;
   proto_tree *qsig_tree;
 
@@ -12402,8 +12401,13 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     opcode = rctx->d.code_local;
     op_ptr = get_op(opcode);
   } else if (rctx->d.code == 1) {  /* global */
-    op_ptr = (qsig_op_t *)g_hash_table_lookup(qsig_oid2op_hashtable, rctx->d.code_global);
-    if (op_ptr) opcode = op_ptr->opcode;
+    oid = g_strrstr(rctx->d.code_global, ".");
+    if (oid != NULL) {
+     if (ws_strtou32(oid+1, NULL, &oid_num))
+        op_ptr = get_op(oid_num);
+    }
+    if (op_ptr)
+        opcode = op_ptr->opcode;
   } else {
     return offset;
   }
@@ -12606,32 +12610,6 @@ static int
 dissect_qsig_ie_cs5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   dissect_qsig_ie(tvb, pinfo, tree, 5);
   return tvb_captured_length(tvb);
-}
-
-/*--- qsig_init_tables ---------------------------------------------------------*/
-static void qsig_init_tables(void) {
-  guint i;
-  gint opcode, *key;
-  gchar *oid;
-
-  if (qsig_opcode2oid_hashtable)
-    g_hash_table_destroy(qsig_opcode2oid_hashtable);
-  qsig_opcode2oid_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
-
-  if (qsig_oid2op_hashtable)
-    g_hash_table_destroy(qsig_oid2op_hashtable);
-  qsig_oid2op_hashtable = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
-
-  /* fill-in global OIDs */
-  for (i=0; i<array_length(qsig_op_tab); i++) {
-    opcode = qsig_op_tab[i].opcode;
-    oid = g_strdup_printf("1.3.12.9.%d", opcode);
-    key = (gint *)g_malloc(sizeof(gint));
-    *key = opcode;
-    g_hash_table_insert(qsig_opcode2oid_hashtable, key, oid);
-    g_hash_table_insert(qsig_oid2op_hashtable, g_strdup(oid), (gpointer)&qsig_op_tab[i]);
-  }
-
 }
 
 /*--- proto_register_qsig ---------------------------------------------------*/
@@ -15907,7 +15885,7 @@ void proto_register_qsig(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 667 "./asn1/qsig/packet-qsig-template.c"
+#line 645 "./asn1/qsig/packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -16358,7 +16336,7 @@ void proto_register_qsig(void) {
     &ett_qsig_mid_SEQUENCE_OF_Extension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 675 "./asn1/qsig/packet-qsig-template.c"
+#line 653 "./asn1/qsig/packet-qsig-template.c"
     &ett_cnq_PSS1InformationElement,
   };
 
@@ -16383,16 +16361,13 @@ void proto_register_qsig(void) {
 
   /* Register dissector tables */
   extension_dissector_table = register_dissector_table("qsig.ext", "QSIG Extension", proto_qsig, FT_STRING, BASE_NONE);
-
-  qsig_init_tables();
 }
 
 
 /*--- proto_reg_handoff_qsig ------------------------------------------------*/
 void proto_reg_handoff_qsig(void) {
   int i;
-  gint key;
-  const gchar *oid;
+  gchar *oid;
   dissector_handle_t q931_handle;
   dissector_handle_t qsig_arg_handle;
   dissector_handle_t qsig_res_handle;
@@ -16407,12 +16382,11 @@ void proto_reg_handoff_qsig(void) {
   for (i=0; i<(int)array_length(qsig_op_tab); i++) {
     dissector_add_uint("q932.ros.local.arg", qsig_op_tab[i].opcode, qsig_arg_handle);
     dissector_add_uint("q932.ros.local.res", qsig_op_tab[i].opcode, qsig_res_handle);
-    key = qsig_op_tab[i].opcode;
-    oid = (const gchar *)g_hash_table_lookup(qsig_opcode2oid_hashtable, &key);
-    if (oid) {
-      dissector_add_string("q932.ros.global.arg", oid, qsig_arg_handle);
-      dissector_add_string("q932.ros.global.res", oid, qsig_res_handle);
-    }
+
+    oid = wmem_strdup_printf(NULL, "1.3.12.9.%d", qsig_op_tab[i].opcode);
+    dissector_add_string("q932.ros.global.arg", oid, qsig_arg_handle);
+    dissector_add_string("q932.ros.global.res", oid, qsig_res_handle);
+    wmem_free(NULL, oid);
   }
   qsig_err_handle = create_dissector_handle(dissect_qsig_err, proto_qsig);
   for (i=0; i<(int)array_length(qsig_err_tab); i++) {
