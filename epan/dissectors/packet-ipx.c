@@ -470,7 +470,7 @@ typedef struct {
 	guint32             num;
 } spx_rexmit_info;
 
-static GHashTable *spx_hash = NULL;
+static wmem_map_t *spx_hash = NULL;
 
 /* Hash Functions */
 static gint
@@ -494,30 +494,6 @@ spx_hash_func(gconstpointer v)
 	return GPOINTER_TO_UINT(spx_key->conversation) + spx_key->spx_src;
 }
 
-/* Initializes the hash table each time a new
- * file is loaded or re-loaded in wireshark */
-static void
-spx_init_protocol(void)
-{
-	/* no need for register_cleanup_routine that destroys spx_hash,
-	 * spx_postseq_cleanup should clear this. */
-	spx_hash = g_hash_table_new(spx_hash_func, spx_equal);
-}
-
-/* After the sequential run, we don't need the spx hash table, or
- * the keys and values, anymore; the lookups have already been done
- * and the relevant info saved as SPX private data with the frame
- * if the frame was a retransmission. */
-static void
-spx_postseq_cleanup(void)
-{
-	if (spx_hash) {
-		/* Destroy the hash, but don't clean up request_condition data. */
-		g_hash_table_destroy(spx_hash);
-		spx_hash = NULL;
-	}
-}
-
 static spx_hash_value*
 spx_hash_insert(conversation_t *conversation, guint32 spx_src, guint16 spx_seq)
 {
@@ -532,7 +508,7 @@ spx_hash_insert(conversation_t *conversation, guint32 spx_src, guint16 spx_seq)
 
 	value = wmem_new0(wmem_file_scope(), spx_hash_value);
 
-	g_hash_table_insert(spx_hash, key, value);
+	wmem_map_insert(spx_hash, key, value);
 
 	return value;
 }
@@ -547,7 +523,7 @@ spx_hash_lookup(conversation_t *conversation, guint32 spx_src, guint32 spx_seq)
 	key.spx_src = spx_src;
 	key.spx_seq = spx_seq;
 
-	return (spx_hash_value *)g_hash_table_lookup(spx_hash, &key);
+	return (spx_hash_value *)wmem_map_lookup(spx_hash, &key);
 }
 
 /* ================================================================= */
@@ -1580,8 +1556,7 @@ proto_register_ipx(void)
 	spx_socket_dissector_table = register_dissector_table("spx.socket",
 	    "SPX socket", proto_spx, FT_UINT16, BASE_HEX);
 
-	register_init_routine(&spx_init_protocol);
-	register_postseq_cleanup_routine(&spx_postseq_cleanup);
+	spx_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), spx_hash_func, spx_equal);
 	ipx_tap=register_tap("ipx");
 
 	register_conversation_table(proto_ipx, TRUE, ipx_conversation_packet, ipx_hostlist_packet);
