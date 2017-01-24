@@ -55,6 +55,7 @@
 #include "epan/epan_dissect.h"
 #include "epan/filter_expressions.h"
 #include "epan/prefs.h"
+#include "epan/plugin_if.h"
 #include "epan/uat.h"
 #include "epan/value_string.h"
 
@@ -119,6 +120,7 @@
 #include "gsm_map_summary_dialog.h"
 #include "iax2_analysis_dialog.h"
 #include "io_graph_dialog.h"
+#include <additional_toolbar.h>
 #include "lbm_stream_dialog.h"
 #include "lbm_uimflow_dialog.h"
 #include "lbm_lbtrm_transport_dialog.h"
@@ -483,6 +485,18 @@ void MainWindow::layoutToolbars()
     main_ui_->displayFilterToolBar->setVisible(recent.filter_toolbar_show);
     main_ui_->wirelessToolBar->setVisible(recent.wireless_toolbar_show);
     main_ui_->statusBar->setVisible(recent.statusbar_show);
+
+    QList<QToolBar *> toolbars = findChildren<QToolBar *>();
+    foreach (QToolBar * bar, toolbars ) {
+        AdditionalToolBar * iftoolbar = dynamic_cast<AdditionalToolBar *>(bar);
+        if ( iftoolbar ) {
+            bool visible = false;
+            if ( g_list_find_custom(recent.gui_additional_toolbars, iftoolbar->menuName().toUtf8().constData(), (GCompareFunc) strcmp) )
+                visible = true;
+
+            iftoolbar->setVisible(visible);
+        }
+    }
 }
 
 void MainWindow::updatePreferenceActions()
@@ -508,6 +522,15 @@ void MainWindow::updateRecentActions()
     main_ui_->actionViewPacketList->setChecked(recent.packet_list_show && prefs_has_layout_pane_content(layout_pane_content_plist));
     main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show && prefs_has_layout_pane_content(layout_pane_content_pdetails));
     main_ui_->actionViewPacketBytes->setChecked(recent.byte_view_show && prefs_has_layout_pane_content(layout_pane_content_pbytes));
+
+    foreach ( QAction * action, main_ui_->actionViewAdditionalToolbars->actions() ) {
+        ext_toolbar_t * toolbar = VariantPointer<ext_toolbar_t>::asPtr(action->data());
+        bool checked = false;
+        if ( toolbar && g_list_find_custom(recent.gui_additional_toolbars, toolbar->name, (GCompareFunc) strcmp) )
+            checked = true;
+
+        action->setChecked( checked );
+    }
 
     foreach (QAction* tda, td_actions.keys()) {
         if (recent.gui_time_format == td_actions[tda]) {
@@ -2223,6 +2246,25 @@ void MainWindow::showHideMainWidgets(QAction *action)
     } else if (widget == byte_view_tab_) {
         recent.byte_view_show = show;
         main_ui_->actionViewPacketBytes->setChecked(show);
+    } else {
+        ext_toolbar_t * toolbar = VariantPointer<ext_toolbar_t>::asPtr(action->data());
+        if (toolbar) {
+            GList *entry = g_list_find_custom(recent.gui_additional_toolbars, toolbar->name, (GCompareFunc) strcmp);
+            if (show && !entry) {
+                recent.gui_additional_toolbars = g_list_append(recent.gui_additional_toolbars, g_strdup(toolbar->name));
+            } else if (!show && entry) {
+                recent.gui_additional_toolbars = g_list_remove(recent.gui_additional_toolbars, entry->data);
+            }
+            action->setChecked(show);
+
+            QList<QToolBar *> toolbars = findChildren<QToolBar *>();
+            foreach (QToolBar * bar, toolbars ) {
+                AdditionalToolBar * iftoolbar = dynamic_cast<AdditionalToolBar *>(bar);
+                if ( iftoolbar && iftoolbar->menuName().compare(toolbar->name) == 0 ) {
+                    iftoolbar->setVisible(show);
+                }
+            }
+        }
     }
 
     if (widget) {
@@ -3895,6 +3937,34 @@ void MainWindow::on_actionViewFullScreen_triggered(bool checked)
             this->showMaximized();
         else
             this->showNormal();
+    }
+}
+
+void MainWindow::activatePluginIFToolbar(bool)
+{
+    QAction * sendingAction = dynamic_cast<QAction *>(sender());
+    if ( ! sendingAction || ! sendingAction->data().isValid() )
+        return;
+
+    ext_toolbar_t * toolbar = VariantPointer<ext_toolbar_t>::asPtr(sendingAction->data());
+
+    QList<QToolBar *> toolbars = findChildren<QToolBar *>();
+    foreach (QToolBar * bar, toolbars )
+    {
+        AdditionalToolBar * iftoolbar = dynamic_cast<AdditionalToolBar *>(bar);
+        if ( iftoolbar && iftoolbar->menuName().compare(toolbar->name) == 0 )
+        {
+            if ( iftoolbar->isVisible() )
+            {
+                iftoolbar->setVisible(false);
+                sendingAction->setChecked(true);
+            }
+            else
+            {
+                iftoolbar->setVisible(true);
+                sendingAction->setChecked(true);
+            }
+        }
     }
 }
 

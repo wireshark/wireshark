@@ -85,6 +85,70 @@ struct _ext_menubar_t
     gchar * parent_menu;
 };
 
+typedef void (*ext_toolbar_action_cb)(gpointer toolbar_item, gpointer item_data, gpointer user_data);
+
+typedef enum
+{
+    EXT_TOOLBAR_BAR,
+    EXT_TOOLBAR_ITEM
+} ext_toolbar_entry_t;
+
+typedef enum
+{
+    EXT_TOOLBAR_BOOLEAN,
+    EXT_TOOLBAR_BUTTON,
+    EXT_TOOLBAR_STRING,
+    EXT_TOOLBAR_SELECTOR,
+} ext_toolbar_item_t;
+
+typedef struct _ext_toolbar_value_t
+{
+    gchar * value;
+    gchar * display;
+
+    gboolean is_default;
+
+} ext_toolbar_value_t;
+
+typedef struct _ext_toolbar_t
+{
+    ext_toolbar_entry_t type;
+
+    GList * children;
+    guint submenu_cnt;
+    guint item_cnt;
+
+    gchar * name;
+    gchar * defvalue;
+    gchar * tooltip;
+    gpointer user_data;
+
+    gboolean is_required;
+    gboolean capture_only;
+    ext_toolbar_item_t item_type;
+
+    GList * values;
+    gchar * regex;
+
+    ext_toolbar_action_cb callback;
+
+} ext_toolbar_t;
+
+typedef enum
+{
+    EXT_TOOLBAR_UPDATE_VALUE,
+    EXT_TOOLBAR_UPDATE_DATA,
+    EXT_TOOLBAR_UPDATE_DATABYINDEX
+} ext_toolbar_update_type_t;
+
+typedef struct _ext_toolbar_update_t
+{
+    ext_toolbar_update_type_t type;
+    gboolean silent;
+    gpointer user_data;
+    gpointer data_index;
+} ext_toolbar_update_t;
+
 /* Registers a new main menu.
  *
  * This will register a new main menu entry, underneath all other menu entries will
@@ -162,6 +226,108 @@ WS_DLL_PUBLIC void ext_menubar_add_separator(ext_menu_t *parent_menu);
 WS_DLL_PUBLIC void ext_menubar_add_website(ext_menu_t * parent, const gchar *label,
         const gchar *tooltip, const gchar *url);
 
+/* Registers a toolbar.
+ *
+ * This will register a new toolbar, which can contain various gui elements
+ *
+ * @param toolbar_label the entry label (the displayed name) for the toolbar item
+ */
+WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_register_toolbar(const gchar * toolbar_label);
+
+/* Removes a toolbar from the system.
+ *
+ * This will remove the provided toolbar from the application
+ *
+ * @param toolbar the toolbar to be removed
+ */
+WS_DLL_PUBLIC void ext_toolbar_unregister_toolbar(ext_toolbar_t * toolbar);
+
+/* Removes a toolbar from the system by providing the name of the toolbar.
+ *
+ * This will remove the provided toolbar from the application
+ *
+ * @param toolbar_name the name of the toolbar to be removed
+ */
+WS_DLL_PUBLIC void ext_toolbar_unregister_toolbar_by_name(const gchar * toolbar_name);
+
+/* Registers a new toolbar entry.
+ *
+ * This registers a new toolbar entry, which will have the given name, and
+ * call the provided callback on activation
+ *
+ * The callback will be fired on different events, depending on the item type
+ * and the implementation of the item type in a GUI element. The following types should
+ * behave as following
+ *
+ *  * EXT_TOOLBAR_STRING - Every change of the content fires the callback
+ *  * EXT_TOOLBAR_BOOLEAN - Every change of the value fires the callback
+ *  * EXT_TOOLBAR_BUTTON - if the button is pressed, the callback fires
+ *  * EXT_TOOLBAR_SELECTION - every time the selection changes the callback fires
+ *
+ * @param parent_bar the parent toolbar for this entry
+ * @param name the entry name (the internal used one) for the item
+ * @param label the entry label (the displayed name) for the item
+ * @param defvalue the default value for the toolbar element
+ * @param tooltip a tooltip to be displayed on mouse-over
+ * @param capture_only entry is only active, if capture is active
+ * @param callback the action which will be invoked after click on the item
+ * @param value_list a non-null list of values, if the item type is EXT_TOOLBAR_SELECTOR
+ * @param valid_regex a validation regular expression for EXT_TOOLBAR_STRING
+ *
+ * @return a reference to the newly created toolbar entry
+ */
+WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_add_entry(
+        ext_toolbar_t * parent_bar,
+        ext_toolbar_item_t type,
+        const gchar *label,
+        const gchar *defvalue,
+        const gchar *tooltip,
+        gboolean capture_only,
+        GList * value_list,
+        gboolean is_required,
+        const gchar * valid_regex,
+        ext_toolbar_action_cb callback,
+        gpointer user_data);
+
+WS_DLL_PUBLIC GList * ext_toolbar_add_val(GList * entries, gchar * value, gchar * display, gboolean is_default);
+
+WS_DLL_PUBLIC void ext_toolbar_register_update_cb(ext_toolbar_t * entry, ext_toolbar_action_cb callback, gpointer item_data);
+
+/* Updates the entry values
+ *
+ * Update the values for the entry, it is up to the implemented widget, to interpret the
+ * given character values
+ *
+ * @param entry the entry to be updated
+ * @param data the data for the entry
+ * @param silent the update for the entry should not trigger additional actions
+ */
+WS_DLL_PUBLIC void ext_toolbar_update_value(ext_toolbar_t * entry, gpointer data, gboolean silent);
+
+/* Updates the entry data
+ *
+ * Update the data for the entry, it is up to the implemented widget, to interpret the given character data
+ *
+ * @param entry the entry to be updated
+ * @param data the data for the entry
+ * @param silent the update for the entry should not trigger additional actions
+ */
+WS_DLL_PUBLIC void ext_toolbar_update_data(ext_toolbar_t * entry, gpointer data, gboolean silent);
+
+/* Updates the entry data by index
+ *
+ * This is used to update a single entry of a selector list, by giving it's value and a new display
+ * entry
+ *
+ * @param entry the entry to be updated
+ * @param data the display data for the entry
+ * @param value the value for the entry to be updated
+ * @param silent the update for the entry should not trigger additional actions
+ */
+WS_DLL_PUBLIC void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, gpointer data, gpointer value, gboolean silent);
+
+/* Search for and return if found an entry from the toolbar with the given label */
+WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_entry_by_label(const ext_toolbar_t * toolbar, const gchar * label);
 
 /*
  * Structure definition for the plugin_if_get_ws_info function
@@ -196,7 +362,11 @@ typedef enum
     PLUGIN_IF_GOTO_FRAME,
 
     /* Gets status information about the currently loaded capture file */
-    PLUGIN_IF_GET_WS_INFO
+    PLUGIN_IF_GET_WS_INFO,
+
+    /* Remove toolbar */
+    PLUGIN_IF_REMOVE_TOOLBAR
+
 } plugin_if_callback_t;
 
 
@@ -221,6 +391,12 @@ WS_DLL_PUBLIC void plugin_if_get_ws_info(ws_info_t ** ws_info);
  * Is only to be used by the UI interfaces to retrieve the menu entries
  */
 WS_DLL_PUBLIC GList * ext_menubar_get_entries(void);
+
+/* Private Method for retrieving the toolbar entries
+ *
+ * Is only to be used by the UI interfaces to retrieve the toolbar entries
+ */
+WS_DLL_PUBLIC GList * ext_toolbar_get_entries(void);
 
 #ifdef __cplusplus
 }

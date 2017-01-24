@@ -73,6 +73,7 @@
 #define RECENT_GUI_ENDPOINT_TABS              "gui.endpoint_tabs"
 #define RECENT_GUI_RLC_PDUS_FROM_MAC_FRAMES   "gui.rlc_pdus_from_mac_frames"
 #define RECENT_GUI_CUSTOM_COLORS              "gui.custom_colors"
+#define RECENT_GUI_TOOLBAR_SHOW               "gui.additional_toolbar_show"
 
 #define RECENT_GUI_GEOMETRY                   "gui.geom."
 
@@ -858,6 +859,12 @@ write_profile_recent(void)
     fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", get_last_open_dir());
   }
 
+  fprintf(rf, "\n# Additional Toolbars shown\n");
+  fprintf(rf, "# List of additional toolbars to show.\n");
+  string_list = join_string_list(recent.gui_additional_toolbars);
+  fprintf(rf, RECENT_GUI_TOOLBAR_SHOW ": %s\n", string_list);
+  g_free(string_list);
+
   fclose(rf);
 
   /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
@@ -1111,6 +1118,8 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
       g_free (recent.gui_fileopen_remembered_dir);
     }
     recent.gui_fileopen_remembered_dir = g_strdup(value);
+  } else if (strcmp(key, RECENT_GUI_TOOLBAR_SHOW) == 0) {
+      recent.gui_additional_toolbars = prefs_get_string_list(value);
   }
 
   return PREFS_SET_OK;
@@ -1277,6 +1286,11 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
   if (recent.gui_fileopen_remembered_dir) {
     g_free (recent.gui_fileopen_remembered_dir);
     recent.gui_fileopen_remembered_dir = NULL;
+  }
+
+  if (recent.gui_additional_toolbars) {
+      g_list_free_full (recent.gui_additional_toolbars, g_free);
+      recent.gui_additional_toolbars = NULL;
   }
 
   /* Construct the pathname of the user's profile recent file. */

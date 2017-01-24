@@ -38,6 +38,35 @@
 static GList * menubar_entries = NULL;
 static GList * menubar_menunames = NULL;
 
+static GHashTable * plugin_if_callback_functions;
+
+static void
+plugin_if_init_hashtable(void)
+{
+    if ( plugin_if_callback_functions == 0 )
+        plugin_if_callback_functions = g_hash_table_new(g_int_hash, g_int_equal);
+}
+
+static void plugin_if_call_gui_cb(plugin_if_callback_t actionType, GHashTable * dataSet)
+{
+    plugin_if_gui_cb action;
+    gint * key = 0;
+
+    key = (gint *)g_malloc0(sizeof(gint));
+    *key = (gint) actionType;
+
+    plugin_if_init_hashtable();
+
+    if ( g_hash_table_size(plugin_if_callback_functions) != 0 )
+    {
+        if ( g_hash_table_lookup_extended(plugin_if_callback_functions, key, NULL, (gpointer*)&action) )
+        {
+            if ( action != NULL )
+                action(dataSet);
+        }
+    }
+}
+
 
 extern GList * ext_menubar_get_entries(void)
 {
@@ -175,41 +204,307 @@ extern void ext_menubar_add_separator(ext_menu_t *parent)
     ext_menubar_add_generic_entry ( EXT_MENUBAR_SEPARATOR, parent, g_strdup("-"), NULL, NULL, NULL );
 }
 
+/* Implementation of external toolbar handlers */
+
+static GList * toolbar_entries = NULL;
+
+extern GList * ext_toolbar_get_entries(void)
+{
+    return toolbar_entries;
+}
+
+ext_toolbar_t * ext_toolbar_register_toolbar(const gchar * toolbarlabel)
+{
+    ext_toolbar_t * entry = NULL;
+
+    /* A name for the entry must be provided */
+    g_assert(toolbarlabel != NULL && strlen ( toolbarlabel ) > 0 );
+
+    entry = g_new0(ext_toolbar_t, 1);
+    entry->type = EXT_TOOLBAR_BAR;
+
+    /* Create a name for this toolbar */
+    entry->name = g_strdup(toolbarlabel);
+    entry->tooltip = g_strdup(toolbarlabel);
+
+    entry->submenu_cnt = 0;
+    entry->item_cnt = 0;
+
+    toolbar_entries = g_list_append(toolbar_entries, entry);
+
+    return entry;
+}
+
+static gint
+ext_toolbar_compare(gconstpointer  a, gconstpointer  b)
+{
+    if ( !a || !b )
+        return -1;
+
+    ext_toolbar_t * ta = (ext_toolbar_t *)a;
+    ext_toolbar_t * tb = (ext_toolbar_t *)b;
+
+    return strcmp(ta->name, tb->name);
+}
+
+void ext_toolbar_unregister_toolbar_by_name(const gchar * toolbar_name)
+{
+    GList * walker = 0;
+
+    if ( ! toolbar_name )
+        return;
+
+    walker = toolbar_entries;
+    while ( walker && walker->data )
+    {
+        ext_toolbar_t * entry = (ext_toolbar_t *)walker->data;
+        if ( g_strcmp0(entry->name, toolbar_name) == 0)
+        {
+            ext_toolbar_unregister_toolbar(entry);
+            break;
+        }
+
+        walker = g_list_next(walker);
+    }
+}
+
+void ext_toolbar_unregister_toolbar(ext_toolbar_t * toolbar)
+{
+    if ( ! toolbar )
+        return;
+
+    GList * entry = g_list_find_custom(toolbar_entries, toolbar, (GCompareFunc) ext_toolbar_compare);
+    if ( entry && entry->data )
+    {
+        ext_toolbar_t * et = (ext_toolbar_t *)entry->data;
+        toolbar_entries = g_list_remove(toolbar_entries, et);
+
+        if ( ! g_list_find_custom(toolbar_entries, toolbar, (GCompareFunc) ext_toolbar_compare) )
+        {
+            GHashTable * dataSet = g_hash_table_new(g_str_hash, g_str_equal);
+            g_hash_table_insert( dataSet, g_strdup("toolbar_name"), g_strdup(et->name) );
+            plugin_if_call_gui_cb(PLUGIN_IF_REMOVE_TOOLBAR, dataSet);
+
+            g_free(et->name);
+            g_free(et->tooltip);
+            g_free(et->defvalue);
+            g_free(et->regex);
+
+            g_free(et);
+        }
+    }
+}
+
+static gint
+ext_toolbar_insert_sort(gconstpointer a, gconstpointer b)
+{
+    ext_toolbar_t * ca = (ext_toolbar_t *)a;
+    ext_toolbar_t * cb = (ext_toolbar_t *)b;
+
+    if ( ca == 0 || cb == 0 )
+        return 0;
+
+    /* Sort buttons after rest of objects */
+    if ( ca->item_type == EXT_TOOLBAR_BUTTON && cb->item_type != EXT_TOOLBAR_BUTTON )
+        return 1;
+    else if ( ca->item_type != EXT_TOOLBAR_BUTTON && cb->item_type == EXT_TOOLBAR_BUTTON )
+        return -1;
+    else
+    {
+        if ( ca->item_cnt > cb->item_cnt )
+            return 2;
+        else if ( ca->item_cnt < cb->item_cnt )
+            return -2;
+        else
+            return 0;
+    }
+}
+
+ext_toolbar_t *
+ext_toolbar_add_entry( ext_toolbar_t * parent, ext_toolbar_item_t type, const gchar *label,
+        const gchar *defvalue, const gchar *tooltip, gboolean capture_only, GList * value_list,
+        gboolean is_required, const gchar * regex, ext_toolbar_action_cb callback, gpointer user_data)
+{
+    ext_toolbar_t * entry = NULL;
+
+    /* A valid parent must exist */
+    g_assert(parent != NULL && parent->type == EXT_TOOLBAR_BAR);
+    /* A label for the entry must be provided */
+    g_assert(label != NULL && strlen ( label ) > 0 );
+    /* A callback must be provided */
+    g_assert(callback != NULL);
+
+    parent->item_cnt++;
+
+    /* Create menu entry */
+    entry = g_new0(ext_toolbar_t, 1);
+    entry->type = EXT_TOOLBAR_ITEM;
+    entry->item_type = type;
+    entry->item_cnt = g_list_length(parent->children) + 1;
+
+    entry->name = g_strdup(label);
+
+    if ( tooltip != NULL && strlen(tooltip) > 0 )
+        entry->tooltip = g_strdup(tooltip);
+
+    if ( defvalue != NULL && strlen(defvalue) > 0 )
+        entry->defvalue = g_strdup(defvalue);
+
+    if ( value_list != NULL && g_list_length(value_list) > 0 )
+        entry->values = g_list_copy(value_list);
+
+    if ( regex )
+        entry->regex = g_strdup(regex);
+
+    entry->is_required = is_required;
+    entry->capture_only = capture_only;
+    entry->callback = callback;
+    entry->user_data = user_data;
+
+    parent->children = g_list_insert_sorted(parent->children, entry, ext_toolbar_insert_sort);
+
+    return entry;
+}
+
+static gint
+ext_toolbar_search_label(gconstpointer tb, gconstpointer lbl)
+{
+    if ( ! tb || ! lbl )
+        return -1;
+
+    ext_toolbar_t * toolbar = (ext_toolbar_t *) tb;
+    if ( toolbar->type != EXT_TOOLBAR_ITEM )
+        return -2;
+
+    gchar * label = (gchar * )lbl;
+
+    return g_strcmp0(toolbar->name, label);
+}
+
+ext_toolbar_t * ext_toolbar_entry_by_label(const ext_toolbar_t * toolbar, const gchar * label)
+{
+    ext_toolbar_t * result = 0;
+    GList * entry = g_list_find_custom(toolbar->children, label, ext_toolbar_search_label);
+    if ( entry )
+        result = (ext_toolbar_t *)entry->data;
+    return result;
+}
+
+GList * ext_toolbar_add_val(GList * entries, gchar * value, gchar * display, gboolean is_default)
+{
+    ext_toolbar_value_t * newval = g_new0(ext_toolbar_value_t, 1);
+    newval->value = g_strdup(value);
+    newval->display = g_strdup(display);
+    newval->is_default = is_default;
+
+    return g_list_append(entries, newval);
+}
+
+typedef struct _ext_toolbar_update_entry_t
+{
+    ext_toolbar_action_cb callback;
+    gpointer item_data;
+} ext_toolbar_update_entry_t;
+
+typedef struct _ext_toolbar_update_list_t
+{
+    ext_toolbar_t * item;
+    GList * entries;
+} ext_toolbar_update_list_t;
+
+extern gint
+ext_toolbar_find_item(gconstpointer a, gconstpointer b)
+{
+    if ( a == 0 || b == 0 )
+        return -1;
+
+    ext_toolbar_update_list_t * item = (ext_toolbar_update_list_t *)a;
+    ext_toolbar_t * entry = (ext_toolbar_t *)b;
+
+    if ( item->item && g_strcmp0 ( item->item->name, entry->name ) == 0 )
+        return 0;
+
+    return -1;
+}
+
+static GList * toolbar_updates = NULL;
+
+void ext_toolbar_register_update_cb(ext_toolbar_t * entry, ext_toolbar_action_cb callback, gpointer item_data)
+{
+    if ( entry == 0 || item_data == 0 || callback == 0 )
+        return;
+
+    ext_toolbar_update_list_t * update = NULL;
+    GList * update_list = g_list_find_custom(toolbar_updates, entry, ext_toolbar_find_item);
+    if ( ! update_list )
+    {
+        update = g_new0(ext_toolbar_update_list_t, 1);
+        update->item = entry;
+        toolbar_updates = g_list_append(toolbar_updates, update);
+    }
+    else
+    {
+        update = (ext_toolbar_update_list_t*)update_list->data;
+    }
+
+    ext_toolbar_update_entry_t * update_entry = g_new0(ext_toolbar_update_entry_t, 1);
+    update_entry->callback = callback;
+    update_entry->item_data = item_data;
+    update->entries = g_list_append(update->entries, update_entry);
+}
+
+static void
+ext_toolbar_update_entry(ext_toolbar_update_type_t update_type, ext_toolbar_t * entry, gpointer data, gpointer idx, gboolean silent)
+{
+    GList * update = g_list_find_custom(toolbar_updates, entry, ext_toolbar_find_item);
+    GList * walker = NULL;
+
+    if ( ! update || ! update->data )
+        return;
+
+    ext_toolbar_update_t * update_data = g_new0(ext_toolbar_update_t, 1);
+    update_data->user_data = data;
+    update_data->data_index = idx;
+    update_data->silent = silent;
+    update_data->type = update_type;
+
+    walker = ((ext_toolbar_update_list_t *)(update->data))->entries;
+
+    while ( walker && walker->data )
+    {
+        ext_toolbar_update_entry_t * update_entry = (ext_toolbar_update_entry_t *)walker->data;
+        /* Call Callback */
+        if ( update_entry->callback && update_entry->item_data )
+            update_entry->callback(entry, update_entry->item_data, update_data);
+        walker = g_list_next(walker);
+    }
+
+    g_free(update_data);
+}
+
+void ext_toolbar_update_value(ext_toolbar_t * entry, gpointer data, gboolean silent)
+{
+    ext_toolbar_update_entry( EXT_TOOLBAR_UPDATE_VALUE, entry, data, NULL, silent );
+}
+
+void ext_toolbar_update_data(ext_toolbar_t * entry, gpointer data, gboolean silent)
+{
+    if ( entry->item_type == EXT_TOOLBAR_SELECTOR )
+        ext_toolbar_update_entry( EXT_TOOLBAR_UPDATE_DATA, entry, data, NULL, silent );
+}
+
+void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, gpointer data, gpointer idx, gboolean silent)
+{
+    if ( entry->item_type == EXT_TOOLBAR_SELECTOR )
+        ext_toolbar_update_entry( EXT_TOOLBAR_UPDATE_DATABYINDEX, entry, data, idx, silent );
+}
+
 /* Implementation of GUI callback methods follows.
  * This is a necessity, as using modern UI systems, gui interfaces often operate
  * in different threads then the calling application. Even more so, if the calling
  * application is implemented using a separate plugin. Therefore the external menubars
  * cannot call gui functionality directly, the gui has to perform the function within
  * it' own scope. */
-
-static GHashTable * plugin_if_callback_functions;
-
-static void
-plugin_if_init_hashtable(void)
-{
-    if ( plugin_if_callback_functions == 0 )
-        plugin_if_callback_functions = g_hash_table_new(g_int_hash, g_int_equal);
-}
-
-static void plugin_if_call_gui_cb(plugin_if_callback_t actionType, GHashTable * dataSet)
-{
-    plugin_if_gui_cb action;
-    gint * key = 0;
-
-    key = (gint *)g_malloc0(sizeof(gint));
-    *key = (gint) actionType;
-
-    plugin_if_init_hashtable();
-
-    if ( g_hash_table_size(plugin_if_callback_functions) != 0 )
-    {
-        if ( g_hash_table_lookup_extended(plugin_if_callback_functions, key, NULL, (gpointer*)&action) )
-        {
-            if ( action != NULL )
-                action(dataSet);
-        }
-    }
-}
 
 extern void plugin_if_apply_filter(const char * filter_string, gboolean force)
 {

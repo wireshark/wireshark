@@ -110,6 +110,7 @@ typedef struct recent_settings_tag {
     gchar      *gui_fileopen_remembered_dir;        /* folder of last capture loaded in File Open dialog */
     gboolean    gui_rlc_use_pdus_from_mac;
     GList      *custom_colors;
+    GList      *gui_additional_toolbars;
 } recent_settings_t;
 
 /** Global recent settings. */

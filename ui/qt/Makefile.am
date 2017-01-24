@@ -156,6 +156,7 @@ MOC_HDRS = \
 	about_dialog.h					\
 	accordion_frame.h				\
 	address_editor_frame.h				\
+	apply_line_edit.h				\
 	bluetooth_att_server_attributes_dialog.h	\
 	bluetooth_device_dialog.h			\
 	bluetooth_devices_dialog.h			\
@@ -212,6 +213,7 @@ MOC_HDRS = \
 	iax2_analysis_dialog.h				\
 	import_text_dialog.h				\
 	interface_frame.h				\
+	additional_toolbar.h				\
 	interface_tree_model.h				\
 	interface_tree_cache_model.h			\
 	interface_sort_filter_model.h			\
@@ -439,6 +441,7 @@ WIRESHARK_QT_SRC = \
 	about_dialog.cpp				\
 	accordion_frame.cpp				\
 	address_editor_frame.cpp			\
+	apply_line_edit.cpp				\
 	bluetooth_att_server_attributes_dialog.cpp	\
 	bluetooth_device_dialog.cpp			\
 	bluetooth_devices_dialog.cpp			\
@@ -492,6 +495,7 @@ WIRESHARK_QT_SRC = \
 	iax2_analysis_dialog.cpp			\
 	import_text_dialog.cpp				\
 	interface_frame.cpp				\
+	additional_toolbar.cpp				\
 	interface_tree_model.cpp			\
 	interface_tree_cache_model.cpp			\
 	interface_sort_filter_model.cpp			\

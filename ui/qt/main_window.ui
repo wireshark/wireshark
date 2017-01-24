@@ -335,9 +335,15 @@
      <addaction name="actionViewInternalsDissectorTables"/>
      <addaction name="actionViewInternalsSupportedProtocols"/>
     </widget>
+    <widget class="QMenu" name="actionViewAdditionalToolbars">
+     <property name="title">
+      <string>Additional Toolbars</string>
+     </property>
+    </widget>
     <addaction name="actionViewMainToolbar"/>
     <addaction name="actionViewFilterToolbar"/>
     <addaction name="actionViewWirelessToolbar"/>
+    <addaction name="actionViewAdditionalToolbars" />
     <addaction name="actionViewStatusBar"/>
     <addaction name="separator"/>
     <addaction name="actionViewFullScreen"/>

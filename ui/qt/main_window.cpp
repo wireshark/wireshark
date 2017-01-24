@@ -69,6 +69,9 @@
 #include "wireless_frame.h"
 #include "wireshark_application.h"
 
+#include "additional_toolbar.h"
+#include "variant_pointer.h"
+
 #include "qt_ui_utils.h"
 
 #include <QAction>
@@ -192,6 +195,18 @@ static void plugin_if_mainwindow_get_ws_info(gconstpointer user_data)
 }
 
 #endif /* HAVE_LIBPCAP */
+
+static void plugin_if_mainwindow_update_toolbars(gconstpointer user_data)
+{
+    if (!gbl_cur_main_window_ || ! user_data)
+        return;
+
+    GHashTable * data_set = (GHashTable *)user_data;
+    if (g_hash_table_lookup_extended(data_set, "toolbar_name", NULL, NULL)) {
+        QString toolbarName((const char *)g_hash_table_lookup(data_set, "toolbar_name"));
+        gbl_cur_main_window_->removeAdditionalToolbar(toolbarName);
+    }
+}
 
 gpointer
 simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
@@ -350,7 +365,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initViewColorizeMenu()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addDynamicMenus()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addExternalMenus()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addPluginIFStructures()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initConversationMenus()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initExportObjectsMenus()));
 
@@ -722,6 +737,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #ifdef HAVE_LIBPCAP
     plugin_if_register_gui_cb(PLUGIN_IF_GET_WS_INFO, plugin_if_mainwindow_get_ws_info);
 #endif
+    plugin_if_register_gui_cb(PLUGIN_IF_REMOVE_TOOLBAR, plugin_if_mainwindow_update_toolbars);
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
@@ -742,7 +758,17 @@ QMenu *MainWindow::createPopupMenu()
     menu->addAction(main_ui_->actionViewMainToolbar);
     menu->addAction(main_ui_->actionViewFilterToolbar);
     menu->addAction(main_ui_->actionViewWirelessToolbar);
+
+    if ( ! main_ui_->actionViewAdditionalToolbars->actions().isEmpty() )
+    {
+        QMenu * subMenu = menu->addMenu(main_ui_->actionViewAdditionalToolbars->title());
+        foreach ( QAction * action, main_ui_->actionViewAdditionalToolbars->actions() )
+            subMenu->addAction(action);
+
+    }
+
     menu->addAction(main_ui_->actionViewStatusBar);
+
     menu->addSeparator();
     menu->addAction(main_ui_->actionViewPacketList);
     menu->addAction(main_ui_->actionViewPacketDetails);
@@ -1845,6 +1871,9 @@ void MainWindow::initShowHideMainWidgets()
         showHideMainWidgets(shmwa);
     }
 
+    /* Initially hide the additional toolbars menus */
+    main_ui_->actionViewAdditionalToolbars->menuAction()->setVisible(false);
+
     connect(show_hide_actions_, SIGNAL(triggered(QAction*)), this, SLOT(showHideMainWidgets(QAction*)));
 }
 
@@ -2554,16 +2583,13 @@ QMenu * MainWindow::searchSubMenu(QString objectName)
     return 0;
 }
 
-void MainWindow::addExternalMenus()
+void MainWindow::addPluginIFStructures()
 {
-    QMenu * subMenu = NULL;
-    GList * user_menu = NULL;
-    ext_menu_t * menu = NULL;
-
-    user_menu = ext_menubar_get_entries();
+    GList * user_menu = ext_menubar_get_entries();
 
     while (user_menu && user_menu->data) {
-        menu = (ext_menu_t *) user_menu->data;
+        QMenu * subMenu = NULL;
+        ext_menu_t * menu = (ext_menu_t *) user_menu->data;
 
         /* On this level only menu items should exist. Not doing an assert here,
          * as it could be an honest mistake */
@@ -2589,7 +2615,98 @@ void MainWindow::addExternalMenus()
         /* Iterate Loop */
         user_menu = g_list_next (user_menu);
     }
+
+    int cntToolbars = 0;
+
+    QMenu * tbMenu = main_ui_->actionViewAdditionalToolbars;
+    GList * if_toolbars = ext_toolbar_get_entries();
+    while ( if_toolbars && if_toolbars->data ) {
+
+        ext_toolbar_t * toolbar = (ext_toolbar_t*) if_toolbars->data;
+
+        if ( toolbar->type != EXT_TOOLBAR_BAR) {
+            if_toolbars = g_list_next ( if_toolbars );
+            continue;
+        }
+
+        bool visible = g_list_find_custom(recent.gui_additional_toolbars, toolbar->name, (GCompareFunc) strcmp) ? true : false;
+
+        AdditionalToolBar * ifToolBar = AdditionalToolBar::create(this, toolbar);
+        ifToolBar->setVisible(visible);
+
+        if ( ifToolBar )
+        {
+
+            QAction * iftbAction = new QAction(QString(toolbar->name), this);
+            iftbAction->setToolTip(toolbar->tooltip);
+            iftbAction->setEnabled(true);
+            iftbAction->setCheckable(true);
+            iftbAction->setChecked(visible);
+            iftbAction->setToolTip(tr("Show or hide the toolbar"));
+            iftbAction->setData(VariantPointer<ext_toolbar_t>::asQVariant(toolbar));
+
+            QAction * before = 0;
+
+            foreach ( QAction * action, tbMenu->actions() )
+            {
+                /* Ensure we add the menu entries in sorted order */
+                if ( action->text().compare(toolbar->name, Qt::CaseInsensitive) > 0 )
+                {
+                    before = action;
+                    break;
+                }
+            }
+
+            tbMenu->insertAction(before, iftbAction);
+
+            addToolBar(Qt::TopToolBarArea, ifToolBar);
+            insertToolBarBreak(ifToolBar);
+
+            if ( show_hide_actions_ )
+                show_hide_actions_->addAction(iftbAction);
+
+            cntToolbars++;
+        }
+
+        if_toolbars = g_list_next ( if_toolbars );
+    }
+
+    if ( cntToolbars )
+        tbMenu->menuAction()->setVisible(true);
+
 }
+
+void MainWindow::removeAdditionalToolbar(QString toolbarName)
+{
+    if ( toolbarName.length() == 0 )
+        return;
+
+    QList<QToolBar *> toolbars = findChildren<QToolBar *>();
+    foreach(QToolBar * tb, toolbars) {
+        AdditionalToolBar * ifToolBar = dynamic_cast<AdditionalToolBar *>(tb);
+
+        if ( ifToolBar && ifToolBar->menuName().compare(toolbarName) ) {
+
+            GList *entry = g_list_find_custom(recent.gui_additional_toolbars, ifToolBar->menuName().toStdString().c_str(), (GCompareFunc) strcmp);
+            if (entry) {
+                recent.gui_additional_toolbars = g_list_remove(recent.gui_additional_toolbars, entry->data);
+            }
+            QList<QAction *> actions = main_ui_->actionViewAdditionalToolbars->actions();
+            foreach(QAction * action, actions) {
+                ext_toolbar_t * item = VariantPointer<ext_toolbar_t>::asPtr(action->data());
+                if ( item && ifToolBar->menuName().compare(item->name) ) {
+                    if ( show_hide_actions_ )
+                        show_hide_actions_->removeAction(action);
+                    main_ui_->actionViewAdditionalToolbars->removeAction(action);
+                }
+            }
+
+            break;
+        }
+    }
+
+}
+
 
 /*
  * Editor modelines

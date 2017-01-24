@@ -1240,6 +1240,15 @@ if(ENABLE_PLUGINS)
 		plugins/wimaxmacphy
 		${CUSTOM_PLUGIN_SRC_DIR}
 	)
+
+	# Build demo plugin, only if asked explicitly
+	if(ENABLE_PLUGIN_IFDEMO)
+		set(PLUGIN_SRC_DIRS
+			${PLUGIN_SRC_DIRS}
+			plugins/pluginifdemo
+		)
+	endif()
+
 # It seems this stuff doesn't build with autofoo either...
 #	if(YAPP_FOUND)
 #		set(PLUGIN_SRC_DIRS
