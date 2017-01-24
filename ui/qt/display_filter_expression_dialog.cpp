@@ -59,7 +59,8 @@ enum {
     ge_op_,
     le_op_,
     contains_op_,
-    matches_op_
+    matches_op_,
+    in_op_
 };
 
 DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
@@ -93,6 +94,7 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     new QListWidgetItem("<=", ui->relationListWidget, le_op_);
     new QListWidgetItem("contains", ui->relationListWidget, contains_op_);
     new QListWidgetItem("matches", ui->relationListWidget, matches_op_);
+    new QListWidgetItem("in", ui->relationListWidget, in_op_);
 
     value_label_pfx_ = ui->valueLabel->text();
 
@@ -174,10 +176,11 @@ void DisplayFilterExpressionDialog::updateWidgets()
 
     bool value_enable = false;
     bool enum_enable = false;
+    bool enum_multi_enable = false;
     bool range_enable = false;
 
     QString filter;
-    if (field_ && rel_enable) {
+    if (field_) {
         filter = field_;
         QListWidgetItem *rli = ui->relationListWidget->currentItem();
         if (rli && rli->type() != present_op_) {
@@ -189,10 +192,15 @@ void DisplayFilterExpressionDialog::updateWidgets()
             filter.append(QString(" %1").arg(rli->text()));
         }
         if (value_enable && !ui->valueLineEdit->text().isEmpty()) {
-            if (ftype_ == FT_STRING) {
-                filter.append(QString(" \"%1\"").arg(ui->valueLineEdit->text()));
+            if (rli && rli->type() == in_op_) {
+                filter.append(QString(" {%1}").arg(ui->valueLineEdit->text()));
+                enum_multi_enable = enum_enable;
             } else {
-                filter.append(QString(" %1").arg(ui->valueLineEdit->text()));
+                if (ftype_ == FT_STRING) {
+                    filter.append(QString(" \"%1\"").arg(ui->valueLineEdit->text()));
+                } else {
+                    filter.append(QString(" %1").arg(ui->valueLineEdit->text()));
+                }
             }
         }
     }
@@ -202,6 +210,8 @@ void DisplayFilterExpressionDialog::updateWidgets()
 
     ui->enumLabel->setEnabled(enum_enable);
     ui->enumListWidget->setEnabled(enum_enable);
+    ui->enumListWidget->setSelectionMode(enum_multi_enable ?
+        QAbstractItemView::ExtendedSelection : QAbstractItemView::SingleSelection);
 
     ui->rangeLabel->setEnabled(range_enable);
     ui->rangeLineEdit->setEnabled(range_enable);
@@ -357,6 +367,7 @@ void DisplayFilterExpressionDialog::on_fieldTreeWidget_itemSelectionChanged()
         QListWidgetItem *li = ui->relationListWidget->item(i);
         switch (li->type()) {
         case eq_op_:
+        case in_op_:
             li->setHidden(!ftype_can_eq(ftype_) && !(ftype_can_slice(ftype_) && ftype_can_eq(FT_BYTES)));
             break;
         case ne_op_:
@@ -409,10 +420,17 @@ void DisplayFilterExpressionDialog::on_relationListWidget_itemSelectionChanged()
 
 void DisplayFilterExpressionDialog::on_enumListWidget_itemSelectionChanged()
 {
-    if (ui->enumListWidget->selectedItems().count() > 0) {
-        QListWidgetItem *eli = ui->enumListWidget->selectedItems()[0];
-        ui->valueLineEdit->setText(eli->data(Qt::UserRole).toString());
+    QStringList values;
+    QList<QListWidgetItem *> items = ui->enumListWidget->selectedItems();
+    QList<QListWidgetItem *>::const_iterator it = items.constBegin();
+    while (it != items.constEnd())
+    {
+        values << (*it)->data(Qt::UserRole).toString();
+        ++it;
     }
+
+    ui->valueLineEdit->setText(values.join(" "));
+
     updateWidgets();
 }
 
