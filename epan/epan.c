@@ -217,6 +217,7 @@ epan_cleanup(void)
 	conversation_table_cleanup();
 	conversation_filters_cleanup();
 	reassembly_table_cleanup();
+	tap_cleanup();
 	packet_cleanup();
 	expert_cleanup();
 	capture_dissector_cleanup();

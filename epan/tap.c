@@ -744,6 +744,27 @@ union_of_tap_listener_flags(void)
 	return flags;
 }
 
+void tap_cleanup(void)
+{
+	volatile tap_listener_t *elem_lq;
+	volatile tap_listener_t *head_lq = tap_listener_queue;
+	tap_dissector_t *elem_dl;
+	tap_dissector_t *head_dl = tap_dissector_list;
+
+	while(head_lq){
+		elem_lq = head_lq;
+		head_lq = head_lq->next;
+		free_tap_listener(elem_lq);
+	}
+
+	while(head_dl){
+		elem_dl = head_dl;
+		head_dl = head_dl->next;
+		g_free((char*)elem_dl->name);
+		g_free((gpointer)elem_dl);
+	}
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
