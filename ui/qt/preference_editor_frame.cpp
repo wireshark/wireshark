@@ -98,27 +98,23 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
 
     ui->preferenceLineEdit->clear();
     ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
-    disconnect(ui->preferenceLineEdit);
+    disconnect(ui->preferenceLineEdit, 0, 0, 0);
 
     bool show = false;
 
     switch (pref_->type) {
     case PREF_UINT:
-        new_uint_ = pref->stashed_val.uint;
-        connect(ui->preferenceLineEdit, SIGNAL(textEdited(QString)),
+        connect(ui->preferenceLineEdit, SIGNAL(textChanged(QString)),
                 this, SLOT(uintLineEditTextEdited(QString)));
         show = true;
         break;
     case PREF_STRING:
-        new_str_ = pref->stashed_val.string;
-        connect(ui->preferenceLineEdit, SIGNAL(textEdited(QString)),
+        connect(ui->preferenceLineEdit, SIGNAL(textChanged(QString)),
                 this, SLOT(stringLineEditTextEdited(QString)));
         show = true;
         break;
     case PREF_RANGE:
-        g_free(new_range_);
-        new_range_ = range_copy(pref->stashed_val.range);
-        connect(ui->preferenceLineEdit, SIGNAL(textEdited(QString)),
+        connect(ui->preferenceLineEdit, SIGNAL(textChanged(QString)),
                 this, SLOT(rangeLineEditTextEdited(QString)));
         show = true;
         break;
@@ -242,7 +238,6 @@ void PreferenceEditorFrame::on_buttonBox_rejected()
     module_ = NULL;
     g_free(new_range_);
     new_range_ = NULL;
-    ui->preferenceLineEdit->clear();
     animatedHide();
 }
 
