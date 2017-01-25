@@ -1132,6 +1132,7 @@ exit_main(int status)
 
 #endif /* _WIN32 */
 
+    capture_opts_cleanup(&global_capture_opts);
     exit(status);
 }
 

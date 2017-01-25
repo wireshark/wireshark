@@ -208,6 +208,10 @@
 #include <gtkmacintegration/gtkosxapplication.h>
 #endif
 
+#define INIT_FAILED 2
+#define INVALID_CAPABILITY 2
+#define INVALID_LINK_TYPE 2
+
 /*
  * Files under personal and global preferences directories in which
  * GTK settings for Wireshark are stored.
@@ -2056,7 +2060,7 @@ main(int argc, char *argv[])
 {
     char                *init_progfile_dir_error;
     char                *s;
-
+    int                  ret = EXIT_SUCCESS;
     extern int           info_update_freq;  /* Found in about_dlg.c. */
     const gchar         *filter;
 
@@ -2070,7 +2074,6 @@ main(int argc, char *argv[])
     int                  err;
 #ifdef HAVE_LIBPCAP
     gchar               *err_str;
-    int                  status;
 #else
 #ifdef _WIN32
 #ifdef HAVE_AIRPCAP
@@ -2315,8 +2318,10 @@ main(int argc, char *argv[])
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
     if (!epan_init(register_all_protocols,register_all_protocol_handoffs,
-                   splash_update, (gpointer) splash_win))
-      return 2;
+                   splash_update, (gpointer) splash_win)) {
+        ret = INIT_FAILED;
+        goto clean_exit;
+    }
 
     splash_update(RA_LISTENERS, NULL, (gpointer)splash_win);
 
@@ -2371,10 +2376,10 @@ main(int argc, char *argv[])
         /* We're supposed to do a live capture or get a list of link-layer
            types for a live capture device; if the user didn't specify an
            interface to use, pick a default. */
-        status = capture_opts_default_iface_if_necessary(&global_capture_opts,
+        ret = capture_opts_default_iface_if_necessary(&global_capture_opts,
         ((global_commandline_info.prefs_p->capture_device) && (*global_commandline_info.prefs_p->capture_device != '\0')) ? get_if_name(global_commandline_info.prefs_p->capture_device) : NULL);
-        if (status != 0) {
-            exit(status);
+        if (ret != 0) {
+            goto clean_exit;
         }
     }
 
@@ -2403,11 +2408,13 @@ main(int argc, char *argv[])
                 if (caps == NULL) {
                     cmdarg_err("%s", err_str);
                     g_free(err_str);
-                    exit(2);
+                    ret = INVALID_CAPABILITY;
+                    goto clean_exit;
                 }
                 if (caps->data_link_types == NULL) {
                     cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
-                    exit(2);
+                    ret = INVALID_LINK_TYPE;
+                    goto clean_exit;
                 }
 #ifdef _WIN32
                 create_console();
@@ -2423,7 +2430,8 @@ main(int argc, char *argv[])
                 free_if_capabilities(caps);
             }
         }
-        exit(0);
+        ret = EXIT_SUCCESS;
+        goto clean_exit;
     }
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
     capture_opts_trim_ring_num_files(&global_capture_opts);
@@ -2802,7 +2810,9 @@ main(int argc, char *argv[])
     main_unregister_resource();
 #endif
 
-    exit(0);
+clean_exit:
+    capture_opts_cleanup(&global_capture_opts);
+    return ret;
 }
 
 #ifdef _WIN32
