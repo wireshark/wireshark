@@ -1876,6 +1876,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
         guint8  cmd;
         guint32 src;
         int     chunk_size;
+        guint32 save_seq = 0;
 
         rtmpt_frag_t   *tf;
         rtmpt_id_t     *ti;
@@ -1898,8 +1899,9 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                 wmem_stack_push(packets, 0);
 
                 tp = (rtmpt_packet_t *)wmem_tree_lookup32_le(rconv->packets[cdir], seq+remain-1);
-                while (tp && tp->lastseq >= seq) {
+                while (tp && tp->lastseq >= seq && tp->lastseq >= save_seq) {
                         wmem_stack_push(packets, tp);
+                        save_seq = tp->lastseq+1; /* Ensure sequence is increasing */
                         tp = (rtmpt_packet_t *)wmem_tree_lookup32_le(rconv->packets[cdir], tp->lastseq-1);
                 }
 
