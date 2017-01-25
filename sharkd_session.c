@@ -1338,8 +1338,12 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 	gint64 idx;
 	gint64 max_idx = 0;
 
-	if (tok_interval)
-		(void) ws_strtou32(tok_interval, NULL, &interval_ms);
+	if (tok_interval) {
+		if (!ws_strtou32(tok_interval, NULL, &interval_ms) || interval_ms == 0) {
+			fprintf(stderr, "Invalid interval parameter: %s.\n", tok_interval);
+			return;
+		}
+	}
 
 	if (tok_filter)
 	{
