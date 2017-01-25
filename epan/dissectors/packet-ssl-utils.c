@@ -4449,37 +4449,54 @@ ssl_packet_from_server(SslSession *session, dissector_table_t table, packet_info
 
 
 /* Links SSL records with the real packet data. {{{ */
-/* add to packet data a copy of the specified real data */
+/**
+ * Remembers the decrypted TLS record fragment (TLSInnerPlaintext in TLS 1.3) to
+ * avoid the need for a decoder in the second pass. Additionally, it remembers
+ * sequence numbers (for reassembly and Follow SSL Stream).
+ *
+ * @param proto The protocol identifier (proto_ssl or proto_dtls).
+ * @param pinfo The packet where the record originates from.
+ * @param data Decrypted data to store in the record.
+ * @param data_len Length of decrypted record data.
+ * @param record_id The identifier for this record within the current packet.
+ * @param flow Information about sequence numbers, etc.
+ * @param type TLS Content Type (such as handshake or application_data).
+ */
 void
-ssl_add_record_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint record_id)
+ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint data_len, gint record_id, SslFlow *flow, ContentType type)
 {
-    guchar*        real_data;
-    SslRecordInfo* rec;
+    SslRecordInfo* rec, **prec;
     SslPacketInfo* pi;
 
     pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, 0);
     if (!pi)
     {
-        pi = (SslPacketInfo *)wmem_alloc0(wmem_file_scope(), sizeof(SslPacketInfo));
+        pi = wmem_new0(wmem_file_scope(), SslPacketInfo);
         p_add_proto_data(wmem_file_scope(), pinfo, proto, 0, pi);
     }
 
-    real_data = (guchar *)wmem_alloc(wmem_file_scope(), data_len);
-    memcpy(real_data, data, data_len);
-
-    rec = (SslRecordInfo *)wmem_alloc(wmem_file_scope(), sizeof(SslRecordInfo));
-    rec->id = record_id;
-    rec->real_data = real_data;
+    rec = wmem_new(wmem_file_scope(), SslRecordInfo);
+    rec->plain_data = (guchar *)wmem_memdup(wmem_file_scope(), data, data_len);
     rec->data_len = data_len;
+    rec->id = record_id;
+    rec->type = type;
+    rec->next = NULL;
 
-    /* head insertion */
-    rec->next= pi->handshake_data;
-    pi->handshake_data = rec;
+    if (flow) {
+        rec->seq = flow->byte_seq;
+        rec->flow = flow;
+        flow->byte_seq += data_len;
+    }
+
+    /* Remember decrypted records. */
+    prec = &pi->records;
+    while (*prec) prec = &(*prec)->next;
+    *prec = rec;
 }
 
 /* search in packet data for the specified id; return a newly created tvb for the associated data */
 tvbuff_t*
-ssl_get_record_info(tvbuff_t *parent_tvb, int proto, packet_info *pinfo, gint record_id)
+ssl_get_record_info(tvbuff_t *parent_tvb, int proto, packet_info *pinfo, gint record_id, SslRecordInfo **matched_record)
 {
     SslRecordInfo* rec;
     SslPacketInfo* pi;
@@ -4488,64 +4505,12 @@ ssl_get_record_info(tvbuff_t *parent_tvb, int proto, packet_info *pinfo, gint re
     if (!pi)
         return NULL;
 
-    for (rec = pi->handshake_data; rec; rec = rec->next)
-        if (rec->id == record_id)
+    for (rec = pi->records; rec; rec = rec->next)
+        if (rec->id == record_id) {
+            *matched_record = rec;
             /* link new real_data_tvb with a parent tvb so it is freed when frame dissection is complete */
-            return tvb_new_child_real_data(parent_tvb, rec->real_data, rec->data_len, rec->data_len);
-
-    return NULL;
-}
-
-void
-ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint key, SslFlow *flow)
-{
-    SslDataInfo   *rec, **prec;
-    SslPacketInfo *pi;
-
-    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, 0);
-    if (!pi)
-    {
-        pi = (SslPacketInfo *)wmem_alloc0(wmem_file_scope(), sizeof(SslPacketInfo));
-        p_add_proto_data(wmem_file_scope(), pinfo, proto, 0, pi);
-    }
-
-    rec = (SslDataInfo *)wmem_alloc(wmem_file_scope(), sizeof(SslDataInfo)+data_len);
-    rec->key = key;
-    rec->plain_data.data = (guchar*)(rec + 1);
-    memcpy(rec->plain_data.data, data, data_len);
-    rec->plain_data.data_len = data_len;
-    if (flow)
-    {
-        rec->seq = flow->byte_seq;
-        rec->nxtseq = flow->byte_seq + data_len;
-        rec->flow = flow;
-        flow->byte_seq += data_len;
-    }
-    rec->next = NULL;
-
-    /* insertion */
-    prec = &pi->appl_data;
-    while (*prec) prec = &(*prec)->next;
-    *prec = rec;
-
-    ssl_debug_printf("ssl_add_data_info: new data inserted data_len = %d, seq = %u, nxtseq = %u\n",
-                     rec->plain_data.data_len, rec->seq, rec->nxtseq);
-}
-
-SslDataInfo*
-ssl_get_data_info(int proto, packet_info *pinfo, gint key)
-{
-    SslDataInfo*   rec;
-    SslPacketInfo* pi;
-    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, 0);
-
-    if (!pi) return NULL;
-
-    rec = pi->appl_data;
-    while (rec) {
-        if (rec->key == key) return rec;
-        rec = rec->next;
-    }
+            return tvb_new_child_real_data(parent_tvb, rec->plain_data, rec->data_len, rec->data_len);
+        }
 
     return NULL;
 }

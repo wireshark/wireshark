@@ -352,24 +352,19 @@ typedef struct {
 } SslDigestAlgo;
 
 typedef struct _SslRecordInfo {
-    guchar *real_data;
-    gint data_len;
-    gint id;
+    guchar *plain_data;     /**< Decrypted data. */
+    guint   data_len;       /**< Length of decrypted data. */
+    gint    id;             /**< Identifies the exact record within a frame
+                                 (there can be multiple records in a frame). */
+    ContentType type;       /**< Content type of the decrypted record data. */
+    SslFlow *flow;          /**< Flow where this record fragment is a part of.
+                                 Can be NULL if this record type may not be fragmented. */
+    guint32 seq;            /**< Data offset within the flow. */
     struct _SslRecordInfo* next;
 } SslRecordInfo;
 
-typedef struct _SslDataInfo {
-    gint key;
-    StringInfo plain_data;
-    guint32 seq;
-    guint32 nxtseq;
-    SslFlow *flow;
-    struct _SslDataInfo *next;
-} SslDataInfo;
-
 typedef struct {
-    SslDataInfo *appl_data;
-    SslRecordInfo* handshake_data;
+    SslRecordInfo *records; /**< Decrypted records within this frame. */
 } SslPacketInfo;
 
 typedef struct _SslSession {
@@ -587,17 +582,11 @@ ssl_packet_from_server(SslSession *session, dissector_table_t table, packet_info
 
 /* add to packet data a copy of the specified real data */
 extern void
-ssl_add_record_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint record_id);
+ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint data_len, gint record_id, SslFlow *flow, ContentType type);
 
 /* search in packet data for the specified id; return a newly created tvb for the associated data */
 extern tvbuff_t*
-ssl_get_record_info(tvbuff_t *parent_tvb, gint proto, packet_info *pinfo, gint record_id);
-
-void
-ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint key, SslFlow *flow);
-
-SslDataInfo*
-ssl_get_data_info(int proto, packet_info *pinfo, gint key);
+ssl_get_record_info(tvbuff_t *parent_tvb, gint proto, packet_info *pinfo, gint record_id, SslRecordInfo **matched_record);
 
 /* initialize/reset per capture state data (ssl sessions cache) */
 extern void

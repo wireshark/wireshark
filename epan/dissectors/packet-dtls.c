@@ -567,21 +567,19 @@ dtls_is_null_cipher(guint cipher )
   }
 }
 
-static gint
+static gboolean
 decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
                     guint32 record_length, guint8 content_type, SslDecryptSession* ssl,
-                    gboolean save_plaintext)
+                    gboolean allow_fragments)
 {
-  gint        ret;
+  gboolean    success;
   SslDecoder *decoder;
-
-  ret = 0;
 
   /* if we can decrypt and decryption have success
    * add decrypted data to this packet info */
-  if (!ssl || (!save_plaintext && !(ssl->state & SSL_HAVE_SESSION_KEY))) {
+  if (!ssl || !(ssl->state & SSL_HAVE_SESSION_KEY)) {
     ssl_debug_printf("decrypt_dtls_record: no session key\n");
-    return ret;
+    return FALSE;
   }
   ssl_debug_printf("decrypt_dtls_record: app_data len %d, ssl state %X\n",
                    record_length, ssl->state);
@@ -598,7 +596,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
   if (!decoder && !dtls_is_null_cipher(ssl->session.cipher)) {
     ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
-    return ret;
+    return FALSE;
   }
 
   /* ensure we have enough storage space for decrypted data */
@@ -618,25 +616,33 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   if (ssl->state & SSL_HAVE_SESSION_KEY) {
     if (!decoder) {
       ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
-      return ret;
+      return FALSE;
     }
-    if (ssl_decrypt_record(ssl, decoder, content_type, tvb_get_ptr(tvb, offset, record_length), record_length,
-                           &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0)
-      ret = 1;
+    success = ssl_decrypt_record(ssl, decoder, content_type, tvb_get_ptr(tvb, offset, record_length), record_length,
+                           &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0;
   }
   else if (dtls_is_null_cipher(ssl->session.cipher)) {
     /* Non-encrypting cipher NULL-XXX */
     tvb_memcpy(tvb, dtls_decrypted_data.data, offset, record_length);
     dtls_decrypted_data_avail = dtls_decrypted_data.data_len = record_length;
-    ret = 1;
+    success = TRUE;
+  } else {
+    success = FALSE;
   }
 
-  if (ret && save_plaintext) {
-    ssl_add_data_info(proto_dtls, pinfo, dtls_decrypted_data.data, dtls_decrypted_data_avail,
-                      tvb_raw_offset(tvb)+offset, 0);
-  }
+  if (success && dtls_decrypted_data_avail > 0) {
+    const guchar *data = dtls_decrypted_data.data;
+    guint datalen = dtls_decrypted_data_avail;
 
-  return ret;
+    // XXX does DTLS have a flow like TLS?
+
+    // XXX in DTLS, there is only one record per datagram right? Then the "key"
+    // (tvb_raw_offset(tvb)+offset) should not really be needed and can be "0"?
+    ssl_add_record_info(proto_dtls, pinfo, data, datalen,
+        tvb_raw_offset(tvb)+offset,
+        allow_fragments ? decoder->flow : NULL, (ContentType)content_type);
+  }
+  return success;
 }
 
 static void
@@ -694,7 +700,8 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree     *ti;
   proto_tree     *dtls_record_tree;
   proto_item     *pi;
-  SslDataInfo    *appl_data;
+  tvbuff_t       *decrypted;
+  SslRecordInfo  *record = NULL;
   heur_dtbl_entry_t *hdtbl_entry;
 
   /*
@@ -784,8 +791,17 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
    */
   ssl_debug_printf("dissect_dtls_record: content_type %d\n",content_type);
 
-  /* PAOLO try to decrypt each record (we must keep ciphers "in sync")
-   * store plain text only for app data */
+  /* try to decrypt record on the first pass, if possible. Store decrypted
+   * record for later usage (without having to decrypt again). */
+  if (ssl) {
+    decrypt_dtls_record(tvb, pinfo, offset, record_length, content_type, ssl,
+        content_type == SSL_ID_APP_DATA || content_type == SSL_ID_HANDSHAKE);
+  }
+  decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset, &record);
+  if (decrypted) {
+    add_new_data_source(pinfo, decrypted, "Decrypted DTLS");
+  }
+
 
   switch ((ContentType) content_type) {
   case SSL_ID_CHG_CIPHER_SPEC:
@@ -807,15 +823,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     break;
   case SSL_ID_ALERT:
     {
-      tvbuff_t* decrypted;
-      decrypted = 0;
-      if (ssl&&decrypt_dtls_record(tvb, pinfo, offset,
-                                   record_length, content_type, ssl, FALSE))
-        ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
-                            dtls_decrypted_data_avail, tvb_raw_offset(tvb)+offset);
-
       /* try to retrieve and use decrypted alert record, if any. */
-      decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset);
       if (decrypted) {
         dissect_dtls_alert(decrypted, pinfo, dtls_record_tree, 0,
                            session);
@@ -828,22 +836,9 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     }
   case SSL_ID_HANDSHAKE:
     {
-      tvbuff_t* decrypted;
-      decrypted = 0;
-
       ssl_calculate_handshake_hash(ssl, tvb, offset, record_length);
 
-      /* try to decrypt handshake record, if possible. Store decrypted
-       * record for later usage. The offset is used as 'key' to identify
-       * this record into the packet (we can have multiple handshake records
-       * in the same frame) */
-      if (ssl && decrypt_dtls_record(tvb, pinfo, offset,
-                                     record_length, content_type, ssl, FALSE))
-        ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
-                            dtls_decrypted_data_avail, tvb_raw_offset(tvb)+offset);
-
       /* try to retrieve and use decrypted handshake record, if any. */
-      decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset);
       if (decrypted) {
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
                                tvb_reported_length(decrypted), session, is_from_server,
@@ -857,10 +852,6 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       break;
     }
   case SSL_ID_APP_DATA:
-    if (ssl)
-      decrypt_dtls_record(tvb, pinfo, offset,
-                          record_length, content_type, ssl, TRUE);
-
     /* show on info column what we are decoding */
     col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
 
@@ -884,23 +875,12 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                         : "Application Data");
 
     /* show decrypted data info, if available */
-    appl_data = ssl_get_data_info(proto_dtls, pinfo, tvb_raw_offset(tvb)+offset);
-    if (appl_data && (appl_data->plain_data.data_len > 0))
+    if (decrypted)
       {
-        tvbuff_t *next_tvb;
         gboolean  dissected;
         guint16   saved_match_port;
         /* try to dissect decrypted data*/
-        ssl_debug_printf("dissect_dtls_record decrypted len %d\n",
-                         appl_data->plain_data.data_len);
-
-        /* create a new TVB structure for desegmented data */
-        next_tvb = tvb_new_child_real_data(tvb,
-                                           appl_data->plain_data.data,
-                                           appl_data->plain_data.data_len,
-                                           appl_data->plain_data.data_len);
-
-        add_new_data_source(pinfo, next_tvb, "Decrypted DTLS data");
+        ssl_debug_printf("%s decrypted len %d\n", G_STRFUNC, record->data_len);
 
         saved_match_port = pinfo->match_uint;
         if (ssl_packet_from_server(session, dtls_associations, pinfo)) {
@@ -914,20 +894,20 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
           ssl_debug_printf("%s: found handle %p (%s)\n", G_STRFUNC,
                            (void *)session->app_handle,
                            dissector_handle_get_dissector_name(session->app_handle));
-          ssl_print_data("decrypted app data",appl_data->plain_data.data, appl_data->plain_data.data_len);
+          ssl_print_data("decrypted app data", record->plain_data, record->data_len);
 
           if (have_tap_listener(exported_pdu_tap)) {
-            export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_PROTO_NAME,
+            export_pdu_packet(decrypted, pinfo, EXP_PDU_TAG_PROTO_NAME,
                               dissector_handle_get_dissector_name(session->app_handle));
           }
 
-          dissected = call_dissector_only(session->app_handle, next_tvb, pinfo, top_tree, NULL);
+          dissected = call_dissector_only(session->app_handle, decrypted, pinfo, top_tree, NULL);
         }
         else {
           /* try heuristic subdissectors */
-          dissected = dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, top_tree, &hdtbl_entry, NULL);
+          dissected = dissector_try_heuristic(heur_subdissector_list, decrypted, pinfo, top_tree, &hdtbl_entry, NULL);
           if (dissected && have_tap_listener(exported_pdu_tap)) {
-            export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_HEUR_PROTO_NAME, hdtbl_entry->short_name);
+            export_pdu_packet(decrypted, pinfo, EXP_PDU_TAG_HEUR_PROTO_NAME, hdtbl_entry->short_name);
           }
         }
         pinfo->match_uint = saved_match_port;
@@ -939,16 +919,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                         offset, record_length, ENC_NA);
     break;
   case SSL_ID_HEARTBEAT:
-    {
-    tvbuff_t* decrypted;
-
-    if (ssl && decrypt_dtls_record(tvb, pinfo, offset,
-                                   record_length, content_type, ssl, FALSE))
-      ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
-                          dtls_decrypted_data_avail, tvb_raw_offset(tvb)+offset);
-
     /* try to retrieve and use decrypted alert record, if any. */
-    decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset);
     if (decrypted) {
       dissect_dtls_heartbeat(decrypted, pinfo, dtls_record_tree, 0,
                              session, tvb_reported_length (decrypted), TRUE);
@@ -958,7 +929,6 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                              session, record_length, FALSE);
     }
     break;
-    }
   }
   offset += record_length; /* skip to end of record */
 
