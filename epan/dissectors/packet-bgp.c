@@ -32,21 +32,20 @@
  * RFC3107 Carrying Label Information in BGP-4
  * RFC4486 Subcodes for BGP Cease Notification Message
  * RFC4724 Graceful Restart Mechanism for BGP
- * RFC5512 BGP Encapsulation SAFI and the BGP Tunnel Encapsulation Attribute
+ * RFC5512 The BGP Encapsulation Subsequent Address Family Identifier (SAFI)
  * RFC5575 Dissemination of flow specification rules
  * RFC5640 Load-Balancing for Mesh Softwires
  * RFC6368 Internal BGP as the Provider/Customer Edge Protocol for
            BGP/MPLS IP Virtual Private Networks (VPNs)
  * RFC6608 Subcodes for BGP Finite State Machine Error
  * RFC6793 BGP Support for Four-Octet Autonomous System (AS) Number Space
- * RFC5512 The BGP Encapsulation Subsequent Address Family Identifier (SAFI)
+ * RFC7432 BGP MPLS-Based Ethernet VPN
  * draft-ietf-idr-dynamic-cap
  * draft-ietf-idr-bgp-enhanced-route-refresh-02
  * draft-ietf-idr-bgp-ext-communities-05
  * draft-knoll-idr-qos-attribute-03
  * draft-nalawade-kapoor-tunnel-safi-05
  * draft-ietf-idr-add-paths-04 Additional-Path for BGP-4
- * draft-ietf-l2vpn-evpn-05 BGP MPLS Based Ethernet VPN
  * draft-ietf-idr-aigp-18 for BGP
  * draft-gredler-idr-bgp-ls-segment-routing-ext-01
  * draft-ietf-idr-custom-decision-07 BGP Custom Decision Process
