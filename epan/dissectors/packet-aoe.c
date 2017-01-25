@@ -19,6 +19,11 @@
 
 #include "config.h"
 
+/*
+ * See
+ *
+ *	http://brantleycoilecompany.com/AoEr11.pdf
+ */
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
