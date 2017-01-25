@@ -49,6 +49,8 @@
  * draft-ietf-idr-aigp-18 for BGP
  * draft-gredler-idr-bgp-ls-segment-routing-ext-01
  * draft-ietf-idr-custom-decision-07 BGP Custom Decision Process
+ * draft-rabadan-l2vpn-evpn-prefix-advertisement IP Prefix Advertisement
+ *     in EVPN
  * http://www.iana.org/assignments/bgp-parameters/ (last updated 2012-04-26)
 
  * TODO:
@@ -2025,10 +2027,11 @@ static expert_field ei_bgp_prefix_length_err = EI_INIT;
 static expert_field ei_bgp_attr_aigp_type = EI_INIT;
 static expert_field ei_bgp_attr_as_path_as_len_err = EI_INIT;
 
-static expert_field ei_bgp_evpn_nlri_rt4_no_ip = EI_INIT;
-static expert_field ei_bgp_evpn_nlri_rt4_len_err = EI_INIT;
 static expert_field ei_bgp_evpn_nlri_rt_type_err = EI_INIT;
+static expert_field ei_bgp_evpn_nlri_rt_len_err = EI_INIT;
 static expert_field ei_bgp_evpn_nlri_esi_type_err = EI_INIT;
+static expert_field ei_bgp_evpn_nlri_rt4_no_ip = EI_INIT;
+
 /* desegmentation */
 static gboolean bgp_desegment = TRUE;
 
@@ -4408,12 +4411,6 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
 
     route_type = tvb_get_guint8(tvb, offset);
 
-    if (route_type == 0 || route_type > 5) {
-        expert_add_info_format(pinfo, tree, &ei_bgp_evpn_nlri_rt_type_err,
-                               "Invalid EVPN Route Type (%u)!", route_type);
-        return -1;
-    }
-
     nlri_len = tvb_get_guint8(tvb, offset + 1);
 
     ti = proto_tree_add_item(tree, hf_bgp_evpn_nlri, tvb, reader_offset,
@@ -4426,19 +4423,11 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
     proto_item_append_text(ti, ": %s", val_to_str(tvb_get_guint8(tvb, offset), evpnrtypevals, "Unknown capability %d"));
     /* moving to next field */
     reader_offset++;
+
     proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_len, tvb, reader_offset,
                         1, ENC_BIG_ENDIAN);
-
-    if (route_type == EVPN_ETH_SEGMENT_ROUTE && nlri_len < 21) {
-        expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt4_len_err,
-                               "Invalid length (%u) of EVPN NLRI Route Type 4 (Ethernet Segment Route)!", nlri_len);
-        return -1;
-    }
     reader_offset++;
-    item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
-                               8, ENC_NA);
-    proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
-    reader_offset += 8;
+
     switch (route_type) {
     case EVPN_AD_ROUTE:
     /*
@@ -4452,6 +4441,16 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                 |  MPLS Label (3 octets)                |
                 +---------------------------------------+
    */
+
+        if (nlri_len < 25) {
+            expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                   "Invalid length (%u) of EVPN NLRI Route Type 1 (Ethernet Auto-discovery Route)", nlri_len);
+            return -1;
+        }
+        item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
+                                   8, ENC_NA);
+        proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+        reader_offset += 8;
 
         decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
         reader_offset += 10;
@@ -4491,6 +4490,16 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
 
 */
 
+        if (nlri_len < 33) {
+            expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                   "Invalid length (%u) of EVPN NLRI Route Type 2 (MAC/IP Advertisement Route)", nlri_len);
+            return -1;
+        }
+        item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
+                                   8, ENC_NA);
+        proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+        reader_offset += 8;
+
         decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
         reader_offset += 10;
 
@@ -4513,11 +4522,21 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
 
         if (ip_len == 4) {
             /*IPv4 address*/
+            if (nlri_len < 37) {
+                expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                       "Invalid length (%u) of EVPN NLRI Route Type 2 (MAC/IP Advertisement Route)", nlri_len);
+                return -1;
+            }
             proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, reader_offset,
                                 4, ENC_NA);
             reader_offset += 4;
         } else if (ip_len == 16) {
             /*IPv6 address*/
+            if (nlri_len < 49) {
+                expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                       "Invalid length (%u) of EVPN NLRI Route Type 2 (MAC/IP Advertisement Route)", nlri_len);
+                return -1;
+            }
             proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_addr, tvb, reader_offset,
                                 16, ENC_NA);
             reader_offset += 16;
@@ -4558,6 +4577,16 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         +---------------------------------------+
 */
 
+        if (nlri_len < 13) {
+            expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                   "Invalid length (%u) of EVPN NLRI Route Type 3 (Inclusive Multicast Ethernet Tag Route)", nlri_len);
+            return -1;
+        }
+        item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
+                                   8, ENC_NA);
+        proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+        reader_offset += 8;
+
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, reader_offset,
                             4, ENC_BIG_ENDIAN);
         /* move to next field */
@@ -4569,11 +4598,21 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
 
         if (ip_len == 4) {
             /*IPv4 address*/
+            if (nlri_len < 17) {
+                expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                       "Invalid length (%u) of EVPN NLRI Route Type 3 (Inclusive Multicast Ethernet Tag Route)", nlri_len);
+                return -1;
+            }
             proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, reader_offset,
                                 4, ENC_NA);
             reader_offset += 4;
         } else if (ip_len == 16) {
             /*IPv6 address*/
+            if (nlri_len < 29) {
+                expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                       "Invalid length (%u) of EVPN NLRI Route Type 3 (Inclusive Multicast Ethernet Tag Route)", nlri_len);
+                return -1;
+            }
             proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_addr, tvb, reader_offset,
                                 16, ENC_NA);
             reader_offset += 16;
@@ -4581,8 +4620,6 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
             /*IP not included*/
             proto_tree_add_expert(prefix_tree, pinfo, &ei_bgp_evpn_nlri_rt4_no_ip, tvb, reader_offset, 1);
         } else {
-            expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt4_len_err,
-                                   "Invalid length of IP Address (%u) in EVPN NLRI Route Type 3 (Iclusive Multicast Tree Route)!", ip_len);
             return -1;
         }
         total_length = reader_offset - offset;
@@ -4602,6 +4639,16 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         +---------------------------------------+
 */
 
+        if (nlri_len < 19) {
+            expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                   "Invalid length (%u) of EVPN NLRI Route Type 4 (Ethernet Segment Route)", nlri_len);
+            return -1;
+        }
+        item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
+                                   8, ENC_NA);
+        proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+        reader_offset += 8;
+
         decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
         /* move to next field */
         reader_offset += 10,
@@ -4613,11 +4660,21 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
 
         if (ip_len == 4) {
             /*IPv4 address*/
+            if (nlri_len < 23) {
+                expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                       "Invalid length (%u) of EVPN NLRI Route Type 4 (Ethernet Segment Route)", nlri_len);
+                return -1;
+            }
             proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, reader_offset,
                                 4, ENC_NA);
             reader_offset += 4;
         } else if (ip_len == 16) {
             /*IPv6 address*/
+            if (nlri_len < 35) {
+                expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                       "Invalid length (%u) of EVPN NLRI Route Type 4 (Ethernet Segment Route)", nlri_len);
+                return -1;
+            }
             proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv6_addr, tvb, reader_offset,
                                 16, ENC_NA);
             reader_offset += 16;
@@ -4625,8 +4682,6 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
             /*IP not included*/
             proto_tree_add_expert(prefix_tree, pinfo, &ei_bgp_evpn_nlri_rt4_no_ip, tvb, reader_offset, 1);
         } else {
-            expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt4_len_err,
-                                   "Invalid length of IP Address (%u) in EVPN NLRI Route Type 4 (Ethernet Segment Route)!", ip_len);
             return -1;
         }
         total_length = reader_offset - offset;
@@ -4651,6 +4706,16 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
     +---------------------------------------+
 */
 
+        if (nlri_len < 26) {
+            expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                   "Invalid length (%u) of EVPN NLRI Route Type 4 (Ethernet Segment Route)", nlri_len);
+            return -1;
+        }
+        item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
+                                   8, ENC_NA);
+        proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+        reader_offset += 8;
+
         decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
         reader_offset += 10;
 
@@ -4658,6 +4723,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                             4, ENC_BIG_ENDIAN);
         reader_offset += 4;
 
+        ip_len = tvb_get_guint8(tvb, reader_offset) / 8;
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_prefix_len, tvb, reader_offset,
                             1, ENC_BIG_ENDIAN);
         reader_offset++;
@@ -4690,12 +4756,14 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                 total_length = 60;
                 break;
             default :
-                expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt4_len_err,
-                                   "Invalid total nlri length (%u) in EVPN NLRI Route Type 5 (IP prefix Route)!", nlri_len);
+                expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                       "Invalid length (%u) of EVPN NLRI Route Type 5 (IP Prefix Route)", nlri_len);
                 return -1;
         }
         break;
     default:
+        expert_add_info_format(pinfo, tree, &ei_bgp_evpn_nlri_rt_type_err,
+                               "Invalid EVPN Route Type (%u)", route_type);
         return -1;
     }
 
@@ -9564,8 +9632,8 @@ proto_register_bgp(void)
         { &ei_bgp_ls_error, { "bgp.ls.error", PI_PROTOCOL, PI_ERROR, "Link State error", EXPFILL }},
         { &ei_bgp_ls_warn, { "bgp.ls.warn", PI_PROTOCOL, PI_WARN, "Link State warning", EXPFILL }},
         { &ei_bgp_ext_com_len_bad, { "bgp.ext_com.length.bad", PI_PROTOCOL, PI_ERROR, "Extended community length is wrong", EXPFILL }},
-        { &ei_bgp_evpn_nlri_rt4_len_err, { "bgp.evpn.len", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt_type_err, { "bgp.evpn.type", PI_MALFORMED, PI_ERROR, "EVPN Route Type is invalid", EXPFILL }},
+        { &ei_bgp_evpn_nlri_rt_len_err, { "bgp.evpn.len", PI_MALFORMED, PI_ERROR, "EVPN Length is invalid", EXPFILL }},
         { &ei_bgp_evpn_nlri_esi_type_err, { "bgp.evpn.esi_type", PI_MALFORMED, PI_ERROR, "EVPN ESI Type is invalid", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt4_no_ip, { "bgp.evpn.no_ip", PI_PROTOCOL, PI_NOTE, "IP Address: NOT INCLUDED", EXPFILL }},
         { &ei_bgp_attr_pmsi_tunnel_type, { "bgp.attr.pmsi.tunnel_type", PI_PROTOCOL, PI_ERROR, "Unknown Tunnel type", EXPFILL }},
