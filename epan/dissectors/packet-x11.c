@@ -5768,6 +5768,16 @@ dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       return tvb_captured_length(tvb);
 }
 
+static void
+x11_shutdown(void)
+{
+      g_hash_table_destroy(extension_table);
+      g_hash_table_destroy(error_table);
+      g_hash_table_destroy(event_table);
+      g_hash_table_destroy(genevent_table);
+      g_hash_table_destroy(reply_table);
+}
+
 /* Register the protocol with Wireshark */
 void proto_register_x11(void)
 {
@@ -5854,6 +5864,8 @@ void proto_register_x11(void)
             "Whether the X11 dissector should reassemble messages spanning multiple TCP segments. "
             "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
             &x11_desegment);
+
+      register_shutdown_routine(x11_shutdown);
 }
 
 void
