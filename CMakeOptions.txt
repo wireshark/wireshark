@@ -19,6 +19,7 @@ option(BUILD_sshdump       "Build sshdump" ON)
 option(BUILD_ciscodump     "Build ciscodump" ON)
 option(BUILD_randpktdump   "Build randpktdump" ON)
 option(BUILD_udpdump       "Build udpdump" ON)
+option(BUILD_sharkd        "Build sharkd" ON)
 
 option(DISABLE_WERROR    "Do not treat warnings as errors" OFF)
 option(EXTCAP_ANDROIDDUMP_LIBPCAP    "Build androiddump using libpcap" OFF)
