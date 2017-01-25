@@ -372,6 +372,7 @@ static int ett_te_value                 = -1;
 static int ett_openwave_default         = -1;
 
 static expert_field ei_wsp_capability_invalid = EI_INIT;
+static expert_field ei_wsp_capability_length_invalid = EI_INIT;
 static expert_field ei_wsp_capability_encoding_invalid = EI_INIT;
 static expert_field ei_wsp_text_field_invalid = EI_INIT;
 static expert_field ei_wsp_header_invalid_value    = EI_INIT;
@@ -4631,6 +4632,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t   *tmp_tvb;
     int         found_match;
     heur_dtbl_entry_t *hdtbl_entry;
+    proto_item* ti;
 
 /* Set up structures we will need to add the protocol subtree and manage it */
     proto_item *proto_ti = NULL; /* for the proto entry */
@@ -4716,9 +4718,14 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
             count = 0;  /* Initialise count */
             capabilityLength = tvb_get_guintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
-            proto_tree_add_uint (wsp_tree, hf_capabilities_length,
+            ti = proto_tree_add_uint (wsp_tree, hf_capabilities_length,
                     tvb, offset, count, capabilityLength);
             offset += count;
+            if (capabilityLength > tvb_reported_length(tvb))
+            {
+                expert_add_info(pinfo, ti, &ei_wsp_capability_length_invalid);
+                break;
+            }
 
             if (pdut != WSP_PDU_RESUME)
             {
@@ -7150,6 +7157,7 @@ proto_register_wsp(void)
 
     static ei_register_info ei[] = {
       { &ei_wsp_capability_invalid, { "wsp.capability.invalid", PI_PROTOCOL, PI_WARN, "Invalid capability", EXPFILL }},
+      { &ei_wsp_capability_length_invalid, { "wsp.capabilities.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid capability length", EXPFILL }},
       { &ei_wsp_capability_encoding_invalid, { "wsp.capability_encoding.invalid", PI_PROTOCOL, PI_WARN, "Invalid capability encoding", EXPFILL }},
       { &ei_wsp_text_field_invalid, { "wsp.text_field_invalid", PI_PROTOCOL, PI_WARN, "Text field invalid", EXPFILL }},
       { &ei_wsp_invalid_parameter_value, { "wsp.invalid_parameter_value", PI_PROTOCOL, PI_WARN, "Invalid parameter value", EXPFILL }},
