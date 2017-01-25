@@ -582,6 +582,7 @@ sharkd_SOURCES = \
 	$(SHARK_COMMON_SRC)	\
 	filter_files.c		\
 	sharkd.c		\
+	sharkd.h		\
 	sharkd_daemon.c		\
 	sharkd_session.c	\
 	ws_version_info.c
