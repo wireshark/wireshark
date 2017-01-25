@@ -47,6 +47,7 @@
 #include <epan/to_str.h>
 #include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 
 #include "packet-wap.h"
 #include "packet-wsp.h"
@@ -342,6 +343,7 @@ static int ett_sir                      = ETT_EMPTY;
 static int ett_addresses                = ETT_EMPTY;
 static int ett_address                  = ETT_EMPTY;
 
+static expert_field ei_wsp_capability_length_invalid = EI_INIT;
 
 
 /* Handle for WSP-over-UDP dissector */
@@ -4928,6 +4930,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t   *tmp_tvb;
     gboolean    found_match;
     heur_dtbl_entry_t *hdtbl_entry;
+    proto_item* ti;
 
 /* Set up structures we will need to add the protocol subtree and manage it */
     proto_item *proto_ti = NULL; /* for the proto entry */
@@ -5027,9 +5030,14 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 count = 0;  /* Initialise count */
                 capabilityLength = tvb_get_guintvar (tvb, offset, &count);
-                proto_tree_add_uint (wsp_tree, hf_capabilities_length,
+                ti = proto_tree_add_uint (wsp_tree, hf_capabilities_length,
                         tvb, offset, count, capabilityLength);
                 offset += count;
+                if (capabilityLength > tvb_reported_length(tvb))
+                {
+                        expert_add_info(pinfo, ti, &ei_wsp_capability_length_invalid);
+                        break;
+                }
 
                 if (pdut != WSP_PDU_RESUME)
                 {
@@ -7274,6 +7282,12 @@ proto_register_wsp(void)
         &ett_address        /* Single address */
     };
 
+    static ei_register_info ei[] = {
+      { &ei_wsp_capability_length_invalid, { "wsp.capabilities.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid capability length", EXPFILL }},
+    };
+
+    expert_module_t* expert_wsp;
+
 /* Register the protocol name and description */
     proto_wsp = proto_register_protocol(
         "Wireless Session Protocol",    /* protocol name for use by wireshark */
@@ -7292,6 +7306,8 @@ proto_register_wsp(void)
 /* Required function calls to register the header fields and subtrees used  */
     proto_register_field_array(proto_wsp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_wsp = expert_register_protocol(proto_wsp);
+    expert_register_field_array(expert_wsp, ei, array_length(ei));
 
     register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
     register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
