@@ -4482,10 +4482,15 @@ ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint dat
     rec->type = type;
     rec->next = NULL;
 
-    if (flow) {
+    /* TODO allow Handshake records also to be reassembled. There needs to be
+     * one "flow" for each record type (appdata, handshake). "seq" for the
+     * record should then be relative within this flow. */
+    if (flow && type == SSL_ID_APP_DATA) {
         rec->seq = flow->byte_seq;
         rec->flow = flow;
         flow->byte_seq += data_len;
+        ssl_debug_printf("%s stored decrypted record seq=%d nxtseq=%d flow=%p\n",
+                         G_STRFUNC, rec->seq, rec->seq + data_len, flow);
     }
 
     /* Remember decrypted records. */

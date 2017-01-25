@@ -827,7 +827,6 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       if (decrypted) {
         dissect_dtls_alert(decrypted, pinfo, dtls_record_tree, 0,
                            session);
-        add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
       } else {
         dissect_dtls_alert(tvb, pinfo, dtls_record_tree, offset,
                            session);
@@ -843,7 +842,6 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
                                tvb_reported_length(decrypted), session, is_from_server,
                                ssl, content_type);
-        add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
       } else {
         dissect_dtls_handshake(tvb, pinfo, dtls_record_tree, offset,
                                record_length, session, is_from_server, ssl,
@@ -923,7 +921,6 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     if (decrypted) {
       dissect_dtls_heartbeat(decrypted, pinfo, dtls_record_tree, 0,
                              session, tvb_reported_length (decrypted), TRUE);
-      add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
     } else {
       dissect_dtls_heartbeat(tvb, pinfo, dtls_record_tree, offset,
                              session, record_length, FALSE);
