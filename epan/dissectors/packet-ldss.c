@@ -207,9 +207,6 @@ static dissector_handle_t	ldss_tcp_handle;
 /* Global variables associated with the preferences for ldss */
 static guint	global_udp_port_ldss	= UDP_PORT_LDSS;
 
-/* Avoid creating conversations and data twice */
-static unsigned int highest_num_seen = 0;
-
 /* When seeing a broadcast talking about an open TCP port on a host, create
  * a conversation to dissect anything sent/received at that address.  Setup
  * protocol data so the TCP dissection knows what broadcast triggered it. */
@@ -401,9 +398,8 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * These steps only need to be done once per packet, so a variable
 	 * tracks the highest frame number seen. Handles the case of first frame
 	 * being frame zero. */
-	if (messageDetail != INFERRED_PEERSHUTDOWN &&
-	    (highest_num_seen == 0 ||
-	     highest_num_seen < pinfo->num)) {
+	if ((messageDetail != INFERRED_PEERSHUTDOWN) &&
+	    !PINFO_FD_VISITED(pinfo)) {
 
 		ldss_broadcast_t *data;
 
@@ -430,9 +426,6 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (port > 0) {
 			prepare_ldss_transfer_conv(data);
 		}
-
-		/* Record that the frame was processed */
-		highest_num_seen = pinfo->num;
 	}
 
 	return tvb_captured_length(tvb);
@@ -493,13 +486,11 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 		col_set_str(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Requesting file - pull)");
 
-		if (highest_num_seen == 0 ||
-		    highest_num_seen < pinfo->num) {
+		if (transfer_info->req == NULL) {
 
 			already_dissected = FALSE;
 			transfer_info->req = wmem_new0(wmem_file_scope(), ldss_file_request_t);
 			transfer_info->req->file = wmem_new0(wmem_file_scope(), ldss_file_t);
-			highest_num_seen = pinfo->num;
 		}
 
 		ti = proto_tree_add_item(tree, proto_ldss,
@@ -795,15 +786,6 @@ dissect_ldss (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	return 0;
 }
 
-/* Initialize the highest num seen each time a
- * new file is loaded or re-loaded in wireshark */
-static void
-ldss_init_protocol(void)
-{
-	/* We haven't dissected anything yet. */
-	highest_num_seen = 0;
-}
-
 void
 proto_register_ldss (void) {
 	static hf_register_info hf[] =	{
@@ -974,7 +956,6 @@ proto_register_ldss (void) {
 						"broadcasts will be sent",
 						10, &global_udp_port_ldss);
 
-	register_init_routine(&ldss_init_protocol);
 }
 
 
