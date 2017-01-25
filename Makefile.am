@@ -593,8 +593,6 @@ sharkd_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS)
 
 # Libraries and plugin flags with which to link sharkd.
 sharkd_LDADD = \
-	capchild/libcapchild.a		\
-	caputils/libcaputils.a		\
 	ui/cli/libcliui.a		\
 	ui/libui.a			\
 	wiretap/libwiretap.la		\

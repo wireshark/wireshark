@@ -2298,7 +2298,6 @@ if(BUILD_sharkd)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(sharkd_FILES
-		capture_opts.c
 		filter_files.c
 		sharkd.c
 		sharkd_daemon.c
