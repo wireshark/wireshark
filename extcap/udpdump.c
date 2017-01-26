@@ -133,12 +133,12 @@ static int setup_listener(const guint16 port, socket_handle_t* sock)
 	}
 
 	optval = 1;
-	if (setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(int)) < 0) {
+	if (setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, (socklen_t)sizeof(int)) < 0) {
 		g_warning("Can't set socket option SO_REUSEADDR: %s", strerror(errno));
 		goto cleanup_setup_listener;
 	}
 
-	if (setsockopt (*sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0) {
+	if (setsockopt (*sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, (socklen_t)sizeof(timeout)) < 0) {
 		g_warning("Can't set socket option SO_RCVTIMEO: %s", strerror(errno));
 		goto cleanup_setup_listener;
 	}
@@ -148,7 +148,7 @@ static int setup_listener(const guint16 port, socket_handle_t* sock)
 	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serveraddr.sin_port = htons(port);
 
-	if (bind(*sock, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0) {
+	if (bind(*sock, (struct sockaddr *)&serveraddr, (socklen_t)sizeof(serveraddr)) < 0) {
 		g_warning("Error on binding: %s", strerror(errno));
 		goto cleanup_setup_listener;
 	}
