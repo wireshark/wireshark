@@ -4561,6 +4561,10 @@ ssl_common_init(ssl_master_key_map_t *mk_map,
     mk_map->crandom = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->pre_master = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->pms = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->tls13_client_handshake = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->tls13_server_handshake = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->tls13_client_appdata = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->tls13_server_appdata = g_hash_table_new(ssl_hash, ssl_equal);
     ssl_data_alloc(decrypted_data, 32);
     ssl_data_alloc(compressed_data, 32);
 }
@@ -4574,6 +4578,10 @@ ssl_common_cleanup(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
     g_hash_table_destroy(mk_map->crandom);
     g_hash_table_destroy(mk_map->pre_master);
     g_hash_table_destroy(mk_map->pms);
+    g_hash_table_destroy(mk_map->tls13_client_handshake);
+    g_hash_table_destroy(mk_map->tls13_server_handshake);
+    g_hash_table_destroy(mk_map->tls13_client_appdata);
+    g_hash_table_destroy(mk_map->tls13_server_appdata);
 
     g_free(decrypted_data->data);
     g_free(compressed_data->data);
@@ -4823,7 +4831,14 @@ ssl_compile_keyfile_regex(void)
         /* Matches Client Hellos having this Client Random */
         "|CLIENT_RANDOM (?<client_random>" OCTET "{32}) "
         /* Master-Secret is given, its length is fixed */
-        ")(?<master_secret>" OCTET "{" G_STRINGIFY(SSL_MASTER_SECRET_LENGTH) "})";
+        ")(?<master_secret>" OCTET "{" G_STRINGIFY(SSL_MASTER_SECRET_LENGTH) "})"
+        "|(?"
+        /* TLS 1.3 Client Random to Derived Secrets mapping. */
+        ":CLIENT_HANDSHAKE_TRAFFIC_SECRET (?<client_handshake>" OCTET "{32})"
+        "|SERVER_HANDSHAKE_TRAFFIC_SECRET (?<server_handshake>" OCTET "{32})"
+        "|CLIENT_TRAFFIC_SECRET_0 (?<client_appdata>" OCTET "{32})"
+        "|SERVER_TRAFFIC_SECRET_0 (?<server_appdata>" OCTET "{32})"
+        ") (?<derived_secret>" OCTET "+)";
 #undef OCTET
     static GRegex *regex = NULL;
     GError *gerr = NULL;
@@ -4878,7 +4893,12 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
         { "encrypted_pmk",  mk_map->pre_master },
         { "session_id",     mk_map->session },
         { "client_random",  mk_map->crandom },
-        { "client_random_pms",  mk_map->pms},
+        { "client_random_pms",  mk_map->pms },
+        /* TLS 1.3 map from Client Random to derived secret. */
+        { "client_handshake",   mk_map->tls13_client_handshake },
+        { "server_handshake",   mk_map->tls13_server_handshake },
+        { "client_appdata",     mk_map->tls13_client_appdata },
+        { "server_appdata",     mk_map->tls13_server_appdata },
     };
     /* no need to try if no key log file is configured. */
     if (!ssl_keylog_filename || !*ssl_keylog_filename) {
@@ -4912,6 +4932,15 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
      *     Where yyyy is the cleartext master secret (hex-encoded)
      *     (This format allows non-RSA SSL connections to be decrypted, i.e.
      *     ECDHE-RSA.)
+     *
+     *   - "CLIENT_HANDSHAKE_TRAFFIC_SECRET xxxx yyyy"
+     *   - "SERVER_HANDSHAKE_TRAFFIC_SECRET xxxx yyyy"
+     *   - "CLIENT_TRAFFIC_SECRET_0 xxxx yyyy"
+     *   - "SERVER_TRAFFIC_SECRET_0 xxxx yyyy"
+     *     Where xxxx is the client_random from the ClientHello (hex-encoded)
+     *     Where yyyy is the secret (hex-encoded) derived from the handshake or
+     *     master secrets. (This format is introduced with TLS 1.3 and supported
+     *     by BoringSSL, OpenSSL, etc. See bug 12779.)
      */
     regex = ssl_compile_keyfile_regex();
     if (!regex)
@@ -4965,9 +4994,13 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
              * otherwise we will use the Master Secret
              */
             hex_pre_ms_or_ms = g_match_info_fetch_named(mi, "master_secret");
-            if (hex_pre_ms_or_ms == NULL || strlen(hex_pre_ms_or_ms) == 0){
+            if (hex_pre_ms_or_ms == NULL || !*hex_pre_ms_or_ms) {
                 g_free(hex_pre_ms_or_ms);
                 hex_pre_ms_or_ms = g_match_info_fetch_named(mi, "pms");
+            }
+            if (hex_pre_ms_or_ms == NULL || !*hex_pre_ms_or_ms) {
+                g_free(hex_pre_ms_or_ms);
+                hex_pre_ms_or_ms = g_match_info_fetch_named(mi, "derived_secret");
             }
             /* There is always a match, otherwise the regex is wrong. */
             DISSECTOR_ASSERT(hex_pre_ms_or_ms && strlen(hex_pre_ms_or_ms));

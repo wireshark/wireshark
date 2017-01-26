@@ -450,6 +450,12 @@ typedef struct {
     GHashTable *pre_master; /* First 8 bytes of encrypted pre-master secret to
                                pre-master secret */
     GHashTable *pms;        /* Client Random to unencrypted pre-master secret */
+
+    /* For TLS 1.3: maps Client Random to derived secret. */
+    GHashTable *tls13_client_handshake;
+    GHashTable *tls13_server_handshake;
+    GHashTable *tls13_client_appdata;
+    GHashTable *tls13_server_appdata;
 } ssl_master_key_map_t;
 
 gint ssl_get_keyex_alg(gint cipher);
