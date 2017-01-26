@@ -1335,8 +1335,8 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 
 	const char *sepa = "";
 	unsigned int framenum;
-	int idx;
-	int max_idx = 0;
+	gint64 idx;
+	gint64 max_idx = 0;
 
 	if (tok_interval)
 		(void) ws_strtou32(tok_interval, NULL, &interval_ms);
@@ -1361,8 +1361,8 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 	for (framenum = 1; framenum <= cfile.count; framenum++)
 	{
 		frame_data *fdata = frame_data_sequence_find(cfile.frames, framenum);
-		time_t msec_rel;
-		int new_idx;
+		gint64 msec_rel;
+		gint64 new_idx;
 
 		if (start_ts == NULL)
 			start_ts = &fdata->abs_ts;
@@ -1370,15 +1370,14 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 		if (filter_data && !(filter_data[framenum / 8] & (1 << (framenum % 8))))
 			continue;
 
-		/* TODO, make it 64-bit, to avoid msec overflow after 24days */
-		msec_rel = (time_t)((fdata->abs_ts.secs - start_ts->secs) * 1000 + (fdata->abs_ts.nsecs - start_ts->nsecs) / 1000000);
+		msec_rel = (fdata->abs_ts.secs - start_ts->secs) * 1000 + (fdata->abs_ts.nsecs - start_ts->nsecs) / 1000000;
 		new_idx  = msec_rel / interval_ms;
 
 		if (idx != new_idx)
 		{
 			if (stat.frames != 0)
 			{
-				printf("%s[%d,%u,%" G_GUINT64_FORMAT "]", sepa, idx, stat.frames, stat.bytes);
+				printf("%s[%" G_GINT64_FORMAT ",%u,%" G_GUINT64_FORMAT "]", sepa, idx, stat.frames, stat.bytes);
 				sepa = ",";
 			}
 
@@ -1399,11 +1398,11 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 
 	if (stat.frames != 0)
 	{
-		printf("%s[%d,%u,%" G_GUINT64_FORMAT "]", sepa, idx, stat.frames, stat.bytes);
+		printf("%s[%" G_GINT64_FORMAT ",%u,%" G_GUINT64_FORMAT "]", sepa, idx, stat.frames, stat.bytes);
 		/* sepa = ","; */
 	}
 
-	printf("],\"last\":%d,\"frames\":%u,\"bytes\":%" G_GUINT64_FORMAT "}\n", max_idx, stat_total.frames, stat_total.bytes);
+	printf("],\"last\":%" G_GINT64_FORMAT ",\"frames\":%u,\"bytes\":%" G_GUINT64_FORMAT "}\n", max_idx, stat_total.frames, stat_total.bytes);
 }
 
 /**
