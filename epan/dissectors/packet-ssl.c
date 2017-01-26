@@ -258,6 +258,7 @@ static gint ett_ssl_segment           = -1;
 
 static expert_field ei_ssl2_handshake_session_id_len_error = EI_INIT;
 static expert_field ei_ssl3_heartbeat_payload_length = EI_INIT;
+static expert_field ei_tls_unexpected_message = EI_INIT;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_ssl_pct_ch_offset = EI_INIT;
@@ -1530,7 +1531,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     guint8          next_byte;
     proto_tree     *ti;
     proto_tree     *ssl_record_tree;
-    proto_item     *pi;
+    proto_item     *pi, *ct_pi;
     guint32         available_bytes;
     tvbuff_t       *decrypted;
     SslRecordInfo  *record = NULL;
@@ -1645,7 +1646,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     ssl_record_tree = proto_item_add_subtree(ti, ett_ssl_record);
 
     /* show the one-byte content type */
-    proto_tree_add_item(ssl_record_tree, hf_ssl_record_content_type,
+    ct_pi = proto_tree_add_item(ssl_record_tree, hf_ssl_record_content_type,
                         tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -1709,6 +1710,11 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
     switch ((ContentType) content_type) {
     case SSL_ID_CHG_CIPHER_SPEC:
+        if (version == TLSV1DOT3_VERSION) {
+            expert_add_info_format(pinfo, ct_pi, &ei_tls_unexpected_message,
+                                   "Record type is not allowed in TLS 1.3");
+            break;
+        }
         col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
         ssl_dissect_change_cipher_spec(&dissect_ssl3_hf, tvb, pinfo,
                                        ssl_record_tree, offset, session,
@@ -1787,6 +1793,11 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         break;
     }
     case SSL_ID_HEARTBEAT:
+        if (version == TLSV1DOT3_VERSION) {
+            expert_add_info_format(pinfo, ct_pi, &ei_tls_unexpected_message,
+                                   "Record type is not allowed in TLS 1.3");
+            break;
+        }
         if (decrypted) {
             dissect_ssl3_heartbeat(decrypted, pinfo, ssl_record_tree, 0, session, tvb_reported_length (decrypted), TRUE);
         } else {
@@ -4119,6 +4130,7 @@ proto_register_ssl(void)
     static ei_register_info ei[] = {
         { &ei_ssl2_handshake_session_id_len_error, { "ssl.handshake.session_id_length.error", PI_MALFORMED, PI_ERROR, "Session ID length error", EXPFILL }},
         { &ei_ssl3_heartbeat_payload_length, { "ssl.heartbeat_message.payload_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid heartbeat payload length", EXPFILL }},
+        { &ei_tls_unexpected_message, { "ssl.unexpected_message", PI_PROTOCOL, PI_ERROR, "Unexpected message", EXPFILL }},
 
       /* Generated from convert_proto_tree_add_text.pl */
       { &ei_ssl_ignored_unknown_record, { "ssl.ignored_unknown_record", PI_PROTOCOL, PI_WARN, "Ignored Unknown Record", EXPFILL }},
