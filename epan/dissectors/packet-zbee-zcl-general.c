@@ -9384,7 +9384,12 @@ dissect_zcl_ota_file_version_field(tvbuff_t *tvb, proto_tree *tree, guint *offse
     };
 
     /* 'File Version' field present, retrieves it */
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_ota_file_version, ett_zbee_zcl_ota_file_version, file_version, ENC_BIG_ENDIAN);
+    /* File version is Little endian. as well as all ZigBee data structures:
+       "The endianness used in each data field shall be little endian in order
+       to be compliant with general ZigBee messages."
+       File version A: 0x10053519 represents application release 1.0 build 05 with stack release 3.5 b19
+    */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_ota_file_version, ett_zbee_zcl_ota_file_version, file_version, ENC_LITTLE_ENDIAN);
     *offset += 4;
 } /*dissect_zcl_ota_file_version_field*/
 
