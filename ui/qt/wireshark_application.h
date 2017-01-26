@@ -190,11 +190,14 @@ signals:
     void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
     void openTapParameterDialog(const QString cfg_str, const QString arg, void *userdata);
 
+    /* Signals activation and stop of a capture. The value provides the number of active captures */
+    void captureActive(int);
+
 public slots:
     void clearRecentCaptures();
     void captureFileReadStarted();
-    void captureStarted() { active_captures_++; }
-    void captureFinished() { active_captures_--; }
+    void captureStarted();
+    void captureFinished();
     void updateTaps();
 
 private slots:
