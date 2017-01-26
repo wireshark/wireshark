@@ -105,6 +105,7 @@ randpktdump
 rawshark
 reordercap
 reassemble_test
+sharkd
 sshdump
 stamp-h1
 text2pcap

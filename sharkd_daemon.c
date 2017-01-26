@@ -35,9 +35,7 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
+#include <wsutil/socket.h>
 
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
@@ -46,23 +44,6 @@
 #ifndef _WIN32
 #include <sys/un.h>
 #include <netinet/tcp.h>
-#endif
-
-/*
-#if defined(_WIN32)
-	#ifdef HAVE_WINDOWS_H
-		#include <windows.h>
-	#endif
-
-	#include <ws2tcpip.h>
-
-	#ifdef HAVE_WINSOCK2_H
-		#include <winsock2.h>
-	#endif
-#endif
-*/
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
 #endif
 
 #include <wsutil/strtoi.h>
@@ -80,7 +61,7 @@ socket_init(char *path)
 	if (!strncmp(path, "unix:", 5))
 	{
 		struct sockaddr_un s_un;
-		size_t s_un_len;
+		socklen_t s_un_len;
 
 		path += 5;
 
@@ -95,7 +76,7 @@ socket_init(char *path)
 		s_un.sun_family = AF_UNIX;
 		g_strlcpy(s_un.sun_path, path, sizeof(s_un.sun_path));
 
-		s_un_len = offsetof(struct sockaddr_un, sun_path) + strlen(s_un.sun_path);
+		s_un_len = (socklen_t)(offsetof(struct sockaddr_un, sun_path) + strlen(s_un.sun_path));
 
 		if (s_un.sun_path[0] == '@')
 			s_un.sun_path[0] = '\0';

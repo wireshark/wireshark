@@ -43,33 +43,7 @@
 	#include <io.h>
 #endif
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-	#ifdef HAVE_WINDOWS_H
-		#include <windows.h>
-	#endif
-
-	#include <ws2tcpip.h>
-
-	#ifdef HAVE_WINSOCK2_H
-		#include <winsock2.h>
-	#endif
-
-	#include <process.h>
-
-	#define socket_handle_t SOCKET
-#else
-	/*
-	 * UN*X, or Windows pretending to be UN*X with the aid of Cygwin.
-	 */
-	#define closesocket(socket)	close(socket)
-	#define socket_handle_t		int
-	#define INVALID_SOCKET		(-1)
-	#define SOCKET_ERROR		(-1)
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-	#include <arpa/inet.h>
-#endif
+#include <wsutil/socket.h>
 
 #define EXTCAP_BASE_OPTIONS_ENUM \
 	EXTCAP_OPT_LIST_INTERFACES, \
