@@ -31,6 +31,7 @@
 #include <glib.h>
 
 #include <wsutil/wsjsmn.h>
+#include <wsutil/ws_printf.h>
 
 #include <file.h>
 #include <epan/exceptions.h>
@@ -655,7 +656,7 @@ sharkd_session_geoip_addr(address *addr, const char *suffix)
 #ifdef HAVE_GEOIP
 	if (addr->type == AT_IPv4)
 	{
-		uint32_t ip = pntoh32(addr->data);
+		guint32 ip = pntoh32(addr->data);
 
 		guint num_dbs = geoip_db_num_dbs();
 		guint dbnum;
@@ -960,7 +961,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
 		taps_data[i] = NULL;
 
-		snprintf(tapbuf, sizeof(tapbuf), "tap%d", i);
+		ws_snprintf(tapbuf, sizeof(tapbuf), "tap%d", i);
 		tok_tap = json_find_attr(buf, tokens, count, tapbuf);
 		if (!tok_tap)
 			break;
@@ -1360,7 +1361,7 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 	for (framenum = 1; framenum <= cfile.count; framenum++)
 	{
 		frame_data *fdata = frame_data_sequence_find(cfile.frames, framenum);
-		int msec_rel;
+		time_t msec_rel;
 		int new_idx;
 
 		if (start_ts == NULL)
@@ -1370,7 +1371,7 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 			continue;
 
 		/* TODO, make it 64-bit, to avoid msec overflow after 24days */
-		msec_rel = ((fdata->abs_ts.secs - start_ts->secs) * 1000 + (fdata->abs_ts.nsecs - start_ts->nsecs) / 1000000);
+		msec_rel = (time_t)((fdata->abs_ts.secs - start_ts->secs) * 1000 + (fdata->abs_ts.nsecs - start_ts->nsecs) / 1000000);
 		new_idx  = msec_rel / interval_ms;
 
 		if (idx != new_idx)
@@ -1689,7 +1690,7 @@ sharkd_session_process_setconf(char *buf, const jsmntok_t *tokens, int count)
 	if (!tok_name || tok_name[0] == '\0' || !tok_value)
 		return;
 
-	snprintf(pref, sizeof(pref), "%s:%s", tok_name, tok_value);
+	ws_snprintf(pref, sizeof(pref), "%s:%s", tok_name, tok_value);
 
 	ret = prefs_set_pref(pref);
 	printf("{\"err\":%d}\n", ret);
@@ -1874,7 +1875,7 @@ sharkd_session_process(char *buf, const jsmntok_t *tokens, int count)
 		else if (!strcmp(tok_req, "dumpconf"))
 			sharkd_session_process_dumpconf(buf, tokens, count);
 		else if (!strcmp(tok_req, "bye"))
-			_Exit(0);
+			exit(0);
 		else
 			fprintf(stderr, "::: req = %s\n", tok_req);
 
@@ -1890,7 +1891,9 @@ sharkd_session_main(void)
 	int tokens_max = -1;
 
 	fprintf(stderr, "Hello in child!\n");
+#ifndef _WIN32
 	setlinebuf(stdout);
+#endif
 
 	while (fgets(buf, sizeof(buf), stdin))
 	{

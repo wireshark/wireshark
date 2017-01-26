@@ -30,13 +30,40 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <unistd.h>
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#include <sys/un.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
+
+#ifndef _WIN32
+#include <sys/un.h>
 #include <netinet/tcp.h>
+#endif
+
+/*
+#if defined(_WIN32)
+	#ifdef HAVE_WINDOWS_H
+		#include <windows.h>
+	#endif
+
+	#include <ws2tcpip.h>
+
+	#ifdef HAVE_WINSOCK2_H
+		#include <winsock2.h>
+	#endif
+#endif
+*/
+#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
 
 #include <wsutil/strtoi.h>
 
@@ -49,6 +76,7 @@ socket_init(char *path)
 {
 	int fd = -1;
 
+#ifndef _WIN32
 	if (!strncmp(path, "unix:", 5))
 	{
 		struct sockaddr_un s_un;
@@ -79,8 +107,9 @@ socket_init(char *path)
 		}
 
 	}
+#endif
 #ifdef SHARKD_TCP_SUPPORT
-	else if (!strncmp(path, "tcp:", 4))
+	if (!strncmp(path, "tcp:", 4))
 	{
 		struct sockaddr_in s_in;
 		int one = 1;
@@ -115,24 +144,28 @@ socket_init(char *path)
 			return -1;
 		}
 	}
-#endif
 	else
 	{
+#endif
 		return -1;
+#ifdef SHARKD_TCP_SUPPORT
 	}
+#endif
 
+#ifndef _WIN32
 	if (listen(fd, SOMAXCONN))
 	{
 		close(fd);
 		return -1;
 	}
-
+#endif
 	return fd;
 }
 
 int
 sharkd_init(int argc, char **argv)
 {
+#ifndef _WIN32
 	int fd;
 	pid_t pid;
 
@@ -168,12 +201,14 @@ sharkd_init(int argc, char **argv)
 	}
 
 	_server_fd = fd;
+#endif
 	return 0;
 }
 
 int
 sharkd_loop(void)
 {
+#ifndef _WIN32
 	while (1)
 	{
 		int fd;
@@ -205,7 +240,7 @@ sharkd_loop(void)
 
 		close(fd);
 	}
-
+#endif
 	return 0;
 }
 
