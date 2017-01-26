@@ -816,13 +816,14 @@ check_val_map(gpointer key _U_, gpointer val, gpointer user_data)
 static void
 wmem_test_map(void)
 {
-    wmem_allocator_t *allocator;
+    wmem_allocator_t   *allocator, *extra_allocator;
     wmem_map_t       *map;
     gchar            *str_key;
     unsigned int      i;
     void             *ret;
 
     allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
+    extra_allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
     /* insertion, lookup and removal of simple integer keys */
     map = wmem_map_new(allocator, g_direct_hash, g_direct_equal);
@@ -845,6 +846,23 @@ wmem_test_map(void)
         g_assert(ret == NULL);
         ret = wmem_map_remove(map, GINT_TO_POINTER(i));
         g_assert(ret == NULL);
+    }
+    wmem_free_all(allocator);
+
+    /* test auto-reset functionality */
+    map = wmem_map_new_autoreset(allocator, extra_allocator, g_direct_hash, g_direct_equal);
+    g_assert(map);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        ret = wmem_map_insert(map, GINT_TO_POINTER(i), GINT_TO_POINTER(777777));
+        g_assert(ret == NULL);
+        ret = wmem_map_insert(map, GINT_TO_POINTER(i), GINT_TO_POINTER(i));
+        g_assert(ret == GINT_TO_POINTER(777777));
+        ret = wmem_map_insert(map, GINT_TO_POINTER(i), GINT_TO_POINTER(i));
+        g_assert(ret == GINT_TO_POINTER(i));
+    }
+    wmem_free_all(extra_allocator);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        g_assert(wmem_map_lookup(map, GINT_TO_POINTER(i)) == NULL);
     }
     wmem_free_all(allocator);
 
@@ -876,6 +894,7 @@ wmem_test_map(void)
     }
     g_assert(wmem_map_size(map) == CONTAINER_ITERS);
 
+    wmem_destroy_allocator(extra_allocator);
     wmem_destroy_allocator(allocator);
 }
 

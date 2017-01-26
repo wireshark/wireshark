@@ -1770,6 +1770,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_map_insert@Base 1.12.0~rc1
  wmem_map_lookup@Base 1.12.0~rc1
  wmem_map_new@Base 1.12.0~rc1
+ wmem_map_new_autoreset@Base 2.3.0
  wmem_map_remove@Base 1.12.0~rc1
  wmem_map_size@Base 2.1.0
  wmem_memdup@Base 1.12.0~rc1
