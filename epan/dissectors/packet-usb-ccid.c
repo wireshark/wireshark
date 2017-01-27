@@ -303,17 +303,6 @@ static const value_string ccid_proto_structs_vals[] = {
     {0x00, NULL}
 };
 
-static const value_string ccid_clock_stop_support_vals[] = {
-    /* Standardised clock states */
-    { 0x00, "Stopping the Clock is not allowed" },
-    { 0x01, "Stop with Clock signal L" },
-    { 0x02, "Stop with Clock signal H" },
-    { 0x03, "Stop with Clock either High or Low" },
-
-    /* End of clock states */
-    { 0x00, NULL }
-};
-
 static const value_string ccid_status_icc_status_vals[] = {
     /* Standardised icc status */
     { 0x00, "An ICC is present and active" },
