@@ -4723,7 +4723,6 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                             4, ENC_BIG_ENDIAN);
         reader_offset += 4;
 
-        ip_len = tvb_get_guint8(tvb, reader_offset) / 8;
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_prefix_len, tvb, reader_offset,
                             1, ENC_BIG_ENDIAN);
         reader_offset++;
