@@ -3329,7 +3329,7 @@ create_decoders:
     ssl_session->client_new->flow = ssl_session->client ? ssl_session->client->flow : ssl_create_flow();
     ssl_session->server_new->flow = ssl_session->server ? ssl_session->server->flow : ssl_create_flow();
 
-    ssl_debug_printf("%s: client seq %d, server seq %d\n",
+    ssl_debug_printf("%s: client seq %" G_GUINT64_FORMAT ", server seq %" G_GUINT64_FORMAT "\n",
         G_STRFUNC, ssl_session->client_new->seq, ssl_session->server_new->seq);
     g_free(key_block.data);
     ssl_session->state |= SSL_HAVE_SESSION_KEY;
@@ -3393,18 +3393,6 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
 #endif /* HAVE_LIBGNUTLS */
 
 /* Decryption integrity check {{{ */
-/* convert network byte order 32 byte number to right-aligned host byte order *
- * 8 bytes buffer */
-static gint fmt_seq(guint32 num, guint8* buf)
-{
-    guint32 netnum;
-
-    memset(buf,0,8);
-    netnum=g_htonl(num);
-    memcpy(buf+4,&netnum,4);
-
-    return(0);
-}
 
 static gint
 tls_check_mac(SslDecoder*decoder, gint ct, gint ver, guint8* data,
@@ -3424,7 +3412,7 @@ tls_check_mac(SslDecoder*decoder, gint ct, gint ver, guint8* data,
         return -1;
 
     /* hash sequence number */
-    fmt_seq(decoder->seq,buf);
+    phton64(buf, decoder->seq);
 
     decoder->seq++;
 
@@ -3483,7 +3471,7 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
     ssl_md_update(&mc,buf,pad_ct);
 
     /* hash sequence number */
-    fmt_seq(decoder->seq,buf);
+    phton64(buf, decoder->seq);
     decoder->seq++;
     ssl_md_update(&mc,buf,8);
 
@@ -3537,9 +3525,9 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
 
     if (ssl_hmac_init(&hm,decoder->mac_key.data,decoder->mac_key.data_len,md) != 0)
         return -1;
-    ssl_debug_printf("dtls_check_mac seq: %d epoch: %d\n",decoder->seq,decoder->epoch);
+    ssl_debug_printf("dtls_check_mac seq: %" G_GUINT64_FORMAT " epoch: %d\n",decoder->seq,decoder->epoch);
     /* hash sequence number */
-    fmt_seq(decoder->seq,buf);
+    phton64(buf, decoder->seq);
     buf[0]=decoder->epoch>>8;
     buf[1]=(guint8)decoder->epoch;
 
@@ -3743,7 +3731,7 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     }
 
     /* Now check the MAC */
-    ssl_debug_printf("checking mac (len %d, version %X, ct %d seq %d)\n",
+    ssl_debug_printf("checking mac (len %d, version %X, ct %d seq %" G_GUINT64_FORMAT ")\n",
         worklen, ssl->session.version, ct, decoder->seq);
     if(ssl->session.version==SSLV3_VERSION){
         if(ssl3_check_mac(decoder,ct,out_str->data,worklen,mac) < 0) {

@@ -302,7 +302,7 @@ typedef struct _SslDecoder {
     StringInfo write_iv; /* for AEAD ciphers (at least GCM, CCM) */
     SSL_CIPHER_CTX evp;
     SslDecompress *decomp;
-    guint32 seq;
+    guint64 seq;    /**< Implicit (TLS) or explicit (DTLS) record sequence number. */
     guint16 epoch;
     SslFlow *flow;
 } SslDecoder;
