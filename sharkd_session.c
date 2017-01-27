@@ -418,7 +418,7 @@ sharkd_session_process_analyse_cb(packet_info *pi, proto_tree *tree, struct epan
 
 	if (pi->layers)
 	{
-		wmem_list_frame_t *frame = wmem_list_head(pi->layers);
+		wmem_list_frame_t *frame;
 
 		for (frame = wmem_list_head(pi->layers); frame; frame = wmem_list_frame_next(frame))
 		{
