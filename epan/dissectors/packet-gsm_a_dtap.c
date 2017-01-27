@@ -4823,8 +4823,6 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     curr_offset++;
     curr_len--;
 
-    if ((signed)curr_len <= 0) return;
-
     ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND, " - UMTS challenge or GSM challenge");
 
     ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN, NULL);
@@ -4921,8 +4919,6 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
     curr_offset++;
     curr_len--;
-
-    if ((signed)curr_len <= 0) return;
 
     ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
 
@@ -5068,8 +5064,6 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
     curr_offset++;
     curr_len--;
-
-    if ((signed)curr_len <= 0) return;
 
     ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
 
@@ -5306,8 +5300,6 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_offset++;
     curr_len--;
 
-    if ((signed)curr_len <= 0) return;
-
     ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL);
 
     ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_1, NULL);
@@ -5539,8 +5531,6 @@ dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     curr_offset++;
     curr_len--;
-
-    if ((signed)curr_len <= 0) return;
 
     ELEM_OPT_TLV(0x08, GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL);
 

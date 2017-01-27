@@ -10378,8 +10378,6 @@ dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_offset++;
     curr_len--;
 
-    if ((signed)curr_len <= 0) return;
-
     ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
 
     ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
