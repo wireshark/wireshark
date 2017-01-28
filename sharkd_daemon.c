@@ -35,6 +35,11 @@
 #include <unistd.h>
 #endif
 
+#ifdef _WIN32
+#include <wsutil/unicode-utils.h>
+#include <wsutil/filesystem.h>
+#endif
+
 #include <wsutil/socket.h>
 
 #ifdef HAVE_NETINET_IN_H
@@ -50,14 +55,29 @@
 
 #include "sharkd.h"
 
-static int _server_fd = -1;
+#ifdef _WIN32
+/* for windows support TCP sockets */
+# define SHARKD_TCP_SUPPORT
+#else
+/* for other system support only local sockets */
+# define SHARKD_UNIX_SUPPORT
+#endif
+
+static int _use_stdinout = 0;
+static socket_handle_t _server_fd = -1;
 
 static int
 socket_init(char *path)
 {
-	int fd = -1;
+	socket_handle_t fd = -1;
 
-#ifndef _WIN32
+#ifdef _WIN32
+	WSADATA wsaData;
+
+	WSAStartup(MAKEWORD(1, 1), &wsaData);
+#endif
+
+#ifdef SHARKD_UNIX_SUPPORT
 	if (!strncmp(path, "unix:", 5))
 	{
 		struct sockaddr_un s_un;
@@ -83,12 +103,13 @@ socket_init(char *path)
 
 		if (bind(fd, (struct sockaddr *) &s_un, s_un_len))
 		{
-			close(fd);
+			closesocket(fd);
 			return -1;
 		}
-
 	}
+	else
 #endif
+
 #ifdef SHARKD_TCP_SUPPORT
 	if (!strncmp(path, "tcp:", 4))
 	{
@@ -108,7 +129,13 @@ socket_init(char *path)
 		if (ws_strtou16(port_sep + 1, NULL, &port) == FALSE)
 			return -1;
 
+#ifdef _WIN32
+		/* Need to use WSASocket() to disable overlapped I/O operations,
+		   this way on windows SOCKET can be used as HANDLE for stdin/stdout */
+		fd = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, 0);
+#else
 		fd = socket(AF_INET, SOCK_STREAM, 0);
+#endif
 		if (fd == -1)
 			return -1;
 
@@ -117,29 +144,26 @@ socket_init(char *path)
 		s_in.sin_port = g_htons(port);
 		*port_sep = ':';
 
-		setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
+		setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (void *) &one, sizeof(one));
 
 		if (bind(fd, (struct sockaddr *) &s_in, sizeof(struct sockaddr_in)))
 		{
-			close(fd);
+			closesocket(fd);
 			return -1;
 		}
 	}
 	else
+#endif
 	{
-#endif
 		return -1;
-#ifdef SHARKD_TCP_SUPPORT
 	}
-#endif
 
-#ifndef _WIN32
 	if (listen(fd, SOMAXCONN))
 	{
-		close(fd);
+		closesocket(fd);
 		return -1;
 	}
-#endif
+
 	return fd;
 }
 
@@ -147,8 +171,9 @@ int
 sharkd_init(int argc, char **argv)
 {
 #ifndef _WIN32
-	int fd;
 	pid_t pid;
+#endif
+	socket_handle_t fd;
 
 	if (argc != 2)
 	{
@@ -156,7 +181,9 @@ sharkd_init(int argc, char **argv)
 		fprintf(stderr, "\n");
 
 		fprintf(stderr, "<socket> examples:\n");
+#ifdef SHARKD_UNIX_SUPPORT
 		fprintf(stderr, " - unix:/tmp/sharkd.sock - listen on unix file /tmp/sharkd.sock\n");
+#endif
 #ifdef SHARKD_TCP_SUPPORT
 		fprintf(stderr, " - tcp:127.0.0.1:4446 - listen on TCP port 4446\n");
 #endif
@@ -164,12 +191,23 @@ sharkd_init(int argc, char **argv)
 		return -1;
 	}
 
+#ifndef _WIN32
 	signal(SIGCHLD, SIG_IGN);
+#endif
 
-	fd = socket_init(argv[1]);
-	if (fd == -1)
-		return -1;
+	if (!strcmp(argv[1], "-"))
+	{
+		_use_stdinout = 1;
+	}
+	else
+	{
+		fd = socket_init(argv[1]);
+		if (fd == -1)
+			return -1;
+		_server_fd = fd;
+	}
 
+#ifndef _WIN32
 	/* all good - try to daemonize */
 	pid = fork();
 	if (pid == -1)
@@ -180,20 +218,29 @@ sharkd_init(int argc, char **argv)
 		/* parent */
 		exit(0);
 	}
-
-	_server_fd = fd;
 #endif
+
 	return 0;
 }
 
 int
 sharkd_loop(void)
 {
-#ifndef _WIN32
+	if (_use_stdinout)
+	{
+		return sharkd_session_main();
+	}
+
 	while (1)
 	{
-		int fd;
+#ifndef _WIN32
 		pid_t pid;
+#else
+		PROCESS_INFORMATION pi;
+		STARTUPINFO si;
+		char *exename;
+#endif
+		int fd;
 
 		fd = accept(_server_fd, NULL, NULL);
 		if (fd == -1)
@@ -203,6 +250,7 @@ sharkd_loop(void)
 		}
 
 		/* wireshark is not ready for handling multiple capture files in single process, so fork(), and handle it in seperate process */
+#ifndef _WIN32
 		pid = fork();
 		if (pid == 0)
 		{
@@ -219,9 +267,32 @@ sharkd_loop(void)
 			fprintf(stderr, "cannot fork(): %s\n", g_strerror(errno));
 		}
 
-		close(fd);
-	}
+#else
+		memset(&pi, 0, sizeof(pi));
+		memset(&si, 0, sizeof(si));
+
+		si.cb = sizeof(si);
+		si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+		si.hStdInput = (HANDLE) fd;
+		si.hStdOutput = (HANDLE) fd;
+		si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+
+		exename = g_strdup_printf("%s\\%s", get_progfile_dir(), "sharkd.exe");
+
+		if (!CreateProcess(utf_8to16(exename), utf_8to16("sharkd.exe -"), NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi))
+		{
+			fprintf(stderr, "CreateProcess(%s) failed\n", exename);
+		}
+		else
+		{
+			CloseHandle(pi.hThread);
+		}
+
+		g_free(exename);
 #endif
+
+		closesocket(fd);
+	}
 	return 0;
 }
 

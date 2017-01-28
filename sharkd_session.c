@@ -1882,7 +1882,11 @@ sharkd_session_process(char *buf, const jsmntok_t *tokens, int count)
 		else
 			fprintf(stderr, "::: req = %s\n", tok_req);
 
+		/* reply for every command are 0+ lines of JSON reply (outputed above), finished by empty new line */
 		printf("\n");
+
+		/* stdout is on most systems buffered, fflush() to output reply to a socket */
+		fflush(stdout);
 	}
 }
 
@@ -1894,9 +1898,6 @@ sharkd_session_main(void)
 	int tokens_max = -1;
 
 	fprintf(stderr, "Hello in child!\n");
-#ifndef _WIN32
-	setlinebuf(stdout);
-#endif
 
 	while (fgets(buf, sizeof(buf), stdin))
 	{
