@@ -206,7 +206,6 @@ lapdm_defragment_init (void)
 {
     reassembly_table_init (&lapdm_reassembly_table,
                            &addresses_reassembly_table_functions);
-    lapdm_last_n_s_map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 static void
@@ -521,6 +520,9 @@ proto_register_lapdm(void)
                                    "Reassemble fragmented LAPDm packets",
                                    "Whether the dissector should defragment LAPDm messages spanning multiple packets.",
                                    &reassemble_lapdm);
+
+    lapdm_last_n_s_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+
     register_init_routine (lapdm_defragment_init);
     register_cleanup_routine (lapdm_defragment_cleanup);
 }

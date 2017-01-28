@@ -9526,13 +9526,6 @@ static gboolean dissect_rtps_rtitcp(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   return dissect_rtps(tvb, pinfo, tree, offset);
 }
 
-static void
-rtps_init(void)
-{
-    if (enable_topic_info)
-      registry = wmem_map_new(wmem_file_scope(), hash_by_guid, compare_by_guid);
-}
-
 void proto_register_rtps(void) {
 
   static hf_register_info hf[] = {
@@ -11707,10 +11700,11 @@ void proto_register_rtps(void) {
               "Enable Topic Information feature",
               "Shows the Topic Name and Type Name of the samples.",
               &enable_topic_info);
-  register_init_routine(rtps_init);
 
   rtps_type_name_table = register_dissector_table("rtps.type_name", "RTPS Type Name",
           proto_rtps, FT_STRING, BASE_NONE);
+
+  registry = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), hash_by_guid, compare_by_guid);
 }
 
 

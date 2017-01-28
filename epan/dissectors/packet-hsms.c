@@ -540,7 +540,7 @@ dissect_hsms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 static void
 hsms_init(void)
 {
-    value_lengths = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+    value_lengths = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 
     wmem_map_insert(value_lengths, GINT_TO_POINTER(FORMAT_CODE_LIST), GINT_TO_POINTER(0));
     wmem_map_insert(value_lengths, GINT_TO_POINTER(FORMAT_CODE_BINARY), GINT_TO_POINTER(1));
@@ -756,7 +756,7 @@ proto_register_hsms(void)
     expert_hsms = expert_register_protocol(proto_hsms);
     expert_register_field_array(expert_hsms, ei, array_length(ei));
 
-    register_init_routine(&hsms_init);
+    hsms_init();
 }
 
 void
