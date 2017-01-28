@@ -107,7 +107,8 @@ wmem_map_new(wmem_allocator_t *allocator,
     map->eql_func  = eql_func;
     map->master    = allocator;
     map->allocator = allocator;
-    wmem_map_init_table(map);
+    map->count = 0;
+    map->table = NULL;
 
     return map;
 }
@@ -152,7 +153,8 @@ wmem_map_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave,
     map->eql_func  = eql_func;
     map->master    = master;
     map->allocator = slave;
-    wmem_map_init_table(map);
+    map->count = 0;
+    map->table = NULL;
 
     map->master_cb_id = wmem_register_callback(master, wmem_map_destroy_cb, map);
     map->slave_cb_id  = wmem_register_callback(slave, wmem_map_reset_cb, map);
