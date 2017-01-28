@@ -102,8 +102,8 @@
 #define INTERFACE_ANDROID_WIFI_TCPDUMP                  "android-wifi-tcpdump"
 
 #define ANDROIDDUMP_VERSION_MAJOR    "1"
-#define ANDROIDDUMP_VERSION_MINOR    "0"
-#define ANDROIDDUMP_VERSION_RELEASE  "5"
+#define ANDROIDDUMP_VERSION_MINOR    "1"
+#define ANDROIDDUMP_VERSION_RELEASE  "0"
 
 #define SERIAL_NUMBER_LENGTH_MAX  512
 #define MODEL_NAME_LENGTH_MAX      64
@@ -171,6 +171,8 @@ enum {
     OPT_CONFIG_ADB_SERVER_IP,
     OPT_CONFIG_ADB_SERVER_TCP_PORT,
     OPT_CONFIG_LOGCAT_TEXT,
+    OPT_CONFIG_LOGCAT_IGNORE_LOG_BUFFER,
+    OPT_CONFIG_LOGCAT_CUSTOM_OPTIONS,
     OPT_CONFIG_BT_SERVER_TCP_PORT,
     OPT_CONFIG_BT_FORWARD_SOCKET,
     OPT_CONFIG_BT_LOCAL_IP,
@@ -179,15 +181,17 @@ enum {
 
 static struct option longopts[] = {
     EXTCAP_BASE_OPTIONS,
-    { "help",                 no_argument,       NULL, OPT_HELP},
-    { "version",              no_argument,       NULL, OPT_VERSION},
-    { "adb-server-ip",        required_argument, NULL, OPT_CONFIG_ADB_SERVER_IP},
-    { "adb-server-tcp-port",  required_argument, NULL, OPT_CONFIG_ADB_SERVER_TCP_PORT},
-    { "logcat-text",          required_argument, NULL, OPT_CONFIG_LOGCAT_TEXT},
-    { "bt-server-tcp-port",   required_argument, NULL, OPT_CONFIG_BT_SERVER_TCP_PORT},
-    { "bt-forward-socket",    required_argument, NULL, OPT_CONFIG_BT_FORWARD_SOCKET},
-    { "bt-local-ip",          required_argument, NULL, OPT_CONFIG_BT_LOCAL_IP},
-    { "bt-local-tcp-port",    required_argument, NULL, OPT_CONFIG_BT_LOCAL_TCP_PORT},
+    { "help",                     no_argument,       NULL, OPT_HELP},
+    { "version",                  no_argument,       NULL, OPT_VERSION},
+    { "adb-server-ip",            required_argument, NULL, OPT_CONFIG_ADB_SERVER_IP},
+    { "adb-server-tcp-port",      required_argument, NULL, OPT_CONFIG_ADB_SERVER_TCP_PORT},
+    { "logcat-text",              optional_argument, NULL, OPT_CONFIG_LOGCAT_TEXT},
+    { "logcat-ignore-log-buffer", optional_argument, NULL, OPT_CONFIG_LOGCAT_IGNORE_LOG_BUFFER},
+    { "logcat-custom-options",    required_argument, NULL, OPT_CONFIG_LOGCAT_CUSTOM_OPTIONS},
+    { "bt-server-tcp-port",       required_argument, NULL, OPT_CONFIG_BT_SERVER_TCP_PORT},
+    { "bt-forward-socket",        required_argument, NULL, OPT_CONFIG_BT_FORWARD_SOCKET},
+    { "bt-local-ip",              required_argument, NULL, OPT_CONFIG_BT_LOCAL_IP},
+    { "bt-local-tcp-port",        required_argument, NULL, OPT_CONFIG_BT_LOCAL_TCP_PORT},
     { 0, 0, 0, 0 }
 };
 
@@ -889,6 +893,11 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
             new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_SYSTEM, model_name, serial_number, "Android Logcat System");
             new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_RADIO,  model_name, serial_number, "Android Logcat Radio");
             new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_EVENTS, model_name, serial_number, "Android Logcat Events");
+
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN,   model_name, serial_number, "Android Logcat Main");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM, model_name, serial_number, "Android Logcat System");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO,  model_name, serial_number, "Android Logcat Radio");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS, model_name, serial_number, "Android Logcat Events");
         } else {
             new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN,   model_name, serial_number, "Android Logcat Main");
             new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM, model_name, serial_number, "Android Logcat System");
@@ -1160,7 +1169,9 @@ static int list_config(char *interface) {
         printf("arg {number=0}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}\n"
                 "arg {number=1}{call=--adb-server-tcp-port}{display=ADB Server TCP Port}{type=integer}{range=0,65535}{default=5037}\n"
                 "arg {number=2}{call=--logcat-text}{display=Use text logcat}{type=boolean}{default=false}\n"
-                "arg {number=3}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n");
+                "arg {number=3}{call=--logcat-ignore-log-buffer}{display=Ignore log buffer}{type=boolean}{default=false}\n"
+                "arg {number=4}{call=--logcat-custom-options}{display=Custom logcat parameters}{type=string}\n"
+                "arg {number=5}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n");
         return EXIT_CODE_SUCCESS;
     } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) ||
             is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) ||
@@ -1169,7 +1180,9 @@ static int list_config(char *interface) {
             is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH)) {
         printf("arg {number=0}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}\n"
                 "arg {number=1}{call=--adb-server-tcp-port}{display=ADB Server TCP Port}{type=integer}{range=0,65535}{default=5037}\n"
-                "arg {number=2}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n");
+                "arg {number=2}{call=--logcat-ignore-log-buffer}{display=Ignore log buffer}{type=boolean}{default=false}\n"
+                "arg {number=3}{call=--logcat-custom-options}{display=Custom logcat parameters}{type=string}\n"
+                "arg {number=4}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n");
         return EXIT_CODE_SUCCESS;
     }
 
@@ -1984,7 +1997,8 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
 /*----------------------------------------------------------------------------*/
 
 static int capture_android_logcat_text(char *interface, char *fifo,
-        const char *adb_server_ip, unsigned short *adb_server_tcp_port) {
+        const char *adb_server_ip, unsigned short *adb_server_tcp_port,
+        int logcat_ignore_log_buffer, const char *logcat_custom_parameter) {
     struct extcap_dumper        extcap_dumper;
     static char                 packet[PACKET_LENGTH];
     gssize                      length;
@@ -1997,13 +2011,15 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     struct exported_pdu_header  exported_pdu_header_end = {0, 0};
     static const char          *wireshark_protocol_logcat_text = "logcat_text_threadtime";
     const char                 *adb_transport = "0012""host:transport-any";
-    const char                 *adb_logcat_template = "%04x""shell:export ANDROID_LOG_TAGS=\"\" ; exec logcat -v threadtime%s%s";
+    const char                 *adb_logcat_template = "%04x""shell:export ANDROID_LOG_TAGS=\"\" ; exec logcat -v threadtime%s%s%s%s";
     const char                 *adb_transport_serial_templace = "%04x""host:transport:%s";
     char                       *serial_number = NULL;
     size_t                      serial_number_length = 0;
     int                         result;
     char                       *pos;
     const char                 *logcat_buffer;
+    const char                 *logcat_log_buffer;
+    int                         command_length;
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_WIRESHARK_UPPER_PDU);
 
@@ -2075,8 +2091,20 @@ static int capture_android_logcat_text(char *interface, char *fifo,
         return EXIT_CODE_GENERIC;
     }
 
+    command_length = strlen(adb_logcat_template) - 4 - 8 + strlen(logcat_buffer);
 
-    result = g_snprintf((char *) packet, PACKET_LENGTH, adb_logcat_template, strlen(adb_logcat_template) + -8 + strlen(logcat_buffer), logcat_buffer, "");
+    if (logcat_ignore_log_buffer)
+        logcat_log_buffer = " -T 1";
+    else
+        logcat_log_buffer = "";
+    command_length += strlen(logcat_log_buffer);
+
+    if (logcat_custom_parameter) {
+        command_length += 1; /* additional command "space" */
+        command_length += strlen(logcat_custom_parameter);
+    }
+
+    result = g_snprintf((char *) packet, PACKET_LENGTH, adb_logcat_template, command_length, logcat_buffer, logcat_log_buffer, (logcat_custom_parameter? " " : ""), logcat_custom_parameter);
     if (result <= 0 || result > PACKET_LENGTH) {
         g_warning("Error while completing adb packet");
         closesocket(sock);
@@ -2633,6 +2661,8 @@ int main(int argc, char **argv) {
     const char      *adb_server_ip       = NULL;
     unsigned short  *adb_server_tcp_port = NULL;
     unsigned int     logcat_text   = 0;
+    unsigned int     logcat_ignore_log_buffer = 0;
+    const char      *logcat_custom_parameter   = NULL;
     const char      *default_adb_server_ip = "127.0.0.1";
     unsigned short   default_adb_server_tcp_port = 5037;
     unsigned short   local_adb_server_tcp_port;
@@ -2695,7 +2725,9 @@ int main(int argc, char **argv) {
     extcap_help_add_option(extcap_conf, "--help", "print this help");
     extcap_help_add_option(extcap_conf, "--adb-server-ip <IP>", "the IP address of the ADB server");
     extcap_help_add_option(extcap_conf, "--adb-server-tcp-port <port>", "the TCP port of the ADB server");
-    extcap_help_add_option(extcap_conf, "--logcat-text <text>", "logcat text");
+    extcap_help_add_option(extcap_conf, "--logcat-text", "use logcat text format");
+    extcap_help_add_option(extcap_conf, "--logcat-ignore-log-buffer", "ignore log buffer");
+    extcap_help_add_option(extcap_conf, "--logcat-custom-options <text>", "use custom logcat parameters");
     extcap_help_add_option(extcap_conf, "--bt-server-tcp-port <port>", "bluetooth server TCP port");
     extcap_help_add_option(extcap_conf, "--bt-forward-socket <path>", "bluetooth forward socket");
     extcap_help_add_option(extcap_conf, "--bt-local-ip <IP>", "the bluetooth local IP");
@@ -2736,7 +2768,30 @@ int main(int argc, char **argv) {
             }
             break;
         case OPT_CONFIG_LOGCAT_TEXT:
-            logcat_text = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
+            if (optarg && !*optarg)
+                logcat_text = TRUE;
+            else
+                logcat_text = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
+            break;
+        case OPT_CONFIG_LOGCAT_IGNORE_LOG_BUFFER:
+            if (optarg == NULL || (optarg && !*optarg))
+                logcat_ignore_log_buffer = TRUE;
+            else
+                logcat_ignore_log_buffer = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
+            break;
+        case OPT_CONFIG_LOGCAT_CUSTOM_OPTIONS:
+            if (optarg == NULL || (optarg && *optarg == '\0')) {
+                logcat_custom_parameter = NULL;
+                break;
+            }
+
+            if (g_regex_match_simple("(^|\\s)-[bBcDfgLnpPrv]", optarg, (GRegexCompileFlags)0, (GRegexMatchFlags)0)) {
+                g_error("Found prohibited option in logcat-custom-options");
+                return EXIT_CODE_GENERIC;
+            }
+
+            logcat_custom_parameter = optarg;
+
             break;
         case OPT_CONFIG_BT_SERVER_TCP_PORT:
             bt_server_tcp_port = &local_bt_server_tcp_port;
@@ -2817,15 +2872,20 @@ int main(int argc, char **argv) {
                 is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_RADIO) ||
                 is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_EVENTS)))
             if (logcat_text)
-                ret = capture_android_logcat_text(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+                ret = capture_android_logcat_text(extcap_conf->interface,
+                        extcap_conf->fifo, adb_server_ip, adb_server_tcp_port,
+                        logcat_ignore_log_buffer, logcat_custom_parameter);
             else
-                ret = capture_android_logcat(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+                ret = capture_android_logcat(extcap_conf->interface,
+                        extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
         else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) ||
                 is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) ||
                 is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) ||
                 is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) ||
                 (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH))))
-            ret = capture_android_logcat_text(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+            ret = capture_android_logcat_text(extcap_conf->interface,
+                    extcap_conf->fifo, adb_server_ip, adb_server_tcp_port,
+                    logcat_ignore_log_buffer, logcat_custom_parameter);
         else if (extcap_conf->interface && is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP))
             ret = capture_android_bluetooth_hcidump(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
         else if (extcap_conf->interface && is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER))
