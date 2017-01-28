@@ -235,7 +235,6 @@ AC_SYS_LARGEFILE
 # Check if we need to link with libm
 #
 AC_SEARCH_LIBS([cos], [m])
-AC_SEARCH_LIBS([fmod], [m])
 
 #
 # Check for C99 math functions.
