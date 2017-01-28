@@ -450,7 +450,7 @@ typedef struct mimo_control
 #define TAG_CONGESTION_NOTIFICATION  116
 #define TAG_MESH_PEERING_MGMT        117  /* IEEE Std 802.11s-2011 */
 #define TAG_MESH_CHANNEL_SWITCH      118
-#define TAG_MESH_AWAKE_WINDOW        119
+#define TAG_MESH_AWAKE_WINDOW        119  /* IEEE Std 802.11s-2011 */
 #define TAG_BEACON_TIMING            120
 #define TAG_MCCAOP_SETUP_REQUEST     121
 #define TAG_MCCAOP_SETUP_REPLY       122
@@ -617,7 +617,7 @@ static const value_string tag_num_vals[] = {
   { TAG_CONGESTION_NOTIFICATION,              "Congestion Notification" },
   { TAG_MESH_PEERING_MGMT,                    "Mesh Peering Management" },
   { TAG_MESH_CHANNEL_SWITCH,                  "Mesh Channel Switch Parameters" },
-  { TAG_MESH_AWAKE_WINDOW,                    "Mesh Awake Windows" },
+  { TAG_MESH_AWAKE_WINDOW,                    "Mesh Awake Window" },
   { TAG_BEACON_TIMING,                        "Beacon Timing" },
   { TAG_MCCAOP_SETUP_REQUEST,                 "MCCAOP Setup Request" },
   { TAG_MCCAOP_SETUP_REPLY,                   "MCCAOP SETUP Reply" },
@@ -3381,6 +3381,7 @@ static int hf_ieee80211_mesh_config_cap_mbca_enabled = -1;
 static int hf_ieee80211_mesh_config_cap_tbtt_adjusting = -1;
 static int hf_ieee80211_mesh_config_cap_power_save_level = -1;
 static int hf_ieee80211_mesh_form_info_num_of_peerings = -1;
+static int hf_ieee80211_mesh_awake_window = -1;
 
 static int hf_ieee80211_ff_public_action = -1;
 static int hf_ieee80211_ff_protected_public_action = -1;
@@ -5544,6 +5545,12 @@ add_mimo_compressed_beamforming_feedback_report(proto_tree *tree, tvbuff_t *tvb,
   proto_tree_add_item(snr_tree, hf_ieee80211_ff_mimo_csi_cbf_matrices, tvb, offset, csi_matrix_size, ENC_NA);
   offset += csi_matrix_size;
   return offset - start_offset;
+}
+
+static void
+mesh_active_window_base_custom(gchar *result, guint32 mesh_active_window)
+{
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (mesh_active_window * 1024.0 / 1000000));
 }
 
 /* ************************************************************************* */
@@ -15651,6 +15658,24 @@ ieee80211_tag_mesh_channel_switch(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   return tvb_captured_length(tvb);
 }
 
+/* Mesh Awake Window Parameters (119) */
+static int
+ieee80211_tag_mesh_awake_window(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+
+  if (tag_len != 2) {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
+        "Tag length %u wrong, must be = 2", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_mesh_awake_window, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  return tvb_captured_length(tvb);
+}
+
 static int
 ieee80211_tag_channel_switch_announcement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -24598,6 +24623,11 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_mesh_awake_window,
+     {"Mesh Awake Window", "wlan.mesh.mesh_awake_window",
+      FT_UINT16, BASE_CUSTOM, CF_FUNC(mesh_active_window_base_custom), 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tag_measure_request_token,
      {"Measurement Token", "wlan.measure.req.token",
       FT_UINT8, BASE_HEX, NULL, 0xff,
@@ -27968,6 +27998,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_ROAMING_CONSORTIUM, create_dissector_handle(dissect_roaming_consortium, -1));
   dissector_add_uint("wlan.tag.number", TAG_AP_CHANNEL_REPORT, create_dissector_handle(dissect_ap_channel_report, -1));
   dissector_add_uint("wlan.tag.number", TAG_NEIGHBOR_REPORT, create_dissector_handle(dissect_neighbor_report, -1));
+  dissector_add_uint("wlan.tag.number", TAG_MESH_AWAKE_WINDOW, create_dissector_handle(ieee80211_tag_mesh_awake_window, -1));
   dissector_add_uint("wlan.tag.number", TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, create_dissector_handle(ieee80211_tag_channel_switch_announcement, -1));
   dissector_add_uint("wlan.tag.number", TAG_SUPPORTED_OPERATING_CLASSES, create_dissector_handle(ieee80211_tag_supported_operating_classes, -1));
   dissector_add_uint("wlan.tag.number", TAG_RELAY_CAPABILITIES, create_dissector_handle(add_tag_relay_capabilities, -1));
