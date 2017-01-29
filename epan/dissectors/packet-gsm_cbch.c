@@ -123,19 +123,6 @@ static const fragment_items cbch_frag_items = {
     "blocks"
 };
 
-static void
-cbch_defragment_init(void)
-{
-    reassembly_table_init(&cbch_block_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-cbch_defragment_cleanup(void)
-{
-    reassembly_table_destroy(&cbch_block_reassembly_table);
-}
-
 static const range_string gsm_cbch_sched_begin_slot_rvals[] = {
     { 0,     0,     "Out of range (ignoring message)" },
     { 1,     1,     "(apparently) Scheduled Scheduling Message" },
@@ -645,8 +632,9 @@ proto_register_gsm_cbch(void)
 
     /* subdissector code */
     register_dissector("gsm_cbch", dissect_cbch, proto_cbch);
-    register_init_routine(cbch_defragment_init);
-    register_cleanup_routine(cbch_defragment_cleanup);
+
+    reassembly_table_register(&cbch_block_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     /* subtree array */
     proto_register_subtree_array(ett, array_length(ett));

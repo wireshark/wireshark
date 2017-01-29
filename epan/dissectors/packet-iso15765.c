@@ -386,15 +386,12 @@ static void
 iso15765_init(void)
 {
     iso15765_frame_table = g_hash_table_new(g_direct_hash, g_direct_equal);
-    reassembly_table_init(&iso15765_reassembly_table,
-                          &addresses_reassembly_table_functions);
 }
 
 static void
 iso15765_cleanup(void)
 {
     reassembly_table_destroy(&iso15765_reassembly_table);
-    g_hash_table_destroy(iso15765_frame_table);
 }
 
 
@@ -621,6 +618,8 @@ proto_register_iso15765(void)
 
     register_init_routine(iso15765_init);
     register_cleanup_routine(iso15765_cleanup);
+    reassembly_table_register(&iso15765_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 void

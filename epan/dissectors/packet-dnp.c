@@ -3522,14 +3522,11 @@ static void
 dnp3_init(void)
 {
   dl_conversation_table = g_hash_table_new(dl_conversation_hash, dl_conversation_equal);
-  reassembly_table_init(&al_reassembly_table,
-                        &addresses_reassembly_table_functions);
 }
 
 static void
 dnp3_cleanup(void)
 {
-  reassembly_table_destroy(&al_reassembly_table);
   g_hash_table_destroy(dl_conversation_table);
 }
 
@@ -4557,6 +4554,9 @@ proto_register_dnp3(void)
 /* Register protocol init routine */
   register_init_routine(&dnp3_init);
   register_cleanup_routine(&dnp3_cleanup);
+  reassembly_table_register(&al_reassembly_table,
+                        &addresses_reassembly_table_functions);
+
 
 /* Register the protocol name and description */
   proto_dnp3 = proto_register_protocol("Distributed Network Protocol 3.0",

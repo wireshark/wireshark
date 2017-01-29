@@ -5761,11 +5761,6 @@ isakmp_init_protocol(void) {
   decrypt_data_t *decr;
   guint8   *ic_key;
 #endif /* HAVE_LIBGCRYPT */
-  reassembly_table_init(&isakmp_cisco_reassembly_table,
-                        &addresses_reassembly_table_functions);
-  reassembly_table_init(&isakmp_ike2_reassembly_table,
-                        &addresses_reassembly_table_functions);
-
 #ifdef HAVE_LIBGCRYPT
   isakmp_hash = g_hash_table_new_full(isakmp_hash_func, isakmp_equal_func,
       free_cookie_key, free_cookie_value);
@@ -5793,8 +5788,6 @@ isakmp_init_protocol(void) {
 
 static void
 isakmp_cleanup_protocol(void) {
-  reassembly_table_destroy(&isakmp_cisco_reassembly_table);
-  reassembly_table_destroy(&isakmp_ike2_reassembly_table);
 #ifdef HAVE_LIBGCRYPT
   g_hash_table_destroy(isakmp_hash);
   g_hash_table_destroy(ikev2_key_hash);
@@ -7166,6 +7159,10 @@ proto_register_isakmp(void)
   expert_register_field_array(expert_isakmp, ei, array_length(ei));
   register_init_routine(&isakmp_init_protocol);
   register_cleanup_routine(&isakmp_cleanup_protocol);
+  reassembly_table_register(&isakmp_cisco_reassembly_table,
+                        &addresses_reassembly_table_functions);
+  reassembly_table_register(&isakmp_ike2_reassembly_table,
+                        &addresses_reassembly_table_functions);
 
   isakmp_handle = register_dissector("isakmp", dissect_isakmp, proto_isakmp);
 

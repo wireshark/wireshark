@@ -2775,19 +2775,6 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     return offset;
 }
 
-static void
-init_btl2cap(void)
-{
-    reassembly_table_init(&btl2cap_le_sdu_reassembly_table,
-        &addresses_reassembly_table_functions);
-}
-
-static void
-cleanup_btl2cap(void)
-{
-    reassembly_table_destroy(&btl2cap_le_sdu_reassembly_table);
-}
-
 /* Register the protocol with Wireshark */
 void
 proto_register_btl2cap(void)
@@ -3368,9 +3355,8 @@ proto_register_btl2cap(void)
     register_decode_as(&btl2cap_cid_da);
     register_decode_as(&btl2cap_psm_da);
 
-    register_init_routine(&init_btl2cap);
-    register_cleanup_routine(&cleanup_btl2cap);
-
+    reassembly_table_register(&btl2cap_le_sdu_reassembly_table,
+        &addresses_reassembly_table_functions);
 }
 
 

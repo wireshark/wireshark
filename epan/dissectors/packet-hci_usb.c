@@ -362,7 +362,7 @@ proto_register_hci_usb(void)
         &ett_hci_usb_msg_fragments,
     };
 
-    reassembly_table_init(&hci_usb_reassembly_table,
+    reassembly_table_register(&hci_usb_reassembly_table,
                           &addresses_reassembly_table_functions);
     fragment_info_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 

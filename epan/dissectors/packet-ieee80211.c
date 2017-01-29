@@ -6727,13 +6727,6 @@ dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 
 static reassembly_table gas_reassembly_table;
 
-static void
-ieee80211_gas_reassembly_init(void)
-{
-  reassembly_table_init(&gas_reassembly_table,
-                        &addresses_reassembly_table_functions);
-}
-
 static gint ett_gas_resp_fragment = -1;
 static gint ett_gas_resp_fragments = -1;
 
@@ -18653,19 +18646,6 @@ dissect_ieee80211_noqos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 }
 
 
-static void
-wlan_defragment_init(void)
-{
-  reassembly_table_init(&wlan_reassembly_table,
-                        &addresses_reassembly_table_functions);
-}
-
-static void
-wlan_defragment_cleanup(void)
-{
-  reassembly_table_destroy(&wlan_reassembly_table);
-}
-
 /* ------------- */
 static guint
 retransmit_hash(gconstpointer k)
@@ -27584,10 +27564,11 @@ proto_register_ieee80211(void)
   register_capture_dissector("ieee80211", capture_ieee80211, proto_wlan);
   register_capture_dissector("ieee80211_datapad", capture_ieee80211_datapad, proto_wlan);
 
-  register_init_routine(wlan_defragment_init);
-  register_cleanup_routine(wlan_defragment_cleanup);
+  reassembly_table_register(&wlan_reassembly_table,
+                        &addresses_reassembly_table_functions);
   register_init_routine(wlan_retransmit_init);
-  register_init_routine(ieee80211_gas_reassembly_init);
+  reassembly_table_register(&gas_reassembly_table,
+                        &addresses_reassembly_table_functions);
 
   wlan_tap = register_tap("wlan");
   register_conversation_table(proto_wlan, TRUE, wlan_conversation_packet, wlan_hostlist_packet);

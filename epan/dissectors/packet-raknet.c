@@ -216,22 +216,6 @@ void proto_register_raknet(void);
 void proto_reg_handoff_raknet(void);
 static proto_tree *init_raknet_offline_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset);
 
-/*
- * Initialization.
- */
-static void
-raknet_reassemble_init(void)
-{
-    reassembly_table_init(&raknet_reassembly_table,
-                          &addresses_ports_reassembly_table_functions);
-}
-
-static void
-raknet_reassemble_cleanup(void)
-{
-    reassembly_table_destroy(&raknet_reassembly_table);
-}
-
 
 /*
  * Called by dissectors for protocols that run atop RakNet/UDP.
@@ -1975,10 +1959,10 @@ proto_register_raknet(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /*
-     * Register init/cleanup routines.
+     * Register reassembly table.
      */
-    register_init_routine(raknet_reassemble_init);
-    register_cleanup_routine(raknet_reassemble_cleanup);
+    reassembly_table_register(&raknet_reassembly_table,
+                          &addresses_ports_reassembly_table_functions);
 
     /*
      * For internal use only

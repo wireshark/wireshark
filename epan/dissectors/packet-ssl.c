@@ -352,8 +352,6 @@ ssl_init(void)
 
     ssl_common_init(&ssl_master_key_map,
                     &ssl_decrypted_data, &ssl_compressed_data);
-    reassembly_table_init(&ssl_reassembly_table,
-                          &addresses_ports_reassembly_table_functions);
     ssl_debug_flush();
 
     /* for "Export SSL Session Keys" */
@@ -376,7 +374,6 @@ ssl_cleanup(void)
         wmem_destroy_stack(key_list_stack);
         key_list_stack = NULL;
     }
-    reassembly_table_destroy(&ssl_reassembly_table);
     ssl_common_cleanup(&ssl_master_key_map, &ssl_keylog_file,
                        &ssl_decrypted_data, &ssl_compressed_data);
 
@@ -4235,6 +4232,8 @@ proto_register_ssl(void)
 
     register_init_routine(ssl_init);
     register_cleanup_routine(ssl_cleanup);
+    reassembly_table_register(&ssl_reassembly_table,
+                          &addresses_ports_reassembly_table_functions);
     register_decode_as(&ssl_da);
 
     /* XXX: this seems unused due to new "Follow SSL" method, remove? */

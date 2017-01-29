@@ -142,19 +142,6 @@ static gboolean prevent_subdissectors_changing_columns = FALSE;
 
 static dissector_handle_t wsp_handle;
 
-static void
-gsm_sms_ud_defragment_init(void)
-{
-    reassembly_table_init(&sm_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-gsm_sms_ud_defragment_cleanup(void)
-{
-    reassembly_table_destroy(&sm_reassembly_table);
-}
-
 /*
  * Value-arrays for field-contents
  */
@@ -733,9 +720,8 @@ proto_register_gsm_sms_ud(void)
 
     register_dissector("gsm_sms_ud", dissect_gsm_sms_ud, proto_gsm_sms_ud);
 
-    /* GSM SMS UD dissector initialization routines */
-    register_init_routine(gsm_sms_ud_defragment_init);
-    register_cleanup_routine(gsm_sms_ud_defragment_cleanup);
+    reassembly_table_register(&sm_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 void

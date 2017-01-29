@@ -577,19 +577,6 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     return tvb_captured_length(tvb);
 } /* dissect_clnp */
 
-static void
-clnp_reassemble_init(void)
-{
-    reassembly_table_init(&clnp_reassembly_table,
-            &addresses_reassembly_table_functions);
-}
-
-static void
-clnp_reassemble_cleanup(void)
-{
-    reassembly_table_destroy(&clnp_reassembly_table);
-}
-
 void
 proto_register_clnp(void)
 {
@@ -721,8 +708,9 @@ proto_register_clnp(void)
     expert_register_field_array(expert_clnp, ei, array_length(ei));
     clnp_handle = register_dissector("clnp", dissect_clnp, proto_clnp);
     clnp_heur_subdissector_list = register_heur_dissector_list("clnp", proto_clnp);
-    register_init_routine(clnp_reassemble_init);
-    register_cleanup_routine(clnp_reassemble_cleanup);
+
+    reassembly_table_register(&clnp_reassembly_table,
+            &addresses_reassembly_table_functions);
 
     register_osi_address_type();
 

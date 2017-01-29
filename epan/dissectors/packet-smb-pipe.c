@@ -3228,26 +3228,6 @@ static heur_dissector_list_t smb_transact_heur_subdissector_list;
 
 static reassembly_table dcerpc_reassembly_table;
 
-static void
-smb_dcerpc_reassembly_init(void)
-{
-	/*
-	 * XXX - addresses_ports_reassembly_table_functions?
-	 * Probably correct for SMB-over-NBT and SMB-over-TCP,
-	 * as stuff from two different connections should
-	 * probably not be combined, but what about other
-	 * transports for SMB, e.g. NBF or Netware?
-	 */
-	reassembly_table_init(&dcerpc_reassembly_table,
-	    &addresses_reassembly_table_functions);
-}
-
-static void
-smb_dcerpc_reassembly_cleanup(void)
-{
-	reassembly_table_destroy(&dcerpc_reassembly_table);
-}
-
 gboolean
 dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree *tree, guint32 fid, void *data)
@@ -3913,8 +3893,15 @@ proto_register_smb_pipe(void)
 	expert_register_field_array(expert_smb_pipe, ei, array_length(ei));
 
 	smb_transact_heur_subdissector_list = register_heur_dissector_list("smb_transact", proto_smb_pipe);
-	register_init_routine(smb_dcerpc_reassembly_init);
-	register_cleanup_routine(smb_dcerpc_reassembly_cleanup);
+	/*
+	 * XXX - addresses_ports_reassembly_table_functions?
+	 * Probably correct for SMB-over-NBT and SMB-over-TCP,
+	 * as stuff from two different connections should
+	 * probably not be combined, but what about other
+	 * transports for SMB, e.g. NBF or Netware?
+	 */
+	reassembly_table_register(&dcerpc_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 /*

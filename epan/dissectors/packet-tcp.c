@@ -6445,18 +6445,10 @@ static void
 tcp_init(void)
 {
     tcp_stream_count = 0;
-    reassembly_table_init(&tcp_reassembly_table,
-                          &addresses_ports_reassembly_table_functions);
 
     /* MPTCP init */
     mptcp_stream_count = 0;
     mptcp_tokens = wmem_tree_new(wmem_file_scope());
-}
-
-static void
-tcp_cleanup(void)
-{
-    reassembly_table_destroy(&tcp_reassembly_table);
 }
 
 void
@@ -7458,7 +7450,8 @@ proto_register_tcp(void)
         &tcp_display_process_info);
 
     register_init_routine(tcp_init);
-    register_cleanup_routine(tcp_cleanup);
+    reassembly_table_register(&tcp_reassembly_table,
+                          &addresses_ports_reassembly_table_functions);
 
     register_decode_as(&tcp_da);
 

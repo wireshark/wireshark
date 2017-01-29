@@ -63,8 +63,6 @@ static guint   dissect_zbee_t2                 (tvbuff_t *tvb, proto_tree *tree,
 /* Helper routine. */
 static guint   zbee_apf_transaction_len    (tvbuff_t *tvb, guint offset, guint8 type);
 
-static void proto_init_zbee_aps(void);
-static void proto_cleanup_zbee_aps(void);
 void proto_register_zbee_aps(void);
 
 /********************
@@ -2153,9 +2151,9 @@ void proto_register_zbee_aps(void)
     zbee_aps_dissector_table = register_dissector_table("zbee.profile", "ZigBee Profile ID", proto_zbee_aps, FT_UINT16, BASE_HEX);
     zbee_aps_handle = register_dissector(ZBEE_PROTOABBREV_APS, dissect_zbee_aps, proto_zbee_aps);
 
-    /* Register the init routine. */
-    register_init_routine(proto_init_zbee_aps);
-    register_cleanup_routine(proto_cleanup_zbee_aps);
+    /* Register reassembly table. */
+    reassembly_table_register(&zbee_aps_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     /* Register the ZigBee Application Framework protocol with Wireshark. */
     proto_zbee_apf = proto_register_protocol("ZigBee Application Framework", "ZigBee APF", "zbee_apf");
@@ -2165,21 +2163,6 @@ void proto_register_zbee_aps(void)
     /* Register the App dissector. */
     zbee_apf_handle = register_dissector("zbee_apf", dissect_zbee_apf, proto_zbee_apf);
 } /* proto_register_zbee_aps */
-
-/**
- *Initializes the APS dissectors prior to beginning protocol
- *
-*/
-static void proto_init_zbee_aps(void)
-{
-    reassembly_table_init(&zbee_aps_reassembly_table,
-                          &addresses_reassembly_table_functions);
-} /* proto_init_zbee_aps */
-
-static void proto_cleanup_zbee_aps(void)
-{
-    reassembly_table_destroy(&zbee_aps_reassembly_table);
-}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

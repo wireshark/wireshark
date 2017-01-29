@@ -264,18 +264,6 @@ static guint16 frag_sid;
  */
 static reassembly_table docsis_reassembly_table;
 
-static void
-docsis_defragment_init(void)
-{
-  reassembly_table_init(&docsis_reassembly_table,
-                        &addresses_reassembly_table_functions);
-}
-
-static void
-docsis_defragment_cleanup(void)
-{
-  reassembly_table_destroy(&docsis_reassembly_table);
-}
 
 static const fragment_items docsis_frag_items = {
   &ett_docsis_fragment,
@@ -1158,8 +1146,8 @@ proto_register_docsis (void)
 #endif
 
   docsis_handle = register_dissector ("docsis", dissect_docsis, proto_docsis);
-  register_init_routine(docsis_defragment_init);
-  register_cleanup_routine(docsis_defragment_cleanup);
+  reassembly_table_register(&docsis_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 void

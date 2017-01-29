@@ -1253,17 +1253,6 @@ static const value_string ieee80211_mac_profile_vals[] = {
     { 0,     NULL     }
 };
 
-static void capwap_reassemble_init(void)
-{
-    reassembly_table_init(&capwap_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void capwap_reassemble_cleanup(void)
-{
-    reassembly_table_destroy(&capwap_reassembly_table);
-}
-
 static void
 dissect_capwap_data_message_bindings_ieee80211(tvbuff_t *tvb, proto_tree *data_message_binding_tree, guint offset, packet_info *pinfo)
 {
@@ -5766,8 +5755,8 @@ proto_register_capwap_control(void)
     expert_capwap = expert_register_protocol(proto_capwap_control);
     expert_register_field_array(expert_capwap, ei, array_length(ei));
 
-    register_init_routine(&capwap_reassemble_init);
-    register_cleanup_routine(&capwap_reassemble_cleanup);
+    reassembly_table_register(&capwap_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     capwap_module = prefs_register_protocol(proto_capwap_control, NULL);
     /* Need to create a placeholder for "port" preferences so there is a callback */

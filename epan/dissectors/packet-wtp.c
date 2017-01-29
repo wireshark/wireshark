@@ -228,19 +228,6 @@ static dissector_handle_t wtp_fromudp_handle;
  */
 static reassembly_table wtp_reassembly_table;
 
-static void
-wtp_defragment_init(void)
-{
-    reassembly_table_init(&wtp_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-wtp_defragment_cleanup(void)
-{
-    reassembly_table_destroy(&wtp_reassembly_table);
-}
-
 /*
  * Extract some bitfields
  */
@@ -1063,8 +1050,8 @@ proto_register_wtp(void)
 
     register_dissector("wtp-wtls", dissect_wtp_fromwtls, proto_wtp);
     wtp_fromudp_handle = register_dissector("wtp-udp", dissect_wtp_fromudp, proto_wtp);
-    register_init_routine(wtp_defragment_init);
-    register_cleanup_routine(wtp_defragment_cleanup);
+    reassembly_table_register(&wtp_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 void

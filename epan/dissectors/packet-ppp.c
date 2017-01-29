@@ -6551,19 +6551,6 @@ proto_reg_handoff_ppp(void)
     dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_PPP, ppp_hdlc_handle);
 }
 
-static void
-mp_reassemble_init(void)
-{
-    reassembly_table_init(&mp_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-mp_reassemble_cleanup(void)
-{
-    reassembly_table_destroy(&mp_reassembly_table);
-}
-
 void
 proto_register_mp(void)
 {
@@ -6643,12 +6630,11 @@ proto_register_mp(void)
 
     module_t *mp_module;
 
-    proto_mp = proto_register_protocol("PPP Multilink Protocol", "PPP MP",
-        "mp");
-    register_init_routine(&mp_reassemble_init);
-    register_cleanup_routine(&mp_reassemble_cleanup);
+    proto_mp = proto_register_protocol("PPP Multilink Protocol", "PPP MP", "mp");
     proto_register_field_array(proto_mp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    reassembly_table_register(&mp_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     /* Register the preferences for the PPP multilink protocol */
     mp_module = prefs_register_protocol(proto_mp, NULL);

@@ -6134,19 +6134,6 @@ dissect_mbim_decode_as(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     return 0;
 }
 
-static void
-mbim_reassembly_init(void)
-{
-    reassembly_table_init(&mbim_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-mbim_reassembly_cleanup(void)
-{
-    reassembly_table_destroy(&mbim_reassembly_table);
-}
-
 static guint
 mbim_uuid_hash(gconstpointer key)
 {
@@ -9565,8 +9552,8 @@ proto_register_mbim(void)
     expert_mbim = expert_register_protocol(proto_mbim);
     expert_register_field_array(expert_mbim, ei, array_length(ei));
 
-    register_init_routine(mbim_reassembly_init);
-    register_cleanup_routine(mbim_reassembly_cleanup);
+    reassembly_table_register(&mbim_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     mbim_control_handle = register_dissector("mbim.control", dissect_mbim_control, proto_mbim);
     register_dissector("mbim.descriptor", dissect_mbim_descriptor, proto_mbim);

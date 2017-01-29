@@ -171,6 +171,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 		expert_init();
 		packet_init();
 		capture_dissector_init();
+		reassembly_tables_init();
 		proto_init(register_all_protocols_func, register_all_handoffs_func,
 		    cb, client_data);
 		packet_cache_proto_handles();

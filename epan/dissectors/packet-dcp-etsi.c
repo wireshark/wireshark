@@ -125,22 +125,6 @@ static const fragment_items dcp_frag_items = {
   "Message fragments"
 };
 
-/** initialise the DCP protocol. Details follow
- *  here.
- */
-static void
-dcp_init_protocol(void)
-{
-  reassembly_table_init (&dcp_reassembly_table,
-                         &addresses_reassembly_table_functions);
-}
-
-static void
-dcp_cleanup_protocol(void)
-{
-  reassembly_table_destroy(&dcp_reassembly_table);
-}
-
 
 /** Dissect a DCP packet. Details follow
  *  here.
@@ -886,9 +870,8 @@ proto_register_dcp_etsi (void)
   tpl_dissector_table = register_dissector_table("dcp-tpl.ptr",
             "DCP-TPL Protocol Type & Revision", proto_dcp_etsi, FT_STRING, BASE_NONE);
 
-  register_init_routine(dcp_init_protocol);
-  register_cleanup_routine(dcp_cleanup_protocol);
-
+  reassembly_table_register (&dcp_reassembly_table,
+                         &addresses_reassembly_table_functions);
 }
 
 /*

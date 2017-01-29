@@ -612,9 +612,6 @@ static void wimax_defragment_init(void)
 {
 	gint i;
 
-	reassembly_table_init(&payload_reassembly_table,
-	    &addresses_reassembly_table_functions);
-
 	/* Init fragmentation variables. */
 	for (i = 0; i < MAX_CID; i++)
 	{
@@ -636,7 +633,6 @@ static void wimax_defragment_init(void)
 
 static void wimax_defragment_cleanup(void)
 {
-	reassembly_table_destroy(&payload_reassembly_table);
 	g_free(cid_adj_array);
 	cid_adj_array = NULL;
 	g_free(frag_num_array);
@@ -2291,6 +2287,8 @@ void proto_register_mac_header_generic(void)
 	/* Register the payload fragment table init routine */
 	register_init_routine(wimax_defragment_init);
 	register_cleanup_routine(wimax_defragment_cleanup);
+	reassembly_table_register(&payload_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 void

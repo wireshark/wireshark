@@ -3183,20 +3183,6 @@ static const fragment_items isup_apm_msg_frag_items = {
 
 static reassembly_table isup_apm_msg_reassembly_table;
 
-
-static void
-isup_apm_defragment_init(void)
-{
-  reassembly_table_init (&isup_apm_msg_reassembly_table,
-                         &addresses_reassembly_table_functions);
-}
-
-static void
-isup_apm_defragment_cleanup(void)
-{
-  reassembly_table_destroy(&isup_apm_msg_reassembly_table);
-}
-
 /* Info for the tap that must be passed between procedures */
 static gchar *tap_called_number  = NULL;
 static gchar *tap_calling_number = NULL;
@@ -12131,8 +12117,9 @@ proto_register_bicc(void)
   proto_register_field_array(proto_bicc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_init_routine(isup_apm_defragment_init);
-  register_cleanup_routine(isup_apm_defragment_cleanup);
+  reassembly_table_register(&isup_apm_msg_reassembly_table,
+                         &addresses_reassembly_table_functions);
+
 }
 
 /* Register isup with the sub-laying MTP L3 dissector */

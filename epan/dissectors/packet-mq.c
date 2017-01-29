@@ -4098,17 +4098,6 @@ static gboolean    dissect_mq_heur_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_
     return dissect_mq_heur(tvb, pinfo, tree, FALSE, app_handle);
 }
 
-static void mq_init(void)
-{
-    reassembly_table_init(&mq_reassembly_table,
-        &addresses_reassembly_table_functions);
-}
-
-static void mq_cleanup(void)
-{
-    reassembly_table_destroy(&mq_reassembly_table);
-}
-
 void proto_register_mq(void)
 {
     static hf_register_info hf[] =
@@ -4776,8 +4765,9 @@ void proto_register_mq(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     mq_heur_subdissector_list = register_heur_dissector_list("mq", proto_mq);
-    register_init_routine(mq_init);
-    register_cleanup_routine(mq_cleanup);
+
+    reassembly_table_register(&mq_reassembly_table,
+        &addresses_reassembly_table_functions);
 
     mq_module = prefs_register_protocol(proto_mq, NULL);
     mq_handle = register_dissector("mq", dissect_mq_tcp, proto_mq);

@@ -2097,10 +2097,6 @@ ncp_init_protocol(void)
 {
     int i;
 
-    /* fragment */
-    reassembly_table_init(&nds_reassembly_table,
-                          &addresses_reassembly_table_functions);
-
     for (i = 0; i < 99; i++) {
         frags[i].nds_frag = 0xfffffff0;
     }

@@ -854,17 +854,6 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     return tvb_captured_length(tvb);
 }
 
-static void rtse_reassemble_init (void)
-{
-    reassembly_table_init (&rtse_reassembly_table,
-                   &addresses_reassembly_table_functions);
-}
-
-static void rtse_reassemble_cleanup(void)
-{
-    reassembly_table_destroy(&rtse_reassembly_table);
-}
-
 /*--- proto_register_rtse -------------------------------------------*/
 void proto_register_rtse(void) {
 
@@ -1009,7 +998,7 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 364 "./asn1/rtse/packet-rtse-template.c"
+#line 353 "./asn1/rtse/packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1031,7 +1020,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 373 "./asn1/rtse/packet-rtse-template.c"
+#line 362 "./asn1/rtse/packet-rtse-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -1051,8 +1040,10 @@ void proto_register_rtse(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_rtse = expert_register_protocol(proto_rtse);
   expert_register_field_array(expert_rtse, ei, array_length(ei));
-  register_init_routine (&rtse_reassemble_init);
-  register_cleanup_routine (&rtse_reassemble_cleanup);
+
+  reassembly_table_register (&rtse_reassembly_table,
+                   &addresses_reassembly_table_functions);
+
   rtse_module = prefs_register_protocol_subtree("OSI", proto_rtse, NULL);
 
   prefs_register_bool_preference(rtse_module, "reassemble",

@@ -194,15 +194,12 @@ fcseq_hash (gconstpointer v)
 static void
 fc_exchange_init_protocol(void)
 {
-    reassembly_table_init(&fc_reassembly_table,
-                          &addresses_reassembly_table_functions);
     fcseq_req_hash = g_hash_table_new(fcseq_hash, fcseq_equal);
 }
 
 static void
 fc_exchange_cleanup_protocol(void)
 {
-    reassembly_table_destroy(&fc_reassembly_table);
     g_hash_table_destroy(fcseq_req_hash);
 }
 
@@ -1577,6 +1574,8 @@ proto_register_fc(void)
 
     register_init_routine (fc_exchange_init_protocol);
     register_cleanup_routine (fc_exchange_cleanup_protocol);
+    reassembly_table_register(&fc_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
 
     /* Register FC SOF/EOF */

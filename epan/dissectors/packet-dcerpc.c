@@ -1148,20 +1148,6 @@ static const reassembly_table_functions dcerpc_cl_reassembly_table_functions = {
     dcerpc_fragment_free_persistent_key
 };
 
-static void
-dcerpc_reassemble_init(void)
-{
-    /*
-     * XXX - addresses_ports_reassembly_table_functions?
-     * Or can a single connection-oriented DCE RPC session persist
-     * over multiple transport layer connections?
-     */
-    reassembly_table_init(&dcerpc_co_reassembly_table,
-                          &addresses_reassembly_table_functions);
-    reassembly_table_init(&dcerpc_cl_reassembly_table,
-                          &dcerpc_cl_reassembly_table_functions);
-}
-
 /*
  * Authentication subdissectors.  Used to dissect authentication blobs in
  * DCERPC binds, requests and responses.
@@ -6968,7 +6954,17 @@ proto_register_dcerpc(void)
                                    "Reassemble DCE/RPC fragments",
                                    "Whether the DCE/RPC dissector should reassemble fragmented DCE/RPC PDUs",
                                    &dcerpc_reassemble);
-    register_init_routine(dcerpc_reassemble_init);
+
+    /*
+     * XXX - addresses_ports_reassembly_table_functions?
+     * Or can a single connection-oriented DCE RPC session persist
+     * over multiple transport layer connections?
+     */
+    reassembly_table_register(&dcerpc_co_reassembly_table,
+                          &addresses_reassembly_table_functions);
+    reassembly_table_register(&dcerpc_cl_reassembly_table,
+                          &dcerpc_cl_reassembly_table_functions);
+
     dcerpc_uuids = g_hash_table_new_full(dcerpc_uuid_hash, dcerpc_uuid_equal, g_free, g_free);
     dcerpc_tap = register_tap("dcerpc");
 

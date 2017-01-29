@@ -201,19 +201,6 @@ static const fragment_items lapdm_frag_items = {
     "fragments"
 };
 
-static void
-lapdm_defragment_init (void)
-{
-    reassembly_table_init (&lapdm_reassembly_table,
-                           &addresses_reassembly_table_functions);
-}
-
-static void
-lapdm_defragment_cleanup (void)
-{
-    reassembly_table_destroy(&lapdm_reassembly_table);
-}
-
 
 static int
 dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -523,8 +510,8 @@ proto_register_lapdm(void)
 
     lapdm_last_n_s_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 
-    register_init_routine (lapdm_defragment_init);
-    register_cleanup_routine (lapdm_defragment_cleanup);
+    reassembly_table_register(&lapdm_reassembly_table,
+                           &addresses_reassembly_table_functions);
 }
 
 /*

@@ -578,20 +578,6 @@ void proto_reg_handoff_tipc(void);
 
 static reassembly_table tipc_msg_reassembly_table;
 
-
-static void
-tipc_defragment_init(void)
-{
-	reassembly_table_init(&tipc_msg_reassembly_table,
-	    &addresses_reassembly_table_functions);
-}
-
-static void
-tipc_defragment_cleanup(void)
-{
-	reassembly_table_destroy(&tipc_msg_reassembly_table);
-}
-
 static gchar*
 tipc_addr_value_to_buf(guint tipc_address, gchar *buf, int buf_len)
 {
@@ -3035,8 +3021,8 @@ proto_register_tipc(void)
 	/* Register by name */
 	tipc_handle = register_dissector("tipc", dissect_tipc, proto_tipc);
 
-	register_init_routine(tipc_defragment_init);
-	register_cleanup_routine(tipc_defragment_cleanup);
+	reassembly_table_register(&tipc_msg_reassembly_table,
+	    &addresses_reassembly_table_functions);
 
 	/* Register configuration options */
 	tipc_module = prefs_register_protocol(proto_tipc, NULL);

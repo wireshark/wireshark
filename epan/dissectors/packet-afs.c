@@ -1416,14 +1416,11 @@ static void
 afs_init_protocol(void)
 {
 	afs_request_hash = g_hash_table_new(afs_hash, afs_equal);
-	reassembly_table_init(&afs_reassembly_table,
-			      &addresses_reassembly_table_functions);
 }
 
 static void
 afs_cleanup_protocol(void)
 {
-	reassembly_table_destroy(&afs_reassembly_table);
 	g_hash_table_destroy(afs_request_hash);
 }
 
@@ -3632,6 +3629,10 @@ proto_register_afs(void)
 	    "AFS (RX)", "afs");
 	proto_register_field_array(proto_afs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	reassembly_table_register(&afs_reassembly_table,
+			      &addresses_reassembly_table_functions);
+
 	register_init_routine(&afs_init_protocol);
 	register_cleanup_routine(&afs_cleanup_protocol);
 

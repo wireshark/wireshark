@@ -8527,6 +8527,10 @@ proto_register_ncp2222(void)
     expert_ncp = expert_register_protocol(proto_ncp);
     expert_register_field_array(expert_ncp, ei, array_length(ei));
     register_init_routine(&ncp_init_protocol);
+    /* fragment */
+    reassembly_table_register(&nds_reassembly_table,
+                          &addresses_reassembly_table_functions);
+
     register_postseq_cleanup_routine(&ncp_postseq_cleanup);""")
 
     # End of proto_register_ncp2222()

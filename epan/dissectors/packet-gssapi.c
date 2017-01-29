@@ -105,19 +105,6 @@ static const fragment_items gssapi_frag_items = {
 
 static reassembly_table gssapi_reassembly_table;
 
-static void
-gssapi_reassembly_init(void)
-{
-	reassembly_table_init(&gssapi_reassembly_table,
-	                      &addresses_reassembly_table_functions);
-}
-
-static void
-gssapi_reassembly_cleanup(void)
-{
-	reassembly_table_destroy(&gssapi_reassembly_table);
-}
-
 /*
  * Subdissectors
  */
@@ -648,8 +635,10 @@ proto_register_gssapi(void)
 	register_dissector("gssapi_verf", dissect_gssapi_verf, proto_gssapi);
 
 	gssapi_oids = g_hash_table_new_full(gssapi_oid_hash, gssapi_oid_equal, g_free, g_free);
-	register_init_routine(gssapi_reassembly_init);
-	register_cleanup_routine(gssapi_reassembly_cleanup);
+
+	reassembly_table_register(&gssapi_reassembly_table,
+	                      &addresses_reassembly_table_functions);
+
 	register_shutdown_routine(gssapi_shutdown);
 }
 

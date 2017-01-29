@@ -1585,20 +1585,6 @@ gboolean smb_dcerpc_reassembly = TRUE;
 
 static reassembly_table smb_trans_reassembly_table;
 
-static void
-smb_trans_reassembly_init(void)
-{
-	/*
-	 * XXX - addresses_ports_reassembly_table_functions?
-	 * Probably correct for SMB-over-NBT and SMB-over-TCP,
-	 * as stuff from two different connections should
-	 * probably not be combined, but what about other
-	 * transports for SMB, e.g. NBF or Netware?
-	 */
-	reassembly_table_init(&smb_trans_reassembly_table,
-	    &addresses_reassembly_table_functions);
-}
-
 static fragment_head *
 smb_trans_defragment(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb,
 		     int offset, guint count, guint pos, guint totlen, smb_info_t *si)
@@ -21037,7 +21023,16 @@ proto_register_smb(void)
 		"Whether the export object functionality will take the full path file name as file identifier",
 		&eosmb_take_name_as_fid);
 
-	register_init_routine(smb_trans_reassembly_init);
+	/*
+	 * XXX - addresses_ports_reassembly_table_functions?
+	 * Probably correct for SMB-over-NBT and SMB-over-TCP,
+	 * as stuff from two different connections should
+	 * probably not be combined, but what about other
+	 * transports for SMB, e.g. NBF or Netware?
+	 */
+	reassembly_table_register(&smb_trans_reassembly_table,
+	    &addresses_reassembly_table_functions);
+
 	smb_tap = register_tap("smb");
 
 	smb_handle = register_dissector("smb", dissect_smb, proto_smb);

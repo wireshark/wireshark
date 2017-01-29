@@ -1027,19 +1027,6 @@ static const value_string applicationids[] = {
  */
 static reassembly_table reload_reassembly_table;
 
-static void
-reload_defragment_init(void)
-{
-  reassembly_table_init(&reload_reassembly_table,
-                        &addresses_reassembly_table_functions);
-}
-
-static void
-reload_defragment_cleanup(void)
-{
-  reassembly_table_destroy(&reload_reassembly_table);
-}
-
 
 static guint
 get_reload_message_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -5930,8 +5917,8 @@ proto_register_reload(void)
   prefs_register_string_preference(reload_module, "topology_plugin",
                                    "topology plugin", "topology plugin defined in the overlay", &reload_topology_plugin);
 
-  register_init_routine(reload_defragment_init);
-  register_cleanup_routine(reload_defragment_cleanup);
+  reassembly_table_register(&reload_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 void

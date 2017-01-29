@@ -3416,19 +3416,6 @@ dissect_ndmp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	return tvb_captured_length(tvb);
 }
 
-static void
-ndmp_init(void)
-{
-	reassembly_table_init(&ndmp_reassembly_table,
-	    &addresses_reassembly_table_functions);
-}
-
-static void
-ndmp_cleanup(void)
-{
-	reassembly_table_destroy(&ndmp_reassembly_table);
-}
-
 
 void
 proto_register_ndmp(void)
@@ -4259,8 +4246,8 @@ proto_register_ndmp(void)
 	"Reassemble fragmented NDMP messages spanning multiple packets",
 	"Whether the dissector should defragment NDMP messages spanning multiple packets.",
 	&ndmp_defragment);
-	register_init_routine(ndmp_init);
-	register_cleanup_routine(ndmp_cleanup);
+	reassembly_table_register(&ndmp_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 void

@@ -206,7 +206,6 @@ dtls_init(void)
 
   ssl_common_init(&dtls_master_key_map,
                   &dtls_decrypted_data, &dtls_compressed_data);
-  reassembly_table_init (&dtls_reassembly_table, &addresses_ports_reassembly_table_functions);
 
   /* We should have loaded "keys_list" by now. Mark it obsolete */
   if (dtls_module) {
@@ -224,7 +223,6 @@ dtls_cleanup(void)
     wmem_destroy_stack(key_list_stack);
     key_list_stack = NULL;
   }
-  reassembly_table_destroy(&dtls_reassembly_table);
   ssl_common_cleanup(&dtls_master_key_map, &dtls_keylog_file,
                      &dtls_decrypted_data, &dtls_compressed_data);
 }
@@ -1908,6 +1906,8 @@ proto_register_dtls(void)
 
   register_init_routine(dtls_init);
   register_cleanup_routine(dtls_cleanup);
+  reassembly_table_register (&dtls_reassembly_table, &addresses_ports_reassembly_table_functions);
+
   dtls_tap = register_tap("dtls");
   ssl_debug_printf("proto_register_dtls: registered tap %s:%d\n",
                    "dtls", dtls_tap);

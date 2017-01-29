@@ -1207,19 +1207,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     return offset;
 }
 
-static void
-init_btle(void)
-{
-    reassembly_table_init(&btle_l2cap_msg_reassembly_table,
-        &addresses_reassembly_table_functions);
-}
-
-static void
-cleanup_btle(void)
-{
-    reassembly_table_destroy(&btle_l2cap_msg_reassembly_table);
-}
-
 void
 proto_register_btle(void)
 {
@@ -1724,8 +1711,8 @@ proto_register_btle(void)
             "Bluetooth LE LL version: 4.1 (Core)",
             "Version of protocol supported by this dissector.");
 
-    register_init_routine(&init_btle);
-    register_cleanup_routine(&cleanup_btle);
+    reassembly_table_register(&btle_l2cap_msg_reassembly_table,
+        &addresses_reassembly_table_functions);
 }
 
 void

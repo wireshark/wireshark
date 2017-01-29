@@ -3191,10 +3191,6 @@ lte_rrc_init_protocol(void)
 {
   lte_rrc_etws_cmas_dcs_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
   lte_rrc_system_info_value_changed_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-  reassembly_table_init(&lte_rrc_sib11_reassembly_table,
-                        &addresses_reassembly_table_functions);
-  reassembly_table_init(&lte_rrc_sib12_reassembly_table,
-                        &addresses_reassembly_table_functions);
 }
 
 static void
@@ -3202,8 +3198,6 @@ lte_rrc_cleanup_protocol(void)
 {
   g_hash_table_destroy(lte_rrc_etws_cmas_dcs_hash);
   g_hash_table_destroy(lte_rrc_system_info_value_changed_hash);
-  reassembly_table_destroy(&lte_rrc_sib11_reassembly_table);
-  reassembly_table_destroy(&lte_rrc_sib12_reassembly_table);
 }
 
 /*--- proto_register_rrc -------------------------------------------*/
@@ -4017,6 +4011,12 @@ void proto_register_lte_rrc(void) {
 
   register_init_routine(&lte_rrc_init_protocol);
   register_cleanup_routine(&lte_rrc_cleanup_protocol);
+
+  reassembly_table_register(&lte_rrc_sib11_reassembly_table,
+                        &addresses_reassembly_table_functions);
+  reassembly_table_register(&lte_rrc_sib12_reassembly_table,
+                        &addresses_reassembly_table_functions);
+
 }
 
 

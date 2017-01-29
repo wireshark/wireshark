@@ -1321,8 +1321,6 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 static void p_mul_init_routine (void)
 {
-  reassembly_table_init (&p_mul_reassembly_table,
-                         &addresses_reassembly_table_functions);
   message_id_offset = 0;
   p_mul_id_hash_table = g_hash_table_new_full (p_mul_id_hash, p_mul_id_hash_equal, NULL, (GDestroyNotify)p_mul_id_value_destroy);
   p_mul_package_data_list = NULL;
@@ -1330,7 +1328,6 @@ static void p_mul_init_routine (void)
 
 static void p_mul_cleanup_routine (void)
 {
-  reassembly_table_destroy(&p_mul_reassembly_table);
   g_hash_table_destroy(p_mul_id_hash_table);
   g_list_foreach(p_mul_package_data_list, (GFunc)p_mul_package_data_destroy, NULL);
   g_list_free(p_mul_package_data_list);
@@ -1590,6 +1587,8 @@ void proto_register_p_mul (void)
   expert_register_field_array(expert_p_mul, ei, array_length(ei));
   register_init_routine (&p_mul_init_routine);
   register_cleanup_routine (&p_mul_cleanup_routine);
+  reassembly_table_register (&p_mul_reassembly_table,
+                         &addresses_reassembly_table_functions);
 
   /* Register our configuration options */
   p_mul_module = prefs_register_protocol (proto_p_mul, NULL);

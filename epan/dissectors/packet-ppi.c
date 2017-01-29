@@ -1130,19 +1130,6 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 /* Establish our beachead */
 
-static void
-ampdu_reassemble_init(void)
-{
-    reassembly_table_init(&ampdu_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-ampdu_reassemble_cleanup(void)
-{
-    reassembly_table_destroy(&ampdu_reassembly_table);
-}
-
 void
 proto_register_ppi(void)
 {
@@ -1485,8 +1472,8 @@ proto_register_ppi(void)
     ppi_handle = register_dissector("ppi", dissect_ppi, proto_ppi);
     register_capture_dissector_table("ppi", "PPI");
 
-    register_init_routine(ampdu_reassemble_init);
-    register_cleanup_routine(ampdu_reassemble_cleanup);
+    reassembly_table_register(&ampdu_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     /* Configuration options */
     ppi_module = prefs_register_protocol(proto_ppi, NULL);

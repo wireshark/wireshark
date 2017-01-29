@@ -168,6 +168,14 @@ WS_DLL_PUBLIC const reassembly_table_functions
 	addresses_ports_reassembly_table_functions;	/* keys have endpoint addresses and ports and an ID */
 
 /*
+ * Register a reassembly table. By registering the table with epan, the creation and
+ * destruction of the table can be managed by epan and not the dissector.
+ */
+WS_DLL_PUBLIC void
+reassembly_table_register(reassembly_table *table,
+		      const reassembly_table_functions *funcs);
+
+/*
  * Initialize/destroy a reassembly table.
  *
  * init: If table doesn't exist: create table;
@@ -454,6 +462,10 @@ show_fragment_tree(fragment_head *ipfd_head, const fragment_items *fit,
 WS_DLL_PUBLIC gboolean
 show_fragment_seq_tree(fragment_head *ipfd_head, const fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi);
+
+/* Initialize internal structures
+ */
+extern void reassembly_tables_init(void);
 
 /* Cleanup internal structures
  */

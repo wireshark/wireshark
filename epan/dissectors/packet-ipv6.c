@@ -797,13 +797,6 @@ add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, const struct e_in6_
 }
 #endif /* HAVE_GEOIP_V6 */
 
-static void
-ipv6_reassemble_init(void)
-{
-    reassembly_table_init(&ipv6_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
 /* Returns TRUE if reassembled */
 static gboolean
 ipv6_reassemble_do(tvbuff_t **tvb_ptr, gint *offset_ptr, packet_info *pinfo, proto_tree *ipv6_tree,
@@ -842,12 +835,6 @@ ipv6_reassemble_do(tvbuff_t **tvb_ptr, gint *offset_ptr, packet_info *pinfo, pro
         }
     }
     return FALSE;
-}
-
-static void
-ipv6_reassemble_cleanup(void)
-{
-    reassembly_table_destroy(&ipv6_reassembly_table);
 }
 
 struct rthdr_proto_item {
@@ -3520,8 +3507,8 @@ proto_register_ipv6(void)
                                    &ipv6_exthdr_hide_len_oct_field);
 
     ipv6_handle = register_dissector("ipv6", dissect_ipv6, proto_ipv6);
-    register_init_routine(ipv6_reassemble_init);
-    register_cleanup_routine(ipv6_reassemble_cleanup);
+    reassembly_table_register(&ipv6_reassembly_table,
+                          &addresses_reassembly_table_functions);
     ip6_hdr_tap = register_tap("ipv6");
     ipv6_ws_tap = register_tap("ipv6_ws");
 

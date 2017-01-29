@@ -4188,26 +4188,6 @@ dissect_tds_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 }
 
 static void
-tds_init(void)
-{
-    /*
-     * Initialize the reassembly table.
-     *
-     * XXX - should fragments be reassembled across multiple TCP
-     * connections?
-     */
-
-    reassembly_table_init(&tds_reassembly_table,
-                          &addresses_ports_reassembly_table_functions);
-}
-
-static void
-tds_cleanup(void)
-{
-    reassembly_table_destroy(&tds_reassembly_table);
-}
-
-static void
 version_convert( gchar *result, guint32 hexver )
 {
     g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%d.%d.%d",
@@ -5620,8 +5600,15 @@ proto_register_tds(void)
                                    "Hint as to whether to decode TDS protocol as little-endian or big-endian. (TDS7/8 always decoded as little-endian)",
                                    &tds_little_endian, tds_endian_type_options, FALSE);
 
-    register_init_routine(tds_init);
-    register_cleanup_routine(tds_cleanup);
+    /*
+     * Initialize the reassembly table.
+     *
+     * XXX - should fragments be reassembled across multiple TCP
+     * connections?
+     */
+
+    reassembly_table_register(&tds_reassembly_table,
+                          &addresses_ports_reassembly_table_functions);
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.

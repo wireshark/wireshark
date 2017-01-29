@@ -1151,19 +1151,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
-static void
-smtp_data_reassemble_init (void)
-{
-  reassembly_table_init(&smtp_data_reassembly_table,
-                        &addresses_ports_reassembly_table_functions);
-}
-
-static void
-smtp_data_reassemble_cleanup (void)
-{
-  reassembly_table_destroy(&smtp_data_reassembly_table);
-}
-
 
 /* Register all the bits needed by the filtering engine */
 
@@ -1287,8 +1274,8 @@ proto_register_smtp(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_smtp = expert_register_protocol(proto_smtp);
   expert_register_field_array(expert_smtp, ei, array_length(ei));
-  register_init_routine (&smtp_data_reassemble_init);
-  register_cleanup_routine (&smtp_data_reassemble_cleanup);
+  reassembly_table_register(&smtp_data_reassembly_table,
+                        &addresses_ports_reassembly_table_functions);
 
   /* Allow dissector to find be found by name. */
   smtp_handle = register_dissector("smtp", dissect_smtp, proto_smtp);

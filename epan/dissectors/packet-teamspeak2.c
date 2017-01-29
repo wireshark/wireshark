@@ -836,17 +836,6 @@ static void ts2_add_checked_crc32(proto_tree *tree, int hf_item, int hf_item_sta
     proto_tree_add_checksum(tree, tvb, offset, hf_item, hf_item_status, ei_item, pinfo, ocrc32, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 }
 
-static void ts2_init(void)
-{
-    reassembly_table_init(&msg_reassembly_table,
-            &addresses_reassembly_table_functions);
-}
-
-static void ts2_cleanup(void)
-{
-    reassembly_table_destroy(&msg_reassembly_table);
-}
-
 /*
  * proto_register_ts2()
  * */
@@ -1227,8 +1216,8 @@ void proto_register_ts2(void)
     expert_ts2 = expert_register_protocol(proto_ts2);
     expert_register_field_array(expert_ts2, ei, array_length(ei));
 
-    register_init_routine(ts2_init);
-    register_cleanup_routine(ts2_cleanup);
+    reassembly_table_register(&msg_reassembly_table,
+            &addresses_reassembly_table_functions);
 }
 
 /*

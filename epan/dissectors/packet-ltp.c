@@ -825,12 +825,6 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	return tvb_captured_length(tvb);
 }
 
-static void
-ltp_defragment_init(void) {
-	reassembly_table_init(&ltp_reassembly_table,
-	    &addresses_reassembly_table_functions);
-}
-
 /* Register the protocol with Wireshark */
 void
 proto_register_ltp(void)
@@ -1035,7 +1029,8 @@ proto_register_ltp(void)
 	expert_ltp = expert_register_protocol(proto_ltp);
 	expert_register_field_array(expert_ltp, ei, array_length(ei));
 
-	register_init_routine(ltp_defragment_init);
+	reassembly_table_register(&ltp_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 void

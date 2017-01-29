@@ -69896,10 +69896,6 @@ lte_rrc_init_protocol(void)
 {
   lte_rrc_etws_cmas_dcs_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
   lte_rrc_system_info_value_changed_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-  reassembly_table_init(&lte_rrc_sib11_reassembly_table,
-                        &addresses_reassembly_table_functions);
-  reassembly_table_init(&lte_rrc_sib12_reassembly_table,
-                        &addresses_reassembly_table_functions);
 }
 
 static void
@@ -69907,8 +69903,6 @@ lte_rrc_cleanup_protocol(void)
 {
   g_hash_table_destroy(lte_rrc_etws_cmas_dcs_hash);
   g_hash_table_destroy(lte_rrc_system_info_value_changed_hash);
-  reassembly_table_destroy(&lte_rrc_sib11_reassembly_table);
-  reassembly_table_destroy(&lte_rrc_sib12_reassembly_table);
 }
 
 /*--- proto_register_rrc -------------------------------------------*/
@@ -87890,7 +87884,7 @@ void proto_register_lte_rrc(void) {
         "T_n311_r13_01", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 3216 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3210 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -90782,7 +90776,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_UE_TimersAndConstants_NB_r13,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 3943 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3937 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -90882,10 +90876,16 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 4017 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 4011 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
   register_cleanup_routine(&lte_rrc_cleanup_protocol);
+
+  reassembly_table_register(&lte_rrc_sib11_reassembly_table,
+                        &addresses_reassembly_table_functions);
+  reassembly_table_register(&lte_rrc_sib12_reassembly_table,
+                        &addresses_reassembly_table_functions);
+
 }
 
 

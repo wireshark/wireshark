@@ -1216,6 +1216,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  read_keytab_file_from_preferences@Base 1.9.1
  read_prefs@Base 1.9.1
  read_prefs_file@Base 1.9.1
+ reassembly_table_register@Base 2.3.0
  reassembly_table_destroy@Base 1.9.1
  reassembly_table_init@Base 1.9.1
  register_all_plugin_tap_listeners@Base 1.9.1

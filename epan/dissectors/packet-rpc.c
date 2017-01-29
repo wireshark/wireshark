@@ -3918,14 +3918,11 @@ rpc_init_protocol(void)
 {
 	rpc_reassembly_table = g_hash_table_new(rpc_fragment_hash,
 	    rpc_fragment_equal);
-	reassembly_table_init(&rpc_fragment_table,
-	    &addresses_ports_reassembly_table_functions);
 }
 
 static void
 rpc_cleanup_protocol(void)
 {
-	reassembly_table_destroy(&rpc_fragment_table);
 	g_hash_table_destroy(rpc_reassembly_table);
 }
 
@@ -4376,6 +4373,8 @@ proto_register_rpc(void)
 	expert_register_field_array(expert_rpc, ei, array_length(ei));
 	register_init_routine(&rpc_init_protocol);
 	register_cleanup_routine(&rpc_cleanup_protocol);
+	reassembly_table_register(&rpc_fragment_table,
+	    &addresses_ports_reassembly_table_functions);
 
 	rpc_module = prefs_register_protocol(proto_rpc, NULL);
 	prefs_register_bool_preference(rpc_module, "desegment_rpc_over_tcp",

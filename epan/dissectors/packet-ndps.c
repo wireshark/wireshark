@@ -4062,16 +4062,7 @@ ndps_hash(gconstpointer v)
 static void
 ndps_init_protocol(void)
 {
-    reassembly_table_init(&ndps_reassembly_table,
-                          &addresses_reassembly_table_functions);
     ndps_req_hash = g_hash_table_new(ndps_hash, ndps_equal);
-}
-
-static void
-ndps_cleanup_protocol(void)
-{
-    reassembly_table_destroy(&ndps_reassembly_table);
-    /* ndps_req_hash is already destroyed by ndps_postseq_cleanup */
 }
 
 /* After the sequential run, we don't need the ncp_request hash and keys
@@ -9496,7 +9487,8 @@ proto_register_ndps(void)
                                    &ndps_show_oids);
 
     register_init_routine(&ndps_init_protocol);
-    register_cleanup_routine(&ndps_cleanup_protocol);
+    reassembly_table_register(&ndps_reassembly_table,
+                          &addresses_reassembly_table_functions);
     register_postseq_cleanup_routine(&ndps_postseq_cleanup);
 }
 
