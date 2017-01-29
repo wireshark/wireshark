@@ -250,25 +250,15 @@ format_text(const guchar *string, size_t len)
  * which will be replaced by a space, and return a pointer to it.
  */
 gchar *
-format_text_wsp(const guchar *string, size_t len)
+format_text_wsp(wmem_allocator_t* allocator, const guchar *string, size_t len)
 {
-    static gchar *fmtbuf[3];
-    static int fmtbuf_len[3];
-    static int idx;
+    gchar *fmtbuf = (gchar*)wmem_alloc(allocator, INITIAL_FMTBUF_SIZE);
+    int fmtbuf_len = INITIAL_FMTBUF_SIZE;
     int column;
     const guchar *stringend = string + len;
     guchar c;
     int i;
 
-    idx = (idx + 1) % 3;
-
-    /*
-     * Allocate the buffer if it's not already allocated.
-     */
-    if (fmtbuf[idx] == NULL) {
-        fmtbuf[idx] = (gchar *)g_malloc(INITIAL_FMTBUF_SIZE);
-        fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
-    }
     column = 0;
     while (string < stringend) {
         /*
@@ -276,80 +266,80 @@ format_text_wsp(const guchar *string, size_t len)
          * a backslash plus 3 octal digits (which is the most it can
          * expand to), and also enough room for a terminating '\0'?
          */
-        if (column+3+1 >= fmtbuf_len[idx]) {
+        if (column+3+1 >= fmtbuf_len) {
             /*
              * Double the buffer's size if it's not big enough.
              * The size of the buffer starts at 128, so doubling its size
              * adds at least another 128 bytes, which is more than enough
              * for one more character plus a terminating '\0'.
              */
-            fmtbuf_len[idx] = fmtbuf_len[idx] * 2;
-            fmtbuf[idx] = (gchar *)g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
+            fmtbuf_len *= 2;
+            fmtbuf = (gchar *)wmem_realloc(allocator, fmtbuf, fmtbuf_len);
         }
         c = *string++;
 
         if (g_ascii_isprint(c)) {
-            fmtbuf[idx][column] = c;
+            fmtbuf[column] = c;
             column++;
         } else if (g_ascii_isspace(c)) {
-            fmtbuf[idx][column] = ' ';
+            fmtbuf[column] = ' ';
             column++;
         } else {
-            fmtbuf[idx][column] =  '\\';
+            fmtbuf[column] =  '\\';
             column++;
             switch (c) {
 
                 case '\a':
-                    fmtbuf[idx][column] = 'a';
+                    fmtbuf[column] = 'a';
                     column++;
                     break;
 
                 case '\b':
-                    fmtbuf[idx][column] = 'b'; /* BS */
+                    fmtbuf[column] = 'b'; /* BS */
                     column++;
                     break;
 
                 case '\f':
-                    fmtbuf[idx][column] = 'f'; /* FF */
+                    fmtbuf[column] = 'f'; /* FF */
                     column++;
                     break;
 
                 case '\n':
-                    fmtbuf[idx][column] = 'n'; /* NL */
+                    fmtbuf[column] = 'n'; /* NL */
                     column++;
                     break;
 
                 case '\r':
-                    fmtbuf[idx][column] = 'r'; /* CR */
+                    fmtbuf[column] = 'r'; /* CR */
                     column++;
                     break;
 
                 case '\t':
-                    fmtbuf[idx][column] = 't'; /* tab */
+                    fmtbuf[column] = 't'; /* tab */
                     column++;
                     break;
 
                 case '\v':
-                    fmtbuf[idx][column] = 'v';
+                    fmtbuf[column] = 'v';
                     column++;
                     break;
 
                 default:
                     i = (c>>6)&03;
-                    fmtbuf[idx][column] = i + '0';
+                    fmtbuf[column] = i + '0';
                     column++;
                     i = (c>>3)&07;
-                    fmtbuf[idx][column] = i + '0';
+                    fmtbuf[column] = i + '0';
                     column++;
                     i = (c>>0)&07;
-                    fmtbuf[idx][column] = i + '0';
+                    fmtbuf[column] = i + '0';
                     column++;
                     break;
             }
         }
     }
-    fmtbuf[idx][column] = '\0';
-    return fmtbuf[idx];
+    fmtbuf[column] = '\0';
+    return fmtbuf;
 }
 
 /*

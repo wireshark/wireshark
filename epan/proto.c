@@ -1338,6 +1338,7 @@ proto_tree_add_format_wsp_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint
 {
 	proto_item	  *pi;
 	header_field_info *hfinfo;
+    gchar* str;
 
 	CHECK_FOR_NULL_TREE(tree);
 
@@ -1347,7 +1348,9 @@ proto_tree_add_format_wsp_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint
 
 	TRY_TO_FAKE_THIS_REPR(pi);
 
-	proto_item_set_text(pi, "%s", tvb_format_text_wsp(tvb, start, length));
+	str = tvb_format_text_wsp(NULL, tvb, start, length);
+	proto_item_set_text(pi, "%s", str);
+	wmem_free(NULL, str);
 
 	return pi;
 }

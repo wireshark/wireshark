@@ -4696,7 +4696,7 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
         linelen = next_offset - offset;
         if (raw_tree) {
             if (global_sip_raw_text_without_crlf)
-                str = tvb_format_text_wsp(tvb, offset, linelen);
+                str = tvb_format_text_wsp(wmem_packet_scope(), tvb, offset, linelen);
             else
                 str = tvb_format_text(tvb, offset, linelen);
             proto_tree_add_string_format(raw_tree, hf_sip_raw_line, tvb, offset, linelen,

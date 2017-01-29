@@ -382,11 +382,11 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
     return;
 
   col_append_fstr (pinfo->cinfo, COL_INFO, ": %s",
-                   tvb_format_text_wsp (tvb, offset, len));
+                   tvb_format_text_wsp (wmem_packet_scope(), tvb, offset, len));
 
   ti = proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, ENC_ASCII|ENC_NA);
   expert_add_info_format(pinfo, ti, &ei_error,
-                         "Error: %s", tvb_format_text_wsp (tvb, offset, len));
+                         "Error: %s", tvb_format_text_wsp (wmem_packet_scope(), tvb, offset, len));
 }
 
 

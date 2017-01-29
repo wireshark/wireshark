@@ -545,7 +545,7 @@ WS_DLL_PUBLIC gchar *tvb_format_text(tvbuff_t *tvb, const gint offset,
  * Like "tvb_format_text()", but for 'wsp'; don't show
  * the characters as C-style escapes.
  */
-WS_DLL_PUBLIC gchar *tvb_format_text_wsp(tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC gchar *tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint offset,
     const gint size);
 
 /**
@@ -559,7 +559,7 @@ extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, const gint offset,
  * Like "tvb_format_text_wsp()", but for null-padded strings; don't show
  * the null padding characters as "\000".
  */
-extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset,
+extern gchar *tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint offset,
     const gint size);
 
 /**

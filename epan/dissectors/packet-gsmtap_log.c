@@ -87,7 +87,7 @@ dissect_gsmtap_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
 	log_str_len = tvb_captured_length_remaining(tvb, offset);
 	proto_tree_add_item(log_tree, hf_log_string, tvb, offset, log_str_len, ENC_ASCII|ENC_NA);
 
-	log_str = tvb_format_stringzpad_wsp(tvb, offset, log_str_len);
+	log_str = tvb_format_stringzpad_wsp(wmem_packet_scope(), tvb, offset, log_str_len);
 	col_append_str(pinfo->cinfo, COL_INFO, log_str);
 
 	proto_item_append_text(ti, " %s(%u): %s/%d: %s:%u %s",
