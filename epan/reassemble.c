@@ -435,7 +435,7 @@ reassembly_table_register(reassembly_table *table,
 	reg_table->table = table;
 	reg_table->funcs = funcs;
 
-	reassembly_table_list = g_list_append(reassembly_table_list, reg_table);
+	reassembly_table_list = g_list_prepend(reassembly_table_list, reg_table);
 }
 
 /*
