@@ -2224,7 +2224,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>搜索:</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.ui" line="72"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;
 &lt;table&gt;&lt;tbody&gt;
 &lt;tr&gt;&lt;th&gt;is present&lt;/th&gt;&lt;td&gt;Match any packet that contains this field&lt;/td&gt;&lt;/tr&gt;
@@ -2232,7 +2231,7 @@ PLEASE NOTE: One option MUST be selected.</source>
 &lt;tr&gt;&lt;th&gt;contains, matches&lt;/th&gt;&lt;td&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;“关系”可用于限定字段为指定的值。每项关系将执行下列操作：&lt;/p&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;“关系”可用于限定字段为指定的值。每项关系将执行下列操作：&lt;/p&gt;
 &lt;table&gt;&lt;tbody&gt;
 &lt;tr&gt;&lt;th&gt;目前在&lt;/th&gt;&lt;td&gt;匹配包含此字段的任何分组&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;th&gt;==、!= 等&lt;/th&gt;&lt;td&gt;在字段与指定值之间进行比较&lt;/td&gt;&lt;/tr&gt;
@@ -2241,62 +2240,69 @@ PLEASE NOTE: One option MUST be selected.</source>
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.ui" line="81"/>
+        <location filename="display_filter_expression_dialog.ui" line="72"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Match any packet that contains this field&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific value.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific set of values&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
+
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="display_filter_expression_dialog.ui" line="77"/>
         <source>Relation</source>
         <translation>关系</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.ui" line="108"/>
+        <location filename="display_filter_expression_dialog.ui" line="104"/>
         <source>Match against this value.</source>
         <translation>匹配对应此值。</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.ui" line="111"/>
+        <location filename="display_filter_expression_dialog.ui" line="107"/>
         <source>Value</source>
         <translation>值</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.ui" line="125"/>
+        <location filename="display_filter_expression_dialog.ui" line="121"/>
         <source>If the field you have selected has a known set of valid values they will be listed here.</source>
         <translation>如果您已选择的字段有一个已知的有效值的集，它将被在这里列出。</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.ui" line="128"/>
+        <location filename="display_filter_expression_dialog.ui" line="124"/>
         <source>Predefined Values</source>
         <translation>预定义的值</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.ui" line="155"/>
+        <location filename="display_filter_expression_dialog.ui" line="151"/>
         <source>If the field you have selected covers a range of bytes (e.g. you have selected a protocol) you can restrict the match to a range of bytes here.</source>
         <translation>如果您已选择的字段涵盖范围字节（例如您选择了一个协议），您可以在这里对匹配进行字节范围的限制。</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.ui" line="158"/>
+        <location filename="display_filter_expression_dialog.ui" line="154"/>
         <source>Range (offset:length)</source>
         <translation>范围 (偏移:长度)</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.ui" line="177"/>
+        <location filename="display_filter_expression_dialog.ui" line="173"/>
         <source>No display filter</source>
         <translation>无显示过滤器</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.ui" line="184"/>
+        <location filename="display_filter_expression_dialog.ui" line="180"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;提示&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="74"/>
+        <location filename="display_filter_expression_dialog.cpp" line="75"/>
         <source>Display Filter Expression</source>
         <translation>显示过滤器表达式</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="213"/>
+        <location filename="display_filter_expression_dialog.cpp" line="223"/>
         <source>Select a field name to get started</source>
         <translation>选择一个字段名称以开始</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="217"/>
+        <location filename="display_filter_expression_dialog.cpp" line="227"/>
         <source>Click OK to insert this filter</source>
         <translation>点击确定插入此过滤器</translation>
     </message>
@@ -9431,22 +9437,22 @@ text-decoration: underline;
         <translation>在退出前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1066"/>
+        <location filename="main_window.cpp" line="1079"/>
         <source>Save packets before merging?</source>
         <translation>是否在合并之前保存分组？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1067"/>
+        <location filename="main_window.cpp" line="1080"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>无法合并临时捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1073"/>
+        <location filename="main_window.cpp" line="1086"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>是否在合并前保存对“%1”的更改？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1075"/>
+        <location filename="main_window.cpp" line="1088"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>在文件合并之前，其更改必须先保存。</translation>
     </message>
@@ -9456,117 +9462,122 @@ text-decoration: underline;
         <translation>无效显示过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1112"/>
+        <location filename="main_window.cpp" line="1125"/>
         <source>Invalid Read Filter</source>
         <translation>无效读取过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1113"/>
+        <location filename="main_window.cpp" line="1126"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>过滤器表达式 %1 不是有效的读取过滤器 (%2)。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1202"/>
+        <location filename="main_window.cpp" line="1215"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
         <translation> 导入新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1478"/>
+        <location filename="main_window.cpp" line="1491"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>无法导出“%1”。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1479"/>
+        <location filename="main_window.cpp" line="1492"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>您不能将分组导出到当前捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1565"/>
-        <location filename="main_window.cpp" line="1590"/>
+        <location filename="main_window.cpp" line="1580"/>
+        <location filename="main_window.cpp" line="1605"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1637"/>
+        <location filename="main_window.cpp" line="1652"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>您是否要保存已做出的更改%1？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1633"/>
-        <location filename="main_window.cpp" line="1641"/>
+        <location filename="main_window.cpp" line="1648"/>
+        <location filename="main_window.cpp" line="1656"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>若不保存，您已经捕获的分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1646"/>
+        <location filename="main_window.cpp" line="1661"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>是否希望保存对捕获文件“%1”%2 的更改？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1638"/>
-        <location filename="main_window.cpp" line="1647"/>
+        <location filename="main_window.cpp" line="1653"/>
+        <location filename="main_window.cpp" line="1662"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>若不保存，您的更改将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1632"/>
+        <location filename="main_window.cpp" line="880"/>
+        <source>Unable to drop files during capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="1647"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation>您是否要停止捕获，并保存已捕获的分组%1？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1640"/>
+        <location filename="main_window.cpp" line="1655"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation>您是否要保存已捕获的分组%1？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1664"/>
+        <location filename="main_window.cpp" line="1679"/>
         <source>Save before Continue</source>
         <translation>继续前保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1666"/>
+        <location filename="main_window.cpp" line="1681"/>
         <source>Stop and Save</source>
         <translation>停止并保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1678"/>
+        <location filename="main_window.cpp" line="1693"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
         <translation>停止并退出，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1690"/>
+        <location filename="main_window.cpp" line="1705"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>直接退出，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1681"/>
-        <location filename="main_window.cpp" line="1694"/>
+        <location filename="main_window.cpp" line="1696"/>
+        <location filename="main_window.cpp" line="1709"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
         <translation>继续，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1684"/>
+        <location filename="main_window.cpp" line="1699"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>停止并继续，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2033"/>
+        <location filename="main_window.cpp" line="2048"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>文件名不能映射到UTF-8</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2054"/>
+        <location filename="main_window.cpp" line="2069"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark 网络分析器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2079"/>
+        <location filename="main_window.cpp" line="2094"/>
         <source>Capturing from %1</source>
         <translation>正在捕获 %1</translation>
     </message>
@@ -9581,52 +9592,52 @@ text-decoration: underline;
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="816"/>
+        <location filename="main_window_slots.cpp" line="817"/>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="856"/>
+        <location filename="main_window_slots.cpp" line="857"/>
         <source>No interface selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="866"/>
+        <location filename="main_window_slots.cpp" line="867"/>
         <source>Invalid capture filter</source>
         <translation>无效捕获过滤器</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1114"/>
+        <location filename="main_window_slots.cpp" line="1115"/>
         <source>Clear Menu</source>
         <translation>清除菜单</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1597"/>
+        <location filename="main_window_slots.cpp" line="1598"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wireshark 正在初始化，请稍候</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1698"/>
+        <location filename="main_window_slots.cpp" line="1699"/>
         <source> before closing the file</source>
         <translation>关闭文件前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1780"/>
+        <location filename="main_window_slots.cpp" line="1781"/>
         <source>Export Selected Packet Bytes</source>
         <translation>导出选择分组字节流</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1846"/>
+        <location filename="main_window_slots.cpp" line="1847"/>
         <source>No Keys</source>
         <translation>无密钥</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1847"/>
+        <location filename="main_window_slots.cpp" line="1848"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>没有可以保存的 SSL 会话密钥。</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1853"/>
+        <location filename="main_window_slots.cpp" line="1854"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9634,7 +9645,7 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1782"/>
+        <location filename="main_window_slots.cpp" line="1783"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>原始数据 (*.bin *.dat *.raw);;所有文件 (</translation>
     </message>
@@ -9644,64 +9655,64 @@ text-decoration: underline;
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1857"/>
+        <location filename="main_window_slots.cpp" line="1858"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSL 会话密钥 (*.keys *.txt);;所有文件 (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1975"/>
+        <location filename="main_window_slots.cpp" line="1976"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2381"/>
-        <location filename="main_window_slots.cpp" line="3492"/>
+        <location filename="main_window_slots.cpp" line="2382"/>
+        <location filename="main_window_slots.cpp" line="3493"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话过滤器。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2531"/>
-        <location filename="main_window_slots.cpp" line="2544"/>
+        <location filename="main_window_slots.cpp" line="2532"/>
+        <location filename="main_window_slots.cpp" line="2545"/>
         <source> before reloading the file</source>
         <translation>重新载入文件前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2578"/>
+        <location filename="main_window_slots.cpp" line="2579"/>
         <source>No filter available. Try another </source>
         <translation>无过滤器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3499"/>
+        <location filename="main_window_slots.cpp" line="3500"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>为此对话编译过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3508"/>
+        <location filename="main_window_slots.cpp" line="3509"/>
         <source>No previous/next packet in conversation.</source>
         <translation>此对话中没有上一个/下一个分组。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3585"/>
+        <location filename="main_window_slots.cpp" line="3586"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3592"/>
+        <location filename="main_window_slots.cpp" line="3593"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3610"/>
+        <location filename="main_window_slots.cpp" line="3611"/>
         <source> before restarting the capture</source>
         <translation>重新开始捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3818"/>
+        <location filename="main_window_slots.cpp" line="3819"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3819"/>
+        <location filename="main_window_slots.cpp" line="3820"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>
