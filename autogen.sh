@@ -26,7 +26,7 @@ DIE=true
 PROJECT="Wireshark"
 
 # If you are going to use the non-default name for automake becase your OS
-# installaion has multiple versions, you need to call both aclocal and automake
+# installation has multiple versions, you need to call both aclocal and automake
 # with that version number, as they come from the same package.
 #AM_VERSION='-1.8'
 
