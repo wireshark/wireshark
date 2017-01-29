@@ -290,6 +290,7 @@ static int hf_bthci_cmd_amp_remaining_assoc_length = -1;
 static int hf_bthci_cmd_amp_assoc_fragment = -1;
 static int hf_bthci_cmd_le_event_mask = -1;
 static int hf_bthci_cmd_le_event_mask_le_reserved = -1;
+static int hf_bthci_cmd_le_event_mask_le_phy_update_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_direct_advertising_report  = -1;
 static int hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_generate_dhkey_complete = -1;
@@ -363,10 +364,26 @@ static int hf_bthci_cmd_le_adv_data_frag_pref = -1;
 static int hf_bthci_cmd_le_adv_en_sets = -1;
 static int hf_bthci_cmd_le_adv_duration = -1;
 static int hf_bthci_cmd_le_adv_max_extended_events = -1;
+static int hf_bthci_cmd_all_phys = -1;
+static int hf_bthci_cmd_all_phys_tx_pref = -1;
+static int hf_bthci_cmd_all_phys_rx_pref = -1;
+static int hf_bthci_cmd_all_phys_reserved = -1;
+static int hf_bthci_cmd_tx_phys = -1;
+static int hf_bthci_cmd_rx_phys = -1;
+static int hf_bthci_cmd_phys_pref_le_1m = -1;
+static int hf_bthci_cmd_phys_pref_le_2m = -1;
+static int hf_bthci_cmd_phys_pref_le_coded = -1;
+static int hf_bthci_cmd_phys_pref_reserved = -1;
+static int hf_bthci_cmd_phy_options = -1;
+static int hf_bthci_cmd_phy_options_coding =-1;
+static int hf_bthci_cmd_phy_options_reserved =- 1;
+static int hf_bthci_cmd_phy = -1;
+static int hf_bthci_cmd_modulation_index = -1;
 
 
 static const int *hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_reserved,
+    &hf_bthci_cmd_le_event_mask_le_phy_update_complete,
     &hf_bthci_cmd_le_event_mask_le_direct_advertising_report ,
     &hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete,
     &hf_bthci_cmd_le_event_mask_le_generate_dhkey_complete,
@@ -378,6 +395,27 @@ static const int *hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_connection_update_complete,
     &hf_bthci_cmd_le_event_mask_le_advertising_report,
     &hf_bthci_cmd_le_event_mask_le_connection_complete,
+    NULL
+};
+
+static const int *hfx_btcmd_all_phys[] = {
+    &hf_bthci_cmd_all_phys_reserved,
+    &hf_bthci_cmd_all_phys_rx_pref,
+    &hf_bthci_cmd_all_phys_tx_pref,
+    NULL
+};
+
+static const int *hfx_btcmd_phys_pref[] = {
+    &hf_bthci_cmd_phys_pref_reserved,
+    &hf_bthci_cmd_phys_pref_le_coded,
+    &hf_bthci_cmd_phys_pref_le_2m,
+    &hf_bthci_cmd_phys_pref_le_1m,
+    NULL
+};
+
+static const int *hfx_btcmd_phy_options[] = {
+    &hf_bthci_cmd_phy_options_reserved,
+    &hf_bthci_cmd_phy_options_coding,
     NULL
 };
 
@@ -395,6 +433,7 @@ static gint ett_cod_mask = -1;
 static gint ett_flow_spec_subtree = -1;
 static gint ett_le_channel_map = -1;
 static gint ett_le_event_mask = -1;
+static gint ett_phys_flags = -1;
 
 static gint proto_btcommon = -1;
 static gint hf_btcommon_eir_ad_entry = -1;
@@ -1705,6 +1744,27 @@ static const value_string cmd_le_adv_data_operation[] = {
 static const value_string cmd_le_adv_data_frag_pref[] = {
     { 0x00, "The Controller may fragment all Host data" },
     { 0x01, "The Controller should not fragment or should minimize fragmentation of Host data" },
+    { 0, NULL }
+};
+
+static const value_string cmd_le_phy_options_vals[] = {
+    { 0x00, "The Host has no preferred coding on the LE Coded PHY" },
+    { 0x01, "The Host prefers S=2 coding on the LE Coded PHY" },
+    { 0x02, "The Host prefers S=8 coding on the LE Coded PHY" },
+    { 0, NULL }
+};
+
+static const value_string cmd_le_phy_vals[] = {
+    { 0x01, "LE 1M" },
+    { 0x02, "LE 2M" },
+    { 0x03, "LE Coded" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_le_phy_vals_ext = VALUE_STRING_EXT_INIT(cmd_le_phy_vals);
+
+static const value_string cmd_le_modulation_index_vals[] = {
+    { 0x00, "Assume transmitter will have a standard modulation index" },
+    { 0x01, "Assume transmitter will have a stable modulation index" },
     { 0, NULL }
 };
 
@@ -3293,6 +3353,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
         case 0x0015: /* LE Read Channel Map */
         case 0x0016: /* LE Read Remote Used Features */
         case 0x001b: /* LE Long Term Key Request Negative Reply */
+        case 0x0030: /* LE Read PHY */
             proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             break;
@@ -3427,6 +3488,50 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             item = proto_tree_add_item(tree, hf_bthci_cmd_le_rpa_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%d sec)",  tvb_get_letohs(tvb, offset));
             offset+=2;
+            break;
+
+        case 0x0031: /* LE Set Default PHY */
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_all_phys, ett_phys_flags, hfx_btcmd_all_phys, ENC_NA);
+            offset += 1;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_tx_phys, ett_phys_flags, hfx_btcmd_phys_pref, ENC_NA);
+            offset+=1;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_rx_phys, ett_phys_flags, hfx_btcmd_phys_pref, ENC_NA);
+            offset+=1;
+            break;
+
+        case 0x0032: /* LE Set PHY */
+            proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_all_phys, ett_phys_flags, hfx_btcmd_all_phys, ENC_NA);
+            offset += 1;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_tx_phys, ett_phys_flags, hfx_btcmd_phys_pref, ENC_NA);
+            offset+=1;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_rx_phys, ett_phys_flags, hfx_btcmd_phys_pref, ENC_NA);
+            offset+=1;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_phy_options, ett_phys_flags, hfx_btcmd_phy_options, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            break;
+
+        case 0x0033: /* LE Enhanced Receiver Test */
+            item = proto_tree_add_item(tree, hf_bthci_cmd_rx_frequency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%d MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_phy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_modulation_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            break;
+
+        case 0x0034: /* LE Enhanced Transmitter Test */
+            item = proto_tree_add_item(tree, hf_bthci_cmd_tx_frequency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%d MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_test_data_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_test_packet_payload, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_phy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
             break;
 
         case 0x035: /* LE Set Advertising Set Random Address */
@@ -5078,9 +5183,14 @@ proto_register_bthci_cmd(void)
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x400),
             NULL, HFILL }
         },
+        { &hf_bthci_cmd_le_event_mask_le_phy_update_complete,
+          { "LE PHY Update Complete",                "bthci_cmd.le_event_mask.le_phy_update_complete",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x800),
+            NULL, HFILL }
+        },
         { &hf_bthci_cmd_le_event_mask_le_reserved,
           { "Reserved",                                    "bthci_cmd.le_event_mask.reserved",
-            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFFFFF800),
+            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFFFFF000),
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_advts_interval_min,
@@ -5393,6 +5503,81 @@ proto_register_bthci_cmd(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        {&hf_bthci_cmd_all_phys,
+            {"All PHYs", "bthci_cmd.all_phys",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_bthci_cmd_all_phys_tx_pref,
+          { "The Host has no Tx PHY preference", "bthci_cmd.all_phys.tx_preference",
+            FT_BOOLEAN, 8, NULL, 0x1,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_all_phys_rx_pref,
+          { "The Host has no Rx PHY preference", "bthci_cmd.all_phys.rx_preference",
+            FT_BOOLEAN, 8, NULL, 0x2,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_all_phys_reserved,
+          { "Reserved", "bthci_cmd.all_phys.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            NULL, HFILL }
+        },
+        {&hf_bthci_cmd_tx_phys,
+            {"Tx PHYs", "bthci_cmd.tx_phys",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_bthci_cmd_rx_phys,
+            {"Rx PHYs", "bthci_cmd.rx_phys",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_bthci_cmd_phys_pref_le_1m,
+          { "The Host prefers LE 1M", "bthci_cmd.phys_pref.le_1m",
+            FT_BOOLEAN, 8, NULL, 0x1,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_phys_pref_le_2m,
+          { "The Host prefers LE 2M", "bthci_cmd.phys_pref.le_2m",
+            FT_BOOLEAN, 8, NULL, 0x2,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_phys_pref_le_coded,
+          { "The Host prefers LE Coded", "bthci_cmd.phys_pref.le_coded",
+            FT_BOOLEAN, 8, NULL, 0x4,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_phys_pref_reserved,
+          { "Reserved", "bthci_cmd.phys_pref.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_phy_options,
+          { "PHY Options", "bthci_cmd.phy_options",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_phy_options_coding,
+          { "Coding", "bthci_cmd.phy_options.coding",
+            FT_UINT16, BASE_HEX, VALS(cmd_le_phy_options_vals), 0x3,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_phy_options_reserved,
+          { "Reserved", "bthci_cmd.phy_options.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFFFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_phy,
+          { "PHY", "bthci_cmd.phy",
+            FT_UINT8, BASE_HEX, VALS(cmd_le_phy_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_modulation_index,
+          { "Modulation Index", "bthci_cmd.modulation_index",
+            FT_UINT8, BASE_HEX, VALS(cmd_le_modulation_index_vals), 0x0,
+            NULL, HFILL }
+        }
     };
 
     static ei_register_info ei[] = {
@@ -5408,7 +5593,8 @@ proto_register_bthci_cmd(void)
         &ett_cod_mask,
         &ett_flow_spec_subtree,
         &ett_le_channel_map,
-        &ett_le_event_mask
+        &ett_le_event_mask,
+        &ett_phys_flags
     };
 
     /* Decode As handling */
