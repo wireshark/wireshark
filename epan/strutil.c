@@ -359,24 +359,14 @@ format_text_wsp(const guchar *string, size_t len)
  * which will be replaced by a space, and return a pointer to it.
  */
 gchar *
-format_text_chr(const guchar *string, const size_t len, const guchar chr)
+format_text_chr(wmem_allocator_t* allocator, const guchar *string, const size_t len, const guchar chr)
 {
-    static gchar *fmtbuf[3];
-    static int fmtbuf_len[3];
-    static int idx;
+    gchar *fmtbuf = (gchar*)wmem_alloc(allocator, INITIAL_FMTBUF_SIZE);
+    int fmtbuf_len = INITIAL_FMTBUF_SIZE;
     int column;
     const guchar *stringend = string + len;
     guchar c;
 
-    idx = (idx + 1) % 3;
-
-    /*
-     * Allocate the buffer if it's not already allocated.
-     */
-    if (fmtbuf[idx] == NULL) {
-        fmtbuf[idx] = (gchar *)g_malloc(INITIAL_FMTBUF_SIZE);
-        fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
-    }
     column = 0;
     while (string < stringend)
     {
@@ -384,7 +374,7 @@ format_text_chr(const guchar *string, const size_t len, const guchar chr)
          * Is there enough room for this character,
          * and also enough room for a terminating '\0'?
          */
-        if (column+1 >= fmtbuf_len[idx])
+        if (column+1 >= fmtbuf_len)
         {
             /*
              * Double the buffer's size if it's not big enough.
@@ -392,29 +382,29 @@ format_text_chr(const guchar *string, const size_t len, const guchar chr)
              * adds at least another 128 bytes, which is more than enough
              * for one more character plus a terminating '\0'.
              */
-            fmtbuf_len[idx] = fmtbuf_len[idx] * 2;
-            fmtbuf[idx] = (gchar *)g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
+            fmtbuf_len *= 2;
+            fmtbuf = (gchar *)wmem_realloc(allocator, fmtbuf, fmtbuf_len);
         }
         c = *string++;
 
         if (g_ascii_isprint(c))
         {
-            fmtbuf[idx][column] = c;
+            fmtbuf[column] = c;
             column++;
         }
         else if (g_ascii_isspace(c))
         {
-            fmtbuf[idx][column] = ' ';
+            fmtbuf[column] = ' ';
             column++;
         }
         else
         {
-            fmtbuf[idx][column] =  chr;
+            fmtbuf[column] =  chr;
             column++;
         }
     }
-    fmtbuf[idx][column] = '\0';
-    return fmtbuf[idx];
+    fmtbuf[column] = '\0';
+    return fmtbuf;
 }
 
 static gboolean

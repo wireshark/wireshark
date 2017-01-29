@@ -25,6 +25,8 @@
 
 #include "ws_symbol_export.h"
 
+#include <epan/wmem/wmem.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -88,6 +90,7 @@ gchar*     format_text_wsp(const guchar *line, size_t len);
  * (space, tab, carriage return, new line, vertical tab, or formfeed)
  * which will be replaced by a space, and return a pointer to it.
  *
+ * @param allocator The wmem scope
  * @param string A pointer to the input string
  * @param len The length of the input string
  * @param chr The character to use to replace non-printable characters
@@ -95,7 +98,7 @@ gchar*     format_text_wsp(const guchar *line, size_t len);
  *
  */
 WS_DLL_PUBLIC
-gchar*     format_text_chr(const guchar *string, const size_t len, const guchar chr);
+gchar*     format_text_chr(wmem_allocator_t* allocator, const guchar *string, const size_t len, const guchar chr);
 
 
 /** Turn a string of hex digits with optional separators (defined by
