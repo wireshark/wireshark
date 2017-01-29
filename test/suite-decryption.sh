@@ -162,6 +162,20 @@ decryption_step_dtls() {
 	test_step_ok
 }
 
+# DTLS 1.2 with PSK, AES-128-CCM-8
+decryption_step_dtls_psk_aes128ccm8() {
+	output=$($TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-odtls.psk:ca19e028a8a372ad2d325f950fcaceed \
+		-r "$CAPTURE_DIR/dtls12-aes128ccm8.pcap" -x)
+	one='DTLS1.2 test usi*ng GnuTLS 3.5.8.'
+	two='Works for me!.'
+	if [[ "$output" != *${one}*${one}*${two}*${two}* ]]; then
+		test_step_failed "Failed to decrypt DTLS 1.2 (PSK AES-128-CCM-8)"
+		return
+	fi
+	test_step_ok
+}
+
 # IPsec ESP
 # https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12671
 decryption_step_ipsec_esp() {
@@ -255,6 +269,34 @@ decryption_step_ssl_renegotiation() {
 		-r "$CAPTURE_DIR/tls-renegotiation.pcap" -Y http)
 	if [[ "$output" != 0*2151* ]]; then
 		test_step_failed "Failed to decrypt SSL with renegotiation"
+		return
+	fi
+	test_step_ok
+}
+
+# TLS 1.2 with PSK, AES-128-CCM
+decryption_step_tls_psk_aes128ccm() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -q \
+		-ossl.psk:ca19e028a8a372ad2d325f950fcaceed \
+		-r "$CAPTURE_DIR/tls12-aes128ccm.pcap" -z follow,ssl,ascii,0 \
+		| grep -q http://www.gnu.org/software/gnutls
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt TLS 1.2 (PSK AES-128-CCM)"
+		return
+	fi
+	test_step_ok
+}
+
+# TLS 1.2 with PSK, AES-256-GCM
+decryption_step_tls_psk_aes256gcm() {
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -q \
+		-ossl.psk:ca19e028a8a372ad2d325f950fcaceed \
+		-r "$CAPTURE_DIR/tls12-aes256gcm.pcap" -z follow,ssl,ascii,0 \
+		| grep -q http://www.gnu.org/software/gnutls
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt TLS 1.2 (PSK AES-256-GCM)"
 		return
 	fi
 	test_step_ok
@@ -531,12 +573,15 @@ tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA EAP Decryption" decryption_step_80211_wpa_eap
 	test_step_add "IEEE 802.11 WPA TDLS Decryption" decryption_step_80211_wpa_tdls
 	test_step_add "DTLS Decryption" decryption_step_dtls
+	test_step_add "DTLS 1.2 Decryption (PSK AES-128-CCM-8)" decryption_step_dtls_psk_aes128ccm8
 	test_step_add "IPsec ESP Decryption" decryption_step_ipsec_esp
 	test_step_add "SSL Decryption (private key)" decryption_step_ssl
 	test_step_add "SSL Decryption (RSA private key with p smaller than q)" decryption_step_ssl_rsa_pq
 	test_step_add "SSL Decryption (private key with password)" decryption_step_ssl_with_password
 	test_step_add "SSL Decryption (master secret)" decryption_step_ssl_master_secret
 	test_step_add "SSL Decryption (renegotiation)" decryption_step_ssl_renegotiation
+	test_step_add "TLS 1.2 Decryption (PSK AES-128-CCM)" decryption_step_tls_psk_aes128ccm
+	test_step_add "TLS 1.2 Decryption (PSK AES-256-GCM)" decryption_step_tls_psk_aes256gcm
 	test_step_add "ZigBee Decryption" decryption_step_zigbee
 	test_step_add "ANSI C12.22 Decryption" decryption_step_c1222
 	test_step_add "DVB-CI Decryption" decryption_step_dvb_ci
