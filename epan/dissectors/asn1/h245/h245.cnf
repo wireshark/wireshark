@@ -141,14 +141,14 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	pending->rev_channel_params = h223_rev_lc_params;
 	temp = h223_fw_lc_num;
 	if (%(ACTX)s->pinfo->p2p_dir > -1)
-		g_hash_table_insert(h223_pending_olc_reqs[%(ACTX)s->pinfo->p2p_dir], GINT_TO_POINTER(temp), pending);
+		wmem_map_insert(h223_pending_olc_reqs[%(ACTX)s->pinfo->p2p_dir], GINT_TO_POINTER(temp), pending);
   }
 
   if (upcoming_olc) {
     if (fast_start) {
       h245_setup_channels(actx->pinfo, &upcoming_olc->rev_lc);
     } else {
-      g_hash_table_insert(h245_pending_olc_reqs,
+      wmem_map_insert(h245_pending_olc_reqs,
         wmem_strdup(wmem_file_scope(), gen_olc_key(upcoming_olc->fwd_lc_num, &%(ACTX)s->pinfo->dst, &%(ACTX)s->pinfo->src)),
         upcoming_olc);
     }
@@ -235,7 +235,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	%(ACTX)s->pinfo->p2p_dir = P2P_DIR_RECV;
   else
 	%(ACTX)s->pinfo->p2p_dir = P2P_DIR_SENT;
-  pend = (h223_pending_olc *)g_hash_table_lookup( h223_pending_olc_reqs[%(ACTX)s->pinfo->p2p_dir], GINT_TO_POINTER(temp) );
+  pend = (h223_pending_olc *)wmem_map_lookup( h223_pending_olc_reqs[%(ACTX)s->pinfo->p2p_dir], GINT_TO_POINTER(temp) );
   if (pend) {
 	DISSECTOR_ASSERT( ( h223_rev_lc_num &&  pend->rev_channel_params)
 				   || (!h223_rev_lc_num && !pend->rev_channel_params) );
@@ -251,7 +251,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
   if (upcoming_olc) {
     olc_key = gen_olc_key(upcoming_olc->fwd_lc_num, &%(ACTX)s->pinfo->src, &%(ACTX)s->pinfo->dst);
-    olc_req = (olc_info_t *)g_hash_table_lookup(h245_pending_olc_reqs, olc_key);
+    olc_req = (olc_info_t *)wmem_map_lookup(h245_pending_olc_reqs, olc_key);
     if (olc_req) {
       update_unicast_addr(&olc_req->fwd_lc.media_addr, &upcoming_olc->fwd_lc.media_addr);
       update_unicast_addr(&olc_req->fwd_lc.media_control_addr, &upcoming_olc->fwd_lc.media_control_addr);
@@ -259,7 +259,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
       update_unicast_addr(&olc_req->rev_lc.media_control_addr, &upcoming_olc->rev_lc.media_control_addr);
       h245_setup_channels(actx->pinfo, &olc_req->fwd_lc);
       h245_setup_channels(actx->pinfo, &olc_req->rev_lc);
-      g_hash_table_remove(h245_pending_olc_reqs, olc_key);
+      wmem_map_remove(h245_pending_olc_reqs, olc_key);
     } else {
       h245_setup_channels(actx->pinfo, &upcoming_olc->fwd_lc);
     }

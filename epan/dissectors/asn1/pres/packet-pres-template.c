@@ -69,7 +69,7 @@ typedef struct _pres_ctx_oid_t {
 	char *oid;
 	guint32 idx;
 } pres_ctx_oid_t;
-static GHashTable *pres_ctx_oid_table = NULL;
+static wmem_map_t *pres_ctx_oid_table = NULL;
 
 typedef struct _pres_user_t {
    guint ctx_id;
@@ -115,20 +115,6 @@ pres_ctx_oid_equal(gconstpointer k1, gconstpointer k2)
 }
 
 static void
-pres_init(void)
-{
-	pres_ctx_oid_table = g_hash_table_new(pres_ctx_oid_hash,
-			pres_ctx_oid_equal);
-
-}
-
-static void
-pres_cleanup(void)
-{
-	g_hash_table_destroy(pres_ctx_oid_table);
-}
-
-static void
 register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 {
 	pres_ctx_oid_t *pco, *tmppco;
@@ -151,11 +137,11 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 	}
 
 	/* if this ctx already exists, remove the old one first */
-	tmppco=(pres_ctx_oid_t *)g_hash_table_lookup(pres_ctx_oid_table, pco);
+	tmppco=(pres_ctx_oid_t *)wmem_map_lookup(pres_ctx_oid_table, pco);
 	if (tmppco) {
-		g_hash_table_remove(pres_ctx_oid_table, tmppco);
+		wmem_map_remove(pres_ctx_oid_table, tmppco);
 	}
-	g_hash_table_insert(pres_ctx_oid_table, pco, pco);
+	wmem_map_insert(pres_ctx_oid_table, pco, pco);
 }
 
 static char *
@@ -191,7 +177,7 @@ find_oid_by_pres_ctx_id(packet_info *pinfo, guint32 idx)
 		pco.idx = 0;
 	}
 
-	tmppco=(pres_ctx_oid_t *)g_hash_table_lookup(pres_ctx_oid_table, &pco);
+	tmppco=(pres_ctx_oid_t *)wmem_map_lookup(pres_ctx_oid_table, &pco);
 	if (tmppco) {
 		return tmppco->oid;
 	}
@@ -440,8 +426,7 @@ void proto_register_pres(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_pres = expert_register_protocol(proto_pres);
   expert_register_field_array(expert_pres, ei, array_length(ei));
-  register_init_routine(pres_init);
-  register_cleanup_routine(pres_cleanup);
+  pres_ctx_oid_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), pres_ctx_oid_hash, pres_ctx_oid_equal);
 
   pres_module = prefs_register_protocol(proto_pres, NULL);
 

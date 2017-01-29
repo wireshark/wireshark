@@ -68,7 +68,6 @@ static expert_field ei_rtse_abstract_syntax = EI_INIT;
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
 static dissector_handle_t rtse_handle = NULL;
-static GHashTable *oid_table=NULL;
 static gint ett_rtse_unknown = -1;
 
 static reassembly_table rtse_reassembly_table;
@@ -120,9 +119,6 @@ register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector
 
   if (ros_handle == NULL)
     ros_handle = find_dissector("ros");
-
-  /* save the name - but not used */
-  g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
 
   /* register RTSE with the BER (ACSE) */
   register_ber_oid_dissector_handle(oid, rtse_handle, proto, name);
@@ -392,9 +388,6 @@ void proto_register_rtse(void) {
                  " in the TCP protocol settings.", &rtse_reassemble);
 
   rtse_oid_dissector_table = register_dissector_table("rtse.oid", "RTSE OID Dissectors", proto_rtse, FT_STRING, BASE_NONE);
-  oid_table=g_hash_table_new(g_str_hash, g_str_equal);
-
-
 }
 
 

@@ -363,7 +363,7 @@ typedef struct _olc_info_t {
   channel_info_t rev_lc;
 } olc_info_t;
 
-static GHashTable* h245_pending_olc_reqs = NULL;
+static wmem_map_t* h245_pending_olc_reqs = NULL;
 static gboolean fast_start = FALSE;
 static olc_info_t *upcoming_olc = NULL;
 static channel_info_t *upcoming_channel = NULL;
@@ -412,7 +412,7 @@ typedef struct {
 	h223_lc_params *rev_channel_params;
 } h223_pending_olc;
 
-static GHashTable*          h223_pending_olc_reqs[] = { NULL, NULL };
+static wmem_map_t*          h223_pending_olc_reqs[] = { NULL, NULL };
 static dissector_handle_t   h245_lc_dissector;
 static guint16              h245_lc_temp;
 static guint16              h223_fw_lc_num;
@@ -422,32 +422,11 @@ static h223_lc_params      *h223_fw_lc_params;
 static h223_lc_params      *h223_rev_lc_params;
 static h223_add_lc_handle_t h223_add_lc_handle = NULL;
 
-static void h223_lc_init_dir( int dir )
-{
-	if ( h223_pending_olc_reqs[dir] )
-		g_hash_table_destroy( h223_pending_olc_reqs[dir] );
-	h223_pending_olc_reqs[dir] = g_hash_table_new( g_direct_hash, g_direct_equal );
-}
-
 static void h223_lc_init( void )
 {
-	h223_lc_init_dir( P2P_DIR_SENT );
-	h223_lc_init_dir( P2P_DIR_RECV );
 	h223_lc_params_temp = NULL;
 	h245_lc_dissector = NULL;
 	h223_fw_lc_num = 0;
-}
-
-static void h245_init(void)
-{
-	h245_pending_olc_reqs = g_hash_table_new(g_str_hash, g_str_equal);
-
-	h223_lc_init();
-}
-
-static void h245_cleanup(void)
-{
-	g_hash_table_destroy(h245_pending_olc_reqs);
 }
 
 void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
@@ -1942,7 +1921,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 408 "./asn1/h245/packet-h245-template.c"
+#line 387 "./asn1/h245/packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
@@ -2443,7 +2422,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 413 "./asn1/h245/packet-h245-template.c"
+#line 392 "./asn1/h245/packet-h245-template.c"
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -8782,14 +8761,14 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 	pending->rev_channel_params = h223_rev_lc_params;
 	temp = h223_fw_lc_num;
 	if (actx->pinfo->p2p_dir > -1)
-		g_hash_table_insert(h223_pending_olc_reqs[actx->pinfo->p2p_dir], GINT_TO_POINTER(temp), pending);
+		wmem_map_insert(h223_pending_olc_reqs[actx->pinfo->p2p_dir], GINT_TO_POINTER(temp), pending);
   }
 
   if (upcoming_olc) {
     if (fast_start) {
       h245_setup_channels(actx->pinfo, &upcoming_olc->rev_lc);
     } else {
-      g_hash_table_insert(h245_pending_olc_reqs,
+      wmem_map_insert(h245_pending_olc_reqs,
         wmem_strdup(wmem_file_scope(), gen_olc_key(upcoming_olc->fwd_lc_num, &actx->pinfo->dst, &actx->pinfo->src)),
         upcoming_olc);
     }
@@ -11130,7 +11109,7 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 	actx->pinfo->p2p_dir = P2P_DIR_RECV;
   else
 	actx->pinfo->p2p_dir = P2P_DIR_SENT;
-  pend = (h223_pending_olc *)g_hash_table_lookup( h223_pending_olc_reqs[actx->pinfo->p2p_dir], GINT_TO_POINTER(temp) );
+  pend = (h223_pending_olc *)wmem_map_lookup( h223_pending_olc_reqs[actx->pinfo->p2p_dir], GINT_TO_POINTER(temp) );
   if (pend) {
 	DISSECTOR_ASSERT( ( h223_rev_lc_num &&  pend->rev_channel_params)
 				   || (!h223_rev_lc_num && !pend->rev_channel_params) );
@@ -11146,7 +11125,7 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   if (upcoming_olc) {
     olc_key = gen_olc_key(upcoming_olc->fwd_lc_num, &actx->pinfo->src, &actx->pinfo->dst);
-    olc_req = (olc_info_t *)g_hash_table_lookup(h245_pending_olc_reqs, olc_key);
+    olc_req = (olc_info_t *)wmem_map_lookup(h245_pending_olc_reqs, olc_key);
     if (olc_req) {
       update_unicast_addr(&olc_req->fwd_lc.media_addr, &upcoming_olc->fwd_lc.media_addr);
       update_unicast_addr(&olc_req->fwd_lc.media_control_addr, &upcoming_olc->fwd_lc.media_control_addr);
@@ -11154,7 +11133,7 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
       update_unicast_addr(&olc_req->rev_lc.media_control_addr, &upcoming_olc->rev_lc.media_control_addr);
       h245_setup_channels(actx->pinfo, &olc_req->fwd_lc);
       h245_setup_channels(actx->pinfo, &olc_req->rev_lc);
-      g_hash_table_remove(h245_pending_olc_reqs, olc_key);
+      wmem_map_remove(h245_pending_olc_reqs, olc_key);
     } else {
       h245_setup_channels(actx->pinfo, &upcoming_olc->fwd_lc);
     }
@@ -14530,7 +14509,7 @@ static int dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 422 "./asn1/h245/packet-h245-template.c"
+#line 401 "./asn1/h245/packet-h245-template.c"
 
 static int
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
@@ -20229,7 +20208,7 @@ void proto_register_h245(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 508 "./asn1/h245/packet-h245-template.c"
+#line 487 "./asn1/h245/packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20732,14 +20711,17 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 515 "./asn1/h245/packet-h245-template.c"
+#line 494 "./asn1/h245/packet-h245-template.c"
   };
   module_t *h245_module;
 
   /* Register protocol */
   proto_h245 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_init_routine(h245_init);
-  register_cleanup_routine(h245_cleanup);
+  h223_pending_olc_reqs[P2P_DIR_SENT] = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal );
+  h223_pending_olc_reqs[P2P_DIR_RECV] = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal );
+  h245_pending_olc_reqs = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
+
+  register_init_routine(h223_lc_init);
   /* Register fields and subtrees */
   proto_register_field_array(proto_h245, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

@@ -63,7 +63,6 @@
 
 void proto_register_h225(void);
 static h225_packet_info* create_h225_packet_info(packet_info *pinfo);
-static void h225_init_routine(void);
 static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi);
 
 /* Item of ras request list*/
@@ -86,7 +85,7 @@ typedef struct _h225ras_call_info_key {
 
 /* Global Memory Chunks for lists and Global hash tables*/
 
-static GHashTable *ras_calls[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+static wmem_map_t *ras_calls[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 /* functions, needed using ras-request and halfcall matching*/
 static h225ras_call_t * find_h225ras_call(h225ras_call_info_key *h225ras_call_key ,int category);
@@ -275,8 +274,7 @@ static guint h225ras_call_hash(gconstpointer k)
 
 h225ras_call_t * find_h225ras_call(h225ras_call_info_key *h225ras_call_key ,int category)
 {
-  h225ras_call_t *h225ras_call = NULL;
-  h225ras_call = (h225ras_call_t *)g_hash_table_lookup(ras_calls[category], h225ras_call_key);
+  h225ras_call_t *h225ras_call = (h225ras_call_t *)wmem_map_lookup(ras_calls[category], h225ras_call_key);
 
   return h225ras_call;
 }
@@ -304,7 +302,7 @@ h225ras_call_t * new_h225ras_call(h225ras_call_info_key *h225ras_call_key, packe
   h225ras_call->req_time=pinfo->abs_ts;
   h225ras_call->guid=*guid;
   /* store it */
-  g_hash_table_insert(ras_calls[category], new_h225ras_call_key, h225ras_call);
+  wmem_map_insert(ras_calls[category], new_h225ras_call_key, h225ras_call);
 
   return h225ras_call;
 }
@@ -329,34 +327,6 @@ h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pin
 
   prev_call->next_call = h225ras_call;
   return h225ras_call;
-}
-
-/* Init routine for hash tables and delay calculation
-   This routine will be called by Wireshark, before it
-   is (re-)dissecting a trace file from beginning.
-   We need to discard and init any state we've saved */
-
-static void
-h225_init_routine(void)
-{
-  int i;
-  /* create new hash-tables for RAS SRT */
-
-  for(i=0;i<7;i++) {
-    ras_calls[i] = g_hash_table_new(h225ras_call_hash, h225ras_call_equal);
-  }
-
-}
-
-static void
-h225_cleanup_routine(void)
-{
-  int i;
-
-  /* free hash-tables for RAS SRT */
-  for(i=0;i<7;i++) {
-    g_hash_table_destroy(ras_calls[i]);
-  }
 }
 
 static int
@@ -868,7 +838,7 @@ void proto_register_h225(void) {
   };
 
   module_t *h225_module;
-  int proto_h225_ras;
+  int i, proto_h225_ras;
 
   /* Register protocol */
   proto_h225 = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -909,8 +879,10 @@ void proto_register_h225(void) {
   gef_name_dissector_table = register_dissector_table("h225.gef.name", "H.225 Generic Extensible Framework (names)", proto_h225, FT_STRING, BASE_NONE);
   gef_content_dissector_table = register_dissector_table("h225.gef.content", "H.225 Generic Extensible Framework", proto_h225, FT_STRING, BASE_NONE);
 
-  register_init_routine(&h225_init_routine);
-  register_cleanup_routine(&h225_cleanup_routine);
+  for(i=0;i<7;i++) {
+    ras_calls[i] = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), h225ras_call_hash, h225ras_call_equal);
+  }
+
   h225_tap = register_tap(PFNAME);
 
   register_rtd_table(proto_h225_ras, PFNAME, NUM_RAS_STATS, 1, ras_message_category, h225rassrt_packet, NULL);

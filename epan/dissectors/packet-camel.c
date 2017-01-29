@@ -865,7 +865,7 @@ const char *camel_obj_id = NULL;
 gboolean is_ExtensionField =FALSE;
 
 /* Global hash tables*/
-static GHashTable *srt_calls = NULL;
+static wmem_map_t *srt_calls = NULL;
 static guint32 camelsrt_global_SessionId=1;
 
 static int camel_opcode_type;
@@ -7402,7 +7402,7 @@ static struct camelsrt_call_t *
 find_camelsrt_call(struct camelsrt_call_info_key_t *p_camelsrt_call_key)
 {
   struct camelsrt_call_t *p_camelsrt_call = NULL;
-  p_camelsrt_call = (struct camelsrt_call_t *)g_hash_table_lookup(srt_calls, p_camelsrt_call_key);
+  p_camelsrt_call = (struct camelsrt_call_t *)wmem_map_lookup(srt_calls, p_camelsrt_call_key);
 
 #ifdef DEBUG_CAMELSRT
   if(p_camelsrt_call) {
@@ -7447,7 +7447,7 @@ new_camelsrt_call(struct camelsrt_call_info_key_t *p_camelsrt_call_key)
   dbg(10,"D%d ", p_new_camelsrt_call->session_id);
 #endif
   /* store it */
-  g_hash_table_insert(srt_calls, p_new_camelsrt_call_key, p_new_camelsrt_call);
+  wmem_map_insert(srt_calls, p_new_camelsrt_call_key, p_new_camelsrt_call);
   return p_new_camelsrt_call;
 }
 
@@ -7458,8 +7458,6 @@ new_camelsrt_call(struct camelsrt_call_info_key_t *p_camelsrt_call_key)
 static void
 camelsrt_init_routine(void)
 {
-  /* create new hash-table for SRT */
-  srt_calls = g_hash_table_new(camelsrt_call_hash, camelsrt_call_equal);
   /* Reset the session counter */
   camelsrt_global_SessionId=1;
 
@@ -7468,13 +7466,6 @@ camelsrt_init_routine(void)
    * 2) For Tshark, if the SRT handling is enable
    */
   gcamel_DisplaySRT=gcamel_PersistentSRT || gcamel_HandleSRT&gcamel_StatSRT;
-}
-
-static void
-camelsrt_cleanup_routine(void)
-{
-  /* free hash-table for SRT */
-  g_hash_table_destroy(srt_calls);
 }
 
 
@@ -7527,7 +7518,7 @@ camelsrt_close_call_matching(packet_info *pinfo,
     p_camelsrt_info->msginfo[CAMELSRT_SESSION].req_time = p_camelsrt_call->category[CAMELSRT_SESSION].req_time;
 
     if ( !gcamel_PersistentSRT ) {
-      g_hash_table_remove(srt_calls, &camelsrt_call_key);
+      wmem_map_remove(srt_calls, &camelsrt_call_key);
 #ifdef DEBUG_CAMELSRT
       dbg(20,"remove hash ");
 #endif
@@ -7590,7 +7581,7 @@ camelsrt_begin_call_matching(packet_info *pinfo,
   dbg(10,"\n Session begin #%u\n", pinfo->num);
   dbg(11,"Search key %lu ",camelsrt_call_key.SessionIdKey);
 #endif
-  p_camelsrt_call = (struct camelsrt_call_t *)g_hash_table_lookup(srt_calls, &camelsrt_call_key);
+  p_camelsrt_call = (struct camelsrt_call_t *)wmem_map_lookup(srt_calls, &camelsrt_call_key);
   if (p_camelsrt_call) {
     /* We have seen this request before -> do nothing */
 #ifdef DEBUG_CAMELSRT
@@ -8293,7 +8284,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1328 "./asn1/camel/packet-camel-template.c"
+#line 1319 "./asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     wmem_free(wmem_epan_scope(), ssn_range);
@@ -10415,7 +10406,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1501 "./asn1/camel/packet-camel-template.c"
+#line 1492 "./asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10633,7 +10624,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1518 "./asn1/camel/packet-camel-template.c"
+#line 1509 "./asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -10717,7 +10708,10 @@ void proto_register_camel(void) {
 
   /* Routine for statistic */
   register_init_routine(&camelsrt_init_routine);
-  register_cleanup_routine(&camelsrt_cleanup_routine);
+
+  /* create new hash-table for SRT */
+  srt_calls = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), camelsrt_call_hash, camelsrt_call_equal);
+
   camel_tap=register_tap(PSNAME);
 
   register_srt_table(proto_camel, PSNAME, 1, camelstat_packet, camelstat_init, NULL);

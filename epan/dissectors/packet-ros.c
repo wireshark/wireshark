@@ -57,12 +57,9 @@ static guint32 invokeid;
 static  dissector_handle_t ros_handle = NULL;
 
 typedef struct ros_conv_info_t {
-  struct ros_conv_info_t *next;
-  GHashTable *unmatched; /* unmatched operations */
-  GHashTable *matched;   /* matched operations */
+  wmem_map_t *unmatched; /* unmatched operations */
+  wmem_map_t *matched;   /* matched operations */
 } ros_conv_info_t;
-
-static ros_conv_info_t *ros_info_items = NULL;
 
 typedef struct ros_call_response {
   gboolean is_request;
@@ -109,7 +106,7 @@ static int hf_ros_local = -1;                     /* INTEGER */
 static int hf_ros_global = -1;                    /* OBJECT_IDENTIFIER */
 
 /*--- End of included file: packet-ros-hf.c ---*/
-#line 73 "./asn1/ros/packet-ros-template.c"
+#line 70 "./asn1/ros/packet-ros-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ros = -1;
@@ -136,21 +133,19 @@ static gint ett_ros_InvokeId = -1;
 static gint ett_ros_Code = -1;
 
 /*--- End of included file: packet-ros-ett.c ---*/
-#line 86 "./asn1/ros/packet-ros-template.c"
+#line 83 "./asn1/ros/packet-ros-template.c"
 
 static expert_field ei_ros_dissector_oid_not_implemented = EI_INIT;
 static expert_field ei_ros_unknown_ros_pdu = EI_INIT;
 
 static dissector_table_t ros_oid_dissector_table=NULL;
 
-static GHashTable *oid_table=NULL;
-static GHashTable *protocol_table=NULL;
+static wmem_map_t *protocol_table=NULL;
 
 void
 register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name, gboolean uses_rtse)
 {
 	dissector_add_string("ros.oid", oid, dissector);
-	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
 
 	if(!uses_rtse)
 	  /* if we are not using RTSE, then we must register ROS with BER (ACSE) */
@@ -160,8 +155,7 @@ register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector,
 void
 register_ros_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name, gboolean uses_rtse)
 {
-	g_hash_table_insert(protocol_table, (gpointer)oid, (gpointer)rinfo);
-	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
+	wmem_map_insert(protocol_table, (gpointer)oid, (gpointer)rinfo);
 
 	if(!uses_rtse)
 	  /* if we are not using RTSE, then we must register ROS with BER (ACSE) */
@@ -205,7 +199,7 @@ ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	proto_item *item=NULL;
 	proto_tree *ros_tree=NULL;
 
-	if((session != NULL) && ((rinfo = (ros_info_t*)g_hash_table_lookup(protocol_table, oid)) != NULL)) {
+	if((session != NULL) && ((rinfo = (ros_info_t*)wmem_map_lookup(protocol_table, oid)) != NULL)) {
 
 		if(tree){
 			item = proto_tree_add_item(tree, *(rinfo->proto), tvb, 0, -1, ENC_NA);
@@ -334,9 +328,19 @@ static ros_call_response_t *
 ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint invokeId, gboolean isInvoke)
 {
   ros_call_response_t rcr, *rcrp=NULL;
-  ros_conv_info_t *ros_info = ros_info_items;
+  ros_conv_info_t *ros_info;
+  conversation_t *conversation;
 
   /* first see if we have already matched this */
+  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
+				     pinfo->ptype, pinfo->srcport,
+				     pinfo->destport, 0);
+  if (conversation == NULL)
+    return NULL;
+
+  ros_info = (ros_conv_info_t *)conversation_get_proto_data(conversation, proto_ros);
+  if (ros_info == NULL)
+    return NULL;
 
   rcr.invokeId=invokeId;
   rcr.is_request = isInvoke;
@@ -349,7 +353,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     rcr.rep_frame=pinfo->num;
   }
 
-  rcrp=(ros_call_response_t *)g_hash_table_lookup(ros_info->matched, &rcr);
+  rcrp=(ros_call_response_t *)wmem_map_lookup(ros_info->matched, &rcr);
 
   if(rcrp) {
     /* we have found a match */
@@ -367,10 +371,10 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
       rcr.invokeId=invokeId;
 
-      rcrp=(ros_call_response_t *)g_hash_table_lookup(ros_info->unmatched, &rcr);
+      rcrp=(ros_call_response_t *)wmem_map_lookup(ros_info->unmatched, &rcr);
 
       if(rcrp){
-	g_hash_table_remove(ros_info->unmatched, rcrp);
+	wmem_map_remove(ros_info->unmatched, rcrp);
       }
 
       /* if we can't reuse the old one, grab a new chunk */
@@ -382,7 +386,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
       rcrp->req_time=pinfo->abs_ts;
       rcrp->rep_frame=0;
       rcrp->is_request=TRUE;
-      g_hash_table_insert(ros_info->unmatched, rcrp, rcrp);
+      wmem_map_insert(ros_info->unmatched, rcrp, rcrp);
       return NULL;
 
     } else {
@@ -390,15 +394,15 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
       /* this is a result - it should be in our unmatched list */
 
       rcr.invokeId=invokeId;
-      rcrp=(ros_call_response_t *)g_hash_table_lookup(ros_info->unmatched, &rcr);
+      rcrp=(ros_call_response_t *)wmem_map_lookup(ros_info->unmatched, &rcr);
 
       if(rcrp){
 
 	if(!rcrp->rep_frame){
-	  g_hash_table_remove(ros_info->unmatched, rcrp);
+	  wmem_map_remove(ros_info->unmatched, rcrp);
 	  rcrp->rep_frame=pinfo->num;
 	  rcrp->is_request=FALSE;
-	  g_hash_table_insert(ros_info->matched, rcrp, rcrp);
+	  wmem_map_insert(ros_info->matched, rcrp, rcrp);
 	}
       }
     }
@@ -1008,7 +1012,7 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 373 "./asn1/ros/packet-ros-template.c"
+#line 377 "./asn1/ros/packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
@@ -1044,14 +1048,11 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 
 	  /* No.  Attach that information to the conversation. */
 
-	  ros_info = (ros_conv_info_t *)g_malloc(sizeof(ros_conv_info_t));
-	  ros_info->matched=g_hash_table_new(ros_info_hash_matched, ros_info_equal_matched);
-	  ros_info->unmatched=g_hash_table_new(ros_info_hash_unmatched, ros_info_equal_unmatched);
+	  ros_info = (ros_conv_info_t *)wmem_new0(wmem_file_scope(), ros_conv_info_t);
+	  ros_info->matched=wmem_map_new(wmem_file_scope(), ros_info_hash_matched, ros_info_equal_matched);
+	  ros_info->unmatched=wmem_map_new(wmem_file_scope(), ros_info_hash_unmatched, ros_info_equal_unmatched);
 
 	  conversation_add_proto_data(conversation, proto_ros, ros_info);
-
-	  ros_info->next = ros_info_items;
-	  ros_info_items = ros_info;
 	}
 
 	item = proto_tree_add_item(parent_tree, proto_ros, tvb, 0, -1, ENC_NA);
@@ -1073,29 +1074,6 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	}
 
 	return tvb_captured_length(tvb);
-}
-
-static void
-ros_cleanup(void)
-{
-  ros_conv_info_t *ros_info;
-
-  /* Free up state attached to the ros_info structures */
-  for (ros_info = ros_info_items; ros_info != NULL; ) {
-    ros_conv_info_t *last;
-
-    g_hash_table_destroy(ros_info->matched);
-    ros_info->matched=NULL;
-    g_hash_table_destroy(ros_info->unmatched);
-    ros_info->unmatched=NULL;
-
-    last = ros_info;
-    ros_info = ros_info->next;
-    g_free(last);
-  }
-
-  ros_info_items = NULL;
-
 }
 
 /*--- proto_register_ros -------------------------------------------*/
@@ -1230,7 +1208,7 @@ void proto_register_ros(void) {
         "OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 482 "./asn1/ros/packet-ros-template.c"
+#line 460 "./asn1/ros/packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1260,7 +1238,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 498 "./asn1/ros/packet-ros-template.c"
+#line 476 "./asn1/ros/packet-ros-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -1280,10 +1258,7 @@ void proto_register_ros(void) {
   expert_register_field_array(expert_ros, ei, array_length(ei));
 
   ros_oid_dissector_table = register_dissector_table("ros.oid", "ROS OID Dissectors", proto_ros, FT_STRING, BASE_NONE);
-  oid_table=g_hash_table_new(g_str_hash, g_str_equal);
-  protocol_table=g_hash_table_new(g_str_hash, g_str_equal);
-
-  register_cleanup_routine(ros_cleanup);
+  protocol_table = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
 }
 
 

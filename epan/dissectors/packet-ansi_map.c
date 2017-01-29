@@ -1175,20 +1175,7 @@ static void dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo 
 
 
 /* Transaction table */
-static GHashTable *TransactionId_table=NULL;
-
-static void
-ansi_map_init(void)
-{
-    TransactionId_table = g_hash_table_new(g_str_hash, g_str_equal);
-}
-
-static void
-ansi_map_cleanup(void)
-{
-    /* Destroy any existing memory chunks / hashes. */
-    g_hash_table_destroy(TransactionId_table);
-}
+static wmem_map_t *TransactionId_table=NULL;
 
 /* Store Invoke information needed for the corresponding reply */
 static void
@@ -1220,7 +1207,7 @@ update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_privat
                 break;
         }
         /* If the entry allready exists don't owervrite it */
-        ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)g_hash_table_lookup(TransactionId_table,buf);
+        ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)wmem_map_lookup(TransactionId_table,buf);
         if(ansi_map_saved_invokedata)
             return;
 
@@ -1228,7 +1215,7 @@ update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_privat
         ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
         ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 
-        g_hash_table_insert(TransactionId_table,
+        wmem_map_insert(TransactionId_table,
                             wmem_strdup(wmem_file_scope(), buf),
                             ansi_map_saved_invokedata);
 
@@ -15286,7 +15273,7 @@ dissect_ansi_map_QualificationRequest2Res(gboolean implicit_tag _U_, tvbuff_t *t
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3641 "./asn1/ansi_map/packet-ansi_map-template.c"
+#line 3628 "./asn1/ansi_map/packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -16012,7 +15999,7 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
     }
 
     /*g_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->num);*/
-    ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)g_hash_table_lookup(TransactionId_table, buf);
+    ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)wmem_map_lookup(TransactionId_table, buf);
     if(ansi_map_saved_invokedata){
         OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
         ServiceIndicator = ansi_map_saved_invokedata->ServiceIndicator;
@@ -19234,7 +19221,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5396 "./asn1/ansi_map/packet-ansi_map-template.c"
+#line 5383 "./asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19495,7 +19482,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5429 "./asn1/ansi_map/packet-ansi_map-template.c"
+#line 5416 "./asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     static ei_register_info ei[] = {
@@ -19569,8 +19556,7 @@ void proto_register_ansi_map(void) {
                                   "Type of matching invoke/response, risk of mismatch if loose matching chosen",
                                   &ansi_map_response_matching_type, ansi_map_response_matching_type_values, FALSE);
 
-    register_init_routine(&ansi_map_init);
-    register_cleanup_routine(&ansi_map_cleanup);
+    TransactionId_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
     register_stat_tap_table_ui(&stat_table);
 }
 

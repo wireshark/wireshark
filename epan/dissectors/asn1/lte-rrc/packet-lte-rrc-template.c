@@ -65,10 +65,10 @@ static dissector_handle_t gsm_a_dtap_handle = NULL;
 static dissector_handle_t gsm_rlcmac_dl_handle = NULL;
 static dissector_handle_t lte_rrc_dl_ccch_handle;
 
-static GHashTable *lte_rrc_etws_cmas_dcs_hash = NULL;
+static wmem_map_t *lte_rrc_etws_cmas_dcs_hash = NULL;
 
 /* Keep track of where/how the System Info value has changed */
-static GHashTable *lte_rrc_system_info_value_changed_hash = NULL;
+static wmem_map_t *lte_rrc_system_info_value_changed_hash = NULL;
 static guint8     system_info_value_current;
 static gboolean   system_info_value_current_set;
 
@@ -3186,20 +3186,6 @@ dissect_lte_rrc_PCCH_NB(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return tvb_captured_length(tvb);
 }
 
-static void
-lte_rrc_init_protocol(void)
-{
-  lte_rrc_etws_cmas_dcs_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-  lte_rrc_system_info_value_changed_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-}
-
-static void
-lte_rrc_cleanup_protocol(void)
-{
-  g_hash_table_destroy(lte_rrc_etws_cmas_dcs_hash);
-  g_hash_table_destroy(lte_rrc_system_info_value_changed_hash);
-}
-
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_lte_rrc(void) {
 
@@ -4009,8 +3995,8 @@ void proto_register_lte_rrc(void) {
   /* Register the dissectors defined in lte-rrc.conf */
 #include "packet-lte-rrc-dis-reg.c"
 
-  register_init_routine(&lte_rrc_init_protocol);
-  register_cleanup_routine(&lte_rrc_cleanup_protocol);
+  lte_rrc_etws_cmas_dcs_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+  lte_rrc_system_info_value_changed_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 
   reassembly_table_register(&lte_rrc_sib11_reassembly_table,
                         &addresses_reassembly_table_functions);
