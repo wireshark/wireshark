@@ -11124,12 +11124,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="800"/>
+        <location filename="../../wireshark-qt.cpp" line="801"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished">無効な表示フィルタ</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="801"/>
+        <location filename="../../wireshark-qt.cpp" line="802"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>

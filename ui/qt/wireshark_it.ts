@@ -11168,12 +11168,12 @@ a:hover {
         <translation>DLT %1</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="800"/>
+        <location filename="../../wireshark-qt.cpp" line="801"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished">Filtro di visualizzazione non valido</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="801"/>
+        <location filename="../../wireshark-qt.cpp" line="802"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
