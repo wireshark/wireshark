@@ -766,7 +766,7 @@ proto_reg_handoff_t38(void)
 	t38_tcp_handle=create_dissector_handle(dissect_t38_tcp, proto_t38);
 	t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
 	rtp_handle = find_dissector_add_dependency("rtp", proto_t38);
-	t30_hdlc_handle = find_dissector_add_dependency("t30.hdlc""rtp", proto_t38);
+	t30_hdlc_handle = find_dissector_add_dependency("t30.hdlc", proto_t38);
 	data_handle = find_dissector("data");
 	dissector_add_for_decode_as("tcp.port", t38_tcp_handle);
 	dissector_add_for_decode_as("udp.port", t38_udp_handle);
