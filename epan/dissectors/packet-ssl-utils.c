@@ -57,6 +57,10 @@
 #if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
 #include <gnutls/abstract.h>
 #endif
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
+/* Whether to provide support for authentication in addition to decryption. */
+#define HAVE_LIBGCRYPT_AEAD
+#endif
 
 /* Lookup tables {{{ */
 const value_string ssl_version_short_names[] = {
@@ -1842,7 +1846,19 @@ static gint
 ssl_cipher_init(gcry_cipher_hd_t *cipher, gint algo, guchar* sk,
         guchar* iv, gint mode)
 {
-    gint gcry_modes[]={GCRY_CIPHER_MODE_STREAM,GCRY_CIPHER_MODE_CBC,GCRY_CIPHER_MODE_CTR,GCRY_CIPHER_MODE_CTR,GCRY_CIPHER_MODE_CTR};
+    gint gcry_modes[] = {
+        GCRY_CIPHER_MODE_STREAM,
+        GCRY_CIPHER_MODE_CBC,
+#ifdef HAVE_LIBGCRYPT_AEAD
+        GCRY_CIPHER_MODE_GCM,
+        GCRY_CIPHER_MODE_CCM,
+        GCRY_CIPHER_MODE_CCM
+#else
+        GCRY_CIPHER_MODE_CTR,
+        GCRY_CIPHER_MODE_CTR,
+        GCRY_CIPHER_MODE_CTR,
+#endif
+    };
     gint err;
     if (algo == -1) {
         /* NULL mode */
@@ -3561,7 +3577,11 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
 
 static gboolean
 tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
+#ifdef HAVE_LIBGCRYPT_AEAD
+        guint8 ct, guint16 record_version,
+#else
         guint8 ct _U_, guint16 record_version _U_,
+#endif
         const guchar *in, guint16 inl, StringInfo *out_str, guint *outl)
 {
     /* RFC 5246 (TLS 1.2) 6.2.3.3 defines the TLSCipherText.fragment as:
@@ -3576,7 +3596,12 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     const guchar   *explicit_nonce = NULL, *ciphertext;
     guint           ciphertext_len, auth_tag_len;
     guchar          nonce[12];
+#ifdef HAVE_LIBGCRYPT_AEAD
+    const guchar   *auth_tag_wire;
+    guchar          auth_tag_calc[16];
+#else
     guchar          nonce_with_counter[16] = { 0 };
+#endif
 
     switch (decoder->cipher_suite->mode) {
     case MODE_GCM:
@@ -3605,6 +3630,9 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         ssl_debug_printf("%s Unexpected TLS version %#x\n", G_STRFUNC, version);
         return FALSE;
     }
+#ifdef HAVE_LIBGCRYPT_AEAD
+    auth_tag_wire = ciphertext + ciphertext_len;
+#endif
 
     /* Nonce construction is version-specific. */
     if (is_v12) {
@@ -3613,6 +3641,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         memcpy(nonce, decoder->write_iv.data, IMPLICIT_NONCE_LEN);
         memcpy(nonce + IMPLICIT_NONCE_LEN, explicit_nonce, EXPLICIT_NONCE_LEN);
 
+#ifndef HAVE_LIBGCRYPT_AEAD
         if (decoder->cipher_suite->mode == MODE_GCM) {
             /* NIST SP 800-38D, sect. 7.2 says that the 32-bit counter part starts
              * at 1, and gets incremented before passing to the block cipher. */
@@ -3628,13 +3657,51 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
             /* struct { opaque salt[4]; opaque nonce_explicit[8] } CCMNonce (RFC 6655) */
             nonce_with_counter[IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN + 3] = 1;
         }
+#endif
     }
 
+    /* Set nonce and additional authentication data */
+#ifdef HAVE_LIBGCRYPT_AEAD
+    gcry_cipher_reset(decoder->evp);
+    ssl_print_data("nonce", nonce, 12);
+    err = gcry_cipher_setiv(decoder->evp, nonce, 12);
+    if (err) {
+        ssl_debug_printf("%s failed to set nonce: %s\n", G_STRFUNC, gcry_strerror(err));
+        return FALSE;
+    }
+
+    if (decoder->cipher_suite->mode == MODE_CCM || decoder->cipher_suite->mode == MODE_CCM_8) {
+        /* size of plaintext, additional authenticated data and auth tag. */
+        guint64 lengths[3] = { ciphertext_len, is_v12 ? 13 : 0, auth_tag_len };
+        gcry_cipher_ctl(decoder->evp, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths));
+    }
+
+    /* (D)TLS 1.2 needs specific AAD, TLS 1.3 uses empty AAD. */
+    if (is_v12) {
+        guchar aad[13];
+        phton64(aad, decoder->seq);         /* record sequence number */
+        if (version == TLSV1DOT2_VERSION) {
+            decoder->seq++;                 /* Implicit sequence number for TLS 1.2. */
+        } else {
+            phton16(aad, decoder->epoch);   /* DTLS 1.2 includes epoch. */
+        }
+        aad[8] = ct;                        /* TLSCompressed.type */
+        phton16(aad + 9, record_version);   /* TLSCompressed.version */
+        phton16(aad + 11, ciphertext_len);  /* TLSCompressed.length */
+        ssl_print_data("AAD", aad, sizeof(aad));
+        err = gcry_cipher_authenticate(decoder->evp, aad, sizeof(aad));
+        if (err) {
+            ssl_debug_printf("%s failed to set AAD: %s\n", G_STRFUNC, gcry_strerror(err));
+            return FALSE;
+        }
+    }
+#else
     err = gcry_cipher_setctr(decoder->evp, nonce_with_counter, 16);
     if (err) {
         ssl_debug_printf("%s failed: failed to set CTR: %s\n", G_STRFUNC, gcry_strerror(err));
         return FALSE;
     }
+#endif
 
     /* Decrypt now that nonce and AAD are set. */
     err = gcry_cipher_decrypt(decoder->evp, out_str->data, out_str->data_len, ciphertext, ciphertext_len);
@@ -3642,6 +3709,29 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         ssl_debug_printf("%s decrypt failed: %s\n", G_STRFUNC, gcry_strerror(err));
         return FALSE;
     }
+
+    /* Check authentication tag for authenticity (replaces MAC) */
+#ifdef HAVE_LIBGCRYPT_AEAD
+    err = gcry_cipher_gettag(decoder->evp, auth_tag_calc, auth_tag_len);
+    if (err == 0 && !memcmp(auth_tag_calc, auth_tag_wire, auth_tag_len)) {
+        ssl_print_data("auth_tag(OK)", auth_tag_calc, auth_tag_len);
+    } else {
+        if (err) {
+            ssl_debug_printf("%s cannot obtain tag: %s\n", G_STRFUNC, gcry_strerror(err));
+        } else {
+            ssl_debug_printf("%s auth tag mismatch\n", G_STRFUNC);
+            ssl_print_data("auth_tag(expect)", auth_tag_calc, auth_tag_len);
+            ssl_print_data("auth_tag(actual)", auth_tag_wire, auth_tag_len);
+        }
+        if (ssl_ignore_mac_failed) {
+            ssl_debug_printf("%s: auth check failed, but ignored for troubleshooting ;-)\n", G_STRFUNC);
+        } else {
+            return FALSE;
+        }
+    }
+#else
+    ssl_debug_printf("Libgcrypt is older than 1.6, unable to verify auth tag!\n");
+#endif
 
     ssl_print_data("Plaintext", out_str->data, ciphertext_len);
     *outl = ciphertext_len;
