@@ -7029,6 +7029,23 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      *        DistinguishedName certificate_authorities<0..2^16-1>;
      *    } CertificateRequest;
      *
+     * draft-ietf-tls-tls13-18 (soon obsolete!):
+     * Note: certificate_extensions is not dissected since it is removed in next
+     * draft.
+     *
+     *    struct {
+     *        opaque certificate_request_context<0..2^8-1>;
+     *        SignatureScheme supported_signature_algorithms<2..2^16-2>;
+     *        DistinguishedName certificate_authorities<0..2^16-1>;
+     *        CertificateExtension certificate_extensions<0..2^16-1>;
+     *    } CertificateRequest;
+     *
+     * draft-ietf-tls-tls13 (between -18 and -19, 2017-01-30):
+     *
+     *    struct {
+     *        opaque certificate_request_context<0..2^8-1>;
+     *        Extension extensions<2..2^16-1>;
+     *    } CertificateRequest;
      */
     proto_item *ti;
     proto_tree *subtree;
@@ -7043,31 +7060,44 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-    cert_types_count = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(tree, hf->hf.hs_cert_types_count,
-            tvb, offset, 1, cert_types_count);
-    offset++;
+    if (session->version == TLSV1DOT3_VERSION) {
+        guint32 context_length;
+        proto_tree_add_item_ret_uint(tree, hf->hf.hs_certificate_request_context_length,
+                                     tvb, offset, 1, ENC_NA, &context_length);
+        offset++;
+        if (context_length > 0) {
+            proto_tree_add_item(tree, hf->hf.hs_certificate_request_context,
+                                tvb, offset, context_length, ENC_NA);
+            offset += context_length;
+        }
+    } else {
+        cert_types_count = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(tree, hf->hf.hs_cert_types_count,
+                tvb, offset, 1, cert_types_count);
+        offset++;
 
-    if (cert_types_count > 0) {
-        ti = proto_tree_add_none_format(tree,
-                hf->hf.hs_cert_types,
-                tvb, offset, cert_types_count,
-                "Certificate types (%u type%s)",
-                cert_types_count,
-                plurality(cert_types_count, "", "s"));
-        subtree = proto_item_add_subtree(ti, hf->ett.cert_types);
+        if (cert_types_count > 0) {
+            ti = proto_tree_add_none_format(tree,
+                    hf->hf.hs_cert_types,
+                    tvb, offset, cert_types_count,
+                    "Certificate types (%u type%s)",
+                    cert_types_count,
+                    plurality(cert_types_count, "", "s"));
+            subtree = proto_item_add_subtree(ti, hf->ett.cert_types);
 
-        while (cert_types_count > 0) {
-            proto_tree_add_item(subtree, hf->hf.hs_cert_type,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
-            cert_types_count--;
+            while (cert_types_count > 0) {
+                proto_tree_add_item(subtree, hf->hf.hs_cert_type,
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+                cert_types_count--;
+            }
         }
     }
 
     switch (session->version) {
         case TLSV1DOT2_VERSION:
         case DTLSV1DOT2_VERSION:
+        case TLSV1DOT3_VERSION: /* XXX draft -18 only, remove for next version */
             sh_alg_length = tvb_get_ntohs(tvb, offset);
             if (sh_alg_length % 2) {
                 expert_add_info_format(pinfo, NULL,
