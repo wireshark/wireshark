@@ -870,6 +870,9 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                         ? dissector_handle_get_dissector_name(session->app_handle)
                         : "Application Data");
 
+    proto_tree_add_item(dtls_record_tree, hf_dtls_record_appdata, tvb,
+                        offset, record_length, ENC_NA);
+
     /* show decrypted data info, if available */
     if (decrypted)
       {
@@ -907,12 +910,10 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
           }
         }
         pinfo->match_uint = saved_match_port;
-        if (dissected)
-          break;
+        /* fallback to data dissector */
+        if (!dissected)
+          call_data_dissector(decrypted, pinfo, top_tree);
       }
-
-    proto_tree_add_item(dtls_record_tree, hf_dtls_record_appdata, tvb,
-                        offset, record_length, ENC_NA);
     break;
   case SSL_ID_HEARTBEAT:
     /* try to retrieve and use decrypted alert record, if any. */
