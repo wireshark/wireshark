@@ -30,6 +30,7 @@ struct epan_session {
 
 	const nstime_t *(*get_frame_ts)(void *data, guint32 frame_num);
 	const char *(*get_interface_name)(void *data, guint32 interface_id);
+	const char *(*get_interface_description)(void *data, guint32 interface_id);
 	const char *(*get_user_comment)(void *data, const frame_data *fd);
 };
 

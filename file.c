@@ -283,6 +283,7 @@ ws_epan_new(capture_file *cf)
   epan->data = cf;
   epan->get_frame_ts = ws_get_frame_ts;
   epan->get_interface_name = cap_file_get_interface_name;
+  epan->get_interface_description = cap_file_get_interface_description;
   epan->get_user_comment = ws_get_user_comment;
 
   return epan;

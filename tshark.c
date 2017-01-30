@@ -2345,6 +2345,7 @@ tshark_epan_new(capture_file *cf)
   epan->data = cf;
   epan->get_frame_ts = tshark_get_frame_ts;
   epan->get_interface_name = cap_file_get_interface_name;
+  epan->get_interface_description = cap_file_get_interface_description;
   epan->get_user_comment = NULL;
 
   return epan;

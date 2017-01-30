@@ -137,6 +137,7 @@ typedef struct _capture_file {
 extern void cap_file_init(capture_file *cf);
 
 extern const char *cap_file_get_interface_name(void *data, guint32 interface_id);
+extern const char *cap_file_get_interface_description(void *data, guint32 interface_id);
 
 #ifdef __cplusplus
 }
