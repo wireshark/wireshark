@@ -245,6 +245,101 @@ format_text(const guchar *string, size_t len)
 
 /*
  * Given a string, generate a string from it that shows non-printable
+ * characters as C-style escapes, and return a pointer to it.
+ */
+gchar *
+format_text_wmem(wmem_allocator_t* allocator, const guchar *string, size_t len)
+{
+    gchar *fmtbuf = (gchar*)wmem_alloc(allocator, INITIAL_FMTBUF_SIZE);
+    int fmtbuf_len = INITIAL_FMTBUF_SIZE;
+    int column;
+    const guchar *stringend = string + len;
+    guchar c;
+    int i;
+
+    column = 0;
+    while (string < stringend) {
+        /*
+         * Is there enough room for this character, if it expands to
+         * a backslash plus 3 octal digits (which is the most it can
+         * expand to), and also enough room for a terminating '\0'?
+         */
+        if (column+3+1 >= fmtbuf_len) {
+            /*
+             * Double the buffer's size if it's not big enough.
+             * The size of the buffer starts at 128, so doubling its size
+             * adds at least another 128 bytes, which is more than enough
+             * for one more character plus a terminating '\0'.
+             */
+            fmtbuf_len *= 2;
+            fmtbuf = (gchar *)wmem_realloc(allocator, fmtbuf, fmtbuf_len);
+        }
+        c = *string++;
+
+        if (g_ascii_isprint(c)) {
+            fmtbuf[column] = c;
+            column++;
+        } else {
+            fmtbuf[column] =  '\\';
+            column++;
+            switch (c) {
+
+                case '\a':
+                    fmtbuf[column] = 'a';
+                    column++;
+                    break;
+
+                case '\b':
+                    fmtbuf[column] = 'b'; /* BS */
+                    column++;
+                    break;
+
+                case '\f':
+                    fmtbuf[column] = 'f'; /* FF */
+                    column++;
+                    break;
+
+                case '\n':
+                    fmtbuf[column] = 'n'; /* NL */
+                    column++;
+                    break;
+
+                case '\r':
+                    fmtbuf[column] = 'r'; /* CR */
+                    column++;
+                    break;
+
+                case '\t':
+                    fmtbuf[column] = 't'; /* tab */
+                    column++;
+                    break;
+
+                case '\v':
+                    fmtbuf[column] = 'v';
+                    column++;
+                    break;
+
+                default:
+                    i = (c>>6)&03;
+                    fmtbuf[column] = i + '0';
+                    column++;
+                    i = (c>>3)&07;
+                    fmtbuf[column] = i + '0';
+                    column++;
+                    i = (c>>0)&07;
+                    fmtbuf[column] = i + '0';
+                    column++;
+                    break;
+            }
+        }
+    }
+    fmtbuf[column] = '\0';
+    return fmtbuf;
+}
+
+
+/*
+ * Given a string, generate a string from it that shows non-printable
  * characters as C-style escapes except a whitespace character
  * (space, tab, carriage return, new line, vertical tab, or formfeed)
  * which will be replaced by a space, and return a pointer to it.

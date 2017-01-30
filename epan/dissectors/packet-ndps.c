@@ -2629,7 +2629,7 @@ server_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree *ndps_tree, int foffs
 
     atree = proto_tree_add_subtree(ndps_tree, tvb, foffset, -1, ett_ndps, &aitem, "Server Info");
     foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset, &server_name);
-    proto_item_append_text(aitem, ": %s", format_text(server_name, strlen(server_name)));
+    proto_item_append_text(aitem, ": %s", format_text_wmem(wmem_packet_scope(), server_name, strlen(server_name)));
     proto_tree_add_item(atree, hf_ndps_server_type, tvb, foffset, 4, ENC_BIG_ENDIAN);
     foffset += 4;
     foffset = print_address(tvb, atree, foffset);

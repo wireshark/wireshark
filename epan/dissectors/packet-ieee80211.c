@@ -11406,7 +11406,7 @@ dissect_ssid_list(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 tag_len)
     if (offset + 2 + len > end)
       break;
 
-    str = format_text(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, len, ENC_ASCII), len);
+    str = tvb_format_text(tvb, offset + 2, len);
     proto_item_append_text(tree, "%c %s", (first ? ':' : ','), str);
     first = FALSE;
     entry = proto_tree_add_subtree_format(tree, tvb, offset, 2 + len, ett_ssid_list, NULL, "SSID: %s", str);
@@ -13470,9 +13470,10 @@ ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
                       ENC_ASCII|ENC_NA);
 
   if (ssid_len > 0) {
-    proto_item_append_text(ti, ": %s", format_text(ssid, ssid_len));
+    gchar* s = format_text_wmem(wmem_packet_scope(), ssid, ssid_len);
+    proto_item_append_text(ti, ": %s", s);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=%s", format_text(ssid, ssid_len));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=%s", s);
 
     /* Wlan Stats */
     memcpy(wlan_stats.ssid, ssid, MIN(ssid_len, MAX_SSID_LEN));
@@ -15509,8 +15510,9 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
         proto_tree_add_item_ret_string(tree, hf_ieee80211_mesh_id, tvb, offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &mesh_id);
         if (tag_len > 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=%s", format_text(mesh_id, tag_len));
-            proto_item_append_text(ti, ": %s", format_text(mesh_id, tag_len));
+            gchar* s = format_text_wmem(wmem_packet_scope(), mesh_id, tag_len);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=%s", s);
+            proto_item_append_text(ti, ": %s", s);
         }
 
       break;

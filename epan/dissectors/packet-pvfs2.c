@@ -893,7 +893,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 				size_t string_buffer_size = 0;
 				char *string_buffer_temp;
 
-				formatted = format_text((guint8 *)string_buffer,
+				formatted = format_text_wmem(wmem_packet_scope(), (guint8 *)string_buffer,
 						(int)strlen(string_buffer));
 
 				string_buffer_size = strlen(formatted) + 12 + 1;
@@ -917,9 +917,8 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 			}
 		} else {
 			if (string_data) {
-				string_buffer_print =
-				    wmem_strdup(wmem_packet_scope(), format_text((guint8 *) string_buffer,
-								 (int)strlen(string_buffer)));
+				string_buffer_print = format_text_wmem(wmem_packet_scope(), (guint8 *) string_buffer,
+								 (int)strlen(string_buffer));
 			} else {
 				string_buffer_print="<DATA>";
 			}

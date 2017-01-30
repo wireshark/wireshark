@@ -576,6 +576,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  follow_tvb_tap_listener@Base 2.1.0
  format_text@Base 1.9.1
  format_text_chr@Base 1.12.0~rc1
+ format_text_wmem@Base 2.3.0
  format_text_wsp@Base 1.9.1
  format_uri@Base 1.9.1
  fragment_add@Base 1.9.1
