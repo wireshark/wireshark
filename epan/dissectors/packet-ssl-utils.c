@@ -553,6 +553,8 @@ const value_string ssl_31_handshake_type[] = {
     { SSL_HND_SERVER_HELLO,      "Server Hello" },
     { SSL_HND_HELLO_VERIFY_REQUEST, "Hello Verify Request"},
     { SSL_HND_NEWSESSION_TICKET, "New Session Ticket" },
+    { SSL_HND_HELLO_RETRY_REQUEST, "Hello Retry Request" },
+    { SSL_HND_ENCRYPTED_EXTENSIONS, "Encrypted Extensions" },
     { SSL_HND_CERTIFICATE,       "Certificate" },
     { SSL_HND_SERVER_KEY_EXCHG,  "Server Key Exchange" },
     { SSL_HND_CERT_REQUEST,      "Certificate Request" },
@@ -6469,6 +6471,7 @@ ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls)
     case SSL_HND_SERVER_HELLO:
     case SSL_HND_NEWSESSION_TICKET:
     case SSL_HND_HELLO_RETRY_REQUEST:
+    case SSL_HND_ENCRYPTED_EXTENSIONS:
     case SSL_HND_CERTIFICATE:
     case SSL_HND_SERVER_KEY_EXCHG:
     case SSL_HND_CERT_REQUEST:
@@ -6818,6 +6821,21 @@ ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                   length - (offset - start_offset), SSL_HND_HELLO_RETRY_REQUEST,
                                   session, ssl, is_dtls);
     }
+}
+
+void
+ssl_dissect_hnd_encrypted_extensions(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                     packet_info* pinfo, proto_tree *tree, guint32 offset, guint32 length,
+                                     SslSession *session, SslDecryptSession *ssl,
+                                     gboolean is_dtls)
+{
+    /* struct {
+     *     Extension extensions<0..2^16-1>;
+     * } EncryptedExtensions;
+     */
+    ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
+                              length, SSL_HND_ENCRYPTED_EXTENSIONS,
+                              session, ssl, is_dtls);
 }
 
 /* Certificate and Certificate Request dissections. {{{ */

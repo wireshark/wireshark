@@ -63,6 +63,7 @@ typedef enum {
     SSL_HND_HELLO_VERIFY_REQUEST   = 3,
     SSL_HND_NEWSESSION_TICKET      = 4,
     SSL_HND_HELLO_RETRY_REQUEST    = 6,
+    SSL_HND_ENCRYPTED_EXTENSIONS   = 8,
     SSL_HND_CERTIFICATE            = 11,
     SSL_HND_SERVER_KEY_EXCHG       = 12,
     SSL_HND_CERT_REQUEST           = 13,
@@ -74,7 +75,7 @@ typedef enum {
     SSL_HND_CERT_STATUS            = 22,
     SSL_HND_SUPPLEMENTAL_DATA      = 23,
     /* Encrypted Extensions was NextProtocol in draft-agl-tls-nextprotoneg-03
-     * and changed in draft 04 */
+     * and changed in draft 04. Not to be confused with TLS 1.3 EE. */
     SSL_HND_ENCRYPTED_EXTS         = 67
 } HandshakeType;
 
@@ -863,6 +864,12 @@ ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb, pac
                                     proto_tree *tree, guint32 offset, guint32 length,
                                     SslSession *session, SslDecryptSession *ssl,
                                     gboolean is_dtls);
+
+extern void
+ssl_dissect_hnd_encrypted_extensions(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
+                                     proto_tree *tree, guint32 offset, guint32 length,
+                                     SslSession *session, SslDecryptSession *ssl,
+                                     gboolean is_dtls);
 
 extern void
 ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
