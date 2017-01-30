@@ -2201,9 +2201,10 @@ tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint offse
 	return format_text_wsp(allocator, ptr, len);
 }
 
-/*
+/**
  * Like "tvb_format_text()", but for null-padded strings; don't show
- * the null padding characters as "\000".
+ * the null padding characters as "\000".  Returned string is wmem packet_scoped
+ * so call must be in that scope.
  */
 gchar *
 tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
@@ -2217,7 +2218,7 @@ tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
 	ptr = ensure_contiguous(tvb, offset, size);
 	for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
 		;
-	return format_text(ptr, stringlen);
+	return format_text_wmem(wmem_packet_scope(), ptr, stringlen);
 }
 
 /*
