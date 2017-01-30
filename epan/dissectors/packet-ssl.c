@@ -126,6 +126,7 @@ static gint exported_pdu_tap                  = -1;
 static gint proto_ssl                         = -1;
 static gint hf_ssl_record                     = -1;
 static gint hf_ssl_record_content_type        = -1;
+static gint hf_ssl_record_opaque_type         = -1;
 static gint hf_ssl_record_version             = -1;
 static gint hf_ssl_record_length              = -1;
 static gint hf_ssl_record_appdata             = -1;
@@ -934,7 +935,25 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryp
         const guchar *data = ssl_decrypted_data.data;
         guint datalen = ssl_decrypted_data_avail;
 
-        // XXX extract content type, check padding
+        if (ssl->session.version == TLSV1DOT3_VERSION) {
+            /*
+             * The actual data is followed by the content type and then zero or
+             * more padding. Scan backwards for content type, skipping padding.
+             */
+            while (datalen > 0 && data[datalen - 1] == 0) {
+                datalen--;
+            }
+            ssl_debug_printf("%s found %d padding bytes\n", G_STRFUNC, ssl_decrypted_data_avail - datalen);
+            if (datalen == 0) {
+                ssl_debug_printf("%s there is no room for content type!\n", G_STRFUNC);
+                return FALSE;
+            }
+            content_type = data[--datalen];
+            if (datalen == 0) {
+                /* XXX should we remember that the decrypted contents was zero-length? */
+                return FALSE;
+            }
+        }
 
         /* In TLS 1.3 only Handshake and Application Data can be fragmented.
          * Alert messages MUST NOT be fragmented across records, so do not
@@ -1529,6 +1548,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree     *ti;
     proto_tree     *ssl_record_tree;
     proto_item     *pi, *ct_pi;
+    guint           content_type_offset;
     guint32         available_bytes;
     tvbuff_t       *decrypted;
     SslRecordInfo  *record = NULL;
@@ -1644,8 +1664,14 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     ssl_record_tree = proto_item_add_subtree(ti, ett_ssl_record);
 
     /* show the one-byte content type */
-    ct_pi = proto_tree_add_item(ssl_record_tree, hf_ssl_record_content_type,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (session->version == TLSV1DOT3_VERSION && content_type == SSL_ID_APP_DATA) {
+        ct_pi = proto_tree_add_item(ssl_record_tree, hf_ssl_record_opaque_type,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+    } else {
+        ct_pi = proto_tree_add_item(ssl_record_tree, hf_ssl_record_content_type,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    content_type_offset = offset;
     offset++;
 
     /* add the version */
@@ -1694,8 +1720,10 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     /* try to decrypt record on the first pass, if possible. Store decrypted
      * record for later usage (without having to decrypt again). The offset is
      * used as 'key' to identify this record in the packet (we can have multiple
-     * handshake records in the same frame). */
-    if (ssl) {
+     * handshake records in the same frame).
+     * In TLS 1.3, only "Application Data" records are encrypted.
+     */
+    if (ssl && (session->version != TLSV1DOT3_VERSION || content_type == SSL_ID_APP_DATA)) {
         decrypt_ssl3_record(tvb, pinfo, offset, ssl,
                 content_type, record_version, record_length,
                 content_type == SSL_ID_APP_DATA ||
@@ -1705,6 +1733,12 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, tvb_raw_offset(tvb)+offset, &record);
     if (decrypted) {
         add_new_data_source(pinfo, decrypted, "Decrypted SSL");
+        if (session->version == TLSV1DOT3_VERSION) {
+            content_type = record->type;
+            ti = proto_tree_add_uint(ssl_record_tree, hf_ssl_record_content_type,
+                                     tvb, content_type_offset, 1, record->type);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
     }
 
     switch ((ContentType) content_type) {
@@ -3741,6 +3775,11 @@ proto_register_ssl(void)
           { "Content Type", "ssl.record.content_type",
             FT_UINT8, BASE_DEC, VALS(ssl_31_content_type), 0x0,
             NULL, HFILL}
+        },
+        { &hf_ssl_record_opaque_type,
+          { "Opaque Type", "ssl.record.opaque_type",
+            FT_UINT8, BASE_DEC, VALS(ssl_31_content_type), 0x0,
+            "Always set to value 23, actual content type is known after decryption", HFILL}
         },
         { &hf_ssl2_msg_type,
           { "Handshake Message Type", "ssl.handshake.type",
