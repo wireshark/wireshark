@@ -363,6 +363,7 @@ proto_reg_handoff_nsh(void)
 	dissector_handle_t nsh_handle;
 
 	nsh_handle = create_dissector_handle(dissect_nsh, proto_nsh);
+	dissector_add_uint("ethertype", ETHERTYPE_NSH, nsh_handle);
 	dissector_add_uint("gre.proto", ETHERTYPE_NSH, nsh_handle);
 	dissector_add_uint("vxlan.next_proto", VXLAN_NSH, nsh_handle);
 
