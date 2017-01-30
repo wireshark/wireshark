@@ -7466,6 +7466,7 @@ ssl_dissect_digitally_signed(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     switch (session->version) {
     case TLSV1DOT2_VERSION:
     case DTLSV1DOT2_VERSION:
+    case TLSV1DOT3_VERSION: /* XXX merge both fields into one SignatureScheme? */
         ti_algo = proto_tree_add_item(tree, hf->hf.hs_sig_hash_alg, tvb,
                                       offset, 2, ENC_BIG_ENDIAN);
         ssl_algo_tree = proto_item_add_subtree(ti_algo, hf->ett.hs_sig_hash_alg);
