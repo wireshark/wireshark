@@ -399,6 +399,9 @@ static const value_string licmgr_type_vals[] = {
     { 14, "License AP Used" },
     { 15, "License xSec Used" },
     { 16, "License ACR Used" },
+    { 17, "License WebCC Key ?" },
+    { 18, "License WebCC Remaining ?" },
+    { 19, "License WebCC Used ?" },
     { 0,     NULL     }
 };
 static int
