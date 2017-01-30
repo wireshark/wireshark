@@ -56,8 +56,10 @@
 #include <epan/uat.h>
 #include <epan/sctpppids.h>
 #include <epan/exported_pdu.h>
+#include <epan/decode_as.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/utf8_entities.h>
 #include "packet-ssl-utils.h"
 #include "packet-dtls.h"
 
@@ -1627,6 +1629,36 @@ dtlsdecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, guint len _U_, c
 }
 #endif
 
+static void
+dtls_src_prompt(packet_info *pinfo, gchar *result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", pinfo->srcport, UTF8_RIGHTWARDS_ARROW);
+}
+
+static gpointer
+dtls_src_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->srcport);
+}
+
+static void
+dtls_dst_prompt(packet_info *pinfo, gchar *result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, pinfo->destport);
+}
+
+static gpointer
+dtls_dst_value(packet_info *pinfo)
+{
+    return GUINT_TO_POINTER(pinfo->destport);
+}
+
+static void
+dtls_both_prompt(packet_info *pinfo, gchar *result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", pinfo->srcport, UTF8_LEFT_RIGHT_ARROW, pinfo->destport);
+}
+
 void proto_reg_handoff_dtls(void);
 
 /*********************************************************************
@@ -1836,13 +1868,20 @@ proto_register_dtls(void)
      SSL_COMMON_EI_LIST(dissect_dtls_hf, "dtls")
   };
 
+  static build_valid_func dtls_da_src_values[1] = {dtls_src_value};
+  static build_valid_func dtls_da_dst_values[1] = {dtls_dst_value};
+  static build_valid_func dtls_da_both_values[2] = {dtls_src_value, dtls_dst_value};
+  static decode_as_value_t dtls_da_values[3] = {{dtls_src_prompt, 1, dtls_da_src_values}, {dtls_dst_prompt, 1, dtls_da_dst_values}, {dtls_both_prompt, 2, dtls_da_both_values}};
+  static decode_as_t dtls_da = {"dtls", "Transport", "dtls.port", 3, 2, dtls_da_values, "UDP", "port(s) as",
+                               decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
   expert_module_t* expert_dtls;
 
   /* Register the protocol name and description */
   proto_dtls = proto_register_protocol("Datagram Transport Layer Security",
                                        "DTLS", "dtls");
 
-  dtls_associations = register_dissector_table("dtls.port", "DTLS UDP Dissector", proto_dtls, FT_UINT16, BASE_DEC);
+  dtls_associations = register_dissector_table("dtls.port", "DTLS Dissector", proto_dtls, FT_UINT16, BASE_DEC);
 
   /* Required function calls to register the header fields and
    * subtrees used */
@@ -1904,6 +1943,7 @@ proto_register_dtls(void)
   register_init_routine(dtls_init);
   register_cleanup_routine(dtls_cleanup);
   reassembly_table_register (&dtls_reassembly_table, &addresses_ports_reassembly_table_functions);
+  register_decode_as(&dtls_da);
 
   dtls_tap = register_tap("dtls");
   ssl_debug_printf("proto_register_dtls: registered tap %s:%d\n",
