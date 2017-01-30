@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
+#include "packet-dtls.h"
 
 void proto_register_coap(void);
 
@@ -93,6 +94,7 @@ static dissector_handle_t coap_handle;
 
 /* CoAP's IANA-assigned port (UDP only) number */
 #define DEFAULT_COAP_PORT	5683
+#define DEFAULT_COAPS_PORT	5684
 
 /* indicators whether those are to be showed or not */
 #define DEFAULT_COAP_CTYPE_VALUE	~0U
@@ -1258,8 +1260,8 @@ void
 proto_reg_handoff_coap(void)
 {
 	media_type_dissector_table = find_dissector_table("media_type");
-	dissector_add_uint_with_preference("tcp.port", DEFAULT_COAP_PORT, coap_handle);
 	dissector_add_uint_with_preference("udp.port", DEFAULT_COAP_PORT, coap_handle);
+	dtls_dissector_add(DEFAULT_COAPS_PORT, coap_handle);
 }
 
 /*
