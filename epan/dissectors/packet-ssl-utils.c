@@ -837,14 +837,29 @@ static const value_string ssl_31_ciphersuite[] = {
     /* 0x00,0xC6-FE Unassigned  */
     /* From RFC 5746 */
     { 0x00FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },
+    /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    { 0x0A0A, "Reserved (GREASE)" },
     /* https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { 0x1301, "TLS_AES_128_GCM_SHA256" },
     { 0x1302, "TLS_AES_256_GCM_SHA384" },
     { 0x1303, "TLS_CHACHA20_POLY1305_SHA256" },
     { 0x1304, "TLS_AES_128_CCM_SHA256" },
     { 0x1305, "TLS_AES_128_CCM_8_SHA256" },
+    /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    { 0x1A1A, "Reserved (GREASE)" },
+    { 0x2A2A, "Reserved (GREASE)" },
+    { 0x3A3A, "Reserved (GREASE)" },
+    { 0x4A4A, "Reserved (GREASE)" },
     /* From RFC 7507 */
     { 0x5600, "TLS_FALLBACK_SCSV" },
+    /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    { 0x5A5A, "Reserved (GREASE)" },
+    { 0x6A6A, "Reserved (GREASE)" },
+    { 0x7A7A, "Reserved (GREASE)" },
+    { 0x8A8A, "Reserved (GREASE)" },
+    { 0x9A9A, "Reserved (GREASE)" },
+    { 0xAAAA, "Reserved (GREASE)" },
+    { 0xBABA, "Reserved (GREASE)" },
     /* From RFC 4492 */
     { 0xc001, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
     { 0xc002, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA" },
@@ -1035,6 +1050,8 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC0AD, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM" },
     { 0xC0AE, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8" },
     { 0xC0AF, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8" },
+    /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    { 0xCACA, "Reserved (GREASE)" },
 /*
 0xC0,0xAB-FF Unassigned
 0xC1-FD,* Unassigned
@@ -1058,6 +1075,8 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xCCAD, "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCCAE, "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256" },
 
+    /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    { 0xDADA, "Reserved (GREASE)" },
     /* http://tools.ietf.org/html/draft-josefsson-salsa20-tls */
     { 0xE410, "TLS_RSA_WITH_ESTREAM_SALSA20_SHA1" },
     { 0xE411, "TLS_RSA_WITH_SALSA20_SHA1" },
@@ -1076,6 +1095,9 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xE41E, "TLS_DHE_RSA_WITH_ESTREAM_SALSA20_SHA1" },
     { 0xE41F, "TLS_DHE_RSA_WITH_SALSA20_SHA1" },
 
+    /* https://tools.ietf.org/html/draft-ietf-tls-grease */
+    { 0xEAEA, "Reserved (GREASE)" },
+    { 0xFAFA, "Reserved (GREASE)" },
     /* these from http://www.mozilla.org/projects/
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
     { 0xfefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
