@@ -1849,6 +1849,9 @@ error:
     pcap_opts->cap_pipe_err = PIPERR;
     cap_pipe_close(fd, pcap_opts->from_cap_socket);
     pcap_opts->cap_pipe_fd = -1;
+#ifdef _WIN32
+    pcap_opts->cap_pipe_h = INVALID_HANDLE_VALUE;
+#endif
 }
 
 
