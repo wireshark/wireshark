@@ -272,6 +272,13 @@ typedef enum {
 #define IMPLICIT_NONCE_LEN  4
 #define EXPLICIT_NONCE_LEN  8
 
+/* TLS 1.3 Record type for selecting the appropriate secret. */
+typedef enum {
+    TLS_SECRET_0RTT_APP,
+    TLS_SECRET_HANDSHAKE,
+    TLS_SECRET_APP,
+} TLSRecordType;
+
 #define SSL_DEBUG_USE_STDERR "-"
 
 #define SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES 16
@@ -328,6 +335,7 @@ typedef struct _SslDecoder {
 #define KEX_SRP_SHA_DSS 0x21
 #define KEX_SRP_SHA_RSA 0x22
 #define KEX_IS_DH(n)    ((n) >= KEX_DHE_DSS && (n) <= KEX_ECDH_RSA)
+#define KEX_TLS13       0x23
 
 #define ENC_DES         0x30
 #define ENC_3DES        0x31
@@ -401,6 +409,7 @@ typedef struct _SslDecryptSession {
     StringInfo server_random;
     StringInfo client_random;
     StringInfo master_secret;
+    StringInfo traffic_secret;  /**< TLS 1.3 traffic secret, wmem file scope. */
     StringInfo handshake_data;
     /* the data store for this StringInfo must be allocated explicitly with a capture lifetime scope */
     StringInfo pre_master_secret;
@@ -614,9 +623,19 @@ ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash);
 #ifdef  HAVE_LIBGCRYPT
 extern void
 ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map);
+
+extern void
+tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
+                 gboolean is_from_server, TLSRecordType type);
 #else /* ! HAVE_LIBGCRYPT */
 static inline void
 ssl_finalize_decryption(SslDecryptSession *ssl _U_, ssl_master_key_map_t *mk_map _U_)
+{
+}
+
+static inline void
+tls13_change_key(SslDecryptSession *ssl _U_, ssl_master_key_map_t *mk_map _U_,
+                 gboolean is_from_server _U_, TLSRecordType type _U_)
 {
 }
 #endif /* ! HAVE_LIBGCRYPT */

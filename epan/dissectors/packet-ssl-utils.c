@@ -2185,6 +2185,14 @@ static const SslCipherSuite cipher_suites[]={
     {0x00C3,KEX_DHE_DSS,        ENC_CAMELLIA256,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256 */
     {0x00C4,KEX_DHE_RSA,        ENC_CAMELLIA256,DIG_SHA256, MODE_CBC   },   /* TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256 */
     {0x00C5,KEX_DH_ANON,        ENC_CAMELLIA256,DIG_SHA256, MODE_CBC   },   /* TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256 */
+
+    /* NOTE: TLS 1.3 cipher suites are incompatible with TLS 1.2. */
+    {0x1301,KEX_TLS13,          ENC_AES,        DIG_SHA256, MODE_GCM   },   /* TLS_AES_128_GCM_SHA256 */
+    {0x1302,KEX_TLS13,          ENC_AES256,     DIG_SHA384, MODE_GCM   },   /* TLS_AES_256_GCM_SHA384 */
+    /* TODO TLS_CHACHA20_POLY1305_SHA256 */
+    {0x1304,KEX_TLS13,          ENC_AES,        DIG_SHA256, MODE_CCM   },   /* TLS_AES_128_CCM_SHA256 */
+    {0x1305,KEX_TLS13,          ENC_AES,        DIG_SHA256, MODE_CCM_8 },   /* TLS_AES_128_CCM_8_SHA256 */
+
     {0xC001,KEX_ECDH_ECDSA,     ENC_NULL,       DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_ECDSA_WITH_NULL_SHA */
     {0xC002,KEX_ECDH_ECDSA,     ENC_RC4,        DIG_SHA,    MODE_STREAM},   /* TLS_ECDH_ECDSA_WITH_RC4_128_SHA */
     {0xC003,KEX_ECDH_ECDSA,     ENC_3DES,       DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA */
@@ -2673,6 +2681,70 @@ static gint tls12_handshake_hash(SslDecryptSession* ssl, gint md, StringInfo* ou
     memcpy(out->data, tmp, len);
     return 0;
 }
+
+static gboolean
+tls13_hkdf_expand_label(int md, const StringInfo *secret, const char *label, const char *hash_value,
+                        guint16 out_len, guchar **out)
+{
+    /* draft-ietf-tls-tls13-18:
+     * HKDF-Expand-Label(Secret, Label, HashValue, Length) =
+     *      HKDF-Expand(Secret, HkdfLabel, Length)
+     * struct {
+     *     uint16 length = Length;
+     *     opaque label<9..255> = "TLS 1.3, " + Label;
+     *     opaque hash_value<0..255> = HashValue;
+     * } HkdfLabel;
+     *
+     * RFC 5869 HMAC-based Extract-and-Expand Key Derivation Function (HKDF):
+     * HKDF-Expand(PRK, info, L) -> OKM
+     */
+    guchar  lastoutput[DIGEST_MAX_SIZE];
+    gcry_md_hd_t h;
+    gcry_error_t err;
+    const guint label_length = (guint) strlen(label);
+    const guint hash_value_length = (guint) strlen(hash_value);
+    const guint hash_len = gcry_md_get_algo_dlen(md);
+
+    /* Some sanity checks */
+    DISSECTOR_ASSERT(out_len > 0 && out_len <= 255 * hash_len);
+    DISSECTOR_ASSERT(label_length <= 255 - 9);
+    DISSECTOR_ASSERT(hash_value_length <= 255);
+    DISSECTOR_ASSERT(hash_len > 0 && hash_len <= DIGEST_MAX_SIZE);
+
+    err = gcry_md_open(&h, md, GCRY_MD_FLAG_HMAC);
+    if (err) {
+        ssl_debug_printf("%s failed to invoke hash func %d: %s\n", G_STRFUNC, md, gcry_strerror(err));
+        return FALSE;
+    }
+
+    *out = (guchar *)wmem_alloc(NULL, out_len);
+
+    for (guint offset = 0; offset < out_len; offset += hash_len) {
+        gcry_md_reset(h);
+        gcry_md_setkey(h, secret->data, secret->data_len);  /* Set PRK */
+
+        if (offset > 0) {
+            gcry_md_write(h, lastoutput, hash_len);         /* T(1..N) */
+        }
+
+        /* info = HkdfLabel { length, label, hash_value } */
+        gcry_md_putc(h, out_len >> 8);                      /* length */
+        gcry_md_putc(h, (guint8) out_len);
+        gcry_md_putc(h, 9 + label_length);                  /* label */
+        gcry_md_write(h, "TLS 1.3, ", 9);
+        gcry_md_write(h, label, label_length);
+        gcry_md_putc(h, hash_value_length);                 /* hash_value */
+        gcry_md_write(h, hash_value, hash_value_length);
+
+        gcry_md_putc(h, (guint8) (offset / hash_len + 1));  /* constant 0x01..N */
+
+        memcpy(lastoutput, gcry_md_read(h, md), hash_len);
+        memcpy(*out + offset, lastoutput, MIN(hash_len, out_len - offset));
+    }
+
+    gcry_md_close(h);
+    return TRUE;
+}
 /* HMAC and the Pseudorandom function }}} */
 
 #else /* ! HAVE_LIBGCRYPT */
@@ -2846,7 +2918,7 @@ ssl_decoder_destroy_cb(wmem_allocator_t *, wmem_cb_event_t, void *);
 
 static SslDecoder*
 ssl_create_decoder(const SslCipherSuite *cipher_suite, gint cipher_algo,
-        gint compression, guint8 *mk, guint8 *sk, guint8 *iv)
+        gint compression, guint8 *mk, guint8 *sk, guint8 *iv, guint iv_length)
 {
     SslDecoder *dec;
     ssl_cipher_mode_t mode = cipher_suite->mode;
@@ -2864,9 +2936,10 @@ ssl_create_decoder(const SslCipherSuite *cipher_suite, gint cipher_algo,
         dec->mac_key.data = dec->_mac_key_or_write_iv;
         ssl_data_set(&dec->mac_key, mk, ssl_cipher_suite_dig(cipher_suite)->len);
     } else if (mode == MODE_GCM || mode == MODE_CCM || mode == MODE_CCM_8) {
-        /* So far all AEAD ciphers derive the 4-byte implicit nonce part from the write IV */
+        // Input for the nonce, to be used with AEAD ciphers.
+        DISSECTOR_ASSERT(iv_length <= sizeof(dec->_mac_key_or_write_iv));
         dec->write_iv.data = dec->_mac_key_or_write_iv;
-        ssl_data_set(&dec->write_iv, iv, 4);
+        ssl_data_set(&dec->write_iv, iv, iv_length);
     }
     dec->seq = 0;
     dec->decomp = ssl_create_decompressor(compression);
@@ -2924,6 +2997,11 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
         (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) {
         ssl_debug_printf("%s: not enough data to generate key (required state %X)\n", G_STRFUNC,
                          (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION));
+        return FALSE;
+    }
+
+    if (ssl_session->session.version == TLSV1DOT3_VERSION) {
+        ssl_debug_printf("%s: detected TLS 1.3 which has no pre-master secrets\n", G_STRFUNC);
         return FALSE;
     }
 
@@ -3046,6 +3124,7 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
     return FALSE;
 }
 
+/* Used for (D)TLS 1.2 and earlier versions (not with TLS 1.3). */
 int
 ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 {
@@ -3059,6 +3138,12 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     guint8     *ptr, *c_iv = NULL, *s_iv = NULL;
     guint8     *c_wk = NULL, *s_wk = NULL, *c_mk = NULL, *s_mk = NULL;
     const SslCipherSuite *cipher_suite = ssl_session->cipher_suite;
+
+    /* TLS 1.3 is handled directly in tls13_change_key. */
+    if (ssl_session->session.version == TLSV1DOT3_VERSION) {
+        ssl_debug_printf("%s: detected TLS 1.3. Should not have been called!\n", G_STRFUNC);
+        return -1;
+    }
 
     /* check for enough info to proced */
     guint need_all = SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION;
@@ -3329,13 +3414,13 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 create_decoders:
     /* create both client and server ciphers*/
     ssl_debug_printf("%s ssl_create_decoder(client)\n", G_STRFUNC);
-    ssl_session->client_new = ssl_create_decoder(cipher_suite, cipher_algo, ssl_session->session.compression, c_mk, c_wk, c_iv);
+    ssl_session->client_new = ssl_create_decoder(cipher_suite, cipher_algo, ssl_session->session.compression, c_mk, c_wk, c_iv, write_iv_len);
     if (!ssl_session->client_new) {
         ssl_debug_printf("%s can't init client decoder\n", G_STRFUNC);
         goto fail;
     }
     ssl_debug_printf("%s ssl_create_decoder(server)\n", G_STRFUNC);
-    ssl_session->server_new = ssl_create_decoder(cipher_suite, cipher_algo, ssl_session->session.compression, s_mk, s_wk, s_iv);
+    ssl_session->server_new = ssl_create_decoder(cipher_suite, cipher_algo, ssl_session->session.compression, s_mk, s_wk, s_iv, write_iv_len);
     if (!ssl_session->server_new) {
         ssl_debug_printf("%s can't init client decoder\n", G_STRFUNC);
         goto fail;
@@ -3354,6 +3439,93 @@ create_decoders:
 fail:
     g_free(key_block.data);
     return -1;
+}
+
+/* Generated the key material based on the given secret. */
+static gboolean
+tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gboolean is_from_server)
+{
+    gboolean    success = FALSE;
+    guchar     *write_key = NULL, *write_iv = NULL;
+    SslDecoder *decoder;
+    guint       key_length, iv_length;
+    int         hash_algo;
+    const SslCipherSuite *cipher_suite = ssl_session->cipher_suite;
+    int         cipher_algo;
+
+    if (ssl_session->session.version != TLSV1DOT3_VERSION) {
+        ssl_debug_printf("%s only usable for TLS 1.3, not %#x!\n", G_STRFUNC,
+                ssl_session->session.version);
+        return FALSE;
+    }
+
+    if (cipher_suite == NULL) {
+        ssl_debug_printf("%s Unknown cipher\n", G_STRFUNC);
+        return FALSE;
+    }
+
+    if (cipher_suite->kex != KEX_TLS13) {
+        ssl_debug_printf("%s Invalid cipher suite 0x%04x spotted!\n", G_STRFUNC, cipher_suite->number);
+        return FALSE;
+    }
+
+    /* Find the Libgcrypt cipher algorithm for the given SSL cipher suite ID */
+    const char *cipher_name = ciphers[cipher_suite->enc-0x30];
+    ssl_debug_printf("%s CIPHER: %s\n", G_STRFUNC, cipher_name);
+    cipher_algo = ssl_get_cipher_by_name(cipher_name);
+    if (cipher_algo == 0) {
+        ssl_debug_printf("%s can't find cipher %s\n", G_STRFUNC, cipher_name);
+        return FALSE;
+    }
+
+    const char *hash_name = ssl_cipher_suite_dig(cipher_suite)->name;
+    hash_algo = ssl_get_digest_by_name(hash_name);
+    if (!hash_algo) {
+        ssl_debug_printf("%s can't find hash function %s\n", G_STRFUNC, hash_name);
+        return FALSE;
+    }
+
+    key_length = (guint) gcry_cipher_get_algo_blklen(cipher_algo);
+    /* AES-GCM/AES-CCM/Poly1305-ChaCha20 all have N_MIN=N_MAX = 12. */
+    iv_length = 12;
+    ssl_debug_printf("%s key_length %u iv_length %u\n", G_STRFUNC, key_length, iv_length);
+
+    if (!tls13_hkdf_expand_label(hash_algo, secret, "key", "", key_length, &write_key)) {
+        ssl_debug_printf("%s write_key expansion failed\n", G_STRFUNC);
+        return FALSE;
+    }
+    if (!tls13_hkdf_expand_label(hash_algo, secret, "iv", "", iv_length, &write_iv)) {
+        ssl_debug_printf("%s write_iv expansion failed\n", G_STRFUNC);
+        goto end;
+    }
+
+    ssl_print_data(is_from_server ? "Server Write Key" : "Client Write Key", write_key, key_length);
+    ssl_print_data(is_from_server ? "Server Write IV" : "Client Write IV", write_iv, iv_length);
+
+    ssl_debug_printf("%s ssl_create_decoder(%s)\n", G_STRFUNC, is_from_server ? "server" : "client");
+    decoder = ssl_create_decoder(cipher_suite, cipher_algo, 0, NULL, write_key, write_iv, iv_length);
+    if (!decoder) {
+        ssl_debug_printf("%s can't init %s decoder\n", G_STRFUNC, is_from_server ? "server" : "client");
+        goto end;
+    }
+
+    /* Continue the TLS session with new keys, but reuse old flow to keep things
+     * like "Follow SSL" working (by linking application data records). */
+    if (is_from_server) {
+        decoder->flow = ssl_session->server ? ssl_session->server->flow : ssl_create_flow();
+        ssl_session->server = decoder;
+    } else {
+        decoder->flow = ssl_session->client ? ssl_session->client->flow : ssl_create_flow();
+        ssl_session->client = decoder;
+    }
+    ssl_debug_printf("%s %s ready using cipher suite 0x%04x (cipher %s hash %s)\n", G_STRFUNC,
+                     is_from_server ? "Server" : "Client", cipher_suite->number, cipher_name, hash_name);
+    success = TRUE;
+
+end:
+    wmem_free(NULL, write_key);
+    wmem_free(NULL, write_iv);
+    return success;
 }
 /* (Pre-)master secrets calculations }}} */
 
@@ -3626,6 +3798,13 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         explicit_nonce = in;
         ciphertext = explicit_nonce + EXPLICIT_NONCE_LEN;
         ciphertext_len = inl - EXPLICIT_NONCE_LEN - auth_tag_len;
+    } else if (version == TLSV1DOT3_VERSION) {
+        if (inl < auth_tag_len) {
+            ssl_debug_printf("%s input %d has no space for auth tag %d\n", G_STRFUNC, inl, auth_tag_len);
+            return FALSE;
+        }
+        ciphertext = in;
+        ciphertext_len = inl - auth_tag_len;
     } else {
         ssl_debug_printf("%s Unexpected TLS version %#x\n", G_STRFUNC, version);
         return FALSE;
@@ -3658,6 +3837,18 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
             nonce_with_counter[IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN + 3] = 1;
         }
 #endif
+    } else if (version == TLSV1DOT3_VERSION) {
+        /*
+         * Technically the nonce length must be at least 8 bytes, but for
+         * AES-GCM, AES-CCM and Poly1305-ChaCha20 the nonce length is exact 12.
+         */
+        const guint nonce_len = 12;
+        DISSECTOR_ASSERT(decoder->write_iv.data_len == nonce_len);
+        memcpy(nonce, decoder->write_iv.data, decoder->write_iv.data_len);
+        /* Sequence number is left-padded with zeroes and XORed with write_iv */
+        phton64(nonce + nonce_len - 8, pntoh64(nonce + nonce_len - 8) ^ decoder->seq);
+        ssl_debug_printf("%s seq %" G_GUINT64_FORMAT "\n", G_STRFUNC, decoder->seq);
+        decoder->seq++;             /* Implicit sequence number for TLS 1.3. */
     }
 
     /* Set nonce and additional authentication data */
@@ -3750,6 +3941,11 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
 
     ssl_debug_printf("ssl_decrypt_record ciphertext len %d\n", inl);
     ssl_print_data("Ciphertext",in, inl);
+
+    if ((ssl->session.version == TLSV1DOT3_VERSION) != (decoder->cipher_suite->kex == KEX_TLS13)) {
+        ssl_debug_printf("%s Invalid cipher suite for the protocol version!\n", G_STRFUNC);
+        return -1;
+    }
 
     /* ensure we have enough storage space for decrypted data */
     if (inl > out_str->data_len)
@@ -4846,6 +5042,12 @@ ssl_restore_master_key(SslDecryptSession *ssl, const char *label,
 void
 ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
 {
+    if (ssl->session.version == TLSV1DOT3_VERSION) {
+        /* TLS 1.3 implementations only provide secrets derived from the master
+         * secret which are loaded in tls13_change_key. No master secrets can be
+         * loaded here, so just return. */
+        return;
+    }
     ssl_debug_printf("%s state = 0x%02X\n", G_STRFUNC, ssl->state);
     if (ssl->state & SSL_HAVE_SESSION_KEY) {
         ssl_debug_printf("  session key already available, nothing to do.\n");
@@ -4893,6 +5095,77 @@ ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
                             &ssl->session_ticket, &ssl->master_secret);
     }
 } /* }}} */
+
+/* Load the new key. */
+void
+tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
+                 gboolean is_from_server, TLSRecordType type)
+{
+    GHashTable *key_map;
+    const char *label;
+
+    if (ssl->session.version != TLSV1DOT3_VERSION) {
+        ssl_debug_printf("%s TLS version %#x is not 1.3\n", G_STRFUNC, ssl->session.version);
+        return;
+    }
+
+    if (ssl->client_random.data_len == 0) {
+        /* May happen if Hello message is missing and Finished is found. */
+        ssl_debug_printf("%s missing Client Random\n", G_STRFUNC);
+        return;
+    }
+
+    switch (type) {
+    case TLS_SECRET_0RTT_APP:
+        /* TODO 0-RTT decryption is not implemented yet */
+        return;
+    case TLS_SECRET_HANDSHAKE:
+        if (is_from_server) {
+            label = "SERVER_HANDSHAKE_TRAFFIC_SECRET";
+            key_map = mk_map->tls13_server_handshake;
+        } else {
+            label = "CLIENT_HANDSHAKE_TRAFFIC_SECRET";
+            key_map = mk_map->tls13_client_handshake;
+        }
+        break;
+    case TLS_SECRET_APP:
+        if (is_from_server) {
+            label = "SERVER_TRAFFIC_SECRET_0";
+            key_map = mk_map->tls13_server_appdata;
+        } else {
+            label = "CLIENT_TRAFFIC_SECRET_0";
+            key_map = mk_map->tls13_client_appdata;
+        }
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    /* Transitioning to new keys, mark old ones as unusable. */
+    ssl_debug_printf("%s transitioning to new key, old state 0x%02x\n", G_STRFUNC, ssl->state);
+    ssl->state &= ~(SSL_MASTER_SECRET | SSL_PRE_MASTER_SECRET | SSL_HAVE_SESSION_KEY);
+
+    StringInfo *secret = (StringInfo *)g_hash_table_lookup(key_map, &ssl->client_random);
+    if (!secret) {
+        ssl_debug_printf("%s Cannot find %s, decryption impossible\n", G_STRFUNC, label);
+        /* Disable decryption, the keys are invalid. */
+        if (is_from_server) {
+            ssl->server = NULL;
+        } else {
+            ssl->client = NULL;
+        }
+        return;
+    }
+
+    /* TLS 1.3 secret found, set new keys. */
+    ssl->traffic_secret.data = (guchar *) wmem_realloc(wmem_file_scope(),
+            ssl->traffic_secret.data, secret->data_len);
+    ssl_data_set(&ssl->traffic_secret, secret->data, secret->data_len);
+    ssl_debug_printf("%s Retrieved TLS 1.3 traffic secret.\n", G_STRFUNC);
+    ssl_print_string("Client Random", &ssl->client_random);
+    ssl_print_string(label, secret);
+    tls13_generate_keys(ssl, secret, is_from_server);
+}
 #endif /* HAVE_LIBGCRYPT */
 
 /** SSL keylog file handling. {{{ */
@@ -7552,7 +7825,7 @@ ssl_common_register_options(module_t *module _U_, ssl_common_options_t *options 
 void
 ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, guint32 offset, guint32 length)
 {
-    if (ssl_session && !(ssl_session->state & SSL_MASTER_SECRET)) {
+    if (ssl_session && ssl_session->session.version != TLSV1DOT3_VERSION && !(ssl_session->state & SSL_MASTER_SECRET)) {
         guint32 old_length = ssl_session->handshake_data.data_len;
         ssl_debug_printf("Calculating hash with offset %d %d\n", offset, length);
         ssl_session->handshake_data.data = (guchar *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);

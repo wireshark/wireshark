@@ -2032,11 +2032,19 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 ssl_dissect_hnd_cli_hello(&dissect_ssl3_hf, tvb, pinfo,
                         ssl_hand_tree, offset, length, session, ssl,
                         NULL);
+                /* Cannot call tls13_change_key here since it is not yet known
+                 * whether the server will agree on TLS 1.3 or not. */
                 break;
 
             case SSL_HND_SERVER_HELLO:
                 ssl_dissect_hnd_srv_hello(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree,
                         offset, length, session, ssl, FALSE);
+                if (ssl) {
+                    ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
+                    /* Create client and server decoders for TLS 1.3. */
+                    tls13_change_key(ssl, &ssl_master_key_map, FALSE, TLS_SECRET_HANDSHAKE);
+                    tls13_change_key(ssl, &ssl_master_key_map, TRUE, TLS_SECRET_HANDSHAKE);
+                }
                 break;
 
             case SSL_HND_HELLO_VERIFY_REQUEST:
@@ -2097,6 +2105,10 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             case SSL_HND_FINISHED:
                 ssl_dissect_hnd_finished(&dissect_ssl3_hf, tvb, ssl_hand_tree,
                         offset, session, &ssl_hfs);
+                if (ssl) {
+                    ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
+                    tls13_change_key(ssl, &ssl_master_key_map, is_from_server, TLS_SECRET_APP);
+                }
                 break;
 
             case SSL_HND_CERT_URL:
