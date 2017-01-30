@@ -778,6 +778,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_draft_version_tls13;
         gint hs_ext_psk_ke_modes_len;
         gint hs_ext_psk_ke_mode;
+        gint hs_certificate_request_context;
+        gint hs_certificate_request_context_length;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -913,7 +915,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1,                                     \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1522,6 +1524,16 @@ ssl_common_dissect_t name = {   \
       { "PSK Key Exchange Mode", prefix ".handshake.psk_ke_mode",       \
         FT_UINT8, BASE_DEC, VALS(tls_hello_ext_psk_ke_mode), 0x0,       \
         "Key exchange modes where the client supports use of PSKs", HFILL } \
+    },                                                                  \
+    { & name .hf.hs_certificate_request_context_length,                 \
+      { "Certificate Request Context Length", prefix ".handshake.certificate_request_context_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_certificate_request_context,                        \
+      { "Certificate Request Context", prefix ".handshake.certificate_request_context", \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Value from CertificateRequest or empty for server auth", HFILL } \
     }
 /* }}} */
 

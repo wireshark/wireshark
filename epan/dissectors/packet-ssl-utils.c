@@ -6841,6 +6841,17 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
      *           ASN.1Cert certificate_list<0..2^24-1>;
      *     };
      * } Certificate;
+     *
+     * draft-ietf-tls-tls13-18:
+     *     opaque ASN1Cert<1..2^24-1>;
+     *     struct {
+     *         ASN1Cert cert_data;
+     *         Extension extensions<0..2^16-1>;
+     *     } CertificateEntry;
+     *     struct {
+     *         opaque certificate_request_context<0..2^8-1>;
+     *         CertificateEntry certificate_list<0..2^24-1>;
+     *     } Certificate;
      */
     enum { CERT_X509, CERT_RPK } cert_type;
     asn1_ctx_t  asn1_ctx;
@@ -6880,10 +6891,21 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
             proto_item *ti;
             proto_tree *subtree;
 
-            certificate_list_length = tvb_get_ntoh24(tvb, offset);
+            /* TLS 1.3: opaque certificate_request_context<0..2^8-1> */
+            if (session->version == TLSV1DOT3_VERSION) {
+                guint32 context_length;
+                proto_tree_add_item_ret_uint(tree, hf->hf.hs_certificate_request_context_length,
+                                             tvb, offset, 1, ENC_NA, &context_length);
+                offset++;
+                if (context_length > 0) {
+                    proto_tree_add_item(tree, hf->hf.hs_certificate_request_context,
+                                        tvb, offset, context_length, ENC_NA);
+                    offset += context_length;
+                }
+            }
 
-            proto_tree_add_uint(tree, hf->hf.hs_certificates_len,
-                                tvb, offset, 3, certificate_list_length);
+            proto_tree_add_item_ret_uint(tree, hf->hf.hs_certificates_len,
+                                         tvb, offset, 3, ENC_BIG_ENDIAN, &certificate_list_length);
             offset += 3;            /* 24-bit length value */
 
             if (certificate_list_length > 0) {
@@ -6900,12 +6922,10 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                 while (certificate_list_length > 0) {
                     /* get the length of the current certificate */
                     guint32 cert_length;
-                    cert_length = tvb_get_ntoh24(tvb, offset);
-                    certificate_list_length -= 3 + cert_length;
-
-                    proto_tree_add_item(subtree, hf->hf.hs_certificate_len,
-                                        tvb, offset, 3, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint(subtree, hf->hf.hs_certificate_len,
+                                                 tvb, offset, 3, ENC_BIG_ENDIAN, &cert_length);
                     offset += 3;
+                    certificate_list_length -= 3 + cert_length;
 
                     dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf->hf.hs_certificate);
 #if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
@@ -6914,6 +6934,19 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
 #endif
 
                     offset += cert_length;
+
+                    /* TLS 1.3: Extension extensions<0..2^16-1> */
+                    if (session->version == TLSV1DOT3_VERSION) {
+                        guint32 extensions_length;
+                        proto_tree_add_item_ret_uint(subtree, hf->hf.hs_exts_len,
+                                                     tvb, offset, 2, ENC_BIG_ENDIAN, &extensions_length);
+                        offset += 2;
+
+                        // XXX dissect OCSP and SCT extensions
+                        // https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.4.1.1
+                        offset += extensions_length;
+                        certificate_list_length -= 2 + extensions_length;
+                    }
                 }
             }
             break;
