@@ -1145,10 +1145,9 @@ The NSIS (Nullsoft Scriptable Install System) is used to generate
 needed to be installed, including all required DLLs, plugins, and supporting
 files.
 
-To install it, download the latest released version (currently 2.46) from
-http://nsis.sourceforge.net[] and start the downloaded installer. You will
-need NSIS version 2. Version 3 is not yet supported. You can also install it
-using Chocolatey:
+To install it, download the latest released version from
+http://nsis.sourceforge.net[]. NSIS v3 is recommended and may be
+required in the future. You can also install it using Chocolatey:
 
 ----
 PS$> choco install nsis
