@@ -4375,7 +4375,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   if ( len > 0)
   {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text_wmem(wmem_packet_scope(), operation, (size_t)len));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text(wmem_packet_scope(), operation, (size_t)len));
     proto_tree_add_string(request_tree, hf_giop_req_operation, tvb, offset - len, len, operation);
   }
 
@@ -4498,7 +4498,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
 
   if ( len > 0)
   {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text_wmem(wmem_packet_scope(), operation, (size_t)len));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text(wmem_packet_scope(), operation, (size_t)len));
     proto_tree_add_string(request_tree, hf_giop_req_operation, tvb, offset - len, len, operation);
   }
 

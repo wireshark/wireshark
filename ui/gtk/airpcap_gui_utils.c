@@ -913,7 +913,7 @@ print_key_list(GList* key_list)
         else
             g_print("TYPE: %s\n","???");
 
-        ssid = format_text_wmem(NULL, (guchar *)tmp->ssid->data, tmp->ssid->len);
+        ssid = format_text(NULL, (guchar *)tmp->ssid->data, tmp->ssid->len);
         g_print("SSID: %s\n",(tmp->ssid != NULL) ? ssid : "---");
         g_print("\n");
         wmem_free(NULL, ssid);

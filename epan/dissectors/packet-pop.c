@@ -192,7 +192,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   }
   else
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "C" : "S",
-                   format_text_wmem(wmem_packet_scope(), line, linelen));
+                   format_text(wmem_packet_scope(), line, linelen));
 
   ti = proto_tree_add_item(tree, proto_pop, tvb, offset, -1, ENC_NA);
   pop_tree = proto_item_add_subtree(ti, ett_pop);

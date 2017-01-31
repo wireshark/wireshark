@@ -234,7 +234,7 @@ public:
         } else if (wlan_hdr->stats.ssid_len == 1 && wlan_hdr->stats.ssid[0] == 0) {
             ssid_text = QObject::tr("<Hidden>");
         } else {
-            gchar *str = format_text_wmem(NULL, wlan_hdr->stats.ssid, wlan_hdr->stats.ssid_len);
+            gchar *str = format_text(NULL, wlan_hdr->stats.ssid, wlan_hdr->stats.ssid_len);
             ssid_text = str;
             wmem_free(NULL, str);
         }
@@ -307,7 +307,7 @@ public:
         if (update_ssid) {
             gchar* str;
             ssid_ = QByteArray::fromRawData((const char *)wlan_hdr->stats.ssid, wlan_hdr->stats.ssid_len);
-            str = format_text_wmem(NULL, wlan_hdr->stats.ssid, wlan_hdr->stats.ssid_len);
+            str = format_text(NULL, wlan_hdr->stats.ssid, wlan_hdr->stats.ssid_len);
             setText(col_ssid_, str);
             wmem_free(NULL, str);
             is_ssid_match = true;

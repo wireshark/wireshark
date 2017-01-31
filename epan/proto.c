@@ -4833,7 +4833,7 @@ hfinfo_format_text(const header_field_info *hfinfo, const guchar *string)
 {
 	switch (hfinfo->display) {
 		case STR_ASCII:
-			return format_text_wmem(NULL, string, strlen(string));
+			return format_text(NULL, string, strlen(string));
 /*
 		case STR_ASCII_WSP
 			return format_text_wsp(string, strlen(string));
@@ -4843,7 +4843,7 @@ hfinfo_format_text(const header_field_info *hfinfo, const guchar *string)
 			return wmem_strdup(NULL, string);
 	}
 
-	return format_text_wmem(NULL, string, strlen(string));
+	return format_text(NULL, string, strlen(string));
 }
 
 static int

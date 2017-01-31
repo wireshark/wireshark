@@ -798,7 +798,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 			if (string_data) {
 				char *formatted;
 
-				formatted = format_text_wmem(wmem_packet_scope(), string_buffer, strlen(string_buffer));
+				formatted = format_text(wmem_packet_scope(), string_buffer, strlen(string_buffer));
 				/* copy over the data and append <TRUNCATED> */
 				string_buffer_print=wmem_strdup_printf(wmem_packet_scope(), "%s%s", formatted, RPC_STRING_TRUNCATED);
 			} else {
@@ -806,7 +806,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 			}
 		} else {
 			if (string_data) {
-				string_buffer_print = format_text_wmem(wmem_packet_scope(), string_buffer, strlen(string_buffer));
+				string_buffer_print = format_text(wmem_packet_scope(), string_buffer, strlen(string_buffer));
 			} else {
 				string_buffer_print=RPC_STRING_DATA;
 			}

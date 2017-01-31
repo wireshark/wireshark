@@ -2184,7 +2184,7 @@ tvb_format_text(tvbuff_t *tvb, const gint offset, const gint size)
 	len = (size > 0) ? size : 0;
 
 	ptr = ensure_contiguous(tvb, offset, size);
-	return format_text_wmem(wmem_packet_scope(), ptr, len);
+	return format_text(wmem_packet_scope(), ptr, len);
 }
 
 /*
@@ -2219,7 +2219,7 @@ tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
 	ptr = ensure_contiguous(tvb, offset, size);
 	for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
 		;
-	return format_text_wmem(wmem_packet_scope(), ptr, stringlen);
+	return format_text(wmem_packet_scope(), ptr, stringlen);
 }
 
 /*

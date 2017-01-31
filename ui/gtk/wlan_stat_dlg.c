@@ -594,7 +594,7 @@ wlanstat_draw(void *phs)
         } else if (tmp->stats.ssid_len == 1 && tmp->stats.ssid[0] == 0) {
             g_strlcpy (ssid, "<Hidden>", sizeof(ssid));
         } else {
-            ssid_temp = format_text_wmem(NULL, tmp->stats.ssid, tmp->stats.ssid_len);
+            ssid_temp = format_text(NULL, tmp->stats.ssid, tmp->stats.ssid_len);
             g_strlcpy (ssid, ssid_temp, sizeof(ssid));
             wmem_free(NULL, ssid_temp);
         }
@@ -791,18 +791,18 @@ wlan_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callb
         str = g_strdup_printf("wlan.bssid==%s", addr_str);
         break;
     case VALUE_SSID_ONLY:
-        ssid_temp = format_text_wmem(NULL, ep->stats.ssid, ep->stats.ssid_len);
+        ssid_temp = format_text(NULL, ep->stats.ssid, ep->stats.ssid_len);
         str = g_strdup_printf("wlan.ssid==\"%s\"", ssid_temp);
         wmem_free(NULL, ssid_temp);
         break;
     case VALUE_BSSID_AND_SSID:
-        ssid_temp = format_text_wmem(NULL, ep->stats.ssid, ep->stats.ssid_len);
+        ssid_temp = format_text(NULL, ep->stats.ssid, ep->stats.ssid_len);
         str = g_strdup_printf("wlan.bssid==%s && wlan.ssid==\"%s\"",
                       addr_str, ssid_temp);
         wmem_free(NULL, ssid_temp);
         break;
     case VALUE_BSSID_OR_SSID:
-        ssid_temp = format_text_wmem(NULL, ep->stats.ssid, ep->stats.ssid_len);
+        ssid_temp = format_text(NULL, ep->stats.ssid, ep->stats.ssid_len);
         str = g_strdup_printf("wlan.bssid==%s || wlan.ssid==\"%s\"",
                       addr_str, ssid_temp);
         wmem_free(NULL, ssid_temp);

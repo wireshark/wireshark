@@ -1198,7 +1198,7 @@ dissect_aim_tlv_value_string (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb
 
 	string_len = tvb_reported_length(tvb);
 	buf = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, string_len, ENC_UTF_8|ENC_NA);
-	proto_item_set_text(ti, "Value: %s", format_text_wmem(wmem_packet_scope(), buf, string_len));
+	proto_item_set_text(ti, "Value: %s", format_text(wmem_packet_scope(), buf, string_len));
 
 	return string_len;
 }
@@ -1317,7 +1317,7 @@ dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_
 		/* The actual message */
 		buf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, blocklen - 4, ENC_ASCII|ENC_NA);
 		proto_item_append_text(ti, "Message: %s ",
-				    format_text_wmem(wmem_packet_scope(), buf, blocklen - 4));
+				    format_text(wmem_packet_scope(), buf, blocklen - 4));
 		proto_tree_add_item(entry, hf_aim_messageblock_message, tvb,
 				    offset, blocklen-4, ENC_ASCII|ENC_NA);
 
@@ -1882,7 +1882,7 @@ static int dissect_aim_buddylist_oncoming(tvbuff_t *tvb, packet_info *pinfo, pro
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Oncoming Buddy");
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-					format_text_wmem(wmem_packet_scope(), buddyname, buddyname_length));
+					format_text(wmem_packet_scope(), buddyname, buddyname_length));
 
 	offset += dissect_aim_buddyname(tvb, pinfo, offset, buddy_tree);
 
@@ -1905,7 +1905,7 @@ static int dissect_aim_buddylist_offgoing(tvbuff_t *tvb, packet_info *pinfo, pro
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Offgoing Buddy");
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-					format_text_wmem(wmem_packet_scope(), buddyname, buddyname_length));
+					format_text(wmem_packet_scope(), buddyname, buddyname_length));
 
 	offset += dissect_aim_buddyname(tvb, pinfo, offset, buddy_tree);
 
@@ -3031,7 +3031,7 @@ dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 	/* Add the outgoing username to the info column */
 	buddyname_length = aim_get_buddyname(&buddyname, tvb, offset);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " to: %s",
-			format_text_wmem(wmem_packet_scope(), buddyname, buddyname_length));
+			format_text(wmem_packet_scope(), buddyname, buddyname_length));
 
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 
@@ -3402,7 +3402,7 @@ static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
 	buddyname_length = aim_get_buddyname( &buddyname, tvb, offset );
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " Username: %s",
-			format_text_wmem(wmem_packet_scope(), buddyname, buddyname_length));
+			format_text(wmem_packet_scope(), buddyname, buddyname_length));
 
 	if(tree) {
 		offset+=dissect_aim_buddyname(tvb, pinfo, offset, tree);

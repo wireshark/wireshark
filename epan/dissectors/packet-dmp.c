@@ -2666,7 +2666,7 @@ static gint dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tre
     mts_id = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, dmp.mts_id_length);
   }
   proto_item_append_text (dmp.mts_id_item, " (%zu bytes decompressed)", strlen(mts_id));
-  mts_id = format_text_wmem(wmem_packet_scope(), mts_id, strlen(mts_id));
+  mts_id = format_text(wmem_packet_scope(), mts_id, strlen(mts_id));
   if (subject) {
     ti = proto_tree_add_string (tree, hf_message_subj_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     hidden_item = proto_tree_add_string (tree, hf_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
@@ -2722,7 +2722,7 @@ static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tre
     ipm_id = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ipm_id_length);
   }
   proto_item_append_text (tf, " (%zu bytes decompressed)", strlen(ipm_id));
-  ipm_id = format_text_wmem(wmem_packet_scope(), ipm_id, strlen(ipm_id));
+  ipm_id = format_text(wmem_packet_scope(), ipm_id, strlen(ipm_id));
   if (subject) {
     ti = proto_tree_add_string (tree, hf_message_subj_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     hidden_item = proto_tree_add_string (tree, hf_ipm_id, tvb, offset, ipm_id_length, ipm_id);

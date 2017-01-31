@@ -61,18 +61,6 @@ int        get_token_len(const guchar *linep, const guchar *lineend,
 /** Given a string, generate a string from it that shows non-printable
  *  characters as C-style escapes, and return a pointer to it.
  *
- * @param line A pointer to the input string
- * @param len The length of the input string
- * @return A pointer to the formatted string
- *
- * @see tvb_format_text()
- */
-WS_DLL_PUBLIC
-gchar*     format_text(const guchar *line, size_t len);
-
-/** Given a string, generate a string from it that shows non-printable
- *  characters as C-style escapes, and return a pointer to it.
- *
  * @param allocator The wmem scope
  * @param line A pointer to the input string
  * @param len The length of the input string
@@ -81,7 +69,7 @@ gchar*     format_text(const guchar *line, size_t len);
  * @see tvb_format_text()
  */
 WS_DLL_PUBLIC
-gchar*     format_text_wmem(wmem_allocator_t* allocator, const guchar *line, size_t len);
+gchar*     format_text(wmem_allocator_t* allocator, const guchar *line, size_t len);
 
 /**
  * Given a string, generate a string from it that shows non-printable

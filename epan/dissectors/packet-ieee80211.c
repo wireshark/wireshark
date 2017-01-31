@@ -13470,7 +13470,7 @@ ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
                       ENC_ASCII|ENC_NA);
 
   if (ssid_len > 0) {
-    gchar* s = format_text_wmem(wmem_packet_scope(), ssid, ssid_len);
+    gchar* s = format_text(wmem_packet_scope(), ssid, ssid_len);
     proto_item_append_text(ti, ": %s", s);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=%s", s);
@@ -15510,7 +15510,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
         proto_tree_add_item_ret_string(tree, hf_ieee80211_mesh_id, tvb, offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &mesh_id);
         if (tag_len > 0) {
-            gchar* s = format_text_wmem(wmem_packet_scope(), mesh_id, tag_len);
+            gchar* s = format_text(wmem_packet_scope(), mesh_id, tag_len);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=%s", s);
             proto_item_append_text(ti, ": %s", s);
         }
