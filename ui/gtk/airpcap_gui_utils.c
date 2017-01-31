@@ -1569,7 +1569,7 @@ airpcap_add_key_to_list(GtkListStore *key_list_store, gchar* type, gchar* key, g
 void
 airpcap_fill_key_list(GtkListStore *key_list_store)
 {
-    const gchar*       s = NULL;
+    gchar*             s = NULL;
     unsigned int       i,n;
     airpcap_if_info_t* fake_if_info;
     GList*             wireshark_key_list = NULL;
@@ -1597,16 +1597,23 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
         else if (curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
         {
             if (curr_key->ssid != NULL)
-                s = format_uri(curr_key->ssid, ":");
+            {
+                s = format_uri(NULL, curr_key->ssid, ":");
+                gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
+                    KL_COL_TYPE, AIRPCAP_WPA_PWD_KEY_STRING,
+                    KL_COL_KEY, curr_key->key->str,
+                    KL_COL_SSID, s,
+                    -1);
+                wmem_free(NULL, s);
+            }
             else
-                s = "";
-
+            {
             gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
                 KL_COL_TYPE, AIRPCAP_WPA_PWD_KEY_STRING,
                 KL_COL_KEY, curr_key->key->str,
-                KL_COL_SSID, s,
+                KL_COL_SSID, "",
                 -1);
-
+            }
         }
         else if (curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
         {

@@ -158,6 +158,7 @@ gboolean   uri_str_to_bytes(const char *uri_str, GByteArray *bytes);
 
 /** Turn a byte array into an RFC 3986 percent-encoded string.
  *
+ * @param allocator The wmem scope
  * @param bytes The GByteArray that will receive the bytes.  This
  *        must be initialized by the caller.
  * @param reserved_chars Normally the "gen-delims" and "sub-delims"
@@ -170,7 +171,7 @@ gboolean   uri_str_to_bytes(const char *uri_str, GByteArray *bytes);
  * @see uri_str_to_bytes(),  format_text(), isprint()
  */
 WS_DLL_PUBLIC
-const gchar* format_uri(const GByteArray *bytes, const gchar *reserved_chars);
+gchar* format_uri(wmem_allocator_t* allocator, const GByteArray *bytes, const gchar *reserved_chars);
 
 /** Turn a OID string representation (dot notation) into a byte array.
  *

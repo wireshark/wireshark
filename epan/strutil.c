@@ -689,12 +689,11 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes)
  * Given a GByteArray, generate a string from it that shows non-printable
  * characters as percent-style escapes, and return a pointer to it.
  */
-const gchar *
-format_uri(const GByteArray *bytes, const gchar *reserved_chars)
+gchar *
+format_uri(wmem_allocator_t* allocator, const GByteArray *bytes, const gchar *reserved_chars)
 {
-    static gchar *fmtbuf[3];
-    static guint fmtbuf_len[3];
-    static guint idx;
+    gchar *fmtbuf = (gchar*)wmem_alloc(allocator, INITIAL_FMTBUF_SIZE);
+    guint fmtbuf_len = INITIAL_FMTBUF_SIZE;
     static const guchar *reserved_def = ":/?#[]@!$&'()*+,;= ";
     const guchar *reserved = reserved_def;
     guint8 c;
@@ -704,32 +703,24 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
     if (! bytes)
         return "";
 
-    idx = (idx + 1) % 3;
     if (reserved_chars)
         reserved = reserved_chars;
 
-    /*
-     * Allocate the buffer if it's not already allocated.
-     */
-    if (fmtbuf[idx] == NULL) {
-        fmtbuf[idx] = (gchar *)g_malloc(INITIAL_FMTBUF_SIZE);
-        fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
-    }
     for (column = 0; column < bytes->len; column++) {
         /*
          * Is there enough room for this character, if it expands to
          * a percent plus 2 hex digits (which is the most it can
          * expand to), and also enough room for a terminating '\0'?
          */
-        if (column+2+1 >= fmtbuf_len[idx]) {
+        if (column+2+1 >= fmtbuf_len) {
             /*
              * Double the buffer's size if it's not big enough.
              * The size of the buffer starts at 128, so doubling its size
              * adds at least another 128 bytes, which is more than enough
              * for one more character plus a terminating '\0'.
              */
-            fmtbuf_len[idx] = fmtbuf_len[idx] * 2;
-            fmtbuf[idx] = (gchar *)g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
+            fmtbuf_len *= 2;
+            fmtbuf = (gchar *)wmem_realloc(allocator, fmtbuf, fmtbuf_len);
         }
         c = bytes->data[column];
 
@@ -743,17 +734,17 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
         }
 
         if (!is_reserved) {
-            fmtbuf[idx][column] = c;
+            fmtbuf[column] = c;
         } else {
-            fmtbuf[idx][column] = '%';
+            fmtbuf[column] = '%';
             column++;
-            fmtbuf[idx][column] = hex[c >> 4];
+            fmtbuf[column] = hex[c >> 4];
             column++;
-            fmtbuf[idx][column] = hex[c & 0xF];
+            fmtbuf[column] = hex[c & 0xF];
         }
     }
-    fmtbuf[idx][column] = '\0';
-    return fmtbuf[idx];
+    fmtbuf[column] = '\0';
+    return fmtbuf;
 }
 
 /**
