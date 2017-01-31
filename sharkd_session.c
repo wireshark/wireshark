@@ -708,7 +708,6 @@ sharkd_session_geoip_addr(address *addr, const char *suffix)
 			}
 		}
 	}
-#endif
 #ifdef HAVE_GEOIP_V6
 	if (addr->type == AT_IPv6)
 	{
@@ -765,7 +764,7 @@ sharkd_session_geoip_addr(address *addr, const char *suffix)
 		}
 	}
 #endif
-
+#endif
 	return with_geoip;
 }
 
