@@ -7549,7 +7549,7 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
         minor_cease = tvb_get_guint8(tvb, offset - 1);
         clen = tvb_get_guint8(tvb, offset);
         /* Might be a idr-shutdown communication, first byte is length, max length being 128) */
-        if (clen <= 128 && hlen - BGP_MIN_NOTIFICATION_MSG_SIZE - 1 == clen && major_error == BGP_MAJOR_ERROR_CEASE && minor_cease == 2) {
+        if (clen <= 128 && hlen - BGP_MIN_NOTIFICATION_MSG_SIZE - 1 == clen && major_error == BGP_MAJOR_ERROR_CEASE && (minor_cease == 2 || minor_cease == 4) ) {
             proto_tree_add_item(tree, hf_bgp_notify_communication_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             proto_tree_add_item(tree, hf_bgp_notify_communication, tvb, offset, hlen - BGP_MIN_NOTIFICATION_MSG_SIZE - 1, ENC_UTF_8|ENC_NA);
