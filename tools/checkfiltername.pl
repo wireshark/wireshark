@@ -480,7 +480,7 @@ sub is_protocol_version_whitelist {
 	if (($proto_filename eq "packet-sflow.c") && (index($_[0], "sflow_5") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-sflow.c") && (index($_[0], "sflow_245") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-tipc.c") && (index($_[0], "tipcv2") >= 0)) {return 1;}
-
+	if (($proto_filename eq "packet-bluetooth.c") && (index($_[0], "llc.bluetooth_pid") >= 0)) {return 1;}
 
 	return 0;
 }
