@@ -882,6 +882,7 @@ print_key_list(GList* key_list)
 {
     gint n,i;
     decryption_key_t* tmp;
+    gchar* ssid;
 
     if (key_list == NULL)
     {
@@ -912,9 +913,10 @@ print_key_list(GList* key_list)
         else
             g_print("TYPE: %s\n","???");
 
-        g_print("SSID: %s\n",(tmp->ssid != NULL) ?
-                format_text((guchar *)tmp->ssid->data, tmp->ssid->len) : "---");
+        ssid = format_text_wmem(NULL, (guchar *)tmp->ssid->data, tmp->ssid->len);
+        g_print("SSID: %s\n",(tmp->ssid != NULL) ? ssid : "---");
         g_print("\n");
+        wmem_free(NULL, ssid);
     }
 
     g_print("\n*****************************\n\n");
