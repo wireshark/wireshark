@@ -2171,8 +2171,9 @@ tvb_memeql(tvbuff_t *tvb, const gint offset, const guint8 *str, size_t size)
 	}
 }
 
-/*
- * Format the data in the tvb from offset for length ...
+/**
+ * Format the data in the tvb from offset for size.  Returned string is
+ * wmem packet_scoped so call must be in that scope.
  */
 gchar *
 tvb_format_text(tvbuff_t *tvb, const gint offset, const gint size)
@@ -2183,7 +2184,7 @@ tvb_format_text(tvbuff_t *tvb, const gint offset, const gint size)
 	len = (size > 0) ? size : 0;
 
 	ptr = ensure_contiguous(tvb, offset, size);
-	return format_text(ptr, len);
+	return format_text_wmem(wmem_packet_scope(), ptr, len);
 }
 
 /*

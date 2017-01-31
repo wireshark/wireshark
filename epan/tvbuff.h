@@ -536,7 +536,8 @@ WS_DLL_PUBLIC gint tvb_strnlen(tvbuff_t *tvb, const gint offset,
     const guint maxlength);
 
 /**
- * Format the data in the tvb from offset for size ...
+ * Format the data in the tvb from offset for size.  Returned string is
+ * wmem packet_scoped so call must be in that scope.
  */
 WS_DLL_PUBLIC gchar *tvb_format_text(tvbuff_t *tvb, const gint offset,
     const gint size);
