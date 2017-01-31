@@ -4803,7 +4803,7 @@ ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint dat
         rec->flow = flow;
         flow->byte_seq += data_len;
         ssl_debug_printf("%s stored decrypted record seq=%d nxtseq=%d flow=%p\n",
-                         G_STRFUNC, rec->seq, rec->seq + data_len, flow);
+                         G_STRFUNC, rec->seq, rec->seq + data_len, (void*)flow);
     }
 
     /* Remember decrypted records. */
