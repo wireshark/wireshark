@@ -330,6 +330,9 @@ static GList *pino_protocols = NULL;
 static GPtrArray *deregistered_fields = NULL;
 static GPtrArray *deregistered_data = NULL;
 
+/* indexed by prefix, contains initializers */
+static GHashTable* prefixes = NULL;
+
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
 #define FIELD_INFO_NEW(pool, fi)  fi = wmem_new(pool, field_info)
@@ -643,6 +646,9 @@ proto_cleanup(void)
 
 	g_free(tree_is_expanded);
 	tree_is_expanded = NULL;
+
+	if (prefixes)
+		g_hash_table_destroy(prefixes);
 }
 
 static gboolean
@@ -903,11 +909,6 @@ prefix_equal (gconstpointer ap, gconstpointer bp) {
 
 	return FALSE;
 }
-
-
-/* indexed by prefix, contains initializers */
-static GHashTable* prefixes = NULL;
-
 
 /* Register a new prefix for "delayed" initialization of field arrays */
 void
