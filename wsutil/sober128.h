@@ -3,7 +3,7 @@
    from LibTomCrypt.
 
    The latest version of the original code can be found at
-   http://libtom.org/?page=features according to which this code is in the
+   http://www.libtom.net/LibTomCrypt/ according to which this code is in the
    Public Domain
    */
 
@@ -17,7 +17,7 @@
  * The library is free for all purposes without any express
  * guarantee it works.
  *
- * Tom St Denis, tomstdenis@iahu.ca, http://libtom.org/?page=features
+ * Tom St Denis, tomstdenis@iahu.ca, http://www.libtom.net/LibTomCrypt/
  */
 
 #ifndef _SOBER127_H
