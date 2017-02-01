@@ -66,7 +66,7 @@
 static int _use_stdinout = 0;
 static socket_handle_t _server_fd = -1;
 
-static int
+static socket_handle_t
 socket_init(char *path)
 {
 	socket_handle_t fd = -1;
@@ -240,10 +240,10 @@ sharkd_loop(void)
 		STARTUPINFO si;
 		char *exename;
 #endif
-		int fd;
+		socket_handle_t fd;
 
 		fd = accept(_server_fd, NULL, NULL);
-		if (fd == -1)
+		if (fd == INVALID_SOCKET)
 		{
 			fprintf(stderr, "cannot accept(): %s\n", g_strerror(errno));
 			continue;
