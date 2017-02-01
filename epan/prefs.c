@@ -405,6 +405,8 @@ prefs_cleanup(void)
 
     /* Clean the uats */
     uat_cleanup();
+
+    g_free(prefs.saved_at_version);
 }
 
 /*
