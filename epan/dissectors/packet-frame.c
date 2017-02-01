@@ -40,6 +40,7 @@
 #include <epan/expert.h>
 #include <wsutil/md5.h>
 #include <wsutil/str_util.h>
+#include <wmem/wmem.h>
 
 #include "packet-frame.h"
 #include "log.h"
@@ -913,7 +914,7 @@ proto_register_frame(void)
 		value_string *arr;
 		int i;
 
-		hf_encap.hfinfo.strings = arr = g_new(value_string, encap_count+1);
+		hf_encap.hfinfo.strings = arr = wmem_alloc_array(wmem_epan_scope(), value_string, encap_count+1);
 
 		for (i = 0; i < encap_count; i++) {
 			arr[i].value = i;
