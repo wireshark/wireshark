@@ -64,12 +64,12 @@
 #endif
 
 static int _use_stdinout = 0;
-static socket_handle_t _server_fd = -1;
+static socket_handle_t _server_fd = INVALID_SOCKET;
 
 static socket_handle_t
 socket_init(char *path)
 {
-	socket_handle_t fd = -1;
+	socket_handle_t fd = INVALID_SOCKET;
 
 #ifdef _WIN32
 	WSADATA wsaData;
@@ -86,11 +86,11 @@ socket_init(char *path)
 		path += 5;
 
 		if (strlen(path) + 1 > sizeof(s_un.sun_path))
-			return -1;
+			return INVALID_SOCKET;
 
 		fd = socket(AF_UNIX, SOCK_STREAM, 0);
-		if (fd == -1)
-			return -1;
+		if (fd == INVALID_SOCKET)
+			return INVALID_SOCKET;
 
 		memset(&s_un, 0, sizeof(s_un));
 		s_un.sun_family = AF_UNIX;
@@ -104,7 +104,7 @@ socket_init(char *path)
 		if (bind(fd, (struct sockaddr *) &s_un, s_un_len))
 		{
 			closesocket(fd);
-			return -1;
+			return INVALID_SOCKET;
 		}
 	}
 	else
@@ -122,12 +122,12 @@ socket_init(char *path)
 
 		port_sep = strchr(path, ':');
 		if (!port_sep)
-			return -1;
+			return INVALID_SOCKET;
 
 		*port_sep = '\0';
 
 		if (ws_strtou16(port_sep + 1, NULL, &port) == FALSE)
-			return -1;
+			return INVALID_SOCKET;
 
 #ifdef _WIN32
 		/* Need to use WSASocket() to disable overlapped I/O operations,
@@ -136,8 +136,8 @@ socket_init(char *path)
 #else
 		fd = socket(AF_INET, SOCK_STREAM, 0);
 #endif
-		if (fd == -1)
-			return -1;
+		if (fd == INVALID_SOCKET)
+			return INVALID_SOCKET;
 
 		s_in.sin_family = AF_INET;
 		s_in.sin_addr.s_addr = inet_addr(path);
@@ -149,19 +149,19 @@ socket_init(char *path)
 		if (bind(fd, (struct sockaddr *) &s_in, sizeof(struct sockaddr_in)))
 		{
 			closesocket(fd);
-			return -1;
+			return INVALID_SOCKET;
 		}
 	}
 	else
 #endif
 	{
-		return -1;
+		return INVALID_SOCKET;
 	}
 
 	if (listen(fd, SOMAXCONN))
 	{
 		closesocket(fd);
-		return -1;
+		return INVALID_SOCKET;
 	}
 
 	return fd;
@@ -202,7 +202,7 @@ sharkd_init(int argc, char **argv)
 	else
 	{
 		fd = socket_init(argv[1]);
-		if (fd == -1)
+		if (fd == INVALID_SOCKET)
 			return -1;
 		_server_fd = fd;
 	}
