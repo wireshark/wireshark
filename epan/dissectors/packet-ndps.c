@@ -31,6 +31,7 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/proto_data.h>
+#include <wmem/wmem_map.h>
 
 #include "packet-ipx.h"
 #include "packet-tcp.h"
@@ -4034,7 +4035,7 @@ typedef struct {
     guint32             ndps_end_frag;
 } ndps_req_hash_value;
 
-static GHashTable *ndps_req_hash = NULL;
+static wmem_map_t *ndps_req_hash = NULL;
 
 /* Hash Functions */
 static gint
@@ -4057,29 +4058,6 @@ ndps_hash(gconstpointer v)
     return GPOINTER_TO_UINT(ndps_key->conversation) + ndps_key->ndps_xport;
 }
 
-/* Initializes the hash table each time a new
- * file is loaded or re-loaded in wireshark */
-static void
-ndps_init_protocol(void)
-{
-    ndps_req_hash = g_hash_table_new(ndps_hash, ndps_equal);
-}
-
-/* After the sequential run, we don't need the ncp_request hash and keys
- * anymore; the lookups have already been done and the vital info
- * saved in the reply-packets' private_data in the frame_data struct. */
-static void
-ndps_postseq_cleanup(void)
-{
-    if (ndps_req_hash) {
-        /* Destroy the hash, but don't clean up request_condition data. */
-        g_hash_table_destroy(ndps_req_hash);
-        ndps_req_hash = NULL;
-    }
-    /* Don't free the ndps_req_hash_value values of ndps_req_hash, as they're
-     * needed during random-access processing of the proto_tree.*/
-}
-
 static ndps_req_hash_value*
 ndps_hash_insert(conversation_t *conversation, guint32 ndps_xport)
 {
@@ -4099,7 +4077,7 @@ ndps_hash_insert(conversation_t *conversation, guint32 ndps_xport)
     request_value->ndps_frag = FALSE;
     request_value->ndps_end_frag = 0;
 
-    g_hash_table_insert(ndps_req_hash, request_key, request_value);
+    wmem_map_insert(ndps_req_hash, request_key, request_value);
 
     return request_value;
 }
@@ -4113,7 +4091,7 @@ ndps_hash_lookup(conversation_t *conversation, guint32 ndps_xport)
     request_key.conversation = conversation;
     request_key.ndps_xport = ndps_xport;
 
-    return (ndps_req_hash_value *)g_hash_table_lookup(ndps_req_hash, &request_key);
+    return (ndps_req_hash_value *)wmem_map_lookup(ndps_req_hash, &request_key);
 }
 
 /* ================================================================= */
@@ -9486,10 +9464,10 @@ proto_register_ndps(void)
                                    "Whether or not the NDPS dissector should show object id's and other details",
                                    &ndps_show_oids);
 
-    register_init_routine(&ndps_init_protocol);
     reassembly_table_register(&ndps_reassembly_table,
                           &addresses_reassembly_table_functions);
-    register_postseq_cleanup_routine(&ndps_postseq_cleanup);
+
+    ndps_req_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), ndps_hash, ndps_equal);
 }
 
 void
