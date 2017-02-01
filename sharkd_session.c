@@ -1885,7 +1885,20 @@ sharkd_session_process(char *buf, const jsmntok_t *tokens, int count)
 		/* reply for every command are 0+ lines of JSON reply (outputed above), finished by empty new line */
 		printf("\n");
 
-		/* stdout is on most systems buffered, fflush() to output reply to a socket */
+		/*
+		 * We do an explicit fflush after every line, because
+		 * we want output to be written to the socket as soon
+		 * as the line is complete.
+		 *
+		 * The stream is fully-buffered by default, so it's
+		 * only flushed when the buffer fills or the FILE *
+		 * is closed.  On UN*X, we could set it to be line
+		 * buffered, but the MSVC standard I/O routines don't
+		 * support line buffering - they only support *byte*
+		 * buffering, doing a write for every byte written,
+		 * which is too inefficient, and full buffering,
+		 * which is what you get if you request line buffering.
+		 */
 		fflush(stdout);
 	}
 }
