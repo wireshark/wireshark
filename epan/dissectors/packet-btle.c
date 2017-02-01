@@ -746,6 +746,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         btle_frame_info_t *btle_frame_info = NULL;
         fragment_head *frag_btl2cap_msg = NULL;
+        btle_frame_info_t empty_btle_frame_info = {0, 0};
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -840,7 +841,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
 
-        DISSECTOR_ASSERT(btle_frame_info != NULL);
+        if (btle_frame_info == NULL) {
+            btle_frame_info = &empty_btle_frame_info;
+        }
         data_header_item = proto_tree_add_item(btle_tree, hf_data_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         data_header_tree = proto_item_add_subtree(data_header_item, ett_data_header);
 
