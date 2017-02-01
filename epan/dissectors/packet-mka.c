@@ -187,6 +187,10 @@ dissect_basic_paramset(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
                       tvb, offset, cak_len, ENC_NA);
   offset += cak_len;
 
+  if (basic_param_set_len%4) {
+    offset += (4 - (basic_param_set_len % 4));
+  }
+
   *offset_ptr = offset;
 }
 
