@@ -567,8 +567,7 @@ dtls_is_null_cipher(guint cipher )
 
 static gboolean
 decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryptSession *ssl,
-                    guint8 content_type, guint16 record_version, guint16 record_length,
-                    gboolean allow_fragments)
+                    guint8 content_type, guint16 record_version, guint16 record_length)
 {
   gboolean    success;
   SslDecoder *decoder;
@@ -633,13 +632,9 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryp
     const guchar *data = dtls_decrypted_data.data;
     guint datalen = dtls_decrypted_data_avail;
 
-    // XXX does DTLS have a flow like TLS?
-
-    // XXX in DTLS, there is only one record per datagram right? Then the "key"
-    // (tvb_raw_offset(tvb)+offset) should not really be needed and can be "0"?
     ssl_add_record_info(proto_dtls, pinfo, data, datalen,
         tvb_raw_offset(tvb)+offset,
-        allow_fragments ? decoder->flow : NULL, (ContentType)content_type);
+        NULL, (ContentType)content_type);
   }
   return success;
 }
@@ -793,8 +788,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   /* try to decrypt record on the first pass, if possible. Store decrypted
    * record for later usage (without having to decrypt again). */
   if (ssl) {
-    decrypt_dtls_record(tvb, pinfo, offset, ssl, content_type, version, record_length,
-        content_type == SSL_ID_APP_DATA || content_type == SSL_ID_HANDSHAKE);
+    decrypt_dtls_record(tvb, pinfo, offset, ssl, content_type, version, record_length);
   }
   decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset, &record);
   if (decrypted) {
