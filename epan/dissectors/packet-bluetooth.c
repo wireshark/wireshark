@@ -2624,6 +2624,89 @@ proto_reg_handoff_bluetooth(void)
 /* TODO: Add UUID128 verion of UUID16; UUID32? UUID16? */
 }
 
+
+static int proto_btad_alt_beacon = -1;
+
+static int hf_btad_alt_beacon_code = -1;
+static int hf_btad_alt_beacon_id = -1;
+static int hf_btad_alt_beacon_reference_rssi = -1;
+static int hf_btad_alt_beacon_manufacturer_data = -1;
+
+static gint ett_btad_alt_beacon = -1;
+
+static dissector_handle_t btad_alt_beacon;
+
+void proto_register_btad_alt_beacon(void);
+void proto_reg_handoff_btad_alt_beacon(void);
+
+
+static gint
+dissect_btad_alt_beacon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree       *main_tree;
+    proto_item       *main_item;
+    gint              offset = 0;
+
+    main_item = proto_tree_add_item(tree, proto_btad_alt_beacon, tvb, offset, tvb_captured_length(tvb), ENC_NA);
+    main_tree = proto_item_add_subtree(main_item, ett_btad_alt_beacon);
+
+    proto_tree_add_item(main_tree, hf_btad_alt_beacon_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(main_tree, hf_btad_alt_beacon_id, tvb, offset, 20, ENC_NA /* ENC_BIG_ENDIAN */);
+    offset += 20;
+
+    proto_tree_add_item(main_tree, hf_btad_alt_beacon_reference_rssi, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(main_tree, hf_btad_alt_beacon_manufacturer_data, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+void
+proto_register_btad_alt_beacon(void)
+{
+    static hf_register_info hf[] = {
+        { &hf_btad_alt_beacon_code,
+          { "Code",                              "bluetooth.alt_beacon.code",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        {&hf_btad_alt_beacon_id,
+            {"ID",                               "bluetooth.alt_beacon.id",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_btad_alt_beacon_reference_rssi,
+          { "Reference RSSI",                    "bluetooth.alt_beacon.reference_rssi",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btad_alt_beacon_manufacturer_data,
+          { "Manufacturer Data",                 "bluetooth.alt_beacon.manufacturer_data",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        }
+    };
+
+    static gint *ett[] = {
+        &ett_btad_alt_beacon,
+    };
+
+    proto_btad_alt_beacon = proto_register_protocol("AltBeacon", "AltBeacon", "alt_beacon");
+    proto_register_field_array(proto_btad_alt_beacon, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+    btad_alt_beacon = register_dissector("bluetooth.alt_beacon", dissect_btad_alt_beacon, proto_btad_alt_beacon);
+}
+
+void
+proto_reg_handoff_btad_alt_beacon(void)
+{
+    dissector_add_for_decode_as("btcommon.eir_ad.manufacturer_company_id", btad_alt_beacon);
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
