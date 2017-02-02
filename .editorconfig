@@ -69,6 +69,17 @@ indent_size = 2
 indent_style = tab
 indent_size = tab
 
+[sharkd.c]
+indent_size = 2
+
+[sharkd_daemon.c]
+indent_style = tab
+indent_size = tab
+
+[sharkd_session.c]
+indent_style = tab
+indent_size = tab
+
 [ws_version_info.[ch]]
 indent_style = tab
 indent_size = tab

@@ -239,6 +239,7 @@ sharkd_loop(void)
 		PROCESS_INFORMATION pi;
 		STARTUPINFO si;
 		char *exename;
+		gunichar2 *commandline;
 #endif
 		socket_handle_t fd;
 
@@ -249,7 +250,7 @@ sharkd_loop(void)
 			continue;
 		}
 
-		/* wireshark is not ready for handling multiple capture files in single process, so fork(), and handle it in seperate process */
+		/* wireshark is not ready for handling multiple capture files in single process, so fork(), and handle it in separate process */
 #ifndef _WIN32
 		pid = fork();
 		if (pid == 0)
@@ -278,8 +279,9 @@ sharkd_loop(void)
 		si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
 
 		exename = g_strdup_printf("%s\\%s", get_progfile_dir(), "sharkd.exe");
+		commandline = g_utf8_to_utf16("sharkd.exe -", -1, NULL, NULL, NULL);
 
-		if (!CreateProcess(utf_8to16(exename), utf_8to16("sharkd.exe -"), NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi))
+		if (!CreateProcess(utf_8to16(exename), commandline, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi))
 		{
 			fprintf(stderr, "CreateProcess(%s) failed\n", exename);
 		}
