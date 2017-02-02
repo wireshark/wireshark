@@ -688,6 +688,11 @@ void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const 
 }
 #endif
 
+void dfilter_macro_cleanup(void)
+{
+	g_hash_table_destroy(fvt_cache);
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
