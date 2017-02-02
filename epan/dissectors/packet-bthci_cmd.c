@@ -525,6 +525,28 @@ static gint hf_btcommon_eir_ad_tds_flags_transport_data_incomplete = -1;
 static gint hf_btcommon_eir_ad_tds_flags_role = -1;
 static gint hf_btcommon_eir_ad_tds_data_length = -1;
 static gint hf_btcommon_eir_ad_tds_data = -1;
+static gint hf_btcommon_eir_ad_le_features = -1;
+static gint hf_btcommon_eir_ad_le_channel_map = -1;
+static gint hf_btcommon_eir_ad_instant = -1;
+static gint hf_btcommon_eir_ad_le_features_encryption = -1;
+static gint hf_btcommon_eir_ad_le_features_connection_parameters_request_procedure = -1;
+static gint hf_btcommon_eir_ad_le_features_extended_reject_indication = -1;
+static gint hf_btcommon_eir_ad_le_features_slave_initiated_features_exchange = -1;
+static gint hf_btcommon_eir_ad_le_features_ping = -1;
+static gint hf_btcommon_eir_ad_le_features_data_packet_length_extension = -1;
+static gint hf_btcommon_eir_ad_le_features_ll_privacy = -1;
+static gint hf_btcommon_eir_ad_le_features_extended_scanner_filter_policies = -1;
+static gint hf_btcommon_eir_ad_le_features_2m_phy = -1;
+static gint hf_btcommon_eir_ad_le_features_stable_modulation_index_tx =-1;
+static gint hf_btcommon_eir_ad_le_features_stable_modulation_index_rx = -1;
+static gint hf_btcommon_eir_ad_le_features_coded_phy = -1;
+static gint hf_btcommon_eir_ad_le_features_extended_advertising = -1;
+static gint hf_btcommon_eir_ad_le_features_periodic_advertising = -1;
+static gint hf_btcommon_eir_ad_le_features_channel_selection_algorithm_2 = -1;
+static gint hf_btcommon_eir_ad_le_features_power_class_1 = -1;
+static gint hf_btcommon_eir_ad_le_features_minimum_number_of_used_channels_procedure = -1;
+static gint hf_btcommon_eir_ad_le_features_reserved_1_7 = -1;
+static gint hf_btcommon_eir_ad_le_features_reserved = -1;
 static gint hf_btcommon_cod_class_of_device = -1;
 static gint hf_btcommon_cod_format_type = -1;
 static gint hf_btcommon_cod_major_service_class_information = -1;
@@ -624,10 +646,56 @@ static const int *hfx_btcommon_eir_ad_tds_flags[] = {
     NULL
 };
 
+static const int *hfx_btcommon_eir_ad_le_features_0[] = {
+    &hf_btcommon_eir_ad_le_features_encryption,
+    &hf_btcommon_eir_ad_le_features_connection_parameters_request_procedure,
+    &hf_btcommon_eir_ad_le_features_extended_reject_indication,
+    &hf_btcommon_eir_ad_le_features_slave_initiated_features_exchange,
+    &hf_btcommon_eir_ad_le_features_ping,
+    &hf_btcommon_eir_ad_le_features_data_packet_length_extension,
+    &hf_btcommon_eir_ad_le_features_ll_privacy,
+    &hf_btcommon_eir_ad_le_features_extended_scanner_filter_policies,
+    NULL
+};
+
+static const int *hfx_btcommon_eir_ad_le_features_1[] = {
+    &hf_btcommon_eir_ad_le_features_2m_phy,
+    &hf_btcommon_eir_ad_le_features_stable_modulation_index_tx,
+    &hf_btcommon_eir_ad_le_features_stable_modulation_index_rx,
+    &hf_btcommon_eir_ad_le_features_coded_phy,
+    &hf_btcommon_eir_ad_le_features_extended_advertising,
+    &hf_btcommon_eir_ad_le_features_periodic_advertising,
+    &hf_btcommon_eir_ad_le_features_channel_selection_algorithm_2,
+    &hf_btcommon_eir_ad_le_features_power_class_1,
+    NULL
+};
+
+static const int *hfx_btcommon_eir_ad_le_features_2[] = {
+    &hf_btcommon_eir_ad_le_features_minimum_number_of_used_channels_procedure,
+    &hf_btcommon_eir_ad_le_features_reserved_1_7,
+    NULL
+};
+
+static const int *hfx_btcommon_eir_ad_le_features_reserved[] = {
+    &hf_btcommon_eir_ad_le_features_reserved,
+    NULL
+};
+
+static const int **hfx_btcommon_eir_ad_le_features[] = {
+    hfx_btcommon_eir_ad_le_features_0,
+    hfx_btcommon_eir_ad_le_features_1,
+    hfx_btcommon_eir_ad_le_features_2,
+    hfx_btcommon_eir_ad_le_features_reserved,
+    hfx_btcommon_eir_ad_le_features_reserved,
+    hfx_btcommon_eir_ad_le_features_reserved,
+    hfx_btcommon_eir_ad_le_features_reserved,
+    hfx_btcommon_eir_ad_le_features_reserved
+};
 
 static gint ett_cod = -1;
 static gint ett_eir_ad = -1;
 static gint ett_eir_ad_entry = -1;
+static gint ett_eir_ad_le_features = -1;
 
 static expert_field ei_eir_ad_undecoded                               = EI_INIT;
 static expert_field ei_eir_ad_unknown                                 = EI_INIT;
@@ -1297,6 +1365,8 @@ static const value_string bthci_cmd_eir_data_type_vals[] = {
     {0x24, "URI" },
     {0x25, "Indoor Positioning" },
     {0x26, "Transport Discovery Data" },
+    {0x27, "LE Supported Features" },
+    {0x28, "Channel Map Update Indication" },
     {0x3D, "3D Information Data" },
     {0xFF, "Manufacturer Specific" },
     {   0, NULL }
@@ -5694,6 +5764,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     proto_item  *entry_item;
     proto_tree  *entry_tree;
     proto_item  *sub_item;
+    proto_tree  *sub_tree;
     gint         offset = 0;
     gint         offset_start;
     guint8       length;
@@ -6050,7 +6121,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             while (offset < end_offset) {
                 guint8 organization_id;
 
-                proto_tree_add_item(tree, hf_btcommon_eir_ad_tds_organization_id, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_tds_organization_id, tvb, offset, 1, ENC_NA);
                 organization_id = tvb_get_guint8(tvb, offset);
                 offset += 1;
 
@@ -6063,10 +6134,10 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
                     p_add_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_TDS_ORGANIZATION_ID, value_data);
                 }
 
-                proto_tree_add_bitmask(tree, tvb, offset, hf_btcommon_eir_ad_tds_flags, ett_eir_ad_entry, hfx_btcommon_eir_ad_tds_flags, ENC_NA);
+                proto_tree_add_bitmask(entry_tree, tvb, offset, hf_btcommon_eir_ad_tds_flags, ett_eir_ad_entry, hfx_btcommon_eir_ad_tds_flags, ENC_NA);
                 offset += 1;
 
-                sub_item = proto_tree_add_item(tree, hf_btcommon_eir_ad_tds_data_length, tvb, offset, 1, ENC_NA);
+                sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_tds_data_length, tvb, offset, 1, ENC_NA);
                 sub_length = tvb_get_guint8(tvb, offset);
                 offset += 1;
 
@@ -6080,7 +6151,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
                     new_tvb = tvb_new_subset_length(tvb, offset, sub_length);
 
                     if (!dissector_try_uint_new(bluetooth_eir_ad_tds_organization_id, organization_id, new_tvb, pinfo, tree, TRUE, bluetooth_eir_ad_data)) {
-                        sub_item = proto_tree_add_item(tree, hf_btcommon_eir_ad_tds_data, tvb, offset, sub_length, ENC_NA);
+                        sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_tds_data, tvb, offset, sub_length, ENC_NA);
                         expert_add_info(pinfo, sub_item, &ei_eir_ad_undecoded);
                     }
 
@@ -6089,6 +6160,33 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
 
                 length -= (3 + sub_length);
             }
+
+            break;
+        case 0x27: {/* LE Supported Features */
+            guint8  i = 0;
+
+            while (tvb_captured_length_remaining(tvb, offset) > 0 && i < 8) {
+                proto_tree_add_bitmask(entry_tree, tvb, offset, hf_btcommon_eir_ad_le_features, ett_eir_ad_le_features, hfx_btcommon_eir_ad_le_features[i], ENC_NA);
+                offset += 1;
+            }
+
+            sub_length = tvb_captured_length_remaining(tvb, offset);
+            if (sub_length > 0) {
+                sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, sub_length, ENC_NA);
+                expert_add_info(pinfo, sub_item, &ei_eir_ad_unknown);
+                offset += sub_length;
+            }
+            }
+            break;
+        case 0x28: /* Channel Map Update Indication */
+            sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_le_channel_map, tvb, offset, 5, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_le_channel_map);
+
+            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
+            offset += 5;
+
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
 
             break;
         case 0x3D: /* 3D Information Data */
@@ -6826,6 +6924,116 @@ proto_register_btcommon(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
+        { &hf_btcommon_eir_ad_le_features,
+          { "LE Features", "btcommon.eir_ad.entry.le_features",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_channel_map,
+          { "Channel Map", "btcommon.eir_ad.entry.le_channel_map",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_instant,
+          { "Instant", "btcommon.eir_ad.entry.instant",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_encryption,
+          { "LE Encryption",                               "btcommon.eir_ad.le_features.encryption",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_connection_parameters_request_procedure,
+          { "Connection Parameters Request Procedure",     "btcommon.eir_ad.le_features.connection_parameters_request_procedure",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_extended_reject_indication,
+          { "Extended Reject Indication",                  "btcommon.eir_ad.le_features.extended_reject_indication",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_slave_initiated_features_exchange,
+          { "Slave-Initiated Features Exchange",           "btcommon.eir_ad.le_features.slave_initiated_features_exchange",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_ping,
+          { "Ping",                                        "btcommon.eir_ad.le_features.ping",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_data_packet_length_extension,
+          { "Data Packet Length Extension",                "btcommon.eir_ad.le_features.data_packet_length_extension",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_ll_privacy,
+          { "LL Privacy",                                  "btcommon.eir_ad.le_features.ll_privacy",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_extended_scanner_filter_policies,
+          { "Extended Scanner Filter Policies",            "btcommon.eir_ad.le_features.extended_scanner_filter_policies",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_2m_phy,
+          { "LE 2M PHY",            "btcommon.eir_ad.le_features.2m_phy",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_stable_modulation_index_tx,
+          { "Stable Modulation Index - Tx",            "btcommon.eir_ad.le_features.stable_modulation_index_tx",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_stable_modulation_index_rx,
+          { "Stable Modulation Index - Rx",      "btcommon.eir_ad.le_features.stable_modulation_index_rx",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_coded_phy,
+          { "LE Coded PHY",                      "btcommon.eir_ad.le_features.coded_phy",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_extended_advertising,
+          { "LE Extended Advertising",           "btcommon.eir_ad.le_features.extended_advertising",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_periodic_advertising,
+          { "LE Periodic Advertising",           "btcommon.eir_ad.le_features.periodic_advertising",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_channel_selection_algorithm_2,
+          { "Channel Selection Algorithm #2",    "btcommon.eir_ad.le_features.channel_selection_algorithm_2",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_power_class_1,
+          { "Power Class 1",                     "btcommon.eir_ad.le_features.power_class_1",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_minimum_number_of_used_channels_procedure,
+          { "Minimum Number of Used Channels Procedure", "btcommon.eir_ad.entry.le_features.minimum_number_of_used_channels_procedure",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_reserved_1_7,
+          { "Reserved", "btcommon.eir_ad.entry.le_features.reserved.1_7",
+            FT_UINT8, BASE_HEX, NULL, 0xFE,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_le_features_reserved,
+          { "Reserved", "btcommon.eir_ad.entry.le_features.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFF,
+            NULL, HFILL }
+        },
         { &hf_btcommon_cod_class_of_device,
           { "Class of Device", "btcommon.cod.class_of_device",
             FT_UINT24, BASE_HEX, NULL, 0x0,
@@ -7176,6 +7384,7 @@ proto_register_btcommon(void)
     static gint *ett[] = {
         &ett_eir_ad,
         &ett_eir_ad_entry,
+        &ett_eir_ad_le_features,
     };
 
     static ei_register_info ei[] = {
