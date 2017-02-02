@@ -82,7 +82,7 @@ PKG_CONFIG_VERSION=0.28
 # packet data pane; see, for example, Qt bugs QTBUG-31937, QTBUG-41017,
 # and QTBUG-43464, all of which seem to be the same bug.
 #
-QT_VERSION=${QT_VERSION-5.5.0}
+QT_VERSION=${QT_VERSION-5.8.0}
 #GTK_VERSION=${GTK_VERSION-2.24.17}
 if [ "$GTK_VERSION" ]; then
     #
