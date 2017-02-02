@@ -526,7 +526,7 @@ typedef struct {
 	pol_value *list;		 /* List of policy handle entries */
 } pol_hash_value;
 
-static GHashTable *pol_hash = NULL;
+static wmem_map_t *pol_hash = NULL;
 
 /* Hash function */
 
@@ -572,7 +572,7 @@ static pol_value *find_pol_handle(e_ctx_hnd *policy_hnd, guint32 frame,
 	pol_value *pol;
 
 	memcpy(&key.policy_hnd, policy_hnd, sizeof(key.policy_hnd));
-	if ((*valuep = (pol_hash_value *)g_hash_table_lookup(pol_hash, &key))) {
+	if ((*valuep = (pol_hash_value *)wmem_map_lookup(pol_hash, &key))) {
 		/*
 		 * Look for the first value such that both:
 		 *
@@ -625,7 +625,7 @@ static void add_pol_handle(e_ctx_hnd *policy_hnd, guint32 frame,
 		pol->next = NULL;
 		key = (pol_hash_key *)wmem_alloc(wmem_file_scope(), sizeof(pol_hash_key));
 		memcpy(&key->policy_hnd, policy_hnd, sizeof(key->policy_hnd));
-		g_hash_table_insert(pol_hash, key, value);
+		wmem_map_insert(pol_hash, key, value);
 	} else {
 		/*
 		 * Put the new value in the hash value's policy handle
@@ -865,18 +865,6 @@ gboolean dcerpc_fetch_polhnd_data(e_ctx_hnd *policy_hnd,
 	}
 
 	return pol != NULL;
-}
-
-/* Initialise policy handle hash */
-
-static void init_pol_hash(void)
-{
-	pol_hash = g_hash_table_new(pol_hash_fn, pol_hash_compare);
-}
-
-static void cleanup_pol_hash(void)
-{
-	g_hash_table_destroy(pol_hash);
 }
 
 /* Dissect a NT status code */
@@ -2021,8 +2009,8 @@ void dcerpc_smb_init(int proto_dcerpc)
 	/* Initialise policy handle hash */
 	expert_dcerpc_nt = expert_register_protocol(proto_dcerpc);
 	expert_register_field_array(expert_dcerpc_nt, ei, array_length(ei));
-	register_init_routine(&init_pol_hash);
-	register_cleanup_routine(&cleanup_pol_hash);
+
+	pol_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), pol_hash_fn, pol_hash_compare);
 }
 
 /*

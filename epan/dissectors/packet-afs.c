@@ -1372,7 +1372,7 @@ struct afs_request_val {
 	nstime_t req_time;
 };
 
-static GHashTable *afs_request_hash = NULL;
+static wmem_map_t *afs_request_hash = NULL;
 
 /*static GHashTable *afs_fragment_table = NULL; */
 /*static GHashTable *afs_reassembled_table = NULL; */
@@ -1407,21 +1407,6 @@ afs_hash (gconstpointer v)
 	val = key -> conversation + key -> epoch + key -> cid + key -> callnumber;
 
 	return val;
-}
-
-/*
- * Protocol initialization
- */
-static void
-afs_init_protocol(void)
-{
-	afs_request_hash = g_hash_table_new(afs_hash, afs_equal);
-}
-
-static void
-afs_cleanup_protocol(void)
-{
-	g_hash_table_destroy(afs_request_hash);
 }
 
 /*
@@ -2769,7 +2754,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	request_key.cid = rxinfo->cid;
 	request_key.callnumber = rxinfo->callnumber;
 
-	request_val = (struct afs_request_val *) g_hash_table_lookup(
+	request_val = (struct afs_request_val *) wmem_map_lookup(
 		afs_request_hash, &request_key);
 
 	/* only allocate a new hash element when it's a request */
@@ -2785,7 +2770,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			request_val -> rep_num = 0;
 			request_val -> req_time = pinfo->abs_ts;
 
-			g_hash_table_insert(afs_request_hash, new_request_key,
+			wmem_map_insert(afs_request_hash, new_request_key,
 				request_val);
 		}
 		if( request_val && reply ) {
@@ -3633,8 +3618,7 @@ proto_register_afs(void)
 	reassembly_table_register(&afs_reassembly_table,
 			      &addresses_reassembly_table_functions);
 
-	register_init_routine(&afs_init_protocol);
-	register_cleanup_routine(&afs_cleanup_protocol);
+	afs_request_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), afs_hash, afs_equal);
 
 	register_dissector("afs", dissect_afs, proto_afs);
 }

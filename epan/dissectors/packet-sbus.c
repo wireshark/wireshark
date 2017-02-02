@@ -558,7 +558,7 @@ typedef struct {
 } sbus_request_val;
 
 /* The hash structure (for conversations)*/
-static GHashTable *sbus_request_hash = NULL;
+static wmem_map_t *sbus_request_hash = NULL;
 
 static guint crc_calc (guint crc, guint val)
 {
@@ -591,15 +591,6 @@ static guint sbus_hash(gconstpointer v)
 
        val = key->conversation + key->sequence;
        return val;
-}
-
-/*Protocol initialisation*/
-static void sbus_init_protocol(void){
-       sbus_request_hash = g_hash_table_new(sbus_hash, sbus_equal);
-}
-
-static void sbus_cleanup_protocol(void){
-       g_hash_table_destroy(sbus_request_hash);
 }
 
 /* check whether the packet looks like SBUS or not */
@@ -703,7 +694,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        request_key.conversation = conversation->conv_index;
        request_key.sequence = tvb_get_ntohs(tvb,6);
 
-       request_val = (sbus_request_val *) g_hash_table_lookup(sbus_request_hash,
+       request_val = (sbus_request_val *) wmem_map_lookup(sbus_request_hash,
                             &request_key);
        /*Get type of telegram for finding retries
         *As we are storing the info in a hash table we need to update the info
@@ -756,7 +747,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      request_val->block_tlg = 0x0;
               }
 
-              g_hash_table_insert(sbus_request_hash, new_request_key, request_val);
+              wmem_map_insert(sbus_request_hash, new_request_key, request_val);
        }
 /* End of attaching data to hash table*/
 
@@ -2306,8 +2297,7 @@ proto_register_sbus(void)
        proto_register_subtree_array(ett, array_length(ett));
        expert_sbus = expert_register_protocol(proto_sbus);
        expert_register_field_array(expert_sbus, ei, array_length(ei));
-       register_init_routine(&sbus_init_protocol);
-       register_cleanup_routine(&sbus_cleanup_protocol);
+       sbus_request_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), sbus_hash, sbus_equal);
 }
 
 void

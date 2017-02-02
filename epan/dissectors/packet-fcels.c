@@ -619,7 +619,7 @@ typedef struct _fcels_conv_data {
     guint32 opcode;
 } fcels_conv_data_t;
 
-static GHashTable *fcels_req_hash = NULL;
+static wmem_map_t *fcels_req_hash = NULL;
 
 static dissector_handle_t fcsp_handle;
 
@@ -644,21 +644,6 @@ fcels_hash (gconstpointer v)
     val = key->conv_idx;
 
     return val;
-}
-
-/*
- * Protocol initialization
- */
-static void
-fcels_init_protocol(void)
-{
-    fcels_req_hash = g_hash_table_new(fcels_hash, fcels_equal);
-}
-
-static void
-fcels_cleanup_protocol(void)
-{
-    g_hash_table_destroy(fcels_req_hash);
 }
 
 static const true_false_string tfs_fc_fcels_cmn_b2b = {
@@ -1894,7 +1879,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         ckey.conv_idx = conversation->conv_index;
 
-        cdata = (fcels_conv_data_t *)g_hash_table_lookup (fcels_req_hash,
+        cdata = (fcels_conv_data_t *)wmem_map_lookup (fcels_req_hash,
                                                           &ckey);
         if (cdata) {
             /* Since we never free the memory used by an exchange, this maybe a
@@ -1910,7 +1895,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             cdata = wmem_new(wmem_file_scope(), fcels_conv_data_t);
             cdata->opcode = opcode;
 
-            g_hash_table_insert (fcels_req_hash, req_key, cdata);
+            wmem_map_insert (fcels_req_hash, req_key, cdata);
         }
     }
     else {
@@ -1964,7 +1949,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         if (conversation) {
             ckey.conv_idx = conversation->conv_index;
 
-            cdata = (fcels_conv_data_t *)g_hash_table_lookup (fcels_req_hash, &ckey);
+            cdata = (fcels_conv_data_t *)wmem_map_lookup (fcels_req_hash, &ckey);
 
             if (cdata != NULL) {
                 if ((options & NO_ADDR2) && (cdata->opcode != FC_ELS_FLOGI)) {
@@ -2615,8 +2600,7 @@ proto_register_fcels (void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_fcels = expert_register_protocol(proto_fcels);
     expert_register_field_array(expert_fcels, ei, array_length(ei));
-    register_init_routine (&fcels_init_protocol);
-    register_cleanup_routine (&fcels_cleanup_protocol);
+    fcels_req_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), fcels_hash, fcels_equal);
 }
 
 void

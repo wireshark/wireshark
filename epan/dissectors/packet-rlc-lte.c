@@ -415,7 +415,7 @@ typedef struct
 } channel_sequence_analysis_status;
 
 /* The sequence analysis channel hash table */
-static GHashTable *sequence_analysis_channel_hash = NULL;
+static wmem_map_t *sequence_analysis_channel_hash = NULL;
 
 
 /* Types for sequence analysis frame report hash table                  */
@@ -446,7 +446,7 @@ typedef struct
 
 
 /* The sequence analysis frame report hash table instance itself   */
-static GHashTable *sequence_analysis_report_hash = NULL;
+static wmem_map_t *sequence_analysis_report_hash = NULL;
 
 
 static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
@@ -457,7 +457,7 @@ static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
 
 
 /* The reassembly result hash table */
-static GHashTable *reassembly_report_hash = NULL;
+static wmem_map_t *reassembly_report_hash = NULL;
 
 
 /* Create a new struct for reassembly */
@@ -505,7 +505,7 @@ static void reassembly_record(channel_sequence_analysis_status *status, packet_i
                               guint16 SN, rlc_lte_info *p_rlc_lte_info)
 {
     /* Just store existing info in hash table */
-    g_hash_table_insert(reassembly_report_hash,
+    wmem_map_insert(reassembly_report_hash,
                         get_report_hash_key(SN, pinfo->num, p_rlc_lte_info, TRUE),
                         status->reassembly_info);
 }
@@ -621,7 +621,7 @@ typedef struct
     guint32         frameNum;
 } channel_repeated_nack_status;
 
-static GHashTable *repeated_nack_channel_hash = NULL;
+static wmem_map_t *repeated_nack_channel_hash = NULL;
 
 typedef struct {
     guint16         noOfNACKsRepeated;
@@ -629,7 +629,7 @@ typedef struct {
     guint32         previousFrameNum;
 } channel_repeated_nack_report;
 
-static GHashTable *repeated_nack_report_hash = NULL;
+static wmem_map_t *repeated_nack_report_hash = NULL;
 
 
 
@@ -1413,7 +1413,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
 
     /* If find stat_report_in_frame already, use that and get out */
     if (pinfo->fd->flags.visited) {
-        p_report_in_frame = (sequence_analysis_report*)g_hash_table_lookup(sequence_analysis_report_hash,
+        p_report_in_frame = (sequence_analysis_report*)wmem_map_lookup(sequence_analysis_report_hash,
                                                                            get_report_hash_key(sequenceNumber,
                                                                                                pinfo->num,
                                                                                                p_rlc_lte_info,
@@ -1437,7 +1437,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
     channel_key.direction = p_rlc_lte_info->direction;
 
     /* Do the table lookup */
-    p_channel_status = (channel_sequence_analysis_status*)g_hash_table_lookup(sequence_analysis_channel_hash, &channel_key);
+    p_channel_status = (channel_sequence_analysis_status*)wmem_map_lookup(sequence_analysis_channel_hash, &channel_key);
 
     /* Create table entry if necessary */
     if (p_channel_status == NULL) {
@@ -1451,7 +1451,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
         p_channel_status->rlcMode = p_rlc_lte_info->rlcMode;
 
         /* Add entry */
-        g_hash_table_insert(sequence_analysis_channel_hash, p_channel_key, p_channel_status);
+        wmem_map_insert(sequence_analysis_channel_hash, p_channel_key, p_channel_status);
     }
 
     /* Create space for frame state_report */
@@ -1580,7 +1580,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                     }
 
                     /* Look up report for previous SN */
-                    p_previous_report = (sequence_analysis_report*)g_hash_table_lookup(sequence_analysis_report_hash,
+                    p_previous_report = (sequence_analysis_report*)wmem_map_lookup(sequence_analysis_report_hash,
                                                                                        get_report_hash_key((sequenceNumber+snLimit-1) % snLimit,
                                                                                                            p_report_in_frame->previousFrameNum,
                                                                                                            p_rlc_lte_info,
@@ -1683,7 +1683,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                 if (p_report_in_frame->previousFrameNum != 0) {
                     /* Get report for previous frame */
                     sequence_analysis_report *p_previous_report;
-                    p_previous_report = (sequence_analysis_report*)g_hash_table_lookup(sequence_analysis_report_hash,
+                    p_previous_report = (sequence_analysis_report*)wmem_map_lookup(sequence_analysis_report_hash,
                                                                                        get_report_hash_key((sequenceNumber+snLimit-1) % snLimit,
                                                                                                            p_report_in_frame->previousFrameNum,
                                                                                                            p_rlc_lte_info,
@@ -1750,7 +1750,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
     }
 
     /* Associate with this frame number */
-    g_hash_table_insert(sequence_analysis_report_hash,
+    wmem_map_insert(sequence_analysis_report_hash,
                         get_report_hash_key(sequenceNumber, pinfo->num, p_rlc_lte_info, TRUE),
                         p_report_in_frame);
 
@@ -1830,7 +1830,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
 
     /* If find state_report_in_frame already, use that and get out */
     if (pinfo->fd->flags.visited) {
-        p_report_in_frame = (channel_repeated_nack_report*)g_hash_table_lookup(repeated_nack_report_hash,
+        p_report_in_frame = (channel_repeated_nack_report*)wmem_map_lookup(repeated_nack_report_hash,
                                                                                get_report_hash_key(0, pinfo->num,
                                                                                                    p_rlc_lte_info, FALSE));
         if (p_report_in_frame != NULL) {
@@ -1854,7 +1854,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     memset(repeatedNACKs, 0, sizeof(repeatedNACKs));
 
     /* Do the table lookup */
-    p_channel_status = (channel_repeated_nack_status*)g_hash_table_lookup(repeated_nack_channel_hash, &channel_key);
+    p_channel_status = (channel_repeated_nack_status*)wmem_map_lookup(repeated_nack_channel_hash, &channel_key);
 
     /* Create table entry if necessary */
     if (p_channel_status == NULL) {
@@ -1867,7 +1867,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
         memcpy(p_channel_key, &channel_key, sizeof(channel_hash_key));
 
         /* Add entry to table */
-        g_hash_table_insert(repeated_nack_channel_hash, p_channel_key, p_channel_status);
+        wmem_map_insert(repeated_nack_channel_hash, p_channel_key, p_channel_status);
     }
 
     /* Compare NACKs in channel status with NACKs in tap_info.
@@ -1904,7 +1904,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
         p_report_in_frame->previousFrameNum = p_channel_status->frameNum;
 
         /* Associate with this frame number */
-        g_hash_table_insert(repeated_nack_report_hash,
+        wmem_map_insert(repeated_nack_report_hash,
                             get_report_hash_key(0, pinfo->num,
                                                 p_rlc_lte_info, TRUE),
                             p_report_in_frame);
@@ -1934,7 +1934,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
 
     /* If find stat_report_in_frame already, use that and get out */
     if (pinfo->fd->flags.visited) {
-        p_report_in_frame = (sequence_analysis_report*)g_hash_table_lookup(sequence_analysis_report_hash,
+        p_report_in_frame = (sequence_analysis_report*)wmem_map_lookup(sequence_analysis_report_hash,
                                                                            get_report_hash_key(0, pinfo->num,
                                                                                                p_rlc_lte_info,
                                                                                                FALSE));
@@ -1960,7 +1960,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
         (p_rlc_lte_info->direction == DIRECTION_UPLINK) ? DIRECTION_DOWNLINK : DIRECTION_UPLINK;
 
     /* Do the table lookup */
-    p_channel_status = (channel_sequence_analysis_status*)g_hash_table_lookup(sequence_analysis_channel_hash, &channel_key);
+    p_channel_status = (channel_sequence_analysis_status*)wmem_map_lookup(sequence_analysis_channel_hash, &channel_key);
 
     /* Create table entry if necessary */
     if (p_channel_status == NULL) {
@@ -1980,7 +1980,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
         p_report_in_frame->firstSN = ack_sn;
 
         /* Associate with this frame number */
-        g_hash_table_insert(sequence_analysis_report_hash,
+        wmem_map_insert(sequence_analysis_report_hash,
                             get_report_hash_key(0, pinfo->num,
                                                 p_rlc_lte_info, TRUE),
                             p_report_in_frame);
@@ -2247,7 +2247,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     /*************************************/
     /* Data                              */
 
-    reassembly_info = (rlc_channel_reassembly_info *)g_hash_table_lookup(reassembly_report_hash,
+    reassembly_info = (rlc_channel_reassembly_info *)wmem_map_lookup(reassembly_report_hash,
                                                                          get_report_hash_key((guint16)sn, pinfo->num,
                                                                                              p_rlc_lte_info, FALSE));
 
@@ -2700,7 +2700,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Data                              */
 
     if (!first_includes_start) {
-        reassembly_info = (rlc_channel_reassembly_info *)g_hash_table_lookup(reassembly_report_hash,
+        reassembly_info = (rlc_channel_reassembly_info *)wmem_map_lookup(reassembly_report_hash,
                                                                              get_report_hash_key((guint16)sn,
                                                                                                  pinfo->num,
                                                                                                  p_rlc_lte_info,
@@ -3042,26 +3042,6 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 
-
-/* Initializes the hash tables each time a new
- * file is loaded or re-loaded in wireshark */
-static void rlc_lte_init_protocol(void)
-{
-    sequence_analysis_channel_hash = g_hash_table_new(rlc_channel_hash_func, rlc_channel_equal);
-    sequence_analysis_report_hash = g_hash_table_new(rlc_result_hash_func, rlc_result_hash_equal);
-    repeated_nack_channel_hash = g_hash_table_new(rlc_channel_hash_func, rlc_channel_equal);
-    repeated_nack_report_hash = g_hash_table_new(rlc_result_hash_func, rlc_result_hash_equal);
-    reassembly_report_hash = g_hash_table_new(rlc_result_hash_func, rlc_result_hash_equal);
-}
-
-static void rlc_lte_cleanup_protocol(void)
-{
-    g_hash_table_destroy(sequence_analysis_channel_hash);
-    g_hash_table_destroy(sequence_analysis_report_hash);
-    g_hash_table_destroy(repeated_nack_channel_hash);
-    g_hash_table_destroy(repeated_nack_report_hash);
-    g_hash_table_destroy(reassembly_report_hash);
-}
 
 /* Configure number of PDCP SN bits to use for DRB channels */
 void set_rlc_lte_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 drbid,
@@ -3695,8 +3675,11 @@ void proto_register_rlc_lte(void)
 
     ue_parameters_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    register_init_routine(&rlc_lte_init_protocol);
-    register_cleanup_routine(&rlc_lte_cleanup_protocol);
+    sequence_analysis_channel_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), rlc_channel_hash_func, rlc_channel_equal);
+    sequence_analysis_report_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), rlc_result_hash_func, rlc_result_hash_equal);
+    repeated_nack_channel_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), rlc_channel_hash_func, rlc_channel_equal);
+    repeated_nack_report_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), rlc_result_hash_func, rlc_result_hash_equal);
+    reassembly_report_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), rlc_result_hash_func, rlc_result_hash_equal);
 }
 
 void proto_reg_handoff_rlc_lte(void)

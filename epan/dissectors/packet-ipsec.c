@@ -470,19 +470,19 @@ typedef struct
 
 /* The sequence analysis SPI hash table.
    Maps SPI -> spi_status */
-static GHashTable *esp_sequence_analysis_hash = NULL;
+static wmem_map_t *esp_sequence_analysis_hash = NULL;
 
 /* Results are stored here: framenum -> spi_status */
 /* N.B. only store entries for out-of-order frames, if there is no entry for
    a given frame, it was found to be in-order */
-static GHashTable *esp_sequence_analysis_report_hash = NULL;
+static wmem_map_t *esp_sequence_analysis_report_hash = NULL;
 
 /* During the first pass, update the SPI state.  If the sequence numbers
    are out of order, add an entry to the report table */
 static void check_esp_sequence_info(guint32 spi, guint32 sequence_number, packet_info *pinfo)
 {
   /* Do the table lookup */
-  spi_status *status = (spi_status*)g_hash_table_lookup(esp_sequence_analysis_hash,
+  spi_status *status = (spi_status*)wmem_map_lookup(esp_sequence_analysis_hash,
                                                         GUINT_TO_POINTER((guint)spi));
   if (status == NULL) {
     /* Create an entry for this SPI */
@@ -491,7 +491,7 @@ static void check_esp_sequence_info(guint32 spi, guint32 sequence_number, packet
     status->previousFrameNum = pinfo->num;
 
     /* And add it to the table */
-    g_hash_table_insert(esp_sequence_analysis_hash, GUINT_TO_POINTER((guint)spi), status);
+    wmem_map_insert(esp_sequence_analysis_hash, GUINT_TO_POINTER((guint)spi), status);
   }
   else {
     spi_status *frame_status;
@@ -503,7 +503,7 @@ static void check_esp_sequence_info(guint32 spi, guint32 sequence_number, packet
       /* Copy what was expected */
       *frame_status = *status;
       /* And add it into the report table */
-      g_hash_table_insert(esp_sequence_analysis_report_hash, GUINT_TO_POINTER(pinfo->num), frame_status);
+      wmem_map_insert(esp_sequence_analysis_report_hash, GUINT_TO_POINTER(pinfo->num), frame_status);
     }
     /* Adopt this setting as 'current' regardless of whether expected */
     status->previousSequenceNumber = sequence_number;
@@ -517,7 +517,7 @@ static void show_esp_sequence_info(guint32 spi, guint32 sequence_number,
                                    tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 {
   /* Look up this frame in the report table. */
-  spi_status *status = (spi_status*)g_hash_table_lookup(esp_sequence_analysis_report_hash,
+  spi_status *status = (spi_status*)wmem_map_lookup(esp_sequence_analysis_report_hash,
                                                         GUINT_TO_POINTER(pinfo->num));
   if (status != NULL) {
     proto_item *sn_ti, *frame_ti;
@@ -2235,15 +2235,9 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
 	return tvb_captured_length(tvb);
 }
 
-static void ipsec_init_protocol(void)
-{
-  esp_sequence_analysis_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-  esp_sequence_analysis_report_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-}
-
+#ifdef HAVE_LIBGCRYPT
 static void ipsec_cleanup_protocol(void)
 {
-#ifdef HAVE_LIBGCRYPT
   /* Free any SA records added by other dissectors */
   guint n;
   for (n=0; n < extra_esp_sa_records.num_records; n++) {
@@ -2254,11 +2248,8 @@ static void ipsec_cleanup_protocol(void)
   g_free(extra_esp_sa_records.records);
   extra_esp_sa_records.records = NULL;
   extra_esp_sa_records.num_records = 0;
-#endif
-
-  g_hash_table_destroy(esp_sequence_analysis_hash);
-  g_hash_table_destroy(esp_sequence_analysis_report_hash);
 }
+#endif
 
 void
 proto_register_ipsec(void)
@@ -2473,8 +2464,11 @@ proto_register_ipsec(void)
                                 esp_uat);
 #endif
 
-  register_init_routine(&ipsec_init_protocol);
+  esp_sequence_analysis_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+  esp_sequence_analysis_report_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+#ifdef HAVE_LIBGCRYPT
   register_cleanup_routine(&ipsec_cleanup_protocol);
+#endif
 
   register_dissector("esp", dissect_esp, proto_esp);
   register_dissector("ah", dissect_ah, proto_ah);

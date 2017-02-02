@@ -324,7 +324,7 @@ typedef struct _v9_v10_tmplt {
 
 /* Map from (converstion+obs-domain-id+flowset-id) -> v9_v10_tmplt_entry_t*    */
 /* Confusingly, for key, fill in only relevant parts of v9_v10_tmplt_entry_t... */
-GHashTable *v9_v10_tmplt_table = NULL;
+wmem_map_t *v9_v10_tmplt_table = NULL;
 
 
 static const value_string v9_v10_template_types[] = {
@@ -2341,10 +2341,10 @@ typedef struct netflow_domain_state_t {
     guint32 current_frame_number;
 } netflow_domain_state_t;
 
-static GHashTable *netflow_sequence_analysis_domain_hash = NULL;
+static wmem_map_t *netflow_sequence_analysis_domain_hash = NULL;
 
 /* Frame number -> domain state */
-static GHashTable *netflow_sequence_analysis_result_hash = NULL;
+static wmem_map_t *netflow_sequence_analysis_result_hash = NULL;
 
 /* On first pass, check ongoing sequence of observation domain, and only store a result
    if the sequence number is not as expected */
@@ -2352,7 +2352,7 @@ static void store_sequence_analysis_info(guint32 domain_id, guint32 seqnum, unsi
                                          packet_info *pinfo)
 {
     /* Find current domain info */
-    netflow_domain_state_t *domain_state = (netflow_domain_state_t *)g_hash_table_lookup(netflow_sequence_analysis_domain_hash,
+    netflow_domain_state_t *domain_state = (netflow_domain_state_t *)wmem_map_lookup(netflow_sequence_analysis_domain_hash,
                                                                                          GUINT_TO_POINTER(domain_id));
     if (domain_state == NULL) {
         /* Give up if we haven't seen a template for this domain id yet */
@@ -2370,7 +2370,7 @@ static void store_sequence_analysis_info(guint32 domain_id, guint32 seqnum, unsi
         *result_state = *domain_state;
 
         /* Add into result table for current frame number */
-        g_hash_table_insert(netflow_sequence_analysis_result_hash, GUINT_TO_POINTER(pinfo->num), result_state);
+        wmem_map_insert(netflow_sequence_analysis_result_hash, GUINT_TO_POINTER(pinfo->num), result_state);
     }
 
     /* Update domain info for the next frame to consult.
@@ -2386,7 +2386,7 @@ static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum,
                                         proto_item *flow_sequence_ti, proto_tree *tree)
 {
     /* Look for info stored for this frame */
-    netflow_domain_state_t *state = (netflow_domain_state_t *)g_hash_table_lookup(netflow_sequence_analysis_result_hash,
+    netflow_domain_state_t *state = (netflow_domain_state_t *)wmem_map_lookup(netflow_sequence_analysis_result_hash,
                                                                                   GUINT_TO_POINTER(pinfo->num));
     if (state != NULL) {
         proto_item *ti;
@@ -3103,7 +3103,7 @@ dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int 
 
     /* Look up template */
     v9_v10_tmplt_build_key(&tmplt_key, pinfo, hdrinfo_p->src_id, id);
-    tmplt_p = (v9_v10_tmplt_t *)g_hash_table_lookup(v9_v10_tmplt_table, &tmplt_key);
+    tmplt_p = (v9_v10_tmplt_t *)wmem_map_lookup(v9_v10_tmplt_table, &tmplt_key);
     if ((tmplt_p != NULL)  && (tmplt_p->length != 0)) {
         int count = 1;
         proto_item *ti;
@@ -7395,7 +7395,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
         /*  ToDo: expert warning if replacement (changed) and new template ignored.              */
         /*  XXX: Is an Options template with only scope fields allowed for V9 ??                 */
 
-        tmplt_p = (v9_v10_tmplt_t *)g_hash_table_lookup(v9_v10_tmplt_table, &tmplt);
+        tmplt_p = (v9_v10_tmplt_t *)wmem_map_lookup(v9_v10_tmplt_table, &tmplt);
         if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
             do {
                 if (v9_tmplt_max_fields &&
@@ -7428,7 +7428,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
             /* Remember when we saw this template */
             tmplt_p->template_frame_number = pinfo->num;
             /* Add completed entry into table */
-            g_hash_table_insert(v9_v10_tmplt_table, tmplt_p, tmplt_p);
+            wmem_map_insert(v9_v10_tmplt_table, tmplt_p, tmplt_p);
         }
 
         remaining -= offset - orig_offset;
@@ -7499,7 +7499,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         /*  been allocated) and thus this template will not be cached after dissection.            */
         /*  ToDo: expert warning if replacement (changed) and new template ignored.                */
 
-        tmplt_p = (v9_v10_tmplt_t *)g_hash_table_lookup(v9_v10_tmplt_table, &tmplt);
+        tmplt_p = (v9_v10_tmplt_t *)wmem_map_lookup(v9_v10_tmplt_table, &tmplt);
         if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
             do {
                 if ((count == 0) ||
@@ -7527,15 +7527,15 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
             copy_address_wmem(wmem_file_scope(), &tmplt_p->dst_addr, &pinfo->net_dst);
             /* Remember when we saw this template */
             tmplt_p->template_frame_number = pinfo->num;
-            g_hash_table_insert(v9_v10_tmplt_table, tmplt_p, tmplt_p);
+            wmem_map_insert(v9_v10_tmplt_table, tmplt_p, tmplt_p);
 
             /* Create if necessary observation domain entry (for use with sequence analysis) */
-            domain_state = (netflow_domain_state_t *)g_hash_table_lookup(netflow_sequence_analysis_domain_hash,
+            domain_state = (netflow_domain_state_t *)wmem_map_lookup(netflow_sequence_analysis_domain_hash,
                                                                          GUINT_TO_POINTER(hdrinfo_p->src_id));
             if (domain_state == NULL) {
                 domain_state = wmem_new0(wmem_file_scope(), netflow_domain_state_t);
                 /* Store new domain in table */
-                g_hash_table_insert(netflow_sequence_analysis_domain_hash, GUINT_TO_POINTER(hdrinfo_p->src_id), domain_state);
+                wmem_map_insert(netflow_sequence_analysis_domain_hash, GUINT_TO_POINTER(hdrinfo_p->src_id), domain_state);
             }
         }
         remaining -= offset - orig_offset;
@@ -7694,23 +7694,6 @@ getprefix(const guint32 *addr, int prefix)
 
     set_address(&prefix_addr, AT_IPv4, 4, &gprefix);
     return address_to_str(wmem_packet_scope(), &prefix_addr);
-}
-
-/* Called whenever a new capture is loaded, a complete redissection is done, a pref is changed, & etc */
-static void
-netflow_init(void)
-{
-    v9_v10_tmplt_table = g_hash_table_new(v9_v10_tmplt_table_hash, v9_v10_tmplt_table_equal);
-    netflow_sequence_analysis_domain_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-    netflow_sequence_analysis_result_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-}
-
-static void
-netflow_cleanup(void)
-{
-    g_hash_table_destroy(v9_v10_tmplt_table);
-    g_hash_table_destroy(netflow_sequence_analysis_domain_hash);
-    g_hash_table_destroy(netflow_sequence_analysis_result_hash);
 }
 
 void
@@ -12035,8 +12018,9 @@ proto_register_netflow(void)
                                    " (default: " G_STRINGIFY(V9_TMPLT_MAX_FIELDS_DEF) ")",
                                    10, &v9_tmplt_max_fields);
 
-    register_init_routine(&netflow_init);
-    register_cleanup_routine(&netflow_cleanup);
+    v9_v10_tmplt_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), v9_v10_tmplt_table_hash, v9_v10_tmplt_table_equal);
+    netflow_sequence_analysis_domain_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+    netflow_sequence_analysis_result_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 

@@ -3072,7 +3072,7 @@ static reassembly_table rpc_fragment_table;
  * so that they don't try to combine fragments from different TCP
  * connections.)
  */
-static GHashTable *rpc_reassembly_table = NULL;
+static wmem_map_t *rpc_reassembly_table = NULL;
 
 typedef struct _rpc_fragment_key {
 	guint32 conv_id;
@@ -3408,7 +3408,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	old_rfk.conv_id = conversation->conv_index;
 	old_rfk.seq = seq;
 	old_rfk.port = pinfo->srcport;
-	rfk = (rpc_fragment_key *)g_hash_table_lookup(rpc_reassembly_table, &old_rfk);
+	rfk = (rpc_fragment_key *)wmem_map_lookup(rpc_reassembly_table, &old_rfk);
 
 	if (rfk == NULL) {
 		/*
@@ -3451,7 +3451,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			rfk->port = pinfo->srcport;
 			rfk->offset = 0;
 			rfk->start_seq = seq;
-			g_hash_table_insert(rpc_reassembly_table, rfk, rfk);
+			wmem_map_insert(rpc_reassembly_table, rfk, rfk);
 
 			/*
 			 * Start defragmentation.
@@ -3474,7 +3474,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				new_rfk->port = pinfo->srcport;
 				new_rfk->offset = rfk->offset + len - 4;
 				new_rfk->start_seq = rfk->start_seq;
-				g_hash_table_insert(rpc_reassembly_table, new_rfk,
+				wmem_map_insert(rpc_reassembly_table, new_rfk,
 					new_rfk);
 
 				/*
@@ -3542,7 +3542,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			new_rfk->port = pinfo->srcport;
 			new_rfk->offset = rfk->offset + len - 4;
 			new_rfk->start_seq = rfk->start_seq;
-			g_hash_table_insert(rpc_reassembly_table, new_rfk,
+			wmem_map_insert(rpc_reassembly_table, new_rfk,
 			    new_rfk);
 
 			/*
@@ -3909,20 +3909,6 @@ dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		dissect_rpc_continuation(tvb, pinfo, tree);
 
 	return tvb_reported_length(tvb);
-}
-
-/* Discard any state we've saved. */
-static void
-rpc_init_protocol(void)
-{
-	rpc_reassembly_table = g_hash_table_new(rpc_fragment_hash,
-	    rpc_fragment_equal);
-}
-
-static void
-rpc_cleanup_protocol(void)
-{
-	g_hash_table_destroy(rpc_reassembly_table);
 }
 
 /* Tap statistics */
@@ -4370,8 +4356,8 @@ proto_register_rpc(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_rpc = expert_register_protocol(proto_rpc);
 	expert_register_field_array(expert_rpc, ei, array_length(ei));
-	register_init_routine(&rpc_init_protocol);
-	register_cleanup_routine(&rpc_cleanup_protocol);
+
+	rpc_reassembly_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), rpc_fragment_hash, rpc_fragment_equal);
 	reassembly_table_register(&rpc_fragment_table,
 	    &addresses_ports_reassembly_table_functions);
 

@@ -158,7 +158,7 @@ struct beep_request_val {
   int c_mime_hdr, s_mime_hdr;
 };
 
-static GHashTable *beep_request_hash = NULL;
+static wmem_map_t *beep_request_hash = NULL;
 
 /* Hash Functions */
 static gint
@@ -193,18 +193,6 @@ beep_hash(gconstpointer v)
 
   return val;
 
-}
-
-static void
-beep_init_protocol(void)
-{
-  beep_request_hash = g_hash_table_new(beep_hash, beep_equal);
-}
-
-static void
-beep_cleanup_protocol(void)
-{
-  g_hash_table_destroy(beep_request_hash);
 }
 
 
@@ -777,7 +765,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        */
       request_key.conversation = conversation->conv_index;
 
-      request_val = (struct beep_request_val *)g_hash_table_lookup(beep_request_hash, &request_key);
+      request_val = (struct beep_request_val *)wmem_map_lookup(beep_request_hash, &request_key);
 
       if (!request_val) { /* Create one */
 
@@ -788,7 +776,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         request_val->processed = 0;
         request_val->size = 0;
 
-        g_hash_table_insert(beep_request_hash, new_request_key, request_val);
+        wmem_map_insert(beep_request_hash, new_request_key, request_val);
 
       }
     }
@@ -989,8 +977,8 @@ proto_register_beep(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_beep = expert_register_protocol(proto_beep);
   expert_register_field_array(expert_beep, ei, array_length(ei));
-  register_init_routine(&beep_init_protocol);
-  register_cleanup_routine(&beep_cleanup_protocol);
+
+  beep_request_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), beep_hash, beep_equal);
 
   /* Register our configuration options for BEEP, particularly our port */
 

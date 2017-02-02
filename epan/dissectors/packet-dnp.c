@@ -1301,7 +1301,7 @@ static expert_field ei_dnp3_buffering_user_data_until_final_frame_is_received = 
 
 /* Tables for reassembly of fragments. */
 static reassembly_table al_reassembly_table;
-static GHashTable *dl_conversation_table = NULL;
+static wmem_map_t *dl_conversation_table = NULL;
 
 /* Data-Link-Layer Conversation Key Structure */
 typedef struct _dl_conversation_key
@@ -3326,7 +3326,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         dl_conversation_key.src = dl_src;
         dl_conversation_key.dst = dl_dst;
 
-        conv_data_ptr = (dnp3_conv_t*)g_hash_table_lookup(dl_conversation_table, &dl_conversation_key);
+        conv_data_ptr = (dnp3_conv_t*)wmem_map_lookup(dl_conversation_table, &dl_conversation_key);
 
         if (!pinfo->fd->flags.visited && conv_data_ptr == NULL)
         {
@@ -3339,7 +3339,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
           /*** Increment static global fragment reassembly id ***/
           conv_data_ptr->conv_seq_number = seq_number++;
 
-          g_hash_table_insert(dl_conversation_table, new_dl_conversation_key, conv_data_ptr);
+          wmem_map_insert(dl_conversation_table, new_dl_conversation_key, conv_data_ptr);
         }
 
         conv_seq_number = conv_data_ptr->conv_seq_number;
@@ -3516,18 +3516,6 @@ dissect_dnp3_udp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   return (udp_dissect_pdus(tvb, pinfo, tree, DNP_HDR_LEN, dnp3_udp_check_header_heur,
                    get_dnp3_message_len, dissect_dnp3_message, data) != 0);
 
-}
-
-static void
-dnp3_init(void)
-{
-  dl_conversation_table = g_hash_table_new(dl_conversation_hash, dl_conversation_equal);
-}
-
-static void
-dnp3_cleanup(void)
-{
-  g_hash_table_destroy(dl_conversation_table);
 }
 
 /* Register the protocol with Wireshark */
@@ -4551,16 +4539,12 @@ proto_register_dnp3(void)
   module_t *dnp3_module;
   expert_module_t* expert_dnp3;
 
-/* Register protocol init routine */
-  register_init_routine(&dnp3_init);
-  register_cleanup_routine(&dnp3_cleanup);
+  dl_conversation_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), dl_conversation_hash, dl_conversation_equal);
   reassembly_table_register(&al_reassembly_table,
                         &addresses_reassembly_table_functions);
 
-
 /* Register the protocol name and description */
-  proto_dnp3 = proto_register_protocol("Distributed Network Protocol 3.0",
-                   "DNP 3.0", "dnp3");
+  proto_dnp3 = proto_register_protocol("Distributed Network Protocol 3.0", "DNP 3.0", "dnp3");
 
 /* Register the dissector so it may be used as a User DLT payload protocol */
   register_dissector("dnp3.udp", dissect_dnp3_udp, proto_dnp3);
