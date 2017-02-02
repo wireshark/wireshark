@@ -366,6 +366,7 @@ void stream_cleanup( void )
     cleanup_stream_hash();
     cleanup_fragment_hash();
     stream_cleanup_pdu_data();
+    reassembly_table_destroy(&stream_reassembly_table);
 }
 
 /* initialise the stream routines */
