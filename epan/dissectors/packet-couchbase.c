@@ -364,6 +364,21 @@ static int hf_multipath_path = -1;
 static int hf_multipath_valuelen = -1;
 static int hf_multipath_value = -1;
 
+static int hf_meta_flags = -1;
+static int hf_meta_expiration = -1;
+static int hf_meta_revseqno = -1;
+static int hf_meta_cas = -1;
+static int hf_skip_conflict = -1;
+static int hf_force_accept = -1;
+static int hf_regenerate_cas = -1;
+static int hf_meta_options = -1;
+static int hf_metalen = -1;
+static int hf_meta_reqextmeta = -1;
+static int hf_meta_deleted = -1;
+static int hf_exptime = -1;
+static int hf_extras_meta_seqno = -1;
+static int hf_confres = -1;
+
 static expert_field ef_warn_shall_not_have_value = EI_INIT;
 static expert_field ef_warn_shall_not_have_extras = EI_INIT;
 static expert_field ef_warn_shall_not_have_key = EI_INIT;
@@ -1060,6 +1075,63 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
+  case PROTOCOL_BINARY_CMD_DEL_WITH_META:
+  case PROTOCOL_BINARY_CMD_SET_WITH_META:
+    if (request) {
+      proto_tree_add_item(extras_tree, hf_meta_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(extras_tree, hf_meta_expiration, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(extras_tree, hf_meta_revseqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+      offset += 8;
+      proto_tree_add_item(extras_tree, hf_meta_cas, tvb, offset, 8, ENC_BIG_ENDIAN);
+      offset += 8;
+
+      /*The previous 24 bytes are required. The next two fields are optional,
+       * hence we are checking the extlen to see what fields we have. As they
+       * are different lengths we can do this by just checking the length.*/
+
+      // Options field (4 bytes)
+      if (extlen == 28 || extlen == 30) {
+        static const int *extra_flags[] = {
+          &hf_skip_conflict,
+          &hf_force_accept,
+          &hf_regenerate_cas,
+          NULL
+        };
+        proto_tree_add_bitmask(extras_tree, tvb, offset, hf_meta_options,
+                               ett_extras_flags, extra_flags, ENC_BIG_ENDIAN);
+        offset += 4;
+      }
+      // Meta Length field (2 bytes)
+      if (extlen == 26 || extlen == 30) {
+        proto_tree_add_item(extras_tree, hf_metalen, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+      }
+    }
+    break;
+
+  case PROTOCOL_BINARY_CMD_GET_META:
+    if (request) {
+      if(extlen) {
+        proto_tree_add_item(extras_tree, hf_meta_reqextmeta, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+      }
+    } else {
+      proto_tree_add_item(extras_tree, hf_meta_deleted, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(extras_tree, hf_meta_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(extras_tree, hf_exptime, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(extras_tree, hf_extras_meta_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+      offset += 8;
+      if (extlen == 21) {
+        proto_tree_add_item(extras_tree, hf_confres, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+      }
+    }
+    break;
   default:
     if (extlen) {
       /* Decode as unknown extras */
@@ -1842,6 +1914,21 @@ proto_register_couchbase(void)
     { &hf_multipath_path, { "Path", "couchbase.multipath.path", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_multipath_valuelen, { "Value Length", "couchbase.multipath.value.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_multipath_value, { "Value", "couchbase.multipath.value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_meta_flags, {"Flags", "couchbase.extras.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_meta_expiration, {"Expiration", "couchbase.extras.expiration", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_meta_revseqno, {"RevSeqno", "couchbase.extras.revseqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_meta_cas, {"CAS", "couchbase.extras.cas", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_meta_options, {"Options", "couchbase.extras.options", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_skip_conflict, {"SKIP_CONFLICT_RESOLUTION", "couchbase.extras.options.skip_conflict_resolution", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x01, NULL, HFILL} },
+    { &hf_force_accept, {"FORCE_ACCEPT_WITH_META_OPS", "couchbase.extras.options.force_accept_with_meta_ops", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x02, NULL, HFILL} },
+    { &hf_regenerate_cas, {"REGENERATE_CAS", "couchbase.extras.option.regenerate_cas", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x04, NULL, HFILL} },
+    { &hf_metalen, {"Meta Length", "couchbase.extras.meta_length", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_meta_reqextmeta, {"ReqExtMeta", "couchbase.extras.reqextmeta", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_meta_deleted, {"Deleted", "couchbase.extras.deleted", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_exptime, {"Expiry", "couchbase.extras.expiry", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_extras_meta_seqno, {"Seqno", "couchbase.extras.meta.seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_confres, {"ConfRes", "couchbase.extras.confres", FT_UINT8, BASE_HEX, NULL, 0x0, "Conflict Resolution Mode", HFILL} },
   };
 
   static ei_register_info ei[] = {
