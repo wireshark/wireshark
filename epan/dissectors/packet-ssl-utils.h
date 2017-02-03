@@ -812,6 +812,11 @@ typedef struct ssl_common_dissect {
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
     struct {
+        /* Generic expert info for malformed packets. */
+        expert_field malformed_vector_length;
+        expert_field malformed_buffer_too_small;
+        expert_field malformed_trailing_data;
+
         expert_field hs_ext_cert_status_undecoded;
         expert_field hs_sig_hash_alg_len_bad;
         expert_field hs_cipher_suites_len_bad;
@@ -838,6 +843,39 @@ typedef struct {
 
     /* Do not forget to initialize ssl_hfs to -1 in packet-ssl.c! */
 } ssl_hfs_t;
+
+
+/* Helpers for dissecting Variable-Length Vectors. {{{ */
+/**
+ * Helper for dissection of variable-length vectors (RFC 5246, section 4.3). It
+ * adds a length field to the tree and writes the validated length value into
+ * "ret_length" (which is truncated if it exceeds "offset_end").
+ *
+ * The size of the field is derived from "max_value" (for example, 8 and 255
+ * require one byte while 400 needs two bytes). Expert info is added if the
+ * length field from the tvb is outside the (min_value, max_value) range.
+ *
+ * Returns TRUE if there is enough space for the length field and data elements
+ * and FALSE otherwise.
+ */
+extern gboolean
+ssl_add_vector(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+               guint offset, guint offset_end, guint32 *ret_length,
+               int hf_length, guint32 min_value, guint32 max_value);
+
+/**
+ * Helper to check whether the data in a vector with multiple elements is
+ * correctly dissected. If the current "offset" (normally the value after
+ * adding all kinds of fields) does not match "offset_end" (the end of the
+ * vector), expert info is added.
+ *
+ * Returns TRUE if the offset matches the end of the vector and FALSE otherwise.
+ */
+extern gboolean
+ssl_end_vector(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+               guint offset, guint offset_end);
+/* }}} */
+
 
 void
 ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
@@ -929,7 +967,8 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1,                                     \
     },                                                                  \
     /* ei */ {                                                          \
-        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,           \
+        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,  \
+        EI_INIT, EI_INIT,                                               \
     },                                                                  \
 }
 /* }}} */
@@ -1573,6 +1612,18 @@ ssl_common_dissect_t name = {   \
 
 /* {{{ */
 #define SSL_COMMON_EI_LIST(name, prefix)                       \
+    { & name .ei.malformed_vector_length, \
+        { prefix ".malformed.vector_length", PI_PROTOCOL, PI_WARN, \
+        "Variable vector length is outside the permitted range", EXPFILL } \
+    }, \
+    { & name .ei.malformed_buffer_too_small, \
+        { prefix ".malformed.buffer_too_small", PI_MALFORMED, PI_ERROR, \
+        "Malformed message, not enough data is available", EXPFILL } \
+    }, \
+    { & name .ei.malformed_trailing_data, \
+        { prefix ".malformed.trailing_data", PI_PROTOCOL, PI_WARN, \
+        "Undecoded trailing data is present", EXPFILL } \
+    }, \
     { & name .ei.hs_ext_cert_status_undecoded, \
         { prefix ".handshake.status_request.undecoded", PI_UNDECODED, PI_NOTE, \
         "Responder ID list or Request Extensions are not implemented, contact Wireshark developers if you want this to be supported", EXPFILL } \

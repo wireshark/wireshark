@@ -5613,6 +5613,92 @@ ssl_association_info(const char* dissector_table_name, const char* table_protoco
 
 /** Begin of code related to dissection of wire data. */
 
+/* Helpers for dissecting Variable-Length Vectors. {{{ */
+gboolean
+ssl_add_vector(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+               guint offset, guint offset_end, guint32 *ret_length,
+               int hf_length, guint32 min_value, guint32 max_value)
+{
+    guint       veclen_size;
+    guint32     veclen_value;
+    proto_item *pi;
+
+    DISSECTOR_ASSERT(offset <= offset_end);
+    DISSECTOR_ASSERT(min_value <= max_value);
+
+    if (max_value > 0xffffff) {
+        veclen_size = 4;
+    } else if (max_value > 0xffff) {
+        veclen_size = 3;
+    } else if (max_value > 0xff) {
+        veclen_size = 2;
+    } else {
+        veclen_size = 1;
+    }
+
+    if (offset_end - offset < veclen_size) {
+        proto_tree_add_expert_format(tree, pinfo, &hf->ei.malformed_buffer_too_small,
+                                     tvb, offset, offset_end - offset,
+                                     "No more room for vector of length %u",
+                                     veclen_size);
+        *ret_length = 0;
+        return FALSE;   /* Cannot read length. */
+    }
+
+    pi = proto_tree_add_item_ret_uint(tree, hf_length, tvb, offset, veclen_size, ENC_BIG_ENDIAN, &veclen_value);
+    offset += veclen_size;
+
+    if (veclen_value < min_value) {
+        expert_add_info_format(pinfo, pi, &hf->ei.malformed_vector_length,
+                               "Vector length %u is smaller than minimum %u",
+                               veclen_value, min_value);
+    } else if (veclen_value > max_value) {
+        expert_add_info_format(pinfo, pi, &hf->ei.malformed_vector_length,
+                               "Vector length %u is larger than maximum %u",
+                               veclen_value, max_value);
+    }
+
+    if (offset_end - offset < veclen_value) {
+        expert_add_info_format(pinfo, pi, &hf->ei.malformed_buffer_too_small,
+                               "Vector length %u is too large, truncating it to %u",
+                               veclen_value, offset_end - offset);
+        *ret_length = offset_end - offset;
+        return FALSE;   /* Length is truncated to avoid overflow. */
+    }
+
+    *ret_length = veclen_value;
+    return TRUE;        /* Length is OK. */
+}
+
+gboolean
+ssl_end_vector(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+               guint offset, guint offset_end)
+{
+    if (offset < offset_end) {
+        guint trailing = offset_end - offset;
+        proto_tree_add_expert_format(tree, pinfo, &hf->ei.malformed_trailing_data,
+                                     tvb, offset, trailing,
+                                     "%u trailing byte%s unprocessed",
+                                     trailing, plurality(trailing, " was", "s were"));
+        return FALSE;   /* unprocessed data warning */
+    } else if (offset > offset_end) {
+        /*
+         * Returned offset runs past the end. This should not happen and is
+         * possibly a dissector bug.
+         */
+        guint excess = offset - offset_end;
+        proto_tree_add_expert_format(tree, pinfo, &hf->ei.malformed_buffer_too_small,
+                                     tvb, offset_end, excess,
+                                     "Dissector processed too much data (%u byte%s)",
+                                     excess, plurality(excess, "", "s"));
+        return FALSE;   /* overflow error */
+    }
+
+    return TRUE;    /* OK, offset matches. */
+}
+/** }}} */
+
+
 /* change_cipher_spec(20) dissection */
 void
 ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
@@ -5858,9 +5944,15 @@ ssl_dissect_hnd_hello_ext_reneg_info(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 static gint
-ssl_dissect_hnd_hello_ext_key_share_entry(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+ssl_dissect_hnd_hello_ext_key_share_entry(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                           proto_tree *tree, guint32 offset, guint32 offset_end)
 {
+   /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.2.5
+    *   struct {
+    *       NamedGroup group;
+    *       opaque key_exchange<1..2^16-1>;
+    *   } KeyShareEntry;
+    */
     guint32 key_exchange_length, group;
     proto_tree *ks_tree;
 
@@ -5868,30 +5960,32 @@ ssl_dissect_hnd_hello_ext_key_share_entry(ssl_common_dissect_t *hf, tvbuff_t *tv
 
     proto_tree_add_item_ret_uint(ks_tree, hf->hf.hs_ext_key_share_group, tvb, offset, 2, ENC_BIG_ENDIAN, &group);
     offset += 2;
+    proto_item_append_text(ks_tree, ": Group: %s", val_to_str(group, ssl_extension_curves, "Unknown (%u)"));
 
-    proto_tree_add_item_ret_uint(ks_tree, hf->hf.hs_ext_key_share_key_exchange_length, tvb, offset, 2, ENC_BIG_ENDIAN, &key_exchange_length);
-    offset += 2;
-
-    proto_item_set_len(ks_tree, 2 + 2 + key_exchange_length);
-    proto_item_append_text(ks_tree, ": Group: %s, Key Exchange length: %u", val_to_str(group, ssl_extension_curves, "Unknown (%u)"), key_exchange_length);
-
-    if (key_exchange_length > offset_end - offset) {
-        offset = offset_end;
-        return offset; /* XXX expert info? */
+    /* opaque key_exchange<1..2^16-1> */
+    if (!ssl_add_vector(hf, tvb, pinfo, ks_tree, offset, offset_end, &key_exchange_length,
+                        hf->hf.hs_ext_key_share_key_exchange_length, 1, G_MAXUINT16)) {
+        return offset_end;  /* Bad (possible truncated) length, skip to end of KeyShare extension. */
     }
+    offset += 2;
+    proto_item_set_len(ks_tree, 2 + 2 + key_exchange_length);
+    proto_item_append_text(ks_tree, ", Key Exchange length: %u", key_exchange_length);
 
     proto_tree_add_item(ks_tree, hf->hf.hs_ext_key_share_key_exchange, tvb, offset, key_exchange_length, ENC_NA);
     offset += key_exchange_length;
 
     return offset;
 }
+
 static gint
-ssl_dissect_hnd_hello_ext_key_share(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+ssl_dissect_hnd_hello_ext_key_share(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                     proto_tree *tree, guint32 offset, guint32 ext_len,
                                     guint8 hnd_type)
 {
     proto_tree *key_share_tree;
     guint32 offset_end = offset + ext_len;
+    guint32 next_offset;
+    guint32 client_shares_length;
 
     if (offset_end <= offset) {  /* Check if ext_len == 0 and "overflow" (offset + ext_len) > guint32) */
         return offset;
@@ -5901,14 +5995,22 @@ ssl_dissect_hnd_hello_ext_key_share(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     switch(hnd_type){
         case SSL_HND_CLIENT_HELLO:
-            proto_tree_add_item(key_share_tree, hf->hf.hs_ext_key_share_client_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+            /* KeyShareEntry client_shares<0..2^16-1> */
+            if (!ssl_add_vector(hf, tvb, pinfo, key_share_tree, offset, offset_end, &client_shares_length,
+                                hf->hf.hs_ext_key_share_client_length, 0, G_MAXUINT16)) {
+                return offset_end;
+            }
             offset += 2;
-            while (offset + 4 <= offset_end) { /* (NamedGroup (2 bytes), key_exchange (1 byte for length, 1 byte minimum data) */
-                offset = ssl_dissect_hnd_hello_ext_key_share_entry(hf, tvb, key_share_tree, offset, offset_end);
+            next_offset = offset + client_shares_length;
+            while (offset + 4 <= next_offset) { /* (NamedGroup (2 bytes), key_exchange (1 byte for length, 1 byte minimum data) */
+                offset = ssl_dissect_hnd_hello_ext_key_share_entry(hf, tvb, pinfo, key_share_tree, offset, next_offset);
+            }
+            if (!ssl_end_vector(hf, tvb, pinfo, key_share_tree, offset, next_offset)) {
+                return next_offset;
             }
         break;
         case SSL_HND_SERVER_HELLO:
-            offset = ssl_dissect_hnd_hello_ext_key_share_entry(hf, tvb, key_share_tree, offset, offset_end);
+            offset = ssl_dissect_hnd_hello_ext_key_share_entry(hf, tvb, pinfo, key_share_tree, offset, offset_end);
         break;
         case SSL_HND_HELLO_RETRY_REQUEST:
             proto_tree_add_item(key_share_tree, hf->hf.hs_ext_key_share_selected_group, tvb, offset, 2, ENC_BIG_ENDIAN );
@@ -7269,7 +7371,9 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
 {
     guint16     extension_length;
     guint16     ext_type;
-    guint16     ext_len;
+    guint32     ext_len;
+    guint32     offset_end = offset + left;
+    guint32     next_offset;
     proto_tree *ext_tree;
 
     if (left < 2)
@@ -7279,9 +7383,8 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     proto_tree_add_uint(tree, hf->hf.hs_exts_len,
                         tvb, offset, 2, extension_length);
     offset += 2;
-    left   -= 2;
 
-    while (left >= 4)
+    while (offset_end - offset >= 4)
     {
         ext_type = tvb_get_ntohs(tvb, offset);
         ext_len  = tvb_get_ntohs(tvb, offset + 2);
@@ -7295,9 +7398,13 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
                             tvb, offset, 2, ext_type);
         offset += 2;
 
-        proto_tree_add_uint(ext_tree, hf->hf.hs_ext_len,
-                            tvb, offset, 2, ext_len);
+        /* opaque extension_data<0..2^16-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, ext_tree, offset, offset_end, &ext_len,
+                            hf->hf.hs_ext_len, 0, G_MAXUINT16)) {
+            return offset_end;
+        }
         offset += 2;
+        next_offset = offset + ext_len;
 
         switch (ext_type) {
         case SSL_HND_HELLO_EXT_STATUS_REQUEST:
@@ -7331,7 +7438,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_reneg_info(hf, tvb, ext_tree, offset, ext_len);
             break;
         case SSL_HND_HELLO_EXT_KEY_SHARE:
-            offset = ssl_dissect_hnd_hello_ext_key_share(hf, tvb, ext_tree, offset, ext_len, hnd_type);
+            offset = ssl_dissect_hnd_hello_ext_key_share(hf, tvb, pinfo, ext_tree, offset, ext_len, hnd_type);
             break;
         case SSL_HND_HELLO_EXT_PRE_SHARED_KEY:
             offset = ssl_dissect_hnd_hello_ext_pre_shared_key(hf, tvb, ext_tree, offset, ext_len, hnd_type);
@@ -7405,7 +7512,10 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         }
 
-        left -= 2 + 2 + ext_len;
+        if (!ssl_end_vector(hf, tvb, pinfo, ext_tree, offset, next_offset)) {
+            /* Dissection did not end at expected location, fix it. */
+            offset = next_offset;
+        }
     }
 
     return offset;
