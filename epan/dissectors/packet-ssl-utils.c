@@ -6170,20 +6170,24 @@ ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t 
 
 static gint
 ssl_dissect_hnd_hello_ext_cookie(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                 proto_tree *tree, guint32 offset, guint32 offset_end)
+                                 packet_info *pinfo, proto_tree *tree,
+                                 guint32 offset, guint32 offset_end)
 {
-    guint   ext_len = offset_end - offset;
-
-    if (ext_len < 2) {
-        return offset;
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.2.2
+     *  struct {
+     *      opaque cookie<1..2^16-1>;
+     *  } Cookie;
+     */
+    guint32 cookie_length;
+    /* opaque cookie<1..2^16-1> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &cookie_length,
+                        hf->hf.hs_ext_cookie_len, 1, G_MAXUINT16)) {
+        return offset_end;
     }
-
-    proto_tree_add_item(tree, hf->hf.hs_ext_cookie_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    ext_len -= 2;
 
-    proto_tree_add_item(tree, hf->hf.hs_ext_cookie, tvb, offset, ext_len, ENC_NA);
-    offset += ext_len;
+    proto_tree_add_item(tree, hf->hf.hs_ext_cookie, tvb, offset, cookie_length, ENC_NA);
+    offset += cookie_length;
 
     return offset;
 }
@@ -7443,7 +7447,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_COOKIE:
-            offset = ssl_dissect_hnd_hello_ext_cookie(hf, tvb, ext_tree, offset, next_offset);
+            offset = ssl_dissect_hnd_hello_ext_cookie(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_PSK_KEY_EXCHANGE_MODES:
             offset = ssl_dissect_hnd_hello_ext_psk_key_exchange_modes(hf, tvb, ext_tree, offset, next_offset);
