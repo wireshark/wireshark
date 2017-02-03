@@ -2814,6 +2814,7 @@ clean_exit:
 #ifdef HAVE_LIBPCAP
     capture_opts_cleanup(&global_capture_opts);
 #endif
+    col_cleanup(&cfile.cinfo);
     return ret;
 }
 

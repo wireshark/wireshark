@@ -122,7 +122,8 @@ col_cleanup(column_info *cinfo)
    */
   g_free((gchar **)cinfo->col_expr.col_expr);
   g_free(cinfo->col_expr.col_expr_val);
-  g_regex_unref(cinfo->prime_regex);
+  if (cinfo->prime_regex)
+    g_regex_unref(cinfo->prime_regex);
 }
 
 /* Initialize the data structures for constructing column data. */

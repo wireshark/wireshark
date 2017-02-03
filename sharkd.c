@@ -297,6 +297,7 @@ main(int argc, char *argv[])
 
   ret = sharkd_loop();
 clean_exit:
+  col_cleanup(&cfile.cinfo);
   return ret;
 }
 
