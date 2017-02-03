@@ -2811,7 +2811,9 @@ main(int argc, char *argv[])
 #endif
 
 clean_exit:
+#ifdef HAVE_LIBPCAP
     capture_opts_cleanup(&global_capture_opts);
+#endif
     return ret;
 }
 
