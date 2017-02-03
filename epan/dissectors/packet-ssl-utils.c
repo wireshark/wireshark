@@ -5931,22 +5931,26 @@ ssl_dissect_hnd_hello_ext_npn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
 static gint
 ssl_dissect_hnd_hello_ext_reneg_info(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                     proto_tree *tree, guint32 offset, guint32 offset_end)
+                                     packet_info *pinfo, proto_tree *tree,
+                                     guint32 offset, guint32 offset_end)
 {
-    guint8      reneg_info_length;
+    /* https://tools.ietf.org/html/rfc5746#section-3.2
+     *  struct {
+     *      opaque renegotiated_connection<0..255>;
+     *  } RenegotiationInfo;
+     *
+     */
     proto_tree *reneg_info_tree;
-    guint       ext_len = offset_end - offset;
+    guint32     reneg_info_length;
 
-    if (ext_len == 0) {
-        return offset;
+    reneg_info_tree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset, hf->ett.hs_ext_reneg_info, NULL, "Renegotiation Info extension");
+
+    /* opaque renegotiated_connection<0..255> */
+    if (!ssl_add_vector(hf, tvb, pinfo, reneg_info_tree, offset, offset_end, &reneg_info_length,
+                        hf->hf.hs_ext_reneg_info_len, 0, 255)) {
+        return offset_end;
     }
-
-    reneg_info_tree = proto_tree_add_subtree(tree, tvb, offset, ext_len, hf->ett.hs_ext_reneg_info, NULL, "Renegotiation Info extension");
-
-    reneg_info_length = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(reneg_info_tree, hf->hf.hs_ext_reneg_info_len,
-              tvb, offset, 1, ENC_NA);
-    offset += 1;
+    offset++;
 
     if (reneg_info_length > 0) {
         proto_tree_add_item(reneg_info_tree, hf->hf.hs_ext_reneg_info, tvb, offset, reneg_info_length, ENC_NA);
@@ -7424,7 +7428,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_RENEGOTIATION_INFO:
-            offset = ssl_dissect_hnd_hello_ext_reneg_info(hf, tvb, ext_tree, offset, next_offset);
+            offset = ssl_dissect_hnd_hello_ext_reneg_info(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_KEY_SHARE:
             offset = ssl_dissect_hnd_hello_ext_key_share(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type);
