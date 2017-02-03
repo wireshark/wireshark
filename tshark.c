@@ -2201,6 +2201,7 @@ clean_exit:
   capture_opts_cleanup(&global_capture_opts);
 #endif
   col_cleanup(&cfile.cinfo);
+  free_filter_lists();
   return exit_status;
 }
 

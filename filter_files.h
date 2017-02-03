@@ -89,6 +89,11 @@ void save_filter_list(filter_list_type_t list_type, char **pref_path_return,
  */
 void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type);
 
+/*
+ * Free all filter lists
+ */
+void free_filter_lists(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

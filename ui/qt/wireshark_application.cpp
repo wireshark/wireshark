@@ -716,6 +716,11 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
 }
 
+WiresharkApplication::~WiresharkApplication()
+{
+    free_filter_lists();
+}
+
 void WiresharkApplication::registerUpdate(register_action_e action, const char *message)
 {
     emit splashUpdate(action, message);

@@ -60,6 +60,7 @@ class WiresharkApplication : public QApplication
     Q_OBJECT
 public:
     explicit WiresharkApplication(int &argc,  char **argv);
+    ~WiresharkApplication();
 
     enum AppSignal {
         CaptureFilterListChanged,
