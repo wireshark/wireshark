@@ -5923,7 +5923,7 @@ dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             break;
         case 1:
             /* fall trough */
-            proto_tree_add_item(tree, hf_gtpv2_twan_relay_id, tvb, offset, relay_id_len, ENC_NA);
+            proto_tree_add_item(tree, hf_gtpv2_twan_relay_id, tvb, offset, relay_id_len, ENC_ASCII|ENC_NA);
             offset += relay_id_len;
         default:
             break;
@@ -9094,7 +9094,7 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_twan_op_name,{ "TWAN Operator Name", "gtpv2.twan_id.op_name", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_twan_relay_id_type,{ "Relay Identity Type", "gtpv2.twan_id.relay_id_type", FT_UINT8, BASE_DEC, VALS(gtpv2_twan_relay_id_type_vals), 0x0, NULL, HFILL } },
       { &hf_gtpv2_twan_relay_id_len,{ "Relay Identity Type Length", "gtpv2.twan_id.relay_id_type_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-      { &hf_gtpv2_twan_relay_id,{ "Relay Identity", "gtpv2.twan_id.relay_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_twan_relay_id,{ "Relay Identity", "gtpv2.twan_id.relay_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_twan_relay_id_ipv4,{ "Relay Identity", "gtpv2.twan_id.relay_id_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_twan_relay_id_ipv6,{ "Relay Identity", "gtpv2.twan_id.relay_id_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_twan_circuit_id_len,{ "Relay Identity Type Length", "gtpv2.twan_id.relay_id_type_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
