@@ -1111,7 +1111,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
     if( ! dtd_data->proto_name ) {
         hfs  = hf_arr;
         etts = ett_arr;
-        g_ptr_array_add(hier, g_strdup("xml"));
+        g_ptr_array_add(hier, wmem_strdup(wmem_epan_scope(), "xml"));
     } else {
         /*
          * if we were given a proto_name the namespace will be registered
@@ -1124,7 +1124,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
     /* the root element of the dtd's namespace */
     root_element = wmem_new(wmem_epan_scope(), xml_ns_t);
     root_element->name          = wmem_strdup(wmem_epan_scope(), root_name);
-    root_element->fqn           = dtd_data->proto_name ? g_strdup(dtd_data->proto_name) : root_element->name;
+    root_element->fqn           = dtd_data->proto_name ? wmem_strdup(wmem_epan_scope(), dtd_data->proto_name) : root_element->name;
     root_element->hf_tag        = -1;
     root_element->hf_cdata      = -1;
     root_element->ett           = -1;
