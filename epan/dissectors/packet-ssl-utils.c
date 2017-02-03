@@ -5809,43 +5809,65 @@ ssl_dissect_hnd_hello_ext_sig_hash_algs(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
 static gint
 ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                               proto_tree *tree, guint32 offset, guint32 offset_end,
+                               packet_info *pinfo, proto_tree *tree,
+                               guint32 offset, guint32 offset_end,
                                guint8 hnd_type, SslSession *session)
 {
-    guint16 alpn_length;
-    guint8 name_length;
+
+    /* https://tools.ietf.org/html/rfc7301#section-3.1
+     *  opaque ProtocolName<1..2^8-1>;
+     *  struct {
+     *      ProtocolName protocol_name_list<2..2^16-1>
+     *  } ProtocolNameList;
+     */
     proto_tree *alpn_tree;
     proto_item *ti;
-    guint       ext_len = offset_end - offset;
+    guint32     next_offset, alpn_length, name_length;
+    guint8     *proto_name = NULL;
+    guint32     proto_name_length;
 
-    alpn_length = tvb_get_ntohs(tvb, offset);
-    if (ext_len < 2 || alpn_length != ext_len - 2) {
-        /* ERROR: alpn_length must be 2 less than ext_len */
-        return offset;
+    /* ProtocolName protocol_name_list<2..2^16-1> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &alpn_length,
+                        hf->hf.hs_ext_alpn_len, 2, G_MAXUINT16)) {
+        return offset_end;
     }
-    proto_tree_add_item(tree, hf->hf.hs_ext_alpn_len,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
+    next_offset = offset + alpn_length;
 
     ti = proto_tree_add_item(tree, hf->hf.hs_ext_alpn_list,
                              tvb, offset, alpn_length, ENC_NA);
     alpn_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_alpn);
 
+    /* Parse list (note missing check for end of vector, ssl_add_vector below
+     * ensures that data is always available.) */
+    while (offset < next_offset) {
+        /* opaque ProtocolName<1..2^8-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, alpn_tree, offset, next_offset, &name_length,
+                            hf->hf.hs_ext_alpn_str_len, 1, G_MAXUINT8)) {
+            return next_offset;
+        }
+        offset++;
+
+        proto_tree_add_item(alpn_tree, hf->hf.hs_ext_alpn_str,
+                            tvb, offset, name_length, ENC_ASCII|ENC_NA);
+        /* Remember first ALPN ProtocolName entry for server. */
+        if (hnd_type == SSL_HND_SERVER_HELLO) {
+            proto_name_length = name_length;
+            proto_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
+                                            proto_name_length, ENC_ASCII);
+        }
+        offset += name_length;
+    }
+
     /* If ALPN is given in ServerHello, then ProtocolNameList MUST contain
      * exactly one "ProtocolName". */
-    if (hnd_type == SSL_HND_SERVER_HELLO) {
-        guint8 *proto_name;
-        size_t i;
-
-        name_length = tvb_get_guint8(tvb, offset);
+    if (hnd_type == SSL_HND_SERVER_HELLO && proto_name) {
         /* '\0'-terminated string for prefix/full string comparison purposes. */
-        proto_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1,
-                                        name_length, ENC_ASCII);
-        for (i = 0; i < G_N_ELEMENTS(ssl_alpn_protocols); i++) {
+        for (size_t i = 0; i < G_N_ELEMENTS(ssl_alpn_protocols); i++) {
             const ssl_alpn_protocol_t *alpn_proto = &ssl_alpn_protocols[i];
 
             if ((alpn_proto->match_exact &&
-                        name_length == strlen(alpn_proto->proto_name) &&
+                        proto_name_length == strlen(alpn_proto->proto_name) &&
                         !strcmp(proto_name, alpn_proto->proto_name)) ||
                 (!alpn_proto->match_exact && g_str_has_prefix(proto_name, alpn_proto->proto_name))) {
 
@@ -5863,18 +5885,6 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                 break;
             }
         }
-    }
-
-    while (alpn_length > 0) {
-        name_length = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(alpn_tree, hf->hf.hs_ext_alpn_str_len,
-                            tvb, offset, 1, ENC_NA);
-        offset++;
-        alpn_length--;
-        proto_tree_add_item(alpn_tree, hf->hf.hs_ext_alpn_str,
-                            tvb, offset, name_length, ENC_ASCII|ENC_NA);
-        offset += name_length;
-        alpn_length -= name_length;
     }
 
     return offset;
@@ -7401,7 +7411,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, pinfo, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_ALPN:
-            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, ext_tree, offset, next_offset, hnd_type, session);
+            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, session);
             break;
         case SSL_HND_HELLO_EXT_NPN:
             offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, ext_tree, offset, next_offset);
