@@ -6228,42 +6228,56 @@ ssl_dissect_hnd_hello_ext_psk_key_exchange_modes(ssl_common_dissect_t *hf, tvbuf
 
 static gint
 ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                      proto_tree *tree, guint32 offset, guint32 offset_end)
+                                      packet_info *pinfo, proto_tree *tree,
+                                      guint32 offset, guint32 offset_end)
 {
-    guint16     server_name_length;
+    /* https://tools.ietf.org/html/rfc6066#section-3
+     *
+     *  struct {
+     *      NameType name_type;
+     *      select (name_type) {
+     *          case host_name: HostName;
+     *      } name;
+     *  } ServerName;
+     *
+     *  enum {
+     *      host_name(0), (255)
+     *  } NameType;
+     *
+     *  opaque HostName<1..2^16-1>;
+     *
+     *  struct {
+     *      ServerName server_name_list<1..2^16-1>
+     *  } ServerNameList;
+     */
     proto_tree *server_name_tree;
-    guint       ext_len = offset_end - offset;
+    guint32     list_length, server_name_length, next_offset;
 
+    server_name_tree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset, hf->ett.hs_ext_server_name, NULL, "Server Name Indication extension");
 
-    if (ext_len == 0) {
-        return offset;
+    /* ServerName server_name_list<1..2^16-1> */
+    if (!ssl_add_vector(hf, tvb, pinfo, server_name_tree, offset, offset_end, &list_length,
+                        hf->hf.hs_ext_server_name_list_len, 1, G_MAXUINT16)) {
+        return offset_end;
     }
-
-    server_name_tree = proto_tree_add_subtree(tree, tvb, offset, ext_len, hf->ett.hs_ext_server_name, NULL, "Server Name Indication extension");
-
-    proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_list_len,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    ext_len -= 2;
+    next_offset = offset + list_length;
 
-    while (ext_len > 0) {
+    while (offset < next_offset) {
         proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_type,
                             tvb, offset, 1, ENC_NA);
-        offset += 1;
-        ext_len -= 1;
+        offset++;
 
-        server_name_length = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name_len,
-                            tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        ext_len -= 2;
-
-        if (server_name_length > 0) {
-            proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name,
-                                tvb, offset, server_name_length, ENC_ASCII|ENC_NA);
-            offset += server_name_length;
-            ext_len -= server_name_length;
+        /* opaque HostName<1..2^16-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, server_name_tree, offset, next_offset, &server_name_length,
+                           hf->hf.hs_ext_server_name_len, 1, G_MAXUINT16)) {
+            return next_offset;
         }
+        offset += 2;
+
+        proto_tree_add_item(server_name_tree, hf->hf.hs_ext_server_name,
+                            tvb, offset, server_name_length, ENC_ASCII|ENC_NA);
+        offset += server_name_length;
     }
     return offset;
 }
@@ -7458,7 +7472,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset += 2;
             break;
         case SSL_HND_HELLO_EXT_SERVER_NAME:
-            offset = ssl_dissect_hnd_hello_ext_server_name(hf, tvb, ext_tree, offset, next_offset);
+            offset = ssl_dissect_hnd_hello_ext_server_name(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_USE_SRTP:
             if (is_dtls) {
