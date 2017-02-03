@@ -77,6 +77,9 @@
 
 #include "sharkd.h"
 
+#define INIT_FAILED 1
+#define EPAN_INIT_FAIL 2
+
 static guint32 cum_bytes;
 static const frame_data *ref;
 static frame_data ref_frame;
@@ -130,6 +133,7 @@ main(int argc, char *argv[])
   int                  dp_open_errno, dp_read_errno;
   int                  cf_open_errno;
   e_prefs             *prefs_p;
+  int                  ret = EXIT_SUCCESS;
 
   cmdarg_err_init(failure_message, failure_message_cont);
 
@@ -170,7 +174,8 @@ main(int argc, char *argv[])
   if (sharkd_init(argc, argv) < 0)
   {
     printf("cannot initialize sharkd\n");
-    return 1;
+    ret = INIT_FAILED;
+    goto clean_exit;
   }
 
   init_report_err(failure_message, open_failure_message, read_failure_message,
@@ -199,8 +204,10 @@ main(int argc, char *argv[])
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
   if (!epan_init(register_all_protocols, register_all_protocol_handoffs, NULL,
-                 NULL))
-    return 2;
+                 NULL)) {
+    ret = EPAN_INIT_FAIL;
+    goto clean_exit;
+  }
 
   /* load the decode as entries of this profile */
   load_decode_as_entries();
@@ -288,7 +295,9 @@ main(int argc, char *argv[])
   /* Build the column format array */
   build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);
 
-  return sharkd_loop();
+  ret = sharkd_loop();
+clean_exit:
+  return ret;
 }
 
 static const nstime_t *
