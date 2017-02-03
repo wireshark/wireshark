@@ -943,7 +943,9 @@ int main(int argc, char *qt_argv[])
 #endif /* _WIN32 */
 
 clean_exit:
+#ifdef HAVE_LIBPCAP
     capture_opts_cleanup(&global_capture_opts);
+#endif
     return ret_val;
 }
 
