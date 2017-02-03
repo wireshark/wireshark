@@ -63,6 +63,7 @@
 #include "dissector_filters.h"
 #include "conversation_table.h"
 #include "reassemble.h"
+#include "srt_table.h"
 
 #ifdef HAVE_LUA
 #include <lua.h>
@@ -224,6 +225,7 @@ epan_cleanup(void)
 	stat_tap_table_cleanup();
 	follow_cleanup();
 	disabled_protos_cleanup();
+	cleanup_srt_table();
 #ifdef HAVE_LUA
 	wslua_cleanup();
 #endif

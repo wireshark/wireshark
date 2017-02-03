@@ -309,6 +309,12 @@ add_srt_table_data(srt_stat_table *rst, int indx, const nstime_t *req_time, pack
     time_stat_update(&rp->stats, &delta, pinfo);
 }
 
+void
+cleanup_srt_table(void)
+{
+    g_slist_free_full(registered_srt_tables, g_free);
+}
+
 /*
  * Editor modelines
  *

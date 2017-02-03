@@ -220,6 +220,9 @@ WS_DLL_PUBLIC void init_srt_table_row(srt_stat_table *rst, int proc_index, const
  */
 WS_DLL_PUBLIC void add_srt_table_data(srt_stat_table *rst, int proc_index, const nstime_t *req_time, packet_info *pinfo);
 
+/** Clean internal structures
+ */
+extern void cleanup_srt_table(void);
 
 #ifdef __cplusplus
 }
