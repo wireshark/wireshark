@@ -1299,7 +1299,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_CERT_REQUEST:
-            ssl_dissect_hnd_cert_req(&dissect_dtls_hf, sub_tvb, ssl_hand_tree, 0, pinfo, session);
+            ssl_dissect_hnd_cert_req(&dissect_dtls_hf, sub_tvb, pinfo, ssl_hand_tree, 0, length, session);
             break;
 
           case SSL_HND_SVR_HELLO_DONE:

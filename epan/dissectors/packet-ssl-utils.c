@@ -5752,29 +5752,34 @@ ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
    TLS1.2 certificate request. {{{ */
 static gint
 ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          packet_info* pinfo, guint32 offset, guint16 len)
+                          packet_info* pinfo, guint32 offset, guint32 offset_end)
 {
-    guint32     offset_start;
+    /* https://tools.ietf.org/html/rfc5246#section-7.4.1.4.1
+     *  struct {
+     *       HashAlgorithm hash;
+     *       SignatureAlgorithm signature;
+     *  } SignatureAndHashAlgorithm;
+     *  SignatureAndHashAlgorithm supported_signature_algorithms<2..2^16-2>;
+     */
     proto_tree *subtree, *alg_tree;
     proto_item *ti;
+    guint sh_alg_length;
+    guint32     next_offset;
 
-    offset_start = offset;
-    if (len==0)
-        return 0;
+    /* SignatureAndHashAlgorithm supported_signature_algorithms<2..2^16-2> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &sh_alg_length,
+                        hf->hf.hs_sig_hash_alg_len, 2, G_MAXUINT16 - 1)) {
+        return offset_end;
+    }
+    offset += 2;
+    next_offset = offset + sh_alg_length;
 
-    ti = proto_tree_add_none_format(tree, hf->hf.hs_sig_hash_algs, tvb,
-                                    offset, len,
+    ti = proto_tree_add_none_format(tree, hf->hf.hs_sig_hash_algs, tvb, offset, sh_alg_length,
                                     "Signature Hash Algorithms (%u algorithm%s)",
-                                    len / 2, plurality(len / 2, "", "s"));
+                                    sh_alg_length / 2, plurality(sh_alg_length / 2, "", "s"));
     subtree = proto_item_add_subtree(ti, hf->ett.hs_sig_hash_algs);
 
-    if (len % 2) {
-        expert_add_info_format(pinfo, ti, &hf->ei.hs_sig_hash_algs_bad,
-                            "Invalid Signature Hash Algorithm length: %d", len);
-        return offset-offset_start;
-    }
-
-    while (len > 0) {
+    while (offset + 2 <= next_offset) {
         ti = proto_tree_add_item(subtree, hf->hf.hs_sig_hash_alg,
                                  tvb, offset, 2, ENC_BIG_ENDIAN);
         alg_tree = proto_item_add_subtree(ti, hf->ett.hs_sig_hash_alg);
@@ -5785,9 +5790,13 @@ ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
                             tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
         offset += 2;
-        len -= 2;
     }
-    return offset-offset_start;
+
+    if (!ssl_end_vector(hf, tvb, pinfo, subtree, offset, next_offset)) {
+        offset = next_offset;
+    }
+
+    return offset;
 } /* }}} */
 
 /** TLS Extensions (in Client Hello and Server Hello). {{{ */
@@ -5795,24 +5804,7 @@ static gint
 ssl_dissect_hnd_hello_ext_sig_hash_algs(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                         proto_tree *tree, packet_info* pinfo, guint32 offset, guint32 offset_end)
 {
-    guint16  sh_alg_length;
-    gint     ret;
-    guint    ext_len = offset_end - offset;
-
-    sh_alg_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(tree, hf->hf.hs_sig_hash_alg_len,
-                        tvb, offset, 2, sh_alg_length);
-    offset += 2;
-    if (ext_len < 2 || sh_alg_length != ext_len - 2) {
-        /* ERROR: sh_alg_length must be 2 less than ext_len */
-        return offset;
-    }
-
-    ret = ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, sh_alg_length);
-    if (ret >= 0)
-        offset += ret;
-
-    return offset;
+    return ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, offset_end);
 }
 
 static gint
@@ -7082,9 +7074,9 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
 }
 
 void
-ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                          proto_tree *tree, guint32 offset, packet_info *pinfo,
-                          const SslSession *session)
+ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                         proto_tree *tree, guint32 offset, guint32 offset_end,
+                         const SslSession *session)
 {
     /*
      *    enum {
@@ -7154,10 +7146,8 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_item *ti;
     proto_tree *subtree;
     guint8      cert_types_count;
-    gint        sh_alg_length;
     gint        dnames_length;
     asn1_ctx_t  asn1_ctx;
-    gint        ret;
 
     if (!tree)
         return;
@@ -7202,22 +7192,7 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         case TLSV1DOT2_VERSION:
         case DTLSV1DOT2_VERSION:
         case TLSV1DOT3_VERSION: /* XXX draft -18 only, remove for next version */
-            sh_alg_length = tvb_get_ntohs(tvb, offset);
-            if (sh_alg_length % 2) {
-                expert_add_info_format(pinfo, NULL,
-                        &hf->ei.hs_sig_hash_alg_len_bad,
-                        "Signature Hash Algorithm length (%d) must be a multiple of 2",
-                        sh_alg_length);
-                return;
-            }
-
-            proto_tree_add_uint(tree, hf->hf.hs_sig_hash_alg_len,
-                    tvb, offset, 2, sh_alg_length);
-            offset += 2;
-
-            ret = ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, sh_alg_length);
-            if (ret >= 0)
-                offset += ret;
+            offset = ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, offset_end);
             break;
 
         default:
