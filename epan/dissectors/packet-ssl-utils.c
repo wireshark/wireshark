@@ -5892,31 +5892,38 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
 static gint
 ssl_dissect_hnd_hello_ext_npn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                              proto_tree *tree, guint32 offset, guint32 offset_end)
+                              packet_info *pinfo, proto_tree *tree,
+                              guint32 offset, guint32 offset_end)
 {
-    guint8      npn_length;
+    /* https://tools.ietf.org/html/draft-agl-tls-nextprotoneg-04#page-3
+     *   The "extension_data" field of a "next_protocol_negotiation" extension
+     *   in a "ServerHello" contains an optional list of protocols advertised
+     *   by the server.  Protocols are named by opaque, non-empty byte strings
+     *   and the list of protocols is serialized as a concatenation of 8-bit,
+     *   length prefixed byte strings.  Implementations MUST ensure that the
+     *   empty string is not included and that no byte strings are truncated.
+     */
+    guint32     npn_length;
     proto_tree *npn_tree;
-    guint       ext_len = offset_end - offset;
 
-    if (ext_len == 0) {
+    /* List is optional, do not add tree if there are no entries. */
+    if (offset == offset_end) {
         return offset;
     }
 
-    npn_tree = proto_tree_add_subtree(tree, tvb, offset, ext_len, hf->ett.hs_ext_npn, NULL, "Next Protocol Negotiation");
+    npn_tree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset, hf->ett.hs_ext_npn, NULL, "Next Protocol Negotiation");
 
-    while (ext_len > 0) {
-        npn_length = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(npn_tree, hf->hf.hs_ext_npn_str_len,
-                            tvb, offset, 1, ENC_NA);
-        offset++;
-        ext_len--;
-
-        if (npn_length > 0) {
-            proto_tree_add_item(npn_tree, hf->hf.hs_ext_npn_str,
-                                tvb, offset, npn_length, ENC_ASCII|ENC_NA);
-            offset += npn_length;
-            ext_len -= npn_length;
+    while (offset < offset_end) {
+        /* non-empty, 8-bit length prefixed strings means range 1..255 */
+        if (!ssl_add_vector(hf, tvb, pinfo, npn_tree, offset, offset_end, &npn_length,
+                            hf->hf.hs_ext_npn_str_len, 1, G_MAXUINT8)) {
+            return offset_end;
         }
+        offset++;
+
+        proto_tree_add_item(npn_tree, hf->hf.hs_ext_npn_str,
+                            tvb, offset, npn_length, ENC_ASCII|ENC_NA);
+        offset += npn_length;
     }
 
     return offset;
@@ -7414,7 +7421,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, session);
             break;
         case SSL_HND_HELLO_EXT_NPN:
-            offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, ext_tree, offset, next_offset);
+            offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_RENEGOTIATION_INFO:
             offset = ssl_dissect_hnd_hello_ext_reneg_info(hf, tvb, ext_tree, offset, next_offset);
