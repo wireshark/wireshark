@@ -100,10 +100,11 @@
 	<!--
 	    <avp name="Reserved" code="28" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		    <type type-name="OctetString"/>
-	    </avp>
-	    <avp name="Reserved" code="29" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+	    </avp> -->
+	    <avp name="3GPP-TWAN-Identifier" code="29" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		    <type type-name="OctetString"/>
 	    </avp>
+	<!--
 	    <avp name="Reserved" code="30" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		    <type type-name="OctetString"/>
 	    </avp>

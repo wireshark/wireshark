@@ -90,6 +90,6 @@ static const value_string diameter_3gpp_termination_cause_vals[] = {
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidt=4 tabstop=8 expandtab:
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */

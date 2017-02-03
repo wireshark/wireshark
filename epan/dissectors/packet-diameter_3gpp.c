@@ -35,6 +35,7 @@
 #include "packet-diameter.h"
 #include "packet-diameter_3gpp.h"
 #include "packet-gsm_a_common.h"
+#include "packet-gtpv2.h"
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-ntp.h"
@@ -562,6 +563,19 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
     return offset;
 }
+/* AVP Code: 29 3GPP-TWAN-Identifier
+ * 3GPP TS 29.061 V14.2.0 (2016-12)
+*/
+static int
+dissect_diameter_3gpp_twan_identifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    int length = tvb_reported_length(tvb);
+
+    dissect_gtpv2_twan_identifier(tvb, pinfo, tree, NULL, length, 0, 0, NULL);
+
+    return length;
+}
+
 /*
 * AVP Code: 504 AF-Application-Identifier
 */
@@ -2066,6 +2080,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 23 3GPP-MS-TimeZone */
     dissector_add_uint("diameter.3gpp", 23, create_dissector_handle(dissect_diameter_3gpp_ms_timezone, proto_diameter_3gpp));
+
+    /* AVP Code: 29 3GPP-TWAN-Identifier */
+    dissector_add_uint("diameter.3gpp", 29, create_dissector_handle(dissect_diameter_3gpp_twan_identifier, proto_diameter_3gpp));
 
     /* AVP Code: 504 AF-Application-Identifier */
     dissector_add_uint("diameter.3gpp", 504, create_dissector_handle(dissect_diameter_3gpp_af_application_identifier, proto_diameter_3gpp));
@@ -4073,8 +4090,9 @@ proto_register_diameter_3gpp(void)
         { &hf_diameter_3gpp_emergency_ind_flags_spare_bits,
         { "Spare", "diameter.3gpp.emergency_ind_flags_spare",
           FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFE,
-          NULL, HFILL}
+          NULL, HFILL }
         },
+
 };
 
 

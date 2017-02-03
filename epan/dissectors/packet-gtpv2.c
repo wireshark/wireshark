@@ -5827,7 +5827,8 @@ static const value_string gtpv2_twan_relay_id_type_vals[] = {
     { 1, "FQDN" },
     { 0, NULL }
 };
-static void
+
+void
 dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
