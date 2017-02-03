@@ -113,8 +113,8 @@ register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 	stats_tree_cfg *cfg = (stats_tree_cfg *)v;
 	stat_tap_ui ui_info;
 
-	cfg->pr = (tree_cfg_pres *)g_malloc(sizeof(tree_cfg_pres));
-	cfg->pr->init_string = g_strdup_printf("%s,tree", cfg->abbr);
+	cfg->pr = wmem_new(wmem_epan_scope(), tree_cfg_pres);
+	cfg->pr->init_string = wmem_strdup_printf(wmem_epan_scope(), "%s,tree", cfg->abbr);
 
 	ui_info.group = REGISTER_STAT_GROUP_GENERIC;
 	ui_info.title = NULL;
