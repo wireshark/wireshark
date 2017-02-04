@@ -936,6 +936,13 @@ static void wtap_init_encap_types(void) {
 	g_array_append_vals(encap_table_arr,encap_table_base,wtap_num_encap_types);
 }
 
+static void wtap_cleanup_encap_types(void) {
+	if (encap_table_arr) {
+		g_array_free(encap_table_arr, TRUE);
+		encap_table_arr = NULL;
+	}
+}
+
 int wtap_get_num_encap_types(void) {
 	return wtap_num_encap_types;
 }
@@ -1426,6 +1433,17 @@ wtap_init(void)
 #ifdef HAVE_PLUGINS
 	wtap_register_plugin_types();
 #endif
+}
+
+/*
+ * Cleanup the library
+ */
+void
+wtap_cleanup(void)
+{
+	wtap_cleanup_encap_types();
+	wtap_opttypes_cleanup();
+	ws_buffer_cleanup();
 }
 
 /*

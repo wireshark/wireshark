@@ -34,6 +34,9 @@
 
 #define array_length(x)	(sizeof x / sizeof x[0])
 
+#define INVALID_LEN 1
+#define WRITE_ERROR 2
+
 GRand *pkt_rand = NULL;
 
 /* Types of produceable packets */
@@ -696,7 +699,7 @@ gboolean randpkt_example_close(randpkt_example* example)
 	return ok;
 }
 
-void randpkt_example_init(randpkt_example* example, char* produce_filename, int produce_max_bytes)
+int randpkt_example_init(randpkt_example* example, char* produce_filename, int produce_max_bytes)
 {
 	int err;
 
@@ -718,7 +721,7 @@ void randpkt_example_init(randpkt_example* example, char* produce_filename, int 
 	}
 	if (!example->dump) {
 		fprintf(stderr, "randpkt: Error writing to %s\n", example->filename);
-		exit(2);
+		return WRITE_ERROR;
 	}
 
 	/* reduce max_bytes by # of bytes already in sample */
@@ -726,10 +729,12 @@ void randpkt_example_init(randpkt_example* example, char* produce_filename, int 
 		fprintf(stderr, "randpkt: Sample packet length is %d, which is greater than "
 			"or equal to\n", example->sample_length);
 		fprintf(stderr, "your requested max_bytes value of %d\n", produce_max_bytes);
-		exit(1);
+		return INVALID_LEN;
 	} else {
 		example->produce_max_bytes = produce_max_bytes - example->sample_length;
 	}
+
+	return EXIT_SUCCESS;
 }
 
 /* Parse command-line option "type" and return enum type */

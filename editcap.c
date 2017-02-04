@@ -94,6 +94,9 @@
 
 #include "ringbuffer.h" /* For RINGBUFFER_MAX_NUM_FILES */
 
+#define INVALID_OPTION 1
+#define INVALID_FILE 2
+
 /*
  * Some globals so we can pass things to various routines
  */
@@ -338,7 +341,7 @@ selected(guint recno)
   return 0;
 }
 
-static void
+static gboolean
 set_time_adjustment(char *optarg_str_p)
 {
     char   *frac, *end;
@@ -346,7 +349,7 @@ set_time_adjustment(char *optarg_str_p)
     size_t  frac_digits;
 
     if (!optarg_str_p)
-        return;
+        return TRUE;
 
     /* skip leading whitespace */
     while (*optarg_str_p == ' ' || *optarg_str_p == '\t')
@@ -368,12 +371,12 @@ set_time_adjustment(char *optarg_str_p)
             || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
-            exit(1);
+            return FALSE;
         }
         if (val < 0) {            /* implies '--' since we caught '-' above  */
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
-            exit(1);
+            return FALSE;
         }
     }
     time_adj.tv.secs = val;
@@ -390,10 +393,10 @@ set_time_adjustment(char *optarg_str_p)
             || val > ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
-            exit(1);
+            return FALSE;
         }
     } else {
-        return;                     /* no fractional digits */
+        return TRUE;                     /* no fractional digits */
     }
 
     /* adjust fractional portion from fractional to numerator
@@ -405,9 +408,10 @@ set_time_adjustment(char *optarg_str_p)
     }
 
     time_adj.tv.nsecs = (int)val;
+    return TRUE;
 }
 
-static void
+static gboolean
 set_strict_time_adj(char *optarg_str_p)
 {
     char   *frac, *end;
@@ -415,7 +419,7 @@ set_strict_time_adj(char *optarg_str_p)
     size_t  frac_digits;
 
     if (!optarg_str_p)
-        return;
+        return TRUE;
 
     /* skip leading whitespace */
     while (*optarg_str_p == ' ' || *optarg_str_p == '\t')
@@ -441,12 +445,12 @@ set_strict_time_adj(char *optarg_str_p)
             || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
-            exit(1);
+            return FALSE;
         }
         if (val < 0) {            /* implies '--' since we caught '-' above  */
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
-            exit(1);
+            return FALSE;
         }
     }
     strict_time_adj.tv.secs = val;
@@ -463,10 +467,10 @@ set_strict_time_adj(char *optarg_str_p)
             || val > ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
-            exit(1);
+            return FALSE;
         }
     } else {
-        return;                     /* no fractional digits */
+        return TRUE;                     /* no fractional digits */
     }
 
     /* adjust fractional portion from fractional to numerator
@@ -478,9 +482,10 @@ set_strict_time_adj(char *optarg_str_p)
     }
 
     strict_time_adj.tv.nsecs = (int)val;
+    return TRUE;
 }
 
-static void
+static gboolean
 set_rel_time(char *optarg_str_p)
 {
     char   *frac, *end;
@@ -488,7 +493,7 @@ set_rel_time(char *optarg_str_p)
     size_t  frac_digits;
 
     if (!optarg_str_p)
-        return;
+        return TRUE;
 
     /* skip leading whitespace */
     while (*optarg_str_p == ' ' || *optarg_str_p == '\t')
@@ -508,12 +513,12 @@ set_rel_time(char *optarg_str_p)
             || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "1: editcap: \"%s\" isn't a valid rel time value\n",
                     optarg_str_p);
-            exit(1);
+            return FALSE;
         }
         if (val < 0) {            /* implies '--' since we caught '-' above  */
             fprintf(stderr, "2: editcap: \"%s\" isn't a valid rel time value\n",
                     optarg_str_p);
-            exit(1);
+            return FALSE;
         }
     }
     relative_time_window.secs = val;
@@ -530,10 +535,10 @@ set_rel_time(char *optarg_str_p)
             || val > ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "3: editcap: \"%s\" isn't a valid rel time value\n",
                     optarg_str_p);
-            exit(1);
+            return FALSE;
         }
     } else {
-        return;                     /* no fractional digits */
+        return TRUE;                     /* no fractional digits */
     }
 
     /* adjust fractional portion from fractional to numerator
@@ -545,6 +550,7 @@ set_rel_time(char *optarg_str_p)
     }
 
     relative_time_window.nsecs = (int)val;
+    return TRUE;
 }
 
 #define LINUX_SLL_OFFSETP 14
@@ -993,6 +999,7 @@ main(int argc, char *argv[])
     GArray                      *shb_hdrs = NULL;
     GArray                      *nrb_hdrs = NULL;
     char                        *shb_user_appl;
+    int                          ret = EXIT_SUCCESS;
 
     cmdarg_err_init(failure_message, failure_message_cont);
 
@@ -1069,7 +1076,8 @@ main(int argc, char *argv[])
             if ((sscanf(optarg, "%u:%n", &frame_number, &string_start_index) < 1) || (string_start_index == 0)) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid <frame>:<comment>\n\n",
                         optarg);
-                exit(1);
+                ret = INVALID_OPTION;
+                goto clean_exit;
             }
 
             /* Lazily create the table */
@@ -1091,7 +1099,8 @@ main(int argc, char *argv[])
             if (!strptime(optarg,"%Y-%m-%d %T", &starttm)) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
                         optarg);
-                exit(1);
+                ret = INVALID_OPTION;
+                goto clean_exit;
             }
 
             check_startstop = TRUE;
@@ -1110,7 +1119,8 @@ main(int argc, char *argv[])
             if (!strptime(optarg,"%Y-%m-%d %T", &stoptm)) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
                         optarg);
-                exit(1);
+                ret = INVALID_OPTION;
+                goto clean_exit;
             }
             check_startstop = TRUE;
             stoptm.tm_isdst = -1;
@@ -1138,7 +1148,8 @@ main(int argc, char *argv[])
             default:
                 fprintf(stderr, "editcap: \"%s\" isn't a valid chop length or offset:length\n",
                         optarg);
-                exit(1);
+                ret = INVALID_OPTION;
+                goto clean_exit;
                 break;
             }
 
@@ -1171,7 +1182,8 @@ main(int argc, char *argv[])
             if (dup_window > MAX_DUP_DEPTH) {
                 fprintf(stderr, "editcap: \"%d\" duplicate window value must be between 0 and %d inclusive.\n",
                         dup_window, MAX_DUP_DEPTH);
-                exit(1);
+                ret = INVALID_OPTION;
+                goto clean_exit;
             }
             break;
 
@@ -1180,7 +1192,8 @@ main(int argc, char *argv[])
             if (p == optarg || err_prob < 0.0 || err_prob > 1.0) {
                 fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
                         optarg);
-                exit(1);
+                ret = INVALID_OPTION;
+                goto clean_exit;
             }
             srand( (unsigned int) (time(NULL) + ws_getpid()) );
             break;
@@ -1191,7 +1204,8 @@ main(int argc, char *argv[])
                 fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
                         optarg);
                 list_capture_types();
-                exit(1);
+                ret = INVALID_OPTION;
+                goto clean_exit;
             }
             break;
 
@@ -1201,7 +1215,7 @@ main(int argc, char *argv[])
                    "See https://www.wireshark.org for more information.\n",
                get_ws_vcs_version_info());
             print_usage(stdout);
-            exit(0);
+            goto clean_exit;
             break;
 
         case 'i': /* break capture file based on time interval */
@@ -1229,12 +1243,18 @@ main(int argc, char *argv[])
             break;
 
         case 'S':
-            set_strict_time_adj(optarg);
+            if (!set_strict_time_adj(optarg)) {
+                ret = INVALID_OPTION;
+                goto clean_exit;
+            }
             do_strict_time_adjustment = TRUE;
             break;
 
         case 't':
-            set_time_adjustment(optarg);
+            if (!set_time_adjustment(optarg)) {
+                ret = INVALID_OPTION;
+                goto clean_exit;
+            }
             break;
 
         case 'T':
@@ -1243,7 +1263,8 @@ main(int argc, char *argv[])
                 fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
                         optarg);
                 list_encap_types();
-                exit(1);
+                ret = INVALID_OPTION;
+                goto clean_exit;
             }
             break;
 
@@ -1257,14 +1278,17 @@ main(int argc, char *argv[])
             show_version("Editcap (Wireshark)", comp_info_str, runtime_info_str);
             g_string_free(comp_info_str, TRUE);
             g_string_free(runtime_info_str, TRUE);
-            exit(0);
+            goto clean_exit;
             break;
 
         case 'w':
             dup_detect = FALSE;
             dup_detect_by_time = TRUE;
             dup_window = MAX_DUP_DEPTH;
-            set_rel_time(optarg);
+            if (!set_rel_time(optarg)) {
+                ret = INVALID_OPTION;
+                goto clean_exit;
+            }
             break;
 
         case '?':              /* Bad options if GNU getopt */
@@ -1279,7 +1303,8 @@ main(int argc, char *argv[])
                 print_usage(stderr);
                 break;
             }
-            exit(1);
+            ret = INVALID_OPTION;
+            goto clean_exit;
             break;
         }
     } /* processing commmand-line options */
@@ -1290,7 +1315,8 @@ main(int argc, char *argv[])
 
     if ((argc - optind) < 1) {
         print_usage(stderr);
-        exit(1);
+        ret = INVALID_OPTION;
+        goto clean_exit;
     }
 
     if (check_startstop && !stoptime) {
@@ -1309,13 +1335,15 @@ main(int argc, char *argv[])
 
     if (starttime > stoptime) {
         fprintf(stderr, "editcap: start time is after the stop time\n");
-        exit(1);
+        ret = INVALID_OPTION;
+        goto clean_exit;
     }
 
     if (split_packet_count != 0 && secs_per_block != 0) {
         fprintf(stderr, "editcap: can't split on both packet count and time interval\n");
         fprintf(stderr, "editcap: at the same time\n");
-        exit(1);
+        ret = INVALID_OPTION;
+        goto clean_exit;
     }
 
     wth = wtap_open_offline(argv[optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, FALSE);
@@ -1327,7 +1355,8 @@ main(int argc, char *argv[])
             fprintf(stderr, "(%s)\n", read_err_info);
             g_free(read_err_info);
         }
-        exit(2);
+        ret = INVALID_FILE;
+        goto clean_exit;
     }
 
     if (verbose) {
@@ -1867,8 +1896,9 @@ main(int argc, char *argv[])
     wtap_block_array_free(nrb_hdrs);
     g_free(idb_inf);
     wtap_close(wth);
-
-    return 0;
+clean_exit:
+    wtap_cleanup();
+    return ret;
 
 error_on_exit:
     wtap_block_array_free(shb_hdrs);

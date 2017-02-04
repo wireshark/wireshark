@@ -2785,7 +2785,7 @@ int main(int argc, char **argv) {
 end:
     /* clean up stuff */
     extcap_base_cleanup(&extcap_conf);
-
+    wtap_cleanup();
     return ret;
 }
 

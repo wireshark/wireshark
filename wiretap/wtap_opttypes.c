@@ -1231,3 +1231,23 @@ void wtap_opttypes_initialize(void)
     wtap_opttype_option_register(&isb_block, OPT_ISB_OSDROP, &isb_osdrop);
     wtap_opttype_option_register(&isb_block, OPT_ISB_USRDELIV, &isb_usrdeliv);
 }
+
+void wtap_opttypes_cleanup(void)
+{
+    if (blocktype_list[WTAP_BLOCK_NG_SECTION]->options) {
+        g_array_free(blocktype_list[WTAP_BLOCK_NG_SECTION]->options, TRUE);
+        blocktype_list[WTAP_BLOCK_NG_SECTION]->options = NULL;
+    }
+    if (blocktype_list[WTAP_BLOCK_IF_DESCR]->options) {
+        g_array_free(blocktype_list[WTAP_BLOCK_IF_DESCR]->options, TRUE);
+        blocktype_list[WTAP_BLOCK_IF_DESCR]->options = NULL;
+    }
+    if (blocktype_list[WTAP_BLOCK_NG_NRB]->options) {
+        g_array_free(blocktype_list[WTAP_BLOCK_NG_NRB]->options, TRUE);
+        blocktype_list[WTAP_BLOCK_NG_NRB]->options = NULL;
+    }
+    if (blocktype_list[WTAP_BLOCK_IF_STATS]->options) {
+        g_array_free(blocktype_list[WTAP_BLOCK_IF_STATS]->options, TRUE);
+        blocktype_list[WTAP_BLOCK_IF_STATS]->options = NULL;
+    }
+}

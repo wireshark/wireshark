@@ -520,6 +520,10 @@ WS_DLL_PUBLIC void wtap_block_foreach_option(wtap_block_t block, wtap_block_fore
 WS_DLL_PUBLIC int wtap_opttype_register_custom_block_type(const char* name, const char* description, wtap_block_create_func create,
                                                 wtap_mand_free_func free_mand, wtap_mand_copy_func copy_mand);
 
+/** Cleanup the internal structures
+ */
+WS_DLL_PUBLIC void wtap_opttypes_cleanup(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

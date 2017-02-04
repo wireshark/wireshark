@@ -98,6 +98,9 @@ col_cleanup(column_info *cinfo)
   int i;
   col_item_t* col_item;
 
+  if (!cinfo)
+    return;
+
   for (i = 0; i < cinfo->num_cols; i++) {
     col_item = &cinfo->columns[i];
     g_free(col_item->fmt_matx);

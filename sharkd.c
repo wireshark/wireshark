@@ -299,6 +299,7 @@ main(int argc, char *argv[])
 clean_exit:
   col_cleanup(&cfile.cinfo);
   free_filter_lists();
+  wtap_cleanup();
   return ret;
 }
 

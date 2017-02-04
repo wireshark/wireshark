@@ -262,7 +262,7 @@ main(int argc, char *argv[])
   gchar              *err_info           = NULL;
   int                 err_fileno;
   char               *out_filename       = NULL;
-  merge_result        status;
+  merge_result        status             = MERGE_OK;
   idb_merge_mode      mode               = IDB_MERGE_MODE_MAX;
   gboolean            use_stdout         = FALSE;
   merge_progress_callback_t cb;
@@ -338,7 +338,8 @@ main(int argc, char *argv[])
         fprintf(stderr, "mergecap: \"%s\" isn't a valid capture file type\n",
                 optarg);
         list_capture_types();
-        exit(1);
+        status = MERGE_ERR_INVALID_OPTION;
+        goto clean_exit;
       }
       break;
 
@@ -348,7 +349,7 @@ main(int argc, char *argv[])
              "See https://www.wireshark.org for more information.\n",
              get_ws_vcs_version_info());
       print_usage(stdout);
-      exit(0);
+      goto clean_exit;
       break;
 
     case 'I':
@@ -357,7 +358,8 @@ main(int argc, char *argv[])
         fprintf(stderr, "mergecap: \"%s\" isn't a valid IDB merge mode\n",
                 optarg);
         list_idb_merge_modes();
-        exit(1);
+        status = MERGE_ERR_INVALID_OPTION;
+        goto clean_exit;
       }
       break;
 
@@ -375,7 +377,7 @@ main(int argc, char *argv[])
       show_version("Mergecap (Wireshark)", comp_info_str, runtime_info_str);
       g_string_free(comp_info_str, TRUE);
       g_string_free(runtime_info_str, TRUE);
-      exit(0);
+      goto clean_exit;
       break;
 
     case 'w':
@@ -393,7 +395,8 @@ main(int argc, char *argv[])
       default:
         print_usage(stderr);
       }
-      exit(1);
+      status = MERGE_ERR_INVALID_OPTION;
+      goto clean_exit;
       break;
     }
   }
@@ -408,7 +411,8 @@ main(int argc, char *argv[])
   if (!out_filename) {
     fprintf(stderr, "mergecap: an output filename must be set with -w\n");
     fprintf(stderr, "          run with -h for help\n");
-    return 1;
+    status = MERGE_ERR_INVALID_OPTION;
+    goto clean_exit;
   }
   if (in_file_count < 1) {
     fprintf(stderr, "mergecap: No input files were specified\n");
@@ -418,7 +422,8 @@ main(int argc, char *argv[])
   /* setting IDB merge mode must use PCAPNG output */
   if (mode != IDB_MERGE_MODE_MAX && file_type != WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
     fprintf(stderr, "The IDB merge mode can only be used with PCAPNG output format\n");
-    return 1;
+    status = MERGE_ERR_INVALID_OPTION;
+    goto clean_exit;
   }
 
   /* if they didn't set IDB merge mode, set it to our default */
@@ -478,6 +483,8 @@ main(int argc, char *argv[])
 
   g_free(err_info);
 
+clean_exit:
+  wtap_cleanup();
   return (status == MERGE_OK) ? 0 : 2;
 }
 

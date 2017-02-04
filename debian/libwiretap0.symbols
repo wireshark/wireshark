@@ -107,10 +107,12 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_get_savable_file_types_subtypes@Base 1.12.0~rc1
  wtap_has_open_info@Base 1.12.0~rc1
  wtap_init@Base 2.3.0
+ wtap_cleanup@Base 2.3.0
  wtap_iscompressed@Base 1.9.1
  wtap_open_offline@Base 1.9.1
  wtap_opttype_register_custom_block_type@Base 2.1.2
  wtap_opttypes_initialize@Base 2.1.2
+ wtap_opttypes_cleanup@Base 2.3.0
  wtap_pcap_encap_to_wtap_encap@Base 1.9.1
  wtap_phdr@Base 1.9.1
  wtap_phdr_cleanup@Base 1.99.2

@@ -1972,6 +1972,9 @@ void wtap_deregister_file_type_subtype(const int file_type_subtype);
 WS_DLL_PUBLIC
 int wtap_register_encap_type(const char* name, const char* short_name);
 
+/*** Cleanup the interal library structures */
+WS_DLL_PUBLIC
+void wtap_cleanup(void);
 
 /**
  * Wiretap error codes.

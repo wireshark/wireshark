@@ -216,6 +216,7 @@ main(int argc, char *argv[])
 
   }
 
+  wtap_cleanup();
   return overall_error_status;
 }
 

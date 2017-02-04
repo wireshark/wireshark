@@ -1709,6 +1709,7 @@ main(int argc, char *argv[])
 
 exit:
   g_free(hash_buf);
+  wtap_cleanup();
   return overall_error_status;
 }
 

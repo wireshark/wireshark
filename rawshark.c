@@ -121,6 +121,12 @@
 static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_as_protocol>";
 #endif
 
+#define INVALID_OPTION 1
+#define INIT_ERROR 2
+#define INVALID_DFILTER 2
+#define OPEN_ERROR 2
+#define FORMAT_ERROR 2
+
 static guint32 cum_bytes;
 static const frame_data *ref;
 static frame_data ref_frame;
@@ -442,6 +448,7 @@ main(int argc, char *argv[])
     GPtrArray           *disp_fields = g_ptr_array_new();
     guint                fc;
     gboolean             skip_pcap_header = FALSE;
+    int                  ret = EXIT_SUCCESS;
     static const struct option long_options[] = {
       {"help", no_argument, NULL, 'h'},
       {"version", no_argument, NULL, 'v'},
@@ -532,8 +539,10 @@ main(int argc, char *argv[])
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
     if (!epan_init(register_all_protocols, register_all_protocol_handoffs,
-                   NULL, NULL))
-        return 2;
+                   NULL, NULL)) {
+        ret = INIT_ERROR;
+        goto clean_exit;
+    }
 
     prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
                          &pf_open_errno, &pf_read_errno, &pf_path);
@@ -613,7 +622,8 @@ main(int argc, char *argv[])
             case 'd':        /* Payload type */
                 if (!set_link_type(optarg)) {
                     cmdarg_err("Invalid link type or protocol \"%s\"", optarg);
-                    exit(1);
+                    ret = INVALID_OPTION;
+                    goto clean_exit;
                 }
                 break;
             case 'F':        /* Read field to display */
@@ -625,7 +635,7 @@ main(int argc, char *argv[])
                        "See https://www.wireshark.org for more information.\n",
                        get_ws_vcs_version_info());
                 print_usage(stdout);
-                exit(0);
+                goto clean_exit;
                 break;
             case 'l':        /* "Line-buffer" standard output */
                 /* This isn't line-buffering, strictly speaking, it's just
@@ -647,10 +657,10 @@ main(int argc, char *argv[])
                 limit.rlim_cur = get_positive_int(optarg, "memory limit");
                 limit.rlim_max = get_positive_int(optarg, "memory limit");
 
-                if(setrlimit(RLIMIT_AS, &limit) != 0)
-                {
+                if(setrlimit(RLIMIT_AS, &limit) != 0) {
                     cmdarg_err("setrlimit() returned error");
-                    exit(1);
+                    ret = INVALID_OPTION;
+                    goto clean_exit;
                 }
                 break;
 #endif
@@ -662,7 +672,8 @@ main(int argc, char *argv[])
                 if (badopt != '\0') {
                     cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'd', m', 'n', 'N', and 't'",
                                badopt);
-                    exit(1);
+                    ret = INVALID_OPTION;
+                    goto clean_exit;
                 }
                 break;
             case 'o':        /* Override preference from command line */
@@ -673,13 +684,15 @@ main(int argc, char *argv[])
 
                     case PREFS_SET_SYNTAX_ERR:
                         cmdarg_err("Invalid -o flag \"%s\"", optarg);
-                        exit(1);
+                        ret = INVALID_OPTION;
+                        goto clean_exit;
                         break;
 
                     case PREFS_SET_NO_SUCH_PREF:
                     case PREFS_SET_OBSOLETE:
                         cmdarg_err("-o flag \"%s\" specifies unknown preference", optarg);
-                        exit(1);
+                        ret = INVALID_OPTION;
+                        goto clean_exit;
                         break;
                 }
                 break;
@@ -695,7 +708,8 @@ main(int argc, char *argv[])
                 }
                 else {
                     cmdarg_err("Too many display filters");
-                    exit(1);
+                    ret = INVALID_OPTION;
+                    goto clean_exit;
                 }
                 break;
             case 's':        /* Skip PCAP header */
@@ -704,7 +718,8 @@ main(int argc, char *argv[])
             case 'S':        /* Print string representations */
                 if (!parse_field_string_format(optarg)) {
                     cmdarg_err("Invalid field string format");
-                    exit(1);
+                    ret = INVALID_OPTION;
+                    goto clean_exit;
                 }
                 break;
             case 't':        /* Time stamp type */
@@ -741,7 +756,8 @@ main(int argc, char *argv[])
 "\"u\" for absolute UTC, \"ud\" for absolute UTC with YYYY-MM-DD date,");
                     cmdarg_err_cont(
 "or \"udoy\" for absolute UTC with YYYY/DOY date.");
-                    exit(1);
+                    ret = INVALID_OPTION;
+                    goto clean_exit;
                 }
                 break;
             case 'v':        /* Show version and exit */
@@ -749,13 +765,14 @@ main(int argc, char *argv[])
                 show_version("Rawshark (Wireshark)", comp_info_str, runtime_info_str);
                 g_string_free(comp_info_str, TRUE);
                 g_string_free(runtime_info_str, TRUE);
-                exit(0);
+                goto clean_exit;
                 break;
             }
             default:
             case '?':        /* Bad flag - print usage message */
                 print_usage(stderr);
-            exit(1);
+            ret = INVALID_OPTION;
+            goto clean_exit;
             break;
         }
     }
@@ -784,7 +801,8 @@ main(int argc, char *argv[])
             if (n_rfilters != 0) {
                 cmdarg_err("Read filters were specified both with \"-R\" "
                            "and with additional command-line arguments");
-                exit(1);
+                ret = INVALID_OPTION;
+                goto clean_exit;
             }
             rfilters[n_rfilters] = get_args_as_string(argc, argv, optind);
         }
@@ -793,12 +811,14 @@ main(int argc, char *argv[])
     /* Make sure we got a dissector handle for our payload. */
     if (encap == WTAP_ENCAP_UNKNOWN) {
         cmdarg_err("No valid payload dissector specified.");
-        exit(1);
+        ret = INVALID_OPTION;
+        goto clean_exit;
     }
 
     if (arg_error) {
         print_usage(stderr);
-        exit(1);
+        ret = INVALID_OPTION;
+        goto clean_exit;
     }
 
 
@@ -829,12 +849,8 @@ main(int argc, char *argv[])
             if (!dfilter_compile(rfilters[i], &rfcodes[n_rfcodes], &err_msg)) {
                 cmdarg_err("%s", err_msg);
                 g_free(err_msg);
-                epan_free(cfile.epan);
-                epan_cleanup();
-#ifdef HAVE_EXTCAP
-                extcap_cleanup();
-#endif
-                exit(2);
+                ret = INVALID_DFILTER;
+                goto clean_exit;
             }
             n_rfcodes++;
         }
@@ -853,12 +869,8 @@ main(int argc, char *argv[])
         relinquish_special_privs_perm();
 
         if (raw_cf_open(&cfile, pipe_name) != CF_OK) {
-            epan_free(cfile.epan);
-            epan_cleanup();
-#ifdef HAVE_EXTCAP
-            extcap_cleanup();
-#endif
-            exit(2);
+            ret = OPEN_ERROR;
+            goto clean_exit;
         }
 
         /* Do we need to PCAP header and magic? */
@@ -869,7 +881,8 @@ main(int argc, char *argv[])
                 ssize_t bytes = ws_read(fd, buf, (int)bytes_left);
                 if (bytes <= 0) {
                     cmdarg_err("Not enough bytes for pcap header.");
-                    exit(2);
+                    ret =  FORMAT_ERROR;
+                    goto clean_exit;
                 }
                 bytes_left -= bytes;
             }
@@ -877,25 +890,24 @@ main(int argc, char *argv[])
 
         /* Process the packets in the file */
         if (!load_cap_file(&cfile)) {
-            epan_free(cfile.epan);
-            epan_cleanup();
-#ifdef HAVE_EXTCAP
-            extcap_cleanup();
-#endif
-            exit(2);
+            ret = OPEN_ERROR;
+            goto clean_exit;
         }
     } else {
         /* If you want to capture live packets, use TShark. */
         cmdarg_err("Input file or pipe name not specified.");
-        exit(2);
+        ret = OPEN_ERROR;
+        goto clean_exit;
     }
 
+clean_exit:
     epan_free(cfile.epan);
     epan_cleanup();
 #ifdef HAVE_EXTCAP
     extcap_cleanup();
 #endif
-    return 0;
+    wtap_cleanup();
+    return ret;
 }
 
 /**

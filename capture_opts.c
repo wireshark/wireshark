@@ -124,8 +124,17 @@ capture_opts_init(capture_options *capture_opts)
 void
 capture_opts_cleanup(capture_options *capture_opts)
 {
-    g_array_free(capture_opts->ifaces, TRUE);
-    g_array_free(capture_opts->all_ifaces, TRUE);
+    if (!capture_opts)
+        return;
+
+    if (capture_opts->ifaces) {
+        g_array_free(capture_opts->ifaces, TRUE);
+        capture_opts->ifaces = NULL;
+    }
+    if (capture_opts->all_ifaces) {
+        g_array_free(capture_opts->all_ifaces, TRUE);
+        capture_opts->all_ifaces = NULL;
+    }
 }
 
 /* log content of capture_opts */

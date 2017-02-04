@@ -94,6 +94,11 @@
 #include <wsutil/plugins.h>
 #endif
 
+#define INVALID_OPTION 1
+#define INIT_ERROR 2
+#define INVALID_FILTER 2
+#define OPEN_ERROR 2
+
 static guint32 cum_bytes;
 static const frame_data *ref;
 static frame_data ref_frame;
@@ -519,8 +524,10 @@ main(int argc, char *argv[])
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
   if (!epan_init(register_all_protocols, register_all_protocol_handoffs, NULL,
-                 NULL))
-    return 2;
+                 NULL)) {
+    exit_status = INIT_ERROR;
+    goto clean_exit;
+  }
 
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */
@@ -588,10 +595,11 @@ main(int argc, char *argv[])
         glossary_option_help();
       else {
         cmdarg_err("Invalid \"%s\" option for -G flag, enter -G ? for more help.", argv[2]);
-        return 1;
+        exit_status = INVALID_OPTION;
+        goto clean_exit;
       }
     }
-    return 0;
+    goto clean_exit;
   }
 
   prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
@@ -698,7 +706,8 @@ main(int argc, char *argv[])
       if (!output_fields_set_option(output_fields, optarg)) {
         cmdarg_err("\"%s\" is not a valid field output option=value pair.", optarg);
         output_fields_list_options(stderr);
-        return 1;
+        exit_status = INVALID_OPTION;
+        goto clean_exit;
       }
       break;
 
@@ -708,7 +717,7 @@ main(int argc, char *argv[])
              "See https://www.wireshark.org for more information.\n",
              get_ws_vcs_version_info());
       print_usage(stdout);
-      return 0;
+      goto clean_exit;
       break;
     case 'l':        /* "Line-buffer" standard output */
       /* This isn't line-buffering, strictly speaking, it's just
@@ -739,7 +748,8 @@ main(int argc, char *argv[])
       case PREFS_SET_NO_SUCH_PREF:
       case PREFS_SET_OBSOLETE:
         cmdarg_err("-o flag \"%s\" specifies unknown preference", optarg);
-        return 1;
+        exit_status = INVALID_OPTION;
+        goto clean_exit;
         break;
       }
       break;
@@ -796,7 +806,8 @@ main(int argc, char *argv[])
                         "\t         packets, or a multi-line view of the details of each of the\n"
                         "\t         packets, depending on whether the -V flag was specified.\n"
                         "\t         This is the default.");
-        return 1;
+        exit_status = INVALID_OPTION;
+        goto clean_exit;
       }
       break;
     case 'v':         /* Show version and exit */
@@ -805,16 +816,7 @@ main(int argc, char *argv[])
       show_version("TFShark (Wireshark)", comp_info_str, runtime_info_str);
       g_string_free(comp_info_str, TRUE);
       g_string_free(runtime_info_str, TRUE);
-      /* We don't really have to cleanup here, but it's a convenient way to test
-       * start-up and shut-down of the epan library without any UI-specific
-       * cruft getting in the way. Makes the results of running
-       * $ ./tools/valgrind-wireshark -n
-       * much more useful. */
-      epan_cleanup();
-#ifdef HAVE_EXTCAP
-      extcap_cleanup();
-#endif
-      return 0;
+      goto clean_exit;
     case 'O':        /* Only output these protocols */
       /* already processed; just ignore it now */
       break;
@@ -839,25 +841,29 @@ main(int argc, char *argv[])
       if (strcmp("help", optarg) == 0) {
         fprintf(stderr, "tfshark: The available statistics for the \"-z\" option are:\n");
         list_stat_cmd_args();
-        return 0;
+        goto clean_exit;
       }
       if (!process_stat_cmd_arg(optarg)) {
         cmdarg_err("Invalid -z argument \"%s\"; it must be one of:", optarg);
         list_stat_cmd_args();
-        return 1;
+        exit_status = INVALID_OPTION;
+        goto clean_exit;
       }
       break;
     case 'd':        /* Decode as rule */
     case 'K':        /* Kerberos keytab file */
     case 't':        /* Time stamp type */
     case 'u':        /* Seconds type */
-      if (!dissect_opts_handle_opt(opt, optarg))
-          return 1;
+      if (!dissect_opts_handle_opt(opt, optarg)) {
+        exit_status = INVALID_OPTION;
+        goto clean_exit;
+      }
       break;
     default:
     case '?':        /* Bad flag - print usage message */
       print_usage(stderr);
-      return 1;
+      exit_status = INVALID_OPTION;
+      goto clean_exit;
       break;
     }
   }
@@ -871,7 +877,8 @@ main(int argc, char *argv[])
         cmdarg_err("\"-Tfields\" was specified, but no fields were "
                     "specified with \"-e\".");
 
-        return 1;
+        exit_status = INVALID_OPTION;
+        goto clean_exit;
   }
 
   /* If no capture filter or display filter has been specified, and there are
@@ -883,7 +890,8 @@ main(int argc, char *argv[])
       if (dfilter != NULL) {
         cmdarg_err("Display filters were specified both with \"-d\" "
             "and with additional command-line arguments.");
-        return 1;
+        exit_status = INVALID_OPTION;
+        goto clean_exit;
       }
       dfilter = get_args_as_string(argc, argv, optind);
     }
@@ -895,13 +903,15 @@ main(int argc, char *argv[])
 
   if (arg_error) {
     print_usage(stderr);
-    return 1;
+    exit_status = INVALID_OPTION;
+    goto clean_exit;
   }
 
   if (print_hex) {
     if (output_action != WRITE_TEXT) {
       cmdarg_err("Raw packet hex data can only be printed as text or PostScript");
-      return 1;
+      exit_status = INVALID_OPTION;
+      goto clean_exit;
     }
   }
 
@@ -910,7 +920,8 @@ main(int argc, char *argv[])
 
     if (!print_details) {
       cmdarg_err("-O requires -V");
-      return 1;
+      exit_status = INVALID_OPTION;
+      goto clean_exit;
     }
 
     output_only_tables = g_hash_table_new (g_str_hash, g_str_equal);
@@ -921,7 +932,8 @@ main(int argc, char *argv[])
 
   if (rfilter != NULL && !perform_two_pass_analysis) {
     cmdarg_err("-R without -2 is deprecated. For single-pass filtering use -Y.");
-    return 1;
+    exit_status = INVALID_OPTION;
+    goto clean_exit;
   }
 
   /* Notify all registered modules that have had any of their preferences
@@ -948,11 +960,8 @@ main(int argc, char *argv[])
     if (!dfilter_compile(rfilter, &rfcode, &err_msg)) {
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
-      epan_cleanup();
-#ifdef HAVE_EXTCAP
-      extcap_cleanup();
-#endif
-      return 2;
+      exit_status = INVALID_FILTER;
+      goto clean_exit;
     }
   }
   cfile.rfcode = rfcode;
@@ -961,11 +970,8 @@ main(int argc, char *argv[])
     if (!dfilter_compile(dfilter, &dfcode, &err_msg)) {
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
-      epan_cleanup();
-#ifdef HAVE_EXTCAP
-      extcap_cleanup();
-#endif
-      return 2;
+      exit_status = INVALID_FILTER;
+      goto clean_exit;
     }
   }
   cfile.dfcode = dfcode;
@@ -1009,11 +1015,8 @@ main(int argc, char *argv[])
     /* TODO: if tfshark is ever changed to give the user a choice of which
        open_routine reader to use, then the following needs to change. */
     if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
-      epan_cleanup();
-#ifdef HAVE_EXTCAP
-      extcap_cleanup();
-#endif
-      return 2;
+      exit_status = OPEN_ERROR;
+      goto clean_exit;
     }
 
     /* Process the packets in the file */
@@ -1049,6 +1052,8 @@ main(int argc, char *argv[])
 
   draw_tap_listeners(TRUE);
   funnel_dump_all_text_windows();
+
+clean_exit:
   epan_free(cfile.epan);
   epan_cleanup();
 #ifdef HAVE_EXTCAP
@@ -1058,6 +1063,8 @@ main(int argc, char *argv[])
   output_fields_free(output_fields);
   output_fields = NULL;
 
+  col_cleanup(&cfile.cinfo);
+  wtap_cleanup();
   return exit_status;
 }
 
@@ -1254,7 +1261,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
 
       if (ferror(stdout)) {
         show_print_file_io_error(errno);
-        exit(2);
+        return FALSE;
       }
     }
     prev_dis = fdata;
@@ -1445,7 +1452,8 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
         process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf, tap_flags);
       }
 #else
-        process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf, tap_flags);
+        if (!process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf, tap_flags))
+          return 2;
 #endif
     }
 
@@ -1479,8 +1487,9 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 
       framenum++;
 
-      process_packet(cf, edt, data_offset, &file_phdr/*wtap_phdr(cf->wth)*/,
-                             raw_data, tap_flags);
+      if (!process_packet(cf, edt, data_offset, &file_phdr/*wtap_phdr(cf->wth)*/,
+                             raw_data, tap_flags))
+        return 2;
 
         /* Stop reading if we have the maximum number of packets;
         * When the -c option has not been used, max_packet_count
@@ -1673,7 +1682,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
 
       if (ferror(stdout)) {
         show_print_file_io_error(errno);
-        exit(2);
+        return FALSE;
       }
     }
 

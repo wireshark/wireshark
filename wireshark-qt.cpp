@@ -947,6 +947,7 @@ clean_exit:
     capture_opts_cleanup(&global_capture_opts);
 #endif
     col_cleanup(&CaptureFile::globalCapFile()->cinfo);
+    wtap_cleanup();
     return ret_val;
 }
 

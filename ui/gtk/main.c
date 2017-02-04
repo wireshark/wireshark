@@ -2816,6 +2816,7 @@ clean_exit:
 #endif
     col_cleanup(&cfile.cinfo);
     free_filter_lists();
+    wtap_cleanup();
     return ret;
 }
 

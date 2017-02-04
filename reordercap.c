@@ -51,6 +51,10 @@
 
 #include <wsutil/report_err.h>
 
+#define INVALID_OPTION 1
+#define OPEN_ERROR 2
+#define OUTPUT_FILE_ERROR 1
+
 /* Show command-line usage */
 static void
 print_usage(FILE *output)
@@ -182,6 +186,7 @@ main(int argc, char *argv[])
     GArray                      *shb_hdrs = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
     GArray                      *nrb_hdrs = NULL;
+    int                          ret = EXIT_SUCCESS;
 
     GPtrArray *frames;
     FrameRecord_t *prevFrame = NULL;
@@ -259,17 +264,18 @@ main(int argc, char *argv[])
                        "See https://www.wireshark.org for more information.\n",
                        get_ws_vcs_version_info());
                 print_usage(stdout);
-                exit(0);
+                goto clean_exit;
             case 'v':
                 comp_info_str = get_compiled_version_info(NULL, NULL);
                 runtime_info_str = get_runtime_version_info(NULL);
                 show_version("Reordercap (Wireshark)", comp_info_str, runtime_info_str);
                 g_string_free(comp_info_str, TRUE);
                 g_string_free(runtime_info_str, TRUE);
-                exit(0);
+                goto clean_exit;
             case '?':
                 print_usage(stderr);
-                exit(1);
+                ret = INVALID_OPTION;
+                goto clean_exit;
         }
     }
 
@@ -281,7 +287,8 @@ main(int argc, char *argv[])
     }
     else {
         print_usage(stderr);
-        exit(1);
+        ret = INVALID_OPTION;
+        goto clean_exit;
     }
 
     /* Open infile */
@@ -295,7 +302,8 @@ main(int argc, char *argv[])
             fprintf(stderr, "(%s)\n", err_info);
             g_free(err_info);
         }
-        exit(2);
+        ret = OPEN_ERROR;
+        goto clean_exit;
     }
     DEBUG_PRINT("file_type_subtype is %d\n", wtap_file_type_subtype(wth));
 
@@ -320,7 +328,8 @@ main(int argc, char *argv[])
                 outfile, wtap_strerror(err));
         wtap_block_array_free(shb_hdrs);
         wtap_block_array_free(nrb_hdrs);
-        exit(1);
+        ret = OUTPUT_FILE_ERROR;
+        goto clean_exit;
     }
 
     /* Allocate the array of frame pointers. */
@@ -394,7 +403,8 @@ main(int argc, char *argv[])
                 wtap_strerror(err));
         wtap_block_array_free(shb_hdrs);
         wtap_block_array_free(nrb_hdrs);
-        exit(1);
+        ret = OUTPUT_FILE_ERROR;
+        goto clean_exit;
     }
     wtap_block_array_free(shb_hdrs);
     wtap_block_array_free(nrb_hdrs);
@@ -402,7 +412,9 @@ main(int argc, char *argv[])
     /* Finally, close infile and release resources. */
     wtap_close(wth);
 
-    return 0;
+clean_exit:
+    wtap_cleanup();
+    return ret;
 }
 
 /*

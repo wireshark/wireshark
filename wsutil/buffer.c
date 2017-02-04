@@ -178,6 +178,16 @@ ws_buffer_append_buffer(Buffer* buffer, Buffer* src_buffer)
 }
 #endif
 
+void
+ws_buffer_cleanup(void)
+{
+	if (small_buffers) {
+		g_ptr_array_set_free_func(small_buffers, g_free);
+		g_ptr_array_free(small_buffers, TRUE);
+		small_buffers = NULL;
+	}
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

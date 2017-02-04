@@ -49,6 +49,10 @@
 
 #include "randpkt_core/randpkt_core.h"
 
+#define INVALID_OPTION 1
+#define INVALID_TYPE 2
+#define CLOSE_ERROR 2
+
 /*
  * General errors are reported with an console message in randpkt.
  */
@@ -104,9 +108,8 @@ usage(gboolean is_error)
 	g_strfreev(longname_list);
 
 	fprintf(output, "\nIf type is not specified, a random packet will be chosen\n\n");
-
-	exit(is_error ? 1 : 0);
 }
+
 int
 main(int argc, char **argv)
 {
@@ -120,6 +123,7 @@ main(int argc, char **argv)
 	guint8*			type = NULL;
 	int 			allrandom = FALSE;
 	wtap_dumper		*savedump;
+	int 			 ret = EXIT_SUCCESS;
 	static const struct option long_options[] = {
 		{"help", no_argument, NULL, 'h'},
 		{0, 0, 0, 0 }
@@ -174,7 +178,8 @@ main(int argc, char **argv)
 				produce_max_bytes = get_positive_int(optarg, "max bytes");
 				if (produce_max_bytes > 65536) {
 					cmdarg_err("max bytes is > 65536");
-					return 1;
+					ret = INVALID_OPTION;
+					goto clean_exit;
 				}
 				break;
 
@@ -188,6 +193,7 @@ main(int argc, char **argv)
 
 			case 'h':
 				usage(FALSE);
+				goto clean_exit;
 				break;
 
 			case 'r':
@@ -196,6 +202,8 @@ main(int argc, char **argv)
 
 			default:
 				usage(TRUE);
+				ret = INVALID_OPTION;
+				goto clean_exit;
 				break;
 		}
 	}
@@ -206,6 +214,8 @@ main(int argc, char **argv)
 	}
 	else {
 		usage(TRUE);
+		ret = INVALID_OPTION;
+		goto clean_exit;
 	}
 
 	if (!allrandom) {
@@ -213,22 +223,31 @@ main(int argc, char **argv)
 		g_free(type);
 
 		example = randpkt_find_example(produce_type);
-		if (!example)
-			return 1;
+		if (!example) {
+			ret = INVALID_OPTION;
+			goto clean_exit;
+		}
 
-		randpkt_example_init(example, produce_filename, produce_max_bytes);
+		ret = randpkt_example_init(example, produce_filename, produce_max_bytes);
+		if (ret != EXIT_SUCCESS)
+			goto clean_exit;
 		randpkt_loop(example, produce_count);
 	} else {
 		if (type) {
 			fprintf(stderr, "Can't set type in random mode\n");
-			return 2;
+			ret = INVALID_TYPE;
+			goto clean_exit;
 		}
 
 		produce_type = randpkt_parse_type(NULL);
 		example = randpkt_find_example(produce_type);
-		if (!example)
-			return 1;
-		randpkt_example_init(example, produce_filename, produce_max_bytes);
+		if (!example) {
+			ret = INVALID_OPTION;
+			goto clean_exit;
+		}
+		ret = randpkt_example_init(example, produce_filename, produce_max_bytes);
+		if (ret != EXIT_SUCCESS)
+			goto clean_exit;
 
 		while (produce_count-- > 0) {
 			randpkt_loop(example, 1);
@@ -237,15 +256,20 @@ main(int argc, char **argv)
 			savedump = example->dump;
 
 			example = randpkt_find_example(produce_type);
-			if (!example)
-				return 1;
+			if (!example) {
+				ret = INVALID_OPTION;
+				goto clean_exit;
+			}
 			example->dump = savedump;
 		}
 	}
-	if (!randpkt_example_close(example))
-		return 2;
-	return 0;
+	if (!randpkt_example_close(example)) {
+		ret = CLOSE_ERROR;
+	}
 
+clean_exit:
+	wtap_cleanup();
+	return ret;
 }
 
 /*

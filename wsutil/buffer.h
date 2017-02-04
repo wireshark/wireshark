@@ -48,6 +48,8 @@ WS_DLL_PUBLIC
 void ws_buffer_append(Buffer* buffer, guint8 *from, gsize bytes);
 WS_DLL_PUBLIC
 void ws_buffer_remove_start(Buffer* buffer, gsize bytes);
+WS_DLL_PUBLIC
+void ws_buffer_cleanup(void);
 
 #ifdef SOME_FUNCTIONS_ARE_DEFINES
 # define ws_buffer_clean(buffer) ws_buffer_remove_start((buffer), ws_buffer_length(buffer))
