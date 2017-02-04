@@ -37,9 +37,7 @@
 #include "packet-atalk.h"
 
 /*
- * Originally Cisco proprietary; now the subject of an I-D:
- *
- *    https://tools.ietf.org/html/draft-savage-eigrp-04
+ * Originally Cisco proprietary; now the subject of RFC 7868.
  */
 
 /**
