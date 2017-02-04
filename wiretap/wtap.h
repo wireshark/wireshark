@@ -1448,6 +1448,8 @@ typedef enum {
 
 WS_DLL_PUBLIC void init_open_routines(void);
 
+void cleanup_open_routines(void);
+
 struct open_info {
     const char *name;
     wtap_open_type type;

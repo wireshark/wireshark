@@ -1444,6 +1444,7 @@ wtap_cleanup(void)
 	wtap_cleanup_encap_types();
 	wtap_opttypes_cleanup();
 	ws_buffer_cleanup();
+	cleanup_open_routines();
 }
 
 /*
