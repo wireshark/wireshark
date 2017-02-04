@@ -2203,6 +2203,7 @@ clean_exit:
   col_cleanup(&cfile.cinfo);
   free_filter_lists();
   wtap_cleanup();
+  cf_close(&cfile);
   return exit_status;
 }
 
@@ -4076,6 +4077,12 @@ write_finale(void)
     g_assert_not_reached();
     return FALSE;
   }
+}
+
+void
+cf_close(capture_file *cf)
+{
+  g_free(cf->filename);
 }
 
 cf_status_t
