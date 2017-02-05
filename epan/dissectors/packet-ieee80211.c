@@ -480,7 +480,7 @@ typedef struct mimo_control
 #define TAG_CISCO_CCX3               149  /* Cisco Compatible eXtensions v3 */
 #define TAG_CISCO_VENDOR_SPECIFIC    150  /* Cisco Compatible eXtensions */
 #define TAG_DMG_OPERATION            151  /* IEEE Std 802.11ad */
-#define TAG_DMG_BSS_PRAMTER_CHANGE   152  /* IEEE Std 802.11ad */
+#define TAG_DMG_BSS_PARAMETER_CHANGE 152  /* IEEE Std 802.11ad */
 #define TAG_DMG_BEAM_REFINEMENT      153  /* IEEE Std 802.11ad */
 #define TAG_CHANNEL_MEASURMENT_FB    154  /* IEEE Std 802.11ad */
 #define TAG_AWAKE_WINDOW             157  /* IEEE Std 802.11ad */
@@ -495,7 +495,7 @@ typedef struct mimo_control
 #define TAG_CLUSTER_REP              166  /* IEEE Std 802.11ad */
 #define TAG_RELAY_CAPABILITIES       167  /* IEEE Std 802.11ad */
 #define TAG_RELAY_TRANSFER_PARAM     168  /* IEEE Std 802.11ad */
-#define TAG_BEAMLINK_MAINTAINCE      169  /* IEEE Std 802.11ad */
+#define TAG_BEAMLINK_MAINTENANCE     169  /* IEEE Std 802.11ad */
 #define TAG_MULTIPLE_MAC_SUBLAYERS   170  /* IEEE Std 802.11ad */
 #define TAG_U_PID                    171  /* IEEE Std 802.11ad */
 #define TAG_DMG_LINK_ADAPTION_ACK    172  /* IEEE Std 802.11ad */
@@ -647,7 +647,7 @@ static const value_string tag_num_vals[] = {
   { TAG_CISCO_CCX3,                           "Cisco Unknown 95" },
   { TAG_CISCO_VENDOR_SPECIFIC,                "Vendor Specific" },
   { TAG_DMG_OPERATION,                        "DMG Operating" },
-  { TAG_DMG_BSS_PRAMTER_CHANGE,               "DMG BSS Parameter Change" },
+  { TAG_DMG_BSS_PARAMETER_CHANGE,             "DMG BSS Parameter Change" },
   { TAG_DMG_BEAM_REFINEMENT,                  "DMG Beam Refinement" },
   { TAG_CHANNEL_MEASURMENT_FB,                "Channel Measurement Feedback" },
   { TAG_AWAKE_WINDOW,                         "Awake Window" },
@@ -662,7 +662,7 @@ static const value_string tag_num_vals[] = {
   { TAG_CLUSTER_REP,                          "Cluster Report" },
   { TAG_RELAY_CAPABILITIES,                   "Relay Capabilities" },
   { TAG_RELAY_TRANSFER_PARAM,                 "Relay Transfer Parameter" },
-  { TAG_BEAMLINK_MAINTAINCE,                  "Beamlink Maintenance" },
+  { TAG_BEAMLINK_MAINTENANCE,                 "Beamlink Maintenance" },
   { TAG_MULTIPLE_MAC_SUBLAYERS,               "Multiple MAC Sublayers" },
   { TAG_U_PID,                                "U-PID" },
   { TAG_DMG_LINK_ADAPTION_ACK,                "DMG Link Adaption Acknowledgment" },
@@ -15744,7 +15744,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       add_tag_relay_capabilities(pinfo, ti_len, tag_len, tree, tvb, &offset);
       break;
     }
-    case TAG_DMG_BSS_PRAMTER_CHANGE:
+    case TAG_DMG_BSS_PARAMETER_CHANGE:
     {
       gboolean size;
       if (tag_len != 7)
@@ -15965,7 +15965,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       offset += 1;
       break;
     }
-    case TAG_BEAMLINK_MAINTAINCE:
+    case TAG_BEAMLINK_MAINTENANCE:
     {
       if (tag_len != 1)
       {
