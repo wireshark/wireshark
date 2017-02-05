@@ -663,6 +663,8 @@ static void
 service_name_lookup_cleanup(void)
 {
     serv_port_hashtable = NULL;
+    g_free(g_services_path);
+    g_services_path = NULL;
 }
 
 /* Fill in an IP4 structure with info from subnets file or just with the

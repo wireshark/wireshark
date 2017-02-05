@@ -407,6 +407,8 @@ prefs_cleanup(void)
     uat_cleanup();
 
     g_free(prefs.saved_at_version);
+    g_free(gpf_path);
+    gpf_path = NULL;
 }
 
 /*
