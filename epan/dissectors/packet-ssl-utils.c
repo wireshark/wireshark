@@ -467,6 +467,22 @@ const value_string ssl_extension_curves[] = {
     { 258, "ffdhe4096" }, /* RFC 7919 */
     { 259, "ffdhe6144" }, /* RFC 7919 */
     { 260, "ffdhe8192" }, /* RFC 7919 */
+    { 2570, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 6682, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 10794, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 14906, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 19018, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 23130, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 27242, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 31354, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 35466, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 39578, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 43690, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 47802, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 51914, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 56026, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 60138, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
+    { 64250, "Reserved (GREASE)" }, /* draft-ietf-tls-grease */
     { 0xFF01, "arbitrary_explicit_prime_curves" },
     { 0xFF02, "arbitrary_explicit_char2_curves" },
     { 0x00, NULL }
