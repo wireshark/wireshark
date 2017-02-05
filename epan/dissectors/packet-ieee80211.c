@@ -13520,7 +13520,7 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_reachability, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_security, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_key_scope, tvb, offset, 4, ENC_LITTLE_ENDIAN);
- parent_item = proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  parent_item = proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   bssid_info_cap_subtree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_bssid_info_capability_tree);
   proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_spec_mng, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_qos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
