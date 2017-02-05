@@ -1697,7 +1697,7 @@ static const value_string smb2_ioctl_shared_virtual_disk_vals[] = {
 static const value_string smb2_ioctl_shared_virtual_disk_hstate_vals[] = {
 	{ 0x00, "HandleStateNone" },
 	{ 0x01, "HandleStateFileShared" },
-	{ 0x02, "HandleStateShared" },
+	{ 0x03, "HandleStateShared" },
 	{ 0, NULL }
 };
 

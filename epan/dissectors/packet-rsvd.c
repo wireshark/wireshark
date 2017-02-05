@@ -120,6 +120,7 @@ static const value_string rsvd_disk_type_vals[] = {
 
 static const value_string rsvd_disk_format_vals[] = {
         { 0x03, "VIRTUAL_STORAGE_TYPE_DEVICE_VHDX" },
+        { 0x04, "VIRTUAL_STORAGE_TYPE_DEVICE_VHDSET" },
         { 0, NULL }
 };
 
@@ -185,6 +186,13 @@ dissect_RSVD_GET_INITIAL_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
     return offset;
 }
+
+static const value_string rsvd_data_in_vals[] = {
+        { 0x00, "Client is requesting data from the server" },
+        { 0x01, "Client is sending data to the server" },
+        { 0x02, "Client is neither sending nor requesting an additional data buffer" },
+        { 0, NULL }
+};
 
 /*
  * Dissect a tunnelled SCSI request and call the SCSI dissector where
@@ -699,8 +707,8 @@ proto_register_rsvd(void)
                     NULL, 0, NULL, HFILL }},
 
                 { &hf_svhdx_tunnel_scsi_data_in,
-                  { "DataIn", "rsvd.svhdx_scsi_data_in", FT_BOOLEAN, 8,
-                    NULL, 0, NULL, HFILL }},
+                  { "DataIn", "rsvd.svhdx_scsi_data_in", FT_UINT8, BASE_HEX,
+                    VALS(rsvd_data_in_vals), 0, "SCSI CDB transfer type", HFILL }},
 
                 { &hf_svhdx_tunnel_scsi_reserved2,
                   { "Reserved2", "rsvd.svhdx_scsi_reserved2", FT_UINT8, BASE_HEX,
