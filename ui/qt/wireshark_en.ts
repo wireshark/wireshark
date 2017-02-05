@@ -10917,42 +10917,42 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="486"/>
+        <location filename="wlan_statistics_dialog.cpp" line="491"/>
         <source>BSSID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="487"/>
+        <location filename="wlan_statistics_dialog.cpp" line="492"/>
         <source>Beacons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="488"/>
+        <location filename="wlan_statistics_dialog.cpp" line="493"/>
         <source>Data Pkts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="489"/>
+        <location filename="wlan_statistics_dialog.cpp" line="494"/>
         <source>Protection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="491"/>
+        <location filename="wlan_statistics_dialog.cpp" line="496"/>
         <source>Address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="492"/>
+        <location filename="wlan_statistics_dialog.cpp" line="497"/>
         <source>Pkts Sent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="493"/>
+        <location filename="wlan_statistics_dialog.cpp" line="498"/>
         <source>Pkts Received</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="494"/>
+        <location filename="wlan_statistics_dialog.cpp" line="499"/>
         <source>Comment</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11190,12 +11190,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="865"/>
+        <location filename="../../wireshark-qt.cpp" line="872"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="866"/>
+        <location filename="../../wireshark-qt.cpp" line="873"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15551,57 +15551,57 @@ a:hover {
 <context>
     <name>WlanStatisticsDialog</name>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="502"/>
+        <location filename="wlan_statistics_dialog.cpp" line="507"/>
         <source>Wireless LAN Statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="506"/>
+        <location filename="wlan_statistics_dialog.cpp" line="511"/>
         <source>Channel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="506"/>
+        <location filename="wlan_statistics_dialog.cpp" line="511"/>
         <source>SSID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="506"/>
+        <location filename="wlan_statistics_dialog.cpp" line="511"/>
         <source>Percent Packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="506"/>
+        <location filename="wlan_statistics_dialog.cpp" line="511"/>
         <source>Percent Retry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="507"/>
+        <location filename="wlan_statistics_dialog.cpp" line="512"/>
         <source>Probe Reqs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="507"/>
+        <location filename="wlan_statistics_dialog.cpp" line="512"/>
         <source>Probe Resp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="507"/>
+        <location filename="wlan_statistics_dialog.cpp" line="512"/>
         <source>Auths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="507"/>
+        <location filename="wlan_statistics_dialog.cpp" line="512"/>
         <source>Retry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="508"/>
+        <location filename="wlan_statistics_dialog.cpp" line="513"/>
         <source>Deauths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="508"/>
+        <location filename="wlan_statistics_dialog.cpp" line="513"/>
         <source>Other</source>
         <translation type="unfinished"></translation>
     </message>

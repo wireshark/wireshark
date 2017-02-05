@@ -11175,42 +11175,42 @@ a:hover {
         <translation>&lt;非表示&gt;</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="486"/>
+        <location filename="wlan_statistics_dialog.cpp" line="491"/>
         <source>BSSID</source>
         <translation>BSSID</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="487"/>
+        <location filename="wlan_statistics_dialog.cpp" line="492"/>
         <source>Beacons</source>
         <translation>ビーコン</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="488"/>
+        <location filename="wlan_statistics_dialog.cpp" line="493"/>
         <source>Data Pkts</source>
         <translation>データパケット</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="489"/>
+        <location filename="wlan_statistics_dialog.cpp" line="494"/>
         <source>Protection</source>
         <translation>保護</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="491"/>
+        <location filename="wlan_statistics_dialog.cpp" line="496"/>
         <source>Address</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="492"/>
+        <location filename="wlan_statistics_dialog.cpp" line="497"/>
         <source>Pkts Sent</source>
         <translation>送信パケット</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="493"/>
+        <location filename="wlan_statistics_dialog.cpp" line="498"/>
         <source>Pkts Received</source>
         <translation>受信パケット</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="494"/>
+        <location filename="wlan_statistics_dialog.cpp" line="499"/>
         <source>Comment</source>
         <translation>コメント</translation>
     </message>
@@ -11456,12 +11456,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="865"/>
+        <location filename="../../wireshark-qt.cpp" line="872"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished">無効な表示フィルタ</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="866"/>
+        <location filename="../../wireshark-qt.cpp" line="873"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15927,57 +15927,57 @@ a:hover {
 <context>
     <name>WlanStatisticsDialog</name>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="502"/>
+        <location filename="wlan_statistics_dialog.cpp" line="507"/>
         <source>Wireless LAN Statistics</source>
         <translation>無線LAN統計</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="506"/>
+        <location filename="wlan_statistics_dialog.cpp" line="511"/>
         <source>Channel</source>
         <translation>チャンネル</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="506"/>
+        <location filename="wlan_statistics_dialog.cpp" line="511"/>
         <source>SSID</source>
         <translation>SSID</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="506"/>
+        <location filename="wlan_statistics_dialog.cpp" line="511"/>
         <source>Percent Packets</source>
         <translation>パケット割合</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="506"/>
+        <location filename="wlan_statistics_dialog.cpp" line="511"/>
         <source>Percent Retry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="507"/>
+        <location filename="wlan_statistics_dialog.cpp" line="512"/>
         <source>Probe Reqs</source>
         <translation>プルーブ要求</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="507"/>
+        <location filename="wlan_statistics_dialog.cpp" line="512"/>
         <source>Probe Resp</source>
         <translation>プルーブ応答</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="507"/>
+        <location filename="wlan_statistics_dialog.cpp" line="512"/>
         <source>Auths</source>
         <translation>認証</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="507"/>
+        <location filename="wlan_statistics_dialog.cpp" line="512"/>
         <source>Retry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="508"/>
+        <location filename="wlan_statistics_dialog.cpp" line="513"/>
         <source>Deauths</source>
         <translation>非認証</translation>
     </message>
     <message>
-        <location filename="wlan_statistics_dialog.cpp" line="508"/>
+        <location filename="wlan_statistics_dialog.cpp" line="513"/>
         <source>Other</source>
         <translation>その他</translation>
     </message>
