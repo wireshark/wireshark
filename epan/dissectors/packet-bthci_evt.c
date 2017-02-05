@@ -418,6 +418,8 @@ static int hf_bthci_evt_le_address_type = -1;
 static int hf_bthci_evt_le_rssi = -1;
 static int hf_bthci_evt_le_tx_phy = -1;
 static int hf_bthci_evt_le_rx_phy = -1;
+static int hf_bthci_evt_max_adv_data_length = -1;
+static int hf_bthci_evt_num_supported_adv_sets = -1;
 
 static const int *hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_encryption,
@@ -4253,6 +4255,26 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             break;
         }
 
+        case 0x203A: /* LE Read Maximum Advertising Data Length */
+        {
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+            proto_tree_add_item(tree, hf_bthci_evt_max_adv_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            break;
+        }
+
+        case 0x203B: /* LE Read Number of Supported Advertising Sets */
+        {
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+            proto_tree_add_item(tree, hf_bthci_evt_num_supported_adv_sets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            break;
+        }
+
         case 0x0441: /* Set Connectionless Slave Broadcast */
         case 0x0442: /* Set Connectionless Slave Broadcast Receive */
         case 0x0C70: /* Set MWS Signaling */
@@ -7456,6 +7478,16 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_le_rx_phy,
           { "Rx PHY", "bthci_evt.le_rx_phy",
             FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_le_phy_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_max_adv_data_length,
+          { "Maximum Advertising Data Length", "bthci_evt.max_adv_data_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_num_supported_adv_sets,
+          { "Number of Supported Advertising Sets", "bthci_evt.num_supported_adv_sets",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         }
     };
