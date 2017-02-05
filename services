@@ -207,8 +207,8 @@ uucp-path         117/tcp # UUCP Path Service
 uucp-path         117/udp # UUCP Path Service
 sqlserv           118/tcp # SQL Services [Larry_Barnes] [Larry_Barnes]
 sqlserv           118/udp # SQL Services [Larry_Barnes] [Larry_Barnes]
-nntp              119/tcp # Network News Transfer Protocol [Phil_Lapsley] [Phil_Lapsley]
-nntp              119/udp # Network News Transfer Protocol [Phil_Lapsley] [Phil_Lapsley]
+nntp              119/tcp # Network News Transfer Protocol [IESG] [IESG] 2017-02-03 [RFC3977]
+nntp              119/udp # Network News Transfer Protocol [IESG] [IESG] 2017-02-03 [RFC3977]
 cfdptkt           120/tcp # CFDPTKT [John_Ioannidis] [John_Ioannidis]
 cfdptkt           120/udp # CFDPTKT [John_Ioannidis] [John_Ioannidis]
 erpc              121/tcp # Encore Expedited Remote Pro.Call [Jack_ONeil] [Jack_ONeil]
@@ -706,8 +706,8 @@ utmpcd            431/tcp # UTMPCD
 utmpcd            431/udp # UTMPCD
 iasd              432/tcp # IASD [Nir_Baroz] [Nir_Baroz]
 iasd              432/udp # IASD [Nir_Baroz] [Nir_Baroz]
-nnsp              433/tcp # NNSP [Rob_Robertson] [Rob_Robertson]
-nnsp              433/udp # NNSP [Rob_Robertson] [Rob_Robertson]
+nnsp              433/tcp # NNTP for transit servers (NNSP) [IESG] [IESG] 2017-02-03 [RFC3977]
+nnsp              433/udp # NNTP for transit servers (NNSP) [IESG] [IESG] 2017-02-03 [RFC3977]
 mobileip-agent    434/tcp # MobileIP-Agent
 mobileip-agent    434/udp # MobileIP-Agent
 mobilip-mn        435/tcp # MobilIP-MN [Kannan_Alagappan_2] [Kannan_Alagappan_2]
@@ -970,8 +970,8 @@ monitor           561/tcp #
 monitor           561/udp # 
 chshell           562/tcp # chcmd
 chshell           562/udp # chcmd
-nntps             563/tcp # nntp protocol over TLS/SSL (was snntp) [Kipp_E_B_Hickman_2] [Kipp_E_B_Hickman_2]
-nntps             563/udp # nntp protocol over TLS/SSL (was snntp) [Kipp_E_B_Hickman_2] [Kipp_E_B_Hickman_2]
+nntps             563/tcp # nntp protocol over TLS/SSL (was snntp) [IESG] [IESG] 2017-02-03 [RFC4642]
+nntps             563/udp # nntp protocol over TLS/SSL (was snntp) [IESG] [IESG] 2017-02-03 [RFC4642]
 9pfs              564/tcp # plan 9 file service
 9pfs              564/udp # plan 9 file service
 whoami            565/tcp # whoami
