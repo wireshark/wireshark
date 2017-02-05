@@ -245,6 +245,16 @@ stats_tree_reinit(void *p)
     }
 }
 
+void
+stats_tree_cfg_free(gpointer p)
+{
+    stats_tree_cfg* cfg = (stats_tree_cfg*)p;
+    g_free(cfg->tapname);
+    g_free(cfg->abbr);
+    g_free(cfg->name);
+    g_free(cfg);
+}
+
 /* register a new stats_tree */
 extern void
 stats_tree_register_with_group(const char *tapname, const char *abbr, const char *name,
@@ -269,7 +279,7 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
     cfg->flags = flags&~ST_FLG_MASK;
     cfg->st_flags = flags&ST_FLG_MASK;
 
-    if (!registry) registry = g_hash_table_new(g_str_hash,g_str_equal);
+    if (!registry) registry = g_hash_table_new_full(g_str_hash,g_str_equal,NULL,stats_tree_cfg_free);
 
     g_hash_table_insert(registry,cfg->abbr,cfg);
 }
@@ -1319,6 +1329,11 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
     if (format_type==ST_FORMAT_XML) {
         g_string_append(s,"</stat-node>\n");
     }
+}
+
+void stats_tree_cleanup(void)
+{
+    g_hash_table_destroy(registry);
 }
 
 /*
