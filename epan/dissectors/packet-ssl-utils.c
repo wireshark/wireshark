@@ -460,8 +460,8 @@ const value_string ssl_extension_curves[] = {
     { 26, "brainpoolP256r1" }, /* RFC 7027 */
     { 27, "brainpoolP384r1" }, /* RFC 7027 */
     { 28, "brainpoolP512r1" }, /* RFC 7027 */
-    { 29, "ecdh_x25519" }, /* https://tools.ietf.org/html/draft-ietf-tls-rfc4492bis */
-    { 30, "ecdh_x448" }, /* https://tools.ietf.org/html/draft-ietf-tls-rfc4492bis */
+    { 29, "x25519" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13 https://tools.ietf.org/html/draft-ietf-tls-rfc4492bis */
+    { 30, "x448" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13 https://tools.ietf.org/html/draft-ietf-tls-rfc4492bis */
     { 256, "ffdhe2048" }, /* RFC 7919 */
     { 257, "ffdhe3072" }, /* RFC 7919 */
     { 258, "ffdhe4096" }, /* RFC 7919 */
