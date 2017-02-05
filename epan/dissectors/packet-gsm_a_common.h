@@ -1290,6 +1290,7 @@ typedef enum
  * [3] 10.5.2.37g SI 19 Rest Octets
  * [3] 10.5.2.37h SI 18 Rest Octets
  * [3] 10.5.2.37i SI 20 Rest Octets */
+    DE_RR_SI21_REST_OCT,            /* [3] 10.5.2.37m SI21 Rest Octets */
     DE_RR_STARTING_TIME,            /* [3] 10.5.2.38 Starting Time                  */
     DE_RR_TIMING_ADV,               /* [3] 10.5.2.40 Timing Advance                 */
     DE_RR_TIME_DIFF,                /* [3] 10.5.2.41 Time Difference                */
