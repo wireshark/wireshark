@@ -681,7 +681,6 @@ static const value_string ssl_31_ciphersuite[] = {
          of the ietf-tls list */
     { 0x001e, "SSL_FORTEZZA_KEA_WITH_RC4_128_SHA" },
 #endif
-
     /* RFC 2712 */
     { 0x001E, "TLS_KRB5_WITH_DES_CBC_SHA" },
     { 0x001F, "TLS_KRB5_WITH_3DES_EDE_CBC_SHA" },
@@ -697,12 +696,10 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x0029, "TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5" },
     { 0x002A, "TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5" },
     { 0x002B, "TLS_KRB5_EXPORT_WITH_RC4_40_MD5" },
-
     /* RFC 4785 */
     { 0x002C, "TLS_PSK_WITH_NULL_SHA" },
     { 0x002D, "TLS_DHE_PSK_WITH_NULL_SHA" },
     { 0x002E, "TLS_RSA_PSK_WITH_NULL_SHA" },
-
     /* RFC 5246 */
     { 0x002F, "TLS_RSA_WITH_AES_128_CBC_SHA" },
     { 0x0030, "TLS_DH_DSS_WITH_AES_128_CBC_SHA" },
@@ -722,7 +719,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x003E, "TLS_DH_DSS_WITH_AES_128_CBC_SHA256" },
     { 0x003F, "TLS_DH_RSA_WITH_AES_128_CBC_SHA256" },
     { 0x0040, "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256" },
-
     /* RFC 4132 */
     { 0x0041, "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA" },
     { 0x0042, "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA" },
@@ -730,7 +726,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x0044, "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA" },
     { 0x0045, "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA" },
     { 0x0046, "TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA" },
-
     /* 0x00,0x60-66 Reserved to avoid conflicts with widely deployed implementations  */
     /* --- ??? --- */
     { 0x0060, "TLS_RSA_EXPORT1024_WITH_RC4_56_MD5" },
@@ -742,7 +737,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x0065, "TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA" },
     { 0x0066, "TLS_DHE_DSS_WITH_RC4_128_SHA" },
     /* --- ??? ---*/
-
     { 0x0067, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256" },
     { 0x0068, "TLS_DH_DSS_WITH_AES_256_CBC_SHA256" },
     { 0x0069, "TLS_DH_RSA_WITH_AES_256_CBC_SHA256" },
@@ -750,13 +744,11 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x006B, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256" },
     { 0x006C, "TLS_DH_anon_WITH_AES_128_CBC_SHA256" },
     { 0x006D, "TLS_DH_anon_WITH_AES_256_CBC_SHA256" },
-
     /* draft-chudov-cryptopro-cptls-04.txt */
     { 0x0080,  "TLS_GOSTR341094_WITH_28147_CNT_IMIT" },
     { 0x0081,  "TLS_GOSTR341001_WITH_28147_CNT_IMIT" },
     { 0x0082,  "TLS_GOSTR341094_WITH_NULL_GOSTR3411" },
     { 0x0083,  "TLS_GOSTR341001_WITH_NULL_GOSTR3411" },
-
     /* RFC 4132 */
     { 0x0084, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0085, "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA" },
@@ -764,7 +756,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x0087, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0088, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0089, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA" },
-
     /* RFC 4279 */
     { 0x008A, "TLS_PSK_WITH_RC4_128_SHA" },
     { 0x008B, "TLS_PSK_WITH_3DES_EDE_CBC_SHA" },
@@ -778,7 +769,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x0093, "TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA" },
     { 0x0094, "TLS_RSA_PSK_WITH_AES_128_CBC_SHA" },
     { 0x0095, "TLS_RSA_PSK_WITH_AES_256_CBC_SHA" },
-
     /* RFC 4162 */
     { 0x0096, "TLS_RSA_WITH_SEED_CBC_SHA" },
     { 0x0097, "TLS_DH_DSS_WITH_SEED_CBC_SHA" },
@@ -786,7 +776,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x0099, "TLS_DHE_DSS_WITH_SEED_CBC_SHA" },
     { 0x009A, "TLS_DHE_RSA_WITH_SEED_CBC_SHA" },
     { 0x009B, "TLS_DH_anon_WITH_SEED_CBC_SHA" },
-
     /* RFC 5288 */
     { 0x009C, "TLS_RSA_WITH_AES_128_GCM_SHA256" },
     { 0x009D, "TLS_RSA_WITH_AES_256_GCM_SHA384" },
@@ -800,7 +789,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x00A5, "TLS_DH_DSS_WITH_AES_256_GCM_SHA384" },
     { 0x00A6, "TLS_DH_anon_WITH_AES_128_GCM_SHA256" },
     { 0x00A7, "TLS_DH_anon_WITH_AES_256_GCM_SHA384" },
-
     /* RFC 5487 */
     { 0x00A8, "TLS_PSK_WITH_AES_128_GCM_SHA256" },
     { 0x00A9, "TLS_PSK_WITH_AES_256_GCM_SHA384" },
@@ -820,7 +808,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x00B7, "TLS_RSA_PSK_WITH_AES_256_CBC_SHA384" },
     { 0x00B8, "TLS_RSA_PSK_WITH_NULL_SHA256" },
     { 0x00B9, "TLS_RSA_PSK_WITH_NULL_SHA384" },
-
     /* From RFC 5932 */
     { 0x00BA, "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256" },
     { 0x00BB, "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA256" },
@@ -886,7 +873,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xc017, "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA" },
     { 0xc018, "TLS_ECDH_anon_WITH_AES_128_CBC_SHA" },
     { 0xc019, "TLS_ECDH_anon_WITH_AES_256_CBC_SHA" },
-
     /* RFC 5054 */
     { 0xC01A, "TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA" },
     { 0xC01B, "TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA" },
@@ -897,7 +883,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC020, "TLS_SRP_SHA_WITH_AES_256_CBC_SHA" },
     { 0xC021, "TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA" },
     { 0xC022, "TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA" },
-
     /* RFC 5589 */
     { 0xC023, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256" },
     { 0xC024, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384" },
@@ -915,7 +900,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC030, "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384" },
     { 0xC031, "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256" },
     { 0xC032, "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384" },
-
     /* RFC 5489 */
     { 0xC033, "TLS_ECDHE_PSK_WITH_RC4_128_SHA" },
     { 0xC034, "TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA" },
@@ -926,7 +910,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC039, "TLS_ECDHE_PSK_WITH_NULL_SHA" },
     { 0xC03A, "TLS_ECDHE_PSK_WITH_NULL_SHA256" },
     { 0xC03B, "TLS_ECDHE_PSK_WITH_NULL_SHA384" },
-
     /* RFC 6209 */
     { 0xC03C, "TLS_RSA_WITH_ARIA_128_CBC_SHA256" },
     { 0xC03D, "TLS_RSA_WITH_ARIA_256_CBC_SHA384" },
@@ -982,7 +965,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC06F, "TLS_RSA_PSK_WITH_ARIA_256_GCM_SHA384" },
     { 0xC070, "TLS_ECDHE_PSK_WITH_ARIA_128_CBC_SHA256" },
     { 0xC071, "TLS_ECDHE_PSK_WITH_ARIA_256_CBC_SHA384" },
-
     /* RFC 6367 */
     { 0xC072, "TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256" },
     { 0xC073, "TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384" },
@@ -1026,7 +1008,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC099, "TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384" },
     { 0xC09A, "TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256" },
     { 0xC09B, "TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384" },
-
     /* RFC 6655 */
     { 0xC09C, "TLS_RSA_WITH_AES_128_CCM" },
     { 0xC09D, "TLS_RSA_WITH_AES_256_CCM" },
@@ -1044,7 +1025,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC0A9, "TLS_PSK_WITH_AES_256_CCM_8" },
     { 0xC0AA, "TLS_PSK_DHE_WITH_AES_128_CCM_8" },
     { 0xC0AB, "TLS_PSK_DHE_WITH_AES_256_CCM_8" },
-
     /* RFC 7251 */
     { 0xC0AC, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM" },
     { 0xC0AD, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM" },
@@ -1059,14 +1039,12 @@ static const value_string ssl_31_ciphersuite[] = {
 0xFE,0xFE-FF Reserved to avoid conflicts with widely deployed implementations [Pasi_Eronen]
 0xFF,0x00-FF Reserved for Private Use [RFC5246]
 */
-
     /* old numbers used in the beginning
      * http://tools.ietf.org/html/draft-agl-tls-chacha20poly1305 */
     { 0xCC13, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCC14, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCC15, "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
-
-    /* http://tools.ietf.org/html/draft-ietf-tls-chacha20-poly1305 */
+    /* RFC 7905 */
     { 0xCCA8, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCCA9, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCCAA, "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
@@ -1074,7 +1052,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xCCAC, "TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCCAD, "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCCAE, "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256" },
-
     /* https://tools.ietf.org/html/draft-ietf-tls-grease */
     { 0xDADA, "Reserved (GREASE)" },
     /* http://tools.ietf.org/html/draft-josefsson-salsa20-tls */
@@ -1094,7 +1071,6 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xE41D, "TLS_DHE_PSK_WITH_SALSA20_SHA1" },
     { 0xE41E, "TLS_DHE_RSA_WITH_ESTREAM_SALSA20_SHA1" },
     { 0xE41F, "TLS_DHE_RSA_WITH_SALSA20_SHA1" },
-
     /* https://tools.ietf.org/html/draft-ietf-tls-grease */
     { 0xEAEA, "Reserved (GREASE)" },
     { 0xFAFA, "Reserved (GREASE)" },
