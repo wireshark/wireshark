@@ -421,7 +421,7 @@ proto_register_vlan(void)
   prefs_register_enum_preference(vlan_module, "priority_drop",
         "Priorities and drop eligibility",
         "Number of priorities supported, and number of those drop eligible (not used for 802.1Q-1998)",
-        &vlan_priority_drop, priority_drop_vals, TRUE);
+        &vlan_priority_drop, priority_drop_vals, FALSE);
   vlan_handle = create_dissector_handle(dissect_vlan, proto_vlan);
 }
 
