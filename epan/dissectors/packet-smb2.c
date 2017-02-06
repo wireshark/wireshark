@@ -6972,7 +6972,7 @@ dissect_smb2_svhdx_open_device_context_request(tvbuff_t *tvb, packet_info *pinfo
 
 	/* InitiatorId */
 	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_initiator_id,
-			    tvb, offset, 16, ENC_NA);
+			    tvb, offset, 16, ENC_LITTLE_ENDIAN);
 	offset += 16;
 
 	/* Flags TODO: Dissect these*/
@@ -10571,7 +10571,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_svhdx_open_device_context_initiator_id,
-			{ "InitiatorId", "smb2.svhdx_open_device_context.initiator_id", FT_BYTES, BASE_NONE,
+			{ "InitiatorId", "smb2.svhdx_open_device_context.initiator_id", FT_GUID, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 

@@ -30,6 +30,7 @@
 
 #include <epan/conversation.h>
 #include <epan/packet.h>
+#include "packet-smb-common.h"
 #include "packet-scsi.h"
 
 void proto_reg_handoff_rsvd(void);
@@ -81,11 +82,23 @@ static int hf_svhdx_tunnel_srb_status_srb_status = -1;
 static int hf_svhdx_tunnel_srb_status_scsi_status = -1;
 static int hf_svhdx_tunnel_srb_status_sense_info_ex_length = -1;
 static int hf_svhdx_tunnel_srb_status_sense_data_ex = -1;
+static int hf_svhdx_tunnel_safe_virtual_size = -1;
+static int hf_svhdx_tunnel_transaction_id = -1;
+static int hf_svhdx_tunnel_meta_operation_type = -1;
+static int hf_svhdx_tunnel_padding = -1;
+static int hf_svhdx_tunnel_new_size = -1;
+static int hf_svhdx_tunnel_expand_only_flag = -1;
+static int hf_svhdx_tunnel_allow_unsafe_virt_size_flag = -1;
+static int hf_svhdx_tunnel_shrink_to_minimum_safe_size_flag = -1;
+static int hf_svhdx_tunnel_meta_operation_start_reserved = -1;
+static int hf_svhdx_tunnel_current_progress = -1;
+static int hf_svhdx_tunnel_complete_value = -1;
+static int hf_svhdx_tunnel_dst_vhdset_name_len = -1;
+static int hf_svhdx_tunnel_dst_vhdset_name = -1;
 
 static gint ett_rsvd = -1;
 static gint ett_svhdx_tunnel_op_header = -1;
 static gint ett_svhdx_tunnel_scsi_request = -1;
-static gint ett_svhdx_tunnel_file_info_response = -1;
 
 static const value_string rsvd_operation_code_vals[] = {
         { 0x02001001, "RSVD_TUNNEL_GET_INITIAL_INFO" },
@@ -160,12 +173,12 @@ get_itl_nexus(packet_info *pinfo)
 }
 
 static int
-dissect_RSVD_GET_INITIAL_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD_GET_INITIAL_INFO(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
 {
-    if (!request) {
-        proto_tree *gfi_sub_tree;
-        proto_item *gfi_sub_item _U_;
+    proto_tree *gfi_sub_tree;
+    proto_item *gfi_sub_item;
 
+    if (!request) {
         gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_GET_INITIAL_INFO_RESPONSE");
 
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_file_info_server_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -181,7 +194,7 @@ dissect_RSVD_GET_INITIAL_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         offset += 4;
 
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_file_info_virtual_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-       offset += 8;
+        offset += 8;
     }
 
     return offset;
@@ -199,7 +212,7 @@ static const value_string rsvd_data_in_vals[] = {
  * needed.
  */
 static int
-dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request, guint64 request_id)
+dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, gint16 len, gboolean request, guint64 request_id)
 {
     proto_tree *sub_tree;
     proto_item *sub_item;
@@ -414,12 +427,12 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
 }
 
 static int
-dissect_RSVD_SRB_STATUS(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD_SRB_STATUS(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
 {
-    if (request) {
-        proto_tree *gfi_sub_tree _U_;
-        proto_item *gfi_sub_item _U_;
+    proto_tree *gfi_sub_tree;
+    proto_item *gfi_sub_item;
 
+    if (request) {
         gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_SRB_STATUS_REQUEST");
 
         /* StatusKey */
@@ -430,8 +443,6 @@ dissect_RSVD_SRB_STATUS(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *paren
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_srb_status_reserved, tvb, offset, 1, ENC_NA);
         offset += 27;
     } else {
-        proto_tree *gfi_sub_tree _U_;
-        proto_item *gfi_sub_item _U_;
         guint8 sense_info_length;
 
         gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_SRB_STATUS_RESPONSE");
@@ -463,12 +474,12 @@ dissect_RSVD_SRB_STATUS(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *paren
 }
 
 static int
-dissect_RSVD_GET_DISK_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD_GET_DISK_INFO(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
 {
-    if (request) {
-        proto_tree *gfi_sub_tree _U_;
-        proto_item *gfi_sub_item _U_;
+    proto_tree *gfi_sub_tree;
+    proto_item *gfi_sub_item;
 
+    if (request) {
         gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_GET_DISK_INFO_REQUEST");
 
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_reserved1, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -477,7 +488,7 @@ dissect_RSVD_GET_DISK_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_blocksize, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
 
-        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_linkage_id, tvb, offset, 16, ENC_NA);
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_linkage_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
         offset += 16;
 
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_is_mounted, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -492,12 +503,9 @@ dissect_RSVD_GET_DISK_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_file_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         offset += 8;
 
-        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_virtual_disk_id, tvb, offset, 16, ENC_NA);
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_virtual_disk_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
         offset += 16;
     } else {
-        proto_tree *gfi_sub_tree _U_;
-        proto_item *gfi_sub_item _U_;
-
         gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_GET_DISK_INFO_RESPONSE");
 
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_disk_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -509,7 +517,7 @@ dissect_RSVD_GET_DISK_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_blocksize, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
 
-        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_linkage_id, tvb, offset, 16, ENC_NA);
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_linkage_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
         offset += 16;
 
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_is_mounted, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -524,7 +532,7 @@ dissect_RSVD_GET_DISK_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_file_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         offset += 8;
 
-        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_virtual_disk_id, tvb, offset, 16, ENC_NA);
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_virtual_disk_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
         offset += 16;
     }
 
@@ -532,26 +540,140 @@ dissect_RSVD_GET_DISK_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 }
 
 static int
-dissect_RSVD_VALIDATE_DISK(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD_VALIDATE_DISK(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
 {
-    if (request) {
-        proto_tree *gfi_sub_tree _U_;
-        proto_item *gfi_sub_item _U_;
+    proto_tree *gfi_sub_tree;
+    proto_item *gfi_sub_item;
 
+    if (request) {
         gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_VALIDATE_DISK_REQUEST");
 
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_validate_disk_reserved, tvb, offset, 56, ENC_NA);
         offset += 56;
     } else {
-        proto_tree *gfi_sub_tree _U_;
-        proto_item *gfi_sub_item _U_;
-
         gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_VALIDATE_DISK_RESPONSE");
 
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_validate_disk_is_valid_disk, tvb, offset, 1, ENC_NA);
         offset += 1;
     }
 
+    return offset;
+}
+
+static const value_string rsvd_meta_operation_type_vals[] = {
+        { 0x00, "SvhdxMetaOperationTypeResize" },
+        { 0x01, "SvhdxMetaOperationTypeCreateSnapshot" },
+        { 0x02, "SvhdxMetaOperationTypeOptimize" },
+        { 0x03, "SvhdxMetaOperationTypeExtractVHD" },
+        { 0x04, "SvhdxMetaOperationTypeConvertToVHDSet" },
+        { 0x05, "SvhdxMetaOperationTypeApplySnapshot" },
+        { 0, NULL }
+};
+
+static int
+dissect_RSVD2_META_OPERATION_START(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+{
+    guint32 operation_type = 0;
+    guint32 length = 0;
+    proto_tree *gfi_sub_tree;
+    proto_item *gfi_sub_item;
+
+    if (request) {
+
+        gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_META_OPERATION_START_REQUEST");
+
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_transaction_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+        offset += 16;
+
+        operation_type = tvb_get_letohl(tvb, offset);
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_meta_operation_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_padding, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        switch (operation_type) {
+        case 0x00: /* SvhdxMetaOperationTypeResize */
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_new_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_expand_only_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_allow_unsafe_virt_size_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_shrink_to_minimum_safe_size_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_meta_operation_start_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            break;
+        case 0x04: /* SvhdxMetaOperationTypeConvertToVHDSet */
+            length = tvb_get_letohl(tvb, offset);
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_dst_vhdset_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            if (length) {
+                const char *name = "";
+                guint16 bc;
+
+                bc = tvb_captured_length_remaining(tvb, offset);
+                name = get_unicode_or_ascii_string(tvb, &offset,
+                    TRUE, &length, TRUE, TRUE, &bc);
+                if (name) {
+                    proto_tree_add_string(gfi_sub_tree, hf_svhdx_tunnel_dst_vhdset_name, tvb,
+                        offset, length, name);
+                }
+            }
+            break;
+
+        default:
+            /* TODO: implement other types of meta operations */
+            break;
+        }
+    }
+    return offset;
+}
+
+static int
+dissect_RSVD2_META_OPERATION_QUERY_PROGRESS(tvbuff_t *tvb,
+            proto_tree *parent_tree, int offset, gint16 len, gboolean request, guint32 status)
+{
+    proto_tree *gfi_sub_tree;
+    proto_item *gfi_sub_item;
+
+    if (request) {
+        gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_META_OPERATION_QUERY_PROGRESS_REQUEST");
+
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_transaction_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+        offset += 16;
+    } else {
+        if (status == 0) { /* If status is not successful, RSVD response buffer is filled by data from request buffer and we should not parse output structure */
+            gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_META_OPERATION_QUERY_PROGRESS_RESPONSE");
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_current_progress, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_complete_value, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+        }
+    }
+    return offset;
+}
+
+static int
+dissect_RSVD2_QUERY_SAFE_SIZE(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+{
+    proto_tree *gfi_sub_tree;
+    proto_item *gfi_sub_item;
+
+    if (!request) {
+        gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_QUERY_SAFE_SIZE_RESPONSE");
+
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_safe_virtual_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+        offset += 8;
+    }
     return offset;
 }
 
@@ -562,6 +684,7 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     guint proto_id = 0;
     guint proto_version = 0;
     guint32 operation_code = 0;
+    guint32 status;
     proto_item *ti;
     proto_tree *rsvd_tree;
     proto_item *sub_item;
@@ -592,7 +715,7 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 
     rsvd_tree = proto_item_add_subtree(ti, ett_rsvd);
 
-    sub_tree = proto_tree_add_subtree(rsvd_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &sub_item, "SVHDX_TUNNEL_OPERATION_HEADER");
+    sub_tree = proto_tree_add_subtree(rsvd_tree, tvb, offset, (len>16) ? 16 : len, ett_svhdx_tunnel_op_header, &sub_item, "SVHDX_TUNNEL_OPERATION_HEADER");
 
     /* ProtocolID */
     proto_tree_add_uint(sub_tree, hf_svhdx_protocol_id, tvb, offset, 4, proto_id);
@@ -605,6 +728,7 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     offset += 4;
 
     /* Status */
+    status = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(sub_tree, hf_svhdx_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
@@ -629,7 +753,7 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
      */
     switch (operation_code) {
     case 0x02001001:
-        offset += dissect_RSVD_GET_INITIAL_INFO(tvb, pinfo, rsvd_tree, offset, len - offset, request);
+        offset += dissect_RSVD_GET_INITIAL_INFO(tvb, rsvd_tree, offset, len - offset, request);
         break;
 
     case 0x02001002:
@@ -645,18 +769,30 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
         break;
 
     case 0x02001004:
-        offset += dissect_RSVD_SRB_STATUS(tvb, pinfo, rsvd_tree, offset, len - offset, request);
+        offset += dissect_RSVD_SRB_STATUS(tvb, rsvd_tree, offset, len - offset, request);
         break;
 
     case 0x02001005:
-        offset += dissect_RSVD_GET_DISK_INFO(tvb, pinfo, rsvd_tree, offset, len - offset, request);
+        offset += dissect_RSVD_GET_DISK_INFO(tvb, rsvd_tree, offset, len - offset, request);
         break;
 
     case 0x02001006:
-        offset += dissect_RSVD_VALIDATE_DISK(tvb, pinfo, rsvd_tree, offset, len - offset, request);
+        offset += dissect_RSVD_VALIDATE_DISK(tvb, rsvd_tree, offset, len - offset, request);
+        break;
+    /* RSVD v2 operations */
+    case 0x02002101:
+        offset += dissect_RSVD2_META_OPERATION_START(tvb, rsvd_tree, offset, len - offset, request);
         break;
 
-    /* TODO: implement dissectors for RSVD v2 */
+    case 0x02002002:
+        offset += dissect_RSVD2_META_OPERATION_QUERY_PROGRESS(tvb, rsvd_tree, offset, len - offset, request, status);
+        break;
+
+    case 0x0200200D:
+        offset += dissect_RSVD2_QUERY_SAFE_SIZE(tvb, rsvd_tree, offset, len - offset, request);
+        break;
+
+    /* TODO: implement more dissectors for RSVD v2 */
 
     default:
         break;
@@ -784,7 +920,7 @@ proto_register_rsvd(void)
                     NULL, 0, NULL, HFILL }},
 
                 { &hf_svhdx_tunnel_disk_info_linkage_id,
-                  { "LinkageID", "rsvd.svhdx_disk_info_linkage_id", FT_BYTES, BASE_NONE,
+                  { "LinkageID", "rsvd.svhdx_disk_info_linkage_id", FT_GUID, BASE_NONE,
                     NULL, 0, NULL, HFILL }},
 
                 { &hf_svhdx_tunnel_disk_info_disk_type,
@@ -812,7 +948,7 @@ proto_register_rsvd(void)
                     NULL, 0, NULL, HFILL }},
 
                 { &hf_svhdx_tunnel_disk_info_virtual_disk_id,
-                  { "VirtualDiskId", "rsvd.svhdx_disk_info_virtual_disk_id", FT_BYTES, BASE_NONE,
+                  { "VirtualDiskId", "rsvd.svhdx_disk_info_virtual_disk_id", FT_GUID, BASE_NONE,
                     NULL, 0, NULL, HFILL }},
 
                 { &hf_svhdx_tunnel_validate_disk_reserved,
@@ -850,13 +986,65 @@ proto_register_rsvd(void)
                 { &hf_svhdx_tunnel_srb_status_sense_data_ex,
                   { "Reserved", "rsvd.svhdx_srb_status_sense_data_ex", FT_BYTES, BASE_NONE,
                     NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_safe_virtual_size,
+                  { "SafeVirtualSize", "rsvd.svhdx_safe_size", FT_UINT64, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_transaction_id,
+                  { "TransactionId", "rsvd.svhdx_meta_operation.transaction_id", FT_GUID, BASE_NONE,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_meta_operation_type,
+                  { "OperationType", "rsvd.svhdx_meta_operation.type", FT_UINT32, BASE_HEX,
+                    VALS(rsvd_meta_operation_type_vals), 0, "Type of meta-operation", HFILL }},
+
+                { &hf_svhdx_tunnel_padding,
+                  { "Padding", "rsvd.svhdx_meta_operation.padding", FT_UINT32, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_new_size,
+                  { "NewSize", "rsvd.svhdx_meta_operation.new_size", FT_UINT64, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_expand_only_flag,
+                  { "ExpandOnly", "rsvd.svhdx_meta_operation.expand_only", FT_BOOLEAN, 8,
+                    NULL, 0, "Indicates that shared virtual disk size can only expand", HFILL }},
+
+                { &hf_svhdx_tunnel_allow_unsafe_virt_size_flag,
+                  { "AllowUnsafeVirtualSize", "rsvd.svhdx_meta_operation.allow_unsafe_virt_size", FT_BOOLEAN, 8,
+                    NULL, 0, "Indicates that the shared virtual disk size can be less than the data it currently contains", HFILL }},
+
+                { &hf_svhdx_tunnel_shrink_to_minimum_safe_size_flag,
+                  { "ShrinkToMinimumSafeSize", "rsvd.svhdx_meta_operation.shrink_to_minimum_safe_size", FT_BOOLEAN, 8,
+                    NULL, 0, "Indicates that the shared virtual disk size can be shrunk to the data it currently contains", HFILL }},
+
+                { &hf_svhdx_tunnel_meta_operation_start_reserved,
+                  { "Reserved", "rsvd.svhdx_meta_operation.reserved", FT_UINT8, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_current_progress,
+                  { "CurrentProgressValue", "rsvd.svhdx_meta_operation.current_progress", FT_UINT64, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_complete_value,
+                  { "CompleteValue", "rsvd.svhdx_meta_operation.complete_value", FT_UINT64, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_dst_vhdset_name_len,
+                  { "DestinationVhdSetNameLength", "rsvd.svhdx_meta_operation.dst_vhdset_name_len", FT_UINT32, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_dst_vhdset_name,
+                  { "DestinationVhdSetName", "rsvd.svhdx_meta_operation.dst_vhdset_name", FT_STRING, BASE_NONE,
+                    NULL, 0, "Name for the new VHD set be created", HFILL }
+        },
     };
 
     static gint *ett[] = {
         &ett_rsvd,
         &ett_svhdx_tunnel_op_header,
-        &ett_svhdx_tunnel_scsi_request,
-        &ett_svhdx_tunnel_file_info_response
+        &ett_svhdx_tunnel_scsi_request
     };
 
     proto_rsvd = proto_register_protocol("Remote Shared Virtual Disk",
