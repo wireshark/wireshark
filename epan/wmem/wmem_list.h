@@ -100,6 +100,11 @@ void
 wmem_list_append(wmem_list_t *list, void *data);
 
 WS_DLL_PUBLIC
+void
+wmem_list_insert_sorted(wmem_list_t *list, void* data, GCompareFunc func);
+
+
+WS_DLL_PUBLIC
 wmem_list_t *
 wmem_list_new(wmem_allocator_t *allocator)
 G_GNUC_MALLOC;

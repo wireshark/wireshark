@@ -711,6 +711,18 @@ check_val_list(gpointer val, gpointer val_to_check)
     g_assert(val == val_to_check);
 }
 
+static gint
+int_compare(gconstpointer a, gconstpointer b)
+{
+    return GPOINTER_TO_INT(a) - GPOINTER_TO_INT(b);
+}
+
+static gint
+str_compare(gconstpointer a, gconstpointer b)
+{
+    return strcmp((const char*)a, (const char*)b);
+}
+
 static void
 wmem_test_list(void)
 {
@@ -718,6 +730,10 @@ wmem_test_list(void)
     wmem_list_t       *list;
     wmem_list_frame_t *frame;
     unsigned int       i;
+    int                int1;
+    int                int2;
+    char*              str1;
+    char*              str2;
 
     allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
@@ -804,6 +820,53 @@ wmem_test_list(void)
         wmem_list_append(list, GINT_TO_POINTER(1));
     }
     wmem_list_foreach(list, check_val_list, GINT_TO_POINTER(1));
+    wmem_destroy_list(list);
+
+    list = wmem_list_new(NULL);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(5), int_compare);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(8), int_compare);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(1), int_compare);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(2), int_compare);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(9), int_compare);
+    frame = wmem_list_head(list);
+    int1 = GPOINTER_TO_INT(wmem_list_frame_data(frame));
+    while ((frame = wmem_list_frame_next(frame))) {
+        int2 = GPOINTER_TO_INT(wmem_list_frame_data(frame));
+        g_assert(int1 <= int2);
+        int1 = int2;
+    }
+    wmem_destroy_list(list);
+
+    list = wmem_list_new(NULL);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(5), int_compare);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(1), int_compare);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(7), int_compare);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(3), int_compare);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(2), int_compare);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(2), int_compare);
+    frame = wmem_list_head(list);
+    int1 = GPOINTER_TO_INT(wmem_list_frame_data(frame));
+    while ((frame = wmem_list_frame_next(frame))) {
+        int2 = GPOINTER_TO_INT(wmem_list_frame_data(frame));
+        g_assert(int1 <= int2);
+        int1 = int2;
+    }
+    wmem_destroy_list(list);
+
+    list = wmem_list_new(NULL);
+    wmem_list_insert_sorted(list, "abc", str_compare);
+    wmem_list_insert_sorted(list, "bcd", str_compare);
+    wmem_list_insert_sorted(list, "aaa", str_compare);
+    wmem_list_insert_sorted(list, "bbb", str_compare);
+    wmem_list_insert_sorted(list, "zzz", str_compare);
+    wmem_list_insert_sorted(list, "ggg", str_compare);
+    frame = wmem_list_head(list);
+    str1 = (char*)wmem_list_frame_data(frame);
+    while ((frame = wmem_list_frame_next(frame))) {
+        str2 = (char*)wmem_list_frame_data(frame);
+        g_assert(strcmp(str1, str2) <= 0);
+        str1 = str2;
+    }
     wmem_destroy_list(list);
 }
 
