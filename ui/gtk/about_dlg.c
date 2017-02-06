@@ -259,7 +259,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
       ul_count += wslua_count_plugins (); /* get count of lua plugins */
 #endif
 #ifdef HAVE_EXTCAP
-      ul_count += extcap_count(); /* get count of extcap binaries */
+      ul_count += extcap_count() + 1; /* Count of extcap binaries + registration message */
 #endif
     }
 
