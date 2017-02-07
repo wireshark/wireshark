@@ -216,7 +216,6 @@ epan_cleanup(void)
 	proto_cleanup();
 	prefs_cleanup();
 	decode_clear_all();
-	conversation_table_cleanup();
 	conversation_filters_cleanup();
 	reassembly_table_cleanup();
 	tap_cleanup();

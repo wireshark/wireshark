@@ -92,7 +92,7 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
     }
 
     // Bring the command-line specified type to the front.
-    if (get_conversation_by_proto_id(cli_proto_id)) {
+    if ((cli_proto_id > 0) && (get_conversation_by_proto_id(cli_proto_id))) {
         conv_protos.removeAll(cli_proto_id);
         conv_protos.prepend(cli_proto_id);
     }

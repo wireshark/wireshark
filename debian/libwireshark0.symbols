@@ -699,7 +699,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_conversation_packet_func@Base 1.99.0
  get_conversation_port@Base 1.99.0
  get_conversation_proto_id@Base 1.99.0
- get_conversation_table_by_num@Base 1.99.0
  get_data_source_name@Base 1.9.1
  get_data_source_tvb@Base 1.9.1
  get_data_source_tvb_by_name@Base 2.3.0
@@ -1821,6 +1820,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_strndup@Base 1.9.1
  wmem_strong_hash@Base 1.12.0~rc1
  wmem_strsplit@Base 1.12.0~rc1
+ wmem_tree_count@Base 2.3.0
  wmem_tree_foreach@Base 1.12.0~rc1
  wmem_tree_insert32@Base 1.12.0~rc1
  wmem_tree_insert32_array@Base 1.12.0~rc1

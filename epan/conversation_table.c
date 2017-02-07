@@ -65,7 +65,7 @@ tap_packet_cb get_hostlist_packet_func(register_ct_t* ct)
     return ct->host_func;
 }
 
-static GSList *registered_ct_tables = NULL;
+static wmem_tree_t *registered_ct_tables = NULL;
 
 void
 dissector_conversation_init(const char *opt_arg, void* userdata)
@@ -114,25 +114,7 @@ dissector_hostlist_init(const char *opt_arg, void* userdata)
  */
 register_ct_t* get_conversation_by_proto_id(int proto_id)
 {
-    GSList *ct;
-    register_ct_t *table;
-
-    for(ct = registered_ct_tables; ct != NULL; ct = g_slist_next(ct)){
-        table = (register_ct_t*)ct->data;
-        if ((table) && (table->proto_id == proto_id))
-            return table;
-    }
-
-    return NULL;
-}
-
-static gint
-insert_sorted_by_table_name(gconstpointer aparam, gconstpointer bparam)
-{
-    const register_ct_t *a = (const register_ct_t *)aparam;
-    const register_ct_t *b = (const register_ct_t *)bparam;
-
-    return g_ascii_strcasecmp(proto_get_protocol_short_name(find_protocol_by_id(a->proto_id)), proto_get_protocol_short_name(find_protocol_by_id(b->proto_id)));
+    return (register_ct_t*)wmem_tree_lookup_string(registered_ct_tables, proto_get_protocol_short_name(find_protocol_by_id(proto_id)), 0);
 }
 
 void
@@ -140,7 +122,7 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
 {
     register_ct_t *table;
 
-    table = g_new(register_ct_t,1);
+    table = wmem_new(wmem_epan_scope(), register_ct_t);
 
     table->hide_ports    = hide_ports;
     table->proto_id      = proto_id;
@@ -149,18 +131,21 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
     table->conv_gui_init = NULL;
     table->host_gui_init = NULL;
 
-    registered_ct_tables = g_slist_insert_sorted(registered_ct_tables, table, insert_sorted_by_table_name);
+    if (registered_ct_tables == NULL)
+        registered_ct_tables = wmem_tree_new(wmem_epan_scope());
+
+    wmem_tree_insert_string(registered_ct_tables, proto_get_protocol_short_name(find_protocol_by_id(proto_id)), table, 0);
 }
 
 /* Set GUI fields for register_ct list */
-static void
-set_conv_gui_data(gpointer data, gpointer user_data)
+static gboolean
+set_conv_gui_data(const void *key _U_, void *value, void *userdata)
 {
     GString *conv_cmd_str = g_string_new("conv,");
     stat_tap_ui ui_info;
-    register_ct_t *table = (register_ct_t*)data;
+    register_ct_t *table = (register_ct_t*)value;
 
-    table->conv_gui_init = (conv_gui_init_cb)user_data;
+    table->conv_gui_init = (conv_gui_init_cb)userdata;
 
     g_string_append(conv_cmd_str, proto_get_protocol_filter_name(table->proto_id));
     ui_info.group = REGISTER_STAT_GROUP_CONVERSATION_LIST;
@@ -171,50 +156,46 @@ set_conv_gui_data(gpointer data, gpointer user_data)
     ui_info.params = NULL;
     register_stat_tap_ui(&ui_info, table);
     g_free((char*)ui_info.cli_string);
+    return FALSE;
 }
 
 void conversation_table_set_gui_info(conv_gui_init_cb init_cb)
 {
-    g_slist_foreach(registered_ct_tables, set_conv_gui_data, (gpointer)init_cb);
+    wmem_tree_foreach(registered_ct_tables, set_conv_gui_data, (void*)init_cb);
 }
 
-static void
-set_host_gui_data(gpointer data, gpointer user_data)
+static gboolean
+set_host_gui_data(const void *key _U_, void *value, void *userdata)
 {
     stat_tap_ui ui_info;
-    register_ct_t *table = (register_ct_t*)data;
+    register_ct_t *table = (register_ct_t*)value;
 
-    table->host_gui_init = (host_gui_init_cb)user_data;
+    table->host_gui_init = (host_gui_init_cb)userdata;
 
     ui_info.group = REGISTER_STAT_GROUP_ENDPOINT_LIST;
     ui_info.title = NULL;   /* construct this from the protocol info? */
-    ui_info.cli_string = wmem_strdup_printf(wmem_epan_scope(), "%s,%s",
-        HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
+    ui_info.cli_string = g_strdup_printf("%s,%s", HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
     ui_info.tap_init_cb = dissector_hostlist_init;
     ui_info.nparams = 0;
     ui_info.params = NULL;
     register_stat_tap_ui(&ui_info, table);
+    g_free((char*)ui_info.cli_string);
+    return FALSE;
 }
 
 void hostlist_table_set_gui_info(host_gui_init_cb init_cb)
 {
-    g_slist_foreach(registered_ct_tables, set_host_gui_data, (gpointer)init_cb);
+    wmem_tree_foreach(registered_ct_tables, set_host_gui_data, (void*)init_cb);
 }
 
-void conversation_table_iterate_tables(GFunc func, gpointer user_data)
+void conversation_table_iterate_tables(wmem_foreach_func func, void* user_data)
 {
-    g_slist_foreach(registered_ct_tables, func, user_data);
+    wmem_tree_foreach(registered_ct_tables, func, user_data);
 }
 
 guint conversation_table_get_num(void)
 {
-    return g_slist_length(registered_ct_tables);
-}
-
-
-register_ct_t *get_conversation_table_by_num(guint table_num)
-{
-    return (register_ct_t *) g_slist_nth_data(registered_ct_tables, table_num);
+    return wmem_tree_count(registered_ct_tables);
 }
 
 /** Compute the hash value for two given address/port pairs.
@@ -826,19 +807,6 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
         talker->rx_frames+=num_frames;
         talker->rx_bytes+=num_bytes;
     }
-}
-
-static void
-ct_table_free(gpointer p, gpointer user_data _U_)
-{
-    g_free(p);
-}
-
-void
-conversation_table_cleanup(void)
-{
-    g_slist_foreach(registered_ct_tables, ct_table_free, NULL);
-    g_slist_free(registered_ct_tables);
 }
 
 /*

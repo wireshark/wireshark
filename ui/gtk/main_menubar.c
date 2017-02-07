@@ -2688,11 +2688,11 @@ typedef struct {
     int counter;
 } conv_menu_t;
 
-static void
-add_conversation_menuitem(gpointer data, gpointer user_data)
+static gboolean
+add_conversation_menuitem(const void *key, void *value, void *userdata)
 {
-    register_ct_t *table = (register_ct_t*)data;
-    conv_menu_t *conv = (conv_menu_t*)user_data;
+    register_ct_t *table = (register_ct_t*)value;
+    conv_menu_t *conv = (conv_menu_t*)userdata;
     gchar *action_name;
     GtkAction *action;
 
@@ -2700,7 +2700,7 @@ add_conversation_menuitem(gpointer data, gpointer user_data)
     /*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
     action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
                 "name", action_name,
-                "label", proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(table))),
+                "label", key,
                 "sensitive", TRUE,
                 NULL);
     g_signal_connect (action, "activate",
@@ -2716,6 +2716,7 @@ add_conversation_menuitem(gpointer data, gpointer user_data)
                 FALSE);
     g_free(action_name);
     conv->counter++;
+    return FALSE;
 }
 
 static void
@@ -2750,11 +2751,11 @@ menu_hostlist_cb(GtkAction *action _U_, gpointer user_data)
     hostlist_endpoint_cb(table);
 }
 
-static void
-add_hostlist_menuitem(gpointer data, gpointer user_data)
+static gboolean
+add_hostlist_menuitem(const void *key, void *value, void *userdata)
 {
-    register_ct_t *table = (register_ct_t*)data;
-    conv_menu_t *conv = (conv_menu_t*)user_data;
+    register_ct_t *table = (register_ct_t*)value;
+    conv_menu_t *conv = (conv_menu_t*)userdata;
     gchar *action_name;
     GtkAction *action;
 
@@ -2762,7 +2763,7 @@ add_hostlist_menuitem(gpointer data, gpointer user_data)
     /*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
     action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
                 "name", action_name,
-                "label", proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(table))),
+                "label", key,
                 "sensitive", TRUE,
                 NULL);
     g_signal_connect (action, "activate",
@@ -2778,6 +2779,7 @@ add_hostlist_menuitem(gpointer data, gpointer user_data)
                 FALSE);
     g_free(action_name);
     conv->counter++;
+    return FALSE;
 }
 
 static void

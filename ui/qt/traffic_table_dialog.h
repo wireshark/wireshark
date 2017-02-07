@@ -145,6 +145,7 @@ protected:
     QMap<int, TrafficTableTreeWidget *> proto_id_to_tree_;
 
     const QList<int> defaultProtos() const;
+    static gboolean fillTypeMenuFunc(const void *key, void *value, void *userdata);
     void fillTypeMenu(QList<int> &enabled_protos);
     // Adds a conversation tree. Returns true if the tree was freshly created, false if it was cached.
     virtual bool addTrafficTable(register_ct_t*) { return false; }

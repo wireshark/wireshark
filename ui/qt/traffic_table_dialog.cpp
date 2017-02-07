@@ -112,22 +112,41 @@ const QList<int> TrafficTableDialog::defaultProtos() const
                         << proto_get_id_by_filter_name("udp");
 }
 
+class fillTypeMenuData
+{
+public:
+    fillTypeMenuData(TrafficTableDialog* dialog, QList<int> &enabled_protos)
+    : dialog_(dialog),
+    enabled_protos_(enabled_protos)
+    {
+    }
+
+    TrafficTableDialog* dialog_;
+    QList<int> &enabled_protos_;
+};
+
+gboolean TrafficTableDialog::fillTypeMenuFunc(const void *key, void *value, void *userdata)
+{
+    register_ct_t* ct = (register_ct_t*)value;
+    QString title = (gchar*)key;
+    fillTypeMenuData* data = (fillTypeMenuData*)userdata;
+    int proto_id = get_conversation_proto_id(ct);
+
+    QAction *endp_action = new QAction(title, data->dialog_);
+    endp_action->setData(qVariantFromValue(proto_id));
+    endp_action->setCheckable(true);
+    endp_action->setChecked(data->enabled_protos_.contains(proto_id));
+    data->dialog_->connect(endp_action, SIGNAL(triggered()), data->dialog_, SLOT(data->dialog_->toggleTable()));
+    data->dialog_->traffic_type_menu_.addAction(endp_action);
+
+    return FALSE;
+}
+
 void TrafficTableDialog::fillTypeMenu(QList<int> &enabled_protos)
 {
-    for (guint i = 0; i < conversation_table_get_num(); i++) {
-        int proto_id = get_conversation_proto_id(get_conversation_table_by_num(i));
-        if (proto_id < 0) {
-            continue;
-        }
-        QString title = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
+    fillTypeMenuData data(this, enabled_protos);
 
-        QAction *endp_action = new QAction(title, this);
-        endp_action->setData(qVariantFromValue(proto_id));
-        endp_action->setCheckable(true);
-        endp_action->setChecked(enabled_protos.contains(proto_id));
-        connect(endp_action, SIGNAL(triggered()), this, SLOT(toggleTable()));
-        traffic_type_menu_.addAction(endp_action);
-    }
+    conversation_table_iterate_tables(fillTypeMenuFunc, &data);
 }
 
 void TrafficTableDialog::addProgressFrame(QObject *parent)

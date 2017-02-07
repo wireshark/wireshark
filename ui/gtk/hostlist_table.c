@@ -1230,11 +1230,11 @@ typedef struct _init_host_page_data {
     GtkWidget *win;
 } init_host_page_data;
 
-static void
-init_host_page(gpointer data, gpointer user_data)
+static gboolean
+init_host_page(const void *key _U_, void *value, void *userdata)
 {
-    register_ct_t *table = (register_ct_t*)data;
-    init_host_page_data* host_page_data = (init_host_page_data*)user_data;
+    register_ct_t *table = (register_ct_t*)value;
+    init_host_page_data* host_page_data = (init_host_page_data*)userdata;
 
     hostlist_table *hosttable;
     GtkWidget *page_lb;
@@ -1248,6 +1248,8 @@ init_host_page(gpointer data, gpointer user_data)
         hosttable->page_lb = page_lb;
         host_page_data->pages[++host_page_data->page] = hosttable;
     }
+
+    return FALSE;
 }
 
 void

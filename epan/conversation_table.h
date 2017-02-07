@@ -26,6 +26,7 @@
 
 #include "conv_id.h"
 #include "tap.h"
+#include "wmem/wmem.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -205,25 +206,16 @@ WS_DLL_PUBLIC void conversation_table_set_gui_info(conv_gui_init_cb init_cb);
  */
 WS_DLL_PUBLIC void hostlist_table_set_gui_info(host_gui_init_cb init_cb);
 
-/** Interator to walk converation tables and execute func
- * a GUI menu (only used in GTK)
+/** Iterator to walk converation tables and execute func
  *
  * @param func action to be performed on all converation tables
  * @param user_data any data needed to help perform function
  */
-WS_DLL_PUBLIC void conversation_table_iterate_tables(GFunc func, gpointer user_data);
+WS_DLL_PUBLIC void conversation_table_iterate_tables(wmem_foreach_func func, void* user_data);
 
 /** Total number of converation tables
  */
 WS_DLL_PUBLIC guint conversation_table_get_num(void);
-
-/** Get conversation table by its number
- * Tables are ordered alphabetically by title.
- *
- * @param table_num Item to fetch.
- * @return table pointer or NULL.
- */
-WS_DLL_PUBLIC register_ct_t* get_conversation_table_by_num(guint table_num);
 
 /** Remove all entries from the conversation table.
  *
@@ -339,10 +331,6 @@ add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, co
  */
 void add_hostlist_table_data(conv_hash_t *ch, const address *addr,
                              guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, port_type port_type_val);
-
-/** Cleanup internal structures
- */
-void conversation_table_cleanup(void);
 
 #ifdef __cplusplus
 }

@@ -2435,11 +2435,11 @@ typedef struct _init_ct_page_data {
     GtkWidget *win;
 } init_ct_page_data;
 
-static void
-init_ct_page(gpointer data, gpointer user_data)
+static gboolean
+init_ct_page(const void *key _U_, void *value, void *userdata)
 {
-    register_ct_t *table = (register_ct_t*)data;
-    init_ct_page_data* ct_page_data = (init_ct_page_data*)user_data;
+    register_ct_t *table = (register_ct_t*)value;
+    init_ct_page_data* ct_page_data = (init_ct_page_data*)userdata;
 
     conversations_table *conversations;
     GtkWidget *page_lb;
@@ -2454,6 +2454,7 @@ init_ct_page(gpointer data, gpointer user_data)
         conversations->page_lb = page_lb;
         ct_page_data->pages[++ct_page_data->page] = conversations;
     }
+    return FALSE;
 }
 
 void
