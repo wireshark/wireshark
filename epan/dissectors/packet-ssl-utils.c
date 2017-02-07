@@ -6052,11 +6052,12 @@ ssl_dissect_hnd_hello_ext_key_share(ssl_common_dissect_t *hf, tvbuff_t *tvb, pac
 }
 
 static gint
-ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                          proto_tree *tree, guint32 offset, guint32 offset_end,
                                          guint8 hnd_type)
 {
-    /*  struct {
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.2.6
+     *  struct {
      *      opaque identity<0..2^16-1>;
      *      uint32 obfuscated_ticket_age;
      *  } PskIdentity;
@@ -6074,39 +6075,33 @@ ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb
 
     proto_tree *psk_tree;
 
-    if (offset_end <= offset) { /* Check if ext_len == 0 and "overflow" (offset + ext_len) > guint32) */
-        return offset;
-    }
-
     psk_tree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset, hf->ett.hs_ext_pre_shared_key, NULL, "Pre-Shared Key extension");
 
     switch (hnd_type){
         case SSL_HND_CLIENT_HELLO: {
             guint32 identities_length, identities_end, binders_length;
 
-            proto_tree_add_item_ret_uint(psk_tree, hf->hf.hs_ext_psk_identities_length, tvb, offset, 2, ENC_BIG_ENDIAN, &identities_length);
-            offset += 2;
-
-            if (offset_end - offset < identities_length) {
-                /* XXX expert info */
-                return offset;
+            /* PskIdentity identities<6..2^16-1> */
+            if (!ssl_add_vector(hf, tvb, pinfo, psk_tree, offset, offset_end, &identities_length,
+                                hf->hf.hs_ext_psk_identities_length, 6, G_MAXUINT16)) {
+                return offset_end;
             }
-
+            offset += 2;
             identities_end = offset + identities_length;
+
             while (offset < identities_end) {
                 guint32 identity_length;
                 proto_tree *identity_tree;
 
                 identity_tree = proto_tree_add_subtree(psk_tree, tvb, offset, 4, hf->ett.hs_ext_psk_identity, NULL, "PSK Identity (");
 
-                proto_tree_add_item_ret_uint(identity_tree, hf->hf.hs_ext_psk_identity_identity_length, tvb, offset, 2, ENC_BIG_ENDIAN, &identity_length);
+                /* opaque identity<0..2^16-1> */
+                if (!ssl_add_vector(hf, tvb, pinfo, identity_tree, offset, identities_end, &identity_length,
+                                    hf->hf.hs_ext_psk_identity_identity_length, 0, G_MAXUINT16)) {
+                    return identities_end;
+                }
                 offset += 2;
                 proto_item_append_text(identity_tree, "length: %u)", identity_length);
-
-                if (identity_length > identities_end - offset) {
-                    /* XXX expert info */
-                    return offset;
-                }
 
                 proto_tree_add_item(identity_tree, hf->hf.hs_ext_psk_identity_identity, tvb, offset, identity_length, ENC_BIG_ENDIAN);
                 offset += identity_length;
@@ -6116,14 +6111,16 @@ ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb
 
                 proto_item_set_len(identity_tree, 2 + identity_length + 4);
             }
-
-            proto_tree_add_item_ret_uint(psk_tree, hf->hf.hs_ext_psk_binders_length, tvb, offset, 2, ENC_BIG_ENDIAN, &binders_length);
-            offset += 2;
-
-            if (binders_length > offset_end - offset) {
-                /* XXX expert info */
-                return offset;
+            if (!ssl_end_vector(hf, tvb, pinfo, psk_tree, offset, identities_end)) {
+                offset = identities_end;
             }
+
+            /* PskBinderEntry binders<33..2^16-1> */
+            if (!ssl_add_vector(hf, tvb, pinfo, psk_tree, offset, offset_end, &binders_length,
+                                hf->hf.hs_ext_psk_binders_length, 33, G_MAXUINT16)) {
+                return offset_end;
+            }
+            offset += 2;
 
             proto_tree_add_item(psk_tree, hf->hf.hs_ext_psk_binders, tvb, offset, binders_length, ENC_NA);
             offset += binders_length;
@@ -7505,7 +7502,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_key_share(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type);
             break;
         case SSL_HND_HELLO_EXT_PRE_SHARED_KEY:
-            offset = ssl_dissect_hnd_hello_ext_pre_shared_key(hf, tvb, ext_tree, offset, next_offset, hnd_type);
+            offset = ssl_dissect_hnd_hello_ext_pre_shared_key(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type);
             break;
         case SSL_HND_HELLO_EXT_EARLY_DATA:
             if (hnd_type == SSL_HND_CLIENT_HELLO && ssl) {
