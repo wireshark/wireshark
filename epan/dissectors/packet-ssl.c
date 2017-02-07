@@ -2076,7 +2076,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                     ssl_set_server(session, &pinfo->dst, pinfo->ptype, pinfo->destport);
                 }
                 ssl_dissect_hnd_cli_hello(&dissect_ssl3_hf, tvb, pinfo,
-                        ssl_hand_tree, offset, length, session, ssl,
+                        ssl_hand_tree, offset, offset + length, session, ssl,
                         NULL);
                 /*
                  * Cannot call tls13_change_key here with TLS_SECRET_HANDSHAKE

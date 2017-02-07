@@ -820,7 +820,6 @@ typedef struct ssl_common_dissect {
         expert_field malformed_trailing_data;
 
         expert_field hs_ext_cert_status_undecoded;
-        expert_field hs_cipher_suites_len_bad;
         expert_field resumed;
         expert_field record_length_invalid;
 
@@ -887,7 +886,7 @@ ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 extern void
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           packet_info *pinfo, proto_tree *tree, guint32 offset,
-                          guint32 length, SslSession *session,
+                          guint32 offset_end, SslSession *session,
                           SslDecryptSession *ssl,
                           dtls_hfs_t *dtls_hfs);
 
@@ -967,7 +966,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1,                                     \
     },                                                                  \
     /* ei */ {                                                          \
-        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,  \
+        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,           \
     },                                                                  \
 }
 /* }}} */
@@ -1627,10 +1626,6 @@ ssl_common_dissect_t name = {   \
     { & name .ei.hs_ext_cert_status_undecoded, \
         { prefix ".handshake.status_request.undecoded", PI_UNDECODED, PI_NOTE, \
         "Responder ID list or Request Extensions are not implemented, contact Wireshark developers if you want this to be supported", EXPFILL } \
-    }, \
-    { & name .ei.hs_cipher_suites_len_bad, \
-        { prefix ".handshake.cipher_suites_length.mult2", PI_MALFORMED, PI_ERROR, \
-        "Cipher suite length must be a multiple of 2", EXPFILL } \
     }, \
     { & name .ei.resumed, \
         { prefix ".resumed", PI_SEQUENCE, PI_NOTE, \
