@@ -2112,8 +2112,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             case SSL_HND_NEWSESSION_TICKET:
                 /* no need to load keylog file here as it only links a previous
                  * master key with this Session Ticket */
-                ssl_dissect_hnd_new_ses_ticket(&dissect_ssl3_hf, tvb,
-                        ssl_hand_tree, offset, ssl,
+                ssl_dissect_hnd_new_ses_ticket(&dissect_ssl3_hf, tvb, pinfo,
+                        ssl_hand_tree, offset, offset + length, session, ssl,
                         ssl_master_key_map.tickets);
                 break;
 

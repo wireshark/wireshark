@@ -770,6 +770,7 @@ typedef struct ssl_common_dissect {
         gint hs_comp_methods;
         gint hs_comp_method;
         gint hs_session_ticket_lifetime_hint;
+        gint hs_session_ticket_age_add;
         gint hs_session_ticket_len;
         gint hs_session_ticket;
         gint hs_finished;
@@ -909,9 +910,9 @@ ssl_dissect_hnd_encrypted_extensions(ssl_common_dissect_t *hf, tvbuff_t *tvb, pa
                                      gboolean is_dtls);
 
 extern void
-ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                               proto_tree *tree, guint32 offset,
-                               SslDecryptSession *ssl,
+ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree, guint32 offset, guint32 offset_end,
+                               const SslSession *session, SslDecryptSession *ssl,
                                GHashTable *session_hash);
 
 extern void
@@ -959,7 +960,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1523,6 +1524,12 @@ ssl_common_dissect_t name = {   \
         prefix ".handshake.session_ticket_lifetime_hint",               \
         FT_UINT32, BASE_DEC, NULL, 0x0,                                 \
         "New Session Ticket Lifetime Hint", HFILL }                     \
+    },                                                                  \
+    { & name .hf.hs_session_ticket_age_add,                             \
+      { "Session Ticket Age Add",                                       \
+        prefix ".handshake.session_ticket_age_add",                     \
+        FT_UINT32, BASE_DEC, NULL, 0x0,                                 \
+        "Random 32-bit value to obscure age of ticket", HFILL }         \
     },                                                                  \
     { & name .hf.hs_session_ticket_len,                                 \
       { "Session Ticket Length", prefix ".handshake.session_ticket_length", \

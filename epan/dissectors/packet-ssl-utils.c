@@ -6890,18 +6890,30 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
 /* New Session Ticket dissection. {{{ */
 void
-ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                               proto_tree *tree, guint32 offset,
-                               SslDecryptSession *ssl _U_,
+ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree, guint32 offset, guint32 offset_end,
+                               const SslSession *session, SslDecryptSession *ssl _U_,
                                GHashTable *session_hash _U_)
 {
-    proto_tree  *subtree;
-    guint16      ticket_len;
+    /* https://tools.ietf.org/html/rfc5077#section-3.3 (TLS >= 1.0):
+     *  struct {
+     *      uint32 ticket_lifetime_hint;
+     *      opaque ticket<0..2^16-1>;
+     *  } NewSessionTicket;
+     *
+     * https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.5.1
+     *  struct {
+     *      uint32 ticket_lifetime;
+     *      uint32 ticket_age_add;
+     *      opaque ticket<1..2^16-1>;
+     *      Extension extensions<0..2^16-2>;
+     *  } NewSessionTicket;
+     */
+    proto_tree *subtree;
+    guint32     ticket_len;
+    gboolean    is_tls13 = session->version == TLSV1DOT3_VERSION;
 
-    /* length of session ticket, may be 0 if the server has sent the
-     * SessionTicket extension, but decides not to use one. */
-    ticket_len = tvb_get_ntohs(tvb, offset + 4);
-    subtree = proto_tree_add_subtree(tree, tvb, offset, 6 + ticket_len,
+    subtree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset,
                                      hf->ett.session_ticket, NULL,
                                      "TLS Session Ticket");
 
@@ -6910,16 +6922,26 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                         tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    /* opaque ticket (length, data) */
-    proto_tree_add_item(subtree, hf->hf.hs_session_ticket_len,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    if (is_tls13) {
+        /* for TLS 1.3: ticket_age_add */
+        proto_tree_add_item(subtree, hf->hf.hs_session_ticket_age_add,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    /* opaque ticket<0..2^16-1> (with TLS 1.3 the minimum is 1) */
+    if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, offset_end, &ticket_len,
+                        hf->hf.hs_session_ticket_len, is_tls13 ? 1 : 0, G_MAXUINT16)) {
+        return;
+    }
     offset += 2;
+
     /* Content depends on implementation, so just show data! */
     proto_tree_add_item(subtree, hf->hf.hs_session_ticket,
                         tvb, offset, ticket_len, ENC_NA);
     /* save the session ticket to cache for ssl_finalize_decryption */
 #ifdef HAVE_LIBGCRYPT
-    if (ssl) {
+    if (ssl && !is_tls13) {
         tvb_ensure_bytes_exist(tvb, offset, ticket_len);
         ssl->session_ticket.data = (guchar*)wmem_realloc(wmem_file_scope(),
                                     ssl->session_ticket.data, ticket_len);
@@ -6935,6 +6957,18 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         ssl->state |= SSL_NEW_SESSION_TICKET;
     }
 #endif
+    offset += ticket_len;
+
+    if (is_tls13) {
+        guint32     exts_len;
+
+        /* Extension extensions<0..2^16-2> */
+        if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, offset_end, &exts_len,
+                            hf->hf.hs_exts_len, 0, G_MAXUINT16)) {
+            return;
+        }
+        /* TODO handle ticket extensions (only early_data at the moment) */
+    }
 } /* }}} */
 
 void
