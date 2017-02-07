@@ -178,9 +178,10 @@ opened. The default is to use a single output file.
 
 =item -I  E<lt>bytes to ignoreE<gt>
 
-Ignore the specified bytes number at the beginning of the frame during MD5 hash calculation
-Useful to remove duplicated packets taken on several routers(differents mac addresses for example)
-e.g. -I 26 in case of Ether/IP/ will ignore ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).
+Ignore the specified number of bytes at the beginning of the frame during MD5 hash calculation,
+unless the frame is too short, then the full frame is used.
+Useful to remove duplicated packets taken on several routers (different mac addresses for example)
+e.g. -I 26 in case of Ether/IP will ignore ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).
 The default value is 0.
 
 =item -L

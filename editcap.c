@@ -539,11 +539,16 @@ is_duplicate(guint8* fd, guint32 len) {
     md5_state_t ms;
 
     /*Hint to ignore some bytes at the start of the frame for the digest calculation(-I option) */
+    guint32 offset = ignored_bytes;
     guint32 new_len;
     guint8 *new_fd;
 
-    new_fd  = &fd[ignored_bytes];
-    new_len = len - (ignored_bytes);
+    if (len <= ignored_bytes) {
+        offset = 0;
+    }
+
+    new_fd  = &fd[offset];
+    new_len = len - (offset);
 
     cur_dup_entry++;
     if (cur_dup_entry >= dup_window)
@@ -576,11 +581,16 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
     md5_state_t ms;
 
     /*Hint to ignore some bytes at the start of the frame for the digest calculation(-I option) */
+    guint32 offset = ignored_bytes;
     guint32 new_len;
     guint8 *new_fd;
 
-    new_fd  = &fd[ignored_bytes];
-    new_len = len - (ignored_bytes);
+    if (len <= ignored_bytes) {
+        offset = 0;
+    }
+
+    new_fd  = &fd[offset];
+    new_len = len - (offset);
 
     cur_dup_entry++;
     if (cur_dup_entry >= dup_window)
@@ -709,8 +719,9 @@ print_usage(FILE *output)
     fprintf(output, "                         (e.g. 0.000001).\n");
     fprintf(output, "  -a <framenum>:<comment>  Add or replace comment for given frame number\n");
     fprintf(output, "\n");
-    fprintf(output, "  -I <bytes to ignore>   ignore the specified bytes at the beginning of\n");
-    fprintf(output, "                         the frame during MD5 hash calculation\n");
+    fprintf(output, "  -I <bytes to ignore>   ignore the specified number of bytes at the beginning\n");
+    fprintf(output, "                         of the frame during MD5 hash calculation, unless the\n");
+    fprintf(output, "                         frame is too short, then the full frame is used.\n");
     fprintf(output, "                         Useful to remove duplicated packets taken on\n");
     fprintf(output, "                         several routers(differents mac addresses for \n");
     fprintf(output, "                         example)\n");
