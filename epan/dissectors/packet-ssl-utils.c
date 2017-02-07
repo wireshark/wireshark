@@ -6138,19 +6138,30 @@ ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb
 }
 
 static gint
-ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                              proto_tree *tree, guint32 offset, guint32 offset_end)
 {
-    if (offset_end - offset < 1) {
-        return offset;
+
+   /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.2.1
+    * struct {
+    *     ProtocolVersion versions<2..254>;
+    * } SupportedVersions;
+    */
+    guint32     versions_length, next_offset;
+    /* ProtocolVersion versions<2..254> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &versions_length,
+                        hf->hf.hs_ext_supported_versions_len, 2, 254)) {
+        return offset_end;
     }
+    offset++;
+    next_offset = offset + versions_length;
 
-    proto_tree_add_item(tree, hf->hf.hs_ext_supported_versions_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-
-    while(offset_end - offset >= 2){
+    while (offset + 2 <= next_offset) {
         proto_tree_add_item(tree, hf->hf.hs_ext_supported_versions, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+    }
+    if (!ssl_end_vector(hf, tvb, pinfo, tree, offset, next_offset)) {
+        offset = next_offset;
     }
 
     return offset;
@@ -7486,7 +7497,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             }
             break;
         case SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS:
-            offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, ext_tree, offset, next_offset);
+            offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_COOKIE:
             offset = ssl_dissect_hnd_hello_ext_cookie(hf, tvb, pinfo, ext_tree, offset, next_offset);
