@@ -423,6 +423,10 @@ static const value_string ssl_20_cipher_suites[] = {
 value_string_ext ssl_20_cipher_suites_ext = VALUE_STRING_EXT_INIT(ssl_20_cipher_suites);
 
 
+/*
+ * Supported Groups (formerly named "EC Named Curve").
+ * https://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml#tls-parameters-8
+ */
 const value_string ssl_extension_curves[] = {
     {  1, "sect163k1" },
     {  2, "sect163r1" },
@@ -454,11 +458,11 @@ const value_string ssl_extension_curves[] = {
     { 28, "brainpoolP512r1" }, /* RFC 7027 */
     { 29, "ecdh_x25519" }, /* https://tools.ietf.org/html/draft-ietf-tls-rfc4492bis */
     { 30, "ecdh_x448" }, /* https://tools.ietf.org/html/draft-ietf-tls-rfc4492bis */
-    { 256, "ffdhe2048" }, /* https://tools.ietf.org/html/draft-ietf-tls-negotiated-ff-dhe */
-    { 257, "ffdhe3072" }, /* https://tools.ietf.org/html/draft-ietf-tls-negotiated-ff-dhe */
-    { 258, "ffdhe4096" }, /* https://tools.ietf.org/html/draft-ietf-tls-negotiated-ff-dhe */
-    { 259, "ffdhe6144" }, /* https://tools.ietf.org/html/draft-ietf-tls-negotiated-ff-dhe */
-    { 260, "ffdhe8192" }, /* https://tools.ietf.org/html/draft-ietf-tls-negotiated-ff-dhe */
+    { 256, "ffdhe2048" }, /* RFC 7919 */
+    { 257, "ffdhe3072" }, /* RFC 7919 */
+    { 258, "ffdhe4096" }, /* RFC 7919 */
+    { 259, "ffdhe6144" }, /* RFC 7919 */
+    { 260, "ffdhe8192" }, /* RFC 7919 */
     { 0xFF01, "arbitrary_explicit_prime_curves" },
     { 0xFF02, "arbitrary_explicit_char2_curves" },
     { 0x00, NULL }
@@ -1156,7 +1160,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_CLIENT_AUTHZ, "client_authz" }, /* RFC 5878 */
     { SSL_HND_HELLO_EXT_SERVER_AUTHZ, "server_authz" }, /* RFC 5878 */
     { SSL_HND_HELLO_EXT_CERT_TYPE, "cert_type" }, /* RFC 6091 */
-    { SSL_HND_HELLO_EXT_SUPPORTED_GROUPS, "elliptic_curves" }, /* RFC 4492 */
+    { SSL_HND_HELLO_EXT_SUPPORTED_GROUPS, "supported_groups" }, /* RFC 4492, RFC 7919 */
     { SSL_HND_HELLO_EXT_EC_POINT_FORMATS, "ec_point_formats" }, /* RFC 4492 */
     { SSL_HND_HELLO_EXT_SRP, "srp" }, /* RFC 5054 */
     { SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS, "signature_algorithms" }, /* RFC 5246 */
@@ -6514,35 +6518,48 @@ ssl_dissect_hnd_hello_ext_status_request_v2(ssl_common_dissect_t *hf, tvbuff_t *
     return offset;
 }
 
-static gint
-ssl_dissect_hnd_hello_ext_elliptic_curves(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                          proto_tree *tree, guint32 offset)
+static guint
+ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                           proto_tree *tree, guint32 offset, guint32 offset_end)
 {
-    guint16     curves_length;
-    proto_tree *curves_tree;
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.2.4
+     *  enum { ..., (0xFFFF) } NamedGroup;
+     *  struct {
+     *      NamedGroup named_group_list<2..2^16-1>
+     *  } NamedGroupList;
+     *
+     * NOTE: "NamedCurve" (RFC 4492) is renamed to "NamedGroup" (RFC 7919) and
+     * the extension itself from "elliptic_curves" to "supported_groups".
+     */
+    guint32     groups_length, next_offset;
+    proto_tree *groups_tree;
     proto_item *ti;
 
-    curves_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf->hf.hs_ext_elliptic_curves_len,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
-
+    /* NamedGroup named_group_list<2..2^16-1> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &groups_length,
+                        hf->hf.hs_ext_supported_groups_len, 2, G_MAXUINT16)) {
+        return offset_end;
+    }
     offset += 2;
+    next_offset = offset + groups_length;
+
     ti = proto_tree_add_none_format(tree,
-                                    hf->hf.hs_ext_elliptic_curves,
-                                    tvb, offset, curves_length,
-                                    "Elliptic curves (%d curve%s)",
-                                    curves_length / 2,
-                                    plurality(curves_length/2, "", "s"));
+                                    hf->hf.hs_ext_supported_groups,
+                                    tvb, offset, groups_length,
+                                    "Supported Groups (%d group%s)",
+                                    groups_length / 2,
+                                    plurality(groups_length/2, "", "s"));
 
     /* make this a subtree */
-    curves_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_curves);
+    groups_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_groups);
 
-    /* loop over all curves */
-    while (curves_length > 0)
-    {
-        proto_tree_add_item(curves_tree, hf->hf.hs_ext_elliptic_curve, tvb, offset, 2, ENC_BIG_ENDIAN);
+    /* loop over all groups */
+    while (offset + 2 <= offset_end) {
+        proto_tree_add_item(groups_tree, hf->hf.hs_ext_supported_group, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        curves_length -= 2;
+    }
+    if (!ssl_end_vector(hf, tvb, pinfo, groups_tree, offset, next_offset)) {
+        offset = next_offset;
     }
 
     return offset;
@@ -6562,7 +6579,7 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
 
     offset += 1;
     ti = proto_tree_add_none_format(tree,
-                                    hf->hf.hs_ext_elliptic_curves,
+                                    hf->hf.hs_ext_ec_point_formats,
                                     tvb, offset, ecpf_length,
                                     "Elliptic curves point formats (%d)",
                                     ecpf_length);
@@ -7467,7 +7484,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
                 offset = ssl_dissect_hnd_hello_ext_status_request_v2(hf, tvb, ext_tree, offset);
             break;
         case SSL_HND_HELLO_EXT_SUPPORTED_GROUPS:
-            offset = ssl_dissect_hnd_hello_ext_elliptic_curves(hf, tvb, ext_tree, offset);
+            offset = ssl_dissect_hnd_hello_ext_supported_groups(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_EC_POINT_FORMATS:
             offset = ssl_dissect_hnd_hello_ext_ec_point_formats(hf, tvb, ext_tree, offset);

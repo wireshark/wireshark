@@ -148,7 +148,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_CLIENT_AUTHZ                  7
 #define SSL_HND_HELLO_EXT_SERVER_AUTHZ                  8
 #define SSL_HND_HELLO_EXT_CERT_TYPE                     9
-#define SSL_HND_HELLO_EXT_SUPPORTED_GROUPS               10 /* renamed from "elliptic_curves (RFC7919)*/
+#define SSL_HND_HELLO_EXT_SUPPORTED_GROUPS              10 /* renamed from "elliptic_curves" (RFC 7919 / TLS 1.3) */
 #define SSL_HND_HELLO_EXT_EC_POINT_FORMATS              11
 #define SSL_HND_HELLO_EXT_SRP                           12
 #define SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS          13
@@ -682,10 +682,11 @@ typedef struct ssl_common_dissect {
         gint hs_ext_cert_types_len;
         gint hs_ext_data;
         gint hs_ext_ec_point_format;
+        gint hs_ext_ec_point_formats;
         gint hs_ext_ec_point_formats_len;
-        gint hs_ext_elliptic_curve;
-        gint hs_ext_elliptic_curves;
-        gint hs_ext_elliptic_curves_len;
+        gint hs_ext_supported_group;
+        gint hs_ext_supported_groups;
+        gint hs_ext_supported_groups_len;
         gint hs_ext_heartbeat_mode;
         gint hs_ext_len;
         gint hs_ext_npn_str;
@@ -790,7 +791,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext;
         gint hs_ext_alpn;
         gint hs_ext_cert_types;
-        gint hs_ext_curves;
+        gint hs_ext_groups;
         gint hs_ext_curves_point_formats;
         gint hs_ext_npn;
         gint hs_ext_reneg_info;
@@ -959,7 +960,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                         \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -998,18 +999,18 @@ ssl_common_dissect_t name = {   \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         "Hello Extension data", HFILL }                                 \
     },                                                                  \
-    { & name .hf.hs_ext_elliptic_curves_len,                            \
-      { "Elliptic Curves Length", prefix ".handshake.extensions_elliptic_curves_length",   \
+    { & name .hf.hs_ext_supported_groups_len,                           \
+      { "Supported Groups List Length", prefix ".handshake.extensions_supported_groups_length", \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
-        "Length of elliptic curves field", HFILL }                      \
+        NULL, HFILL }                                                   \
     },                                                                  \
-    { & name .hf.hs_ext_elliptic_curves,                                \
-      { "Elliptic Curves List", prefix ".handshake.extensions_elliptic_curves",        \
+    { & name .hf.hs_ext_supported_groups,                               \
+      { "Supported Groups List", prefix ".handshake.extensions_supported_groups", \
         FT_NONE, BASE_NONE, NULL, 0x0,                                  \
-        "List of elliptic curves supported", HFILL }                    \
+        "List of supported groups (formerly Supported Elliptic Curves)", HFILL } \
     },                                                                  \
-    { & name .hf.hs_ext_elliptic_curve,                                 \
-      { "Elliptic curve", prefix ".handshake.extensions_elliptic_curve",\
+    { & name .hf.hs_ext_supported_group,                                \
+      { "Supported Group", prefix ".handshake.extensions_supported_group", \
         FT_UINT16, BASE_HEX, VALS(ssl_extension_curves), 0x0,           \
         NULL, HFILL }                                                   \
     },                                                                  \
@@ -1017,6 +1018,11 @@ ssl_common_dissect_t name = {   \
       { "EC point formats Length", prefix ".handshake.extensions_ec_point_formats_length",     \
         FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
         "Length of elliptic curves point formats field", HFILL }        \
+    },                                                                  \
+    { & name .hf.hs_ext_ec_point_formats,                               \
+      { "EC point formats", prefix ".handshake.extensions_ec_point_formats", \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "List of elliptic curves point format", HFILL }                 \
     },                                                                  \
     { & name .hf.hs_ext_ec_point_format,                                \
       { "EC point format", prefix ".handshake.extensions_ec_point_format",             \
@@ -1587,7 +1593,7 @@ ssl_common_dissect_t name = {   \
         & name .ett.hs_ext,                         \
         & name .ett.hs_ext_alpn,                    \
         & name .ett.hs_ext_cert_types,              \
-        & name .ett.hs_ext_curves,                  \
+        & name .ett.hs_ext_groups,                  \
         & name .ett.hs_ext_curves_point_formats,    \
         & name .ett.hs_ext_npn,                     \
         & name .ett.hs_ext_reneg_info,              \
