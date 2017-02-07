@@ -6253,6 +6253,11 @@ ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_tree *server_name_tree;
     guint32     list_length, server_name_length, next_offset;
 
+    /* The server SHALL include "server_name" extension with empty data. */
+    if (offset == offset_end) {
+        return offset;
+    }
+
     server_name_tree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset, hf->ett.hs_ext_server_name, NULL, "Server Name Indication extension");
 
     /* ServerName server_name_list<1..2^16-1> */
