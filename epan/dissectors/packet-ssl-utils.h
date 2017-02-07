@@ -846,6 +846,9 @@ typedef struct {
 
 
 /* Helpers for dissecting Variable-Length Vectors. {{{ */
+/* Largest value that fits in a 24-bit number (2^24-1). */
+#define G_MAXUINT24     ((1U << 24) - 1)
+
 /**
  * Helper for dissection of variable-length vectors (RFC 5246, section 4.3). It
  * adds a length field to the tree and writes the validated length value into
@@ -917,7 +920,7 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
 
 extern void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                     guint32 offset, packet_info *pinfo,
+                     guint32 offset, guint32 offset_end, packet_info *pinfo,
                      const SslSession *session, SslDecryptSession *ssl,
                      GHashTable *key_hash, gint is_from_server);
 

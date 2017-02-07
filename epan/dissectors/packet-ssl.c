@@ -2131,7 +2131,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_CERTIFICATE:
                 ssl_dissect_hnd_cert(&dissect_ssl3_hf, tvb, ssl_hand_tree,
-                        offset, pinfo, session, ssl, ssl_key_hash, is_from_server);
+                        offset, offset + length, pinfo, session, ssl, ssl_key_hash, is_from_server);
                 break;
 
             case SSL_HND_SERVER_KEY_EXCHG:

@@ -7021,7 +7021,7 @@ ssl_dissect_hnd_encrypted_extensions(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 /* Certificate and Certificate Request dissections. {{{ */
 void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                     guint32 offset, packet_info *pinfo,
+                     guint32 offset, guint32 offset_end, packet_info *pinfo,
                      const SslSession *session, SslDecryptSession *ssl _U_,
                      GHashTable *key_hash _U_, gint is_from_server)
 {
@@ -7056,6 +7056,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
 #if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
     gnutls_datum_t subjectPublicKeyInfo = { NULL, 0 };
 #endif
+    guint32 next_offset;
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -7075,8 +7076,12 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
     switch (cert_type) {
     case CERT_RPK:
         {
-            proto_tree_add_item(tree, hf->hf.hs_certificate_len,
-                                tvb, offset, 3, ENC_BIG_ENDIAN);
+            guint32 cert_length;
+            /* opaque ASN.1_subjectPublicKeyInfo<1..2^24-1> */
+            if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &cert_length,
+                                hf->hf.hs_certificate_len, 1, G_MAXUINT24)) {
+                return;
+            }
             offset += 3;
 
             dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, offset, &asn1_ctx, tree, hf->hf.hs_certificate);
@@ -7092,8 +7097,10 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
             /* TLS 1.3: opaque certificate_request_context<0..2^8-1> */
             if (session->version == TLSV1DOT3_VERSION) {
                 guint32 context_length;
-                proto_tree_add_item_ret_uint(tree, hf->hf.hs_certificate_request_context_length,
-                                             tvb, offset, 1, ENC_NA, &context_length);
+                if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &context_length,
+                                    hf->hf.hs_certificate_request_context_length, 0, G_MAXUINT8)) {
+                    return;
+                }
                 offset++;
                 if (context_length > 0) {
                     proto_tree_add_item(tree, hf->hf.hs_certificate_request_context,
@@ -7102,9 +7109,13 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                 }
             }
 
-            proto_tree_add_item_ret_uint(tree, hf->hf.hs_certificates_len,
-                                         tvb, offset, 3, ENC_BIG_ENDIAN, &certificate_list_length);
+            /* CertificateEntry certificate_list<0..2^24-1> */
+            if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &certificate_list_length,
+                                hf->hf.hs_certificates_len, 0, G_MAXUINT24)) {
+                return;
+            }
             offset += 3;            /* 24-bit length value */
+            next_offset = offset + certificate_list_length;
 
             if (certificate_list_length > 0) {
                 ti = proto_tree_add_none_format(tree,
@@ -7117,13 +7128,14 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                 subtree = proto_item_add_subtree(ti, hf->ett.certificates);
 
                 /* iterate through each certificate */
-                while (certificate_list_length > 0) {
-                    /* get the length of the current certificate */
+                while (offset < next_offset) {
                     guint32 cert_length;
-                    proto_tree_add_item_ret_uint(subtree, hf->hf.hs_certificate_len,
-                                                 tvb, offset, 3, ENC_BIG_ENDIAN, &cert_length);
+                    /* opaque ASN1Cert<1..2^24-1> */
+                    if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, next_offset, &cert_length,
+                                        hf->hf.hs_certificate_len, 1, G_MAXUINT24)) {
+                        return;
+                    }
                     offset += 3;
-                    certificate_list_length -= 3 + cert_length;
 
                     dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf->hf.hs_certificate);
 #if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
@@ -7136,14 +7148,15 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                     /* TLS 1.3: Extension extensions<0..2^16-1> */
                     if (session->version == TLSV1DOT3_VERSION) {
                         guint32 extensions_length;
-                        proto_tree_add_item_ret_uint(subtree, hf->hf.hs_exts_len,
-                                                     tvb, offset, 2, ENC_BIG_ENDIAN, &extensions_length);
+                        if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, next_offset, &extensions_length,
+                                            hf->hf.hs_exts_len, 0, G_MAXUINT16)) {
+                            return;
+                        }
                         offset += 2;
 
                         // XXX dissect OCSP and SCT extensions
                         // https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.4.1.1
                         offset += extensions_length;
-                        certificate_list_length -= 2 + extensions_length;
                     }
                 }
             }
