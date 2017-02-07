@@ -761,7 +761,7 @@ static void ldap_do_protocolop(packet_info *pinfo)
 {
   const gchar* valstr;
 
-  if (do_protocolop)  {
+  if (do_protocolop) {
 
     valstr = val_to_str(ProtocolOp, ldap_ProtocolOp_choice_vals, "Unknown (%%u)");
 
@@ -1663,9 +1663,9 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
   const char *oidname;
 
   /* tvb here contains an ascii string that is really an oid */
-/* XXX   we should convert the string oid into a real oid so we can use
- *       proto_tree_add_oid() instead.
- */
+  /* XXX   we should convert the string oid into a real oid so we can use
+   *       proto_tree_add_oid() instead.
+   */
 
   oid=tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
   if(!oid){
