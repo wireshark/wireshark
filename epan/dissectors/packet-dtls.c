@@ -1328,7 +1328,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
           case SSL_HND_FINISHED:
             ssl_dissect_hnd_finished(&dissect_dtls_hf, sub_tvb, ssl_hand_tree,
-                                     0, session, NULL);
+                                     0, length, session, NULL);
             break;
 
           case SSL_HND_CERT_URL:

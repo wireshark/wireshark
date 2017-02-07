@@ -933,7 +933,7 @@ ssl_dissect_hnd_cli_cert_verify(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
 extern void
 ssl_dissect_hnd_finished(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                         proto_tree *tree, guint32 offset,
+                         proto_tree *tree, guint32 offset, guint32 offset_end,
                          const SslSession *session, ssl_hfs_t *ssl_hfs);
 
 extern void

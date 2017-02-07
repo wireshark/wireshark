@@ -2169,7 +2169,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_FINISHED:
                 ssl_dissect_hnd_finished(&dissect_ssl3_hf, tvb, ssl_hand_tree,
-                        offset, session, &ssl_hfs);
+                        offset, offset + length, session, &ssl_hfs);
                 if (ssl) {
                     ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
                     tls13_change_key(ssl, &ssl_master_key_map, is_from_server, TLS_SECRET_APP);

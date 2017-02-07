@@ -7340,7 +7340,7 @@ ssl_dissect_hnd_cli_cert_verify(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 /* Finished dissection. {{{ */
 void
 ssl_dissect_hnd_finished(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                         proto_tree *tree, guint32 offset,
+                         proto_tree *tree, guint32 offset, guint32 offset_end,
                          const SslSession *session, ssl_hfs_t *ssl_hfs)
 {
     /* For SSLv3:
@@ -7353,6 +7353,11 @@ ssl_dissect_hnd_finished(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      *     struct {
      *         opaque verify_data[12];
      *     } Finished;
+     *
+     * For TLS 1.3:
+     *     struct {
+     *         opaque verify_data[Hash.length];
+     *     }
      */
     if (!tree)
         return;
@@ -7365,8 +7370,9 @@ ssl_dissect_hnd_finished(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                 tvb, offset + 16, 20, ENC_NA);
         }
     } else {
+        /* Length should be 12 for TLS before 1.3, assume this is the case. */
         proto_tree_add_item(tree, hf->hf.hs_finished,
-                            tvb, offset, 12, ENC_NA);
+                            tvb, offset, offset_end - offset, ENC_NA);
     }
 } /* }}} */
 
