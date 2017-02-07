@@ -4546,6 +4546,7 @@ static void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, gbool
             ssl->session_ticket.data_len = 0;
             ssl->master_secret.data_len = 0;
             ssl->client_random.data_len = 0;
+            ssl->has_early_data = FALSE;
         } else {
             clear_flags |= SSL_SERVER_EXTENDED_MASTER_SECRET | SSL_NEW_SESSION_TICKET;
             ssl->server_random.data_len = 0;
@@ -4844,6 +4845,7 @@ ssl_common_init(ssl_master_key_map_t *mk_map,
     mk_map->crandom = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->pre_master = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->pms = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->tls13_client_early = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->tls13_client_handshake = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->tls13_server_handshake = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->tls13_client_appdata = g_hash_table_new(ssl_hash, ssl_equal);
@@ -4861,6 +4863,7 @@ ssl_common_cleanup(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
     g_hash_table_destroy(mk_map->crandom);
     g_hash_table_destroy(mk_map->pre_master);
     g_hash_table_destroy(mk_map->pms);
+    g_hash_table_destroy(mk_map->tls13_client_early);
     g_hash_table_destroy(mk_map->tls13_client_handshake);
     g_hash_table_destroy(mk_map->tls13_server_handshake);
     g_hash_table_destroy(mk_map->tls13_client_appdata);
@@ -5119,8 +5122,10 @@ tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
 
     switch (type) {
     case TLS_SECRET_0RTT_APP:
-        /* TODO 0-RTT decryption is not implemented yet */
-        return;
+        DISSECTOR_ASSERT(!is_from_server);
+        label = "CLIENT_EARLY_TRAFFIC_SECRET";
+        key_map = mk_map->tls13_client_early;
+        break;
     case TLS_SECRET_HANDSHAKE:
         if (is_from_server) {
             label = "SERVER_HANDSHAKE_TRAFFIC_SECRET";
@@ -5194,7 +5199,8 @@ ssl_compile_keyfile_regex(void)
         ")(?<master_secret>" OCTET "{" G_STRINGIFY(SSL_MASTER_SECRET_LENGTH) "})"
         "|(?"
         /* TLS 1.3 Client Random to Derived Secrets mapping. */
-        ":CLIENT_HANDSHAKE_TRAFFIC_SECRET (?<client_handshake>" OCTET "{32})"
+        ":CLIENT_EARLY_TRAFFIC_SECRET (?<client_early>" OCTET "{32})"
+        "|CLIENT_HANDSHAKE_TRAFFIC_SECRET (?<client_handshake>" OCTET "{32})"
         "|SERVER_HANDSHAKE_TRAFFIC_SECRET (?<server_handshake>" OCTET "{32})"
         "|CLIENT_TRAFFIC_SECRET_0 (?<client_appdata>" OCTET "{32})"
         "|SERVER_TRAFFIC_SECRET_0 (?<server_appdata>" OCTET "{32})"
@@ -5255,6 +5261,7 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
         { "client_random",  mk_map->crandom },
         { "client_random_pms",  mk_map->pms },
         /* TLS 1.3 map from Client Random to derived secret. */
+        { "client_early",       mk_map->tls13_client_early },
         { "client_handshake",   mk_map->tls13_client_handshake },
         { "server_handshake",   mk_map->tls13_server_handshake },
         { "client_appdata",     mk_map->tls13_client_appdata },
@@ -5293,14 +5300,15 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
      *     (This format allows non-RSA SSL connections to be decrypted, i.e.
      *     ECDHE-RSA.)
      *
+     *   - "CLIENT_EARLY_TRAFFIC_SECRET xxxx yyyy"
      *   - "CLIENT_HANDSHAKE_TRAFFIC_SECRET xxxx yyyy"
      *   - "SERVER_HANDSHAKE_TRAFFIC_SECRET xxxx yyyy"
      *   - "CLIENT_TRAFFIC_SECRET_0 xxxx yyyy"
      *   - "SERVER_TRAFFIC_SECRET_0 xxxx yyyy"
      *     Where xxxx is the client_random from the ClientHello (hex-encoded)
-     *     Where yyyy is the secret (hex-encoded) derived from the handshake or
-     *     master secrets. (This format is introduced with TLS 1.3 and supported
-     *     by BoringSSL, OpenSSL, etc. See bug 12779.)
+     *     Where yyyy is the secret (hex-encoded) derived from the early,
+     *     handshake or master secrets. (This format is introduced with TLS 1.3
+     *     and supported by BoringSSL, OpenSSL, etc. See bug 12779.)
      */
     regex = ssl_compile_keyfile_regex();
     if (!regex)
@@ -6130,26 +6138,6 @@ ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb
 }
 
 static gint
-ssl_dissect_hnd_hello_ext_early_data(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                         proto_tree *tree, guint32 offset, guint32 offset_end _U_,
-                                         guint8 hnd_type)
-{
-
-    switch (hnd_type){
-        case SSL_HND_CLIENT_HELLO:
-            proto_tree_add_item(tree, hf->hf.hs_ext_early_data_obfuscated_ticket_age, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            break;
-        case SSL_HND_SERVER_HELLO: /* empty extension_data */
-            break;
-        default: /* no default */
-        break;
-    }
-
-    return offset;
-}
-
-static gint
 ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                              proto_tree *tree, guint32 offset, guint32 offset_end)
 {
@@ -6677,6 +6665,24 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
         ssl_debug_printf("%s found version 0x%04X -> state 0x%02X\n", G_STRFUNC, version, ssl->state);
     }
 }
+
+static void
+ssl_set_cipher(SslDecryptSession *ssl, guint16 cipher)
+{
+    /* store selected cipher suite for decryption */
+    ssl->session.cipher = cipher;
+
+    if (!(ssl->cipher_suite = ssl_find_cipher(cipher))) {
+        ssl->state &= ~SSL_CIPHER;
+        ssl_debug_printf("%s can't find cipher suite 0x%04X\n", G_STRFUNC, cipher);
+    } else {
+        /* Cipher found, save this for the delayed decoder init */
+        ssl->state |= SSL_CIPHER;
+        ssl_debug_printf("%s found CIPHER 0x%04X %s -> state 0x%02X\n", G_STRFUNC, cipher,
+                         val_to_str_ext_const(cipher, &ssl_31_ciphersuite_ext, "unknown"),
+                         ssl->state);
+    }
+}
 /* }}} */
 
 
@@ -6738,6 +6744,13 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     ti = proto_tree_add_item(tree, hf->hf.hs_cipher_suites_len,
                              tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
+    if (ssl && cipher_suite_length == 2) {
+        /*
+         * If there is only a single cipher, assume that this will be used
+         * (needed for 0-RTT decryption support in TLS 1.3).
+         */
+        ssl_set_cipher(ssl, tvb_get_ntohs(tvb, offset));
+    }
     if (cipher_suite_length > 0) {
         if (cipher_suite_length % 2) {
             expert_add_info_format(pinfo, ti, &hf->ei.hs_cipher_suites_len_bad,
@@ -6847,21 +6860,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     if (ssl) {
         /* store selected cipher suite for decryption */
-        ssl->session.cipher = tvb_get_ntohs(tvb, offset);
-
-        if (!(ssl->cipher_suite = ssl_find_cipher(ssl->session.cipher))) {
-            ssl->state &= ~SSL_CIPHER;
-            ssl_debug_printf("%s can't find cipher suite 0x%04X\n",
-                             G_STRFUNC, ssl->session.cipher);
-        } else {
-            /* Cipher found, save this for the delayed decoder init */
-            ssl->state |= SSL_CIPHER;
-            ssl_debug_printf("%s found CIPHER 0x%04X %s -> state 0x%02X\n",
-                             G_STRFUNC, ssl->session.cipher,
-                             val_to_str_ext_const(ssl->session.cipher,
-                                 &ssl_31_ciphersuite_ext, "unknown"),
-                             ssl->state);
-        }
+        ssl_set_cipher(ssl, tvb_get_ntohs(tvb, offset));
     }
 
     /* now the server-selected cipher suite */
@@ -7460,7 +7459,10 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_pre_shared_key(hf, tvb, ext_tree, offset, next_offset, hnd_type);
             break;
         case SSL_HND_HELLO_EXT_EARLY_DATA:
-            offset = ssl_dissect_hnd_hello_ext_early_data(hf, tvb, ext_tree, offset, next_offset, hnd_type);
+            if (hnd_type == SSL_HND_CLIENT_HELLO && ssl) {
+                ssl_debug_printf("%s found early_data extension\n", G_STRFUNC);
+                ssl->has_early_data = TRUE;
+            }
             break;
         case SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS:
             offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, ext_tree, offset, next_offset);

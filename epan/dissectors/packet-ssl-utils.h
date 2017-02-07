@@ -431,6 +431,7 @@ typedef struct _SslDecryptSession {
     StringInfo psk;
     StringInfo app_data_segment;
     SslSession session;
+    gboolean   has_early_data;
 
 } SslDecryptSession;
 
@@ -458,6 +459,7 @@ typedef struct {
     GHashTable *pms;        /* Client Random to unencrypted pre-master secret */
 
     /* For TLS 1.3: maps Client Random to derived secret. */
+    GHashTable *tls13_client_early;
     GHashTable *tls13_client_handshake;
     GHashTable *tls13_server_handshake;
     GHashTable *tls13_client_appdata;
@@ -702,7 +704,6 @@ typedef struct ssl_common_dissect {
         gint hs_ext_psk_binders_length;
         gint hs_ext_psk_binders;
         gint hs_ext_psk_identity_selected;
-        gint hs_ext_early_data_obfuscated_ticket_age;
         gint hs_ext_supported_versions_len;
         gint hs_ext_supported_versions;
         gint hs_ext_cookie_len;
@@ -958,7 +959,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
+        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1121,11 +1122,6 @@ ssl_common_dissect_t name = {   \
       { "Selected Identity", prefix ".handshake.extensions.psk.identity.selected", \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
         NULL, HFILL }                                                   \
-    },                                                                  \
-    { & name .hf.hs_ext_early_data_obfuscated_ticket_age,               \
-      { "Obfuscated ticket age", prefix ".handshake.extensions.early_data.obfuscated_ticket_age",    \
-        FT_UINT32, BASE_DEC, NULL, 0x0,                                 \
-        "The time since the client learned about the server configuration that it is using, in milliseconds", HFILL }   \
     },                                                                  \
     { & name .hf.hs_ext_supported_versions_len,                         \
       { "Supported Versions length", prefix ".handshake.extensions.supported_versions_len", \

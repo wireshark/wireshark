@@ -554,7 +554,8 @@ static gint dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 /* alert message dissector */
 static void dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, guint32 offset,
-                               const SslSession *session);
+                               const SslSession *session, gboolean is_from_server,
+                               SslDecryptSession *ssl);
 
 /* handshake protocol dissector */
 static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
@@ -1766,9 +1767,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         break;
     case SSL_ID_ALERT:
         if (decrypted) {
-            dissect_ssl3_alert(decrypted, pinfo, ssl_record_tree, 0, session);
+            dissect_ssl3_alert(decrypted, pinfo, ssl_record_tree, 0, session, is_from_server, ssl);
         } else {
-            dissect_ssl3_alert(tvb, pinfo, ssl_record_tree, offset, session);
+            dissect_ssl3_alert(tvb, pinfo, ssl_record_tree, offset, session, is_from_server, ssl);
         }
         break;
     case SSL_ID_HANDSHAKE:
@@ -1856,7 +1857,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
                    proto_tree *tree, guint32 offset,
-                   const SslSession *session)
+                   const SslSession *session, gboolean is_from_server,
+                   SslDecryptSession *ssl)
 {
     /*     struct {
      *         AlertLevel level;
@@ -1867,7 +1869,7 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree  *ssl_alert_tree;
     const gchar *level;
     const gchar *desc;
-    guint8       byte;
+    guint8       level_byte, desc_byte;
 
     ssl_alert_tree = NULL;
     if (tree)
@@ -1882,11 +1884,21 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
      */
 
     /* first lookup the names for the alert level and description */
-    byte = tvb_get_guint8(tvb, offset); /* grab the level byte */
-    level = try_val_to_str(byte, ssl_31_alert_level);
+    level_byte = tvb_get_guint8(tvb, offset); /* grab the level byte */
+    level = try_val_to_str(level_byte, ssl_31_alert_level);
 
-    byte = tvb_get_guint8(tvb, offset+1); /* grab the desc byte */
-    desc = try_val_to_str(byte, ssl_31_alert_description);
+    desc_byte = tvb_get_guint8(tvb, offset+1); /* grab the desc byte */
+    desc = try_val_to_str(desc_byte, ssl_31_alert_description);
+
+    /*
+     * TLS 1.3: clients send an Alert at warning (1) level with description
+     * end_of_early_data (1) to end 0-RTT application data.
+     */
+    if (level_byte == 1 && desc_byte == 1 && !is_from_server && ssl) {
+        ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
+        tls13_change_key(ssl, &ssl_master_key_map, FALSE, TLS_SECRET_HANDSHAKE);
+        ssl->has_early_data = FALSE;
+    }
 
     /* now set the text in the record layer line */
     if (level && desc)
@@ -2066,8 +2078,18 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 ssl_dissect_hnd_cli_hello(&dissect_ssl3_hf, tvb, pinfo,
                         ssl_hand_tree, offset, length, session, ssl,
                         NULL);
-                /* Cannot call tls13_change_key here since it is not yet known
-                 * whether the server will agree on TLS 1.3 or not. */
+                /*
+                 * Cannot call tls13_change_key here with TLS_SECRET_HANDSHAKE
+                 * since the server may not agree on using TLS 1.3. If
+                 * early_data is advertised, it must be TLS 1.3 though.
+                 */
+                if (ssl && ssl->has_early_data) {
+                    session->version = TLSV1DOT3_VERSION;
+                    ssl->state |= SSL_VERSION;
+                    ssl_debug_printf("%s forcing version 0x%04X -> state 0x%02X\n", G_STRFUNC, version, ssl->state);
+                    ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
+                    tls13_change_key(ssl, &ssl_master_key_map, FALSE, TLS_SECRET_0RTT_APP);
+                }
                 break;
 
             case SSL_HND_SERVER_HELLO:
@@ -2076,7 +2098,9 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 if (ssl) {
                     ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
                     /* Create client and server decoders for TLS 1.3. */
-                    tls13_change_key(ssl, &ssl_master_key_map, FALSE, TLS_SECRET_HANDSHAKE);
+                    if (!ssl->has_early_data) {
+                        tls13_change_key(ssl, &ssl_master_key_map, FALSE, TLS_SECRET_HANDSHAKE);
+                    }
                     tls13_change_key(ssl, &ssl_master_key_map, TRUE, TLS_SECRET_HANDSHAKE);
                 }
                 break;
