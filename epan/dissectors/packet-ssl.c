@@ -2094,7 +2094,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_SERVER_HELLO:
                 ssl_dissect_hnd_srv_hello(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree,
-                        offset, length, session, ssl, FALSE);
+                        offset, offset + length, session, ssl, FALSE);
                 if (ssl) {
                     ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
                     /* Create client and server decoders for TLS 1.3. */
@@ -2119,7 +2119,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_HELLO_RETRY_REQUEST:
                 ssl_dissect_hnd_hello_retry_request(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree,
-                                                    offset, length, session, ssl, FALSE);
+                                                    offset, offset + length, session, ssl, FALSE);
                 break;
 
             case SSL_HND_ENCRYPTED_EXTENSIONS:

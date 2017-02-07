@@ -892,13 +892,13 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
 extern void
 ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
-                          proto_tree *tree, guint32 offset, guint32 length,
+                          proto_tree *tree, guint32 offset, guint32 offset_end,
                           SslSession *session, SslDecryptSession *ssl,
                           gboolean is_dtls);
 
 extern void
 ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
-                                    proto_tree *tree, guint32 offset, guint32 length,
+                                    proto_tree *tree, guint32 offset, guint32 offset_end,
                                     SslSession *session, SslDecryptSession *ssl,
                                     gboolean is_dtls);
 

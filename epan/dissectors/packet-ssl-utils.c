@@ -6810,21 +6810,20 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
 void
 ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                          packet_info* pinfo, proto_tree *tree, guint32 offset, guint32 length,
+                          packet_info* pinfo, proto_tree *tree, guint32 offset, guint32 offset_end,
                           SslSession *session, SslDecryptSession *ssl,
                           gboolean is_dtls)
 {
     /* struct {
      *     ProtocolVersion server_version;
      *     Random random;
-     *     SessionID session_id;
+     *     SessionID session_id;                    // TLS 1.2 and before
      *     CipherSuite cipher_suite;
-     *     CompressionMethod compression_method;
+     *     CompressionMethod compression_method;    // TLS 1.2 and before
      *     Extension server_hello_extension_list<0..2^16-1>;
      * } ServerHello;
      */
     guint16 server_version;
-    guint16 start_offset = offset;
 
     /* This version is always better than the guess at the Record Layer */
     server_version = tvb_get_ntohs(tvb, offset);
@@ -6870,10 +6869,10 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         offset++;
     }
 
-    /* remaining data are extensions */
-    if (length > offset - start_offset) {
+    /* SSL v3.0 has no extensions, so length field can indeed be missing. */
+    if (offset < offset_end) {
         ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
-                                  start_offset + length, SSL_HND_SERVER_HELLO,
+                                  offset_end, SSL_HND_SERVER_HELLO,
                                   session, ssl, is_dtls);
     }
 }
@@ -6964,27 +6963,24 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
 
 void
 ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                    packet_info* pinfo, proto_tree *tree, guint32 offset, guint32 length,
+                                    packet_info* pinfo, proto_tree *tree, guint32 offset, guint32 offset_end,
                                     SslSession *session, SslDecryptSession *ssl,
                                     gboolean is_dtls)
 {
-    /* struct {
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.1.4
+     * struct {
      *     ProtocolVersion server_version;
      *     Extension extensions<2..2^16-1>;
      * } HelloRetryRequest;
      */
-    guint16 start_offset = offset;
-
     proto_tree_add_item(tree, hf->hf.hs_server_version, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* remaining data are extensions */
-    if (length > offset - start_offset) {
-        ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
-                                  start_offset + length, SSL_HND_HELLO_RETRY_REQUEST,
-                                  session, ssl, is_dtls);
-    }
+    ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
+                              offset_end, SSL_HND_HELLO_RETRY_REQUEST,
+                              session, ssl, is_dtls);
 }
 
 void
