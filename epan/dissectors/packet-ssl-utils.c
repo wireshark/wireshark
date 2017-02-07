@@ -7162,7 +7162,7 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
                          proto_tree *tree, guint32 offset, guint32 offset_end,
                          const SslSession *session)
 {
-    /*
+    /* From SSL 3.0 and up (note that since TLS 1.1 certificate_authorities can be empty):
      *    enum {
      *        rsa_sign(1), dss_sign(2), rsa_fixed_dh(3), dss_fixed_dh(4),
      *        (255)
@@ -7204,8 +7204,7 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
      *
      *    struct {
      *        ClientCertificateType certificate_types<1..2^8-1>;
-     *        SignatureAndHashAlgorithm
-     *          supported_signature_algorithms<2^16-1>;
+     *        SignatureAndHashAlgorithm supported_signature_algorithms<2^16-1>;
      *        DistinguishedName certificate_authorities<0..2^16-1>;
      *    } CertificateRequest;
      *
@@ -7229,8 +7228,7 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
      */
     proto_item *ti;
     proto_tree *subtree;
-    guint8      cert_types_count;
-    gint        dnames_length;
+    guint32     dnames_length = 0, next_offset;
     asn1_ctx_t  asn1_ctx;
 
     if (!tree)
@@ -7240,8 +7238,11 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
 
     if (session->version == TLSV1DOT3_VERSION) {
         guint32 context_length;
-        proto_tree_add_item_ret_uint(tree, hf->hf.hs_certificate_request_context_length,
-                                     tvb, offset, 1, ENC_NA, &context_length);
+        /* opaque certificate_request_context<0..2^8-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &context_length,
+                            hf->hf.hs_certificate_request_context_length, 0, G_MAXUINT8)) {
+            return;
+        }
         offset++;
         if (context_length > 0) {
             proto_tree_add_item(tree, hf->hf.hs_certificate_request_context,
@@ -7249,26 +7250,26 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
             offset += context_length;
         }
     } else {
-        cert_types_count = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(tree, hf->hf.hs_cert_types_count,
-                tvb, offset, 1, cert_types_count);
+        guint32 cert_types_count;
+        /* ClientCertificateType certificate_types<1..2^8-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &cert_types_count,
+                            hf->hf.hs_cert_types_count, 1, G_MAXUINT8)) {
+            return;
+        }
         offset++;
+        next_offset = offset + cert_types_count;
 
-        if (cert_types_count > 0) {
-            ti = proto_tree_add_none_format(tree,
-                    hf->hf.hs_cert_types,
-                    tvb, offset, cert_types_count,
-                    "Certificate types (%u type%s)",
-                    cert_types_count,
-                    plurality(cert_types_count, "", "s"));
-            subtree = proto_item_add_subtree(ti, hf->ett.cert_types);
+        ti = proto_tree_add_none_format(tree,
+                hf->hf.hs_cert_types,
+                tvb, offset, cert_types_count,
+                "Certificate types (%u type%s)",
+                cert_types_count,
+                plurality(cert_types_count, "", "s"));
+        subtree = proto_item_add_subtree(ti, hf->ett.cert_types);
 
-            while (cert_types_count > 0) {
-                proto_tree_add_item(subtree, hf->hf.hs_cert_type,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset++;
-                cert_types_count--;
-            }
+        while (offset < next_offset) {
+            proto_tree_add_item(subtree, hf->hf.hs_cert_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
         }
     }
 
@@ -7283,10 +7284,13 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
             break;
     }
 
-    dnames_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(tree, hf->hf.hs_dnames_len,
-            tvb, offset, 2, dnames_length);
+    /* DistinguishedName certificate_authorities<0..2^16-1> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &dnames_length,
+                        hf->hf.hs_dnames_len, 0, G_MAXUINT16)) {
+        return;
+    }
     offset += 2;
+    next_offset = offset + dnames_length;
 
     if (dnames_length > 0) {
         ti = proto_tree_add_none_format(tree,
@@ -7297,14 +7301,14 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
                 plurality(dnames_length, "", "s"));
         subtree = proto_item_add_subtree(ti, hf->ett.dnames);
 
-        while (dnames_length > 0) {
+        while (offset < next_offset) {
             /* get the length of the current certificate */
-            guint16 name_length;
-            name_length = tvb_get_ntohs(tvb, offset);
-            dnames_length -= 2 + name_length;
-
-            proto_tree_add_item(subtree, hf->hf.hs_dname_len,
-                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            guint32 name_length;
+            /* opaque DistinguishedName<1..2^16-1> */
+            if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, next_offset, &name_length,
+                                hf->hf.hs_dname_len, 1, G_MAXUINT16)) {
+                return;
+            }
             offset += 2;
 
             dissect_x509if_DistinguishedName(FALSE, tvb, offset, &asn1_ctx,
@@ -7312,6 +7316,8 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
             offset += name_length;
         }
     }
+
+    /* TODO Extensions specific to certificates (TLS 1.3). */
 }
 /* Certificate and Certificate Request dissections. }}} */
 
