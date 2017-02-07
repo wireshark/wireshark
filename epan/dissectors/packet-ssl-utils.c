@@ -6193,34 +6193,29 @@ ssl_dissect_hnd_hello_ext_cookie(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 static gint
-ssl_dissect_hnd_hello_ext_psk_key_exchange_modes(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+ssl_dissect_hnd_hello_ext_psk_key_exchange_modes(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                                  proto_tree *tree, guint32 offset, guint32 offset_end)
 {
-    /*
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.2.7
      * enum { psk_ke(0), psk_dhe_ke(1), (255) } PskKeyExchangeMode;
      *
      * struct {
      *     PskKeyExchangeMode ke_modes<1..255>;
      * } PskKeyExchangeModes;
      */
-    guint32 ke_modes_length, i;
+    guint32 ke_modes_length, next_offset;
 
-    if (offset_end - offset < 1) {
-        /* XXX expert info, there must be at least 1 ke mode */
-        return offset;
+    /* PskKeyExchangeMode ke_modes<1..255> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &ke_modes_length,
+                        hf->hf.hs_ext_psk_ke_modes_len, 1, 255)) {
+        return offset_end;
     }
+    offset++;
+    next_offset = offset + ke_modes_length;
 
-    proto_tree_add_item_ret_uint(tree, hf->hf.hs_ext_psk_ke_modes_len, tvb, offset, 1, ENC_NA, &ke_modes_length);
-    offset += 1;
-
-    if (ke_modes_length > offset_end - offset) {
-        ke_modes_length = offset_end - offset;
-        /* XXX expert info: size too large */
-    }
-
-    for (i = 0; i < ke_modes_length; i++) {
+    while (offset < next_offset) {
         proto_tree_add_item(tree, hf->hf.hs_ext_psk_ke_mode, tvb, offset, 1, ENC_NA);
-        offset += 1;
+        offset++;
     }
 
     return offset;
@@ -7517,7 +7512,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_cookie(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_PSK_KEY_EXCHANGE_MODES:
-            offset = ssl_dissect_hnd_hello_ext_psk_key_exchange_modes(hf, tvb, ext_tree, offset, next_offset);
+            offset = ssl_dissect_hnd_hello_ext_psk_key_exchange_modes(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_draft_version_tls13,
