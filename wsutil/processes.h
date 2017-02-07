@@ -42,7 +42,10 @@ typedef HANDLE ws_process_id;
 #else
 /*
  * On UN*X, a process ID is a pid_t.
+ * Include <sys/types.h> to make sure pid_t is defined.
  */
+#include <sys/types.h>
+
 typedef pid_t ws_process_id;
 
 #define WS_INVALID_PID    -1
