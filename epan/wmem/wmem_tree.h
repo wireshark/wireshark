@@ -77,6 +77,11 @@ WS_DLL_PUBLIC
 gboolean
 wmem_tree_is_empty(wmem_tree_t *tree);
 
+/** Returns number of nodes in tree */
+WS_DLL_PUBLIC
+guint
+wmem_tree_count(wmem_tree_t* tree);
+
 /** Insert a node indexed by a guint32 key value.
  *
  * Data is a pointer to the structure you want to be able to retrieve by

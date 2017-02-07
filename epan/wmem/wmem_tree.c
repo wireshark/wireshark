@@ -271,6 +271,27 @@ wmem_tree_is_empty(wmem_tree_t *tree)
     return tree->root == NULL;
 }
 
+static gboolean
+count_nodes(const void *key _U_, void *value _U_, void *userdata)
+{
+    guint* count = (guint*)userdata;
+    (*count)++;
+    return FALSE;
+}
+
+guint
+wmem_tree_count(wmem_tree_t* tree)
+{
+    guint count = 0;
+
+    /* Recursing through the tree counting each node is the simplest approach.
+       We don't keep track of the count within the tree because it can get
+       complicated with subtrees within the tree */
+    wmem_tree_foreach(tree, count_nodes, &count);
+
+    return count;
+}
+
 static wmem_tree_node_t *
 create_node(wmem_allocator_t *allocator, wmem_tree_node_t *parent, const void *key,
         void *data, wmem_node_color_t color, gboolean is_subtree)
