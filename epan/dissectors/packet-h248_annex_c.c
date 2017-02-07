@@ -867,7 +867,7 @@ static void dissect_h248_annexc_SDP_M(proto_tree* tree, tvbuff_t* tvb, packet_in
 					gint32 port = -1;
 					gboolean port_valid;
 					port_valid = ws_strtoi32(port_str, NULL, &port);
-					ti = proto_tree_add_int(tree, hf_h248_sdp_media_port, param_tvb, offset, tokenlen, port);
+					ti = proto_tree_add_uint(tree, hf_h248_sdp_media_port, param_tvb, offset, tokenlen, port);
 					PROTO_ITEM_SET_GENERATED(ti);
 					if (!port_valid)
 						proto_tree_add_expert(tree, pinfo, &ei_h248_sdp_media_port_invalid, param_tvb, offset,
