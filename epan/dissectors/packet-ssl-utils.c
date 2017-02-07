@@ -5824,7 +5824,7 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_item *ti;
     guint32     next_offset, alpn_length, name_length;
     guint8     *proto_name = NULL;
-    guint32     proto_name_length;
+    guint32     proto_name_length = 0;
 
     /* ProtocolName protocol_name_list<2..2^16-1> */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &alpn_length,
