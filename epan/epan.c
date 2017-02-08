@@ -224,7 +224,6 @@ epan_cleanup(void)
 	capture_dissector_cleanup();
 	export_pdu_cleanup();
 	stat_tap_table_cleanup();
-	follow_cleanup();
 	disabled_protos_cleanup();
 	stats_tree_cleanup();
 #ifdef HAVE_LUA
