@@ -24,6 +24,7 @@
 #define __EXPORT_OBJECT_H__
 
 #include "tap.h"
+#include "wmem/wmem.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -111,7 +112,7 @@ WS_DLL_PUBLIC register_eo_t* get_eo_by_name(const char* name);
  * @param func action to be performed on all Export Objects
  * @param user_data any data needed to help perform function
  */
-WS_DLL_PUBLIC void eo_iterate_tables(GFunc func, gpointer user_data);
+WS_DLL_PUBLIC void eo_iterate_tables(wmem_foreach_func func, gpointer user_data);
 
 /** Find all disallowed characters/bytes and replace them with %xx
  *
@@ -134,10 +135,6 @@ WS_DLL_PUBLIC const char *eo_ct2ext(const char *content_type);
  * @param entry export_object_entry_t structure to be freed
  */
 WS_DLL_PUBLIC void eo_free_entry(export_object_entry_t *entry);
-
-/** Free the export objects table
- */
-extern void export_object_cleanup(void);
 
 #ifdef __cplusplus
 }

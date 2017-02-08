@@ -96,12 +96,11 @@ typedef struct _export_object_list_gui_t {
 
 static GHashTable* eo_opts = NULL;
 
-static void
-list_exportobject_protocol(gpointer data, gpointer user_data _U_)
+static gboolean
+list_exportobject_protocol(const void *key, void *value _U_, void *userdata _U_)
 {
-    register_eo_t *eo = (register_eo_t*)data;
-
-    fprintf(stderr, "     %s\n", proto_get_protocol_filter_name(get_eo_proto_id(eo)));
+    fprintf(stderr, "     %s\n", (gchar*)key);
+    return FALSE;
 }
 
 void eo_list_object_types(void)

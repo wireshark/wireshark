@@ -1986,10 +1986,10 @@ void MainWindow::initConversationMenus()
     connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
 }
 
-void MainWindow::addExportObjectsMenuItem(gpointer data, gpointer user_data)
+gboolean MainWindow::addExportObjectsMenuItem(const void *key _U_, void *value, void *userdata)
 {
-    register_eo_t *eo = (register_eo_t*)data;
-    MainWindow *window = (MainWindow*)user_data;
+    register_eo_t *eo = (register_eo_t*)value;
+    MainWindow *window = (MainWindow*)userdata;
 
     ExportObjectAction *export_action = new ExportObjectAction(window->main_ui_->menuFileExportObjects, eo);
     window->main_ui_->menuFileExportObjects->addAction(export_action);
@@ -2000,6 +2000,7 @@ void MainWindow::addExportObjectsMenuItem(gpointer data, gpointer user_data)
     connect(&window->capture_file_, SIGNAL(captureFileOpened()), export_action, SLOT(captureFileOpened()));
     connect(&window->capture_file_, SIGNAL(captureFileClosed()), export_action, SLOT(captureFileClosed()));
     connect(export_action, SIGNAL(triggered()), window, SLOT(applyExportObject()));
+    return FALSE;
 }
 
 void MainWindow::initExportObjectsMenus()

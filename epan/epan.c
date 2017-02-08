@@ -223,7 +223,6 @@ epan_cleanup(void)
 	expert_cleanup();
 	capture_dissector_cleanup();
 	export_pdu_cleanup();
-	export_object_cleanup();
 	stat_tap_table_cleanup();
 	follow_cleanup();
 	disabled_protos_cleanup();

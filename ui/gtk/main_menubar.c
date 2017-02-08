@@ -2818,11 +2818,11 @@ menu_exportobject_cb(GtkAction *action _U_, gpointer user_data)
     exportobject_cb(eo);
 }
 
-static void
-add_export_object_menuitem(gpointer data, gpointer user_data)
+static gboolean
+add_export_object_menuitem(const void *key _U_, void *value, void *userdata)
 {
-    register_eo_t *eo = (register_eo_t*)data;
-    eo_menu_t *eo_menu_data = (eo_menu_t*)user_data;
+    register_eo_t *eo = (register_eo_t*)value;
+    eo_menu_t *eo_menu_data = (eo_menu_t*)userdata;
     gchar *action_name;
     GtkAction *action;
 
@@ -2846,6 +2846,7 @@ add_export_object_menuitem(gpointer data, gpointer user_data)
                 FALSE);
     g_free(action_name);
     eo_menu_data->counter++;
+    return FALSE;
 }
 
 static void
