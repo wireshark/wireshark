@@ -304,6 +304,11 @@ WS_DLL_PUBLIC gboolean copy_file_binary_mode(const char *from_filename,
  */
 WS_DLL_PUBLIC gchar* data_file_url(const gchar *filename);
 
+/*
+ * Free the internal structtures
+ */
+WS_DLL_PUBLIC void free_progdirs(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

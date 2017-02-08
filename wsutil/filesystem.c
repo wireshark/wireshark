@@ -2191,6 +2191,16 @@ data_file_url(const gchar *filename)
     return uri;
 }
 
+void
+free_progdirs(void)
+{
+    g_free(progfile_dir);
+    g_free(plugin_dir);
+#ifdef HAVE_EXTCAP
+    g_free(extcap_dir);
+#endif
+}
+
 /*
  * Editor modelines
  *

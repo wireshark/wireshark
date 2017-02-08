@@ -156,6 +156,10 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
     gchar         *dot;
     int            cr;
 
+    if (!g_file_test(dirname, G_FILE_TEST_EXISTS) || !g_file_test(dirname, G_FILE_TEST_IS_DIR)) {
+        return;
+    }
+
     if ((dir = ws_dir_open(dirname, 0, NULL)) != NULL)
     {
         while ((file = ws_dir_read_name(dir)) != NULL)
@@ -180,6 +184,7 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
 #endif
             g_snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
                        dirname, name);
+
             if ((handle = g_module_open(filename, G_MODULE_BIND_LOCAL)) == NULL)
             {
                 /*
@@ -265,7 +270,6 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
                 g_free(new_plug);
                 continue;
             }
-
         }
         ws_dir_close(dir);
     }
@@ -420,6 +424,29 @@ void
 plugins_dump_all(void)
 {
     plugins_get_descriptions(print_plugin_description, NULL);
+}
+
+void
+plugins_cleanup(void)
+{
+    plugin* prev;
+    plugin* cur;
+
+    if (!plugin_list)
+        return;
+
+    prev = plugin_list;
+    cur = plugin_list->next;
+
+    do {
+        g_free(prev->name);
+        g_free(prev);
+        prev = cur;
+        cur = cur->next;
+    } while(cur);
+
+    g_free(prev->name);
+    g_free(prev);
 }
 
 #endif /* HAVE_PLUGINS */

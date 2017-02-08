@@ -2817,6 +2817,10 @@ clean_exit:
     col_cleanup(&cfile.cinfo);
     free_filter_lists();
     wtap_cleanup();
+    free_progdirs();
+#ifdef HAVE_PLUGINS
+    plugins_cleanup();
+#endif
     return ret;
 }
 

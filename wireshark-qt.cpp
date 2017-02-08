@@ -948,6 +948,10 @@ clean_exit:
 #endif
     col_cleanup(&CaptureFile::globalCapFile()->cinfo);
     wtap_cleanup();
+    free_progdirs();
+#ifdef HAVE_PLUGINS
+    plugins_cleanup();
+#endif
     return ret_val;
 }
 

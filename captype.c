@@ -217,6 +217,10 @@ main(int argc, char *argv[])
   }
 
   wtap_cleanup();
+  free_progdirs();
+#ifdef HAVE_PLUGINS
+  plugins_cleanup();
+#endif
   return overall_error_status;
 }
 

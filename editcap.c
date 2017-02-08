@@ -1898,6 +1898,10 @@ main(int argc, char *argv[])
     wtap_close(wth);
 clean_exit:
     wtap_cleanup();
+    free_progdirs();
+#ifdef HAVE_PLUGINS
+    plugins_cleanup();
+#endif
     return ret;
 
 error_on_exit:
