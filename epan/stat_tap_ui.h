@@ -37,6 +37,7 @@ extern "C" {
 #include <epan/stat_groups.h>
 #include <epan/packet_info.h>
 #include <epan/tap.h>
+#include <epan/wmem/wmem.h>
 
 typedef enum {
     PARAM_UINT,   /* Unused? */
@@ -169,7 +170,7 @@ typedef struct _new_stat_data_t {
 WS_DLL_PUBLIC void register_stat_tap_ui(stat_tap_ui *ui, void *userdata);
 
 WS_DLL_PUBLIC void register_stat_tap_table_ui(stat_tap_table_ui *ui);
-WS_DLL_PUBLIC void new_stat_tap_iterate_tables(GFunc func, gpointer user_data);
+WS_DLL_PUBLIC void new_stat_tap_iterate_tables(wmem_foreach_func func, gpointer user_data);
 WS_DLL_PUBLIC void new_stat_tap_get_filter(stat_tap_table_ui* new_stat, const char *opt_arg, const char **filter, char** err);
 WS_DLL_PUBLIC stat_tap_table* new_stat_tap_init_table(const char *name, int num_fields, int num_elements,
                 const char *filter_string, new_stat_tap_gui_init_cb gui_callback, void* gui_data);
@@ -199,8 +200,6 @@ WS_DLL_PUBLIC gboolean process_stat_cmd_arg(char *optstr);
 WS_DLL_PUBLIC void list_stat_cmd_args(void);
 
 WS_DLL_PUBLIC void start_requested_stats(void);
-
-extern void stat_tap_table_cleanup(void);
 
 #ifdef __cplusplus
 }
