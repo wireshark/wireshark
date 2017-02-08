@@ -197,6 +197,8 @@ static const char *hfinfo_char_value_format(const header_field_info *hfinfo, cha
 static const char *hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
 static const char *hfinfo_numeric_value_format64(const header_field_info *hfinfo, char buf[48], guint64 value);
 
+static void proto_cleanup_base(void);
+
 static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi);
 
@@ -506,7 +508,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	   register_cb cb,
 	   gpointer client_data)
 {
-	proto_cleanup();
+	proto_cleanup_base();
 
 	proto_names        = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, NULL);
 	proto_short_names  = g_hash_table_new(wrs_str_hash, g_str_equal);
@@ -573,8 +575,14 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	tree_is_expanded = g_new0(guint32, (num_tree_types/32)+1);
 }
 
-void
-proto_cleanup(void)
+static void
+dissector_plugin_destroy(gpointer p)
+{
+	g_free(p);
+}
+
+static void
+proto_cleanup_base(void)
 {
 	protocol_t *protocol;
 	header_field_info *hfinfo;
@@ -649,6 +657,17 @@ proto_cleanup(void)
 
 	if (prefixes)
 		g_hash_table_destroy(prefixes);
+}
+
+void
+proto_cleanup(void)
+{
+	proto_cleanup_base();
+
+	if (dissector_plugins) {
+		g_slist_free_full(dissector_plugins, dissector_plugin_destroy);
+		dissector_plugins = NULL;
+	}
 }
 
 static gboolean
