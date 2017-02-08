@@ -208,7 +208,7 @@ register_srt_table(const int proto_id, const char* tap_listener, int max_tables,
     if (registered_srt_tables == NULL)
         registered_srt_tables = wmem_tree_new(wmem_epan_scope());
 
-    wmem_tree_insert_string(registered_srt_tables, wmem_strdup(wmem_epan_scope(), proto_get_protocol_filter_name(proto_id)), table, 0);
+    wmem_tree_insert_string(registered_srt_tables, proto_get_protocol_filter_name(proto_id), table, 0);
 }
 
 void srt_table_iterate_tables(wmem_foreach_func func, gpointer user_data)

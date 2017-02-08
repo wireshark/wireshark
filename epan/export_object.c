@@ -53,7 +53,7 @@ register_export_object(const int proto_id, tap_packet_cb export_packet_func, exp
     if (registered_eo_tables == NULL)
         registered_eo_tables = wmem_tree_new(wmem_epan_scope());
 
-    wmem_tree_insert_string(registered_eo_tables, wmem_strdup(wmem_epan_scope(), proto_get_protocol_filter_name(proto_id)), table, 0);
+    wmem_tree_insert_string(registered_eo_tables, proto_get_protocol_filter_name(proto_id), table, 0);
     return register_tap(table->tap_listen_str);
 }
 

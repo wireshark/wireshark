@@ -91,7 +91,7 @@ register_rtd_table(const int proto_id, const char* tap_listener, guint num_table
     if (registered_rtd_tables == NULL)
         registered_rtd_tables = wmem_tree_new(wmem_epan_scope());
 
-    wmem_tree_insert_string(registered_rtd_tables, wmem_strdup(wmem_epan_scope(), proto_get_protocol_filter_name(proto_id)), table, 0);
+    wmem_tree_insert_string(registered_rtd_tables, proto_get_protocol_filter_name(proto_id), table, 0);
 }
 
 void free_rtd_table(rtd_stat_table* table, rtd_gui_free_cb gui_callback, void *callback_data)
