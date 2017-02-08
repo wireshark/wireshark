@@ -2188,6 +2188,10 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 /* TODO: dissect this? */
                 break;
 
+            case SSL_HND_KEY_UPDATE:
+                tls13_dissect_hnd_key_update(&dissect_ssl3_hf, tvb, tree, offset);
+                break;
+
             case SSL_HND_ENCRYPTED_EXTS:
                 dissect_ssl3_hnd_encrypted_exts(tvb, ssl_hand_tree, offset);
                 break;

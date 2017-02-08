@@ -74,6 +74,7 @@ typedef enum {
     SSL_HND_CERT_URL               = 21,
     SSL_HND_CERT_STATUS            = 22,
     SSL_HND_SUPPLEMENTAL_DATA      = 23,
+    SSL_HND_KEY_UPDATE             = 24,
     /* Encrypted Extensions was NextProtocol in draft-agl-tls-nextprotoneg-03
      * and changed in draft 04. Not to be confused with TLS 1.3 EE. */
     SSL_HND_ENCRYPTED_EXTS         = 67
@@ -224,6 +225,7 @@ extern const value_string ssl_extension_ec_point_formats[];
 extern const value_string ssl_curve_types[];
 extern const value_string tls_hello_ext_server_name_type_vs[];
 extern const value_string tls_hello_ext_psk_ke_mode[];
+extern const value_string tls13_key_update_request[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
@@ -782,8 +784,9 @@ typedef struct ssl_common_dissect {
         gint hs_ext_draft_version_tls13;
         gint hs_ext_psk_ke_modes_len;
         gint hs_ext_psk_ke_mode;
-        gint hs_certificate_request_context;
         gint hs_certificate_request_context_length;
+        gint hs_certificate_request_context;
+        gint hs_key_update_request_update;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -952,6 +955,10 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           proto_tree *tree, guint32 offset, guint32 length,
                           const SslSession *session);
 
+extern void
+tls13_dissect_hnd_key_update(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                             proto_tree *tree, guint32 offset);
+
 /* {{{ */
 #define SSL_COMMON_LIST_T(name) \
 ssl_common_dissect_t name = {   \
@@ -963,7 +970,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                         \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                     \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1588,6 +1595,11 @@ ssl_common_dissect_t name = {   \
       { "Certificate Request Context", prefix ".handshake.certificate_request_context", \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         "Value from CertificateRequest or empty for server auth", HFILL } \
+    },                                                                  \
+    { & name .hf.hs_key_update_request_update,                          \
+      { "Key Update Request", prefix ".handshake.key_update.request_update", \
+        FT_UINT8, BASE_DEC, VALS(tls13_key_update_request), 0x00,       \
+        "Whether the receiver should also update its keys", HFILL }     \
     }
 /* }}} */
 

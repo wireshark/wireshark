@@ -569,6 +569,7 @@ const value_string ssl_31_handshake_type[] = {
     { SSL_HND_CERT_URL,          "Client Certificate URL" },
     { SSL_HND_CERT_STATUS,       "Certificate Status" },
     { SSL_HND_SUPPLEMENTAL_DATA, "Supplemental Data" },
+    { SSL_HND_KEY_UPDATE,        "Key Update" },
     { SSL_HND_ENCRYPTED_EXTS,    "Encrypted Extensions" },
     { 0x00, NULL }
 };
@@ -1202,6 +1203,12 @@ const value_string tls_hello_ext_server_name_type_vs[] = {
 const value_string tls_hello_ext_psk_ke_mode[] = {
     { 0, "PSK-only key establishment (psk_ke)" },
     { 1, "PSK key establishment with (EC)DHE key establishment (psk_dhe_ke)" },
+    { 0, NULL }
+};
+
+const value_string tls13_key_update_request[] = {
+    { 0, "update_not_requested" },
+    { 1, "update_requested" },
     { 0, NULL }
 };
 
@@ -6630,6 +6637,7 @@ ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls)
     case SSL_HND_CERT_URL:
     case SSL_HND_CERT_STATUS:
     case SSL_HND_SUPPLEMENTAL_DATA:
+    case SSL_HND_KEY_UPDATE:
     case SSL_HND_ENCRYPTED_EXTS:
         return TRUE;
     }
@@ -8062,6 +8070,22 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     }
 }
 /* Client Key Exchange and Server Key Exchange handshake dissections. }}} */
+
+void
+tls13_dissect_hnd_key_update(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                             proto_tree *tree, guint32 offset)
+{
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.5.3
+     *  enum {
+     *      update_not_requested(0), update_requested(1), (255)
+     *  } KeyUpdateRequest;
+     *
+     *  struct {
+     *      KeyUpdateRequest request_update;
+     *  } KeyUpdate;
+     */
+    proto_tree_add_item(tree, hf->hf.hs_key_update_request_update, tvb, offset, 1, ENC_NA);
+}
 
 #ifdef HAVE_LIBGCRYPT
 void
