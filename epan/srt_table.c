@@ -137,28 +137,11 @@ void reset_srt_table(GArray* srt_array, srt_gui_reset_cb gui_callback, void *cal
     }
 }
 
-static GSList *registered_srt_tables = NULL;
-
-static gint
-find_matching_srt(gconstpointer arg1, gconstpointer arg2)
-{
-    register_srt_t *srt = (register_srt_t*)arg1;
-    const gchar   *name   = (const gchar *)arg2;
-
-    return strcmp(proto_get_protocol_filter_name(srt->proto_id), name);
-}
+static wmem_tree_t *registered_srt_tables = NULL;
 
 register_srt_t* get_srt_table_by_name(const char* name)
 {
-    GSList *found_srt;
-
-    found_srt = g_slist_find_custom(registered_srt_tables,
-                    (gpointer)name, find_matching_srt);
-
-    if (found_srt)
-        return (register_srt_t*)found_srt->data;
-
-    return NULL;
+    return (register_srt_t*)wmem_tree_lookup_string(registered_srt_tables, name, 0);
 }
 
 gchar* srt_table_get_tap_string(register_srt_t* srt)
@@ -202,15 +185,6 @@ void srt_table_dissector_init(register_srt_t* srt, GArray* srt_array, srt_gui_in
     srt->srt_init(srt, srt_array, gui_callback, callback_data);
 }
 
-static gint
-insert_sorted_by_table_name(gconstpointer aparam, gconstpointer bparam)
-{
-    const register_srt_t *a = (const register_srt_t *)aparam;
-    const register_srt_t *b = (const register_srt_t *)bparam;
-
-    return g_ascii_strcasecmp(proto_get_protocol_short_name(find_protocol_by_id(a->proto_id)), proto_get_protocol_short_name(find_protocol_by_id(b->proto_id)));
-}
-
 void
 register_srt_table(const int proto_id, const char* tap_listener, int max_tables, tap_packet_cb srt_packet_func, srt_init_cb init_cb, srt_param_handler_cb param_cb)
 {
@@ -218,7 +192,7 @@ register_srt_table(const int proto_id, const char* tap_listener, int max_tables,
     DISSECTOR_ASSERT(init_cb);
     DISSECTOR_ASSERT(srt_packet_func);
 
-    table = g_new(register_srt_t,1);
+    table = wmem_new(wmem_epan_scope(), register_srt_t);
 
     table->proto_id      = proto_id;
     if (tap_listener != NULL)
@@ -231,12 +205,15 @@ register_srt_table(const int proto_id, const char* tap_listener, int max_tables,
     table->param_cb      = param_cb;
     table->param_data    = NULL;
 
-    registered_srt_tables = g_slist_insert_sorted(registered_srt_tables, table, insert_sorted_by_table_name);
+    if (registered_srt_tables == NULL)
+        registered_srt_tables = wmem_tree_new(wmem_epan_scope());
+
+    wmem_tree_insert_string(registered_srt_tables, wmem_strdup(wmem_epan_scope(), proto_get_protocol_filter_name(proto_id)), table, 0);
 }
 
-void srt_table_iterate_tables(GFunc func, gpointer user_data)
+void srt_table_iterate_tables(wmem_foreach_func func, gpointer user_data)
 {
-    g_slist_foreach(registered_srt_tables, func, user_data);
+    wmem_tree_foreach(registered_srt_tables, func, user_data);
 }
 
 srt_stat_table*
@@ -307,12 +284,6 @@ add_srt_table_data(srt_stat_table *rst, int indx, const nstime_t *req_time, pack
     nstime_delta(&delta, &t, req_time);
 
     time_stat_update(&rp->stats, &delta, pinfo);
-}
-
-void
-cleanup_srt_table(void)
-{
-    g_slist_free_full(registered_srt_tables, g_free);
 }
 
 /*

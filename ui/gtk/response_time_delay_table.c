@@ -362,9 +362,9 @@ static tap_param rtd_stat_params[] = {
 	{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
 };
 
-void register_response_time_delay_tables(gpointer data, gpointer user_data _U_)
+gboolean register_response_time_delay_tables(const void *key _U_, void *value, void *userdata _U_)
 {
-	register_rtd_t* rtd = (register_rtd_t*)data;
+	register_rtd_t* rtd = (register_rtd_t*)value;
 	const char* short_name = proto_get_protocol_short_name(find_protocol_by_id(get_rtd_proto_id(rtd)));
 	tap_param_dlg* rtd_dlg;
 
@@ -380,6 +380,7 @@ void register_response_time_delay_tables(gpointer data, gpointer user_data _U_)
 	rtd_dlg->user_data = rtd; /* TODO: Actually use this */
 
 	register_param_stat(rtd_dlg, short_name, REGISTER_STAT_GROUP_RESPONSE_TIME);
+    return FALSE;
 }
 
 /*

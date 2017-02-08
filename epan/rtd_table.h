@@ -27,6 +27,7 @@
 #include "tap.h"
 #include "timestats.h"
 #include "value_string.h"
+#include "wmem/wmem.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -142,7 +143,7 @@ WS_DLL_PUBLIC void reset_rtd_table(rtd_stat_table* table, rtd_gui_reset_cb gui_c
  * @param func action to be performed on all converation tables
  * @param user_data any data needed to help perform function
  */
-WS_DLL_PUBLIC void rtd_table_iterate_tables(GFunc func, gpointer user_data);
+WS_DLL_PUBLIC void rtd_table_iterate_tables(wmem_foreach_func func, gpointer user_data);
 
 /** Return filter used for register_tap_listener
  *

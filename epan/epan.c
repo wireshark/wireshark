@@ -226,7 +226,6 @@ epan_cleanup(void)
 	stat_tap_table_cleanup();
 	follow_cleanup();
 	disabled_protos_cleanup();
-	cleanup_srt_table();
 	stats_tree_cleanup();
 #ifdef HAVE_LUA
 	wslua_cleanup();

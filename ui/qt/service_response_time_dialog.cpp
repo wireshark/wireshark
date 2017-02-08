@@ -50,9 +50,9 @@ srt_init(const char *args, void*) {
 }
 }
 
-void register_service_response_tables(gpointer data, gpointer)
+gboolean register_service_response_tables(const void *, void *value, void*)
 {
-    register_srt_t *srt = (register_srt_t*)data;
+    register_srt_t *srt = (register_srt_t*)value;
     const char* short_name = proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt)));
     const char *cfg_abbr = srt_table_get_tap_string(srt);
     tpdCreator tpd_creator = ServiceResponseTimeDialog::createSrtDialog;
@@ -74,6 +74,7 @@ void register_service_response_tables(gpointer data, gpointer)
                 REGISTER_STAT_GROUP_RESPONSE_TIME,
                 srt_init,
                 tpd_creator);
+    return FALSE;
 }
 
 enum {

@@ -838,9 +838,9 @@ static tap_param scsi_stat_params[] = {
 };
 
 
-void register_service_response_tables(gpointer data, gpointer user_data _U_)
+gboolean register_service_response_tables(const void *key _U_, void *value, void *userdata _U_)
 {
-	register_srt_t *srt = (register_srt_t*)data;
+	register_srt_t *srt = (register_srt_t*)value;
 	const char* short_name = proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt)));
 	tap_param_dlg* srt_dlg;
 
@@ -848,7 +848,7 @@ void register_service_response_tables(gpointer data, gpointer user_data _U_)
 	   tap data.  Let those specific dialogs register for themselves */
 	if ((strcmp(short_name, "RPC") == 0) ||
 		(strcmp(short_name, "DCERPC") == 0))
-		return;
+		return FALSE;
 
 	srt_dlg = g_new(tap_param_dlg, 1);
 
@@ -869,6 +869,7 @@ void register_service_response_tables(gpointer data, gpointer user_data _U_)
 	}
 
 	register_param_stat(srt_dlg, short_name, REGISTER_STAT_GROUP_RESPONSE_TIME);
+	return FALSE;
 }
 
 

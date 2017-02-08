@@ -25,6 +25,7 @@
 
 #include "tap.h"
 #include "timestats.h"
+#include "wmem/wmem.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -159,7 +160,7 @@ WS_DLL_PUBLIC void reset_srt_table(GArray* srt_array, srt_gui_reset_cb gui_callb
  * @param func action to be performed on all converation tables
  * @param user_data any data needed to help perform function
  */
-WS_DLL_PUBLIC void srt_table_iterate_tables(GFunc func, gpointer user_data);
+WS_DLL_PUBLIC void srt_table_iterate_tables(wmem_foreach_func func, gpointer user_data);
 
 /** Return filter used for register_tap_listener
  *
@@ -219,10 +220,6 @@ WS_DLL_PUBLIC void init_srt_table_row(srt_stat_table *rst, int proc_index, const
  * @param pinfo current packet info
  */
 WS_DLL_PUBLIC void add_srt_table_data(srt_stat_table *rst, int proc_index, const nstime_t *req_time, packet_info *pinfo);
-
-/** Clean internal structures
- */
-extern void cleanup_srt_table(void);
 
 #ifdef __cplusplus
 }
