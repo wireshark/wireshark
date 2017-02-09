@@ -78,7 +78,7 @@ typedef struct conversation {
 	guint32 setup_frame;		/** frame number that setup this conversation */
 	/* Assume that setup_frame is also the lowest frame number for now. */
 	guint32 last_frame;		/** highest frame number in this conversation */
-	GSList *data_list;			/** list of data associated with conversation */
+	wmem_tree_t *data_list;			/** list of data associated with conversation */
 	wmem_tree_t *dissector_tree;
 								/** tree containing protocol dissector client associated with conversation */
 	guint	options;			/** wildcard flags */

@@ -76,15 +76,6 @@ static conversation_key *conversation_keys;
 static guint32 new_index;
 
 /*
- * Protocol-specific data attached to a conversation_t structure - protocol
- * index and opaque pointer.
- */
-typedef struct _conv_proto_data {
-	int	proto;
-	void	*proto_data;
-} conv_proto_data;
-
-/*
  * Creates a new conversation with known endpoints based on a conversation
  * created with the CONVERSATION_TEMPLATE option while keeping the
  * conversation created with the CONVERSATION_TEMPLATE option so it can still
@@ -456,23 +447,6 @@ conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 }
 
 /*
- * Free the proto_data.  The conversation itself is wmem-allocated with
- * file scope.
- */
-static void
-free_data_list(gpointer value)
-{
-	conversation_t *conv = (conversation_t *)value;
-
-	/* TODO: file scoped wmem_list? There's no singly-linked wmem_ list */
-	g_slist_free(conv->data_list);
-
-	/* Not really necessary, but... */
-	conv->data_list = NULL;
-
-}
-
-/*
  * Destroy all existing conversations
  */
 void
@@ -519,17 +493,17 @@ conversation_init(void)
 	 * above.
 	 */
 	conversation_hashtable_exact =
-	    g_hash_table_new_full(conversation_hash_exact,
-	      conversation_match_exact, NULL, free_data_list);
+	    g_hash_table_new(conversation_hash_exact,
+	      conversation_match_exact);
 	conversation_hashtable_no_addr2 =
-	    g_hash_table_new_full(conversation_hash_no_addr2,
-	      conversation_match_no_addr2, NULL, free_data_list);
+	    g_hash_table_new(conversation_hash_no_addr2,
+	      conversation_match_no_addr2);
 	conversation_hashtable_no_port2 =
-	    g_hash_table_new_full(conversation_hash_no_port2,
-	      conversation_match_no_port2, NULL, free_data_list);
+	    g_hash_table_new(conversation_hash_no_port2,
+	      conversation_match_no_port2);
 	conversation_hashtable_no_addr2_or_port2 =
-	    g_hash_table_new_full(conversation_hash_no_addr2_or_port2,
-	      conversation_match_no_addr2_or_port2, NULL, free_data_list);
+	    g_hash_table_new(conversation_hash_no_addr2_or_port2,
+	      conversation_match_no_addr2_or_port2);
 
 	/*
 	 * Start the conversation indices over at 0.
@@ -1217,70 +1191,31 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 	return NULL;
 }
 
-static gint
-p_compare(gconstpointer a, gconstpointer b)
-{
-	const conv_proto_data *ap = (const conv_proto_data *)a;
-	const conv_proto_data *bp = (const conv_proto_data *)b;
-
-	if (ap->proto > bp->proto)
-		return 1;
-	else if (ap->proto == bp->proto)
-		return 0;
-	else
-		return -1;
-}
-
 void
 conversation_add_proto_data(conversation_t *conv, const int proto, void *proto_data)
 {
-	conv_proto_data *p1 = wmem_new(wmem_file_scope(), conv_proto_data);
-
-	p1->proto = proto;
-	p1->proto_data = proto_data;
-
 	/* Add it to the list of items for this conversation. */
+	if (conv->data_list == NULL)
+		conv->data_list = wmem_tree_new(wmem_file_scope());
 
-	conv->data_list = g_slist_insert_sorted(conv->data_list, (gpointer *)p1,
-	    p_compare);
+	wmem_tree_insert32(conv->data_list, proto, proto_data);
 }
 
 void *
 conversation_get_proto_data(const conversation_t *conv, const int proto)
 {
-	conv_proto_data temp, *p1;
-	GSList *item;
+	/* No tree created yet */
+	if (conv->data_list == NULL)
+		return NULL;
 
-	temp.proto = proto;
-	temp.proto_data = NULL;
-
-	item = g_slist_find_custom(conv->data_list, (gpointer *)&temp,
-	    p_compare);
-
-	if (item != NULL) {
-		p1 = (conv_proto_data *)item->data;
-		return p1->proto_data;
-	}
-
-	return NULL;
+	return wmem_tree_lookup32(conv->data_list, proto);
 }
 
 void
 conversation_delete_proto_data(conversation_t *conv, const int proto)
 {
-	conv_proto_data temp;
-	GSList *item;
-
-	temp.proto = proto;
-	temp.proto_data = NULL;
-
-	item = g_slist_find_custom(conv->data_list, (gpointer *)&temp,
-	    p_compare);
-
-	while(item){
-		conv->data_list = g_slist_remove(conv->data_list, item->data);
-		item=item->next;
-	}
+	if (conv->data_list != NULL)
+		wmem_tree_remove32(conv->data_list, proto);
 }
 
 void
