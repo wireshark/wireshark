@@ -131,6 +131,16 @@ WS_DLL_PUBLIC
 gboolean
 wmem_map_steal(wmem_map_t *map, const void *key);
 
+/** Retrieves a list of keys inside the map
+ *
+ * @param list_allocator The allocator scope for the returned list.
+ * @param map The map to extract keys from
+ * @return list of keys in the map
+ */
+WS_DLL_PUBLIC
+wmem_list_t*
+wmem_map_get_keys(wmem_allocator_t *list_allocator, wmem_map_t *map);
+
 /** Run a function against all key/value pairs in the map. The order
  * of the calls is unpredictable, since it is based on the internal
  * storage of data.
