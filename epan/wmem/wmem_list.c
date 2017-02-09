@@ -202,7 +202,6 @@ wmem_list_insert_sorted(wmem_list_t *list, void* data, GCompareFunc func)
     }
 
     cur = list->head;
-    prev = list->head;
 
     if (func(cur->data, data) >= 0) {
         cur->prev = new_frame;
