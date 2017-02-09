@@ -113,7 +113,6 @@ void epan_cleanup(void);
  * value indicating to which flow the packet belongs.
  */
 void epan_conversation_init(void);
-void epan_conversation_cleanup(void);
 
 /**
  * Initialize the table of circuits.  Circuits are identified by a

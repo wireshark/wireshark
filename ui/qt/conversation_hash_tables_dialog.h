@@ -23,6 +23,7 @@
 #define CONVERSATION_HASH_TABLES_DIALOG_H
 
 #include "geometry_state_dialog.h"
+#include <epan/wmem/wmem.h>
 
 namespace Ui {
 class ConversationHashTablesDialog;
@@ -39,7 +40,7 @@ public:
 private:
     Ui::ConversationHashTablesDialog *ui;
 
-    const QString hashTableToHtmlTable(const QString table_name, struct _GHashTable *hash_table);
+    const QString hashTableToHtmlTable(const QString table_name, wmem_map_t *hash_table);
 };
 
 #endif // CONVERSATION_HASH_TABLES_DIALOG_H

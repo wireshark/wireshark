@@ -320,11 +320,6 @@ init_dissection(void)
 void
 cleanup_dissection(void)
 {
-	/* Cleanup the table of conversations. Do this before freeing seasonal
-	 * memory (at least until conversation's use of g_slist is changed).
-	 */
-	epan_conversation_cleanup();
-
 	/* Cleanup the table of circuits. */
 	epan_circuit_cleanup();
 

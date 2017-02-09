@@ -86,15 +86,14 @@ typedef struct conversation {
 } conversation_t;
 
 /**
- * Destroy all existing conversations
+ * Create a new hash tables for conversations.
  */
-extern void conversation_cleanup(void);
+extern void conversation_init(void);
 
 /**
  * Initialize some variables every time a file is loaded or re-loaded.
- * Create a new hash table for the conversations in the new file.
  */
-extern void conversation_init(void);
+extern void conversation_epan_reset(void);
 
 /*
  * Given two address/port pairs for a packet, create a new conversation
@@ -189,16 +188,16 @@ extern void conversation_set_port2(conversation_t *conv, const guint32 port);
 extern void conversation_set_addr2(conversation_t *conv, const address *addr);
 
 WS_DLL_PUBLIC
-GHashTable *get_conversation_hashtable_exact(void);
+wmem_map_t *get_conversation_hashtable_exact(void);
 
 WS_DLL_PUBLIC
-GHashTable *get_conversation_hashtable_no_addr2(void);
+wmem_map_t *get_conversation_hashtable_no_addr2(void);
 
 WS_DLL_PUBLIC
-GHashTable * get_conversation_hashtable_no_port2(void);
+wmem_map_t * get_conversation_hashtable_no_port2(void);
 
 WS_DLL_PUBLIC
-GHashTable *get_conversation_hashtable_no_addr2_or_port2(void);
+wmem_map_t *get_conversation_hashtable_no_addr2_or_port2(void);
 
 
 #ifdef __cplusplus
