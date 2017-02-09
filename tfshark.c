@@ -1054,6 +1054,7 @@ main(int argc, char *argv[])
   funnel_dump_all_text_windows();
 
 clean_exit:
+  destroy_print_stream(print_stream);
   epan_free(cfile.epan);
   epan_cleanup();
 #ifdef HAVE_EXTCAP

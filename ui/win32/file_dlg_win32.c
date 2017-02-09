@@ -684,6 +684,7 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
     print_args.print_dissections   = print_dissections_as_displayed;
     print_args.print_hex           = FALSE;
     print_args.print_formfeed      = FALSE;
+    print_args.stream              = NULL;
 
     if (GetSaveFileName(ofn)) {
         print_args.file = utf_16to8(file_name);

@@ -98,7 +98,7 @@ print_finale(print_stream_t *self)
 gboolean
 destroy_print_stream(print_stream_t *self)
 {
-    return self->ops->destroy ? (self->ops->destroy)(self) : TRUE;
+    return (self && self->ops && self->ops->destroy) ? (self->ops->destroy)(self) : TRUE;
 }
 
 typedef struct {

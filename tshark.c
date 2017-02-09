@@ -185,7 +185,7 @@ static gboolean line_buffered;
 static gboolean really_quiet = FALSE;
 
 static print_format_e print_format = PR_FMT_TEXT;
-static print_stream_t *print_stream;
+static print_stream_t *print_stream = NULL;
 
 static output_fields_t* output_fields  = NULL;
 static gchar **protocolfilter = NULL;
@@ -2205,6 +2205,7 @@ main(int argc, char *argv[])
   output_fields = NULL;
 
 clean_exit:
+  destroy_print_stream(print_stream);
 #ifdef HAVE_LIBPCAP
   capture_opts_cleanup(&global_capture_opts);
 #endif
