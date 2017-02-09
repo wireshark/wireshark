@@ -54,7 +54,7 @@
 #include "packet-ssl-utils.h"
 #include "packet-ssl.h"
 #include "packet-dtls.h"
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
 #include <gnutls/abstract.h>
 #endif
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
@@ -1633,7 +1633,6 @@ ssl_data_set(StringInfo* str, const guchar* data, guint len)
     str->data_len = len;
 }
 
-#ifdef HAVE_LIBGCRYPT
 static gint
 ssl_data_realloc(StringInfo* str, guint len)
 {
@@ -1666,7 +1665,6 @@ ssl_data_copy(StringInfo* dst, StringInfo* src)
     dst->data_len = src->data_len;
     return 0;
 }
-#endif
 
 /* from_hex converts |hex_len| bytes of hex data from |in| and sets |*out| to
  * the result. |out->data| will be allocated using wmem_file_scope. Returns TRUE on
@@ -1690,8 +1688,6 @@ static gboolean from_hex(StringInfo* out, const char* in, gsize hex_len) {
 }
 /* StringInfo structure (len + data) functions }}} */
 
-
-#ifdef HAVE_LIBGCRYPT
 
 /* libgcrypt wrappers for HMAC/message digest operations {{{ */
 /* hmac abstraction layer */
@@ -2019,18 +2015,6 @@ out:
 } /* }}} */
 #endif /* HAVE_LIBGNUTLS */
 
-#else /* ! HAVE_LIBGCRYPT */
-
-gint
-ssl_cipher_setiv(SSL_CIPHER_CTX *cipher _U_, guchar* iv _U_, gint iv_len _U_)
-{
-    ssl_debug_printf("ssl_cipher_setiv: impossible without gnutls.\n");
-    return 0;
-}
-#endif /* ! HAVE_LIBGCRYPT */
-
-
-#ifdef HAVE_LIBGCRYPT /* Save space if decryption is not enabled. */
 
 /* Digests, Ciphers and Cipher Suites registry {{{ */
 static const SslDigestAlgo digests[]={
@@ -2381,26 +2365,9 @@ ssl_get_cipher_export_keymat_size(int cipher_suite_num)
         return 0;
     }
 }
-#else /* ! HAVE_LIBGCRYPT */
-const SslCipherSuite *
-ssl_find_cipher(int num)
-{
-    ssl_debug_printf("ssl_find_cipher: dummy without gnutls. num %d\n",
-        num);
-    return NULL;
-}
-
-guint
-ssl_get_cipher_blocksize(const SslCipherSuite *cipher_suite _U_)
-{
-    return 0;
-}
-#endif /* ! HAVE_LIBGCRYPT */
 
 /* Digests, Ciphers and Cipher Suites registry }}} */
 
-
-#ifdef HAVE_LIBGCRYPT
 
 /* HMAC and the Pseudorandom function {{{ */
 static void
@@ -2760,45 +2727,6 @@ tls13_hkdf_expand_label(int md, const StringInfo *secret, const char *label, con
 }
 /* HMAC and the Pseudorandom function }}} */
 
-#else /* ! HAVE_LIBGCRYPT */
-/* Stub code when decryption support is not available. {{{ */
-gboolean
-ssl_generate_pre_master_secret(SslDecryptSession *ssl_session _U_,
-        guint32 length _U_, tvbuff_t *tvb _U_, guint32 offset _U_,
-        const gchar *ssl_psk _U_, const ssl_master_key_map_t *mk_map _U_)
-{
-    ssl_debug_printf("%s: impossible without gnutls.\n", G_STRFUNC);
-    return FALSE;
-}
-int
-ssl_generate_keyring_material(SslDecryptSession*ssl)
-{
-    ssl_debug_printf("ssl_generate_keyring_material: impossible without gnutls. ssl %p\n",
-        ssl);
-    /* We cannot determine whether the cipher suite is valid. Fail such that
-     * ssl_set_master_secret bails out. */
-    return -1;
-}
-void
-ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
-{
-    ssl_debug_printf("ssl_change_cipher %s: makes no sense without gnutls. ssl %p\n",
-        (server)?"SERVER":"CLIENT", ssl_session);
-}
-
-int
-ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
-        const guchar *in, guint16 inl, StringInfo *comp_str _U_, StringInfo *out_str, guint *outl)
-{
-    ssl_debug_printf("ssl_decrypt_record: impossible without gnutls. ssl %p"
-        "decoder %p ct %d version %d in %p inl %d out %p outl %p\n", ssl, decoder, ct,
-        record_version, in, inl, out_str, outl);
-    return 0;
-}
-/* }}} */
-#endif /* ! HAVE_LIBGCRYPT */
-
-#ifdef HAVE_LIBGCRYPT
 /* Record Decompression (after decryption) {{{ */
 #ifdef HAVE_ZLIB
 /* memory allocation functions for zlib initialization */
@@ -2893,9 +2821,7 @@ ssl_decompress_record(SslDecompress* decomp _U_, const guchar* in _U_, guint inl
 }
 #endif
 /* Record Decompression (after decryption) }}} */
-#endif /* HAVE_LIBGCRYPT */
 
-#ifdef HAVE_LIBGCRYPT
 /* Create a new structure to store decrypted chunks. {{{ */
 static SslFlow*
 ssl_create_flow(void)
@@ -4136,10 +4062,8 @@ skip_mac:
 }
 /* Record decryption glue based on security parameters }}} */
 
-#endif /* HAVE_LIBGCRYPT */
 
-
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
 /* RSA private key file processing {{{ */
 #define RSA_PARS 6
 static gcry_sexp_t
@@ -4487,12 +4411,12 @@ end:
 
 /* RSA private key file processing }}} */
 
-#else /* ! (defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)) */
+#else /* ! defined(HAVE_LIBGNUTLS) */
 void
 ssl_private_key_free(gpointer key _U_)
 {
 }
-#endif /* ! (defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)) */
+#endif /* ! defined(HAVE_LIBGNUTLS) */
 
 
 /*--- Start of dissector-related code below ---*/
@@ -4562,7 +4486,7 @@ static void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, gbool
             clear_flags |= SSL_SERVER_EXTENDED_MASTER_SECRET | SSL_NEW_SESSION_TICKET;
             ssl->server_random.data_len = 0;
             ssl->pre_master_secret.data_len = 0;
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
             ssl->private_key = NULL;
 #endif
             ssl->psk.data_len = 0;
@@ -4893,7 +4817,7 @@ ssl_common_cleanup(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
 /* }}} */
 
 /* parse ssl related preferences (private keys and ports association strings) */
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
 /* Load a single RSA key file item from preferences. {{{ */
 void
 ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const char* dissector_table_name, dissector_handle_t main_handle, gboolean tcp)
@@ -4979,7 +4903,6 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats _U_, GHashTable *key_hash _U_,
 #endif
 
 
-#ifdef HAVE_LIBGCRYPT /* useless without decryption support. */
 /* Store/load a known (pre-)master secret from/for this SSL session. {{{ */
 /** store a known (pre-)master secret into cache */
 static void
@@ -5239,7 +5162,6 @@ tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server)
     wmem_free(NULL, new_secret);
     tls13_generate_keys(ssl, app_secret, is_from_server);
 }
-#endif /* HAVE_LIBGCRYPT */
 
 /** SSL keylog file handling. {{{ */
 
@@ -5502,9 +5424,7 @@ ssl_set_debug(const gchar* name)
 #ifdef HAVE_LIBGNUTLS
     ssl_debug_printf("GnuTLS version:    %s\n", gnutls_check_version(NULL));
 #endif
-#ifdef HAVE_LIBGCRYPT
     ssl_debug_printf("Libgcrypt version: %s\n", gcry_check_version(NULL));
-#endif
     ssl_debug_printf("\n");
 }
 
@@ -5617,7 +5537,7 @@ ssldecrypt_uat_fld_fileopen_chk_cb(void* r _U_, const char* p, guint len _U_, co
 gboolean
 ssldecrypt_uat_fld_password_chk_cb(void *r _U_, const char *p _U_, guint len _U_, const void *u1 _U_, const void *u2 _U_, char **err)
 {
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
     ssldecrypt_assoc_t*  f  = (ssldecrypt_assoc_t *)r;
     FILE                *fp = NULL;
 
@@ -6965,8 +6885,8 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 void
 ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, guint32 offset, guint32 offset_end,
-                               const SslSession *session, SslDecryptSession *ssl _U_,
-                               GHashTable *session_hash _U_)
+                               const SslSession *session, SslDecryptSession *ssl,
+                               GHashTable *session_hash)
 {
     /* https://tools.ietf.org/html/rfc5077#section-3.3 (TLS >= 1.0):
      *  struct {
@@ -7013,7 +6933,6 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
     proto_tree_add_item(subtree, hf->hf.hs_session_ticket,
                         tvb, offset, ticket_len, ENC_NA);
     /* save the session ticket to cache for ssl_finalize_decryption */
-#ifdef HAVE_LIBGCRYPT
     if (ssl && !is_tls13) {
         tvb_ensure_bytes_exist(tvb, offset, ticket_len);
         ssl->session_ticket.data = (guchar*)wmem_realloc(wmem_file_scope(),
@@ -7029,7 +6948,6 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
                             &ssl->session_ticket, &ssl->master_secret);
         ssl->state |= SSL_NEW_SESSION_TICKET;
     }
-#endif
     offset += ticket_len;
 
     if (is_tls13) {
@@ -7116,7 +7034,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
      */
     enum { CERT_X509, CERT_RPK } cert_type;
     asn1_ctx_t  asn1_ctx;
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
     gnutls_datum_t subjectPublicKeyInfo = { NULL, 0 };
 #endif
     guint32 next_offset;
@@ -7130,7 +7048,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
         cert_type = CERT_X509;
     }
 
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
     /* Ask the pkcs1 dissector to return the public key details */
     if (ssl)
         asn1_ctx.private_data = &subjectPublicKeyInfo;
@@ -7201,7 +7119,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                     offset += 3;
 
                     dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf->hf.hs_certificate);
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
                     /* Only attempt to get the RSA modulus for the first cert. */
                     asn1_ctx.private_data = NULL;
 #endif
@@ -7227,7 +7145,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
         }
     }
 
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
     if (is_from_server && ssl)
         ssl_find_private_key_by_pubkey(ssl, key_hash, &subjectPublicKeyInfo);
 #endif
@@ -8142,7 +8060,6 @@ tls13_dissect_hnd_key_update(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_tree_add_item(tree, hf->hf.hs_key_update_request_update, tvb, offset, 1, ENC_NA);
 }
 
-#ifdef HAVE_LIBGCRYPT
 void
 ssl_common_register_options(module_t *module, ssl_common_options_t *options)
 {
@@ -8169,12 +8086,6 @@ ssl_common_register_options(module_t *module, ssl_common_options_t *options)
              "(All fields are in hex notation)",
              &(options->keylog_filename));
 }
-#else
-void
-ssl_common_register_options(module_t *module _U_, ssl_common_options_t *options _U_)
-{
-}
-#endif
 
 void
 ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, guint32 offset, guint32 length)

@@ -403,7 +403,6 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /*An exception will occur if there are not enough bytes for the MIC */
         proto_tree_add_item_ret_uint(lwm_tree, hf_lwm_mic, new_tvb, start, LWM_MIC_LEN, ENC_LITTLE_ENDIAN, &lwm_mic);
 
-#ifdef HAVE_LIBGCRYPT
         if(lwmes_key_valid)
         {
             ieee802154_packet *ieee_packet = NULL;
@@ -503,15 +502,6 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
             call_data_dissector(new_tvb, pinfo, lwm_tree);
         }
-#else /* ! HAVE_LIBGCRYPT */
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                 "Encrypted data (%i byte(s)): libgcrypt not present, cannot decrypt",
-                  tvb_reported_length(new_tvb) - LWM_MIC_LEN);
-
-        expert_add_info(pinfo, lwm_tree, &ei_lwm_no_decryption_key);
-        tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
-        call_data_dissector(new_tvb, pinfo, lwm_tree);
-#endif /* ! HAVE_LIBGCRYPT */
     }
     /*stack command endpoint 0 and not secured*/
     else if( (lwm_src_endp == 0) && (lwm_dst_endp == 0) ){

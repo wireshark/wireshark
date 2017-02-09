@@ -184,7 +184,6 @@ static int ett_c1222_flags = -1;
 static int ett_c1222_crypto = -1;
 static int ett_c1222_cmd = -1;
 
-#ifdef HAVE_LIBGCRYPT
 /* these pointers are for the header elements that may be needed to verify the crypto */
 static guint8 *aSO_context = NULL;
 static guint8 *called_AP_title = NULL;
@@ -210,7 +209,6 @@ static guint32 user_information_len = 0;
 static guint32 calling_AP_title_len = 0;
 static guint32 key_id_element_len = 0;
 static guint32 iv_element_len = 0;
-#endif /* HAVE_LIBGCRYPT */
 
 
 /*--- Included file: packet-c1222-ett.c ---*/
@@ -225,16 +223,12 @@ static gint ett_c1222_Calling_authentication_value_c1222_U = -1;
 static gint ett_c1222_Calling_authentication_value_c1221_U = -1;
 
 /*--- End of included file: packet-c1222-ett.c ---*/
-#line 178 "./asn1/c1222/packet-c1222-template.c"
+#line 176 "./asn1/c1222/packet-c1222-template.c"
 
 static expert_field ei_c1222_command_truncated = EI_INIT;
 static expert_field ei_c1222_bad_checksum = EI_INIT;
 static expert_field ei_c1222_epsem_missing = EI_INIT;
-#ifdef HAVE_LIBGCRYPT
 static expert_field ei_c1222_epsem_failed_authentication = EI_INIT;
-#else
-static expert_field ei_c1222_epsem_not_authenticated = EI_INIT;
-#endif
 static expert_field ei_c1222_epsem_not_decryped = EI_INIT;
 static expert_field ei_c1222_ed_class_missing = EI_INIT;
 static expert_field ei_c1222_epsem_ber_length_error = EI_INIT;
@@ -243,9 +237,7 @@ static expert_field ei_c1222_mac_missing = EI_INIT;
 
 /* Preferences */
 static gboolean c1222_desegment = TRUE;
-#ifdef HAVE_LIBGCRYPT
 static gboolean c1222_decrypt = TRUE;
-#endif
 static const gchar *c1222_baseoid_str = NULL;
 static guint8 *c1222_baseoid = NULL;
 static guint c1222_baseoid_len = 0;
@@ -334,7 +326,6 @@ static const value_string commandnames[] = {
   { 0, NULL }
 };
 
-#ifdef HAVE_LIBGCRYPT
 /* these are for the key tables */
 typedef struct _c1222_uat_data {
   guint keynum;
@@ -377,12 +368,6 @@ static uat_t *c1222_uat;
       fieldname##_len = length; \
       break; \
   }
-#else /* HAVE_LIBGCRYPT */
-#define FILL_TABLE(fieldname)
-#define FILL_TABLE_TRUNCATE(fieldname, len)
-#define FILL_TABLE_APTITLE(fieldname)
-#define FILL_START
-#endif /* HAVE_LIBGCRYPT */
 
 /*------------------------------
  * Function Prototypes
@@ -680,7 +665,6 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
   }
 }
 
-#ifdef HAVE_LIBGCRYPT
 typedef struct tagTOP_ELEMENT_CONTROL
 {
   /* TRUE if this tag is required */
@@ -901,7 +885,6 @@ decrypt_packet(guchar *buffer, guint32 length, gboolean decrypt)
   }
   return status;
 }
-#endif /* HAVE_LIBGCRYPT */
 
 /**
  * Checks to make sure that a complete, valid BER-encoded length is in the buffer.
@@ -965,9 +948,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
   gint len2;
   int cmd_err;
   gboolean ind;
-#ifdef HAVE_LIBGCRYPT
   guchar *buffer;
-#endif
   tvbuff_t *epsem_buffer = NULL;
   gboolean crypto_good = FALSE;
   gboolean crypto_bad = FALSE;
@@ -990,7 +971,6 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       if (len2 <= 0)
         return offset;
       encrypted = TRUE;
-#ifdef HAVE_LIBGCRYPT
       if (c1222_decrypt) {
         buffer = (guchar *)tvb_memdup(pinfo->pool, tvb, offset, len2);
         if (!decrypt_packet(buffer, len2, TRUE)) {
@@ -1003,7 +983,6 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
           encrypted = FALSE;
         }
       }
-#endif
       break;
     case EAX_MODE_CLEARTEXT_AUTH:
       /* mode is cleartext with authentication */
@@ -1012,7 +991,6 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       if (len2 <= 0)
         return offset;
       epsem_buffer = tvb_new_subset_remaining(tvb, offset);
-#ifdef HAVE_LIBGCRYPT
       buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
       if (c1222_decrypt) {
         if (!decrypt_packet(buffer, len2, FALSE)) {
@@ -1022,9 +1000,6 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
           crypto_good = TRUE;
         }
       }
-#else /* HAVE_LIBGCRYPT */
-      expert_add_info(pinfo, tree, &ei_c1222_epsem_not_authenticated);
-#endif /* HAVE_LIBGCRYPT */
       break;
     default:
       /* it's not encrypted */
@@ -1536,9 +1511,7 @@ dissect_c1222_MESSAGE_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_c1222_MESSAGE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 100 "./asn1/c1222/c1222.cnf"
-/**/#ifdef HAVE_LIBGCRYPT
   clear_canon();
-/**/#endif
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 0, TRUE, dissect_c1222_MESSAGE_U);
 
@@ -1559,7 +1532,7 @@ static int dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 1041 "./asn1/c1222/packet-c1222-template.c"
+#line 1016 "./asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1951,7 +1924,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1328 "./asn1/c1222/packet-c1222-template.c"
+#line 1303 "./asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1974,18 +1947,14 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1338 "./asn1/c1222/packet-c1222-template.c"
+#line 1313 "./asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {
     { &ei_c1222_command_truncated, { "c1222.command_truncated", PI_MALFORMED, PI_ERROR, "C12.22 command truncated", EXPFILL }},
     { &ei_c1222_bad_checksum, { "c1222.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     { &ei_c1222_epsem_missing, { "c1222.epsem.missing", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM missing", EXPFILL }},
-#ifdef HAVE_LIBGCRYPT
     { &ei_c1222_epsem_failed_authentication, { "c1222.epsem.failed_authentication", PI_SECURITY, PI_ERROR, "C12.22 EPSEM failed authentication", EXPFILL }},
-#else
-    { &ei_c1222_epsem_not_authenticated, { "c1222.epsem.not_authenticated", PI_SECURITY, PI_WARN, "C12.22 EPSEM could not be authenticated", EXPFILL }},
-#endif
     { &ei_c1222_epsem_not_decryped, { "c1222.epsem.not_decryped", PI_UNDECODED, PI_WARN, "C12.22 EPSEM could not be decrypted", EXPFILL }},
     { &ei_c1222_ed_class_missing, { "c1222.ed_class_missing", PI_SECURITY, PI_ERROR, "C12.22 ED Class missing", EXPFILL }},
     { &ei_c1222_epsem_ber_length_error, { "c1222.epsem.ber_length_error", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM BER length error", EXPFILL }},
@@ -1996,13 +1965,11 @@ void proto_register_c1222(void) {
   expert_module_t* expert_c1222;
   module_t *c1222_module;
 
-#ifdef HAVE_LIBGCRYPT
   static uat_field_t c1222_uat_flds[] = {
     UAT_FLD_HEX(c1222_users,keynum,"Key ID","Key identifier in hexadecimal"),
     UAT_FLD_BUFFER(c1222_users, key, "Key", "Encryption key as 16-byte hex string"),
     UAT_END_FIELDS
   };
-#endif /* HAVE_LIBGCRYPT */
 
   /* Register protocol */
   proto_c1222 = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -2019,7 +1986,6 @@ void proto_register_c1222(void) {
   prefs_register_string_preference(c1222_module, "baseoid", "Base OID to use for relative OIDs",
         "Base object identifier for use in resolving relative object identifiers",
         &c1222_baseoid_str);
-#ifdef HAVE_LIBGCRYPT
   prefs_register_bool_preference(c1222_module, "decrypt",
         "Verify crypto for all applicable C12.22 messages",
         "Whether the C12.22 dissector should verify the crypto for all relevant messages",
@@ -2045,7 +2011,6 @@ void proto_register_c1222(void) {
       "Decryption Table",
       "Table of security parameters for decryption of C12.22 packets",
       c1222_uat);
-#endif /* HAVE_LIBGCRYPT */
 }
 
 /*--- proto_reg_handoff_c1222 ---------------------------------------*/

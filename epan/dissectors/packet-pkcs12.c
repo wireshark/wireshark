@@ -173,8 +173,6 @@ static void append_oid(proto_tree *tree, const char *oid)
 	proto_item_append_text(tree, " (%s)", name ? name : oid);
 }
 
-#ifdef HAVE_LIBGCRYPT
-
 static int
 generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
 		       const char *pw, unsigned int req_keylen, char * keybuf)
@@ -297,8 +295,6 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
   }
 }
 
-#endif
-
 void PBE_reset_parameters(void)
 {
 	iteration_count = 0;
@@ -307,7 +303,6 @@ void PBE_reset_parameters(void)
 
 int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encrypted_tvb _U_, packet_info *pinfo _U_, asn1_ctx_t *actx _U_, proto_item *item _U_)
 {
-#ifdef HAVE_LIBGCRYPT
 	const char	*encryption_algorithm;
 	gcry_cipher_hd_t cipher;
 	gcry_error_t	err;
@@ -461,11 +456,6 @@ int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encry
 	call_ber_oid_callback(object_identifier_id_param, clear_tvb, 0, actx->pinfo, tree, NULL);
 
 	return TRUE;
-#else
-	/* we cannot decrypt */
-	return FALSE;
-
-#endif
 }
 
 
@@ -1129,7 +1119,7 @@ static int dissect_PBMAC1Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-pkcs12-fn.c ---*/
-#line 384 "./asn1/pkcs12/packet-pkcs12-template.c"
+#line 374 "./asn1/pkcs12/packet-pkcs12-template.c"
 
 static int strip_octet_string(tvbuff_t *tvb)
 {
@@ -1414,7 +1404,7 @@ void proto_register_pkcs12(void) {
         "AlgorithmIdentifier", HFILL }},
 
 /*--- End of included file: packet-pkcs12-hfarr.c ---*/
-#line 460 "./asn1/pkcs12/packet-pkcs12-template.c"
+#line 450 "./asn1/pkcs12/packet-pkcs12-template.c"
   };
 
   /* List of subtrees */
@@ -1444,7 +1434,7 @@ void proto_register_pkcs12(void) {
     &ett_pkcs12_PBMAC1Params,
 
 /*--- End of included file: packet-pkcs12-ettarr.c ---*/
-#line 466 "./asn1/pkcs12/packet-pkcs12-template.c"
+#line 456 "./asn1/pkcs12/packet-pkcs12-template.c"
   };
   static ei_register_info ei[] = {
       { &ei_pkcs12_octet_string_expected, { "pkcs12.octet_string_expected", PI_PROTOCOL, PI_WARN, "BER Error: OCTET STRING expected", EXPFILL }},
@@ -1512,7 +1502,7 @@ void proto_reg_handoff_pkcs12(void) {
 
 
 /*--- End of included file: packet-pkcs12-dis-tab.c ---*/
-#line 505 "./asn1/pkcs12/packet-pkcs12-template.c"
+#line 495 "./asn1/pkcs12/packet-pkcs12-template.c"
 
 	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
 

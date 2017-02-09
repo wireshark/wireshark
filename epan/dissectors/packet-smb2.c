@@ -940,12 +940,11 @@ smb2_conv_destroy(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 	return FALSE;
 }
 
-static void smb2_key_derivation(const guint8 *KI _U_, guint32 KI_len _U_,
-			 const guint8 *Label _U_, guint32 Label_len _U_,
-			 const guint8 *Context _U_, guint32 Context_len _U_,
+static void smb2_key_derivation(const guint8 *KI, guint32 KI_len,
+			 const guint8 *Label, guint32 Label_len,
+			 const guint8 *Context, guint32 Context_len,
 			 guint8 KO[16])
 {
-#ifdef HAVE_LIBGCRYPT
 	gcry_md_hd_t  hd     = NULL;
 	guint8        buf[4];
 	guint8       *digest = NULL;
@@ -972,9 +971,6 @@ static void smb2_key_derivation(const guint8 *KI _U_, guint32 KI_len _U_,
 	memcpy(KO, digest, 16);
 
 	gcry_md_close(hd);
-#else
-	memset(KO, 0, 16);
-#endif
 }
 
 /* for export-object-smb2 */
@@ -8361,7 +8357,7 @@ static smb2_function smb2_dissector[256] = {
 #define ENC_ALG_aes128_ccm	0x0001
 
 static int
-dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
+dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 			      tvbuff_t *tvb, int offset,
 			      smb2_transform_info_t *sti,
 			      tvbuff_t **enc_tvb, tvbuff_t **plain_tvb)
@@ -8371,9 +8367,7 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
 	smb2_sesid_info_t  sesid_key;
 	int                sesid_offset;
 	guint8            *plain_data     = NULL;
-#ifdef HAVE_LIBGCRYPT
 	guint8            *decryption_key = NULL;
-#endif
 	proto_item        *item;
 
 	static const int *sf_fields[] = {
@@ -8435,7 +8429,6 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 
-#ifdef HAVE_LIBGCRYPT
 	if (sti->session != NULL && sti->alg == ENC_ALG_aes128_ccm) {
 		if (pinfo->destport == sti->session->server_port) {
 			decryption_key = sti->session->server_decryption_key;
@@ -8491,7 +8484,6 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
 		gcry_cipher_close(cipher_hd);
 	}
 done_decryption:
-#endif
 	*enc_tvb = tvb_new_subset_length(tvb, offset, sti->size);
 
 	if (plain_data != NULL) {

@@ -399,10 +399,9 @@ platform-dependent implementations and platform-independent APIs, such
 as the routines in epan/filesystem.c, allowing the code that calls it to
 be written portably without #ifdefs.
 
-Wireshark uses libgcrypt as general-purpose crypto library. To use it from
-your dissector, protect libgcrypt calls with #ifdef HAVE_LIBGCRYPT. Don't
-include gcrypt.h directly, include the wrapper file wsutil/wsgcrypt.h
-instead.
+Wireshark uses Libgcrypt as general-purpose crypto library. To use it from
+your dissector, do not include gcrypt.h directly, but use the wrapper file
+wsutil/wsgcrypt.h instead.
 
 2. String handling
 

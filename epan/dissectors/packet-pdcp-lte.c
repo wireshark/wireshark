@@ -1514,12 +1514,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
 #endif
     }
     else
-    if (pdu_security_settings->ciphering == eea2) {
-#ifndef HAVE_LIBGCRYPT
-        return tvb;
-#endif
-    }
-    else {
+    if (pdu_security_settings->ciphering != eea2) {
         /* An algorithm we don't support at all! */
         return tvb;
     }
@@ -1545,7 +1540,6 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         return tvb;
     }
 
-#ifdef HAVE_LIBGCRYPT
     /* AES */
     if (pdu_security_settings->ciphering == eea2) {
         unsigned char ctr_block[16];
@@ -1597,7 +1591,6 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         /* Close gcrypt handle */
         gcry_cipher_close(cypher_hd);
     }
-#endif
 
 #ifdef HAVE_SNOW3G
     /* SNOW-3G */
@@ -1672,7 +1665,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
             }
 #endif
 
-#if (defined GCRYPT_VERSION_NUMBER) && (GCRYPT_VERSION_NUMBER >= 0x010600)
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
         case eia2:
             {
                 gcry_mac_hd_t mac_hd;

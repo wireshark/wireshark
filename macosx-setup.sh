@@ -118,9 +118,14 @@ LIBSMI_VERSION=0.4.8
 #
 LIBGPG_ERROR_VERSION=1.10
 #
-# libgcrypt is required for GnuTLS.
+# libgcrypt is required.
 #
 LIBGCRYPT_VERSION=1.5.0
+#
+# GnuTLS is optional.
+# Note that since GnuTLS 3.0.8, Libgcrypt can no longer be used and nettle is
+# needed (which is not yet installed by this script).
+#
 GNUTLS_VERSION=2.12.19
 # Use 5.2.4, not 5.3, for now; lua_bitop.c hasn't been ported to 5.3
 # yet, and we need to check for compatibility issues (we'd want Lua
@@ -1309,9 +1314,8 @@ install_gnutls() {
         bzcat gnutls-$GNUTLS_VERSION.tar.bz2 | tar xf - || exit 1
         cd gnutls-$GNUTLS_VERSION
         #
-        # Use libgcrypt, not nettle.
-        # XXX - is there some reason to prefer nettle?  Or does
-        # Wireshark directly use libgcrypt routines?
+        # Use libgcrypt instead of nettle since it is already required by
+        # Wireshark.
         #
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --with-libgcrypt --without-p11-kit || exit 1
         make $MAKE_BUILD_OPTS || exit 1

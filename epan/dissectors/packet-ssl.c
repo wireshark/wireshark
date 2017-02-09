@@ -332,9 +332,7 @@ static ssl_common_options_t ssl_options = { NULL, NULL};
 /* List of dissectors to call for SSL data */
 static heur_dissector_list_t ssl_heur_subdissector_list;
 
-#ifdef HAVE_LIBGCRYPT
 static const gchar *ssl_debug_file_name     = NULL;
-#endif
 
 
 /* Forward declaration we need below */
@@ -427,7 +425,7 @@ ssl_parse_uat(void)
     ssl_debug_flush();
 }
 
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
 static void
 ssl_reset_uat(void)
 {
@@ -3703,7 +3701,7 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, const guint32 offset,
 
 /* UAT */
 
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
 static void
 ssldecrypt_free_cb(void *r)
 {
@@ -4255,7 +4253,6 @@ proto_register_ssl(void)
     {
         module_t *ssl_module = prefs_register_protocol(proto_ssl, proto_reg_handoff_ssl);
 
-#ifdef HAVE_LIBGCRYPT
 #ifdef HAVE_LIBGNUTLS
         static uat_field_t sslkeylist_uats_flds[] = {
             UAT_FLD_CSTRING_OTHER(sslkeylist_uats, ipaddr, "IP address", ssldecrypt_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
@@ -4296,7 +4293,6 @@ proto_register_ssl(void)
              "Semicolon-separated list of private RSA keys used for SSL decryption. "
              "Used by versions of Wireshark prior to 1.6",
              &ssl_keys_list);
-#endif /* HAVE_LIBGCRYPT */
 
         prefs_register_bool_preference(ssl_module,
              "desegment_ssl_records",

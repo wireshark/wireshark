@@ -25,7 +25,7 @@
 brew update
 
 #install some lib need by Wireshark
-brew install c-ares glib gnutls lua cmake nghttp2 snappy lz4
+brew install c-ares glib libgcrypt gnutls lua cmake nghttp2 snappy lz4
 
 #install Qt5
 brew install qt5

@@ -3160,7 +3160,6 @@ ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, ieee802154_pa
  *@param length Length of the buffer.
  *@return TRUE on SUCCESS, FALSE on error.
 */
-#ifdef HAVE_LIBGCRYPT
 static gboolean
 ccm_ctr_encrypt(const gchar *key, const gchar *iv, gchar *mic, gchar *data, gint length)
 {
@@ -3196,13 +3195,6 @@ ccm_ctr_encrypt(const gchar *key, const gchar *iv, gchar *mic, gchar *data, gint
     gcry_cipher_close(cipher_hd);
     return TRUE;
 } /* ccm_ctr_encrypt */
-#else
-static gboolean
-ccm_ctr_encrypt(const gchar *key _U_, const gchar *iv _U_, gchar *mic _U_, gchar *data _U_, gint length _U_)
-{
-    return FALSE;
-}
-#endif /* HAVE_LIBGCRYPT */
 
 /**
  *Generate a CBC-MAC of the decrypted payload and additional authentication headers.
@@ -3215,7 +3207,6 @@ ccm_ctr_encrypt(const gchar *key _U_, const gchar *iv _U_, gchar *mic _U_, gchar
  *@param mic Output for CBC-MAC.
  *@return  TRUE on SUCCESS, FALSE on error.
 */
-#ifdef HAVE_LIBGCRYPT
 static gboolean
 ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const gchar *m, gint m_len, gchar *mic)
 {
@@ -3313,14 +3304,6 @@ ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const
     gcry_cipher_close(cipher_hd);
     return TRUE;
 } /* ccm_cbc_mac */
-#else
-static gboolean
-ccm_cbc_mac(const gchar *key _U_, const gchar *iv _U_,
-        const gchar *a _U_, gint a_len _U_, const gchar *m _U_, gint m_len _U_, gchar *mic _U_)
-{
-    return FALSE;
-}
-#endif /* HAVE_LIBGCRYPT */
 
 /* Key hash function. */
 guint ieee802154_short_addr_hash(gconstpointer key)

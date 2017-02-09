@@ -1649,9 +1649,8 @@ snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_a
 }
 
 static tvbuff_t*
-snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, packet_info *pinfo _U_, gchar const** error _U_)
+snmp_usm_priv_des(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_info *pinfo, gchar const** error)
 {
-#ifdef HAVE_LIBGCRYPT
 	gcry_error_t err;
 	gcry_cipher_hd_t hd = NULL;
 
@@ -1716,13 +1715,8 @@ on_gcry_error:
 	*error = (const gchar *)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
-#else
-	*error = "libgcrypt not present, cannot decrypt";
-	return NULL;
-#endif
 }
 
-#ifdef HAVE_LIBGCRYPT
 static tvbuff_t*
 snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_info *pinfo, gchar const** error, int algo)
 {
@@ -1787,39 +1781,23 @@ on_gcry_error:
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
 }
-#endif
 
 static tvbuff_t*
-snmp_usm_priv_aes128(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, packet_info *pinfo _U_, gchar const** error)
+snmp_usm_priv_aes128(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_info *pinfo, gchar const** error)
 {
-#ifdef HAVE_LIBGCRYPT
 	return snmp_usm_priv_aes_common(p, encryptedData, pinfo, error, GCRY_CIPHER_AES);
-#else
-	*error = "libgcrypt not present, cannot decrypt";
-	return NULL;
-#endif
 }
 
 static tvbuff_t*
-snmp_usm_priv_aes192(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, packet_info *pinfo _U_, gchar const** error)
+snmp_usm_priv_aes192(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_info *pinfo, gchar const** error)
 {
-#ifdef HAVE_LIBGCRYPT
 	return snmp_usm_priv_aes_common(p, encryptedData, pinfo, error, GCRY_CIPHER_AES192);
-#else
-	*error = "libgcrypt not present, cannot decrypt";
-	return NULL;
-#endif
 }
 
 static tvbuff_t*
-snmp_usm_priv_aes256(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, packet_info *pinfo _U_, gchar const** error)
+snmp_usm_priv_aes256(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_info *pinfo, gchar const** error)
 {
-#ifdef HAVE_LIBGCRYPT
 	return snmp_usm_priv_aes_common(p, encryptedData, pinfo, error, GCRY_CIPHER_AES256);
-#else
-	*error = "libgcrypt not present, cannot decrypt";
-	return NULL;
-#endif
 }
 
 static gboolean

@@ -39,12 +39,9 @@
 #include <gnutls/pkcs12.h>
 #endif /* HAVE_LIBGNUTLS */
 
-#ifdef HAVE_LIBGCRYPT
+/* TODO inline this now that Libgcrypt is mandatory? */
 #define SSL_CIPHER_CTX gcry_cipher_hd_t
 #define SSL_DECRYPT_DEBUG
-#else  /* HAVE_LIBGCRYPT */
-#define SSL_CIPHER_CTX void*
-#endif /* HAVE_LIBGCRYPT */
 
 
 /* other defines */
@@ -427,7 +424,7 @@ typedef struct _SslDecryptSession {
     SslDecoder *client;
     SslDecoder *server_new;
     SslDecoder *client_new;
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
     gcry_sexp_t private_key;
 #endif
     StringInfo psk;
@@ -625,7 +622,6 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, const 
 extern void
 ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash);
 
-#ifdef  HAVE_LIBGCRYPT
 extern void
 ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map);
 
@@ -635,23 +631,6 @@ tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
 
 extern void
 tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server);
-#else /* ! HAVE_LIBGCRYPT */
-static inline void
-ssl_finalize_decryption(SslDecryptSession *ssl _U_, ssl_master_key_map_t *mk_map _U_)
-{
-}
-
-static inline void
-tls13_change_key(SslDecryptSession *ssl _U_, ssl_master_key_map_t *mk_map _U_,
-                 gboolean is_from_server _U_, TLSRecordType type _U_)
-{
-}
-
-static inline void
-tls13_key_update(SslDecryptSession *ssl _U_, gboolean is_from_server _U_)
-{
-}
-#endif /* ! HAVE_LIBGCRYPT */
 
 extern gboolean
 ssl_is_valid_content_type(guint8 type);

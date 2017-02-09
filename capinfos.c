@@ -151,7 +151,6 @@ static gboolean cap_packet_size    = TRUE;  /* Report average packet size */
 static gboolean cap_packet_rate    = TRUE;  /* Report average packet rate */
 static gboolean cap_order          = TRUE;  /* Report if packets are in chronological order (True/False) */
 
-#ifdef HAVE_LIBGCRYPT
 static gboolean cap_file_hashes    = TRUE;  /* Calculate file hashes */
 
 #define HASH_SIZE_SHA1   20
@@ -165,11 +164,6 @@ static gboolean cap_file_hashes    = TRUE;  /* Calculate file hashes */
 static gchar file_sha1[HASH_STR_SIZE];
 static gchar file_rmd160[HASH_STR_SIZE];
 static gchar file_md5[HASH_STR_SIZE];
-
-#define FILE_HASH_OPT "H"
-#else
-#define FILE_HASH_OPT ""
-#endif /* HAVE_LIBGCRYPT */
 
 /*
  * If we have at least two packets with time stamps, and they're not in
@@ -252,9 +246,7 @@ enable_all_infos(void)
   cap_packet_size    = TRUE;
   cap_packet_rate    = TRUE;
 
-#ifdef HAVE_LIBGCRYPT
   cap_file_hashes    = TRUE;
-#endif /* HAVE_LIBGCRYPT */
 }
 
 static void
@@ -282,9 +274,7 @@ disable_all_infos(void)
   cap_packet_size    = FALSE;
   cap_packet_rate    = FALSE;
 
-#ifdef HAVE_LIBGCRYPT
   cap_file_hashes    = FALSE;
-#endif /* HAVE_LIBGCRYPT */
 }
 
 static const gchar *
@@ -701,13 +691,11 @@ print_stats(const gchar *filename, capture_info *cf_info)
       }
     }
   }
-#ifdef HAVE_LIBGCRYPT
   if (cap_file_hashes) {
     printf     ("SHA1:                %s\n", file_sha1);
     printf     ("RIPEMD160:           %s\n", file_rmd160);
     printf     ("MD5:                 %s\n", file_md5);
   }
-#endif /* HAVE_LIBGCRYPT */
   if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
 
   if (cf_info->shb != NULL) {
@@ -791,13 +779,11 @@ print_stats_table_header(void)
   if (cap_data_rate_bit)  print_stats_table_header_label("Data bit rate (bits/sec)");
   if (cap_packet_size)    print_stats_table_header_label("Average packet size (bytes)");
   if (cap_packet_rate)    print_stats_table_header_label("Average packet rate (packets/sec)");
-#ifdef HAVE_LIBGCRYPT
   if (cap_file_hashes) {
     print_stats_table_header_label("SHA1");
     print_stats_table_header_label("RIPEMD160");
     print_stats_table_header_label("MD5");
   }
-#endif /* HAVE_LIBGCRYPT */
   if (cap_order)          print_stats_table_header_label("Strict time order");
   if (cap_comment)        print_stats_table_header_label("Capture comment");
   if (cap_file_more_info) {
@@ -959,7 +945,6 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     putquote();
   }
 
-#ifdef HAVE_LIBGCRYPT
   if (cap_file_hashes) {
     putsep();
     putquote();
@@ -976,7 +961,6 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     printf("%s", file_md5);
     putquote();
   }
-#endif /* HAVE_LIBGCRYPT */
 
   if (cap_order) {
     putsep();
@@ -1320,9 +1304,7 @@ print_usage(FILE *output)
   fprintf(output, "  -E display the capture file encapsulation\n");
   fprintf(output, "  -I display the capture file interface information\n");
   fprintf(output, "  -F display additional capture file information\n");
-#ifdef HAVE_LIBGCRYPT
   fprintf(output, "  -H display the SHA1, RMD160, and MD5 hashes of the file\n");
-#endif
   fprintf(output, "  -k display the capture comment\n");
   fprintf(output, "\n");
   fprintf(output, "Size infos:\n");
@@ -1371,9 +1353,7 @@ print_usage(FILE *output)
   fprintf(output, "\n");
   fprintf(output, "If no options are given the default is to display all infos in long report\n");
   fprintf(output, "output format.\n");
-#ifndef HAVE_LIBGCRYPT
   fprintf(output, "\nFile hashing support (-H) is not present.\n");
-#endif
 }
 
 #ifdef HAVE_PLUGINS
@@ -1389,7 +1369,6 @@ failure_message(const char *msg_format, va_list ap)
 }
 #endif
 
-#ifdef HAVE_LIBGCRYPT
 static void
 hash_to_str(const unsigned char *hash, size_t length, char *str) {
   int i;
@@ -1398,7 +1377,6 @@ hash_to_str(const unsigned char *hash, size_t length, char *str) {
     g_snprintf(str+(i*2), 3, "%02x", hash[i]);
   }
 }
-#endif /* HAVE_LIBGCRYPT */
 
 int
 main(int argc, char *argv[])
@@ -1418,12 +1396,10 @@ main(int argc, char *argv[])
   };
 
   int status = 0;
-#ifdef HAVE_LIBGCRYPT
   FILE  *fh;
   char  *hash_buf = NULL;
   gcry_md_hd_t hd = NULL;
   size_t hash_bytes;
-#endif
 
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
@@ -1487,8 +1463,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Process the options */
-  /* FILE_HASH_OPT will be "H" if libgcrypt is compiled in, so don't use "H" */
-  while ((opt = getopt_long(argc, argv, "abcdehiklmoqrstuvxyzABCEF" FILE_HASH_OPT "ILMNQRST", long_options, NULL)) !=-1) {
+  while ((opt = getopt_long(argc, argv, "abcdehiklmoqrstuvxyzABCEFHILMNQRST", long_options, NULL)) !=-1) {
 
     switch (opt) {
 
@@ -1561,12 +1536,10 @@ main(int argc, char *argv[])
         cap_packet_rate = TRUE;
         break;
 
-#ifdef HAVE_LIBGCRYPT
       case 'H':
         if (report_all_infos) disable_all_infos();
         cap_file_hashes = TRUE;
         break;
-#endif
 
       case 'o':
         if (report_all_infos) disable_all_infos();
@@ -1674,7 +1647,6 @@ main(int argc, char *argv[])
     print_stats_table_header();
   }
 
-#ifdef HAVE_LIBGCRYPT
   if (cap_file_hashes) {
     gcry_check_version(NULL);
     gcry_md_open(&hd, GCRY_MD_SHA1, 0);
@@ -1684,13 +1656,11 @@ main(int argc, char *argv[])
     }
     hash_buf = (char *)g_malloc(HASH_BUF_SIZE);
   }
-#endif
 
   overall_error_status = 0;
 
   for (opt = optind; opt < argc; opt++) {
 
-#ifdef HAVE_LIBGCRYPT
     g_strlcpy(file_sha1, "<unknown>", HASH_STR_SIZE);
     g_strlcpy(file_rmd160, "<unknown>", HASH_STR_SIZE);
     g_strlcpy(file_md5, "<unknown>", HASH_STR_SIZE);
@@ -1709,7 +1679,6 @@ main(int argc, char *argv[])
       if (fh) fclose(fh);
       if (hd) gcry_md_reset(hd);
     }
-#endif /* HAVE_LIBGCRYPT */
 
     wth = wtap_open_offline(argv[opt], WTAP_TYPE_AUTO, &err, &err_info, FALSE);
 
@@ -1739,9 +1708,7 @@ main(int argc, char *argv[])
   }
 
 exit:
-#ifdef HAVE_LIBGCRYPT
   g_free(hash_buf);
-#endif
   return overall_error_status;
 }
 

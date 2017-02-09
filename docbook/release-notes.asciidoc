@@ -100,6 +100,7 @@ _Non-empty section placeholder._
 
 //=== Major API Changes
 IEEE802.11: wlan_mgt display filter element got renamed to wlan.
+Libgcrypt is now a required dependency.
 
 == Getting Wireshark
 

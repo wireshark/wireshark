@@ -81,12 +81,9 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #include <epan/decode_as.h>
 #include <epan/capture_dissectors.h>
 
-/* If you want to be able to decrypt or Check Authentication of ESP packets you MUST define this : */
-#ifdef HAVE_LIBGCRYPT
 #include <stdio.h>
 #include <epan/uat.h>
 #include <wsutil/wsgcrypt.h>
-#endif /* HAVE_LIBGCRYPT */
 
 #include "packet-ipsec.h"
 #include "packet-ipv6.h"
@@ -133,7 +130,6 @@ static dissector_handle_t data_handle;
 
 static dissector_table_t ip_dissector_table;
 
-#ifdef  HAVE_LIBGCRYPT
 /* Encryption algorithms defined in RFC 4305 */
 #define IPSEC_ENCRYPT_NULL 0
 #define IPSEC_ENCRYPT_3DES_CBC 1
@@ -176,7 +172,6 @@ static dissector_table_t ip_dissector_table;
 /* the maximum number of bytes (10)(including the terminating nul character(11)) */
 #define IPSEC_SPI_LEN_MAX 11
 
-#endif
 
 /* well-known algorithm number (in CPI), from RFC2409 */
 #define IPCOMP_OUI      1       /* vendor specific */
@@ -194,7 +189,6 @@ static const value_string cpi2val[] = {
 
 #define NEW_ESP_DATA_SIZE       8
 
-#ifdef HAVE_LIBGCRYPT
 /*-------------------------------------
  * UAT for ESP
  *-------------------------------------
@@ -456,7 +450,6 @@ static gboolean g_esp_enable_encryption_decode = FALSE;
 
 /* Default ESP payload Authentication Checking to off */
 static gboolean g_esp_enable_authentication_check = FALSE;
-#endif
 
 /**************************************************/
 /* Sequence number analysis                       */
@@ -569,7 +562,6 @@ static gboolean g_esp_do_sequence_analysis = TRUE;
 
 
 
-#ifdef HAVE_LIBGCRYPT
 #if 0
 
 /*
@@ -1072,7 +1064,6 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  guint spi,
 
   return found;
 }
-#endif
 
 static void ah_prompt(packet_info *pinfo, gchar *result)
 {
@@ -1204,7 +1195,6 @@ Params:
 - gboolean authentication_ok : set to true if the authentication checking has been run successfully
 - gboolean authentication_checking_ok : set to true if the authentication was the one expected
 */
-#ifdef HAVE_LIBGCRYPT
 static void
 dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_auth_len, guint8 *authenticator_data_computed,
                            gboolean authentication_ok, gboolean authentication_checking_ok)
@@ -1257,7 +1247,6 @@ dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_a
                                 tvb, len - esp_auth_len, esp_auth_len, bad);
   PROTO_ITEM_SET_GENERATED(item);
 }
-#endif
 
 static int
 dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -1266,13 +1255,11 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_item *ti;
   gint len = 0;
 
-#ifdef HAVE_LIBGCRYPT
   gint i;
 
   /* Packet Variables related */
   gchar *ip_src = NULL;
   gchar *ip_dst = NULL;
-#endif
 
   guint32 spi = 0;
   guint encapsulated_protocol = 0;
@@ -1281,7 +1268,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   dissector_handle_t dissector_handle;
   guint32 saved_match_uint;
 
-#ifdef HAVE_LIBGCRYPT
   gboolean null_encryption_decode_heuristic = FALSE;
   guint8 *decrypted_data = NULL;
   guint8 *authenticator_data = NULL;
@@ -1308,10 +1294,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   gboolean authentication_ok = FALSE;
   gboolean authentication_checking_ok = FALSE;
   gboolean sad_is_present = FALSE;
-#endif
   gint esp_pad_len = 0;
 
-#ifdef HAVE_LIBGCRYPT
 
   /* Variables for decryption and authentication checking used for libgrypt */
   int decrypted_len_alloc = 0;
@@ -1326,7 +1310,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   unsigned char ctr_block[16];
 
-#endif
 
   guint32 sequence_number;
 
@@ -1363,7 +1346,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                            tvb, esp_tree, pinfo);
   }
 
-#ifdef HAVE_LIBGCRYPT
   /* The SAD is not activated */
   if(g_esp_enable_null_encryption_decode_heuristic &&
      !g_esp_enable_encryption_decode)
@@ -2115,7 +2097,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   /* The packet does not belong to a security association and the field g_esp_enable_null_encryption_decode_heuristic is set */
   else if(null_encryption_decode_heuristic)
   {
-#endif
     if(g_esp_enable_null_encryption_decode_heuristic)
     {
       /* Get length of whole ESP packet. */
@@ -2167,9 +2148,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
       }
     }
-#ifdef HAVE_LIBGCRYPT
   }
-#endif
   return tvb_captured_length(tvb);
 }
 
@@ -2235,7 +2214,6 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
 	return tvb_captured_length(tvb);
 }
 
-#ifdef HAVE_LIBGCRYPT
 static void ipsec_cleanup_protocol(void)
 {
   /* Free any SA records added by other dissectors */
@@ -2249,7 +2227,6 @@ static void ipsec_cleanup_protocol(void)
   extra_esp_sa_records.records = NULL;
   extra_esp_sa_records.num_records = 0;
 }
-#endif
 
 void
 proto_register_ipsec(void)
@@ -2335,8 +2312,6 @@ proto_register_ipsec(void)
     { &ei_esp_sequence_analysis_wrong_sequence_number, { "esp.sequence-analysis.wrong-sequence-number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }}
   };
 
-#ifdef HAVE_LIBGCRYPT
-
   static const value_string esp_proto_type_vals[] = {
     { IPSEC_SA_IPV4, "IPv4" },
     { IPSEC_SA_IPV6, "IPv6" },
@@ -2385,7 +2360,6 @@ proto_register_ipsec(void)
       UAT_FLD_CSTRING(uat_esp_sa_records, authentication_key_string, "Authentication Key", "Authentication Key"),
       UAT_END_FIELDS
     };
-#endif
 
   static build_valid_func ah_da_build_value[1] = {ah_value};
   static decode_as_value_t ah_da_values = {ah_prompt, 1, ah_da_build_value};
@@ -2431,7 +2405,6 @@ proto_register_ipsec(void)
                                  "Check that successive frames increase sequence number by 1 within an SPI.  This should work OK when only one host is sending frames on an SPI",
                                  &g_esp_do_sequence_analysis);
 
-#ifdef HAVE_LIBGCRYPT
   prefs_register_bool_preference(esp_module, "enable_encryption_decode",
                                  "Attempt to detect/decode encrypted ESP payloads",
                                  "Attempt to decode based on the SAD described hereafter.",
@@ -2462,13 +2435,10 @@ proto_register_ipsec(void)
                                 "ESP SAs",
                                 "Preconfigured ESP Security Associations",
                                 esp_uat);
-#endif
 
   esp_sequence_analysis_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
   esp_sequence_analysis_report_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
-#ifdef HAVE_LIBGCRYPT
   register_cleanup_routine(&ipsec_cleanup_protocol);
-#endif
 
   register_dissector("esp", dissect_esp, proto_esp);
   register_dissector("ah", dissect_ah, proto_ah);

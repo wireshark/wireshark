@@ -270,10 +270,11 @@ https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsGcrypt]]
 
-=== Gcrypt (optional)
+=== Gcrypt
 
-The Gcrypt Library is a low-level encryption library that provides
-support for many ciphers, such as DES, 3DES, AES, Blowfish, and others..
+The Gcrypt Library is a low-level cryptographic library that provides
+support for many ciphers and message authentication codes, such as DES, 3DES,
+AES, Blowfish, SHA-1, SHA-256, and others.
 
 [[ChLibsUnixGcrypt]]
 

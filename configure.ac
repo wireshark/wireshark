@@ -302,35 +302,10 @@ if test "x$with_gnutls" = "xyes"; then
   fi
 fi
 
-# libgrypt
-gcrypt_message="no"
-want_gcrypt="if_available"
-AC_ARG_WITH([gcrypt],
-  AC_HELP_STRING( [--with-gcrypt=@<:@yes/no@:>@],
-		  [use gcrypt library @<:@default=yes, if available@:>@]),
-  [ with_gcrypt="$withval"; want_gcrypt="yes" ], with_gcrypt="yes")
-
-if test "x$with_gcrypt" = "xyes"; then
-  AM_PATH_LIBGCRYPT(1.4.2,
-	[
-		AC_DEFINE(HAVE_LIBGCRYPT, 1, [Define to use libgcrypt])
-		gcrypt_message="yes"
-	]
-	, [
-		if test x$libgcrypt_config_prefix != x ; then
-			AC_MSG_ERROR([[libgcrypt not found; install libgcrypt-devel package for your system]])
-		else
-			AS_ECHO(["libgcrypt not found, disabling decryption for ipsec, ssl, etc."])
-			gcrypt_message="no"
-		fi
-
-		# Error out if the user explicitly requested gcrypt
-		if test "x$want_gcrypt" = "xyes"; then
-		    AC_MSG_ERROR([libgcrypt library was requested, but is not available])
-		fi
-	]
-  )
-fi
+# libgrypt (for decryption, MAC, etc. functionality).
+AM_PATH_LIBGCRYPT(1.4.2, [ ] , [
+  AC_MSG_ERROR([[libgcrypt not found; install libgcrypt-devel package for your system]])
+])
 
 AC_ARG_WITH(libnl,
   AC_HELP_STRING([--with-libnl@<:@=VERSION@:>@],
@@ -3203,7 +3178,7 @@ echo "                   Use zlib library : $zlib_message"
 echo "               Use kerberos library : $krb5_message"
 echo "                 Use c-ares library : $c_ares_message"
 echo "                Use SMI MIB library : $libsmi_message"
-echo "             Use GNU gcrypt library : $gcrypt_message"
+echo "             Use GNU gcrypt library : yes"
 echo "             Use SSL crypto library : $ssl_message"
 echo "                 Use GnuTLS library : $tls_message"
 echo "     Use POSIX capabilities library : $libcap_message"

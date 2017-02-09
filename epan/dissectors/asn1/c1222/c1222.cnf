@@ -97,9 +97,7 @@ AE-qualifier TYPE=FT_UINT32
   FILL_TABLE(iv_element);
 
 #.FN_BODY MESSAGE
-/**/#ifdef HAVE_LIBGCRYPT
   clear_canon();
-/**/#endif
   %(DEFAULT_BODY)s
 #.END
 

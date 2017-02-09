@@ -168,9 +168,7 @@ static FILE               *dtls_keylog_file          = NULL;
 static uat_t *dtlsdecrypt_uat      = NULL;
 static const gchar *dtls_keys_list = NULL;
 static ssl_common_options_t dtls_options = { NULL, NULL};
-#ifdef HAVE_LIBGCRYPT
 static const gchar *dtls_debug_file_name = NULL;
-#endif
 
 static heur_dissector_list_t heur_subdissector_list;
 
@@ -275,7 +273,7 @@ dtls_parse_uat(void)
   dissector_add_for_decode_as("udp.port", dtls_handle);
 }
 
-#if defined(HAVE_LIBGCRYPT) && defined(HAVE_LIBGNUTLS)
+#if defined(HAVE_LIBGNUTLS)
 static void
 dtls_reset_uat(void)
 {
@@ -1560,7 +1558,7 @@ looks_like_dtls(tvbuff_t *tvb, guint32 offset)
 
 /* UAT */
 
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
 static void
 dtlsdecrypt_free_cb(void* r)
 {
@@ -1582,7 +1580,7 @@ dtlsdecrypt_update_cb(void* r _U_, const char** err _U_)
 }
 #endif
 
-#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
+#if defined(HAVE_LIBGNUTLS)
 static void *
 dtlsdecrypt_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
@@ -1891,7 +1889,6 @@ proto_register_dtls(void)
   expert_dtls = expert_register_protocol(proto_dtls);
   expert_register_field_array(expert_dtls, ei, array_length(ei));
 
-#ifdef HAVE_LIBGCRYPT
   {
     module_t *dtls_module = prefs_register_protocol(proto_dtls, proto_reg_handoff_dtls);
 
@@ -1937,7 +1934,6 @@ proto_register_dtls(void)
                                      &dtls_keys_list);
     ssl_common_register_options(dtls_module, &dtls_options);
   }
-#endif
 
   dtls_handle = register_dissector("dtls", dissect_dtls, proto_dtls);
 

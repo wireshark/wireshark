@@ -22,7 +22,6 @@
  */
 #include "config.h"
 #include <stdlib.h>
-#ifdef HAVE_LIBGCRYPT
 #include <string.h>
 /* Use libgcrypt for cipher libraries. */
 #include <wsutil/wsgcrypt.h>
@@ -247,7 +246,6 @@ void AesEncrypt(unsigned char msg[EAX_SIZEOF_KEY], unsigned char key[EAX_SIZEOF_
     gcry_cipher_close(cipher_hd);
     return;
 }
-#endif /* HAVE_LIBGCRYPT */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

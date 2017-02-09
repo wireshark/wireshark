@@ -61,14 +61,12 @@
 #include "packet-gsm_a_common.h"
 #include "packet-isakmp.h"
 
-#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
 #include <epan/uat.h>
 #if GCRYPT_VERSION_NUMBER >= 0x010600
 #define HAVE_LIBGCRYPT_AEAD 1
-#endif
 #endif
 
 void proto_register_isakmp(void);
@@ -390,11 +388,9 @@ static gint ett_isakmp_attr = -1;
 static gint ett_isakmp_id = -1;
 static gint ett_isakmp_notify_data = -1;
 static gint ett_isakmp_ts = -1;
-#ifdef HAVE_LIBGCRYPT
 /* For decrypted IKEv2 Encrypted payload*/
 static gint ett_isakmp_decrypted_data = -1;
 static gint ett_isakmp_decrypted_payloads = -1;
-#endif /* HAVE_LIBGCRYPT */
 
 static expert_field ei_isakmp_enc_iv = EI_INIT;
 static expert_field ei_isakmp_ikev2_integrity_checksum = EI_INIT;
@@ -1644,8 +1640,6 @@ static const range_string rohc_attr_type[] = {
 #define ISAKMP_HDR_SIZE ((int)sizeof(struct isakmp_hdr) + (2 * COOKIE_SIZE))
 
 
-#ifdef HAVE_LIBGCRYPT
-
 #define MAX_KEY_SIZE       256
 #define MAX_DIGEST_SIZE     64
 #define MAX_OAKLEY_KEY_LEN  32
@@ -2229,8 +2223,6 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
   return encr_tvb;
 }
 
-#endif /* HAVE_LIBGCRYPT */
-
 static proto_tree *dissect_payload_header(tvbuff_t *, packet_info *, int, int, int, guint8,
     guint8 *, guint16 *, proto_tree *);
 
@@ -2263,10 +2255,8 @@ typedef struct ikev2_fragmentation_state_t {
   guint8  next_payload;
 } ikev2_fragmentation_state_t;
 
-#ifdef HAVE_LIBGCRYPT
 /* frame_number -> next_payload.  The key will be the frame that completes the original message */
 static GHashTable *defrag_next_payload_hash = NULL;
-#endif
 
 static void dissect_ikev2_fragmentation(tvbuff_t *, int, proto_tree *, packet_info *, guint32 message_id, guint8 next_payload,
                                         gboolean is_request, void* decr_info);
@@ -3147,13 +3137,11 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   int             isakmp_version;
   void*           decr_data   = NULL;
   guint8          flags;
-#ifdef HAVE_LIBGCRYPT
   guint8          i_cookie[COOKIE_SIZE], *ic_key;
   decrypt_data_t *decr        = NULL;
   tvbuff_t       *decr_tvb;
   proto_tree     *decr_tree;
   address         null_addr;
-#endif                          /* HAVE_LIBGCRYPT */
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISAKMP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -3184,7 +3172,6 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   isakmp_version = hi_nibble(hdr.version);      /* save the version */
   hdr.flags = tvb_get_guint8(tvb, COOKIE_SIZE + COOKIE_SIZE + 1 + 1 + 1);
 
-#ifdef HAVE_LIBGCRYPT
   if (isakmp_version == 1) {
     clear_address(&null_addr);
 
@@ -3231,7 +3218,6 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
       decr_data = ikev2_dec_data;
     }
   }
-#endif /* HAVE_LIBGCRYPT */
 
   {
     proto_tree_add_item(isakmp_tree, hf_isakmp_ispi, tvb, offset, COOKIE_SIZE, ENC_NA);
@@ -3327,7 +3313,6 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         ti = proto_tree_add_item(isakmp_tree, hf_isakmp_enc_data, tvb, offset, len, ENC_NA);
         proto_item_append_text(ti, " (%d byte%s)", len, plurality(len, "", "s"));
 
-#ifdef HAVE_LIBGCRYPT
         /* Collect initialization vectors during first pass. */
         if (!PINFO_FD_VISITED(pinfo))
           if (prepare_decrypt(decr))
@@ -3338,7 +3323,6 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
           dissect_payloads(decr_tvb, decr_tree, isakmp_version,
                            hdr.next_payload, 0, tvb_reported_length(decr_tvb), pinfo, hdr.message_id, !(flags & R_FLAG), decr_data);
         }
-#endif /* HAVE_LIBGCRYPT */
       }
     } else {
       dissect_payloads(tvb, isakmp_tree, isakmp_version, hdr.next_payload,
@@ -3352,7 +3336,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 static proto_tree *
 dissect_payload_header(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
-    int isakmp_version, guint8 payload _U_, guint8 *next_payload_p,
+    int isakmp_version, guint8 payload, guint8 *next_payload_p,
     guint16 *payload_length_p, proto_tree *tree)
 {
   guint8                next_payload;
@@ -3810,10 +3794,7 @@ dissect_resp_lifetime_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 /* Returns the number of bytes consumed by this attribute. */
 static int
-dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
-#ifdef HAVE_LIBGCRYPT
-                      , decrypt_data_t *decr
-#endif
+dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, decrypt_data_t *decr
 )
 {
   guint headerlen, value_len, attr_type;
@@ -3837,30 +3818,22 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     case IKE_ATTR_ENCRYPTION_ALGORITHM:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_encryption_algorithm, tvb, offset, value_len, ENC_BIG_ENDIAN);
       proto_item_append_text(attr_item, ": %s", val_to_str(tvb_get_ntohs(tvb, offset), ike_attr_enc_algo, "Unknown %d"));
-#ifdef HAVE_LIBGCRYPT
       decr->ike_encr_alg = tvb_get_ntohs(tvb, offset);
-#endif
       break;
     case IKE_ATTR_HASH_ALGORITHM:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_hash_algorithm, tvb, offset, value_len, ENC_BIG_ENDIAN);
       proto_item_append_text(attr_item, ": %s", val_to_str(tvb_get_ntohs(tvb, offset), ike_attr_hash_algo, "Unknown %d"));
-#ifdef HAVE_LIBGCRYPT
       decr->ike_hash_alg = tvb_get_ntohs(tvb, offset);
-#endif
       break;
     case IKE_ATTR_AUTHENTICATION_METHOD:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_authentication_method, tvb, offset, value_len, ENC_BIG_ENDIAN);
       proto_item_append_text(attr_item, ": %s", val_to_str(tvb_get_ntohs(tvb, offset), ike_attr_authmeth, "Unknown %d"));
-#ifdef HAVE_LIBGCRYPT
       decr->is_psk = tvb_get_ntohs(tvb, offset) == 0x01 ? TRUE : FALSE;
-#endif
       break;
     case IKE_ATTR_GROUP_DESCRIPTION:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_group_description, tvb, offset, value_len, ENC_BIG_ENDIAN);
       proto_item_append_text(attr_item, ": %s", val_to_str(tvb_get_ntohs(tvb, offset), dh_group, "Unknown %d"));
-#ifdef HAVE_LIBGCRYPT
       decr->group = tvb_get_ntohs(tvb, offset);
-#endif
       break;
     case IKE_ATTR_GROUP_TYPE:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_group_type, tvb, offset, value_len, ENC_BIG_ENDIAN);
@@ -3894,9 +3867,7 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     case IKE_ATTR_KEY_LENGTH:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_key_length, tvb, offset, value_len, ENC_BIG_ENDIAN);
       proto_item_append_text(attr_item, ": %d", tvb_get_ntohs(tvb, offset));
-#ifdef HAVE_LIBGCRYPT
       decr->ike_encr_keylen = tvb_get_ntohs(tvb, offset);
-#endif
       break;
     case IKE_ATTR_FIELD_SIZE:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_field_size, tvb, offset, value_len, ENC_NA);
@@ -3984,19 +3955,13 @@ dissect_ike2_transform_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static void
-dissect_transform(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version, int protocol_id, void* decr_data
-#ifndef HAVE_LIBGCRYPT
- _U_
-#endif
-)
+dissect_transform(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree, int isakmp_version, int protocol_id, void* decr_data)
 {
   if (isakmp_version == 1)
   {
     guint8              transform_id;
     guint8              transform_num;
-#ifdef HAVE_LIBGCRYPT
     decrypt_data_t *decr = (decrypt_data_t *)decr_data;
-#endif /* HAVE_LIBGCRYPT */
     int offset_end = 0;
     offset_end = offset + length;
 
@@ -4038,20 +4003,14 @@ dissect_transform(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pro
     offset += 2;
 
     if (protocol_id == 1 && transform_id == 1) {
-#ifdef HAVE_LIBGCRYPT
       /* Allow detection of missing IKE transform attributes:
        * Make sure their values are not carried over from another transform
        * dissected previously. */
       decr->ike_encr_alg = 0;
       decr->ike_encr_keylen = 0;
       decr->ike_hash_alg = 0;
-#endif
       while (offset < offset_end) {
-        offset += dissect_ike_attribute(tvb, pinfo, tree, offset
-#ifdef HAVE_LIBGCRYPT
-                                        , decr
-#endif
-        );
+        offset += dissect_ike_attribute(tvb, pinfo, tree, offset, decr);
       }
     }
     else {
@@ -4103,14 +4062,7 @@ dissect_transform(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pro
 
 static void
 dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version,
-#ifdef HAVE_LIBGCRYPT
- packet_info* pinfo,
- void* decr_data
-#else
- packet_info* pinfo _U_,
- void* decr_data _U_
-#endif
-)
+                 packet_info* pinfo, void* decr_data)
 {
   if (isakmp_version == 2) {
     proto_tree_add_item(tree, hf_isakmp_key_exch_dh_group, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4124,7 +4076,6 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int is
 
   proto_tree_add_item(tree, hf_isakmp_key_exch_data, tvb, offset, length, ENC_NA);
 
-#ifdef HAVE_LIBGCRYPT
   if (isakmp_version == 1 && decr_data) {
     decrypt_data_t *decr = (decrypt_data_t *)decr_data;
 
@@ -4138,7 +4089,6 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int is
       decr->gr_len = length;
     }
   }
-#endif /* HAVE_LIBGCRYPT */
 }
 
 static void
@@ -4425,21 +4375,15 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 /* This is RFC7383 reassembly. */
 static void
 dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
-#ifdef HAVE_LIBGCRYPT
                             packet_info *pinfo, guint message_id, guint8 next_payload, gboolean is_request, void* decr_info)
-#else
-                            packet_info *pinfo, guint message_id, guint8 next_payload, gboolean is_request _U_, void* decr_info _U_)
-#endif
 {
   guint16 fragment_number, total_fragments;
-#ifdef HAVE_LIBGCRYPT
   gboolean message_next_payload_set = FALSE;
   guint8  message_next_payload = 0;
   gint iv_len, icd_len;
   gint iv_offset;
   gint icd_offset;
   ikev2_decrypt_data_t *key_info;
-#endif
 
   /* Fragment Number */
   fragment_number = tvb_get_ntohs(tvb, offset);
@@ -4478,7 +4422,6 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
   /* Show fragment summary in Info column */
   col_append_fstr(pinfo->cinfo, COL_INFO, " (fragment %u/%u)", fragment_number, total_fragments);
 
-#ifdef HAVE_LIBGCRYPT
   offset += 2;
 
   /* If this is the last fragment, need to know what the payload type for the reassembled message is,
@@ -4589,7 +4532,6 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
     pinfo->fragmented = save_fragmented;
   }
   /* End Reassembly stuff for IKE2 fragmentation */
-#endif
 }
 
 
@@ -5364,21 +5306,12 @@ dissect_enc(tvbuff_t *tvb,
             int offset,
             int length,
             proto_tree *tree,
-#ifdef HAVE_LIBGCRYPT
             packet_info *pinfo,
             guint8 inner_payload,
             gboolean is_request,
             void* decr_info,
             gboolean dissect_payload_now)
-#else
-            packet_info *pinfo _U_,
-            guint8 inner_payload _U_,
-            gboolean is_request _U_,
-            void* decr_info _U_,
-            gboolean dissect_payload_now _U_)
-#endif
 {
-#ifdef HAVE_LIBGCRYPT
   ikev2_decrypt_data_t *key_info = NULL;
   gint iv_len, encr_data_len, icd_len, decr_data_len, md_len, icv_len, encr_key_len, encr_iv_len;
   guint8 pad_len;
@@ -5711,15 +5644,10 @@ dissect_enc(tvbuff_t *tvb,
       dissect_payloads(decr_tvb, decr_payloads_tree, 2, inner_payload, 0, payloads_len, pinfo, 0, is_request, decr_info);
     }
   }else{
-#endif /* HAVE_LIBGCRYPT */
      proto_tree_add_item(tree, hf_isakmp_enc_iv, tvb, offset, 4, ENC_NA);
      proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset+4 , length, ENC_NA);
-#ifdef HAVE_LIBGCRYPT
   }
   return decr_tvb;
-#else /* HAVE_LIBGCRYPT */
-  return NULL;
-#endif
 }
 
 static void
@@ -5746,7 +5674,6 @@ dissect_gspm(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
  * Protocol initialization
  */
 
-#ifdef HAVE_LIBGCRYPT
 static guint
 isakmp_hash_func(gconstpointer c) {
   const guint8 *i_cookie = (const guint8 *) c;
@@ -5809,9 +5736,7 @@ static gint ikev2_key_equal_func(gconstpointer k1, gconstpointer k2) {
 
   return 1;
 }
-#endif /* HAVE_LIBGCRYPT */
 
-#ifdef HAVE_LIBGCRYPT
 static void
 free_cookie_key(gpointer key_arg)
 {
@@ -5828,16 +5753,12 @@ free_cookie_value(gpointer value)
   g_hash_table_destroy(decr->iv_hash);
   g_slice_free1(sizeof(decrypt_data_t), decr);
 }
-#endif
 
 static void
 isakmp_init_protocol(void) {
-#ifdef HAVE_LIBGCRYPT
   guint i;
   decrypt_data_t *decr;
   guint8   *ic_key;
-#endif /* HAVE_LIBGCRYPT */
-#ifdef HAVE_LIBGCRYPT
   isakmp_hash = g_hash_table_new_full(isakmp_hash_func, isakmp_equal_func,
       free_cookie_key, free_cookie_value);
 
@@ -5859,19 +5780,14 @@ isakmp_init_protocol(void) {
     ikev2_uat_data[i].auth_spec = ikev2_decrypt_find_auth_spec(ikev2_uat_data[i].auth_alg);
   }
   defrag_next_payload_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-#endif /* HAVE_LIBGCRYPT */
 }
 
 static void
 isakmp_cleanup_protocol(void) {
-#ifdef HAVE_LIBGCRYPT
   g_hash_table_destroy(isakmp_hash);
   g_hash_table_destroy(ikev2_key_hash);
   g_hash_table_destroy(defrag_next_payload_hash);
-#endif /* HAVE_LIBGCRYPT */
 }
-
-#ifdef HAVE_LIBGCRYPT
 
 UAT_BUFFER_CB_DEF(ikev1_users, icookie, ikev1_uat_data_key_t, icookie, icookie_len)
 UAT_BUFFER_CB_DEF(ikev1_users, key, ikev1_uat_data_key_t, key, key_len)
@@ -5959,14 +5875,11 @@ static gboolean ikev2_uat_data_update_cb(void* p, char** err) {
 
   return TRUE;
 }
-#endif /* HAVE_LIBGCRYPT */
 
 void
 proto_register_isakmp(void)
 {
-#ifdef HAVE_LIBGCRYPT
   module_t *isakmp_module;
-#endif
   static hf_register_info hf[] = {
     { &hf_isakmp_ispi,
       { "Initiator SPI", "isakmp.ispi",
@@ -7194,10 +7107,8 @@ proto_register_isakmp(void)
     &ett_isakmp_id,
     &ett_isakmp_notify_data,
     &ett_isakmp_ts,
-#ifdef HAVE_LIBGCRYPT
     &ett_isakmp_decrypted_data,
     &ett_isakmp_decrypted_payloads
-#endif /* HAVE_LIBGCRYPT */
   };
 
   static ei_register_info ei[] = {
@@ -7212,7 +7123,6 @@ proto_register_isakmp(void)
 
   expert_module_t* expert_isakmp;
 
-#ifdef HAVE_LIBGCRYPT
   static uat_field_t ikev1_uat_flds[] = {
     UAT_FLD_BUFFER(ikev1_users, icookie, "Initiator's COOKIE", "Initiator's COOKIE"),
     UAT_FLD_BUFFER(ikev1_users, key, "Encryption Key", "Encryption Key"),
@@ -7230,7 +7140,7 @@ proto_register_isakmp(void)
     UAT_FLD_VS(ikev2_users, auth_alg, "Integrity algorithm", vs_ikev2_auth_algs, "Integrity algorithm of IKE_SA"),
     UAT_END_FIELDS
   };
-#endif /* HAVE_LIBGCRYPT */
+
   proto_isakmp = proto_register_protocol("Internet Security Association and Key Management Protocol",
                                                "ISAKMP", "isakmp");
   proto_register_field_array(proto_isakmp, hf, array_length(hf));
@@ -7246,7 +7156,6 @@ proto_register_isakmp(void)
 
   isakmp_handle = register_dissector("isakmp", dissect_isakmp, proto_isakmp);
 
-#ifdef HAVE_LIBGCRYPT
   isakmp_module = prefs_register_protocol(proto_isakmp, NULL);
   ikev1_uat = uat_new("IKEv1 Decryption Table",
       sizeof(ikev1_uat_data_key_t),
@@ -7289,8 +7198,6 @@ proto_register_isakmp(void)
       "IKEv2 Decryption Table",
       "Table of IKE_SA security parameters for decryption of IKEv2 packets",
       ikev2_uat);
-
-#endif /* HAVE_LIBGCRYPT */
 }
 
 void

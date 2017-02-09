@@ -193,11 +193,9 @@
 #include <stdio.h>
 #include <glib.h>
 
-#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
-#if (defined GCRYPT_VERSION_NUMBER) && (GCRYPT_VERSION_NUMBER  >= 0x010600)
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 #define LIBGCRYPT_OK
-#endif
 #endif
 
 #include <epan/packet.h>

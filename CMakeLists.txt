@@ -790,11 +790,9 @@ if(ENABLE_SMI)
 endif()
 
 # GNU crypto
-if(ENABLE_GCRYPT)
-	set(PACKAGELIST ${PACKAGELIST} GCRYPT)
-	# Minimum version needed.
-	set(GCRYPT_OPTIONS "1.4.2")
-endif()
+set(PACKAGELIST ${PACKAGELIST} GCRYPT)
+# Minimum version needed.
+set(GCRYPT_OPTIONS "1.4.2" REQUIRED)
 
 # GNU SSL/TLS support
 if(ENABLE_GNUTLS)
@@ -1571,15 +1569,13 @@ if(WIN32)
 				"${_dll_output_dir}"
 		)
 	endif(LIBSSH_FOUND)
-	if(GCRYPT_FOUND)
-		foreach( _dll ${GCRYPT_DLLS} )
-			add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					"${GCRYPT_DLL_DIR}/${_dll}"
-					"${_dll_output_dir}"
-			)
-		endforeach(_dll)
-	endif(GCRYPT_FOUND)
+	foreach( _dll ${GCRYPT_DLLS} )
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${GCRYPT_DLL_DIR}/${_dll}"
+				"${_dll_output_dir}"
+		)
+	endforeach(_dll)
 	if(GNUTLS_FOUND)
 		foreach( _dll ${GNUTLS_DLLS} )
 			add_custom_command(TARGET copy_cli_dlls PRE_BUILD

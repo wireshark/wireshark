@@ -130,9 +130,6 @@
 /* Define to use the libcap library */
 #cmakedefine HAVE_LIBCAP 1
 
-/* Define to use libgcrypt */
-#cmakedefine HAVE_LIBGCRYPT 1
-
 /* Define to use GnuTLS library */
 #cmakedefine HAVE_LIBGNUTLS 1
 

@@ -27,8 +27,6 @@
 #ifndef __WSGCRYPT_H__
 #define __WSGCRYPT_H__
 
-#ifdef HAVE_LIBGCRYPT
-
 #include <ws_diag_control.h>
 
 DIAG_OFF(deprecated-declarations)
@@ -36,7 +34,5 @@ DIAG_OFF(deprecated-declarations)
 #include <gcrypt.h>
 
 DIAG_ON(deprecated-declarations)
-
-#endif /* HAVE_LIBGCRYPT */
 
 #endif /* __WSGCRYPT_H__ */

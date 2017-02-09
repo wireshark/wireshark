@@ -2356,7 +2356,6 @@ dissect_cc_data_payload(guint32 tag, tvbuff_t *tvb, gint offset,
 }
 
 
-#ifdef HAVE_LIBGCRYPT
 /* convert a 0-terminated preference key_string that contains a hex number
  *  into its binary representation
  * e.g. key_string "abcd" will be converted into two bytes 0xab, 0xcd
@@ -2434,23 +2433,6 @@ end:
         gcry_cipher_close (cipher);
     return clear_tvb;
 }
-
-#else
-/* HAVE_LIBGCRYPT is not set */
-static gint
-pref_key_string_to_bin(const gchar *key_string _U_, unsigned char **key_bin _U_)
-{
-    return 0;
-}
-
-static tvbuff_t *
-decrypt_sac_msg_body(packet_info *pinfo _U_, guint8 enc_cip _U_,
-        tvbuff_t *encrypted_tvb _U_, gint offset _U_, gint len _U_)
-{
-    return NULL;
-}
-
-#endif
 
 
 /* dissect a text string that is encoded according to DVB-SI (EN 300 468) */
