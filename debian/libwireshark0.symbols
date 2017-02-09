@@ -1794,6 +1794,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_map_new_autoreset@Base 2.3.0
  wmem_map_remove@Base 1.12.0~rc1
  wmem_map_size@Base 2.1.0
+ wmem_map_steal@Base 2.3.0
  wmem_memdup@Base 1.12.0~rc1
  wmem_packet_scope@Base 1.9.1
  wmem_realloc@Base 1.9.1

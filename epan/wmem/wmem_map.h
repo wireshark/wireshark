@@ -120,6 +120,17 @@ WS_DLL_PUBLIC
 void *
 wmem_map_remove(wmem_map_t *map, const void *key);
 
+/** Remove a key and value from the map but does not destroy (free) them. If no
+ * value is stored at that key, nothing happens.
+ *
+ * @param map The map to remove from.
+ * @param key The key of the value to remove.
+ * @return TRUE if key is found FALSE if not.
+ */
+WS_DLL_PUBLIC
+gboolean
+wmem_map_steal(wmem_map_t *map, const void *key);
+
 /** Run a function against all key/value pairs in the map. The order
  * of the calls is unpredictable, since it is based on the internal
  * storage of data.
