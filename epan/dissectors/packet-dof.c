@@ -12434,6 +12434,21 @@ static void dof_cleanup_routine(void)
 static void
 dof_shutdown_routine(void)
 {
+    guint i;
+
+    for (i = 0; i < global_security.identity_data_count; i++) {
+        g_free(global_security.identity_data[i].identity);
+        g_free(global_security.identity_data[i].domain);
+        g_free(global_security.identity_data[i].secret);
+    }
+    g_free(global_security.identity_data);
+
+    for (i = 0; i < global_security.group_data_count; i++) {
+        g_free(global_security.group_data[i].domain);
+        g_free(global_security.group_data[i].identity);
+        g_free(global_security.group_data[i].kek);
+    }
+
     if (addr_port_to_id)
         g_hash_table_destroy(addr_port_to_id);
     if (dpp_opid_to_packet_data)
