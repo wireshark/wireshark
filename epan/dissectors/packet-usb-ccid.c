@@ -38,6 +38,8 @@ static int hf_ccid_dwLength = -1;
 static int hf_ccid_bSlot = -1;
 static int hf_ccid_bSeq = -1;
 static int hf_ccid_bStatus = -1;
+static int hf_ccid_bStatus_bmIccStatus = -1;
+static int hf_ccid_bStatus_bmCommandStatus = -1;
 static int hf_ccid_bError = -1;
 static int hf_ccid_bRFU = -1;
 static int hf_ccid_abRFU = -1;
@@ -62,13 +64,24 @@ static int hf_ccid_bNumClockSupported = -1;
 static int hf_ccid_dwDataRate = -1;
 static int hf_ccid_dwMaxDataRate = -1;
 static int hf_ccid_bNumDataRatesSupported = -1;
+static int hf_ccid_dwMaxIFSD = -1;
 static int hf_ccid_dwSynchProtocols = -1;
 static int hf_ccid_dwMechanical = -1;
 static int hf_ccid_dwFeatures = -1;
 static int hf_ccid_dwFeatures_autoParam = -1;
 static int hf_ccid_dwFeatures_autoIccActivation = -1;
+static int hf_ccid_dwFeatures_autoIccVoltSelect = -1;
 static int hf_ccid_dwFeatures_autoIccClk = -1;
 static int hf_ccid_dwFeatures_autoBaudRate = -1;
+static int hf_ccid_dwFeatures_autoParamNegotiation = -1;
+static int hf_ccid_dwFeatures_autoPPS = -1;
+static int hf_ccid_dwFeatures_stopIccClk = -1;
+static int hf_ccid_dwFeatures_nadValNot0accept = -1;
+static int hf_ccid_dwFeatures_autoIfsd = -1;
+static int hf_ccid_dwFeatures_levelExchangeTDPU = -1;
+static int hf_ccid_dwFeatures_levelExchangeShortAPDU = -1;
+static int hf_ccid_dwFeatures_levelExchangeShortExtentedAPDU = -1;
+static int hf_ccid_dwFeatures_UsbWakeUp = -1;
 static int hf_ccid_dwMaxCCIDMessageLength = -1;
 static int hf_ccid_bClassGetResponse = -1;
 static int hf_ccid_bClassEnvelope = -1;
@@ -108,10 +121,20 @@ static const int *dwProtocols_fields[] = {
 
 static const int *bFeatures_fields[] = {
     /* XXX - add the missing components */
-    &hf_ccid_dwFeatures_autoIccActivation,
     &hf_ccid_dwFeatures_autoParam,
+    &hf_ccid_dwFeatures_autoIccActivation,
+    &hf_ccid_dwFeatures_autoIccVoltSelect,
     &hf_ccid_dwFeatures_autoIccClk,
     &hf_ccid_dwFeatures_autoBaudRate,
+    &hf_ccid_dwFeatures_autoParamNegotiation,
+    &hf_ccid_dwFeatures_autoPPS,
+    &hf_ccid_dwFeatures_stopIccClk,
+    &hf_ccid_dwFeatures_nadValNot0accept,
+    &hf_ccid_dwFeatures_autoIfsd,
+    &hf_ccid_dwFeatures_levelExchangeTDPU,
+    &hf_ccid_dwFeatures_levelExchangeShortAPDU,
+    &hf_ccid_dwFeatures_levelExchangeShortExtentedAPDU,
+    &hf_ccid_dwFeatures_UsbWakeUp,
     NULL
 };
 
@@ -133,6 +156,11 @@ static const int *bmSlotICCState_fields[] = {
     NULL
 };
 
+static const int *bStatus_fields[] = {
+    &hf_ccid_bStatus_bmIccStatus,
+    &hf_ccid_bStatus_bmCommandStatus,
+    NULL
+};
 
 /* smart card descriptor, as defined in section 5.1
    of the USB CCID specification */
@@ -275,6 +303,28 @@ static const value_string ccid_proto_structs_vals[] = {
     {0x00, NULL}
 };
 
+static const value_string ccid_status_icc_status_vals[] = {
+    /* Standardised icc status */
+    { 0x00, "An ICC is present and active" },
+    { 0x01, "An ICC is present and inactive" },
+    { 0x02, "No ICC is present" },
+    { 0x03, "RFU" },
+
+    /* End of icc status */
+    { 0x00, NULL }
+};
+
+static const value_string ccid_status_cmd_status_vals[] = {
+    /* Standardised status values */
+    { 0x00, "Processed without error " },
+    { 0x01, "Failed" },
+    { 0x02, "Time Extension is requested " },
+    { 0x03, "RFU" },
+
+    /* End of status values */
+    { 0x00, NULL }
+};
+
 /* Subtree handles: set by register_subtree_array */
 static gint ett_ccid      = -1;
 static gint ett_ccid_desc = -1;
@@ -284,6 +334,7 @@ static gint ett_ccid_features = -1;
 static gint ett_ccid_lcd_layout = -1;
 static gint ett_ccid_pin_support = -1;
 static gint ett_ccid_slot_change = -1;
+static gint ett_ccid_status = -1;
 
 /* Table of payload types - adapted from the I2C dissector */
 enum {
@@ -368,7 +419,8 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
             tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
-    /* skip dwMaxIFSD */
+    proto_tree_add_item(desc_tree, hf_ccid_dwMaxIFSD,
+        tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(desc_tree, hf_ccid_dwSynchProtocols,
@@ -545,7 +597,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(ccid_tree, hf_ccid_bStatus, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_bitmask(ccid_tree, tvb, 7, hf_ccid_bStatus, ett_ccid_status, bStatus_fields, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
         if (cmd == RDR_PC_ESCAPE)
             proto_tree_add_item(ccid_tree, hf_ccid_bRFU, tvb, 9, 1, ENC_LITTLE_ENDIAN);
@@ -580,7 +632,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(ccid_tree, hf_ccid_bStatus, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_bitmask(ccid_tree, tvb, 7, hf_ccid_bStatus, ett_ccid_status, bStatus_fields, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bClockStatus, tvb, 9, 1, ENC_LITTLE_ENDIAN);
         break;
@@ -589,7 +641,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(ccid_tree, hf_ccid_bStatus, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_bitmask(ccid_tree, tvb, 7, hf_ccid_bStatus, ett_ccid_status, bStatus_fields, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bProtocolNum, tvb, 8, 1, ENC_LITTLE_ENDIAN);
         break;
@@ -635,6 +687,12 @@ proto_register_ccid(void)
         {&hf_ccid_bStatus,
          { "Status", "usbccid.bStatus", FT_UINT8, BASE_DEC,
            NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bStatus_bmIccStatus,
+         { "Status", "usbccid.bStatus.bmIccStatus", FT_UINT8, BASE_DEC,
+           VALS(ccid_status_icc_status_vals), 0x03, NULL, HFILL }},
+        {&hf_ccid_bStatus_bmCommandStatus,
+         { "Status", "usbccid.bStatus.bmCommandStatus", FT_UINT8, BASE_DEC,
+           VALS(ccid_status_cmd_status_vals), 0xC0, NULL, HFILL }},
         {&hf_ccid_bError,
          { "Error", "usbccid.bError", FT_UINT8, BASE_DEC,
            NULL, 0x0, NULL, HFILL }},
@@ -707,6 +765,9 @@ proto_register_ccid(void)
         {&hf_ccid_bNumDataRatesSupported,
          { "number of supported data rates", "usbccid.bNumDataRatesSupported",
              FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ccid_dwMaxIFSD,
+         { "maximum IFSD supported", "usbccid.dwMaxIFSD",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_dwSynchProtocols,
          { "supported protocol types", "usbccid.dwSynchProtocols",
              FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -720,6 +781,10 @@ proto_register_ccid(void)
          { "Automatic activation of ICC on inserting",
              "usbccid.dwFeatures.autoIccActivation", FT_BOOLEAN, 32,
              TFS(&tfs_supported_not_supported), 0x04, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_autoIccVoltSelect,
+         { "Automatic ICC voltage selection",
+             "usbccid.dwFeatures.autoParamNegotiation", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x08, NULL, HFILL }},
         {&hf_ccid_dwFeatures_autoParam,
          { "Automatic parameter configuration based on ATR",
              "usbccid.dwFeatures.autoParam", FT_BOOLEAN, 32,
@@ -732,6 +797,42 @@ proto_register_ccid(void)
          { "Automatic baud rate change",
              "usbccid.dwFeatures.autoBaudRate", FT_BOOLEAN, 32,
              TFS(&tfs_supported_not_supported), 0x20, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_autoParamNegotiation,
+         { "Automatic parameters negotiation",
+             "usbccid.dwFeatures.autoParamNegotiation", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x40, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_autoPPS,
+         { "Automatic PPS",
+             "usbccid.dwFeatures.autoPPS", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x80, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_stopIccClk,
+         { "CCID can set ICC in clock stop mode",
+             "usbccid.dwFeatures.stopIccClk", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x100, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_nadValNot0accept,
+         { "NAD value other than 00 accepted",
+             "usbccid.dwFeatures.nadValNot0accept", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x200, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_autoIfsd,
+         { "Automatic IFSD exchange as first exchange",
+             "usbccid.dwFeatures.autoIfsd", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x400, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_levelExchangeTDPU,
+         { "TPDU level exchanges",
+             "usbccid.dwFeatures.levelExchangeTDPU", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x010000, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_levelExchangeShortAPDU,
+         { "Short APDU level exchange",
+             "usbccid.dwFeatures.levelExchangeShortAPDU", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x020000, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_levelExchangeShortExtentedAPDU,
+         { "Short and Extended APDU level exchange",
+             "usbccid.dwFeatures.levelExchangeShortExtentedAPDU", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x040000, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_UsbWakeUp,
+         { "USB Wake up signaling supported on card insertion and removal",
+             "usbccid.dwFeatures.UsbWakeUp", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x00100000, NULL, HFILL }},
         {&hf_ccid_dwMaxCCIDMessageLength,
          { "maximum CCID message length", "usbccid.dwMaxCCIDMessageLength",
              FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -805,7 +906,8 @@ proto_register_ccid(void)
         &ett_ccid_features,
         &ett_ccid_lcd_layout,
         &ett_ccid_pin_support,
-        &ett_ccid_slot_change
+        &ett_ccid_slot_change,
+        &ett_ccid_status
     };
 
     static const enum_val_t sub_enum_vals[] = {

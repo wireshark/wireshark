@@ -49,16 +49,17 @@ simple_stat_init(const char *args, void*) {
 }
 }
 
-void register_simple_stat_tables(gpointer data, gpointer) {
-    stat_tap_table_ui *stu = (stat_tap_table_ui*)data;
+gboolean register_simple_stat_tables(const void *key, void *value, void*) {
+    stat_tap_table_ui *stu = (stat_tap_table_ui*)value;
 
     cfg_str_to_stu_[stu->cli_string] = stu;
     TapParameterDialog::registerDialog(
                 stu->title,
-                stu->cli_string,
+                (const char*)key,
                 stu->group,
                 simple_stat_init,
                 SimpleStatisticsDialog::createSimpleStatisticsDialog);
+    return FALSE;
 }
 
 enum {

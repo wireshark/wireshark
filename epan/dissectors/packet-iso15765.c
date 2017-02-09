@@ -124,7 +124,7 @@ static int proto_iso15765 = -1;
 static dissector_table_t subdissector_table;
 
 static reassembly_table iso15765_reassembly_table;
-static GHashTable *iso15765_frame_table = NULL;
+static wmem_map_t *iso15765_frame_table = NULL;
 
 static int hf_iso15765_fragments = -1;
 static int hf_iso15765_fragment = -1;
@@ -249,7 +249,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 iso15765_frame->seq = iso15765_info->seq = ++msg_seqid;
                 iso15765_frame->len = full_len;
 
-                g_hash_table_insert(iso15765_frame_table, GUINT_TO_POINTER(iso15765_info->seq), iso15765_frame);
+                wmem_map_insert(iso15765_frame_table, GUINT_TO_POINTER(iso15765_info->seq), iso15765_frame);
             }
 
             /* Show some info */
@@ -308,7 +308,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         guint16 frag_id = frag_id_low;
 
         /* Get frame information */
-        iso15765_frame = (iso15765_frame_t *) g_hash_table_lookup(iso15765_frame_table,
+        iso15765_frame = (iso15765_frame_t *)wmem_map_lookup(iso15765_frame_table,
                                                                   GUINT_TO_POINTER(iso15765_info->seq));
 
         if (iso15765_frame != NULL)
@@ -381,22 +381,6 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     return tvb_captured_length(tvb);
 }
-
-static void
-iso15765_init(void)
-{
-    iso15765_frame_table = g_hash_table_new(g_direct_hash, g_direct_equal);
-    reassembly_table_init(&iso15765_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-iso15765_cleanup(void)
-{
-    reassembly_table_destroy(&iso15765_reassembly_table);
-    g_hash_table_destroy(iso15765_frame_table);
-}
-
 
 void
 proto_register_iso15765(void)
@@ -619,8 +603,10 @@ proto_register_iso15765(void)
 
     register_decode_as(&can_iso15765);
 
-    register_init_routine(iso15765_init);
-    register_cleanup_routine(iso15765_cleanup);
+    iso15765_frame_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+
+    reassembly_table_register(&iso15765_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 void

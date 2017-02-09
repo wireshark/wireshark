@@ -2290,7 +2290,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                         break;
                     }
                     used_bytes = get_dns_name(tvb, opt_offset, 0, opt_offset, &dnssl_name, &dnssl_len);
-                    proto_tree_add_string(icmp6opt_tree, hf_icmpv6_opt_dnssl, tvb, opt_offset, used_bytes, format_text(dnssl_name, dnssl_len));
+                    proto_tree_add_string(icmp6opt_tree, hf_icmpv6_opt_dnssl, tvb, opt_offset, used_bytes, format_text(wmem_packet_scope(), dnssl_name, dnssl_len));
                     proto_item_append_text(ti, " %s", dnssl_name);
                     opt_offset += used_bytes;
 
@@ -3435,7 +3435,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
                 const guchar *fqdn_name;
                 used_bytes = get_dns_name(tvb, ni_offset, 0, ni_offset, &fqdn_name, &fqdn_len);
                 proto_tree_add_string(tree, hf_icmpv6_ni_query_subject_fqdn, tvb, ni_offset, used_bytes,
-                    format_text(fqdn_name, fqdn_len));
+                    format_text(wmem_packet_scope(), fqdn_name, fqdn_len));
                 ni_offset += fqdn_len;
                 break;
             }
@@ -3467,7 +3467,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
                     /* Node Name */
                     used_bytes = get_dns_name(tvb, ni_offset, 0, ni_offset, &node_name, &node_name_len);
                     proto_tree_add_string(tree, hf_icmpv6_ni_reply_node_name, tvb, ni_offset, used_bytes,
-                        format_text(node_name, node_name_len));
+                        format_text(wmem_packet_scope(), node_name, node_name_len));
                     ni_offset += used_bytes;
                 }
                 break;

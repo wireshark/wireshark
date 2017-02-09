@@ -1057,7 +1057,10 @@ void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds, char* argv0, in
 	preinit_epan(argv0,main);
 
 	DISP_WRITE(dispatcher->parent_out, NULL, 0, ECHLD_HELLO, 0);
-	exit(dispatcher_loop());
+
+	ret = dispatcher_loop();
+	capture_opts_cleanup(dispatcher->capture_opts);
+	exit(ret);
 }
 
 /*

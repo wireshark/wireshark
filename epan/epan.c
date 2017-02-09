@@ -63,6 +63,8 @@
 #include "dissector_filters.h"
 #include "conversation_table.h"
 #include "reassemble.h"
+#include "srt_table.h"
+#include "stats_tree.h"
 
 #ifdef HAVE_LUA
 #include <lua.h>
@@ -171,6 +173,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 		expert_init();
 		packet_init();
 		capture_dissector_init();
+		reassembly_tables_init();
 		proto_init(register_all_protocols_func, register_all_handoffs_func,
 		    cb, client_data);
 		packet_cache_proto_handles();
@@ -215,14 +218,13 @@ epan_cleanup(void)
 	conversation_table_cleanup();
 	conversation_filters_cleanup();
 	reassembly_table_cleanup();
+	tap_cleanup();
 	packet_cleanup();
 	expert_cleanup();
 	capture_dissector_cleanup();
 	export_pdu_cleanup();
-	export_object_cleanup();
-	stat_tap_table_cleanup();
-	follow_cleanup();
 	disabled_protos_cleanup();
+	stats_tree_cleanup();
 #ifdef HAVE_LUA
 	wslua_cleanup();
 #endif
@@ -265,6 +267,15 @@ epan_get_interface_name(const epan_t *session, guint32 interface_id)
 {
 	if (session->get_interface_name)
 		return session->get_interface_name(session->data, interface_id);
+
+	return NULL;
+}
+
+const char *
+epan_get_interface_description(const epan_t *session, guint32 interface_id)
+{
+	if (session->get_interface_description)
+		return session->get_interface_description(session->data, interface_id);
 
 	return NULL;
 }

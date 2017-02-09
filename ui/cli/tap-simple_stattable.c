@@ -140,20 +140,21 @@ simple_stat_init(const char *opt_arg, void* userdata)
 	init_stat_table(new_stat_tap, filter);
 }
 
-void
-register_simple_stat_tables(gpointer data, gpointer user_data _U_)
+gboolean
+register_simple_stat_tables(const void *key, void *value, void *userdata _U_)
 {
-	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui*)data;
+	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui*)value;
 	stat_tap_ui ui_info;
 
 	ui_info.group = new_stat_tap->group;
 	ui_info.title = new_stat_tap->title;   /* construct this from the protocol info? */
-	ui_info.cli_string = new_stat_tap->cli_string;
+	ui_info.cli_string = (const char*)key;
 	ui_info.tap_init_cb = simple_stat_init;
 	ui_info.nparams = new_stat_tap->nparams;
 	ui_info.params = new_stat_tap->params;
 
 	register_stat_tap_ui(&ui_info, new_stat_tap);
+	return FALSE;
 }
 
 /*

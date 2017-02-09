@@ -2157,7 +2157,7 @@ dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
                                    linelen, ENC_ASCII|ENC_NA,
                                    wmem_packet_scope(), &stringval);
     offset = (linelen == -1) ? (gint)tvb_captured_length(tvb) : next_offset;
-    col_append_str(pinfo->cinfo, COL_INFO, format_text(stringval, strlen(stringval)));
+    col_append_str(pinfo->cinfo, COL_INFO, format_text(wmem_packet_scope(), stringval, strlen(stringval)));
     sep = ", ";
   }
   /*

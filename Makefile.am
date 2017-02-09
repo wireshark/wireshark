@@ -45,11 +45,12 @@ bin_PROGRAMS = \
 	@dumpcap_bin@		\
 	@reordercap_bin@	\
 	@rawshark_bin@		\
+	@sharkd_bin@		\
 	@echld_test_bin@
 
 EXTRA_PROGRAMS = wireshark-gtk wireshark tshark tfshark capinfos captype \
 	editcap mergecap dftest randpkt text2pcap dumpcap reordercap \
-	rawshark echld_test
+	rawshark sharkd echld_test
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -566,6 +567,33 @@ rawshark_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS)
 # Libraries and plugin flags with which to link rawshark.
 rawshark_LDADD = \
 	caputils/libcaputils.a		\
+	ui/libui.a			\
+	wiretap/libwiretap.la		\
+	epan/libwireshark.la		\
+	wsutil/libwsutil.la		\
+	$(plugin_ldadd)			\
+	@GLIB_LIBS@			\
+	@PCAP_LIBS@			\
+	${EPAN_EXTRA_LIBS}	\
+	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
+	@COREFOUNDATION_FRAMEWORKS@
+
+sharkd_SOURCES = \
+	$(SHARK_COMMON_SRC)	\
+	filter_files.c		\
+	sharkd.c		\
+	sharkd.h		\
+	sharkd_daemon.c		\
+	sharkd_session.c	\
+	ws_version_info.c
+
+sharkd_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
+
+sharkd_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS)
+
+# Libraries and plugin flags with which to link sharkd.
+sharkd_LDADD = \
+	ui/cli/libcliui.a		\
 	ui/libui.a			\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\

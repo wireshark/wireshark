@@ -2389,17 +2389,6 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     return(offset);
 }
 
-static void
-bundle_defragment_init(void) {
-    reassembly_table_init(&msg_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-bundle_defragment_cleanup(void) {
-    reassembly_table_destroy(&msg_reassembly_table);
-}
-
 
 void proto_reg_handoff_bundle(void);
 void proto_register_bundle(void);
@@ -3066,8 +3055,8 @@ proto_register_bundle(void)
     expert_tcpcl = expert_register_protocol(proto_tcp_conv);
     expert_register_field_array(expert_tcpcl, ei_tcpcl, array_length(ei_tcpcl));
 
-    register_init_routine(bundle_defragment_init);
-    register_cleanup_routine(bundle_defragment_cleanup);
+    reassembly_table_register(&msg_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 void

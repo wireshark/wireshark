@@ -74,6 +74,7 @@ QWidget * ExtArgTimestamp::createEditor(QWidget * parent)
 
     ts = QDateTime::fromTime_t(text.toInt());
     tsBox = new QDateTimeEdit(ts, parent);
+    tsBox->setDisplayFormat(QLocale::system().dateTimeFormat());
     tsBox->setCalendarPopup(true);
 
     if ( _argument->tooltip != NULL )
@@ -378,6 +379,9 @@ QWidget * ExtArgText::createEditor(QWidget * parent)
 
     if ( _argument->tooltip != NULL )
         textBox->setToolTip(QString().fromUtf8(_argument->tooltip));
+
+    if ( _argument->placeholder != NULL )
+        textBox->setPlaceholderText(QString().fromUtf8(_argument->placeholder));
 
     if (_argument->arg_type == EXTCAP_ARG_PASSWORD)
         textBox->setEchoMode(QLineEdit::Password);

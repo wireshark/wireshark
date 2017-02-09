@@ -480,7 +480,7 @@ typedef struct mimo_control
 #define TAG_CISCO_CCX3               149  /* Cisco Compatible eXtensions v3 */
 #define TAG_CISCO_VENDOR_SPECIFIC    150  /* Cisco Compatible eXtensions */
 #define TAG_DMG_OPERATION            151  /* IEEE Std 802.11ad */
-#define TAG_DMG_BSS_PRAMTER_CHANGE   152  /* IEEE Std 802.11ad */
+#define TAG_DMG_BSS_PARAMETER_CHANGE 152  /* IEEE Std 802.11ad */
 #define TAG_DMG_BEAM_REFINEMENT      153  /* IEEE Std 802.11ad */
 #define TAG_CHANNEL_MEASURMENT_FB    154  /* IEEE Std 802.11ad */
 #define TAG_AWAKE_WINDOW             157  /* IEEE Std 802.11ad */
@@ -495,7 +495,7 @@ typedef struct mimo_control
 #define TAG_CLUSTER_REP              166  /* IEEE Std 802.11ad */
 #define TAG_RELAY_CAPABILITIES       167  /* IEEE Std 802.11ad */
 #define TAG_RELAY_TRANSFER_PARAM     168  /* IEEE Std 802.11ad */
-#define TAG_BEAMLINK_MAINTAINCE      169  /* IEEE Std 802.11ad */
+#define TAG_BEAMLINK_MAINTENANCE     169  /* IEEE Std 802.11ad */
 #define TAG_MULTIPLE_MAC_SUBLAYERS   170  /* IEEE Std 802.11ad */
 #define TAG_U_PID                    171  /* IEEE Std 802.11ad */
 #define TAG_DMG_LINK_ADAPTION_ACK    172  /* IEEE Std 802.11ad */
@@ -647,7 +647,7 @@ static const value_string tag_num_vals[] = {
   { TAG_CISCO_CCX3,                           "Cisco Unknown 95" },
   { TAG_CISCO_VENDOR_SPECIFIC,                "Vendor Specific" },
   { TAG_DMG_OPERATION,                        "DMG Operating" },
-  { TAG_DMG_BSS_PRAMTER_CHANGE,               "DMG BSS Parameter Change" },
+  { TAG_DMG_BSS_PARAMETER_CHANGE,             "DMG BSS Parameter Change" },
   { TAG_DMG_BEAM_REFINEMENT,                  "DMG Beam Refinement" },
   { TAG_CHANNEL_MEASURMENT_FB,                "Channel Measurement Feedback" },
   { TAG_AWAKE_WINDOW,                         "Awake Window" },
@@ -662,7 +662,7 @@ static const value_string tag_num_vals[] = {
   { TAG_CLUSTER_REP,                          "Cluster Report" },
   { TAG_RELAY_CAPABILITIES,                   "Relay Capabilities" },
   { TAG_RELAY_TRANSFER_PARAM,                 "Relay Transfer Parameter" },
-  { TAG_BEAMLINK_MAINTAINCE,                  "Beamlink Maintenance" },
+  { TAG_BEAMLINK_MAINTENANCE,                 "Beamlink Maintenance" },
   { TAG_MULTIPLE_MAC_SUBLAYERS,               "Multiple MAC Sublayers" },
   { TAG_U_PID,                                "U-PID" },
   { TAG_DMG_LINK_ADAPTION_ACK,                "DMG Link Adaption Acknowledgment" },
@@ -6727,13 +6727,6 @@ dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 
 static reassembly_table gas_reassembly_table;
 
-static void
-ieee80211_gas_reassembly_init(void)
-{
-  reassembly_table_init(&gas_reassembly_table,
-                        &addresses_reassembly_table_functions);
-}
-
 static gint ett_gas_resp_fragment = -1;
 static gint ett_gas_resp_fragments = -1;
 
@@ -11413,7 +11406,7 @@ dissect_ssid_list(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 tag_len)
     if (offset + 2 + len > end)
       break;
 
-    str = format_text(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, len, ENC_ASCII), len);
+    str = tvb_format_text(tvb, offset + 2, len);
     proto_item_append_text(tree, "%c %s", (first ? ':' : ','), str);
     first = FALSE;
     entry = proto_tree_add_subtree_format(tree, tvb, offset, 2 + len, ett_ssid_list, NULL, "SSID: %s", str);
@@ -13477,9 +13470,10 @@ ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
                       ENC_ASCII|ENC_NA);
 
   if (ssid_len > 0) {
-    proto_item_append_text(ti, ": %s", format_text(ssid, ssid_len));
+    gchar* s = format_text(wmem_packet_scope(), ssid, ssid_len);
+    proto_item_append_text(ti, ": %s", s);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=%s", format_text(ssid, ssid_len));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=%s", s);
 
     /* Wlan Stats */
     memcpy(wlan_stats.ssid, ssid, MIN(ssid_len, MAX_SSID_LEN));
@@ -13526,7 +13520,7 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_reachability, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_security, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_key_scope, tvb, offset, 4, ENC_LITTLE_ENDIAN);
- parent_item = proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  parent_item = proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   bssid_info_cap_subtree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_bssid_info_capability_tree);
   proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_spec_mng, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_qos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -15516,8 +15510,9 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
         proto_tree_add_item_ret_string(tree, hf_ieee80211_mesh_id, tvb, offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &mesh_id);
         if (tag_len > 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=%s", format_text(mesh_id, tag_len));
-            proto_item_append_text(ti, ": %s", format_text(mesh_id, tag_len));
+            gchar* s = format_text(wmem_packet_scope(), mesh_id, tag_len);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=%s", s);
+            proto_item_append_text(ti, ": %s", s);
         }
 
       break;
@@ -15749,7 +15744,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       add_tag_relay_capabilities(pinfo, ti_len, tag_len, tree, tvb, &offset);
       break;
     }
-    case TAG_DMG_BSS_PRAMTER_CHANGE:
+    case TAG_DMG_BSS_PARAMETER_CHANGE:
     {
       gboolean size;
       if (tag_len != 7)
@@ -15970,7 +15965,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       offset += 1;
       break;
     }
-    case TAG_BEAMLINK_MAINTAINCE:
+    case TAG_BEAMLINK_MAINTENANCE:
     {
       if (tag_len != 1)
       {
@@ -18652,19 +18647,6 @@ dissect_ieee80211_noqos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return tvb_captured_length(tvb);
 }
 
-
-static void
-wlan_defragment_init(void)
-{
-  reassembly_table_init(&wlan_reassembly_table,
-                        &addresses_reassembly_table_functions);
-}
-
-static void
-wlan_defragment_cleanup(void)
-{
-  reassembly_table_destroy(&wlan_reassembly_table);
-}
 
 /* ------------- */
 static guint
@@ -27584,10 +27566,11 @@ proto_register_ieee80211(void)
   register_capture_dissector("ieee80211", capture_ieee80211, proto_wlan);
   register_capture_dissector("ieee80211_datapad", capture_ieee80211_datapad, proto_wlan);
 
-  register_init_routine(wlan_defragment_init);
-  register_cleanup_routine(wlan_defragment_cleanup);
+  reassembly_table_register(&wlan_reassembly_table,
+                        &addresses_reassembly_table_functions);
   register_init_routine(wlan_retransmit_init);
-  register_init_routine(ieee80211_gas_reassembly_init);
+  reassembly_table_register(&gas_reassembly_table,
+                        &addresses_reassembly_table_functions);
 
   wlan_tap = register_tap("wlan");
   register_conversation_table(proto_wlan, TRUE, wlan_conversation_packet, wlan_hostlist_packet);

@@ -2367,8 +2367,6 @@ radius_init_protocol(void)
 		if (! prefs_get_preference_obsolete(alternate_port))
 			prefs_set_preference_obsolete(alternate_port);
 	}
-
-	radius_calls = wmem_map_new(wmem_file_scope(), radius_call_hash, radius_call_equal);
 }
 
 static void
@@ -2657,6 +2655,8 @@ proto_register_radius(void)
 	dict->vendors_by_id   = g_hash_table_new(g_direct_hash, g_direct_equal);
 	dict->vendors_by_name = g_hash_table_new(g_str_hash, g_str_equal);
 	dict->tlvs_by_name    = g_hash_table_new(g_str_hash, g_str_equal);
+
+	radius_calls = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), radius_call_hash, radius_call_equal);
 
 	register_rtd_table(proto_radius, NULL, RADIUS_CAT_NUM_TIMESTATS, 1, radius_message_code, radiusstat_packet, NULL);
 }

@@ -1000,19 +1000,6 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     return tvb_captured_length(tvb);
 }
 
-static void
-mux27010_init(void)
-{
-    reassembly_table_init(&msg_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-mux27010_cleanup(void)
-{
-    reassembly_table_destroy(&msg_reassembly_table);
-}
-
 /*Register the protocol*/
 void
 proto_register_mux27010 (void)
@@ -1429,8 +1416,8 @@ proto_register_mux27010 (void)
     expert_mux27010 = expert_register_protocol(proto_mux27010);
     expert_register_field_array(expert_mux27010, ei, array_length(ei));
 
-    register_init_routine(mux27010_init);
-    register_cleanup_routine(mux27010_cleanup);
+    reassembly_table_register(&msg_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 /*Initialize dissector*/

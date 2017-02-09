@@ -859,7 +859,7 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
   if (is_request_or_reply) {
     line = tvb_get_ptr (tvb, offset, first_linelen);
     col_add_fstr (pinfo->cinfo, COL_INFO, "%s ",
-                 format_text (line, first_linelen));
+                 format_text(wmem_packet_scope(), line, first_linelen));
   } else {
     col_set_str (pinfo->cinfo, COL_INFO, "MEMCACHE Continuation");
   }

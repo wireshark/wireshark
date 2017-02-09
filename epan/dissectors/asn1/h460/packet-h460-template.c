@@ -260,10 +260,10 @@ void proto_register_h460(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   for (ftr=h460_feature_tab; ftr->id; ftr++) {
-    if (ftr->opt & GD) ftr->key_gd = g_strdup_printf("GenericData/%s", ftr->id);
-    if (ftr->opt & FD) ftr->key_fd = g_strdup_printf("FeatureDescriptor/%s", ftr->id);
-    if (ftr->opt & GM) ftr->key_gm = g_strdup_printf("GenericMessage/%s", ftr->id);
-    if (ftr->opt & GI) ftr->key_gi = g_strdup_printf("GenericInformation/%s", ftr->id);
+    if (ftr->opt & GD) ftr->key_gd = wmem_strdup_printf(wmem_epan_scope(), "GenericData/%s", ftr->id);
+    if (ftr->opt & FD) ftr->key_fd = wmem_strdup_printf(wmem_epan_scope(), "FeatureDescriptor/%s", ftr->id);
+    if (ftr->opt & GM) ftr->key_gm = wmem_strdup_printf(wmem_epan_scope(), "GenericMessage/%s", ftr->id);
+    if (ftr->opt & GI) ftr->key_gi = wmem_strdup_printf(wmem_epan_scope(), "GenericInformation/%s", ftr->id);
     if (ftr->content_pdu) ftr->content_hnd = create_dissector_handle(ftr->content_pdu, proto_h460);
   }
 }

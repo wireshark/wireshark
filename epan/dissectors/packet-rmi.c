@@ -360,8 +360,8 @@ proto_register_rmi(void)
     };
 
     proto_rmi = proto_register_protocol("Java RMI", "RMI", "rmi");
-    proto_ser = proto_register_protocol("Java Serialization", "Serialization",
-                                        "serialization");
+    proto_ser = proto_register_protocol_in_name_only("Java Serialization", "Serialization",
+                                        "serialization", proto_rmi, FT_PROTOCOL);
     proto_register_field_array(proto_rmi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

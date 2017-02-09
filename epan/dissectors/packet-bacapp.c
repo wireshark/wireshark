@@ -11244,19 +11244,6 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     return tvb_captured_length(tvb);
 }
 
-static void
-bacapp_init_routine(void)
-{
-    reassembly_table_init(&msg_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-bacapp_cleanup_routine(void)
-{
-    reassembly_table_destroy(&msg_reassembly_table);
-}
-
 void
 proto_register_bacapp(void)
 {
@@ -11495,8 +11482,9 @@ proto_register_bacapp(void)
     expert_bacapp = expert_register_protocol(proto_bacapp);
     expert_register_field_array(expert_bacapp, ei, array_length(ei));
     register_dissector("bacapp", dissect_bacapp, proto_bacapp);
-    register_init_routine(&bacapp_init_routine);
-    register_cleanup_routine(&bacapp_cleanup_routine);
+
+    reassembly_table_register(&msg_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     bacapp_dissector_table = register_dissector_table("bacapp.vendor_identifier",
                                                       "BACapp Vendor Identifier", proto_bacapp,

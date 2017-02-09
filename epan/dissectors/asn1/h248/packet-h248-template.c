@@ -1493,7 +1493,7 @@ static const h248_pkg_param_t no_param = { 0, &hf_h248_param, h248_param_uint_it
 static const h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, NULL, NULL };
 
 const h248_package_t *find_package_id(guint16 pkgid);
-static GTree* packages = NULL;
+static wmem_tree_t* packages = NULL;
 
 extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo , int hfid _U_, h248_curr_info_t* u1 _U_, void* u2 _U_) {
     tvbuff_t *new_tvb = NULL;
@@ -1627,7 +1627,7 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 
 static s_h248_package_t *s_find_package_id(guint16 pkgid) {
     s_h248_package_t *s_pkg = NULL;
-    s_pkg = (s_h248_package_t *)g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
+    s_pkg = (s_h248_package_t *)wmem_tree_lookup32(packages, (guint32)(pkgid));
     return s_pkg;
 }
 
@@ -1638,13 +1638,9 @@ const h248_package_t *find_package_id(guint16 pkgid) {
     return s_pkg->pkg;
 }
 
-static gint32 comparePkgID(gconstpointer a, gconstpointer b) {
-    return GPOINTER_TO_UINT(b) - GPOINTER_TO_UINT(a);
-}
-
 static gboolean is_pkg_default(guint16 pkgid) {
     s_h248_package_t *s_pkg = NULL;
-    s_pkg = (s_h248_package_t *)g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
+    s_pkg = (s_h248_package_t *)wmem_tree_lookup32(packages, (guint32)(pkgid));
     if(! s_pkg ) return TRUE;
     return s_pkg->is_default;
 }
@@ -1658,7 +1654,7 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
     if (! packages) {
         /* no packaegs are yet registerd so create tree and add default packages to tree
          */
-        packages = g_tree_new(comparePkgID); /* init tree if no entries */
+        packages = wmem_tree_new(wmem_epan_scope()); /* init tree if no entries */
         while (base_package_name_vals[i].strptr != NULL) {
             pkg_found = wmem_new0(wmem_epan_scope(), h248_package_t); /* create a h248 package structure */
             pkg_found->id = base_package_name_vals[i].value;
@@ -1703,7 +1699,7 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
             s_pkg = wmem_new0(wmem_epan_scope(), s_h248_package_t);
             s_pkg->is_default = TRUE;
             s_pkg->pkg = pkg_found;
-            g_tree_insert(packages, GINT_TO_POINTER(pkg_found->id), (gpointer)s_pkg);
+            wmem_tree_insert32(packages, pkg_found->id, s_pkg);
             i++;
         };
         pkg_found = NULL; /* reset pointer */
@@ -1714,7 +1710,7 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
         s_pkg = wmem_new0(wmem_epan_scope(), s_h248_package_t);
         s_pkg->is_default = FALSE;
         s_pkg->pkg = (h248_package_t *)pkg;
-        g_tree_replace(packages, GINT_TO_POINTER(pkg->id), (gpointer)s_pkg);
+        wmem_tree_insert32(packages, pkg->id, s_pkg);
         return;
     };
     if(pkg_default) reg_action = MERGE_PKG_HIGH; /* always make new package overide default */
@@ -1723,7 +1719,7 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
         s_pkg = wmem_new0(wmem_epan_scope(), s_h248_package_t);
         s_pkg->is_default = FALSE;
         s_pkg->pkg = (h248_package_t *)pkg;
-        g_tree_insert(packages, GINT_TO_POINTER(pkg->id), (gpointer)s_pkg);
+        wmem_tree_insert32(packages, pkg->id, s_pkg);
         return;
     }
     pkg_found = s_pkg->pkg;

@@ -28,6 +28,8 @@
 #include "ws_symbol_export.h"
 #include <glib.h>
 
+#include "jsmn.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,6 +38,8 @@ extern "C" {
  * Check if a buffer is json an returns true if it is.
  */
 WS_DLL_PUBLIC gboolean jsmn_is_json(const guint8* buf, const size_t len);
+
+WS_DLL_PUBLIC int wsjsmn_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens);
 
 #ifdef __cplusplus
 }

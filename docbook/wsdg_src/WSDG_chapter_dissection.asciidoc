@@ -770,9 +770,9 @@ Now the mysterious data we passed into the +fragment_add_seq_check()+.
 static reassembly_table reassembly_table;
 
 static void
-msg_init_protocol(void)
+proto_register_msg(void)
 {
-    reassembly_table_init(&msg_reassemble_table,
+    reassembly_table_register(&msg_reassemble_table,
         &addresses_ports_reassembly_table_functions);
 }
 ----

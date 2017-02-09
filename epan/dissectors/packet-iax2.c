@@ -2429,9 +2429,6 @@ iax_init_protocol(void)
   circuitcount = 0;
 
   iax_fid_table = g_hash_table_new(g_direct_hash, g_direct_equal);
-
-  reassembly_table_init(&iax_reassembly_table,
-                        &addresses_reassembly_table_functions);
 }
 
 static void
@@ -2439,7 +2436,6 @@ iax_cleanup_protocol(void)
 {
   g_hash_table_destroy(iax_circuit_hashtab);
   g_hash_table_destroy(iax_fid_table);
-  reassembly_table_destroy(&iax_reassembly_table);
 }
 
 
@@ -3210,6 +3206,9 @@ proto_register_iax2(void)
      to clear out our hash tables etc */
   register_init_routine(&iax_init_protocol);
   register_cleanup_routine(&iax_cleanup_protocol);
+  reassembly_table_register(&iax_reassembly_table,
+                        &addresses_reassembly_table_functions);
+
   iax2_tap = register_tap("IAX2");
 }
 

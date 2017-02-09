@@ -2844,12 +2844,12 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             }
                             iApp = tvb_get_guint32(tvb, offset + 48 + 28, iCod);
 
-                            sApplicationName = format_text_chr(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 48, 28, iEnc), 28, '.');
+                            sApplicationName = format_text_chr(wmem_packet_scope(), tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 48, 28, iEnc), 28, '.');
                             if (strip_trailing_blanks((guint8 *)sApplicationName, 28) > 0)
                             {
                                 col_append_fstr(pinfo->cinfo, COL_INFO, " App=%s", sApplicationName);
                             }
-                            sQMgr = format_text_chr(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 48, iEnc), 48, '.');
+                            sQMgr = format_text_chr(wmem_packet_scope(), tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 48, iEnc), 48, '.');
                             if (strip_trailing_blanks((guint8 *)sQMgr, 48) > 0)
                             {
                                 col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQMgr);
@@ -3740,7 +3740,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                     if (*sStr)
                                                         strip_trailing_blanks(sStr, iLenStr);
                                                     if (*sStr)
-                                                        format_text_chr(sStr, strlen((const char *)sStr), '.');
+                                                        sStr = (guint8*)format_text_chr(wmem_packet_scope(), sStr, strlen((const char *)sStr), '.');
 
                                                     rfh_tree = proto_tree_add_subtree_format(mq_tree, tvb, iPos, iLenStr+4, ett_mq_rfh_ValueName, NULL, "NameValue: %s",  sStr);
 
@@ -4096,17 +4096,6 @@ static gboolean    dissect_mq_heur_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_
 {
     dissector_handle_t *app_handle = (dissector_handle_t *) data;
     return dissect_mq_heur(tvb, pinfo, tree, FALSE, app_handle);
-}
-
-static void mq_init(void)
-{
-    reassembly_table_init(&mq_reassembly_table,
-        &addresses_reassembly_table_functions);
-}
-
-static void mq_cleanup(void)
-{
-    reassembly_table_destroy(&mq_reassembly_table);
 }
 
 void proto_register_mq(void)
@@ -4776,8 +4765,9 @@ void proto_register_mq(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     mq_heur_subdissector_list = register_heur_dissector_list("mq", proto_mq);
-    register_init_routine(mq_init);
-    register_cleanup_routine(mq_cleanup);
+
+    reassembly_table_register(&mq_reassembly_table,
+        &addresses_reassembly_table_functions);
 
     mq_module = prefs_register_protocol(proto_mq, NULL);
     mq_handle = register_dissector("mq", dissect_mq_tcp, proto_mq);

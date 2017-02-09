@@ -533,6 +533,17 @@ wmem_tree_lookup32_le(wmem_tree_t *tree, guint32 key)
     }
 }
 
+void *
+wmem_tree_remove32(wmem_tree_t *tree, guint32 key)
+{
+    void *ret = wmem_tree_lookup32(tree, key);
+    if (ret) {
+        /* Not really a remove, but set data to NULL to mark node with is_removed */
+        wmem_tree_insert32(tree, key, NULL);
+    }
+    return ret;
+}
+
 void
 wmem_tree_insert_string(wmem_tree_t* tree, const gchar* k, void* v, guint32 flags)
 {

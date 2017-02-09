@@ -42,6 +42,8 @@
 #include <wsutil/privileges.h>
 #include <wsutil/report_err.h>
 
+#include <wiretap/wtap.h>
+
 #include "ui/util.h"
 #include "register.h"
 
@@ -92,6 +94,8 @@ main(int argc, char **argv)
 	   that's done later. */
 	scan_plugins(REPORT_LOAD_FAILURE);
 #endif
+
+	wtap_init();
 
 	/* Register all dissectors; we must do this before checking for the
 	   "-g" flag, as the "-g" flag dumps a list of fields registered

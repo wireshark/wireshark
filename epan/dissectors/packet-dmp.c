@@ -502,8 +502,8 @@ typedef struct _dmp_id_val {
   guint32  ack_resend_count;           /* Acknowledgement resend counter */
 } dmp_id_val;
 
-static GHashTable *dmp_id_hash_table = NULL;
-static GHashTable *dmp_long_id_hash_table = NULL;
+static wmem_map_t *dmp_id_hash_table = NULL;
+static wmem_map_t *dmp_long_id_hash_table = NULL;
 
 /* Global values used in several functions */
 static struct dmp_data {
@@ -1377,7 +1377,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
     copy_address_wmem(wmem_file_scope(), &dmp_key->src, &(pinfo->dst));
     copy_address_wmem(wmem_file_scope(), &dmp_key->dst, &(pinfo->src));
 
-    dmp_data = (dmp_id_val *) g_hash_table_lookup (dmp_id_hash_table, dmp_key);
+    dmp_data = (dmp_id_val *) wmem_map_lookup (dmp_id_hash_table, dmp_key);
 
     if (dmp_data) {
       /* Found message */
@@ -1400,7 +1400,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
     copy_address_wmem(wmem_file_scope(), &dmp_key->dst, &(pinfo->dst));
   }
 
-  dmp_data = (dmp_id_val *) g_hash_table_lookup (dmp_id_hash_table, dmp_key);
+  dmp_data = (dmp_id_val *) wmem_map_lookup (dmp_id_hash_table, dmp_key);
 
   if (!pinfo->fd->flags.visited) {
     if (dmp_data) {
@@ -1446,7 +1446,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
           dmp_data->msg_id = pinfo->num;
         }
 
-        g_hash_table_insert (dmp_id_hash_table, dmp_key, dmp_data);
+        wmem_map_insert (dmp_id_hash_table, dmp_key, dmp_data);
       }
     }
 
@@ -2666,17 +2666,17 @@ static gint dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tre
     mts_id = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, dmp.mts_id_length);
   }
   proto_item_append_text (dmp.mts_id_item, " (%zu bytes decompressed)", strlen(mts_id));
-  mts_id = format_text (mts_id, strlen(mts_id));
+  mts_id = format_text(wmem_packet_scope(), mts_id, strlen(mts_id));
   if (subject) {
     ti = proto_tree_add_string (tree, hf_message_subj_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     hidden_item = proto_tree_add_string (tree, hf_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     /* Read from hash, for analysis */
-    dmp.subj_id = GPOINTER_TO_UINT (g_hash_table_lookup (dmp_long_id_hash_table, mts_id));
+    dmp.subj_id = GPOINTER_TO_UINT (wmem_map_lookup (dmp_long_id_hash_table, mts_id));
   } else {
     ti = proto_tree_add_string (tree, hf_envelope_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     hidden_item = proto_tree_add_string (tree, hf_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     /* Insert into hash, for analysis */
-    g_hash_table_insert (dmp_long_id_hash_table, g_strdup (mts_id), GUINT_TO_POINTER ((guint)dmp.msg_id));
+    wmem_map_insert (dmp_long_id_hash_table, g_strdup (mts_id), GUINT_TO_POINTER ((guint)dmp.msg_id));
   }
   PROTO_ITEM_SET_HIDDEN (hidden_item);
   offset += dmp.mts_id_length;
@@ -2722,17 +2722,17 @@ static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tre
     ipm_id = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ipm_id_length);
   }
   proto_item_append_text (tf, " (%zu bytes decompressed)", strlen(ipm_id));
-  ipm_id = format_text (ipm_id, strlen(ipm_id));
+  ipm_id = format_text(wmem_packet_scope(), ipm_id, strlen(ipm_id));
   if (subject) {
     ti = proto_tree_add_string (tree, hf_message_subj_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     hidden_item = proto_tree_add_string (tree, hf_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     /* Read from hash, for analysis */
-    dmp.subj_id = GPOINTER_TO_UINT (g_hash_table_lookup (dmp_long_id_hash_table, ipm_id));
+    dmp.subj_id = GPOINTER_TO_UINT (wmem_map_lookup (dmp_long_id_hash_table, ipm_id));
   } else {
     ti = proto_tree_add_string (tree, hf_envelope_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     hidden_item = proto_tree_add_string (tree, hf_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     /* Insert into hash, for analysis */
-    g_hash_table_insert (dmp_long_id_hash_table, g_strdup (ipm_id), GUINT_TO_POINTER ((guint)dmp.msg_id));
+    wmem_map_insert (dmp_long_id_hash_table, g_strdup (ipm_id), GUINT_TO_POINTER ((guint)dmp.msg_id));
   }
   PROTO_ITEM_SET_HIDDEN (hidden_item);
   offset += ipm_id_length;
@@ -3995,18 +3995,6 @@ static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
   return offset;
 }
 
-static void dmp_init_routine (void)
-{
-  dmp_id_hash_table = g_hash_table_new (dmp_id_hash, dmp_id_hash_equal);
-  dmp_long_id_hash_table = g_hash_table_new (g_str_hash, g_str_equal);
-}
-
-static void dmp_cleanup_routine (void)
-{
-  g_hash_table_destroy(dmp_id_hash_table);
-  g_hash_table_destroy(dmp_long_id_hash_table);
-}
-
 void proto_register_dmp (void)
 {
   static hf_register_info hf[] = {
@@ -4919,8 +4907,9 @@ void proto_register_dmp (void)
   proto_register_subtree_array (ett, array_length (ett));
   expert_dmp = expert_register_protocol(proto_dmp);
   expert_register_field_array(expert_dmp, ei, array_length(ei));
-  register_init_routine (&dmp_init_routine);
-  register_cleanup_routine (&dmp_cleanup_routine);
+
+  dmp_id_hash_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), dmp_id_hash, dmp_id_hash_equal);
+  dmp_long_id_hash_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
 
   /* Build national values */
   build_national_strings ();

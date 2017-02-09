@@ -196,6 +196,7 @@ static gint hf_hdp_supported_features_data_mdep_role                       = -1;
 static gint hf_hdp_supported_features_data_mdep_description                = -1;
 static gint hf_hdp_supported_features_mdep_id                              = -1;
 static gint hf_hdp_supported_features_mdep_data_type                       = -1;
+static gint hf_hdp_supported_features_mdep_data_type_01                    = -1;
 static gint hf_hdp_supported_features_mdep_role                            = -1;
 static gint hf_hdp_supported_features_mdep_description                     = -1;
 static gint hf_pan_sercurity_description                                   = -1;
@@ -943,6 +944,38 @@ static const range_string hdp_mdep_id_rvals[] = {
 static const value_string hdp_mdep_role_vals[] = {
     { 0x00,   "Source" },
     { 0x01,   "Sink" },
+    { 0, NULL }
+};
+
+static const value_string hdp_mdep_data_type_01_vals[] = {
+    { 0x1004,   "Pulse Oximeter" },
+    { 0x1006,   "Basic ECG" },
+    { 0x1007,   "Blood Pressure Monitor" },
+    { 0x1008,   "Body Thermometer" },
+    { 0x100F,   "Body Weight Scale" },
+    { 0x1011,   "Glucose Meter" },
+    { 0x1012,   "International Normalized Ratio Monitor" },
+    { 0x1014,   "Body Composition Analyzer" },
+    { 0x1015,   "Peak Flow Monitor" },
+    { 0x1029,   "Cardiovascular Fitness and Activity Monitor" },
+    { 0x102A,   "Strength Fitness Equipment" },
+    { 0x1047,   "Independent Living Activity Hub" },
+    { 0x1048,   "Medication monitor" },
+    { 0x1068,   "Step Counter based on 10441" },
+    { 0x1075,   "Fall Sensor" },
+    { 0x1076,   "Personal Emergency Response Sensor" },
+    { 0x1077,   "Smoke Sensor" },
+    { 0x1078,   "Carbon Monoxide Sensor" },
+    { 0x1079,   "Water Sensor" },
+    { 0x107A,   "Gas Sensor" },
+    { 0x107B,   "Motion Sensor" },
+    { 0x107C,   "Property Exit Sensor" },
+    { 0x107D,   "Enuresis Sensor" },
+    { 0x107E,   "Contact Closure Sensor" },
+    { 0x107F,   "Usage Sensor" },
+    { 0x1080,   "Switch Sensor" },
+    { 0x1081,   "Medication Dosing Sensor" },
+    { 0x1082,   "Temperature Sensor" },
     { 0, NULL }
 };
 
@@ -1905,10 +1938,9 @@ dissect_data_element(proto_tree *tree, proto_tree **next_tree,
     return offset;
 }
 
-
 static gint
-findDidVendorIdSource(tvbuff_t *tvb, gint service_offset,
-        gint number_of_attributes)
+findUintAttribute(tvbuff_t *tvb, gint service_offset,
+        gint number_of_attributes, gint attribute_id)
 {
     gint result = 0;
     gint search_length;
@@ -1926,38 +1958,7 @@ findDidVendorIdSource(tvbuff_t *tvb, gint service_offset,
         search_offset += search_length;
         search_offset = get_type_length(tvb, search_offset, &search_length);
 
-        if (attribute == 0x205) {
-            result = get_uint_by_size(tvb, search_offset, 1);
-        }
-
-        search_offset += search_length;
-        i_number_of_attributes += 1;
-    }
-
-    return result;
-}
-
-static gint
-findDidVendorId(tvbuff_t *tvb, gint service_offset,
-        gint number_of_attributes)
-{
-    gint result = 0;
-    gint search_length;
-    gint search_offset;
-    gint i_number_of_attributes;
-    guint16 attribute;
-
-    search_offset = service_offset;
-    i_number_of_attributes = 0;
-
-    while (i_number_of_attributes < number_of_attributes) {
-        search_offset = get_type_length(tvb, search_offset, &search_length);
-        attribute = tvb_get_ntohs(tvb, search_offset);
-
-        search_offset += search_length;
-        search_offset = get_type_length(tvb, search_offset, &search_length);
-
-        if (attribute == 0x201) {
+        if (attribute == attribute_id) {
             result = get_uint_by_size(tvb, search_offset, 1);
         }
 
@@ -2113,6 +2114,7 @@ static gint
 dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         gint offset, gint attribute, bluetooth_uuid_t service_uuid,
         gint service_did_vendor_id, gint service_did_vendor_id_source,
+        gint service_hdp_data_exchange_specification,
         service_info_t  *service_info, wmem_strbuf_t **pinfo_buf)
 {
     proto_tree    *feature_tree;
@@ -2602,7 +2604,10 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         new_offset = get_type_length(tvb, entry_offset, &length);
                         proto_item_set_len(entry_item, (new_offset - entry_offset) + length);
                         entry_offset = new_offset;
-                        proto_tree_add_item(next_tree, hf_hdp_supported_features_mdep_data_type, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
+                        if (service_hdp_data_exchange_specification == 0x01)
+                            proto_tree_add_item(next_tree, hf_hdp_supported_features_mdep_data_type_01, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
+                        else
+                            proto_tree_add_item(next_tree, hf_hdp_supported_features_mdep_data_type, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
                         value = tvb_get_ntohs(tvb, entry_offset);
                         proto_item_append_text(entry_item, ": %u (0x%04x)", value, value);
                         entry_offset += length;
@@ -3522,7 +3527,9 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 first = 0;
             }
 
-            size = dissect_sdp_type(st, pinfo, tvb, offset, attribute, service_uuid, service_did_vendor_id, service_did_vendor_id_source, service_info, &substr);
+            size = dissect_sdp_type(st, pinfo, tvb, offset, attribute, service_uuid,
+                    service_did_vendor_id, service_did_vendor_id_source,
+                    service_hdp_data_exchange_specification, service_info, &substr);
             if (size < 1) {
                 break;
             }
@@ -3558,6 +3565,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
     guint16              id;
     gint                 service_did_vendor_id = -1;
     gint                 service_did_vendor_id_source = -1;
+    gint                 service_hdp_data_exchange_specification = -1;
     gint                 hfx_attribute_id = hf_service_attribute_id_generic;
     const value_string  *name_vals = NULL;
     const guint8        *profile_speficic = "";
@@ -3575,8 +3583,8 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
             profile_speficic = "(DID) ";
 
             if (number_of_attributes > 1) {
-                service_did_vendor_id_source = findDidVendorIdSource(tvb, service_offset, number_of_attributes);
-                service_did_vendor_id = findDidVendorId(tvb, service_offset, number_of_attributes);
+                service_did_vendor_id_source = findUintAttribute(tvb, service_offset, number_of_attributes, 0x205);
+                service_did_vendor_id = findUintAttribute(tvb, service_offset, number_of_attributes, 0x201);
             }
             break;
         case BTSDP_HID_SERVICE_UUID:
@@ -3638,6 +3646,10 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
             name_vals = vs_hdp_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_hdp;
             profile_speficic = "(HDP) ";
+
+            if (number_of_attributes > 1) {
+                service_hdp_data_exchange_specification = findUintAttribute(tvb, service_offset, number_of_attributes, 0x301);
+            }
             break;
         case BTSDP_HSP_SERVICE_UUID:
         case BTSDP_HSP_HS_SERVICE_UUID:
@@ -3793,7 +3805,9 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
             attribute_value_tree = proto_item_add_subtree(attribute_value_item, ett_btsdp_attribute_value);
 
             dissect_sdp_type(attribute_value_tree, pinfo, tvb, offset, id, uuid,
-                    service_did_vendor_id, service_did_vendor_id_source, service_info, &attribute_value);
+                    service_did_vendor_id, service_did_vendor_id_source,
+                    service_hdp_data_exchange_specification, service_info,
+                    &attribute_value);
             old_offset = offset;
             offset = get_type_length(tvb, offset, &size);
             proto_item_append_text(attribute_item, ", value = %s", wmem_strbuf_get_str(attribute_value));
@@ -4072,7 +4086,7 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
         gint            entry_size;
         bluetooth_uuid_t uuid;
 
-        size = dissect_sdp_type(sub_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, NULL, &str);
+        size = dissect_sdp_type(sub_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, -1, NULL, &str);
 
         entry_offset = get_type_length(tvb, offset, &entry_size);
         dissect_uuid(NULL, tvb, entry_offset, entry_size, &uuid);
@@ -4368,7 +4382,7 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
 
         memset(&a_uuid, 0, sizeof(bluetooth_uuid_t));
 
-        size = dissect_sdp_type(next_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, NULL, &info_buf);
+        size = dissect_sdp_type(next_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, -1, NULL, &info_buf);
         proto_item_append_text(pitem,"%s", wmem_strbuf_get_str(info_buf));
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s", wmem_strbuf_get_str(info_buf));
 
@@ -5384,6 +5398,11 @@ proto_register_btsdp(void)
         { &hf_hdp_supported_features_mdep_id,
             { "MDEP ID",                         "btsdp.hdp.supported_features.mdep_id",
             FT_UINT8, BASE_DEC_HEX|BASE_RANGE_STRING, RVALS(hdp_mdep_id_rvals), 0,
+            NULL, HFILL }
+        },
+        { &hf_hdp_supported_features_mdep_data_type_01,
+            { "MDEP Data Type",                  "btsdp.hdp.supported_features.mdep_data_type",
+            FT_UINT16, BASE_HEX, VALS(hdp_mdep_data_type_01_vals), 0,
             NULL, HFILL }
         },
         { &hf_hdp_supported_features_mdep_data_type,

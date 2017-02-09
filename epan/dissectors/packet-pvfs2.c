@@ -893,7 +893,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 				size_t string_buffer_size = 0;
 				char *string_buffer_temp;
 
-				formatted = format_text((guint8 *)string_buffer,
+				formatted = format_text(wmem_packet_scope(), (guint8 *)string_buffer,
 						(int)strlen(string_buffer));
 
 				string_buffer_size = strlen(formatted) + 12 + 1;
@@ -917,9 +917,8 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 			}
 		} else {
 			if (string_data) {
-				string_buffer_print =
-				    wmem_strdup(wmem_packet_scope(), format_text((guint8 *) string_buffer,
-								 (int)strlen(string_buffer)));
+				string_buffer_print = format_text(wmem_packet_scope(), (guint8 *) string_buffer,
+								 (int)strlen(string_buffer));
 			} else {
 				string_buffer_print="<DATA>";
 			}
@@ -2875,7 +2874,7 @@ dissect_pvfs2_response(tvbuff_t *tvb, proto_tree *tree, int offset,
 	return offset;
 }
 
-static GHashTable *pvfs2_io_tracking_value_table = NULL;
+static wmem_map_t *pvfs2_io_tracking_value_table = NULL;
 
 typedef struct pvfs2_io_tracking_key
 {
@@ -2907,19 +2906,6 @@ pvfs2_io_tracking_hash(gconstpointer k)
 	return (guint) ((key->tag >> 32) ^ ((guint32) key->tag));
 }
 
-static void
-pvfs2_io_tracking_init(void)
-{
-	pvfs2_io_tracking_value_table = g_hash_table_new(pvfs2_io_tracking_hash,
-			pvfs2_io_tracking_equal);
-}
-
-static void
-pvfs2_io_tracking_cleanup(void)
-{
-	g_hash_table_destroy(pvfs2_io_tracking_value_table);
-}
-
 static pvfs2_io_tracking_value_t *
 pvfs2_io_tracking_new_with_tag(guint64 tag, guint32 num)
 {
@@ -2931,7 +2917,7 @@ pvfs2_io_tracking_new_with_tag(guint64 tag, guint32 num)
 
 	value = wmem_new0(wmem_file_scope(), pvfs2_io_tracking_value_t);
 
-	g_hash_table_insert(pvfs2_io_tracking_value_table, newkey, value);
+	wmem_map_insert(pvfs2_io_tracking_value_table, newkey, value);
 
 	value->request_frame_num = num;
 
@@ -2994,7 +2980,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		memset(&key, 0, sizeof(key));
 		key.tag = tag;
 
-		val = (pvfs2_io_tracking_value_t *)g_hash_table_lookup(pvfs2_io_tracking_value_table, &key);
+		val = (pvfs2_io_tracking_value_t *)wmem_map_lookup(pvfs2_io_tracking_value_table, &key);
 
 		/* If this frame contains a known PVFS_SERV_IO tag, track it */
 		if (val && !pinfo->fd->flags.visited)
@@ -3607,8 +3593,7 @@ proto_register_pvfs(void)
 	expert_pvfs = expert_register_protocol(proto_pvfs);
 	expert_register_field_array(expert_pvfs, ei, array_length(ei));
 
-	register_init_routine(pvfs2_io_tracking_init);
-	register_cleanup_routine(pvfs2_io_tracking_cleanup);
+	pvfs2_io_tracking_value_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), pvfs2_io_tracking_hash, pvfs2_io_tracking_equal);
 
 	pvfs_module = prefs_register_protocol(proto_pvfs, NULL);
 	prefs_register_bool_preference(pvfs_module, "desegment",

@@ -1839,7 +1839,7 @@ static inline const gchar *format_param_str(tvbuff_t *tvb, int offset, int len) 
     if (len < 2) {
         return param_str;
     }
-    return format_text_chr(param_str, len - 1, ' '); /* Leave terminating NULLs alone. */
+    return format_text_chr(wmem_packet_scope(), param_str, len - 1, ' '); /* Leave terminating NULLs alone. */
 }
 
 /* Code to actually dissect the packets */

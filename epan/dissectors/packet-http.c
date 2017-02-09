@@ -879,7 +879,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * Put the first line from the buffer into the summary
 		 * (but leave out the line terminator).
 		 */
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(firstline, first_linelen));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(wmem_packet_scope(), firstline, first_linelen));
 
 		/*
 		 * Do header desegmentation if we've been told to,
@@ -2669,9 +2669,9 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						tvb, offset, len,
 						ENC_NA|ENC_ASCII);
 					proto_item_set_text(it, "%s",
-							format_text(line, len));
+							format_text(wmem_packet_scope(), line, len));
 				} else {
-					gchar* str = format_text(line, len);
+					gchar* str = format_text(wmem_packet_scope(), line, len);
 					proto_tree_add_string_format(tree, hf_http_unknown_header, tvb, offset,
 						len, str, "%s", str);
 				}
@@ -2679,7 +2679,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			} else {
 				proto_tree_add_string_format(tree,
 					*hf_id, tvb, offset, len,
-					value, "%s", format_text(line, len));
+					value, "%s", format_text(wmem_packet_scope(), line, len));
 				if (http_type == HTTP_REQUEST ||
 					http_type == HTTP_RESPONSE) {
 					it = proto_tree_add_item(tree,
@@ -2689,7 +2689,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						tvb, offset, len,
 						ENC_NA|ENC_ASCII);
 					proto_item_set_text(it, "%s",
-							format_text(line, len));
+							format_text(wmem_packet_scope(), line, len));
 					PROTO_ITEM_SET_HIDDEN(it);
 				}
 			}
@@ -2730,7 +2730,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			default:
 				hdr_item = proto_tree_add_string_format(tree,
 				    *headers[hf_index].hf, tvb, offset, len,
-				    value, "%s", format_text(line, len));
+				    value, "%s", format_text(wmem_packet_scope(), line, len));
 				if (http_type == HTTP_REQUEST ||
 					http_type == HTTP_RESPONSE) {
 					it = proto_tree_add_item(tree,
@@ -2740,7 +2740,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						tvb, offset, len,
 						ENC_NA|ENC_ASCII);
 					proto_item_set_text(it, "%s",
-							format_text(line, len));
+							format_text(wmem_packet_scope(), line, len));
 					PROTO_ITEM_SET_HIDDEN(it);
 				}
 			}

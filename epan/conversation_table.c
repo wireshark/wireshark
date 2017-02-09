@@ -180,16 +180,15 @@ void conversation_table_set_gui_info(conv_gui_init_cb init_cb)
 static void
 set_host_gui_data(gpointer data, gpointer user_data)
 {
-    GString *host_cmd_str = g_string_new("");
     stat_tap_ui ui_info;
     register_ct_t *table = (register_ct_t*)data;
 
     table->host_gui_init = (host_gui_init_cb)user_data;
 
-    g_string_printf(host_cmd_str, "%s,%s", HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
     ui_info.group = REGISTER_STAT_GROUP_ENDPOINT_LIST;
     ui_info.title = NULL;   /* construct this from the protocol info? */
-    ui_info.cli_string = g_string_free(host_cmd_str, FALSE);
+    ui_info.cli_string = wmem_strdup_printf(wmem_epan_scope(), "%s,%s",
+        HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
     ui_info.tap_init_cb = dissector_hostlist_init;
     ui_info.nparams = 0;
     ui_info.params = NULL;

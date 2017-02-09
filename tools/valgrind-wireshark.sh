@@ -131,6 +131,7 @@ else
 fi
 
 cmdline="$LIBTOOL valgrind --suppressions=`dirname $0`/vg-suppressions $ADDITIONAL_SUPPRESSION_FILE \
+--suppressions=`dirname $0`/gtk.suppression \
 --tool=$TOOL $CALLGRIND_OUT_FILE $VERBOSE $LEAK_CHECK $REACHABLE $GEN_SUPPRESSIONS $TRACK_ORIGINS \
 $COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2"
 

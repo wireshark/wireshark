@@ -141,10 +141,10 @@ dissector_rtd_init(const char *opt_arg, void* userdata)
 }
 
 /* Set GUI fields for register_rtd list */
-void
-register_rtd_tables(gpointer data, gpointer user_data _U_)
+gboolean
+register_rtd_tables(const void *key _U_, void *value, void *userdata _U_)
 {
-	register_rtd_t *rtd = (register_rtd_t*)data;
+	register_rtd_t *rtd = (register_rtd_t*)value;
 	stat_tap_ui ui_info;
 
 	ui_info.group = REGISTER_STAT_GROUP_RESPONSE_TIME;
@@ -154,6 +154,7 @@ register_rtd_tables(gpointer data, gpointer user_data _U_)
 	ui_info.nparams = 0;
 	ui_info.params = NULL;
 	register_stat_tap_ui(&ui_info, rtd);
+	return FALSE;
 }
 
 /*

@@ -326,6 +326,10 @@ typedef struct capture_options_tag {
 extern void
 capture_opts_init(capture_options *capture_opts);
 
+/* clean internal structures */
+extern void
+capture_opts_cleanup(capture_options *capture_opts);
+
 /* set a command line option value */
 extern int
 capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture);

@@ -2861,11 +2861,6 @@ static gboolean test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
     return (TRUE);
 }
 
-static void aeron_init(void)
-{
-    aeron_channel_id_init();
-}
-
 /* Register all the bits needed with the filtering engine */
 void proto_register_aeron(void)
 {
@@ -3124,7 +3119,7 @@ void proto_register_aeron(void)
         "Use heuristic sub-dissectors",
         "Use a registered heuristic sub-dissector to decode the payload data. Requires \"Analyze transport sequencing\", \"Analyze stream sequencing\", and \"Reassemble fragmented data\".",
         &aeron_use_heuristic_subdissectors);
-    register_init_routine(aeron_init);
+    register_init_routine(aeron_channel_id_init);
     aeron_frame_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 

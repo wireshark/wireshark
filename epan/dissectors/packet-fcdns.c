@@ -555,7 +555,7 @@ typedef struct _fcdns_conv_data {
     guint32 opcode;
 } fcdns_conv_data_t;
 
-static GHashTable *fcdns_req_hash = NULL;
+static wmem_map_t *fcdns_req_hash = NULL;
 
 /*
  * Hash Functions
@@ -579,22 +579,6 @@ fcdns_hash (gconstpointer v)
 
     return val;
 }
-
-/*
- * Protocol initialization
- */
-static void
-fcdns_init_protocol(void)
-{
-    fcdns_req_hash = g_hash_table_new(fcdns_hash, fcdns_equal);
-}
-
-static void
-fcdns_cleanup_protocol(void)
-{
-    g_hash_table_destroy(fcdns_req_hash);
-}
-
 
 static void
 dissect_cos_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, const header_field_info *hfinfo)
@@ -1739,7 +1723,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         ckey.conv_idx = conversation->conv_index;
 
-        cdata = (fcdns_conv_data_t *)g_hash_table_lookup (fcdns_req_hash,
+        cdata = (fcdns_conv_data_t *)wmem_map_lookup (fcdns_req_hash,
                                                             &ckey);
         if (cdata) {
             /* Since we never free the memory used by an exchange, this maybe a
@@ -1755,7 +1739,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             cdata = wmem_new(wmem_file_scope(), fcdns_conv_data_t);
             cdata->opcode = opcode;
 
-            g_hash_table_insert (fcdns_req_hash, req_key, cdata);
+            wmem_map_insert (fcdns_req_hash, req_key, cdata);
         }
         col_add_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, fc_dns_opcode_val,
                                                           "0x%x"));
@@ -1779,7 +1763,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         else {
             ckey.conv_idx = conversation->conv_index;
 
-            cdata = (fcdns_conv_data_t *)g_hash_table_lookup (fcdns_req_hash, &ckey);
+            cdata = (fcdns_conv_data_t *)wmem_map_lookup (fcdns_req_hash, &ckey);
 
             if (cdata != NULL) {
                 if (opcode == FCCT_MSG_ACC) {
@@ -2059,8 +2043,8 @@ proto_register_fcdns (void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_fcdns = expert_register_protocol(proto_fcdns);
     expert_register_field_array(expert_fcdns, ei, array_length(ei));
-    register_init_routine (&fcdns_init_protocol);
-    register_cleanup_routine (&fcdns_cleanup_protocol);
+
+    fcdns_req_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), fcdns_hash, fcdns_equal);
 
     dns_handle = create_dissector_handle (dissect_fcdns, proto_fcdns);
 }

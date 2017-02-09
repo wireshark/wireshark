@@ -27,13 +27,13 @@ ATTRIBUTE	Extended-Location-Policy-Rules		130	octets
 #  Really a bit-packed field
 #
 ATTRIBUTE	Location-Capable			131	integer
-VALUE	Location-Capable		Civix-Location		1
+VALUE	Location-Capable		Civic-Location		1
 VALUE	Location-Capable		Geo-Location		2
 VALUE	Location-Capable		Users-Location		4
 VALUE	Location-Capable		NAS-Location		8
 
 ATTRIBUTE	Requested-Location-Info			132	integer
-VALUE	Requested-Location-Info		Civix-Location		1
+VALUE	Requested-Location-Info		Civic-Location		1
 VALUE	Requested-Location-Info		Geo-Location		2
 VALUE	Requested-Location-Info		Users-Location		4
 VALUE	Requested-Location-Info		NAS-Location		8

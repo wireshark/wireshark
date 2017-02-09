@@ -6977,7 +6977,7 @@ show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, guint32 str_tbl,
 		proto_tree_add_item_ret_string_and_length (item_tree,
 		    hf_wbxml_string_table_item_string,
 		    tvb, off, -1, encoding, wmem_packet_scope(), &str, &len);
-		proto_item_append_text(ti, " '%s'", format_text(str, strlen(str)));
+		proto_item_append_text(ti, " '%s'", format_text(wmem_packet_scope(), str, strlen(str)));
 		proto_item_set_len(ti, len);
 		off += len;
 	}

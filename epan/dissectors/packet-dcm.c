@@ -3973,16 +3973,11 @@ dcm_init(void)
         g_hash_table_insert(dcm_status_table, GUINT_TO_POINTER((guint32)dcm_status_data[i].value),
         (gpointer)&dcm_status_data[i]);
     }
-
-    /* Register processing of fragmented DICOM PDVs */
-    reassembly_table_init(&dcm_pdv_reassembly_table,
-                          &addresses_reassembly_table_functions);
 }
 
 static void
 dcm_cleanup(void)
 {
-    reassembly_table_destroy(&dcm_pdv_reassembly_table);
     g_hash_table_destroy(dcm_uid_table);
     g_hash_table_destroy(dcm_tag_table);
     g_hash_table_destroy(dcm_status_table);
@@ -7212,6 +7207,10 @@ proto_register_dcm(void)
 
     register_init_routine(&dcm_init);
     register_cleanup_routine(&dcm_cleanup);
+    /* Register processing of fragmented DICOM PDVs */
+    reassembly_table_register(&dcm_pdv_reassembly_table,
+                          &addresses_reassembly_table_functions);
+
 }
 
 void

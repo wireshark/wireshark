@@ -881,19 +881,18 @@ proto_register_gluster_gd_mgmt(void)
 	};
 
 	/* Register the protocol name and description */
-	proto_glusterd = proto_register_protocol("Gluster Daemon", "GlusterD",
-								"glusterd");
+	proto_glusterd = proto_register_protocol("Gluster Daemon", "GlusterD", "glusterd");
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_glusterd, hf, array_length(hf));
 
-	proto_gd_mgmt = proto_register_protocol("Gluster Daemon Management",
-					"GlusterD Management", "glusterd.mgmt");
-	proto_gd_brick = proto_register_protocol(
+	proto_gd_mgmt = proto_register_protocol_in_name_only("Gluster Daemon Management",
+					"GlusterD Management", "glusterd.mgmt", proto_glusterd, FT_PROTOCOL);
+	proto_gd_brick = proto_register_protocol_in_name_only(
 					"Gluster Daemon Brick Operations",
-					"GlusterD Brick", "glusterd.brick");
-	proto_gd_friend = proto_register_protocol(
+					"GlusterD Brick", "glusterd.brick", proto_glusterd, FT_PROTOCOL);
+	proto_gd_friend = proto_register_protocol_in_name_only(
 					"Gluster Daemon Friend Operations",
-					"GlusterD Friend", "glusterd.friend");
+					"GlusterD Friend", "glusterd.friend", proto_glusterd, FT_PROTOCOL);
 }
 
 void

@@ -898,10 +898,13 @@ create_preference_static_text(GtkWidget *main_grid, int grid_position,
 {
   GtkWidget *label;
 
-  if (label_text != NULL)
+  if (label_text != NULL) {
     label = gtk_label_new(label_text);
-  else
+    gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
+    gtk_label_set_width_chars (GTK_LABEL (label), 80);
+  } else {
     label = gtk_label_new("");
+  }
   ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), label, 0, grid_position, 2, 1);
   if (tooltip_text != NULL)
     gtk_widget_set_tooltip_text(label, tooltip_text);

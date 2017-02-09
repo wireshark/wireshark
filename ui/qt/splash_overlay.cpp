@@ -66,7 +66,7 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
     register_add += wslua_count_plugins();   /* get count of lua plugins */
 #endif
 #ifdef HAVE_EXTCAP
-    register_add += extcap_count(); /* get count of extcap binaries */
+    register_add += extcap_count() + 1; /* Count of extcap binaries + registration message */
 #endif
     so_ui_->progressBar->setMaximum((int)register_count() + register_add);
     elapsed_timer_.start();

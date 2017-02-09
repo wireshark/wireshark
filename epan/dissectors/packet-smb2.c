@@ -1697,7 +1697,7 @@ static const value_string smb2_ioctl_shared_virtual_disk_vals[] = {
 static const value_string smb2_ioctl_shared_virtual_disk_hstate_vals[] = {
 	{ 0x00, "HandleStateNone" },
 	{ 0x01, "HandleStateFileShared" },
-	{ 0x02, "HandleStateShared" },
+	{ 0x03, "HandleStateShared" },
 	{ 0, NULL }
 };
 
@@ -4872,20 +4872,6 @@ smb2_pipe_set_file_id(packet_info *pinfo, smb2_info_t *si)
 static gboolean smb2_pipe_reassembly = TRUE;
 static reassembly_table smb2_pipe_reassembly_table;
 
-static void
-smb2_pipe_reassembly_init(void)
-{
-	/*
-	 * XXX - addresses_ports_reassembly_table_functions?
-	 * Probably correct for SMB-over-NBT and SMB-over-TCP,
-	 * as stuff from two different connections should
-	 * probably not be combined, but what about other
-	 * transports for SMB, e.g. NBF or Netware?
-	 */
-	reassembly_table_init(&smb2_pipe_reassembly_table,
-	    &addresses_reassembly_table_functions);
-}
-
 static int
 dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, guint32 datalen, proto_tree *top_tree, void *data)
 {
@@ -6986,7 +6972,7 @@ dissect_smb2_svhdx_open_device_context_request(tvbuff_t *tvb, packet_info *pinfo
 
 	/* InitiatorId */
 	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_initiator_id,
-			    tvb, offset, 16, ENC_NA);
+			    tvb, offset, 16, ENC_LITTLE_ENDIAN);
 	offset += 16;
 
 	/* Flags TODO: Dissect these*/
@@ -10585,7 +10571,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_svhdx_open_device_context_initiator_id,
-			{ "InitiatorId", "smb2.svhdx_open_device_context.initiator_id", FT_BYTES, BASE_NONE,
+			{ "InitiatorId", "smb2.svhdx_open_device_context.initiator_id", FT_GUID, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -11070,7 +11056,15 @@ proto_register_smb2(void)
 		"Whether the dissector should reassemble Named Pipes over SMB2 commands",
 		&smb2_pipe_reassembly);
 	smb2_pipe_subdissector_list = register_heur_dissector_list("smb2_pipe_subdissectors", proto_smb2);
-	register_init_routine(smb2_pipe_reassembly_init);
+	/*
+	 * XXX - addresses_ports_reassembly_table_functions?
+	 * Probably correct for SMB-over-NBT and SMB-over-TCP,
+	 * as stuff from two different connections should
+	 * probably not be combined, but what about other
+	 * transports for SMB, e.g. NBF or Netware?
+	 */
+	reassembly_table_register(&smb2_pipe_reassembly_table,
+	    &addresses_reassembly_table_functions);
 
 	smb2_tap = register_tap("smb2");
 	smb2_eo_tap = register_tap("smb_eo"); /* SMB Export Object tap */

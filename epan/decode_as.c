@@ -445,6 +445,7 @@ decode_clear_all(void)
     dissector_reset_list = NULL;
 
     g_list_free(decode_as_list);
+    decode_as_list = NULL;
 
     decode_dcerpc_reset_all();
 }

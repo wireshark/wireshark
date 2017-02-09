@@ -60,6 +60,6 @@ private slots:
  * @param data register_rtd_t* representing dissetor RTD table
  * @param user_data is unused
  */
-void register_response_time_delay_tables(gpointer data, gpointer user_data);
+gboolean register_response_time_delay_tables(const void *key, void *value, void *userdata);
 
 #endif // __RESPONSE_TIME_DELAY_DIALOG_H__

@@ -101,8 +101,10 @@ static void printnbyte(const guint8* tab _U_,int nb _U_,const char* txt _U_,cons
 #define NETLOGON_FLAG_2               0x2
 #define NETLOGON_FLAG_1               0x1
 
-static GHashTable *netlogon_auths=NULL;
-static GHashTable *schannel_auths;
+static wmem_map_t *netlogon_auths=NULL;
+#if 0
+static wmem_map_t *schannel_auths;
+#endif
 static gint hf_netlogon_TrustedDomainName_string = -1;
 static gint hf_netlogon_UserName_string = -1;
 static gint DomainInfo_sid = -1;
@@ -2452,10 +2454,10 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
 
     key = wmem_new(wmem_file_scope(), netlogon_auth_key);
     generate_hash_key(pinfo,0,key,NULL);
-    existing_vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, key);
+    existing_vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, key);
     if (!existing_vars) {
         debugprintf("Adding initial vars with this start packet = %d\n",vars->start);
-        g_hash_table_insert(netlogon_auths, key, vars);
+        wmem_map_insert(netlogon_auths, key, vars);
     }
     else {
         while(existing_vars->next != NULL && existing_vars->start < vars->start) {
@@ -2476,10 +2478,10 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
 #if 0
     generate_hash_key(pinfo,0,key,vars->client_name);
     existing_vars = NULL;
-    existing_vars = g_hash_table_lookup(schannel_auths, key);
+    existing_vars = wmem_map_lookup(schannel_auths, key);
     if (!existing_vars)
     {
-        g_hash_table_insert(schannel_auths, key, vars);
+        wmem_map_insert(schannel_auths, key, vars);
     }
     else
     {
@@ -2506,7 +2508,7 @@ netlogon_dissect_netrserverreqchallenge_reply(tvbuff_t *tvb, int offset,
     guint64 server_challenge;
 
     generate_hash_key(pinfo,1,&key,NULL);
-    vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths,(gconstpointer*) &key);
+    vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths,(gconstpointer*) &key);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
                                    hf_server_challenge, &server_challenge);
@@ -6636,7 +6638,7 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
 
     generate_hash_key(pinfo, 1 , &key, NULL);
 
-    vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, &key);
+    vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, &key);
     if(vars != NULL) {
         debugprintf("Found some vars (ie. server/client challenges), let's see if I can get a session key\n");
         while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->num ) {
@@ -7696,14 +7698,14 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
     /*debugprintf("Dissection of request data offset %d len=%d on packet %d\n",offset,tvb_length_remaining(tvb,offset),pinfo->num);*/
 
     generate_hash_key(pinfo,is_server,&key,NULL);
-    vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, &key);
+    vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths, &key);
 
     if(vars != NULL  ) {
         while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->num ) {
             vars = vars->next;
         }
         if(vars == NULL ) {
-            debugprintf("Vars not found %d (packet_data)\n",g_hash_table_size(netlogon_auths));
+            debugprintf("Vars not found %d (packet_data)\n",wmem_map_size(netlogon_auths));
             return(buf);
         }
         else {
@@ -7729,7 +7731,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
             }
         }
     } else {
-        debugprintf("Vars not found  %d (packet_data)\n",g_hash_table_size(netlogon_auths));
+        debugprintf("Vars not found  %d (packet_data)\n",wmem_map_size(netlogon_auths));
         return(buf);
     }
 
@@ -7762,7 +7764,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
     int update_vars = 0;
 
     generate_hash_key(pinfo,is_server,&key,NULL);
-    vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths,(gconstpointer*) &key);
+    vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths,(gconstpointer*) &key);
     if(  ! (seen.isseen && seen.num == pinfo->num) ) {
         /*
          * Create a new tree, and split into x components ...
@@ -7799,7 +7801,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
             vars = vars->next;
         }
         if(vars == NULL ) {
-            debugprintf("Vars not found %d (packet_data)\n",g_hash_table_size(netlogon_auths));
+            debugprintf("Vars not found %d (packet_data)\n",wmem_map_size(netlogon_auths));
             return(offset);
         }
         else {
@@ -7820,7 +7822,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
     else
     {
-        debugprintf("Vars not found (is null %d) %d (dissect_verf)\n",vars==NULL,g_hash_table_size(netlogon_auths));
+        debugprintf("Vars not found (is null %d) %d (dissect_verf)\n",vars==NULL,wmem_map_size(netlogon_auths));
     }
     /*debugprintf("Setting isseen to true, old packet %d new %d\n",seen.num,pinfo->num);*/
     seen.isseen = TRUE;
@@ -7849,19 +7851,6 @@ static const value_string sec_chan_type_vals[] = {
     { SEC_CHAN_BDC,    "Backup domain controller" },
     { 0, NULL }
 };
-static void
-netlogon_reassemble_init(void)
-{
-    netlogon_auths = g_hash_table_new (netlogon_auth_hash, netlogon_auth_equal);
-    schannel_auths = g_hash_table_new (netlogon_auth_hash, netlogon_auth_equal);
-}
-
-static void
-netlogon_reassemble_cleanup(void)
-{
-    g_hash_table_destroy(netlogon_auths);
-    g_hash_table_destroy(schannel_auths);
-}
 
 void
 proto_register_dcerpc_netlogon(void)
@@ -9265,15 +9254,15 @@ proto_register_dcerpc_netlogon(void)
         &ett_user_account_control
     };
 
-    proto_dcerpc_netlogon = proto_register_protocol(
-        "Microsoft Network Logon", "RPC_NETLOGON", "rpc_netlogon");
+    proto_dcerpc_netlogon = proto_register_protocol("Microsoft Network Logon", "RPC_NETLOGON", "rpc_netlogon");
 
-    proto_register_field_array(proto_dcerpc_netlogon, hf,
-                               array_length(hf));
+    proto_register_field_array(proto_dcerpc_netlogon, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_init_routine(netlogon_reassemble_init);
-    register_cleanup_routine(netlogon_reassemble_cleanup);
 
+    netlogon_auths = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), netlogon_auth_hash, netlogon_auth_equal);
+#if 0
+    schannel_auths = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), netlogon_auth_hash, netlogon_auth_equal);
+#endif
 }
 
 static dcerpc_auth_subdissector_fns secchan_auth_fns = {

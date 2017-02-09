@@ -746,6 +746,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         btle_frame_info_t *btle_frame_info = NULL;
         fragment_head *frag_btl2cap_msg = NULL;
+        btle_frame_info_t empty_btle_frame_info = {0, 0};
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -840,7 +841,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
 
-        DISSECTOR_ASSERT(btle_frame_info != NULL);
+        if (btle_frame_info == NULL) {
+            btle_frame_info = &empty_btle_frame_info;
+        }
         data_header_item = proto_tree_add_item(btle_tree, hf_data_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         data_header_tree = proto_item_add_subtree(data_header_item, ett_data_header);
 
@@ -869,36 +872,38 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case 0x01: /* Continuation fragment of an L2CAP message, or an Empty PDU */
 /* TODO: Try reassemble cases 0x01 and 0x02 */
             if (length > 0) {
-                tvbuff_t *new_tvb;
+                tvbuff_t *new_tvb = NULL;
 
-                if ((!pinfo->fd->flags.visited) && (connection_info)) {
-                    if (connection_info->segmentation_started == 1) {
-                        connection_info->segment_len_rem = connection_info->segment_len_rem - length;
-                        if(connection_info->segment_len_rem > 0){
-                            btle_frame_info->more_fragments = 1;
-                        }
-                        else {
-                            btle_frame_info->more_fragments = 0;
-                            connection_info->segmentation_started = 0;
-                            connection_info->segment_len_rem = 0;
+                pinfo->fragmented = TRUE;
+                if (connection_info) {
+                    if (!pinfo->fd->flags.visited) {
+                        if (connection_info->segmentation_started == 1) {
+                            connection_info->segment_len_rem = connection_info->segment_len_rem - length;
+                            if(connection_info->segment_len_rem > 0){
+                                btle_frame_info->more_fragments = 1;
+                            }
+                            else {
+                                btle_frame_info->more_fragments = 0;
+                                connection_info->segmentation_started = 0;
+                                connection_info->segment_len_rem = 0;
+                            }
                         }
                     }
-                }
-                pinfo->fragmented = TRUE;
-                frag_btl2cap_msg = fragment_add_seq_next(&btle_l2cap_msg_reassembly_table,
-                    tvb, offset,
-                    pinfo,
-                    connection_info->access_address,   /* guint32 ID for fragments belonging together */
-                    NULL,                              /* data* */
-                    length,                            /* Fragment length */
-                    btle_frame_info->more_fragments);  /* More fragments */
+                    frag_btl2cap_msg = fragment_add_seq_next(&btle_l2cap_msg_reassembly_table,
+                        tvb, offset,
+                        pinfo,
+                        connection_info->access_address,   /* guint32 ID for fragments belonging together */
+                        NULL,                              /* data* */
+                        length,                            /* Fragment length */
+                        btle_frame_info->more_fragments);  /* More fragments */
 
-                new_tvb = process_reassembled_data(tvb, offset, pinfo,
-                    "Reassembled L2CAP",
-                    frag_btl2cap_msg,
-                    &btle_l2cap_msg_frag_items,
-                    NULL,
-                    btle_tree);
+                    new_tvb = process_reassembled_data(tvb, offset, pinfo,
+                        "Reassembled L2CAP",
+                        frag_btl2cap_msg,
+                        &btle_l2cap_msg_frag_items,
+                        NULL,
+                        btle_tree);
+                }
 
                 if (new_tvb) {
                     bthci_acl_data_t  *acl_data;
@@ -936,30 +941,32 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 gint le_frame_len = tvb_get_letohs(tvb, offset);
                 if (le_frame_len > length) {
 /* TODO: Try reassemble cases 0x01 and 0x02 */
-                    if ((!pinfo->fd->flags.visited) && (connection_info )){
-                        connection_info->segmentation_started = 1;
-                        /* The first two octets in the L2CAP PDU contain the length of the entire
-                         * L2CAP PDU in octets, excluding the Length and CID fields(4 octets).
-                         */
-                        connection_info->segment_len_rem = le_frame_len + 4 - length;
-                        btle_frame_info->more_fragments = 1;
-                    }
                     pinfo->fragmented = TRUE;
+                    if (connection_info) {
+                        if (!pinfo->fd->flags.visited) {
+                            connection_info->segmentation_started = 1;
+                            /* The first two octets in the L2CAP PDU contain the length of the entire
+                            * L2CAP PDU in octets, excluding the Length and CID fields(4 octets).
+                            */
+                            connection_info->segment_len_rem = le_frame_len + 4 - length;
+                            btle_frame_info->more_fragments = 1;
+                        }
 
-                    frag_btl2cap_msg = fragment_add_seq_next(&btle_l2cap_msg_reassembly_table,
-                        tvb, offset,
-                        pinfo,
-                        connection_info->access_address, /* guint32 ID for fragments belonging together */
-                        NULL,
-                        length, /* Fragment length */
-                        TRUE);  /* More fragments */
+                        frag_btl2cap_msg = fragment_add_seq_next(&btle_l2cap_msg_reassembly_table,
+                            tvb, offset,
+                            pinfo,
+                            connection_info->access_address, /* guint32 ID for fragments belonging together */
+                            NULL,
+                            length, /* Fragment length */
+                            TRUE);  /* More fragments */
 
-                    process_reassembled_data(tvb, offset, pinfo,
-                        "Reassembled L2CAP",
-                        frag_btl2cap_msg,
-                        &btle_l2cap_msg_frag_items,
-                        NULL,
-                        btle_tree);
+                        process_reassembled_data(tvb, offset, pinfo,
+                            "Reassembled L2CAP",
+                            frag_btl2cap_msg,
+                            &btle_l2cap_msg_frag_items,
+                            NULL,
+                            btle_tree);
+                    }
 
                     col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment Start");
                     proto_tree_add_item(btle_tree, hf_l2cap_fragment, tvb, offset, length, ENC_NA);
@@ -1205,19 +1212,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     return offset;
-}
-
-static void
-init_btle(void)
-{
-    reassembly_table_init(&btle_l2cap_msg_reassembly_table,
-        &addresses_reassembly_table_functions);
-}
-
-static void
-cleanup_btle(void)
-{
-    reassembly_table_destroy(&btle_l2cap_msg_reassembly_table);
 }
 
 void
@@ -1724,8 +1718,8 @@ proto_register_btle(void)
             "Bluetooth LE LL version: 4.1 (Core)",
             "Version of protocol supported by this dissector.");
 
-    register_init_routine(&init_btle);
-    register_cleanup_routine(&cleanup_btle);
+    reassembly_table_register(&btle_l2cap_msg_reassembly_table,
+        &addresses_reassembly_table_functions);
 }
 
 void

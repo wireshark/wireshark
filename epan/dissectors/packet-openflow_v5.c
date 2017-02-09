@@ -5726,11 +5726,6 @@ dissect_openflow_table_status_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     dissect_openflow_table_desc_v5(tvb, pinfo, tree, offset, length);
 }
 
-
-
-static int
-dissect_openflow_message_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
-
 static void
 dissect_openflow_requestforward_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {

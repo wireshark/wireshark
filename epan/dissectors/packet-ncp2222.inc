@@ -2047,8 +2047,8 @@ typedef struct {
     char                    object_name[256];
 } ncp_req_eid_hash_value;
 
-static GHashTable *ncp_req_hash = NULL;
-static GHashTable *ncp_req_eid_hash = NULL;
+static wmem_map_t *ncp_req_hash = NULL;
+static wmem_map_t *ncp_req_eid_hash = NULL;
 
 /* Hash Functions */
 static gboolean
@@ -2090,47 +2090,14 @@ ncp_eid_hash(gconstpointer v)
     return GPOINTER_TO_UINT(ncp_eid_key->nw_eid);
 }
 
-/* Initializes the hash table and the mem_chunk area each time a new
- * file is loaded or re-loaded in wireshark */
 static void
 ncp_init_protocol(void)
 {
     int i;
 
-    /* fragment */
-    reassembly_table_init(&nds_reassembly_table,
-                          &addresses_reassembly_table_functions);
-
     for (i = 0; i < 99; i++) {
         frags[i].nds_frag = 0xfffffff0;
     }
-
-    if (ncp_req_hash) {
-        g_hash_table_destroy(ncp_req_hash);
-    }
-    if (ncp_req_eid_hash) {
-        g_hash_table_destroy(ncp_req_eid_hash);
-    }
-
-    ncp_req_hash = g_hash_table_new(ncp_hash, ncp_equal);
-    ncp_req_eid_hash = g_hash_table_new(ncp_eid_hash, ncp_eid_equal);
-}
-
-/* After the sequential run, we don't need the ncp_request hash and keys
- * anymore; the lookups have already been done and the vital info
- * saved in the reply-packets' private_data in the frame_data struct. */
-static void
-ncp_postseq_cleanup(void)
-{
-#if 0 /* XXX: ?? */
-    if (ncp_req_hash) {
-        /* Destroy the hash, but don't clean up request_condition data. */
-        g_hash_table_destroy(ncp_req_hash);
-        ncp_req_hash = NULL;
-    }
-#endif
-    /* Don't free the ncp_req_hash_values or EID_hash_table, as they're
-     * needed during random-access processing of the proto_tree.*/
 }
 
 /* NCP sequence numbers are from 0 - 255. After reaching 255 the
@@ -2161,7 +2128,7 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
     g_strlcpy(request_value->object_name, " ", 256);
     request_value->nds_frag = TRUE;
 
-    g_hash_table_insert(ncp_req_hash, request_key, request_value);
+    wmem_map_insert(ncp_req_hash, request_key, request_value);
 
     return request_value;
 }
@@ -2180,7 +2147,7 @@ ncp_eid_hash_insert(guint32 nw_eid)
     request_eid_value = wmem_new0(wmem_file_scope(), ncp_req_eid_hash_value);
     g_strlcpy(request_eid_value->object_name, " ", 256);
 
-    g_hash_table_insert(ncp_req_eid_hash, request_eid_key, request_eid_value);
+    wmem_map_insert(ncp_req_eid_hash, request_eid_key, request_eid_value);
 
     return request_eid_value;
 }
@@ -2202,14 +2169,14 @@ ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence, guint32 pkt_nu
      * Loop through all the previous sequence numbers in the hash to see
      * if the original request packet can be found.
      */
-    temp_value = (ncp_req_hash_value *)g_hash_table_lookup(ncp_req_hash, &request_key);
+    temp_value = (ncp_req_hash_value *)wmem_map_lookup(ncp_req_hash, &request_key);
     while(!temp_value)
     {
        request_key.nw_sequence_long = request_key.nw_sequence_long-0x10000;
        if((request_key.nw_sequence_long & 0xffff0000) == 0){
             break;
        }
-       temp_value = (ncp_req_hash_value *)g_hash_table_lookup(ncp_req_hash, &request_key);
+       temp_value = (ncp_req_hash_value *)wmem_map_lookup(ncp_req_hash, &request_key);
     }
     return temp_value;
 }
@@ -2222,7 +2189,7 @@ ncp_eid_hash_lookup(conversation_t *conversation _U_, guint32 nw_eid)
 
     request_eid_key.nw_eid = nw_eid;
 
-    return (ncp_req_eid_hash_value *)g_hash_table_lookup(ncp_req_eid_hash, &request_eid_key);
+    return (ncp_req_eid_hash_value *)wmem_map_lookup(ncp_req_eid_hash, &request_eid_key);
 }
 
 /* Does NCP func require a subfunction code? */

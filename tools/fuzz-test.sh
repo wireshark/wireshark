@@ -171,7 +171,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 
         "$CAPINFOS" "$CF" > /dev/null 2> $TMP_DIR/$ERR_FILE
         RETVAL=$?
-        if [ $RETVAL -eq 2 ] ; then
+        if [ $RETVAL -eq 1 -o $RETVAL -eq 2 ] ; then
             echo "Not a valid capture file"
             rm -f $TMP_DIR/$ERR_FILE
             continue

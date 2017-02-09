@@ -2146,9 +2146,12 @@ get_key_string(decryption_key_t* dk)
         case AIRPDCAP_KEY_TYPE_WPA_PWD:
             if(dk->ssid == NULL)
                 output_string = g_strdup(dk->key->str);
-            else
+            else {
+                gchar* ssid = format_uri(NULL, dk->ssid, ":");
                 output_string = g_strdup_printf("%s:%s",
-                    dk->key->str, format_uri(dk->ssid, ":"));
+                    dk->key->str, ssid);
+                wmem_free(NULL, ssid);
+            }
             break;
         case AIRPDCAP_KEY_TYPE_WPA_PMK:
             output_string = g_strdup(dk->key->str);

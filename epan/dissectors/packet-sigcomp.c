@@ -4105,7 +4105,7 @@ execute_next_instruction:
             if (print_level_3 ) {
                 proto_tree_add_uint_format(udvm_tree, hf_sigcomp_state_value, bytecode_tvb, 0, 0, buff[k],
                                     "               Addr: %5u State value: %u (0x%x) ASCII(%s)",
-                                    k,buff[k],buff[k],format_text(string, 1));
+                                    k,buff[k],buff[k],format_text(wmem_packet_scope(), string, 1));
             }
             k = ( k + 1 ) & 0xffff;
             n++;
@@ -4226,7 +4226,7 @@ execute_next_instruction:
             if (print_level_3 ) {
                 proto_tree_add_uint_format(udvm_tree, hf_sigcomp_output_value, bytecode_tvb, 0, -1, buff[k],
                                     "               Output value: %u (0x%x) ASCII(%s) from Addr: %u ,output to dispatcher position %u",
-                                    buff[k],buff[k],format_text(string,1), k,output_address);
+                                    buff[k],buff[k],format_text(wmem_packet_scope(), string,1), k,output_address);
             }
             k = ( k + 1 ) & 0xffff;
             output_address ++;

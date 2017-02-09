@@ -1660,14 +1660,11 @@ setup_dissector(void)
 	/* create memory block for uploda/download */
 	memset(&epl_asnd_sdo_reassembly_write, 0, sizeof(epl_sdo_reassembly));
 	memset(&epl_asnd_sdo_reassembly_read, 0, sizeof(epl_sdo_reassembly));
-	/* create reassembly table */
-	reassembly_table_init(&epl_reassembly_table, &addresses_reassembly_table_functions);
 }
 
 static void
 cleanup_dissector(void)
 {
-	reassembly_table_destroy(&epl_reassembly_table);
 	g_hash_table_destroy(epl_duplication_table);
 	count = 0;
 	ct = 0;
@@ -4567,6 +4564,9 @@ proto_reg_handoff_epl(void)
 	/* register frame init routine */
 	register_init_routine( setup_dissector );
 	register_cleanup_routine( cleanup_dissector );
+	/* register reassembly table */
+	reassembly_table_register(&epl_reassembly_table, &addresses_reassembly_table_functions);
+
 }
 
 /*

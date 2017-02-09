@@ -376,6 +376,7 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
                 raw_val = GeoIP_name_by_ipnum(gi, addr);
                 if (raw_val) {
                     ret = db_val_to_utf_8(raw_val, gi);
+                    g_free((char*)raw_val);
                 }
                 break;
 
@@ -506,6 +507,7 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found)
                 raw_val = GeoIP_name_by_ipnum_v6(gi, gaddr);
                 if (raw_val) {
                     ret = db_val_to_utf_8(raw_val, gi);
+                    g_free((char*)raw_val);
                 }
                 break;
 #endif /* NUM_DB_TYPES */

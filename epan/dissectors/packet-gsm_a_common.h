@@ -411,7 +411,6 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
             ); \
     } \
-    if ((signed)curr_len <= 0) return;      \
 }
 /* This is a version where the length field can be one or two octets depending
  * if the extension bit is set or not (TS 48.016 p 10.1.2).
@@ -437,7 +436,6 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
             ); \
     } \
-    if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_MAND_TLV_E(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition, ei_mandatory) \
@@ -458,36 +456,35 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
             ); \
     } \
-    if ((signed)curr_len <= 0) return;      \
 }
 #define ELEM_OPT_TLV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
+    if ((signed)curr_len <= 0) return; \
     if ((consumed = elem_tlv(tvb, tree, pinfo, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
     } \
-        if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_OPT_TELV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
+    if ((signed)curr_len <= 0) return; \
     if ((consumed = elem_telv(tvb, tree, pinfo, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
     } \
-        if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_OPT_TLV_E(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
+    if ((signed)curr_len <= 0) return; \
     if ((consumed = elem_tlv_e(tvb, tree, pinfo, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
     } \
-    if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_MAND_TV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition, ei_mandatory) \
@@ -508,37 +505,36 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
         ); \
     } \
-    if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_OPT_TV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
+    if ((signed)curr_len <= 0) return; \
     if ((consumed = elem_tv(tvb, tree, pinfo, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
     } \
-        if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_OPT_TV_SHORT(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
+    if ((signed)curr_len <= 0) return; \
     if ((consumed = elem_tv_short(tvb, tree, pinfo, EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
     } \
-    if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_OPT_T(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
+    if ((signed)curr_len <= 0) return; \
     if ((consumed = elem_t(tvb, tree, pinfo, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
     } \
-    if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_MAND_LV(EML_pdu_type, EML_elem_idx, EML_elem_name_addition) \
@@ -552,7 +548,6 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
     { \
         /* Mandatory, but nothing we can do */ \
     } \
-    if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_MAND_LV_E(EML_pdu_type, EML_elem_idx, EML_elem_name_addition) \
@@ -566,7 +561,6 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
     { \
         /* Mandatory, but nothing we can do */ \
     } \
-    if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_MAND_V(EMV_pdu_type, EMV_elem_idx, EMV_elem_name_addition) \
@@ -580,7 +574,6 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
     { \
         /* Mandatory, but nothing we can do */ \
     } \
-    if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_MAND_VV_SHORT(EMV_pdu_type1, EMV_elem_idx1, EMV_pdu_type2, EMV_elem_idx2) \
@@ -589,7 +582,6 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
     elem_v_short(tvb, tree, pinfo, EMV_pdu_type2, EMV_elem_idx2, curr_offset, LEFT_NIBBLE); \
     curr_offset ++ ; /* consumed length is 1, regardless of contents */ \
     curr_len -- ; \
-    if ((signed)curr_len <= 0) return;      \
 }
 
 /*
@@ -1298,6 +1290,7 @@ typedef enum
  * [3] 10.5.2.37g SI 19 Rest Octets
  * [3] 10.5.2.37h SI 18 Rest Octets
  * [3] 10.5.2.37i SI 20 Rest Octets */
+    DE_RR_SI21_REST_OCT,            /* [3] 10.5.2.37m SI21 Rest Octets */
     DE_RR_STARTING_TIME,            /* [3] 10.5.2.38 Starting Time                  */
     DE_RR_TIMING_ADV,               /* [3] 10.5.2.40 Timing Advance                 */
     DE_RR_TIME_DIFF,                /* [3] 10.5.2.41 Time Difference                */

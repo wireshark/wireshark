@@ -2498,19 +2498,6 @@ dissect_sna_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	return tvb_captured_length(tvb);
 }
 
-static void
-sna_init(void)
-{
-	reassembly_table_init(&sna_reassembly_table,
-	    &addresses_reassembly_table_functions);
-}
-
-static void
-sna_cleanup(void)
-{
-	reassembly_table_destroy(&sna_reassembly_table);
-}
-
 
 void
 proto_register_sna(void)
@@ -3495,8 +3482,8 @@ proto_register_sna(void)
 		"Whether fragmented BIUs should be reassembled",
 		&sna_defragment);
 
-	register_init_routine(sna_init);
-	register_cleanup_routine(sna_cleanup);
+	reassembly_table_register(&sna_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 void

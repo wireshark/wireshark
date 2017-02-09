@@ -3844,10 +3844,6 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     curr_len--;
     curr_offset++;
 
-    /* No more mandatory elements */
-    if (curr_len == 0)
-        return;
-
     /* EMM cause    EMM cause 9.9.3.9   O   TV  2 */
     ELEM_OPT_TV(0x53, NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
 
@@ -4119,9 +4115,6 @@ nas_emm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
     pinfo->link_dir = P2P_DIR_UL;
 
-    if (curr_len == 0)
-        return;
-
     /* 23   IMEISV  Mobile identity 9.9.2.3 O   TLV 11 */
     ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, " - IMEISV");
 
@@ -4231,9 +4224,7 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     /* Fix up the lengths */
     curr_len--;
     curr_offset++;
-    /* No more mandatory elements */
-    if (curr_len == 0)
-        return;
+
     /* 5A   T3412 value GPRS timer 9.9.3.16 O   TV  2 */
     ELEM_OPT_TV(0x5a, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3412 value");
     /* 50   GUTI    EPS mobile identity 9.9.3.12    O   TLV 13 */
@@ -4496,8 +4487,6 @@ nas_emm_ctrl_plane_serv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     /* Fix the lengths */
     curr_len--;
     curr_offset++;
-    if (curr_len == 0)
-        return;
 
     /* 78  ESM message container  ESM message container 9.9.3.15 O  TLV-E  3-n */
     ELEM_OPT_TLV_E(0x78, NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, NULL);
@@ -4526,9 +4515,6 @@ nas_emm_serv_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
     pinfo->link_dir = P2P_DIR_DL;
 
-    if (curr_len == 0)
-        return;
-
     /* 57  EPS bearer context status  EPS bearer context status 9.9.2.1 O  TLV  4 */
     ELEM_OPT_TLV(0x57, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_EPS_BE_CTX_STATUS, NULL);
 
@@ -4548,9 +4534,6 @@ nas_esm_act_ded_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info 
     guint32 curr_offset;
     guint32 consumed;
     guint   curr_len;
-
-    if (len == 0)
-        return;
 
     curr_offset = offset;
     curr_len = len;
@@ -4661,9 +4644,6 @@ nas_esm_act_def_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
     curr_offset = offset;
     curr_len    = len;
-
-    if (len == 0)
-        return;
 
     /* This message is sent by the UE to the network to acknowledge activation of a default EPS bearer context */
     pinfo->link_dir = P2P_DIR_UL;
@@ -4921,9 +4901,6 @@ nas_esm_deact_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     curr_offset = offset;
     curr_len    = len;
 
-    if (len == 0)
-        return;
-
     /* This message is sent by the UE to acknowledge deactivation of the EPS bearer context... */
     pinfo->link_dir = P2P_DIR_UL;
 
@@ -5010,9 +4987,6 @@ nas_esm_inf_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     curr_offset = offset;
     curr_len    = len;
 
-    if (len == 0)
-        return;
-
     /* This message is sent by the UE to the network in response to an ESM INFORMATION REQUEST... */
     pinfo->link_dir = P2P_DIR_UL;
 
@@ -5055,9 +5029,6 @@ nas_esm_mod_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 
     curr_offset = offset;
     curr_len    = len;
-
-    if (len == 0)
-        return;
 
     /* This message is sent by the UE to the network to acknowledge the modification of an active EPS bearer context. */
     pinfo->link_dir = P2P_DIR_UL;
@@ -5110,9 +5081,6 @@ nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 
     curr_offset = offset;
     curr_len    = len;
-
-    if (len == 0)
-        return;
 
     /*This message is sent by the network to inform the UE about events which are relevant for the upper layer... */
     pinfo->link_dir = P2P_DIR_DL;
@@ -5225,8 +5193,6 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     /* Fix the lengths */
     curr_len--;
     curr_offset++;
-    if (curr_len == 0)
-        return;
 
     /* D- ESM information transfer flag 9.9.4.5 O TV 1 */
     ELEM_OPT_TV_SHORT( 0xd0 , NAS_PDU_TYPE_ESM, DE_ESM_INF_TRF_FLG , NULL );
@@ -5296,8 +5262,7 @@ nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     /* Fix the lengths */
     curr_len--;
     curr_offset++;
-    if (curr_len == 0)
-        return;
+
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
@@ -5317,9 +5282,6 @@ nas_esm_remote_ue_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
 
     curr_offset = offset;
     curr_len    = len;
-
-    if (len == 0)
-        return;
 
     pinfo->link_dir = P2P_DIR_UL;
 

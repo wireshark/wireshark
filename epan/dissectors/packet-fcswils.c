@@ -444,7 +444,7 @@ typedef struct _fcswils_conv_data {
     guint32 opcode;
 } fcswils_conv_data_t;
 
-static GHashTable *fcswils_req_hash = NULL;
+static wmem_map_t *fcswils_req_hash = NULL;
 
 /* list of commands for each commandset */
 typedef void (*fcswils_dissector_t)(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint8 isreq);
@@ -478,21 +478,6 @@ fcswils_hash(gconstpointer v)
     val = key->conv_idx;
 
     return val;
-}
-
-/*
- * Protocol initialization
- */
-static void
-fcswils_init_protocol(void)
-{
-    fcswils_req_hash = g_hash_table_new(fcswils_hash, fcswils_equal);
-}
-
-static void
-fcswils_cleanup_protocol(void)
-{
-    g_hash_table_destroy(fcswils_req_hash);
 }
 
 static guint8 *
@@ -1717,7 +1702,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         ckey.conv_idx = conversation->conv_index;
 
-        cdata = (fcswils_conv_data_t *)g_hash_table_lookup(fcswils_req_hash,
+        cdata = (fcswils_conv_data_t *)wmem_map_lookup(fcswils_req_hash,
                                                            &ckey);
         if (cdata) {
             /* Since we never free the memory used by an exchange, this maybe a
@@ -1733,7 +1718,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             cdata = wmem_new(wmem_file_scope(), fcswils_conv_data_t);
             cdata->opcode = opcode;
 
-            g_hash_table_insert(fcswils_req_hash, req_key, cdata);
+            wmem_map_insert(fcswils_req_hash, req_key, cdata);
         }
     }
     else {
@@ -1752,7 +1737,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         else {
             ckey.conv_idx = conversation->conv_index;
 
-            cdata = (fcswils_conv_data_t *)g_hash_table_lookup(fcswils_req_hash, &ckey);
+            cdata = (fcswils_conv_data_t *)wmem_map_lookup(fcswils_req_hash, &ckey);
 
             if (cdata != NULL) {
                 if (opcode == FC_SWILS_SWACC)
@@ -2525,8 +2510,8 @@ proto_register_fcswils(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_fcswils = expert_register_protocol(proto_fcswils);
     expert_register_field_array(expert_fcswils, ei, array_length(ei));
-    register_init_routine(&fcswils_init_protocol);
-    register_cleanup_routine(&fcswils_cleanup_protocol);
+
+    fcswils_req_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), fcswils_hash, fcswils_equal);
 }
 
 void

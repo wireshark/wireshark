@@ -602,6 +602,7 @@ static int hf_dnp3_data_chunk = -1;
 static int hf_dnp3_data_chunk_len = -1;
 static int hf_dnp3_data_chunk_crc = -1;
 static int hf_dnp3_data_chunk_crc_status = -1;
+
 /* Added for Application Layer Decoding */
 static int hf_dnp3_al_ctl = -1;
 static int hf_dnp3_al_fir = -1;
@@ -1301,48 +1302,11 @@ static expert_field ei_dnp3_buffering_user_data_until_final_frame_is_received = 
 
 /* Tables for reassembly of fragments. */
 static reassembly_table al_reassembly_table;
-static GHashTable *dl_conversation_table = NULL;
-
-/* Data-Link-Layer Conversation Key Structure */
-typedef struct _dl_conversation_key
-{
-  guint32 conversation; /* TCP / UDP conversation index */
-  guint16 src;          /* DNP3.0 Source Address */
-  guint16 dst;          /* DNP3.0 Destination Address */
-} dl_conversation_key_t;
-
-/* Data-Link-Layer conversation key equality function */
-static gboolean
-dl_conversation_equal(gconstpointer v, gconstpointer w)
-{
-  const dl_conversation_key_t* v1 = (const dl_conversation_key_t*)v;
-  const dl_conversation_key_t* v2 = (const dl_conversation_key_t*)w;
-
-  if ((v1->conversation == v2->conversation) &&
-      (v1->src == v2->src) &&
-      (v1->dst == v2->dst))
-  {
-    return TRUE;
-  }
-
-  return FALSE;
-}
-
-/* Data-Link-Layer conversation key hash function */
-static guint
-dl_conversation_hash(gconstpointer v)
-{
-  const dl_conversation_key_t *key = (const dl_conversation_key_t*)v;
-  guint val;
-
-  val = key->conversation + (key->src << 16) + key->dst;
-
-  return val;
-}
 
 /* ************************************************************************* */
 /*                   Header values for reassembly                            */
 /* ************************************************************************* */
+static int   hf_al_frag_data   = -1;
 static int   hf_dnp3_fragment  = -1;
 static int   hf_dnp3_fragments = -1;
 static int   hf_dnp3_fragment_overlap = -1;
@@ -1373,18 +1337,6 @@ static const fragment_items dnp3_frag_items = {
   NULL,
   "DNP 3.0 fragments"
 };
-
-/* Conversation stuff, used for tracking application message fragments */
-/* the number of entries in the memory chunk array */
-#define dnp3_conv_init_count 50
-
-/* Conversation structure */
-typedef struct {
-  guint conv_seq_number;
-} dnp3_conv_t;
-
-/* The conversation sequence number */
-static guint seq_number = 0;
 
 /* desegmentation of DNP3 over TCP */
 static gboolean dnp3_desegment = TRUE;
@@ -3302,103 +3254,62 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
       /* Check for fragmented packet */
       save_fragmented = pinfo->fragmented;
-      if (! (tr_fir && tr_fin))
+
+      /* Reassemble AL fragments */
+      static guint al_max_fragments = 60;
+      static guint al_fragment_aging = 64; /* sequence numbers only 6 bit */
+      fragment_head *frag_al = NULL;
+      pinfo->fragmented = TRUE;
+      if (!pinfo->fd->flags.visited)
       {
-        guint                  conv_seq_number;
-        fragment_head         *frag_msg;
-        conversation_t        *conversation;
-        dnp3_conv_t           *conv_data_ptr;
-        dl_conversation_key_t  dl_conversation_key;
-
-        /* A fragmented packet */
-        pinfo->fragmented = TRUE;
-
-        /* Look up the conversation to get the fragment reassembly id */
-        conversation = find_or_create_conversation(pinfo);
-
-        /*
-         * The TCP/UDP conversation is not sufficient to identify a conversation
-         * on a multi-drop DNP network.  Lookup conversation data based on TCP/UDP
-         * conversation and the DNP src and dst addresses
-         */
-
-        dl_conversation_key.conversation = conversation->conv_index;
-        dl_conversation_key.src = dl_src;
-        dl_conversation_key.dst = dl_dst;
-
-        conv_data_ptr = (dnp3_conv_t*)g_hash_table_lookup(dl_conversation_table, &dl_conversation_key);
-
-        if (!pinfo->fd->flags.visited && conv_data_ptr == NULL)
-        {
-          dl_conversation_key_t* new_dl_conversation_key = NULL;
-          new_dl_conversation_key  = wmem_new(wmem_file_scope(), dl_conversation_key_t);
-          *new_dl_conversation_key = dl_conversation_key;
-
-          conv_data_ptr = wmem_new(wmem_file_scope(), dnp3_conv_t);
-
-          /*** Increment static global fragment reassembly id ***/
-          conv_data_ptr->conv_seq_number = seq_number++;
-
-          g_hash_table_insert(dl_conversation_table, new_dl_conversation_key, conv_data_ptr);
-        }
-
-        conv_seq_number = conv_data_ptr->conv_seq_number;
-
-        /*
-        * Add the frame to
-        * whatever reassembly is in progress, if any, and see
-        * if it's done.
-        */
-
-        frag_msg = fragment_add_seq_next(&al_reassembly_table,
-            al_tvb, 0, pinfo, conv_seq_number, NULL,
+        frag_al = fragment_add_seq_single_aging(&al_reassembly_table,
+            al_tvb, 0, pinfo, tr_seq, NULL,
             tvb_reported_length(al_tvb), /* As this is a constructed tvb, all of it is ok */
-            !tr_fin);
-
-        next_tvb = process_reassembled_data(al_tvb, 0, pinfo,
-            "Reassembled DNP 3.0 Application Layer message", frag_msg, &dnp3_frag_items,
-            NULL, dnp3_tree);
-
-        if (next_tvb)  /* Reassembled */
-        {
-          /* We have the complete payload, zap the info column as the AL info takes precedence */
-          col_clear(pinfo->cinfo, COL_INFO);
-        }
-        else
-        {
-          /* We don't have the complete reassembled payload. */
-          col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "TL fragment %u ", tr_seq);
-        }
-
+            tr_fir, tr_fin,
+            al_max_fragments, al_fragment_aging);
       }
       else
       {
-        /* No reassembly required */
-        next_tvb = al_tvb;
-        add_new_data_source(pinfo, next_tvb, "DNP 3.0 Application Layer message");
-        col_clear(pinfo->cinfo, COL_INFO);
+        frag_al = fragment_get_reassembled_id(&al_reassembly_table, pinfo, tr_seq);
       }
+      next_tvb = process_reassembled_data(al_tvb, 0, pinfo,
+          "Reassembled DNP 3.0 Application Layer message", frag_al, &dnp3_frag_items,
+          NULL, dnp3_tree);
+
+      if (frag_al)
+      {
+        if (pinfo->num == frag_al->reassembled_in)
+        {
+          /* As a complete AL message will have cleared the info column,
+             make sure source and dest are always in the info column */
+          //col_append_fstr(pinfo->cinfo, COL_INFO, "from %u to %u", dl_src, dl_dst);
+          //col_set_fence(pinfo->cinfo, COL_INFO);
+          dissect_dnp3_al(next_tvb, pinfo, dnp3_tree);
+        }
+        else
+        {
+          /* Lock any column info set by the DL and TL */
+          col_set_fence(pinfo->cinfo, COL_INFO);
+          col_append_fstr(pinfo->cinfo, COL_INFO,
+              " (Application Layer fragment %u, reassembled in packet %u)",
+              tr_seq, frag_al->reassembled_in);
+          proto_tree_add_item(dnp3_tree, hf_al_frag_data, al_tvb, 0, -1, ENC_NA);
+        }
+      }
+      else
+      {
+        col_append_fstr(pinfo->cinfo, COL_INFO,
+            " (Application Layer Unreassembled fragment %u)",
+            tr_seq);
+        proto_tree_add_item(dnp3_tree, hf_al_frag_data, al_tvb, 0, -1, ENC_NA);
+      }
+
       pinfo->fragmented = save_fragmented;
     }
     else
     {
       /* CRC error - throw away the data. */
       next_tvb = NULL;
-    }
-
-    /* Dissect any completed Application Layer message */
-    if (next_tvb && tr_fin)
-    {
-      /* As a complete AL message will have cleared the info column,
-         make sure source and dest are always in the info column */
-      col_append_fstr(pinfo->cinfo, COL_INFO, "from %u to %u", dl_src, dl_dst);
-      col_set_fence(pinfo->cinfo, COL_INFO);
-      dissect_dnp3_al(next_tvb, pinfo, dnp3_tree);
-    }
-    else
-    {
-      /* Lock any column info set by the DL and TL */
-      col_set_fence(pinfo->cinfo, COL_INFO);
     }
   }
 
@@ -3516,21 +3427,6 @@ dissect_dnp3_udp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   return (udp_dissect_pdus(tvb, pinfo, tree, DNP_HDR_LEN, dnp3_udp_check_header_heur,
                    get_dnp3_message_len, dissect_dnp3_message, data) != 0);
 
-}
-
-static void
-dnp3_init(void)
-{
-  dl_conversation_table = g_hash_table_new(dl_conversation_hash, dl_conversation_equal);
-  reassembly_table_init(&al_reassembly_table,
-                        &addresses_reassembly_table_functions);
-}
-
-static void
-dnp3_cleanup(void)
-{
-  reassembly_table_destroy(&al_reassembly_table);
-  g_hash_table_destroy(dl_conversation_table);
 }
 
 /* Register the protocol with Wireshark */
@@ -4443,6 +4339,11 @@ proto_register_dnp3(void)
           NULL, HFILL }
     },
 
+    { &hf_al_frag_data,
+      {"DNP3.0 AL Fragment Data", "dnp3.al.frag_data",
+          FT_BYTES, BASE_NONE, NULL, 0x00,
+          "DNP 3.0 Application Layer Fragment Data", HFILL }},
+
     { &hf_dnp3_fragment,
       { "DNP 3.0 AL Fragment", "dnp3.al.fragment",
           FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -4554,13 +4455,11 @@ proto_register_dnp3(void)
   module_t *dnp3_module;
   expert_module_t* expert_dnp3;
 
-/* Register protocol init routine */
-  register_init_routine(&dnp3_init);
-  register_cleanup_routine(&dnp3_cleanup);
+  reassembly_table_register(&al_reassembly_table,
+                        &addresses_reassembly_table_functions);
 
 /* Register the protocol name and description */
-  proto_dnp3 = proto_register_protocol("Distributed Network Protocol 3.0",
-                   "DNP 3.0", "dnp3");
+  proto_dnp3 = proto_register_protocol("Distributed Network Protocol 3.0", "DNP 3.0", "dnp3");
 
 /* Register the dissector so it may be used as a User DLT payload protocol */
   register_dissector("dnp3.udp", dissect_dnp3_udp, proto_dnp3);

@@ -1171,6 +1171,7 @@
 #define ZBEE_PROTOABBREV_ZCL_OCCSEN         "zbee_zcl_meas_sensing.occsen"
 #define ZBEE_PROTOABBREV_ZCL_CAL            "zbee_zcl_se.cal"
 #define ZBEE_PROTOABBREV_ZCL_KE             "zbee_zcl_se.ke"
+#define ZBEE_PROTOABBREV_ZCL_MET            "zbee_zcl_se.met"
 #define ZBEE_PROTOABBREV_ZCL_MSG            "zbee_zcl_se.msg"
 #define ZBEE_PROTOABBREV_ZCL_TUN            "zbee_zcl_se.tun"
 #define ZBEE_PROTOABBREV_ZCL_SHADE_CONFIG   "zbee_zcl_closures.shade_config"

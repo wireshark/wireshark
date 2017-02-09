@@ -68,6 +68,7 @@
 
 static void show_relations(GtkWidget *relation_list, ftenum_t ftype);
 static gboolean relation_is_presence_test(const char *string);
+static gboolean relation_is_in_test(const char *string);
 static void add_relation_list(GtkWidget *relation_list, const char *relation, gboolean sensitive);
 static void build_boolean_values(GtkWidget *value_list_scrolled_win,
                                  GtkWidget *value_list,
@@ -78,8 +79,8 @@ static void build_enum_values(GtkWidget *value_list_scrolled_win,
 static void add_value_list_item(GtkWidget *value_list, const gchar *string,
                                 gconstpointer data);
 static void display_value_fields(header_field_info *hfinfo,
-                                 gboolean is_comparison, GtkWidget *value_label,
-                                 GtkWidget *value_entry,
+                                 gboolean is_comparison, gboolean is_in,
+                                 GtkWidget *value_label, GtkWidget *value_entry,
                                  GtkWidget *value_list_label, GtkWidget *value_list,
                                  GtkWidget *value_list_scrolled_win,
                                  GtkWidget *range_label,
@@ -205,9 +206,9 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
 
     /*
      * Display various items for the value, as appropriate.
-     * The relation we start out with is never a comparison.
+     * The relation we start out with is 'presence'.
      */
-    display_value_fields(hfinfo, FALSE, value_label, value_entry,
+    display_value_fields(hfinfo, FALSE, FALSE, value_label, value_entry,
                          value_list_label, value_list, value_list_scrolled_win, range_label, range_entry);
 
     /*
@@ -247,6 +248,8 @@ show_relations(GtkWidget *relation_list, ftenum_t ftype)
                       ftype_can_contains(ftype) || (ftype_can_slice(ftype) && ftype_can_contains(FT_BYTES)));
     add_relation_list(relation_list, "matches",
                       ftype_can_matches(ftype) || (ftype_can_slice(ftype) && ftype_can_matches(FT_BYTES)));
+    add_relation_list(relation_list, "in",
+                      ftype_can_eq(ftype) || (ftype_can_slice(ftype) && ftype_can_eq(FT_BYTES)));
 
     gtk_tree_model_get_iter_first(gtk_tree_view_get_model(GTK_TREE_VIEW(relation_list)), &iter);
     gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list)), &iter);
@@ -260,6 +263,16 @@ static gboolean
 relation_is_presence_test(const char *string)
 {
     return (strcmp(string, "is present") == 0);
+}
+
+/*
+ * Given a string that represents a test to be made on a field, returns
+ * TRUE if it tests for the field's value in a set, FALSE otherwise.
+ */
+static gboolean
+relation_is_in_test(const char *string)
+{
+    return (strcmp(string, "in") == 0);
 }
 
 static void
@@ -313,7 +326,7 @@ relation_list_sel_cb(GtkTreeSelection *sel, gpointer user_data _U_)
      * Update the display of various items for the value, as appropriate.
      */
     display_value_fields(hfinfo,
-                         !relation_is_presence_test(item_str),
+                         !relation_is_presence_test(item_str), relation_is_in_test(item_str),
                          value_label, value_entry, value_list_label, value_list,
                          value_list_scrolled_win, range_label, range_entry);
     g_free(item_str);
@@ -413,13 +426,16 @@ add_value_list_item(GtkWidget *value_list, const gchar *string, gconstpointer da
  * and currently-selected relation.
  */
 static void
-display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
+display_value_fields(header_field_info *hfinfo,
+                     gboolean is_comparison, gboolean is_in,
                      GtkWidget *value_label, GtkWidget *value_entry,
                      GtkWidget *value_list_label,
-                     GtkWidget *value_list _U_,
+                     GtkWidget *value_list,
                      GtkWidget *value_list_scrolled_win, GtkWidget *range_label,
                      GtkWidget *range_entry)
 {
+    GtkTreeSelection *sel;
+
     /* Default values */
     gboolean show_value_label = FALSE;
     gboolean show_value_list  = FALSE;
@@ -493,6 +509,17 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
     gtk_widget_set_sensitive(value_list_scrolled_win,   show_value_list);
 
     /*
+     * Is this an 'in' operation then allow mutiple entries selected
+     */
+    sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(value_list));
+
+    if (show_value_list && is_in) {
+        gtk_tree_selection_set_mode(sel, GTK_SELECTION_MULTIPLE);
+    } else {
+        gtk_tree_selection_set_mode(sel, GTK_SELECTION_BROWSE);
+    }
+
+    /*
      * Is this a comparison, and are ranges supported by this type?
      * If both are true, show the range stuff, otherwise hide it.
      */
@@ -512,74 +539,96 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
                                                 E_DFILTER_EXPR_CURRENT_VAR_KEY);
     const value_string *value = NULL;
     gchar *value_display_string = NULL;
+    GList *paths = gtk_tree_selection_get_selected_rows(sel, &model);
+    GList *path;
+    GtkTreePath *tree_path;
 
-    if (!gtk_tree_selection_get_selected(sel, &model, &iter))
+    if (!paths)
         return;
-    gtk_tree_model_get(model, &iter, 1, &value, -1);
 
-    /*
-     * This should either be a numeric type or a Boolean type.
-     */
-    if (hfinfo->type == FT_BOOLEAN) {
-        /*
-         * Boolean type; if the value key for the selected item
-         * is non-null, it's the item for "true", otherwise it's
-         * the item for "false".  Compare with 1 if we're
-         * testing for "true", and compare with 0 if we're
-         * testing for "false".
-         */
-        if (value != NULL)
-            value_display_string = g_strdup("1");
-        else
-            value_display_string = g_strdup("0");
-    } else {
-        /*
-         * Numeric type; get the value corresponding to the
-         * selected item, and display it in the base for this
-         * field.
-         */
-        switch ((hfinfo->display) & FIELD_DISPLAY_E_MASK) {
+    gchar **value_display_strings = g_new0(gchar *, (1 + g_list_length(paths)));
+    size_t value_element = 0;
 
-        case BASE_NONE:
-        case BASE_DEC:
-        case BASE_DEC_HEX:
-            switch (hfinfo->type) {
+    for (path = g_list_first(paths); path; path = g_list_next(path))
+    {
+        tree_path = (GtkTreePath *)(path->data);
 
-            case FT_UINT8:
-            case FT_UINT16:
-            case FT_UINT24:
-            case FT_UINT32:
-                value_display_string = g_strdup_printf("%u", value->value);
-                break;
+        if (gtk_tree_model_get_iter(model, &iter, tree_path))
+        {
+            gtk_tree_model_get(model, &iter, 1, &value, -1);
 
-            case FT_INT8:
-            case FT_INT16:
-            case FT_INT24:
-            case FT_INT32:
-                value_display_string = g_strdup_printf("%d", value->value);
-                break;
+            /*
+            * This should either be a numeric type or a Boolean type.
+            */
+            if (hfinfo->type == FT_BOOLEAN) {
+                /*
+                * Boolean type; if the value key for the selected item
+                * is non-null, it's the item for "true", otherwise it's
+                * the item for "false".  Compare with 1 if we're
+                * testing for "true", and compare with 0 if we're
+                * testing for "false".
+                */
+                if (value != NULL)
+                    value_display_strings[value_element] = g_strdup("1");
+                else
+                    value_display_strings[value_element] = g_strdup("0");
+            } else {
+                /*
+                * Numeric type; get the value corresponding to the
+                * selected item, and display it in the base for this
+                * field.
+                */
+                switch ((hfinfo->display) & FIELD_DISPLAY_E_MASK) {
 
-            default:
-                g_assert_not_reached();
+                case BASE_NONE:
+                case BASE_DEC:
+                case BASE_DEC_HEX:
+                    switch (hfinfo->type) {
+
+                    case FT_UINT8:
+                    case FT_UINT16:
+                    case FT_UINT24:
+                    case FT_UINT32:
+                        value_display_strings[value_element] = g_strdup_printf("%u", value->value);
+                        break;
+
+                    case FT_INT8:
+                    case FT_INT16:
+                    case FT_INT24:
+                    case FT_INT32:
+                        value_display_strings[value_element] = g_strdup_printf("%d", value->value);
+                        break;
+
+                    default:
+                        g_assert_not_reached();
+                    }
+                    break;
+
+                case BASE_HEX:
+                case BASE_HEX_DEC:
+                    value_display_strings[value_element] = g_strdup_printf("0x%x", value->value);
+                    break;
+
+                case BASE_OCT:
+                    value_display_strings[value_element] = g_strdup_printf("%#o", value->value);
+                    break;
+
+                default:
+                    g_assert_not_reached();
+                }
             }
-            break;
 
-        case BASE_HEX:
-        case BASE_HEX_DEC:
-            value_display_string = g_strdup_printf("0x%x", value->value);
-            break;
-
-        case BASE_OCT:
-            value_display_string = g_strdup_printf("%#o", value->value);
-            break;
-
-        default:
-            g_assert_not_reached();
+            value_element++;
         }
     }
 
+    g_list_free_full(paths, (GDestroyNotify)gtk_tree_path_free);
+
+    value_display_string = g_strjoinv(" ", value_display_strings);
+    g_strfreev(value_display_strings);
+
     gtk_entry_set_text(GTK_ENTRY(value_entry), value_display_string);
-    g_free (value_display_string);
+    g_free(value_display_string);
 }
 
 static void
@@ -668,7 +717,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
      * can't support, because the field's type supports slicing,
      * and the relation *is* supported on byte strings.
      */
-    if (strcmp(item_str, "==") == 0)
+    if ((strcmp(item_str, "==") == 0) || (strcmp(item_str, "in") == 0))
         can_compare = ftype_can_eq(ftype);
     else if (strcmp(item_str, "!=") == 0)
         can_compare = ftype_can_ne(ftype);
@@ -722,33 +771,35 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
             return;
         }
 
-        /*
-         * Make sure the value is valid.
-         *
-         * If no range string was specified, it must be valid
-         * for the type of the field; if a range string was
-         * specified, must be valid for FT_BYTES.
-         */
-        if (strcmp(item_str, "contains") == 0) {
-            fvalue = fvalue_from_unparsed(ftype, stripped_value_str, TRUE,
-                                          &err_msg);
-        }
-        else {
-            fvalue = fvalue_from_unparsed(ftype, stripped_value_str, FALSE,
-                                          &err_msg);
-        }
-        if (fvalue == NULL) {
+        if (strcmp(item_str, "in")) {
             /*
-             * It's not valid.
-             */
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
-            g_free(err_msg);
-            g_free(range_str);
-            g_free(value_str);
-            g_free(item_str);
-            return;
+            * Make sure the value is valid.
+            *
+            * If no range string was specified, it must be valid
+            * for the type of the field; if a range string was
+            * specified, must be valid for FT_BYTES.
+            */
+            if (strcmp(item_str, "contains") == 0) {
+                fvalue = fvalue_from_unparsed(ftype, stripped_value_str, TRUE,
+                                            &err_msg);
+            }
+            else {
+                fvalue = fvalue_from_unparsed(ftype, stripped_value_str, FALSE,
+                                            &err_msg);
+            }
+            if (fvalue == NULL) {
+                /*
+                * It's not valid.
+                */
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+                g_free(err_msg);
+                g_free(range_str);
+                g_free(value_str);
+                g_free(item_str);
+                return;
+            }
+            FVALUE_FREE(fvalue);
         }
-        FVALUE_FREE(fvalue);
     } else {
         value_str = NULL;
         stripped_value_str = NULL;
@@ -806,7 +857,13 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
             quote_it = (strpbrk(stripped_value_str, " \t") != NULL);
             break;
         }
-        if (quote_it) {
+        if (strcmp(item_str, "in") == 0) {
+            /*
+             * Put curly braces around the value.
+             */
+            gtk_editable_insert_text(GTK_EDITABLE(filter_te), "{",
+                                     1, &pos);
+        } else if (quote_it) {
             /*
              * Put quotes around the string.
              */
@@ -815,7 +872,13 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
         }
         gtk_editable_insert_text(GTK_EDITABLE(filter_te),
                                  stripped_value_str, (gint) strlen(stripped_value_str), &pos);
-        if (quote_it) {
+        if (strcmp(item_str, "in") == 0) {
+            /*
+             * Put curly braces around the value.
+             */
+            gtk_editable_insert_text(GTK_EDITABLE(filter_te), "}",
+                                     1, &pos);
+        } else if (quote_it) {
             /*
              * Put quotes around the string.
              */
@@ -1036,7 +1099,12 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
                        TRUE, 0);
 
     l_store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
-    value_list = tree_view_new(GTK_TREE_MODEL(l_store));
+    /*
+     * value_list = tree_view_new(GTK_TREE_MODEL(l_store));
+     * Replaced because tree_view_key_pressed_cb() can't handle
+     * gtk_tree_view_get_selection() when mode GTK_SELECTION_MULTIPLE is used.
+     */
+    value_list = gtk_tree_view_new_with_model(GTK_TREE_MODEL(l_store));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(value_list), FALSE);
     g_object_unref(G_OBJECT(l_store));
     renderer = gtk_cell_renderer_text_new();

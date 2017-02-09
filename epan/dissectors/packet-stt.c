@@ -167,19 +167,6 @@ static const fragment_items frag_items = {
     "STT segments"
 };
 
-static void
-stt_segment_init(void)
-{
-    reassembly_table_init(&stt_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-stt_segment_cleanup(void)
-{
-    reassembly_table_destroy(&stt_reassembly_table);
-}
-
 static tvbuff_t *
 handle_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                guint32 pkt_id, guint16 pkt_len, guint16 seg_off)
@@ -922,8 +909,8 @@ proto_register_stt(void)
                                    "Whether to validate the STT checksum or not.",
                                    &pref_check_checksum);
 
-    register_init_routine(stt_segment_init);
-    register_cleanup_routine(stt_segment_cleanup);
+    reassembly_table_register(&stt_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 void

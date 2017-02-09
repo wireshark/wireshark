@@ -589,6 +589,16 @@ void extcap_cleanup(void)
     {
         g_hash_table_destroy(extcap_prefs_dynamic_vals);
     }
+
+    if (ifaces)
+    {
+        g_hash_table_destroy(ifaces);
+    }
+
+    if (tools)
+    {
+        g_hash_table_destroy(tools);
+    }
 }
 
 void extcap_pref_store(extcap_arg *arg, const char *newval)

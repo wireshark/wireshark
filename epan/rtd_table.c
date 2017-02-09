@@ -66,16 +66,7 @@ const value_string* get_rtd_value_string(register_rtd_t* rtd)
     return rtd->vs_type;
 }
 
-static GSList *registered_rtd_tables = NULL;
-
-static gint
-insert_sorted_by_table_name(gconstpointer aparam, gconstpointer bparam)
-{
-    const register_rtd_t *a = (const register_rtd_t *)aparam;
-    const register_rtd_t *b = (const register_rtd_t *)bparam;
-
-    return g_ascii_strcasecmp(proto_get_protocol_short_name(find_protocol_by_id(a->proto_id)), proto_get_protocol_short_name(find_protocol_by_id(b->proto_id)));
-}
+static wmem_tree_t *registered_rtd_tables = NULL;
 
 void
 register_rtd_table(const int proto_id, const char* tap_listener, guint num_tables, guint num_timestats, const value_string* vs_type,
@@ -84,7 +75,7 @@ register_rtd_table(const int proto_id, const char* tap_listener, guint num_table
     register_rtd_t *table;
     DISSECTOR_ASSERT(rtd_packet_func);
 
-    table = g_new(register_rtd_t,1);
+    table = wmem_new(wmem_epan_scope(), register_rtd_t);
 
     table->proto_id      = proto_id;
     if (tap_listener != NULL)
@@ -97,7 +88,10 @@ register_rtd_table(const int proto_id, const char* tap_listener, guint num_table
     table->vs_type = vs_type;
     table->filter_check = filter_check_cb;
 
-    registered_rtd_tables = g_slist_insert_sorted(registered_rtd_tables, table, insert_sorted_by_table_name);
+    if (registered_rtd_tables == NULL)
+        registered_rtd_tables = wmem_tree_new(wmem_epan_scope());
+
+    wmem_tree_insert_string(registered_rtd_tables, proto_get_protocol_filter_name(proto_id), table, 0);
 }
 
 void free_rtd_table(rtd_stat_table* table, rtd_gui_free_cb gui_callback, void *callback_data)
@@ -130,26 +124,9 @@ void reset_rtd_table(rtd_stat_table* table, rtd_gui_reset_cb gui_callback, void 
 
 }
 
-static gint
-find_matching_rtd(gconstpointer arg1, gconstpointer arg2)
-{
-    register_rtd_t *rtd = (register_rtd_t*)arg1;
-    const gchar   *name   = (const gchar *)arg2;
-
-    return strcmp(proto_get_protocol_filter_name(rtd->proto_id), name);
-}
-
 register_rtd_t* get_rtd_table_by_name(const char* name)
 {
-    GSList *found_rtd;
-
-    found_rtd = g_slist_find_custom(registered_rtd_tables,
-                    (gpointer)name, find_matching_rtd);
-
-    if (found_rtd)
-        return (register_rtd_t*)found_rtd->data;
-
-    return NULL;
+    return (register_rtd_t*)wmem_tree_lookup_string(registered_rtd_tables, name, 0);
 }
 
 gchar* rtd_table_get_tap_string(register_rtd_t* rtd)
@@ -197,9 +174,9 @@ void rtd_table_dissector_init(register_rtd_t* rtd, rtd_stat_table* table, rtd_gu
         gui_callback(table, callback_data);
 }
 
-void rtd_table_iterate_tables(GFunc func, gpointer user_data)
+void rtd_table_iterate_tables(wmem_foreach_func func, gpointer user_data)
 {
-    g_slist_foreach(registered_rtd_tables, func, user_data);
+    wmem_tree_foreach(registered_rtd_tables, func, user_data);
 }
 
 /*

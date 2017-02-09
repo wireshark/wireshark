@@ -81,7 +81,7 @@ typedef struct _fcfzs_conv_data {
     guint32 opcode;
 } fcfzs_conv_data_t;
 
-static GHashTable *fcfzs_req_hash = NULL;
+static wmem_map_t *fcfzs_req_hash = NULL;
 
 /*
  * Hash Functions
@@ -104,21 +104,6 @@ fcfzs_hash(gconstpointer v)
     val = key->conv_idx;
 
     return val;
-}
-
-/*
- * Protocol initialization
- */
-static void
-fcfzs_init_protocol(void)
-{
-    fcfzs_req_hash = g_hash_table_new(fcfzs_hash, fcfzs_equal);
-}
-
-static void
-fcfzs_cleanup_protocol(void)
-{
-    g_hash_table_destroy(fcfzs_req_hash);
 }
 
 /* Code to actually dissect the packets */
@@ -561,7 +546,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         ckey.conv_idx = conversation->conv_index;
 
-        cdata = (fcfzs_conv_data_t *)g_hash_table_lookup(fcfzs_req_hash,
+        cdata = (fcfzs_conv_data_t *)wmem_map_lookup(fcfzs_req_hash,
                                                          &ckey);
         if (cdata) {
             /* Since we never free the memory used by an exchange, this maybe a
@@ -577,7 +562,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             cdata = wmem_new(wmem_file_scope(), fcfzs_conv_data_t);
             cdata->opcode = opcode;
 
-            g_hash_table_insert(fcfzs_req_hash, req_key, cdata);
+            wmem_map_insert(fcfzs_req_hash, req_key, cdata);
         }
 
         col_add_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, fc_fzs_opcode_val,
@@ -603,7 +588,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         else {
             ckey.conv_idx = conversation->conv_index;
 
-            cdata = (fcfzs_conv_data_t *)g_hash_table_lookup(fcfzs_req_hash, &ckey);
+            cdata = (fcfzs_conv_data_t *)wmem_map_lookup(fcfzs_req_hash, &ckey);
 
             if (cdata != NULL) {
                 if (opcode == FCCT_MSG_ACC)
@@ -867,9 +852,8 @@ proto_register_fcfzs(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_fcfzs = expert_register_protocol(proto_fcfzs);
     expert_register_field_array(expert_fcfzs, ei, array_length(ei));
-    register_init_routine(&fcfzs_init_protocol);
-    register_cleanup_routine(&fcfzs_cleanup_protocol);
 
+    fcfzs_req_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), fcfzs_hash, fcfzs_equal);
 }
 
 void

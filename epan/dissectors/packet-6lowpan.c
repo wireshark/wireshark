@@ -490,7 +490,6 @@ struct lowpan_nhdr {
 
 /* Dissector prototypes */
 static void         proto_init_6lowpan          (void);
-static void         proto_cleanup_6lowpan(void);
 static void         prefs_6lowpan_apply         (void);
 static int          dissect_6lowpan             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static tvbuff_t *   dissect_6lowpan_ipv6        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -2883,9 +2882,11 @@ proto_register_6lowpan(void)
     /* Register the dissector with wireshark. */
     handle_6lowpan = register_dissector("6lowpan", dissect_6lowpan, proto_6lowpan);
 
+    /* Initialize the fragment reassembly table. */
+    reassembly_table_register(&lowpan_reassembly_table, &addresses_reassembly_table_functions);
+
     /* Register the dissector init function */
     register_init_routine(proto_init_6lowpan);
-    register_cleanup_routine(proto_cleanup_6lowpan);
     register_shutdown_routine(proto_shutdown_6lowpan);
 
     /* Initialize the context preferences. */
@@ -2929,10 +2930,6 @@ proto_register_6lowpan(void)
 static void
 proto_init_6lowpan(void)
 {
-    /* Initialize the fragment reassembly table. */
-    reassembly_table_init(&lowpan_reassembly_table,
-                          &addresses_reassembly_table_functions);
-
     /* Initialize the link-local context. */
     lowpan_context_local.frame = 0;
     lowpan_context_local.plen = LOWPAN_CONTEXT_LINK_LOCAL_BITS;
@@ -2941,12 +2938,6 @@ proto_init_6lowpan(void)
     /* Reload static contexts from our preferences. */
     prefs_6lowpan_apply();
 } /* proto_init_6lowpan */
-
-static void
-proto_cleanup_6lowpan(void)
-{
-    reassembly_table_destroy(&lowpan_reassembly_table);
-}
 
 /*FUNCTION:------------------------------------------------------
  *  NAME

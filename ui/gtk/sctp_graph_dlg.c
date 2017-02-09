@@ -51,7 +51,7 @@
 #define COUNT_TYPE_BYTES    1
 #define COUNT_TYPE_ADVANCED 2
 
-#define LEFT_BORDER 60
+#define LEFT_BORDER 120
 #define RIGHT_BORDER 10
 #define TOP_BORDER 10
 #define BOTTOM_BORDER 50
@@ -182,6 +182,9 @@ draw_sack_graph(struct sctp_udata *u_data)
 			max_tsn=u_data->assoc->min_tsn1+u_data->io->tmp_max_tsn1;
 		}
 	}
+
+	if (min_tsn == max_tsn)
+		min_tsn = 0;
 
 	while (list)
 	{
@@ -373,6 +376,10 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 			max_tsn=u_data->assoc->min_tsn1+u_data->io->tmp_max_tsn1;
 		}
 	}
+
+	if (min_tsn == max_tsn)
+		min_tsn = 0;
+
 	while (list)
 	{
 		sack = (tsn_t*) (list->data);
@@ -563,6 +570,9 @@ draw_tsn_graph(struct sctp_udata *u_data)
 		}
 	}
 
+	if (min_tsn == max_tsn)
+		min_tsn = 0;
+
 	while (list)
 	{
 		tsn = (tsn_t*) (list->data);
@@ -625,6 +635,11 @@ sctp_graph_draw(struct sctp_udata *u_data)
 	GtkAllocation widget_alloc;
 	cairo_t *cr;
 
+	if ((u_data->dir==1 && u_data->assoc->n_array_tsn1==0) || (u_data->dir==2 && u_data->assoc->n_array_tsn2==0)) {
+		simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "No Data Chunks sent");
+		return;
+	}
+
 	if (u_data->io->x1_tmp_sec==0 && u_data->io->x1_tmp_usec==0)
 		u_data->io->offset=0;
 	else
@@ -649,7 +664,9 @@ sctp_graph_draw(struct sctp_udata *u_data)
 	{
 		if (u_data->io->tmp==FALSE)
 		{
-			if (u_data->assoc->tsn1!=NULL || u_data->assoc->sack1!=NULL)
+			if (u_data->assoc->n_array_tsn1==1)
+				u_data->io->max_y = u_data->io->tmp_max_tsn1;
+			else if (u_data->assoc->tsn1!=NULL || u_data->assoc->sack1!=NULL)
 				u_data->io->max_y=u_data->io->tmp_max_tsn1 - u_data->io->tmp_min_tsn1;
 			else
 				u_data->io->max_y= 0;
@@ -665,7 +682,9 @@ sctp_graph_draw(struct sctp_udata *u_data)
 	{
 		if (u_data->io->tmp==FALSE)
 		{
-			if (u_data->assoc->tsn2!=NULL || u_data->assoc->sack2!=NULL)
+			if (u_data->assoc->n_array_tsn2==1)
+				u_data->io->max_y = u_data->io->tmp_max_tsn2;
+			else if (u_data->assoc->tsn2!=NULL || u_data->assoc->sack2!=NULL)
 					u_data->io->max_y=u_data->io->tmp_max_tsn2 -u_data->io->tmp_min_tsn2;
 			else
 				u_data->io->max_y= 0;
@@ -974,7 +993,8 @@ sctp_graph_draw(struct sctp_udata *u_data)
 			if (i>=u_data->io->min_y)
 			{
 				length=5;
-				g_snprintf(label_string, sizeof(label_string), "%d", i);
+
+				g_snprintf(label_string, sizeof(label_string), "%u", i);
 				if (i%distance==0 || (distance<=5 && u_data->io->y_interval>10))
 				{
 					length=10;
@@ -1013,8 +1033,6 @@ sctp_graph_draw(struct sctp_udata *u_data)
 			}
 		}
 	}
-	else if ((u_data->dir==1 && u_data->assoc->n_array_tsn1==0) || (u_data->dir==2 && u_data->assoc->n_array_tsn2==0))
-		simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "No Data Chunks sent");
 
 	g_object_unref(G_OBJECT(layout));
 }

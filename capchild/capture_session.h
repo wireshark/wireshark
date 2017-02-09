@@ -50,7 +50,7 @@ struct _info_data;
  * State of a capture session.
  */
 typedef struct _capture_session {
-    ws_process_id fork_child;             /**< If not -1, in parent, process ID of child */
+    ws_process_id fork_child;             /**< If not WS_INVALID_PID, in parent, process ID of child */
     int       fork_child_status;          /**< Child exit status */
 #ifdef _WIN32
     int       signal_pipe_write_fd;       /**< the pipe to signal the child */

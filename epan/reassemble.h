@@ -63,29 +63,28 @@
 
 typedef struct _fragment_item {
 	struct _fragment_item *next;
-	guint32 frame;					/* XXX - does this apply to reassembly heads? */
-	guint32	offset;					/* XXX - does this apply to reassembly heads? */
-	guint32	len;					/* XXX - does this apply to reassembly heads? */
-	guint32 fragment_nr_offset;		/**< offset for frame numbering, for sequences, where the
-									 * provided fragment number of the first fragment does
-									 * not start with 0
-									 * XXX - does this apply only to reassembly heads? */
-	guint32 datalen;				/**< When flags&FD_BLOCKSEQUENCE is set, the
-									  index of the last block (segments in
-									  datagram + 1); otherwise the number of
-									  bytes of the full datagram. Only valid in
-									  the first item of the fragments list when
-									  flags&FD_DATALEN is set.*/
-	guint32 reassembled_in;			/**< frame where this PDU was reassembled,
-										 only valid in the first item of the list
-										 and when FD_DEFRAGMENTED is set*/
-	guint8 reas_in_layer_num;		/**< The current "depth" or layer number in the current frame where reassembly was completed.
-									 * Example: in SCTP there can be several data chunks and we want the reassemblied tvb for the final
-									 * segment only.
-									 */
-	guint32 flags;					/**< XXX - do some of these apply only to reassembly
-										 heads and others only to fragments within
-										 a reassembly? */
+	guint32 frame;			/* XXX - does this apply to reassembly heads? */
+	guint32	offset;			/* XXX - does this apply to reassembly heads? */
+	guint32	len;			/* XXX - does this apply to reassembly heads? */
+	guint32 fragment_nr_offset;	/**< offset for frame numbering, for sequences, where the
+					 * provided fragment number of the first fragment does
+					 * not start with 0
+					 * XXX - does this apply only to reassembly heads? */
+	guint32 datalen;		/**< When flags&FD_BLOCKSEQUENCE is set, the
+					 * index of the last block (segments in
+					 * datagram + 1); otherwise the number of
+					 * bytes of the full datagram. Only valid in
+					 * the first item of the fragments list when
+					 * flags&FD_DATALEN is set.*/
+	guint32 reassembled_in;		/**< frame where this PDU was reassembled,
+					 * only valid in the first item of the list
+					 * and when FD_DEFRAGMENTED is set*/
+	guint8 reas_in_layer_num;	/**< The current "depth" or layer number in the current frame where reassembly was completed.
+					 * Example: in SCTP there can be several data chunks and we want the reassemblied tvb for the final
+					 * segment only. */
+	guint32 flags;			/**< XXX - do some of these apply only to reassembly
+					 * heads and others only to fragments within
+					 * a reassembly? */
 	tvbuff_t *tvb_data;
 	/**
 	 * Null if the reassembly had no error; non-null if it had
@@ -166,6 +165,14 @@ WS_DLL_PUBLIC const reassembly_table_functions
 	addresses_reassembly_table_functions;		/* keys have endpoint addresses and an ID */
 WS_DLL_PUBLIC const reassembly_table_functions
 	addresses_ports_reassembly_table_functions;	/* keys have endpoint addresses and ports and an ID */
+
+/*
+ * Register a reassembly table. By registering the table with epan, the creation and
+ * destruction of the table can be managed by epan and not the dissector.
+ */
+WS_DLL_PUBLIC void
+reassembly_table_register(reassembly_table *table,
+		      const reassembly_table_functions *funcs);
 
 /*
  * Initialize/destroy a reassembly table.
@@ -454,6 +461,10 @@ show_fragment_tree(fragment_head *ipfd_head, const fragment_items *fit,
 WS_DLL_PUBLIC gboolean
 show_fragment_seq_tree(fragment_head *ipfd_head, const fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi);
+
+/* Initialize internal structures
+ */
+extern void reassembly_tables_init(void);
 
 /* Cleanup internal structures
  */

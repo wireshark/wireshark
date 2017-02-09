@@ -1021,11 +1021,6 @@ static struct _9p_hashval *_9p_hash_new_val(gsize len)
 	return val;
 }
 
-static void _9p_hash_init(void)
-{
-	_9p_hashtable = wmem_map_new(wmem_file_scope(), _9p_hash_hash, _9p_hash_equal);
-}
-
 static void _9p_hash_set(packet_info *pinfo, guint16 tag, guint32 fid, struct _9p_hashval *val)
 {
 	struct _9p_hashkey *key;
@@ -2726,7 +2721,7 @@ void proto_register_9P(void)
 	expert_9P = expert_register_protocol(proto_9P);
 	expert_register_field_array(expert_9P, ei, array_length(ei));
 
-	register_init_routine(_9p_hash_init);
+	_9p_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), _9p_hash_hash, _9p_hash_equal);
 }
 
 void proto_reg_handoff_9P(void)

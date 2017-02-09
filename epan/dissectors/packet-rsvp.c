@@ -669,7 +669,7 @@ struct rsvp_request_val {
 /*
  * Initialize the conversation related data structures.
  */
-static GHashTable *rsvp_request_hash = NULL;
+static wmem_map_t *rsvp_request_hash = NULL;
 
 /*
  * The list of tree types
@@ -1973,23 +1973,6 @@ rsvp_hash(gconstpointer k)
 {
     const struct rsvp_request_key *key = (const struct rsvp_request_key*) k;
     return key->conversation;
-}
-
-/*
- * Conversation specific initialization code that deletes any unused memory that
- * might need to be freed, and allocates the memory for the various conversation
- * hash tables.
- */
-static void
-rsvp_init_protocol(void)
-{
-    rsvp_request_hash = g_hash_table_new(rsvp_hash, rsvp_equal);
-}
-
-static void
-rsvp_cleanup_protocol(void)
-{
-    g_hash_table_destroy(rsvp_request_hash);
 }
 
 static const char* rsvp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter _U_)
@@ -7495,7 +7478,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 
     /* See if a request with this key already exists */
     request_val =
-        (struct rsvp_request_val *) g_hash_table_lookup(rsvp_request_hash,
+        (struct rsvp_request_val *) wmem_map_lookup(rsvp_request_hash,
                                                         &request_key);
 
     /* If not, insert the new request key into the hash table */
@@ -7531,7 +7514,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         request_val = wmem_new(wmem_file_scope(), struct rsvp_request_val);
         request_val->value = conversation->conv_index;
 
-        g_hash_table_insert(rsvp_request_hash, new_request_key, request_val);
+        wmem_map_insert(rsvp_request_hash, new_request_key, request_val);
     }
 
     tap_queue_packet(rsvp_tap, pinfo, rsvph);
@@ -9535,9 +9518,7 @@ proto_register_rsvp(void)
     expert_register_field_array(expert_rsvp, ei, array_length(ei));
     register_rsvp_prefs();
 
-    /* Initialization routine for RSVP conversations */
-    register_init_routine(&rsvp_init_protocol);
-    register_cleanup_routine(&rsvp_cleanup_protocol);
+    rsvp_request_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), rsvp_hash, rsvp_equal);
 
     register_conversation_table(proto_rsvp, TRUE, rsvp_conversation_packet, rsvp_hostlist_packet);
 }

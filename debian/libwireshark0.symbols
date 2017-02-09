@@ -702,6 +702,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_conversation_table_by_num@Base 1.99.0
  get_data_source_name@Base 1.9.1
  get_data_source_tvb@Base 1.9.1
+ get_data_source_tvb_by_name@Base 2.3.0
  get_dissector_names@Base 1.12.0~rc1
  get_dissector_table_param@Base 1.99.2
  get_dissector_table_selector_type@Base 1.9.1
@@ -923,6 +924,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  port_with_resolution_to_str@Base 2.1.0
  port_with_resolution_to_str_buf@Base 2.0.0
  postseq_cleanup_all_protocols@Base 1.9.1
+ pref_clean_stash@Base 2.3.0
+ pref_stash@Base 2.3.0
+ pref_unstash@Base 2.3.0
  prefs@Base 1.9.1
  prefs_add_decode_as_value@Base 2.3.0
  prefs_apply@Base 1.9.1
@@ -961,9 +965,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_modules_foreach@Base 1.9.1
  prefs_modules_foreach_submodules@Base 1.9.1
  prefs_pref_foreach@Base 1.9.1
+ prefs_pref_is_default@Base 2.3.0
  prefs_pref_to_str@Base 1.9.1
  prefs_pref_type_description@Base 1.9.1
  prefs_pref_type_name@Base 1.9.1
+ prefs_range_add_value@Base 2.3.0
+ prefs_range_remove_value@Base 2.3.0
  prefs_register_bool_preference@Base 1.9.1
  prefs_register_directory_preference@Base 1.9.1
  prefs_register_enum_preference@Base 1.9.1
@@ -1017,7 +1024,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_disable_proto_by_name@Base 1.99.8
  proto_enable_all@Base 1.9.1
  proto_enable_heuristic_by_name@Base 1.99.8
- proto_enable_proto_by_name@2.3.0
+ proto_enable_proto_by_name@Base 2.3.0
  proto_expert@Base 1.9.1
  proto_field_is_referenced@Base 1.9.1
  proto_field_display_to_string@Base 2.1.0
@@ -1212,10 +1219,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ranges_are_equal@Base 1.9.1
  read_disabled_heur_dissector_list@Base 1.99.8
  read_disabled_protos_list@Base 1.12.0~rc1
+ read_enabled_protos_list@Base 2.3.0
  read_keytab_file@Base 1.9.1
  read_keytab_file_from_preferences@Base 1.9.1
  read_prefs@Base 1.9.1
  read_prefs_file@Base 1.9.1
+ reassembly_table_register@Base 2.3.0
  reassembly_table_destroy@Base 1.9.1
  reassembly_table_init@Base 1.9.1
  register_all_plugin_tap_listeners@Base 1.9.1
@@ -1248,6 +1257,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_postdissector@Base 1.9.1
  register_postseq_cleanup_routine@Base 1.9.1
  register_rtd_table@Base 1.99.8
+ register_shutdown_routine@Base 2.3.0
  register_srt_table@Base 1.99.8
  register_stat_tap_table_ui@Base 2.1.0
  register_stat_tap_ui@Base 1.99.1
@@ -1267,6 +1277,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  reset_pref@Base 2.3.0
  reset_rtd_table@Base 1.99.8
  reset_srt_table@Base 1.99.8
+ reset_stashed_pref@Base 2.3.0
  reset_stat_table@Base 1.99.8
  reset_tap_listeners@Base 1.9.1
  rose_ctx_clean_data@Base 1.9.1
@@ -1301,6 +1312,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  s1ap_CauseProtocol_vals@Base 1.9.1
  s1ap_CauseRadioNetwork_vals@Base 1.9.1
  s1ap_CauseTransport_vals@Base 1.9.1
+ s1ap_Cause_vals@Base 2.3.0
  save_decode_as_entries@Base 2.3.0
  save_disabled_heur_dissector_list@Base 1.99.8
  save_disabled_protos_list@Base 1.12.0~rc1
@@ -1679,12 +1691,16 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_bit_bits@Base 2.3.0
  units_bit_sec@Base 2.3.0
  units_byte_bytes@Base 2.3.0
+ units_day_days@Base 2.3.0
+ units_dbi@Base 2.3.0
  units_dbm@Base 2.3.0
- units_decibals@Base 2.3.0
+ units_decibels@Base 2.3.0
  units_degree_degrees@Base 2.3.0
  units_foot_feet@Base 2.3.0
  units_frame_frames@Base 2.3.0
  units_ghz@Base 2.3.0
+ units_hour_hours@Base 2.3.0
+ units_hours@Base 2.3.0
  units_hz@Base 2.3.0
  units_hz_s@Base 2.3.0
  units_kbit@Base 2.3.0
@@ -1692,23 +1708,28 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_khz@Base 2.3.0
  units_kibps@Base 2.3.0
  units_kmh@Base 2.3.0
- units_m_per_s@Base 2.3.0
- units_m_per_s_per_s@Base 2.3.0
  units_meter_meters@Base 2.3.0
+ units_meter_sec@Base 2.3.0
+ units_meter_sec_squared@Base 2.3.0
+ units_meters@Base 2.3.0
  units_mhz@Base 2.3.0
  units_microsecond_microseconds@Base 2.3.0
  units_microseconds@Base 2.3.0
  units_millisecond_milliseconds@Base 2.3.0
  units_milliseconds@Base 2.3.0
+ units_microwatts@Base 2.3.0
+ units_minute_minutes@Base 2.3.0
+ units_minutes@Base 2.3.0
  units_nanometers@Base 2.3.0
  units_nanosecond_nanoseconds@Base 2.3.0
+ units_nanoseconds@Base 2.3.0
  units_octet_octets@Base 2.3.0
  units_percent@Base 2.3.0
  units_second_seconds@Base 2.3.0
  units_seconds@Base 2.3.0
  units_segment_remaining@Base 2.3.0
  units_tick_ticks@Base 2.3.0
- units_uW@Base 2.3.0
+ units_week_weeks@Base 2.3.0
  units_word_words@Base 2.3.0
  unsigned_time_secs_to_str@Base 2.1.0
  update_crc10_by_bytes_tvb@Base 1.99.0
@@ -1767,11 +1788,14 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_list_remove_frame@Base 1.12.0~rc1
  wmem_list_tail@Base 1.12.0~rc1
  wmem_map_foreach@Base 2.1.0
+ wmem_map_get_keys@Base 2.3.0
  wmem_map_insert@Base 1.12.0~rc1
  wmem_map_lookup@Base 1.12.0~rc1
  wmem_map_new@Base 1.12.0~rc1
+ wmem_map_new_autoreset@Base 2.3.0
  wmem_map_remove@Base 1.12.0~rc1
  wmem_map_size@Base 2.1.0
+ wmem_map_steal@Base 2.3.0
  wmem_memdup@Base 1.12.0~rc1
  wmem_packet_scope@Base 1.9.1
  wmem_realloc@Base 1.9.1
@@ -1809,6 +1833,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_tree_new@Base 1.12.0~rc1
  wmem_tree_new_autoreset@Base 1.12.0~rc1
  wmem_tree_remove_string@Base 1.99.9
+ wmem_tree_remove32@Base 2.3.0
  wmem_unregister_callback@Base 1.12.0~rc1
  word_to_hex@Base 2.1.0
  write_carrays_hex_data@Base 1.99.1

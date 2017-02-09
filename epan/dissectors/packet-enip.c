@@ -730,7 +730,7 @@ static gpointer enip_value(packet_info *pinfo _U_)
    return 0;
 }
 
-static GHashTable *enip_request_hashtable = NULL;
+static wmem_map_t *enip_request_hashtable = NULL;
 
 /* Return codes of function classifying packets as query/response */
 enum enip_packet_type {ENIP_REQUEST_PACKET, ENIP_RESPONSE_PACKET, ENIP_CANNOT_CLASSIFY};
@@ -815,7 +815,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
    enip_request_info_t *request_info;
 
    request_info = NULL;
-   request_val = (enip_request_val_t *)g_hash_table_lookup( enip_request_hashtable, prequest_key );
+   request_val = (enip_request_val_t *)wmem_map_lookup( enip_request_hashtable, prequest_key );
    if (!pinfo->fd->flags.visited)
    {
       if ( prequest_key && prequest_key->requesttype == ENIP_REQUEST_PACKET )
@@ -827,7 +827,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
             request_val = wmem_new(wmem_file_scope(), enip_request_val_t);
             request_val->frames = wmem_tree_new(wmem_file_scope());
 
-            g_hash_table_insert(enip_request_hashtable, new_request_key, request_val );
+            wmem_map_insert(enip_request_hashtable, new_request_key, request_val );
          }
 
          request_info = wmem_new(wmem_file_scope(), enip_request_info_t);
@@ -1017,7 +1017,7 @@ enip_exp_conv_filter(packet_info *pinfo)
 /*
  * Connection management
  */
-static GHashTable *enip_conn_hashtable = NULL;
+static wmem_map_t *enip_conn_hashtable = NULL;
 static guint32 enip_unique_connid = 1;
 
 static gint
@@ -1067,7 +1067,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    conn_key->O2TConnID = connInfo->O2T.connID;
    conn_key->T2OConnID = connInfo->T2O.connID;
 
-   conn_val = (enip_conn_val_t *)g_hash_table_lookup( enip_conn_hashtable, conn_key );
+   conn_val = (enip_conn_val_t *)wmem_map_lookup( enip_conn_hashtable, conn_key );
    if ( conn_val == NULL )
    {
       conn_val = wmem_new(wmem_file_scope(), enip_conn_val_t);
@@ -1086,7 +1086,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
       conn_val->close_frame            = 0;
       conn_val->connid                 = enip_unique_connid++;
 
-      g_hash_table_insert(enip_conn_hashtable, conn_key, conn_val );
+      wmem_map_insert(enip_conn_hashtable, conn_key, conn_val );
 
       /* I/O connection */
       if (((connInfo->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 0) ||
@@ -1210,7 +1210,7 @@ enip_close_cip_connection(packet_info *pinfo, guint16 ConnSerialNumber,
    conn_key.O2TConnID          = 0;
    conn_key.T2OConnID          = 0;
 
-   conn_val = (enip_conn_val_t *)g_hash_table_lookup( enip_conn_hashtable, &conn_key );
+   conn_val = (enip_conn_val_t *)wmem_map_lookup( enip_conn_hashtable, &conn_key );
    if ( conn_val )
    {
       conn_val->close_frame = pinfo->num;
@@ -1233,7 +1233,7 @@ void enip_mark_connection_triad( packet_info *pinfo, guint16 ConnSerialNumber, g
    conn_key.O2TConnID          = 0;
    conn_key.T2OConnID          = 0;
 
-   conn_val = (enip_conn_val_t *)g_hash_table_lookup( enip_conn_hashtable, &conn_key );
+   conn_val = (enip_conn_val_t *)wmem_map_lookup( enip_conn_hashtable, &conn_key );
    if ( conn_val )
    {
       p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_val);
@@ -2179,24 +2179,6 @@ attribute_info_t enip_attribute_vals[99] = {
    {0x5F, FALSE, 3, 2, "Device Certificate",  cip_dissector_func,   NULL, dissect_eip_cert_device_cert},
    {0x5F, FALSE, 4, 3, "CA Certificate",  cip_dissector_func,   NULL, dissect_eip_cert_ca_cert},
 };
-
-
-/*
- * Protocol initialization
- */
-static void
-enip_init_protocol(void)
-{
-   enip_request_hashtable = g_hash_table_new(enip_request_hash, enip_request_equal);
-   enip_conn_hashtable = g_hash_table_new(enip_conn_hash, enip_conn_equal);
-}
-
-static void
-enip_cleanup_protocol(void)
-{
-   g_hash_table_destroy(enip_request_hashtable);
-   g_hash_table_destroy(enip_conn_hashtable);
-}
 
 /* Dissect Common Packet Format */
 static void
@@ -4417,8 +4399,8 @@ proto_register_enip(void)
 
    subdissector_io_table = register_dissector_table("enip.io", "ENIP IO dissector", proto_enip, FT_UINT32, BASE_DEC);
 
-   register_init_routine(&enip_init_protocol);
-   register_cleanup_routine(&enip_cleanup_protocol);
+   enip_request_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), enip_request_hash, enip_request_equal);
+   enip_conn_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), enip_conn_hash, enip_conn_equal);
 
    /* Register the protocol name and description */
    proto_dlr = proto_register_protocol("Device Level Ring", "DLR", "dlr");

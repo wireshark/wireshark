@@ -963,19 +963,6 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
     return length;
 }
 
-static void
-midi_data_reassemble_init(void)
-{
-    reassembly_table_init(&midi_data_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-midi_data_reassemble_cleanup(void)
-{
-    reassembly_table_destroy(&midi_data_reassembly_table);
-}
-
 void
 proto_register_usb_audio(void)
 {
@@ -1300,8 +1287,8 @@ proto_register_usb_audio(void)
     proto_register_subtree_array(usb_audio_subtrees, array_length(usb_audio_subtrees));
     expert_usb_audio = expert_register_protocol(proto_usb_audio);
     expert_register_field_array(expert_usb_audio, ei, array_length(ei));
-    register_init_routine(&midi_data_reassemble_init);
-    register_cleanup_routine(&midi_data_reassemble_cleanup);
+    reassembly_table_register(&midi_data_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     usb_audio_bulk_handle = register_dissector("usbaudio", dissect_usb_audio_bulk, proto_usb_audio);
 }

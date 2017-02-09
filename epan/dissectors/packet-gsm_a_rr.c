@@ -150,6 +150,7 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
     { 0x40, "System Information Type 18" },
     { 0x41, "System Information Type 19" },
     { 0x42, "System Information Type 20" },
+    { 0x46, "System Information Type 21" },
 
     { 0x10, "Channel Mode Modify" },
     { 0x12, "RR Status" },
@@ -281,6 +282,7 @@ static const value_string gsm_rr_elem_strings[] = {
  * [3] 10.5.2.37g SI 19 Rest Octets
  * [3] 10.5.2.37h SI 18 Rest Octets
  * [3] 10.5.2.37i SI 20 Rest Octets */
+    { DE_RR_SI21_REST_OCT, "SI 21 Rest Octets" },                       /* [3] 10.5.2.37m */
     { DE_RR_STARTING_TIME, "Starting Time" },                           /* [3] 10.5.2.38 Starting Time  */
     { DE_RR_TIMING_ADV, "Timing Advance" },                             /* [3] 10.5.2.40 Timing Advance */
     { DE_RR_TIME_DIFF, "Time Difference" },                             /* [3] 10.5.2.41 Time Difference */
@@ -405,6 +407,7 @@ const value_string gsm_rr_rest_octets_elem_strings[] = {
     { 0, "REPORTING QUANTITY" },
     { 0, "E-UTRAN Measurement Report" },
     { 0, "E-UTRAN Description" },
+    { 0, "EAB Parameters" },
     { 0, NULL }
 };
 
@@ -630,6 +633,9 @@ static int hf_gsm_a_rr_3g_ba_ind = -1;
 static int hf_gsm_a_rr_mp_change_mark = -1;
 static int hf_gsm_a_rr_si2quater_index = -1;
 static int hf_gsm_a_rr_si2quater_count = -1;
+static int hf_gsm_a_rr_si21_change_mark = -1;
+static int hf_gsm_a_rr_si21_index = -1;
+static int hf_gsm_a_rr_si21_count = -1;
 static int hf_gsm_a_rr_gsm_report_type = -1;
 static int hf_gsm_a_rr_serving_band_reporting = -1;
 static int hf_gsm_a_rr_frequency_scrolling = -1;
@@ -681,6 +687,7 @@ static int hf_gsm_a_rr_si13_position = -1;
 static int hf_gsm_a_rr_power_offset = -1;
 static int hf_gsm_a_rr_si2quater_position = -1;
 static int hf_gsm_a_rr_si13alt_position = -1;
+static int hf_gsm_a_rr_si21_position = -1;
 static int hf_gsm_a_rr_prio_thr = -1;
 static int hf_gsm_a_rr_lsa_offset = -1;
 static int hf_gsm_a_rr_cell_id = -1;
@@ -792,6 +799,8 @@ static int hf_gsm_a_rr_additional_usf_2 = -1;
 static int hf_gsm_a_rr_npm_transfer_time = -1;
 static int hf_gsm_a_rr_event_based_fanr = -1;
 static int hf_gsm_a_rr_dl_egprs_level = -1;
+static int hf_gsm_a_rr_eab_auth_mask = -1;
+static int hf_gsm_a_eab_subcategory = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gsm_a_rr_cell_parameter = -1;
@@ -1059,6 +1068,7 @@ static int hf_gsm_a_rr_fanr_act_state = -1;
 static int hf_gsm_a_rr_encoding_selection = -1;
 static int hf_gsm_a_rr_nof_pdch_pairs = -1;
 static int hf_gsm_a_rr_npm_transfer_time_present = -1;
+static int hf_gsm_a_rr_eab_parameters = -1;
 
 /* gsm_rr_csn_HL_flag() fields */
 static int hf_gsm_a_rr_selection_parameters = -1;
@@ -1067,6 +1077,7 @@ static int hf_gsm_a_rr_si13_contents = -1;
 static int hf_gsm_a_rr_additions_in_rel_9 = -1;
 static int hf_gsm_a_rr_lsa_id_information = -1;
 static int hf_gsm_a_rr_si2quater_indicator = -1;
+static int hf_gsm_a_rr_si21_indicator = -1;
 static int hf_gsm_a_rr_additions_in_rel_4 = -1;
 static int hf_gsm_a_call_prio4 = -1;
 static int hf_gsm_a_rr_gprs_ms_txpwr_max_ccch_present = -1;
@@ -1297,6 +1308,7 @@ typedef enum
     DE_RR_REST_OCTETS_REPORTING_QUANTITY,
     DE_RR_REST_OCTETS_EUTRAN_MEASUREMENT_REPORT,
     DE_RR_REST_OCTETS_EUTRAN_DESC,
+    DE_RR_REST_OCTETS_EAB_PARAM_DESC,
     DE_RR_REST_OCTETS_NONE
 }
 rr_rest_octets_elem_idx_t;
@@ -4128,22 +4140,26 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
 {
     guint32 curr_bit_offset;
     guint8  i;
+    guint8  ra_count = 0;
     guint8  tvb_len = tvb_reported_length(tvb);
 
-    curr_bit_offset = offset<<3;
+    curr_bit_offset = offset << 3;
 
-    for( i=0; i<4; i++ )
+    for (i = 0; i < 4; i++)
     {
         if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_extended_ra_present))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_extended_ra, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
             curr_bit_offset += 5;
+            ra_count += 1;
         }
     }
-    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, curr_bit_offset++, hf_gsm_a_rr_additions_in_rel_13))
-    {
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_rcc, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
-        curr_bit_offset += 3;
+    if (ra_count < 4){
+        if (gsm_rr_csn_HL_flag(tvb, subtree, 0, curr_bit_offset++, hf_gsm_a_rr_additions_in_rel_13))
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_rcc, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
+            curr_bit_offset += 3;
+        }
     }
 
     gsm_rr_csn_padding_bits(subtree, tvb, curr_bit_offset, tvb_len);
@@ -7553,6 +7569,11 @@ static const true_false_string gsm_a_rr_si13alt_position_value = {
     "If Iu mode is supported in the cell, SYSTEM INFORMATION TYPE 13alt message is sent on BCCH Norm"
 };
 
+static const true_false_string gsm_a_rr_si21_position_value = {
+    "SYSTEM INFORMATION TYPE 21 message is sent on BCCH Ext",
+    "SYSTEM INFORMATION TYPE 21 message is sent on BCCH Norm"
+    };
+
 static guint16
 de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -7592,6 +7613,11 @@ de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
     if (gprs_indicator == FALSE)
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si13alt_position, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+        bit_offset += 1;
+    }
+    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, hf_gsm_a_rr_si21_indicator))
+        { /* SI21 Indicator */
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si21_position, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
     }
     gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
@@ -8404,6 +8430,47 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, 
  * [3] 10.5.2.37h SI 18 Rest Octets
  * [3] 10.5.2.37i SI 20 Rest Octets
  */
+
+ /*
+  * [3] 10.5.2.37m SI 21 Rest Octets
+  */
+static guint16
+de_rr_si21_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree  *subtree2;
+    proto_item *item2;
+    guint32  curr_offset;
+    gint     bit_offset, bit_offset_sav;
+    guint8   tvb_len = tvb_reported_length(tvb);
+
+    curr_offset = offset;
+    bit_offset = curr_offset << 3;
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si21_change_mark, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset += 2;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si21_index, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+    bit_offset += 3;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si21_count, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+    bit_offset += 3;
+    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_eab_parameters))
+    {
+        bit_offset_sav = bit_offset;
+        subtree2 = proto_tree_add_subtree(subtree, tvb, bit_offset >> 3, -1, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EAB_PARAM_DESC], &item2,
+            gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EAB_PARAM_DESC].strptr);
+
+        /* EAB Authorization mask */
+        proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_eab_auth_mask, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
+        bit_offset += 10;
+        /* EAB Subcategory */
+        proto_tree_add_bits_item(subtree2, hf_gsm_a_eab_subcategory, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+        bit_offset += 2;
+
+        proto_item_set_len(item2, (bit_offset >> 3) - (bit_offset_sav >> 3) + 1);
+    }
+    gsm_rr_csn_padding_bits(subtree, tvb, bit_offset, tvb_len);
+    return tvb_len - offset;
+}
+
 /*
  * [3] 10.5.2.38 Starting Time
  */
@@ -9127,6 +9194,7 @@ guint16 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
  * [3] 10.5.2.37g SI 19 Rest Octets
  * [3] 10.5.2.37h SI 18 Rest Octets
  * [3] 10.5.2.37i SI 20 Rest Octets */
+    de_rr_si21_rest_oct,                        /* [3] 10.5.2.37m SI21 Rest Octets                      */
     de_rr_starting_time,                        /* [3] 10.5.2.38 Starting Time                          */
     de_rr_timing_adv,                           /* [3] 10.5.2.40 Timing Advance                         */
     de_rr_time_diff,                            /* [3] 10.5.2.41 Time Difference                        */
@@ -10378,8 +10446,6 @@ dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_offset++;
     curr_len--;
 
-    if ((signed)curr_len <= 0) return;
-
     ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
 
     ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
@@ -10679,6 +10745,22 @@ dtap_rr_sys_info_13(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_len = len;
 
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI13_REST_OCT, NULL);
+}
+
+/*
+ * [4] 9.1.43b
+ */
+static void
+dtap_rr_sys_info_21(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI21_REST_OCT, NULL);
 }
 
 /*
@@ -11654,6 +11736,7 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     NULL,                       /* System Information Type 18 */
     NULL,                       /* System Information Type 19 */
     NULL,                       /* System Information Type 20 */
+    dtap_rr_sys_info_21,        /* System Information Type 21 */
 
     dtap_rr_ch_mode_mod,        /* Channel Mode Modify */
     dtap_rr_rr_status,          /* RR Status */
@@ -12862,6 +12945,31 @@ proto_register_gsm_a_rr(void)
                 FT_UINT8, BASE_DEC,  NULL, 0x00,
                 NULL, HFILL }
             },
+            { &hf_gsm_a_rr_si21_change_mark,
+              { "SI21 Change Mark", "gsm_a.rr.si21_change_mark",
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_si21_index,
+              { "SI21 Index", "gsm_a.rr.si21_index",
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_si21_count,
+              { "SI21 Count", "gsm_a.rr.si21_count",
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_eab_auth_mask,
+              { "EAB Authorization Mask", "gsm_a.rr.eab_auth_mask",
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_eab_subcategory,
+              { "EAB Subcategory", "gsm_a.rr.eab_subcategory",
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
+                NULL, HFILL }
+            },
             { &hf_gsm_a_rr_gsm_report_type,
               { "Report Type", "gsm_a.rr.gsm_report_type",
                 FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_gsm_report_type_value), 0x0,
@@ -13115,6 +13223,11 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_si13alt_position,
               { "SI13alt Position", "gsm_a.rr.si13alt_position",
                 FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_si13alt_position_value), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_si21_position,
+              { "SI21 Position", "gsm_a.rr.si21_position",
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_si21_position_value), 0x0,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_prio_thr,
@@ -14449,6 +14562,7 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_encoding_selection, { "Selected encoding", "gsm_a.rr.encoding_selection", FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_encoding_selection_vals), 0x00, NULL, HFILL } },
             { &hf_gsm_a_rr_nof_pdch_pairs, { "Number of assigned PDCH pairs", "gsm_a.rr.nof_pdch_pairs", FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_nof_pdch_pairs_vals), 0x00, NULL, HFILL } },
             { &hf_gsm_a_rr_npm_transfer_time_present, { "NPM Transfer Time", "gsm_a.rr.npm_transfer_time_present", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL } },
+            { &hf_gsm_a_rr_eab_parameters,{ "EAB parameters structure", "gsm_a.rr.eab_parameters", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL } },
             /* gsm_rr_csn_HL_flag() fields */
             { &hf_gsm_a_rr_selection_parameters, { "Selection Parameters", "gsm_a.rr.selection_parameters", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_break_indicator, { "Break Indicator", "gsm_a.rr.break_indicator", FT_BOOLEAN, BASE_NONE, TFS(&tfs_break_indicator), 0x00, NULL, HFILL }},
@@ -14487,6 +14601,7 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_gprs_indicator, { "GPRS Indicator", "gsm_a.rr.gprs_indicator", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_3g_early_classmark_sending_restriction, { "3G Early Classmark Sending Restriction", "gsm_a.rr.3g_early_classmark_sending_restriction", FT_BOOLEAN, BASE_NONE, TFS(&tfs_3g_early_classmark_sending_restriction), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_si2quater_indicator, { "SI2quater Indicator", "gsm_a.rr.si2quater_indicator", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
+            { &hf_gsm_a_rr_si21_indicator,{ "SI21 Indicator", "gsm_a.rr.si21_indicator", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL } },
             { &hf_gsm_a_rr_si4_rest_octets_s, { "SI4 Rest Octets_S", "gsm_a.rr.si4_rest_octets_s", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_lsa_parameters, { "LSA Parameters", "gsm_a.rr.lsa_parameters", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_cell_id_present, { "Cell Identity", "gsm_a.rr.cell_id.present", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},

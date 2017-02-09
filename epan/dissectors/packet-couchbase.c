@@ -357,12 +357,32 @@ static int hf_vbucket_states_size = -1;
 static int hf_vbucket_states_id = -1;
 static int hf_vbucket_states_seqno = -1;
 
+static int hf_bucket_type = -1;
+static int hf_bucket_config = -1;
+static int hf_config_key = -1;
+static int hf_config_value = -1;
+
 static int hf_multipath_opcode = -1;
 static int hf_multipath_index = -1;
 static int hf_multipath_pathlen = -1;
 static int hf_multipath_path = -1;
 static int hf_multipath_valuelen = -1;
 static int hf_multipath_value = -1;
+
+static int hf_meta_flags = -1;
+static int hf_meta_expiration = -1;
+static int hf_meta_revseqno = -1;
+static int hf_meta_cas = -1;
+static int hf_skip_conflict = -1;
+static int hf_force_accept = -1;
+static int hf_regenerate_cas = -1;
+static int hf_meta_options = -1;
+static int hf_metalen = -1;
+static int hf_meta_reqextmeta = -1;
+static int hf_meta_deleted = -1;
+static int hf_exptime = -1;
+static int hf_extras_meta_seqno = -1;
+static int hf_confres = -1;
 
 static expert_field ef_warn_shall_not_have_value = EI_INIT;
 static expert_field ef_warn_shall_not_have_extras = EI_INIT;
@@ -376,6 +396,8 @@ static expert_field ef_warn_illegal_value_length = EI_INIT;
 static expert_field ef_warn_unknown_magic_byte = EI_INIT;
 static expert_field ef_warn_unknown_opcode = EI_INIT;
 static expert_field ef_note_status_code = EI_INIT;
+static expert_field ef_separator_not_found = EI_INIT;
+static expert_field ef_illegal_value = EI_INIT;
 
 static gint ett_couchbase = -1;
 static gint ett_extras = -1;
@@ -384,6 +406,8 @@ static gint ett_observe = -1;
 static gint ett_failover_log = -1;
 static gint ett_vbucket_states = -1;
 static gint ett_multipath = -1;
+static gint ett_config = -1;
+static gint ett_config_key = -1;
 
 static const value_string magic_vals[] = {
   { MAGIC_REQUEST,     "Request"  },
@@ -1060,6 +1084,63 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
+  case PROTOCOL_BINARY_CMD_DEL_WITH_META:
+  case PROTOCOL_BINARY_CMD_SET_WITH_META:
+    if (request) {
+      proto_tree_add_item(extras_tree, hf_meta_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(extras_tree, hf_meta_expiration, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(extras_tree, hf_meta_revseqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+      offset += 8;
+      proto_tree_add_item(extras_tree, hf_meta_cas, tvb, offset, 8, ENC_BIG_ENDIAN);
+      offset += 8;
+
+      /*The previous 24 bytes are required. The next two fields are optional,
+       * hence we are checking the extlen to see what fields we have. As they
+       * are different lengths we can do this by just checking the length.*/
+
+      // Options field (4 bytes)
+      if (extlen == 28 || extlen == 30) {
+        static const int *extra_flags[] = {
+          &hf_skip_conflict,
+          &hf_force_accept,
+          &hf_regenerate_cas,
+          NULL
+        };
+        proto_tree_add_bitmask(extras_tree, tvb, offset, hf_meta_options,
+                               ett_extras_flags, extra_flags, ENC_BIG_ENDIAN);
+        offset += 4;
+      }
+      // Meta Length field (2 bytes)
+      if (extlen == 26 || extlen == 30) {
+        proto_tree_add_item(extras_tree, hf_metalen, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+      }
+    }
+    break;
+
+  case PROTOCOL_BINARY_CMD_GET_META:
+    if (request) {
+      if(extlen) {
+        proto_tree_add_item(extras_tree, hf_meta_reqextmeta, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+      }
+    } else {
+      proto_tree_add_item(extras_tree, hf_meta_deleted, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(extras_tree, hf_meta_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(extras_tree, hf_exptime, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(extras_tree, hf_extras_meta_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+      offset += 8;
+      if (extlen == 21) {
+        proto_tree_add_item(extras_tree, hf_confres, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+      }
+    }
+    break;
   default:
     if (extlen) {
       /* Decode as unknown extras */
@@ -1489,6 +1570,57 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ti = proto_tree_add_item(tree, hf_value, tvb, offset + path_len,
                                      value_len, ENC_ASCII | ENC_NA);
         }
+    } else if (request && opcode == PROTOCOL_BINARY_CMD_CREATE_BUCKET) {
+      gint sep, equals_pos, sep_pos, config_len;
+      proto_tree *key_tree, *config_tree;
+
+      /* There are 2 main items stored in the value. The bucket type (represented by a path to the engine) and the
+       * bucket config. These are separated by a NULL byte with the bucket type coming first.*/
+
+      sep = tvb_find_guint8(tvb, offset, value_len, 0x00);
+      if (sep == -1) {
+        ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII|ENC_NA);
+        expert_add_info_format(pinfo, ti, &ef_separator_not_found, "Null byte not found");
+      } else {
+        proto_tree_add_item(tree, hf_bucket_type, tvb, offset, sep - offset, ENC_ASCII | ENC_NA);
+        config_len = value_len - (sep - offset) - 1; //Don't include NULL byte in length
+        if(config_len <= 0) {
+          expert_add_info_format(pinfo, ti, &ef_separator_not_found, "Separator not found in expected location");
+        } else {
+          offset = sep + 1;// Ignore NULL byte
+
+          ti = proto_tree_add_item(tree, hf_bucket_config, tvb, offset, config_len, ENC_ASCII | ENC_NA);
+          config_tree = proto_item_add_subtree(ti, ett_config);
+        }
+
+        /* The config is arranged as "key=value;key=value..."*/
+        while (config_len > 0) {
+          // Get the key
+          equals_pos = tvb_find_guint8(tvb, offset, config_len, 0x3d);
+          if (equals_pos == -1) {
+            expert_add_info_format(pinfo, ti, &ef_illegal_value, "Each key needs a value");
+            break; // Break out the while loop
+          }
+          ti = proto_tree_add_item(config_tree, hf_config_key, tvb, offset, equals_pos - offset, ENC_ASCII | ENC_NA);
+          key_tree = proto_item_add_subtree(ti, ett_config_key);
+          config_len -= (equals_pos - offset + 1);
+          offset = equals_pos + 1;
+          if (config_len <= 0) {
+            expert_add_info_format(pinfo, ti, &ef_illegal_value, "Corresponding value missing");
+            break;//Break out of while loop
+          }
+
+          // Get the value
+          sep_pos = tvb_find_guint8(tvb, offset, config_len, 0x3b);
+          if (sep_pos == -1) {
+            expert_add_info_format(pinfo, ti, &ef_separator_not_found, "Each key-value pair must be terminated by semi-colon");
+            break; // Break out the while loop
+          }
+          proto_tree_add_item(key_tree, hf_config_value, tvb, offset, sep_pos - offset, ENC_ASCII | ENC_NA);
+          config_len -= (sep_pos - offset + 1);
+          offset = sep_pos + 1;
+        }
+      }
     } else {
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
     }
@@ -1842,6 +1974,26 @@ proto_register_couchbase(void)
     { &hf_multipath_path, { "Path", "couchbase.multipath.path", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_multipath_valuelen, { "Value Length", "couchbase.multipath.value.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_multipath_value, { "Value", "couchbase.multipath.value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_meta_flags, {"Flags", "couchbase.extras.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_meta_expiration, {"Expiration", "couchbase.extras.expiration", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_meta_revseqno, {"RevSeqno", "couchbase.extras.revseqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_meta_cas, {"CAS", "couchbase.extras.cas", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_meta_options, {"Options", "couchbase.extras.options", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_skip_conflict, {"SKIP_CONFLICT_RESOLUTION", "couchbase.extras.options.skip_conflict_resolution", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x01, NULL, HFILL} },
+    { &hf_force_accept, {"FORCE_ACCEPT_WITH_META_OPS", "couchbase.extras.options.force_accept_with_meta_ops", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x02, NULL, HFILL} },
+    { &hf_regenerate_cas, {"REGENERATE_CAS", "couchbase.extras.option.regenerate_cas", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x04, NULL, HFILL} },
+    { &hf_metalen, {"Meta Length", "couchbase.extras.meta_length", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_meta_reqextmeta, {"ReqExtMeta", "couchbase.extras.reqextmeta", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_meta_deleted, {"Deleted", "couchbase.extras.deleted", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_exptime, {"Expiry", "couchbase.extras.expiry", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_extras_meta_seqno, {"Seqno", "couchbase.extras.meta.seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_confres, {"ConfRes", "couchbase.extras.confres", FT_UINT8, BASE_HEX, NULL, 0x0, "Conflict Resolution Mode", HFILL} },
+
+    { &hf_bucket_type, {"Bucket Type", "couchbase.bucket.type", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
+    { &hf_bucket_config, {"Bucket Config", "couchbase.bucket.config", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
+    { &hf_config_key, {"Key", "couchbase.bucket.config.key", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
+    { &hf_config_value, {"Value", "couchbase.bucket.config.value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
   };
 
   static ei_register_info ei[] = {
@@ -1855,7 +2007,9 @@ proto_register_couchbase(void)
     { &ef_warn_illegal_value_length, { "couchbase.warn.illegal_value_length", PI_UNDECODED, PI_WARN, "Illegal Value length", EXPFILL }},
     { &ef_warn_unknown_magic_byte, { "couchbase.warn.unknown_magic_byte", PI_UNDECODED, PI_WARN, "Unknown magic byte", EXPFILL }},
     { &ef_warn_unknown_opcode, { "couchbase.warn.unknown_opcode", PI_UNDECODED, PI_WARN, "Unknown opcode", EXPFILL }},
-    { &ef_note_status_code, { "couchbase.note.status_code", PI_RESPONSE_CODE, PI_NOTE, "Status", EXPFILL }}
+    { &ef_note_status_code, { "couchbase.note.status_code", PI_RESPONSE_CODE, PI_NOTE, "Status", EXPFILL }},
+    { &ef_separator_not_found, { "couchbase.warn.separator_not_found", PI_UNDECODED, PI_WARN, "Separator not found", EXPFILL }},
+    { &ef_illegal_value, { "couchbase.warn.illegal_value", PI_UNDECODED, PI_WARN, "Illegal value for command", EXPFILL }}
   };
 
   static gint *ett[] = {
@@ -1865,7 +2019,9 @@ proto_register_couchbase(void)
     &ett_observe,
     &ett_failover_log,
     &ett_vbucket_states,
-    &ett_multipath
+    &ett_multipath,
+    &ett_config,
+    &ett_config_key
   };
 
   module_t *couchbase_module;

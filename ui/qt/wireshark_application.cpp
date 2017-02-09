@@ -513,6 +513,18 @@ bool WiresharkApplication::event(QEvent *event)
     return QApplication::event(event);
 }
 
+void WiresharkApplication::captureStarted()
+{
+    active_captures_++;
+    emit captureActive(active_captures_);
+}
+
+void WiresharkApplication::captureFinished()
+{
+    active_captures_--;
+    emit captureActive(active_captures_);
+}
+
 void WiresharkApplication::clearRecentCaptures() {
     qDeleteAll(recent_captures_);
     recent_captures_.clear();

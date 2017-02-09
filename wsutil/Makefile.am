@@ -83,6 +83,7 @@ libwsutil_nonrepl_INCLUDES = \
 	sha2.h			\
 	sign_ext.h		\
 	sober128.h		\
+	socket.h		\
 	str_util.h		\
 	strnatcmp.h		\
 	strtoi.h		\

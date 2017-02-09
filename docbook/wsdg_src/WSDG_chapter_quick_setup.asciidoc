@@ -546,7 +546,8 @@ you'll need NSIS.
 http://nsis.sourceforge.net[Download] and install NSIS
 +
 Note that the 32-bit version of NSIS will work for both 32-bit and
-64-bit versions of Wireshark.
+64-bit versions of Wireshark. NSIS v3 is recommended and may be required
+in the future.
 
 Note: If you do not yet have a copy of vcredist_x86.exe or vcredist_x64.exe in ./wireshark-winXX-libs (where XX is 32 or 64) you will need to download the appropriate file and place it in ./wireshark-winXX-libs before starting this step.
 

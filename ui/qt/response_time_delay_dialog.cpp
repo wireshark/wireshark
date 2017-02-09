@@ -48,9 +48,9 @@ rtd_init(const char *args, void*) {
 }
 }
 
-void register_response_time_delay_tables(gpointer data, gpointer)
+gboolean register_response_time_delay_tables(const void *, void *value, void*)
 {
-    register_rtd_t *rtd = (register_rtd_t*)data;
+    register_rtd_t *rtd = (register_rtd_t*)value;
     const char* short_name = proto_get_protocol_short_name(find_protocol_by_id(get_rtd_proto_id(rtd)));
     const char *cfg_abbr = rtd_table_get_tap_string(rtd);
 
@@ -61,6 +61,7 @@ void register_response_time_delay_tables(gpointer data, gpointer)
                 REGISTER_STAT_GROUP_RESPONSE_TIME,
                 rtd_init,
                 ResponseTimeDelayDialog::createRtdDialog);
+    return FALSE;
 }
 
 enum {

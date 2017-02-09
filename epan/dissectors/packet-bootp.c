@@ -2364,7 +2364,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			if (fqdn_flags & F_FQDN_E) {
 				get_dns_name(tvb, optoff+3, optlen-3, optoff+3, &dns_name, &dns_name_len);
 				proto_tree_add_string(v_tree, hf_bootp_fqdn_name,
-				    tvb, optoff+3, optlen-3, format_text(dns_name, dns_name_len));
+				    tvb, optoff+3, optlen-3, format_text(wmem_packet_scope(), dns_name, dns_name_len));
 			} else {
 				proto_tree_add_item(v_tree, hf_bootp_fqdn_asciiname,
 				    tvb, optoff+3, optlen-3, ENC_ASCII|ENC_NA);
@@ -2678,7 +2678,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 						proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, optoff + offset, consumedx, dns_name);
 					} else {
 						/* RFC 3396 is used, so the option is split into several option 120. We don't link fqdn with v_tree. */
-						proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, 0, 0, format_text(dns_name, dns_name_len));
+						proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, 0, 0, format_text(wmem_packet_scope(), dns_name, dns_name_len));
 					}
 					offset += consumedx;
 				}
@@ -5705,7 +5705,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 
 		case 0:
 			get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name, &dns_name_len);
-			proto_item_append_text(vti, "%s (%u byte%s)", format_text(dns_name, dns_name_len),
+			proto_item_append_text(vti, "%s (%u byte%s)", format_text(wmem_packet_scope(), dns_name, dns_name_len),
 					       subopt_len - 1, plurality(subopt_len, "", "s") );
 			break;
 
@@ -5763,7 +5763,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 
 	case PKT_CCC_KRB_REALM: /* String values */
 		get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name, &dns_name_len);
-		proto_item_append_text(vti, "%s (%u byte%s)", format_text(dns_name, dns_name_len),
+		proto_item_append_text(vti, "%s (%u byte%s)", format_text(wmem_packet_scope(), dns_name, dns_name_len),
 				       subopt_len, plurality(subopt_len, "", "s") );
 		suboptoff += subopt_len;
 		break;

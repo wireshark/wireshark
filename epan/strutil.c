@@ -144,25 +144,15 @@ get_token_len(const guchar *linep, const guchar *lineend,
  * characters as C-style escapes, and return a pointer to it.
  */
 gchar *
-format_text(const guchar *string, size_t len)
+format_text(wmem_allocator_t* allocator, const guchar *string, size_t len)
 {
-    static gchar *fmtbuf[3];
-    static int fmtbuf_len[3];
-    static int idx;
+    gchar *fmtbuf = (gchar*)wmem_alloc(allocator, INITIAL_FMTBUF_SIZE);
+    int fmtbuf_len = INITIAL_FMTBUF_SIZE;
     int column;
     const guchar *stringend = string + len;
     guchar c;
     int i;
 
-    idx = (idx + 1) % 3;
-
-    /*
-     * Allocate the buffer if it's not already allocated.
-     */
-    if (fmtbuf[idx] == NULL) {
-        fmtbuf[idx] = (gchar *)g_malloc(INITIAL_FMTBUF_SIZE);
-        fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
-    }
     column = 0;
     while (string < stringend) {
         /*
@@ -170,78 +160,79 @@ format_text(const guchar *string, size_t len)
          * a backslash plus 3 octal digits (which is the most it can
          * expand to), and also enough room for a terminating '\0'?
          */
-        if (column+3+1 >= fmtbuf_len[idx]) {
+        if (column+3+1 >= fmtbuf_len) {
             /*
              * Double the buffer's size if it's not big enough.
              * The size of the buffer starts at 128, so doubling its size
              * adds at least another 128 bytes, which is more than enough
              * for one more character plus a terminating '\0'.
              */
-            fmtbuf_len[idx] = fmtbuf_len[idx] * 2;
-            fmtbuf[idx] = (gchar *)g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
+            fmtbuf_len *= 2;
+            fmtbuf = (gchar *)wmem_realloc(allocator, fmtbuf, fmtbuf_len);
         }
         c = *string++;
 
         if (g_ascii_isprint(c)) {
-            fmtbuf[idx][column] = c;
+            fmtbuf[column] = c;
             column++;
         } else {
-            fmtbuf[idx][column] =  '\\';
+            fmtbuf[column] =  '\\';
             column++;
             switch (c) {
 
                 case '\a':
-                    fmtbuf[idx][column] = 'a';
+                    fmtbuf[column] = 'a';
                     column++;
                     break;
 
                 case '\b':
-                    fmtbuf[idx][column] = 'b'; /* BS */
+                    fmtbuf[column] = 'b'; /* BS */
                     column++;
                     break;
 
                 case '\f':
-                    fmtbuf[idx][column] = 'f'; /* FF */
+                    fmtbuf[column] = 'f'; /* FF */
                     column++;
                     break;
 
                 case '\n':
-                    fmtbuf[idx][column] = 'n'; /* NL */
+                    fmtbuf[column] = 'n'; /* NL */
                     column++;
                     break;
 
                 case '\r':
-                    fmtbuf[idx][column] = 'r'; /* CR */
+                    fmtbuf[column] = 'r'; /* CR */
                     column++;
                     break;
 
                 case '\t':
-                    fmtbuf[idx][column] = 't'; /* tab */
+                    fmtbuf[column] = 't'; /* tab */
                     column++;
                     break;
 
                 case '\v':
-                    fmtbuf[idx][column] = 'v';
+                    fmtbuf[column] = 'v';
                     column++;
                     break;
 
                 default:
                     i = (c>>6)&03;
-                    fmtbuf[idx][column] = i + '0';
+                    fmtbuf[column] = i + '0';
                     column++;
                     i = (c>>3)&07;
-                    fmtbuf[idx][column] = i + '0';
+                    fmtbuf[column] = i + '0';
                     column++;
                     i = (c>>0)&07;
-                    fmtbuf[idx][column] = i + '0';
+                    fmtbuf[column] = i + '0';
                     column++;
                     break;
             }
         }
     }
-    fmtbuf[idx][column] = '\0';
-    return fmtbuf[idx];
+    fmtbuf[column] = '\0';
+    return fmtbuf;
 }
+
 
 /*
  * Given a string, generate a string from it that shows non-printable
@@ -250,25 +241,15 @@ format_text(const guchar *string, size_t len)
  * which will be replaced by a space, and return a pointer to it.
  */
 gchar *
-format_text_wsp(const guchar *string, size_t len)
+format_text_wsp(wmem_allocator_t* allocator, const guchar *string, size_t len)
 {
-    static gchar *fmtbuf[3];
-    static int fmtbuf_len[3];
-    static int idx;
+    gchar *fmtbuf = (gchar*)wmem_alloc(allocator, INITIAL_FMTBUF_SIZE);
+    int fmtbuf_len = INITIAL_FMTBUF_SIZE;
     int column;
     const guchar *stringend = string + len;
     guchar c;
     int i;
 
-    idx = (idx + 1) % 3;
-
-    /*
-     * Allocate the buffer if it's not already allocated.
-     */
-    if (fmtbuf[idx] == NULL) {
-        fmtbuf[idx] = (gchar *)g_malloc(INITIAL_FMTBUF_SIZE);
-        fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
-    }
     column = 0;
     while (string < stringend) {
         /*
@@ -276,80 +257,80 @@ format_text_wsp(const guchar *string, size_t len)
          * a backslash plus 3 octal digits (which is the most it can
          * expand to), and also enough room for a terminating '\0'?
          */
-        if (column+3+1 >= fmtbuf_len[idx]) {
+        if (column+3+1 >= fmtbuf_len) {
             /*
              * Double the buffer's size if it's not big enough.
              * The size of the buffer starts at 128, so doubling its size
              * adds at least another 128 bytes, which is more than enough
              * for one more character plus a terminating '\0'.
              */
-            fmtbuf_len[idx] = fmtbuf_len[idx] * 2;
-            fmtbuf[idx] = (gchar *)g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
+            fmtbuf_len *= 2;
+            fmtbuf = (gchar *)wmem_realloc(allocator, fmtbuf, fmtbuf_len);
         }
         c = *string++;
 
         if (g_ascii_isprint(c)) {
-            fmtbuf[idx][column] = c;
+            fmtbuf[column] = c;
             column++;
         } else if (g_ascii_isspace(c)) {
-            fmtbuf[idx][column] = ' ';
+            fmtbuf[column] = ' ';
             column++;
         } else {
-            fmtbuf[idx][column] =  '\\';
+            fmtbuf[column] =  '\\';
             column++;
             switch (c) {
 
                 case '\a':
-                    fmtbuf[idx][column] = 'a';
+                    fmtbuf[column] = 'a';
                     column++;
                     break;
 
                 case '\b':
-                    fmtbuf[idx][column] = 'b'; /* BS */
+                    fmtbuf[column] = 'b'; /* BS */
                     column++;
                     break;
 
                 case '\f':
-                    fmtbuf[idx][column] = 'f'; /* FF */
+                    fmtbuf[column] = 'f'; /* FF */
                     column++;
                     break;
 
                 case '\n':
-                    fmtbuf[idx][column] = 'n'; /* NL */
+                    fmtbuf[column] = 'n'; /* NL */
                     column++;
                     break;
 
                 case '\r':
-                    fmtbuf[idx][column] = 'r'; /* CR */
+                    fmtbuf[column] = 'r'; /* CR */
                     column++;
                     break;
 
                 case '\t':
-                    fmtbuf[idx][column] = 't'; /* tab */
+                    fmtbuf[column] = 't'; /* tab */
                     column++;
                     break;
 
                 case '\v':
-                    fmtbuf[idx][column] = 'v';
+                    fmtbuf[column] = 'v';
                     column++;
                     break;
 
                 default:
                     i = (c>>6)&03;
-                    fmtbuf[idx][column] = i + '0';
+                    fmtbuf[column] = i + '0';
                     column++;
                     i = (c>>3)&07;
-                    fmtbuf[idx][column] = i + '0';
+                    fmtbuf[column] = i + '0';
                     column++;
                     i = (c>>0)&07;
-                    fmtbuf[idx][column] = i + '0';
+                    fmtbuf[column] = i + '0';
                     column++;
                     break;
             }
         }
     }
-    fmtbuf[idx][column] = '\0';
-    return fmtbuf[idx];
+    fmtbuf[column] = '\0';
+    return fmtbuf;
 }
 
 /*
@@ -359,24 +340,14 @@ format_text_wsp(const guchar *string, size_t len)
  * which will be replaced by a space, and return a pointer to it.
  */
 gchar *
-format_text_chr(const guchar *string, const size_t len, const guchar chr)
+format_text_chr(wmem_allocator_t* allocator, const guchar *string, const size_t len, const guchar chr)
 {
-    static gchar *fmtbuf[3];
-    static int fmtbuf_len[3];
-    static int idx;
+    gchar *fmtbuf = (gchar*)wmem_alloc(allocator, INITIAL_FMTBUF_SIZE);
+    int fmtbuf_len = INITIAL_FMTBUF_SIZE;
     int column;
     const guchar *stringend = string + len;
     guchar c;
 
-    idx = (idx + 1) % 3;
-
-    /*
-     * Allocate the buffer if it's not already allocated.
-     */
-    if (fmtbuf[idx] == NULL) {
-        fmtbuf[idx] = (gchar *)g_malloc(INITIAL_FMTBUF_SIZE);
-        fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
-    }
     column = 0;
     while (string < stringend)
     {
@@ -384,7 +355,7 @@ format_text_chr(const guchar *string, const size_t len, const guchar chr)
          * Is there enough room for this character,
          * and also enough room for a terminating '\0'?
          */
-        if (column+1 >= fmtbuf_len[idx])
+        if (column+1 >= fmtbuf_len)
         {
             /*
              * Double the buffer's size if it's not big enough.
@@ -392,29 +363,29 @@ format_text_chr(const guchar *string, const size_t len, const guchar chr)
              * adds at least another 128 bytes, which is more than enough
              * for one more character plus a terminating '\0'.
              */
-            fmtbuf_len[idx] = fmtbuf_len[idx] * 2;
-            fmtbuf[idx] = (gchar *)g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
+            fmtbuf_len *= 2;
+            fmtbuf = (gchar *)wmem_realloc(allocator, fmtbuf, fmtbuf_len);
         }
         c = *string++;
 
         if (g_ascii_isprint(c))
         {
-            fmtbuf[idx][column] = c;
+            fmtbuf[column] = c;
             column++;
         }
         else if (g_ascii_isspace(c))
         {
-            fmtbuf[idx][column] = ' ';
+            fmtbuf[column] = ' ';
             column++;
         }
         else
         {
-            fmtbuf[idx][column] =  chr;
+            fmtbuf[column] =  chr;
             column++;
         }
     }
-    fmtbuf[idx][column] = '\0';
-    return fmtbuf[idx];
+    fmtbuf[column] = '\0';
+    return fmtbuf;
 }
 
 static gboolean
@@ -718,12 +689,11 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes)
  * Given a GByteArray, generate a string from it that shows non-printable
  * characters as percent-style escapes, and return a pointer to it.
  */
-const gchar *
-format_uri(const GByteArray *bytes, const gchar *reserved_chars)
+gchar *
+format_uri(wmem_allocator_t* allocator, const GByteArray *bytes, const gchar *reserved_chars)
 {
-    static gchar *fmtbuf[3];
-    static guint fmtbuf_len[3];
-    static guint idx;
+    gchar *fmtbuf = (gchar*)wmem_alloc(allocator, INITIAL_FMTBUF_SIZE);
+    guint fmtbuf_len = INITIAL_FMTBUF_SIZE;
     static const guchar *reserved_def = ":/?#[]@!$&'()*+,;= ";
     const guchar *reserved = reserved_def;
     guint8 c;
@@ -733,32 +703,24 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
     if (! bytes)
         return "";
 
-    idx = (idx + 1) % 3;
     if (reserved_chars)
         reserved = reserved_chars;
 
-    /*
-     * Allocate the buffer if it's not already allocated.
-     */
-    if (fmtbuf[idx] == NULL) {
-        fmtbuf[idx] = (gchar *)g_malloc(INITIAL_FMTBUF_SIZE);
-        fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
-    }
     for (column = 0; column < bytes->len; column++) {
         /*
          * Is there enough room for this character, if it expands to
          * a percent plus 2 hex digits (which is the most it can
          * expand to), and also enough room for a terminating '\0'?
          */
-        if (column+2+1 >= fmtbuf_len[idx]) {
+        if (column+2+1 >= fmtbuf_len) {
             /*
              * Double the buffer's size if it's not big enough.
              * The size of the buffer starts at 128, so doubling its size
              * adds at least another 128 bytes, which is more than enough
              * for one more character plus a terminating '\0'.
              */
-            fmtbuf_len[idx] = fmtbuf_len[idx] * 2;
-            fmtbuf[idx] = (gchar *)g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
+            fmtbuf_len *= 2;
+            fmtbuf = (gchar *)wmem_realloc(allocator, fmtbuf, fmtbuf_len);
         }
         c = bytes->data[column];
 
@@ -772,17 +734,17 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
         }
 
         if (!is_reserved) {
-            fmtbuf[idx][column] = c;
+            fmtbuf[column] = c;
         } else {
-            fmtbuf[idx][column] = '%';
+            fmtbuf[column] = '%';
             column++;
-            fmtbuf[idx][column] = hex[c >> 4];
+            fmtbuf[column] = hex[c >> 4];
             column++;
-            fmtbuf[idx][column] = hex[c & 0xF];
+            fmtbuf[column] = hex[c & 0xF];
         }
     }
-    fmtbuf[idx][column] = '\0';
-    return fmtbuf[idx];
+    fmtbuf[column] = '\0';
+    return fmtbuf;
 }
 
 /**

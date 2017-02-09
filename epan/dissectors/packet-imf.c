@@ -282,7 +282,7 @@ static struct imf_field imf_fields[] = {
   {NULL, NULL, NULL, FALSE},
 };
 
-static GHashTable *imf_field_table=NULL;
+static wmem_map_t *imf_field_table=NULL;
 
 #define FORMAT_UNSTRUCTURED  0
 #define FORMAT_MAILBOX       1
@@ -773,7 +773,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       ascii_strdown_inplace (key);
 
       /* look up the key in built-in fields */
-      f_info = (struct imf_field *)g_hash_table_lookup(imf_field_table, key);
+      f_info = (struct imf_field *)wmem_map_lookup(imf_field_table, key);
 
       if(f_info == NULL && custom_field_table) {
         /* look up the key in custom fields */
@@ -909,7 +909,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
        */
       proto_tree_add_format_wsp_text(text_tree, tvb, start_offset, end_offset - start_offset);
       col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
-                         tvb_format_text_wsp(tvb, start_offset, end_offset - start_offset));
+                         tvb_format_text_wsp(wmem_packet_scope(), tvb, start_offset, end_offset - start_offset));
 
       /*
        * Step to the next line.
@@ -1335,11 +1335,11 @@ proto_register_imf(void)
                                 "setup and used for filtering/data extraction etc.",
                                 headers_uat);
 
-  imf_field_table=g_hash_table_new(g_str_hash, g_str_equal); /* oid to syntax */
+  imf_field_table=wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal); /* oid to syntax */
 
   /* register the fields for lookup */
   for(f = imf_fields; f->name; f++)
-    g_hash_table_insert(imf_field_table, (gpointer)f->name, (gpointer)f);
+    wmem_map_insert(imf_field_table, (gpointer)f->name, (gpointer)f);
 
   /* Register for tapping */
   imf_eo_tap = register_export_object(proto_imf, imf_eo_packet, NULL);

@@ -57,7 +57,7 @@ static int dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     proto_tree *at_tree;
     gchar *string;
 
-    string = tvb_format_text_wsp(tvb, 0, tvb_captured_length(tvb));
+    string = tvb_format_text_wsp(wmem_packet_scope(), tvb, 0, tvb_captured_length(tvb));
     col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "AT");
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "AT Command: %s", string);
 

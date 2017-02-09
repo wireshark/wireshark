@@ -232,7 +232,7 @@ typedef struct _olc_info_t {
   channel_info_t rev_lc;
 } olc_info_t;
 
-static GHashTable* h245_pending_olc_reqs = NULL;
+static wmem_map_t* h245_pending_olc_reqs = NULL;
 static gboolean fast_start = FALSE;
 static olc_info_t *upcoming_olc = NULL;
 static channel_info_t *upcoming_channel = NULL;
@@ -281,7 +281,7 @@ typedef struct {
 	h223_lc_params *rev_channel_params;
 } h223_pending_olc;
 
-static GHashTable*          h223_pending_olc_reqs[] = { NULL, NULL };
+static wmem_map_t*          h223_pending_olc_reqs[] = { NULL, NULL };
 static dissector_handle_t   h245_lc_dissector;
 static guint16              h245_lc_temp;
 static guint16              h223_fw_lc_num;
@@ -291,32 +291,11 @@ static h223_lc_params      *h223_fw_lc_params;
 static h223_lc_params      *h223_rev_lc_params;
 static h223_add_lc_handle_t h223_add_lc_handle = NULL;
 
-static void h223_lc_init_dir( int dir )
-{
-	if ( h223_pending_olc_reqs[dir] )
-		g_hash_table_destroy( h223_pending_olc_reqs[dir] );
-	h223_pending_olc_reqs[dir] = g_hash_table_new( g_direct_hash, g_direct_equal );
-}
-
 static void h223_lc_init( void )
 {
-	h223_lc_init_dir( P2P_DIR_SENT );
-	h223_lc_init_dir( P2P_DIR_RECV );
 	h223_lc_params_temp = NULL;
 	h245_lc_dissector = NULL;
 	h223_fw_lc_num = 0;
-}
-
-static void h245_init(void)
-{
-	h245_pending_olc_reqs = g_hash_table_new(g_str_hash, g_str_equal);
-
-	h223_lc_init();
-}
-
-static void h245_cleanup(void)
-{
-	g_hash_table_destroy(h245_pending_olc_reqs);
 }
 
 void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
@@ -517,8 +496,11 @@ void proto_register_h245(void) {
 
   /* Register protocol */
   proto_h245 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_init_routine(h245_init);
-  register_cleanup_routine(h245_cleanup);
+  h223_pending_olc_reqs[P2P_DIR_SENT] = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal );
+  h223_pending_olc_reqs[P2P_DIR_RECV] = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal );
+  h245_pending_olc_reqs = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
+
+  register_init_routine(h223_lc_init);
   /* Register fields and subtrees */
   proto_register_field_array(proto_h245, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

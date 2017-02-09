@@ -207,8 +207,8 @@ uucp-path         117/tcp # UUCP Path Service
 uucp-path         117/udp # UUCP Path Service
 sqlserv           118/tcp # SQL Services [Larry_Barnes] [Larry_Barnes]
 sqlserv           118/udp # SQL Services [Larry_Barnes] [Larry_Barnes]
-nntp              119/tcp # Network News Transfer Protocol [Phil_Lapsley] [Phil_Lapsley]
-nntp              119/udp # Network News Transfer Protocol [Phil_Lapsley] [Phil_Lapsley]
+nntp              119/tcp # Network News Transfer Protocol [IESG] [IESG] 2017-02-03 [RFC3977]
+nntp              119/udp # Network News Transfer Protocol [IESG] [IESG] 2017-02-03 [RFC3977]
 cfdptkt           120/tcp # CFDPTKT [John_Ioannidis] [John_Ioannidis]
 cfdptkt           120/udp # CFDPTKT [John_Ioannidis] [John_Ioannidis]
 erpc              121/tcp # Encore Expedited Remote Pro.Call [Jack_ONeil] [Jack_ONeil]
@@ -706,8 +706,8 @@ utmpcd            431/tcp # UTMPCD
 utmpcd            431/udp # UTMPCD
 iasd              432/tcp # IASD [Nir_Baroz] [Nir_Baroz]
 iasd              432/udp # IASD [Nir_Baroz] [Nir_Baroz]
-nnsp              433/tcp # NNSP [Rob_Robertson] [Rob_Robertson]
-nnsp              433/udp # NNSP [Rob_Robertson] [Rob_Robertson]
+nnsp              433/tcp # NNTP for transit servers (NNSP) [IESG] [IESG] 2017-02-03 [RFC3977]
+nnsp              433/udp # NNTP for transit servers (NNSP) [IESG] [IESG] 2017-02-03 [RFC3977]
 mobileip-agent    434/tcp # MobileIP-Agent
 mobileip-agent    434/udp # MobileIP-Agent
 mobilip-mn        435/tcp # MobilIP-MN [Kannan_Alagappan_2] [Kannan_Alagappan_2]
@@ -970,8 +970,8 @@ monitor           561/tcp #
 monitor           561/udp # 
 chshell           562/tcp # chcmd
 chshell           562/udp # chcmd
-nntps             563/tcp # nntp protocol over TLS/SSL (was snntp) [Kipp_E_B_Hickman_2] [Kipp_E_B_Hickman_2]
-nntps             563/udp # nntp protocol over TLS/SSL (was snntp) [Kipp_E_B_Hickman_2] [Kipp_E_B_Hickman_2]
+nntps             563/tcp # nntp protocol over TLS/SSL (was snntp) [IESG] [IESG] 2017-02-03 [RFC4642]
+nntps             563/udp # nntp protocol over TLS/SSL (was snntp) [IESG] [IESG] 2017-02-03 [RFC4642]
 9pfs              564/tcp # plan 9 file service
 9pfs              564/udp # plan 9 file service
 whoami            565/tcp # whoami
@@ -1368,8 +1368,8 @@ dhcp-failover2    847/tcp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 dhcp-failover2    847/udp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 gdoi              848/tcp # GDOI [RFC3547]
 gdoi              848/udp # GDOI [RFC3547]
-domain-s          853/tcp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2016-05-18 [RFC7858]
-domain-s          853/udp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2016-05-18 [RFC7858]
+domain-s          853/tcp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2017-01-23 [RFC7858][RFC-ietf-dprive-dnsodtls-15]
+domain-s          853/udp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2017-01-23 [RFC7858][RFC-ietf-dprive-dnsodtls-15]
 iscsi             860/tcp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 iscsi             860/udp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 owamp-control     861/tcp # OWAMP-Control [RFC4656]
@@ -7233,8 +7233,8 @@ aftmux           3917/tcp # AFT multiplex port [Alfred_Schmidt] [Alfred_Schmidt]
 aftmux           3917/udp # AFT multiples port [Alfred_Schmidt] [Alfred_Schmidt] 2003-11
 pktcablemmcops   3918/tcp # PacketCableMultimediaCOPS [Eric_Rosenfeld] [Eric_Rosenfeld] 2003-11
 pktcablemmcops   3918/udp # PacketCableMultimediaCOPS [Eric_Rosenfeld] [Eric_Rosenfeld] 2003-11
-hyperip          3919/tcp # HyperIP [Dave_Reiland] [Dave_Reiland] 2003-11
-hyperip          3919/udp # HyperIP [Dave_Reiland] [Dave_Reiland] 2003-11
+hyperip          3919/tcp # HyperIP [Network_Executive_Software_Inc] [Nancy_Golio] 2003-11 2017-01-25
+hyperip          3919/udp # HyperIP [Network_Executive_Software_Inc] [Nancy_Golio] 2003-11 2017-01-25
 exasoftport1     3920/tcp # Exasoft IP Port [Alan_Malik] [Alan_Malik] 2003-11
 exasoftport1     3920/udp # Exasoft IP Port [Alan_Malik] [Alan_Malik] 2003-11
 herodotus-net    3921/tcp # Herodotus Net [Adam_Gawne_Cain] [Adam_Gawne_Cain] 2003-11
@@ -9794,6 +9794,7 @@ collaber         7689/udp # Collaber Network Service [Rajesh_Akkineni] [Rajesh_A
 klio             7697/tcp # KLIO communications [Helmut_Giritzer_2] [Helmut_Giritzer_2] 2005-08
 klio             7697/udp # KLIO communications [Helmut_Giritzer_2] [Helmut_Giritzer_2] 2005-08
 em7-secom        7700/tcp # EM7 Secure Communications [Christopher_Cordray] [Christopher_Cordray] 2008-06-05
+nfapi            7701/sctp # SCF nFAPI defining MAC/PHY split [Small_Cell_Forum] [Richard_Kennedy] 2017-01-24
 sync-em7         7707/tcp # EM7 Dynamic Updates [Christopher_Cordray] [Christopher_Cordray] 2004-11
 sync-em7         7707/udp # EM7 Dynamic Updates [Christopher_Cordray] [Christopher_Cordray] 2004-11
 scinet           7708/tcp # scientia.net [Christoph_Anton_Mitt] [Christoph_Anton_Mitt] 2006-01
@@ -10044,6 +10045,7 @@ hncp-udp-port    8231/udp # HNCP [IESG] [IETF_Chair] 2016-01-13 [RFC7788]
 hncp-dtls-port   8232/udp # HNCP over DTLS [IESG] [IETF_Chair] 2016-01-13 [RFC7788]
 synapse-nhttps   8243/tcp # Synapse Non Blocking HTTPS [Ruwan_Linton] [Ruwan_Linton] 2008-07-10
 synapse-nhttps   8243/udp # Synapse Non Blocking HTTPS [Ruwan_Linton] [Ruwan_Linton] 2008-07-10
+robot-remote     8270/tcp # Robot Framework Remote Library Interface [Robot_Framework_Foundation] [Chris_Newman] 2017-01-26
 pando-sec        8276/tcp # Pando Media Controlled Distribution [Laird_Popkin] [Laird_Popkin] 2008-02-27
 pando-sec        8276/udp # Pando Media Controlled Distribution [Laird_Popkin] [Laird_Popkin] 2008-02-27
 synapse-nhttp    8280/tcp # Synapse Non Blocking HTTP [Ruwan_Linton] [Ruwan_Linton] 2008-06-05

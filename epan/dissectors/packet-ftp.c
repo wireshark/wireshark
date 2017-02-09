@@ -582,7 +582,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      */
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
         is_request ? "Request" : "Response",
-        format_text(line, linelen));
+        format_text(wmem_packet_scope(), line, linelen));
 
     ti = proto_tree_add_item(tree, proto_ftp, tvb, 0, -1, ENC_NA);
     ftp_tree = proto_item_add_subtree(ti, ett_ftp);

@@ -155,20 +155,6 @@ static gint hf_m2m_phy_attributes = -1;
 
 static expert_field ei_m2m_unexpected_length = EI_INIT;
 
-/* Register M2M defrag table init routine. */
-static void
-m2m_defragment_init(void)
-{
-	reassembly_table_init(&pdu_reassembly_table,
-	    &addresses_reassembly_table_functions);
-}
-
-static void
-m2m_defragment_cleanup(void)
-{
-	reassembly_table_destroy(&pdu_reassembly_table);
-}
-
 
 /* WiMax MAC to MAC protocol dissector */
 static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -799,9 +785,9 @@ void proto_register_m2m(void)
 	expert_m2m = expert_register_protocol(proto_m2m);
 	expert_register_field_array(expert_m2m, ei, array_length(ei));
 
-	/* Register the PDU fragment table init routine */
-	register_init_routine(m2m_defragment_init);
-	register_cleanup_routine(m2m_defragment_cleanup);
+	/* Register reassembly table */
+	reassembly_table_register(&pdu_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 /* Register Wimax Mac to Mac Protocol handler */

@@ -266,15 +266,15 @@ gtk_simple_stat_init(const char *opt_arg, void *userdata)
 	init_simple_stat_tables(new_stat_tap, filter);
 }
 
-void register_simple_stat_tables(gpointer data, gpointer user_data _U_)
+gboolean register_simple_stat_tables(const void *key, void *value, void *userdata _U_)
 {
-	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui*)data;
+	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui*)value;
 	tap_param_dlg* stat_dlg;
 
 	stat_dlg = g_new(tap_param_dlg, 1);
 
 	stat_dlg->win_title = new_stat_tap->title;
-	stat_dlg->init_string = new_stat_tap->cli_string;
+	stat_dlg->init_string = (const char*)key;
 	stat_dlg->tap_init_cb = gtk_simple_stat_init;
 	stat_dlg->index = -1;
 
@@ -284,6 +284,7 @@ void register_simple_stat_tables(gpointer data, gpointer user_data _U_)
 	stat_dlg->user_data = new_stat_tap;
 
 	register_param_stat(stat_dlg, new_stat_tap->title, new_stat_tap->group);
+	return FALSE;
 }
 
 /*

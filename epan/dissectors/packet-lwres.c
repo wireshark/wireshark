@@ -530,7 +530,7 @@ static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int
                             tvb,
                             curr + 8,
                             used_bytes,
-                            format_text(dname, dlen));
+                            format_text(wmem_packet_scope(), dname, dlen));
 
         curr+=(int)((sizeof(short)*4) + used_bytes);
 
@@ -580,7 +580,7 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
                             tvb,
                             curr + 4,
                             used_bytes,
-                            format_text(dname, dlen));
+                            format_text(wmem_packet_scope(), dname, dlen));
 
         curr+=(int)((sizeof(short)*2) + used_bytes);
 
@@ -619,7 +619,7 @@ static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
                             tvb,
                             curr + 2,
                             used_bytes,
-                            format_text(dname, dlen));
+                            format_text(wmem_packet_scope(), dname, dlen));
         curr+=(int)(sizeof(short) + used_bytes);
 
     }

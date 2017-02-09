@@ -25,6 +25,8 @@
 
 #include "ws_symbol_export.h"
 
+#include <epan/wmem/wmem.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -59,6 +61,7 @@ int        get_token_len(const guchar *linep, const guchar *lineend,
 /** Given a string, generate a string from it that shows non-printable
  *  characters as C-style escapes, and return a pointer to it.
  *
+ * @param allocator The wmem scope
  * @param line A pointer to the input string
  * @param len The length of the input string
  * @return A pointer to the formatted string
@@ -66,7 +69,7 @@ int        get_token_len(const guchar *linep, const guchar *lineend,
  * @see tvb_format_text()
  */
 WS_DLL_PUBLIC
-gchar*     format_text(const guchar *line, size_t len);
+gchar*     format_text(wmem_allocator_t* allocator, const guchar *line, size_t len);
 
 /**
  * Given a string, generate a string from it that shows non-printable
@@ -74,13 +77,14 @@ gchar*     format_text(const guchar *line, size_t len);
  * (space, tab, carriage return, new line, vertical tab, or formfeed)
  * which will be replaced by a space, and return a pointer to it.
  *
+ * @param allocator The wmem scope
  * @param line A pointer to the input string
  * @param len The length of the input string
  * @return A pointer to the formatted string
  *
  */
 WS_DLL_PUBLIC
-gchar*     format_text_wsp(const guchar *line, size_t len);
+gchar*     format_text_wsp(wmem_allocator_t* allocator, const guchar *line, size_t len);
 
 /**
  * Given a string, generate a string from it that shows non-printable
@@ -88,6 +92,7 @@ gchar*     format_text_wsp(const guchar *line, size_t len);
  * (space, tab, carriage return, new line, vertical tab, or formfeed)
  * which will be replaced by a space, and return a pointer to it.
  *
+ * @param allocator The wmem scope
  * @param string A pointer to the input string
  * @param len The length of the input string
  * @param chr The character to use to replace non-printable characters
@@ -95,7 +100,7 @@ gchar*     format_text_wsp(const guchar *line, size_t len);
  *
  */
 WS_DLL_PUBLIC
-gchar*     format_text_chr(const guchar *string, const size_t len, const guchar chr);
+gchar*     format_text_chr(wmem_allocator_t* allocator, const guchar *string, const size_t len, const guchar chr);
 
 
 /** Turn a string of hex digits with optional separators (defined by
@@ -153,6 +158,7 @@ gboolean   uri_str_to_bytes(const char *uri_str, GByteArray *bytes);
 
 /** Turn a byte array into an RFC 3986 percent-encoded string.
  *
+ * @param allocator The wmem scope
  * @param bytes The GByteArray that will receive the bytes.  This
  *        must be initialized by the caller.
  * @param reserved_chars Normally the "gen-delims" and "sub-delims"
@@ -165,7 +171,7 @@ gboolean   uri_str_to_bytes(const char *uri_str, GByteArray *bytes);
  * @see uri_str_to_bytes(),  format_text(), isprint()
  */
 WS_DLL_PUBLIC
-const gchar* format_uri(const GByteArray *bytes, const gchar *reserved_chars);
+gchar* format_uri(wmem_allocator_t* allocator, const GByteArray *bytes, const gchar *reserved_chars);
 
 /** Turn a OID string representation (dot notation) into a byte array.
  *

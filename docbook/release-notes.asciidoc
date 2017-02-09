@@ -77,6 +77,8 @@ Windows Cluster Management API (clusapi)
 GSMTAP based logging
 HomePNA
 X-Rite i1 Display Pro (and derivatives) USB protocol
+IndigoCare iCall protocol
+IndigoCare Netrix protocol
 --sort-and-group--
 
 === Updated Protocol Support

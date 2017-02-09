@@ -297,8 +297,6 @@ setup_dissector(void)
 {
     heur_dtbl_entry_t * heur_entry = NULL;
 
-    reassembly_table_init(&os_reassembly_table, &addresses_reassembly_table_functions);
-
     heur_entry = find_heur_dissector_by_unique_short_name("opensafety_sercosiii");
     if ( heur_entry != NULL )
         heuristic_siii_dissection_enabled = heur_entry->enabled;
@@ -308,7 +306,6 @@ static void
 cleanup_dissector(void)
 {
     local_scm_udid = NULL;
-    reassembly_table_destroy(&os_reassembly_table);
 }
 
 void proto_register_opensafety(void);
@@ -2896,6 +2893,8 @@ proto_reg_handoff_opensafety(void)
 
     register_init_routine ( setup_dissector );
     register_cleanup_routine ( cleanup_dissector );
+
+    reassembly_table_register(&os_reassembly_table, &addresses_reassembly_table_functions);
 
     /* registering frame end routine, to prevent a malformed dissection preventing
      * further dissector calls (see bug #6950) */

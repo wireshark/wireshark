@@ -2041,7 +2041,7 @@ proto_register_modbus(void)
                                     "Register Format",
                                     &global_mbus_register_format,
                                     mbus_register_format,
-                                    TRUE);
+                                    FALSE);
 
     /* Obsolete Preferences */
     prefs_register_obsolete_preference(mbtcp_module, "mbus_register_addr_type");

@@ -405,7 +405,7 @@ typedef struct _mgcp_call_info_key
 	conversation_t *conversation;
 } mgcp_call_info_key;
 
-static GHashTable *mgcp_calls;
+static wmem_map_t *mgcp_calls;
 
 /* Compare 2 keys */
 static gint mgcp_call_equal(gconstpointer k1, gconstpointer k2)
@@ -636,18 +636,6 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 		tvb_linebegin = tvb_lineend;
 	} while (tvb_offset_exists(tvb, tvb_lineend));
 }
-
-/* Discard and init any state we've saved */
-static void mgcp_init_protocol(void)
-{
-	mgcp_calls = g_hash_table_new(mgcp_call_hash, mgcp_call_equal);
-}
-
-static void mgcp_cleanup_protocol(void)
-{
-	g_hash_table_destroy(mgcp_calls);
-}
-
 
 /*
  * is_mgcp_verb - A function for determining whether there is a
@@ -1280,7 +1268,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					   matching conversation is available. */
 					mgcp_call_key.transid = mi->transid;
 					mgcp_call_key.conversation = conversation;
-					mgcp_call = (mgcp_call_t *)g_hash_table_lookup(mgcp_calls, &mgcp_call_key);
+					mgcp_call = (mgcp_call_t *)wmem_map_lookup(mgcp_calls, &mgcp_call_key);
 					if (mgcp_call)
 					{
 						/* Indicate the frame to which this is a reply. */
@@ -1399,7 +1387,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				mgcp_call_key.conversation = conversation;
 
 				/* Look up the request */
-				mgcp_call = (mgcp_call_t *)g_hash_table_lookup(mgcp_calls, &mgcp_call_key);
+				mgcp_call = (mgcp_call_t *)wmem_map_lookup(mgcp_calls, &mgcp_call_key);
 				if (mgcp_call != NULL)
 				{
 					/* We've seen a request with this TRANSID, with the same
@@ -1443,7 +1431,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					g_strlcpy(mgcp_call->code, mi->code, 5);
 
 					/* Store it */
-					g_hash_table_insert(mgcp_calls, new_mgcp_call_key, mgcp_call);
+					wmem_map_insert(mgcp_calls, new_mgcp_call_key, mgcp_call);
 				}
 				if (mgcp_call->rsp_num)
 				{
@@ -2285,8 +2273,8 @@ void proto_register_mgcp(void)
 	proto_mgcp = proto_register_protocol("Media Gateway Control Protocol", "MGCP", "mgcp");
 	proto_register_field_array(proto_mgcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_init_routine(&mgcp_init_protocol);
-	register_cleanup_routine(&mgcp_cleanup_protocol);
+
+	mgcp_calls = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), mgcp_call_hash, mgcp_call_equal);
 
 	mgcp_handle = register_dissector("mgcp", dissect_mgcp, proto_mgcp);
 

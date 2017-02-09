@@ -1240,19 +1240,6 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	return tvb_captured_length(tvb);
 }
 
-static void
-netbios_init(void)
-{
-	reassembly_table_init(&netbios_reassembly_table,
-	    &addresses_reassembly_table_functions);
-}
-
-static void
-netbios_cleanup(void)
-{
-	reassembly_table_destroy(&netbios_reassembly_table);
-}
-
 void
 proto_register_netbios(void)
 {
@@ -1475,8 +1462,8 @@ proto_register_netbios(void)
 	    "Whether the NetBIOS dissector should defragment messages spanning multiple frames",
 	    &netbios_defragment);
 
-	register_init_routine(netbios_init);
-	register_cleanup_routine(netbios_cleanup);
+	reassembly_table_register(&netbios_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 void

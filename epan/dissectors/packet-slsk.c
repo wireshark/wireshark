@@ -968,7 +968,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, len, ENC_ASCII);
           proto_tree_add_string_format_value(slsk_tree, hf_slsk_connection_type, tvb, offset+4, len, str,
             "%s (Char: %s)", connection_type(str),
-            format_text(str, len));
+            format_text(wmem_packet_scope(), str, len));
           offset += 4+len;
         }
         else if (check_slsk_format(tvb, offset, "issiii")) {
@@ -988,7 +988,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, len, ENC_ASCII);
           proto_tree_add_string_format_value(slsk_tree, hf_slsk_connection_type, tvb, offset+4, len, str,
             "%s (Char: %s)", connection_type(str),
-            format_text(str, len));
+            format_text(wmem_packet_scope(), str, len));
           offset += 4+len;
           proto_tree_add_item(slsk_tree, hf_slsk_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
@@ -2338,7 +2338,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, len, ENC_ASCII);
             proto_tree_add_string_format_value(slsk_tree, hf_slsk_connection_type, tvb, offset+4, len, str,
               "%s (Char: %s)", connection_type(str),
-              format_text(str, len));
+              format_text(wmem_packet_scope(), str, len));
             offset += 4+len;
             proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
             offset += 4;

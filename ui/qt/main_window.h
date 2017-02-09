@@ -300,7 +300,7 @@ private slots:
 
     void initViewColorizeMenu();
     void initConversationMenus();
-    static void addExportObjectsMenuItem(gpointer data, gpointer user_data);
+    static gboolean addExportObjectsMenuItem(const void *key, void *value, void *userdata);
     void initExportObjectsMenus();
 
     // in main_window_slots.cpp

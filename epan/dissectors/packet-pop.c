@@ -192,7 +192,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   }
   else
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "C" : "S",
-                   format_text(line, linelen));
+                   format_text(wmem_packet_scope(), line, linelen));
 
   ti = proto_tree_add_item(tree, proto_pop, tvb, offset, -1, ENC_NA);
   pop_tree = proto_item_add_subtree(ti, ett_pop);
@@ -369,17 +369,6 @@ static gboolean response_is_continuation(const guchar *data)
   return TRUE;
 }
 
-static void pop_data_reassemble_init (void)
-{
-  reassembly_table_init (&pop_data_reassembly_table,
-                         &addresses_ports_reassembly_table_functions);
-}
-
-static void pop_data_reassemble_cleanup (void)
-{
-  reassembly_table_destroy(&pop_data_reassembly_table);
-}
-
 void
 proto_register_pop(void)
 {
@@ -464,8 +453,9 @@ proto_register_pop(void)
   pop_handle = register_dissector("pop", dissect_pop, proto_pop);
   proto_register_field_array(proto_pop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  register_init_routine (&pop_data_reassemble_init);
-  register_cleanup_routine (&pop_data_reassemble_cleanup);
+
+  reassembly_table_register (&pop_data_reassembly_table,
+                         &addresses_ports_reassembly_table_functions);
 
   /* Preferences */
   pop_module = prefs_register_protocol(proto_pop, NULL);

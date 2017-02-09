@@ -251,7 +251,7 @@ typedef struct _acse_ctx_oid_t {
 	guint32 ctx_id;
 	char *oid;
 } acse_ctx_oid_t;
-static GHashTable *acse_ctx_oid_table = NULL;
+static wmem_map_t *acse_ctx_oid_table = NULL;
 
 static guint
 acse_ctx_oid_hash(gconstpointer k)
@@ -269,18 +269,6 @@ acse_ctx_oid_equal(gconstpointer k1, gconstpointer k2)
 }
 
 static void
-acse_init(void)
-{
-	if (acse_ctx_oid_table) {
-		g_hash_table_destroy(acse_ctx_oid_table);
-		acse_ctx_oid_table = NULL;
-	}
-	acse_ctx_oid_table = g_hash_table_new(acse_ctx_oid_hash,
-			acse_ctx_oid_equal);
-
-}
-
-static void
 register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
 {
 	acse_ctx_oid_t *aco, *tmpaco;
@@ -289,18 +277,18 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
 	aco->oid=wmem_strdup(wmem_file_scope(), oid);
 
 	/* if this ctx already exists, remove the old one first */
-	tmpaco=(acse_ctx_oid_t *)g_hash_table_lookup(acse_ctx_oid_table, aco);
+	tmpaco=(acse_ctx_oid_t *)wmem_map_lookup(acse_ctx_oid_table, aco);
 	if (tmpaco) {
-		g_hash_table_remove(acse_ctx_oid_table, tmpaco);
+		wmem_map_remove(acse_ctx_oid_table, tmpaco);
 	}
-	g_hash_table_insert(acse_ctx_oid_table, aco, aco);
+	wmem_map_insert(acse_ctx_oid_table, aco, aco);
 }
 static char *
 find_oid_by_ctx_id(packet_info *pinfo _U_, guint32 idx)
 {
 	acse_ctx_oid_t aco, *tmpaco;
 	aco.ctx_id=idx;
-	tmpaco=(acse_ctx_oid_t *)g_hash_table_lookup(acse_ctx_oid_table, &aco);
+	tmpaco=(acse_ctx_oid_t *)wmem_map_lookup(acse_ctx_oid_table, &aco);
 	if (tmpaco) {
 		return tmpaco->oid;
 	}
@@ -1699,7 +1687,7 @@ dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-acse-fn.c ---*/
-#line 152 "./asn1/acse/packet-acse-template.c"
+#line 140 "./asn1/acse/packet-acse-template.c"
 
 
 /*
@@ -2248,7 +2236,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 268 "./asn1/acse/packet-acse-template.c"
+#line 256 "./asn1/acse/packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2294,7 +2282,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 274 "./asn1/acse/packet-acse-template.c"
+#line 262 "./asn1/acse/packet-acse-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -2318,6 +2306,11 @@ void proto_register_acse(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_acse = expert_register_protocol(proto_acse);
   expert_register_field_array(expert_acse, ei, array_length(ei));
+
+#if NOT_NEEDED
+  acse_ctx_oid_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), acse_ctx_oid_hash,
+			acse_ctx_oid_equal);
+#endif
 }
 
 

@@ -289,7 +289,7 @@ static value_string_ext gsm_sms_coding_group_bits_vals_ext = VALUE_STRING_EXT_IN
 static dissector_table_t gsm_sms_dissector_tbl;
 /* Short Message reassembly */
 static reassembly_table g_sm_reassembly_table;
-static GHashTable *g_sm_fragment_params_table = NULL;
+static wmem_map_t *g_sm_fragment_params_table = NULL;
 static gint ett_gsm_sms_ud_fragment = -1;
 static gint ett_gsm_sms_ud_fragments = -1;
  /*
@@ -334,21 +334,6 @@ typedef struct {
     guint8  udl;
     guint8  fill_bits;
 } sm_fragment_params;
-
-static void
-gsm_sms_defragment_init (void)
-{
-    reassembly_table_init(&g_sm_reassembly_table,
-                          &addresses_reassembly_table_functions);
-    g_sm_fragment_params_table = g_hash_table_new(g_direct_hash, g_direct_equal);
-}
-
-static void
-gsm_sms_defragment_cleanup (void)
-{
-    reassembly_table_destroy(&g_sm_reassembly_table);
-    g_hash_table_destroy(g_sm_fragment_params_table);
-}
 
 /*
  * this is the GSM 03.40 definition with the bit 2
@@ -1909,7 +1894,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         p_frag_params->udl = udl;
         p_frag_params->fill_bits =  fill_bits;
         p_frag_params->length = length;
-        g_hash_table_insert(g_sm_fragment_params_table,
+        wmem_map_insert(g_sm_fragment_params_table,
                             GUINT_TO_POINTER((guint)((udh_fields.sm_id<<16)|(udh_fields.frag-1))),
                             p_frag_params);
     } /* Else: not fragmented */
@@ -1953,7 +1938,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 total_sms_len = 0;
                 for(i = 0 ; i < udh_fields.frags; i++)
                 {
-                    p_frag_params = (sm_fragment_params*)g_hash_table_lookup(g_sm_fragment_params_table,
+                    p_frag_params = (sm_fragment_params*)wmem_map_lookup(g_sm_fragment_params_table,
                                                             GUINT_TO_POINTER((guint)((udh_fields.sm_id<<16)|i)));
 
                     if (p_frag_params) {
@@ -1981,7 +1966,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 total_sms_len = 0;
                 for(i = 0 ; i < udh_fields.frags; i++)
                 {
-                    p_frag_params = (sm_fragment_params*)g_hash_table_lookup(g_sm_fragment_params_table,
+                    p_frag_params = (sm_fragment_params*)wmem_map_lookup(g_sm_fragment_params_table,
                                                             GUINT_TO_POINTER((guint)((udh_fields.sm_id<<16)|i)));
 
                     if (p_frag_params) {
@@ -2026,7 +2011,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                     total_sms_len = 0;
                     for(i = 0 ; i < udh_fields.frags; i++)
                     {
-                        p_frag_params = (sm_fragment_params*)g_hash_table_lookup(g_sm_fragment_params_table,
+                        p_frag_params = (sm_fragment_params*)wmem_map_lookup(g_sm_fragment_params_table,
                                                                 GUINT_TO_POINTER((guint)((udh_fields.sm_id<<16)|i)));
 
                         if (p_frag_params) {
@@ -3360,9 +3345,11 @@ proto_register_gsm_sms(void)
 
     register_dissector("gsm_sms", dissect_gsm_sms, proto_gsm_sms);
 
-    /* GSM SMS UD dissector initialization routines */
-    register_init_routine (gsm_sms_defragment_init);
-    register_cleanup_routine (gsm_sms_defragment_cleanup);
+    g_sm_fragment_params_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+
+    reassembly_table_register(&g_sm_reassembly_table,
+                          &addresses_reassembly_table_functions);
+
 }
 
 /*

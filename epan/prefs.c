@@ -405,6 +405,10 @@ prefs_cleanup(void)
 
     /* Clean the uats */
     uat_cleanup();
+
+    g_free(prefs.saved_at_version);
+    g_free(gpf_path);
+    gpf_path = NULL;
 }
 
 /*
@@ -1206,6 +1210,10 @@ gboolean prefs_get_bool_value(pref_t *pref, pref_source_t source)
 
 /*
  * Register a preference with an enumerated value.
+ */
+/*
+ * XXX Should we get rid of the radio_buttons parameter and make that
+ * behavior automatic depending on the number of items?
  */
 void
 prefs_register_enum_preference(module_t *module, const char *name,
@@ -3649,7 +3657,6 @@ char *join_string_list(GList *sl)
     GString      *joined_str = g_string_new("");
     GList        *cur, *first;
     gchar        *str;
-    gchar        *quoted_str;
     guint         item_count = 0;
 
     cur = first = g_list_first(sl);
@@ -3666,9 +3673,20 @@ char *join_string_list(GList *sl)
         } else
             g_string_append_c(joined_str, ' ');
 
-        quoted_str = g_strescape(str, "");
-        g_string_append_printf(joined_str, "\"%s\"", quoted_str);
-        g_free(quoted_str);
+        g_string_append_c(joined_str, '"');
+        while (*str) {
+            gunichar uc = g_utf8_get_char (str);
+
+            if (uc == '"' || uc == '\\')
+                g_string_append_c(joined_str, '\\');
+
+            if (g_unichar_isprint(uc))
+                g_string_append_unichar (joined_str, uc);
+
+            str = g_utf8_next_char (str);
+        }
+
+        g_string_append_c(joined_str, '"');
 
         cur = cur->next;
     }

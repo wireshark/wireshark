@@ -182,6 +182,9 @@ WS_DLL_PUBLIC int stats_tree_tick_pivot(stats_tree *st,
                                         int pivot_id,
                                         const gchar *pivot_value);
 
+extern void stats_tree_cleanup(void);
+
+
 /*
  * manipulates the value of the node whose name is given
  * if the node does not exist yet it's created (with counter=1)

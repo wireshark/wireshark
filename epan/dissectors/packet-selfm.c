@@ -2698,22 +2698,6 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 }
 
 /******************************************************************************************************/
-/* SEL Fast Message Dissector initialization */
-/******************************************************************************************************/
-static void
-selfm_init(void)
-{
-    reassembly_table_init(&selfm_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-selfm_cleanup(void)
-{
-    reassembly_table_destroy(&selfm_reassembly_table);
-}
-
-/******************************************************************************************************/
 /* Register the protocol with Wireshark */
 /******************************************************************************************************/
 void proto_reg_handoff_selfm(void);
@@ -3071,9 +3055,8 @@ proto_register_selfm(void)
     module_t *selfm_module;
     expert_module_t* expert_selfm;
 
-    /* Register protocol init routine */
-    register_init_routine(&selfm_init);
-    register_cleanup_routine(&selfm_cleanup);
+    reassembly_table_register(&selfm_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     /* Register the protocol name and description */
     proto_selfm = proto_register_protocol("SEL Protocol", "SEL Protocol", "selfm");

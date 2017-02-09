@@ -90,6 +90,8 @@ dfilter_init(void)
 void
 dfilter_cleanup(void)
 {
+	dfilter_macro_cleanup();
+
 	/* Free the Lemon Parser object */
 	if (ParserObj) {
 		DfilterFree(ParserObj, g_free);

@@ -1714,17 +1714,6 @@ dvbci_init(void)
 {
     buf_size_cam  = 0;
     buf_size_host = 0;
-    reassembly_table_init(&tpdu_reassembly_table,
-                          &addresses_reassembly_table_functions);
-    reassembly_table_init(&spdu_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void
-dvbci_cleanup(void)
-{
-    reassembly_table_destroy(&tpdu_reassembly_table);
-    reassembly_table_destroy(&spdu_reassembly_table);
 }
 
 
@@ -5114,6 +5103,14 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     return packet_len;
 }
 
+static void
+dvbci_shutdown(void)
+{
+    if (spdu_table)
+        g_hash_table_destroy(spdu_table);
+    if (apdu_table)
+        g_hash_table_destroy(apdu_table);
+}
 
 void
 proto_register_dvbci(void)
@@ -6341,13 +6338,19 @@ proto_register_dvbci(void)
                 "SAS application id", proto_dvbci, FT_STRING, STR_ASCII);
 
     register_init_routine(dvbci_init);
-    register_cleanup_routine(dvbci_cleanup);
+    reassembly_table_register(&tpdu_reassembly_table,
+                          &addresses_reassembly_table_functions);
+    reassembly_table_register(&spdu_reassembly_table,
+                          &addresses_reassembly_table_functions);
+
 
     /* the dissector for decrypted CI+ SAC messages which we can export */
     register_dissector(EXPORTED_SAC_MSG_PROTO,
         dissect_dvbci_exported_sac_msg, proto_dvbci);
 
     exported_pdu_tap = register_export_pdu_tap("DVB-CI");
+
+    register_shutdown_routine(dvbci_shutdown);
 }
 
 

@@ -492,10 +492,10 @@ static void follow_stream(const char *opt_argp, void *userdata)
   }
 }
 
-static void
-follow_register(gpointer data, gpointer user_data _U_)
+static gboolean
+follow_register(const void *key _U_, void *value, void *userdata _U_)
 {
-  register_follow_t *follower = (register_follow_t*)data;
+  register_follow_t *follower = (register_follow_t*)value;
   stat_tap_ui follow_ui;
 
   follow_ui.group = REGISTER_STAT_GROUP_GENERIC;
@@ -505,6 +505,7 @@ follow_register(gpointer data, gpointer user_data _U_)
   follow_ui.nparams = 0;
   follow_ui.params = NULL;
   register_stat_tap_ui(&follow_ui, follower);
+  return FALSE;
 }
 
 void

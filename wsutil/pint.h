@@ -124,20 +124,44 @@
  */
 
 #define phton16(p, v) \
-	{ 				\
-	((guint8*)(p))[0] = (guint8)((v) >> 8);	\
-	((guint8*)(p))[1] = (guint8)((v) >> 0);	\
-	}
+                    {                                       \
+                    ((guint8*)(p))[0] = (guint8)((v) >> 8); \
+                    ((guint8*)(p))[1] = (guint8)((v) >> 0); \
+                    }
 
 #define phton32(p, v) \
-	{ 				\
-	((guint8*)(p))[0] = (guint8)((v) >> 24);	\
-	((guint8*)(p))[1] = (guint8)((v) >> 16);	\
-	((guint8*)(p))[2] = (guint8)((v) >> 8);	\
-	((guint8*)(p))[3] = (guint8)((v) >> 0);	\
-	}
+                    {                                         \
+                    ((guint8*)(p))[0] = (guint8)((v) >> 24);  \
+                    ((guint8*)(p))[1] = (guint8)((v) >> 16);  \
+                    ((guint8*)(p))[2] = (guint8)((v) >> 8);   \
+                    ((guint8*)(p))[3] = (guint8)((v) >> 0);   \
+                    }
+
+static inline void phton64(guint8 *p, guint64 v) {
+    p[0] = (guint8)(v >> 56);
+    p[1] = (guint8)(v >> 48);
+    p[2] = (guint8)(v >> 40);
+    p[3] = (guint8)(v >> 32);
+    p[4] = (guint8)(v >> 24);
+    p[5] = (guint8)(v >> 16);
+    p[6] = (guint8)(v >> 8);
+    p[7] = (guint8)(v >> 0);
+}
 
 /* Subtract two guint32s with respect to wraparound */
 #define guint32_wraparound_diff(higher, lower) ((higher>lower)?(higher-lower):(higher+0xffffffff-lower+1))
 
 #endif /* PINT_H */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -103,7 +103,7 @@ typedef struct _msg_info_t {
     guint16 len;  /* number of bytes following initial msg_id field */
 } msg_info_t;
 
-static GHashTable *msg_table = NULL;
+static wmem_map_t *msg_table = NULL;
 
 static const msg_info_t msg_info[] = {
     { ID_AKE_INIT,               8 },
@@ -139,7 +139,7 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     if (msg_id > ID_MAX)
         return 0;
 
-    mi = (msg_info_t *)g_hash_table_lookup(msg_table,
+    mi = (msg_info_t *)wmem_map_lookup(msg_table,
             GUINT_TO_POINTER((guint)msg_id));
     /* 1 -> start after msg_id byte */
     if (!mi || mi->len!=tvb_reported_length_remaining(tvb, 1))
@@ -290,9 +290,9 @@ proto_register_hdcp2(void)
     module_t *hdcp2_module;
     expert_module_t* expert_hdcp2;
 
-    msg_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+    msg_table = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
     for(i=0; i<array_length(msg_info); i++) {
-        g_hash_table_insert(msg_table,
+        wmem_map_insert(msg_table,
                 GUINT_TO_POINTER((guint)msg_info[i].id),
                 (gpointer)(&msg_info[i]));
     }

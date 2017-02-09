@@ -569,6 +569,13 @@ static int hf_gtpv2_esm_cause = -1;
 static int hf_gtpv2_diameter_cause = -1;
 static int hf_gtpv2_ikev2_cause = -1;
 
+static int hf_gtpv2_ciot_support_ind = -1;
+static int hf_gtpv2_ciot_support_ind_spare_bits = -1;
+static int hf_gtpv2_ciot_support_ind_bit4 = -1;
+static int hf_gtpv2_ciot_support_ind_bit3 = -1;
+static int hf_gtpv2_ciot_support_ind_bit2 = -1;
+static int hf_gtpv2_ciot_support_ind_bit1 = -1;
+
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
 static gint ett_gtpv2_ie = -1;
@@ -626,6 +633,7 @@ static gint ett_gtpv2_preaa_cgis = -1;
 static gint ett_gtpv2_load_control_inf = -1;
 static gint ett_gtpv2_eci = -1;
 static gint ett_gtpv2_twan_flags = -1;
+static gint ett_gtpv2_ciot_support_ind = -1;
 
 static expert_field ei_gtpv2_ie_data_not_dissected = EI_INIT;
 static expert_field ei_gtpv2_ie_len_invalid = EI_INIT;
@@ -955,10 +963,14 @@ static value_string_ext gtpv2_message_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv
 191	Remote UE Context
 192	Remote User ID
 193	Remote UE IP information
-194	CIoT Optimizations Support Indication
+*/
+#define GTPV2_IE_CIOT_OPT_SUPPORT_IND   194
+/*
 195	SCEF PDN Connection
 196	Header Compression Configuration
-197	Extended Protocol Configuration Options (ePCO)
+*/
+#define GTPV2_IE_EXTENDED_PCO           197
+/*
 198	Serving PLMN Rate Control
 199	Counter
 200 to 253	Spare. For future use.
@@ -6402,6 +6414,32 @@ dissect_gtpv2_integer_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 }
 
+/*
+ * 8.125 CIoT Optimizations Support Indication
+ */
+static void
+dissect_gtpv2_ciot_opt_support_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+{
+   int               offset;
+   static const int *ciot_flags[] = {
+       &hf_gtpv2_ciot_support_ind_spare_bits,
+       &hf_gtpv2_ciot_support_ind_bit4,
+       &hf_gtpv2_ciot_support_ind_bit3,
+       &hf_gtpv2_ciot_support_ind_bit2,
+       &hf_gtpv2_ciot_support_ind_bit1,
+       NULL
+   };
+
+   offset = 0;
+   proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_gtpv2_ciot_support_ind, ett_gtpv2_ciot_support_ind, ciot_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+
+   offset += 1;
+   if (length - offset) {
+      proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
+   }
+}
+
+
 typedef struct _gtpv2_ie {
     int ie_type;
     void (*decode) (tvbuff_t *, packet_info *, proto_tree *, proto_item *, guint16, guint8, guint8, session_args_t *);
@@ -6543,17 +6581,17 @@ static const gtpv2_ie_t gtpv2_ies[] = {
                                                                            /* 185, 8.116 WLAN Offloadability Indication */
 
     {GTPV2_IE_PAGING_AND_SERVICE_INF, dissect_gtpv2_paging_and_service_inf}, /* 186, 8.117 Paging and Service Information */
-    { GTPV2_IE_INTEGER_NUMBER, dissect_gtpv2_integer_number },               /* 187, 8.118 Integer Number */
+    {GTPV2_IE_INTEGER_NUMBER, dissect_gtpv2_integer_number},                 /* 187, 8.118 Integer Number */
                                                                              /* 188, 8.119 Millisecond Time Stamp */
                                                                              /* 189, 8.120 Monitoring Event Information */
                                                                              /* 190, 8.121 ECGI List */
                                                                              /* 191, 8.122 Remote UE Context */
                                                                              /* 192, 8.123 Remote User ID */
                                                                              /* 193, 8.124 Remote UE IP Information */
-                                                                             /* 194, 8.125 CIoT Optimizations Support Indication */
+    {GTPV2_IE_CIOT_OPT_SUPPORT_IND, dissect_gtpv2_ciot_opt_support_ind},     /* 194, 8.125 CIoT Optimizations Support Indication */
                                                                              /* 195, 8.126 SCEF PDN Connection */
                                                                              /* 196, 8.127 Header Compression Configuration */
-                                                                             /* 197, 8.128 Extended Protocol Configuration Options (ePCO) */
+    {GTPV2_IE_EXTENDED_PCO, dissect_gtpv2_pco},                              /* 197, 8.128 Extended Protocol Configuration Options (ePCO) */
                                                                              /* 198, 8.129 Serving PLMN Rate Control */
 
     {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext},
@@ -9068,6 +9106,32 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_esm_cause, {"ESM Cause Value", "gtpv2.ran_nas.esm_cause", FT_UINT8, BASE_DEC, VALS(nas_eps_esm_cause_vals), 0x0, NULL, HFILL} },
       { &hf_gtpv2_diameter_cause, {"Diameter Cause Value", "gtpv2.ran_nas.diameter_cause", FT_UINT16, BASE_DEC, VALS(diameter_3gpp_termination_cause_vals), 0x0, NULL, HFILL} },
       { &hf_gtpv2_ikev2_cause, {"IKEv2 Cause Value", "gtpv2.ran_nas.ikev2_cause", FT_UINT16, BASE_DEC, VALS(diameter_3gpp_IKEv2_error_type_vals), 0x0, NULL, HFILL} },
+      { &hf_gtpv2_ciot_support_ind,{ "CIoT Optimizations Support Indication", "gtpv2.ciot_support_ind", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_ciot_support_ind_spare_bits,
+          { "Spare", "gtpv2.ciot_support_ind.spare_bits",
+          FT_UINT8, BASE_HEX, NULL, 0xF0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ciot_support_ind_bit4,
+          { "IHCSI (IP Header Compression Support)", "gtpv2.ciot_support_ind.ihcsi",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ciot_support_ind_bit3,
+          { "AWOPDN (Attach without PDN Support)", "gtpv2.ciot_support_ind.awopdn",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ciot_support_ind_bit2,
+          { "SCNIPDN (SCEF Non-IP PDN Support)", "gtpv2.ciot_support_ind.scnipdn",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ciot_support_ind_bit1,
+          { "SGNIPDN (SGi Non-IP PDN Support", "gtpv2.ciot_support_ind.sgnipdn",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
     };
 
     static gint *ett_gtpv2_array[] = {
@@ -9128,6 +9192,7 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_load_control_inf,
         &ett_gtpv2_eci,
         &ett_gtpv2_twan_flags,
+        &ett_gtpv2_ciot_support_ind,
     };
 
     static ei_register_info ei[] = {

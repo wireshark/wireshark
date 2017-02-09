@@ -125,7 +125,7 @@ static nstime_t time_at_start_of_count;
 
 /* Map of (IP address -> MAC address) to detect duplicate IP addresses
    Key is unsigned32 */
-static GHashTable *address_hash_table = NULL;
+static wmem_map_t *address_hash_table = NULL;
 
 typedef struct address_hash_value {
   guint8    mac[6];
@@ -134,7 +134,7 @@ typedef struct address_hash_value {
 } address_hash_value;
 
 /* Map of ((frame Num, IP address) -> MAC address) */
-static GHashTable *duplicate_result_hash_table = NULL;
+static wmem_map_t *duplicate_result_hash_table = NULL;
 
 typedef struct duplicate_result_key {
   guint32 frame_number;
@@ -653,7 +653,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
 
   /* Look up existing result */
   if (pinfo->fd->flags.visited) {
-      result = (address_hash_value *)g_hash_table_lookup(duplicate_result_hash_table,
+      result = (address_hash_value *)wmem_map_lookup(duplicate_result_hash_table,
                                    &result_key);
   }
   else {
@@ -661,7 +661,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
          store result */
 
       /* Look up current assignment of IP address */
-      value = (address_hash_value *)g_hash_table_lookup(address_hash_table, GUINT_TO_POINTER(ip));
+      value = (address_hash_value *)wmem_map_lookup(address_hash_table, GUINT_TO_POINTER(ip));
 
       /* If MAC matches table, just update details */
       if (value != NULL)
@@ -683,7 +683,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
             result = wmem_new(wmem_file_scope(), address_hash_value);
             memcpy(result, value, sizeof(address_hash_value));
 
-            g_hash_table_insert(duplicate_result_hash_table, persistent_key, result);
+            wmem_map_insert(duplicate_result_hash_table, persistent_key, result);
           }
         }
       }
@@ -696,7 +696,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
         value->time_of_entry = pinfo->abs_ts.secs;
 
         /* Add it */
-        g_hash_table_insert(address_hash_table, GUINT_TO_POINTER(ip), value);
+        wmem_map_insert(address_hash_table, GUINT_TO_POINTER(ip), value);
       }
   }
 
@@ -741,26 +741,6 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
 
   return (result != NULL);
 }
-
-
-
-/* Initializes the hash table each time a new
- * file is loaded or re-loaded in wireshark */
-static void
-arp_init_protocol(void)
-{
-  address_hash_table = g_hash_table_new(address_hash_func, address_equal_func);
-  duplicate_result_hash_table = g_hash_table_new(duplicate_result_hash_func,
-                                                 duplicate_result_equal_func);
-}
-
-static void
-arp_cleanup_protocol(void)
-{
-  g_hash_table_destroy(address_hash_table);
-  g_hash_table_destroy(duplicate_result_hash_table);
-}
-
 
 
 
@@ -2023,8 +2003,9 @@ proto_register_arp(void)
 
   /* TODO: define a minimum time between sightings that is worth reporting? */
 
-  register_init_routine(&arp_init_protocol);
-  register_cleanup_routine(&arp_cleanup_protocol);
+  address_hash_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), address_hash_func, address_equal_func);
+  duplicate_result_hash_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), duplicate_result_hash_func,
+                                                 duplicate_result_equal_func);
 
   arp_cap_handle = register_capture_dissector("arp", capture_arp, proto_arp);
 }

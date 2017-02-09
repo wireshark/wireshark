@@ -19,6 +19,11 @@
 
 #include "config.h"
 
+/*
+ * See
+ *
+ *	http://brantleycoilecompany.com/AoEr11.pdf
+ */
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
@@ -170,8 +175,8 @@ typedef struct ata_info_t {
   nstime_t req_time;
   guint8 cmd;
 } ata_info_t;
-static GHashTable *ata_cmd_unmatched = NULL;
-static GHashTable *ata_cmd_matched = NULL;
+static wmem_map_t *ata_cmd_unmatched = NULL;
+static wmem_map_t *ata_cmd_matched = NULL;
 
 static guint
 ata_cmd_hash_matched(gconstpointer k)
@@ -227,29 +232,29 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
       ata_info->cmd=tvb_get_guint8(tvb, offset+3);
       ata_info->req_time=pinfo->abs_ts;
 
-      tmp_ata_info=(ata_info_t *)g_hash_table_lookup(ata_cmd_unmatched, ata_info);
+      tmp_ata_info=(ata_info_t *)wmem_map_lookup(ata_cmd_unmatched, ata_info);
       if(tmp_ata_info){
-        g_hash_table_remove(ata_cmd_unmatched, tmp_ata_info);
+        wmem_map_remove(ata_cmd_unmatched, tmp_ata_info);
       }
-      g_hash_table_insert(ata_cmd_unmatched, ata_info, ata_info);
+      wmem_map_insert(ata_cmd_unmatched, ata_info, ata_info);
     } else {
       ata_info_t tmp_ata_info;
       /* first time we see this response so see if we can match it with
          a request */
       tmp_ata_info.tag=tag;
       tmp_ata_info.conversation=conversation;
-      ata_info=(ata_info_t *)g_hash_table_lookup(ata_cmd_unmatched, &tmp_ata_info);
+      ata_info=(ata_info_t *)wmem_map_lookup(ata_cmd_unmatched, &tmp_ata_info);
       /* woo hoo we could, so no need to store this in unmatched any more,
          move both request and response to the matched table */
       if(ata_info){
         ata_info->response_frame=pinfo->num;
-        g_hash_table_remove(ata_cmd_unmatched, ata_info);
-        g_hash_table_insert(ata_cmd_matched, GUINT_TO_POINTER(ata_info->request_frame), ata_info);
-        g_hash_table_insert(ata_cmd_matched, GUINT_TO_POINTER(ata_info->response_frame), ata_info);
+        wmem_map_remove(ata_cmd_unmatched, ata_info);
+        wmem_map_insert(ata_cmd_matched, GUINT_TO_POINTER(ata_info->request_frame), ata_info);
+        wmem_map_insert(ata_cmd_matched, GUINT_TO_POINTER(ata_info->response_frame), ata_info);
       }
     }
   } else {
-    ata_info=(ata_info_t *)g_hash_table_lookup(ata_cmd_matched, GUINT_TO_POINTER(pinfo->num));
+    ata_info=(ata_info_t *)wmem_map_lookup(ata_cmd_matched, GUINT_TO_POINTER(pinfo->num));
   }
 
   if(ata_info){
@@ -389,20 +394,6 @@ dissect_aoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
   return tvb_captured_length(tvb);
 }
 
-static void
-ata_init(void)
-{
-  ata_cmd_unmatched=g_hash_table_new(ata_cmd_hash_unmatched, ata_cmd_equal_unmatched);
-  ata_cmd_matched=g_hash_table_new(ata_cmd_hash_matched, ata_cmd_equal_matched);
-}
-
-static void
-ata_cleanup(void)
-{
-  g_hash_table_destroy(ata_cmd_unmatched);
-  g_hash_table_destroy(ata_cmd_matched);
-}
-
 void
 proto_register_aoe(void)
 {
@@ -471,8 +462,8 @@ proto_register_aoe(void)
 
   aoe_handle = register_dissector("aoe", dissect_aoe, proto_aoe);
 
-  register_init_routine(ata_init);
-  register_cleanup_routine(ata_cleanup);
+  ata_cmd_unmatched=wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), ata_cmd_hash_unmatched, ata_cmd_equal_unmatched);
+  ata_cmd_matched=wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), ata_cmd_hash_matched, ata_cmd_equal_matched);
 }
 
 void

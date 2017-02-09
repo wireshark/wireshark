@@ -171,7 +171,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
   line = tvb_get_ptr(tvb, offset, linelen);
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "Request" : "Response", format_text(line, linelen));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "Request" : "Response", format_text(wmem_packet_scope(), line, linelen));
 
   {
     ti = proto_tree_add_item(tree, proto_imap, tvb, offset, -1, ENC_NA);

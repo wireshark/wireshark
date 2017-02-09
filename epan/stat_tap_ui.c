@@ -40,7 +40,7 @@ typedef struct _stat_cmd_arg {
     void* userdata;
 } stat_cmd_arg;
 
-static GList *stat_cmd_arg_list=NULL;
+static wmem_tree_t *stat_cmd_arg_list=NULL;
 
 /* structure to keep track of what stats have been specified on the
    command line.
@@ -55,60 +55,63 @@ static GSList *stats_requested = NULL;
  * Function called from stat to register the stat's command-line argument
  * and initialization routine
  * ********************************************************************** */
-static gint
-sort_by_name(gconstpointer a, gconstpointer b)
-{
-    return strcmp(((const stat_cmd_arg *)a)->cmd, ((const stat_cmd_arg *)b)->cmd);
-}
-
 void
 register_stat_tap_ui(stat_tap_ui *ui, void *userdata)
 {
     stat_cmd_arg *newsca;
 
-    newsca=(stat_cmd_arg *)g_malloc(sizeof(stat_cmd_arg));
+    newsca = wmem_new(wmem_epan_scope(), stat_cmd_arg);
     newsca->cmd=ui->cli_string;
     newsca->func=ui->tap_init_cb;
     newsca->userdata=userdata;
-    stat_cmd_arg_list=g_list_insert_sorted(stat_cmd_arg_list, newsca, sort_by_name);
+
+    if (stat_cmd_arg_list == NULL)
+        stat_cmd_arg_list = wmem_tree_new(wmem_epan_scope());
+
+    wmem_tree_insert_string(stat_cmd_arg_list, newsca->cmd, newsca, 0);
 }
 
 /* **********************************************************************
  * Function called for a stat command-line argument
  * ********************************************************************** */
+static gboolean
+process_stat_cmd_arg_func(const void *key, void *value, void *userdata)
+{
+    char *optstr = (char*)userdata;
+    stat_cmd_arg *sca = (stat_cmd_arg*)value;
+    stat_requested *tr;
+
+    if (!strncmp((const char*)key, (const char*)optstr, strlen((const char*)key)))
+    {
+        tr=(stat_requested *)g_malloc(sizeof (stat_requested));
+        tr->sca = sca;
+        tr->arg=g_strdup(optstr);
+        stats_requested=g_slist_append(stats_requested, tr);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 gboolean
 process_stat_cmd_arg(char *optstr)
 {
-    GList *entry;
-    stat_cmd_arg *sca;
-    stat_requested *tr;
-
-    for(entry=g_list_last(stat_cmd_arg_list);entry;entry=g_list_previous(entry)){
-        sca=(stat_cmd_arg *)entry->data;
-        if(!strncmp(sca->cmd,optstr,strlen(sca->cmd))){
-            tr=(stat_requested *)g_malloc(sizeof (stat_requested));
-            tr->sca = sca;
-            tr->arg=g_strdup(optstr);
-            stats_requested=g_slist_append(stats_requested, tr);
-            return TRUE;
-        }
-    }
-    return FALSE;
+    return wmem_tree_foreach(stat_cmd_arg_list, process_stat_cmd_arg_func, optstr);
 }
 
 /* **********************************************************************
  * Function to list all possible tap command-line arguments
  * ********************************************************************** */
+static gboolean
+list_stat_cmd_args_func(const void *key, void *value _U_, void *userdata _U_)
+{
+    fprintf(stderr,"     %s\n", (const char*)key);
+    return FALSE;
+}
+
 void
 list_stat_cmd_args(void)
 {
-    GList *entry;
-    stat_cmd_arg *sca;
-
-    for(entry=stat_cmd_arg_list;entry;entry=g_list_next(entry)){
-        sca=(stat_cmd_arg *)entry->data;
-        fprintf(stderr,"     %s\n",sca->cmd);
-    }
+    wmem_tree_foreach(stat_cmd_arg_list, list_stat_cmd_args_func, NULL);
 }
 
 /* **********************************************************************
@@ -128,25 +131,19 @@ start_requested_stats(void)
     }
 }
 
-static GSList *registered_stat_tables = NULL;
-
-static gint
-insert_sorted_by_cli_string(gconstpointer aparam, gconstpointer bparam)
-{
-    const stat_tap_table_ui *a = (const stat_tap_table_ui *)aparam;
-    const stat_tap_table_ui *b = (const stat_tap_table_ui *)bparam;
-
-    return g_ascii_strcasecmp(a->cli_string, b->cli_string);
-}
+static wmem_tree_t *registered_stat_tables = NULL;
 
 void register_stat_tap_table_ui(stat_tap_table_ui *ui)
 {
-    registered_stat_tables = g_slist_insert_sorted(registered_stat_tables, ui, insert_sorted_by_cli_string);
+    if (registered_stat_tables == NULL)
+        registered_stat_tables = wmem_tree_new(wmem_epan_scope());
+
+    wmem_tree_insert_string(registered_stat_tables, ui->cli_string, ui, 0);
 }
 
-void new_stat_tap_iterate_tables(GFunc func, gpointer user_data)
+void new_stat_tap_iterate_tables(wmem_foreach_func func, gpointer user_data)
 {
-    g_slist_foreach(registered_stat_tables, func, user_data);
+    wmem_tree_foreach(registered_stat_tables, func, user_data);
 }
 
 void new_stat_tap_get_filter(stat_tap_table_ui* new_stat, const char *opt_arg, const char **filter, char** err)
@@ -283,18 +280,6 @@ void free_stat_tables(stat_tap_table_ui* new_stat, new_stat_tap_gui_free_cb gui_
     g_array_set_size(new_stat->tables, 0);
 }
 
-static void
-stat_cmd_arg_list_free(gpointer p, gpointer user_data _U_)
-{
-    g_free(p);
-}
-
-void stat_tap_table_cleanup(void)
-{
-    g_slist_free(registered_stat_tables);
-    g_list_foreach(stat_cmd_arg_list, stat_cmd_arg_list_free, NULL);
-    g_list_free(stat_cmd_arg_list);
-}
 
 /*
  * Editor modelines

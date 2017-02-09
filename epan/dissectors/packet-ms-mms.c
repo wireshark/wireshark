@@ -751,7 +751,7 @@ static void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, pro
                                  transport_info, "Transport: (%s)", transport_info);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                    format_text((guchar*)transport_info, length_remaining - 20));
+                    format_text(wmem_packet_scope(), (guchar*)transport_info, length_remaining - 20));
 
 
     /* Try to extract details from this string */
@@ -848,7 +848,7 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                             ENC_UTF_16|ENC_LITTLE_ENDIAN, wmem_packet_scope(), &server_version);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " (version='%s')",
-                    format_text((guchar*)server_version, strlen(server_version)));
+                    format_text(wmem_packet_scope(), (guchar*)server_version, strlen(server_version)));
     }
     offset += (server_version_length*2);
 
@@ -902,7 +902,7 @@ static void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                         ENC_UTF_16|ENC_LITTLE_ENDIAN, wmem_packet_scope(), &player_info);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                    format_text((guchar*)player_info, strlen(player_info)));
+                    format_text(wmem_packet_scope(), (guchar*)player_info, strlen(player_info)));
 }
 
 /* Dissect info about where client wants to start playing from */
@@ -977,7 +977,7 @@ static void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto
                         ENC_UTF_16|ENC_LITTLE_ENDIAN, wmem_packet_scope(), &server_file);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                    format_text((guchar*)server_file, strlen(server_file)));
+                    format_text(wmem_packet_scope(), (guchar*)server_file, strlen(server_file)));
 }
 
 /* Dissect media details from server */

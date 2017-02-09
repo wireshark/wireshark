@@ -1602,13 +1602,9 @@ static void giop_init(void) {
 
   giop_complete_request_list = NULL;
   read_IOR_strings_from_file(giop_ior_file, 600);
-
-  reassembly_table_init(&giop_reassembly_table,
-                        &addresses_reassembly_table_functions);
 }
 
 static void giop_cleanup(void) {
-  reassembly_table_destroy(&giop_reassembly_table);
   g_hash_table_destroy(giop_objkey_hash);
   g_hash_table_destroy(giop_complete_reply_hash);
   g_list_free(giop_complete_request_list);
@@ -4379,7 +4375,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   if ( len > 0)
   {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text(operation, (size_t)len));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text(wmem_packet_scope(), operation, (size_t)len));
     proto_tree_add_string(request_tree, hf_giop_req_operation, tvb, offset - len, len, operation);
   }
 
@@ -4502,7 +4498,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
 
   if ( len > 0)
   {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text(operation, (size_t)len));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text(wmem_packet_scope(), operation, (size_t)len));
     proto_tree_add_string(request_tree, hf_giop_req_operation, tvb, offset - len, len, operation);
   }
 
@@ -5536,6 +5532,9 @@ proto_register_giop (void)
 
   register_init_routine( &giop_init); /* any init stuff */
   register_cleanup_routine( &giop_cleanup);
+
+  reassembly_table_register(&giop_reassembly_table,
+                        &addresses_reassembly_table_functions);
 
   /* Register for tapping */
   giop_tap = register_tap(GIOP_TAP_NAME); /* GIOP statistics tap */

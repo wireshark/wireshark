@@ -1383,7 +1383,7 @@ if(WIN32)
 	)
 endif()
 
-# sources common for wireshark, tshark, and rawshark
+# sources common for wireshark, tshark, rawshark and sharkd
 set(SHARK_COMMON_SRC
 	cfile.c
 	frame_tvbuff.c
@@ -2288,6 +2288,27 @@ if(BUILD_rawshark AND PCAP_FOUND)
 	set_extra_executable_properties(rawshark "Executables")
 	target_link_libraries(rawshark ${rawshark_LIBS})
 	install(TARGETS rawshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
+if(BUILD_sharkd)
+	set(sharkd_LIBS
+		ui
+		${LIBEPAN_LIBS}
+		${APPLE_CORE_FOUNDATION_LIBRARY}
+		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+	)
+	set(sharkd_FILES
+		filter_files.c
+		sharkd.c
+		sharkd_daemon.c
+		sharkd_session.c
+		${SHARK_COMMON_SRC}
+	)
+	add_executable(sharkd ${sharkd_FILES})
+	add_dependencies(sharkd version)
+	set_extra_executable_properties(sharkd "Executables")
+	target_link_libraries(sharkd ${sharkd_LIBS})
+	install(TARGETS sharkd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(BUILD_dftest)

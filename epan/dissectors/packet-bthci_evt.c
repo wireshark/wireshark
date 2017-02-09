@@ -378,6 +378,15 @@ static int hf_bthci_evt_le_features_ping = -1;
 static int hf_bthci_evt_le_features_data_packet_length_extension = -1;
 static int hf_bthci_evt_le_features_ll_privacy = -1;
 static int hf_bthci_evt_le_features_extended_scanner_filter_policies = -1;
+static int hf_bthci_evt_le_features_2m_phy = -1;
+static int hf_bthci_evt_le_features_stable_modulation_index_tx =-1;
+static int hf_bthci_evt_le_features_stable_modulation_index_rx = -1;
+static int hf_bthci_evt_le_features_coded_phy = -1;
+static int hf_bthci_evt_le_features_extended_advertising = -1;
+static int hf_bthci_evt_le_features_periodic_advertising = -1;
+static int hf_bthci_evt_le_features_channel_selection_algorithm_2 = -1;
+static int hf_bthci_evt_le_features_power_class_1 = -1;
+static int hf_bthci_evt_le_features_minimum_number_of_used_channels_procedure = -1;
 static int hf_bthci_evt_le_features_reserved = -1;
 static int hf_bthci_evt_mws_number_of_transports = -1;
 static int hf_bthci_evt_mws_transport_layers = -1;
@@ -407,6 +416,10 @@ static int hf_bthci_evt_le_direct_address_type = -1;
 static int hf_bthci_evt_le_direct_bd_addr = -1;
 static int hf_bthci_evt_le_address_type = -1;
 static int hf_bthci_evt_le_rssi = -1;
+static int hf_bthci_evt_le_tx_phy = -1;
+static int hf_bthci_evt_le_rx_phy = -1;
+static int hf_bthci_evt_max_adv_data_length = -1;
+static int hf_bthci_evt_num_supported_adv_sets = -1;
 
 static const int *hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_encryption,
@@ -417,6 +430,15 @@ static const int *hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_data_packet_length_extension,
     &hf_bthci_evt_le_features_ll_privacy,
     &hf_bthci_evt_le_features_extended_scanner_filter_policies,
+    &hf_bthci_evt_le_features_2m_phy,
+    &hf_bthci_evt_le_features_stable_modulation_index_tx,
+    &hf_bthci_evt_le_features_stable_modulation_index_rx,
+    &hf_bthci_evt_le_features_coded_phy,
+    &hf_bthci_evt_le_features_extended_advertising,
+    &hf_bthci_evt_le_features_periodic_advertising,
+    &hf_bthci_evt_le_features_channel_selection_algorithm_2,
+    &hf_bthci_evt_le_features_power_class_1,
+    &hf_bthci_evt_le_features_minimum_number_of_used_channels_procedure,
     &hf_bthci_evt_le_features_reserved,
     NULL
 };
@@ -598,6 +620,7 @@ const value_string bthci_evt_lmp_version[] = {
     {0x06, "4.0"},
     {0x07, "4.1"},
     {0x08, "4.2"},
+    {0x09, "5.0"},
     {0, NULL }
 };
 
@@ -614,6 +637,7 @@ const value_string bthci_evt_hci_version[] = {
     {0x06, "4.0"},
     {0x07, "4.1"},
     {0x08, "4.2"},
+    {0x09, "5.0"},
     {0, NULL }
 };
 
@@ -832,7 +856,6 @@ static const value_string event_type_vals[] = {
     { 0x01,  "Connectable directed advertising (ADV_DIRECT_IND)" },
     { 0, NULL }
 };
-
 
 static const unit_name_string units_number_events = { " (number events)", NULL };
 
@@ -2400,6 +2423,22 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             }
 
             }
+            break;
+        case 0x0C: /* LE PHY Update Complete */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            status = tvb_get_guint8(tvb, offset);
+            send_hci_summary_status_tap(status, pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_bthci_evt_le_tx_phy, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_le_rx_phy, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
             break;
         default:
             break;
@@ -4192,12 +4231,46 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             break;
         }
 
+        case 0x2030: /* LE Read PHY */
+        {
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_bthci_evt_le_tx_phy, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(tree, hf_bthci_evt_le_rx_phy, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+        }
+
         case 0x2036: /* LE Set Extended Advertising Parameters */
         {
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_selected_tx_power, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            break;
+        }
+
+        case 0x203A: /* LE Read Maximum Advertising Data Length */
+        {
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+            proto_tree_add_item(tree, hf_bthci_evt_max_adv_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            break;
+        }
+
+        case 0x203B: /* LE Read Number of Supported Advertising Sets */
+        {
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+            proto_tree_add_item(tree, hf_bthci_evt_num_supported_adv_sets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             break;
         }
@@ -7202,9 +7275,54 @@ proto_register_bthci_evt(void)
             FT_BOOLEAN, 64, NULL, 0x80,
             NULL, HFILL }
         },
+        { &hf_bthci_evt_le_features_2m_phy,
+          { "LE 2M PHY",            "bthci_evt.le_features.2m_phy",
+            FT_BOOLEAN, 64, NULL, 0x100,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_stable_modulation_index_tx,
+          { "Stable Modulation Index - Tx",            "bthci_evt.le_features.stable_modulation_index_tx",
+            FT_BOOLEAN, 64, NULL, 0x200,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_stable_modulation_index_rx,
+          { "Stable Modulation Index - Rx",            "bthci_evt.le_features.stable_modulation_index_rx",
+            FT_BOOLEAN, 64, NULL, 0x400,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_coded_phy,
+          { "LE Coded PHY",            "bthci_evt.le_features.coded_phy",
+            FT_BOOLEAN, 64, NULL, 0x800,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_extended_advertising,
+          { "LE Extended Advertising",           "bthci_evt.le_features.extended_advertising",
+            FT_BOOLEAN, 64, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_periodic_advertising,
+          { "LE Periodic Advertising",           "bthci_evt.le_features.periodic_advertising",
+            FT_BOOLEAN, 64, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_channel_selection_algorithm_2,
+          { "Channel Selection Algorithm #2",    "bthci_evt.le_features.channel_selection_algorithm_2",
+            FT_BOOLEAN, 64, NULL, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_power_class_1,
+          { "Power Class 1",                     "bthci_evt.le_features.power_class_1",
+            FT_BOOLEAN, 64, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_minimum_number_of_used_channels_procedure,
+          { "Minimum Number of Used Channels Procedure", "bthci_evt.le_features.minimum_number_of_used_channels_procedure",
+            FT_BOOLEAN, 64, NULL, 0x10000,
+            NULL, HFILL }
+        },
         { &hf_bthci_evt_le_features_reserved,
             { "Reserved",                                  "bthci_evt.le_features.reserved",
-            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFF00),
+            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFFFFFFE0000),
             NULL, HFILL }
         },
         { &hf_bthci_evt_mws_number_of_transports,
@@ -7350,6 +7468,26 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_le_rssi,
           { "RSSI (dBm)", "bthci_evt.le_rssi",
             FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_tx_phy,
+          { "Tx PHY", "bthci_evt.le_tx_phy",
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_le_phy_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_rx_phy,
+          { "Rx PHY", "bthci_evt.le_rx_phy",
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_le_phy_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_max_adv_data_length,
+          { "Maximum Advertising Data Length", "bthci_evt.max_adv_data_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_num_supported_adv_sets,
+          { "Number of Supported Advertising Sets", "bthci_evt.num_supported_adv_sets",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         }
     };

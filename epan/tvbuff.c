@@ -2171,8 +2171,9 @@ tvb_memeql(tvbuff_t *tvb, const gint offset, const guint8 *str, size_t size)
 	}
 }
 
-/*
- * Format the data in the tvb from offset for length ...
+/**
+ * Format the data in the tvb from offset for size.  Returned string is
+ * wmem packet_scoped so call must be in that scope.
  */
 gchar *
 tvb_format_text(tvbuff_t *tvb, const gint offset, const gint size)
@@ -2183,14 +2184,14 @@ tvb_format_text(tvbuff_t *tvb, const gint offset, const gint size)
 	len = (size > 0) ? size : 0;
 
 	ptr = ensure_contiguous(tvb, offset, size);
-	return format_text(ptr, len);
+	return format_text(wmem_packet_scope(), ptr, len);
 }
 
 /*
  * Format the data in the tvb from offset for length ...
  */
 gchar *
-tvb_format_text_wsp(tvbuff_t *tvb, const gint offset, const gint size)
+tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint offset, const gint size)
 {
 	const guint8 *ptr;
 	gint          len;
@@ -2198,12 +2199,13 @@ tvb_format_text_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 	len = (size > 0) ? size : 0;
 
 	ptr = ensure_contiguous(tvb, offset, size);
-	return format_text_wsp(ptr, len);
+	return format_text_wsp(allocator, ptr, len);
 }
 
-/*
+/**
  * Like "tvb_format_text()", but for null-padded strings; don't show
- * the null padding characters as "\000".
+ * the null padding characters as "\000".  Returned string is wmem packet_scoped
+ * so call must be in that scope.
  */
 gchar *
 tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
@@ -2217,7 +2219,7 @@ tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
 	ptr = ensure_contiguous(tvb, offset, size);
 	for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
 		;
-	return format_text(ptr, stringlen);
+	return format_text(wmem_packet_scope(), ptr, stringlen);
 }
 
 /*
@@ -2225,7 +2227,7 @@ tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
  * the null padding characters as "\000".
  */
 gchar *
-tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
+tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint offset, const gint size)
 {
 	const guint8 *ptr, *p;
 	gint          len;
@@ -2236,7 +2238,7 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 	ptr = ensure_contiguous(tvb, offset, size);
 	for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
 		;
-	return format_text_wsp(ptr, stringlen);
+	return format_text_wsp(allocator, ptr, stringlen);
 }
 
 /* Unicode REPLACEMENT CHARACTER */

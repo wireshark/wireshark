@@ -328,6 +328,7 @@ static int hf_btatt_magnetic_flux_density_z = -1;
 static int hf_btatt_language = -1;
 static int hf_btatt_barometric_pressure_trend = -1;
 static int hf_btatt_central_address_resolution = -1;
+static int hf_btatt_resolvable_private_address = -1;
 static int hf_btatt_cycling_power_feature = -1;
 static int hf_btatt_cycling_power_feature_reserved = -1;
 static int hf_btatt_cycling_power_feature_factory_calibration_date = -1;
@@ -2822,6 +2823,11 @@ static const value_string central_address_resolution_vals[] = {
     {0x0, NULL}
 };
 
+static const value_string resolvable_private_address_vals[] = {
+    {0x00,   "Only Resolvable Private Addresses will be used as local addresses after bonding"},
+    {0x0, NULL}
+};
+
 static const value_string cycling_power_feature_sensor_measurement_context_vals[] = {
     {0x00,   "Force Based"},
     {0x01,   "Torque Based"},
@@ -4264,6 +4270,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         case 0x2AC5: /* Object Action Control Point */
         case 0x2AC6: /* Object List Control Point */
         case 0x2AC8: /* Object Changed */
+        case 0x2AC9: /* Resolvable Private Address */
             expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
             break;
 
@@ -4360,6 +4367,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         case 0x2AA3: /* Barometric Pressure Trend */
         case 0x2AA7: /* CGM Measurement */
         case 0x2AB8: /* HTTP Status Code */
+        case 0x2AC9: /* Resolvable Private Address */
             expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
             break;
 
@@ -4638,14 +4646,6 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         break;
     case 0x2A00: /* Device Name */
-        if (service_uuid.bt_uuid == GATT_SERVICE_GENERIC_ACCESS_PROFILE) {
-            if (is_readable_request(att_data->opcode) || is_writeable_response(att_data->opcode))
-                break;
-
-            if (!is_readable_response(att_data->opcode) && !is_writeable_request(att_data->opcode))
-                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
-        }
-
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
@@ -4654,14 +4654,6 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         break;
     case 0x2A01: /* Appearance */
-        if (service_uuid.bt_uuid == GATT_SERVICE_GENERIC_ACCESS_PROFILE) {
-            if (is_readable_request(att_data->opcode))
-                break;
-
-            if (!is_readable_response(att_data->opcode))
-                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
-        }
-
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
@@ -4742,10 +4734,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         break;
     case 0x2A04: /* Peripheral Preferred Connection Parameters */
         if (service_uuid.bt_uuid == GATT_SERVICE_GENERIC_ACCESS_PROFILE) {
-            if (is_readable_request(att_data->opcode))
-                break;
-
-            if (!is_readable_response(att_data->opcode))
+            if (!(is_readable_request(att_data->opcode) || is_readable_response(att_data->opcode)))
                 expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
         }
 
@@ -8218,6 +8207,11 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         break;
     case 0x2AA6: /* Central Address Resolution */
+        if (service_uuid.bt_uuid == GATT_SERVICE_GENERIC_ACCESS_PROFILE) {
+            if (!(is_readable_request(att_data->opcode) || is_readable_response(att_data->opcode)))
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
@@ -9215,6 +9209,19 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         proto_tree_add_item(tree, hf_btatt_ots_object_id, tvb, offset, 6, ENC_LITTLE_ENDIAN);
         offset += 6;
+
+        break;
+    case 0x2AC9: /* Resolvable Private Address */
+        if (service_uuid.bt_uuid == GATT_SERVICE_GENERIC_ACCESS_PROFILE) {
+            if (!(is_readable_request(att_data->opcode) || is_readable_response(att_data->opcode)))
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_item(tree, hf_btatt_resolvable_private_address, tvb, offset, 1, ENC_NA);
+        offset += 1;
 
         break;
     default:
@@ -11729,6 +11736,11 @@ proto_register_btatt(void)
         {&hf_btatt_central_address_resolution,
             {"Central Address Resolution", "btatt.central_address_resolution",
             FT_UINT8, BASE_DEC, VALS(central_address_resolution_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_resolvable_private_address,
+            {"Resolvable Private Address", "btatt.resolvable_private_address",
+            FT_UINT8, BASE_DEC, VALS(resolvable_private_address_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_cycling_power_feature,

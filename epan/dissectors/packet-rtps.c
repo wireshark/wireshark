@@ -139,9 +139,9 @@ static int hf_rtps_param_type_name              = -1;
 static int hf_rtps_param_user_data              = -1;
 static int hf_rtps_param_group_data             = -1;
 static int hf_rtps_param_topic_data             = -1;
-static int hf_rtps_param_content_filter_name    = -1;
+static int hf_rtps_param_content_filter_topic_name = -1;
 static int hf_rtps_param_related_topic_name     = -1;
-static int hf_rtps_param_filter_name            = -1;
+static int hf_rtps_param_filter_class_name      = -1;
 static int hf_rtps_issue_data                   = -1;
 static int hf_rtps_durability_service_cleanup_delay     = -1;
 static int hf_rtps_liveliness_lease_duration            = -1;
@@ -236,8 +236,8 @@ static int hf_rtps_bitmap_num_bits              = -1;
 static int hf_rtps_param_partition_num          = -1;
 static int hf_rtps_param_partition              = -1;
 static int hf_rtps_param_filter_expression      = -1;
-static int hf_rtps_param_filter_parameters_num  = -1;
-static int hf_rtps_param_filter_parameters      = -1;
+static int hf_rtps_param_expression_parameters_num  = -1;
+static int hf_rtps_param_expression_parameters      = -1;
 static int hf_rtps_locator_filter_list_num_channels = -1;
 static int hf_rtps_locator_filter_list_filter_name  = -1;
 static int hf_rtps_locator_filter_list_filter_exp   = -1;
@@ -2344,18 +2344,24 @@ static void rtps_util_add_product_version(proto_tree *tree, tvbuff_t *tvb, gint 
  * Returns the new updated offset
  */
 gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t *tvb, gint offset,
-                              const guint encoding, int param_length, int hf_numstring,
+                              const guint encoding, int hf_numstring,
                               int hf_string, const char *label) {
   guint32 size;
   gint32 i, num_strings;
   const guint8 *retVal;
   proto_tree *string_tree;
+  gint start;
 
   proto_tree_add_item_ret_int(tree, hf_numstring, tvb, offset, 4, encoding, &num_strings);
   offset += 4;
 
+  if (num_strings == 0) {
+    return offset;
+  }
+
+  start = offset;
   /* Create the string node with a fake string, the replace it later */
-  string_tree = proto_tree_add_subtree(tree, tvb, offset, param_length-8, ett_rtps_seq_string, NULL, label);
+  string_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_seq_string, NULL, label);
 
   for (i = 0; i < num_strings; ++i) {
     size = tvb_get_guint32(tvb, offset, encoding);
@@ -2368,6 +2374,7 @@ gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t *tvb, gint offset,
     offset += (4 + ((size + 3) & 0xfffffffc));
   }
 
+  proto_item_set_len(string_tree, offset - start);
   return offset;
 }
 
@@ -3467,7 +3474,9 @@ gint rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
     return offset + seq_length;
   }
 
-  proto_tree_add_item(tree, hf_id, tvb, offset, seq_length, ENC_NA);
+  if (seq_length) {
+    proto_tree_add_item(tree, hf_id, tvb, offset, seq_length, ENC_NA);
+  }
 
   return offset + seq_length;
 }
@@ -4931,7 +4940,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_PARTITION:
       ENSURE_LENGTH(4);
       rtps_util_add_seq_string(rtps_parameter_tree, tvb, offset, encoding,
-                    param_length, hf_rtps_param_partition_num, hf_rtps_param_partition, "name");
+                               hf_rtps_param_partition_num, hf_rtps_param_partition, "name");
       break;
 
     /* 0...2...........7...............15.............23...............31
@@ -5199,11 +5208,11 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
      * |                              ...                              |
      * +---------------+---------------+---------------+---------------+
      *
-     * String1: ContentFilterName
+     * String1: ContentFilterTopicName
      * String2: RelatedTopicName
-     * String3: FilterName
+     * String3: FilterClassName
      * String4: FilterExpression
-     * FilterParameters: sequence of Strings
+     * ExpressionParameters: sequence of Strings
      *
      * Note: those strings starts all to a word-aligned (4 bytes) offset
      */
@@ -5211,16 +5220,16 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
       guint32 temp_offset = offset;
       ENSURE_LENGTH(20);
       temp_offset = rtps_util_add_string(rtps_parameter_tree, tvb, temp_offset,
-                    hf_rtps_param_content_filter_name, encoding);
+                    hf_rtps_param_content_filter_topic_name, encoding);
       temp_offset = rtps_util_add_string(rtps_parameter_tree, tvb, temp_offset,
                     hf_rtps_param_related_topic_name, encoding);
       temp_offset = rtps_util_add_string(rtps_parameter_tree, tvb, temp_offset,
-                    hf_rtps_param_filter_name, encoding);
+                    hf_rtps_param_filter_class_name, encoding);
       temp_offset = rtps_util_add_string(rtps_parameter_tree, tvb, temp_offset,
                     hf_rtps_param_filter_expression, encoding);
       /*temp_offset = */rtps_util_add_seq_string(rtps_parameter_tree, tvb, temp_offset,
-                    encoding, param_length, hf_rtps_param_filter_parameters_num,
-                    hf_rtps_param_filter_parameters, "filterParameters");
+                    encoding, hf_rtps_param_expression_parameters_num,
+                    hf_rtps_param_expression_parameters, "expressionParameters");
       break;
       }
 
@@ -7914,26 +7923,20 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       proto_tree *guid_tree;
       guint32 kind;
       guint32 encapsulation_id, encapsulation_len;
-      /*int encapsulation_little_endian = 0;*/
       proto_item *ti;
       rtps_pm_tree = proto_tree_add_subtree(tree, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
                         ett_rtps_part_message_data, &ti, "ParticipantMessageData");
 
       /* Encapsulation ID */
-      proto_tree_add_item_ret_uint(rtps_pm_tree, hf_rtps_encapsulation_kind, tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_id);
+      proto_tree_add_item_ret_uint(rtps_pm_tree, hf_rtps_param_serialize_encap_kind, tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_id);
       offset += 2;
 
-#if 0 /* XXX: encapsulation_little_endian not actually used anywhere ?? */
-      /* Sets the correct values for encapsulation_le */
-      if (encapsulation_id == ENCAPSULATION_CDR_LE ||
-          encapsulation_id == ENCAPSULATION_PL_CDR_LE) {
-        encapsulation_little_endian = 1;
-      }
-#endif
+      encoding = (encapsulation_id == ENCAPSULATION_CDR_LE)
+        ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
       /* Encapsulation length (or option) */
-      proto_tree_add_item_ret_uint(rtps_pm_tree, hf_rtps_encapsulation_options, tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_len);
+      proto_tree_add_item_ret_uint(rtps_pm_tree, hf_rtps_param_serialize_encap_len, tvb, offset, 2, ENC_BIG_ENDIAN, &encapsulation_len);
       offset += 2;
 
       guid_tree = proto_item_add_subtree(ti, ett_rtps_part_message_data);
@@ -7947,7 +7950,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       offset += 4;
 
       rtps_util_add_seq_octets(rtps_pm_tree, pinfo, tvb, offset, encoding,
-                               octets_to_next_header - (offset - old_offset), hf_rtps_data_serialize_data);
+                               octets_to_next_header - (offset - old_offset) + 4, hf_rtps_data_serialize_data);
 
     } else if (wid == ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_WRITER) {
       /* PGM stands for Participant Generic Message */
@@ -9523,13 +9526,6 @@ static gboolean dissect_rtps_rtitcp(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   return dissect_rtps(tvb, pinfo, tree, offset);
 }
 
-static void
-rtps_init(void)
-{
-    if (enable_topic_info)
-      registry = wmem_map_new(wmem_file_scope(), hash_by_guid, compare_by_guid);
-}
-
 void proto_register_rtps(void) {
 
   static hf_register_info hf[] = {
@@ -10123,14 +10119,14 @@ void proto_register_rtps(void) {
 
 
     /* Parameter / Content Filter Name ------------------------------------- */
-    { &hf_rtps_param_content_filter_name, {
-        "contentFilterName",
-        "rtps.param.contentFilterName",
+    { &hf_rtps_param_content_filter_topic_name, {
+        "contentFilterTopicName",
+        "rtps.param.contentFilterTopicName",
         FT_STRINGZ,
         BASE_NONE,
         NULL,
         0,
-        "Value of the content filter name as sent in a PID_CONTENT_FILTER_PROPERTY parameter",
+        "Value of the content filter topic name as sent in a PID_CONTENT_FILTER_PROPERTY parameter",
         HFILL }
     },
     { &hf_rtps_param_related_topic_name, {
@@ -10143,14 +10139,14 @@ void proto_register_rtps(void) {
         "Value of the related topic name as sent in a PID_CONTENT_FILTER_PROPERTY parameter",
         HFILL }
     },
-    { &hf_rtps_param_filter_name, {
-        "filterName",
-        "rtps.param.filterName",
+    { &hf_rtps_param_filter_class_name, {
+        "filterClassName",
+        "rtps.param.filterClassName",
         FT_STRINGZ,
         BASE_NONE,
         NULL,
         0,
-        "Value of the filter name as sent in a PID_CONTENT_FILTER_PROPERTY parameter",
+        "Value of the filter class name as sent in a PID_CONTENT_FILTER_PROPERTY parameter",
         HFILL }
     },
 
@@ -10825,13 +10821,13 @@ void proto_register_rtps(void) {
     },
 
     { &hf_rtps_param_partition_num,
-      { "Size", "rtps.param.partition_num",
+      { "Number of partition names", "rtps.param.partition_num",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_param_filter_parameters_num,
-      { "Size", "rtps.param.filter_parameters_num",
+    { &hf_rtps_param_expression_parameters_num,
+      { "Number of expression params", "rtps.param.expression_parameters_num",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
@@ -10848,8 +10844,8 @@ void proto_register_rtps(void) {
         NULL, HFILL }
     },
 
-    { &hf_rtps_param_filter_parameters,
-      { "filterParameters", "rtps.param.filter_parameters",
+    { &hf_rtps_param_expression_parameters,
+      { "expressionParameters", "rtps.param.expression_parameters",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
@@ -11704,10 +11700,11 @@ void proto_register_rtps(void) {
               "Enable Topic Information feature",
               "Shows the Topic Name and Type Name of the samples.",
               &enable_topic_info);
-  register_init_routine(rtps_init);
 
   rtps_type_name_table = register_dissector_table("rtps.type_name", "RTPS Type Name",
           proto_rtps, FT_STRING, BASE_NONE);
+
+  registry = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), hash_by_guid, compare_by_guid);
 }
 
 

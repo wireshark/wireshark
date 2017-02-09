@@ -161,17 +161,17 @@ dissector_srt_init(const char *opt_arg, void* userdata)
 }
 
 /* Set GUI fields for register_srt list */
-void
-register_srt_tables(gpointer data, gpointer user_data _U_)
+gboolean
+register_srt_tables(const void *key _U_, void *value, void *userdata _U_)
 {
-	register_srt_t *srt = (register_srt_t*)data;
+	register_srt_t *srt = (register_srt_t*)value;
 	const char* short_name = proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt)));
 	stat_tap_ui ui_info;
 
 	/* XXX - CAMEL dissector hasn't been converted over due seemingly different tap packet
 	   handling functions.  So let the existing TShark CAMEL tap keep its registration */
 	if (strcmp(short_name, "CAMEL") == 0)
-		return;
+		return FALSE;
 
 	ui_info.group = REGISTER_STAT_GROUP_RESPONSE_TIME;
 	ui_info.title = NULL;   /* construct this from the protocol info? */
@@ -180,6 +180,7 @@ register_srt_tables(gpointer data, gpointer user_data _U_)
 	ui_info.nparams = 0;
 	ui_info.params = NULL;
 	register_stat_tap_ui(&ui_info, srt);
+	return FALSE;
 }
 
 /*

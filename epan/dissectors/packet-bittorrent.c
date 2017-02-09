@@ -518,7 +518,7 @@ dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             version = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + (int)strlen(peer_id[i].id),
                                      peer_id[i].ver_len, ENC_ASCII);
             proto_tree_add_string_format(tree, hf_bittorrent_version, tvb, offset, 20, version, "Client is %s v%s",
-                                peer_id[i].name, format_text((guchar*)version, peer_id[i].ver_len));
+                                peer_id[i].name, format_text(wmem_packet_scope(), (guchar*)version, peer_id[i].ver_len));
             break;
          }
       }

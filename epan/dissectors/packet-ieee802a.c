@@ -68,8 +68,8 @@ ieee802a_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
 	 * already exist.
 	 */
 	if (oui_info_table == NULL) {
-		oui_info_table = g_hash_table_new(g_direct_hash,
-		    g_direct_equal);
+		oui_info_table = g_hash_table_new_full(g_direct_hash,
+		    g_direct_equal, NULL, g_free);
 	}
 	g_hash_table_insert(oui_info_table, GUINT_TO_POINTER(oui), new_info);
 }
@@ -137,6 +137,12 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	return tvb_captured_length(tvb);
 }
 
+static void
+ieee802a_shutdown(void)
+{
+	g_hash_table_destroy(oui_info_table);
+}
+
 void
 proto_register_ieee802a(void)
 {
@@ -156,6 +162,7 @@ proto_register_ieee802a(void)
 	proto_ieee802a = proto_register_protocol("IEEE802a OUI Extended Ethertype", "IEEE802a", "ieee802a");
 	proto_register_field_array(proto_ieee802a, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_shutdown_routine(ieee802a_shutdown);
 }
 
 static void

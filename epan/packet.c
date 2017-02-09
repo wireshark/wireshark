@@ -403,6 +403,23 @@ get_data_source_tvb(const struct data_source *src)
 }
 
 /*
+ * Find and return the tvb associated with the given data source name
+ */
+tvbuff_t *
+get_data_source_tvb_by_name(packet_info *pinfo, const char *name)
+{
+	GSList *source;
+	for (source = pinfo->data_src; source; source = source->next) {
+		struct data_source *this_source = (struct data_source *)source;
+		if (this_source->name && strcmp(this_source->name, name) == 0) {
+			return this_source->tvb;
+		}
+	}
+	return NULL;
+}
+
+
+/*
  * Free up a frame's list of data sources.
  */
 void

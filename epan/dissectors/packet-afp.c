@@ -1146,7 +1146,7 @@ typedef struct {
 	guint16	seq;
 } afp_request_key;
 
-static GHashTable *afp_request_hash = NULL;
+static wmem_map_t *afp_request_hash = NULL;
 
 static guint Vol;      /* volume */
 static guint Did;      /* parent directory ID */
@@ -5124,7 +5124,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	request_key.conversation = conversation->conv_index;
 	request_key.seq = aspinfo->seq;
 
-	request_val = (afp_request_val *) g_hash_table_lookup(
+	request_val = (afp_request_val *) wmem_map_lookup(
 								afp_request_hash, &request_key);
 
 	if (!request_val && !aspinfo->reply) {
@@ -5144,7 +5144,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		request_val->frame_res = 0;
 		request_val->req_time=pinfo->abs_ts;
 
-		g_hash_table_insert(afp_request_hash, new_request_key,
+		wmem_map_insert(afp_request_hash, new_request_key,
 								request_val);
 	}
 
@@ -5524,16 +5524,6 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	}
 
 	return tvb_captured_length(tvb);
-}
-
-static void afp_init(void)
-{
-	afp_request_hash = g_hash_table_new(afp_hash, afp_equal);
-}
-
-static void afp_cleanup(void)
-{
-	g_hash_table_destroy(afp_request_hash);
 }
 
 void
@@ -7262,8 +7252,7 @@ proto_register_afp(void)
 	expert_afp = expert_register_protocol(proto_afp);
 	expert_register_field_array(expert_afp, ei, array_length(ei));
 
-	register_init_routine(afp_init);
-	register_cleanup_routine(afp_cleanup);
+	afp_request_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), afp_hash, afp_equal);
 
 	register_dissector("afp", dissect_afp, proto_afp);
 	register_dissector("afp_server_status", dissect_afp_server_status,

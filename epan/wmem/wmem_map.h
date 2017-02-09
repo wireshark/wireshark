@@ -70,6 +70,24 @@ wmem_map_new(wmem_allocator_t *allocator,
         GHashFunc hash_func, GEqualFunc eql_func)
 G_GNUC_MALLOC;
 
+/** Creates a map with two allocator scopes. The base structure lives in the
+ * master scope, however the data lives in the slave scope. Every time free_all
+ * occurs in the slave scope the map is transparently emptied without affecting
+ * the location of the master structure.
+ *
+ * WARNING: None of the map (even the part in the master scope) can be used
+ * after the slave scope has been *destroyed*.
+ *
+ * The primary use for this function is to create maps that reset for each new
+ * capture file that is loaded. This can be done by specifying wmem_epan_scope()
+ * as the master and wmem_file_scope() as the slave.
+ */
+WS_DLL_PUBLIC
+wmem_map_t *
+wmem_map_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave,
+        GHashFunc hash_func, GEqualFunc eql_func)
+G_GNUC_MALLOC;
+
 /** Inserts a value into the map.
  *
  * @param map The map to insert into.
@@ -101,6 +119,27 @@ wmem_map_lookup(wmem_map_t *map, const void *key);
 WS_DLL_PUBLIC
 void *
 wmem_map_remove(wmem_map_t *map, const void *key);
+
+/** Remove a key and value from the map but does not destroy (free) them. If no
+ * value is stored at that key, nothing happens.
+ *
+ * @param map The map to remove from.
+ * @param key The key of the value to remove.
+ * @return TRUE if key is found FALSE if not.
+ */
+WS_DLL_PUBLIC
+gboolean
+wmem_map_steal(wmem_map_t *map, const void *key);
+
+/** Retrieves a list of keys inside the map
+ *
+ * @param list_allocator The allocator scope for the returned list.
+ * @param map The map to extract keys from
+ * @return list of keys in the map
+ */
+WS_DLL_PUBLIC
+wmem_list_t*
+wmem_map_get_keys(wmem_allocator_t *list_allocator, wmem_map_t *map);
 
 /** Run a function against all key/value pairs in the map. The order
  * of the calls is unpredictable, since it is based on the internal

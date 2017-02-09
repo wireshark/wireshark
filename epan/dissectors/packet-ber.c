@@ -1414,15 +1414,6 @@ proto_tree_add_debug_text("dissect BER length %d, offset %d (remaining %d)\n", t
 
 static reassembly_table octet_segment_reassembly_table;
 
-static void ber_defragment_init(void) {
-    reassembly_table_init(&octet_segment_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void ber_defragment_cleanup(void) {
-    reassembly_table_destroy(&octet_segment_reassembly_table);
-}
-
 static int
 dissect_ber_constrained_octet_string_impl(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb, guint nest_level);
 
@@ -4579,8 +4570,9 @@ proto_register_ber(void)
 
     register_ber_syntax_dissector("ASN.1", proto_ber, dissect_ber_syntax);
 
-    register_init_routine(ber_defragment_init);
-    register_cleanup_routine(ber_defragment_cleanup);
+    reassembly_table_register(&octet_segment_reassembly_table,
+                          &addresses_reassembly_table_functions);
+
     register_shutdown_routine(ber_shutdown);
 
     register_decode_as(&ber_da);

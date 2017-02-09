@@ -97,7 +97,7 @@ typedef struct _fcfcs_conv_data {
     guint32 opcode;
 } fcfcs_conv_data_t;
 
-static GHashTable *fcfcs_req_hash = NULL;
+static wmem_map_t *fcfcs_req_hash = NULL;
 
 /*
  * Hash Functions
@@ -120,21 +120,6 @@ fcfcs_hash (gconstpointer v)
     val = key->conv_idx;
 
     return val;
-}
-
-/*
- * Protocol initialization
- */
-static void
-fcfcs_init_protocol(void)
-{
-    fcfcs_req_hash = g_hash_table_new(fcfcs_hash, fcfcs_equal);
-}
-
-static void
-fcfcs_cleanup_protocol(void)
-{
-    g_hash_table_destroy(fcfcs_req_hash);
 }
 
 /* Code to actually dissect the packets */
@@ -738,7 +723,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         ckey.conv_idx = conversation->conv_index;
 
-        cdata = (fcfcs_conv_data_t *)g_hash_table_lookup (fcfcs_req_hash,
+        cdata = (fcfcs_conv_data_t *)wmem_map_lookup (fcfcs_req_hash,
                                                             &ckey);
         if (cdata) {
             /* Since we never free the memory used by an exchange, this maybe a
@@ -754,7 +739,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             cdata = wmem_new(wmem_file_scope(), fcfcs_conv_data_t);
             cdata->opcode = opcode;
 
-            g_hash_table_insert (fcfcs_req_hash, req_key, cdata);
+            wmem_map_insert (fcfcs_req_hash, req_key, cdata);
         }
         col_add_str (pinfo->cinfo, COL_INFO,
                          val_to_str (opcode, fc_fcs_opcode_abbrev_val, "0x%x"));
@@ -778,7 +763,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         else {
             ckey.conv_idx = conversation->conv_index;
 
-            cdata = (fcfcs_conv_data_t *)g_hash_table_lookup (fcfcs_req_hash,
+            cdata = (fcfcs_conv_data_t *)wmem_map_lookup (fcfcs_req_hash,
                                                               &ckey);
 
             if (cdata != NULL) {
@@ -1042,8 +1027,7 @@ proto_register_fcfcs (void)
     expert_fcfcs = expert_register_protocol(proto_fcfcs);
     expert_register_field_array(expert_fcfcs, ei, array_length(ei));
 
-    register_init_routine (&fcfcs_init_protocol);
-    register_cleanup_routine (&fcfcs_cleanup_protocol);
+    fcfcs_req_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), fcfcs_hash, fcfcs_equal);
 }
 
 void

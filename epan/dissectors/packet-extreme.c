@@ -430,7 +430,7 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 	proto_tree_add_item_ret_string(display_tree, hf_edp_display_string, tvb, offset, length,
 		ENC_ASCII, wmem_packet_scope(), &display_name);
 	proto_item_append_text(display_item, ": \"%s\"",
-	        format_text(display_name, strlen(display_name)));
+	        format_text(wmem_packet_scope(), display_name, strlen(display_name)));
 }
 
 static int
@@ -609,7 +609,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_tree_add_item_ret_string(vlan_tree, hf_edp_vlan_name, tvb, offset, length,
 		ENC_ASCII, wmem_packet_scope(), &vlan_name);
 	proto_item_append_text(vlan_item, ", Name \"%s\"",
-	        format_text(vlan_name, strlen(vlan_name)));
+	        format_text(wmem_packet_scope(), vlan_name, strlen(vlan_name)));
 	offset += length;
 
 

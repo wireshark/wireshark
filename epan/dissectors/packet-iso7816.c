@@ -933,8 +933,7 @@ proto_register_iso7816(void)
 
     transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    proto_iso7816_atr = proto_register_protocol(
-            "ISO/IEC 7816-3", "ISO 7816-3", "iso7816.atr");
+    proto_iso7816_atr = proto_register_protocol_in_name_only("ISO/IEC 7816-3", "ISO 7816-3", "iso7816.atr", proto_iso7816, FT_PROTOCOL);
     iso7816_atr_handle = register_dissector("iso7816.atr", dissect_iso7816_atr, proto_iso7816_atr);
 }
 

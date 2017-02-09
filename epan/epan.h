@@ -131,7 +131,7 @@ void epan_circuit_cleanup(void);
 /** A client will create one epan_t for an entire dissection session.
  * A single epan_t will be used to analyze the entire sequence of packets,
  * sequentially, in a single session. A session corresponds to a single
- * packet trace file. The reaons epan_t exists is that some packets in
+ * packet trace file. The reasons epan_t exists is that some packets in
  * some protocols cannot be decoded without knowledge of previous packets.
  * This inter-packet "state" is stored in the epan_t.
  */
@@ -142,6 +142,8 @@ WS_DLL_PUBLIC epan_t *epan_new(void);
 WS_DLL_PUBLIC const char *epan_get_user_comment(const epan_t *session, const frame_data *fd);
 
 WS_DLL_PUBLIC const char *epan_get_interface_name(const epan_t *session, guint32 interface_id);
+
+WS_DLL_PUBLIC const char *epan_get_interface_description(const epan_t *session, guint32 interface_id);
 
 const nstime_t *epan_get_frame_ts(const epan_t *session, guint32 frame_num);
 

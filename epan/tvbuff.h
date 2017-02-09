@@ -536,7 +536,8 @@ WS_DLL_PUBLIC gint tvb_strnlen(tvbuff_t *tvb, const gint offset,
     const guint maxlength);
 
 /**
- * Format the data in the tvb from offset for size ...
+ * Format the data in the tvb from offset for size.  Returned string is
+ * wmem packet_scoped so call must be in that scope.
  */
 WS_DLL_PUBLIC gchar *tvb_format_text(tvbuff_t *tvb, const gint offset,
     const gint size);
@@ -545,12 +546,13 @@ WS_DLL_PUBLIC gchar *tvb_format_text(tvbuff_t *tvb, const gint offset,
  * Like "tvb_format_text()", but for 'wsp'; don't show
  * the characters as C-style escapes.
  */
-WS_DLL_PUBLIC gchar *tvb_format_text_wsp(tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC gchar *tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint offset,
     const gint size);
 
 /**
  * Like "tvb_format_text()", but for null-padded strings; don't show
- * the null padding characters as "\000".
+ * the null padding characters as "\000".  Returned string is wmem packet_scoped
+ * so call must be in that scope.
  */
 extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, const gint offset,
     const gint size);
@@ -559,7 +561,7 @@ extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, const gint offset,
  * Like "tvb_format_text_wsp()", but for null-padded strings; don't show
  * the null padding characters as "\000".
  */
-extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset,
+extern gchar *tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint offset,
     const gint size);
 
 /**

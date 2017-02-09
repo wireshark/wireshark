@@ -562,6 +562,7 @@ wlanstat_draw(void *phs)
     GtkTreeSelection *sel;
     GtkTreeModel     *model;
     GtkTreeIter       iter;
+    gchar            *ssid_temp;
 
     store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->table));
     hs->num_entries = 0;
@@ -593,7 +594,9 @@ wlanstat_draw(void *phs)
         } else if (tmp->stats.ssid_len == 1 && tmp->stats.ssid[0] == 0) {
             g_strlcpy (ssid, "<Hidden>", sizeof(ssid));
         } else {
-            g_strlcpy (ssid, format_text(tmp->stats.ssid, tmp->stats.ssid_len), sizeof(ssid));
+            ssid_temp = format_text(NULL, tmp->stats.ssid, tmp->stats.ssid_len);
+            g_strlcpy (ssid, ssid_temp, sizeof(ssid));
+            wmem_free(NULL, ssid_temp);
         }
         g_snprintf (percent, sizeof(percent), "%.2f %%", f);
 
@@ -773,6 +776,7 @@ wlan_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callb
     GtkTreeModel     *model;
     GtkTreeIter       iter;
     char             *addr_str;
+    gchar            *ssid_temp;
 
     sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(hs->table));
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
@@ -787,15 +791,21 @@ wlan_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callb
         str = g_strdup_printf("wlan.bssid==%s", addr_str);
         break;
     case VALUE_SSID_ONLY:
-        str = g_strdup_printf("wlan.ssid==\"%s\"", format_text(ep->stats.ssid, ep->stats.ssid_len));
+        ssid_temp = format_text(NULL, ep->stats.ssid, ep->stats.ssid_len);
+        str = g_strdup_printf("wlan.ssid==\"%s\"", ssid_temp);
+        wmem_free(NULL, ssid_temp);
         break;
     case VALUE_BSSID_AND_SSID:
+        ssid_temp = format_text(NULL, ep->stats.ssid, ep->stats.ssid_len);
         str = g_strdup_printf("wlan.bssid==%s && wlan.ssid==\"%s\"",
-                      addr_str, format_text(ep->stats.ssid, ep->stats.ssid_len));
+                      addr_str, ssid_temp);
+        wmem_free(NULL, ssid_temp);
         break;
     case VALUE_BSSID_OR_SSID:
+        ssid_temp = format_text(NULL, ep->stats.ssid, ep->stats.ssid_len);
         str = g_strdup_printf("wlan.bssid==%s || wlan.ssid==\"%s\"",
-                      addr_str, format_text(ep->stats.ssid, ep->stats.ssid_len));
+                      addr_str, ssid_temp);
+        wmem_free(NULL, ssid_temp);
         break;
     default:
         g_assert_not_reached();

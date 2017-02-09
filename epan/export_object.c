@@ -35,16 +35,7 @@ struct register_eo {
     export_object_gui_reset_cb reset_cb; /* function to parse parameters of optional arguments of tap string */
 };
 
-static GSList *registered_eo_tables = NULL;
-
-static gint
-insert_sorted_by_table_name(gconstpointer aparam, gconstpointer bparam)
-{
-    const register_eo_t *a = (const register_eo_t *)aparam;
-    const register_eo_t *b = (const register_eo_t *)bparam;
-
-    return g_ascii_strcasecmp(proto_get_protocol_filter_name(a->proto_id), proto_get_protocol_filter_name(b->proto_id));
-}
+static wmem_tree_t *registered_eo_tables = NULL;
 
 int
 register_export_object(const int proto_id, tap_packet_cb export_packet_func, export_object_gui_reset_cb reset_cb)
@@ -52,14 +43,17 @@ register_export_object(const int proto_id, tap_packet_cb export_packet_func, exp
     register_eo_t *table;
     DISSECTOR_ASSERT(export_packet_func);
 
-    table = g_new(register_eo_t,1);
+    table = wmem_new(wmem_epan_scope(), register_eo_t);
 
     table->proto_id      = proto_id;
-    table->tap_listen_str = g_strdup_printf("%s_eo", proto_get_protocol_filter_name(proto_id));
+    table->tap_listen_str = wmem_strdup_printf(wmem_epan_scope(), "%s_eo", proto_get_protocol_filter_name(proto_id));
     table->eo_func = export_packet_func;
     table->reset_cb = reset_cb;
 
-    registered_eo_tables = g_slist_insert_sorted(registered_eo_tables, table, insert_sorted_by_table_name);
+    if (registered_eo_tables == NULL)
+        registered_eo_tables = wmem_tree_new(wmem_epan_scope());
+
+    wmem_tree_insert_string(registered_eo_tables, proto_get_protocol_filter_name(proto_id), table, 0);
     return register_tap(table->tap_listen_str);
 }
 
@@ -86,31 +80,14 @@ export_object_gui_reset_cb get_eo_reset_func(register_eo_t* eo)
     return eo->reset_cb;
 }
 
-static gint
-find_matching_eo(gconstpointer arg1, gconstpointer arg2)
-{
-    register_eo_t *eo = (register_eo_t*)arg1;
-    const gchar   *name   = (const gchar *)arg2;
-
-    return strcmp(proto_get_protocol_filter_name(eo->proto_id), name);
-}
-
 register_eo_t* get_eo_by_name(const char* name)
 {
-    GSList *found_eo;
-
-    found_eo = g_slist_find_custom(registered_eo_tables,
-                    (gpointer)name, find_matching_eo);
-
-    if (found_eo)
-        return (register_eo_t*)found_eo->data;
-
-    return NULL;
+    return (register_eo_t*)wmem_tree_lookup_string(registered_eo_tables, name, 0);
 }
 
-void eo_iterate_tables(GFunc func, gpointer user_data)
+void eo_iterate_tables(wmem_foreach_func func, gpointer user_data)
 {
-    g_slist_foreach(registered_eo_tables, func, user_data);
+    wmem_tree_foreach(registered_eo_tables, func, user_data);
 }
 
 static GString *eo_rename(GString *gstr, int dupn)
@@ -196,20 +173,6 @@ void eo_free_entry(export_object_entry_t *entry)
     g_free(entry->payload_data);
 
     g_free(entry);
-}
-
-static void
-free_eo_table(gpointer p, gpointer user_data _U_)
-{
-    register_eo_t *table = (register_eo_t*)p;
-    g_free((gpointer)table->tap_listen_str);
-    g_free(table);
-}
-
-void export_object_cleanup(void)
-{
-    g_slist_foreach(registered_eo_tables, free_eo_table, NULL);
-    g_slist_free(registered_eo_tables);
 }
 
 /*

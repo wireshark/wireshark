@@ -3183,17 +3183,6 @@ dissect_q931_ie_cs7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     return tvb_captured_length(tvb);
 }
 
-static void
-q931_init(void) {
-    reassembly_table_init(&q931_reassembly_table,
-                &addresses_reassembly_table_functions);
-}
-
-static void
-q931_cleanup(void) {
-    reassembly_table_destroy(&q931_reassembly_table);
-}
-
 void
 proto_register_q931(void)
 {
@@ -3958,8 +3947,9 @@ proto_register_q931(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_q931 = expert_register_protocol(proto_q931);
     expert_register_field_array(expert_q931, ei, array_length(ei));
-    register_init_routine(q931_init);
-    register_cleanup_routine(q931_cleanup);
+
+    reassembly_table_register(&q931_reassembly_table,
+                &addresses_reassembly_table_functions);
 
     q931_handle = register_dissector("q931", dissect_q931, proto_q931);
     q931_tpkt_handle = register_dissector("q931.tpkt", dissect_q931_tpkt, proto_q931);

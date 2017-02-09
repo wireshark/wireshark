@@ -32,6 +32,7 @@ extern "C" {
 #include <epan/epan.h>
 #include <epan/packet.h>
 #include <epan/ipv6.h>
+#include <epan/wmem/wmem.h>
 #include "ws_symbol_export.h"
 
 typedef enum {
@@ -188,7 +189,7 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
  * @param func action to be performed on all converation tables
  * @param user_data any data needed to help perform function
  */
-WS_DLL_PUBLIC void follow_iterate_followers(GFunc func, gpointer user_data);
+WS_DLL_PUBLIC void follow_iterate_followers(wmem_foreach_func func, gpointer user_data);
 
 /** Generate -z stat (tap) name for a follower
  * Currently used only by TShark
@@ -210,10 +211,6 @@ WS_DLL_PUBLIC void follow_reset_stream(follow_info_t* info);
  * @param follow_info [in] follower info
  */
 WS_DLL_PUBLIC void follow_info_free(follow_info_t* follow_info);
-
-/** Free the internal structures
- */
-extern void follow_cleanup(void);
 
 #ifdef __cplusplus
 }

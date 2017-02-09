@@ -73,10 +73,10 @@ static dissector_handle_t gsm_a_dtap_handle = NULL;
 static dissector_handle_t gsm_rlcmac_dl_handle = NULL;
 static dissector_handle_t lte_rrc_dl_ccch_handle;
 
-static GHashTable *lte_rrc_etws_cmas_dcs_hash = NULL;
+static wmem_map_t *lte_rrc_etws_cmas_dcs_hash = NULL;
 
 /* Keep track of where/how the System Info value has changed */
-static GHashTable *lte_rrc_system_info_value_changed_hash = NULL;
+static wmem_map_t *lte_rrc_system_info_value_changed_hash = NULL;
 static guint8     system_info_value_current;
 static gboolean   system_info_value_current_set;
 
@@ -26087,7 +26087,7 @@ dissect_lte_rrc_T_systemInfoValueTag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   if (!actx->pinfo->fd->flags.visited) {
     if (system_info_value_current_set && (value != system_info_value_current)) {
       /* Add entry to the hash table.  Offset by one to distinguish 0 from lookup failure */
-      g_hash_table_insert(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->num),
+      wmem_map_insert(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->num),
                           GUINT_TO_POINTER(system_info_value_current+1));
     }
     system_info_value_current_set = TRUE;
@@ -26095,7 +26095,7 @@ dissect_lte_rrc_T_systemInfoValueTag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   }
   else {
     /* Look up indication of changed info value from hash table */
-    gpointer p_previous = g_hash_table_lookup(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->num));
+    gpointer p_previous = wmem_map_lookup(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->num));
     if (p_previous != NULL) {
       /* Subtract one from stored result to get previous value */
       guint32 previous = GPOINTER_TO_UINT(p_previous) - 1;
@@ -38409,7 +38409,7 @@ dissect_lte_rrc_T_warningMessageSegment(tvbuff_t *tvb _U_, int offset _U_, asn1_
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
     frag_tvb = process_reassembled_data(warning_msg_seg_tvb, 0, actx->pinfo, "Reassembled SIB11 warning message",
                                         frag_data, &lte_rrc_sib11_frag_items, NULL, subtree);
-    p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)));
+    p_dcs = wmem_map_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)));
     if (frag_tvb && p_dcs) {
       dissect_lte_rrc_warningMessageSegment(frag_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
     }
@@ -38433,7 +38433,7 @@ dissect_lte_rrc_T_dataCodingScheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
     guint32 dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
     dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
-    g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)),
+    wmem_map_insert(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)),
                         GUINT_TO_POINTER(dataCodingScheme));
   }
 
@@ -38560,7 +38560,7 @@ dissect_lte_rrc_T_warningMessageSegment_r9(tvbuff_t *tvb _U_, int offset _U_, as
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
     frag_tvb = process_reassembled_data(warning_msg_seg_tvb, 0, actx->pinfo, "Reassembled SIB12 warning message",
                                         frag_data, &lte_rrc_sib12_frag_items, NULL, subtree);
-    p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)));
+    p_dcs = wmem_map_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)));
     if (frag_tvb && p_dcs) {
       dissect_lte_rrc_warningMessageSegment(frag_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
     }
@@ -38584,7 +38584,7 @@ dissect_lte_rrc_T_dataCodingScheme_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
     guint32 dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
     dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
-    g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)),
+    wmem_map_insert(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)),
                         GUINT_TO_POINTER(dataCodingScheme));
   }
 
@@ -69891,26 +69891,6 @@ dissect_lte_rrc_PCCH_NB(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return tvb_captured_length(tvb);
 }
 
-static void
-lte_rrc_init_protocol(void)
-{
-  lte_rrc_etws_cmas_dcs_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-  lte_rrc_system_info_value_changed_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
-  reassembly_table_init(&lte_rrc_sib11_reassembly_table,
-                        &addresses_reassembly_table_functions);
-  reassembly_table_init(&lte_rrc_sib12_reassembly_table,
-                        &addresses_reassembly_table_functions);
-}
-
-static void
-lte_rrc_cleanup_protocol(void)
-{
-  g_hash_table_destroy(lte_rrc_etws_cmas_dcs_hash);
-  g_hash_table_destroy(lte_rrc_system_info_value_changed_hash);
-  reassembly_table_destroy(&lte_rrc_sib11_reassembly_table);
-  reassembly_table_destroy(&lte_rrc_sib12_reassembly_table);
-}
-
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_lte_rrc(void) {
 
@@ -87890,7 +87870,7 @@ void proto_register_lte_rrc(void) {
         "T_n311_r13_01", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 3216 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3196 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -90782,7 +90762,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_UE_TimersAndConstants_NB_r13,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 3943 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3923 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -90882,10 +90862,16 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 4017 "./asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3997 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
-  register_init_routine(&lte_rrc_init_protocol);
-  register_cleanup_routine(&lte_rrc_cleanup_protocol);
+  lte_rrc_etws_cmas_dcs_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+  lte_rrc_system_info_value_changed_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+
+  reassembly_table_register(&lte_rrc_sib11_reassembly_table,
+                        &addresses_reassembly_table_functions);
+  reassembly_table_register(&lte_rrc_sib12_reassembly_table,
+                        &addresses_reassembly_table_functions);
+
 }
 
 

@@ -1387,7 +1387,7 @@ tele_param_cb_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len
         proto_tree_add_string_format(tree, hf_ansi_637_tele_cb_num_number, tvb, offset, num_fields,
             (gchar *) poctets,
             "Number: %s",
-            (gchar *) format_text(poctets, num_fields));
+            (gchar *) format_text(wmem_packet_scope(), poctets, num_fields));
     }
     else
     {

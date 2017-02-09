@@ -894,11 +894,10 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (is_request_or_reply) {
         if ( rtsp_type_packet == RTSP_REPLY ) {
             frame_label = wmem_strdup_printf(wmem_packet_scope(),
-                  "Reply: %s", format_text(line, first_linelen));
+                  "Reply: %s", format_text(wmem_packet_scope(), line, first_linelen));
         }
         else {
-            frame_label = wmem_strdup(wmem_packet_scope(),
-                  format_text(line, first_linelen));
+            frame_label = format_text(wmem_packet_scope(), line, first_linelen);
         }
     }
 
@@ -917,11 +916,11 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
         if ( rtsp_type_packet == RTSP_REPLY ) {
             col_set_str(pinfo->cinfo, COL_INFO, "Reply: ");
             col_append_str(pinfo->cinfo, COL_INFO,
-                format_text(line, first_linelen));
+                format_text(wmem_packet_scope(), line, first_linelen));
         }
         else {
             col_add_str(pinfo->cinfo, COL_INFO,
-                format_text(line, first_linelen));
+                format_text(wmem_packet_scope(), line, first_linelen));
         }
 
     else

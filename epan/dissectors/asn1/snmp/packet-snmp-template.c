@@ -69,12 +69,6 @@
 
 #include <wsutil/wsgcrypt.h>
 
-/* Take a pointer that may be null and return a pointer that's not null
-   by turning null pointers into pointers to the above null string,
-   and, if the argument pointer wasn't null, make sure we handle
-   non-printable characters in the string by escaping them. */
-#define	SAFE_STRING(s, l)	(((s) != NULL) ? format_text((s), (l)) : "")
-
 #define PNAME  "Simple Network Management Protocol"
 #define PSNAME "SNMP"
 #define PFNAME "snmp"

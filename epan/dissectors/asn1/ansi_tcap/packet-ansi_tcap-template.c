@@ -146,20 +146,7 @@ struct ansi_tcap_invokedata_t {
     gint32 OperationCode_national;
 };
 
-static GHashTable *TransactionId_table=NULL;
-
-static void
-ansi_tcap_init(void)
-{
-        TransactionId_table = g_hash_table_new(g_str_hash, g_str_equal);
-}
-
-static void
-ansi_tcap_cleanup(void)
-{
-        /* Destroy any existing memory chunks / hashes. */
-        g_hash_table_destroy(TransactionId_table);
-}
+static wmem_map_t *TransactionId_table=NULL;
 
 /* Store Invoke information needed for the corresponding reply */
 static void
@@ -189,7 +176,7 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
                 }
 
           /* If the entry allready exists don't owervrite it */
-          ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)g_hash_table_lookup(TransactionId_table,buf);
+          ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)wmem_map_lookup(TransactionId_table,buf);
           if(ansi_tcap_saved_invokedata)
                   return;
 
@@ -198,7 +185,7 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
           ansi_tcap_saved_invokedata->OperationCode_national = ansi_tcap_private.d.OperationCode_national;
           ansi_tcap_saved_invokedata->OperationCode_private = ansi_tcap_private.d.OperationCode_private;
 
-          g_hash_table_insert(TransactionId_table,
+          wmem_map_insert(TransactionId_table,
                         wmem_strdup(wmem_file_scope(), buf),
                         ansi_tcap_saved_invokedata);
           /*
@@ -237,7 +224,7 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
                 break;
   }
 
-  ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)g_hash_table_lookup(TransactionId_table, buf);
+  ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)wmem_map_lookup(TransactionId_table, buf);
   if(ansi_tcap_saved_invokedata){
           ansi_tcap_private.d.OperationCode                      = ansi_tcap_saved_invokedata->OperationCode;
           ansi_tcap_private.d.OperationCode_national = ansi_tcap_saved_invokedata->OperationCode_national;
@@ -508,6 +495,5 @@ proto_register_ansi_tcap(void)
                                    "Type of matching invoke/response, risk of mismatch if loose matching chosen",
                                    &ansi_tcap_response_matching_type, ansi_tcap_response_matching_type_values, FALSE);
 
-    register_init_routine(&ansi_tcap_init);
-    register_cleanup_routine(&ansi_tcap_cleanup);
+    TransactionId_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
 }

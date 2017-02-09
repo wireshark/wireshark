@@ -259,14 +259,14 @@ static void useSndTimeout(socket_handle_t  sock) {
 #ifdef _WIN32
     const DWORD socket_timeout = SOCKET_SEND_TIMEOUT_MS;
 
-    res = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char *) &socket_timeout, sizeof(socket_timeout));
+    res = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char *) &socket_timeout, (socklen_t)sizeof(socket_timeout));
 #else
     const struct timeval socket_timeout = {
         .tv_sec = SOCKET_SEND_TIMEOUT_MS / 1000,
         .tv_usec = (SOCKET_SEND_TIMEOUT_MS % 1000) * 1000
     };
 
-    res = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &socket_timeout, sizeof(socket_timeout));
+    res = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &socket_timeout, (socklen_t)sizeof(socket_timeout));
 #endif
     if (res != 0)
         g_debug("Can't set socket timeout, using default");
@@ -412,7 +412,7 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
 
     useSndTimeout(sock);
 
-    if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
+    if (connect(sock, (struct sockaddr *) &server, (socklen_t)sizeof(server)) == SOCKET_ERROR) {
 #if 0
 /* NOTE: This does not work well - make significant delay while initializing Wireshark.
          Do fork() then call "adb" also does not make sense, because there is need to
@@ -431,7 +431,7 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
             return INVALID_SOCKET;
         };
 
-        if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
+        if (connect(sock, (struct sockaddr *) &server, (socklen_t)sizeof(server)) == SOCKET_ERROR) {
             g_warning("Cannot connect to ADB: <%s> Please check that adb daemon is running.", strerror(errno));
             closesocket(sock);
             return INVALID_SOCKET;

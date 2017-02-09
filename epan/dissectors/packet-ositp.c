@@ -2208,23 +2208,7 @@ static gint dissect_ositp_inactive(tvbuff_t *tvb, packet_info *pinfo,
 static void
 cotp_reassemble_init(void)
 {
-  /*
-   * XXX - this is a connection-oriented transport-layer protocol,
-   * so we should probably use more than just network-layer
-   * endpoint addresses to match segments together, but the functions
-   * in addresses_ports_reassembly_table_functions do matching based
-   * on port numbers, so they won't let us ensure that segments from
-   * different connections don't get assembled together.
-   */
-  reassembly_table_init(&cotp_reassembly_table,
-                        &addresses_reassembly_table_functions);
   cotp_dst_ref = 0;
-}
-
-static void
-cotp_reassemble_cleanup(void)
-{
-  reassembly_table_destroy(&cotp_reassembly_table);
 }
 
 void proto_register_cotp(void)
@@ -2433,7 +2417,16 @@ void proto_register_cotp(void)
   register_dissector("ositp_inactive", dissect_ositp_inactive, proto_cotp);
 
   register_init_routine(cotp_reassemble_init);
-  register_cleanup_routine(cotp_reassemble_cleanup);
+  /*
+   * XXX - this is a connection-oriented transport-layer protocol,
+   * so we should probably use more than just network-layer
+   * endpoint addresses to match segments together, but the functions
+   * in addresses_ports_reassembly_table_functions do matching based
+   * on port numbers, so they won't let us ensure that segments from
+   * different connections don't get assembled together.
+   */
+  reassembly_table_register(&cotp_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 void proto_register_cltp(void)

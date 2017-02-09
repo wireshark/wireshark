@@ -782,6 +782,7 @@ void MainWindow::captureFileClosing() {
     // Reset expert information indicator
     main_ui_->statusBar->captureFileClosing();
     main_ui_->searchFrame->animatedHide();
+    main_ui_->goToFrame->animatedHide();
 //    gtk_widget_show(expert_info_none);
     emit setCaptureFile(NULL);
     emit setDissectedCaptureFile(NULL);

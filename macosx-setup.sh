@@ -69,10 +69,11 @@ PKG_CONFIG_VERSION=0.28
 #
 # One or more of the following libraries are required to build Wireshark.
 #
-# To override the versions of Qt and GTK call the script with some of the
-# variables set to the new values. Setting a variable to empty will disable
-# building the toolkit and will un-install any version previously installed
-# by the script, e.g. "GTK_VERSION=3.5.2 QT_VERSION= ./macos-setup.sh"
+# To override the version of Qt or build the deprecated GTK interface call
+# the script with some of the variables set to the new values. Setting a
+# variable to empty will disable building the toolkit and will uninstall
+# any version previously installed by the script, e.g.
+# "GTK_VERSION=3.5.2 QT_VERSION= ./macos-setup.sh"
 # will build and install with GTK+ 3.5.2 and will not install Qt (and,
 # if the script installed Qt earlier, will un-install that version of Qt).
 #
@@ -82,7 +83,7 @@ PKG_CONFIG_VERSION=0.28
 # and QTBUG-43464, all of which seem to be the same bug.
 #
 QT_VERSION=${QT_VERSION-5.5.0}
-GTK_VERSION=${GTK_VERSION-2.24.17}
+#GTK_VERSION=${GTK_VERSION-2.24.17}
 if [ "$GTK_VERSION" ]; then
     #
     # We'll be building GTK+, so we need some additional libraries.

@@ -557,19 +557,6 @@ ip_build_filter(packet_info *pinfo)
  */
 static reassembly_table ip_reassembly_table;
 
-static void
-ip_defragment_init(void)
-{
-  reassembly_table_init(&ip_reassembly_table,
-                        &addresses_reassembly_table_functions);
-}
-
-static void
-ip_defragment_cleanup(void)
-{
-  reassembly_table_destroy(&ip_reassembly_table);
-}
-
 static gboolean
 capture_ip(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_) {
   if (!BYTES_ARE_IN_FRAME(offset, len, IPH_MIN_LEN))
@@ -3122,8 +3109,8 @@ proto_register_ip(void)
     &try_heuristic_first);
 
   ip_handle = register_dissector("ip", dissect_ip, proto_ip);
-  register_init_routine(ip_defragment_init);
-  register_cleanup_routine(ip_defragment_cleanup);
+  reassembly_table_register(&ip_reassembly_table,
+                        &addresses_reassembly_table_functions);
   ip_tap = register_tap("ip");
 
   register_decode_as(&ip_da);

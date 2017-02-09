@@ -5902,8 +5902,6 @@ def produce_code():
 
 /* Function declarations for functions used in proto_register_ncp2222() */
 void proto_register_ncp2222(void);
-static void ncp_init_protocol(void);
-static void ncp_postseq_cleanup(void);
 
 /* Endianness macros */
 #define NO_ENDIANNESS   0
@@ -8527,7 +8525,14 @@ proto_register_ncp2222(void)
     expert_ncp = expert_register_protocol(proto_ncp);
     expert_register_field_array(expert_ncp, ei, array_length(ei));
     register_init_routine(&ncp_init_protocol);
-    register_postseq_cleanup_routine(&ncp_postseq_cleanup);""")
+    /* fragment */
+    reassembly_table_register(&nds_reassembly_table,
+                          &addresses_reassembly_table_functions);
+
+    ncp_req_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), ncp_hash, ncp_equal);
+    ncp_req_eid_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), ncp_eid_hash, ncp_eid_equal);
+
+    """)
 
     # End of proto_register_ncp2222()
     print("}")

@@ -124,6 +124,10 @@
 #include <QTextCodec>
 #endif
 
+#define INIT_FAILED 2
+#define INVALID_CAPABILITY 2
+#define INVALID_LINK_TYPE 2
+
 //#define DEBUG_STARTUP_TIME 1
 /*
 # Log level
@@ -331,7 +335,7 @@ int main(int argc, char *qt_argv[])
 #ifdef _WIN32
     int                  opt;
 #endif
-    int                  ret_val;
+    int                  ret_val = EXIT_SUCCESS;
     char               **argv = qt_argv;
 
 #ifdef _WIN32
@@ -343,7 +347,6 @@ int main(int argc, char *qt_argv[])
     char                *gdp_path, *dp_path;
 #ifdef HAVE_LIBPCAP
     gchar               *err_str;
-    int                  status;
 #else
 #ifdef _WIN32
 #ifdef HAVE_AIRPCAP
@@ -351,6 +354,7 @@ int main(int argc, char *qt_argv[])
 #endif
 #endif
 #endif
+    gchar               *err_msg = NULL;
     GString             *comp_info_str = NULL;
     GString             *runtime_info_str = NULL;
 
@@ -593,7 +597,8 @@ int main(int argc, char *qt_argv[])
     if (!epan_init(register_all_protocols,register_all_protocol_handoffs,
                    splash_update, NULL)) {
         SimpleDialog::displayQueuedMessages(main_w);
-        return 2;
+        ret_val = INIT_FAILED;
+        goto clean_exit;
     }
 #ifdef DEBUG_STARTUP_TIME
     /* epan_init resets the preferences */
@@ -680,10 +685,10 @@ int main(int argc, char *qt_argv[])
         /* We're supposed to do a live capture or get a list of link-layer
            types for a live capture device; if the user didn't specify an
            interface to use, pick a default. */
-        status = capture_opts_default_iface_if_necessary(&global_capture_opts,
+        ret_val = capture_opts_default_iface_if_necessary(&global_capture_opts,
         ((global_commandline_info.prefs_p->capture_device) && (*global_commandline_info.prefs_p->capture_device != '\0')) ? get_if_name(global_commandline_info.prefs_p->capture_device) : NULL);
-        if (status != 0) {
-            exit(status);
+        if (ret_val != 0) {
+            goto clean_exit;
         }
     }
 
@@ -704,11 +709,13 @@ int main(int argc, char *qt_argv[])
                 if (caps == NULL) {
                     cmdarg_err("%s", err_str);
                     g_free(err_str);
-                    exit(2);
+                    ret_val = INVALID_CAPABILITY;
+                    goto clean_exit;
                 }
             if (caps->data_link_types == NULL) {
                 cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
-                exit(2);
+                ret_val = INVALID_LINK_TYPE;
+                goto clean_exit;
             }
 #ifdef _WIN32
             create_console();
@@ -724,7 +731,8 @@ int main(int argc, char *qt_argv[])
             free_if_capabilities(caps);
             }
         }
-        exit(0);
+        ret_val = EXIT_SUCCESS;
+        goto clean_exit;
     }
 
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
@@ -817,7 +825,6 @@ int main(int argc, char *qt_argv[])
 
 
 ////////
-    gchar* err_msg = NULL;
     if (!color_filters_init(&err_msg, color_filter_add_cb)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
@@ -935,6 +942,10 @@ int main(int argc, char *qt_argv[])
     destroy_console();
 #endif /* _WIN32 */
 
+clean_exit:
+#ifdef HAVE_LIBPCAP
+    capture_opts_cleanup(&global_capture_opts);
+#endif
     return ret_val;
 }
 

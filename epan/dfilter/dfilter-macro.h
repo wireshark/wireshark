@@ -54,6 +54,8 @@ void dfilter_macro_get_uat(struct epan_uat **dfmu_ptr_ptr);
 WS_DLL_PUBLIC
 void dfilter_macro_build_ftv_cache(void* tree_root);
 
+void dfilter_macro_cleanup(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

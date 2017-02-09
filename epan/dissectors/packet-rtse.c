@@ -118,7 +118,6 @@ static expert_field ei_rtse_abstract_syntax = EI_INIT;
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
 static dissector_handle_t rtse_handle = NULL;
-static GHashTable *oid_table=NULL;
 static gint ett_rtse_unknown = -1;
 
 static reassembly_table rtse_reassembly_table;
@@ -170,9 +169,6 @@ register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector
 
   if (ros_handle == NULL)
     ros_handle = find_dissector("ros");
-
-  /* save the name - but not used */
-  g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
 
   /* register RTSE with the BER (ACSE) */
   register_ber_oid_dissector_handle(oid, rtse_handle, proto, name);
@@ -736,7 +732,7 @@ dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-rtse-fn.c ---*/
-#line 192 "./asn1/rtse/packet-rtse-template.c"
+#line 188 "./asn1/rtse/packet-rtse-template.c"
 
 /*
 * Dissect RTSE PDUs inside a PPDU.
@@ -852,17 +848,6 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
     top_tree = NULL;
     return tvb_captured_length(tvb);
-}
-
-static void rtse_reassemble_init (void)
-{
-    reassembly_table_init (&rtse_reassembly_table,
-                   &addresses_reassembly_table_functions);
-}
-
-static void rtse_reassemble_cleanup(void)
-{
-    reassembly_table_destroy(&rtse_reassembly_table);
 }
 
 /*--- proto_register_rtse -------------------------------------------*/
@@ -1009,7 +994,7 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 364 "./asn1/rtse/packet-rtse-template.c"
+#line 349 "./asn1/rtse/packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1031,7 +1016,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 373 "./asn1/rtse/packet-rtse-template.c"
+#line 358 "./asn1/rtse/packet-rtse-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -1051,8 +1036,10 @@ void proto_register_rtse(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_rtse = expert_register_protocol(proto_rtse);
   expert_register_field_array(expert_rtse, ei, array_length(ei));
-  register_init_routine (&rtse_reassemble_init);
-  register_cleanup_routine (&rtse_reassemble_cleanup);
+
+  reassembly_table_register (&rtse_reassembly_table,
+                   &addresses_reassembly_table_functions);
+
   rtse_module = prefs_register_protocol_subtree("OSI", proto_rtse, NULL);
 
   prefs_register_bool_preference(rtse_module, "reassemble",
@@ -1063,9 +1050,6 @@ void proto_register_rtse(void) {
                  " in the TCP protocol settings.", &rtse_reassemble);
 
   rtse_oid_dissector_table = register_dissector_table("rtse.oid", "RTSE OID Dissectors", proto_rtse, FT_STRING, BASE_NONE);
-  oid_table=g_hash_table_new(g_str_hash, g_str_equal);
-
-
 }
 
 

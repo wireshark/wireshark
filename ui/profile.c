@@ -33,6 +33,7 @@
 #include "profile.h"
 
 #include "ui/simple_dialog.h"
+#include "ui/recent.h"
 
 #include <wsutil/file_util.h>
 
@@ -109,7 +110,8 @@ get_profile_parent (const gchar *profilename)
     return profilename;
 }
 
-const gchar *apply_profile_changes(void) {
+const gchar *apply_profile_changes(void)
+{
     char        *pf_dir_path, *pf_dir_path2, *pf_filename;
     GList       *fl1, *fl2;
     profile_def *profile1, *profile2;
@@ -122,10 +124,15 @@ const gchar *apply_profile_changes(void) {
         profile1 = (profile_def *) fl1->data;
         g_strstrip(profile1->name);
         if ((err_msg = profile_name_is_valid(profile1->name)) != NULL) {
-            return err_msg;
+            gchar *message = g_strdup_printf("%s\nProfiles unchanged.", err_msg);
+            g_free((gchar *)err_msg);
+            return message;
         }
         fl1 = g_list_next(fl1);
     }
+
+    /* Write recent file for current profile before copying or renaming */
+    write_profile_recent();
 
     /* Then do all copy profiles */
     fl1 = edited_profile_list();
@@ -381,7 +388,7 @@ profile_name_is_valid(const gchar *name)
 #endif
 
     if (reason) {
-        message = g_strdup_printf("A profile name cannot %s\nProfiles unchanged.", reason);
+        message = g_strdup_printf("A profile name cannot %s", reason);
         g_free(reason);
         return message;
     }

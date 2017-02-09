@@ -40,6 +40,11 @@
 #include <locale.h>
 #include <limits.h>
 
+#ifndef _WIN32
+#include <sys/time.h>
+#include <sys/resource.h>
+#endif
+
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
@@ -191,6 +196,9 @@ print_usage(FILE *output)
     fprintf(output, "  -d <encap:linktype>|<proto:protoname>\n");
     fprintf(output, "                           packet encapsulation or protocol\n");
     fprintf(output, "  -F <field>               field to display\n");
+#ifndef _WIN32
+    fprintf(output, "  -m                       virtual memory limit, in bytes \n");
+#endif
     fprintf(output, "  -n                       disable all name resolution (def: all enabled)\n");
     fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtd\"\n");
     fprintf(output, "  -p                       use the system's packet header format\n");
@@ -416,6 +424,8 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
     WSADATA              wsaData;
+#else
+    struct rlimit limit;
 #endif  /* _WIN32 */
 
     char                *gpf_path, *pf_path;
@@ -438,7 +448,7 @@ main(int argc, char *argv[])
       {0, 0, 0, 0 }
     };
 
-#define OPTSTRING_INIT "d:F:hlnN:o:pr:R:sS:t:v"
+#define OPTSTRING_INIT "d:F:hlm:nN:o:pr:R:sS:t:v"
 
     static const char    optstring[] = OPTSTRING_INIT;
 
@@ -632,6 +642,18 @@ main(int argc, char *argv[])
                    and the output buffer is only flushed when it fills up). */
                 line_buffered = TRUE;
                 break;
+#ifndef _WIN32
+            case 'm':
+                limit.rlim_cur = get_positive_int(optarg, "memory limit");
+                limit.rlim_max = get_positive_int(optarg, "memory limit");
+
+                if(setrlimit(RLIMIT_AS, &limit) != 0)
+                {
+                    cmdarg_err("setrlimit() returned error");
+                    exit(1);
+                }
+                break;
+#endif
             case 'n':        /* No name resolution */
                 disable_name_resolution();
                 break;
@@ -894,6 +916,8 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
     ssize_t bytes_read = 0;
     size_t bytes_needed = sizeof(disk_hdr);
     guchar *ptr = (guchar*) &disk_hdr;
+
+    *err = 0;
 
     if (want_pcap_pkthdr) {
         bytes_needed = sizeof(mem_hdr);
@@ -1518,6 +1542,7 @@ raw_epan_new(capture_file *cf)
     epan->data = cf;
     epan->get_frame_ts = raw_get_frame_ts;
     epan->get_interface_name = cap_file_get_interface_name;
+    epan->get_interface_description = cap_file_get_interface_description;
     epan->get_user_comment = NULL;
 
     return epan;

@@ -444,19 +444,6 @@ test_flag(unsigned char flag, unsigned char mask)
 }
 
 static void
-eap_tls_defragment_init(void)
-{
-  reassembly_table_init(&eap_tls_reassembly_table,
-                        &addresses_reassembly_table_functions);
-}
-
-static void
-eap_tls_defragment_cleanup(void)
-{
-  reassembly_table_destroy(&eap_tls_reassembly_table);
-}
-
-static void
 dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
                      gint size)
 {
@@ -1701,8 +1688,9 @@ proto_register_eap(void)
   expert_register_field_array(expert_eap, ei, array_length(ei));
 
   eap_handle = register_dissector("eap", dissect_eap, proto_eap);
-  register_init_routine(eap_tls_defragment_init);
-  register_cleanup_routine(eap_tls_defragment_cleanup);
+
+  reassembly_table_register(&eap_tls_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 void

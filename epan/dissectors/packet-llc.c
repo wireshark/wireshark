@@ -200,7 +200,7 @@ static const value_string type_vals[] = {
 /*
  * Hash table for translating OUIs to an oui_info_t.
  */
-static GHashTable *oui_info_table = NULL;
+static wmem_map_t *oui_info_table = NULL;
 
 /*
  * Decode the SAP value as a bitfield into a string, skipping the GI/CR bit.
@@ -233,7 +233,7 @@ llc_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
 {
 	oui_info_t *new_info;
 
-	new_info = (oui_info_t *)g_malloc(sizeof (oui_info_t));
+	new_info = wmem_new(wmem_epan_scope(), oui_info_t);
 	new_info->table = register_dissector_table(table_name,
 	    table_ui_name, proto, FT_UINT16, BASE_HEX);
 	new_info->field_info = hf_item;
@@ -243,10 +243,10 @@ llc_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
 	 * already exist.
 	 */
 	if (oui_info_table == NULL) {
-		oui_info_table = g_hash_table_new(g_direct_hash,
+		oui_info_table = wmem_map_new(wmem_epan_scope(), g_direct_hash,
 		    g_direct_equal);
 	}
-	g_hash_table_insert(oui_info_table, GUINT_TO_POINTER(oui), new_info);
+	wmem_map_insert(oui_info_table, GUINT_TO_POINTER(oui), new_info);
 }
 
 static gboolean
@@ -697,7 +697,7 @@ oui_info_t *
 get_snap_oui_info(guint32 oui)
 {
 	if (oui_info_table != NULL) {
-		return (oui_info_t *)g_hash_table_lookup(oui_info_table,
+		return (oui_info_t *)wmem_map_lookup(oui_info_table,
 		    GUINT_TO_POINTER(oui));
 	} else
 		return NULL;
@@ -915,7 +915,7 @@ proto_reg_handoff_llc(void)
 	 * Register all the fields for PIDs for various OUIs.
 	 */
 	if (oui_info_table != NULL)
-		g_hash_table_foreach(oui_info_table, register_hf, NULL);
+		wmem_map_foreach(oui_info_table, register_hf, NULL);
 }
 
 /*

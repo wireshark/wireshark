@@ -636,7 +636,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    hf_dhcpfo_vendor_class, tvb, offset,
 			    option_length, ENC_ASCII, wmem_packet_scope(), &vendor_class_str);
 			proto_item_append_text(oi,", \"%s\"",
-			    format_text(vendor_class_str, option_length));
+			    format_text(wmem_packet_scope(), vendor_class_str, option_length));
 			break;
 
 		case DHCP_FO_PD_LEASE_EXPIRATION_TIME:

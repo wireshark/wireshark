@@ -40,13 +40,13 @@ typedef struct _xml_ns_t {
     /* the subtree for its sub items  */
     gint ett;
 
-    GHashTable* attributes;
+    wmem_map_t* attributes;
     /*  key:   the attribute name
         value: hf_id of what's between quotes */
 
     /* the namespace's namespaces */
-    GHashTable* elements;
-    /*  key:   the element name
+    wmem_map_t* elements;
+    /*	key:   the element name
         value: the child namespace */
 
     GPtrArray* element_names;

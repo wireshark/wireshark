@@ -1164,7 +1164,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                                 hf_mmse_prev_sent_by,
                                 tvb, offset - 1, 1 + count + length,
                                 strval, "%s (Forwarded-count=%u)",
-                                format_text(strval, strlen(strval)),
+                                format_text(wmem_packet_scope(), strval, strlen(strval)),
                                 fwd_count);
                         subtree = proto_item_add_subtree(tii,
                                 ett_mmse_hdr_details);
@@ -1201,7 +1201,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                                 hf_mmse_prev_sent_date,
                                 tvb, offset - 1, 1 + count + length,
                                 strval, "%s (Forwarded-count=%u)",
-                                format_text(strval, strlen(strval)),
+                                format_text(wmem_packet_scope(), strval, strlen(strval)),
                                 fwd_count);
                         subtree = proto_item_add_subtree(tii,
                                 ett_mmse_hdr_details);
@@ -1238,7 +1238,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                         } else if ((peek == 0) || (peek >= 0x20)) { /* Text */
                             length = get_text_string(tvb, offset, &strval);
                             if (tree) {
-                                str = format_text(strval, strlen(strval));
+                                str = format_text(wmem_packet_scope(), strval, strlen(strval));
                                 proto_tree_add_string_format(mmse_tree, hf_mmse_header_string, tvb, offset - 1,
                                         length + 1, str, "%s: %s (Not decoded)", hdr_name, str);
                             }
@@ -1276,8 +1276,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                                     tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
                                             length + length2, ENC_ASCII),
                                     "%s: %s",
-                                    format_text(strval, strlen(strval)),
-                                    format_text(strval2, strlen(strval2)));
+                                    format_text(wmem_packet_scope(), strval, strlen(strval)),
+                                    format_text(wmem_packet_scope(), strval2, strlen(strval2)));
                         }
                         offset += length + length2;
                     }

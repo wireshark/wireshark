@@ -20,12 +20,15 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+#include "config.h"
 
 #include <glib.h>
 
 #include "wmem_core.h"
+#include "wmem_list.h"
 #include "wmem_map.h"
 #include "wmem_map_int.h"
+#include "wmem_user_cb.h"
 
 static guint32 x; /* Used for universal integer hashing (see the HASH macro) */
 
@@ -64,6 +67,10 @@ struct _wmem_map_t {
     GHashFunc  hash_func;
     GEqualFunc eql_func;
 
+    guint      master_cb_id;
+    guint      slave_cb_id;
+
+    wmem_allocator_t *master;
     wmem_allocator_t *allocator;
 };
 
@@ -81,6 +88,14 @@ struct _wmem_map_t {
 #define HASH(MAP, KEY) \
     ((guint32)(((MAP)->hash_func(KEY) * x) >> (32 - (MAP)->capacity)))
 
+static void
+wmem_map_init_table(wmem_map_t *map)
+{
+    map->count     = 0;
+    map->capacity  = WMEM_MAP_DEFAULT_CAPACITY;
+    map->table     = wmem_alloc0_array(map->allocator, wmem_map_item_t*, CAPACITY(map));
+}
+
 wmem_map_t *
 wmem_map_new(wmem_allocator_t *allocator,
         GHashFunc hash_func, GEqualFunc eql_func)
@@ -89,12 +104,61 @@ wmem_map_new(wmem_allocator_t *allocator,
 
     map = wmem_new(allocator, wmem_map_t);
 
-    map->count     = 0;
-    map->capacity  = WMEM_MAP_DEFAULT_CAPACITY;
-    map->table     = wmem_alloc0_array(allocator, wmem_map_item_t*, CAPACITY(map));
     map->hash_func = hash_func;
     map->eql_func  = eql_func;
+    map->master    = allocator;
     map->allocator = allocator;
+    map->count = 0;
+    map->table = NULL;
+
+    return map;
+}
+
+static gboolean
+wmem_map_reset_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event,
+        void *user_data)
+{
+    wmem_map_t *map = (wmem_map_t*)user_data;
+
+    map->count = 0;
+    map->table = NULL;
+
+    if (event == WMEM_CB_DESTROY_EVENT) {
+        wmem_unregister_callback(map->master, map->master_cb_id);
+        wmem_free(map->master, map);
+    }
+
+    return TRUE;
+}
+
+static gboolean
+wmem_map_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
+        void *user_data)
+{
+    wmem_map_t *map = (wmem_map_t*)user_data;
+
+    wmem_unregister_callback(map->allocator, map->slave_cb_id);
+
+    return FALSE;
+}
+
+wmem_map_t *
+wmem_map_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave,
+        GHashFunc hash_func, GEqualFunc eql_func)
+{
+    wmem_map_t *map;
+
+    map = wmem_new(master, wmem_map_t);
+
+    map->hash_func = hash_func;
+    map->eql_func  = eql_func;
+    map->master    = master;
+    map->allocator = slave;
+    map->count = 0;
+    map->table = NULL;
+
+    map->master_cb_id = wmem_register_callback(master, wmem_map_destroy_cb, map);
+    map->slave_cb_id  = wmem_register_callback(slave, wmem_map_reset_cb, map);
 
     return map;
 }
@@ -137,6 +201,11 @@ wmem_map_insert(wmem_map_t *map, const void *key, void *value)
     wmem_map_item_t **item;
     void *old_val;
 
+    /* Make sure we have a table */
+    if (map->table == NULL) {
+        wmem_map_init_table(map);
+    }
+
     /* get a pointer to the slot */
     item = &(map->table[HASH(map, key)]);
 
@@ -174,6 +243,11 @@ wmem_map_lookup(wmem_map_t *map, const void *key)
 {
     wmem_map_item_t *item;
 
+    /* Make sure we have a table */
+    if (map->table == NULL) {
+        return NULL;
+    }
+
     /* find correct slot */
     item = map->table[HASH(map, key)];
 
@@ -193,6 +267,11 @@ wmem_map_remove(wmem_map_t *map, const void *key)
 {
     wmem_map_item_t **item, *tmp;
     void *value;
+
+    /* Make sure we have a table */
+    if (map->table == NULL) {
+        return NULL;
+    }
 
     /* get a pointer to the slot */
     item = &(map->table[HASH(map, key)]);
@@ -215,11 +294,68 @@ wmem_map_remove(wmem_map_t *map, const void *key)
     return NULL;
 }
 
+gboolean
+wmem_map_steal(wmem_map_t *map, const void *key)
+{
+    wmem_map_item_t **item, *tmp;
+
+    /* Make sure we have a table */
+    if (map->table == NULL) {
+        return FALSE;
+    }
+
+    /* get a pointer to the slot */
+    item = &(map->table[HASH(map, key)]);
+
+    /* check the items in that slot */
+    while (*item) {
+        if (map->eql_func(key, (*item)->key)) {
+            /* found it */
+            tmp     = (*item);
+            (*item) = tmp->next;
+            map->count--;
+            return TRUE;
+        }
+        item = &((*item)->next);
+    }
+
+    /* didn't find it */
+    return FALSE;
+}
+
+wmem_list_t*
+wmem_map_get_keys(wmem_allocator_t *list_allocator, wmem_map_t *map)
+{
+    size_t capacity, i;
+    wmem_map_item_t *cur;
+    wmem_list_t* list = wmem_list_new(list_allocator);
+
+    if (map->table != NULL) {
+        capacity = CAPACITY(map);
+
+        /* copy all the elements into the list over from table */
+        for (i=0; i<capacity; i++) {
+            cur = map->table[i];
+            while (cur) {
+                wmem_list_prepend(list, (void*)cur->key);
+                cur = cur->next;
+            }
+        }
+    }
+
+    return list;
+}
+
 void
 wmem_map_foreach(wmem_map_t *map, GHFunc foreach_func, gpointer user_data)
 {
     wmem_map_item_t *cur;
     unsigned i;
+
+    /* Make sure we have a table */
+    if (map->table == NULL) {
+        return;
+    }
 
     for (i = 0; i < CAPACITY(map); i++) {
         cur = map->table[i];

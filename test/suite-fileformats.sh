@@ -128,9 +128,9 @@ tshark_ff_suite() {
 	test_step_add "Microsecond pcap via stdin" ff_step_usec_pcap_stdin
 	test_step_add "Nanosecond pcap via stdin" ff_step_nsec_pcap_stdin
 	test_step_add "Nanosecond pcap direct read" ff_step_nsec_pcap_direct
-#	test_step_add "Microsecond pcap-ng via stdin" ff_step_usec_pcapng_stdin
+	test_step_add "Microsecond pcap-ng via stdin" ff_step_usec_pcapng_stdin
 	test_step_add "Microsecond pcap-ng direct read" ff_step_usec_pcapng_direct
-#	test_step_add "Nanosecond pcap-ng via stdin" ff_step_nsec_pcapng_stdin
+	test_step_add "Nanosecond pcap-ng via stdin" ff_step_nsec_pcapng_stdin
 	test_step_add "Nanosecond pcap-ng direct read" ff_step_nsec_pcapng_direct
 }
 

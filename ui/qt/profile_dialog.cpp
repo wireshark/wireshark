@@ -195,6 +195,16 @@ void ProfileDialog::updateWidgets()
         for (int i = 0; i < pd_ui_->profileTreeWidget->topLevelItemCount(); i++) {
             item = pd_ui_->profileTreeWidget->topLevelItem(i);
             profile = (profile_def *) VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole))->data;
+            if (gchar *err_msg = profile_name_is_valid(profile->name)) {
+                item->setToolTip(0, err_msg);
+                item->setBackground(0, ColorUtils::fromColorT(&prefs.gui_text_invalid));
+                if (profile == current_profile) {
+                    pd_ui_->infoLabel->setText(err_msg);
+                }
+                g_free(err_msg);
+                enable_ok = false;
+                continue;
+            }
             if (profile->is_global) {
                 item->setToolTip(0, tr("This is a system provided profile."));
                 continue;

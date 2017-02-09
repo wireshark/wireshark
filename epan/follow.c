@@ -42,16 +42,7 @@ struct register_follow {
     follow_tap_func tap_handler; /* tap listener handler */
 };
 
-static GSList *registered_followers = NULL;
-
-static gint
-insert_sorted_by_name(gconstpointer aparam, gconstpointer bparam)
-{
-    const register_follow_t *a = (const register_follow_t *)aparam;
-    const register_follow_t *b = (const register_follow_t *)bparam;
-
-    return g_ascii_strcasecmp(proto_get_protocol_short_name(find_protocol_by_id(a->proto_id)), proto_get_protocol_short_name(find_protocol_by_id(b->proto_id)));
-}
+static wmem_tree_t *registered_followers = NULL;
 
 void register_follow_stream(const int proto_id, const char* tap_listener,
                             follow_conv_filter_func conv_filter, follow_index_filter_func index_filter, follow_address_filter_func address_filter,
@@ -65,7 +56,7 @@ void register_follow_stream(const int proto_id, const char* tap_listener,
   DISSECTOR_ASSERT(port_to_display);
   DISSECTOR_ASSERT(tap_handler);
 
-  follower = g_new(register_follow_t,1);
+  follower = wmem_new(wmem_epan_scope(), register_follow_t);
 
   follower->proto_id       = proto_id;
   follower->tap_listen_str = tap_listener;
@@ -75,7 +66,10 @@ void register_follow_stream(const int proto_id, const char* tap_listener,
   follower->port_to_display = port_to_display;
   follower->tap_handler    = tap_handler;
 
-  registered_followers = g_slist_insert_sorted(registered_followers, follower, insert_sorted_by_name);
+  if (registered_followers == NULL)
+    registered_followers = wmem_tree_new(wmem_epan_scope());
+
+  wmem_tree_insert_string(registered_followers, proto_get_protocol_filter_name(proto_id), follower, 0);
 }
 
 int get_follow_proto_id(register_follow_t* follower)
@@ -120,31 +114,14 @@ follow_tap_func get_follow_tap_handler(register_follow_t* follower)
 }
 
 
-static gint
-find_matching_follower(gconstpointer arg1, gconstpointer arg2)
-{
-  register_follow_t *follower = (register_follow_t *)arg1;
-  const gchar          *name   = (const gchar *)arg2;
-
-  return strcmp(proto_get_protocol_short_name(find_protocol_by_id(follower->proto_id)), name);
-}
-
 register_follow_t* get_follow_by_name(const char* proto_short_name)
 {
-  GSList *found_follower;
-
-  found_follower = g_slist_find_custom(registered_followers,
-                    (gpointer)proto_short_name, find_matching_follower);
-
-  if (found_follower)
-    return (register_follow_t*)found_follower->data;
-
-  return NULL;
+  return (register_follow_t*)wmem_tree_lookup_string(registered_followers, proto_short_name, 0);
 }
 
-void follow_iterate_followers(GFunc func, gpointer user_data)
+void follow_iterate_followers(wmem_foreach_func func, gpointer user_data)
 {
-    g_slist_foreach(registered_followers, func, user_data);
+    wmem_tree_foreach(registered_followers, func, user_data);
 }
 
 gchar* follow_get_stat_tap_string(register_follow_t* follower)
@@ -243,19 +220,6 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
 
     follow_info->payload = g_list_append(follow_info->payload, follow_record);
     return FALSE;
-}
-
-static void
-clear_follower(gpointer p, gpointer user_data _U_)
-{
-    g_free(p);
-}
-
-void
-follow_cleanup(void)
-{
-    g_slist_foreach(registered_followers, clear_follower, NULL);
-    g_slist_free(registered_followers);
 }
 
 /*

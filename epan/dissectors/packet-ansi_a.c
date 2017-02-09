@@ -3583,7 +3583,7 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     proto_tree_add_string_format(tree, hf_ansi_a_clg_party_ascii_num, tvb, curr_offset, len - (curr_offset - offset),
         (gchar *) poctets,
         "Digits: %s",
-        (gchar *) format_text(poctets, len - (curr_offset - offset)));
+        (gchar *) format_text(wmem_packet_scope(), poctets, len - (curr_offset - offset)));
 
     proto_item_append_text(data_p->elem_item, " - (%s)", poctets);
 
@@ -5629,7 +5629,7 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
                 proto_tree_add_string_format(subtree, hf_ansi_a_cld_party_ascii_num, tvb, curr_offset, oct_len,
                     (gchar *) poctets,
                     "Digits: %s",
-                    (gchar *) format_text(poctets, oct_len));
+                    (gchar *) format_text(wmem_packet_scope(), poctets, oct_len));
 
                 curr_offset += oct_len;
                 break;
@@ -6096,7 +6096,7 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     proto_tree_add_string_format(tree, hf_ansi_a_cld_party_ascii_num, tvb, curr_offset, len - (curr_offset - offset),
         (gchar *) poctets,
         "Digits: %s",
-        (gchar *) format_text(poctets, len - (curr_offset - offset)));
+        (gchar *) format_text(wmem_packet_scope(), poctets, len - (curr_offset - offset)));
 
     proto_item_append_text(data_p->elem_item, " - (%s)", poctets);
 

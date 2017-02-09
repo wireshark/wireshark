@@ -1124,17 +1124,6 @@ static void dissect_signature_structure(tvbuff_t *tvb, gint offset, gint length,
     }
 }
 
-static void pnrp_reassembly_init(void)
-{
-    reassembly_table_init(&pnrp_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
-static void pnrp_reassembly_cleanup(void)
-{
-    reassembly_table_destroy(&pnrp_reassembly_table);
-}
-
 /* Register the protocol */
 void proto_register_pnrp(void)
 {
@@ -1477,8 +1466,8 @@ void proto_register_pnrp(void)
     proto_register_field_array(proto_pnrp,hf,array_length(hf));
     proto_register_subtree_array (ett, array_length(ett));
 
-    register_init_routine(pnrp_reassembly_init);
-    register_cleanup_routine(pnrp_reassembly_cleanup);
+    reassembly_table_register(&pnrp_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 /* Initialise the dissector */

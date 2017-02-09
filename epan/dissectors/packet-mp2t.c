@@ -1245,17 +1245,6 @@ heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 }
 
 
-static void
-mp2t_init(void) {
-    reassembly_table_init(&mp2t_reassembly_table,
-        &addresses_reassembly_table_functions);
-}
-
-static void
-mp2t_cleanup(void) {
-    reassembly_table_destroy(&mp2t_reassembly_table);
-}
-
 void
 proto_register_mp2t(void)
 {
@@ -1540,8 +1529,8 @@ proto_register_mp2t(void)
 
     heur_subdissector_list = register_heur_dissector_list("mp2t.pid", proto_mp2t);
     /* Register init of processing of fragmented DEPI packets */
-    register_init_routine(mp2t_init);
-    register_cleanup_routine(mp2t_cleanup);
+    reassembly_table_register(&mp2t_reassembly_table,
+        &addresses_reassembly_table_functions);
 }
 
 

@@ -260,12 +260,12 @@ static int hf_ipv6_routing_rpl_fulladdr         = -1;
 
 static int hf_ipv6_routing_srh_first_seg        = -1;
 static int hf_ipv6_routing_srh_flags            = -1;
-static int hf_ipv6_routing_srh_flag_c           = -1;
+static int hf_ipv6_routing_srh_flag_unused1     = -1;
 static int hf_ipv6_routing_srh_flag_p           = -1;
 static int hf_ipv6_routing_srh_flag_o           = -1;
 static int hf_ipv6_routing_srh_flag_a           = -1;
 static int hf_ipv6_routing_srh_flag_h           = -1;
-static int hf_ipv6_routing_srh_flag_unused      = -1;
+static int hf_ipv6_routing_srh_flag_unused2     = -1;
 static int hf_ipv6_routing_srh_reserved         = -1;
 static int hf_ipv6_routing_srh_addr             = -1;
 
@@ -797,13 +797,6 @@ add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, const struct e_in6_
 }
 #endif /* HAVE_GEOIP_V6 */
 
-static void
-ipv6_reassemble_init(void)
-{
-    reassembly_table_init(&ipv6_reassembly_table,
-                          &addresses_reassembly_table_functions);
-}
-
 /* Returns TRUE if reassembled */
 static gboolean
 ipv6_reassemble_do(tvbuff_t **tvb_ptr, gint *offset_ptr, packet_info *pinfo, proto_tree *ipv6_tree,
@@ -842,12 +835,6 @@ ipv6_reassemble_do(tvbuff_t **tvb_ptr, gint *offset_ptr, packet_info *pinfo, pro
         }
     }
     return FALSE;
-}
-
-static void
-ipv6_reassemble_cleanup(void)
-{
-    reassembly_table_destroy(&ipv6_reassembly_table);
 }
 
 struct rthdr_proto_item {
@@ -1064,7 +1051,7 @@ dissect_routing6_rpl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 
 /* Segment Routing Header (Type 4) */
-/* draft-ietf-6man-segment-routing-header-01 */
+/* draft-ietf-6man-segment-routing-header-05 */
 static void
 dissect_routing6_srh(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *rthdr_tree,
                         struct rthdr_proto_item *rthdr_ti, struct ip6_rthdr rt)
@@ -1076,12 +1063,12 @@ dissect_routing6_srh(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
     const struct e_in6_addr *addr;
     proto_tree *rthdr_srh_addr_tree;
     static const int *srh_flags[] = {
-        &hf_ipv6_routing_srh_flag_c,
+        &hf_ipv6_routing_srh_flag_unused1,
         &hf_ipv6_routing_srh_flag_p,
         &hf_ipv6_routing_srh_flag_o,
         &hf_ipv6_routing_srh_flag_a,
         &hf_ipv6_routing_srh_flag_h,
-        &hf_ipv6_routing_srh_flag_unused,
+        &hf_ipv6_routing_srh_flag_unused2,
         NULL
     };
 
@@ -1095,10 +1082,10 @@ dissect_routing6_srh(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
                             ett_ipv6_routing_srh_flags, srh_flags, ENC_BIG_ENDIAN);
     expert_add_info_format(pinfo, ti, &ei_ipv6_routing_undecoded,
                 "Dissection for SRH TLVs not yet implemented");
-    offset += 2;
-
-    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_srh_reserved, tvb, offset, 1, ENC_NA);
     offset += 1;
+
+    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_srh_reserved, tvb, offset, 2, ENC_NA);
+    offset += 2;
 
     if (rt.ip6r_segleft > srh_first_seg) {
         expert_add_info_format(pinfo, rthdr_ti->segs, &ei_ipv6_routing_invalid_segleft,
@@ -3215,37 +3202,37 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_routing_srh_flags,
             { "Flags", "ipv6.routing.srh.flags",
-                FT_UINT16, BASE_HEX, NULL, 0x0,
+                FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_ipv6_routing_srh_flag_c,
-            { "Cleanup", "ipv6.routing.srh.flag_c",
-                FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x8000,
-                NULL, HFILL }
+        { &hf_ipv6_routing_srh_flag_unused1,
+            { "Unused", "ipv6.routing.srh.flag_unused1",
+                FT_UINT8, BASE_HEX, NULL, 0x80,
+                "Unset on transmission and ignored on receipt", HFILL }
         },
         { &hf_ipv6_routing_srh_flag_p,
             { "Protected", "ipv6.routing.srh.flag_p",
-                FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x4000,
+                FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x40,
                 NULL, HFILL }
         },
         { &hf_ipv6_routing_srh_flag_o,
             { "OAM", "ipv6.routing.srh.flag_o",
-                FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x2000,
+                FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x20,
                 NULL, HFILL }
         },
         { &hf_ipv6_routing_srh_flag_a,
             { "Alert", "ipv6.routing.srh.flag_a",
-                FT_BOOLEAN, 16, TFS(&tfs_present_not_present), 0x1000,
+                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
                 NULL, HFILL }
         },
         { &hf_ipv6_routing_srh_flag_h,
             { "HMAC", "ipv6.routing.srh.flag_h",
-                FT_BOOLEAN, 16, TFS(&tfs_present_not_present), 0x0800,
+                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
                 NULL, HFILL }
         },
-        { &hf_ipv6_routing_srh_flag_unused,
-            { "Unused", "ipv6.routing.srh.flag_unused",
-                FT_UINT16, BASE_HEX, NULL, 0x07FF,
+        { &hf_ipv6_routing_srh_flag_unused2,
+            { "Unused", "ipv6.routing.srh.flag_unused2",
+                FT_UINT8, BASE_HEX, NULL, 0x07,
                 NULL, HFILL }
         },
         { &hf_ipv6_routing_srh_reserved,
@@ -3520,8 +3507,8 @@ proto_register_ipv6(void)
                                    &ipv6_exthdr_hide_len_oct_field);
 
     ipv6_handle = register_dissector("ipv6", dissect_ipv6, proto_ipv6);
-    register_init_routine(ipv6_reassemble_init);
-    register_cleanup_routine(ipv6_reassemble_cleanup);
+    reassembly_table_register(&ipv6_reassembly_table,
+                          &addresses_reassembly_table_functions);
     ip6_hdr_tap = register_tap("ipv6");
     ipv6_ws_tap = register_tap("ipv6_ws");
 

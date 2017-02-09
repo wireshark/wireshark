@@ -259,6 +259,10 @@ WS_DLL_PUBLIC guint union_of_tap_listener_flags(void);
  */
 WS_DLL_PUBLIC const void *fetch_tapped_data(int tap_id, int idx);
 
+/** Clean internal structures
+ */
+extern void tap_cleanup(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

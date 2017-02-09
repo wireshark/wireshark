@@ -63,6 +63,7 @@ typedef enum {
     SSL_HND_HELLO_VERIFY_REQUEST   = 3,
     SSL_HND_NEWSESSION_TICKET      = 4,
     SSL_HND_HELLO_RETRY_REQUEST    = 6,
+    SSL_HND_ENCRYPTED_EXTENSIONS   = 8,
     SSL_HND_CERTIFICATE            = 11,
     SSL_HND_SERVER_KEY_EXCHG       = 12,
     SSL_HND_CERT_REQUEST           = 13,
@@ -74,7 +75,7 @@ typedef enum {
     SSL_HND_CERT_STATUS            = 22,
     SSL_HND_SUPPLEMENTAL_DATA      = 23,
     /* Encrypted Extensions was NextProtocol in draft-agl-tls-nextprotoneg-03
-     * and changed in draft 04 */
+     * and changed in draft 04. Not to be confused with TLS 1.3 EE. */
     SSL_HND_ENCRYPTED_EXTS         = 67
 } HandshakeType;
 
@@ -268,8 +269,16 @@ typedef enum {
     MODE_CCM_8      /* AEAD_AES_{128,256}_CCM with 8 byte auth tag */
 } ssl_cipher_mode_t;
 
-/* Explicit nonce length */
-#define SSL_EX_NONCE_LEN_GCM    8 /* RFC 5288 - section 3 */
+/* Explicit and implicit nonce length (RFC 5116 - Section 3.2.1) */
+#define IMPLICIT_NONCE_LEN  4
+#define EXPLICIT_NONCE_LEN  8
+
+/* TLS 1.3 Record type for selecting the appropriate secret. */
+typedef enum {
+    TLS_SECRET_0RTT_APP,
+    TLS_SECRET_HANDSHAKE,
+    TLS_SECRET_APP,
+} TLSRecordType;
 
 #define SSL_DEBUG_USE_STDERR "-"
 
@@ -302,7 +311,7 @@ typedef struct _SslDecoder {
     StringInfo write_iv; /* for AEAD ciphers (at least GCM, CCM) */
     SSL_CIPHER_CTX evp;
     SslDecompress *decomp;
-    guint32 seq;
+    guint64 seq;    /**< Implicit (TLS) or explicit (DTLS) record sequence number. */
     guint16 epoch;
     SslFlow *flow;
 } SslDecoder;
@@ -327,6 +336,7 @@ typedef struct _SslDecoder {
 #define KEX_SRP_SHA_DSS 0x21
 #define KEX_SRP_SHA_RSA 0x22
 #define KEX_IS_DH(n)    ((n) >= KEX_DHE_DSS && (n) <= KEX_ECDH_RSA)
+#define KEX_TLS13       0x23
 
 #define ENC_DES         0x30
 #define ENC_3DES        0x31
@@ -352,24 +362,19 @@ typedef struct {
 } SslDigestAlgo;
 
 typedef struct _SslRecordInfo {
-    guchar *real_data;
-    gint data_len;
-    gint id;
+    guchar *plain_data;     /**< Decrypted data. */
+    guint   data_len;       /**< Length of decrypted data. */
+    gint    id;             /**< Identifies the exact record within a frame
+                                 (there can be multiple records in a frame). */
+    ContentType type;       /**< Content type of the decrypted record data. */
+    SslFlow *flow;          /**< Flow where this record fragment is a part of.
+                                 Can be NULL if this record type may not be fragmented. */
+    guint32 seq;            /**< Data offset within the flow. */
     struct _SslRecordInfo* next;
 } SslRecordInfo;
 
-typedef struct _SslDataInfo {
-    gint key;
-    StringInfo plain_data;
-    guint32 seq;
-    guint32 nxtseq;
-    SslFlow *flow;
-    struct _SslDataInfo *next;
-} SslDataInfo;
-
 typedef struct {
-    SslDataInfo *appl_data;
-    SslRecordInfo* handshake_data;
+    SslRecordInfo *records; /**< Decrypted records within this frame. */
 } SslPacketInfo;
 
 typedef struct _SslSession {
@@ -405,6 +410,7 @@ typedef struct _SslDecryptSession {
     StringInfo server_random;
     StringInfo client_random;
     StringInfo master_secret;
+    StringInfo traffic_secret;  /**< TLS 1.3 traffic secret, wmem file scope. */
     StringInfo handshake_data;
     /* the data store for this StringInfo must be allocated explicitly with a capture lifetime scope */
     StringInfo pre_master_secret;
@@ -425,6 +431,7 @@ typedef struct _SslDecryptSession {
     StringInfo psk;
     StringInfo app_data_segment;
     SslSession session;
+    gboolean   has_early_data;
 
 } SslDecryptSession;
 
@@ -450,6 +457,13 @@ typedef struct {
     GHashTable *pre_master; /* First 8 bytes of encrypted pre-master secret to
                                pre-master secret */
     GHashTable *pms;        /* Client Random to unencrypted pre-master secret */
+
+    /* For TLS 1.3: maps Client Random to derived secret. */
+    GHashTable *tls13_client_early;
+    GHashTable *tls13_client_handshake;
+    GHashTable *tls13_server_handshake;
+    GHashTable *tls13_client_appdata;
+    GHashTable *tls13_server_appdata;
 } ssl_master_key_map_t;
 
 gint ssl_get_keyex_alg(gint cipher);
@@ -543,6 +557,7 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
  @param ssl ssl_session the store all the session data
  @param decoder the stream decoder to be used
  @param ct the content type of this ssl record
+ @param record_version the version as contained in the record
  @param in a pointer to the ssl record to be decrypted
  @param inl the record length
  @param comp_str a pointer to the store the compression data
@@ -550,8 +565,8 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
  @param outl the decrypted data len
  @return 0 on success */
 extern gint
-ssl_decrypt_record(SslDecryptSession* ssl,SslDecoder* decoder, gint ct,
-        const guchar* in, guint inl, StringInfo* comp_str, StringInfo* out_str, guint* outl);
+ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
+        const guchar *in, guint16 inl, StringInfo *comp_str, StringInfo *out_str, guint *outl);
 
 
 /* Common part bitween SSL and DTLS dissectors */
@@ -581,17 +596,11 @@ ssl_packet_from_server(SslSession *session, dissector_table_t table, packet_info
 
 /* add to packet data a copy of the specified real data */
 extern void
-ssl_add_record_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint record_id);
+ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint data_len, gint record_id, SslFlow *flow, ContentType type);
 
 /* search in packet data for the specified id; return a newly created tvb for the associated data */
 extern tvbuff_t*
-ssl_get_record_info(tvbuff_t *parent_tvb, gint proto, packet_info *pinfo, gint record_id);
-
-void
-ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint key, SslFlow *flow);
-
-SslDataInfo*
-ssl_get_data_info(int proto, packet_info *pinfo, gint key);
+ssl_get_record_info(tvbuff_t *parent_tvb, gint proto, packet_info *pinfo, gint record_id, SslRecordInfo **matched_record);
 
 /* initialize/reset per capture state data (ssl sessions cache) */
 extern void
@@ -617,9 +626,19 @@ ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash);
 #ifdef  HAVE_LIBGCRYPT
 extern void
 ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map);
+
+extern void
+tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
+                 gboolean is_from_server, TLSRecordType type);
 #else /* ! HAVE_LIBGCRYPT */
 static inline void
 ssl_finalize_decryption(SslDecryptSession *ssl _U_, ssl_master_key_map_t *mk_map _U_)
+{
+}
+
+static inline void
+tls13_change_key(SslDecryptSession *ssl _U_, ssl_master_key_map_t *mk_map _U_,
+                 gboolean is_from_server _U_, TLSRecordType type _U_)
 {
 }
 #endif /* ! HAVE_LIBGCRYPT */
@@ -685,7 +704,6 @@ typedef struct ssl_common_dissect {
         gint hs_ext_psk_binders_length;
         gint hs_ext_psk_binders;
         gint hs_ext_psk_identity_selected;
-        gint hs_ext_early_data_obfuscated_ticket_age;
         gint hs_ext_supported_versions_len;
         gint hs_ext_supported_versions;
         gint hs_ext_cookie_len;
@@ -752,6 +770,7 @@ typedef struct ssl_common_dissect {
         gint hs_comp_methods;
         gint hs_comp_method;
         gint hs_session_ticket_lifetime_hint;
+        gint hs_session_ticket_age_add;
         gint hs_session_ticket_len;
         gint hs_session_ticket;
         gint hs_finished;
@@ -762,6 +781,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_draft_version_tls13;
         gint hs_ext_psk_ke_modes_len;
         gint hs_ext_psk_ke_mode;
+        gint hs_certificate_request_context;
+        gint hs_certificate_request_context_length;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -793,10 +814,12 @@ typedef struct ssl_common_dissect {
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
     struct {
+        /* Generic expert info for malformed packets. */
+        expert_field malformed_vector_length;
+        expert_field malformed_buffer_too_small;
+        expert_field malformed_trailing_data;
+
         expert_field hs_ext_cert_status_undecoded;
-        expert_field hs_sig_hash_alg_len_bad;
-        expert_field hs_cipher_suites_len_bad;
-        expert_field hs_sig_hash_algs_bad;
         expert_field resumed;
         expert_field record_length_invalid;
 
@@ -820,6 +843,39 @@ typedef struct {
     /* Do not forget to initialize ssl_hfs to -1 in packet-ssl.c! */
 } ssl_hfs_t;
 
+
+/* Helpers for dissecting Variable-Length Vectors. {{{ */
+/**
+ * Helper for dissection of variable-length vectors (RFC 5246, section 4.3). It
+ * adds a length field to the tree and writes the validated length value into
+ * "ret_length" (which is truncated if it exceeds "offset_end").
+ *
+ * The size of the field is derived from "max_value" (for example, 8 and 255
+ * require one byte while 400 needs two bytes). Expert info is added if the
+ * length field from the tvb is outside the (min_value, max_value) range.
+ *
+ * Returns TRUE if there is enough space for the length field and data elements
+ * and FALSE otherwise.
+ */
+extern gboolean
+ssl_add_vector(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+               guint offset, guint offset_end, guint32 *ret_length,
+               int hf_length, guint32 min_value, guint32 max_value);
+
+/**
+ * Helper to check whether the data in a vector with multiple elements is
+ * correctly dissected. If the current "offset" (normally the value after
+ * adding all kinds of fields) does not match "offset_end" (the end of the
+ * vector), expert info is added.
+ *
+ * Returns TRUE if the offset matches the end of the vector and FALSE otherwise.
+ */
+extern gboolean
+ssl_end_vector(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+               guint offset, guint offset_end);
+/* }}} */
+
+
 void
 ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                packet_info *pinfo, proto_tree *tree,
@@ -830,7 +886,7 @@ ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 extern void
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           packet_info *pinfo, proto_tree *tree, guint32 offset,
-                          guint32 length, SslSession *session,
+                          guint32 offset_end, SslSession *session,
                           SslDecryptSession *ssl,
                           dtls_hfs_t *dtls_hfs);
 
@@ -847,9 +903,15 @@ ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb, pac
                                     gboolean is_dtls);
 
 extern void
-ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                               proto_tree *tree, guint32 offset,
-                               SslDecryptSession *ssl,
+ssl_dissect_hnd_encrypted_extensions(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
+                                     proto_tree *tree, guint32 offset, guint32 length,
+                                     SslSession *session, SslDecryptSession *ssl,
+                                     gboolean is_dtls);
+
+extern void
+ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree, guint32 offset, guint32 offset_end,
+                               const SslSession *session, SslDecryptSession *ssl,
                                GHashTable *session_hash);
 
 extern void
@@ -859,9 +921,9 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                      GHashTable *key_hash, gint is_from_server);
 
 extern void
-ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                          proto_tree *tree, guint32 offset, packet_info *pinfo,
-                          const SslSession *session);
+ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                         proto_tree *tree, guint32 offset, guint32 offset_end,
+                         const SslSession *session);
 
 extern void
 ssl_dissect_hnd_cli_cert_verify(ssl_common_dissect_t *hf, tvbuff_t *tvb,
@@ -897,7 +959,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1,                                     \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1060,11 +1122,6 @@ ssl_common_dissect_t name = {   \
       { "Selected Identity", prefix ".handshake.extensions.psk.identity.selected", \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
         NULL, HFILL }                                                   \
-    },                                                                  \
-    { & name .hf.hs_ext_early_data_obfuscated_ticket_age,               \
-      { "Obfuscated ticket age", prefix ".handshake.extensions.early_data.obfuscated_ticket_age",    \
-        FT_UINT32, BASE_DEC, NULL, 0x0,                                 \
-        "The time since the client learned about the server configuration that it is using, in milliseconds", HFILL }   \
     },                                                                  \
     { & name .hf.hs_ext_supported_versions_len,                         \
       { "Supported Versions length", prefix ".handshake.extensions.supported_versions_len", \
@@ -1467,6 +1524,12 @@ ssl_common_dissect_t name = {   \
         FT_UINT32, BASE_DEC, NULL, 0x0,                                 \
         "New Session Ticket Lifetime Hint", HFILL }                     \
     },                                                                  \
+    { & name .hf.hs_session_ticket_age_add,                             \
+      { "Session Ticket Age Add",                                       \
+        prefix ".handshake.session_ticket_age_add",                     \
+        FT_UINT32, BASE_DEC, NULL, 0x0,                                 \
+        "Random 32-bit value to obscure age of ticket", HFILL }         \
+    },                                                                  \
     { & name .hf.hs_session_ticket_len,                                 \
       { "Session Ticket Length", prefix ".handshake.session_ticket_length", \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
@@ -1506,6 +1569,16 @@ ssl_common_dissect_t name = {   \
       { "PSK Key Exchange Mode", prefix ".handshake.psk_ke_mode",       \
         FT_UINT8, BASE_DEC, VALS(tls_hello_ext_psk_ke_mode), 0x0,       \
         "Key exchange modes where the client supports use of PSKs", HFILL } \
+    },                                                                  \
+    { & name .hf.hs_certificate_request_context_length,                 \
+      { "Certificate Request Context Length", prefix ".handshake.certificate_request_context_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_certificate_request_context,                        \
+      { "Certificate Request Context", prefix ".handshake.certificate_request_context", \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Value from CertificateRequest or empty for server auth", HFILL } \
     }
 /* }}} */
 
@@ -1538,21 +1611,21 @@ ssl_common_dissect_t name = {   \
 
 /* {{{ */
 #define SSL_COMMON_EI_LIST(name, prefix)                       \
+    { & name .ei.malformed_vector_length, \
+        { prefix ".malformed.vector_length", PI_PROTOCOL, PI_WARN, \
+        "Variable vector length is outside the permitted range", EXPFILL } \
+    }, \
+    { & name .ei.malformed_buffer_too_small, \
+        { prefix ".malformed.buffer_too_small", PI_MALFORMED, PI_ERROR, \
+        "Malformed message, not enough data is available", EXPFILL } \
+    }, \
+    { & name .ei.malformed_trailing_data, \
+        { prefix ".malformed.trailing_data", PI_PROTOCOL, PI_WARN, \
+        "Undecoded trailing data is present", EXPFILL } \
+    }, \
     { & name .ei.hs_ext_cert_status_undecoded, \
         { prefix ".handshake.status_request.undecoded", PI_UNDECODED, PI_NOTE, \
         "Responder ID list or Request Extensions are not implemented, contact Wireshark developers if you want this to be supported", EXPFILL } \
-    }, \
-    { & name .ei.hs_sig_hash_alg_len_bad, \
-        { prefix ".handshake.sig_hash_alg_len.mult2", PI_MALFORMED, PI_ERROR, \
-        "Signature Hash Algorithm length must be a multiple of 2", EXPFILL } \
-    }, \
-    { & name .ei.hs_cipher_suites_len_bad, \
-        { prefix ".handshake.cipher_suites_length.mult2", PI_MALFORMED, PI_ERROR, \
-        "Cipher suite length must be a multiple of 2", EXPFILL } \
-    }, \
-    { & name .ei.hs_sig_hash_algs_bad, \
-        { prefix ".handshake.sig_hash_algs.mult2", PI_MALFORMED, PI_ERROR, \
-        "Hash Algorithm length must be a multiple of 2", EXPFILL } \
     }, \
     { & name .ei.resumed, \
         { prefix ".resumed", PI_SEQUENCE, PI_NOTE, \
