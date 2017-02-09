@@ -48,10 +48,10 @@ static gboolean revert_proto_selection(void);
 static GtkWidget *proto_w = NULL;
 
 /* list of protocols */
-static GSList *protocol_list = NULL;
+static wmem_tree_t *protocol_list = NULL;
 
 /* list of heuristic protocols */
-static GSList *heur_protocol_list = NULL;
+static wmem_tree_t *heur_protocol_list = NULL;
 
 typedef struct protocol_data {
   const char  *name;
@@ -133,38 +133,54 @@ heur_status_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer d
 
 /* XXX - We need callbacks for Gtk2 */
 
+
 /* Toggle All */
+static gboolean toggle_all(const void *key _U_, void *value, void *userdata)
+{
+  GtkListStore *s = (GtkListStore *)userdata;
+  protocol_data_t *p = (protocol_data_t *)value;
+
+  if (p->enabled)
+    p->enabled = FALSE;
+  else
+    p->enabled = TRUE;
+
+  gtk_list_store_set(s, &p->iter, ENABLE_COLUMN, p->enabled, -1);
+  return FALSE;
+}
+
 static void
 toggle_all_cb(GtkWidget *button _U_, gpointer pl)
 {
-  GSList *entry;
-  GtkListStore *s = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(pl)));
-
-  for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    protocol_data_t *p = (protocol_data_t *)entry->data;
-
-    if (p->enabled)
-      p->enabled = FALSE;
-    else
-      p->enabled = TRUE;
-
-    gtk_list_store_set(s, &p->iter, ENABLE_COLUMN, p->enabled, -1);
-  }
+  wmem_tree_foreach(protocol_list, toggle_all, GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(pl))));
 }
 
 /* Enable/Disable All Helper */
+struct active_all_data
+{
+  GtkListStore *s;
+  gboolean new_state;
+};
+
+static gboolean active_all(const void *key _U_, void *value, void *userdata)
+{
+  struct active_all_data* data = (struct active_all_data*)userdata;
+  protocol_data_t *p = (protocol_data_t *)value;
+
+  p->enabled = data->new_state;
+  gtk_list_store_set(data->s, &p->iter, ENABLE_COLUMN, data->new_state, -1);
+  return FALSE;
+}
+
 static void
 set_active_all(GtkWidget *w, gboolean new_state)
 {
-  GtkListStore *s = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(w)));
-  GSList *entry;
+  struct active_all_data data;
 
-  for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    protocol_data_t *p = (protocol_data_t *)entry->data;
+  data.s = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(w)));
+  data.new_state = new_state;
 
-    p->enabled = new_state;
-    gtk_list_store_set(s, &p->iter, ENABLE_COLUMN, new_state, -1);
-  }
+  wmem_tree_foreach(protocol_list, active_all, &data);
 }
 
 /* Enable All */
@@ -183,33 +199,18 @@ disable_all_cb(GtkWidget *button _U_, gpointer pl)
 
 static void heur_toggle_all_cb(GtkWidget *button _U_, gpointer pl)
 {
-  GSList *entry;
-  GtkListStore *s = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(pl)));
-
-  for (entry = heur_protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    heur_protocol_data_t *p = (heur_protocol_data_t *)entry->data;
-
-    if (p->enabled)
-      p->enabled = FALSE;
-    else
-      p->enabled = TRUE;
-
-    gtk_list_store_set(s, &p->iter, ENABLE_COLUMN, p->enabled, -1);
-  }
+  wmem_tree_foreach(heur_protocol_list, toggle_all, GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(pl))));
 }
 
 static void
 heur_set_active_all(GtkWidget *w, gboolean new_state)
 {
-  GtkListStore *s = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(w)));
-  GSList *entry;
+  struct active_all_data data;
 
-  for (entry = heur_protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    heur_protocol_data_t *p = (heur_protocol_data_t *)entry->data;
+  data.s = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(w)));
+  data.new_state = new_state;
 
-    p->enabled = new_state;
-    gtk_list_store_set(s, &p->iter, ENABLE_COLUMN, new_state, -1);
-  }
+  wmem_tree_foreach(heur_protocol_list, active_all, &data);
 }
 
 static void heur_enable_all_cb(GtkWidget *button _U_, gpointer pl)
@@ -225,15 +226,11 @@ static void heur_disable_all_cb(GtkWidget *button _U_, gpointer pl)
 static void
 proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  GSList *entry;
-
   proto_w = NULL;
   /* remove protocol list */
   if (protocol_list) {
-    for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-      g_free(entry->data);
-    }
-    g_slist_free(protocol_list);
+    /* Keys must be freed because they are strings allocated when values are added */
+    wmem_tree_destroy(protocol_list, TRUE, TRUE);
     protocol_list = NULL;
   }
 }
@@ -241,34 +238,37 @@ proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 static void
 heur_proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  GSList *entry;
-
   proto_w = NULL;
   /* remove protocol list */
   if (heur_protocol_list) {
-    for (entry = heur_protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-      g_free(entry->data);
-    }
-    g_slist_free(heur_protocol_list);
+    /* Keys must be freed because they are strings allocated when values are added */
+    wmem_tree_destroy(heur_protocol_list, TRUE, TRUE);
     heur_protocol_list = NULL;
   }
 }
 
 /* Update protocol_list and heur_protocol_list 'was_enabled' to current value of 'enabled' */
+static gboolean set_proto_was_enabled(const void *key _U_, void *value, void *userdata _U_)
+{
+  protocol_data_t *p = (protocol_data_t *)value;
+
+  p->was_enabled = p->enabled;
+  return FALSE;
+}
+
+static gboolean set_heur_was_enabled(const void *key _U_, void *value, void *userdata _U_)
+{
+  heur_protocol_data_t *p = (heur_protocol_data_t *)value;
+
+  p->was_enabled = p->enabled;
+  return FALSE;
+}
+
 static void
 update_was_enabled(void)
 {
-  GSList *entry;
-
-  for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    protocol_data_t *p = (protocol_data_t *)entry->data;
-    p->was_enabled = p->enabled;
-  }
-
-  for (entry = heur_protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    heur_protocol_data_t *p = (heur_protocol_data_t *)entry->data;
-    p->was_enabled = p->enabled;
-  }
+  wmem_tree_foreach(protocol_list, set_proto_was_enabled, NULL);
+  wmem_tree_foreach(heur_protocol_list, set_heur_was_enabled, NULL);
 }
 
 static void
@@ -383,92 +383,95 @@ proto_delete_event_cb(GtkWidget *proto_w_lcl, GdkEvent *event _U_,
   return FALSE;
 }
 
+static gboolean set_proto_decoding(const void *key _U_, void *value, void *userdata)
+{
+  protocol_data_t *p = (protocol_data_t *)value;
+  gboolean* need_redissect = (gboolean*)userdata;
+  protocol_t *protocol;
+
+  protocol = find_protocol_by_id(p->hfinfo_index);
+  if (proto_is_protocol_enabled(protocol) != p->enabled) {
+    proto_set_decoding(p->hfinfo_index, p->enabled);
+    *need_redissect = TRUE;
+  }
+
+  return FALSE;
+}
+
+static gboolean set_heur_decoding(const void *key _U_, void *value, void *userdata)
+{
+  heur_protocol_data_t *p = (heur_protocol_data_t *)value;
+  gboolean* need_redissect = (gboolean*)userdata;
+  heur_dtbl_entry_t* h;
+
+  h = find_heur_dissector_by_unique_short_name(p->abbrev);
+  if ((h != NULL) && (h->enabled != p->enabled)) {
+    h->enabled = p->enabled;
+    *need_redissect = TRUE;
+  }
+
+  return FALSE;
+}
+
 static gboolean
 set_proto_selection(GtkWidget *parent_w _U_)
 {
-  GSList *entry;
-  heur_dtbl_entry_t* h;
   gboolean need_redissect = FALSE;
 
-  for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    protocol_data_t *p = (protocol_data_t *)entry->data;
-    protocol_t *protocol;
-
-    protocol = find_protocol_by_id(p->hfinfo_index);
-    if (proto_is_protocol_enabled(protocol) != p->enabled) {
-      proto_set_decoding(p->hfinfo_index, p->enabled);
-      need_redissect = TRUE;
-    }
-  }
-
-  for (entry = heur_protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    heur_protocol_data_t *p = (heur_protocol_data_t*)entry->data;
-
-    h = find_heur_dissector_by_unique_short_name(p->abbrev);
-    if ((h != NULL) && (h->enabled != p->enabled)) {
-      h->enabled = p->enabled;
-      need_redissect = TRUE;
-    }
-  }
+  wmem_tree_foreach(protocol_list, set_proto_decoding, &need_redissect);
+  wmem_tree_foreach(heur_protocol_list, set_heur_decoding, &need_redissect);
 
   return need_redissect;
 
 } /* set_proto_selection */
 
+/*
+ * Undo all the changes we've made to protocol enable flags.
+ */
+static gboolean revert_proto_decoding(const void *key _U_, void *value, void *userdata)
+{
+  protocol_data_t *p = (protocol_data_t *)value;
+  gboolean* need_redissect = (gboolean*)userdata;
+  protocol_t *protocol;
+
+  protocol = find_protocol_by_id(p->hfinfo_index);
+  if (proto_is_protocol_enabled(protocol) != p->was_enabled) {
+    proto_set_decoding(p->hfinfo_index, p->was_enabled);
+    *need_redissect = TRUE;
+  }
+
+  return FALSE;
+}
+
+/*
+ * Undo all the changes we've made to heuristic enable flags.
+ */
+static gboolean revert_heur_decoding(const void *key _U_, void *value, void *userdata)
+{
+  heur_protocol_data_t *p = (heur_protocol_data_t *)value;
+  gboolean* need_redissect = (gboolean*)userdata;
+  heur_dtbl_entry_t* h;
+
+  h = find_heur_dissector_by_unique_short_name(p->abbrev);
+  if ((h != NULL) && (h->enabled != p->was_enabled)) {
+    h->enabled = p->was_enabled;
+    *need_redissect = TRUE;
+  }
+
+  return FALSE;
+}
+
 static gboolean
 revert_proto_selection(void)
 {
-  GSList *entry;
   gboolean need_redissect = FALSE;
 
-  /*
-   * Undo all the changes we've made to protocol enable flags.
-   */
-  for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    protocol_data_t *p = (protocol_data_t *)entry->data;
-    protocol_t *protocol;
-
-    protocol = find_protocol_by_id(p->hfinfo_index);
-    if (proto_is_protocol_enabled(protocol) != p->was_enabled) {
-      proto_set_decoding(p->hfinfo_index, p->was_enabled);
-      need_redissect = TRUE;
-    }
-  }
-
-  /*
-   * Undo all the changes we've made to heuristic enable flags.
-   */
-  for (entry = heur_protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    heur_protocol_data_t *p = (heur_protocol_data_t*)entry->data;
-
-    heur_dtbl_entry_t* h = find_heur_dissector_by_unique_short_name(p->abbrev);
-    if ((h != NULL) && (h->enabled != p->was_enabled)) {
-      h->enabled = p->was_enabled;
-      need_redissect = TRUE;
-    }
-  }
+  wmem_tree_foreach(protocol_list, revert_proto_decoding, &need_redissect);
+  wmem_tree_foreach(heur_protocol_list, revert_heur_decoding, &need_redissect);
 
   return need_redissect;
 
 } /* revert_proto_selection */
-
-static gint
-protocol_data_compare(gconstpointer a, gconstpointer b)
-{
-  const protocol_data_t *ap = (const protocol_data_t *)a;
-  const protocol_data_t *bp = (const protocol_data_t *)b;
-
-  return strcmp(ap->abbrev, bp->abbrev);
-}
-
-static gint
-heur_protocol_data_compare(gconstpointer a, gconstpointer b)
-{
-  const heur_protocol_data_t *ap = (const heur_protocol_data_t *)a;
-  const heur_protocol_data_t *bp = (const heur_protocol_data_t *)b;
-
-  return strcmp(ap->abbrev, bp->abbrev);
-}
 
 static void
 create_protocol_list(void)
@@ -478,43 +481,49 @@ create_protocol_list(void)
   protocol_t *protocol;
   protocol_data_t *p;
 
-  /* Iterate over all the protocols */
+  if (protocol_list == NULL) {
+      protocol_list = wmem_tree_new(NULL);
+  }
 
+  /* Iterate over all the protocols */
   for (i = proto_get_first_protocol(&cookie); i != -1;
     i = proto_get_next_protocol(&cookie)) {
     if (proto_can_toggle_protocol(i)) {
-      p = (protocol_data_t *)g_malloc(sizeof(protocol_data_t));
+      p = wmem_new(NULL, protocol_data_t);
       protocol = find_protocol_by_id(i);
       p->name = proto_get_protocol_name(i);
       p->abbrev = proto_get_protocol_short_name(protocol);
       p->hfinfo_index = i;
       p->enabled = proto_is_protocol_enabled(protocol);
       p->was_enabled = p->enabled;
-      protocol_list = g_slist_insert_sorted(protocol_list, p, protocol_data_compare);
+      wmem_tree_insert_string(protocol_list, p->abbrev, p, 0);
     }
   }
 }
 
-static void
-show_proto_selection(GtkListStore *proto_store)
+static gboolean show_proto_func(const void *key _U_, void *value, void *userdata)
 {
-  GSList *entry;
-  protocol_data_t *p;
+  protocol_data_t *p = (protocol_data_t *)value;
+  GtkListStore *proto_store = (GtkListStore*)userdata;
 
-  if (protocol_list == NULL)
-    create_protocol_list();
-
-  for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    p = (protocol_data_t *)entry->data;
-
-    gtk_list_store_append(proto_store, &p->iter);
-    gtk_list_store_set(proto_store, &p->iter,
+  gtk_list_store_append(proto_store, &p->iter);
+  gtk_list_store_set(proto_store, &p->iter,
                        ENABLE_COLUMN, p->enabled,
                        PROTOCOL_COLUMN, p->abbrev,
                        DESCRIPTION_COLUMN, p->name,
                        PROTO_DATA_COLUMN, p,
                       -1);
-  }
+
+  return FALSE;
+}
+
+static void
+show_proto_selection(GtkListStore *proto_store)
+{
+  if (protocol_list == NULL)
+    create_protocol_list();
+
+  wmem_tree_foreach(protocol_list, show_proto_func, proto_store);
 } /* show_proto_selection */
 
 static void
@@ -525,13 +534,17 @@ populate_heur_dissector_table_entries(const char *table_name _U_,
 
   if (dtbl_entry->protocol) {
 
-    p = g_new(heur_protocol_data_t, 1);
+    p = wmem_new(NULL, heur_protocol_data_t);
     p->name = dtbl_entry->display_name;
     p->abbrev = dtbl_entry->short_name;
     p->enabled = dtbl_entry->enabled;
     p->list_name = dtbl_entry->list_name;
     p->was_enabled = p->enabled;
-    heur_protocol_list = g_slist_insert_sorted(heur_protocol_list, p, heur_protocol_data_compare);
+    if (heur_protocol_list == NULL) {
+      heur_protocol_list = wmem_tree_new(NULL);
+    }
+
+    wmem_tree_insert_string(heur_protocol_list, p->abbrev, p, 0);
 
   }else{
     g_warning("no protocol info");
@@ -546,25 +559,29 @@ populate_heur_dissector_tables(const char *table_name, struct heur_dissector_lis
   }
 }
 
-static void
-show_heur_selection(GtkListStore *proto_store)
+static gboolean show_heur_func(const void *key _U_, void *value, void *userdata)
 {
-  GSList *entry;
+  heur_protocol_data_t *p = (heur_protocol_data_t*)value;
+  GtkListStore *proto_store = (GtkListStore*)userdata;
 
-  if (heur_protocol_list == NULL)
-   dissector_all_heur_tables_foreach_table(populate_heur_dissector_tables, NULL, NULL);
-
-  for (entry = heur_protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    heur_protocol_data_t *p = (heur_protocol_data_t *)entry->data;
-
-    gtk_list_store_append(proto_store, &p->iter);
-    gtk_list_store_set(proto_store, &p->iter,
+  gtk_list_store_append(proto_store, &p->iter);
+  gtk_list_store_set(proto_store, &p->iter,
                        ENABLE_COLUMN, p->enabled,
                        PROTOCOL_COLUMN, p->name,
                        HEUR_SHORT_NAME_COLUMN, p->abbrev,
                        PROTO_DATA_COLUMN, p,
                       -1);
-  }
+
+  return FALSE;
+}
+
+static void
+show_heur_selection(GtkListStore *proto_store)
+{
+  if (heur_protocol_list == NULL)
+   dissector_all_heur_tables_foreach_table(populate_heur_dissector_tables, NULL, NULL);
+
+  wmem_tree_foreach(heur_protocol_list, show_heur_func, proto_store);
 }
 
 static void
