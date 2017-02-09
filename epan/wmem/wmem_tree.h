@@ -107,6 +107,14 @@ WS_DLL_PUBLIC
 void *
 wmem_tree_lookup32_le(wmem_tree_t *tree, guint32 key);
 
+/** Remove a node in the tree indexed by a guint32 integer value. This is not
+ * really a remove, but the value is set to NULL so that wmem_tree_lookup32
+ * not will find it.
+ */
+WS_DLL_PUBLIC
+void *
+wmem_tree_remove32(wmem_tree_t *tree, guint32 key);
+
 /** case insensitive strings as keys */
 #define WMEM_TREE_STRING_NOCASE                 0x00000001
 /** Insert a new value under a string key. Like wmem_tree_insert32 but where the

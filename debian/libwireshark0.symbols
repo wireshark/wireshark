@@ -1831,6 +1831,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_tree_new@Base 1.12.0~rc1
  wmem_tree_new_autoreset@Base 1.12.0~rc1
  wmem_tree_remove_string@Base 1.99.9
+ wmem_tree_remove32@Base 2.3.0
  wmem_unregister_callback@Base 1.12.0~rc1
  word_to_hex@Base 2.1.0
  write_carrays_hex_data@Base 1.99.1
