@@ -806,8 +806,8 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
 
                 if (crci_bit == 0 || !p_fp_info->is_uplink) {
-                    next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
-                                              ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8, -1);
+                    next_tvb = tvb_new_subset_length(tvb, offset + bit_offset/8,
+                                              ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8);
 
 
                     /****************/
