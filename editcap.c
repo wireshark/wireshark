@@ -582,7 +582,7 @@ is_duplicate(guint8* fd, guint32 len) {
     guint32 new_len;
     guint8 *new_fd;
 
-    if (len <= ignored_bytes) {
+    if (len <= (guint32)ignored_bytes) {
         offset = 0;
     }
 
@@ -624,7 +624,7 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
     guint32 new_len;
     guint8 *new_fd;
 
-    if (len <= ignored_bytes) {
+    if (len <= (guint32)ignored_bytes) {
         offset = 0;
     }
 
