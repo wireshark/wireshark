@@ -55,10 +55,11 @@ private slots:
     virtual void fillTree();
 };
 
-/** Register function to register dissectors that support RTD.
+/** Register function to register dissectors that support RTD for Qt.
  *
- * @param data register_rtd_t* representing dissetor RTD table
- * @param user_data is unused
+ * @param key is unused
+ * @param value register_rtd_t* representing dissetor RTD table
+ * @param userdata is unused
  */
 gboolean register_response_time_delay_tables(const void *key, void *value, void *userdata);
 
