@@ -1396,7 +1396,7 @@ get_global_profiles_dir(void)
     return global_profiles_dir;
 }
 
-static const char *
+static char *
 get_persconffile_dir(const gchar *profilename)
 {
     static char *persconffile_profile_dir = NULL;
@@ -1821,6 +1821,7 @@ char *
 get_persconffile_path(const char *filename, gboolean from_profile)
 {
     char *path;
+
     if (do_store_persconffiles && from_profile && !g_hash_table_lookup (profile_files, filename)) {
         /* Store filenames so we know which filenames belongs to a configuration profile */
         g_hash_table_insert (profile_files, g_strdup(filename), g_strdup(filename));
@@ -2194,10 +2195,19 @@ data_file_url(const gchar *filename)
 void
 free_progdirs(void)
 {
+    g_free(persconffile_dir);
+    persconffile_dir = NULL;
+    g_free(persdatafile_dir);
+    persdatafile_dir = NULL;
+    g_free(persconfprofile);
+    persconfprofile = NULL;
     g_free(progfile_dir);
+    progfile_dir = NULL;
     g_free(plugin_dir);
+    plugin_dir = NULL;
 #ifdef HAVE_EXTCAP
     g_free(extcap_dir);
+    extcap_dir = NULL;
 #endif
 }
 

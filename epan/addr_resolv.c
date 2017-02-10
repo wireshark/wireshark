@@ -665,6 +665,8 @@ service_name_lookup_cleanup(void)
     serv_port_hashtable = NULL;
     g_free(g_services_path);
     g_services_path = NULL;
+    g_free(g_pservices_path);
+    g_pservices_path = NULL;
 }
 
 /* Fill in an IP4 structure with info from subnets file or just with the
@@ -1332,6 +1334,13 @@ initialize_ethers(void)
 
 } /* initialize_ethers */
 
+static void
+ethers_cleanup(void)
+{
+    g_free(g_pethers_path);
+    g_pethers_path = NULL;
+}
+
 /* Resolve ethernet address */
 static hashether_t *
 eth_addr_resolve(hashether_t *tp) {
@@ -1708,6 +1717,8 @@ static void
 ipx_name_lookup_cleanup(void)
 {
     ipxnet_hash_table = NULL;
+    g_free(g_pipxnets_path);
+    g_pipxnets_path = NULL;
 }
 
 #if 0
@@ -1919,6 +1930,8 @@ static void
 vlan_name_lookup_cleanup(void)
 {
     vlan_hash_table = NULL;
+    g_free(g_pvlan_path);
+    g_pvlan_path = NULL;
 }
 
 static const gchar *
@@ -3374,6 +3387,7 @@ addr_resolv_cleanup(void)
 {
     vlan_name_lookup_cleanup();
     service_name_lookup_cleanup();
+    ethers_cleanup();
     ipx_name_lookup_cleanup();
     /* host name initialization is done on a per-capture-file basis */
     /*host_name_lookup_cleanup();*/
