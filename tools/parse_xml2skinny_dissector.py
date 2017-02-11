@@ -158,6 +158,7 @@ def xml2obj(src):
         def dissect(self):
             ret = ''
             declarations = 0
+            fixed = 0
 
             if (self.fields is not None):
                 ret += self.indent_out("/*\n")
@@ -174,17 +175,15 @@ def xml2obj(src):
                 ret += self.indent_out("{\n")
                 self.incr_indent()
                 for fields in self.fields:
-                    if fields.size_lt:
+                    if fields.size_lt or fields.size_gt:
                         if self.basemessage.declared is None or "hdr_data_length" not in self.basemessage.declared:
                             ret += self.indent_out("guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);\n")
                             self.basemessage.declared.append("hdr_data_length")
                             declarations += 1
-                    if fields.size_gt:
-                        if self.basemessage.declared is None or "hdr_data_length" not in self.basemessage.declared:
-                            ret += self.indent_out("guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);\n")
-                            self.basemessage.declared.append("hdr_data_length")
-                            declarations += 1
-                if not declarations:
+                    if fields.fixed == "yes":
+                        fixed = 1
+
+                if not declarations or fixed == 1:
                     for fields in self.fields[1:]:
                         if self.basemessage.declared is None or "hdr_version" not in self.basemessage.declared:
                             ret += self.indent_out("guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);\n")
@@ -283,9 +282,9 @@ def xml2obj(src):
             else:
                 print "ERROR integer %s with type: %s, could not be found" %(self.name, self.type)
 
-            if self.declare == "yes":
+            if self.declare == "yes" and self.type != "ipport":
                 if self.basemessage.declared is None or self.name not in self.basemessage.declared:
-                    ret += self.indent_out('g%s %s = 0;\n' %(self.type, self.name))
+                    ret += self.indent_out('guint%s %s = 0;\n' %(self.intsize * 8, self.name))
                     self.basemessage.declared.append(self.name)
 
             global fieldsArray
@@ -320,7 +319,7 @@ def xml2obj(src):
                     ret += self.indent_out('if (%s < %s) {\n' %(variable,self.size_fieldname))
                 self.incr_indent()
 
-            if self.declare == "yes":
+            if self.declare == "yes" and self.type != "ipport":
                 if self.endianness == "big":
                     if (self.intsize == 4):
                         ret += self.indent_out('%s = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
@@ -642,7 +641,7 @@ def xml2obj(src):
             return ''
 
         def dissect(self):
-            return self.indent_out('dissect_skinny_ipv4or6(cursor, hf_skinny_%s_ipv4, hf_skinny_%s_ipv6, pinfo);\n' %(self.name, self.name))
+            return self.indent_out('dissect_skinny_ipv4or6(cursor, hf_skinny_%s_ipv4, hf_skinny_%s_ipv6);\n' %(self.name, self.name))
 
     class XML(DataNode):
         def __init__(self):

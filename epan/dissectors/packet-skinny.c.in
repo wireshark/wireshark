@@ -37,8 +37,8 @@
 # Using Cog.py Inplace Code Generator
 #
 # Dependencies:
-# - python
-# - cog.py: http://nedbatchelder.com/code/cog/
+# - python2.x
+# - cog.py: (pip install cogapp / http://nedbatchelder.com/code/cog/)
 # - python.xml
 # - python.xml.sax
 #
@@ -59,6 +59,7 @@ cog.out(' */\n')
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/ptvcursor.h>
 
@@ -69,7 +70,6 @@ cog.out(' */\n')
 
 void proto_register_skinny(void);
 void proto_reg_handoff_skinny(void);
-
 
 #define TCP_PORT_SKINNY 2000 /* Not IANA registered */
 #define SSL_PORT_SKINNY 2443 /* IANA assigned to PowerClient Central Storage Facility */
@@ -123,7 +123,6 @@ cog.out('static value_string_ext message_id_ext = VALUE_STRING_EXT_INIT(message_
 ]]]*/
 /*[[[end]]]*/
 
-
 /* Declare Enums and Defines */
 /* [[[cog
 for enum in skinny.enum:
@@ -169,8 +168,8 @@ static dissector_handle_t xml_handle;
 static gint ett_skinny          = -1;
 static gint ett_skinny_tree     = -1;
 
-/* desegmentation of SCCP */
-static gboolean skinny_desegment = TRUE;
+/* preference globals */
+static gboolean global_skinny_desegment = TRUE;
 
 /* tap register id */
 static int skinny_tap = -1;
@@ -183,13 +182,13 @@ static skinny_info_t *si;
 
 dissector_handle_t skinny_handle;
 
-/* Get the length of a single SCCP PDU */
+/* Get the length of a single SKINNY PDU */
 static guint
 get_skinny_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   guint32 hdr_data_length;
 
-  /* Get the length of the SCCP packet. */
+  /* Get the length of the SKINNY packet. */
   hdr_data_length = tvb_get_letohl(tvb, offset);
 
   /* That length doesn't include the length of the header itself. */
@@ -225,14 +224,12 @@ dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, guint32
 }
 
 static void
-dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, packet_info *pinfo)
+dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6)
 {
-  address            src_addr;
   guint32            ipversion   = 0;
   guint32            offset      = ptvcursor_current_offset(cursor);
   tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
   guint32            hdr_version = tvb_get_letohl(tvb, 4);
-  gboolean           is_video    = FALSE;
 
   /* ProtocolVersion > 18 include and extra field to declare IPv4 (0) / IPv6 (1) */
   if (hdr_version >= V17_MSG_TYPE) {
@@ -240,24 +237,12 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
     ptvcursor_add(cursor, hf_skinny_ipv4or6, 4, ENC_LITTLE_ENDIAN);
   }
   if (ipversion == IPADDRTYPE_IPV4) {
-    guint32 ip_address;
-    src_addr.type = AT_IPv4;
-    src_addr.len = 4;
-    src_addr.data = (guint8 *)&ip_address;
-    ip_address = tvb_get_ipv4(tvb, offset);
-    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->num, is_video, NULL);
     ptvcursor_add(cursor, hfindex_ipv4, 4, ENC_BIG_ENDIAN);
     if (hdr_version >= V17_MSG_TYPE) {
       /* skip over the extra room for ipv6 addresses */
       ptvcursor_advance(cursor, 12);
     }
   } else if (ipversion == IPADDRTYPE_IPV6 || ipversion == IPADDRTYPE_IPV4_V6) {
-    struct e_in6_addr IPv6;
-    src_addr.type = AT_IPv6;
-    src_addr.len = 16;
-    src_addr.data = (guint8 *)&IPv6;
-    tvb_get_ipv6(tvb, offset, &IPv6);
-    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->num, is_video, NULL);
     ptvcursor_add(cursor, hfindex_ipv6, 16, ENC_NA);
   } else {
     /* Invalid : skip over ipv6 space completely */
@@ -340,7 +325,7 @@ cog.out('};\n')
 ]]]*/
 /*[[[end]]]*/
 
-/* Dissect a single SCCP PDU */
+/* Dissect a single SKINNY PDU */
 static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint    offset   = 0;
@@ -358,11 +343,6 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   proto_item *ti = NULL;
 
   /* Initialization */
-  /*
-  hdr_data_length = tvb_get_letohl(tvb, offset);
-  hdr_version     = tvb_get_letohl(tvb, offset+4);
-  data_messageid  = tvb_get_letohl(tvb, offset+8);
-  */
   hdr_data_length = tvb_get_letohl(tvb, 0);
   hdr_version     = tvb_get_letohl(tvb, 4);
   data_messageid  = tvb_get_letohl(tvb, 8);
@@ -401,15 +381,10 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", si->messageName);
   col_set_fence(pinfo->cinfo, COL_INFO);
 
-  /*offset += 8;*/
-  /*cursor = ptvcursor_new(skinny_tree, tvb, offset);*/
-
   proto_tree_add_uint(skinny_tree, hf_skinny_messageId, tvb,offset+8, 4, data_messageid );
-  /*ptvcursor_add(cursor, hf_skinny_messageId, 4, data_messageid);*/
-
   offset += 12;
-  cursor = ptvcursor_new(skinny_tree, tvb, offset);
 
+  cursor = ptvcursor_new(skinny_tree, tvb, offset);
   for (i = 0; i < sizeof(skinny_opcode2handler)/sizeof(struct opcode2handler) ; i++) {
     if (skinny_opcode2handler[i].opcode == data_messageid && skinny_opcode2handler[i].handler) {
       skinny_opcode2handler[i].handler(cursor, pinfo);
@@ -418,6 +393,7 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   ptvcursor_free(cursor);
 
   tap_queue_packet(skinny_tap, pinfo, si);
+
   return tvb_captured_length(tvb);
 }
 
@@ -468,7 +444,7 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
   col_set_str(pinfo->cinfo, COL_INFO, "Skinny Client Control Protocol");
 
-  tcp_dissect_pdus(tvb, pinfo, tree, skinny_desegment, 4, get_skinny_pdu_len, dissect_skinny_pdu, data);
+  tcp_dissect_pdus(tvb, pinfo, tree, global_skinny_desegment, 4, get_skinny_pdu_len, dissect_skinny_pdu, data);
 
   return tvb_captured_length(tvb);
 }
@@ -524,11 +500,11 @@ proto_register_skinny(void)
 
   skinny_module = prefs_register_protocol(proto_skinny, NULL);
   prefs_register_bool_preference(skinny_module, "desegment",
-    "Reassemble SCCP messages spanning multiple TCP segments",
-    "Whether the SCCP dissector should reassemble messages spanning multiple TCP segments."
+    "Reassemble SKINNY messages spanning multiple TCP segments",
+    "Whether the SKINNY dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable"
     " \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-    &skinny_desegment);
+    &global_skinny_desegment);
 
   skinny_handle = register_dissector("skinny", dissect_skinny, proto_skinny);
 
@@ -539,7 +515,7 @@ void
 proto_reg_handoff_skinny(void)
 {
   /* Skinny content type and internet media type used by other dissectors are the same */
-  xml_handle = find_dissector("xml");
+  xml_handle = find_dissector_add_dependency("xml", proto_skinny);
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_SKINNY, skinny_handle);
   ssl_dissector_add(SSL_PORT_SKINNY, skinny_handle);
 }

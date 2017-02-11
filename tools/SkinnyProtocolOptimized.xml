@@ -282,10 +282,7 @@
       <entry comment="" name="DeviceType_Station12SP" text="Station12SP" value="0x00003"/>
       <entry comment="" name="DeviceType_Station12" text="Station12" value="0x00004"/>
       <entry comment="" name="DeviceType_Station30VIP" text="Station30VIP" value="0x00005"/>
-      <entry comment="" name="DeviceType_StationTelecaster" text="StationTelecaster" value="0x00006"/>
       <entry comment="" name="DeviceType_StationTelecasterMgr" text="StationTelecasterMgr" value="0x00007"/>
-      <entry comment="" name="DeviceType_StationTelecasterBus" text="StationTelecasterBus" value="0x00008"/>
-      <entry comment="" name="DeviceType_StationPolycom" text="StationPolycom" value="0x00009"/>
       <entry comment="" name="DeviceType_StationVGC" text="StationVGC" value="0x0000a"/>
       <entry comment="" name="DeviceType_VGCVirtualPhone" text="VGCVirtualPhone" value="0x0000b"/>
       <entry comment="" name="DeviceType_StationATA186" text="StationATA186" value="0x0000c"/>
@@ -295,7 +292,7 @@
       <entry comment="" name="DeviceType_StationPhoneApplication" text="StationPhoneApplication" value="0x00015"/>
       <entry comment="" name="DeviceType_AnalogAccess" text="AnalogAccess" value="0x0001e"/>
       <entry comment="" name="DeviceType_DigitalAccessTitan1" text="DigitalAccessTitan1" value="0x00028"/>
-      <entry comment="Digital Access T1" name="DeviceType_Digital Access T1" text="Digital Access T1" value="0x00029"/>
+      <entry comment="Digital Access T1" name="DeviceType_DigitalAccessT1" text="Digital Access T1" value="0x00029"/>
       <entry comment="" name="DeviceType_DigitalAccessTitan2" text="DigitalAccessTitan2" value="0x0002a"/>
       <entry comment="" name="DeviceType_DigitalAccessLennon" text="DigitalAccessLennon" value="0x0002b"/>
       <entry comment="" name="DeviceType_AnalogAccessElvis" text="AnalogAccessElvis" value="0x0002f"/>
@@ -326,8 +323,8 @@
       <entry comment="" name="DeviceType_MediaTerminationPointYoko" text="MediaTerminationPointYoko" value="0x0006f"/>
       <entry comment="" name="DeviceType_MediaTerminationPointDixieLand" text="MediaTerminationPointDixieLand" value="0x00070"/>
       <entry comment="" name="DeviceType_MediaTerminationPointSummit" text="MediaTerminationPointSummit" value="0x00071"/>
-      <entry comment="" name="DeviceType_7941G" text="7941G" value="0x00073"/>
-      <entry comment="" name="DeviceType_7971" text="7971" value="0x00077"/>
+      <entry comment="" name="DeviceType_Cisco_7941G" text="7941G" value="0x00073"/>
+      <entry comment="" name="DeviceType_Cisco_7971" text="7971" value="0x00077"/>
       <entry comment="" name="DeviceType_MGCPStation" text="MGCPStation" value="0x00078"/>
       <entry comment="" name="DeviceType_MGCPTrunk" text="MGCPTrunk" value="0x00079"/>
       <entry comment="" name="DeviceType_RASProxy" text="RASProxy" value="0x0007a"/>
@@ -343,25 +340,22 @@
       <entry comment="" name="DeviceType_GenericDevice" text="GenericDevice" value="0x000fd"/>
       <entry comment="" name="DeviceType_UnknownMGCPGateway" text="UnknownMGCPGateway" value="0x000fe"/>
       <entry comment="" name="DeviceType_NotDefined" text="NotDefined" value="0x000ff"/>
-      <entry comment="" name="DeviceType_7989" text="7989" value="0x0012e"/>
-      <entry comment="" name="DeviceType_7911" text="7911" value="0x00133"/>
-      <entry comment="" name="DeviceType_7941G_GE" text="7941G_GE" value="0x00134"/>
+      <entry comment="" name="DeviceType_Cisco_7911" text="7911" value="0x00133"/>
       <entry comment="" name="DeviceType_MotorolaCN622" text="MotorolaCN622" value="0x0014f"/>
-      <entry comment="" name="DeviceType_3rdPartySipBasic" text="3rdPartySipBasic" value="0x00150"/>
-      <entry comment="" name="DeviceType_StationGoPed" text="StationGoPed" value="0x0015c"/>
+      <entry comment="" name="DeviceType_ThirdPartySipBasic" text="3rdPartySipBasic" value="0x00150"/>
       <entry comment="" name="DeviceType_UnifiedCommunicator" text="UnifiedCommunicator" value="0x00166"/>
-      <entry comment="" name="DeviceType_7921" text="7921" value="0x0016d"/>
-      <entry comment="" name="DeviceType_7906" text="7906" value="0x00171"/>
-      <entry comment="" name="DeviceType_3rdPartySipAdv" text="3rdPartySipAdv" value="0x00176"/>
+      <entry comment="" name="DeviceType_Cisco_7921" text="7921" value="0x0016d"/>
+      <entry comment="" name="DeviceType_Cisco_7906" text="7906" value="0x00171"/>
+      <entry comment="" name="DeviceType_ThirdPartySipAdv" text="3rdPartySipAdv" value="0x00176"/>
       <entry comment="" name="DeviceType_Telepresence" text="Telepresence" value="0x00177"/>
-      <entry comment="" name="DeviceType_7962" text="7962" value="0x00194"/>
-      <entry comment="" name="DeviceType_3951" text="3951" value="0x0019c"/>
-      <entry comment="" name="DeviceType_7937" text="7937" value="0x001af"/>
-      <entry comment="" name="DeviceType_7942" text="7942" value="0x001b2"/>
-      <entry comment="" name="DeviceType_7945" text="7945" value="0x001b3"/>
-      <entry comment="" name="DeviceType_7965" text="7965" value="0x001b4"/>
-      <entry comment="" name="DeviceType_7975" text="7975" value="0x001b5"/>
-      <entry comment="" name="DeviceType_9971_CE" text="9971_CE" value="0x001ed"/>
+      <entry comment="" name="DeviceType_Cisco_7962" text="7962" value="0x00194"/>
+      <entry comment="" name="DeviceType_Cisco_3951" text="3951" value="0x0019c"/>
+      <entry comment="" name="DeviceType_Cisco_7937" text="7937" value="0x001af"/>
+      <entry comment="" name="DeviceType_Cisco_7942" text="7942" value="0x001b2"/>
+      <entry comment="" name="DeviceType_Cisco_7945" text="7945" value="0x001b3"/>
+      <entry comment="" name="DeviceType_Cisco_7965" text="7965" value="0x001b4"/>
+      <entry comment="" name="DeviceType_Cisco_7975" text="7975" value="0x001b5"/>
+      <entry comment="" name="DeviceType_Cisco_9971_CE" text="9971_CE" value="0x001ed"/>
       <entry comment="" name="DeviceType_UnifiedMobileCommunicator" text="UnifiedMobileCommunicator" value="0x001d4"/>
       <entry comment="" name="DeviceType_CSF" text="CSF" value="0x001f7"/>
       <entry comment="" name="DeviceType_CiscoTelepresenceMcu" text="CiscoTelepresenceMcu" value="0x00255"/>
@@ -370,14 +364,13 @@
       <entry comment="" name="DeviceType_CiscoTelePresenceSoftwareConferenceBridge" text="CiscoTelePresenceSoftwareConferenceBridge" value="0x00258"/>
       <entry comment="" name="DeviceType_ASSip" text="ASSip" value="0x00277"/>
       <entry comment="" name="DeviceType_CtiRemoteDevice" text="CtiRemoteDevice" value="0x0027b"/>
-      <entry comment="" name="DeviceType_7905" text="7905" value="0x04e20"/>
-      <entry comment="" name="DeviceType_7920" text="7920" value="0x07532"/>
-      <entry comment="" name="DeviceType_7970" text="7970" value="0x07536"/>
-      <entry comment="" name="DeviceType_7912" text="7912" value="0x07537"/>
-      <entry comment="" name="DeviceType_7902" text="7902" value="0x07538"/>
-      <entry comment="" name="DeviceType_SoftPhone" text="SoftPhone" value="0x07540"/>
-      <entry comment="" name="DeviceType_7961G" text="7961G" value="0x07542"/>
-      <entry comment="" name="DeviceType_7936" text="7936" value="0x07543"/>
+      <entry comment="" name="DeviceType_Cisco_7905" text="7905" value="0x04e20"/>
+      <entry comment="" name="DeviceType_Cisco_7920" text="7920" value="0x07532"/>
+      <entry comment="" name="DeviceType_Cisco_7970" text="7970" value="0x07536"/>
+      <entry comment="" name="DeviceType_Cisco_7912" text="7912" value="0x07537"/>
+      <entry comment="" name="DeviceType_Cisco_7902" text="7902" value="0x07538"/>
+      <entry comment="" name="DeviceType_Cisco_7961G" text="7961G" value="0x07542"/>
+      <entry comment="" name="DeviceType_Cisco_7936" text="7936" value="0x07543"/>
       <entry comment="" name="DeviceType_AnalogPhone" text="AnalogPhone" value="0x0754b"/>
       <entry comment="" name="DeviceType_ISDNBRIPhone" text="ISDNBRIPhone" value="0x0754c"/>
       <entry comment="" name="DeviceType_SCCPGwVirtualPhone" text="SCCPGwVirtualPhone" value="0x07550"/>
@@ -389,7 +382,7 @@
       <entry comment="Cisco 7935" name="DeviceType_Cisco_7935" text="Cisco 7935" value="0x00009"/>
       <entry comment="Cisco 7940" name="DeviceType_Cisco_7940" text="Cisco 7940" value="0x00008"/>
       <entry comment="Cisco 7961 GE" name="DeviceType_Cisco_7961_GE" text="Cisco 7961 GE" value="0x00134"/>
-      <entry comment="" name="DeviceType_7961G_GE" text="7961G_GE" value="0x00135"/>
+      <entry comment="" name="DeviceType_Cisco_7961G_GE" text="7961G_GE" value="0x00135"/>
       <entry comment="Cisco 7985" name="DeviceType_Cisco_7985" text="Cisco 7985" value="0x0012e"/>
       <entry comment="Nokia E Series" name="DeviceType_Nokia_E_Series" text="Nokia E Series" value="0x00113"/>
       <entry comment="Cisco IP Communicator" name="DeviceType_Cisco_IP_Communicator" text="Cisco IP Communicator" value="0x07540"/>
@@ -411,9 +404,9 @@
       <entry comment="Cisco SPA 525G2 (5 lines / color / wifi / bluetooth)" name="DeviceType_Cisco_SPA_525G2" text="Cisco SPA 525G2" value="0x13889"/>
       <entry comment="Cisco 7914 AddOn" name="DeviceType_Cisco_7914_AddOn" text="Cisco 7914 AddOn" value="0x0007c"/>
       <entry comment="Cisco 7915 AddOn (12 Buttons)" name="DeviceType_Cisco_7915_AddOn" text="Cisco 7915 AddOn" value="0x000e3"/>
-      <entry comment="Cisco 7915 AddOn (24 Buttons)" name="DeviceType_Cisco_7915_AddOn" text="Cisco 7915 AddOn" value="0x000e4"/>
+      <entry comment="Cisco 7915 AddOn (24 Buttons)" name="DeviceType_Cisco_7915_AddOn_24" text="Cisco 7915 AddOn 24" value="0x000e4"/>
       <entry comment="Cisco 7916 AddOn (12 Buttons)" name="DeviceType_Cisco_7916_AddOn" text="Cisco 7916 AddOn" value="0x000e5"/>
-      <entry comment="Cisco 7916 AddOn (24 Buttons)" name="DeviceType_Cisco_7916_AddOn" text="Cisco 7916 AddOn" value="0x000e6"/>
+      <entry comment="Cisco 7916 AddOn (24 Buttons)" name="DeviceType_Cisco_7916_AddOn_24" text="Cisco 7916 AddOn 24" value="0x000e6"/>
     </entries>
   </enum>
   <bitfield name="PhoneFeatures">
@@ -579,7 +572,7 @@
       <entry comment="" name="DeviceStimulus_EndCall" text="EndCall" value="0x008a"/>
       <entry comment="" name="DeviceStimulus_HLog" text="HLog" value="0x008b"/>
       <entry comment="" name="DeviceStimulus_Queuing" text="Queuing" value="0x008f"/>
-      <entry boundscheck="max" comment="" name="DeviceStimulus_MaxStimulusValue" text="MaxStimulusValue" value="0x008f"/>
+      <entry boundscheck="max" comment="" name="DeviceStimulus_MaxStimulusValue" text="MaxStimulusValue" value="0x00ff"/>
     </entries>
   </enum>
   <message comment="" direction="dev2pbx" dynamic="no" name="StimulusMessage" opcode="0x0005" status="no" type="CallControl">
@@ -781,7 +774,7 @@
   </enum>
   <message comment="" direction="dev2pbx" dynamic="no" name="MulticastMediaReceptionAckMessage" opcode="0x0021" status="no" type="MediaControl">
     <fields beginversion="0" endversion="22">
-      <enum comment="" name="receptionStatus" subtype="MulticastMediaReceptionStatus" type="uint32"/>
+      <enum comment="" name="multicastReceptionStatus" subtype="MulticastMediaReceptionStatus" type="uint32"/>
       <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
@@ -813,9 +806,9 @@
   </enum>
   <message comment="" direction="dev2pbx" dynamic="no" name="OpenReceiveChannelAckMessage" opcode="0x0022" status="no" type="MediaControl">
     <fields>
-      <enum comment="" name="openReceiveChannelStatus" subtype="MediaStatus" type="uint32"/>
+      <enum comment="" name="mediaReceptionStatus" subtype="MediaStatus" type="uint32"/>
       <ipv4or6 comment="" name="ipAddr" subtype="IPV4orV6Address" type="ipaddr"/>
-      <integer comment="" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr"/>
+      <integer comment="" declare="yes" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr"/>
       <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
     </fields>
     <fields beginversion="0" endversion="22" size_gt="20">
@@ -829,10 +822,22 @@
     </entries>
   </enum>
   <message comment="" direction="dev2pbx" dynamic="no" name="ConnectionStatisticsResMessage" opcode="0x0023" status="no" type="CallControl">
-    <fields>
-      <string comment="Directory Number" declare="yes" name="directoryNum" size="VariableDirnumSize" type="char"/>
+    <fields endversion="16" fixed="yes">
+      <string comment="" name="directoryNum" size="24" type="char"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <enum comment="Stats Processing Mode" longcomment="What do do after you send the stats" name="statsProcessingMode" subtype="StatsProcessingType" type="uint32"/>
+    </fields>
+    <fields beginversion="17" endversion="20" fixed="yes">
+      <string comment="" name="directoryNum" size="28" type="char"/>
+      <integer comment="CallId" name="callReference" type="uint32"/>
+      <enum comment="Stats Processing Mode" longcomment="What do do after you send the stats" name="statsProcessingMode" subtype="StatsProcessingType" type="uint32"/>
+    </fields>
+    <fields beginversion="21" endversion="22" fixed="yes">
+      <string comment="" name="directoryNum" size="28" type="char"/>
+      <integer comment="CallId" name="callReference" type="uint32"/>
+      <integer comment="Stats Processing Mode" longcomment="What do do after you send the stats" name="statsProcessingMode" subtype="StatsProcessingType" type="uint8"/>
+    </fields>
+    <fields>
       <integer comment="Number of Packets Sent" name="numberPacketsSent" type="uint32"/>
       <integer comment="Number of Octets Sent" name="numberOctetsSent" type="uint32"/>
       <integer comment="Number of Packets Received" name="numberPacketsReceived" type="uint32"/>
@@ -841,7 +846,7 @@
       <integer comment="Amount of Jitter" name="jitter" type="uint32"/>
       <integer comment="Amount of Latency" name="latency" type="uint32"/>
     </fields>
-    <fields beginversion="0" endversion="22" size_gt="64">
+    <fields size_gt="64">
       <integer comment="Data Size" declare="yes" name="dataSize" type="uint32"/>
       <string comment="Statistics" longcomment="variable field size (max: 600]" maxsize="600" name="data" size_fieldname="dataSize" type="char"/>
     </fields>
@@ -861,7 +866,7 @@
       <entry name="SoftKeySet_OnHold" text="On Hold" value="2"/>
       <entry name="SoftKeySet_Ringin" text="Ring In" value="3"/>
       <entry name="SoftKeySet_OffHook" text="Off Hook" value="4"/>
-      <entry name="SoftKeySet_ConnTrans" text="Connected Transfeable" value="5"/>
+      <entry name="SoftKeySet_ConnTrans" text="Connected Transferable" value="5"/>
       <entry name="SoftKeySet_DigitsFoll" text="Digits Following" value="6"/>
       <entry name="SoftKeySet_ConnConf" text="Connected Conference" value="7"/>
       <entry name="SoftKeySet_RingOut" text="Ring Out" value="8"/>
@@ -890,44 +895,44 @@
       <entry name="SoftKeyEvent_MeetMe" text="MeetMe" value="16"/>
       <entry name="SoftKeyEvent_PickUp" text="PickUp" value="17"/>
       <entry name="SoftKeyEvent_GrpPickup" text="GrpPickup" value="18"/>
-      <entry name="SoftKeyEvent_Your current options" text="Your current options" value="19"/>
-      <entry name="SoftKeyEvent_Off Hook" text="Off Hook" value="20"/>
-      <entry name="SoftKeyEvent_On Hook" text="On Hook" value="21"/>
-      <entry name="SoftKeyEvent_Ring out" text="Ring out" value="22"/>
+      <entry name="SoftKeyEvent_YourCurrentOptions" text="Your current options" value="19"/>
+      <entry name="SoftKeyEvent_OffHook" text="Off Hook" value="20"/>
+      <entry name="SoftKeyEvent_OnHook" text="On Hook" value="21"/>
+      <entry name="SoftKeyEvent_RingOut" text="Ring out" value="22"/>
       <entry name="SoftKeyEvent_From " text="From " value="23"/>
       <entry name="SoftKeyEvent_Connected" text="Connected" value="24"/>
       <entry name="SoftKeyEvent_Busy" text="Busy" value="25"/>
-      <entry name="SoftKeyEvent_Line In Use" text="Line In Use" value="26"/>
-      <entry name="SoftKeyEvent_Call Waiting" text="Call Waiting" value="27"/>
-      <entry name="SoftKeyEvent_Call Transfer" text="Call Transfer" value="28"/>
-      <entry name="SoftKeyEvent_Call Park" text="Call Park" value="29"/>
-      <entry name="SoftKeyEvent_Call Proceed" text="Call Proceed" value="30"/>
-      <entry name="SoftKeyEvent_In Use Remote" text="In Use Remote" value="31"/>
-      <entry name="SoftKeyEvent_Enter number" text="Enter number" value="32"/>
-      <entry name="SoftKeyEvent_Call park At" text="Call park At" value="33"/>
-      <entry name="SoftKeyEvent_Primary Only" text="Primary Only" value="34"/>
-      <entry name="SoftKeyEvent_Temp Fail" text="Temp Fail" value="35"/>
-      <entry name="SoftKeyEvent_You Have a VoiceMail" text="You Have a VoiceMail" value="36"/>
-      <entry name="SoftKeyEvent_Forwarded to" text="Forwarded to" value="37"/>
-      <entry name="SoftKeyEvent_Can Not Complete Conference" text="Can Not Complete Conference" value="38"/>
-      <entry name="SoftKeyEvent_No Conference Bridge" text="No Conference Bridge" value="39"/>
-      <entry name="SoftKeyEvent_Can Not Hold Primary Control" text="Can Not Hold Primary Control" value="40"/>
-      <entry name="SoftKeyEvent_Invalid Conference Participant" text="Invalid Conference Participant" value="41"/>
-      <entry name="SoftKeyEvent_In Conference Already" text="In Conference Already" value="42"/>
-      <entry name="SoftKeyEvent_No Participant Info" text="No Participant Info" value="43"/>
-      <entry name="SoftKeyEvent_Exceed Maximum Parties" text="Exceed Maximum Parties" value="44"/>
-      <entry name="SoftKeyEvent_Key Is Not Active" text="Key Is Not Active" value="45"/>
-      <entry name="SoftKeyEvent_Error No License" text="Error No License" value="46"/>
-      <entry name="SoftKeyEvent_Error DBConfig" text="Error DBConfig" value="47"/>
-      <entry name="SoftKeyEvent_Error Database" text="Error Database" value="48"/>
-      <entry name="SoftKeyEvent_Error Pass Limit" text="Error Pass Limit" value="49"/>
-      <entry name="SoftKeyEvent_Error Unknown" text="Error Unknown" value="50"/>
-      <entry name="SoftKeyEvent_Error Mismatch" text="Error Mismatch" value="51"/>
+      <entry name="SoftKeyEvent_LineInUse" text="Line In Use" value="26"/>
+      <entry name="SoftKeyEvent_CallWaiting" text="Call Waiting" value="27"/>
+      <entry name="SoftKeyEvent_CallTransfer" text="Call Transfer" value="28"/>
+      <entry name="SoftKeyEvent_CallPark" text="Call Park" value="29"/>
+      <entry name="SoftKeyEvent_CallProceed" text="Call Proceed" value="30"/>
+      <entry name="SoftKeyEvent_InUseRemote" text="In Use Remote" value="31"/>
+      <entry name="SoftKeyEvent_EnterNumber" text="Enter number" value="32"/>
+      <entry name="SoftKeyEvent_CallParkAt" text="Call park At" value="33"/>
+      <entry name="SoftKeyEvent_PrimaryOnly" text="Primary Only" value="34"/>
+      <entry name="SoftKeyEvent_TempFail" text="Temp Fail" value="35"/>
+      <entry name="SoftKeyEvent_YouHaveAVoiceMail" text="You Have a VoiceMail" value="36"/>
+      <entry name="SoftKeyEvent_ForwardedTo" text="Forwarded to" value="37"/>
+      <entry name="SoftKeyEvent_CanNotCompleteConference" text="Can Not Complete Conference" value="38"/>
+      <entry name="SoftKeyEvent_NoConferenceBridge" text="No Conference Bridge" value="39"/>
+      <entry name="SoftKeyEvent_CanNotHoldPrimaryControl" text="Can Not Hold Primary Control" value="40"/>
+      <entry name="SoftKeyEvent_InvalidConferenceParticipant" text="Invalid Conference Participant" value="41"/>
+      <entry name="SoftKeyEvent_InConferenceAlready" text="In Conference Already" value="42"/>
+      <entry name="SoftKeyEvent_NoParticipantInfo" text="No Participant Info" value="43"/>
+      <entry name="SoftKeyEvent_ExceedMaximumParties" text="Exceed Maximum Parties" value="44"/>
+      <entry name="SoftKeyEvent_KeyIsNotActive" text="Key Is Not Active" value="45"/>
+      <entry name="SoftKeyEvent_ErrorNoLicense" text="Error No License" value="46"/>
+      <entry name="SoftKeyEvent_ErrorDBConfig" text="Error DBConfig" value="47"/>
+      <entry name="SoftKeyEvent_ErrorDatabase" text="Error Database" value="48"/>
+      <entry name="SoftKeyEvent_ErrorPassLimit" text="Error Pass Limit" value="49"/>
+      <entry name="SoftKeyEvent_ErrorUnknown" text="Error Unknown" value="50"/>
+      <entry name="SoftKeyEvent_ErrorMismatch" text="Error Mismatch" value="51"/>
       <entry name="SoftKeyEvent_Conference" text="Conference" value="52"/>
-      <entry name="SoftKeyEvent_Park Number" text="Park Number" value="53"/>
+      <entry name="SoftKeyEvent_ParkNumber" text="Park Number" value="53"/>
       <entry name="SoftKeyEvent_Private" text="Private" value="54"/>
-      <entry name="SoftKeyEvent_Not Enough Bandwidth" text="Not Enough Bandwidth" value="55"/>
-      <entry name="SoftKeyEvent_Unknown Number" text="Unknown Number" value="56"/>
+      <entry name="SoftKeyEvent_NotEnoughBandwidth" text="Not Enough Bandwidth" value="55"/>
+      <entry name="SoftKeyEvent_UnknownNumber" text="Unknown Number" value="56"/>
       <entry name="SoftKeyEvent_RmLstC" text="RmLstC" value="57"/>
       <entry name="SoftKeyEvent_Voicemail" text="Voicemail" value="58"/>
       <entry name="SoftKeyEvent_ImmDiv" text="ImmDiv" value="59"/>
@@ -937,15 +942,15 @@
       <entry name="SoftKeyEvent_DND" text="DND" value="63"/>
       <entry name="SoftKeyEvent_DivAll" text="DivAll" value="64"/>
       <entry name="SoftKeyEvent_CallBack" text="CallBack" value="65"/>
-      <entry name="SoftKeyEvent_Network congestion,rerouting" text="Network congestion,rerouting" value="66"/>
+      <entry name="SoftKeyEvent_NetworkCongestionRerouting" text="Network congestion,rerouting" value="66"/>
       <entry name="SoftKeyEvent_Barge" text="Barge" value="67"/>
-      <entry name="SoftKeyEvent_Failed to setup Barge" text="Failed to setup Barge" value="68"/>
-      <entry name="SoftKeyEvent_Another Barge exists" text="Another Barge exists" value="69"/>
-      <entry name="SoftKeyEvent_Incompatible device type" text="Incompatible device type" value="70"/>
-      <entry name="SoftKeyEvent_No Park Number Available" text="No Park Number Available" value="71"/>
-      <entry name="SoftKeyEvent_CallPark Reversion" text="CallPark Reversion" value="72"/>
-      <entry name="SoftKeyEvent_Service is not Active" text="Service is not Active" value="73"/>
-      <entry name="SoftKeyEvent_High Traffic Try Again Later" text="High Traffic Try Again Later" value="74"/>
+      <entry name="SoftKeyEvent_FailedToSetupBarge" text="Failed to setup Barge" value="68"/>
+      <entry name="SoftKeyEvent_AnotherBargeExists" text="Another Barge exists" value="69"/>
+      <entry name="SoftKeyEvent_IncompatibleDeviceType" text="Incompatible device type" value="70"/>
+      <entry name="SoftKeyEvent_NoParkNumberAvailable" text="No Park Number Available" value="71"/>
+      <entry name="SoftKeyEvent_CallParkReversion" text="CallPark Reversion" value="72"/>
+      <entry name="SoftKeyEvent_ServiceIsNotActive" text="Service is not Active" value="73"/>
+      <entry name="SoftKeyEvent_HighTrafficTryAgainLater" text="High Traffic Try Again Later" value="74"/>
       <entry name="SoftKeyEvent_QRT" text="QRT" value="75"/>
       <entry name="SoftKeyEvent_MCID" text="MCID" value="76"/>
       <entry name="SoftKeyEvent_DirTrfr" text="DirTrfr" value="77"/>
@@ -953,13 +958,13 @@
       <entry name="SoftKeyEvent_ConfList" text="ConfList" value="79"/>
       <entry name="SoftKeyEvent_iDivert" text="iDivert" value="80"/>
       <entry name="SoftKeyEvent_cBarge" text="cBarge" value="81"/>
-      <entry name="SoftKeyEvent_Can Not Complete Transfer" text="Can Not Complete Transfer" value="82"/>
-      <entry name="SoftKeyEvent_Can Not Join Calls" text="Can Not Join Calls" value="83"/>
-      <entry name="SoftKeyEvent_Mcid Successful" text="Mcid Successful" value="84"/>
-      <entry name="SoftKeyEvent_Number Not Configured" text="Number Not Configured" value="85"/>
-      <entry name="SoftKeyEvent_Security Error" text="Security Error" value="86"/>
-      <entry name="SoftKeyEvent_Video Bandwidth Unavailable" text="Video Bandwidth Unavailable" value="87"/>
-      <entry name="SoftKeyEvent_Video Mode" text="Video Mode" value="88"/>
+      <entry name="SoftKeyEvent_CanNotCompleteTransfer" text="Can Not Complete Transfer" value="82"/>
+      <entry name="SoftKeyEvent_CanNotJoinCalls" text="Can Not Join Calls" value="83"/>
+      <entry name="SoftKeyEvent_McidSuccessful" text="Mcid Successful" value="84"/>
+      <entry name="SoftKeyEvent_NumberNotConfigured" text="Number Not Configured" value="85"/>
+      <entry name="SoftKeyEvent_SecurityError" text="Security Error" value="86"/>
+      <entry name="SoftKeyEvent_VideoBandwidthUnavailable" text="Video Bandwidth Unavailable" value="87"/>
+      <entry name="SoftKeyEvent_VideoMode" text="Video Mode" value="88"/>
       <entry name="SoftKeyEvent_Record" text="Record" value="202"/>
       <entry name="SoftKeyEvent_Dial" text="Dial" value="201"/>
     </entries>
@@ -1252,9 +1257,12 @@
   </enum>
   <message comment="" direction="dev2pbx" dynamic="no" name="OpenMultiMediaReceiveChannelAckMessage" opcode="0x0031" status="no" type="MediaControl">
     <fields>
-      <enum comment="" name="multimediaOpenReceiveChannelStatus" subtype="OpenReceiveChanStatus" type="uint32"/>
+      <enum comment="" name="multimediaReceptionStatus" subtype="OpenReceiveChanStatus" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="ipAddr" subtype="IpAddress" type="ipaddr"/>
-      <integer comment="" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr"/>
+      <integer comment="" declare="yes" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr"/>
+      <integer comment="CallId" name="callReference" type="uint32"/>
+    </fields>
+    <fields beginversion="16" endversion="22">
       <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
@@ -2048,10 +2056,10 @@
       <entry comment="" name="DeviceTone_PRIORITY" text="PRIORITY" value="0x0064"/>
       <entry comment="" name="DeviceTone_IMMEDIATE" text="IMMEDIATE" value="0x0065"/>
       <entry comment="" name="DeviceTone_PREAMPWARN" text="PREAMPWARN" value="0x0066"/>
-      <entry comment="" name="DeviceTone_2105HZ" text="2105HZ" value="0x0067"/>
-      <entry comment="" name="DeviceTone_2600HZ" text="2600HZ" value="0x0068"/>
-      <entry comment="" name="DeviceTone_440HZ" text="440HZ" value="0x0069"/>
-      <entry comment="" name="DeviceTone_300HZ" text="300HZ" value="0x006a"/>
+      <entry comment="" name="DeviceTone_Tone2105HZ" text="2105HZ" value="0x0067"/>
+      <entry comment="" name="DeviceTone_Tone2600HZ" text="2600HZ" value="0x0068"/>
+      <entry comment="" name="DeviceTone_Tone440HZ" text="440HZ" value="0x0069"/>
+      <entry comment="" name="DeviceTone_Tone300HZ" text="300HZ" value="0x006a"/>
       <entry comment="" name="DeviceTone_Mobility_WP" text="Mobility_WP" value="0x006b"/>
       <entry comment="" name="DeviceTone_Mobility_UAC" text="Mobility_UAC" value="0x006c"/>
       <entry comment="" name="DeviceTone_Mobility_WTDN" text="Mobility_WTDN" value="0x006d"/>
@@ -2452,39 +2460,39 @@
   <enum name="ButtonType">
     <entries>
       <entry comment="" name="ButtonType_Unused" text="Unused" value="0x00"/>
-      <entry comment="" name="ButtonType_Last Number Redial" text="Last Number Redial" value="0x01"/>
+      <entry comment="" name="ButtonType_LastNumberRedial" text="Last Number Redial" value="0x01"/>
       <entry comment="" name="ButtonType_SpeedDial" text="SpeedDial" value="0x02"/>
       <entry comment="" name="ButtonType_Hold" text="Hold" value="0x03"/>
       <entry comment="" name="ButtonType_Transfer" text="Transfer" value="0x04"/>
-      <entry comment="" name="ButtonType_Forward All" text="Forward All" value="0x05"/>
-      <entry comment="" name="ButtonType_Forward Busy" text="Forward Busy" value="0x06"/>
-      <entry comment="" name="ButtonType_Forward No Answer" text="Forward No Answer" value="0x07"/>
+      <entry comment="" name="ButtonType_ForwardAll" text="Forward All" value="0x05"/>
+      <entry comment="" name="ButtonType_ForwardBusy" text="Forward Busy" value="0x06"/>
+      <entry comment="" name="ButtonType_ForwardNoAnswer" text="Forward No Answer" value="0x07"/>
       <entry comment="" name="ButtonType_Display" text="Display" value="0x08"/>
       <entry comment="" name="ButtonType_Line" text="Line" value="0x09"/>
-      <entry comment="" name="ButtonType_T120 Chat" text="T120 Chat" value="0x0A"/>
-      <entry comment="" name="ButtonType_T120 Whiteboard" text="T120 Whiteboard" value="0x0B"/>
-      <entry comment="" name="ButtonType_T120 Application Sharing" text="T120 Application Sharing" value="0x0C"/>
-      <entry comment="" name="ButtonType_T120 File Transfer" text="T120 File Transfer" value="0x0D"/>
+      <entry comment="" name="ButtonType_T120Chat" text="T120 Chat" value="0x0A"/>
+      <entry comment="" name="ButtonType_T120Whiteboard" text="T120 Whiteboard" value="0x0B"/>
+      <entry comment="" name="ButtonType_T120ApplicationSharing" text="T120 Application Sharing" value="0x0C"/>
+      <entry comment="" name="ButtonType_T120FileTransfer" text="T120 File Transfer" value="0x0D"/>
       <entry comment="" name="ButtonType_Video" text="Video" value="0x0E"/>
       <entry comment="" name="ButtonType_Voicemail" text="Voicemail" value="0x0F"/>
-      <entry comment="" name="ButtonType_Answer Release" text="Answer Release" value="0x10"/>
-      <entry comment="" name="ButtonType_Auto Answer" text="Auto Answer" value="0x11"/>
+      <entry comment="" name="ButtonType_AnswerRelease" text="Answer Release" value="0x10"/>
+      <entry comment="" name="ButtonType_AutoAnswer" text="Auto Answer" value="0x11"/>
       <entry comment="" name="ButtonType_Select" text="Select" value="0x12"/>
       <entry comment="" name="ButtonType_Feature" text="Feature" value="0x13"/>
       <entry comment="" name="ButtonType_ServiceURL" text="ServiceURL" value="0x14"/>
-      <entry comment="" name="ButtonType_BusyLampField Speeddial" text="BusyLampField Speeddial" value="0x15"/>
-      <entry comment="" name="ButtonType_Malicious Call" text="Malicious Call" value="0x1B"/>
-      <entry comment="" name="ButtonType_Generic App B1" text="Generic App B1" value="0x21"/>
-      <entry comment="" name="ButtonType_Generic App B2" text="Generic App B2" value="0x22"/>
-      <entry comment="" name="ButtonType_Generic App B3" text="Generic App B3" value="0x23"/>
-      <entry comment="" name="ButtonType_Generic App B4" text="Generic App B4" value="0x24"/>
-      <entry comment="" name="ButtonType_Generic App B5" text="Generic App B5" value="0x25"/>
-      <entry comment="" name="ButtonType_Monitor/Multiblink" text="Monitor/Multiblink" value="0x26"/>
-      <entry comment="" name="ButtonType_Meet Me Conference" text="Meet Me Conference" value="0x7B"/>
+      <entry comment="" name="ButtonType_BusyLampFieldSpeeddial" text="BusyLampField Speeddial" value="0x15"/>
+      <entry comment="" name="ButtonType_MaliciousCall" text="Malicious Call" value="0x1B"/>
+      <entry comment="" name="ButtonType_GenericAppB1" text="Generic App B1" value="0x21"/>
+      <entry comment="" name="ButtonType_GenericAppB2" text="Generic App B2" value="0x22"/>
+      <entry comment="" name="ButtonType_GenericAppB3" text="Generic App B3" value="0x23"/>
+      <entry comment="" name="ButtonType_GenericAppB4" text="Generic App B4" value="0x24"/>
+      <entry comment="" name="ButtonType_GenericAppB5" text="Generic App B5" value="0x25"/>
+      <entry comment="" name="ButtonType_MonitorMultiblink" text="Monitor/Multiblink" value="0x26"/>
+      <entry comment="" name="ButtonType_MeetMeConference" text="Meet Me Conference" value="0x7B"/>
       <entry comment="" name="ButtonType_Conference" text="Conference" value="0x7D"/>
-      <entry comment="" name="ButtonType_Call Park" text="Call Park" value="0x7E"/>
-      <entry comment="" name="ButtonType_Call Pickup" text="Call Pickup" value="0x7F"/>
-      <entry comment="" name="ButtonType_Group Call Pickup" text="Group Call Pickup" value="0x80"/>
+      <entry comment="" name="ButtonType_CallPark" text="Call Park" value="0x7E"/>
+      <entry comment="" name="ButtonType_CallPickup" text="Call Pickup" value="0x7F"/>
+      <entry comment="" name="ButtonType_GroupCallPickup" text="Group Call Pickup" value="0x80"/>
       <entry comment="" name="ButtonType_Mobility" text="Mobility" value="0x81"/>
       <entry comment="" name="ButtonType_DoNotDisturb" text="DoNotDisturb" value="0x82"/>
       <entry comment="" name="ButtonType_ConfList" text="ConfList" value="0x83"/>
@@ -2497,9 +2505,9 @@
       <entry comment="" name="ButtonType_EndCall" text="EndCall" value="0x8A"/>
       <entry comment="" name="ButtonType_HLog" text="HLog" value="0x8B"/>
       <entry comment="" name="ButtonType_Queuing" text="Queuing" value="0x8F"/>
-      <entry comment="" name="ButtonType_Test E" text="Test E" value="0xC0"/>
-      <entry comment="" name="ButtonType_Test F" text="Test F" value="0xC1"/>
-      <entry comment="" name="ButtonType_Test I" text="Test I" value="0xC4"/>
+      <entry comment="" name="ButtonType_TestE" text="Test E" value="0xC0"/>
+      <entry comment="" name="ButtonType_TestF" text="Test F" value="0xC1"/>
+      <entry comment="" name="ButtonType_TestI" text="Test I" value="0xC4"/>
       <entry comment="" name="ButtonType_Messages" text="Messages" value="0xC2"/>
       <entry comment="" name="ButtonType_Directory" text="Directory" value="0xC3"/>
       <entry comment="" name="ButtonType_Application" text="Application" value="0xC5"/>
@@ -2778,8 +2786,13 @@
     </fields>
   </message>
   <message comment="" direction="pbx2dev" dynamic="no" name="ConnectionStatisticsReqMessage" opcode="0x0107" status="no" type="CallControl">
+    <fields endversion="16" fixed="yes">
+      <string comment="" name="directoryNum" size="24" type="char"/>
+    </fields>
+    <fields beginversion="17" endversion="22" fixed="yes">
+      <string comment="" name="directoryNum" size="28" type="char"/>
+    </fields>
     <fields>
-      <string comment="Directory Number" declare="yes" name="directoryNum" size="VariableDirnumSize" type="char"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <enum comment="" name="statsProcessingMode" subtype="StatsProcessingType" type="uint32"/>
     </fields>
@@ -3067,7 +3080,12 @@
     </fields>
   </message>
   <message comment="" direction="pbx2dev" dynamic="no" name="DialedNumberMessage" opcode="0x011d" status="no" type="CallControl">
-    <fields>
+    <fields endversion="17" fixed="yes">
+      <string comment="" name="dialedNumber" size="24" type="char"/>
+      <integer comment="LineId" name="lineInstance" type="uint32"/>
+      <integer comment="CallId" name="callReference" type="uint32"/>
+    </fields>
+    <fields beginversion="18" endversion="22" fixed="yes">
       <string comment="" declare="yes" name="dialedNumber" size="VariableDirnumSize" type="char"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
@@ -4036,8 +4054,8 @@
       <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="transmitIpAddr" subtype="IpAddress" type="ipaddr"/>
-      <integer comment="" name="transmitPort" type="uint32"/>
-      <enum comment="" name="startMediaTransmissionStatus" subtype="MediaStatus" type="uint32"/>
+      <integer comment="transmit Port" declare="yes" name="portNumber" subtype="uint32" type="ipport"/>
+      <enum comment="" name="mediaTransmissionStatus" subtype="MediaStatus" type="uint32"/>
     </fields>
   </message>
   <message comment="" direction="pbx2dev" dynamic="no" name="StartMultiMediaTransmissionAckMessage" opcode="0x0155" status="no" type="MediaControl">
@@ -4046,13 +4064,13 @@
       <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="transmitIpAddr" subtype="IpAddress" type="ipaddr"/>
-      <integer comment="" name="transmitPort" type="uint32"/>
-      <enum comment="" name="resultCode" subtype="MediaStatus" type="uint32"/>
+      <integer comment="transmit Port" declare="yes" name="portNumber" subtype="uint32" type="ipport"/>
+      <enum comment="" name="multimediaTransmissionStatus" subtype="MediaStatus" type="uint32"/>
     </fields>
   </message>
   <enum name="CallHistoryDisposition">
     <entries>
-      <entry comment="" name="CallHistoryDisposition_UnknownDisp" text="UnknownDisp" value="0xffffffff"/>
+      <entry comment="" name="CallHistoryDisposition_UnknownDisp" text="UnknownDisp" value="0xffff"/>
       <entry comment="" name="CallHistoryDisposition_Ignore" text="Ignore" value="0x0000"/>
       <entry comment="" name="CallHistoryDisposition_PlacedCalls" text="PlacedCalls" value="0x0001"/>
       <entry comment="" name="CallHistoryDisposition_ReceivedCalls" text="ReceivedCalls" value="0x0002"/>
