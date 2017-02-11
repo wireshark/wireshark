@@ -170,6 +170,7 @@ set_conv_gui_data(gpointer data, gpointer user_data)
     ui_info.nparams = 0;
     ui_info.params = NULL;
     register_stat_tap_ui(&ui_info, table);
+    g_free((char*)ui_info.cli_string);
 }
 
 void conversation_table_set_gui_info(conv_gui_init_cb init_cb)

@@ -505,6 +505,7 @@ follow_register(const void *key _U_, void *value, void *userdata _U_)
   follow_ui.nparams = 0;
   follow_ui.params = NULL;
   register_stat_tap_ui(&follow_ui, follower);
+  g_free((char*)follow_ui.cli_string);
   return FALSE;
 }
 

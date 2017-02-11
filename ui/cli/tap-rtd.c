@@ -154,6 +154,7 @@ register_rtd_tables(const void *key _U_, void *value, void *userdata _U_)
 	ui_info.nparams = 0;
 	ui_info.params = NULL;
 	register_stat_tap_ui(&ui_info, rtd);
+	g_free((char*)ui_info.cli_string);
 	return FALSE;
 }
 

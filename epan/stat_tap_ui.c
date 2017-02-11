@@ -61,7 +61,7 @@ register_stat_tap_ui(stat_tap_ui *ui, void *userdata)
     stat_cmd_arg *newsca;
 
     newsca = wmem_new(wmem_epan_scope(), stat_cmd_arg);
-    newsca->cmd=ui->cli_string;
+    newsca->cmd= wmem_strdup(wmem_epan_scope(), ui->cli_string);
     newsca->func=ui->tap_init_cb;
     newsca->userdata=userdata;
 
