@@ -123,6 +123,7 @@ cog.out('static value_string_ext message_id_ext = VALUE_STRING_EXT_INIT(message_
 ]]]*/
 /*[[[end]]]*/
 
+
 /* Declare Enums and Defines */
 /* [[[cog
 for enum in skinny.enum:
@@ -358,15 +359,19 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   si->messId = data_messageid;
   si->messageName = val_to_str_ext(data_messageid, &message_id_ext, "0x%08X (Unknown)");
   si->callId = 0;
-  si->lineId = 0;
+  si->lineId = -1;
   si->passThruId = 0;
   si->callState = 0;
+  si->hasCallInfo = FALSE;
   g_free(si->callingParty);
   si->callingParty = NULL;
   g_free(si->calledParty);
   si->calledParty = NULL;
-  si->openreceiveStatus = 0;
-  si->startmediatransmisionStatus = 0;
+  si->mediaReceptionStatus = -1;
+  si->mediaTransmissionStatus = -1;
+  si->multimediaReceptionStatus = -1;
+  si->multimediaTransmissionStatus = -1;
+  si->multicastReceptionStatus = -1;
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
    * necessary to generate protocol tree items.

@@ -264,6 +264,7 @@ static const value_string  message_id[] = {
 };
 static value_string_ext message_id_ext = VALUE_STRING_EXT_INIT(message_id);
 
+
 /* Declare Enums and Defines */
 static const value_string DisplayLabels_36[] = {
   { 0x00000, "Empty" },
@@ -2337,13 +2338,11 @@ handle_RegisterMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
 
   {
-    /* start struct : sid / size: 24 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sid");
     ptvcursor_add(cursor, hf_skinny_DeviceName, 16, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_reserved_for_future_use, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_instance, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: sid */
   }
   ptvcursor_add(cursor, hf_skinny_stationIpAddr, 4, ENC_BIG_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_deviceType, 4, ENC_LITTLE_ENDIAN);
@@ -2571,84 +2570,72 @@ handle_CapabilitiesRes(ptvcursor_t *cursor, packet_info * pinfo _U_)
   guint32 payloadCapability = 0;
   capCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_capCount, 4, ENC_LITTLE_ENDIAN);
-  {
-    /* start struct : caps / size: 16 */
+  if (capCount <= 16) { /* tvb struct size guard */
     guint32 counter_1 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "caps [ref: capCount = %d, max:18]", capCount);
-    for (counter_1 = 0; counter_1 < 18; counter_1++) {
-      if (counter_1 < capCount) {
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "caps [%d / %d]", counter_1 + 1, capCount);
-        payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-        ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_maxFramesPerPacket, 4, ENC_LITTLE_ENDIAN);
-        if (payloadCapability == MEDIA_PAYLOAD_G7231)         {
-          /* start union : PAYLOADS / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_G7231");
-          ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_pop_subtree(cursor);
-          ptvcursor_advance(cursor, 4);
-        } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_MODEMRELAY)         {
-          /* start union : PAYLOADS / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_ModemRelay");
-          {
-            /* start struct : modemRelay / size: 8 */
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "modemRelay");
-            ptvcursor_add(cursor, hf_skinny_capAndVer, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_modAnd2833, 4, ENC_LITTLE_ENDIAN);
+    if (capCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (capCount * 16) && capCount <= 18) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < 18; counter_1++) {
+        if (counter_1 < capCount) {
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "caps [%d / %d]", counter_1 + 1, capCount);
+          payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+          ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_maxFramesPerPacket, 4, ENC_LITTLE_ENDIAN);
+          if (payloadCapability == MEDIA_PAYLOAD_G7231)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_G7231");
+            ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(cursor);
-            /* end struct: modemRelay */
-          }
-          ptvcursor_pop_subtree(cursor);
-        } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SPRT)         {
-          /* start union : PAYLOADS / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SPRT");
-          {
-            /* start struct : sprtPayload / size: 8 */
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sprtPayload");
-            ptvcursor_add(cursor, hf_skinny_chan0MaxPayload, 2, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_chan2MaxPayload, 2, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_chan3MaxPayload, 2, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_chan2MaxWindow, 2, ENC_LITTLE_ENDIAN);
+            ptvcursor_advance(cursor, 4);
+          } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_MODEMRELAY)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_ModemRelay");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "modemRelay");
+              ptvcursor_add(cursor, hf_skinny_capAndVer, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_modAnd2833, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
             ptvcursor_pop_subtree(cursor);
-            /* end struct: sprtPayload */
-          }
-          ptvcursor_pop_subtree(cursor);
-        } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SSE)         {
-          /* start union : PAYLOADS / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SSE");
-          {
-            /* start struct : sse / size: 8 */
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sse");
-            ptvcursor_add(cursor, hf_skinny_standard, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_vendor, 4, ENC_LITTLE_ENDIAN);
+          } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SPRT)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SPRT");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sprtPayload");
+              ptvcursor_add(cursor, hf_skinny_chan0MaxPayload, 2, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_chan2MaxPayload, 2, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_chan3MaxPayload, 2, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_chan2MaxWindow, 2, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
             ptvcursor_pop_subtree(cursor);
-            /* end struct: sse */
-          }
-          ptvcursor_pop_subtree(cursor);
-        } else         {
-          /* start union : PAYLOADS / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any payloadCapability");
-          {
-            /* start struct : codecParams / size: 4 */
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
-            ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
+          } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SSE)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SSE");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sse");
+              ptvcursor_add(cursor, hf_skinny_standard, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_vendor, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
             ptvcursor_pop_subtree(cursor);
-            /* end struct: codecParams */
+          } else           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any payloadCapability");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
+              ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+            ptvcursor_advance(cursor, 4);
           }
-          ptvcursor_pop_subtree(cursor);
-          ptvcursor_advance(cursor, 4);
+        } else {
+          ptvcursor_advance(cursor, 16);
         }
-      } else {
-        ptvcursor_advance(cursor, 16);
+        ptvcursor_pop_subtree(cursor);
       }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: caps */
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: caps */
+  } else {
+    ptvcursor_advance(cursor, (capCount * 16)); /* guard kicked in -> skip the rest */;
   }
 }
 
@@ -2678,6 +2665,7 @@ handle_AlarmMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 static void
 handle_MulticastMediaReceptionAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
+  si->multicastReceptionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_multicastReceptionStatus, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_passThruPartyID, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -2696,6 +2684,7 @@ handle_OpenReceiveChannelAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_
 {
   guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
 
+  si->mediaReceptionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_mediaReceptionStatus, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_ipAddr_ipv4, hf_skinny_ipAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
@@ -2815,13 +2804,11 @@ static void
 handle_RegisterTokenReq(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   {
-    /* start struct : sid / size: 24 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sid");
     ptvcursor_add(cursor, hf_skinny_DeviceName, 16, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_reserved_for_future_use, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_instance, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: sid */
   }
   ptvcursor_add(cursor, hf_skinny_stationIpAddr, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_deviceType, 4, ENC_LITTLE_ENDIAN);
@@ -2900,7 +2887,6 @@ handle_DeviceToUserDataMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   guint32 dataLength = 0;
   {
-    /* start struct : deviceToUserData / size: 2020 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "deviceToUserData");
     ptvcursor_add(cursor, hf_skinny_applicationID, 4, ENC_LITTLE_ENDIAN);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -2912,7 +2898,6 @@ handle_DeviceToUserDataMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
     ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
     dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: deviceToUserData */
   }
 }
 
@@ -2928,7 +2913,6 @@ handle_DeviceToUserDataResponseMessage(ptvcursor_t *cursor, packet_info * pinfo 
 {
   guint32 dataLength = 0;
   {
-    /* start struct : deviceToUserData / size: 2020 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "deviceToUserData");
     ptvcursor_add(cursor, hf_skinny_applicationID, 4, ENC_LITTLE_ENDIAN);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -2940,7 +2924,6 @@ handle_DeviceToUserDataResponseMessage(ptvcursor_t *cursor, packet_info * pinfo 
     ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
     dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: deviceToUserData */
   }
 }
 
@@ -2971,283 +2954,267 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_RTPPayloadFormat, 4, ENC_LITTLE_ENDIAN);
   customPictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_customPictureFormatCount, 4, ENC_LITTLE_ENDIAN);
-  {
-    /* start struct : customPictureFormat / size: 20 */
+  if (customPictureFormatCount <= 20) { /* tvb struct size guard */
     guint32 counter_1 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [ref: customPictureFormatCount = %d, max:6]", customPictureFormatCount);
-    for (counter_1 = 0; counter_1 < 6; counter_1++) {
-      if (counter_1 < customPictureFormatCount) {
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [%d / %d]", counter_1 + 1, customPictureFormatCount);
-        ptvcursor_add(cursor, hf_skinny_pictureWidth, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_pictureHeight, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_pixelAspectRatio, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_clockConversionCode, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_clockDivisor, 4, ENC_LITTLE_ENDIAN);
-      } else {
-        ptvcursor_advance(cursor, 20);
+    if (customPictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (customPictureFormatCount * 20) && customPictureFormatCount <= 6) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < 6; counter_1++) {
+        if (counter_1 < customPictureFormatCount) {
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [%d / %d]", counter_1 + 1, customPictureFormatCount);
+          ptvcursor_add(cursor, hf_skinny_pictureWidth, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_pictureHeight, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_pixelAspectRatio, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_clockConversionCode, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_clockDivisor, 4, ENC_LITTLE_ENDIAN);
+        } else {
+          ptvcursor_advance(cursor, 20);
+        }
+        ptvcursor_pop_subtree(cursor);
       }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: customPictureFormat */
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: customPictureFormat */
+  } else {
+    ptvcursor_advance(cursor, (customPictureFormatCount * 20)); /* guard kicked in -> skip the rest */;
   }
   {
-    /* start struct : confResources / size: 36 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "confResources");
     ptvcursor_add(cursor, hf_skinny_activeStreamsOnRegistration, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_maxBW, 4, ENC_LITTLE_ENDIAN);
     serviceResourceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_serviceResourceCount, 4, ENC_LITTLE_ENDIAN);
-    {
-      /* start struct : serviceResource / size: 24 */
+    if (serviceResourceCount <= 24) { /* tvb struct size guard */
       guint32 counter_2 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [ref: serviceResourceCount = %d, max:4]", serviceResourceCount);
-      for (counter_2 = 0; counter_2 < 4; counter_2++) {
-        if (counter_2 < serviceResourceCount) {
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [%d / %d]", counter_2 + 1, serviceResourceCount);
-          layoutCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-          ptvcursor_add(cursor, hf_skinny_layoutCount, 4, ENC_LITTLE_ENDIAN);
-          {
-            guint32 counter_5 = 0;
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "layouts [ref: layoutCount = %d, max:5]", layoutCount);
-            for (counter_5 = 0; counter_5 < 5; counter_5++) {
-              if (counter_5 < layoutCount) {
-                ptvcursor_add(cursor, hf_skinny_layouts, 4, ENC_LITTLE_ENDIAN);
-              } else {
-                ptvcursor_advance(cursor, 4);
+      if (serviceResourceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (serviceResourceCount * 24) && serviceResourceCount <= 4) { /* tvb counter size guard */
+        for (counter_2 = 0; counter_2 < 4; counter_2++) {
+          if (counter_2 < serviceResourceCount) {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [%d / %d]", counter_2 + 1, serviceResourceCount);
+            layoutCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+            ptvcursor_add(cursor, hf_skinny_layoutCount, 4, ENC_LITTLE_ENDIAN);
+            if (layoutCount <= 5) { /* tvb enum size guard */
+              guint32 counter_7 = 0;
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "layouts [ref: layoutCount = %d, max:5]", layoutCount);
+              for (counter_7 = 0; counter_7 < 5; counter_7++) {
+                if (counter_7 < layoutCount) {
+                  ptvcursor_add(cursor, hf_skinny_layouts, 4, ENC_LITTLE_ENDIAN);
+                } else {
+                  ptvcursor_advance(cursor, 4);
+                }
               }
+              ptvcursor_pop_subtree(cursor); /* end for loop tree: layouts */
+            } else {
+              ptvcursor_advance(cursor, (5 * 4)); /* guard kicked in -> skip the rest */;
             }
-            ptvcursor_pop_subtree(cursor); /* end for loop tree: layouts */
+            ptvcursor_add(cursor, hf_skinny_serviceNum, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_skinny_maxStreams, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_skinny_maxConferences, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_skinny_activeConferenceOnRegistration, 4, ENC_LITTLE_ENDIAN);
+          } else {
+            ptvcursor_advance(cursor, 24);
           }
-          ptvcursor_add(cursor, hf_skinny_serviceNum, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_maxStreams, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_maxConferences, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_activeConferenceOnRegistration, 4, ENC_LITTLE_ENDIAN);
-        } else {
-          ptvcursor_advance(cursor, 24);
+          ptvcursor_pop_subtree(cursor);
         }
-        ptvcursor_pop_subtree(cursor);
-        /* end for loop tree: serviceResource */
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: serviceResource */
+    } else {
+      ptvcursor_advance(cursor, (serviceResourceCount * 24)); /* guard kicked in -> skip the rest */;
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: confResources */
   }
-  {
-    /* start struct : audiocaps / size: 16 */
+  if (audioCapCount <= 16) { /* tvb struct size guard */
     guint32 counter_1 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [ref: audioCapCount = %d, max:18]", audioCapCount);
-    for (counter_1 = 0; counter_1 < 18; counter_1++) {
-      if (counter_1 < audioCapCount) {
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [%d / %d]", counter_1 + 1, audioCapCount);
-        payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-        ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_maxFramesPerPacket, 4, ENC_LITTLE_ENDIAN);
-        if (payloadCapability == MEDIA_PAYLOAD_G7231)         {
-          /* start union : PAYLOADS / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_G7231");
-          ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_pop_subtree(cursor);
-          ptvcursor_advance(cursor, 4);
-        } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_MODEMRELAY)         {
-          /* start union : PAYLOADS / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_ModemRelay");
-          {
-            /* start struct : modemRelay / size: 8 */
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "modemRelay");
-            ptvcursor_add(cursor, hf_skinny_capAndVer, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_modAnd2833, 4, ENC_LITTLE_ENDIAN);
+    if (audioCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (audioCapCount * 16) && audioCapCount <= 18) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < 18; counter_1++) {
+        if (counter_1 < audioCapCount) {
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [%d / %d]", counter_1 + 1, audioCapCount);
+          payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+          ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_maxFramesPerPacket, 4, ENC_LITTLE_ENDIAN);
+          if (payloadCapability == MEDIA_PAYLOAD_G7231)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_G7231");
+            ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(cursor);
-            /* end struct: modemRelay */
-          }
-          ptvcursor_pop_subtree(cursor);
-        } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SPRT)         {
-          /* start union : PAYLOADS / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SPRT");
-          {
-            /* start struct : sprtPayload / size: 8 */
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sprtPayload");
-            ptvcursor_add(cursor, hf_skinny_chan0MaxPayload, 2, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_chan2MaxPayload, 2, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_chan3MaxPayload, 2, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_chan2MaxWindow, 2, ENC_LITTLE_ENDIAN);
-            ptvcursor_pop_subtree(cursor);
-            /* end struct: sprtPayload */
-          }
-          ptvcursor_pop_subtree(cursor);
-        } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SSE)         {
-          /* start union : PAYLOADS / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SSE");
-          {
-            /* start struct : sse / size: 8 */
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sse");
-            ptvcursor_add(cursor, hf_skinny_standard, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_vendor, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_pop_subtree(cursor);
-            /* end struct: sse */
-          }
-          ptvcursor_pop_subtree(cursor);
-        } else         {
-          /* start union : PAYLOADS / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any payloadCapability");
-          {
-            /* start struct : codecParams / size: 4 */
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
-            ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
-            ptvcursor_pop_subtree(cursor);
-            /* end struct: codecParams */
-          }
-          ptvcursor_pop_subtree(cursor);
-          ptvcursor_advance(cursor, 4);
-        }
-      } else {
-        ptvcursor_advance(cursor, 16);
-      }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: audiocaps */
-    }
-    ptvcursor_pop_subtree(cursor);
-    /* end struct: audiocaps */
-  }
-  {
-    /* start struct : vidCaps / size: 44 */
-    guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [ref: videoCapCount = %d, max:10]", videoCapCount);
-    for (counter_1 = 0; counter_1 < 10; counter_1++) {
-      if (counter_1 < videoCapCount) {
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [%d / %d]", counter_1 + 1, videoCapCount);
-        payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-        ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_videoCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
-        levelPreferenceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-        ptvcursor_add(cursor, hf_skinny_levelPreferenceCount, 4, ENC_LITTLE_ENDIAN);
-        {
-          /* start struct : levelPreference / size: 24 */
-          guint32 counter_4 = 0;
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [ref: levelPreferenceCount = %d, max:4]", levelPreferenceCount);
-          for (counter_4 = 0; counter_4 < 4; counter_4++) {
-            if (counter_4 < levelPreferenceCount) {
-              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [%d / %d]", counter_4 + 1, levelPreferenceCount);
-              ptvcursor_add(cursor, hf_skinny_transmitPreference, 4, ENC_LITTLE_ENDIAN);
-              ptvcursor_add(cursor, hf_skinny_format, 4, ENC_LITTLE_ENDIAN);
-              ptvcursor_add(cursor, hf_skinny_maxBitRate, 4, ENC_LITTLE_ENDIAN);
-              ptvcursor_add(cursor, hf_skinny_minBitRate, 4, ENC_LITTLE_ENDIAN);
-              ptvcursor_add(cursor, hf_skinny_MPI, 4, ENC_LITTLE_ENDIAN);
-              ptvcursor_add(cursor, hf_skinny_serviceNumber, 4, ENC_LITTLE_ENDIAN);
-            } else {
-              ptvcursor_advance(cursor, 24);
+            ptvcursor_advance(cursor, 4);
+          } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_MODEMRELAY)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_ModemRelay");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "modemRelay");
+              ptvcursor_add(cursor, hf_skinny_capAndVer, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_modAnd2833, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
             }
             ptvcursor_pop_subtree(cursor);
-            /* end for loop tree: levelPreference */
-          }
-          ptvcursor_pop_subtree(cursor);
-          /* end struct: levelPreference */
-        }
-        if (payloadCapability == MEDIA_PAYLOAD_H261)         {
-          /* start union : capability / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H261");
-          {
-            /* start struct : h261VideoCapability / size: 8 */
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h261VideoCapability");
-            ptvcursor_add(cursor, hf_skinny_temporalSpatialTradeOffCapability, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_stillImageTransmission, 4, ENC_LITTLE_ENDIAN);
+          } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SPRT)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SPRT");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sprtPayload");
+              ptvcursor_add(cursor, hf_skinny_chan0MaxPayload, 2, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_chan2MaxPayload, 2, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_chan3MaxPayload, 2, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_chan2MaxWindow, 2, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
             ptvcursor_pop_subtree(cursor);
-            /* end struct: h261VideoCapability */
-          }
-          ptvcursor_pop_subtree(cursor);
-        } else if (payloadCapability == MEDIA_PAYLOAD_H263)         {
-          /* start union : capability / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H263");
-          {
-            /* start struct : h263VideoCapability / size: 8 */
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263VideoCapability");
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263_capability_bitfield");
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit1, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit2, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit3, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit4, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit5, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit6, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit7, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit8, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit9, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit10, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit11, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit12, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit13, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit14, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit15, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit16, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit17, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit18, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit19, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit20, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit21, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit22, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit23, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit24, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit25, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit26, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit27, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit28, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit29, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit30, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit31, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit32, 4, ENC_LITTLE_ENDIAN);
+          } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SSE)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SSE");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sse");
+              ptvcursor_add(cursor, hf_skinny_standard, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_vendor, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+          } else           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any payloadCapability");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
+              ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
             ptvcursor_advance(cursor, 4);
-            ptvcursor_pop_subtree(cursor); /* end bitfield: h263_capability_bitfield */
-            ptvcursor_add(cursor, hf_skinny_annexNandWFutureUse, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_pop_subtree(cursor);
-            /* end struct: h263VideoCapability */
           }
-          ptvcursor_pop_subtree(cursor);
-        } else if (payloadCapability == MEDIA_PAYLOAD_VIEO)         {
-          /* start union : capability / maxsize: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_Vieo");
-          {
-            /* start struct : vieoVideoCapability / size: 8 */
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vieoVideoCapability");
-            ptvcursor_add(cursor, hf_skinny_modelNumber, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_bandwidth, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_pop_subtree(cursor);
-            /* end struct: vieoVideoCapability */
-          }
-          ptvcursor_pop_subtree(cursor);
+        } else {
+          ptvcursor_advance(cursor, 16);
         }
-      } else {
-        ptvcursor_advance(cursor, 44);
+        ptvcursor_pop_subtree(cursor);
       }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: vidCaps */
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: vidCaps */
+  } else {
+    ptvcursor_advance(cursor, (audioCapCount * 16)); /* guard kicked in -> skip the rest */;
   }
-  {
-    /* start struct : dataCaps / size: 16 */
+  if (videoCapCount <= 44) { /* tvb struct size guard */
+    guint32 counter_1 = 0;
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [ref: videoCapCount = %d, max:10]", videoCapCount);
+    if (videoCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (videoCapCount * 44) && videoCapCount <= 10) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < 10; counter_1++) {
+        if (counter_1 < videoCapCount) {
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [%d / %d]", counter_1 + 1, videoCapCount);
+          payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+          ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_videoCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
+          levelPreferenceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+          ptvcursor_add(cursor, hf_skinny_levelPreferenceCount, 4, ENC_LITTLE_ENDIAN);
+          if (levelPreferenceCount <= 24) { /* tvb struct size guard */
+            guint32 counter_5 = 0;
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [ref: levelPreferenceCount = %d, max:4]", levelPreferenceCount);
+            if (levelPreferenceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (levelPreferenceCount * 24) && levelPreferenceCount <= 4) { /* tvb counter size guard */
+              for (counter_5 = 0; counter_5 < 4; counter_5++) {
+                if (counter_5 < levelPreferenceCount) {
+                  ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [%d / %d]", counter_5 + 1, levelPreferenceCount);
+                  ptvcursor_add(cursor, hf_skinny_transmitPreference, 4, ENC_LITTLE_ENDIAN);
+                  ptvcursor_add(cursor, hf_skinny_format, 4, ENC_LITTLE_ENDIAN);
+                  ptvcursor_add(cursor, hf_skinny_maxBitRate, 4, ENC_LITTLE_ENDIAN);
+                  ptvcursor_add(cursor, hf_skinny_minBitRate, 4, ENC_LITTLE_ENDIAN);
+                  ptvcursor_add(cursor, hf_skinny_MPI, 4, ENC_LITTLE_ENDIAN);
+                  ptvcursor_add(cursor, hf_skinny_serviceNumber, 4, ENC_LITTLE_ENDIAN);
+                } else {
+                  ptvcursor_advance(cursor, 24);
+                }
+                ptvcursor_pop_subtree(cursor);
+              }
+            }
+            ptvcursor_pop_subtree(cursor);
+          } else {
+            ptvcursor_advance(cursor, (levelPreferenceCount * 24)); /* guard kicked in -> skip the rest */;
+          }
+          if (payloadCapability == MEDIA_PAYLOAD_H261)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H261");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h261VideoCapability");
+              ptvcursor_add(cursor, hf_skinny_temporalSpatialTradeOffCapability, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_stillImageTransmission, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+          } else if (payloadCapability == MEDIA_PAYLOAD_H263)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H263");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263VideoCapability");
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263_capability_bitfield");
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit1, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit2, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit3, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit4, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit5, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit6, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit7, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit8, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit9, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit10, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit11, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit12, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit13, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit14, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit15, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit16, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit17, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit18, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit19, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit20, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit21, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit22, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit23, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit24, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit25, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit26, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit27, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit28, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit29, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit30, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit31, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit32, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_advance(cursor, 4);
+              ptvcursor_pop_subtree(cursor); /* end bitfield: h263_capability_bitfield */
+              ptvcursor_add(cursor, hf_skinny_annexNandWFutureUse, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+          } else if (payloadCapability == MEDIA_PAYLOAD_VIEO)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_Vieo");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vieoVideoCapability");
+              ptvcursor_add(cursor, hf_skinny_modelNumber, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_bandwidth, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+          }
+        } else {
+          ptvcursor_advance(cursor, 44);
+        }
+        ptvcursor_pop_subtree(cursor);
+      }
+    }
+    ptvcursor_pop_subtree(cursor);
+  } else {
+    ptvcursor_advance(cursor, (videoCapCount * 44)); /* guard kicked in -> skip the rest */;
+  }
+  if (dataCapCount <= 16) { /* tvb struct size guard */
     guint32 counter_1 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [ref: dataCapCount = %d, max:5]", dataCapCount);
-    for (counter_1 = 0; counter_1 < 5; counter_1++) {
-      if (counter_1 < dataCapCount) {
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [%d / %d]", counter_1 + 1, dataCapCount);
-        ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_dataCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_protocolDependentData, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_maxBitRate, 4, ENC_LITTLE_ENDIAN);
-      } else {
-        ptvcursor_advance(cursor, 16);
+    if (dataCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (dataCapCount * 16) && dataCapCount <= 5) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < 5; counter_1++) {
+        if (counter_1 < dataCapCount) {
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [%d / %d]", counter_1 + 1, dataCapCount);
+          ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_dataCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_protocolDependentData, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_maxBitRate, 4, ENC_LITTLE_ENDIAN);
+        } else {
+          ptvcursor_advance(cursor, 16);
+        }
+        ptvcursor_pop_subtree(cursor);
       }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: dataCaps */
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: dataCaps */
+  } else {
+    ptvcursor_advance(cursor, (dataCapCount * 16)); /* guard kicked in -> skip the rest */;
   }
 }
 
@@ -3263,6 +3230,7 @@ handle_OpenMultiMediaReceiveChannelAckMessage(ptvcursor_t *cursor, packet_info *
 {
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
 
+  si->multimediaReceptionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_multimediaReceptionStatus, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_ipAddr_ipv4, hf_skinny_ipAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
@@ -3401,28 +3369,29 @@ handle_AuditConferenceResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_last, 4, ENC_LITTLE_ENDIAN);
   numberOfEntries = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_numberOfEntries, 4, ENC_LITTLE_ENDIAN);
-  {
-    /* start struct : conferenceEntry / size: 76 */
+  if (numberOfEntries <= 76) { /* tvb struct size guard */
     guint32 counter_1 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "conferenceEntry [ref: numberOfEntries = %d, max:32]", numberOfEntries);
-    for (counter_1 = 0; counter_1 < 32; counter_1++) {
-      if (counter_1 < numberOfEntries) {
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "conferenceEntry [%d / %d]", counter_1 + 1, numberOfEntries);
-        ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_resourceType, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_numberOfReservedParticipants, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_numberOfActiveParticipants, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_appID, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_appConfID, 32, ENC_ASCII|ENC_NA);
-        ptvcursor_add(cursor, hf_skinny_appData, 24, ENC_ASCII|ENC_NA);
-      } else {
-        ptvcursor_advance(cursor, 76);
+    if (numberOfEntries && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (numberOfEntries * 76) && numberOfEntries <= 32) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < 32; counter_1++) {
+        if (counter_1 < numberOfEntries) {
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "conferenceEntry [%d / %d]", counter_1 + 1, numberOfEntries);
+          ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_resourceType, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_numberOfReservedParticipants, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_numberOfActiveParticipants, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_appID, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_appConfID, 32, ENC_ASCII|ENC_NA);
+          ptvcursor_add(cursor, hf_skinny_appData, 24, ENC_ASCII|ENC_NA);
+        } else {
+          ptvcursor_advance(cursor, 76);
+        }
+        ptvcursor_pop_subtree(cursor);
       }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: conferenceEntry */
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: conferenceEntry */
+  } else {
+    ptvcursor_advance(cursor, (numberOfEntries * 76)); /* guard kicked in -> skip the rest */;
   }
 }
 
@@ -3442,17 +3411,19 @@ handle_AuditParticipantResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
   numberOfEntries = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_numberOfEntries, 4, ENC_LITTLE_ENDIAN);
-  {
-    guint32 counter_1 = 0;
+  if (numberOfEntries <= 256) { /* tvb integer size guard */
+    guint32 counter_2 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "participantEntry [ref: numberOfEntries = %d, max:256]", numberOfEntries);
-    for (counter_1 = 0; counter_1 < 256; counter_1++) {
-      if (counter_1 < numberOfEntries) {
+    for (counter_2 = 0; counter_2 < 256; counter_2++) {
+      if (counter_2 < numberOfEntries) {
         ptvcursor_add(cursor, hf_skinny_participantEntry, 4, ENC_LITTLE_ENDIAN);
       } else {
         ptvcursor_advance(cursor, 4);
       }
     }
     ptvcursor_pop_subtree(cursor); /* end for loop tree: participantEntry */
+  } else {
+    ptvcursor_advance(cursor, (256 * 4)); /* guard kicked in -> skip the rest */;
   }
 }
 
@@ -3468,7 +3439,6 @@ handle_DeviceToUserDataMessageVersion1(ptvcursor_t *cursor, packet_info * pinfo 
 {
   guint32 dataLength = 0;
   {
-    /* start struct : deviceToUserDataVersion1 / size: 2040 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "deviceToUserDataVersion1");
     ptvcursor_add(cursor, hf_skinny_applicationID, 4, ENC_LITTLE_ENDIAN);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -3485,7 +3455,6 @@ handle_DeviceToUserDataMessageVersion1(ptvcursor_t *cursor, packet_info * pinfo 
     ptvcursor_add(cursor, hf_skinny_routingID, 4, ENC_LITTLE_ENDIAN);
     dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: deviceToUserDataVersion1 */
   }
 }
 
@@ -3501,7 +3470,6 @@ handle_DeviceToUserDataResponseMessageVersion1(ptvcursor_t *cursor, packet_info 
 {
   guint32 dataLength = 0;
   {
-    /* start struct : deviceToUserDataVersion1 / size: 2040 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "deviceToUserDataVersion1");
     ptvcursor_add(cursor, hf_skinny_applicationID, 4, ENC_LITTLE_ENDIAN);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -3518,7 +3486,6 @@ handle_DeviceToUserDataResponseMessageVersion1(ptvcursor_t *cursor, packet_info 
     ptvcursor_add(cursor, hf_skinny_routingID, 4, ENC_LITTLE_ENDIAN);
     dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: deviceToUserDataVersion1 */
   }
 }
 
@@ -3549,168 +3516,448 @@ handle_UpdateCapabilitiesV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_RTPPayloadFormat, 4, ENC_LITTLE_ENDIAN);
   customPictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_customPictureFormatCount, 4, ENC_LITTLE_ENDIAN);
-  {
-    /* start struct : customPictureFormat / size: 20 */
+  if (customPictureFormatCount <= 20) { /* tvb struct size guard */
     guint32 counter_1 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [ref: customPictureFormatCount = %d, max:6]", customPictureFormatCount);
-    for (counter_1 = 0; counter_1 < 6; counter_1++) {
-      if (counter_1 < customPictureFormatCount) {
+    if (customPictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (customPictureFormatCount * 20) && customPictureFormatCount <= 6) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < 6; counter_1++) {
+        if (counter_1 < customPictureFormatCount) {
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [%d / %d]", counter_1 + 1, customPictureFormatCount);
+          ptvcursor_add(cursor, hf_skinny_pictureWidth, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_pictureHeight, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_pixelAspectRatio, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_clockConversionCode, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_clockDivisor, 4, ENC_LITTLE_ENDIAN);
+        } else {
+          ptvcursor_advance(cursor, 20);
+        }
+        ptvcursor_pop_subtree(cursor);
+      }
+    }
+    ptvcursor_pop_subtree(cursor);
+  } else {
+    ptvcursor_advance(cursor, (customPictureFormatCount * 20)); /* guard kicked in -> skip the rest */;
+  }
+  {
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "confResources");
+    ptvcursor_add(cursor, hf_skinny_activeStreamsOnRegistration, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_maxBW, 4, ENC_LITTLE_ENDIAN);
+    serviceResourceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_skinny_serviceResourceCount, 4, ENC_LITTLE_ENDIAN);
+    if (serviceResourceCount <= 24) { /* tvb struct size guard */
+      guint32 counter_2 = 0;
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [ref: serviceResourceCount = %d, max:4]", serviceResourceCount);
+      if (serviceResourceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (serviceResourceCount * 24) && serviceResourceCount <= 4) { /* tvb counter size guard */
+        for (counter_2 = 0; counter_2 < 4; counter_2++) {
+          if (counter_2 < serviceResourceCount) {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [%d / %d]", counter_2 + 1, serviceResourceCount);
+            layoutCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+            ptvcursor_add(cursor, hf_skinny_layoutCount, 4, ENC_LITTLE_ENDIAN);
+            if (layoutCount <= 5) { /* tvb enum size guard */
+              guint32 counter_7 = 0;
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "layouts [ref: layoutCount = %d, max:5]", layoutCount);
+              for (counter_7 = 0; counter_7 < 5; counter_7++) {
+                if (counter_7 < layoutCount) {
+                  ptvcursor_add(cursor, hf_skinny_layouts, 4, ENC_LITTLE_ENDIAN);
+                } else {
+                  ptvcursor_advance(cursor, 4);
+                }
+              }
+              ptvcursor_pop_subtree(cursor); /* end for loop tree: layouts */
+            } else {
+              ptvcursor_advance(cursor, (5 * 4)); /* guard kicked in -> skip the rest */;
+            }
+            ptvcursor_add(cursor, hf_skinny_serviceNum, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_skinny_maxStreams, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_skinny_maxConferences, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_skinny_activeConferenceOnRegistration, 4, ENC_LITTLE_ENDIAN);
+          } else {
+            ptvcursor_advance(cursor, 24);
+          }
+          ptvcursor_pop_subtree(cursor);
+        }
+      }
+      ptvcursor_pop_subtree(cursor);
+    } else {
+      ptvcursor_advance(cursor, (serviceResourceCount * 24)); /* guard kicked in -> skip the rest */;
+    }
+    ptvcursor_pop_subtree(cursor);
+  }
+  if (audioCapCount <= 16) { /* tvb struct size guard */
+    guint32 counter_1 = 0;
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [ref: audioCapCount = %d, max:18]", audioCapCount);
+    if (audioCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (audioCapCount * 16) && audioCapCount <= 18) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < 18; counter_1++) {
+        if (counter_1 < audioCapCount) {
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [%d / %d]", counter_1 + 1, audioCapCount);
+          payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+          ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_maxFramesPerPacket, 4, ENC_LITTLE_ENDIAN);
+          if (payloadCapability == MEDIA_PAYLOAD_G7231)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_G7231");
+            ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_pop_subtree(cursor);
+            ptvcursor_advance(cursor, 4);
+          } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_MODEMRELAY)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_ModemRelay");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "modemRelay");
+              ptvcursor_add(cursor, hf_skinny_capAndVer, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_modAnd2833, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+          } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SPRT)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SPRT");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sprtPayload");
+              ptvcursor_add(cursor, hf_skinny_chan0MaxPayload, 2, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_chan2MaxPayload, 2, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_chan3MaxPayload, 2, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_chan2MaxWindow, 2, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+          } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SSE)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SSE");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sse");
+              ptvcursor_add(cursor, hf_skinny_standard, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_vendor, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+          } else           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any payloadCapability");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
+              ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+            ptvcursor_advance(cursor, 4);
+          }
+        } else {
+          ptvcursor_advance(cursor, 16);
+        }
+        ptvcursor_pop_subtree(cursor);
+      }
+    }
+    ptvcursor_pop_subtree(cursor);
+  } else {
+    ptvcursor_advance(cursor, (audioCapCount * 16)); /* guard kicked in -> skip the rest */;
+  }
+  if (videoCapCount <= 60) { /* tvb struct size guard */
+    guint32 counter_1 = 0;
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [ref: videoCapCount = %d, max:10]", videoCapCount);
+    if (videoCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (videoCapCount * 60) && videoCapCount <= 10) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < 10; counter_1++) {
+        if (counter_1 < videoCapCount) {
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [%d / %d]", counter_1 + 1, videoCapCount);
+          payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+          ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_videoCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
+          levelPreferenceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+          ptvcursor_add(cursor, hf_skinny_levelPreferenceCount, 4, ENC_LITTLE_ENDIAN);
+          if (levelPreferenceCount <= 24) { /* tvb struct size guard */
+            guint32 counter_5 = 0;
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [ref: levelPreferenceCount = %d, max:4]", levelPreferenceCount);
+            if (levelPreferenceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (levelPreferenceCount * 24) && levelPreferenceCount <= 4) { /* tvb counter size guard */
+              for (counter_5 = 0; counter_5 < 4; counter_5++) {
+                if (counter_5 < levelPreferenceCount) {
+                  ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [%d / %d]", counter_5 + 1, levelPreferenceCount);
+                  ptvcursor_add(cursor, hf_skinny_transmitPreference, 4, ENC_LITTLE_ENDIAN);
+                  ptvcursor_add(cursor, hf_skinny_format, 4, ENC_LITTLE_ENDIAN);
+                  ptvcursor_add(cursor, hf_skinny_maxBitRate, 4, ENC_LITTLE_ENDIAN);
+                  ptvcursor_add(cursor, hf_skinny_minBitRate, 4, ENC_LITTLE_ENDIAN);
+                  ptvcursor_add(cursor, hf_skinny_MPI, 4, ENC_LITTLE_ENDIAN);
+                  ptvcursor_add(cursor, hf_skinny_serviceNumber, 4, ENC_LITTLE_ENDIAN);
+                } else {
+                  ptvcursor_advance(cursor, 24);
+                }
+                ptvcursor_pop_subtree(cursor);
+              }
+            }
+            ptvcursor_pop_subtree(cursor);
+          } else {
+            ptvcursor_advance(cursor, (levelPreferenceCount * 24)); /* guard kicked in -> skip the rest */;
+          }
+          if (payloadCapability == MEDIA_PAYLOAD_H261)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H261");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h261VideoCapability");
+              ptvcursor_add(cursor, hf_skinny_temporalSpatialTradeOffCapability, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_stillImageTransmission, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+            ptvcursor_advance(cursor, 16);
+          } else if (payloadCapability == MEDIA_PAYLOAD_H263)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H263");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263VideoCapability");
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263_capability_bitfield");
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit1, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit2, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit3, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit4, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit5, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit6, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit7, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit8, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit9, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit10, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit11, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit12, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit13, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit14, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit15, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit16, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit17, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit18, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit19, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit20, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit21, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit22, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit23, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit24, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit25, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit26, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit27, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit28, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit29, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit30, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit31, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit32, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_advance(cursor, 4);
+              ptvcursor_pop_subtree(cursor); /* end bitfield: h263_capability_bitfield */
+              ptvcursor_add(cursor, hf_skinny_annexNandWFutureUse, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+            ptvcursor_advance(cursor, 16);
+          } else if (payloadCapability == MEDIA_PAYLOAD_H264)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H264");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h264VideoCapability");
+              ptvcursor_add(cursor, hf_skinny_profile, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_level, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_customMaxMBPS, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_customMaxFS, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_customMaxDPB, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_customMaxBRandCPB, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+          } else if (payloadCapability == MEDIA_PAYLOAD_VIEO)           {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_Vieo");
+            {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vieoVideoCapability");
+              ptvcursor_add(cursor, hf_skinny_modelNumber, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_bandwidth, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_pop_subtree(cursor);
+            }
+            ptvcursor_pop_subtree(cursor);
+            ptvcursor_advance(cursor, 16);
+          }
+        } else {
+          ptvcursor_advance(cursor, 60);
+        }
+        ptvcursor_pop_subtree(cursor);
+      }
+    }
+    ptvcursor_pop_subtree(cursor);
+  } else {
+    ptvcursor_advance(cursor, (videoCapCount * 60)); /* guard kicked in -> skip the rest */;
+  }
+  if (dataCapCount <= 16) { /* tvb struct size guard */
+    guint32 counter_1 = 0;
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [ref: dataCapCount = %d, max:5]", dataCapCount);
+    if (dataCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (dataCapCount * 16) && dataCapCount <= 5) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < 5; counter_1++) {
+        if (counter_1 < dataCapCount) {
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [%d / %d]", counter_1 + 1, dataCapCount);
+          ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_dataCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_protocolDependentData, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_maxBitRate, 4, ENC_LITTLE_ENDIAN);
+        } else {
+          ptvcursor_advance(cursor, 16);
+        }
+        ptvcursor_pop_subtree(cursor);
+      }
+    }
+    ptvcursor_pop_subtree(cursor);
+  } else {
+    ptvcursor_advance(cursor, (dataCapCount * 16)); /* guard kicked in -> skip the rest */;
+  }
+}
+
+/*
+ * Message:   UpdateCapabilitiesV3Message
+ * Opcode:    0x0044
+ * Type:      RegistrationAndManagement
+ * Direction: dev2pbx
+ * VarLength: yes
+ */
+static void
+handle_UpdateCapabilitiesV3Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
+{
+  guint32 audioCapCount = 0;
+  guint32 videoCapCount = 0;
+  guint32 dataCapCount = 0;
+  guint32 customPictureFormatCount = 0;
+  guint32 serviceResourceCount = 0;
+  guint32 layoutCount = 0;
+  guint32 payloadCapability = 0;
+  guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
+  guint32 levelPreferenceCount = 0;
+  audioCapCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_audioCapCount, 4, ENC_LITTLE_ENDIAN);
+  videoCapCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_videoCapCount, 4, ENC_LITTLE_ENDIAN);
+  dataCapCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_dataCapCount, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_RTPPayloadFormat, 4, ENC_LITTLE_ENDIAN);
+  customPictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_customPictureFormatCount, 4, ENC_LITTLE_ENDIAN);
+  if (customPictureFormatCount <= 20) { /* tvb struct size guard */
+    guint32 counter_1 = 0;
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [ref: customPictureFormatCount = %d, max:6]", customPictureFormatCount);
+    if (customPictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (customPictureFormatCount * 20) && customPictureFormatCount <= 6) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < customPictureFormatCount; counter_1++) {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [%d / %d]", counter_1 + 1, customPictureFormatCount);
         ptvcursor_add(cursor, hf_skinny_pictureWidth, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_pictureHeight, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_pixelAspectRatio, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_clockConversionCode, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_clockDivisor, 4, ENC_LITTLE_ENDIAN);
-      } else {
-        ptvcursor_advance(cursor, 20);
+        ptvcursor_pop_subtree(cursor);
       }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: customPictureFormat */
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: customPictureFormat */
+  } else {
+    ptvcursor_advance(cursor, (customPictureFormatCount * 20)); /* guard kicked in -> skip the rest */;
   }
   {
-    /* start struct : confResources / size: 36 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "confResources");
     ptvcursor_add(cursor, hf_skinny_activeStreamsOnRegistration, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_maxBW, 4, ENC_LITTLE_ENDIAN);
     serviceResourceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_serviceResourceCount, 4, ENC_LITTLE_ENDIAN);
-    {
-      /* start struct : serviceResource / size: 24 */
+    if (serviceResourceCount <= 24) { /* tvb struct size guard */
       guint32 counter_2 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [ref: serviceResourceCount = %d, max:4]", serviceResourceCount);
-      for (counter_2 = 0; counter_2 < 4; counter_2++) {
-        if (counter_2 < serviceResourceCount) {
+      if (serviceResourceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (serviceResourceCount * 24) && serviceResourceCount <= 4) { /* tvb counter size guard */
+        for (counter_2 = 0; counter_2 < serviceResourceCount; counter_2++) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [%d / %d]", counter_2 + 1, serviceResourceCount);
           layoutCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
           ptvcursor_add(cursor, hf_skinny_layoutCount, 4, ENC_LITTLE_ENDIAN);
-          {
-            guint32 counter_5 = 0;
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "layouts [ref: layoutCount = %d, max:5]", layoutCount);
-            for (counter_5 = 0; counter_5 < 5; counter_5++) {
-              if (counter_5 < layoutCount) {
-                ptvcursor_add(cursor, hf_skinny_layouts, 4, ENC_LITTLE_ENDIAN);
-              } else {
-                ptvcursor_advance(cursor, 4);
-              }
+          if (layoutCount <= 5) { /* tvb enum size guard */
+            guint32 counter_6 = 0;
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "layouts [ref: layoutCount = %d, max:layoutCount]", layoutCount);
+            for (counter_6 = 0; counter_6 < layoutCount; counter_6++) {
+              ptvcursor_add(cursor, hf_skinny_layouts, 4, ENC_LITTLE_ENDIAN);
             }
             ptvcursor_pop_subtree(cursor); /* end for loop tree: layouts */
+          } else {
+            ptvcursor_advance(cursor, (layoutCount * 4)); /* guard kicked in -> skip the rest */;
           }
           ptvcursor_add(cursor, hf_skinny_serviceNum, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_maxStreams, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_maxConferences, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_activeConferenceOnRegistration, 4, ENC_LITTLE_ENDIAN);
-        } else {
-          ptvcursor_advance(cursor, 24);
+          ptvcursor_pop_subtree(cursor);
         }
-        ptvcursor_pop_subtree(cursor);
-        /* end for loop tree: serviceResource */
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: serviceResource */
+    } else {
+      ptvcursor_advance(cursor, (serviceResourceCount * 24)); /* guard kicked in -> skip the rest */;
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: confResources */
   }
-  {
-    /* start struct : audiocaps / size: 16 */
+  if (audioCapCount <= 16) { /* tvb struct size guard */
     guint32 counter_1 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [ref: audioCapCount = %d, max:18]", audioCapCount);
-    for (counter_1 = 0; counter_1 < 18; counter_1++) {
-      if (counter_1 < audioCapCount) {
+    if (audioCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (audioCapCount * 16) && audioCapCount <= 18) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < audioCapCount; counter_1++) {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [%d / %d]", counter_1 + 1, audioCapCount);
         payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_maxFramesPerPacket, 4, ENC_LITTLE_ENDIAN);
         if (payloadCapability == MEDIA_PAYLOAD_G7231)         {
-          /* start union : PAYLOADS / maxsize: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_G7231");
           ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
           ptvcursor_advance(cursor, 4);
         } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_MODEMRELAY)         {
-          /* start union : PAYLOADS / maxsize: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_ModemRelay");
           {
-            /* start struct : modemRelay / size: 8 */
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "modemRelay");
             ptvcursor_add(cursor, hf_skinny_capAndVer, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(cursor, hf_skinny_modAnd2833, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(cursor);
-            /* end struct: modemRelay */
           }
           ptvcursor_pop_subtree(cursor);
         } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SPRT)         {
-          /* start union : PAYLOADS / maxsize: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SPRT");
           {
-            /* start struct : sprtPayload / size: 8 */
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sprtPayload");
             ptvcursor_add(cursor, hf_skinny_chan0MaxPayload, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(cursor, hf_skinny_chan2MaxPayload, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(cursor, hf_skinny_chan3MaxPayload, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_add(cursor, hf_skinny_chan2MaxWindow, 2, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(cursor);
-            /* end struct: sprtPayload */
           }
           ptvcursor_pop_subtree(cursor);
         } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SSE)         {
-          /* start union : PAYLOADS / maxsize: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SSE");
           {
-            /* start struct : sse / size: 8 */
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sse");
             ptvcursor_add(cursor, hf_skinny_standard, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(cursor, hf_skinny_vendor, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(cursor);
-            /* end struct: sse */
           }
           ptvcursor_pop_subtree(cursor);
         } else         {
-          /* start union : PAYLOADS / maxsize: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any payloadCapability");
           {
-            /* start struct : codecParams / size: 4 */
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
             ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(cursor);
-            /* end struct: codecParams */
           }
           ptvcursor_pop_subtree(cursor);
           ptvcursor_advance(cursor, 4);
         }
-      } else {
-        ptvcursor_advance(cursor, 16);
+        ptvcursor_pop_subtree(cursor);
       }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: audiocaps */
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: audiocaps */
+  } else {
+    ptvcursor_advance(cursor, (audioCapCount * 16)); /* guard kicked in -> skip the rest */;
   }
-  {
-    /* start struct : vidCaps / size: 60 */
+  if (videoCapCount <= 72) { /* tvb struct size guard */
     guint32 counter_1 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [ref: videoCapCount = %d, max:10]", videoCapCount);
-    for (counter_1 = 0; counter_1 < 10; counter_1++) {
-      if (counter_1 < videoCapCount) {
+    if (videoCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (videoCapCount * 72) && videoCapCount <= 10) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < videoCapCount; counter_1++) {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [%d / %d]", counter_1 + 1, videoCapCount);
         payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_videoCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
         levelPreferenceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_skinny_levelPreferenceCount, 4, ENC_LITTLE_ENDIAN);
-        {
-          /* start struct : levelPreference / size: 24 */
+        if (levelPreferenceCount <= 24) { /* tvb struct size guard */
           guint32 counter_4 = 0;
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [ref: levelPreferenceCount = %d, max:4]", levelPreferenceCount);
-          for (counter_4 = 0; counter_4 < 4; counter_4++) {
-            if (counter_4 < levelPreferenceCount) {
+          if (levelPreferenceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (levelPreferenceCount * 24) && levelPreferenceCount <= 4) { /* tvb counter size guard */
+            for (counter_4 = 0; counter_4 < levelPreferenceCount; counter_4++) {
               ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [%d / %d]", counter_4 + 1, levelPreferenceCount);
               ptvcursor_add(cursor, hf_skinny_transmitPreference, 4, ENC_LITTLE_ENDIAN);
               ptvcursor_add(cursor, hf_skinny_format, 4, ENC_LITTLE_ENDIAN);
@@ -3718,33 +3965,27 @@ handle_UpdateCapabilitiesV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
               ptvcursor_add(cursor, hf_skinny_minBitRate, 4, ENC_LITTLE_ENDIAN);
               ptvcursor_add(cursor, hf_skinny_MPI, 4, ENC_LITTLE_ENDIAN);
               ptvcursor_add(cursor, hf_skinny_serviceNumber, 4, ENC_LITTLE_ENDIAN);
-            } else {
-              ptvcursor_advance(cursor, 24);
+              ptvcursor_pop_subtree(cursor);
             }
-            ptvcursor_pop_subtree(cursor);
-            /* end for loop tree: levelPreference */
           }
           ptvcursor_pop_subtree(cursor);
-          /* end struct: levelPreference */
+        } else {
+          ptvcursor_advance(cursor, (levelPreferenceCount * 24)); /* guard kicked in -> skip the rest */;
         }
+        ptvcursor_add(cursor, hf_skinny_encryptionCapability, 4, ENC_LITTLE_ENDIAN);
         if (payloadCapability == MEDIA_PAYLOAD_H261)         {
-          /* start union : capability / maxsize: 24 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H261");
           {
-            /* start struct : h261VideoCapability / size: 8 */
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h261VideoCapability");
             ptvcursor_add(cursor, hf_skinny_temporalSpatialTradeOffCapability, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(cursor, hf_skinny_stillImageTransmission, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(cursor);
-            /* end struct: h261VideoCapability */
           }
           ptvcursor_pop_subtree(cursor);
           ptvcursor_advance(cursor, 16);
         } else if (payloadCapability == MEDIA_PAYLOAD_H263)         {
-          /* start union : capability / maxsize: 24 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H263");
           {
-            /* start struct : h263VideoCapability / size: 8 */
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263VideoCapability");
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263_capability_bitfield");
             ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit1, 4, ENC_LITTLE_ENDIAN);
@@ -3783,15 +4024,12 @@ handle_UpdateCapabilitiesV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
             ptvcursor_pop_subtree(cursor); /* end bitfield: h263_capability_bitfield */
             ptvcursor_add(cursor, hf_skinny_annexNandWFutureUse, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(cursor);
-            /* end struct: h263VideoCapability */
           }
           ptvcursor_pop_subtree(cursor);
           ptvcursor_advance(cursor, 16);
         } else if (payloadCapability == MEDIA_PAYLOAD_H264)         {
-          /* start union : capability / maxsize: 24 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H264");
           {
-            /* start struct : h264VideoCapability / size: 24 */
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h264VideoCapability");
             ptvcursor_add(cursor, hf_skinny_profile, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(cursor, hf_skinny_level, 4, ENC_LITTLE_ENDIAN);
@@ -3800,356 +4038,47 @@ handle_UpdateCapabilitiesV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
             ptvcursor_add(cursor, hf_skinny_customMaxDPB, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(cursor, hf_skinny_customMaxBRandCPB, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(cursor);
-            /* end struct: h264VideoCapability */
           }
           ptvcursor_pop_subtree(cursor);
         } else if (payloadCapability == MEDIA_PAYLOAD_VIEO)         {
-          /* start union : capability / maxsize: 24 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_Vieo");
           {
-            /* start struct : vieoVideoCapability / size: 8 */
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vieoVideoCapability");
             ptvcursor_add(cursor, hf_skinny_modelNumber, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(cursor, hf_skinny_bandwidth, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(cursor);
-            /* end struct: vieoVideoCapability */
           }
           ptvcursor_pop_subtree(cursor);
           ptvcursor_advance(cursor, 16);
         }
-      } else {
-        ptvcursor_advance(cursor, 60);
+        ptvcursor_add(cursor, hf_skinny_ipAddressingMode, 4, ENC_LITTLE_ENDIAN);
+        if (hdr_version >= V16_MSG_TYPE) {
+          ptvcursor_add(cursor, hf_skinny_ipAddressingMode, 4, ENC_LITTLE_ENDIAN);
+        }
+        ptvcursor_pop_subtree(cursor);
       }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: vidCaps */
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: vidCaps */
+  } else {
+    ptvcursor_advance(cursor, (videoCapCount * 72)); /* guard kicked in -> skip the rest */;
   }
-  {
-    /* start struct : dataCaps / size: 16 */
+  if (dataCapCount <= 20) { /* tvb struct size guard */
     guint32 counter_1 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [ref: dataCapCount = %d, max:5]", dataCapCount);
-    for (counter_1 = 0; counter_1 < 5; counter_1++) {
-      if (counter_1 < dataCapCount) {
+    if (dataCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (dataCapCount * 20) && dataCapCount <= 5) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < dataCapCount; counter_1++) {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [%d / %d]", counter_1 + 1, dataCapCount);
         ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_dataCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_protocolDependentData, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_maxBitRate, 4, ENC_LITTLE_ENDIAN);
-      } else {
-        ptvcursor_advance(cursor, 16);
+        ptvcursor_add(cursor, hf_skinny_encryptionCapability, 4, ENC_LITTLE_ENDIAN);
+        ptvcursor_pop_subtree(cursor);
       }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: dataCaps */
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: dataCaps */
-  }
-}
-
-/*
- * Message:   UpdateCapabilitiesV3Message
- * Opcode:    0x0044
- * Type:      RegistrationAndManagement
- * Direction: dev2pbx
- * VarLength: yes
- */
-static void
-handle_UpdateCapabilitiesV3Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
-{
-  guint32 audioCapCount = 0;
-  guint32 videoCapCount = 0;
-  guint32 dataCapCount = 0;
-  guint32 customPictureFormatCount = 0;
-  guint32 serviceResourceCount = 0;
-  guint32 layoutCount = 0;
-  guint32 payloadCapability = 0;
-  guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
-  guint32 levelPreferenceCount = 0;
-  audioCapCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_audioCapCount, 4, ENC_LITTLE_ENDIAN);
-  videoCapCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_videoCapCount, 4, ENC_LITTLE_ENDIAN);
-  dataCapCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_dataCapCount, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_RTPPayloadFormat, 4, ENC_LITTLE_ENDIAN);
-  customPictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_customPictureFormatCount, 4, ENC_LITTLE_ENDIAN);
-  {
-    /* start struct : customPictureFormat / size: 20 */
-    guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [ref: customPictureFormatCount = %d, max:customPictureFormatCount]", customPictureFormatCount);
-    for (counter_1 = 0; counter_1 < customPictureFormatCount; counter_1++) {
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [%d / %d]", counter_1 + 1, customPictureFormatCount);
-      ptvcursor_add(cursor, hf_skinny_pictureWidth, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_skinny_pictureHeight, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_skinny_pixelAspectRatio, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_skinny_clockConversionCode, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_skinny_clockDivisor, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: customPictureFormat */
-    }
-    ptvcursor_pop_subtree(cursor);
-    /* end struct: customPictureFormat */
-  }
-  {
-    /* start struct : confResources / size: 36 */
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "confResources");
-    ptvcursor_add(cursor, hf_skinny_activeStreamsOnRegistration, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_maxBW, 4, ENC_LITTLE_ENDIAN);
-    serviceResourceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-    ptvcursor_add(cursor, hf_skinny_serviceResourceCount, 4, ENC_LITTLE_ENDIAN);
-    {
-      /* start struct : serviceResource / size: 24 */
-      guint32 counter_2 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [ref: serviceResourceCount = %d, max:serviceResourceCount]", serviceResourceCount);
-      for (counter_2 = 0; counter_2 < serviceResourceCount; counter_2++) {
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [%d / %d]", counter_2 + 1, serviceResourceCount);
-        layoutCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-        ptvcursor_add(cursor, hf_skinny_layoutCount, 4, ENC_LITTLE_ENDIAN);
-        {
-          guint32 counter_4 = 0;
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "layouts [ref: layoutCount = %d, max:layoutCount]", layoutCount);
-          for (counter_4 = 0; counter_4 < layoutCount; counter_4++) {
-            ptvcursor_add(cursor, hf_skinny_layouts, 4, ENC_LITTLE_ENDIAN);
-          }
-          ptvcursor_pop_subtree(cursor); /* end for loop tree: layouts */
-        }
-        ptvcursor_add(cursor, hf_skinny_serviceNum, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_maxStreams, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_maxConferences, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_activeConferenceOnRegistration, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_pop_subtree(cursor);
-        /* end for loop tree: serviceResource */
-      }
-      ptvcursor_pop_subtree(cursor);
-      /* end struct: serviceResource */
-    }
-    ptvcursor_pop_subtree(cursor);
-    /* end struct: confResources */
-  }
-  {
-    /* start struct : audiocaps / size: 16 */
-    guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [ref: audioCapCount = %d, max:audioCapCount]", audioCapCount);
-    for (counter_1 = 0; counter_1 < audioCapCount; counter_1++) {
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [%d / %d]", counter_1 + 1, audioCapCount);
-      payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_skinny_maxFramesPerPacket, 4, ENC_LITTLE_ENDIAN);
-      if (payloadCapability == MEDIA_PAYLOAD_G7231)       {
-        /* start union : PAYLOADS / maxsize: 8 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_G7231");
-        ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_pop_subtree(cursor);
-        ptvcursor_advance(cursor, 4);
-      } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_MODEMRELAY)       {
-        /* start union : PAYLOADS / maxsize: 8 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_ModemRelay");
-        {
-          /* start struct : modemRelay / size: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "modemRelay");
-          ptvcursor_add(cursor, hf_skinny_capAndVer, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_modAnd2833, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_pop_subtree(cursor);
-          /* end struct: modemRelay */
-        }
-        ptvcursor_pop_subtree(cursor);
-      } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SPRT)       {
-        /* start union : PAYLOADS / maxsize: 8 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SPRT");
-        {
-          /* start struct : sprtPayload / size: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sprtPayload");
-          ptvcursor_add(cursor, hf_skinny_chan0MaxPayload, 2, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_chan2MaxPayload, 2, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_chan3MaxPayload, 2, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_chan2MaxWindow, 2, ENC_LITTLE_ENDIAN);
-          ptvcursor_pop_subtree(cursor);
-          /* end struct: sprtPayload */
-        }
-        ptvcursor_pop_subtree(cursor);
-      } else if (payloadCapability == MEDIA_PAYLOAD_V150_LC_SSE)       {
-        /* start union : PAYLOADS / maxsize: 8 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_v150_LC_SSE");
-        {
-          /* start struct : sse / size: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sse");
-          ptvcursor_add(cursor, hf_skinny_standard, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_vendor, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_pop_subtree(cursor);
-          /* end struct: sse */
-        }
-        ptvcursor_pop_subtree(cursor);
-      } else       {
-        /* start union : PAYLOADS / maxsize: 8 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any payloadCapability");
-        {
-          /* start struct : codecParams / size: 4 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
-          ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
-          ptvcursor_pop_subtree(cursor);
-          /* end struct: codecParams */
-        }
-        ptvcursor_pop_subtree(cursor);
-        ptvcursor_advance(cursor, 4);
-      }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: audiocaps */
-    }
-    ptvcursor_pop_subtree(cursor);
-    /* end struct: audiocaps */
-  }
-  {
-    /* start struct : vidCaps / size: 72 */
-    guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [ref: videoCapCount = %d, max:videoCapCount]", videoCapCount);
-    for (counter_1 = 0; counter_1 < videoCapCount; counter_1++) {
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [%d / %d]", counter_1 + 1, videoCapCount);
-      payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_skinny_videoCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
-      levelPreferenceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_skinny_levelPreferenceCount, 4, ENC_LITTLE_ENDIAN);
-      {
-        /* start struct : levelPreference / size: 24 */
-        guint32 counter_3 = 0;
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [ref: levelPreferenceCount = %d, max:levelPreferenceCount]", levelPreferenceCount);
-        for (counter_3 = 0; counter_3 < levelPreferenceCount; counter_3++) {
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [%d / %d]", counter_3 + 1, levelPreferenceCount);
-          ptvcursor_add(cursor, hf_skinny_transmitPreference, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_format, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_maxBitRate, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_minBitRate, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_MPI, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_serviceNumber, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_pop_subtree(cursor);
-          /* end for loop tree: levelPreference */
-        }
-        ptvcursor_pop_subtree(cursor);
-        /* end struct: levelPreference */
-      }
-      ptvcursor_add(cursor, hf_skinny_encryptionCapability, 4, ENC_LITTLE_ENDIAN);
-      if (payloadCapability == MEDIA_PAYLOAD_H261)       {
-        /* start union : capability / maxsize: 24 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H261");
-        {
-          /* start struct : h261VideoCapability / size: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h261VideoCapability");
-          ptvcursor_add(cursor, hf_skinny_temporalSpatialTradeOffCapability, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_stillImageTransmission, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_pop_subtree(cursor);
-          /* end struct: h261VideoCapability */
-        }
-        ptvcursor_pop_subtree(cursor);
-        ptvcursor_advance(cursor, 16);
-      } else if (payloadCapability == MEDIA_PAYLOAD_H263)       {
-        /* start union : capability / maxsize: 24 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H263");
-        {
-          /* start struct : h263VideoCapability / size: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263VideoCapability");
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263_capability_bitfield");
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit1, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit2, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit3, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit4, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit5, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit6, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit7, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit8, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit9, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit10, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit11, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit12, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit13, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit14, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit15, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit16, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit17, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit18, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit19, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit20, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit21, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit22, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit23, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit24, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit25, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit26, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit27, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit28, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit29, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit30, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit31, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit32, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_advance(cursor, 4);
-          ptvcursor_pop_subtree(cursor); /* end bitfield: h263_capability_bitfield */
-          ptvcursor_add(cursor, hf_skinny_annexNandWFutureUse, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_pop_subtree(cursor);
-          /* end struct: h263VideoCapability */
-        }
-        ptvcursor_pop_subtree(cursor);
-        ptvcursor_advance(cursor, 16);
-      } else if (payloadCapability == MEDIA_PAYLOAD_H264)       {
-        /* start union : capability / maxsize: 24 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H264");
-        {
-          /* start struct : h264VideoCapability / size: 24 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h264VideoCapability");
-          ptvcursor_add(cursor, hf_skinny_profile, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_level, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_customMaxMBPS, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_customMaxFS, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_customMaxDPB, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_customMaxBRandCPB, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_pop_subtree(cursor);
-          /* end struct: h264VideoCapability */
-        }
-        ptvcursor_pop_subtree(cursor);
-      } else if (payloadCapability == MEDIA_PAYLOAD_VIEO)       {
-        /* start union : capability / maxsize: 24 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_Vieo");
-        {
-          /* start struct : vieoVideoCapability / size: 8 */
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vieoVideoCapability");
-          ptvcursor_add(cursor, hf_skinny_modelNumber, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_bandwidth, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_pop_subtree(cursor);
-          /* end struct: vieoVideoCapability */
-        }
-        ptvcursor_pop_subtree(cursor);
-        ptvcursor_advance(cursor, 16);
-      }
-      ptvcursor_add(cursor, hf_skinny_ipAddressingMode, 4, ENC_LITTLE_ENDIAN);
-      if (hdr_version >= V16_MSG_TYPE) {
-        ptvcursor_add(cursor, hf_skinny_ipAddressingMode, 4, ENC_LITTLE_ENDIAN);
-      }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: vidCaps */
-    }
-    ptvcursor_pop_subtree(cursor);
-    /* end struct: vidCaps */
-  }
-  {
-    /* start struct : dataCaps / size: 20 */
-    guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [ref: dataCapCount = %d, max:dataCapCount]", dataCapCount);
-    for (counter_1 = 0; counter_1 < dataCapCount; counter_1++) {
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [%d / %d]", counter_1 + 1, dataCapCount);
-      ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_skinny_dataCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_skinny_protocolDependentData, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_skinny_maxBitRate, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_skinny_encryptionCapability, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: dataCaps */
-    }
-    ptvcursor_pop_subtree(cursor);
-    /* end struct: dataCaps */
+  } else {
+    ptvcursor_advance(cursor, (dataCapCount * 20)); /* guard kicked in -> skip the rest */;
   }
 }
 
@@ -4278,36 +4207,28 @@ handle_MwiNotificationMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_mwiControlNumber, 25, ENC_ASCII|ENC_NA);
   ptvcursor_add(cursor, hf_skinny_areMessagesWaiting, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : totalVmCounts / size: 8 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "totalVmCounts");
     ptvcursor_add(cursor, hf_skinny_numNewMsgs, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_numOldMsgs, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: totalVmCounts */
   }
   {
-    /* start struct : priorityVmCounts / size: 8 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "priorityVmCounts");
     ptvcursor_add(cursor, hf_skinny_numNewMsgs, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_numOldMsgs, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: priorityVmCounts */
   }
   {
-    /* start struct : totalFaxCounts / size: 8 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "totalFaxCounts");
     ptvcursor_add(cursor, hf_skinny_numNewMsgs, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_numOldMsgs, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: totalFaxCounts */
   }
   {
-    /* start struct : priorityFaxCounts / size: 8 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "priorityFaxCounts");
     ptvcursor_add(cursor, hf_skinny_numNewMsgs, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_numOldMsgs, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: priorityFaxCounts */
   }
 }
 
@@ -4469,7 +4390,6 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : qualifierOut / size: 20 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "qualifierOut");
     ptvcursor_add(cursor, hf_skinny_precedenceValue, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_ssValue, 4, ENC_LITTLE_ENDIAN);
@@ -4480,67 +4400,64 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
     }
     if (hdr_version >= V11_MSG_TYPE) {
       if (compressionType == MEDIA_PAYLOAD_G7231)       {
-        /* start union : codecParamsUnion / maxsize: 4 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "compressionType is Media_Payload_G7231");
         ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_pop_subtree(cursor);
       } else       {
-        /* start union : codecParamsUnion / maxsize: 4 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any compressionType");
         {
-          /* start struct : codecParams / size: 4 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
           ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: codecParams */
         }
         ptvcursor_pop_subtree(cursor);
       }
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: qualifierOut */
   }
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : mTxMediaEncryptionKeyInfo / size: 18 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "mTxMediaEncryptionKeyInfo");
     ptvcursor_add(cursor, hf_skinny_algorithmID, 4, ENC_LITTLE_ENDIAN);
     keylen = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_keylen, 2, ENC_LITTLE_ENDIAN);
     saltlen = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_saltlen, 2, ENC_LITTLE_ENDIAN);
-    {
-      guint32 counter_2 = 0;
+    if (keylen <= 16) { /* tvb integer size guard */
+      guint32 counter_3 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "key [ref: keylen = %d, max:16]", keylen);
-      for (counter_2 = 0; counter_2 < 16; counter_2++) {
-        if (counter_2 < keylen) {
+      for (counter_3 = 0; counter_3 < 16; counter_3++) {
+        if (counter_3 < keylen) {
           ptvcursor_add(cursor, hf_skinny_key, 1, ENC_LITTLE_ENDIAN);
         } else {
           ptvcursor_advance(cursor, 1);
         }
       }
       ptvcursor_pop_subtree(cursor); /* end for loop tree: key */
+    } else {
+      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
     }
-    {
-      guint32 counter_2 = 0;
+    if (saltlen <= 16) { /* tvb integer size guard */
+      guint32 counter_3 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "salt [ref: saltlen = %d, max:16]", saltlen);
-      for (counter_2 = 0; counter_2 < 16; counter_2++) {
-        if (counter_2 < saltlen) {
+      for (counter_3 = 0; counter_3 < 16; counter_3++) {
+        if (counter_3 < saltlen) {
           ptvcursor_add(cursor, hf_skinny_salt, 1, ENC_LITTLE_ENDIAN);
         } else {
           ptvcursor_advance(cursor, 1);
         }
       }
       ptvcursor_pop_subtree(cursor); /* end for loop tree: salt */
+    } else {
+      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
     }
     ptvcursor_add(cursor, hf_skinny_isMKIPresent, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_keyDerivationRate, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: mTxMediaEncryptionKeyInfo */
   }
   ptvcursor_add(cursor, hf_skinny_streamPassThroughID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_associatedStreamID, 4, ENC_LITTLE_ENDIAN);
@@ -4552,37 +4469,29 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
   }
   if (hdr_version >= V21_MSG_TYPE) {
     {
-      /* start struct : latentCapsInfo / size: 36 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "latentCapsInfo");
       ptvcursor_add(cursor, hf_skinny_active, 4, ENC_LITTLE_ENDIAN);
       {
-        /* start struct : modemRelay / size: 8 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "modemRelay");
         ptvcursor_add(cursor, hf_skinny_capAndVer, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_modAnd2833, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_pop_subtree(cursor);
-        /* end struct: modemRelay */
       }
       {
-        /* start struct : sprtPayload / size: 8 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sprtPayload");
         ptvcursor_add(cursor, hf_skinny_chan0MaxPayload, 2, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_chan2MaxPayload, 2, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_chan3MaxPayload, 2, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_chan2MaxWindow, 2, ENC_LITTLE_ENDIAN);
         ptvcursor_pop_subtree(cursor);
-        /* end struct: sprtPayload */
       }
       {
-        /* start struct : sse / size: 8 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sse");
         ptvcursor_add(cursor, hf_skinny_standard, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_vendor, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_pop_subtree(cursor);
-        /* end struct: sse */
       }
       {
-        /* start struct : payloadParam / size: 8 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadParam");
         ptvcursor_add(cursor, hf_skinny_nse, 1, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_rfc2833, 1, ENC_LITTLE_ENDIAN);
@@ -4593,10 +4502,8 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
         ptvcursor_add(cursor, hf_skinny_FutureUse2, 1, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_FutureUse3, 1, ENC_LITTLE_ENDIAN);
         ptvcursor_pop_subtree(cursor);
-        /* end struct: payloadParam */
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: latentCapsInfo */
     }
   }
 }
@@ -4734,13 +4641,11 @@ static void
 handle_ConfigStatMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   {
-    /* start struct : sid / size: 24 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sid");
     ptvcursor_add(cursor, hf_skinny_DeviceName, 16, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_reserved_for_future_use, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_instance, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: sid */
   }
   ptvcursor_add(cursor, hf_skinny_userName, 40, ENC_ASCII|ENC_NA);
   ptvcursor_add(cursor, hf_skinny_serverName, 40, ENC_ASCII|ENC_NA);
@@ -4759,7 +4664,6 @@ static void
 handle_DefineTimeDate(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   {
-    /* start struct : timeDataInfo / size: 32 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "timeDataInfo");
     ptvcursor_add(cursor, hf_skinny_wYear, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_wMonth, 4, ENC_LITTLE_ENDIAN);
@@ -4770,7 +4674,6 @@ handle_DefineTimeDate(ptvcursor_t *cursor, packet_info * pinfo _U_)
     ptvcursor_add(cursor, hf_skinny_wSecond, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_wMilliseconds, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: timeDataInfo */
   }
   ptvcursor_add(cursor, hf_skinny_systemTime, 4, ENC_LITTLE_ENDIAN);
 }
@@ -4815,32 +4718,31 @@ handle_ButtonTemplateMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   guint32 totalButtonCount = 0;
   {
-    /* start struct : buttonTemplate / size: 14 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "buttonTemplate");
     ptvcursor_add(cursor, hf_skinny_buttonOffset, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_buttonCount, 4, ENC_LITTLE_ENDIAN);
     totalButtonCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_totalButtonCount, 4, ENC_LITTLE_ENDIAN);
-    {
-      /* start struct : definition / size: 2 */
+    if (totalButtonCount <= 2) { /* tvb struct size guard */
       guint32 counter_2 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [ref: totalButtonCount = %d, max:42]", totalButtonCount);
-      for (counter_2 = 0; counter_2 < 42; counter_2++) {
-        if (counter_2 < totalButtonCount) {
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [%d / %d]", counter_2 + 1, totalButtonCount);
-          ptvcursor_add(cursor, hf_skinny_instanceNumber, 1, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_buttonDefinition, 1, ENC_LITTLE_ENDIAN);
-        } else {
-          ptvcursor_advance(cursor, 2);
+      if (totalButtonCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (totalButtonCount * 2) && totalButtonCount <= 42) { /* tvb counter size guard */
+        for (counter_2 = 0; counter_2 < 42; counter_2++) {
+          if (counter_2 < totalButtonCount) {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [%d / %d]", counter_2 + 1, totalButtonCount);
+            ptvcursor_add(cursor, hf_skinny_instanceNumber, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_skinny_buttonDefinition, 1, ENC_LITTLE_ENDIAN);
+          } else {
+            ptvcursor_advance(cursor, 2);
+          }
+          ptvcursor_pop_subtree(cursor);
         }
-        ptvcursor_pop_subtree(cursor);
-        /* end for loop tree: definition */
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: definition */
+    } else {
+      ptvcursor_advance(cursor, (totalButtonCount * 2)); /* guard kicked in -> skip the rest */;
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: buttonTemplate */
   }
 }
 
@@ -4896,54 +4798,45 @@ handle_ServerResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
 
   {
-    /* start struct : server / size: 48 */
     guint32 counter_1 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "server [max:5]");
     for (counter_1 = 0; counter_1 < 5; counter_1++) {
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "server [%d / %d]", counter_1 + 1, 5);
       ptvcursor_add(cursor, hf_skinny_ServerName, 48, ENC_ASCII|ENC_NA);
       ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: server */
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: server */
   }
   {
-    guint32 counter_1 = 0;
+    guint32 counter_2 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serverTcpListenPort [max:5]");
-    for (counter_1 = 0; counter_1 < 5; counter_1++) {
+    for (counter_2 = 0; counter_2 < 5; counter_2++) {
       ptvcursor_add(cursor, hf_skinny_serverTcpListenPort, 4, ENC_LITTLE_ENDIAN);
     }
     ptvcursor_pop_subtree(cursor); /* end for loop tree: serverTcpListenPort */
   }
   if (hdr_data_length < 293) {
     {
-      /* start struct : serverIpAddr / size: 4 */
       guint32 counter_2 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serverIpAddr [max:5]");
       for (counter_2 = 0; counter_2 < 5; counter_2++) {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serverIpAddr [%d / %d]", counter_2 + 1, 5);
         ptvcursor_add(cursor, hf_skinny_stationIpAddr, 4, ENC_BIG_ENDIAN);
         ptvcursor_pop_subtree(cursor);
-        /* end for loop tree: serverIpAddr */
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: serverIpAddr */
     }
   }
   if (hdr_data_length > 292) {
     {
-      /* start struct : serverIpAddr / size: 20 */
       guint32 counter_2 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serverIpAddr [max:5]");
       for (counter_2 = 0; counter_2 < 5; counter_2++) {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serverIpAddr [%d / %d]", counter_2 + 1, 5);
         dissect_skinny_ipv4or6(cursor, hf_skinny_stationIpAddr_ipv4, hf_skinny_stationIpAddr_ipv6);
         ptvcursor_pop_subtree(cursor);
-        /* end for loop tree: serverIpAddr */
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: serverIpAddr */
     }
   }
 }
@@ -4981,7 +4874,6 @@ handle_StartMulticastMediaReceptionMessage(ptvcursor_t *cursor, packet_info * pi
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : qualifierIn / size: 12 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "qualifierIn");
     ptvcursor_add(cursor, hf_skinny_ecValue, 4, ENC_LITTLE_ENDIAN);
     if (hdr_version <= V10_MSG_TYPE) {
@@ -4989,28 +4881,23 @@ handle_StartMulticastMediaReceptionMessage(ptvcursor_t *cursor, packet_info * pi
     }
     if (hdr_version >= V11_MSG_TYPE) {
       if (compressionType == MEDIA_PAYLOAD_G7231)       {
-        /* start union : codecParamsUnion / maxsize: 4 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "compressionType is Media_Payload_G7231");
         ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_pop_subtree(cursor);
       } else       {
-        /* start union : codecParamsUnion / maxsize: 4 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any compressionType");
         {
-          /* start struct : codecParams / size: 4 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
           ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: codecParams */
         }
         ptvcursor_pop_subtree(cursor);
       }
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: qualifierIn */
   }
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
@@ -5036,7 +4923,6 @@ handle_StartMulticastMediaTransmissionMessage(ptvcursor_t *cursor, packet_info *
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : qualifierOut / size: 20 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "qualifierOut");
     ptvcursor_add(cursor, hf_skinny_precedenceValue, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_ssValue, 4, ENC_LITTLE_ENDIAN);
@@ -5047,28 +4933,23 @@ handle_StartMulticastMediaTransmissionMessage(ptvcursor_t *cursor, packet_info *
     }
     if (hdr_version >= V11_MSG_TYPE) {
       if (compressionType == MEDIA_PAYLOAD_G7231)       {
-        /* start union : codecParamsUnion / maxsize: 4 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "compressionType is Media_Payload_G7231");
         ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_pop_subtree(cursor);
       } else       {
-        /* start union : codecParamsUnion / maxsize: 4 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any compressionType");
         {
-          /* start struct : codecParams / size: 4 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
           ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: codecParams */
         }
         ptvcursor_pop_subtree(cursor);
       }
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: qualifierOut */
   }
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
@@ -5128,7 +5009,6 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : qualifierIn / size: 12 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "qualifierIn");
     ptvcursor_add(cursor, hf_skinny_ecValue, 4, ENC_LITTLE_ENDIAN);
     if (hdr_version <= V10_MSG_TYPE) {
@@ -5136,67 +5016,64 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
     }
     if (hdr_version >= V11_MSG_TYPE) {
       if (compressionType == MEDIA_PAYLOAD_G7231)       {
-        /* start union : codecParamsUnion / maxsize: 4 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "compressionType is Media_Payload_G7231");
         ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_pop_subtree(cursor);
       } else       {
-        /* start union : codecParamsUnion / maxsize: 4 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any compressionType");
         {
-          /* start struct : codecParams / size: 4 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
           ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: codecParams */
         }
         ptvcursor_pop_subtree(cursor);
       }
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: qualifierIn */
   }
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : mRxMediaEncryptionKeyInfo / size: 18 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "mRxMediaEncryptionKeyInfo");
     ptvcursor_add(cursor, hf_skinny_algorithmID, 4, ENC_LITTLE_ENDIAN);
     keylen = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_keylen, 2, ENC_LITTLE_ENDIAN);
     saltlen = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_saltlen, 2, ENC_LITTLE_ENDIAN);
-    {
-      guint32 counter_2 = 0;
+    if (keylen <= 16) { /* tvb integer size guard */
+      guint32 counter_3 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "key [ref: keylen = %d, max:16]", keylen);
-      for (counter_2 = 0; counter_2 < 16; counter_2++) {
-        if (counter_2 < keylen) {
+      for (counter_3 = 0; counter_3 < 16; counter_3++) {
+        if (counter_3 < keylen) {
           ptvcursor_add(cursor, hf_skinny_key, 1, ENC_LITTLE_ENDIAN);
         } else {
           ptvcursor_advance(cursor, 1);
         }
       }
       ptvcursor_pop_subtree(cursor); /* end for loop tree: key */
+    } else {
+      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
     }
-    {
-      guint32 counter_2 = 0;
+    if (saltlen <= 16) { /* tvb integer size guard */
+      guint32 counter_3 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "salt [ref: saltlen = %d, max:16]", saltlen);
-      for (counter_2 = 0; counter_2 < 16; counter_2++) {
-        if (counter_2 < saltlen) {
+      for (counter_3 = 0; counter_3 < 16; counter_3++) {
+        if (counter_3 < saltlen) {
           ptvcursor_add(cursor, hf_skinny_salt, 1, ENC_LITTLE_ENDIAN);
         } else {
           ptvcursor_advance(cursor, 1);
         }
       }
       ptvcursor_pop_subtree(cursor); /* end for loop tree: salt */
+    } else {
+      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
     }
     ptvcursor_add(cursor, hf_skinny_isMKIPresent, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_keyDerivationRate, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: mRxMediaEncryptionKeyInfo */
   }
   ptvcursor_add(cursor, hf_skinny_streamPassThroughID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_associatedStreamID, 4, ENC_LITTLE_ENDIAN);
@@ -5219,37 +5096,29 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   if (hdr_version >= V21_MSG_TYPE) {
     if (hdr_data_length > 132) {
       {
-        /* start struct : latentCapsInfo / size: 36 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "latentCapsInfo");
         ptvcursor_add(cursor, hf_skinny_active, 4, ENC_LITTLE_ENDIAN);
         {
-          /* start struct : modemRelay / size: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "modemRelay");
           ptvcursor_add(cursor, hf_skinny_capAndVer, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_modAnd2833, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: modemRelay */
         }
         {
-          /* start struct : sprtPayload / size: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sprtPayload");
           ptvcursor_add(cursor, hf_skinny_chan0MaxPayload, 2, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_chan2MaxPayload, 2, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_chan3MaxPayload, 2, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_chan2MaxWindow, 2, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: sprtPayload */
         }
         {
-          /* start struct : sse / size: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sse");
           ptvcursor_add(cursor, hf_skinny_standard, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_vendor, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: sse */
         }
         {
-          /* start struct : payloadParam / size: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadParam");
           ptvcursor_add(cursor, hf_skinny_nse, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_rfc2833, 1, ENC_LITTLE_ENDIAN);
@@ -5260,10 +5129,8 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
           ptvcursor_add(cursor, hf_skinny_FutureUse2, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_FutureUse3, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: payloadParam */
         }
         ptvcursor_pop_subtree(cursor);
-        /* end struct: latentCapsInfo */
       }
     }
   }
@@ -5321,32 +5188,31 @@ handle_SoftKeyTemplateResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   guint32 totalSoftKeyCount = 0;
   {
-    /* start struct : softKeyTemplate / size: 32 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "softKeyTemplate");
     ptvcursor_add(cursor, hf_skinny_softKeyOffset, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_softKeyCount, 4, ENC_LITTLE_ENDIAN);
     totalSoftKeyCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_totalSoftKeyCount, 4, ENC_LITTLE_ENDIAN);
-    {
-      /* start struct : definition / size: 20 */
+    if (totalSoftKeyCount <= 20) { /* tvb struct size guard */
       guint32 counter_2 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [ref: totalSoftKeyCount = %d, max:32]", totalSoftKeyCount);
-      for (counter_2 = 0; counter_2 < 32; counter_2++) {
-        if (counter_2 < totalSoftKeyCount) {
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [%d / %d]", counter_2 + 1, totalSoftKeyCount);
-          dissect_skinny_displayLabel(cursor, hf_skinny_softKeyLabel, 16);
-          ptvcursor_add(cursor, hf_skinny_softKeyEvent, 4, ENC_LITTLE_ENDIAN);
-        } else {
-          ptvcursor_advance(cursor, 20);
+      if (totalSoftKeyCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (totalSoftKeyCount * 20) && totalSoftKeyCount <= 32) { /* tvb counter size guard */
+        for (counter_2 = 0; counter_2 < 32; counter_2++) {
+          if (counter_2 < totalSoftKeyCount) {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [%d / %d]", counter_2 + 1, totalSoftKeyCount);
+            dissect_skinny_displayLabel(cursor, hf_skinny_softKeyLabel, 16);
+            ptvcursor_add(cursor, hf_skinny_softKeyEvent, 4, ENC_LITTLE_ENDIAN);
+          } else {
+            ptvcursor_advance(cursor, 20);
+          }
+          ptvcursor_pop_subtree(cursor);
         }
-        ptvcursor_pop_subtree(cursor);
-        /* end for loop tree: definition */
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: definition */
+    } else {
+      ptvcursor_advance(cursor, (totalSoftKeyCount * 20)); /* guard kicked in -> skip the rest */;
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: softKeyTemplate */
   }
 }
 
@@ -5362,46 +5228,45 @@ handle_SoftKeySetResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   guint32 totalSoftKeySetCount = 0;
   {
-    /* start struct : softKeySets / size: 15 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "softKeySets");
     ptvcursor_add(cursor, hf_skinny_softKeySetOffset, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_softKeySetCount, 4, ENC_LITTLE_ENDIAN);
     totalSoftKeySetCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_totalSoftKeySetCount, 4, ENC_LITTLE_ENDIAN);
-    {
-      /* start struct : definition / size: 3 */
+    if (totalSoftKeySetCount <= 3) { /* tvb struct size guard */
       guint32 counter_2 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [ref: totalSoftKeySetCount = %d, max:16]", totalSoftKeySetCount);
-      for (counter_2 = 0; counter_2 < 16; counter_2++) {
-        if (counter_2 < totalSoftKeySetCount) {
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [%d / %d]", counter_2 + 1, totalSoftKeySetCount);
-          {
-            guint32 counter_5 = 0;
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "softKeyTemplateIndex [max:16]");
-            for (counter_5 = 0; counter_5 < 16; counter_5++) {
-              ptvcursor_add(cursor, hf_skinny_softKeyTemplateIndex, 1, ENC_LITTLE_ENDIAN);
+      if (totalSoftKeySetCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (totalSoftKeySetCount * 3) && totalSoftKeySetCount <= 16) { /* tvb counter size guard */
+        for (counter_2 = 0; counter_2 < 16; counter_2++) {
+          if (counter_2 < totalSoftKeySetCount) {
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [%d / %d]", counter_2 + 1, totalSoftKeySetCount);
+            {
+              guint32 counter_7 = 0;
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "softKeyTemplateIndex [max:16]");
+              for (counter_7 = 0; counter_7 < 16; counter_7++) {
+                ptvcursor_add(cursor, hf_skinny_softKeyTemplateIndex, 1, ENC_LITTLE_ENDIAN);
+              }
+              ptvcursor_pop_subtree(cursor); /* end for loop tree: softKeyTemplateIndex */
             }
-            ptvcursor_pop_subtree(cursor); /* end for loop tree: softKeyTemplateIndex */
-          }
-          {
-            guint32 counter_5 = 0;
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "softKeyInfoIndex [max:16]");
-            for (counter_5 = 0; counter_5 < 16; counter_5++) {
-              ptvcursor_add(cursor, hf_skinny_softKeyInfoIndex, 2, ENC_LITTLE_ENDIAN);
+            {
+              guint32 counter_7 = 0;
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "softKeyInfoIndex [max:16]");
+              for (counter_7 = 0; counter_7 < 16; counter_7++) {
+                ptvcursor_add(cursor, hf_skinny_softKeyInfoIndex, 2, ENC_LITTLE_ENDIAN);
+              }
+              ptvcursor_pop_subtree(cursor); /* end for loop tree: softKeyInfoIndex */
             }
-            ptvcursor_pop_subtree(cursor); /* end for loop tree: softKeyInfoIndex */
+          } else {
+            ptvcursor_advance(cursor, 3);
           }
-        } else {
-          ptvcursor_advance(cursor, 3);
+          ptvcursor_pop_subtree(cursor);
         }
-        ptvcursor_pop_subtree(cursor);
-        /* end for loop tree: definition */
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: definition */
+    } else {
+      ptvcursor_advance(cursor, (totalSoftKeySetCount * 3)); /* guard kicked in -> skip the rest */;
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: softKeySets */
   }
 }
 
@@ -5459,12 +5324,10 @@ handle_CallStateMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_privacy, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : precedence / size: 8 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "precedence");
     ptvcursor_add(cursor, hf_skinny_precedenceLevel, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_precedenceDomain, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: precedence */
   }
 }
 
@@ -5590,7 +5453,6 @@ handle_StartMediaFailureDetectionMessage(ptvcursor_t *cursor, packet_info * pinf
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : qualifierIn / size: 12 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "qualifierIn");
     ptvcursor_add(cursor, hf_skinny_ecValue, 4, ENC_LITTLE_ENDIAN);
     if (hdr_version <= V10_MSG_TYPE) {
@@ -5598,28 +5460,23 @@ handle_StartMediaFailureDetectionMessage(ptvcursor_t *cursor, packet_info * pinf
     }
     if (hdr_version >= V11_MSG_TYPE) {
       if (compressionType == MEDIA_PAYLOAD_G7231)       {
-        /* start union : codecParamsUnion / maxsize: 4 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "compressionType is Media_Payload_G7231");
         ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_pop_subtree(cursor);
       } else       {
-        /* start union : codecParamsUnion / maxsize: 4 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any compressionType");
         {
-          /* start struct : codecParams / size: 4 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
           ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: codecParams */
         }
         ptvcursor_pop_subtree(cursor);
       }
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: qualifierIn */
   }
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
@@ -5666,7 +5523,6 @@ handle_UserToDeviceDataMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   guint32 dataLength = 0;
   {
-    /* start struct : userToDeviceData / size: 2020 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "userToDeviceData");
     ptvcursor_add(cursor, hf_skinny_applicationID, 4, ENC_LITTLE_ENDIAN);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -5678,7 +5534,6 @@ handle_UserToDeviceDataMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
     ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
     dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: userToDeviceData */
   }
 }
 
@@ -5737,7 +5592,6 @@ static void
 handle_StartAnnouncementMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   {
-    /* start struct : AnnList / size: 12 */
     guint32 counter_1 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "AnnList [max:32]");
     for (counter_1 = 0; counter_1 < 32; counter_1++) {
@@ -5746,17 +5600,15 @@ handle_StartAnnouncementMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
       ptvcursor_add(cursor, hf_skinny_country, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_skinny_toneAnnouncement, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: AnnList */
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: AnnList */
   }
   ptvcursor_add(cursor, hf_skinny_annAckReq, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
   {
-    guint32 counter_1 = 0;
+    guint32 counter_2 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "matrixConfPartyID [max:16]");
-    for (counter_1 = 0; counter_1 < 16; counter_1++) {
+    for (counter_2 = 0; counter_2 < 16; counter_2++) {
       ptvcursor_add(cursor, hf_skinny_matrixConfPartyID, 4, ENC_LITTLE_ENDIAN);
     }
     ptvcursor_pop_subtree(cursor); /* end for loop tree: matrixConfPartyID */
@@ -5972,24 +5824,19 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : payloadType / size: 8 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType");
     ptvcursor_add(cursor, hf_skinny_payload_rfc_number, 4, ENC_LITTLE_ENDIAN);
     payloadType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_payloadType, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: payloadType */
   }
   ptvcursor_add(cursor, hf_skinny_isConferenceCreator, 4, ENC_LITTLE_ENDIAN);
   if (payloadType <= MEDIA_PAYLOAD_AMR_WB)   {
-    /* start union : capability / maxsize: 44 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType <= Media_Payload_AMR_WB");
     {
-      /* start struct : audioParameters / size: 16 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audioParameters");
       ptvcursor_add(cursor, hf_skinny_millisecondPacketSize, 4, ENC_LITTLE_ENDIAN);
       {
-        /* start struct : qualifierIn / size: 12 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "qualifierIn");
         ptvcursor_add(cursor, hf_skinny_ecValue, 4, ENC_LITTLE_ENDIAN);
         if (hdr_version <= V10_MSG_TYPE) {
@@ -5997,80 +5844,68 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
         }
         if (hdr_version >= V11_MSG_TYPE) {
           if (compressionType == MEDIA_PAYLOAD_G7231)           {
-            /* start union : codecParamsUnion / maxsize: 4 */
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "compressionType is Media_Payload_G7231");
             ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(cursor);
           } else           {
-            /* start union : codecParamsUnion / maxsize: 4 */
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any compressionType");
             {
-              /* start struct : codecParams / size: 4 */
               ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
               ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
               ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
               ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
               ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
               ptvcursor_pop_subtree(cursor);
-              /* end struct: codecParams */
             }
             ptvcursor_pop_subtree(cursor);
           }
         }
         ptvcursor_pop_subtree(cursor);
-        /* end struct: qualifierIn */
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: audioParameters */
     }
     ptvcursor_pop_subtree(cursor);
     ptvcursor_advance(cursor, 28);
   } else if (payloadType >= MEDIA_PAYLOAD_H261 && payloadType <= MEDIA_PAYLOAD_H264_FEC)   {
-    /* start union : capability / maxsize: 44 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "Media_Payload_H261 <= payloadType <= Media_Payload_H264_FEC");
     {
-      /* start struct : vidParameters / size: 44 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidParameters");
       ptvcursor_add(cursor, hf_skinny_bitRate, 4, ENC_LITTLE_ENDIAN);
       pictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
       ptvcursor_add(cursor, hf_skinny_pictureFormatCount, 4, ENC_LITTLE_ENDIAN);
-      {
-        /* start struct : pictureFormat / size: 8 */
+      if (pictureFormatCount <= 8) { /* tvb struct size guard */
         guint32 counter_3 = 0;
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureFormat [ref: pictureFormatCount = %d, max:5]", pictureFormatCount);
-        for (counter_3 = 0; counter_3 < 5; counter_3++) {
-          if (counter_3 < pictureFormatCount) {
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureFormat [%d / %d]", counter_3 + 1, pictureFormatCount);
-            ptvcursor_add(cursor, hf_skinny_format, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_MPI, 4, ENC_LITTLE_ENDIAN);
-          } else {
-            ptvcursor_advance(cursor, 8);
+        if (pictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (pictureFormatCount * 8) && pictureFormatCount <= 5) { /* tvb counter size guard */
+          for (counter_3 = 0; counter_3 < 5; counter_3++) {
+            if (counter_3 < pictureFormatCount) {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureFormat [%d / %d]", counter_3 + 1, pictureFormatCount);
+              ptvcursor_add(cursor, hf_skinny_format, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_MPI, 4, ENC_LITTLE_ENDIAN);
+            } else {
+              ptvcursor_advance(cursor, 8);
+            }
+            ptvcursor_pop_subtree(cursor);
           }
-          ptvcursor_pop_subtree(cursor);
-          /* end for loop tree: pictureFormat */
         }
         ptvcursor_pop_subtree(cursor);
-        /* end struct: pictureFormat */
+      } else {
+        ptvcursor_advance(cursor, (pictureFormatCount * 8)); /* guard kicked in -> skip the rest */;
       }
       ptvcursor_add(cursor, hf_skinny_confServiceNum, 4, ENC_LITTLE_ENDIAN);
       if (payloadType == MEDIA_PAYLOAD_H261)       {
-        /* start union : capability / maxsize: 24 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType is Media_Payload_H261");
         {
-          /* start struct : h261VideoCapability / size: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h261VideoCapability");
           ptvcursor_add(cursor, hf_skinny_temporalSpatialTradeOffCapability, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_stillImageTransmission, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: h261VideoCapability */
         }
         ptvcursor_pop_subtree(cursor);
         ptvcursor_advance(cursor, 16);
       } else if (payloadType == MEDIA_PAYLOAD_H263)       {
-        /* start union : capability / maxsize: 24 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType is Media_Payload_H263");
         {
-          /* start struct : h263VideoCapability / size: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263VideoCapability");
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263_capability_bitfield");
           ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit1, 4, ENC_LITTLE_ENDIAN);
@@ -6109,15 +5944,12 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
           ptvcursor_pop_subtree(cursor); /* end bitfield: h263_capability_bitfield */
           ptvcursor_add(cursor, hf_skinny_annexNandWFutureUse, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: h263VideoCapability */
         }
         ptvcursor_pop_subtree(cursor);
         ptvcursor_advance(cursor, 16);
       } else if (payloadType == MEDIA_PAYLOAD_H264)       {
-        /* start union : capability / maxsize: 24 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType is Media_Payload_H264");
         {
-          /* start struct : h264VideoCapability / size: 24 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h264VideoCapability");
           ptvcursor_add(cursor, hf_skinny_profile, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_level, 4, ENC_LITTLE_ENDIAN);
@@ -6126,77 +5958,71 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
           ptvcursor_add(cursor, hf_skinny_customMaxDPB, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_customMaxBRandCPB, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: h264VideoCapability */
         }
         ptvcursor_pop_subtree(cursor);
       } else if (payloadType == MEDIA_PAYLOAD_VIEO)       {
-        /* start union : capability / maxsize: 24 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType is Media_Payload_Vieo");
         {
-          /* start struct : vieoVideoCapability / size: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vieoVideoCapability");
           ptvcursor_add(cursor, hf_skinny_modelNumber, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_bandwidth, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: vieoVideoCapability */
         }
         ptvcursor_pop_subtree(cursor);
         ptvcursor_advance(cursor, 16);
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: vidParameters */
     }
     ptvcursor_pop_subtree(cursor);
   } else if (payloadType >= MEDIA_PAYLOAD_CLEAR_CHAN)   {
-    /* start union : capability / maxsize: 44 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType >= Media_Payload_Clear_Chan");
     {
-      /* start struct : dataParameters / size: 8 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataParameters");
       ptvcursor_add(cursor, hf_skinny_protocolDependentData, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_skinny_maxBitRate, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_pop_subtree(cursor);
-      /* end struct: dataParameters */
     }
     ptvcursor_pop_subtree(cursor);
     ptvcursor_advance(cursor, 36);
   }
   {
-    /* start struct : mRxMediaEncryptionKeyInfo / size: 18 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "mRxMediaEncryptionKeyInfo");
     ptvcursor_add(cursor, hf_skinny_algorithmID, 4, ENC_LITTLE_ENDIAN);
     keylen = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_keylen, 2, ENC_LITTLE_ENDIAN);
     saltlen = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_saltlen, 2, ENC_LITTLE_ENDIAN);
-    {
-      guint32 counter_2 = 0;
+    if (keylen <= 16) { /* tvb integer size guard */
+      guint32 counter_3 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "key [ref: keylen = %d, max:16]", keylen);
-      for (counter_2 = 0; counter_2 < 16; counter_2++) {
-        if (counter_2 < keylen) {
+      for (counter_3 = 0; counter_3 < 16; counter_3++) {
+        if (counter_3 < keylen) {
           ptvcursor_add(cursor, hf_skinny_key, 1, ENC_LITTLE_ENDIAN);
         } else {
           ptvcursor_advance(cursor, 1);
         }
       }
       ptvcursor_pop_subtree(cursor); /* end for loop tree: key */
+    } else {
+      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
     }
-    {
-      guint32 counter_2 = 0;
+    if (saltlen <= 16) { /* tvb integer size guard */
+      guint32 counter_3 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "salt [ref: saltlen = %d, max:16]", saltlen);
-      for (counter_2 = 0; counter_2 < 16; counter_2++) {
-        if (counter_2 < saltlen) {
+      for (counter_3 = 0; counter_3 < 16; counter_3++) {
+        if (counter_3 < saltlen) {
           ptvcursor_add(cursor, hf_skinny_salt, 1, ENC_LITTLE_ENDIAN);
         } else {
           ptvcursor_advance(cursor, 1);
         }
       }
       ptvcursor_pop_subtree(cursor); /* end for loop tree: salt */
+    } else {
+      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
     }
     ptvcursor_add(cursor, hf_skinny_isMKIPresent, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_keyDerivationRate, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: mRxMediaEncryptionKeyInfo */
   }
   ptvcursor_add(cursor, hf_skinny_streamPassThroughID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_associatedStreamID, 4, ENC_LITTLE_ENDIAN);
@@ -6234,24 +6060,19 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : payloadType / size: 8 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType");
     ptvcursor_add(cursor, hf_skinny_payload_rfc_number, 4, ENC_LITTLE_ENDIAN);
     payloadType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_payloadType, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: payloadType */
   }
   ptvcursor_add(cursor, hf_skinny_DSCPValue, 4, ENC_LITTLE_ENDIAN);
   if (payloadType <= MEDIA_PAYLOAD_AMR_WB)   {
-    /* start union : capability / maxsize: 44 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType <= Media_Payload_AMR_WB");
     {
-      /* start struct : audioParameters / size: 16 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audioParameters");
       ptvcursor_add(cursor, hf_skinny_millisecondPacketSize, 4, ENC_LITTLE_ENDIAN);
       {
-        /* start struct : qualifierIn / size: 12 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "qualifierIn");
         ptvcursor_add(cursor, hf_skinny_ecValue, 4, ENC_LITTLE_ENDIAN);
         if (hdr_version <= V10_MSG_TYPE) {
@@ -6259,80 +6080,68 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
         }
         if (hdr_version >= V11_MSG_TYPE) {
           if (compressionType == MEDIA_PAYLOAD_G7231)           {
-            /* start union : codecParamsUnion / maxsize: 4 */
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "compressionType is Media_Payload_G7231");
             ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_pop_subtree(cursor);
           } else           {
-            /* start union : codecParamsUnion / maxsize: 4 */
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any compressionType");
             {
-              /* start struct : codecParams / size: 4 */
               ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "codecParams");
               ptvcursor_add(cursor, hf_skinny_codecMode, 1, ENC_LITTLE_ENDIAN);
               ptvcursor_add(cursor, hf_skinny_dynamicPayload, 1, ENC_LITTLE_ENDIAN);
               ptvcursor_add(cursor, hf_skinny_codecParam1, 1, ENC_LITTLE_ENDIAN);
               ptvcursor_add(cursor, hf_skinny_codecParam2, 1, ENC_LITTLE_ENDIAN);
               ptvcursor_pop_subtree(cursor);
-              /* end struct: codecParams */
             }
             ptvcursor_pop_subtree(cursor);
           }
         }
         ptvcursor_pop_subtree(cursor);
-        /* end struct: qualifierIn */
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: audioParameters */
     }
     ptvcursor_pop_subtree(cursor);
     ptvcursor_advance(cursor, 28);
   } else if (payloadType >= MEDIA_PAYLOAD_H261 && payloadType <= MEDIA_PAYLOAD_H264_FEC)   {
-    /* start union : capability / maxsize: 44 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "Media_Payload_H261 <= payloadType <= Media_Payload_H264_FEC");
     {
-      /* start struct : vidParameters / size: 44 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidParameters");
       ptvcursor_add(cursor, hf_skinny_bitRate, 4, ENC_LITTLE_ENDIAN);
       pictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
       ptvcursor_add(cursor, hf_skinny_pictureFormatCount, 4, ENC_LITTLE_ENDIAN);
-      {
-        /* start struct : pictureFormat / size: 8 */
+      if (pictureFormatCount <= 8) { /* tvb struct size guard */
         guint32 counter_3 = 0;
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureFormat [ref: pictureFormatCount = %d, max:5]", pictureFormatCount);
-        for (counter_3 = 0; counter_3 < 5; counter_3++) {
-          if (counter_3 < pictureFormatCount) {
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureFormat [%d / %d]", counter_3 + 1, pictureFormatCount);
-            ptvcursor_add(cursor, hf_skinny_format, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_MPI, 4, ENC_LITTLE_ENDIAN);
-          } else {
-            ptvcursor_advance(cursor, 8);
+        if (pictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (pictureFormatCount * 8) && pictureFormatCount <= 5) { /* tvb counter size guard */
+          for (counter_3 = 0; counter_3 < 5; counter_3++) {
+            if (counter_3 < pictureFormatCount) {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureFormat [%d / %d]", counter_3 + 1, pictureFormatCount);
+              ptvcursor_add(cursor, hf_skinny_format, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_MPI, 4, ENC_LITTLE_ENDIAN);
+            } else {
+              ptvcursor_advance(cursor, 8);
+            }
+            ptvcursor_pop_subtree(cursor);
           }
-          ptvcursor_pop_subtree(cursor);
-          /* end for loop tree: pictureFormat */
         }
         ptvcursor_pop_subtree(cursor);
-        /* end struct: pictureFormat */
+      } else {
+        ptvcursor_advance(cursor, (pictureFormatCount * 8)); /* guard kicked in -> skip the rest */;
       }
       ptvcursor_add(cursor, hf_skinny_confServiceNum, 4, ENC_LITTLE_ENDIAN);
       if (payloadType == MEDIA_PAYLOAD_H261)       {
-        /* start union : capability / maxsize: 24 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType is Media_Payload_H261");
         {
-          /* start struct : h261VideoCapability / size: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h261VideoCapability");
           ptvcursor_add(cursor, hf_skinny_temporalSpatialTradeOffCapability, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_stillImageTransmission, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: h261VideoCapability */
         }
         ptvcursor_pop_subtree(cursor);
         ptvcursor_advance(cursor, 16);
       } else if (payloadType == MEDIA_PAYLOAD_H263)       {
-        /* start union : capability / maxsize: 24 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType is Media_Payload_H263");
         {
-          /* start struct : h263VideoCapability / size: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263VideoCapability");
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h263_capability_bitfield");
           ptvcursor_add_no_advance(cursor, hf_skinny_Generic_Bitfield_Bit1, 4, ENC_LITTLE_ENDIAN);
@@ -6371,15 +6180,12 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
           ptvcursor_pop_subtree(cursor); /* end bitfield: h263_capability_bitfield */
           ptvcursor_add(cursor, hf_skinny_annexNandWFutureUse, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: h263VideoCapability */
         }
         ptvcursor_pop_subtree(cursor);
         ptvcursor_advance(cursor, 16);
       } else if (payloadType == MEDIA_PAYLOAD_H264)       {
-        /* start union : capability / maxsize: 24 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType is Media_Payload_H264");
         {
-          /* start struct : h264VideoCapability / size: 24 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "h264VideoCapability");
           ptvcursor_add(cursor, hf_skinny_profile, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_level, 4, ENC_LITTLE_ENDIAN);
@@ -6388,77 +6194,71 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
           ptvcursor_add(cursor, hf_skinny_customMaxDPB, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_customMaxBRandCPB, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: h264VideoCapability */
         }
         ptvcursor_pop_subtree(cursor);
       } else if (payloadType == MEDIA_PAYLOAD_VIEO)       {
-        /* start union : capability / maxsize: 24 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType is Media_Payload_Vieo");
         {
-          /* start struct : vieoVideoCapability / size: 8 */
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vieoVideoCapability");
           ptvcursor_add(cursor, hf_skinny_modelNumber, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_bandwidth, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_pop_subtree(cursor);
-          /* end struct: vieoVideoCapability */
         }
         ptvcursor_pop_subtree(cursor);
         ptvcursor_advance(cursor, 16);
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: vidParameters */
     }
     ptvcursor_pop_subtree(cursor);
   } else if (payloadType >= MEDIA_PAYLOAD_CLEAR_CHAN)   {
-    /* start union : capability / maxsize: 44 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType >= Media_Payload_Clear_Chan");
     {
-      /* start struct : dataParameters / size: 8 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataParameters");
       ptvcursor_add(cursor, hf_skinny_protocolDependentData, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_skinny_maxBitRate, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_pop_subtree(cursor);
-      /* end struct: dataParameters */
     }
     ptvcursor_pop_subtree(cursor);
     ptvcursor_advance(cursor, 36);
   }
   {
-    /* start struct : mTxMediaEncryptionKeyInfo / size: 18 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "mTxMediaEncryptionKeyInfo");
     ptvcursor_add(cursor, hf_skinny_algorithmID, 4, ENC_LITTLE_ENDIAN);
     keylen = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_keylen, 2, ENC_LITTLE_ENDIAN);
     saltlen = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_saltlen, 2, ENC_LITTLE_ENDIAN);
-    {
-      guint32 counter_2 = 0;
+    if (keylen <= 16) { /* tvb integer size guard */
+      guint32 counter_3 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "key [ref: keylen = %d, max:16]", keylen);
-      for (counter_2 = 0; counter_2 < 16; counter_2++) {
-        if (counter_2 < keylen) {
+      for (counter_3 = 0; counter_3 < 16; counter_3++) {
+        if (counter_3 < keylen) {
           ptvcursor_add(cursor, hf_skinny_key, 1, ENC_LITTLE_ENDIAN);
         } else {
           ptvcursor_advance(cursor, 1);
         }
       }
       ptvcursor_pop_subtree(cursor); /* end for loop tree: key */
+    } else {
+      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
     }
-    {
-      guint32 counter_2 = 0;
+    if (saltlen <= 16) { /* tvb integer size guard */
+      guint32 counter_3 = 0;
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "salt [ref: saltlen = %d, max:16]", saltlen);
-      for (counter_2 = 0; counter_2 < 16; counter_2++) {
-        if (counter_2 < saltlen) {
+      for (counter_3 = 0; counter_3 < 16; counter_3++) {
+        if (counter_3 < saltlen) {
           ptvcursor_add(cursor, hf_skinny_salt, 1, ENC_LITTLE_ENDIAN);
         } else {
           ptvcursor_advance(cursor, 1);
         }
       }
       ptvcursor_pop_subtree(cursor); /* end for loop tree: salt */
+    } else {
+      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
     }
     ptvcursor_add(cursor, hf_skinny_isMKIPresent, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_keyDerivationRate, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: mTxMediaEncryptionKeyInfo */
   }
   ptvcursor_add(cursor, hf_skinny_streamPassThroughID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_associatedStreamID, 4, ENC_LITTLE_ENDIAN);
@@ -6500,117 +6300,96 @@ handle_MiscellaneousCommandMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   command = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_command, 4, ENC_LITTLE_ENDIAN);
   if (command == MISCCOMMANDTYPE_VIDEOFASTUPDATEPICTURE)   {
-    /* start union : u / maxsize: 16 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "command is MiscCommandType_videoFastUpdatePicture");
     {
-      /* start struct : videoFastUpdatePicture / size: 8 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "videoFastUpdatePicture");
       ptvcursor_add(cursor, hf_skinny_firstGOB, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_skinny_numberOfGOBs, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_pop_subtree(cursor);
-      /* end struct: videoFastUpdatePicture */
     }
     ptvcursor_pop_subtree(cursor);
     ptvcursor_advance(cursor, 8);
   } else if (command == MISCCOMMANDTYPE_VIDEOFASTUPDATEGOB)   {
-    /* start union : u / maxsize: 16 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "command is MiscCommandType_videoFastUpdateGOB");
     {
-      /* start struct : videoFastUpdateGOB / size: 8 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "videoFastUpdateGOB");
       ptvcursor_add(cursor, hf_skinny_firstGOB, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_skinny_numberOfGOBs, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_pop_subtree(cursor);
-      /* end struct: videoFastUpdateGOB */
     }
     ptvcursor_pop_subtree(cursor);
     ptvcursor_advance(cursor, 8);
   } else if (command == MISCCOMMANDTYPE_VIDEOFASTUPDATEMB)   {
-    /* start union : u / maxsize: 16 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "command is MiscCommandType_videoFastUpdateMB");
     {
-      /* start struct : videoFastUpdateMB / size: 12 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "videoFastUpdateMB");
       ptvcursor_add(cursor, hf_skinny_firstGOB, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_skinny_firstMB, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_skinny_numberOfMBs, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_pop_subtree(cursor);
-      /* end struct: videoFastUpdateMB */
     }
     ptvcursor_pop_subtree(cursor);
     ptvcursor_advance(cursor, 4);
   } else if (command == MISCCOMMANDTYPE_LOSTPICTURE)   {
-    /* start union : u / maxsize: 16 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "command is MiscCommandType_lostPicture");
     {
-      /* start struct : lostPicture / size: 8 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "lostPicture");
       ptvcursor_add(cursor, hf_skinny_pictureNumber, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_skinny_longTermPictureIndex, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_pop_subtree(cursor);
-      /* end struct: lostPicture */
     }
     ptvcursor_pop_subtree(cursor);
     ptvcursor_advance(cursor, 8);
   } else if (command == MISCCOMMANDTYPE_LOSTPARTIALPICTURE)   {
-    /* start union : u / maxsize: 16 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "command is MiscCommandType_lostPartialPicture");
     {
-      /* start struct : lostPartialPicture / size: 16 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "lostPartialPicture");
       {
-        /* start struct : pictureReference / size: 8 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureReference");
         ptvcursor_add(cursor, hf_skinny_pictureNumber, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_longTermPictureIndex, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_pop_subtree(cursor);
-        /* end struct: pictureReference */
       }
       ptvcursor_add(cursor, hf_skinny_firstMB, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_skinny_numberOfMBs, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_pop_subtree(cursor);
-      /* end struct: lostPartialPicture */
     }
     ptvcursor_pop_subtree(cursor);
   } else if (command == MISCCOMMANDTYPE_RECOVERYREFERENCEPICTURE)   {
-    /* start union : u / maxsize: 16 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "command is MiscCommandType_recoveryReferencePicture");
     {
-      /* start struct : recoveryReferencePictureValue / size: 12 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "recoveryReferencePictureValue");
       recoveryReferencePictureCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
       ptvcursor_add(cursor, hf_skinny_recoveryReferencePictureCount, 4, ENC_LITTLE_ENDIAN);
-      {
-        /* start struct : recoveryReferencePicture / size: 8 */
+      if (recoveryReferencePictureCount <= 8) { /* tvb struct size guard */
         guint32 counter_3 = 0;
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "recoveryReferencePicture [ref: recoveryReferencePictureCount = %d, max:4]", recoveryReferencePictureCount);
-        for (counter_3 = 0; counter_3 < 4; counter_3++) {
-          if (counter_3 < recoveryReferencePictureCount) {
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "recoveryReferencePicture [%d / %d]", counter_3 + 1, recoveryReferencePictureCount);
-            ptvcursor_add(cursor, hf_skinny_pictureNumber, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_skinny_longTermPictureIndex, 4, ENC_LITTLE_ENDIAN);
-          } else {
-            ptvcursor_advance(cursor, 8);
+        if (recoveryReferencePictureCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (recoveryReferencePictureCount * 8) && recoveryReferencePictureCount <= 4) { /* tvb counter size guard */
+          for (counter_3 = 0; counter_3 < 4; counter_3++) {
+            if (counter_3 < recoveryReferencePictureCount) {
+              ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "recoveryReferencePicture [%d / %d]", counter_3 + 1, recoveryReferencePictureCount);
+              ptvcursor_add(cursor, hf_skinny_pictureNumber, 4, ENC_LITTLE_ENDIAN);
+              ptvcursor_add(cursor, hf_skinny_longTermPictureIndex, 4, ENC_LITTLE_ENDIAN);
+            } else {
+              ptvcursor_advance(cursor, 8);
+            }
+            ptvcursor_pop_subtree(cursor);
           }
-          ptvcursor_pop_subtree(cursor);
-          /* end for loop tree: recoveryReferencePicture */
         }
         ptvcursor_pop_subtree(cursor);
-        /* end struct: recoveryReferencePicture */
+      } else {
+        ptvcursor_advance(cursor, (recoveryReferencePictureCount * 8)); /* guard kicked in -> skip the rest */;
       }
       ptvcursor_pop_subtree(cursor);
-      /* end struct: recoveryReferencePictureValue */
     }
     ptvcursor_pop_subtree(cursor);
     ptvcursor_advance(cursor, 4);
   } else if (command == MISCCOMMANDTYPE_TEMPORALSPATIALTRADEOFF)   {
-    /* start union : u / maxsize: 16 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "command is MiscCommandType_temporalSpatialTradeOff");
     ptvcursor_add(cursor, hf_skinny_temporalSpatialTradeOff, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
     ptvcursor_advance(cursor, 12);
   } else   {
-    /* start union : u / maxsize: 16 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "any command");
     ptvcursor_add(cursor, hf_skinny_none, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
@@ -6816,7 +6595,6 @@ handle_UserToDeviceDataMessageVersion1(ptvcursor_t *cursor, packet_info * pinfo 
 {
   guint32 dataLength = 0;
   {
-    /* start struct : userToDeviceDataVersion1 / size: 2040 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "userToDeviceDataVersion1");
     ptvcursor_add(cursor, hf_skinny_applicationID, 4, ENC_LITTLE_ENDIAN);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -6833,7 +6611,6 @@ handle_UserToDeviceDataMessageVersion1(ptvcursor_t *cursor, packet_info * pinfo 
     ptvcursor_add(cursor, hf_skinny_routingID, 4, ENC_LITTLE_ENDIAN);
     dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: userToDeviceDataVersion1 */
   }
 }
 
@@ -6884,7 +6661,6 @@ handle_ConfigStatV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
   guint32 userName_len = 0;
   guint32 serverName_len = 0;
   {
-    /* start struct : sid / size: 24 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sid");
     DeviceName_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), -1)+1;
     if (DeviceName_len > 1) {
@@ -6895,7 +6671,6 @@ handle_ConfigStatV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
     ptvcursor_add(cursor, hf_skinny_reserved_for_future_use, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_instance, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: sid */
   }
   ptvcursor_add(cursor, hf_skinny_numberOfLines, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_numberOfSpeedDials, 4, ENC_LITTLE_ENDIAN);
@@ -7274,14 +7049,12 @@ handle_QoSListenMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_burstSize, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_peakRate, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : appID / size: 112 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "appID");
     ptvcursor_add(cursor, hf_skinny_vendorID, 32, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_version, 16, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_appName, 32, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_subAppID, 32, ENC_ASCII|ENC_NA);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: appID */
   }
 }
 
@@ -7311,14 +7084,12 @@ handle_QoSPathMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_burstSize, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_peakRate, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : appID / size: 112 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "appID");
     ptvcursor_add(cursor, hf_skinny_vendorID, 32, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_version, 16, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_appName, 32, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_subAppID, 32, ENC_ASCII|ENC_NA);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: appID */
   }
 }
 
@@ -7382,14 +7153,12 @@ handle_QoSModifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_burstSize, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_peakRate, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : appID / size: 112 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "appID");
     ptvcursor_add(cursor, hf_skinny_vendorID, 32, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_version, 16, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_appName, 32, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_subAppID, 32, ENC_ASCII|ENC_NA);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: appID */
   }
 }
 
@@ -7441,6 +7210,7 @@ handle_StartMediaTransmissionAckMessage(ptvcursor_t *cursor, packet_info * pinfo
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_transmitIpAddr_ipv4, hf_skinny_transmitIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
+  si->mediaTransmissionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_mediaTransmissionStatus, 4, ENC_LITTLE_ENDIAN);
 }
 
@@ -7460,6 +7230,7 @@ handle_StartMultiMediaTransmissionAckMessage(ptvcursor_t *cursor, packet_info * 
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_transmitIpAddr_ipv4, hf_skinny_transmitIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
+  si->multimediaTransmissionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_multimediaTransmissionStatus, 4, ENC_LITTLE_ENDIAN);
 }
 
@@ -7552,23 +7323,24 @@ handle_CallCountRespMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   ptvcursor_add(cursor, hf_skinny_startingLineInstance, 4, ENC_LITTLE_ENDIAN);
   lineDataEntries = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_lineDataEntries, 4, ENC_LITTLE_ENDIAN);
-  {
-    /* start struct : lineData / size: 4 */
+  if (lineDataEntries <= 4) { /* tvb struct size guard */
     guint32 counter_1 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "lineData [ref: lineDataEntries = %d, max:42]", lineDataEntries);
-    for (counter_1 = 0; counter_1 < 42; counter_1++) {
-      if (counter_1 < lineDataEntries) {
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "lineData [%d / %d]", counter_1 + 1, lineDataEntries);
-        ptvcursor_add(cursor, hf_skinny_maxNumCalls, 2, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_busyTrigger, 2, ENC_LITTLE_ENDIAN);
-      } else {
-        ptvcursor_advance(cursor, 4);
+    if (lineDataEntries && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (lineDataEntries * 4) && lineDataEntries <= 42) { /* tvb counter size guard */
+      for (counter_1 = 0; counter_1 < 42; counter_1++) {
+        if (counter_1 < lineDataEntries) {
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "lineData [%d / %d]", counter_1 + 1, lineDataEntries);
+          ptvcursor_add(cursor, hf_skinny_maxNumCalls, 2, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_busyTrigger, 2, ENC_LITTLE_ENDIAN);
+        } else {
+          ptvcursor_advance(cursor, 4);
+        }
+        ptvcursor_pop_subtree(cursor);
       }
-      ptvcursor_pop_subtree(cursor);
-      /* end for loop tree: lineData */
     }
     ptvcursor_pop_subtree(cursor);
-    /* end struct: lineData */
+  } else {
+    ptvcursor_advance(cursor, (lineDataEntries * 4)); /* guard kicked in -> skip the rest */;
   }
 }
 
@@ -7598,13 +7370,11 @@ static void
 handle_SPCPRegisterTokenReq(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   {
-    /* start struct : sid / size: 24 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sid");
     ptvcursor_add(cursor, hf_skinny_DeviceName, 16, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_reserved_for_future_use, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_instance, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
-    /* end struct: sid */
   }
   ptvcursor_add(cursor, hf_skinny_stationIpAddr, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_deviceType, 4, ENC_LITTLE_ENDIAN);
@@ -7850,15 +7620,19 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   si->messId = data_messageid;
   si->messageName = val_to_str_ext(data_messageid, &message_id_ext, "0x%08X (Unknown)");
   si->callId = 0;
-  si->lineId = 0;
+  si->lineId = -1;
   si->passThruId = 0;
   si->callState = 0;
+  si->hasCallInfo = FALSE;
   g_free(si->callingParty);
   si->callingParty = NULL;
   g_free(si->calledParty);
   si->calledParty = NULL;
-  si->openreceiveStatus = 0;
-  si->startmediatransmisionStatus = 0;
+  si->mediaReceptionStatus = -1;
+  si->mediaTransmissionStatus = -1;
+  si->multimediaReceptionStatus = -1;
+  si->multimediaTransmissionStatus = -1;
+  si->multicastReceptionStatus = -1;
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
    * necessary to generate protocol tree items.

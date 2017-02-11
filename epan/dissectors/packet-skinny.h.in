@@ -54,16 +54,19 @@ typedef struct _skinny_info_t
 {
   guint32       messId;
   guint32       maxProtocolVersion;
-  guint32       lineId;
+  gint32        lineId;
   guint32       callId;
   guint32       passThruId;
   const gchar * messageName;
   guint32       callState;
+  gboolean      hasCallInfo;
   gchar       * callingParty;
   gchar       * calledParty;
-  gboolean      hasCallInfo;
-  guint32       openreceiveStatus;
-  guint32       startmediatransmisionStatus;
+  gint32        mediaReceptionStatus;
+  gint32        mediaTransmissionStatus;
+  gint32        multimediaReceptionStatus;
+  gint32        multimediaTransmissionStatus;
+  gint32        multicastReceptionStatus;
 } skinny_info_t;
 
 /*

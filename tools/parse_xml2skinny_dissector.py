@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 #
 # Wireshark Dissector Generator for SkinnyProtocolOptimized.xml
 #
@@ -38,8 +37,21 @@ import xml.sax.handler
 indentation = 0
 indent_str = ''
 fieldsArray = {}
-si_fields = {"callReference" : "si->callId", "lineInstance": "si->lineId", "passThruPartyId" : "si->passThruId", "callState" : "si->callState", "callingParty" : "si->callingParty", "calledParty" : "si->calledParty", "openReceiveChannelStatus" : "si->openreceiveStatus", "startMediaTransmissionStatus" : "si->startmediatransmisionStatus"}
-debug = 1
+si_fields = {
+    "callReference" : "si->callId",
+    "lineInstance": "si->lineId",
+    "passThruPartyId" : "si->passThruId",
+    "callState" : "si->callState",
+    "callingParty" : "si->callingParty",
+    "calledParty" : "si->calledParty",
+    "mediaReceptionStatus" : "si->mediaReceptionStatus",
+    "mediaTransmissionStatus" : "si->mediaTransmissionStatus",
+    "multimediaReceptionStatus" : "si->multimediaReceptionStatus",
+    "multimediaTransmissionStatus" : "si->multimediaTransmissionStatus",
+    "multicastReceptionStatus" : "si->multicastReceptionStatus",
+}
+
+debug = 0
 
 def xml2obj(src):
     """
@@ -49,7 +61,8 @@ def xml2obj(src):
     non_id_char = re.compile('[^_0-9a-zA-Z]')
 
     def _name_mangle(name):
-        return non_id_char.sub('_', name)
+        return non_id_char.sub('_',
+    name)
 
     class DataNode(object):
         def __init__(self):
@@ -196,11 +209,12 @@ def xml2obj(src):
                 if declarations > 1:
                     ret += "\n"
 
-                #ret += self.indent_out('if (!cursor || !pinfo) {return;}\n\n')        # ugly check to get rid of compiler warning about unused parameters
                 if (self.fields is not None):
                     for fields in self.fields:
                         ret += '%s' %fields.dissect()
+
                 self.decr_indent()
+
                 ret += "}\n\n"
             return ret
 
@@ -280,7 +294,7 @@ def xml2obj(src):
             if self.type in int_sizes:
                 self.intsize = int_sizes[self.type]
             else:
-                print "ERROR integer %s with type: %s, could not be found" %(self.name, self.type)
+                print("ERROR integer %s with type: %s, could not be found" %(self.name, self.type))
 
             if self.declare == "yes" and self.type != "ipport":
                 if self.basemessage.declared is None or self.name not in self.basemessage.declared:
@@ -305,9 +319,12 @@ def xml2obj(src):
                 size = self.size
 
             if size:
-                variable = 'counter_%d' %indentation
-                ret += self.indent_out('{\n')
+                if self.size_fieldname:
+                    ret += self.indent_out('if (%s <= %s) { /* tvb integer size guard */\n' %(self.size_fieldname, size))
+                else:
+                    ret += self.indent_out('{\n')
                 self.incr_indent()
+                variable = 'counter_%d' %indentation
                 ret += self.indent_out('guint32 %s = 0;\n' %(variable));
                 if self.size_fieldname:
                     ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [ref: %s = %%d, max:%s]", %s);\n' %(self.name, self.size_fieldname, size, self.size_fieldname))
@@ -336,7 +353,10 @@ def xml2obj(src):
                         ret += self.indent_out('%s = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
 
             if self.name in si_fields.keys():
-                ret += self.indent_out('%s = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(si_fields[self.name]))
+                if self.endianness == "big":
+                  ret += self.indent_out('%s = tvb_get_ntohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(si_fields[self.name]))
+                else:
+                  ret += self.indent_out('%s = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(si_fields[self.name]))
 
             ret += self.indent_out('ptvcursor_add(cursor, hf_skinny_%s, %d, %s);\n' %(self.name, self.intsize, self.endian))
 
@@ -350,6 +370,11 @@ def xml2obj(src):
                 ret += self.indent_out('}\n')
                 ret += self.indent_out('ptvcursor_pop_subtree(cursor); /* end for loop tree: %s */\n' %self.name)
                 self.decr_indent()
+                if self.size_fieldname:
+                    ret += self.indent_out('} else {\n')
+                    self.incr_indent()
+                    ret += self.indent_out('ptvcursor_advance(cursor, (%s * %s)); /* guard kicked in -> skip the rest */;\n' %(size, self.intsize))
+                    self.decr_indent()
                 ret += self.indent_out('}\n')
             return ret
 
@@ -369,7 +394,7 @@ def xml2obj(src):
             if self.type in enum_sizes:
                 self.intsize = enum_sizes[self.type]
             else:
-                print "ERROR enum %s with type: %s, could not be found" %(self.name, self.type)
+                print("ERROR enum %s with type: %s, could not be found" %(self.name, self.type))
 
             if self.declare == "yes":
                 if self.basemessage.declared is None or self.name not in self.basemessage.declared:
@@ -384,8 +409,6 @@ def xml2obj(src):
         def dissect(self):
             ret = ''
             endian = "ENC_LITTLE_ENDIAN"
-
-
             size = 0
             if self.size_fieldname:
                 if self.basemessage.dynamic == "yes":
@@ -396,9 +419,12 @@ def xml2obj(src):
                 size = self.size
 
             if size:
-                variable = 'counter_%d' %indentation
-                ret += self.indent_out('{\n')
+                if self.size_fieldname:
+                    ret += self.indent_out('if (%s <= %s) { /* tvb enum size guard */\n' %(self.size_fieldname, self.maxsize))
+                else:
+                    ret += self.indent_out('{\n')
                 self.incr_indent()
+                variable = 'counter_%d' %indentation
                 ret += self.indent_out('guint32 %s = 0;\n' %(variable));
                 if self.size_fieldname:
                     ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [ref: %s = %%d, max:%s]", %s);\n' %(self.name, self.size_fieldname, size, self.size_fieldname))
@@ -433,6 +459,11 @@ def xml2obj(src):
                 ret += self.indent_out('}\n')
                 ret += self.indent_out('ptvcursor_pop_subtree(cursor); /* end for loop tree: %s */\n' %self.name)
                 self.decr_indent()
+                if self.size_fieldname:
+                    ret += self.indent_out('} else {\n')
+                    self.incr_indent()
+                    ret += self.indent_out('ptvcursor_advance(cursor, (%s * %s)); /* guard kicked in -> skip the rest */;\n' %(size, self.intsize))
+                    self.decr_indent()
                 ret += self.indent_out('}\n')
             return ret
 
@@ -703,25 +734,36 @@ def xml2obj(src):
                 size = self.size
 
             if size:
-                ret += self.indent_out('{\n')
+                if self.size_fieldname:
+                    ret += self.indent_out('if (%s <= %s) { /* tvb struct size guard */\n' %(self.size_fieldname, self.intsize))
+                else:
+                    ret += self.indent_out('{\n')
                 self.incr_indent()
                 if debug:
                     ret += self.indent_out('/* start struct : %s / size: %d */\n' %(self.name, self.intsize))
+                #self.incr_indent()
                 ret += self.indent_out('guint32 %s = 0;\n' %(variable));
                 if self.size_fieldname:
-                    ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [ref: %s = %%d, max:%s]", %s);\n' %(self.name, self.size_fieldname, size, self.size_fieldname))
+                    ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [ref: %s = %%d, max:%s]", %s);\n' %(self.name, self.size_fieldname, self.maxsize, self.size_fieldname))
+                    if self.maxsize:
+                        ret += self.indent_out('if (%s && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (%s * %s) && %s <= %s) { /* tvb counter size guard */\n' %(self.size_fieldname, self.size_fieldname, self.intsize, self.size_fieldname, self.maxsize))
+                    else:
+                        ret += self.indent_out('if (%s && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (%s * %s)) { /* tvb counter size guard */\n' %(self.size_fieldname, self.size_fieldname, self.intsize))
+                    self.incr_indent()
                 else:
                     ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [max:%s]");\n' %(self.name, size))
+
                 ret += self.indent_out('for (%s = 0; %s < %s; %s++) {\n' %(variable, variable, size, variable));
                 if self.basemessage.dynamic == "no" and self.size_fieldname:
                     self.incr_indent()
                     ret += self.indent_out('if (%s < %s) {\n' %(variable,self.size_fieldname))
                 self.incr_indent()
             else:
-                ret += self.indent_out('{\n')
-                self.incr_indent()
                 if debug:
-                    ret += self.indent_out('/* start struct : %s / size: %d */\n' %(self.name, self.intsize))
+                    ret += self.indent_out('{ /* start struct : %s / size: %d */\n' %(self.name, self.intsize))
+                else:
+                    ret += self.indent_out('{\n')
+                self.incr_indent()
                 ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s");\n' %(self.name))
 
             if size:
@@ -742,15 +784,31 @@ def xml2obj(src):
 
             if size:
                 ret += self.indent_out('ptvcursor_pop_subtree(cursor);\n')
-                if debug:
-                    ret += self.indent_out('/* end for loop tree: %s */\n' %self.name)
                 self.decr_indent()
-                ret += self.indent_out('}\n')
+                if debug:
+                    ret += self.indent_out('} /* end for loop tree: %s */\n' %self.name)
+                else:
+                    ret += self.indent_out('}\n')
+                if self.size_fieldname:
+                    self.decr_indent()
+                    if debug:
+                        ret += self.indent_out('} /* end counter tvb size guard */\n')
+                    else:
+                        ret += self.indent_out('}\n')
 
             ret += self.indent_out('ptvcursor_pop_subtree(cursor);\n')
-            ret += self.indent_out('/* end struct: %s */\n' %self.name)
+            if debug:
+                ret += self.indent_out('/* end struct: %s */\n' %self.name)
             self.decr_indent()
-            ret += self.indent_out('}\n')
+            if self.size_fieldname:
+                ret += self.indent_out('} else {\n')
+                self.incr_indent()
+                ret += self.indent_out('ptvcursor_advance(cursor, (%s * %s)); /* guard kicked in -> skip the rest */;\n' %(self.size_fieldname, self.intsize));
+                self.decr_indent()
+            if debug:
+                ret += self.indent_out('} /* end struct size guard */\n')
+            else:
+                ret += self.indent_out('}\n')
 
             return ret
 
@@ -903,6 +961,7 @@ def xml2obj(src):
 
 #skinny = xml2obj('SkinnyProtocolOptimized.xml')
 #for message in skinny.message:
+#    print(message)
 #    message.dissect()
 
 #for key,value in fieldsArray.items():
