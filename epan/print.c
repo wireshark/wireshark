@@ -438,6 +438,18 @@ write_fields_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_inf
     write_specified_fields(FORMAT_CSV, fields, edt, cinfo, fh);
 }
 
+/* Indent to the correct level */
+static void print_indent(int level, FILE *fh)
+{
+    int i;
+    if (fh == NULL) {
+        return;
+    }
+    for (i = 0; i < level; i++) {
+        fputs("  ", fh);
+    }
+}
+
 /* Write out a tree's data, and any child nodes, as PDML */
 static void
 proto_tree_write_node_pdml(proto_node *node, gpointer data)
@@ -447,7 +459,6 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
     const gchar     *label_ptr;
     gchar            label_str[ITEM_LABEL_LENGTH];
     char            *dfilter_string;
-    int              i;
     gboolean         wrap_in_fake_protocol;
 
     /* dissection with an invisible proto tree? */
@@ -460,20 +471,13 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
           (fi->hfinfo->id == proto_data)) &&
          (pdata->level == 0));
 
-    /* Indent to the correct level */
-    for (i = -1; i < pdata->level; i++) {
-        fputs("  ", pdata->fh);
-    }
+    print_indent(pdata->level + 1, pdata->fh);
 
     if (wrap_in_fake_protocol) {
         /* Open fake protocol wrapper */
         fputs("<proto name=\"fake-field-wrapper\">\n", pdata->fh);
 
-        /* Indent to increased level before writing out field */
-        pdata->level++;
-        for (i = -1; i < pdata->level; i++) {
-            fputs("  ", pdata->fh);
-        }
+        print_indent(pdata->level + 1, pdata->fh);
     }
 
     /* Text label. It's printed as a field with no name. */
@@ -666,10 +670,8 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
                 pdata->filter = _filter;
             }
         } else {
-            /* Indent to the correct level */
-            for (i = -2; i < pdata->level; i++) {
-                fputs("  ", pdata->fh);
-            }
+            print_indent(pdata->level + 2, pdata->fh);
+
             /* print dummy field */
             fputs("<field name=\"filtered\" value=\"", pdata->fh);
             print_escaped_xml(pdata->fh, fi->hfinfo->abbrev);
@@ -683,10 +685,8 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
     }
 
     if (node->first_child != NULL) {
-        /* Indent to correct level */
-        for (i = -1; i < pdata->level; i++) {
-            fputs("  ", pdata->fh);
-        }
+        print_indent(pdata->level + 1, pdata->fh);
+
         /* Close off current element */
         /* Data and expert "protocols" use simple tags */
         if ((fi->hfinfo->id != proto_data) && (fi->hfinfo->id != proto_expert)) {
@@ -717,15 +717,11 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
     const gchar     *label_ptr;
     gchar            label_str[ITEM_LABEL_LENGTH];
     char            *dfilter_string;
-    int              i;
 
     /* dissection with an invisible proto tree? */
     g_assert(fi);
 
-    /* Indent to the correct level */
-    for (i = -3; i < pdata->level; i++) {
-        fputs("  ", pdata->fh);
-    }
+    print_indent(pdata->level + 3, pdata->fh);
 
     /* Text label. It's printed as a field with no name. */
     if (fi->hfinfo->id == hf_text_only) {
@@ -801,10 +797,7 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
                 fputs("\",\n", pdata->fh);
             }
 
-            /* Indent to the correct level */
-            for (i = -3; i < pdata->level; i++) {
-                fputs("  ", pdata->fh);
-            }
+            print_indent(pdata->level + 3, pdata->fh);
         }
 
 
@@ -853,10 +846,8 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
                 print_escaped_json(pdata->fh, dfilter_string);
                 if (node->first_child != NULL) {
                     fputs("\",\n", pdata->fh);
-                    /* Indent to the correct level */
-                    for (i = -3; i < pdata->level; i++) {
-                        fputs("  ", pdata->fh);
-                    }
+                    print_indent(pdata->level + 3, pdata->fh);
+
                     fputs("\"", pdata->fh);
                     print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
                     fputs("_tree\": {\n", pdata->fh);
@@ -894,10 +885,8 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
                 pdata->filter = _filter;
             }
         } else {
-            /* Indent to the correct level */
-            for (i = -4; i < pdata->level; i++) {
-                fputs("  ", pdata->fh);
-            }
+            print_indent(pdata->level + 4, pdata->fh);
+
             /* print dummy field */
             fputs("\"filtered\": \"", pdata->fh);
             print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
@@ -906,10 +895,8 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
     }
 
     if (node->first_child != NULL) {
-        /* Indent to correct level */
-        for (i = -3; i < pdata->level; i++) {
-            fputs("  ", pdata->fh);
-        }
+        print_indent(pdata->level + 3, pdata->fh);
+
         /* Close off current element */
         if (node->next == NULL) {
             fputs("}\n", pdata->fh);
