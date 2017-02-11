@@ -316,6 +316,7 @@ typedef struct _SslDecoder {
     guint64 seq;    /**< Implicit (TLS) or explicit (DTLS) record sequence number. */
     guint16 epoch;
     SslFlow *flow;
+    StringInfo app_traffic_secret;  /**< TLS 1.3 application traffic secret (if applicable), wmem file scope. */
 } SslDecoder;
 
 #define KEX_DHE_DSS     0x10
@@ -412,7 +413,6 @@ typedef struct _SslDecryptSession {
     StringInfo server_random;
     StringInfo client_random;
     StringInfo master_secret;
-    StringInfo traffic_secret;  /**< TLS 1.3 traffic secret, wmem file scope. */
     StringInfo handshake_data;
     /* the data store for this StringInfo must be allocated explicitly with a capture lifetime scope */
     StringInfo pre_master_secret;
@@ -632,6 +632,9 @@ ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map);
 extern void
 tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
                  gboolean is_from_server, TLSRecordType type);
+
+extern void
+tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server);
 #else /* ! HAVE_LIBGCRYPT */
 static inline void
 ssl_finalize_decryption(SslDecryptSession *ssl _U_, ssl_master_key_map_t *mk_map _U_)
@@ -641,6 +644,11 @@ ssl_finalize_decryption(SslDecryptSession *ssl _U_, ssl_master_key_map_t *mk_map
 static inline void
 tls13_change_key(SslDecryptSession *ssl _U_, ssl_master_key_map_t *mk_map _U_,
                  gboolean is_from_server _U_, TLSRecordType type _U_)
+{
+}
+
+static inline void
+tls13_key_update(SslDecryptSession *ssl _U_, gboolean is_from_server _U_)
 {
 }
 #endif /* ! HAVE_LIBGCRYPT */

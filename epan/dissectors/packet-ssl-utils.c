@@ -5176,13 +5176,68 @@ tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
     }
 
     /* TLS 1.3 secret found, set new keys. */
-    ssl->traffic_secret.data = (guchar *) wmem_realloc(wmem_file_scope(),
-            ssl->traffic_secret.data, secret->data_len);
-    ssl_data_set(&ssl->traffic_secret, secret->data, secret->data_len);
     ssl_debug_printf("%s Retrieved TLS 1.3 traffic secret.\n", G_STRFUNC);
     ssl_print_string("Client Random", &ssl->client_random);
     ssl_print_string(label, secret);
-    tls13_generate_keys(ssl, secret, is_from_server);
+    if (tls13_generate_keys(ssl, secret, is_from_server)) {
+        /*
+         * Remember the application traffic secret to support Key Update. The
+         * other secrets cannot be used for this purpose, so free them.
+         */
+        SslDecoder *decoder = is_from_server ? ssl->server : ssl->client;
+        StringInfo *app_secret = &decoder->app_traffic_secret;
+        if (type == TLS_SECRET_APP) {
+            app_secret->data = (guchar *) wmem_realloc(wmem_file_scope(),
+                                                       app_secret->data,
+                                                       secret->data_len);
+            ssl_data_set(app_secret, secret->data, secret->data_len);
+        } else {
+            wmem_free(wmem_file_scope(), app_secret->data);
+            app_secret->data = NULL;
+            app_secret->data_len = 0;
+        }
+    }
+}
+
+/**
+ * Update to next application data traffic secret for TLS 1.3. The previous
+ * secret should have been set by tls13_change_key.
+ */
+void
+tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server)
+{
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-7.2
+     * traffic_secret_N+1 = HKDF-Expand-Label(
+     *                          traffic_secret_N,
+     *                          "application traffic secret", "", Hash.length)
+     *
+     * Note that traffic_secret_N is of the same length (Hash.length).
+     */
+    const SslCipherSuite *cipher_suite = ssl->cipher_suite;
+    SslDecoder *decoder = is_from_server ? ssl->server : ssl->client;
+    StringInfo *app_secret = decoder ? &decoder->app_traffic_secret : NULL;
+
+    if (!cipher_suite || !app_secret || app_secret->data_len == 0) {
+        ssl_debug_printf("%s Cannot perform Key Update due to missing info\n", G_STRFUNC);
+        return;
+    }
+
+    /*
+     * Previous traffic secret is available, so find the hash function,
+     * expand the new traffic secret and generate new keys.
+     */
+    const char *hash_name = ssl_cipher_suite_dig(cipher_suite)->name;
+    int hash_algo = ssl_get_digest_by_name(hash_name);
+    const guint hash_len = app_secret->data_len;
+    guchar *new_secret;
+    if (!tls13_hkdf_expand_label(hash_algo, app_secret, "application traffic secret", "",
+                                 hash_len, &new_secret)) {
+        ssl_debug_printf("%s traffic_secret_N+1 expansion failed\n", G_STRFUNC);
+        return;
+    }
+    ssl_data_set(app_secret, new_secret, hash_len);
+    wmem_free(NULL, new_secret);
+    tls13_generate_keys(ssl, app_secret, is_from_server);
 }
 #endif /* HAVE_LIBGCRYPT */
 
