@@ -4023,7 +4023,6 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     case WRITE_EK:
       print_args.print_hex = print_hex;
       write_ek_proto_tree(output_fields, &print_args, protocolfilter, protocolfilter_flags, edt, stdout);
-      printf("\n");
       return !ferror(stdout);
     }
   }
