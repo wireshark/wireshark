@@ -400,7 +400,7 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
     unsigned int mcs, base, pream_type, disp_rate, bw, sgi, ldpc, stbc, groupid, txbf;
     gboolean su_ppdu = FALSE;
     unsigned int partial_aid, nsts_u1, nsts_u2, nsts_u3, nsts_u4;
-    unsigned int sig_a_1, sig_a_2, nss = 1, nsts_su,signal;
+    unsigned int sig_a_1, sig_a_2, nss = 1, nsts_su, signal_type;
     unsigned int cck_tbl[] = {22, 11, 4, 2};
     static const unsigned int bw_map[] = { 0, 1, 4, 11 };
 
@@ -418,11 +418,11 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
             mcs = (mcs > 54) ? 54 : mcs;
             phdr->has_data_rate = 1;
             phdr->data_rate = mcs * 2;
-            signal = rate_phy1 & (1 << 12);
+            signal_type = rate_phy1 & (1 << 12);
             bw = 20 << ((rate_phy1 >> 13) & 0x3);
             result = wmem_strdup_printf(wmem_packet_scope(),
                   "Rate: OFDM %u.%u Mb/s Signaling:%s BW %d",
-                   mcs, 0, signal?"Dynamic":"Static",bw
+                   mcs, 0, signal_type ? "Dynamic" : "Static", bw
                   );
         break;
 
