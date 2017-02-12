@@ -291,6 +291,7 @@ sharkd_loop(void)
 		}
 
 		g_free(exename);
+		g_free(commandline);
 #endif
 
 		closesocket(fd);
