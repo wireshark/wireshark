@@ -201,35 +201,35 @@ static dissector_handle_t prism_handle;
 
 static const value_string prism_did_vals[] =
 {
-  { PRISM_TYPE1_HOSTTIME,   "Host Time" },
-  { PRISM_TYPE2_HOSTTIME,   "Host Time" },
-  { PRISM_TYPE1_MACTIME,    "Mac Time" },
-  { PRISM_TYPE2_MACTIME,    "Mac Time" },
-  { PRISM_TYPE1_CHANNEL,    "Channel" },
-  { PRISM_TYPE2_CHANNEL,    "Channel" },
-  { PRISM_TYPE1_RSSI,       "RSSI" },
-  { PRISM_TYPE2_RSSI,       "RSSI" },
-  { PRISM_TYPE1_SQ,         "SQ" },
-  { PRISM_TYPE2_SQ,         "SQ" },
-  { PRISM_TYPE1_SIGNAL,     "Signal" },
-  { PRISM_TYPE2_SIGNAL,     "Signal" },
-  { PRISM_TYPE1_NOISE,      "Noise" },
-  { PRISM_TYPE2_NOISE,      "Noise" },
-  { PRISM_TYPE1_RATE,       "Rate" },
-  { PRISM_TYPE2_RATE,       "Rate" },
-  { PRISM_TYPE1_ISTX,       "Is Tx" },
-  { PRISM_TYPE2_ISTX,       "Is Tx" },
-  { PRISM_TYPE1_FRMLEN,     "Frame Length" },
-  { PRISM_TYPE2_FRMLEN,     "Frame Length" },
+    { PRISM_TYPE1_HOSTTIME,   "Host Time" },
+    { PRISM_TYPE2_HOSTTIME,   "Host Time" },
+    { PRISM_TYPE1_MACTIME,    "Mac Time" },
+    { PRISM_TYPE2_MACTIME,    "Mac Time" },
+    { PRISM_TYPE1_CHANNEL,    "Channel" },
+    { PRISM_TYPE2_CHANNEL,    "Channel" },
+    { PRISM_TYPE1_RSSI,       "RSSI" },
+    { PRISM_TYPE2_RSSI,       "RSSI" },
+    { PRISM_TYPE1_SQ,         "SQ" },
+    { PRISM_TYPE2_SQ,         "SQ" },
+    { PRISM_TYPE1_SIGNAL,     "Signal" },
+    { PRISM_TYPE2_SIGNAL,     "Signal" },
+    { PRISM_TYPE1_NOISE,      "Noise" },
+    { PRISM_TYPE2_NOISE,      "Noise" },
+    { PRISM_TYPE1_RATE,       "Rate" },
+    { PRISM_TYPE2_RATE,       "Rate" },
+    { PRISM_TYPE1_ISTX,       "Is Tx" },
+    { PRISM_TYPE2_ISTX,       "Is Tx" },
+    { PRISM_TYPE1_FRMLEN,     "Frame Length" },
+    { PRISM_TYPE2_FRMLEN,     "Frame Length" },
 
-  /* Qualcomm extensions */
-  { PRISM_TYPE1_RATE_SIG_A1, "SIG A1" },
-  { PRISM_TYPE2_RATE_SIG_A1, "SIG A1" },
-  { PRISM_TYPE1_RATE_SIG_A2, "SIG A2" },
-  { PRISM_TYPE2_RATE_SIG_A2, "SIG A2" },
-  { PRISM_TYPE1_RATE_SIG_B,  "SIG B" },
-  { PRISM_TYPE2_RATE_SIG_B,  "SIG B" },
-  { 0, NULL}
+    /* Qualcomm extensions */
+    { PRISM_TYPE1_RATE_SIG_A1, "SIG A1" },
+    { PRISM_TYPE2_RATE_SIG_A1, "SIG A1" },
+    { PRISM_TYPE1_RATE_SIG_A2, "SIG A2" },
+    { PRISM_TYPE2_RATE_SIG_A2, "SIG A2" },
+    { PRISM_TYPE1_RATE_SIG_B,  "SIG B" },
+    { PRISM_TYPE2_RATE_SIG_B,  "SIG B" },
+    { 0, NULL}
 };
 
 /*
@@ -240,157 +240,168 @@ static const value_string prism_did_vals[] =
  */
 static const value_string prism_status_vals[] =
 {
-  { 0,   "Supplied" },
-  { 1,   "Not Supplied" },
-  { 0, NULL}
+    { 0, "Supplied" },
+    { 1, "Not Supplied" },
+    { 0, NULL}
 };
 
 static const value_string prism_istx_vals[] =
 {
-  { 0,   "Rx Packet" },
-  { 1,   "Tx Packet" },
-  { 0, NULL}
+    { 0, "Rx Packet" },
+    { 1, "Tx Packet" },
+    { 0, NULL}
 };
 
 static void
 prism_rate_base_custom(gchar *result, guint32 rate)
 {
-   g_snprintf(result, ITEM_LABEL_LENGTH, "%u.%u", rate /2, rate & 1 ? 5 : 0);
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%u.%u", rate /2, rate & 1 ? 5 : 0);
 }
 
 static gchar *
 prism_rate_return(guint32 rate)
 {
-  gchar *result=NULL;
-  result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
-  result[0] = '\0';
-  prism_rate_base_custom(result, rate);
+    gchar *result=NULL;
+    result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
+    result[0] = '\0';
+    prism_rate_base_custom(result, rate);
 
-  return result;
+    return result;
 }
 
 
 /* HT20 Rate table MAX NSS = 4 */
 static unsigned int ht_20_tbl[32][2] =
-                                   {{65,   72   },   /* MCS 0 */
-                                    {130,  144  },   /* MCS 1 */
-                                    {195,  217  },   /* MCS 2 */
-                                    {260,  289  },   /* MCS 3 */
-                                    {390,  433  },   /* MCS 4 */
-                                    {520,  578  },   /* MCS 5 */
-                                    {585,  650  },   /* MCS 6 */
-                                    {650,  722  },   /* MCS 7 */
-                                    {130,  144  },   /* MCS 8 */
-                                    {260,  289  },   /* MCS 9 */
-                                    {390,  433  },   /* MCS 10 */
-                                    {520,  578  },   /* MCS 11 */
-                                    {780,  867  },   /* MCS 12 */
-                                    {1040, 1156 },   /* MCS 13 */
-                                    {1170, 1300 },   /* MCS 14 */
-                                    {1300, 1444 },   /* MCS 15 */
-                                    {195,  217  },   /* MCS 16 */
-                                    {390,  433  },   /* MCS 17 */
-                                    {585,  650  },   /* MCS 18 */
-                                    {780,  867  },   /* MCS 19 */
-                                    {1170, 1300 },   /* MCS 20 */
-                                    {1560, 1733 },   /* MCS 21 */
-                                    {1755, 1950 },   /* MCS 22 */
-                                    {1950, 2167 },   /* MCS 23 */
-                                    {260,  289  },   /* MCS 24 */
-                                    {520,  578  },   /* MCS 25 */
-                                    {780,  867  },   /* MCS 26 */
-                                    {1040, 1156 },   /* MCS 27 */
-                                    {1560, 1733 },   /* MCS 28 */
-                                    {2080, 2311 },   /* MCS 29 */
-                                    {2340, 2600 },   /* MCS 30 */
-                                    {2600, 2889 }};  /* MCS 31 */
+{
+    { 65,   72   },   /* MCS 0 */
+    { 130,  144  },   /* MCS 1 */
+    { 195,  217  },   /* MCS 2 */
+    { 260,  289  },   /* MCS 3 */
+    { 390,  433  },   /* MCS 4 */
+    { 520,  578  },   /* MCS 5 */
+    { 585,  650  },   /* MCS 6 */
+    { 650,  722  },   /* MCS 7 */
+    { 130,  144  },   /* MCS 8 */
+    { 260,  289  },   /* MCS 9 */
+    { 390,  433  },   /* MCS 10 */
+    { 520,  578  },   /* MCS 11 */
+    { 780,  867  },   /* MCS 12 */
+    { 1040, 1156 },   /* MCS 13 */
+    { 1170, 1300 },   /* MCS 14 */
+    { 1300, 1444 },   /* MCS 15 */
+    { 195,  217  },   /* MCS 16 */
+    { 390,  433  },   /* MCS 17 */
+    { 585,  650  },   /* MCS 18 */
+    { 780,  867  },   /* MCS 19 */
+    { 1170, 1300 },   /* MCS 20 */
+    { 1560, 1733 },   /* MCS 21 */
+    { 1755, 1950 },   /* MCS 22 */
+    { 1950, 2167 },   /* MCS 23 */
+    { 260,  289  },   /* MCS 24 */
+    { 520,  578  },   /* MCS 25 */
+    { 780,  867  },   /* MCS 26 */
+    { 1040, 1156 },   /* MCS 27 */
+    { 1560, 1733 },   /* MCS 28 */
+    { 2080, 2311 },   /* MCS 29 */
+    { 2340, 2600 },   /* MCS 30 */
+    { 2600, 2889 }    /* MCS 31 */
+};
 
 /* HT40 Rate table MAX NSS = 4 */
 static unsigned int ht_40_tbl[32][2] =
-                                   {{135,  150  },    /* MCS 0 */
-                                    {270,  300  },    /* MCS 1 */
-                                    {405,  450  },    /* MCS 2 */
-                                    {540,  600  },    /* MCS 3 */
-                                    {810,  900  },    /* MCS 4 */
-                                    {1080, 1200 },    /* MCS 5 */
-                                    {1215, 1350 },    /* MCS 6 */
-                                    {1350, 1500 },    /* MCS 7 */
-                                    {270,  300  },    /* MCS 8 */
-                                    {540,  600  },    /* MCS 9 */
-                                    {810,  900  },    /* MCS 10 */
-                                    {1080, 1200 },    /* MCS 11 */
-                                    {1620, 1800 },    /* MCS 12 */
-                                    {2160, 2400 },    /* MCS 13 */
-                                    {2430, 2700 },    /* MCS 14 */
-                                    {2700, 3000 },    /* MCS 15 */
-                                    {405,  450  },    /* MCS 16 */
-                                    {810,  900  },    /* MCS 17 */
-                                    {1215, 1350 },    /* MCS 18 */
-                                    {1620, 1800 },    /* MCS 19 */
-                                    {2430, 2700 },    /* MCS 20 */
-                                    {3240, 3600 },    /* MCS 21 */
-                                    {3645, 4050 },    /* MCS 22 */
-                                    {4050, 4500 },    /* MCS 23 */
-                                    {540,  600  },    /* MCS 24 */
-                                    {1080, 1200 },    /* MCS 25 */
-                                    {1620, 1800 },    /* MCS 26 */
-                                    {2160, 2400 },    /* MCS 27 */
-                                    {3240, 3600 },    /* MCS 28 */
-                                    {4320, 4800 },    /* MCS 29 */
-                                    {4860, 5400 },    /* MCS 30 */
-                                    {5400, 6000 }};   /* MCS 31 */
+{
+    { 135,  150  },    /* MCS 0 */
+    { 270,  300  },    /* MCS 1 */
+    { 405,  450  },    /* MCS 2 */
+    { 540,  600  },    /* MCS 3 */
+    { 810,  900  },    /* MCS 4 */
+    { 1080, 1200 },    /* MCS 5 */
+    { 1215, 1350 },    /* MCS 6 */
+    { 1350, 1500 },    /* MCS 7 */
+    { 270,  300  },    /* MCS 8 */
+    { 540,  600  },    /* MCS 9 */
+    { 810,  900  },    /* MCS 10 */
+    { 1080, 1200 },    /* MCS 11 */
+    { 1620, 1800 },    /* MCS 12 */
+    { 2160, 2400 },    /* MCS 13 */
+    { 2430, 2700 },    /* MCS 14 */
+    { 2700, 3000 },    /* MCS 15 */
+    { 405,  450  },    /* MCS 16 */
+    { 810,  900  },    /* MCS 17 */
+    { 1215, 1350 },    /* MCS 18 */
+    { 1620, 1800 },    /* MCS 19 */
+    { 2430, 2700 },    /* MCS 20 */
+    { 3240, 3600 },    /* MCS 21 */
+    { 3645, 4050 },    /* MCS 22 */
+    { 4050, 4500 },    /* MCS 23 */
+    { 540,  600  },    /* MCS 24 */
+    { 1080, 1200 },    /* MCS 25 */
+    { 1620, 1800 },    /* MCS 26 */
+    { 2160, 2400 },    /* MCS 27 */
+    { 3240, 3600 },    /* MCS 28 */
+    { 4320, 4800 },    /* MCS 29 */
+    { 4860, 5400 },    /* MCS 30 */
+    { 5400, 6000 }};   /* MCS 31 */
 
 /* VHT20 Rate Table MAX NSS = 4 */
 static unsigned int vht_20_tbl[10][8] =
-                                   {{65,  72,  130,  144,  195,  217,   260,   289},    /* MCS 0 */
-                                    {130, 144, 260,  289,  390,  433,   520,   578},    /* MCS 1 */
-                                    {195, 217, 390,  433,  585,  650,   780,   867},    /* MCS 2 */
-                                    {260, 289, 520,  578,  780,  867,   1040,  1156},   /* MCS 3 */
-                                    {390, 433, 780,  867,  1170, 1300,  1560,  1733},   /* MCS 4 */
-                                    {520, 578, 1040, 1156, 1560, 1733,  2080,  2311},   /* MCS 5 */
-                                    {585, 650, 1170, 1300, 1755, 1950,  2340,  2600},   /* MCS 6 */
-                                    {650, 722, 1300, 1444, 1950, 2167,  2600,  2889},   /* MCS 7 */
-                                    {780, 867, 1560, 1733, 2340, 2600,  3120,  3467},   /* MCS 8 */
-                                    {  0,   0,    0,    0, 2600, 2889,     0,     0}};  /* MCS 9 */
+{
+    { 65,  72,  130,  144,  195,  217,   260,   289},    /* MCS 0 */
+    { 130, 144, 260,  289,  390,  433,   520,   578},    /* MCS 1 */
+    { 195, 217, 390,  433,  585,  650,   780,   867},    /* MCS 2 */
+    { 260, 289, 520,  578,  780,  867,   1040,  1156},   /* MCS 3 */
+    { 390, 433, 780,  867,  1170, 1300,  1560,  1733},   /* MCS 4 */
+    { 520, 578, 1040, 1156, 1560, 1733,  2080,  2311},   /* MCS 5 */
+    { 585, 650, 1170, 1300, 1755, 1950,  2340,  2600},   /* MCS 6 */
+    { 650, 722, 1300, 1444, 1950, 2167,  2600,  2889},   /* MCS 7 */
+    { 780, 867, 1560, 1733, 2340, 2600,  3120,  3467},   /* MCS 8 */
+    {   0,   0,    0,    0, 2600, 2889,     0,     0}    /* MCS 9 */
+};
 
 /* VHT40 Rate Table MAX NSS = 4 */
 static unsigned int vht_40_tbl[10][8] =
-                                   {{135,  150,  270,   300,  405,  450,   540,   600},    /* MCS 0 */
-                                    {270,  300,  540,   600,  810,  900,  1080,  1200},    /* MCS 1 */
-                                    {405,  450,  810,   900, 1215, 1350,  1620,  1800},    /* MCS 2 */
-                                    {540,  600,  1080, 1200, 1620, 1800,  2160,  2400},    /* MCS 3 */
-                                    {810,  900,  1620, 1800, 2430, 2700,  3240,  3600},    /* MCS 4 */
-                                    {1080, 1200, 2160, 2400, 3240, 3600,  4320,  4800},    /* MCS 5 */
-                                    {1215, 1350, 2430, 2700, 3645, 4050,  4860,  5400},    /* MCS 6 */
-                                    {1350, 1500, 2700, 3000, 4050, 4500,  5400,  6000},    /* MCS 7 */
-                                    {1620, 1800, 3240, 3600, 4860, 5400,  6480,  7200},    /* MCS 8 */
-                                    {1800, 2000, 3600, 4000, 5400, 6000,  7200,  8000}};   /* MCS 9 */
+{
+    { 135,  150,  270,   300,  405,  450,   540,   600},    /* MCS 0 */
+    { 270,  300,  540,   600,  810,  900,  1080,  1200},    /* MCS 1 */
+    { 405,  450,  810,   900, 1215, 1350,  1620,  1800},    /* MCS 2 */
+    { 540,  600,  1080, 1200, 1620, 1800,  2160,  2400},    /* MCS 3 */
+    { 810,  900,  1620, 1800, 2430, 2700,  3240,  3600},    /* MCS 4 */
+    { 1080, 1200, 2160, 2400, 3240, 3600,  4320,  4800},    /* MCS 5 */
+    { 1215, 1350, 2430, 2700, 3645, 4050,  4860,  5400},    /* MCS 6 */
+    { 1350, 1500, 2700, 3000, 4050, 4500,  5400,  6000},    /* MCS 7 */
+    { 1620, 1800, 3240, 3600, 4860, 5400,  6480,  7200},    /* MCS 8 */
+    { 1800, 2000, 3600, 4000, 5400, 6000,  7200,  8000}     /* MCS 9 */
+};
 
 /* VHT80 Rate Table MAX NSS = 4 */
 static unsigned int vht_80_tbl[10][8] =
-                                   {{ 293,  325,  585,  650,   878,   975,   1170,   1300},   /* MCS 0 */
-                                    { 585,  650, 1170, 1300,  1755,  1950,   2340,   2600},   /* MCS 1 */
-                                    { 878,  975, 1755, 1950,  2633,  2925,   3510,   3900},   /* MCS 2 */
-                                    {1170, 1300, 2340, 2600,  3510,  3900,   4680,   5200},   /* MCS 3 */
-                                    {1755, 1950, 3510, 3900,  5265,  5850,   7020,   7800},   /* MCS 4 */
-                                    {2340, 2600, 4680, 5200,  7020,  7800,   9360,  10400},   /* MCS 5 */
-                                    {2633, 2925, 5265, 5850,     0,     0,  10530,  11700},   /* MCS 6 */
-                                    {2925, 3250, 5850, 6500,  8775,  9750,  11700,  13000},   /* MCS 7 */
-                                    {3510, 3900, 7020, 7800, 10530, 11700,  14040,  15600},   /* MCS 8 */
-                                    {3900, 4333, 7800, 8667, 11700, 13000,  15600,  17333}};  /* MCS 9 */
+{
+    {  293,  325,  585,  650,   878,   975,   1170,   1300},   /* MCS 0 */
+    {  585,  650, 1170, 1300,  1755,  1950,   2340,   2600},   /* MCS 1 */
+    {  878,  975, 1755, 1950,  2633,  2925,   3510,   3900},   /* MCS 2 */
+    { 1170, 1300, 2340, 2600,  3510,  3900,   4680,   5200},   /* MCS 3 */
+    { 1755, 1950, 3510, 3900,  5265,  5850,   7020,   7800},   /* MCS 4 */
+    { 2340, 2600, 4680, 5200,  7020,  7800,   9360,  10400},   /* MCS 5 */
+    { 2633, 2925, 5265, 5850,     0,     0,  10530,  11700},   /* MCS 6 */
+    { 2925, 3250, 5850, 6500,  8775,  9750,  11700,  13000},   /* MCS 7 */
+    { 3510, 3900, 7020, 7800, 10530, 11700,  14040,  15600},   /* MCS 8 */
+    { 3900, 4333, 7800, 8667, 11700, 13000,  15600,  17333}    /* MCS 9 */
+};
 
 /* VHT160 Rate Table MAX NSS = 4 */
 static unsigned int vht_160_tbl[10][8] =
-                                   {{ 585,  650,  1170,  1300,  1755,  1950,  2340,  2600},   /* MCS 0 */
-                                    {1170, 1300,  2340,  2600,  3510,  3900,  4680,  5200},   /* MCS 1 */
-                                    {1755, 1950,  3510,  3900,  5265,  5850,  7020,  7800},   /* MCS 2 */
-                                    {2340, 2600,  4680,  5200,  7020,  7800,  9360, 10400},   /* MCS 3 */
-                                    {3510, 3900,  7020,  7800, 10530, 11700, 14040, 15600},   /* MCS 4 */
-                                    {4680, 5200,  9360, 10400, 14040, 15600, 18720, 20800},   /* MCS 5 */
-                                    {5265, 5850, 10530, 11700, 15795, 17550, 21060, 23400},   /* MCS 6 */
-                                    {5850, 6500, 11700, 13000, 17550, 19500, 23400, 26000},   /* MCS 7 */
-                                    {7020, 7800, 14040, 15600, 21060, 23400, 28080, 31200},   /* MCS 8 */
-                                    {7800, 8667, 15600, 17333,     0,     0, 31200, 34667}};  /* MCS 9 */
+{
+    {  585,  650,  1170,  1300,  1755,  1950,  2340,  2600},   /* MCS 0 */
+    { 1170, 1300,  2340,  2600,  3510,  3900,  4680,  5200},   /* MCS 1 */
+    { 1755, 1950,  3510,  3900,  5265,  5850,  7020,  7800},   /* MCS 2 */
+    { 2340, 2600,  4680,  5200,  7020,  7800,  9360, 10400},   /* MCS 3 */
+    { 3510, 3900,  7020,  7800, 10530, 11700, 14040, 15600},   /* MCS 4 */
+    { 4680, 5200,  9360, 10400, 14040, 15600, 18720, 20800},   /* MCS 5 */
+    { 5265, 5850, 10530, 11700, 15795, 17550, 21060, 23400},   /* MCS 6 */
+    { 5850, 6500, 11700, 13000, 17550, 19500, 23400, 26000},   /* MCS 7 */
+    { 7020, 7800, 14040, 15600, 21060, 23400, 28080, 31200},   /* MCS 8 */
+    { 7800, 8667, 15600, 17333,     0,     0, 31200, 34667}    /* MCS 9 */
+};
 
 
 static gchar *
@@ -409,200 +420,207 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
      */
     pream_type =  rate_phy1 & 0xF;
     switch (pream_type) {
-        case 0: /* OFDM */
-            phdr->phy = PHDR_802_11_PHY_11A; /* or 11g? */
-            mcs = (rate_phy1 >> 4) & 0xF;
-            base = (mcs & 0x4) ? 9 : 6;
-            mcs &= ~0x4;
-            mcs = base << (11 - mcs);
-            mcs = (mcs > 54) ? 54 : mcs;
-            phdr->has_data_rate = 1;
-            phdr->data_rate = mcs * 2;
-            signal_type = rate_phy1 & (1 << 12);
-            bw = 20 << ((rate_phy1 >> 13) & 0x3);
-            result = wmem_strdup_printf(wmem_packet_scope(),
-                  "Rate: OFDM %u.%u Mb/s Signaling:%s BW %d",
-                   mcs, 0, signal_type ? "Dynamic" : "Static", bw
-                  );
+
+    case 0: /* OFDM */
+        phdr->phy = PHDR_802_11_PHY_11A; /* or 11g? */
+        mcs = (rate_phy1 >> 4) & 0xF;
+        base = (mcs & 0x4) ? 9 : 6;
+        mcs &= ~0x4;
+        mcs = base << (11 - mcs);
+        mcs = (mcs > 54) ? 54 : mcs;
+        phdr->has_data_rate = 1;
+        phdr->data_rate = mcs * 2;
+        signal_type = rate_phy1 & (1 << 12);
+        bw = 20 << ((rate_phy1 >> 13) & 0x3);
+        result = wmem_strdup_printf(wmem_packet_scope(),
+              "Rate: OFDM %u.%u Mb/s Signaling:%s BW %d",
+               mcs, 0, signal_type ? "Dynamic" : "Static", bw
+              );
         break;
 
-        case 1: /* CCK */
-            phdr->phy = PHDR_802_11_PHY_11B;
-            mcs = (rate_phy1 >> 4) & 0xF;
-            base = (mcs & 0x4) ? 1 : 0;
-            phdr->phy_info.info_11b.has_short_preamble = 1;
-            phdr->phy_info.info_11b.short_preamble = base;
-            mcs &= ~0x4;
-            mcs = (mcs - 8) & 0x3;
-            disp_rate = cck_tbl[mcs];
-            phdr->has_data_rate = 1;
-            phdr->data_rate = disp_rate;
-            result = wmem_strdup_printf(wmem_packet_scope(), "Rate: %u.%u Mb/s %s",
-                          disp_rate / 2,
-                          (disp_rate & 1) ? 5 : 0,
-                          base ? "[SP]" : "[LP]");
+    case 1: /* CCK */
+        phdr->phy = PHDR_802_11_PHY_11B;
+        mcs = (rate_phy1 >> 4) & 0xF;
+        base = (mcs & 0x4) ? 1 : 0;
+        phdr->phy_info.info_11b.has_short_preamble = 1;
+        phdr->phy_info.info_11b.short_preamble = base;
+        mcs &= ~0x4;
+        mcs = (mcs - 8) & 0x3;
+        disp_rate = cck_tbl[mcs];
+        phdr->has_data_rate = 1;
+        phdr->data_rate = disp_rate;
+        result = wmem_strdup_printf(wmem_packet_scope(), "Rate: %u.%u Mb/s %s",
+                      disp_rate / 2,
+                      (disp_rate & 1) ? 5 : 0,
+                      base ? "[SP]" : "[LP]");
         break;
 
-        case 2: /* HT */
-            phdr->phy = PHDR_802_11_PHY_11N;
-            sig_a_1 = (rate_phy1 >> 4) & 0xFFFF;
-            sig_a_2 = (rate_phy2) & 0xFFF;
-            bw = 20 << ((sig_a_1 >> 7) & 1);
-            phdr->phy_info.info_11n.has_bandwidth = 1;
-            phdr->phy_info.info_11n.bandwidth = ((sig_a_1 >> 7) & 1);
-            mcs = sig_a_1  & 0x7f;
-            phdr->phy_info.info_11n.has_mcs_index = 1;
-            phdr->phy_info.info_11n.mcs_index = mcs;
-            sgi = (sig_a_2 >> 7) & 1;
-            phdr->phy_info.info_11n.has_short_gi = 1;
-            phdr->phy_info.info_11n.short_gi = sgi;
-            phdr->phy_info.info_11n.has_ness = 1;
-            phdr->phy_info.info_11n.ness = (sig_a_2 >> 8) & 3;
-            ldpc = (sig_a_2 >> 6) & 1;
-            phdr->phy_info.info_11n.has_fec = 1;
-            phdr->phy_info.info_11n.fec = ldpc;
-            stbc = ((sig_a_2 >> 4) & 3)?1:0;
-            phdr->phy_info.info_11n.has_stbc_streams = 1;
-            phdr->phy_info.info_11n.stbc_streams = stbc;
-            nss = (mcs >> 3) + 1;
+    case 2: /* HT */
+        phdr->phy = PHDR_802_11_PHY_11N;
+        sig_a_1 = (rate_phy1 >> 4) & 0xFFFF;
+        sig_a_2 = (rate_phy2) & 0xFFF;
+        bw = 20 << ((sig_a_1 >> 7) & 1);
+        phdr->phy_info.info_11n.has_bandwidth = 1;
+        phdr->phy_info.info_11n.bandwidth = ((sig_a_1 >> 7) & 1);
+        mcs = sig_a_1  & 0x7f;
+        phdr->phy_info.info_11n.has_mcs_index = 1;
+        phdr->phy_info.info_11n.mcs_index = mcs;
+        sgi = (sig_a_2 >> 7) & 1;
+        phdr->phy_info.info_11n.has_short_gi = 1;
+        phdr->phy_info.info_11n.short_gi = sgi;
+        phdr->phy_info.info_11n.has_ness = 1;
+        phdr->phy_info.info_11n.ness = (sig_a_2 >> 8) & 3;
+        ldpc = (sig_a_2 >> 6) & 1;
+        phdr->phy_info.info_11n.has_fec = 1;
+        phdr->phy_info.info_11n.fec = ldpc;
+        stbc = ((sig_a_2 >> 4) & 3)?1:0;
+        phdr->phy_info.info_11n.has_stbc_streams = 1;
+        phdr->phy_info.info_11n.stbc_streams = stbc;
+        nss = (mcs >> 3) + 1;
+        /* Check limits */
+        disp_rate = 0;
+        if ((nss <= 4) && (mcs <= 31) && ((bw == 20) || (bw==40))){
+            switch (bw) {
+
+            case 20:
+                if (sgi) {
+                    disp_rate = ht_20_tbl[mcs][1];
+                } else {
+                    disp_rate = ht_20_tbl[mcs][0];
+                }
+                break;
+
+            case 40:
+                if (sgi) {
+                    disp_rate = ht_40_tbl[mcs][1];
+                } else {
+                    disp_rate = ht_40_tbl[mcs][0];
+                }
+                break;
+            }
+        }
+        result = wmem_strdup_printf(wmem_packet_scope(),
+              "%u.%u Mb/s HT MCS %d NSS %d BW %d MHz %s %s %s",
+               disp_rate/10, disp_rate%10, mcs, nss, bw,
+               sgi ? "[SGI]" : "",
+               ldpc ? "[LDPC]" : "",
+               stbc ? "[STBC]" : "");
+        break;
+
+    case 3: /* VHT */
+        phdr->phy = PHDR_802_11_PHY_11AC;
+        sig_a_1 = (rate_phy1 >> 4) & 0xFFFFFF;
+        sig_a_2 = (rate_phy2) & 0xFFFFFF;
+        bw = 20 << (sig_a_1 & 3);
+        phdr->phy_info.info_11ac.has_bandwidth = 1;
+        phdr->phy_info.info_11ac.bandwidth = bw_map[(sig_a_1 & 3)];
+        sgi = sig_a_2 & 1;
+        phdr->phy_info.info_11ac.has_short_gi = 1;
+        phdr->phy_info.info_11ac.short_gi = sgi;
+        ldpc = (sig_a_2 >> 2) & 1;
+        phdr->phy_info.info_11ac.has_fec = 1;
+        phdr->phy_info.info_11ac.fec = ldpc;
+        stbc = (sig_a_1 >> 3) & 1;
+        phdr->phy_info.info_11ac.has_stbc = 1;
+        phdr->phy_info.info_11ac.stbc = stbc;
+        groupid = (sig_a_1 >> 4) & 0x3F;
+
+        if (groupid == 0 || groupid == 63)
+            su_ppdu = TRUE;
+
+        disp_rate = 0;
+
+        if (su_ppdu) {
+            nsts_su = (sig_a_1 >> 10) & 0x7;
+            if (stbc)
+                nss = nsts_su >> 2;
+            else
+                nss = nsts_su;
+            ++nss;
+            mcs = (sig_a_2 >> 4) & 0xF;
+            phdr->phy_info.info_11ac.mcs[0] = mcs;
+            phdr->phy_info.info_11ac.nss[0] = nss;
+            txbf = (sig_a_2 >> 8) & 1;
+            phdr->phy_info.info_11ac.has_beamformed = 1;
+            phdr->phy_info.info_11ac.beamformed = txbf;
+            partial_aid = (sig_a_1 >> 13) & 0x1FF;
+
             /* Check limits */
-            disp_rate = 0;
-            if ((nss <= 4) && (mcs <= 31) && ((bw == 20) || (bw==40))){
+            if ((nss <= 4) && (mcs <= 9) && ((bw == 20) || (bw==40) || (bw==80) || bw==160)) {
                 switch (bw) {
-                    case 20:
-                        if (sgi) {
-                            disp_rate = ht_20_tbl[mcs][1];
-                        } else {
-                            disp_rate = ht_20_tbl[mcs][0];
-                        }
+
+                case 20:
+                    if (sgi) {
+                        disp_rate = vht_20_tbl[mcs][(nss * 2) - 1];
+                    } else {
+                        disp_rate = vht_20_tbl[mcs][(nss - 1) * 2];
+                    }
                     break;
-                    case 40:
-                        if (sgi) {
-                            disp_rate = ht_40_tbl[mcs][1];
-                        } else {
-                            disp_rate = ht_40_tbl[mcs][0];
-                        }
+
+                case 40:
+                    if (sgi) {
+                        disp_rate = vht_40_tbl[mcs][(nss * 2) - 1];
+                    } else {
+                        disp_rate = vht_40_tbl[mcs][(nss - 1) * 2];
+                    }
+                    break;
+
+                case 80:
+                    if (sgi) {
+                        disp_rate = vht_80_tbl[mcs][(nss * 2) - 1];
+                    } else {
+                        disp_rate = vht_80_tbl[mcs][(nss - 1) * 2];
+                    }
+                    break;
+
+                case 160:
+                    if (sgi) {
+                        disp_rate = vht_160_tbl[mcs][(nss * 2) - 1];
+                    } else {
+                        disp_rate = vht_160_tbl[mcs][(nss - 1) * 2];
+                    }
                     break;
                 }
             }
-            result = wmem_strdup_printf(wmem_packet_scope(),
-                  "%u.%u Mb/s HT MCS %d NSS %d BW %d MHz %s %s %s",
-                   disp_rate/10, disp_rate%10, mcs, nss, bw,
-                   sgi ? "[SGI]" : "",
-                   ldpc ? "[LDPC]" : "",
-                   stbc ? "[STBC]" : "");
-        break;
 
-        case 3: /* VHT */
-            phdr->phy = PHDR_802_11_PHY_11AC;
-            sig_a_1 = (rate_phy1 >> 4) & 0xFFFFFF;
-            sig_a_2 = (rate_phy2) & 0xFFFFFF;
-            bw = 20 << (sig_a_1 & 3);
-            phdr->phy_info.info_11ac.has_bandwidth = 1;
-            phdr->phy_info.info_11ac.bandwidth = bw_map[(sig_a_1 & 3)];
-            sgi = sig_a_2 & 1;
-            phdr->phy_info.info_11ac.has_short_gi = 1;
-            phdr->phy_info.info_11ac.short_gi = sgi;
-            ldpc = (sig_a_2 >> 2) & 1;
-            phdr->phy_info.info_11ac.has_fec = 1;
-            phdr->phy_info.info_11ac.fec = ldpc;
-            stbc = (sig_a_1 >> 3) & 1;
-            phdr->phy_info.info_11ac.has_stbc = 1;
-            phdr->phy_info.info_11ac.stbc = stbc;
-            groupid = (sig_a_1 >> 4) & 0x3F;
-
-            if (groupid == 0 || groupid == 63)
-                su_ppdu = TRUE;
-
-            disp_rate = 0;
-
-            if (su_ppdu) {
-                nsts_su = (sig_a_1 >> 10) & 0x7;
-                if (stbc)
-                    nss = nsts_su >> 2;
-                else
-                    nss = nsts_su;
-                ++nss;
-                mcs = (sig_a_2 >> 4) & 0xF;
-                phdr->phy_info.info_11ac.mcs[0] = mcs;
-                phdr->phy_info.info_11ac.nss[0] = nss;
-                txbf = (sig_a_2 >> 8) & 1;
-                phdr->phy_info.info_11ac.has_beamformed = 1;
-                phdr->phy_info.info_11ac.beamformed = txbf;
-                partial_aid = (sig_a_1 >> 13) & 0x1FF;
-
-                /* Check limits */
-                if ((nss <= 4) && (mcs <= 9) && ((bw == 20) || (bw==40) || (bw==80) || bw==160)) {
-                    switch (bw) {
-                        case 20:
-                            if (sgi) {
-                                disp_rate = vht_20_tbl[mcs][(nss * 2) - 1];
-                            } else {
-                                disp_rate = vht_20_tbl[mcs][(nss - 1) * 2];
-                            }
-                         break;
-                         case 40:
-                             if (sgi) {
-                                 disp_rate = vht_40_tbl[mcs][(nss * 2) - 1];
-                             } else {
-                                 disp_rate = vht_40_tbl[mcs][(nss - 1) * 2];
-                             }
-                         break;
-                         case 80:
-                             if (sgi) {
-                                 disp_rate = vht_80_tbl[mcs][(nss * 2) - 1];
-                             } else {
-                                 disp_rate = vht_80_tbl[mcs][(nss - 1) * 2];
-                             }
-                         break;
-                         case 160:
-                             if (sgi) {
-                                 disp_rate = vht_160_tbl[mcs][(nss * 2) - 1];
-                             } else {
-                                 disp_rate = vht_160_tbl[mcs][(nss - 1) * 2];
-                             }
-                         break;
-                    }
-                }
-
-                if (stbc) {
-                    result = wmem_strdup_printf(wmem_packet_scope(),
-                        "%u.%u Mb/s VHT MCS %d NSS %d Partial AID %d BW %d MHz %s %s %s GroupID %d %s %s",
-                        disp_rate/10, disp_rate%10,
-                        mcs, nss, partial_aid, bw,
-                        sgi ? "[SGI]" : "",
-                        ldpc ? "[LDPC]" : "",
-                        stbc ? "[STBC]" : "",
-                        groupid,
-                        "[SU_PPDU]",
-                        txbf ? "[TxBF]" : "");
-                } else {
-                    result = wmem_strdup_printf(wmem_packet_scope(),
-                        "%u.%u Mb/s VHT MCS %d NSS %d Partial AID %d BW %d MHz %s %s %s GroupID %d %s %s",
-                        disp_rate/10, disp_rate%10,
-                        mcs, nss, partial_aid, bw,
-                        sgi ? "[SGI]" : "",
-                        ldpc ? "[LDPC]" : "",
-                        stbc ? "[STBC]" : "",
-                        groupid,
-                        "[SU_PPDU]",
-                        txbf ? "[TxBF]" : "");
-                }
-            } else {
-                nsts_u1 = (sig_a_1 >> 10) & 0x7;
-                nsts_u2 = (sig_a_1 >> 13) & 0x7;
-                nsts_u3 = (sig_a_1 >> 16) & 0x7;
-                nsts_u4 = (sig_a_1 >> 19) & 0x7;
-
+            if (stbc) {
                 result = wmem_strdup_printf(wmem_packet_scope(),
-                    "VHT NSTS %d %d %d %d BW %d MHz %s %s %s GroupID %d %s",
-                    nsts_u1, nsts_u2, nsts_u3, nsts_u4, bw,
+                    "%u.%u Mb/s VHT MCS %d NSS %d Partial AID %d BW %d MHz %s %s %s GroupID %d %s %s",
+                    disp_rate/10, disp_rate%10,
+                    mcs, nss, partial_aid, bw,
                     sgi ? "[SGI]" : "",
                     ldpc ? "[LDPC]" : "",
                     stbc ? "[STBC]" : "",
                     groupid,
-                    "[MU_PPDU]");
+                    "[SU_PPDU]",
+                    txbf ? "[TxBF]" : "");
+            } else {
+                result = wmem_strdup_printf(wmem_packet_scope(),
+                    "%u.%u Mb/s VHT MCS %d NSS %d Partial AID %d BW %d MHz %s %s %s GroupID %d %s %s",
+                    disp_rate/10, disp_rate%10,
+                    mcs, nss, partial_aid, bw,
+                    sgi ? "[SGI]" : "",
+                    ldpc ? "[LDPC]" : "",
+                    stbc ? "[STBC]" : "",
+                    groupid,
+                    "[SU_PPDU]",
+                    txbf ? "[TxBF]" : "");
             }
+        } else {
+            nsts_u1 = (sig_a_1 >> 10) & 0x7;
+            nsts_u2 = (sig_a_1 >> 13) & 0x7;
+            nsts_u3 = (sig_a_1 >> 16) & 0x7;
+            nsts_u4 = (sig_a_1 >> 19) & 0x7;
+
+            result = wmem_strdup_printf(wmem_packet_scope(),
+                "VHT NSTS %d %d %d %d BW %d MHz %s %s %s GroupID %d %s",
+                nsts_u1, nsts_u2, nsts_u3, nsts_u4, bw,
+                sgi ? "[SGI]" : "",
+                ldpc ? "[LDPC]" : "",
+                stbc ? "[STBC]" : "",
+                groupid,
+                "[MU_PPDU]");
+        }
         break;
     }
 
@@ -612,26 +630,26 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
 static gboolean
 capture_prism(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  guint32 cookie;
+    guint32 cookie;
 
-  if (!BYTES_ARE_IN_FRAME(offset, len, 4))
-    return FALSE;
+    if (!BYTES_ARE_IN_FRAME(offset, len, 4))
+        return FALSE;
 
-  /* Some captures with DLT_PRISM have the AVS WLAN header */
-  cookie = pntoh32(pd);
-  if ((cookie == WLANCAP_MAGIC_COOKIE_V1) ||
-      (cookie == WLANCAP_MAGIC_COOKIE_V2)) {
-    return call_capture_dissector(wlancap_cap_handle, pd, offset, len, cpinfo, pseudo_header);
-  }
+    /* Some captures with DLT_PRISM have the AVS WLAN header */
+    cookie = pntoh32(pd);
+    if ((cookie == WLANCAP_MAGIC_COOKIE_V1) ||
+        (cookie == WLANCAP_MAGIC_COOKIE_V2)) {
+        return call_capture_dissector(wlancap_cap_handle, pd, offset, len, cpinfo, pseudo_header);
+    }
 
-  /* Prism header */
-  if (!BYTES_ARE_IN_FRAME(offset, len, PRISM_HEADER_LENGTH))
-    return FALSE;
+    /* Prism header */
+    if (!BYTES_ARE_IN_FRAME(offset, len, PRISM_HEADER_LENGTH))
+        return FALSE;
 
-  offset += PRISM_HEADER_LENGTH;
+    offset += PRISM_HEADER_LENGTH;
 
-  /* 802.11 header follows */
-  return call_capture_dissector(ieee80211_cap_handle, pd, offset, len, cpinfo, pseudo_header);
+    /* 802.11 header follows */
+    return call_capture_dissector(ieee80211_cap_handle, pd, offset, len, cpinfo, pseudo_header);
 }
 
 static int
@@ -658,8 +676,8 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     msgcode = tvb_get_ntohl(tvb, offset);
     if ((msgcode == WLANCAP_MAGIC_COOKIE_V1) ||
         (msgcode == WLANCAP_MAGIC_COOKIE_V2)) {
-      call_dissector(wlancap_handle, tvb, pinfo, tree);
-      return tvb_captured_length(tvb);
+        call_dissector(wlancap_handle, tvb, pinfo, tree);
+        return tvb_captured_length(tvb);
     }
 
     /*
@@ -711,10 +729,10 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Device: %s, Message 0x%x, Length %d", devname_p, msgcode, msglen);
 
-    while(offset < PRISM_HEADER_LENGTH)
+    while (offset < PRISM_HEADER_LENGTH)
     {
         /* DID */
-        if(tree) {
+        if (tree) {
             ti_did = proto_tree_add_item(prism_tree, hf_ieee80211_prism_did, tvb, offset, 12, ENC_NA);
             prism_did_tree = proto_item_add_subtree(ti_did, ett_prism_did);
 
@@ -736,145 +754,140 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
         /* Data, if present... */
         if (status == 0) {
-            switch(did){
-              case PRISM_TYPE1_HOSTTIME:
-              case PRISM_TYPE2_HOSTTIME:
-                if(tree){
+            switch (did) {
+
+            case PRISM_TYPE1_HOSTTIME:
+            case PRISM_TYPE2_HOSTTIME:
+                if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_hosttime, tvb, offset, 4, byte_order);
                     proto_item_append_text(ti_did, " %d", tvb_get_guint32(tvb, offset, byte_order) );
                 }
-              break;
+                break;
 
-              case PRISM_TYPE1_MACTIME:
-              case PRISM_TYPE2_MACTIME:
+            case PRISM_TYPE1_MACTIME:
+            case PRISM_TYPE2_MACTIME:
                 mactime = tvb_get_guint32(tvb, offset, byte_order);
                 phdr.has_tsf_timestamp = 1;
                 phdr.tsf_timestamp = mactime;
-                if(tree){
+                if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_mactime, tvb, offset, 4, byte_order);
                     proto_item_append_text(ti_did, " %d", mactime );
                 }
-              break;
+                break;
 
-              case PRISM_TYPE1_CHANNEL:
-              case PRISM_TYPE2_CHANNEL:
+            case PRISM_TYPE1_CHANNEL:
+            case PRISM_TYPE2_CHANNEL:
                 channel = tvb_get_guint32(tvb, offset, byte_order);
                 phdr.has_channel = TRUE;
                 phdr.channel = channel;
-                if(tree){
+                if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_channel, tvb, offset, 4, byte_order);
                     proto_item_append_text(ti_did, " %u", channel);
                 }
                 col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", channel);
-              break;
+                break;
 
-              case PRISM_TYPE1_RSSI:
-              case PRISM_TYPE2_RSSI:
+            case PRISM_TYPE1_RSSI:
+            case PRISM_TYPE2_RSSI:
                 signal_dbm = tvb_get_guint32(tvb, offset, byte_order);
                 phdr.has_signal_dbm = 1;
                 phdr.signal_dbm = signal_dbm;
-                if(tree){
+                if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_rssi, tvb, offset, 4, byte_order);
                     proto_item_append_text(ti_did, " %d", signal_dbm );
                 }
                 col_add_fstr(pinfo->cinfo, COL_RSSI, "%d", signal_dbm);
-              break;
+                break;
 
-              case PRISM_TYPE1_SQ:
-              case PRISM_TYPE2_SQ:
-                 if(tree){
+            case PRISM_TYPE1_SQ:
+            case PRISM_TYPE2_SQ:
+                 if (tree) {
                       proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_sq, tvb, offset, 4, byte_order);
                       proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
                 }
-              break;
+                break;
 
-              case PRISM_TYPE1_SIGNAL:
-              case PRISM_TYPE2_SIGNAL:
-                if(tree){
+            case PRISM_TYPE1_SIGNAL:
+            case PRISM_TYPE2_SIGNAL:
+                if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_signal, tvb, offset, 4, byte_order);
                     proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
                 }
-              break;
+                break;
 
-              case PRISM_TYPE1_NOISE:
-              case PRISM_TYPE2_NOISE:
-                if(tree){
+            case PRISM_TYPE1_NOISE:
+            case PRISM_TYPE2_NOISE:
+                if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_noise, tvb, offset, 4, byte_order);
                     proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
                 }
-              break;
+                break;
 
-              case PRISM_TYPE1_RATE:
-              case PRISM_TYPE2_RATE:
+            case PRISM_TYPE1_RATE:
+            case PRISM_TYPE2_RATE:
                 rate = tvb_get_guint32(tvb, offset, byte_order);
                 phdr.has_data_rate = TRUE;
                 phdr.data_rate = rate;
-                if(tree){
+                if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_rate, tvb, offset, 4, byte_order);
                     proto_item_append_text(ti_did, " %s Mb/s", prism_rate_return(rate));
                 }
                 col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%s", prism_rate_return(rate));
-              break;
+                break;
 
-              case PRISM_TYPE1_RATE_SIG_A1:
-              case PRISM_TYPE2_RATE_SIG_A1:
-              {
+            case PRISM_TYPE1_RATE_SIG_A1:
+            case PRISM_TYPE2_RATE_SIG_A1:
                 rate_phy1 = tvb_get_letohl(tvb, offset);
-
-                if(tree){
+                if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_sig_a1, tvb, offset, 4, byte_order);
                     proto_item_append_text(ti_did, " 0x%x", tvb_get_letohl(tvb, offset));
                 }
                 break;
-              }
-              case PRISM_TYPE1_RATE_SIG_A2:
-              case PRISM_TYPE2_RATE_SIG_A2:
-              {
+
+            case PRISM_TYPE1_RATE_SIG_A2:
+            case PRISM_TYPE2_RATE_SIG_A2:
                 rate_phy2 = tvb_get_letohl(tvb, offset);
-                if(tree){
+                if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_sig_a2, tvb, offset, 4, byte_order);
                     proto_item_append_text(ti_did, " 0x%x", tvb_get_letohl(tvb, offset));
                 }
                 break;
-              }
 
-              case PRISM_TYPE1_RATE_SIG_B:
-              case PRISM_TYPE2_RATE_SIG_B:
-                {
-                  if(tree && rate_phy1 && rate_phy2){
-                      proto_item *sig_item, *sig_sub_item;
-                      proto_tree *sig_tree;
+            case PRISM_TYPE1_RATE_SIG_B:
+            case PRISM_TYPE2_RATE_SIG_B:
+                if (tree && rate_phy1 && rate_phy2) {
+                    proto_item *sig_item, *sig_sub_item;
+                    proto_tree *sig_tree;
 
-                      proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_sig_b, tvb, offset, 4, byte_order);
-                      proto_item_append_text(ti_did, " 0x%x", tvb_get_letohl(tvb, offset));
+                    proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_sig_b, tvb, offset, 4, byte_order);
+                    proto_item_append_text(ti_did, " 0x%x", tvb_get_letohl(tvb, offset));
 
-                      sig_item = proto_tree_add_item(prism_tree, hf_ieee80211_prism_did_sig_rate, tvb, offset, 4, byte_order);
-                      sig_tree = proto_item_add_subtree(sig_item, ett_sig_ab);
-                      sig_sub_item = proto_tree_add_item(sig_tree, hf_ieee80211_prism_did_sig_rate_field, tvb, offset, 4, byte_order);
-                      proto_item_append_text(sig_sub_item, " %s", prism_rate_return_sig(rate_phy1, rate_phy2, &phdr));
+                    sig_item = proto_tree_add_item(prism_tree, hf_ieee80211_prism_did_sig_rate, tvb, offset, 4, byte_order);
+                    sig_tree = proto_item_add_subtree(sig_item, ett_sig_ab);
+                    sig_sub_item = proto_tree_add_item(sig_tree, hf_ieee80211_prism_did_sig_rate_field, tvb, offset, 4, byte_order);
+                    proto_item_append_text(sig_sub_item, " %s", prism_rate_return_sig(rate_phy1, rate_phy2, &phdr));
                   }
                   break;
-                }
 
-              case PRISM_TYPE1_ISTX:
-              case PRISM_TYPE2_ISTX:
-                if(tree){
+            case PRISM_TYPE1_ISTX:
+            case PRISM_TYPE2_ISTX:
+                if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_istx, tvb, offset, 4, byte_order);
                     proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
                 }
-              break;
+                break;
 
-              case PRISM_TYPE1_FRMLEN:
-              case PRISM_TYPE2_FRMLEN:
-                if(tree){
+            case PRISM_TYPE1_FRMLEN:
+            case PRISM_TYPE2_FRMLEN:
+                if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_frmlen, tvb, offset, 4, byte_order);
                     proto_item_append_text(ti_did, " %d", tvb_get_guint32(tvb, offset, byte_order));
                 }
-              break;
+                break;
 
-              default:
+            default:
                 proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_unknown, tvb, offset, 4, byte_order);
-              break;
+                break;
             }
         }
         offset += 4;
@@ -983,46 +996,46 @@ static hf_register_info hf_prism[] = {
 };
 
 static gint *tree_array[] = {
-  &ett_prism,
-  &ett_prism_did,
-  &ett_sig_ab
+    &ett_prism,
+    &ett_prism_did,
+    &ett_sig_ab
 };
 
 void proto_register_ieee80211_prism(void)
 {
-  proto_prism = proto_register_protocol("Prism capture header", "Prism",
-                                        "prism");
-  proto_register_field_array(proto_prism, hf_prism, array_length(hf_prism));
-  proto_register_subtree_array(tree_array, array_length(tree_array));
+    proto_prism = proto_register_protocol("Prism capture header", "Prism",
+                                          "prism");
+    proto_register_field_array(proto_prism, hf_prism, array_length(hf_prism));
+    proto_register_subtree_array(tree_array, array_length(tree_array));
 
-  prism_handle = register_dissector("prism", dissect_prism, proto_prism);
+    prism_handle = register_dissector("prism", dissect_prism, proto_prism);
 }
 
 void proto_reg_handoff_ieee80211_prism(void)
 {
-  capture_dissector_handle_t ieee80211_prism_cap_handle;
+    capture_dissector_handle_t ieee80211_prism_cap_handle;
 
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_PRISM, prism_handle);
-  ieee80211_handle = find_dissector_add_dependency("wlan", proto_prism);
-  ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_prism);
-  wlancap_handle = find_dissector_add_dependency("wlancap", proto_prism);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_PRISM, prism_handle);
+    ieee80211_handle = find_dissector_add_dependency("wlan", proto_prism);
+    ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_prism);
+    wlancap_handle = find_dissector_add_dependency("wlancap", proto_prism);
 
-  ieee80211_prism_cap_handle = create_capture_dissector_handle(capture_prism, proto_prism);
-  capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_PRISM, ieee80211_prism_cap_handle);
+    ieee80211_prism_cap_handle = create_capture_dissector_handle(capture_prism, proto_prism);
+    capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_PRISM, ieee80211_prism_cap_handle);
 
-  ieee80211_cap_handle = find_capture_dissector("ieee80211");
-  wlancap_cap_handle = find_capture_dissector("wlancap");
+    ieee80211_cap_handle = find_capture_dissector("ieee80211");
+    wlancap_cap_handle = find_capture_dissector("wlancap");
 }
 
 /*
  * Editor modelines
  *
  * Local Variables:
- * c-basic-offset: 2
+ * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
- * :indentSize=2:tabSize=8:noTabs=true:
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
