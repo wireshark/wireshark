@@ -1407,8 +1407,8 @@ ftps-data         989/tcp # ftp protocol, data, over TLS/SSL
 ftps-data         989/udp # ftp protocol, data, over TLS/SSL
 ftps              990/tcp # ftp protocol, control, over TLS/SSL [Christopher_Allen] [Christopher_Allen]
 ftps              990/udp # ftp protocol, control, over TLS/SSL [Christopher_Allen] [Christopher_Allen]
-nas               991/tcp # Netnews Administration System [Vera_Heinau][Heiko_Schlichting] [Vera_Heinau][Heiko_Schlichting]
-nas               991/udp # Netnews Administration System [Vera_Heinau][Heiko_Schlichting] [Vera_Heinau][Heiko_Schlichting]
+nas               991/tcp # Netnews Administration System [Vera_Heinau][Heiko_Schlichting] [Vera_Heinau][Heiko_Schlichting] 2017-02-10 [RFC4707]
+nas               991/udp # Netnews Administration System [Vera_Heinau][Heiko_Schlichting] [Vera_Heinau][Heiko_Schlichting] 2017-02-10 [RFC4707]
 telnets           992/tcp # telnet protocol over TLS/SSL
 telnets           992/udp # telnet protocol over TLS/SSL
 imaps             993/tcp # imap4 protocol over TLS/SSL
@@ -9954,6 +9954,7 @@ senomix08        8059/udp # Senomix Timesheets Client [1 year assignment] [Charl
 aero             8060/udp # Asymmetric Extended Route Optimization (AERO) [IESG] [IETF_Chair] [RFC6706]
 toad-bi-appsrvr  8066/tcp # Toad BI Application Server [Quest_Software_2] [Greg_Cottman_3] 2013-04-19
 infi-async       8067/tcp # Infinidat async replication [INFINIDAT] [Eldar_Kleiner] 2015-05-01
+ucs-isc          8070/tcp # Oracle Unified Communication Suite's Indexed Search Converter [Oracle_Corp] [Bharathi_Sivaramakrishnan] 2017-02-10
 gadugadu         8074/tcp # Gadu-Gadu [Marcin_Gozdalik] [Marcin_Gozdalik] 2006-05
 gadugadu         8074/udp # Gadu-Gadu [Marcin_Gozdalik] [Marcin_Gozdalik] 2006-05
 http-alt         8080/tcp # HTTP Alternate (see port 80) [Stephen_Casner] [Stephen_Casner]
@@ -9970,6 +9971,7 @@ simplifymedia    8087/tcp # Simplify Media SPP Protocol [Emmanuel_Saint_Loube] [
 simplifymedia    8087/udp # Simplify Media SPP Protocol [Emmanuel_Saint_Loube] [Emmanuel_Saint_Loube] 2008-08-08
 radan-http       8088/tcp # Radan HTTP [Steve_Hay] [Steve_Hay] 2008-06-13
 radan-http       8088/udp # Radan HTTP [Steve_Hay] [Steve_Hay] 2008-06-13
+opsmessaging     8090/tcp # Vehicle to station messaging [LAN-ACES_Inc] [Robert_Ripberger] 2017-02-08
 jamlink          8091/tcp # Jam Link Framework [Evgeniy_Filatov] [Evgeniy_Filatov] 2009-11-25
 sac              8097/tcp # SAC Port Id [Girish_Bhat] [Girish_Bhat] 2006-04
 sac              8097/udp # SAC Port Id [Girish_Bhat] [Girish_Bhat] 2006-04

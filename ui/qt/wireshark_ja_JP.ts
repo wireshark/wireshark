@@ -9530,17 +9530,17 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2048"/>
+        <location filename="main_window.cpp" line="2049"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>ファイル名をUTF-8形式に割り当てできません</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2069"/>
+        <location filename="main_window.cpp" line="2070"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>ワイヤーシャークネットワークアナライザ</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2094"/>
+        <location filename="main_window.cpp" line="2095"/>
         <source>Capturing from %1</source>
         <translation>%1 からキャプチャ中</translation>
     </message>
@@ -10665,22 +10665,22 @@ a:hover {
         <translation>%1 に移動</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="199"/>
+        <location filename="profile_dialog.cpp" line="209"/>
         <source>This is a system provided profile.</source>
         <translation>これはシステム提供プロファイルです</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="203"/>
+        <location filename="profile_dialog.cpp" line="213"/>
         <source>A profile already exists with this name.</source>
         <translation>この名前のプロファイルは既に存在します</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="208"/>
+        <location filename="profile_dialog.cpp" line="218"/>
         <source>A profile already exists with this name</source>
         <translation>既存プロファイル名</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="307"/>
+        <location filename="profile_dialog.cpp" line="317"/>
         <source>Profile Error</source>
         <translation>プロファイルエラー</translation>
     </message>
@@ -11810,62 +11810,62 @@ a:hover {
 <context>
     <name>ResponseTimeDelayDialog</name>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="164"/>
+        <location filename="response_time_delay_dialog.cpp" line="165"/>
         <source>%1 Response Time Delay Statistics</source>
         <translation>%1 応答時間遅延統計</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="170"/>
+        <location filename="response_time_delay_dialog.cpp" line="171"/>
         <source>Type</source>
         <translation>種別</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="170"/>
+        <location filename="response_time_delay_dialog.cpp" line="171"/>
         <source>Messages</source>
         <translation>メッセージ</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="171"/>
+        <location filename="response_time_delay_dialog.cpp" line="172"/>
         <source>Min SRT</source>
         <translation>最小SRT</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="171"/>
+        <location filename="response_time_delay_dialog.cpp" line="172"/>
         <source>Max SRT</source>
         <translation>最大SRT</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="171"/>
+        <location filename="response_time_delay_dialog.cpp" line="172"/>
         <source>Avg SRT</source>
         <translation>平均SRT</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="172"/>
+        <location filename="response_time_delay_dialog.cpp" line="173"/>
         <source>Min in Frame</source>
         <translation>フレーム内の最小</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="172"/>
+        <location filename="response_time_delay_dialog.cpp" line="173"/>
         <source>Max in Frame</source>
         <translation>フレーム内の最大</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="173"/>
+        <location filename="response_time_delay_dialog.cpp" line="174"/>
         <source>Open Requests</source>
         <translation>オープン要求</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="173"/>
+        <location filename="response_time_delay_dialog.cpp" line="174"/>
         <source>Discarded Responses</source>
         <translation>破棄された応答</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="174"/>
+        <location filename="response_time_delay_dialog.cpp" line="175"/>
         <source>Repeated Requests</source>
         <translation>繰り返された要求</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="174"/>
+        <location filename="response_time_delay_dialog.cpp" line="175"/>
         <source>Repeated Responses</source>
         <translation>繰り返された応答</translation>
     </message>

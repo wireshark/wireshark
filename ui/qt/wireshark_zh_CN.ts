@@ -9567,17 +9567,17 @@ text-decoration: underline;
         <translation>停止并继续，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2048"/>
+        <location filename="main_window.cpp" line="2049"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>文件名不能映射到UTF-8</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2069"/>
+        <location filename="main_window.cpp" line="2070"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark 网络分析器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2094"/>
+        <location filename="main_window.cpp" line="2095"/>
         <source>Capturing from %1</source>
         <translation>正在捕获 %1</translation>
     </message>
@@ -10701,22 +10701,22 @@ text-decoration: underline;
         <translation>转到 %1</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="199"/>
+        <location filename="profile_dialog.cpp" line="209"/>
         <source>This is a system provided profile.</source>
         <translation>这是一个系统提供的配置文件。</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="203"/>
+        <location filename="profile_dialog.cpp" line="213"/>
         <source>A profile already exists with this name.</source>
         <translation>已存在该名称的配置文件。</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="208"/>
+        <location filename="profile_dialog.cpp" line="218"/>
         <source>A profile already exists with this name</source>
         <translation>已存在该名称的配置文件。</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="307"/>
+        <location filename="profile_dialog.cpp" line="317"/>
         <source>Profile Error</source>
         <translation>配置文件错误</translation>
     </message>
@@ -11846,62 +11846,62 @@ text-decoration: underline;
 <context>
     <name>ResponseTimeDelayDialog</name>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="164"/>
+        <location filename="response_time_delay_dialog.cpp" line="165"/>
         <source>%1 Response Time Delay Statistics</source>
         <translation>%1 响应时间延迟统计</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="170"/>
+        <location filename="response_time_delay_dialog.cpp" line="171"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="170"/>
+        <location filename="response_time_delay_dialog.cpp" line="171"/>
         <source>Messages</source>
         <translation>消息</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="171"/>
+        <location filename="response_time_delay_dialog.cpp" line="172"/>
         <source>Min SRT</source>
         <translation>最小 SRT</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="171"/>
+        <location filename="response_time_delay_dialog.cpp" line="172"/>
         <source>Max SRT</source>
         <translation>最大 SRT</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="171"/>
+        <location filename="response_time_delay_dialog.cpp" line="172"/>
         <source>Avg SRT</source>
         <translation>平均 SRT</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="172"/>
+        <location filename="response_time_delay_dialog.cpp" line="173"/>
         <source>Min in Frame</source>
         <translation>帧中最小</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="172"/>
+        <location filename="response_time_delay_dialog.cpp" line="173"/>
         <source>Max in Frame</source>
         <translation>帧中最大</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="173"/>
+        <location filename="response_time_delay_dialog.cpp" line="174"/>
         <source>Open Requests</source>
         <translation>打开请求</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="173"/>
+        <location filename="response_time_delay_dialog.cpp" line="174"/>
         <source>Discarded Responses</source>
         <translation>已废弃响应</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="174"/>
+        <location filename="response_time_delay_dialog.cpp" line="175"/>
         <source>Repeated Requests</source>
         <translation>重发的请求</translation>
     </message>
     <message>
-        <location filename="response_time_delay_dialog.cpp" line="174"/>
+        <location filename="response_time_delay_dialog.cpp" line="175"/>
         <source>Repeated Responses</source>
         <translation>重发的响应</translation>
     </message>
