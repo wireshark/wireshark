@@ -3,6 +3,7 @@
 # Copyright 2005 - 2012 Anders Broman
 # Modified 2012 by Jacob Nordgren <jacob.nordgren@ericsson.com> and
 # Rishie Sharma <rishie.sharma@ericsson.com>
+# Modified 2017 by S. Shapira <sswsdev@gmail.com>
 #.OPT
 
 PER
@@ -619,6 +620,8 @@ actx->pinfo->link_dir=P2P_DIR_UL;
   tvbuff_t *parameter_tvb=NULL;
   proto_item *item;
   proto_tree *subtree, *nsap_tree;
+  guint8 *padded_nsap_bytes;
+  tvbuff_t *nsap_tvb;
   gint tvb_len;
 
 %(DEFAULT_BODY)s
@@ -638,14 +641,26 @@ actx->pinfo->link_dir=P2P_DIR_UL;
         /* IPv6 */
          proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, ENC_NA);
     }
-    if (tvb_len==20){
+    if (tvb_len == 20 || tvb_len == 7){
+        /* NSAP */
+        if (tvb_len == 7){
+            /* Unpadded IPv4 NSAP */
+            /* Creating a new TVB with padding */
+            padded_nsap_bytes = (guint8*) wmem_alloc0(actx->pinfo->pool, 20);
+            tvb_memcpy(parameter_tvb, padded_nsap_bytes, 0, tvb_len);
+            nsap_tvb = tvb_new_child_real_data(tvb, padded_nsap_bytes, 20, 20);
+            add_new_data_source(actx->pinfo, nsap_tvb, "Padded NSAP Data");
+        }else{
+            /* Padded NSAP*/
+            nsap_tvb = parameter_tvb;
+        }
         item = proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_nsap, parameter_tvb, 0, tvb_len, ENC_NA);
         nsap_tree = proto_item_add_subtree(item, ett_nbap_TransportLayerAddress_nsap);
         if(tvb_get_ntoh24(parameter_tvb,0) == 0x350001){
             /* IPv4 */
             transportLayerAddress_ipv4 = tvb_get_ipv4(parameter_tvb, 3);
         }
-        dissect_nsap(parameter_tvb, 0, 20, nsap_tree);
+        dissect_nsap(nsap_tvb, 0, 20, nsap_tree);
     }
 
 
