@@ -177,6 +177,13 @@ register_all_plugin_tap_listeners(void)
 {
 	g_slist_foreach(tap_plugins, register_tap_plugin_listener, NULL);
 }
+
+static void
+tap_plugin_destroy(gpointer p)
+{
+	g_free(p);
+}
+
 #endif /* HAVE_PLUGINS */
 
 /* **********************************************************************
@@ -744,12 +751,6 @@ union_of_tap_listener_flags(void)
 	return flags;
 }
 
-static void
-tap_plugin_destroy(gpointer p)
-{
-	g_free(p);
-}
-
 void tap_cleanup(void)
 {
 	volatile tap_listener_t *elem_lq;
@@ -770,7 +771,9 @@ void tap_cleanup(void)
 		g_free((gpointer)elem_dl);
 	}
 
+#ifdef HAVE_PLUGINS
 	g_slist_free_full(tap_plugins, tap_plugin_destroy);
+#endif
 }
 
 /*

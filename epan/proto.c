@@ -499,6 +499,13 @@ register_dissector_plugin_type(void)
 {
 	add_plugin_type("dissector", check_for_dissector_plugin);
 }
+
+static void
+dissector_plugin_destroy(gpointer p)
+{
+	g_free(p);
+}
+
 #endif /* HAVE_PLUGINS */
 
 /* initialize data structures and register protocols and fields */
@@ -573,12 +580,6 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	/* We've assigned all the subtree type values; allocate the array
 	   for them, and zero it out. */
 	tree_is_expanded = g_new0(guint32, (num_tree_types/32)+1);
-}
-
-static void
-dissector_plugin_destroy(gpointer p)
-{
-	g_free(p);
 }
 
 static void
@@ -664,10 +665,12 @@ proto_cleanup(void)
 {
 	proto_cleanup_base();
 
+#ifdef HAVE_PLUGINS
 	if (dissector_plugins) {
 		g_slist_free_full(dissector_plugins, dissector_plugin_destroy);
 		dissector_plugins = NULL;
 	}
+#endif
 }
 
 static gboolean
