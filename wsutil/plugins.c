@@ -426,6 +426,12 @@ plugins_dump_all(void)
     plugins_get_descriptions(print_plugin_description, NULL);
 }
 
+static void
+free_plugin_type(gpointer p, gpointer user_data _U_)
+{
+    g_free(p);
+}
+
 void
 plugins_cleanup(void)
 {
@@ -447,6 +453,9 @@ plugins_cleanup(void)
 
     g_free(prev->name);
     g_free(prev);
+
+    g_slist_foreach(plugin_types, free_plugin_type, NULL);
+    g_slist_free(plugin_types);
 }
 
 #endif /* HAVE_PLUGINS */
