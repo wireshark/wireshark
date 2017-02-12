@@ -274,6 +274,7 @@ typedef struct _uat_field_t {
  * @param update_cb Will be called when a record is updated
  * @param free_cb Will be called to destroy a struct in the dataset
  * @param post_update_cb Will be called once the user clicks the Apply or OK button
+ * @param reset_cb Will be called to destroy internal data
  * @param flds_array A pointer to an array of uat_field_t structs
  *
  * @return A freshly-allocated and populated uat_t struct.
