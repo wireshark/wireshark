@@ -837,6 +837,10 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
             case PRISM_TYPE1_RATE_SIG_A1:
             case PRISM_TYPE2_RATE_SIG_A1:
+                /*
+                 * XXX - always little-endian, or same byte order as the
+                 * rest of the Prism header?
+                 */
                 rate_phy1 = tvb_get_letohl(tvb, offset);
                 if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_sig_a1, tvb, offset, 4, byte_order);
@@ -846,6 +850,10 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
             case PRISM_TYPE1_RATE_SIG_A2:
             case PRISM_TYPE2_RATE_SIG_A2:
+                /*
+                 * XXX - always little-endian, or same byte order as the
+                 * rest of the Prism header?
+                 */
                 rate_phy2 = tvb_get_letohl(tvb, offset);
                 if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_sig_a2, tvb, offset, 4, byte_order);
