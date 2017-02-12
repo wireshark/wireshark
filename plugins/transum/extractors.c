@@ -36,7 +36,14 @@
  */
 int extract_uint(proto_tree *tree, int field_id, guint32 *result_array, size_t *element_count)
 {
-    GPtrArray *finfo_array = proto_find_finfo(tree, field_id);
+    GPtrArray *finfo_array;
+
+    *element_count = 0;
+    if (tree == NULL) {
+        return -1;
+    }
+
+    finfo_array = proto_find_finfo(tree, field_id);
 
     if (finfo_array == NULL) {
         return -1;
@@ -56,7 +63,14 @@ int extract_uint(proto_tree *tree, int field_id, guint32 *result_array, size_t *
 
 int extract_ui64(proto_tree *tree, int field_id, guint64 *result_array, size_t *element_count)
 {
-    GPtrArray *finfo_array = proto_find_finfo(tree, field_id);
+    GPtrArray *finfo_array;
+
+    *element_count = 0;
+    if (tree == NULL) {
+        return -1;
+    }
+
+    finfo_array = proto_find_finfo(tree, field_id);
 
     if (finfo_array == NULL) {
         return -1;
@@ -76,7 +90,14 @@ int extract_ui64(proto_tree *tree, int field_id, guint64 *result_array, size_t *
 
 int extract_si64(proto_tree *tree, int field_id, guint64 *result_array, size_t *element_count)
 {
-    GPtrArray *finfo_array = proto_find_finfo(tree, field_id);
+    GPtrArray *finfo_array;
+
+    *element_count = 0;
+    if (tree == NULL) {
+        return -1;
+    }
+
+    finfo_array = proto_find_finfo(tree, field_id);
 
     if (finfo_array == NULL) {
         return -1;
@@ -96,7 +117,14 @@ int extract_si64(proto_tree *tree, int field_id, guint64 *result_array, size_t *
 
 int extract_bool(proto_tree *tree, int field_id, gboolean *result_array, size_t *element_count)
 {
-    GPtrArray *finfo_array = proto_find_finfo(tree, field_id);
+    GPtrArray *finfo_array;
+
+    *element_count = 0;
+    if (tree == NULL) {
+        return -1;
+    }
+
+    finfo_array = proto_find_finfo(tree, field_id);
 
     if (finfo_array == NULL) {
         return -1;
