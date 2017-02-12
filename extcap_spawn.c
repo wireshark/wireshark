@@ -290,8 +290,8 @@ extcap_wait_for_pipe(HANDLE pipe_h, HANDLE pid)
     DWORD dw;
     HANDLE handles[2];
     OVERLAPPED ov;
-    ov.Pointer = 0;
     gboolean success = FALSE;
+    ov.Pointer = 0;
     ov.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
     ConnectNamedPipe(pipe_h, &ov);
