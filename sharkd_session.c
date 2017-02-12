@@ -1716,8 +1716,73 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
 	struct sharkd_session_process_dumpconf_data *data = (struct sharkd_session_process_dumpconf_data *) d;
 	const char *pref_name = prefs_get_name(pref);
 
-	printf("%s\"%s.%s\":{}", data->sepa, data->module->name, pref_name);
+	printf("%s\"%s.%s\":{", data->sepa, data->module->name, pref_name);
 
+	switch (prefs_get_type(pref))
+	{
+		case PREF_UINT:
+		case PREF_DECODE_AS_UINT:
+			printf("\"u\":%u", prefs_get_uint_value_real(pref, pref_current));
+			if (prefs_get_uint_base(pref) != 10)
+				printf(",\"ub\":%d", prefs_get_uint_base(pref));
+			break;
+
+		case PREF_BOOL:
+			printf("\"b\":%s", prefs_get_bool_value(pref, pref_current) ? "1" : "0");
+			break;
+
+		case PREF_STRING:
+			printf("\"s\":");
+			json_puts_string(prefs_get_string_value(pref, pref_current));
+			break;
+
+		case PREF_ENUM:
+		{
+			const enum_val_t *enums;
+			const char *enum_sepa = "";
+
+			printf("\"e\":[");
+			for (enums = prefs_get_enumvals(pref); enums->name; enums++)
+			{
+				printf("%s{\"v\":%d", enum_sepa, enums->value);
+
+				if (enums->value == prefs_get_enum_value(pref, pref_current))
+					printf(",\"s\":1");
+
+				printf(",\"d\":");
+				json_puts_string(enums->description);
+
+				printf("}");
+				enum_sepa = ",";
+			}
+			printf("]");
+			break;
+		}
+
+		case PREF_RANGE:
+		case PREF_DECODE_AS_RANGE:
+		{
+			char *range_str = range_convert_range(NULL, prefs_get_range_value_real(pref, pref_current));
+			printf("\"r\":\"%s\"", range_str);
+			wmem_free(NULL, range_str);
+			break;
+		}
+
+		case PREF_UAT:
+		case PREF_COLOR:
+		case PREF_CUSTOM:
+		case PREF_STATIC_TEXT:
+		case PREF_OBSOLETE:
+			/* TODO */
+			break;
+	}
+
+#if 0
+	printf(",\"t\":");
+	json_puts_string(prefs_get_title(pref));
+#endif
+
+	printf("}");
 	data->sepa = ",";
 
 	return 0; /* continue */
