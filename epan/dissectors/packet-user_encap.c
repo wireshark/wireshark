@@ -87,7 +87,7 @@ static dissector_handle_t user_encap_handle;
 /*
  * Use this for DLT_USER2 if we don't have an encapsulation for it.
  */
-static user_encap_t user2_encap;
+static user_encap_t user2_encap = {WTAP_ENCAP_USER2, "pktap", NULL, "", NULL, "", NULL, 0, 0};
 
 static void export_pdu(tvbuff_t *tvb, packet_info* pinfo, char *proto_name)
 {
@@ -226,19 +226,10 @@ void proto_reg_handoff_user_encap(void)
 {
     guint i;
 
-    user2_encap.encap = WTAP_ENCAP_USER2;
-    user2_encap.payload_proto_name = g_strdup("pktap");
     user2_encap.payload_proto = find_dissector("pktap");
-    user2_encap.header_proto_name = g_strdup("");
-    user2_encap.header_proto = NULL;
-    user2_encap.trailer_proto_name = g_strdup("");
-    user2_encap.trailer_proto = NULL;
-    user2_encap.header_size = 0;
-    user2_encap.trailer_size = 0;
 
-    for (i = WTAP_ENCAP_USER0 ; i <= WTAP_ENCAP_USER15; i++)
+    for (i = WTAP_ENCAP_USER0; i <= WTAP_ENCAP_USER15; i++)
         dissector_add_uint("wtap_encap", i, user_encap_handle);
-
 }
 
 
