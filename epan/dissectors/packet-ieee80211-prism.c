@@ -546,6 +546,8 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
             phdr->phy_info.info_11ac.has_beamformed = 1;
             phdr->phy_info.info_11ac.beamformed = txbf;
             partial_aid = (sig_a_1 >> 13) & 0x1FF;
+            phdr->phy_info.info_11ac.has_partial_aid = 1;
+            phdr->phy_info.info_11ac.partial_aid = partial_aid;
 
             /* Check limits */
             if ((nss <= 4) && (mcs <= 9) && ((bw == 20) || (bw==40) || (bw==80) || bw==160)) {
