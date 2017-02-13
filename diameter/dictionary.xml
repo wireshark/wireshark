@@ -5453,12 +5453,71 @@
 		<avp name="Restoration-Priority" code="1663" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
+		<avp name="SGs-MME-Identity" code="1664" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="SIPTO-Local-Network-Permission" code="1665" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Coupled-Node-Diameter-ID" code="1666" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="WLAN-offloadability" code="1667" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="WLAN-offloadability-EUTRAN"/>
+				<gavp name="WLAN-offloadability-UTRAN"/>
+			</grouped>
+		</avp>
+		<avp name="WLAN-offloadability-EUTRAN" code="1668" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="WLAN-offloadability-UTRAN" code="1669" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Reset-ID" code="1670" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="MDT-Allowed-PLMN-Id" code="1671" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Adjacent-PLMNs" code="1672" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Visited-PLMN-Id"/>
+			</grouped>
+		</avp>
+		<avp name="Adjacent-Access-Restriction-Data" code="1673" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Visited-PLMN-Id"/>
+				<gavp name="Access-Restriction-Data"/>
+			</grouped>
+		</avp>
+		<avp name="DL-Buffering-Suggested-Packet-Count" code="1674" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="IMSI-Group-Id" code="1675" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Group-Service-Id"/>
+				<gavp name="Group-PLMN-Id"/>
+				<gavp name="Local-Group-Id"/>
+			</grouped>
+		</avp>
+		<avp name="Group-Service-Id" code="1676" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Group-PLMN-Id" code="1677" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Local-Group-Id" code="1678" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="AIR-Flags" code="1679" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="UE-Usage-Type" code="1680" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<!--
-		1664 Reserved -
-		1665 Reserved -
-		-->
-		<!--
-		Note: The AVP codes from 1665 to 1699 are reserved for TS 29.272.
+		Note: The AVP codes from 1681 to 1699 are reserved for TS 29.272.
 		-->
 
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP">
