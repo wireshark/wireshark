@@ -2842,9 +2842,11 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
 
   frame_data_init(&fdlocal, framenum, whdr, offset, cum_bytes);
 
-  /* If we're going to print packet information, or we're going to
-     run a read filter, or display filter, or we're going to process taps, set up to
-     do a dissection and do so. */
+  /* If we're going to run a read filter or a display filter, set up to
+     do a dissection and do so.  (This is the first pass of two passes
+     over the packets, so we will not be printing any information
+     from the dissection or running taps on the packet; if we're doing
+     any of that, we'll do it in the second pass.) */
   if (edt) {
     if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
         gbl_resolv_flags.transport_name)
