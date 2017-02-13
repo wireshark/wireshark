@@ -59,6 +59,9 @@ cog.out(' */\n')
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/conversation.h>
+#include <epan/wmem/wmem.h>
+#include <epan/to_str.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/ptvcursor.h>
@@ -67,6 +70,10 @@ cog.out(' */\n')
 #include "packet-tcp.h"
 #include "packet-ssl.h"
 #include "packet-skinny.h"
+
+/* un-comment the following as well as this line in conversation.c, to enable debug printing */
+/* #define DEBUG_CONVERSATION */
+#include "conversation_debug.h"
 
 void proto_register_skinny(void);
 void proto_reg_handoff_skinny(void);
@@ -113,7 +120,7 @@ global message_dissector_functions
 message_dissector_functions = ''
 skinny = xml2skinny.xml2obj(xmlfile)
 
-cog.out('static const value_string  message_id[] = {\n')
+cog.out('static const value_string message_id[] = {\n')
 for message in skinny.message:
     message_dissector_functions += '%s' %message.dissect()
     cog.out('  { %s, "%s" },\n' %(message.opcode, message.name.replace('Message','')))
@@ -122,7 +129,6 @@ cog.out('};\n')
 cog.out('static value_string_ext message_id_ext = VALUE_STRING_EXT_INIT(message_id);\n')
 ]]]*/
 /*[[[end]]]*/
-
 
 /* Declare Enums and Defines */
 /* [[[cog
@@ -156,6 +162,9 @@ static int hf_skinny_data_length        = -1;
 static int hf_skinny_hdr_version        = -1;
 static int hf_skinny_xmlData            = -1;
 static int hf_skinny_ipv4or6            = -1;
+static int hf_skinny_response_in        = -1;
+static int hf_skinny_response_to        = -1;
+static int hf_skinny_response_time      = -1;
 
 /* [[[cog
 for key in sorted(xml2skinny.fieldsArray.keys()):
@@ -305,23 +314,93 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, gint length)
   ptvcursor_advance(cursor, length);
 }
 
-/*** Messages Handlers ***/
+/*** Request / Response helper functions */
+static void skinny_reqrep_add_request(ptvcursor_t *cursor, packet_info * pinfo, skinny_conv_info_t * skinny_conv, const int request_key)
+{
+  proto_tree *tree = ptvcursor_tree(cursor);
+  tvbuff_t *tvb = ptvcursor_tvbuff(cursor);
+  skinny_req_resp_t *req_resp = NULL;
 
+  if (!PINFO_FD_VISITED(pinfo)) {
+    req_resp = wmem_new0(wmem_file_scope(), skinny_req_resp_t);
+    req_resp->request_frame = pinfo->num;
+    req_resp->response_frame = 0;
+    req_resp->request_time = pinfo->fd->abs_ts;
+    wmem_map_insert(skinny_conv->pending_req_resp, GINT_TO_POINTER(request_key), (void *)req_resp);
+    DPRINT(("SKINNY: setup_request: frame=%d add key=%d to map\n", pinfo->num, request_key));
+  }
+
+  req_resp = (skinny_req_resp_t *) wmem_map_lookup(skinny_conv->requests, GUINT_TO_POINTER(pinfo->num));
+  if (req_resp && req_resp->response_frame) {
+    DPRINT(("SKINNY: show request in tree: frame/key=%d\n", pinfo->num));
+    proto_item *it;
+    it = proto_tree_add_uint(tree, hf_skinny_response_in, tvb, 0, 0, req_resp->response_frame);
+    PROTO_ITEM_SET_GENERATED(it);
+  } else {
+    DPRINT(("SKINNY: no request found for frame/key=%d\n", pinfo->num));
+  }
+}
+
+
+static void skinny_reqrep_add_response(ptvcursor_t *cursor, packet_info * pinfo, skinny_conv_info_t * skinny_conv, const int request_key)
+{
+  proto_tree *tree = ptvcursor_tree(cursor);
+  tvbuff_t *tvb = ptvcursor_tvbuff(cursor);
+  skinny_req_resp_t *req_resp = NULL;
+
+  if (!PINFO_FD_VISITED(pinfo)) {
+    req_resp = (skinny_req_resp_t *) wmem_map_remove(skinny_conv->pending_req_resp, GINT_TO_POINTER(request_key));
+    if (req_resp) {
+      DPRINT(("SKINNY: match request:%d with response:%d for key=%d\n", req_resp->request_frame, pinfo->num, request_key));
+      req_resp->response_frame = pinfo->num;
+      wmem_map_insert(skinny_conv->requests, GUINT_TO_POINTER(req_resp->request_frame), (void *)req_resp);
+      wmem_map_insert(skinny_conv->responses, GUINT_TO_POINTER(pinfo->num), (void *)req_resp);
+    } else {
+      DPRINT(("SKINNY: no match found for reponse frame=%d and key=%d\n", pinfo->num, request_key));
+    }
+  }
+
+  req_resp = (skinny_req_resp_t *) wmem_map_lookup(skinny_conv->responses, GUINT_TO_POINTER(pinfo->num));
+  if (req_resp && req_resp->request_frame) {
+    DPRINT(("SKINNY: show response in tree: frame/key=%d\n", pinfo->num));
+    proto_item *it;
+    nstime_t ns;
+    it = proto_tree_add_uint(tree, hf_skinny_response_to, tvb, 0, 0, req_resp->request_frame);
+    PROTO_ITEM_SET_GENERATED(it);
+
+    nstime_delta(&ns, &pinfo->fd->abs_ts, &req_resp->request_time);
+    it = proto_tree_add_time(tree, hf_skinny_response_time, tvb, 0, 0, &ns);
+    PROTO_ITEM_SET_GENERATED(it);
+  } else {
+    DPRINT(("SKINNY: no response found for frame/key=%d\n", pinfo->num));
+  }
+}
+
+/*** Messages Handlers ***/
 /* [[[cog
 cog.out(message_dissector_functions)
 ]]]*/
 /*[[[end]]]*/
 
+typedef void (*message_handler) (ptvcursor_t * cursor, packet_info *pinfo, skinny_conv_info_t * skinny_conv);
+
+typedef struct _skinny_opcode_map_t {
+  guint32 opcode;
+  message_handler handler;
+  skinny_message_type_t type;
+  const char *name;
+} skinny_opcode_map_t;
+
 /* Messages Handler Array */
 /* [[[cog
-cog.out('typedef void (*message_handler) (ptvcursor_t * cursor, packet_info *pinfo);\n')
-cog.out('static const struct opcode2handler {\n')
-cog.out('  guint16 opcode;\n');
-cog.out('  message_handler handler;\n');
-cog.out('  const char *name;\n');
-cog.out('} skinny_opcode2handler[] = {\n')
+cog.out('static const skinny_opcode_map_t skinny_opcode_map[] = {\n')
 for message in skinny.message:
-    cog.out('  {%-6s, %-47s, "%s"},\n' %(message.opcode, message.gen_handler(), message.name))
+    msg_type = "SKINNY_MSGTYPE_EVENT"
+    if message.msgtype == "request":
+	msg_type = "SKINNY_MSGTYPE_REQUEST"
+    if message.msgtype == "response" and message.request is not None:
+	msg_type = "SKINNY_MSGTYPE_RESPONSE"
+    cog.out('  {%-6s, %-47s, %-24s, "%s"},\n' %(message.opcode, message.gen_handler(), msg_type, message.name))
 cog.out('};\n')
 ]]]*/
 /*[[[end]]]*/
@@ -332,11 +411,14 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   guint    offset   = 0;
   /*gboolean is_video = FALSE;*/    /* FIX ME: need to indicate video or not */
   ptvcursor_t* cursor;
+  conversation_t *conversation;
+  skinny_conv_info_t *skinny_conv;
+  const skinny_opcode_map_t *opcode_entry = NULL;
 
   /* Header fields */
   guint32  hdr_data_length;
   guint32  hdr_version;
-  guint32  data_messageid;
+  guint32  hdr_opcode;
   guint16  i;
 
   /* Set up structures we will need to add the protocol subtree and manage it */
@@ -346,9 +428,29 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   /* Initialization */
   hdr_data_length = tvb_get_letohl(tvb, 0);
   hdr_version     = tvb_get_letohl(tvb, 4);
-  data_messageid  = tvb_get_letohl(tvb, 8);
+  hdr_opcode      = tvb_get_letohl(tvb, 8);
+
+  for (i = 0; i < sizeof(skinny_opcode_map)/sizeof(skinny_opcode_map_t) ; i++) {
+    if (skinny_opcode_map[i].opcode == hdr_opcode) {
+      opcode_entry = &skinny_opcode_map[i];
+    }
+  }
+
+  conversation = find_or_create_conversation(pinfo);
+  skinny_conv = (skinny_conv_info_t *)conversation_get_proto_data(conversation, proto_skinny);
+  if (!skinny_conv) {
+    skinny_conv = wmem_new0(wmem_file_scope(), skinny_conv_info_t);
+    //skinny_conv->pending_req_resp = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
+    skinny_conv->pending_req_resp = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+    skinny_conv->requests = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+    skinny_conv->responses = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+    skinny_conv->lineId = -1;
+    skinny_conv->mtype = SKINNY_MSGTYPE_EVENT;
+    conversation_add_proto_data(conversation, proto_skinny, skinny_conv);
+  }
 
   /* Initialise stat info for passing to tap */
+  /* WIP: will be (partially) replaced in favor of conversionation, dependents: ui/voip_calls.c */
   pi_current++;
   if (pi_current == MAX_SKINNY_MESSAGES_IN_PACKET)
   {
@@ -356,13 +458,12 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     pi_current = 0;
   }
   si = &pi_arr[pi_current];
-  si->messId = data_messageid;
-  si->messageName = val_to_str_ext(data_messageid, &message_id_ext, "0x%08X (Unknown)");
+  si->messId = hdr_opcode;
+  si->messageName = val_to_str_ext(hdr_opcode, &message_id_ext, "0x%08X (Unknown)");
   si->callId = 0;
-  si->lineId = -1;
+  si->lineId = 0;
   si->passThruId = 0;
   si->callState = 0;
-  si->hasCallInfo = FALSE;
   g_free(si->callingParty);
   si->callingParty = NULL;
   g_free(si->calledParty);
@@ -373,27 +474,33 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   si->multimediaTransmissionStatus = -1;
   si->multicastReceptionStatus = -1;
 
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-   * necessary to generate protocol tree items.
-   */
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_skinny, tvb, offset, hdr_data_length+8, ENC_NA);
-    skinny_tree = proto_item_add_subtree(ti, ett_skinny);
-    proto_tree_add_uint(skinny_tree, hf_skinny_data_length, tvb, offset, 4, hdr_data_length);
-    proto_tree_add_uint(skinny_tree, hf_skinny_hdr_version, tvb, offset+4, 4, hdr_version);
-  }
-
   col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", si->messageName);
   col_set_fence(pinfo->cinfo, COL_INFO);
 
-  proto_tree_add_uint(skinny_tree, hf_skinny_messageId, tvb,offset+8, 4, data_messageid );
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_skinny, tvb, offset, hdr_data_length+8, ENC_NA);
+    skinny_tree = proto_item_add_subtree(ti, ett_skinny);
+  }
+
+  if (opcode_entry && opcode_entry->type != SKINNY_MSGTYPE_EVENT) {
+    skinny_conv->mtype = opcode_entry->type;
+    if (opcode_entry->type == SKINNY_MSGTYPE_REQUEST) {
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SKINNY/REQ");
+    } else {
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SKINNY/RESP");
+    }
+  }
+
+  if (skinny_tree) {
+    proto_tree_add_uint(skinny_tree, hf_skinny_data_length, tvb, offset  , 4, hdr_data_length);
+    proto_tree_add_uint(skinny_tree, hf_skinny_hdr_version, tvb, offset+4, 4, hdr_version);
+    proto_tree_add_uint(skinny_tree, hf_skinny_messageId,   tvb, offset+8, 4, hdr_opcode );
+  }
   offset += 12;
 
   cursor = ptvcursor_new(skinny_tree, tvb, offset);
-  for (i = 0; i < sizeof(skinny_opcode2handler)/sizeof(struct opcode2handler) ; i++) {
-    if (skinny_opcode2handler[i].opcode == data_messageid && skinny_opcode2handler[i].handler) {
-      skinny_opcode2handler[i].handler(cursor, pinfo);
-    }
+  if (opcode_entry && opcode_entry->handler) {
+    opcode_entry->handler(cursor, pinfo, skinny_conv);
   }
   ptvcursor_free(cursor);
 
@@ -480,6 +587,18 @@ proto_register_skinny(void)
       {
         "IPv4or6", "skinny.ipv4or6", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &IpAddrType_ext, 0x0,
         NULL, HFILL }},
+    { &hf_skinny_response_in,
+      {
+        "Response In", "skinny.response_in", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+        "The response to this SKINNY request is in this frame", HFILL }},
+    { &hf_skinny_response_to,
+      {
+        "Request In", "skinny.response_to", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+        "This is a response to the SKINNY request in this frame", HFILL }},
+    { &hf_skinny_response_time,
+      {
+        "Response Time", "skinny.response_time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "The time between the Call and the Reply", HFILL }},
     /* [[[cog
     for valuestr in sorted(xml2skinny.fieldsArray.values()):
       cog.out('%s' %valuestr)

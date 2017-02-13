@@ -274,7 +274,7 @@
       <entry name="DisplayLabel_Services_Url" text="Services Url" value="0o0177"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="KeepAliveMessage" opcode="0x0000" status="no" type="RegistrationAndManagement"/>
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="KeepAliveReqMessage" opcode="0x0000" type="RegistrationAndManagement"/>
   <enum name="DeviceType">
     <entries>
       <entry comment="" name="DeviceType_Station30SPplus" text="Station30SPplus" value="0x00001"/>
@@ -429,7 +429,7 @@
       <entry comment="Abbreviated Dial" name="PhoneFeatures_Abbreviated_Dial" text="AbbrevDial" value="0x8000"/>
     </entries>
   </bitfield>
-  <message comment="" direction="dev2pbx" dynamic="no" name="RegisterMessage" opcode="0x0001" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="RegisterReqMessage" opcode="0x0001" type="RegistrationAndManagement">
     <fields>
       <struct comment="Station Identifier" longcomment="Device Name of this phone / appliance" name="sid" type="struct">
         <fields>
@@ -502,12 +502,12 @@
       <entry comment="" name="KeyPadButton_Plus" text="Plus" value="0x0010"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="IpPortMessage" opcode="0x0002" status="no" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="IpPortMessage" opcode="0x0002" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="RTP Media Port" name="rtpMediaPort" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="KeypadButtonMessage" opcode="0x0003" status="no" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="KeypadButtonMessage" opcode="0x0003" type="CallControl">
     <fields>
       <enum comment="KeyPad Button which was Pressed" name="kpButton" subtype="KeyPadButton" type="uint32"/>
     </fields>
@@ -516,7 +516,7 @@
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="EnblocCallMessage" opcode="0x0004" status="no" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="EnblocCallMessage" opcode="0x0004" type="CallControl">
     <fields>
       <string comment="CalledPartyNumber" declare="yes" name="calledParty" size="VariableDirnumSize" type="char"/>
     </fields>
@@ -575,7 +575,7 @@
       <entry boundscheck="max" comment="" name="DeviceStimulus_MaxStimulusValue" text="MaxStimulusValue" value="0x00ff"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="StimulusMessage" opcode="0x0005" status="no" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="StimulusMessage" opcode="0x0005" type="CallControl">
     <fields beginversion="0" endversion="22">
       <enum comment="Device Stimulus" name="stimulus" subtype="DeviceStimulus" type="uint32"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
@@ -583,43 +583,43 @@
       <integer comment="Stimulus Status" name="stimulusStatus" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="OffHookMessage" opcode="0x0006" status="no" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="OffHookMessage" opcode="0x0006" type="CallControl">
     <fields beginversion="0" endversion="22" size_gt="4">
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="OnHookMessage" opcode="0x0007" status="no" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="OnHookMessage" opcode="0x0007" type="CallControl">
     <fields beginversion="0" endversion="22" size_gt="4">
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="HookFlashMessage" opcode="0x0008" status="no" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="HookFlashMessage" opcode="0x0008" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="ForwardStatReqMessage" opcode="0x0009" status="request" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="ForwardStatReqMessage" opcode="0x0009" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="lineNumber" type="uint32"/>
+      <integer comment="" declare="yes" name="lineNumber" req_resp_key="1" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="SpeedDialStatReqMessage" opcode="0x000a" status="request" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="SpeedDialStatReqMessage" opcode="0x000a" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="speedDialNumber" type="uint32"/>
+      <integer comment="" declare="yes" name="speedDialNumber" req_resp_key="1" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="LineStatReqMessage" opcode="0x000b" status="request" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="LineStatReqMessage" opcode="0x000b" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="lineNumber" type="uint32"/>
+      <integer comment="" declare="yes" name="lineNumber" req_resp_key="1" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="ConfigStatReqMessage" opcode="0x000c" status="request" type="RegistrationAndManagement"/>
-  <message comment="" direction="dev2pbx" dynamic="no" name="TimeDateReqMessage" opcode="0x000d" status="no" type="RegistrationAndManagement"/>
-  <message comment="" direction="dev2pbx" dynamic="no" name="ButtonTemplateReqMessage" opcode="0x000e" status="no" type="RegistrationAndManagement"/>
-  <message comment="" direction="dev2pbx" dynamic="no" name="VersionReqMessage" opcode="0x000f" status="no" type="RegistrationAndManagement"/>
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="ConfigStatReqMessage" opcode="0x000c" type="RegistrationAndManagement"/>
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="TimeDateReqMessage" opcode="0x000d" type="RegistrationAndManagement"/>
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="ButtonTemplateReqMessage" opcode="0x000e" type="RegistrationAndManagement"/>
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="VersionReqMessage" opcode="0x000f" type="RegistrationAndManagement"/>
   <enum define="yes" name="Media_PayloadType">
     <entries type="audio">
       <entry comment="" name="Media_Payload_G711Alaw64k" text="Media_Payload_G711Alaw64k" value="0x0002"/>
@@ -701,7 +701,7 @@
       <entry comment="" name="Media_G723BRate_6_3" text="Media_G723BRate_6_3" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="CapabilitiesRes" opcode="0x0010" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="response" name="CapabilitiesResMessage" opcode="0x0010" request="0x009b" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" declare="yes" name="capCount" type="uint32"/>
       <struct comment="" maxsize="18" name="caps" size_fieldname="capCount" type="struct">
@@ -745,7 +745,7 @@
       </struct>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="ServerReqMessage" opcode="0x0012" status="no" type="RegistrationAndManagement"/>
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="ServerReqMessage" opcode="0x0012" type="RegistrationAndManagement"/>
   <enum name="DeviceAlarmSeverity">
     <entries>
       <entry comment="" name="DeviceAlarmSeverity_Critical" text="Critical" value="0x0000"/>
@@ -758,7 +758,7 @@
       <entry comment="" name="DeviceAlarmSeverity_TraceInfo" text="TraceInfo" value="0x0014"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="AlarmMessage" opcode="0x0020" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="AlarmMessage" opcode="0x0020" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="alarmSeverity" subtype="DeviceAlarmSeverity" type="uint32"/>
       <string comment="" name="text" size="80" type="char"/>
@@ -772,10 +772,10 @@
       <entry comment="" name="MulticastMediaReceptionStatus_Error" text="Error" value="0x0001"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="MulticastMediaReceptionAckMessage" opcode="0x0021" status="no" type="MediaControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="response" name="MulticastMediaReceptionAckMessage" opcode="0x0021" request="0x0101" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="multicastReceptionStatus" subtype="MulticastMediaReceptionStatus" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" declare="yes" name="passThruPartyId" req_resp_key="1" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
@@ -804,12 +804,12 @@
       <entry comment="" name="IpAddrType_Ip_Invalid" text="_Invalid" value="0x0003"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="OpenReceiveChannelAckMessage" opcode="0x0022" status="no" type="MediaControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="response" name="OpenReceiveChannelAckMessage" opcode="0x0022" request="0x0105" type="MediaControl">
     <fields>
       <enum comment="" name="mediaReceptionStatus" subtype="MediaStatus" type="uint32"/>
       <ipv4or6 comment="" name="ipAddr" subtype="IPV4orV6Address" type="ipaddr"/>
       <integer comment="" declare="yes" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" declare="yes" name="passThruPartyId" req_resp_key="1" type="uint32"/>
     </fields>
     <fields beginversion="0" endversion="22" size_gt="20">
       <integer comment="CallId" name="callReference" type="uint32"/>
@@ -821,20 +821,20 @@
       <entry comment="" name="StatsProcessingType_doNotClearStats" text="doNotClearStats" value="0x0001"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="ConnectionStatisticsResMessage" opcode="0x0023" status="no" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="response" name="ConnectionStatisticsResMessage" opcode="0x0023" request="0x0107" type="CallControl">
     <fields endversion="16" fixed="yes">
       <string comment="" name="directoryNum" size="24" type="char"/>
-      <integer comment="CallId" name="callReference" type="uint32"/>
+      <integer comment="CallId" declare="yes" name="callReference" req_resp_key="1" type="uint32"/>
       <enum comment="Stats Processing Mode" longcomment="What do do after you send the stats" name="statsProcessingMode" subtype="StatsProcessingType" type="uint32"/>
     </fields>
     <fields beginversion="17" endversion="20" fixed="yes">
       <string comment="" name="directoryNum" size="28" type="char"/>
-      <integer comment="CallId" name="callReference" type="uint32"/>
+      <integer comment="CallId" declare="yes" name="callReference" req_resp_key="1" type="uint32"/>
       <enum comment="Stats Processing Mode" longcomment="What do do after you send the stats" name="statsProcessingMode" subtype="StatsProcessingType" type="uint32"/>
     </fields>
     <fields beginversion="21" endversion="22" fixed="yes">
       <string comment="" name="directoryNum" size="28" type="char"/>
-      <integer comment="CallId" name="callReference" type="uint32"/>
+      <integer comment="CallId" declare="yes" name="callReference" req_resp_key="1" type="uint32"/>
       <integer comment="Stats Processing Mode" longcomment="What do do after you send the stats" name="statsProcessingMode" subtype="StatsProcessingType" type="uint8"/>
     </fields>
     <fields>
@@ -851,14 +851,14 @@
       <string comment="Statistics" longcomment="variable field size (max: 600]" maxsize="600" name="data" size_fieldname="dataSize" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="OffHookWithCgpnMessage" opcode="0x0024" status="no" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="OffHookWithCgpnMessage" opcode="0x0024" type="CallControl">
     <fields>
       <string comment="Calling Party Number" declare="yes" name="callingPartyNumber" size="VariableDirnumSize" type="char"/>
       <string comment="Calling Party Voicemail Box Number" declare="yes" name="cgpnVoiceMailbox" size="VariableDirnumSize" type="char"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="SoftKeySetReqMessage" opcode="0x0025" status="no" type="RegistrationAndManagement"/>
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="SoftKeySetReqMessage" opcode="0x0025" type="RegistrationAndManagement"/>
   <enum name="SoftKeySet">
     <entries>
       <entry name="SoftKeySet_OnHook" text="On Hook" value="0"/>
@@ -969,7 +969,7 @@
       <entry name="SoftKeyEvent_Dial" text="Dial" value="201"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="SoftKeyEventMessage" opcode="0x0026" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="SoftKeyEventMessage" opcode="0x0026" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <enum comment="SoftKey Event" name="softKeyEvent" subtype="SoftKeyEvent" type="uint32"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
@@ -982,13 +982,13 @@
       <entry comment="" name="UnRegReasonCode_PowerSaveMode" text="PowerSaveMode" value="0x0001"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="UnregisterMessage" opcode="0x0027" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="UnregisterReqMessage" opcode="0x0027" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22" size_gt="12">
       <enum comment="" name="unRegReasonCode" subtype="UnRegReasonCode" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="SoftKeyTemplateReqMessage" opcode="0x0028" status="no" type="RegistrationAndManagement"/>
-  <message comment="" direction="dev2pbx" dynamic="no" name="RegisterTokenReq" opcode="0x0029" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="SoftKeyTemplateReqMessage" opcode="0x0028" type="RegistrationAndManagement"/>
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="RegisterTokenReq" opcode="0x0029" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="sid" type="struct">
         <fields>
@@ -1002,10 +1002,10 @@
       <ipv4or6 comment="" endianness="big" name="stationIpV6Addr" size="16" subtype="uint8" type="ipaddr"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="MediaTransmissionFailureMessage" opcode="0x002a" status="no" type="MediaControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="response" name="MediaTransmissionFailureMessage" opcode="0x002a" request="0x008a" type="MediaControl">
     <fields>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" declare="yes" name="passThruPartyId" req_resp_key="1" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="remoteIpAddr" subtype="IpAddress" type="ipaddr"/>
       <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
@@ -1017,12 +1017,12 @@
       <entry comment="" name="HeadsetMode_Off" text="Off" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="HeadsetStatusMessage" opcode="0x002b" status="no" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="HeadsetStatusMessage" opcode="0x002b" type="CallControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="headsetStatus" subtype="HeadsetMode" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="MediaResourceNotificationMessage" opcode="0x002c" status="no" type="MediaControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="MediaResourceNotificationMessage" opcode="0x002c" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="deviceType" subtype="DeviceType" type="uint32"/>
       <integer comment="" name="numberOfInServiceStreams" type="uint32"/>
@@ -1030,7 +1030,7 @@
       <integer comment="" name="numberOfOutOfServiceStreams" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="RegisterAvailableLinesMessage" opcode="0x002d" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="RegisterAvailableLinesMessage" opcode="0x002d" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="maxNumOfAvailLines" type="uint32"/>
     </fields>
@@ -1042,7 +1042,7 @@
       <entry comment="" name="Sequence_Last" text="Last" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="DeviceToUserDataMessage" opcode="0x002e" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="DeviceToUserDataMessage" opcode="0x002e" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="deviceToUserData" subtype="UserAndDeviceData" type="struct">
         <fields>
@@ -1056,7 +1056,7 @@
       </struct>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="DeviceToUserDataResponseMessage" opcode="0x002f" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="response" name="DeviceToUserDataResponseMessage" opcode="0x002f" request="0x002e" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="deviceToUserData" subtype="UserAndDeviceData" type="struct">
         <fields>
@@ -1093,7 +1093,7 @@
       <entry comment="" name="TransmitOrReceive_Both" text="Both" value="0x0003"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="UpdateCapabilitiesMessage" opcode="0x0030" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="UpdateCapabilitiesMessage" opcode="0x0030" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" declare="yes" name="audioCapCount" type="uint32"/>
       <integer comment="" declare="yes" name="videoCapCount" type="uint32"/>
@@ -1255,32 +1255,29 @@
       <entry comment="" name="OpenReceiveChanStatus_Error" text="Error" value="0x0001"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="OpenMultiMediaReceiveChannelAckMessage" opcode="0x0031" status="no" type="MediaControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="response" name="OpenMultiMediaReceiveChannelAckMessage" opcode="0x0031" request="0x0131" type="MediaControl">
     <fields>
       <enum comment="" name="multimediaReceptionStatus" subtype="OpenReceiveChanStatus" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="ipAddr" subtype="IpAddress" type="ipaddr"/>
       <integer comment="" declare="yes" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr"/>
-      <integer comment="CallId" name="callReference" type="uint32"/>
-    </fields>
-    <fields beginversion="16" endversion="22">
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" declare="yes" name="passThruPartyId" req_resp_key="1" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="ClearConferenceMessage" opcode="0x0032" status="no" type="Conference">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="ClearConferenceMessage" opcode="0x0032" type="Conference">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="" name="serviceNum" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="ServiceURLStatReqMessage" opcode="0x0033" status="request" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="ServiceURLStatReqMessage" opcode="0x0033" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="serviceURLIndex" type="uint32"/>
+      <integer comment="" declare="yes" name="serviceURLIndex" req_resp_key="1" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="FeatureStatReqMessage" opcode="0x0034" status="request" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="FeatureStatReqMessage" opcode="0x0034" type="RegistrationAndManagement">
     <fields>
-      <integer comment="" name="featureIndex" type="uint32"/>
+      <integer comment="" declare="yes" name="featureIndex" req_resp_key="1" type="uint32"/>
     </fields>
     <fields beginversion="0" endversion="22" size_gt="16">
       <integer comment="" name="featureCapabilities" type="uint32"/>
@@ -1294,9 +1291,9 @@
       <entry comment="" name="CreateConfResult_SystemErr" text="SystemErr" value="0x0003"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="CreateConferenceResMessage" opcode="0x0035" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="response" name="CreateConferenceResMessage" opcode="0x0035" request="0x0137" type="IntraCCM">
     <fields beginversion="0" endversion="22">
-      <integer comment="Conference ID" name="conferenceID" type="uint32"/>
+      <integer comment="Conference ID" declare="yes" name="conferenceID" req_resp_key="1" type="uint32"/>
       <enum comment="" name="result" subtype="CreateConfResult" type="uint32"/>
       <integer comment="" declare="yes" name="dataLength" type="uint32"/>
       <string comment="variable field size (max: 2000]" maxsize="2000" name="passThruData" size_fieldname="dataLength" type="char"/>
@@ -1309,9 +1306,9 @@
       <entry comment="" name="DeleteConfResult_SystemErr" text="SystemErr" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="DeleteConferenceResMessage" opcode="0x0036" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="response" name="DeleteConferenceResMessage" opcode="0x0036" request="0x0138" type="IntraCCM">
     <fields beginversion="0" endversion="22">
-      <integer comment="Conference ID" name="conferenceID" type="uint32"/>
+      <integer comment="Conference ID" declare="yes" name="conferenceID" req_resp_key="1" type="uint32"/>
       <enum comment="" name="delete_conf_result" subtype="DeleteConfResult" type="uint32"/>
     </fields>
   </message>
@@ -1326,9 +1323,9 @@
       <entry comment="" name="ModifyConfResult_SystemErr" text="SystemErr" value="0x0006"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="ModifyConferenceResMessage" opcode="0x0037" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="response" name="ModifyConferenceResMessage" opcode="0x0037" request="0x0139" type="IntraCCM">
     <fields beginversion="0" endversion="22">
-      <integer comment="Conference ID" name="conferenceID" type="uint32"/>
+      <integer comment="Conference ID" declare="yes" name="conferenceID" req_resp_key="1" type="uint32"/>
       <enum comment="" name="modify_conf_result" subtype="ModifyConfResult" type="uint32"/>
       <integer comment="" declare="yes" name="dataLength" type="uint32"/>
       <string comment="variable field size (max: 2000]" maxsize="2000" name="passThruData" size_fieldname="dataLength" type="char"/>
@@ -1343,9 +1340,9 @@
       <entry comment="" name="AddParticipantResult_SystemErr" text="SystemErr" value="0x0004"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="AddParticipantResMessage" opcode="0x0038" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="response" name="AddParticipantResMessage" opcode="0x0038" request="0x013a" type="IntraCCM">
     <fields alignment="4" beginversion="0" endversion="22">
-      <integer comment="Conference ID" name="conferenceID" type="uint32"/>
+      <integer comment="Conference ID" declare="yes" name="conferenceID" req_resp_key="1" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <enum comment="" name="add_participant_result" subtype="AddParticipantResult" type="uint32"/>
       <string comment="" name="bridgeParticipantId" size="257" type="char"/>
@@ -1357,7 +1354,7 @@
       <entry comment="" name="ResourceType_IVR" text="IVR" value="0x0001"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="AuditConferenceResMessage" opcode="0x0039" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="response" name="AuditConferenceResMessage" opcode="0x0039" request="0x013c" type="IntraCCM">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="last" type="uint32"/>
       <integer comment="" declare="yes" name="numberOfEntries" type="uint32"/>
@@ -1380,16 +1377,16 @@
       <entry comment="" name="AuditParticipantResult_ConferenceNotExist" text="ConferenceNotExist" value="0x0001"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="AuditParticipantResMessage" opcode="0x0040" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="response" name="AuditParticipantResMessage" opcode="0x0040" request="0x013d" type="IntraCCM">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="audit_participant_result" subtype="AuditParticipantResult" type="uint32"/>
       <integer comment="" name="last" type="uint32"/>
-      <integer comment="Conference ID" name="conferenceID" type="uint32"/>
+      <integer comment="Conference ID" declare="yes" name="conferenceID" req_resp_key="1" type="uint32"/>
       <integer comment="" declare="yes" name="numberOfEntries" type="uint32"/>
       <integer comment="" maxsize="256" name="participantEntry" size_fieldname="numberOfEntries" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="DeviceToUserDataMessageVersion1" opcode="0x0041" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="DeviceToUserDataMessageVersion1" opcode="0x0041" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="deviceToUserDataVersion1" subtype="UserAndDeviceDataVersion1" type="struct">
         <fields>
@@ -1408,7 +1405,7 @@
       </struct>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="DeviceToUserDataResponseMessageVersion1" opcode="0x0042" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="response" name="DeviceToUserDataResponseMessageVersion1" opcode="0x0042" request="0x0041" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="deviceToUserDataVersion1" subtype="UserAndDeviceDataVersion1" type="struct">
         <fields>
@@ -1427,7 +1424,7 @@
       </struct>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="UpdateCapabilitiesV2Message" opcode="0x0043" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="response" name="CapabilitiesV2ResMessage" opcode="0x0043" request="0x009b" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" declare="yes" name="audioCapCount" type="uint32"/>
       <integer comment="" declare="yes" name="videoCapCount" type="uint32"/>
@@ -1606,7 +1603,7 @@
       <entry comment="" name="IpAddrMode_ModeIpv4AndIpv6" text="ModeIpv4AndIpv6" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="yes" name="UpdateCapabilitiesV3Message" opcode="0x0044" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="yes" msgtype="response" name="CapabilitiesV3ResMessage" opcode="0x0044" request="0x009b" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" declare="yes" name="audioCapCount" type="uint32"/>
       <integer comment="" declare="yes" name="videoCapCount" type="uint32"/>
@@ -1791,11 +1788,11 @@
       <entry comment="" name="MediaType_Max" text="MediaType_Max" value="0x0008"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="PortResMessage" opcode="0x0045" status="no" type="MediaControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="response" name="PortResMessage" opcode="0x0045" request="0x014b" type="MediaControl">
     <fields>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="CallId" name="callReference" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="CallId" declare="yes" name="callReference" req_resp_key="1" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="ipAddr" subtype="IpAddress" type="ipaddr"/>
       <integer comment="" name="portNumber" subtype="uint32" type="ipport" use_param="ipAddr"/>
       <integer comment="" name="RTCPPortNumber" type="uint32"/>
@@ -1811,11 +1808,11 @@
       <entry comment="" name="RSVPDirection_SENDRECV" text="SENDRECV" value="0x0003"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="QoSResvNotifyMessage" opcode="0x0046" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="event" name="QoSResvNotifyMessage" opcode="0x0046" type="IntraCCM">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
       <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
       <enum comment="" name="direction" subtype="RSVPDirection" type="uint32"/>
@@ -1859,11 +1856,11 @@
       <entry comment="" name="RSVPErrorCode_ROUTING_PROBLEM" text="ROUTING_PROBLEM" value="0x0018"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="QoSErrorNotifyMessage" opcode="0x0047" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="event" name="QoSErrorNotifyMessage" opcode="0x0047" type="IntraCCM">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
       <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
       <enum comment="" name="direction" subtype="RSVPDirection" type="uint32"/>
@@ -1879,9 +1876,9 @@
       <entry comment="" name="SubscriptionFeatureID_BLF" text="BLF" value="0x0001"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="SubscriptionStatReqMessage" opcode="0x0048" status="request" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="SubscriptionStatReqMessage" opcode="0x0048" type="CallControl">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="transactionID" type="uint32"/>
+      <integer comment="" declare="yes" name="transactionID" req_resp_key="1" type="uint32"/>
       <enum comment="" name="subcriptionFeatureID" subtype="SubscriptionFeatureID" type="uint32"/>
       <integer comment="" name="timer" type="uint32"/>
       <string comment="" name="subscriptionID" size="64" type="char"/>
@@ -1900,7 +1897,7 @@
       <entry comment="" name="MediaPathEvent_Off" text="Off" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="MediaPathEventMessage" opcode="0x0049" status="no" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="MediaPathEventMessage" opcode="0x0049" type="CallControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="mediaPathID" subtype="MediaPathID" type="uint32"/>
       <enum comment="" name="mediaPathEvent" subtype="MediaPathEvent" type="uint32"/>
@@ -1913,13 +1910,13 @@
       <entry comment="" name="MediaPathCapabilities_Monitor" text="Monitor" value="0x0003"/>
     </entries>
   </enum>
-  <message comment="" direction="dev2pbx" dynamic="no" name="MediaPathCapabilityMessage" opcode="0x004a" status="no" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="MediaPathCapabilityMessage" opcode="0x004a" type="CallControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="mediaPathID" subtype="MediaPathID" type="uint32"/>
       <enum comment="" name="mediaPathCapabilities" subtype="MediaPathCapabilities" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="MwiNotificationMessage" opcode="0x004c" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="request" name="MwiNotificationMessage" opcode="0x004c" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <string comment="" name="mwiTargetNumber" size="25" type="char"/>
       <string comment="" name="mwiControlNumber" size="25" type="char"/>
@@ -1950,7 +1947,7 @@
       </struct>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="RegisterAckMessage" opcode="0x0081" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="RegisterAckMessage" opcode="0x0081" request="0x0001" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="keepAliveInterval" type="uint32"/>
       <string comment="" name="dateTemplate" size="6" type="char"/>
@@ -2098,7 +2095,7 @@
       <entry comment="" name="ToneOutputDirection_All" text="All" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StartToneMessage" opcode="0x0082" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="StartToneMessage" opcode="0x0082" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="tone" subtype="DeviceTone" type="uint32"/>
       <enum comment="" name="tone_output_direction" subtype="ToneOutputDirection" type="uint32"/>
@@ -2106,7 +2103,7 @@
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StopToneMessage" opcode="0x0083" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="StopToneMessage" opcode="0x0083" type="MediaControl">
     <fields>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
@@ -2131,7 +2128,7 @@
       <entry comment="" name="RingDuration_SingleRing" text="SingleRing" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SetRingerMessage" opcode="0x0085" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="SetRingerMessage" opcode="0x0085" type="CallControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="ringMode" subtype="RingMode" type="uint32"/>
       <enum comment="" name="ringDuration" subtype="RingDuration" type="uint32"/>
@@ -2148,7 +2145,7 @@
       <entry comment="" name="LampMode_Blink" text="Blink" value="0x0005"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SetLampMessage" opcode="0x0086" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="SetLampMessage" opcode="0x0086" type="CallControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="stimulus" subtype="DeviceStimulus" type="uint32"/>
       <integer comment="" name="stimulusInstance" type="uint32"/>
@@ -2161,7 +2158,7 @@
       <entry comment="" name="SpeakerMode_Off" text="Off" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SetSpeakerModeMessage" opcode="0x0088" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="SetSpeakerModeMessage" opcode="0x0088" type="CallControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="speakerMode" subtype="SpeakerMode" type="uint32"/>
     </fields>
@@ -2172,7 +2169,7 @@
       <entry comment="" name="MicrophoneMode_Off" text="Off" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SetMicroModeMessage" opcode="0x0089" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="SetMicroModeMessage" opcode="0x0089" type="CallControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="micMode" subtype="MicrophoneMode" type="uint32"/>
     </fields>
@@ -2194,10 +2191,10 @@
       <entry comment="" name="MediaEncryptionAlgorithmType_CCM_AEAD_AES_256_GCM" text="CCM_AEAD_AES_256_GCM" value="0x0006"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StartMediaTransmissionMessage" opcode="0x008a" priority="send_immediate" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="request" name="StartMediaTransmissionMessage" opcode="0x008a" priority="send_immediate" type="MediaControl">
     <fields>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" declare="yes" name="passThruPartyId" req_resp_key="1" type="uint32"/>
       <ipv4or6 comment="" name="remoteIpAddr" subtype="IPV4orV6Address" type="ipaddr"/>
       <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
       <integer comment="" name="millisecondPacketSize" type="uint32"/>
@@ -2295,10 +2292,10 @@
       <entry comment="" name="PortHandling_KEEP_PORT" text="KEEP_PORT" value="0x0001"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StopMediaTransmissionMessage" opcode="0x008b" priority="send_immediate" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="StopMediaTransmissionMessage" opcode="0x008b" priority="send_immediate" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <enum comment="" name="portHandlingFlag" subtype="PortHandling" type="uint32"/>
     </fields>
@@ -2336,7 +2333,7 @@
       <entry comment="" name="RestrictInformationType_BitsReserved" text="BitsReserved" value="0xffffff00"/>
     </entries>
   </bitfield>
-  <message comment="" direction="pbx2dev" dynamic="no" name="CallInfoMessage" opcode="0x008f" priority="send_immediate" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="CallInfoMessage" opcode="0x008f" priority="send_immediate" type="CallControl">
     <fields beginversion="0" endversion="22">
       <string comment="Calling Party Name" name="callingPartyName" size="40" type="char"/>
       <string comment="Calling Party Number" name="callingParty" size="24" type="char"/>
@@ -2376,10 +2373,10 @@
       </bitfield>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="ForwardStatMessage" opcode="0x0090" priority="send_immediate" status="result" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="ForwardStatResMessage" opcode="0x0090" priority="send_immediate" request="0x0009" type="RegistrationAndManagement">
     <fields>
       <integer comment="" name="activeForward" type="uint32"/>
-      <integer comment="" name="lineNumber" type="uint32"/>
+      <integer comment="" declare="yes" name="lineNumber" req_resp_key="1" type="uint32"/>
       <integer comment="" name="forwardAllActive" type="uint32"/>
       <string comment="" declare="yes" name="forwardAllDirnum" size="VariableDirnumSize" type="char"/>
       <integer comment="" name="forwardBusyActive" type="uint32"/>
@@ -2388,23 +2385,23 @@
       <string comment="" declare="yes" name="forwardNoAnswerlDirnum" size="VariableDirnumSize" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SpeedDialStatMessage" opcode="0x0091" priority="send_immediate" status="result" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="SpeedDialStatResMessage" opcode="0x0091" priority="send_immediate" request="0x000a" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="speedDialNumber" type="uint32"/>
+      <integer comment="" declare="yes" name="speedDialNumber" req_resp_key="1" type="uint32"/>
       <string comment="" name="speedDialDirNumber" size="24" type="char"/>
       <string comment="" name="speedDialDisplayName" size="40" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="LineStatMessage" opcode="0x0092" priority="send_immediate" status="result" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="LineStatResMessage" opcode="0x0092" priority="send_immediate" request="0x000b" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="lineNumber" type="uint32"/>
+      <integer comment="" declare="yes" name="lineNumber" req_resp_key="1" type="uint32"/>
       <string comment="" name="lineDirNumber" size="24" type="char"/>
       <string comment="" name="lineFullyQualifiedDisplayName" size="40" type="char"/>
       <string comment="" name="lineTextLabel" size="40" type="char"/>
       <integer comment="" name="lineDisplayOptions" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="ConfigStatMessage" opcode="0x0093" priority="send_immediate" status="result" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="ConfigStatResMessage" opcode="0x0093" priority="send_immediate" request="0x000c" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="sid" type="struct">
         <fields>
@@ -2419,7 +2416,7 @@
       <integer comment="" name="numberOfSpeedDials" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="DefineTimeDate" opcode="0x0094" priority="send_immediate" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="TimeDateResMessage" opcode="0x0094" priority="send_immediate" request="0x000d" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="timeDataInfo" subtype="Time" type="struct">
         <fields>
@@ -2445,13 +2442,13 @@
       <entry comment="" name="SessionType_Video" text="Video" value="0x0010"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="StartSessionTransmissionMessage" opcode="0x0095" priority="send_immediate" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="event" name="StartSessionTransmissionMessage" opcode="0x0095" priority="send_immediate" type="IntraCCM">
     <fields>
       <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="remoteIpAddr" subtype="IpAddress" type="ipaddr"/>
       <enum comment="" name="sessionType" subtype="SessionType" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="StopSessionTransmissionMessage" opcode="0x0096" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="event" name="StopSessionTransmissionMessage" opcode="0x0096" type="IntraCCM">
     <fields>
       <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="remoteIpAddr" subtype="IpAddress" type="ipaddr"/>
       <enum comment="" name="sessionType" subtype="SessionType" type="uint32"/>
@@ -2517,7 +2514,7 @@
       <entry comment="" name="ButtonType_Undefined" text="Undefined" value="0xFF"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="ButtonTemplateMessage" opcode="0x0097" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="ButtonTemplateResMessage" opcode="0x0097" request="0x000e" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="buttonTemplate" subtype="ButtonTemplate" type="struct">
         <fields>
@@ -2534,24 +2531,24 @@
       </struct>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="VersionMessage" opcode="0x0098" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="VersionResMessage" opcode="0x0098" request="0x000f" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <string comment="" name="version" size="16" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="DisplayTextMessage" opcode="0x0099" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="DisplayTextMessage" opcode="0x0099" type="CallControl">
     <fields beginversion="0" endversion="22">
       <string comment="" name="text" size="32" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="ClearDisplay" opcode="0x009a" status="no" type="CallControl"/>
-  <message comment="" direction="pbx2dev" dynamic="no" name="CapabilitiesReq" opcode="0x009b" status="no" type="RegistrationAndManagement"/>
-  <message comment="" direction="pbx2dev" dynamic="no" name="RegisterRejectMessage" opcode="0x009d" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="ClearDisplay" opcode="0x009a" type="CallControl"/>
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="CapabilitiesReq" opcode="0x009b" type="RegistrationAndManagement"/>
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="RegisterRejectMessage" opcode="0x009d" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <string comment="" name="text" size="32" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="ServerResMessage" opcode="0x009e" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="ServerResMessage" opcode="0x009e" request="0x0012" type="RegistrationAndManagement">
     <fields>
       <struct comment="" name="server" size="5" subtype="ServerIdentifier" type="struct">
         <fields>
@@ -2582,22 +2579,22 @@
       <entry comment="" name="DeviceResetType_APPLY_CONFIG" text="APPLY_CONFIG" value="0x0003"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="Reset" opcode="0x009f" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="Reset" opcode="0x009f" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="resetType" subtype="DeviceResetType" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="KeepAliveAckMessage" opcode="0x0100" status="no" type="RegistrationAndManagement"/>
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="KeepAliveAckMessage" opcode="0x0100" request="0x0000" type="RegistrationAndManagement"/>
   <enum name="Media_EchoCancellation">
     <entries>
       <entry comment="" name="Media_EchoCancellation_Off" text="Media_EchoCancellation_Off" value="0x0000"/>
       <entry comment="" name="Media_EchoCancellation_On" text="Media_EchoCancellation_On" value="0x0001"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StartMulticastMediaReceptionMessage" opcode="0x0101" priority="send_immediate" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="request" name="StartMulticastMediaReceptionMessage" opcode="0x0101" priority="send_immediate" type="MediaControl">
     <fields>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" declare="yes" name="passThruPartyId" req_resp_key="1" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="multicastIpAddr" subtype="IpAddress" type="ipaddr"/>
       <integer comment="" name="multicastPortNumber" subtype="uint32" type="ipport" use_param="multicastIpAddr"/>
       <integer comment="" name="millisecondPacketSize" type="uint32"/>
@@ -2628,10 +2625,10 @@
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StartMulticastMediaTransmissionMessage" opcode="0x0102" priority="send_immediate" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="request" name="StartMulticastMediaTransmissionMessage" opcode="0x0102" priority="send_immediate" type="MediaControl">
     <fields>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" declare="yes" name="passThruPartyId" req_resp_key="1" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="multicastIpAddr" subtype="IpAddress" type="ipaddr"/>
       <integer comment="" name="multicastPortNumber" subtype="uint32" type="ipport" use_param="multicastIpAddr"/>
       <integer comment="" name="millisecondPacketSize" type="uint32"/>
@@ -2665,24 +2662,24 @@
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StopMulticastMediaReceptionMessage" opcode="0x0103" priority="send_immediate" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="StopMulticastMediaReceptionMessage" opcode="0x0103" priority="send_immediate" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StopMulticastMediaTransmissionMessage" opcode="0x0104" priority="send_immediate" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="StopMulticastMediaTransmissionMessage" opcode="0x0104" priority="send_immediate" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="OpenReceiveChannelMessage" opcode="0x0105" priority="send_immediate" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="request" name="OpenReceiveChannelMessage" opcode="0x0105" priority="send_immediate" type="MediaControl">
     <fields>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" declare="yes" name="passThruPartyId" req_resp_key="1" type="uint32"/>
       <integer comment="" name="millisecondPacketSize" type="uint32"/>
       <enum comment="" declare="yes" name="compressionType" subtype="Media_PayloadType" type="uint32"/>
       <struct comment="" name="qualifierIn" subtype="Media_QualifierIncoming" type="struct">
@@ -2777,15 +2774,15 @@
       </struct>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="CloseReceiveChannelMessage" opcode="0x0106" priority="send_immediate" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="CloseReceiveChannelMessage" opcode="0x0106" priority="send_immediate" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <enum comment="" name="portHandlingFlag" subtype="PortHandling" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="ConnectionStatisticsReqMessage" opcode="0x0107" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="request" name="ConnectionStatisticsReqMessage" opcode="0x0107" type="CallControl">
     <fields endversion="16" fixed="yes">
       <string comment="" name="directoryNum" size="24" type="char"/>
     </fields>
@@ -2793,11 +2790,11 @@
       <string comment="" name="directoryNum" size="28" type="char"/>
     </fields>
     <fields>
-      <integer comment="CallId" name="callReference" type="uint32"/>
+      <integer comment="CallId" declare="yes" name="callReference" req_resp_key="1" type="uint32"/>
       <enum comment="" name="statsProcessingMode" subtype="StatsProcessingType" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SoftKeyTemplateResMessage" opcode="0x0108" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="SoftKeyTemplateResMessage" opcode="0x0108" request="0x0028" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="softKeyTemplate" subtype="SoftKeyTemplate" type="struct">
         <fields>
@@ -2888,7 +2885,7 @@
       <entry name="SoftKeyInfoIndex_CBarge" text="Conference Barge" value="333"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SoftKeySetResMessage" opcode="0x0109" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="SoftKeySetResMessage" opcode="0x0109" request="0x0025" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="softKeySets" subtype="SoftKeySets" type="struct">
         <fields>
@@ -2925,7 +2922,7 @@
       <entry comment="" name="SoftKeyMask_SoftKey16" text="SoftKey16" value="0x8000"/>
     </entries>
   </bitfield>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SelectSoftKeysMessage" opcode="0x0110" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="SelectSoftKeysMessage" opcode="0x0110" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
@@ -2982,7 +2979,7 @@
       <entry comment="" name="CallPrivacy_Full" text="Full" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="CallStateMessage" opcode="0x0111" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="CallStateMessage" opcode="0x0111" type="CallControl">
     <fields beginversion="0" endversion="22">
       <enum comment="CallState" name="callState" subtype="DCallState" type="uint32"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
@@ -2996,7 +2993,7 @@
       </struct>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="DisplayPromptStatusMessage" opcode="0x0112" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="DisplayPromptStatusMessage" opcode="0x0112" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="timeOutValue" type="uint32"/>
       <string comment="" name="promptStatus" size="32" subtype="DisplayLabel" type="char"/>
@@ -3004,25 +3001,25 @@
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="ClearPromptStatusMessage" opcode="0x0113" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="ClearPromptStatusMessage" opcode="0x0113" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="DisplayNotifyMessage" opcode="0x0114" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="DisplayNotifyMessage" opcode="0x0114" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="timeOutValue" type="uint32"/>
       <string comment="" name="notify" size="32" subtype="DisplayLabel" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="ClearNotifyMessage" opcode="0x0115" status="no" type="CallControl"/>
-  <message comment="" direction="pbx2dev" dynamic="no" name="ActivateCallPlaneMessage" opcode="0x0116" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="ClearNotifyMessage" opcode="0x0115" type="CallControl"/>
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="ActivateCallPlaneMessage" opcode="0x0116" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="LineId" name="lineInstance" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="DeactivateCallPlaneMessage" opcode="0x0117" status="no" type="CallControl"/>
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="DeactivateCallPlaneMessage" opcode="0x0117" type="CallControl"/>
   <enum name="DeviceUnregisterStatus">
     <entries>
       <entry comment="" name="DeviceUnregisterStatus_Ok" text="Ok" value="0x0000"/>
@@ -3030,27 +3027,27 @@
       <entry comment="" name="DeviceUnregisterStatus_NAK" text="NAK" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="UnregisterAckMessage" opcode="0x0118" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="UnregisterAckMessage" opcode="0x0118" request="0x0027" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="status" subtype="DeviceUnregisterStatus" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="BackSpaceReqMessage" opcode="0x0119" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="BackSpaceResMessage" opcode="0x0119" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="RegisterTokenAck" opcode="0x011a" status="no" type="RegistrationAndManagement"/>
-  <message comment="" direction="pbx2dev" dynamic="no" name="RegisterTokenReject" opcode="0x011b" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="RegisterTokenAck" opcode="0x011a" request="0x0029" type="RegistrationAndManagement"/>
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="RegisterTokenReject" opcode="0x011b" request="0x0029" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="waitTimeBeforeNextReq" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StartMediaFailureDetectionMessage" opcode="0x011c" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="StartMediaFailureDetectionMessage" opcode="0x011c" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <integer comment="" name="millisecondPacketSize" type="uint32"/>
       <enum comment="" declare="yes" name="compressionType" subtype="Media_PayloadType" type="uint32"/>
       <struct comment="" name="qualifierIn" subtype="Media_QualifierIncoming" type="struct">
@@ -3079,7 +3076,7 @@
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="DialedNumberMessage" opcode="0x011d" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="DialedNumberMessage" opcode="0x011d" type="CallControl">
     <fields endversion="17" fixed="yes">
       <string comment="" name="dialedNumber" size="24" type="char"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
@@ -3091,7 +3088,7 @@
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="UserToDeviceDataMessage" opcode="0x011e" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="UserToDeviceDataMessage" opcode="0x011e" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="userToDeviceData" subtype="UserAndDeviceData" type="struct">
         <fields>
@@ -3105,22 +3102,22 @@
       </struct>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="FeatureStatMessage" opcode="0x011f" status="result" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="FeatureStatResMessage" opcode="0x011f" request="0x0034" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="featureIndex" type="uint32"/>
+      <integer comment="" declare="yes" name="featureIndex" req_resp_key="1" type="uint32"/>
       <enum comment="" name="featureID" subtype="ButtonType" type="uint32"/>
       <string comment="" name="featureTextLabel" size="40" type="char"/>
       <integer comment="" name="featureStatus" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="DisplayPriNotifyMessage" opcode="0x0120" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="DisplayPriNotifyMessage" opcode="0x0120" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="timeOutValue" type="uint32"/>
       <integer comment="" name="priority" type="uint32"/>
       <string comment="" name="notify" size="32" subtype="DisplayLabel" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="ClearPriNotifyMessage" opcode="0x0121" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="ClearPriNotifyMessage" opcode="0x0121" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="priority" type="uint32"/>
     </fields>
@@ -3138,7 +3135,7 @@
       <entry comment="" name="AnnPlayMode_ContinuousMode" text="ContinuousMode" value="0x0002"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="StartAnnouncementMessage" opcode="0x0122" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="event" name="StartAnnouncementMessage" opcode="0x0122" type="IntraCCM">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="AnnList" size="32" type="struct">
         <fields>
@@ -3154,7 +3151,7 @@
       <enum comment="" name="annPlayMode" subtype="AnnPlayMode" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="StopAnnouncementMessage" opcode="0x0123" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="event" name="StopAnnouncementMessage" opcode="0x0123" type="IntraCCM">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
     </fields>
@@ -3165,27 +3162,27 @@
       <entry comment="" name="PlayAnnStatus_Err" text="Err" value="0x0001"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="AnnouncementFinishMessage" opcode="0x0124" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="event" name="AnnouncementFinishMessage" opcode="0x0124" type="IntraCCM">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <enum comment="" name="annStatus" subtype="PlayAnnStatus" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="NotifyDtmfToneMessage" opcode="0x0127" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="NotifyDtmfToneMessage" opcode="0x0127" type="CallControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="tone" subtype="DeviceTone" type="uint32"/>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="" name="passthruPartyID" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SendDtmfToneMessage" opcode="0x0128" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="SendDtmfToneMessage" opcode="0x0128" type="CallControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="tone" subtype="DeviceTone" type="uint32"/>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="" name="passthruPartyID" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SubscribeDtmfPayloadReqMessage" opcode="0x0129" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="request" name="SubscribeDtmfPayloadReqMessage" opcode="0x0129" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="payloadDtmf" type="uint32"/>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
@@ -3193,60 +3190,60 @@
       <integer comment="" name="dtmfType" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SubscribeDtmfPayloadResMessage" opcode="0x012a" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="SubscribeDtmfPayloadResMessage" opcode="0x012a" request="0x0129" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="payloadDtmf" type="uint32"/>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="" name="passthruPartyID" type="uint32"/>
+      <integer comment="" declare="yes" name="passthruPartyID" req_resp_key="1" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SubscribeDtmfPayloadErrMessage" opcode="0x012b" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="SubscribeDtmfPayloadErrMessage" opcode="0x012b" request="0x0129" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="payloadDtmf" type="uint32"/>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="" name="passthruPartyID" type="uint32"/>
+      <integer comment="" declare="yes" name="passthruPartyID" req_resp_key="1" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="UnSubscribeDtmfPayloadReqMessage" opcode="0x012c" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="request" name="UnSubscribeDtmfPayloadReqMessage" opcode="0x012c" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="payloadDtmf" type="uint32"/>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="" name="passthruPartyID" type="uint32"/>
+      <integer comment="" declare="yes" name="passthruPartyID" req_resp_key="1" type="uint32"/>
       <integer comment="" name="dtmfType" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="UnSubscribeDtmfPayloadResMessage" opcode="0x012d" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="UnSubscribeDtmfPayloadResMessage" opcode="0x012d" request="0x012d" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="payloadDtmf" type="uint32"/>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="" name="passthruPartyID" type="uint32"/>
+      <integer comment="" declare="yes" name="passthruPartyID" req_resp_key="1" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="UnSubscribeDtmfPayloadErrMessage" opcode="0x012e" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="UnSubscribeDtmfPayloadErrMessage" opcode="0x012e" request="0x012d" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="payloadDtmf" type="uint32"/>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="" name="passthruPartyID" type="uint32"/>
+      <integer comment="" declare="yes" name="passthruPartyID" req_resp_key="1" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="ServiceURLStatMessage" opcode="0x012f" status="result" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="ServiceURLStatResMessage" opcode="0x012f" request="0x0033" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="serviceURLIndex" type="uint32"/>
+      <integer comment="" declare="yes" name="serviceURLIndex" req_resp_key="1" type="uint32"/>
       <string comment="" name="serviceURL" size="256" type="char"/>
       <string comment="" name="serviceURLDisplayName" size="40" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="CallSelectStatMessage" opcode="0x0130" status="result" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="CallSelectStatResMessage" opcode="0x0130" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="callSelectStat" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="OpenMultiMediaReceiveChannelMessage" opcode="0x0131" priority="send_immediate" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="request" name="OpenMultiMediaReceiveChannelMessage" opcode="0x0131" priority="send_immediate" type="MediaControl">
     <fields>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" declare="yes" name="passThruPartyId" req_resp_key="1" type="uint32"/>
       <enum comment="" declare="yes" name="compressionType" subtype="Media_PayloadType" type="uint32"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
@@ -3397,10 +3394,10 @@
       <enum comment="" name="requestedIpAddrType" subtype="IpAddrType" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StartMultiMediaTransmissionMessage" opcode="0x0132" priority="send_immediate" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="request" name="StartMultiMediaTransmissionMessage" opcode="0x0132" priority="send_immediate" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="" name="passthruPartyID" type="uint32"/>
+      <integer comment="" declare="yes" name="passthruPartyID" req_resp_key="1" type="uint32"/>
       <enum comment="" declare="yes" name="compressionType" subtype="Media_PayloadType" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
       <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
@@ -3545,10 +3542,10 @@
       <integer comment="" name="associatedStreamID" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StopMultiMediaTransmissionMessage" opcode="0x0133" priority="send_immediate" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="StopMultiMediaTransmissionMessage" opcode="0x0133" priority="send_immediate" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <enum comment="" name="portHandlingFlag" subtype="PortHandling" type="uint32"/>
     </fields>
@@ -3565,7 +3562,7 @@
       <entry comment="" name="MiscCommandType_temporalSpatialTradeOff" text="temporalSpatialTradeOff" value="0x0007"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="MiscellaneousCommandMessage" opcode="0x0134" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="MiscellaneousCommandMessage" opcode="0x0134" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="" name="passthruPartyID" type="uint32"/>
@@ -3627,7 +3624,7 @@
       </union>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="FlowControlCommandMessage" opcode="0x0135" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="FlowControlCommandMessage" opcode="0x0135" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="" name="passthruPartyID" type="uint32"/>
@@ -3635,17 +3632,17 @@
       <integer comment="" name="maximumBitRate" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="CloseMultiMediaReceiveChannelMessage" opcode="0x0136" priority="send_immediate" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="CloseMultiMediaReceiveChannelMessage" opcode="0x0136" priority="send_immediate" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <enum comment="" name="portHandlingFlag" subtype="PortHandling" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="CreateConferenceReqMessage" opcode="0x0137" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="request" name="CreateConferenceReqMessage" opcode="0x0137" type="IntraCCM">
     <fields beginversion="0" endversion="22">
-      <integer comment="Conference ID" name="conferenceID" type="uint32"/>
+      <integer comment="Conference ID" declare="yes" name="conferenceID" req_resp_key="1" type="uint32"/>
       <integer comment="" name="numberOfReservedParticipants" type="uint32"/>
       <enum comment="" name="resourceType" subtype="ResourceType" type="uint32"/>
       <integer comment="" name="appID" type="uint32"/>
@@ -3655,14 +3652,14 @@
       <string comment="variable field size (max: 2000]" maxsize="2000" name="passThruData" size_fieldname="dataLength" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="DeleteConferenceReqMessage" opcode="0x0138" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="request" name="DeleteConferenceReqMessage" opcode="0x0138" type="IntraCCM">
     <fields beginversion="0" endversion="22">
-      <integer comment="Conference ID" name="conferenceID" type="uint32"/>
+      <integer comment="Conference ID" declare="yes" name="conferenceID" req_resp_key="1" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="ModifyConferenceReqMessage" opcode="0x0139" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="request" name="ModifyConferenceReqMessage" opcode="0x0139" type="IntraCCM">
     <fields beginversion="0" endversion="22">
-      <integer comment="Conference ID" name="conferenceID" type="uint32"/>
+      <integer comment="Conference ID" declare="yes" name="conferenceID" req_resp_key="1" type="uint32"/>
       <integer comment="" name="numberOfReservedParticipants" type="uint32"/>
       <integer comment="" name="appID" type="uint32"/>
       <string comment="" name="appConfID" size="32" type="char"/>
@@ -3671,9 +3668,9 @@
       <string comment="variable field size (max: 2000]" maxsize="2000" name="passThruData" size_fieldname="dataLength" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="AddParticipantReqMessage" opcode="0x013a" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="request" name="AddParticipantReqMessage" opcode="0x013a" type="IntraCCM">
     <fields>
-      <integer comment="Conference ID" name="conferenceID" type="uint32"/>
+      <integer comment="Conference ID" declare="yes" name="conferenceID" req_resp_key="1" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <bitfield comment="" name="partyPIRestrictionBits" size="uint32" subtype="RestrictInformationType" type="bitfield">
         <entries>
@@ -3697,21 +3694,21 @@
       <string comment="" name="conferenceName" size="32" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="DropParticipantReqMessage" opcode="0x013b" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="request" name="DropParticipantReqMessage" opcode="0x013b" type="IntraCCM">
     <fields beginversion="0" endversion="22">
-      <integer comment="Conference ID" name="conferenceID" type="uint32"/>
+      <integer comment="Conference ID" declare="yes" name="conferenceID" req_resp_key="1" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="AuditConferenceReqMessage" opcode="0x013c" status="no" type="IntraCCM"/>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="AuditParticipantReqMessage" opcode="0x013d" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="request" name="AuditConferenceReqMessage" opcode="0x013c" type="IntraCCM"/>
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="request" name="AuditParticipantReqMessage" opcode="0x013d" type="IntraCCM">
     <fields beginversion="0" endversion="22">
-      <integer comment="Conference ID" name="conferenceID" type="uint32"/>
+      <integer comment="Conference ID" declare="yes" name="conferenceID" req_resp_key="1" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="ChangeParticipantReqMessage" opcode="0x013e" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="request" name="ChangeParticipantReqMessage" opcode="0x013e" type="IntraCCM">
     <fields>
-      <integer comment="Conference ID" name="conferenceID" type="uint32"/>
+      <integer comment="Conference ID" declare="yes" name="conferenceID" req_resp_key="1" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <bitfield comment="" name="partyPIRestrictionBits" size="uint32" subtype="RestrictInformationType" type="bitfield">
         <entries>
@@ -3735,7 +3732,7 @@
       <string comment="" name="conferenceName" size="32" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="UserToDeviceDataMessageVersion1" opcode="0x013f" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="UserToDeviceDataMessageVersion1" opcode="0x013f" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="userToDeviceDataVersion1" subtype="UserAndDeviceDataVersion1" type="struct">
         <fields>
@@ -3754,14 +3751,14 @@
       </struct>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="VideoDisplayCommandMessage" opcode="0x0140" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="VideoDisplayCommandMessage" opcode="0x0140" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <integer comment="" name="layoutID" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="FlowControlNotifyMessage" opcode="0x0141" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="FlowControlNotifyMessage" opcode="0x0141" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="" name="passthruPartyID" type="uint32"/>
@@ -3769,7 +3766,7 @@
       <integer comment="" name="maximumBitRate" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="yes" name="ConfigStatV2Message" opcode="0x0142" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="yes" msgtype="response" name="ConfigStatV2ResMessage" opcode="0x0142" request="0x000c" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="sid" type="struct">
         <fields>
@@ -3784,20 +3781,20 @@
       <string comment="" name="serverName" size="121" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="yes" name="DisplayNotifyV2Message" opcode="0x0143" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="yes" msgtype="event" name="DisplayNotifyV2Message" opcode="0x0143" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="timeOutValue" type="uint32"/>
       <string comment="" name="notify" size="97" subtype="DisplayLabel" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="yes" name="DisplayPriNotifyV2Message" opcode="0x0144" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="yes" msgtype="event" name="DisplayPriNotifyV2Message" opcode="0x0144" type="RegistrationAndManagement">
     <fields alignment="4" beginversion="0" endversion="22">
       <integer comment="" name="timeOutValue" type="uint32"/>
       <integer comment="" name="priority" type="uint32"/>
       <string comment="" name="notify" size="97" subtype="DisplayLabel" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="yes" name="DisplayPromptStatusV2Message" opcode="0x0145" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="yes" msgtype="event" name="DisplayPromptStatusV2Message" opcode="0x0145" type="CallControl">
     <fields alignment="4" beginversion="0" endversion="22">
       <integer comment="" name="timeOutValue" type="uint32"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
@@ -3805,7 +3802,7 @@
       <string comment="" name="promptStatus" size="97" subtype="DisplayLabel" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="yes" name="FeatureStatV2Message" opcode="0x0146" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="yes" msgtype="response" name="FeatureStatV2ResMessage" opcode="0x0146" request="0x0034" type="RegistrationAndManagement">
     <fields alignment="4" beginversion="0" endversion="22">
       <integer comment="" name="featureIndex" type="uint32"/>
       <enum comment="" name="featureID" subtype="ButtonType" type="uint32"/>
@@ -3821,9 +3818,9 @@
       <entry comment="" name="CallingPartyName" text="CallingName" value="0x0008"/>
     </entries>
   </bitfield>
-  <message comment="" direction="pbx2dev" dynamic="yes" name="LineStatV2Message" opcode="0x0147" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="yes" msgtype="response" name="LineStatV2ResMessage" opcode="0x0147" request="0x000b" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="lineNumber" type="uint32"/>
+      <integer comment="" declare="yes" name="lineNumber" req_resp_key="1" type="uint32"/>
       <bitfield comment="" name="lineType" size="uint32" subtype="LineTypeBits" type="bitfield">
         <entries>
           <entry comment="" name="OrigDialed" text="Originaly Dialed" value="0x0001"/>
@@ -3837,19 +3834,19 @@
       <string comment="" name="lineTextLabel" size="40" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="yes" name="ServiceURLStatV2Message" opcode="0x0148" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="yes" msgtype="response" name="ServiceURLStatV2ResMessage" opcode="0x0148" request="0x0033" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="serviceURLIndex" type="uint32"/>
+      <integer comment="" declare="yes" name="serviceURLIndex" req_resp_key="1" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="yes" name="SpeedDialStatV2Message" opcode="0x0149" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="yes" msgtype="response" name="SpeedDialStatV2ResMessage" opcode="0x0149" request="0x000a" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="speedDialNumber" type="uint32"/>
+      <integer comment="" declare="yes" name="speedDialNumber" req_resp_key="1" type="uint32"/>
       <string comment="" name="speedDialDirNumber" size="24" type="char"/>
       <string comment="" name="speedDialDisplayName" size="40" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="yes" name="CallInfoV2Message" opcode="0x014a" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="yes" msgtype="event" name="CallInfoV2Message" opcode="0x014a" type="CallControl">
     <fields alignment="2">
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
@@ -3901,21 +3898,21 @@
       <entry comment="" name="MediaTransportType_TCP" text="TCP" value="0x0003"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="PortReqMessage" opcode="0x014b" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="request" name="PortReqMessage" opcode="0x014b" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <enum comment="" name="mediaTransportType" subtype="MediaTransportType" type="uint32"/>
       <enum comment="" name="ipAddressType" subtype="IpAddrType" type="uint32"/>
       <enum comment="" name="mediaType" subtype="MediaType" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="PortCloseMessage" opcode="0x014c" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="PortCloseMessage" opcode="0x014c" type="MediaControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <enum comment="" name="mediaType" subtype="MediaType" type="uint32"/>
     </fields>
   </message>
@@ -3926,11 +3923,11 @@
       <entry comment="" name="ResvStyle_WF" text="WF" value="0x0003"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="QoSListenMessage" opcode="0x014d" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="event" name="QoSListenMessage" opcode="0x014d" type="IntraCCM">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
       <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
       <enum comment="" name="resvStyle" subtype="ResvStyle" type="uint32"/>
@@ -3953,11 +3950,11 @@
       </struct>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="QoSPathMessage" opcode="0x014e" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="event" name="QoSPathMessage" opcode="0x014e" type="IntraCCM">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
       <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
       <enum comment="" name="resvStyle" subtype="ResvStyle" type="uint32"/>
@@ -3979,31 +3976,31 @@
       </struct>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="QoSTeardownMessage" opcode="0x014f" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="event" name="QoSTeardownMessage" opcode="0x014f" type="IntraCCM">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
       <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
       <enum comment="" name="direction" subtype="RSVPDirection" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="UpdateDSCPMessage" opcode="0x0150" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="event" name="UpdateDSCPMessage" opcode="0x0150" type="IntraCCM">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
       <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
       <integer comment="" name="DSCPValue" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2pbx" dynamic="no" name="QoSModifyMessage" opcode="0x0151" status="no" type="IntraCCM">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="event" name="QoSModifyMessage" opcode="0x0151" type="IntraCCM">
     <fields beginversion="0" endversion="22">
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" name="passThruPartyId" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endianness="big" name="remoteIpAddr" subtype="uint32" type="ipaddr"/>
       <integer comment="" name="remotePortNumber" subtype="uint32" type="ipport" use_param="remoteIpAddr"/>
       <enum comment="" name="direction" subtype="RSVPDirection" type="uint32"/>
@@ -4032,36 +4029,36 @@
       <entry comment="" name="SubscribeCause_Throttle" text="Throttle" value="0x0006"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SubscriptionStatMessage" opcode="0x0152" status="result" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="SubscriptionStatResMessage" opcode="0x0152" request="0x0048" status="result" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
-      <integer comment="" name="transactionID" type="uint32"/>
-      <enum comment="" name="subscriptionoFeatureID" subtype="SubscriptionFeatureID" type="uint32"/>
+      <integer comment="" declare="yes" name="transactionID" req_resp_key="1" type="uint32"/>
+      <enum comment="" name="subscriptionFeatureID" subtype="SubscriptionFeatureID" type="uint32"/>
       <integer comment="" name="timer" type="uint32"/>
       <enum comment="" name="cause" subtype="SubscribeCause" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="NotificationMessage" opcode="0x0153" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="NotificationMessage" opcode="0x0153" type="RegistrationAndManagement">
     <fields alignment="4" beginversion="0" endversion="22">
       <integer comment="" name="transactionID" type="uint32"/>
       <enum comment="" name="subscriptionFeatureID" subtype="SubscriptionFeatureID" type="uint32"/>
-      <integer comment="" name="status" type="uint32"/>
+      <integer comment="" name="notificationStatus" type="uint32"/>
       <string comment="" name="text" size="97" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StartMediaTransmissionAckMessage" opcode="0x0154" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="StartMediaTransmissionAckMessage" opcode="0x0154" request="0x008a" type="MediaControl">
     <fields>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" declare="yes" name="passThruPartyId" req_resp_key="1" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="transmitIpAddr" subtype="IpAddress" type="ipaddr"/>
       <integer comment="transmit Port" declare="yes" name="portNumber" subtype="uint32" type="ipport"/>
       <enum comment="" name="mediaTransmissionStatus" subtype="MediaStatus" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="StartMultiMediaTransmissionAckMessage" opcode="0x0155" status="no" type="MediaControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="StartMultiMediaTransmissionAckMessage" opcode="0x0155" request="0x0132" type="MediaControl">
     <fields>
       <integer comment="Conference ID" name="conferenceID" type="uint32"/>
-      <integer comment="PassThrough PartyId" name="passThruPartyID" type="uint32"/>
+      <integer comment="PassThrough PartyId" declare="yes" name="passThruPartyId" req_resp_key="1" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <ipv4or6 comment="ipaddress in big endian" endiannes="big" endianness="big" name="transmitIpAddr" subtype="IpAddress" type="ipaddr"/>
       <integer comment="transmit Port" declare="yes" name="portNumber" subtype="uint32" type="ipport"/>
@@ -4077,14 +4074,14 @@
       <entry comment="" name="CallHistoryDisposition_MissedCalls" text="MissedCalls" value="0x0003"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="CallHistoryInfoMessage" opcode="0x0156" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="CallHistoryInfoMessage" opcode="0x0156" type="CallControl">
     <fields beginversion="0" endversion="22">
       <enum comment="" name="callHistoryDisposition" subtype="CallHistoryDisposition" type="uint32"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
     </fields>
   </message>
-  <message comment="Sent by wifi devices, contains xml information about connected SSID" direction="pbx2dev" dynamic="no" name="LocationInfoMessage" opcode="0x0156" status="no" type="RegistrationAndManagement">
+  <message comment="Sent by wifi devices, contains xml information about connected SSID" direction="pbx2dev" dynamic="no" msgtype="event" name="LocationInfoMessage" opcode="0x0157" type="RegistrationAndManagement">
     <fields alignment="4" beginversion="0" endversion="22">
       <string comment="" name="locationInfo" size="2401" type="char"/>
     </fields>
@@ -4100,13 +4097,13 @@
       <entry comment="" name="MwiNotificationResult_InvalidPriorityFaxCount" text="InvalidPriorityFaxCount" value="0x0006"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="MwiResponseMessage" opcode="0x0158" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="response" name="MwiResMessage" opcode="0x0158" request="0x004c" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <string comment="" name="mwiTargetNumber" size="25" type="char"/>
       <enum comment="" name="mwi_notification_result" subtype="MwiNotificationResult" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="AddOnDeviceCapabilitiesMessage" opcode="0x0159" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="AddOnDeviceCapabilitiesMessage" opcode="0x0159" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="unknown1_0159" type="uint32"/>
       <integer comment="" name="unknown2_0159" type="uint32"/>
@@ -4114,13 +4111,13 @@
       <string comment="" name="unknownString_0159" size="152" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="EnhancedAlarmMessage" opcode="0x015a" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="EnhancedAlarmMessage" opcode="0x015a" type="RegistrationAndManagement">
     <fields alignment="4" beginversion="0" endversion="22">
       <xml comment="" name="alarmInfo" size="2048" type="xml"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="CallCountReqMessage" opcode="0x015e" status="no" type="CallControl"/>
-  <message comment="" direction="pbx2dev" dynamic="no" name="CallCountRespMessage" opcode="0x015f" status="no" type="CallControl">
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="request" name="CallCountReqMessage" opcode="0x015e" type="CallControl"/>
+  <message comment="" direction="pbx2pbx" dynamic="no" msgtype="response" name="CallCountRespMessage" opcode="0x015f" request="0x015e" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="Total Number of Configured Lines" name="totalNumOfConfiguredLines" type="uint32"/>
       <integer comment="Starting Line Instance" name="startingLineInstance" type="uint32"/>
@@ -4139,13 +4136,13 @@
       <entry comment="" name="RecordingStatus__ON" text="_ON" value="0x0001"/>
     </entries>
   </enum>
-  <message comment="" direction="pbx2dev" dynamic="no" name="RecordingStatusMessage" opcode="0x0160" status="no" type="CallControl">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="RecordingStatusMessage" opcode="0x0160" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="CallId" name="callReference" type="uint32"/>
       <enum comment="" name="recording_status" subtype="RecordingStatus" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" name="SPCPRegisterTokenReq" opcode="0x8000" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="request" name="SPCPRegisterTokenReq" opcode="0x8000" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <struct comment="" name="sid" type="struct">
         <fields>
@@ -4159,12 +4156,12 @@
       <integer comment="" name="maxStreams" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SPCPRegisterTokenAck" opcode="0x8100" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="SPCPRegisterTokenAck" opcode="0x8100" request="0x8000" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="features" type="uint32"/>
     </fields>
   </message>
-  <message comment="" direction="pbx2dev" dynamic="no" name="SPCPRegisterTokenReject" opcode="0x8101" status="no" type="RegistrationAndManagement">
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="response" name="SPCPRegisterTokenReject" opcode="0x8101" request="0x8000" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="waitTimeBeforeNextReq" type="uint32"/>
     </fields>

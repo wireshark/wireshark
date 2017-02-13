@@ -128,6 +128,14 @@ def xml2obj(src):
         def getfieldnames(self):
             return ''
 
+        def get_req_resp_keys(self, req_resp_keys):
+            return []
+
+        def get_req_resp_key(self):
+            if self.req_resp_key == "1":
+                return self.name
+            return None
+
         def declaration(self):
             global fieldsArray
             if self.name not in fieldsArray:
@@ -177,16 +185,18 @@ def xml2obj(src):
                 ret += self.indent_out("/*\n")
                 ret += self.indent_out(" * Message:   %s\n" %self.name)
                 ret += self.indent_out(" * Opcode:    %s\n" %self.opcode)
-                ret += self.indent_out(" * Type:      %s\n"  %self.type)
+                ret += self.indent_out(" * Type:      %s\n" %self.type)
                 ret += self.indent_out(" * Direction: %s\n" %self.direction)
                 ret += self.indent_out(" * VarLength: %s\n" %self.dynamic)
+                ret += self.indent_out(" * MsgType:   %s\n" %self.msgtype)
                 if self.comment:
                     ret += self.indent_out(" * Comment: %s\n" %self.comment)
                 ret += self.indent_out(" */\n")
                 ret += self.indent_out("static void\n")
-                ret += self.indent_out("handle_%s(ptvcursor_t *cursor, packet_info * pinfo _U_)\n" %self.name)
+                ret += self.indent_out("handle_%s(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)\n" %self.name)
                 ret += self.indent_out("{\n")
                 self.incr_indent()
+
                 for fields in self.fields:
                     if fields.size_lt or fields.size_gt:
                         if self.basemessage.declared is None or "hdr_data_length" not in self.basemessage.declared:
@@ -202,7 +212,10 @@ def xml2obj(src):
                             ret += self.indent_out("guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);\n")
                             self.basemessage.declared.append("hdr_version")
                             declarations += 1
+
+                req_resp_keys = []
                 for fields in self.fields:
+                    fields.get_req_resp_keys(req_resp_keys)
                     ret += '%s' %fields.declaration()
                     declarations += 1
 
@@ -213,6 +226,19 @@ def xml2obj(src):
                     for fields in self.fields:
                         ret += '%s' %fields.dissect()
 
+                # setup request/response
+                if self.msgtype == "request":
+                  if req_resp_keys and req_resp_keys[0] != '':
+                      ret += self.indent_out('skinny_reqrep_add_request(cursor, pinfo, skinny_conv, %s ^ %s);\n' %(self.opcode, req_resp_keys[0]))
+                  else:
+                      ret += self.indent_out('skinny_reqrep_add_request(cursor, pinfo, skinny_conv, %s);\n' %(self.opcode))
+
+                if self.msgtype == "response":
+                  if req_resp_keys and req_resp_keys[0] != '':
+                      ret += self.indent_out('skinny_reqrep_add_response(cursor, pinfo, skinny_conv, %s ^ %s);\n' %(self.request, req_resp_keys[0]))
+                  else:
+                      ret += self.indent_out('skinny_reqrep_add_response(cursor, pinfo, skinny_conv, %s);\n' %(self.request))
+
                 self.decr_indent()
 
                 ret += "}\n\n"
@@ -221,6 +247,12 @@ def xml2obj(src):
     class Fields(DataNode):
         ''' Fields '''
         size_fieldnames= []
+
+        def get_req_resp_keys(self, req_resp):
+            for field in self._children:
+                key = field.get_req_resp_key()
+                if not key is None and not key in req_resp:
+                    req_resp.append(key)
 
         def declaration(self):
             ret = ''
@@ -474,6 +506,11 @@ def xml2obj(src):
         def __str__(self):
             return '%s:%s' %(self.__class__,self.name)
 
+        def get_req_resp_key(self):
+            if self.req_resp_key == "1":
+                return 'wmem_str_hash(%s)' %self.name
+            return None
+
         def declaration(self):
             ret = ''
             self.intsize = 0
@@ -494,10 +531,10 @@ def xml2obj(src):
                             self.basemessage.declared.append("hdr_version")
                         ret += self.indent_out('guint32 VariableDirnumSize = (hdr_version >= V18_MSG_TYPE) ? 25 : 24;\n')
                         self.basemessage.declared.append("VariableDirnumSize")
-                else:
-                    if self.basemessage.declared is None or self.name not in self.basemessage.declared:
-                        ret += self.indent_out('guint32 %s = 0;\n' %self.name)
-                        self.basemessage.declared.append(self.name)
+                #else:
+                #    if self.basemessage.declared is None or self.name not in self.basemessage.declared:
+                #        ret += self.indent_out('gchar *%s = NULL;\n' %self.name)
+                #        self.basemessage.declared.append(self.name)
 
             if self.basemessage.dynamic == "yes" and not self.subtype == "DisplayLabel":
                 if self.basemessage.declared is None or self.name + '_len' not in self.basemessage.declared:
@@ -513,7 +550,7 @@ def xml2obj(src):
             ret = ''
 
             if self.declare == "yes" and self.size != "VariableDirnumSize":
-                ret += self.indent_out('%s = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);\n' %self.name)
+                ret += self.indent_out('const gchar * %s = g_strdup(tvb_format_stringzpad(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(self.name, self.size))
 
             if self.subtype == "DisplayLabel":
                 if self.basemessage.dynamic == "yes":

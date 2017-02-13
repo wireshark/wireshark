@@ -49,24 +49,55 @@ cog.out(' */\n')
 /*]]]*/
 /*[[[end]]]*/
 
-/* Container for tapping relevant data */
+#include <epan/wmem/wmem.h>
+
+/* request response tracking */
+typedef struct _skinny_req_resp_t {
+  guint32                request_frame;
+  guint32                response_frame;
+  nstime_t               request_time;
+} skinny_req_resp_t;
+
+/* begin conversaton  info*/
+typedef enum _skinny_message_type_t {
+  SKINNY_MSGTYPE_EVENT    = 0,
+  SKINNY_MSGTYPE_REQUEST  = 1,
+  SKINNY_MSGTYPE_RESPONSE = 2,
+} skinny_message_type_t;
+
+typedef struct _skinny_conv_info_t {
+  skinny_message_type_t   mtype;
+  wmem_map_t            * pending_req_resp;
+  wmem_map_t            * requests;
+  wmem_map_t            * responses;
+  gint32                  lineId;
+  //guint32                 callId;
+  //guint32                 passThruId;
+  //guint32                 transactionId;
+  //guint32                 callState;
+} skinny_conv_info_t;
+/* end conversation info */
+
+/* Containers for tapping relevant data */
+/* WIP: will be (partially) replaced in favor of conversionation, dependents: ui/voip_calls.c */
 typedef struct _skinny_info_t
 {
-  guint32       messId;
-  guint32       maxProtocolVersion;
-  gint32        lineId;
-  guint32       callId;
-  guint32       passThruId;
-  const gchar * messageName;
-  guint32       callState;
-  gboolean      hasCallInfo;
-  gchar       * callingParty;
-  gchar       * calledParty;
-  gint32        mediaReceptionStatus;
-  gint32        mediaTransmissionStatus;
-  gint32        multimediaReceptionStatus;
-  gint32        multimediaTransmissionStatus;
-  gint32        multicastReceptionStatus;
+  guint32                 messId;
+  guint32                 maxProtocolVersion;
+  gint32                  lineId;
+  guint32                 callId;
+  guint32                 passThruId;
+  const gchar           * messageName;
+  guint32                 callState;
+  gboolean                hasCallInfo;
+  gchar                 * callingParty;
+  gchar                 * calledParty;
+  gint32                  mediaReceptionStatus;
+  gint32                  mediaTransmissionStatus;
+  gint32                  multimediaReceptionStatus;
+  gint32                  multimediaTransmissionStatus;
+  gint32                  multicastReceptionStatus;
+  //skinny_conv_info_t    * skinny_conv;
 } skinny_info_t;
 
 /*
