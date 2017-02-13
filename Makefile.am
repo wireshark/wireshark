@@ -672,7 +672,8 @@ editcap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
-	@GLIB_LIBS@
+	@GLIB_LIBS@			\
+	@LIBGCRYPT_LIBS@
 
 reordercap_SOURCES = \
 	reordercap.c	\

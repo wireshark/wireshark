@@ -43,7 +43,7 @@
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/str_util.h>
-#include <wsutil/sha1.h>
+#include <wsutil/wsgcrypt.h>
 #include <wsutil/pint.h>
 
 #include "packet-tcp.h"
@@ -2432,20 +2432,17 @@ tcp_sequence_number_analysis_print_bytes_in_flight(packet_info * pinfo _U_,
 static void
 mptcp_cryptodata_sha1(const guint64 key, guint32 *token, guint64 *idsn)
 {
-    guint8 digest_buf[SHA1_DIGEST_LEN];
+    guint8 digest_buf[HASH_SHA1_LENGTH];
     guint64 pseudokey = GUINT64_TO_BE(key);
-    sha1_context sha1_ctx;
     guint32 _token;
     guint64 _isdn;
 
-    sha1_starts(&sha1_ctx);
-    sha1_update(&sha1_ctx, (const guint8 *)&pseudokey, 8);
-    sha1_finish(&sha1_ctx, digest_buf);
+    gcry_md_hash_buffer(GCRY_MD_SHA1, digest_buf, (const guint8 *)&pseudokey, 8);
 
     /* memcpy to prevent -Wstrict-aliasing errors with GCC 4 */
-    memcpy(&_token, &digest_buf[0], sizeof(_token));
+    memcpy(&_token, digest_buf, sizeof(_token));
     *token = GUINT32_FROM_BE(_token);
-    memcpy(&_isdn, &digest_buf[SHA1_DIGEST_LEN-8], sizeof(_isdn));
+    memcpy(&_isdn, digest_buf + HASH_SHA1_LENGTH - sizeof(_isdn), sizeof(_isdn));
     *idsn = GUINT64_FROM_BE(_isdn);
 }
 

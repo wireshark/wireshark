@@ -71,6 +71,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <wsutil/wsgcrypt.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 #include "packet-kerberos.h"
@@ -351,7 +352,7 @@ static int hf_kerberos_KDCOptions_renew = -1;
 static int hf_kerberos_KDCOptions_validate = -1;
 
 /*--- End of included file: packet-kerberos-hf.c ---*/
-#line 174 "./asn1/kerberos/packet-kerberos-template.c"
+#line 175 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_kerberos = -1;
@@ -427,7 +428,7 @@ static gint ett_kerberos_KERB_PA_PAC_REQUEST = -1;
 static gint ett_kerberos_ChangePasswdData = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
-#line 188 "./asn1/kerberos/packet-kerberos-template.c"
+#line 189 "./asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 static expert_field ei_kerberos_address = EI_INIT;
@@ -456,7 +457,7 @@ static gboolean gbl_do_col_info;
 #define KERBEROS_ADDR_TYPE_IPV6  24
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 201 "./asn1/kerberos/packet-kerberos-template.c"
+#line 202 "./asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -951,10 +952,10 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	int id_offset, offset;
 	guint8 key[DES3_KEY_SIZE];
 	guint8 initial_vector[DES_BLOCK_SIZE];
-	md5_state_t md5s;
-	md5_byte_t digest[16];
-	md5_byte_t zero_fill[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	md5_byte_t confounder[8];
+	gcry_md_hd_t md5_handle;
+	guint8 *digest;
+	guint8 zero_fill[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	guint8 confounder[8];
 	gboolean ind;
 	GSList *ske;
 	service_key_t *sk;
@@ -980,11 +981,11 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	decrypted_data = wmem_alloc(wmem_packet_scope(), length);
 	for(ske = service_key_list; ske != NULL; ske = g_slist_next(ske)){
 		gboolean do_continue = FALSE;
+		gboolean digest_ok;
 		sk = (service_key_t *) ske->data;
 
 		des_fix_parity(DES3_KEY_SIZE, key, sk->contents);
 
-		md5_init(&md5s);
 		memset(initial_vector, 0, DES_BLOCK_SIZE);
 		des3_set_key(&ctx, key);
 		cbc_decrypt(&ctx, des3_decrypt, DES_BLOCK_SIZE, initial_vector,
@@ -1016,12 +1017,17 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			continue;
 		}
 
-		md5_append(&md5s, confounder, 8);
-		md5_append(&md5s, zero_fill, 16);
-		md5_append(&md5s, decrypted_data + CONFOUNDER_PLUS_CHECKSUM, data_len);
-		md5_finish(&md5s, digest);
+		if (gcry_md_open(&md5_handle, GCRY_MD_MD5, 0)) {
+			return NULL;
+		}
+		gcry_md_write(md5_handle, confounder, 8);
+		gcry_md_write(md5_handle, zero_fill, 16);
+		gcry_md_write(md5_handle, decrypted_data + CONFOUNDER_PLUS_CHECKSUM, data_len);
+		digest = gcry_md_read(md5_handle, 0);
 
-		if (tvb_memeql (encr_tvb, 8, digest, 16) == 0) {
+		digest_ok = (tvb_memeql (encr_tvb, 8, digest, HASH_MD5_LENGTH) == 0);
+		gcry_md_close(md5_handle);
+		if (digest_ok) {
 			plaintext = (guint8* )tvb_memdup(pinfo->pool, encr_tvb, CONFOUNDER_PLUS_CHECKSUM, data_len);
 			tvb_free(encr_tvb);
 
@@ -4206,7 +4212,7 @@ dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1850 "./asn1/kerberos/packet-kerberos-template.c"
+#line 1856 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -5260,7 +5266,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2231 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2237 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -5338,7 +5344,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_ChangePasswdData,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2247 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2253 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

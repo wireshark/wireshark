@@ -80,7 +80,7 @@
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
-#include <wsutil/md5.h>
+#include <wsutil/wsgcrypt.h>
 #include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_err.h>
@@ -113,7 +113,7 @@ struct select_item {
  * Duplicate frame detection
  */
 typedef struct _fd_hash_t {
-    md5_byte_t digest[16];
+    guint8     digest[16];
     guint32    len;
     nstime_t   frame_time;
 } fd_hash_t;
@@ -587,7 +587,6 @@ remove_vlan_info(const struct wtap_pkthdr *phdr, guint8* fd, guint32* len) {
 static gboolean
 is_duplicate(guint8* fd, guint32 len) {
     int i;
-    md5_state_t ms;
 
     /*Hint to ignore some bytes at the start of the frame for the digest calculation(-I option) */
     guint32 offset = ignored_bytes;
@@ -606,9 +605,7 @@ is_duplicate(guint8* fd, guint32 len) {
         cur_dup_entry = 0;
 
     /* Calculate our digest */
-    md5_init(&ms);
-    md5_append(&ms, new_fd, new_len);
-    md5_finish(&ms, fd_hash[cur_dup_entry].digest);
+    gcry_md_hash_buffer(GCRY_MD_MD5, fd_hash[cur_dup_entry].digest, new_fd, new_len);
 
     fd_hash[cur_dup_entry].len = len;
 
@@ -629,7 +626,6 @@ is_duplicate(guint8* fd, guint32 len) {
 static gboolean
 is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
     int i;
-    md5_state_t ms;
 
     /*Hint to ignore some bytes at the start of the frame for the digest calculation(-I option) */
     guint32 offset = ignored_bytes;
@@ -648,9 +644,7 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
         cur_dup_entry = 0;
 
     /* Calculate our digest */
-    md5_init(&ms);
-    md5_append(&ms, new_fd, new_len);
-    md5_finish(&ms, fd_hash[cur_dup_entry].digest);
+    gcry_md_hash_buffer(GCRY_MD_MD5, fd_hash[cur_dup_entry].digest, new_fd, new_len);
 
     fd_hash[cur_dup_entry].len = len;
     fd_hash[cur_dup_entry].frame_time.secs = current->secs;

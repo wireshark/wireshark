@@ -27,8 +27,7 @@
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
-#include <wsutil/sha1.h>
-#include <wsutil/md5.h>
+#include <wsutil/wsgcrypt.h>
 
 #include "packet-ber.h"
 #include "packet-cms.h"
@@ -65,7 +64,6 @@ static proto_tree *cap_tree=NULL;
 #define HASH_SHA1 "1.3.14.3.2.26"
 
 #define HASH_MD5 "1.2.840.113549.2.5"
-#define MD5_BUFFER_SIZE  16
 
 
 /* SHA-2 variants */
@@ -74,39 +72,23 @@ static proto_tree *cap_tree=NULL;
 #define HASH_SHA256 "2.16.840.1.101.3.4.2.1"
 #define SHA256_BUFFER_SIZE  32
 
-unsigned char digest_buf[MAX(SHA1_DIGEST_LEN, MD5_BUFFER_SIZE)];
+unsigned char digest_buf[MAX(HASH_SHA1_LENGTH, HASH_MD5_LENGTH)];
 
 static void
 cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff_t *tvb, int offset)
 {
-  sha1_context sha1_ctx;
-  md5_state_t md5_ctx;
   int i= 0, buffer_size = 0;
 
   /* we only support two algorithms at the moment  - if we do add SHA2
      we should add a registration process to use a registration process */
 
   if(strcmp(alg, HASH_SHA1) == 0) {
-
-    sha1_starts(&sha1_ctx);
-
-    sha1_update(&sha1_ctx, tvb_get_ptr(content, 0, tvb_captured_length(content)),
-		tvb_captured_length(content));
-
-    sha1_finish(&sha1_ctx, digest_buf);
-
-    buffer_size = SHA1_DIGEST_LEN;
+    gcry_md_hash_buffer(GCRY_MD_SHA1, digest_buf, tvb_get_ptr(content, 0, tvb_captured_length(content)), tvb_captured_length(content));
+    buffer_size = HASH_SHA1_LENGTH;
 
   } else if(strcmp(alg, HASH_MD5) == 0) {
-
-    md5_init(&md5_ctx);
-
-    md5_append(&md5_ctx, tvb_get_ptr(content, 0, tvb_captured_length(content)),
-	       tvb_captured_length(content));
-
-    md5_finish(&md5_ctx, digest_buf);
-
-    buffer_size = MD5_BUFFER_SIZE;
+    gcry_md_hash_buffer(GCRY_MD_MD5, digest_buf, tvb_get_ptr(content, 0, tvb_captured_length(content)), tvb_captured_length(content));
+    buffer_size = HASH_MD5_LENGTH;
   }
 
   if(buffer_size) {

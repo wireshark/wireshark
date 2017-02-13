@@ -38,7 +38,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
-#include <wsutil/md5.h>
+#include <wsutil/wsgcrypt.h>
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 #include "packet-tacacs.h"
@@ -1280,23 +1280,19 @@ proto_reg_handoff_tacplus(void)
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_TACACS, tacplus_handle);
 }
 
-
-#define MD5_LEN 16
-
 static void
 md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no )
 {
 	int i,j;
 	size_t md5_len;
-	md5_byte_t *md5_buff;
-	md5_byte_t hash[MD5_LEN];				/* the md5 hash */
-	md5_byte_t *mdp;
-	md5_state_t mdcontext;
+	guint8 *md5_buff;
+	guint8 hash[HASH_MD5_LENGTH];				/* the md5 hash */
+	guint8 *mdp;
 
 	md5_len = 4 /* sizeof(session_id) */ + strlen(key)
 			+ sizeof(version) + sizeof(seq_no);
 
-	md5_buff = (md5_byte_t*)wmem_alloc(wmem_packet_scope(), md5_len+MD5_LEN);
+	md5_buff = (guint8*)wmem_alloc(wmem_packet_scope(), md5_len + HASH_MD5_LENGTH);
 
 
 	mdp = md5_buff;
@@ -1308,10 +1304,8 @@ md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8
 	*mdp++ = seq_no;
 
 
-	md5_init(&mdcontext);
-	md5_append(&mdcontext, md5_buff, md5_len);
-	md5_finish(&mdcontext,hash);
-	md5_len += MD5_LEN;
+	gcry_md_hash_buffer(GCRY_MD_MD5, hash, md5_buff, md5_len);
+	md5_len += HASH_MD5_LENGTH;
 	for (i = 0; i < data_len; i += 16) {
 
 		for (j = 0; j < 16; j++) {
@@ -1321,10 +1315,8 @@ md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8
 			}
 			data[i + j] ^= hash[j];
 		}
-		memcpy(mdp, hash, MD5_LEN);
-		md5_init(&mdcontext);
-		md5_append(&mdcontext, md5_buff, md5_len);
-		md5_finish(&mdcontext,hash);
+		memcpy(mdp, hash, HASH_MD5_LENGTH);
+		gcry_md_hash_buffer(GCRY_MD_MD5, hash, md5_buff, md5_len);
 	}
 }
 

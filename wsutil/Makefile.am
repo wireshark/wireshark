@@ -69,8 +69,6 @@ libwsutil_nonrepl_INCLUDES = \
 	inet_ipv6.h		\
 	interface.h		\
 	jsmn.h			\
-	md4.h			\
-	md5.h			\
 	mpeg-audio.h		\
 	nstime.h		\
 	os_version_info.h	\
@@ -78,10 +76,7 @@ libwsutil_nonrepl_INCLUDES = \
 	plugins.h		\
 	privileges.h		\
 	processes.h		\
-	rc4.h			\
 	report_err.h		\
-	sha1.h			\
-	sha2.h			\
 	sign_ext.h		\
 	sober128.h		\
 	socket.h		\
@@ -147,17 +142,12 @@ libwsutil_la_SOURCES = \
 	inet_addr.c		\
 	interface.c		\
 	jsmn.c			\
-	md4.c			\
-	md5.c			\
 	mpeg-audio.c		\
 	nstime.c		\
 	os_version_info.c	\
 	plugins.c		\
 	privileges.c		\
-	rc4.c			\
 	report_err.c		\
-	sha1.c			\
-	sha2.c			\
 	sober128.c		\
 	str_util.c		\
 	strtoi.c		\
@@ -167,6 +157,7 @@ libwsutil_la_SOURCES = \
 	type_util.c		\
 	unicode-utils.c		\
 	ws_mempbrk.c		\
+	wsgcrypt.c		\
 	wsjsmn.c
 
 if HAVE_OS_X_FRAMEWORKS

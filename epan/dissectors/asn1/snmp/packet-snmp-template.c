@@ -60,13 +60,10 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/oids.h>
-#include <wsutil/sha1.h>
-#include <wsutil/md5.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
 #include "packet-ber.h"
 #include "packet-snmp.h"
-
 #include <wsutil/wsgcrypt.h>
 
 #define PNAME  "Simple Network Management Protocol"
@@ -106,7 +103,7 @@ static void snmp_usm_password_to_key_sha1(const guint8 *password, guint password
 
 
 static snmp_usm_auth_model_t model_md5 = {snmp_usm_password_to_key_md5, snmp_usm_auth_md5, 16};
-static snmp_usm_auth_model_t model_sha1 = {snmp_usm_password_to_key_sha1, snmp_usm_auth_sha1, SHA1_DIGEST_LEN};
+static snmp_usm_auth_model_t model_sha1 = {snmp_usm_password_to_key_sha1, snmp_usm_auth_sha1, 20};
 
 static const value_string auth_types[] = {
 	{0,"MD5"},
@@ -1575,9 +1572,11 @@ snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* calc_auth_l
 		msg[i] = '\0';
 	}
 
-	calc_auth = (guint8*)wmem_alloc(wmem_packet_scope(), 16);
+	calc_auth = (guint8*)wmem_alloc(wmem_packet_scope(), HASH_MD5_LENGTH);
 
-	md5_hmac(msg, msg_len, key, key_len, calc_auth);
+	if (ws_hmac_buffer(GCRY_MD_MD5, calc_auth, msg, msg_len, key, key_len)) {
+		return FALSE;
+	}
 
 	if (calc_auth_p) *calc_auth_p = calc_auth;
 	if (calc_auth_len_p) *calc_auth_len_p = 12;
@@ -1639,9 +1638,11 @@ snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_a
 		msg[i] = '\0';
 	}
 
-	calc_auth = (guint8*)wmem_alloc(wmem_packet_scope(), SHA1_DIGEST_LEN);
+	calc_auth = (guint8*)wmem_alloc(wmem_packet_scope(), HASH_SHA1_LENGTH);
 
-	sha1_hmac(key, key_len, msg, msg_len, calc_auth);
+	if (ws_hmac_buffer(GCRY_MD_SHA1, calc_auth, msg, msg_len, key, key_len)) {
+		return FALSE;
+	}
 
 	if (calc_auth_p) *calc_auth_p = calc_auth;
 	if (calc_auth_len_p) *calc_auth_len_p = 12;
@@ -2131,12 +2132,14 @@ snmp_usm_password_to_key_md5(const guint8 *password, guint passwordlen,
 			     const guint8 *engineID, guint engineLength,
 			     guint8 *key)
 {
-	md5_state_t	MD;
 	guint8		*cp, password_buf[64];
 	guint32		password_index = 0;
 	guint32		count = 0, i;
 	guint8		key1[16];
-	md5_init(&MD);   /* initialize MD5 */
+	gcry_md_hd_t	md5_handle;
+	if (gcry_md_open(&md5_handle, GCRY_MD_MD5, 0)) {
+		return;
+	}
 
 	/**********************************************/
 	/* Use while loop until we've done 1 Megabyte */
@@ -2154,10 +2157,11 @@ snmp_usm_password_to_key_md5(const guint8 *password, guint passwordlen,
 		} else {
 			*cp = 0;
 		}
-		md5_append(&MD, password_buf, 64);
+		gcry_md_write(md5_handle, password_buf, 64);
 		count += 64;
 	}
-	md5_finish(&MD, key1); /* tell MD5 we're done */
+	memcpy(key1, gcry_md_read(md5_handle, 0), HASH_MD5_LENGTH);
+	gcry_md_close(md5_handle);
 
 	/*****************************************************/
 	/* Now localize the key with the engineID and pass   */
@@ -2166,11 +2170,14 @@ snmp_usm_password_to_key_md5(const guint8 *password, guint passwordlen,
 	/* checking is done in snmp_users_update_cb.         */
 	/*****************************************************/
 
-	md5_init(&MD);
-	md5_append(&MD, key1, 16);
-	md5_append(&MD, engineID, engineLength);
-	md5_append(&MD, key1, 16);
-	md5_finish(&MD, key);
+	if (gcry_md_open(&md5_handle, GCRY_MD_MD5, 0)) {
+		return;
+	}
+	gcry_md_write(md5_handle, key1, HASH_MD5_LENGTH);
+	gcry_md_write(md5_handle, engineID, engineLength);
+	gcry_md_write(md5_handle, key1, HASH_MD5_LENGTH);
+	memcpy(key, gcry_md_read(md5_handle, 0), HASH_MD5_LENGTH);
+	gcry_md_close(md5_handle);
 
 	return;
 }
@@ -2187,12 +2194,14 @@ snmp_usm_password_to_key_sha1(const guint8 *password, guint passwordlen,
 			      const guint8 *engineID, guint engineLength,
 			      guint8 *key)
 {
-	sha1_context	SH;
+	gcry_md_hd_t	sha1_handle;
 	guint8		*cp, password_buf[64];
 	guint32		password_index = 0;
 	guint32		count = 0, i;
 
-	sha1_starts(&SH); /* initialize SHA */
+	if (gcry_md_open(&sha1_handle, GCRY_MD_SHA1, 0)) {
+		return;
+	}
 
 	/**********************************************/
 	/* Use while loop until we've done 1 Megabyte */
@@ -2210,10 +2219,11 @@ snmp_usm_password_to_key_sha1(const guint8 *password, guint passwordlen,
 		} else {
 			*cp = 0;
 		}
-		sha1_update (&SH, password_buf, 64);
+		gcry_md_write(sha1_handle, password_buf, 64);
 		count += 64;
 	}
-	sha1_finish(&SH, key);
+	memcpy(key, gcry_md_read(sha1_handle, 0), HASH_SHA1_LENGTH);
+	gcry_md_close(sha1_handle);
 
 	/*****************************************************/
 	/* Now localize the key with the engineID and pass   */
@@ -2221,12 +2231,14 @@ snmp_usm_password_to_key_sha1(const guint8 *password, guint passwordlen,
 	/* We ignore invalid engineLengths here. More strict */
 	/* checking is done in snmp_users_update_cb.         */
 	/*****************************************************/
-
-	sha1_starts(&SH);
-	sha1_update(&SH, key, SHA1_DIGEST_LEN);
-	sha1_update(&SH, engineID, engineLength);
-	sha1_update(&SH, key, SHA1_DIGEST_LEN);
-	sha1_finish(&SH, key);
+	if (gcry_md_open(&sha1_handle, GCRY_MD_SHA1, 0)) {
+		return;
+	}
+	gcry_md_write(sha1_handle, key, HASH_SHA1_LENGTH);
+	gcry_md_write(sha1_handle, engineID, engineLength);
+	gcry_md_write(sha1_handle, key, HASH_SHA1_LENGTH);
+	memcpy(key, gcry_md_read(sha1_handle, 0), HASH_SHA1_LENGTH);
+	gcry_md_close(sha1_handle);
 	return;
  }
 

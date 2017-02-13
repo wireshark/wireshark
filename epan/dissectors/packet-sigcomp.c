@@ -38,7 +38,7 @@
 #include <epan/strutil.h>
 #include <epan/exceptions.h>
 
-#include <wsutil/sha1.h>
+#include <wsutil/wsgcrypt.h>
 #include <wsutil/crc16.h>
 
 void proto_register_sigcomp(void);
@@ -1784,7 +1784,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
     guint          maximum_UDVM_cycles;
     guint8        *sha1buff;
     unsigned char  sha1_digest_buf[STATE_BUFFER_SIZE];
-    sha1_context   ctx;
+    gcry_md_hd_t   sha1_handle;
     proto_item    *addr_item = NULL;
 
 
@@ -2486,7 +2486,9 @@ execute_next_instruction:
                                 NULL, "byte_copy_right = %u", byte_copy_right);
         }
 
-        sha1_starts( &ctx );
+        if (gcry_md_open(&sha1_handle, GCRY_MD_SHA1, 0)) {
+            goto decompression_failure;
+        }
 
         while (n<length) {
             guint16 handle_now = length;
@@ -2495,9 +2497,11 @@ execute_next_instruction:
                 handle_now = byte_copy_right - position;
             }
 
-            if (k + handle_now >= UDVM_MEMORY_SIZE)
+            if (k + handle_now >= UDVM_MEMORY_SIZE) {
+                gcry_md_close(sha1_handle);
                 goto decompression_failure;
-            sha1_update( &ctx, &buff[k], handle_now );
+            }
+            gcry_md_write(sha1_handle, &buff[k], handle_now);
 
             k = ( k + handle_now ) & 0xffff;
             n = ( n + handle_now ) & 0xffff;
@@ -2507,7 +2511,8 @@ execute_next_instruction:
             }
         }
 
-        sha1_finish( &ctx, sha1_digest_buf );
+        memcpy(sha1_digest_buf, gcry_md_read(sha1_handle, 0), HASH_SHA1_LENGTH);
+        gcry_md_close(sha1_handle);
 
         k = ref_destination;
 
@@ -4368,12 +4373,9 @@ execute_next_instruction:
                     k = ( k + 1 ) & 0xffff;
                 }
 
-                sha1_starts( &ctx );
-                sha1_update( &ctx, (guint8 *) sha1buff, state_length_buff[n] + 8);
-                sha1_finish( &ctx, sha1_digest_buf );
+                gcry_md_hash_buffer(GCRY_MD_SHA1, sha1_digest_buf, (guint8 *) sha1buff, state_length_buff[n] + 8);
                 if (print_level_3 ) {
                     proto_tree_add_bytes_with_length(udvm_tree, hf_sigcomp_sha1_digest, bytecode_tvb, 0, -1, sha1_digest_buf, STATE_BUFFER_SIZE);
-
                 }
 /* begin partial state-id change cco@iptel.org */
 #if 0
@@ -4919,8 +4921,8 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
             proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_pc, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset = offset +2;
-            proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_sha1, tvb, offset, SHA1_DIGEST_LEN, ENC_NA);
-            offset = offset +SHA1_DIGEST_LEN;
+            proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_sha1, tvb, offset, HASH_SHA1_LENGTH, ENC_NA);
+            offset = offset + HASH_SHA1_LENGTH;
 
             /* Add NACK info to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK reason=%s, opcode=%s",

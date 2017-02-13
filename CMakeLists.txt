@@ -2459,6 +2459,7 @@ if(BUILD_editcap)
 	set(editcap_LIBS
 		wiretap
 		${ZLIB_LIBRARIES}
+		${GCRYPT_LIBRARIES}
 		${CMAKE_DL_LIBS}
 	)
 	set(editcap_FILES

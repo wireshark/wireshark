@@ -36,7 +36,7 @@
 #include <epan/asn1.h>
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
-#include <wsutil/rc4.h>
+#include <wsutil/wsgcrypt.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
@@ -314,8 +314,6 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 #ifdef HAVE_KERBEROS
-#include <wsutil/md5.h>
-
 #ifndef KEYTYPE_ARCFOUR_56
 # define KEYTYPE_ARCFOUR_56 24
 #endif
@@ -332,23 +330,25 @@ arcfour_mic_key(const guint8 *key_data, size_t key_size, int key_type,
                 const guint8 *cksum_data, size_t cksum_size,
                 guint8 *key6_data)
 {
-  guint8 k5_data[16];
-  guint8 T[4];
-
-  memset(T, 0, 4);
+  guint8 k5_data[HASH_MD5_LENGTH];
+  guint8 T[4] = { 0 };
 
   if (key_type == KEYTYPE_ARCFOUR_56) {
     guint8 L40[14] = "fortybits";
-
     memcpy(L40 + 10, T, sizeof(T));
-    md5_hmac(L40, 14, key_data, key_size, k5_data);
+    if (ws_hmac_buffer(GCRY_MD_MD5, k5_data, L40, 14, key_data, key_size)) {
+      return 0;
+    }
     memset(&k5_data[7], 0xAB, 9);
   } else {
-    md5_hmac(T, 4, key_data, key_size, k5_data);
+    if (ws_hmac_buffer(GCRY_MD_MD5, k5_data, T, 4, key_data, key_size)) {
+      return 0;
+    }
   }
 
-  md5_hmac(cksum_data, cksum_size, k5_data, 16, key6_data);
-
+  if (ws_hmac_buffer(GCRY_MD_MD5, key6_data, cksum_data, cksum_size, k5_data, HASH_MD5_LENGTH)) {
+    return 0;
+  }
   return 0;
 }
 
@@ -379,26 +379,35 @@ arcfour_mic_cksum(guint8 *key_data, int key_length,
                   const guint8 *v3, size_t l3)
 {
   static const guint8 signature[] = "signaturekey";
-  guint8 ksign_c[16];
+  guint8 ksign_c[HASH_MD5_LENGTH];
   guint8 t[4];
-  md5_state_t ms;
-  guint8 digest[16];
+  guint8 digest[HASH_MD5_LENGTH];
   int rc4_usage;
-  guint8 cksum[16];
+  guint8 cksum[HASH_MD5_LENGTH];
+  gcry_md_hd_t md5_handle;
 
   rc4_usage=usage2arcfour(usage);
-  md5_hmac(signature, sizeof(signature), key_data, key_length, ksign_c);
-  md5_init(&ms);
+  if (ws_hmac_buffer(GCRY_MD_MD5, ksign_c, signature, sizeof(signature), key_data, key_length)) {
+    return 0;
+  }
+
+  if (gcry_md_open(&md5_handle, GCRY_MD_MD5, 0)) {
+    return 0;
+  }
   t[0] = (rc4_usage >>  0) & 0xFF;
   t[1] = (rc4_usage >>  8) & 0xFF;
   t[2] = (rc4_usage >> 16) & 0xFF;
   t[3] = (rc4_usage >> 24) & 0xFF;
-  md5_append(&ms, t, 4);
-  md5_append(&ms, v1, l1);
-  md5_append(&ms, v2, l2);
-  md5_append(&ms, v3, l3);
-  md5_finish(&ms, digest);
-  md5_hmac(digest, 16, ksign_c, 16, cksum);
+  gcry_md_write(md5_handle, t, 4);
+  gcry_md_write(md5_handle, v1, l1);
+  gcry_md_write(md5_handle, v2, l2);
+  gcry_md_write(md5_handle, v3, l3);
+  memcpy(digest, gcry_md_read(md5_handle, 0), HASH_MD5_LENGTH);
+  gcry_md_close(md5_handle);
+
+  if (ws_hmac_buffer(GCRY_MD_MD5, cksum, digest, HASH_MD5_LENGTH, ksign_c, HASH_MD5_LENGTH)) {
+    return 0;
+  }
 
   memcpy(sgn_cksum, cksum, 8);
 
@@ -446,7 +455,7 @@ decrypt_arcfour(gssapi_encrypt_info_t* gssapi_encrypt, guint8 *input_message_buf
   int cmp;
   int conf_flag;
   int padlen = 0;
-  rc4_state_struct rc4_state;
+  gcry_cipher_hd_t rc4_handle;
   int i;
 
   datalen = tvb_captured_length(gssapi_encrypt->gssapi_encrypted_tvb);
@@ -471,9 +480,16 @@ decrypt_arcfour(gssapi_encrypt_info_t* gssapi_encrypt, guint8 *input_message_buf
     return -5;
   }
 
-  crypt_rc4_init(&rc4_state, k6_data, sizeof(k6_data));
   tvb_memcpy(gssapi_encrypt->gssapi_wrap_tvb, SND_SEQ, 8, 8);
-  crypt_rc4(&rc4_state, (guint8 *)SND_SEQ, 8);
+  if (gcry_cipher_open (&rc4_handle, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0)) {
+    return -12;
+  }
+  if (gcry_cipher_setkey(rc4_handle, k6_data, sizeof(k6_data))) {
+    gcry_cipher_close(rc4_handle);
+    return -13;
+  }
+  gcry_cipher_decrypt(rc4_handle, (guint8 *)SND_SEQ, 8, NULL, 0);
+  gcry_cipher_close(rc4_handle);
 
   memset(k6_data, 0, sizeof(k6_data));
 
@@ -497,11 +513,18 @@ decrypt_arcfour(gssapi_encrypt_info_t* gssapi_encrypt, guint8 *input_message_buf
 
   if(conf_flag) {
 
-    crypt_rc4_init(&rc4_state, k6_data, sizeof(k6_data));
     tvb_memcpy(gssapi_encrypt->gssapi_wrap_tvb, Confounder, 24, 8);
-    crypt_rc4(&rc4_state, Confounder, 8);
-    memcpy(output_message_buffer, input_message_buffer, datalen);
-    crypt_rc4(&rc4_state, output_message_buffer, datalen);
+    if (gcry_cipher_open (&rc4_handle, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0)) {
+      return -14;
+    }
+    if (gcry_cipher_setkey(rc4_handle, k6_data, sizeof(k6_data))) {
+      gcry_cipher_close(rc4_handle);
+      return -15;
+    }
+
+    gcry_cipher_decrypt(rc4_handle, Confounder, 8, NULL, 0);
+    gcry_cipher_decrypt(rc4_handle, output_message_buffer, datalen, input_message_buffer, datalen);
+    gcry_cipher_close(rc4_handle);
   } else {
     tvb_memcpy(gssapi_encrypt->gssapi_wrap_tvb, Confounder, 24, 8);
     memcpy(output_message_buffer, input_message_buffer, datalen);

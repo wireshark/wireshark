@@ -38,7 +38,7 @@
 
 /****************************************************************************/
 /* File includes								*/
-
+#include "config.h"
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 
@@ -46,7 +46,7 @@
 
 #include "airpdcap_debug.h"
 #include <glib.h>
-#include <wsutil/aes.h>
+#include <wsutil/wsgcrypt.h>
 
 /****************************************************************************/
 /*	Internal definitions							*/
@@ -68,15 +68,15 @@
 /****************************************************************************/
 /* Internal macros								*/
 
-#define CCMP_DECRYPT(_i, _b, _b0, _pos, _a, _len) {		\
-	/* Decrypt, with counter */                             \
-	_b0[14] = (UINT8)((_i >> 8) & 0xff);                    \
-	_b0[15] = (UINT8)(_i & 0xff);                           \
-	rijndael_encrypt(&key, _b0, _b);		        \
-	XOR_BLOCK(_pos, _b, _len);				\
-	/* Authentication */					\
-	XOR_BLOCK(_a, _pos, _len);				\
-	rijndael_encrypt(&key, _a, _a);				\
+#define CCMP_DECRYPT(_i, _b, _b0, _pos, _a, _len) {					\
+	/* Decrypt, with counter */							\
+	_b0[14] = (UINT8)((_i >> 8) & 0xff);						\
+	_b0[15] = (UINT8)(_i & 0xff);							\
+	gcry_cipher_encrypt(rijndael_handle, _b, AES_BLOCK_LEN, _b0, AES_BLOCK_LEN);	\
+	XOR_BLOCK(_pos, _b, _len);							\
+	/* Authentication */								\
+	XOR_BLOCK(_a, _pos, _len);							\
+	gcry_cipher_encrypt(rijndael_handle, _a, AES_BLOCK_LEN, NULL, 0);		\
 }
 
 #define READ_6(b0, b1, b2, b3, b4, b5) \
@@ -89,8 +89,8 @@
 /* Internal function prototypes declarations					*/
 
 static void ccmp_init_blocks(
-	rijndael_ctx *ctx,
-        PAIRPDCAP_MAC_FRAME wh,
+	gcry_cipher_hd_t rijndael_handle,
+	PAIRPDCAP_MAC_FRAME wh,
 	UINT64 pn,
 	size_t dlen,
 	UINT8 b0[AES_BLOCK_LEN],
@@ -103,8 +103,8 @@ static void ccmp_init_blocks(
 /* Function definitions							*/
 
 static void ccmp_init_blocks(
-	rijndael_ctx *ctx,
-        PAIRPDCAP_MAC_FRAME wh,
+	gcry_cipher_hd_t rijndael_handle,
+	PAIRPDCAP_MAC_FRAME wh,
 	UINT64 pn,
 	size_t dlen,
 	UINT8 b0[AES_BLOCK_LEN],
@@ -198,14 +198,14 @@ static void ccmp_init_blocks(
 	}
 
 	/* Start with the first block and AAD */
-	rijndael_encrypt(ctx, b0, a);
+	gcry_cipher_encrypt(rijndael_handle, a, AES_BLOCK_LEN, b0, AES_BLOCK_LEN);
 	XOR_BLOCK(a, aad, AES_BLOCK_LEN);
-	rijndael_encrypt(ctx, a, a);
+	gcry_cipher_encrypt(rijndael_handle, a, AES_BLOCK_LEN, NULL, 0);
 	XOR_BLOCK(a, &aad[AES_BLOCK_LEN], AES_BLOCK_LEN);
-	rijndael_encrypt(ctx, a, a);
+	gcry_cipher_encrypt(rijndael_handle, a, AES_BLOCK_LEN, NULL, 0);
 	b0[0] &= 0x07;
 	b0[14] = b0[15] = 0;
-	rijndael_encrypt(ctx, b0, b);
+	gcry_cipher_encrypt(rijndael_handle, b, AES_BLOCK_LEN, b0, AES_BLOCK_LEN);
 
 	/** //XOR( m + len - 8, b, 8 ); **/
 #undef  IS_QOS_DATA
@@ -214,7 +214,7 @@ static void ccmp_init_blocks(
 
 INT AirPDcapCcmpDecrypt(
 	UINT8 *m,
-        gint mac_header_len,
+	gint mac_header_len,
 	INT len,
 	UCHAR TK1[16])
 {
@@ -227,19 +227,27 @@ INT AirPDcapCcmpDecrypt(
 	UINT8 *pos;
 	UINT space;
 	INT z = mac_header_len;
-	rijndael_ctx key;
+	gcry_cipher_hd_t rijndael_handle;
 	UINT64 PN;
 	UINT8 *ivp=m+z;
 
 	PN = READ_6(ivp[0], ivp[1], ivp[4], ivp[5], ivp[6], ivp[7]);
 
-	/* freebsd	*/
-	rijndael_set_key(&key, TK1, 128);
+	if (gcry_cipher_open(&rijndael_handle, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_ECB, 0)) {
+		return 1;
+	}
+	if (gcry_cipher_setkey(rijndael_handle, TK1, 16)) {
+		gcry_cipher_close(rijndael_handle);
+		return 1;
+	}
+
 	wh = (PAIRPDCAP_MAC_FRAME )m;
 	data_len = len - (z + AIRPDCAP_CCMP_HEADER+AIRPDCAP_CCMP_TRAILER);
-	if (data_len < 1)
-	    return 0;
-	ccmp_init_blocks(&key, wh, PN, data_len, b0, aad, a, b);
+	if (data_len < 1) {
+		gcry_cipher_close(rijndael_handle);
+		return 0;
+	}
+	ccmp_init_blocks(rijndael_handle, wh, PN, data_len, b0, aad, a, b);
 	memcpy(mic, m+len-AIRPDCAP_CCMP_TRAILER, AIRPDCAP_CCMP_TRAILER);
 	XOR_BLOCK(mic, b, AIRPDCAP_CCMP_TRAILER);
 
@@ -258,7 +266,8 @@ INT AirPDcapCcmpDecrypt(
 	if (space != 0)         /* short last block */
 		CCMP_DECRYPT(i, b, b0, pos, a, space);
 
-	/*	MIC Key ?= MIC																				*/
+	gcry_cipher_close(rijndael_handle);
+	/* MIC Key ?= MIC */
 	if (memcmp(mic, a, AIRPDCAP_CCMP_TRAILER) == 0) {
 		return 0;
 	}

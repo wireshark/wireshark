@@ -68,7 +68,7 @@
 #include <epan/addr_resolv.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/report_err.h>
-#include <wsutil/md5.h>
+#include <wsutil/wsgcrypt.h>
 
 
 #include "packet-radius.h"
@@ -912,8 +912,8 @@ dissect_rfc4675_egress_vlan_name(proto_tree *tree, tvbuff_t *tvb, packet_info *p
 static void
 radius_decrypt_avp(gchar *dest, int dest_len, tvbuff_t *tvb, int offset, int length)
 {
-	md5_state_t md_ctx, old_md_ctx;
-	md5_byte_t digest[AUTHENTICATOR_LENGTH];
+	gcry_md_hd_t md5_handle, old_md5_handle;
+	guint8 digest[HASH_MD5_LENGTH];
 	int i, j;
 	gint totlen = 0, returned_length, padded_length;
 	guint8 *pd;
@@ -932,11 +932,17 @@ radius_decrypt_avp(gchar *dest, int dest_len, tvbuff_t *tvb, int offset, int len
 	if (length > 128)
 		length = 128;
 
-	md5_init(&md_ctx);
-	md5_append(&md_ctx, (const guint8 *)shared_secret, (int)strlen(shared_secret));
-	old_md_ctx = md_ctx;
-	md5_append(&md_ctx, authenticator, AUTHENTICATOR_LENGTH);
-	md5_finish(&md_ctx, digest);
+	if (gcry_md_open(&md5_handle, GCRY_MD_MD5, 0)) {
+		return;
+	}
+	gcry_md_write(md5_handle, (const guint8 *)shared_secret, (int)strlen(shared_secret));
+	if (gcry_md_copy(&old_md5_handle, md5_handle)) {
+		gcry_md_close(md5_handle);
+		return;
+	}
+	gcry_md_write(md5_handle, authenticator, AUTHENTICATOR_LENGTH);
+	memcpy(digest, gcry_md_read(md5_handle, 0), HASH_MD5_LENGTH);
+	gcry_md_close(md5_handle);
 
 	padded_length = length + ((length % AUTHENTICATOR_LENGTH) ?
 		(AUTHENTICATOR_LENGTH - (length % AUTHENTICATOR_LENGTH)) : 0);
@@ -958,10 +964,16 @@ radius_decrypt_avp(gchar *dest, int dest_len, tvbuff_t *tvb, int offset, int len
 			}
 		}
 
-		md_ctx = old_md_ctx;
-		md5_append(&md_ctx, &pd[i], AUTHENTICATOR_LENGTH);
-		md5_finish(&md_ctx, digest);
+		if (gcry_md_copy(&md5_handle, old_md5_handle)) {
+			gcry_md_close(old_md5_handle);
+			return;
+		}
+		gcry_md_write(md5_handle, &pd[i], AUTHENTICATOR_LENGTH);
+		memcpy(digest, gcry_md_read(md5_handle, 0), HASH_MD5_LENGTH);
+		gcry_md_close(md5_handle);
 	}
+
+	gcry_md_close(old_md5_handle);
 }
 
 
@@ -1778,8 +1790,9 @@ is_radius(tvbuff_t *tvb)
 static gboolean
 valid_authenticator(tvbuff_t *tvb, guint8 request_authenticator[])
 {
-	md5_state_t md_ctx;
-	md5_byte_t digest[16];
+	gcry_md_hd_t md5_handle;
+	guint8 *digest;
+	gboolean result;
 	guint tvb_length;
 	guint8 *payload;
 
@@ -1792,12 +1805,16 @@ valid_authenticator(tvbuff_t *tvb, guint8 request_authenticator[])
 	memcpy(payload+4, request_authenticator, AUTHENTICATOR_LENGTH);
 
 	/* calculate MD5 hash (payload+shared_secret) */
-	md5_init(&md_ctx);
-	md5_append(&md_ctx, payload, tvb_length);
-	md5_append(&md_ctx, shared_secret, strlen(shared_secret));
-	md5_finish(&md_ctx, digest);
+	if (gcry_md_open(&md5_handle, GCRY_MD_MD5, 0)) {
+		return FALSE;
+	}
+	gcry_md_write(md5_handle, payload, tvb_length);
+	gcry_md_write(md5_handle, shared_secret, strlen(shared_secret));
+	digest = gcry_md_read(md5_handle, 0);
 
-	return !memcmp(digest, authenticator, AUTHENTICATOR_LENGTH);
+	result = !memcmp(digest, authenticator, AUTHENTICATOR_LENGTH);
+	gcry_md_close(md5_handle);
+	return result;
 }
 
 static int

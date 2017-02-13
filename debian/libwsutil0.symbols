@@ -43,9 +43,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  create_tempdir@Base 1.12.0~rc1
  create_tempfile@Base 1.12.0~rc1
  crypt_des_ecb@Base 1.12.0~rc1
- crypt_md4@Base 1.12.0~rc1
- crypt_rc4@Base 1.12.0~rc1
- crypt_rc4_init@Base 1.12.0~rc1
  data_file_url@Base 2.3.0
  delete_persconffile_profile@Base 1.12.0~rc1
  file_exists@Base 1.12.0~rc1
@@ -95,13 +92,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  linear2ulaw@Base 1.12.0~rc1
  local_interfaces_to_list@Base 2.1.2
  log_resource_usage@Base 2.1.2
- md5_append@Base 1.12.0~rc1
- md5_finish@Base 1.12.0~rc1
- md5_hmac@Base 1.12.0~rc1
- md5_hmac_append@Base 1.12.0~rc1
- md5_hmac_finish@Base 1.12.0~rc1
- md5_hmac_init@Base 1.12.0~rc1
- md5_init@Base 1.12.0~rc1
  mktime_utc@Base 1.12.0~rc1
  mpa_bitrate@Base 1.10.0
  mpa_frequency@Base 1.10.0
@@ -141,20 +131,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  set_persconffile_dir@Base 1.12.0~rc1
  set_persdatafile_dir@Base 1.12.0~rc1
  set_profile_name@Base 1.12.0~rc1
- sha1_finish@Base 1.12.0~rc1
- sha1_hmac@Base 1.12.0~rc1
- sha1_hmac_finish@Base 1.12.0~rc1
- sha1_hmac_starts@Base 1.12.0~rc1
- sha1_hmac_update@Base 1.12.0~rc1
- sha1_starts@Base 1.12.0~rc1
- sha1_update@Base 1.12.0~rc1
- sha256_finish@Base 2.1.0
- sha256_hmac@Base 2.1.0
- sha256_hmac_finish@Base 2.1.0
- sha256_hmac_starts@Base 2.1.0
- sha256_hmac_update@Base 2.1.0
- sha256_starts@Base 2.1.0
- sha256_update@Base 2.1.0
  sober128_add_entropy@Base 1.99.0
  sober128_read@Base 1.99.0
  sober128_start@Base 1.99.0
@@ -182,6 +158,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_hexstrtou32@Base 2.3.0
  ws_hexstrtou64@Base 2.3.0
  ws_hexstrtou8@Base 2.3.0
+ ws_hmac_buffer@Base 2.3.0
  ws_inet_ntop4@Base 2.1.2
  ws_inet_ntop6@Base 2.1.2
  ws_inet_pton4@Base 2.1.2

@@ -63,6 +63,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <wsutil/wsgcrypt.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 #include "packet-kerberos.h"
@@ -692,10 +693,10 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	int id_offset, offset;
 	guint8 key[DES3_KEY_SIZE];
 	guint8 initial_vector[DES_BLOCK_SIZE];
-	md5_state_t md5s;
-	md5_byte_t digest[16];
-	md5_byte_t zero_fill[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	md5_byte_t confounder[8];
+	gcry_md_hd_t md5_handle;
+	guint8 *digest;
+	guint8 zero_fill[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	guint8 confounder[8];
 	gboolean ind;
 	GSList *ske;
 	service_key_t *sk;
@@ -721,11 +722,11 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	decrypted_data = wmem_alloc(wmem_packet_scope(), length);
 	for(ske = service_key_list; ske != NULL; ske = g_slist_next(ske)){
 		gboolean do_continue = FALSE;
+		gboolean digest_ok;
 		sk = (service_key_t *) ske->data;
 
 		des_fix_parity(DES3_KEY_SIZE, key, sk->contents);
 
-		md5_init(&md5s);
 		memset(initial_vector, 0, DES_BLOCK_SIZE);
 		des3_set_key(&ctx, key);
 		cbc_decrypt(&ctx, des3_decrypt, DES_BLOCK_SIZE, initial_vector,
@@ -757,12 +758,17 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			continue;
 		}
 
-		md5_append(&md5s, confounder, 8);
-		md5_append(&md5s, zero_fill, 16);
-		md5_append(&md5s, decrypted_data + CONFOUNDER_PLUS_CHECKSUM, data_len);
-		md5_finish(&md5s, digest);
+		if (gcry_md_open(&md5_handle, GCRY_MD_MD5, 0)) {
+			return NULL;
+		}
+		gcry_md_write(md5_handle, confounder, 8);
+		gcry_md_write(md5_handle, zero_fill, 16);
+		gcry_md_write(md5_handle, decrypted_data + CONFOUNDER_PLUS_CHECKSUM, data_len);
+		digest = gcry_md_read(md5_handle, 0);
 
-		if (tvb_memeql (encr_tvb, 8, digest, 16) == 0) {
+		digest_ok = (tvb_memeql (encr_tvb, 8, digest, HASH_MD5_LENGTH) == 0);
+		gcry_md_close(md5_handle);
+		if (digest_ok) {
 			plaintext = (guint8* )tvb_memdup(pinfo->pool, encr_tvb, CONFOUNDER_PLUS_CHECKSUM, data_len);
 			tvb_free(encr_tvb);
 

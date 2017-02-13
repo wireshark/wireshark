@@ -67,8 +67,7 @@
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
 
-#include <wsutil/md5.h>
-#include <wsutil/sha1.h>
+#include <wsutil/wsgcrypt.h>
 
 #include "packet-l2tp.h"
 
@@ -974,8 +973,6 @@ static dissector_handle_t l2tp_ip_handle;
 
 #define L2TP_HMAC_MD5  0
 #define L2TP_HMAC_SHA1 1
-#define L2TP_HMAC_MD5_KEY_LEN 16
-#define L2TP_HMAC_MD5_DIGEST_LEN 16
 
 typedef struct l2tpv3_conversation {
     address               lcce1;
@@ -1000,7 +997,7 @@ typedef struct l2tpv3_tunnel {
     gint     lcce2_nonce_len;
 
     gchar   *shared_key_secret;
-    guint8   shared_key[L2TP_HMAC_MD5_KEY_LEN];
+    guint8   shared_key[HASH_MD5_LENGTH];
 
     GSList  *sessions;
 } l2tpv3_tunnel_t;
@@ -1036,7 +1033,9 @@ static void update_shared_key(l2tpv3_tunnel_t *tunnel)
     if (tunnel->shared_key_secret == NULL || strcmp(secret, tunnel->shared_key_secret) != 0) {
         /* For secret specification, see RFC 3931 pg 37 */
         guint8 data = 2;
-        md5_hmac(&data, 1, secret, strlen(secret), tunnel->shared_key);
+        if (ws_hmac_buffer(GCRY_MD_MD5, tunnel->shared_key, &data, 1, secret, strlen(secret))) {
+            return;
+        }
         tunnel->shared_key_secret = wmem_strdup(wmem_file_scope(), secret);
     }
 }
@@ -1050,35 +1049,41 @@ static void md5_hmac_digest(l2tpv3_tunnel_t *tunnel,
                             packet_info *pinfo,
                             guint8 digest[20])
 {
-    guint8 zero[L2TP_HMAC_MD5_DIGEST_LEN];
-    md5_hmac_state_t ms;
+    guint8 zero[HASH_MD5_LENGTH] = { 0 };
+    gcry_md_hd_t hmac_handle;
     int remainder;
     int offset = 0;
 
     if (tunnel->conv->pt == PT_NONE) /* IP encapsulated L2TPv3 */
         offset = 4;
 
-    md5_hmac_init(&ms, tunnel->shared_key, L2TP_HMAC_MD5_KEY_LEN);
+    if (gcry_md_open(&hmac_handle, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC)) {
+        return;
+    }
+    if (gcry_md_setkey(hmac_handle, tunnel->shared_key, HASH_MD5_LENGTH)) {
+        gcry_md_close(hmac_handle);
+        return;
+    }
 
     if (msg_type != MESSAGE_TYPE_SCCRQ) {
         if (tunnel->lcce1_nonce != NULL && tunnel->lcce2_nonce != NULL) {
             if (addresses_equal(&tunnel->lcce1, &pinfo->src)) {
-                md5_hmac_append(&ms, tunnel->lcce1_nonce, tunnel->lcce1_nonce_len);
-                md5_hmac_append(&ms, tunnel->lcce2_nonce, tunnel->lcce2_nonce_len);
+                gcry_md_write(hmac_handle, tunnel->lcce1_nonce, tunnel->lcce1_nonce_len);
+                gcry_md_write(hmac_handle, tunnel->lcce2_nonce, tunnel->lcce2_nonce_len);
             } else {
-                md5_hmac_append(&ms, tunnel->lcce2_nonce, tunnel->lcce2_nonce_len);
-                md5_hmac_append(&ms, tunnel->lcce1_nonce, tunnel->lcce1_nonce_len);
+                gcry_md_write(hmac_handle, tunnel->lcce2_nonce, tunnel->lcce2_nonce_len);
+                gcry_md_write(hmac_handle, tunnel->lcce1_nonce, tunnel->lcce1_nonce_len);
             }
         }
     }
 
-    md5_hmac_append(&ms, tvb_get_ptr(tvb, offset, idx + 1 - offset), idx + 1 - offset);
+    gcry_md_write(hmac_handle, tvb_get_ptr(tvb, offset, idx + 1 - offset), idx + 1 - offset);
     /* Message digest is calculated with an empty message digest field */
-    memset(zero, 0, L2TP_HMAC_MD5_DIGEST_LEN);
-    md5_hmac_append(&ms, zero, avp_len - 1);
+    gcry_md_write(hmac_handle, zero, avp_len - 1);
     remainder = length - (idx + avp_len);
-    md5_hmac_append(&ms, tvb_get_ptr(tvb, idx + avp_len, remainder), remainder);
-    md5_hmac_finish(&ms, digest);
+    gcry_md_write(hmac_handle, tvb_get_ptr(tvb, idx + avp_len, remainder), remainder);
+    memcpy(digest, gcry_md_read(hmac_handle, 0), HASH_MD5_LENGTH);
+    gcry_md_close(hmac_handle);
 }
 
 static void sha1_hmac_digest(l2tpv3_tunnel_t *tunnel,
@@ -1090,35 +1095,41 @@ static void sha1_hmac_digest(l2tpv3_tunnel_t *tunnel,
                              packet_info *pinfo,
                              guint8 digest[20])
 {
-    guint8 zero[SHA1_DIGEST_LEN];
-    sha1_hmac_context ms;
+    guint8 zero[HASH_SHA1_LENGTH] = { 0 };
+    gcry_md_hd_t hmac_handle;
     int remainder;
     int offset = 0;
 
     if (tunnel->conv->pt == PT_NONE) /* IP encapsulated L2TPv3 */
         offset = 4;
 
-    sha1_hmac_starts(&ms, tunnel->shared_key, L2TP_HMAC_MD5_KEY_LEN);
+    if (gcry_md_open(&hmac_handle, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC)) {
+        return;
+    }
+    if (gcry_md_setkey(hmac_handle, tunnel->shared_key, HASH_MD5_LENGTH)) {
+        gcry_md_close(hmac_handle);
+        return;
+    }
 
     if (msg_type != MESSAGE_TYPE_SCCRQ) {
         if (tunnel->lcce1_nonce != NULL && tunnel->lcce2_nonce != NULL) {
             if (addresses_equal(&tunnel->lcce1, &pinfo->src)) {
-                sha1_hmac_update(&ms, tunnel->lcce1_nonce, tunnel->lcce1_nonce_len);
-                sha1_hmac_update(&ms, tunnel->lcce2_nonce, tunnel->lcce2_nonce_len);
+                gcry_md_write(hmac_handle, tunnel->lcce1_nonce, tunnel->lcce1_nonce_len);
+                gcry_md_write(hmac_handle, tunnel->lcce2_nonce, tunnel->lcce2_nonce_len);
             } else {
-                sha1_hmac_update(&ms, tunnel->lcce2_nonce, tunnel->lcce2_nonce_len);
-                sha1_hmac_update(&ms, tunnel->lcce1_nonce, tunnel->lcce1_nonce_len);
+                gcry_md_write(hmac_handle, tunnel->lcce2_nonce, tunnel->lcce2_nonce_len);
+                gcry_md_write(hmac_handle, tunnel->lcce1_nonce, tunnel->lcce1_nonce_len);
             }
         }
     }
 
-    sha1_hmac_update(&ms, tvb_get_ptr(tvb, offset, idx + 1 - offset), idx + 1 - offset);
+    gcry_md_write(hmac_handle, tvb_get_ptr(tvb, offset, idx + 1 - offset), idx + 1 - offset);
     /* Message digest is calculated with an empty message digest field */
-    memset(zero, 0, SHA1_DIGEST_LEN);
-    sha1_hmac_update(&ms, zero, avp_len - 1);
+    gcry_md_write(hmac_handle, zero, avp_len - 1);
     remainder = length - (idx + avp_len);
-    sha1_hmac_update(&ms, tvb_get_ptr(tvb, idx + avp_len, remainder), remainder);
-    sha1_hmac_finish(&ms, digest);
+    gcry_md_write(hmac_handle, tvb_get_ptr(tvb, idx + avp_len, remainder), remainder);
+    memcpy(digest, gcry_md_read(hmac_handle, 0), HASH_SHA1_LENGTH);
+    gcry_md_close(hmac_handle);
 }
 
 static int check_control_digest(l2tpv3_tunnel_t *tunnel,
@@ -1129,7 +1140,7 @@ static int check_control_digest(l2tpv3_tunnel_t *tunnel,
                                 int msg_type,
                                 packet_info *pinfo)
 {
-    guint8 digest[SHA1_DIGEST_LEN];
+    guint8 digest[HASH_SHA1_LENGTH];
 
     if (!tunnel)
         return 1;
@@ -1138,12 +1149,12 @@ static int check_control_digest(l2tpv3_tunnel_t *tunnel,
 
     switch (tvb_get_guint8(tvb, idx)) {
         case L2TP_HMAC_MD5:
-            if ((avp_len - 1) != L2TP_HMAC_MD5_DIGEST_LEN)
+            if ((avp_len - 1) != HASH_MD5_LENGTH)
                 return -1;
             md5_hmac_digest(tunnel, tvb, length, idx, avp_len, msg_type, pinfo, digest);
             break;
         case L2TP_HMAC_SHA1:
-            if ((avp_len - 1) != SHA1_DIGEST_LEN)
+            if ((avp_len - 1) != HASH_SHA1_LENGTH)
                 return -1;
             sha1_hmac_digest(tunnel, tvb, length, idx, avp_len, msg_type, pinfo, digest);
             break;

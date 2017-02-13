@@ -508,7 +508,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 }
 
 #if 0
-#include <wsutil/md5.h>
+#include <wsutil/wsgcrypt.h>
 
 static gboolean
 verify_password(tvbuff_t *tvb, const char *password)
@@ -525,8 +525,8 @@ verify_password(tvbuff_t *tvb, const char *password)
 	guint8       *workbuffer;
 	guint         i;
 	guint8        byte;
-	md5_state_t   md_ctx;
-	md5_byte_t   *digest;
+	gcry_md_hd_t  md5_handle;
+	guint8       *digest;
 
 	workbuffer=wmem_alloc(wmem_packet_scope(), 32);
 	digest=wmem_alloc(wmem_packet_scope(), 16);
@@ -539,14 +539,20 @@ verify_password(tvbuff_t *tvb, const char *password)
 	for (byte = 1; i<32; i++, byte++) {
 		workbuffer[i] = byte;
 	}
-	md5_init(&md_ctx);
-	md5_append(&md_ctx, workbuffer, 32);
-	md5_finish(&md_ctx, digest);
-	md5_init(&md_ctx);
-	md5_append(&md_ctx, packetdata, 12);
-	md5_append(&md_ctx, digest, 16);
-	md5_append(&md_ctx, packetdata + 28, length - 28);
-	md5_finish(&md_ctx, digest);
+
+	if (gcry_md_open (&md5_handle, GCRY_MD_MD5, 0)) {
+		return FALSE;
+	}
+	gcry_md_write(md5_handle, workbuffer, 32);
+	memcpy(digest, gcry_md_read(md5_handle, 0), 16);
+	gcry_md_reset(md5_handle);
+
+	gcry_md_write(md5_handle, packetdata, 12);
+	gcry_md_write(md5_handle, digest, 16);
+	gcry_md_write(md5_handle, packetdata + 28, length - 28);
+	memcpy(digest, gcry_md_read(md5_handle, 0), 16);
+	gcry_md_close(md5_handle);
+
 	fprintf(stderr, "Calculated digest: "); /* debugging */
 	for (i = 0; i < 16; i++) {
 		fprintf(stderr, "%02X", digest[i]); /* debugging */

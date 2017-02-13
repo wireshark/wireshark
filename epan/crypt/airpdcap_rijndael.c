@@ -23,12 +23,12 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+#include "config.h"
 #include "airpdcap_rijndael.h"
 
-#include	"airpdcap_debug.h"
+#include "airpdcap_debug.h"
 #include <glib.h>
-#include <wsutil/aes.h>
+#include <wsutil/wsgcrypt.h>
 
 /* Based on RFC 3394 and NIST AES Key Wrap Specification pseudo-code.
 
@@ -42,7 +42,7 @@ AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len)
 	UCHAR a[8], b[16];
 	UCHAR *r;
 	gint16 i, j, n;
-	rijndael_ctx  ctx;
+	gcry_cipher_hd_t rijndael_handle;
 
 	if (kek == NULL || cipher_len < 16 || cipher_text == NULL) {
 		return NULL; /* "should not happen" */
@@ -61,6 +61,13 @@ AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len)
 
 	/* Compute intermediate values */
 
+	if (gcry_cipher_open(&rijndael_handle, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_ECB, 0)) {
+		return output;
+	}
+	if (gcry_cipher_setkey(rijndael_handle, kek, key_len)) {
+		gcry_cipher_close(rijndael_handle);
+		return output;
+	}
 	for (j=5; j >= 0; --j){
 		r = output + (n - 1) * 8;
 		/* DEBUG_DUMP("r1", (r-8), 8); */
@@ -72,14 +79,14 @@ AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len)
 			b[7] ^= t;
 			/* DEBUG_DUMP("a plus t", b, 8); */
 			memcpy(b+8, r, 8);
-			rijndael_set_key(&ctx, kek, key_len*8 /*bits*/);
-			rijndael_decrypt(&ctx, b, b);  /* NOTE: we are using the same src and dst buffer. It's ok. */
+			gcry_cipher_decrypt(rijndael_handle, b, 16, NULL, 0);
 			/* DEBUG_DUMP("aes decrypt", b, 16) */
 			memcpy(a,b,8);
 			memcpy(r, b+8, 8);
 			r -= 8;
 		}
 	}
+	gcry_cipher_close(rijndael_handle);
 
 	/* DEBUG_DUMP("a", a, 8); */
 	/* DEBUG_DUMP("output", output, cipher_len - 8); */

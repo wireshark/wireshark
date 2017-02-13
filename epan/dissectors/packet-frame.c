@@ -38,7 +38,7 @@
 #include <wiretap/wtap.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
-#include <wsutil/md5.h>
+#include <wsutil/wsgcrypt.h>
 #include <wsutil/str_util.h>
 #include <wmem/wmem.h>
 
@@ -453,17 +453,13 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 		if (generate_md5_hash) {
 			const guint8 *cp;
-			md5_state_t   md_ctx;
-			md5_byte_t    digest[16];
+			guint8        digest[HASH_MD5_LENGTH];
 			const gchar  *digest_string;
 
 			cp = tvb_get_ptr(tvb, 0, cap_len);
 
-			md5_init(&md_ctx);
-			md5_append(&md_ctx, cp, cap_len);
-			md5_finish(&md_ctx, digest);
-
-			digest_string = bytestring_to_str(wmem_packet_scope(), digest, 16, '\0');
+			gcry_md_hash_buffer(GCRY_MD_MD5, digest, cp, cap_len);
+			digest_string = bytestring_to_str(wmem_packet_scope(), digest, HASH_MD5_LENGTH, '\0');
 			ti = proto_tree_add_string(fh_tree, hf_frame_md5_hash, tvb, 0, 0, digest_string);
 			PROTO_ITEM_SET_GENERATED(ti);
 		}

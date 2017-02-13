@@ -46,13 +46,9 @@
 
 #include <glib.h>
 
+#include <wsutil/wsgcrypt.h>
 #include <wsutil/crc32.h>
-#include <wsutil/rc4.h>
-#include <wsutil/sha1.h>
-#include <wsutil/sha2.h>
-#include <wsutil/md5.h>
 #include <wsutil/pint.h>
-#include <wsutil/aes.h>
 
 #include <epan/tvbuff.h>
 #include <epan/to_str.h>
@@ -379,12 +375,12 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decryption_
 
     if (key_version == AIRPDCAP_WPA_KEY_VER_NOT_CCMP){
         guint8 new_key[32];
-        guint8 dummy[256];
+        guint8 dummy[256] = { 0 };
         /* TKIP key */
         /* Per 802.11i, Draft 3.0 spec, section 8.5.2, p. 97, line 4-8, */
         /* group key is decrypted using RC4.  Concatenate the IV with the 16 byte EK (PTK+16) to get the decryption key */
 
-        rc4_state_struct rc4_state;
+        gcry_cipher_hd_t  rc4_handle;
 
         /* The WPA group key just contains the GTK bytes so deducing the type is straightforward   */
         /* Note - WPA M3 doesn't contain a group key so we'll only be here for the group handshake */
@@ -395,11 +391,18 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decryption_
         memcpy(new_key+16, decryption_key, 16);
         DEBUG_DUMP("FullDecrKey:", new_key, 32);
 
-        crypt_rc4_init(&rc4_state, new_key, sizeof(new_key));
+        if (gcry_cipher_open (&rc4_handle, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0)) {
+          return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+        }
+        if (gcry_cipher_setkey(rc4_handle, new_key, sizeof(new_key))) {
+          gcry_cipher_close(rc4_handle);
+          return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+        }
 
         /* Do dummy 256 iterations of the RC4 algorithm (per 802.11i, Draft 3.0, p. 97 line 6) */
-        crypt_rc4(&rc4_state, dummy, 256);
-        crypt_rc4(&rc4_state, szEncryptedKey, key_bytes_len);
+        gcry_cipher_decrypt(rc4_handle, dummy, 256, NULL, 0);
+        gcry_cipher_decrypt(rc4_handle, szEncryptedKey, key_bytes_len, NULL, 0);
+        gcry_cipher_close(rc4_handle);
 
     } else if (key_version == AIRPDCAP_WPA_KEY_VER_AES_CCMP){
         /* AES CCMP key */
@@ -1536,7 +1539,8 @@ AirPDcapRsnaMicCheck(
     USHORT key_ver)
 {
     UCHAR mic[AIRPDCAP_WPA_MICKEY_LEN];
-    UCHAR c_mic[20];  /* MIC 16 byte, the HMAC-SHA1 use a buffer of 20 bytes */
+    UCHAR c_mic[HASH_SHA1_LENGTH] = { 0 };  /* MIC 16 byte, the HMAC-SHA1 use a buffer of 20 bytes */
+    int algo;
 
     /* copy the MIC from the EAPOL packet */
     memcpy(mic, eapol+AIRPDCAP_WPA_MICKEY_OFFSET+4, AIRPDCAP_WPA_MICKEY_LEN);
@@ -1546,13 +1550,18 @@ AirPDcapRsnaMicCheck(
 
     if (key_ver==AIRPDCAP_WPA_KEY_VER_NOT_CCMP) {
         /* use HMAC-MD5 for the EAPOL-Key MIC */
-        md5_hmac(eapol, eapol_len, KCK, AIRPDCAP_WPA_KCK_LEN, c_mic);
+        algo = GCRY_MD_MD5;
     } else if (key_ver==AIRPDCAP_WPA_KEY_VER_AES_CCMP) {
         /* use HMAC-SHA1-128 for the EAPOL-Key MIC */
-        sha1_hmac(KCK, AIRPDCAP_WPA_KCK_LEN, eapol, eapol_len, c_mic);
-    } else
+        algo = GCRY_MD_SHA1;
+    } else {
         /* key descriptor version not recognized */
         return AIRPDCAP_RET_UNSUCCESS;
+    }
+
+    if (ws_hmac_buffer(algo, c_mic, eapol, eapol_len, KCK, AIRPDCAP_WPA_KCK_LEN)) {
+        return AIRPDCAP_RET_UNSUCCESS;
+    }
 
     /* compare calculated MIC with the Key MIC and return result (0 means success) */
     return memcmp(mic, c_mic, AIRPDCAP_WPA_MICKEY_LEN);
@@ -1856,7 +1865,9 @@ AirPDcapRsnaPrfX(
     for(i = 0; i < (x+159)/160; i++)
     {
         R[offset] = i;
-        sha1_hmac(pmk, 32, R, 100, &output[20 * i]);
+        if (ws_hmac_buffer(GCRY_MD_SHA1, &output[HASH_SHA1_LENGTH * i], R, 100, pmk, 32)) {
+          return;
+        }
     }
     memcpy(ptk, output, x/8);
 }
@@ -1873,8 +1884,7 @@ AirPDcapRsnaPwd2PskStep(
     const INT count,
     UCHAR *output)
 {
-    UCHAR digest[MAX_SSID_LENGTH+4];  /* SSID plus 4 bytes of count */
-    UCHAR digest1[SHA1_DIGEST_LEN];
+    UCHAR digest[MAX_SSID_LENGTH+4] = { 0 };  /* SSID plus 4 bytes of count */
     INT i, j;
 
     if (ssidLength > MAX_SSID_LENGTH) {
@@ -1882,26 +1892,26 @@ AirPDcapRsnaPwd2PskStep(
         return AIRPDCAP_RET_UNSUCCESS;
     }
 
-    memset(digest, 0, sizeof digest);
-    memset(digest1, 0, sizeof digest1);
-
     /* U1 = PRF(P, S || INT(i)) */
     memcpy(digest, ssid, ssidLength);
     digest[ssidLength] = (UCHAR)((count>>24) & 0xff);
     digest[ssidLength+1] = (UCHAR)((count>>16) & 0xff);
     digest[ssidLength+2] = (UCHAR)((count>>8) & 0xff);
     digest[ssidLength+3] = (UCHAR)(count & 0xff);
-    sha1_hmac(ppBytes, ppLength, digest, (guint32) ssidLength+4, digest1);
+    if (ws_hmac_buffer(GCRY_MD_SHA1, digest, digest, (guint32) ssidLength + 4, ppBytes, ppLength)) {
+      return AIRPDCAP_RET_UNSUCCESS;
+    }
 
     /* output = U1 */
-    memcpy(output, digest1, SHA1_DIGEST_LEN);
+    memcpy(output, digest, 20);
     for (i = 1; i < iterations; i++) {
         /* Un = PRF(P, Un-1) */
-        sha1_hmac(ppBytes, ppLength, digest1, SHA1_DIGEST_LEN, digest);
+        if (ws_hmac_buffer(GCRY_MD_SHA1, digest, digest, HASH_SHA1_LENGTH, ppBytes, ppLength)) {
+          return AIRPDCAP_RET_UNSUCCESS;
+        }
 
-        memcpy(digest1, digest, SHA1_DIGEST_LEN);
         /* output = output xor Un */
-        for (j = 0; j < SHA1_DIGEST_LEN; j++) {
+        for (j = 0; j < 20; j++) {
             output[j] ^= digest[j];
         }
     }
@@ -1916,10 +1926,8 @@ AirPDcapRsnaPwd2Psk(
     const size_t ssidLength,
     UCHAR *output)
 {
-    UCHAR m_output[2*SHA1_DIGEST_LEN];
+    UCHAR m_output[40] = { 0 };
     GByteArray *pp_ba = g_byte_array_new();
-
-    memset(m_output, 0, 2*SHA1_DIGEST_LEN);
 
     if (!uri_str_to_bytes(passphrase, pp_ba)) {
         g_byte_array_free(pp_ba, TRUE);
@@ -1927,7 +1935,7 @@ AirPDcapRsnaPwd2Psk(
     }
 
     AirPDcapRsnaPwd2PskStep(pp_ba->data, pp_ba->len, ssid, ssidLength, 4096, 1, m_output);
-    AirPDcapRsnaPwd2PskStep(pp_ba->data, pp_ba->len, ssid, ssidLength, 4096, 2, &m_output[SHA1_DIGEST_LEN]);
+    AirPDcapRsnaPwd2PskStep(pp_ba->data, pp_ba->len, ssid, ssidLength, 4096, 2, &m_output[20]);
 
     memcpy(output, m_output, AIRPDCAP_WPA_PSK_LEN);
     g_byte_array_free(pp_ba, TRUE);
@@ -2174,66 +2182,88 @@ AirPDcapTDLSDeriveKey(
     guint8 action)
 {
 
-    sha256_hmac_context sha_ctx;
-    aes_cmac_ctx aes_ctx;
+    gcry_md_hd_t sha256_handle;
+    gcry_md_hd_t hmac_handle;
     const guint8 *snonce, *anonce, *initiator, *responder, *bssid;
-    guint8 key_input[SHA256_DIGEST_LEN];
-    guint8 mic[16], iter[2], length[2], seq_num = action + 1;
+    guint8 key_input[32];
+    guint8 mic[16], seq_num = action + 1;
+#if GCRYPT_VERSION_NUMBER >= 0x010600
+    guint8 zeros[16] = { 0 };
+    gcry_mac_hd_t cmac_handle;
+    size_t cmac_len = 16;
+#endif
 
     /* Get key input */
     anonce = &data[offset_fte + 20];
     snonce = &data[offset_fte + 52];
-    sha256_starts(&(sha_ctx.ctx));
+
+    gcry_md_open (&sha256_handle, GCRY_MD_SHA256, 0);
     if (memcmp(anonce, snonce, AIRPDCAP_WPA_NONCE_LEN) < 0) {
-        sha256_update(&(sha_ctx.ctx), anonce, AIRPDCAP_WPA_NONCE_LEN);
-        sha256_update(&(sha_ctx.ctx), snonce, AIRPDCAP_WPA_NONCE_LEN);
+        gcry_md_write(sha256_handle, anonce, AIRPDCAP_WPA_NONCE_LEN);
+        gcry_md_write(sha256_handle, snonce, AIRPDCAP_WPA_NONCE_LEN);
     } else {
-        sha256_update(&(sha_ctx.ctx), snonce, AIRPDCAP_WPA_NONCE_LEN);
-        sha256_update(&(sha_ctx.ctx), anonce, AIRPDCAP_WPA_NONCE_LEN);
+        gcry_md_write(sha256_handle, snonce, AIRPDCAP_WPA_NONCE_LEN);
+        gcry_md_write(sha256_handle, anonce, AIRPDCAP_WPA_NONCE_LEN);
     }
-    sha256_finish(&(sha_ctx.ctx), key_input);
+    memcpy(key_input, gcry_md_read(sha256_handle, 0), 32);
+    gcry_md_close(sha256_handle);
 
     /* Derive key */
     bssid = &data[offset_link + 2];
     initiator = &data[offset_link + 8];
     responder = &data[offset_link + 14];
-    sha256_hmac_starts(&sha_ctx, key_input, SHA256_DIGEST_LEN);
-    iter[0] = 1;
-    iter[1] = 0;
-    sha256_hmac_update(&sha_ctx, (const guint8 *)&iter, 2);
-    sha256_hmac_update(&sha_ctx, "TDLS PMK", 8);
-    if (memcmp(initiator, responder, AIRPDCAP_MAC_LEN) < 0) {
-        sha256_hmac_update(&sha_ctx, initiator, AIRPDCAP_MAC_LEN);
-        sha256_hmac_update(&sha_ctx, responder, AIRPDCAP_MAC_LEN);
-    } else {
-        sha256_hmac_update(&sha_ctx, responder, AIRPDCAP_MAC_LEN);
-        sha256_hmac_update(&sha_ctx, initiator, AIRPDCAP_MAC_LEN);
-    }
-    sha256_hmac_update(&sha_ctx, bssid, AIRPDCAP_MAC_LEN);
-    length[0] = 256 & 0xff;
-    length[1] = (256 >> 8) & 0xff;
-    sha256_hmac_update(&sha_ctx, (const guint8 *)&length, 2);
-    sha256_hmac_finish(&sha_ctx, key_input);
-
-    /* Check MIC */
-    aes_cmac_encrypt_starts(&aes_ctx, key_input, 16);
-    aes_cmac_encrypt_update(&aes_ctx, initiator, AIRPDCAP_MAC_LEN);
-    aes_cmac_encrypt_update(&aes_ctx, responder, AIRPDCAP_MAC_LEN);
-    aes_cmac_encrypt_update(&aes_ctx, &seq_num, 1);
-    aes_cmac_encrypt_update(&aes_ctx, &data[offset_link], data[offset_link + 1] + 2);
-    aes_cmac_encrypt_update(&aes_ctx, &data[offset_rsne], data[offset_rsne + 1] + 2);
-    aes_cmac_encrypt_update(&aes_ctx, &data[offset_timeout], data[offset_timeout + 1] + 2);
-    aes_cmac_encrypt_update(&aes_ctx, &data[offset_fte], 4);
-    memset(mic, 0, 16);
-    aes_cmac_encrypt_update(&aes_ctx, mic, 16);
-    aes_cmac_encrypt_update(&aes_ctx, &data[offset_fte + 20], data[offset_fte + 1] + 2 - 20);
-    aes_cmac_encrypt_finish(&aes_ctx, mic);
-
-    if (memcmp(mic, &data[offset_fte + 4],16)) {
-        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapTDLSDeriveKey", "MIC verification failed", AIRPDCAP_DEBUG_LEVEL_3);
+    if (gcry_md_open(&hmac_handle, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC)) {
         return AIRPDCAP_RET_UNSUCCESS;
     }
+    if (gcry_md_setkey(hmac_handle, key_input, 32)) {
+        gcry_md_close(hmac_handle);
+        return AIRPDCAP_RET_UNSUCCESS;
+    }
+    gcry_md_putc(hmac_handle, 1);
+    gcry_md_putc(hmac_handle, 0);
+    gcry_md_write(hmac_handle, "TDLS PMK", 8);
+    if (memcmp(initiator, responder, AIRPDCAP_MAC_LEN) < 0) {
+          gcry_md_write(hmac_handle, initiator, AIRPDCAP_MAC_LEN);
+          gcry_md_write(hmac_handle, responder, AIRPDCAP_MAC_LEN);
+    } else {
+          gcry_md_write(hmac_handle, responder, AIRPDCAP_MAC_LEN);
+          gcry_md_write(hmac_handle, initiator, AIRPDCAP_MAC_LEN);
+    }
+    gcry_md_write(hmac_handle, bssid, AIRPDCAP_MAC_LEN);
+    gcry_md_putc(hmac_handle, 0);
+    gcry_md_putc(hmac_handle, 1);
+    memcpy(key_input, gcry_md_read(hmac_handle, 0), 32);
+    gcry_md_close(hmac_handle);
 
+    /* Check MIC */
+#if GCRYPT_VERSION_NUMBER >= 0x010600
+    if (gcry_mac_open(&cmac_handle, GCRY_MAC_CMAC_AES, 0, NULL)) {
+        return AIRPDCAP_RET_UNSUCCESS;
+    }
+    if (gcry_mac_setkey(cmac_handle, key_input, 16)) {
+        gcry_mac_close(cmac_handle);
+        return AIRPDCAP_RET_UNSUCCESS;
+    }
+    gcry_mac_write(cmac_handle, initiator, AIRPDCAP_MAC_LEN);
+    gcry_mac_write(cmac_handle, responder, AIRPDCAP_MAC_LEN);
+    gcry_mac_write(cmac_handle, &seq_num, 1);
+    gcry_mac_write(cmac_handle, &data[offset_link], data[offset_link + 1] + 2);
+    gcry_mac_write(cmac_handle, &data[offset_rsne], data[offset_rsne + 1] + 2);
+    gcry_mac_write(cmac_handle, &data[offset_timeout], data[offset_timeout + 1] + 2);
+    gcry_mac_write(cmac_handle, &data[offset_fte], 4);
+    gcry_mac_write(cmac_handle, zeros, 16);
+    gcry_mac_write(cmac_handle, &data[offset_fte + 20], data[offset_fte + 1] + 2 - 20);
+    gcry_mac_read(cmac_handle, mic, &cmac_len);
+    if (memcmp(mic, &data[offset_fte + 4], 16)) {
+        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapTDLSDeriveKey", "MIC verification failed", AIRPDCAP_DEBUG_LEVEL_3);
+        gcry_mac_close(cmac_handle);
+        return AIRPDCAP_RET_UNSUCCESS;
+    }
+    gcry_mac_close(cmac_handle);
+#else
+    AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapTDLSDeriveKey", "MIC verification failed, need libgcrypt >= 1.6", AIRPDCAP_DEBUG_LEVEL_3);
+    return AIRPDCAP_RET_UNSUCCESS;
+#endif
     memcpy(AIRPDCAP_GET_TK(sa->wpa.ptk), &key_input[16], 16);
     memcpy(sa->wpa.nonce, snonce, AIRPDCAP_WPA_NONCE_LEN);
     sa->validKey = TRUE;
