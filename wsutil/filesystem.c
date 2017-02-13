@@ -1471,9 +1471,43 @@ delete_directory (const char *directory, char **pf_dir_path_return)
     return ret;
 }
 
+static int
+reset_default_profile(char **pf_dir_path_return)
+{
+    const char *profile_dir = get_persconffile_dir(NULL);
+    gchar *filename, *del_file;
+    GList *files, *file;
+    int ret = 0;
+
+    files = g_hash_table_get_keys(profile_files);
+    file = g_list_first(files);
+    while (file) {
+        filename = (gchar *)file->data;
+        del_file = g_strdup_printf("%s%s%s", profile_dir, G_DIR_SEPARATOR_S, filename);
+
+        if (file_exists(del_file)) {
+            ret = ws_remove(del_file);
+            if (ret != 0) {
+                *pf_dir_path_return = g_strdup(profile_dir);
+                g_free(del_file);
+                return ret;
+            }
+        }
+
+        g_free(del_file);
+        file = g_list_next(file);
+    }
+
+    return 0;
+}
+
 int
 delete_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 {
+    if (strcmp(profilename, DEFAULT_PROFILE) == 0) {
+        return reset_default_profile(pf_dir_path_return);
+    }
+
     const char *profile_dir = get_persconffile_dir(profilename);
     int ret = 0;
 

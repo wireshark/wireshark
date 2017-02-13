@@ -149,7 +149,7 @@ void ProfileDialog::updateWidgets()
         current_profile = (profile_def *) VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole))->data;
         enable_new = true;
         enable_copy = true;
-        if (!current_profile->is_global && current_profile->status != PROF_STAT_DEFAULT) {
+        if (!current_profile->is_global && !(item->font(0).strikeOut())) {
             enable_del = true;
         }
     }
@@ -159,7 +159,11 @@ void ProfileDialog::updateWidgets()
         QString profile_info;
         switch (current_profile->status) {
         case PROF_STAT_DEFAULT:
-            profile_path = get_persconffile_path("", FALSE);
+            if (item->font(0).strikeOut()) {
+                profile_info = tr("Will be reset to default values");
+            } else {
+                profile_path = get_persconffile_path("", FALSE);
+            }
             break;
         case PROF_STAT_EXISTS:
             profile_path = current_profile->is_global ? get_global_profiles_dir() : get_profiles_dir();
@@ -218,6 +222,9 @@ void ProfileDialog::updateWidgets()
                     pd_ui_->infoLabel->setText(tr("A profile already exists with this name"));
                 }
                 enable_ok = false;
+            } else if (item->font(0).strikeOut()) {
+                item->setToolTip(0, tr("The profile will be reset to default values."));
+                item->setBackground(0, ColorUtils::fromColorT(&prefs.gui_text_deprecated));
             } else {
                 item->setBackground(0, QBrush());
             }
@@ -259,15 +266,22 @@ void ProfileDialog::on_deleteToolButton_clicked()
     if (item) {
         GList *fl_entry = VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole));
         profile_def *profile = (profile_def *) fl_entry->data;
-        if (profile->is_global || profile->status == PROF_STAT_DEFAULT) {
+        if (profile->is_global || item->font(0).strikeOut()) {
             return;
         }
-        delete item;
+        if (profile->status == PROF_STAT_DEFAULT) {
+            QFont ti_font = item->font(0);
+            ti_font.setStrikeOut(true);
+            item->setFont(0, ti_font);
+            updateWidgets();
+        } else {
+            delete item;
 
-        // Select the default
-        pd_ui_->profileTreeWidget->setCurrentItem(pd_ui_->profileTreeWidget->topLevelItem(0));
+            // Select the default
+            pd_ui_->profileTreeWidget->setCurrentItem(pd_ui_->profileTreeWidget->topLevelItem(0));
 
-        remove_from_profile_list(fl_entry);
+            remove_from_profile_list(fl_entry);
+        }
     }
 }
 
@@ -311,7 +325,23 @@ void ProfileDialog::on_copyToolButton_clicked()
 void ProfileDialog::on_buttonBox_accepted()
 {
     const gchar *err_msg;
+    QTreeWidgetItem *default_item = pd_ui_->profileTreeWidget->topLevelItem(0);
     QTreeWidgetItem *item = pd_ui_->profileTreeWidget->currentItem();
+    gchar *profile_name = NULL;
+    bool write_recent = true;
+    bool item_data_removed = false;
+
+    if (default_item && default_item->font(0).strikeOut()) {
+        // Reset Default profile.
+        GList *fl_entry = VariantPointer<GList>::asPtr(default_item->data(0, Qt::UserRole));
+        remove_from_profile_list(fl_entry);
+
+        // Don't write recent file if leaving the Default profile after this has been reset.
+        write_recent = !is_default_profile();
+
+        // Don't fetch profile data if removed.
+        item_data_removed = (item == default_item);
+    }
 
     if ((err_msg = apply_profile_changes()) != NULL) {
         QMessageBox::critical(this, tr("Profile Error"),
@@ -321,16 +351,18 @@ void ProfileDialog::on_buttonBox_accepted()
         return;
     }
 
-    if (item) {
+    if (item && !item_data_removed) {
         profile_def *profile = (profile_def *) VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole))->data;
-        if (profile_exists (profile->name, FALSE) || profile_exists (profile->name, TRUE)) {
-            /* The new profile exists, change */
-            wsApp->setConfigurationProfile (profile->name);
-        } else if (!profile_exists (get_profile_name(), FALSE)) {
-            /* The new profile does not exist, and the previous profile has
-               been deleted.  Change to the default profile */
-            wsApp->setConfigurationProfile (NULL);
-        }
+        profile_name = profile->name;
+    }
+
+    if (profile_exists (profile_name, FALSE) || profile_exists (profile_name, TRUE)) {
+        // The new profile exists, change.
+        wsApp->setConfigurationProfile (profile_name, write_recent);
+    } else if (!profile_exists (get_profile_name(), FALSE)) {
+        // The new profile does not exist, and the previous profile has
+        // been deleted.  Change to the default profile.
+        wsApp->setConfigurationProfile (NULL, write_recent);
     }
 }
 

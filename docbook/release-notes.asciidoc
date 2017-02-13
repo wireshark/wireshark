@@ -44,6 +44,7 @@ since version 2.2.0:
 * Added support for dissectors to include a unit name natively in their hf field.
   A field can now automatically append "seconds" or "ms" to its value without
   additional printf-style APIs.
+* The Default profile can now be reset to default values.
 
 //=== Removed Dissectors
 

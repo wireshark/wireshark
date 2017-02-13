@@ -114,7 +114,7 @@ public:
     const QFont monospaceFont() const { return mono_font_; }
     void setMonospaceFont(const char *font_string);
     int monospaceTextSize(const char *str);
-    void setConfigurationProfile(const gchar *profile_name);
+    void setConfigurationProfile(const gchar *profile_name, bool write_recent = true);
     void reloadLuaPluginsDelayed();
     bool isInitialized() { return initialized_; }
     void setReloadingLua(bool is_reloading) { is_reloading_lua_ = is_reloading; }

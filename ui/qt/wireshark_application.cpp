@@ -319,7 +319,7 @@ int WiresharkApplication::monospaceTextSize(const char *str)
     return fm.width(str);
 }
 
-void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
+void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bool write_recent)
 {
     char  *gdp_path, *dp_path;
     char  *rf_path;
@@ -363,7 +363,8 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     /* Get the current geometry, before writing it to disk */
     emit profileChanging();
 
-    if (profile_exists(get_profile_name(), FALSE)) {
+    if (write_recent && profile_exists(get_profile_name(), FALSE))
+    {
         /* Write recent file for profile we are leaving, if it still exists */
         write_profile_recent();
     }
