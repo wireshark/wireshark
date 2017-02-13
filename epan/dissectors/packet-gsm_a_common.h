@@ -673,6 +673,7 @@ guint16 de_gmm_voice_domain_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 
 guint16 de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
+guint16 de_gc_timer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
 WS_DLL_PUBLIC
 guint16 de_rr_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);

@@ -58,6 +58,7 @@
 #include <wsutil/str_util.h>
 #include "packet-x509if.h"
 #include "packet-x509af.h"
+#include "packet-gsm_a_common.h"
 #include "packet-isakmp.h"
 
 #ifdef HAVE_LIBGCRYPT
@@ -236,6 +237,8 @@ static int hf_isakmp_num_spis = -1;
 static int hf_isakmp_hash = -1;
 static int hf_isakmp_sig = -1;
 static int hf_isakmp_nonce = -1;
+
+static int hf_isakmp_notify_data_3gpp_backoff_timer_len = -1;
 
 static attribute_common_fields hf_isakmp_ipsec_attr = { -1, -1, -1, -1, -1 };
 static int hf_isakmp_ipsec_attr_life_type = -1;
@@ -1281,8 +1284,10 @@ static const range_string notifmsg_v2_type[] = {
   { 42,42,      "USE_ASSIGNED_HoA" },                           /* RFC5026 */
   { 43,43,      "TEMPORARY_FAILURE" },                          /* RFC5996 */
   { 44,44,      "CHILD_SA_NOT_FOUND" },                         /* RFC5996 */
-  { 45,8191,    "RESERVED TO IANA - Error types" },
-  { 8192,16383, "Private Use - Errors" },
+  { 45,45,      "INVALID_GROUP_ID" },                           /* draft-yeung-g-ikev2 */
+  { 46,46,      "CHILD_SA_NOT_FOUND" },                         /* draft-yeung-g-ikev2 */
+  { 47,8191,    "RESERVED TO IANA - Error types" },
+  { 8192,16383,         "Private Use - Errors" },
   { 16384,16384,        "INITIAL_CONTACT" },
   { 16385,16385,        "SET_WINDOW_SIZE" },
   { 16386,16386,        "ADDITIONAL_TS_POSSIBLE" },
@@ -1333,6 +1338,47 @@ static const range_string notifmsg_v2_type[] = {
   { 16431,16431,        "SIGNATURE_HASH_ALGORITHMS" },          /* RFC7427 */
   { 16432,40959,        "RESERVED TO IANA - STATUS TYPES" },
   { 40960,65535,        "Private Use - STATUS TYPES" },
+  { 0,0,        NULL },
+};
+
+/* 3GPP private error and status types in Notyfy messages
+ * 3GPP TS 24.302 V14.2.0 (2016-12)
+ * Note currently all private data types wil be decoded as 3GPP if that's not good enough a preference must be used
+ */
+static const range_string notifmsg_v2_3gpp_type[] = {
+  { 8192,8192,        "PDN_CONNECTION_REJECTION" },
+  { 8193,8193,        "MAX_CONNECTION_REACHED" },
+  { 8194,8999,        "Private Use - Errors" },
+  { 9000,9000,        "NON_3GPP_ACCESS_TO_EPC_NOT_ALLOWED" },
+  { 9001,9001,        "USER_UNKNOWN" },
+  { 9002,9002,        "NO_APN_SUBSCRIPTION" },
+  { 9003,9003,        "AUTHORIZATION_REJECTED" },
+  { 9004,9005,        "Private Use - Errors" },
+  { 9006,9006,        "ILLEGAL_ME" },
+  { 9007,10499,       "Private Use - Errors" },
+  { 10500,10500,      "NETWORK_FAILURE" },
+  { 10501,11000,      "Private Use - Errors" },
+  { 11001,11001,      "RAT_TYPE_NOT_ALLOWED" },
+  { 11002,11004,      "Private Use - Errors" },
+  { 11005,11005,      "IMEI_NOT_ACCEPTED" },
+  { 9001,9001,        "Private Use - Errors" },
+  { 11011,11011,      "PLMN_NOT_ALLOWED" },
+  { 11012,16383,      "Private Use - Errors" },
+  /* PRIVATE STATUS TYPES*/
+  { 40960,40960,      "Private Use - STATUS TYPES" },
+  { 40961,40961,      "REACTIVATION_REQUESTED_CAUSE" },
+  { 40962,41040,      "Private Use - STATUS TYPES" },
+  { 41041,41041,      "BACKOFF_TIMER" },
+  { 41042,41100,      "Private Use - STATUS TYPES" },
+  { 41101,41101,      "DEVICE_IDENTITY" },
+  { 41102,41111,      "Private Use - STATUS TYPES" },
+  { 41112,41112,      "EMERGENCY_SUPPORT" },
+  { 41113,41287,      "Private Use - STATUS TYPES" },
+  { 41288,41288,      "NBIFOM_GENERIC_CONTAINER" },
+  { 41289,41303,      "Private Use - STATUS TYPES" },
+  { 41304,41304,      "PTI" },
+  { 41305,65535,      "Private Use - STATUS TYPES" },
+
   { 0,0,        NULL },
 };
 
@@ -4589,11 +4635,23 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
     proto_tree_add_item(tree, hf_isakmp_notify_msgtype_v1, tvb, offset, 2, ENC_BIG_ENDIAN);
   }else if (isakmp_version == 2)
   {
-    proto_tree_add_item(tree, hf_isakmp_notify_msgtype_v2, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_item_append_text(tree, " - %s",
-                           rval_to_str_const(tvb_get_ntohs(tvb, offset),
-                                             notifmsg_v2_type,
-                                             "Unknown"));
+    if ((msgtype < 8192) || (msgtype > 16383 && msgtype < 40959 )) {
+      /* Standard error and status types */
+      proto_tree_add_uint_format_value(tree, hf_isakmp_notify_msgtype_v2, tvb, offset, 2, msgtype, "%s (%u)",
+          rval_to_str_const(msgtype, notifmsg_v2_type, "Unknown"), msgtype);
+      proto_item_append_text(tree, " - %s",
+          rval_to_str_const(msgtype,
+              notifmsg_v2_type,
+              "Unknown"));
+    } else {
+      /* Private error and status types */
+      proto_tree_add_uint_format_value(tree, hf_isakmp_notify_msgtype_v2, tvb, offset, 2, msgtype, "%s (%u)",
+          rval_to_str_const(msgtype, notifmsg_v2_3gpp_type, "Unknown"), msgtype);
+      proto_item_append_text(tree, " - %s",
+          rval_to_str_const(msgtype,
+              notifmsg_v2_3gpp_type,
+              "Unknown"));
+    }
   }
   offset += 2;
   length -= 2;
@@ -4715,6 +4773,11 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
       case 16424: /* SECURE_PASSWORD_METHODS */
         proto_tree_add_item(tree, hf_isakmp_notify_data_secure_password_methods, tvb, offset, length, ENC_NA);
         break;
+      case 41041:
+        /* private status 3GPP BACKOFF_TIMER*/
+        proto_tree_add_item(tree, hf_isakmp_notify_data_3gpp_backoff_timer_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        de_gc_timer3(tvb, tree, pinfo, offset, 1, NULL, 0);
       default:
         /* No Default Action */
         break;
@@ -7111,6 +7174,10 @@ proto_register_isakmp(void)
     { &hf_isakmp_enc_icd,
       { "Integrity Checksum Data", "isakmp.enc.icd",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_3gpp_backoff_timer_len,
+      { "Length", "isakmp.notyfy.priv.3gpp.backoff_timer_len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
   };
 

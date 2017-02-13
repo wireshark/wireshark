@@ -4014,7 +4014,7 @@ static const value_string gsm_a_gm_gprs_timer3_unit_vals[] = {
 	{ 0, NULL }
 };
 
-static guint16
+guint16
 de_gc_timer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8       oct;
