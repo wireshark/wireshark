@@ -60,7 +60,7 @@ typedef struct {
     FILE           *fh;
     GSList         *src_list;
     gchar         **filter;
-    pf_flags filter_flags;
+    pf_flags        filter_flags;
 } write_pdml_data;
 
 typedef struct {
@@ -68,8 +68,9 @@ typedef struct {
     FILE           *fh;
     GSList         *src_list;
     gchar         **filter;
-    pf_flags filter_flags;
+    pf_flags        filter_flags;
     gboolean        print_hex;
+    gboolean        print_text;
 } write_json_data;
 
 typedef struct {
@@ -373,6 +374,10 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
         data.filter   = protocolfilter;
         data.filter_flags = protocolfilter_flags;
         data.print_hex = print_args->print_hex;
+        data.print_text = TRUE;
+        if (print_args->print_dissections == print_dissections_none) {
+            data.print_text = FALSE;
+        }
 
         proto_tree_children_foreach(edt->tree, proto_tree_write_node_json,
                                     &data);
@@ -721,10 +726,10 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
     /* dissection with an invisible proto tree? */
     g_assert(fi);
 
-    print_indent(pdata->level + 3, pdata->fh);
-
     /* Text label. It's printed as a field with no name. */
     if (fi->hfinfo->id == hf_text_only) {
+        print_indent(pdata->level + 3, pdata->fh);
+
         /* Get the text */
         if (fi->rep) {
             label_ptr = fi->rep->representation;
@@ -754,11 +759,13 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
         /*
          * Hex dump -x
          */
-        if (pdata->print_hex && fi->length > 0) {
+        if (pdata->print_hex && (!pdata->print_text || fi->length > 0)) {
+            print_indent(pdata->level + 3, pdata->fh);
+
             fputs("\"", pdata->fh);
             print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
             fputs("_raw", pdata->fh);
-            fputs("\": \"", pdata->fh);
+            fputs("\": [\"", pdata->fh);
 
             if (fi->hfinfo->bitmask!=0) {
                 switch (fi->value.ftype->ftype) {
@@ -790,28 +797,47 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
                     default:
                         g_assert_not_reached();
                 }
-                fputs("\",\n", pdata->fh);
             }
             else {
                 json_write_field_hex_value(pdata, fi);
-                fputs("\",\n", pdata->fh);
             }
 
-            print_indent(pdata->level + 3, pdata->fh);
+            /* Dump raw hex-encoded dissected information including position, length, bitmask, type */
+            fprintf(pdata->fh, "\", %" G_GINT32_MODIFIER "d", fi->start);
+            fprintf(pdata->fh, ", %" G_GINT32_MODIFIER "d", fi->length);
+            fprintf(pdata->fh, ", %" G_GUINT64_FORMAT, fi->hfinfo->bitmask);
+            fprintf(pdata->fh, ", %" G_GINT32_MODIFIER "d", (gint32)fi->value.ftype->ftype);
+
+            if (pdata->print_text) {
+                fputs("],\n", pdata->fh);
+            } else {
+                if (node->next == NULL && node->first_child == NULL) {
+                    fputs("]\n", pdata->fh);
+                } else {
+                    fputs("],\n", pdata->fh);
+                }
+            }
+
         }
 
-
-        fputs("\"", pdata->fh);
-
-        print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
 
         /* show, value, and unmaskedvalue attributes */
         switch (fi->hfinfo->type)
         {
         case FT_PROTOCOL:
             if (node->first_child != NULL) {
+                print_indent(pdata->level + 3, pdata->fh);
+
+                fputs("\"", pdata->fh);
+                print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
+
                 fputs("\": {\n", pdata->fh);
-            } else {
+            } else if (pdata->print_text) {
+                print_indent(pdata->level + 3, pdata->fh);
+
+                fputs("\"", pdata->fh);
+                print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
+
                 fputs("\": \"", pdata->fh);
                 if (fi->rep) {
                     print_escaped_json(pdata->fh, fi->rep->representation);
@@ -830,8 +856,18 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
             break;
         case FT_NONE:
             if (node->first_child != NULL) {
+                print_indent(pdata->level + 3, pdata->fh);
+
+                fputs("\"", pdata->fh);
+                print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
+
                 fputs("\": {\n", pdata->fh);
-            } else {
+            } else if (pdata->print_text) {
+                print_indent(pdata->level + 3, pdata->fh);
+
+                fputs("\"", pdata->fh);
+                print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
+
                 if (node->next == NULL) {
                   fputs("\": \"\"\n",  pdata->fh);
                 } else {
@@ -840,27 +876,39 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
             }
             break;
         default:
-            dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
-            if (dfilter_string != NULL) {
-                fputs("\": \"", pdata->fh);
-                print_escaped_json(pdata->fh, dfilter_string);
-                if (node->first_child != NULL) {
-                    fputs("\",\n", pdata->fh);
-                    print_indent(pdata->level + 3, pdata->fh);
+            if (pdata->print_text) {
+                print_indent(pdata->level + 3, pdata->fh);
 
-                    fputs("\"", pdata->fh);
-                    print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
-                    fputs("_tree\": {\n", pdata->fh);
+                fputs("\"", pdata->fh);
+                print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
+
+                dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
+                if (dfilter_string != NULL) {
+                    if (pdata->print_text) {
+                      fputs("\": \"", pdata->fh);
+                      print_escaped_json(pdata->fh, dfilter_string);
+                      if (node->first_child != NULL) {
+                        fputs("\",\n", pdata->fh);
+                      }
+                    }
+                }
+                wmem_free(NULL, dfilter_string);
+
+                if (node->first_child == NULL) {
+                    if (node->next == NULL) {
+                        fputs("\"\n", pdata->fh);
+                    } else {
+                        fputs("\",\n", pdata->fh);
+                    }
                 }
             }
-            wmem_free(NULL, dfilter_string);
 
-            if (node->first_child == NULL) {
-                if (node->next == NULL) {
-                    fputs("\"\n", pdata->fh);
-                } else {
-                    fputs("\",\n", pdata->fh);
-                }
+            if (node->first_child != NULL) {
+                print_indent(pdata->level + 3, pdata->fh);
+
+                fputs("\"", pdata->fh);
+                print_escaped_json(pdata->fh, fi->hfinfo->abbrev);
+                fputs("_tree\": {\n", pdata->fh);
             }
         }
 

@@ -169,7 +169,8 @@ typedef enum {
   WRITE_TEXT,   /* summary or detail text */
   WRITE_XML,    /* PDML or PSML */
   WRITE_FIELDS, /* User defined list of fields */
-  WRITE_JSON,    /* JSON */
+  WRITE_JSON,   /* JSON */
+  WRITE_JSON_RAW,   /* JSON only raw hex */
   WRITE_EK      /* JSON bulk insert to Elasticsearch */
   /* Add CSV and the like here */
 } output_action_e;
@@ -386,7 +387,7 @@ print_usage(FILE *output)
   fprintf(output, "  -P                       print packet summary even when writing to a file\n");
   fprintf(output, "  -S <separator>           the line separator to print between packets\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
-  fprintf(output, "  -T pdml|ps|psml|json|ek|text|fields\n");
+  fprintf(output, "  -T pdml|ps|psml|json|jsonraw|ek|text|fields\n");
   fprintf(output, "                           format of text output (def: text)\n");
   fprintf(output, "  -j <protocolfilter>      protocols layers filter if -T ek|pdml|json selected\n");
   fprintf(output, "                           (e.g. \"ip ip.flags text\", filter does not expand child\n");
@@ -1320,31 +1321,38 @@ main(int argc, char *argv[])
         output_action = WRITE_EK;
         print_details = TRUE;   /* Need details */
         print_summary = FALSE;  /* Don't allow summary */
+      } else if (strcmp(optarg, "jsonraw") == 0) {
+        output_action = WRITE_JSON_RAW;
+        print_details = TRUE;   /* Need details */
+        print_summary = FALSE;  /* Don't allow summary */
       }
       else {
         cmdarg_err("Invalid -T parameter \"%s\"; it must be one of:", optarg);                   /* x */
-        cmdarg_err_cont("\t\"fields\" The values of fields specified with the -e option, in a form\n"
-                        "\t         specified by the -E option.\n"
-                        "\t\"pdml\"   Packet Details Markup Language, an XML-based format for the\n"
-                        "\t         details of a decoded packet. This information is equivalent to\n"
-                        "\t         the packet details printed with the -V flag.\n"
-                        "\t\"ps\"     PostScript for a human-readable one-line summary of each of\n"
-                        "\t         the packets, or a multi-line view of the details of each of\n"
-                        "\t         the packets, depending on whether the -V flag was specified.\n"
-                        "\t\"psml\"   Packet Summary Markup Language, an XML-based format for the\n"
-                        "\t         summary information of a decoded packet. This information is\n"
-                        "\t         equivalent to the information shown in the one-line summary\n"
-                        "\t         printed by default.\n"
-                        "\t\"json\"   Packet Summary, an JSON-based format for the details\n"
-                        "\t         summary information of a decoded packet. This information is \n"
-                        "\t         equivalent to the packet details printed with the -V flag.\n"
-                        "\t\"ek\"     Packet Summary, an EK JSON-based format for the bulk insert \n"
-                        "\t         into elastic search cluster. This information is \n"
-                        "\t         equivalent to the packet details printed with the -V flag.\n"
-                        "\t\"text\"   Text of a human-readable one-line summary of each of the\n"
-                        "\t         packets, or a multi-line view of the details of each of the\n"
-                        "\t         packets, depending on whether the -V flag was specified.\n"
-                        "\t         This is the default.");
+        cmdarg_err_cont("\t\"fields\"  The values of fields specified with the -e option, in a form\n"
+                        "\t          specified by the -E option.\n"
+                        "\t\"pdml\"    Packet Details Markup Language, an XML-based format for the\n"
+                        "\t          details of a decoded packet. This information is equivalent to\n"
+                        "\t          the packet details printed with the -V flag.\n"
+                        "\t\"ps\"      PostScript for a human-readable one-line summary of each of\n"
+                        "\t          the packets, or a multi-line view of the details of each of\n"
+                        "\t          the packets, depending on whether the -V flag was specified.\n"
+                        "\t\"psml\"    Packet Summary Markup Language, an XML-based format for the\n"
+                        "\t          summary information of a decoded packet. This information is\n"
+                        "\t          equivalent to the information shown in the one-line summary\n"
+                        "\t          printed by default.\n"
+                        "\t\"json\"    Packet Summary, an JSON-based format for the details\n"
+                        "\t          summary information of a decoded packet. This information is \n"
+                        "\t          equivalent to the packet details printed with the -V flag.\n"
+                        "\t\"jsonraw\" Packet Details, a JSON-based format for machine parsing\n"
+                        "\t          including only raw hex decoded fields (same as -T json -x but\n"
+                        "\t          without text decoding, only raw fields included). \n"
+                        "\t\"ek\"      Packet Details, an EK JSON-based format for the bulk insert \n"
+                        "\t          into elastic search cluster. This information is \n"
+                        "\t          equivalent to the packet details printed with the -V flag.\n"
+                        "\t\"text\"    Text of a human-readable one-line summary of each of the\n"
+                        "\t          packets, or a multi-line view of the details of each of the\n"
+                        "\t          packets, depending on whether the -V flag was specified.\n"
+                        "\t          This is the default.");
         exit_status = INVALID_OPTION;
         goto clean_exit;
       }
@@ -1553,8 +1561,8 @@ main(int argc, char *argv[])
   }
 
   if (print_hex) {
-    if (output_action != WRITE_TEXT && output_action != WRITE_JSON && output_action != WRITE_EK) {
-      cmdarg_err("Raw packet hex data can only be printed as text, PostScript, JSON or EK JSON");
+    if (output_action != WRITE_TEXT && output_action != WRITE_JSON && output_action != WRITE_JSON_RAW && output_action != WRITE_EK) {
+      cmdarg_err("Raw packet hex data can only be printed as text, PostScript, JSON, JSONRAW or EK JSON");
       exit_status = INVALID_OPTION;
       goto clean_exit;
     }
@@ -3678,6 +3686,7 @@ write_preamble(capture_file *cf)
     return !ferror(stdout);
 
   case WRITE_JSON:
+  case WRITE_JSON_RAW:
     write_json_preamble(stdout);
     return !ferror(stdout);
 
@@ -3989,6 +3998,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       case WRITE_FIELDS: /*No non-verbose "fields" format */
       case WRITE_JSON:
       case WRITE_EK:
+      case WRITE_JSON_RAW:
         g_assert_not_reached();
         break;
       }
@@ -4028,7 +4038,14 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       printf("\n");
       return !ferror(stdout);
     case WRITE_JSON:
+      print_args.print_dissections = print_dissections_expanded;
       print_args.print_hex = print_hex;
+      write_json_proto_tree(output_fields, &print_args, protocolfilter, protocolfilter_flags, edt, stdout);
+      printf("\n");
+      return !ferror(stdout);
+    case WRITE_JSON_RAW:
+      print_args.print_dissections = print_dissections_none;
+      print_args.print_hex = TRUE;
       write_json_proto_tree(output_fields, &print_args, protocolfilter, protocolfilter_flags, edt, stdout);
       printf("\n");
       return !ferror(stdout);
@@ -4071,6 +4088,7 @@ write_finale(void)
     return !ferror(stdout);
 
   case WRITE_JSON:
+  case WRITE_JSON_RAW:
     write_json_finale(stdout);
     return !ferror(stdout);
 
