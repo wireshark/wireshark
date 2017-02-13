@@ -295,6 +295,7 @@ MOC_HDRS = \
 	uat_model.h					\
 	uat_tree_view.h					\
 	voip_calls_dialog.h				\
+	voip_calls_info_model.h				\
 	wireless_frame.h				\
 	wireshark_application.h				\
 	wireshark_dialog.h				\
@@ -576,6 +577,7 @@ WIRESHARK_QT_SRC = \
 	uat_model.cpp					\
 	uat_tree_view.cpp				\
 	voip_calls_dialog.cpp				\
+	voip_calls_info_model.cpp			\
 	wireless_frame.cpp				\
 	wireshark_application.cpp			\
 	wireshark_dialog.cpp

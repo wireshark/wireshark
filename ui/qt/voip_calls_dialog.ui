@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeWidget" name="callTreeWidget">
+    <widget class="QTreeView" name="callTreeView">
      <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
@@ -31,56 +31,6 @@
      <property name="itemsExpandable">
       <bool>false</bool>
      </property>
-     <column>
-      <property name="text">
-       <string>Start Time</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Stop Time</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Initial Speaker</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>From</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>To</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Protocol</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Duration</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Packets</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>State</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Comments</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item>
