@@ -15,3 +15,26 @@
    fun:epan_init
    fun:main
 }
+
+{
+   Remove leak in libgcrypt (gcry_control)
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   ...
+   fun:gcry_control
+   fun:epan_init
+   fun:main
+}
+
+{
+   Remove leak in libgcrypt (gcry_check_version)
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   ...
+   fun:epan_get_runtime_version_info
+   fun:get_tshark_runtime_version_info
+   fun:get_runtime_version_info
+   fun:main
+}
