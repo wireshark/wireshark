@@ -60,6 +60,10 @@ register_stat_tap_ui(stat_tap_ui *ui, void *userdata)
 {
     stat_cmd_arg *newsca;
 
+    /* Key is already present */
+    if (wmem_tree_lookup_string(stat_cmd_arg_list, ui->cli_string, 0))
+        return;
+
     newsca = wmem_new(wmem_epan_scope(), stat_cmd_arg);
     newsca->cmd= wmem_strdup(wmem_epan_scope(), ui->cli_string);
     newsca->func=ui->tap_init_cb;
