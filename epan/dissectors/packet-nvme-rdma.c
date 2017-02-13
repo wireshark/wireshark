@@ -937,7 +937,7 @@ proto_register_nvme_rdma(void)
         },
         { &hf_nvme_rdma_cmd_connect_kato,
             { "Keep Alive Timeout", "nvme-rdma.cmd.connect.kato",
-               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_connect_rsvd3,
             { "Reserved", "nvme-rdma.cmd.connect.rsvd3",
