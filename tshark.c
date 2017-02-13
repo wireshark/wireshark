@@ -2919,7 +2919,9 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
 
   /* If we're going to print packet information, or we're going to
      run a read filter, or we're going to process taps, set up to
-     do a dissection and do so. */
+     do a dissection and do so.  (This is the second pass of two
+     passes over the packets; that's the pass where we print
+     packet information or run taps.) */
   if (edt) {
     if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
         gbl_resolv_flags.transport_name)
@@ -3555,7 +3557,9 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset, struct wtap
 
   /* If we're going to print packet information, or we're going to
      run a read filter, or we're going to process taps, set up to
-     do a dissection and do so. */
+     do a dissection and do so.  (This is the one and only pass
+     over the packets, so, if we'll be printing packet information
+     or running taps, we'll be doing it here.) */
   if (edt) {
     if (print_packet_info && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
         gbl_resolv_flags.transport_name))
