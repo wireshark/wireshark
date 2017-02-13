@@ -207,6 +207,33 @@ static const value_string rsvd_data_in_vals[] = {
         { 0, NULL }
 };
 
+static void
+dissect_scsi_payload_databuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 data_transfer_length, gboolean request)
+{
+    tvbuff_t *data_tvb = NULL;
+    int tvb_len, tvb_rlen;
+
+    tvb_len = tvb_captured_length_remaining(tvb, offset);
+    if (tvb_len > (int)data_transfer_length)
+        tvb_len = data_transfer_length;
+
+    tvb_rlen = tvb_reported_length_remaining(tvb, offset);
+    if (tvb_rlen > (int)data_transfer_length)
+        tvb_rlen = data_transfer_length;
+
+    data_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len, tvb_rlen);
+
+    if (rsvd_conv_data->task && rsvd_conv_data->task->itlq) {
+        rsvd_conv_data->task->itlq->task_flags = SCSI_DATA_READ |
+                                                 SCSI_DATA_WRITE;
+        rsvd_conv_data->task->itlq->data_length = data_transfer_length;
+        rsvd_conv_data->task->itlq->bidir_data_length = data_transfer_length;
+        dissect_scsi_payload(data_tvb, pinfo, top_tree, request,
+                             rsvd_conv_data->task->itlq,
+                             get_itl_nexus(pinfo), 0);
+    }
+}
+
 /*
  * Dissect a tunnelled SCSI request and call the SCSI dissector where
  * needed.
@@ -217,6 +244,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
     proto_tree *sub_tree;
     proto_item *sub_item;
     guint32 cdb_length;
+    guint8 data_in;
     guint32 data_transfer_length;
     guint32 sense_info_ex_length;
     conversation_t *conversation;
@@ -272,6 +300,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset++;
 
         /* DataIn */
+        data_in = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data_in, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
@@ -312,7 +341,6 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         /* DataBuffer */
         if (data_transfer_length) {
             proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data, tvb, offset, data_transfer_length, ENC_NA);
-            offset += data_transfer_length;
         }
 
         /*
@@ -333,10 +361,16 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
             rsvd_conv_data->task->itlq->fc_time = pinfo->abs_ts;
             rsvd_conv_data->task->itlq->extra_data = NULL;
         }
+
         if (rsvd_conv_data->task && rsvd_conv_data->task->itlq) {
             dissect_scsi_cdb(scsi_cdb, pinfo, top_tree, SCSI_DEV_SMC, rsvd_conv_data->task->itlq, get_itl_nexus(pinfo));
+            if (data_in == 0) { /* Only OUT operations have meaningful SCSI payload in request packet */
+                dissect_scsi_payload_databuffer(tvb, pinfo, offset, data_transfer_length, request);
+            }
         }
 
+        /* increment after DataBuffer */
+        offset += data_transfer_length;
     } else {
         guint8 scsi_status = 0;
 
@@ -366,6 +400,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset++;
 
         /* DataIn */
+        data_in = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data_in, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
@@ -388,30 +423,12 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 
         /* DataBuffer */
         if (data_transfer_length) {
-            tvbuff_t *data_tvb = NULL;
-            int tvb_len, tvb_rlen;
+            proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data, tvb, offset, data_transfer_length, ENC_NA);
 
-            tvb_len = tvb_captured_length_remaining(tvb, offset);
-            if (tvb_len > (int)data_transfer_length)
-                tvb_len = data_transfer_length;
-
-            tvb_rlen = tvb_reported_length_remaining(tvb, offset);
-            if (tvb_rlen > (int)data_transfer_length)
-                tvb_rlen = data_transfer_length;
-
-            data_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len, tvb_rlen);
-
-            if (rsvd_conv_data->task && rsvd_conv_data->task->itlq) {
-                rsvd_conv_data->task->itlq->task_flags = SCSI_DATA_READ |
-                                                         SCSI_DATA_WRITE;
-                rsvd_conv_data->task->itlq->data_length = data_transfer_length;
-                rsvd_conv_data->task->itlq->bidir_data_length = data_transfer_length;
-                dissect_scsi_payload(data_tvb, pinfo, top_tree, request,
-                                     rsvd_conv_data->task->itlq,
-                                     get_itl_nexus(pinfo), 0);
+            if (data_in == 1) { /* Only IN operations have meaningful SCSI payload in reply packet */
+                dissect_scsi_payload_databuffer(tvb, pinfo, offset, data_transfer_length, request);
             }
 
-            proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data, tvb, offset, data_transfer_length, ENC_NA);
             offset += data_transfer_length;
         }
 
