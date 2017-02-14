@@ -7493,13 +7493,18 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         next_offset = offset + ext_len;
 
         switch (ext_type) {
+        case SSL_HND_HELLO_EXT_SERVER_NAME:
+            offset = ssl_dissect_hnd_hello_ext_server_name(hf, tvb, pinfo, ext_tree, offset, next_offset);
+            break;
         case SSL_HND_HELLO_EXT_STATUS_REQUEST:
             if (hnd_type == SSL_HND_CLIENT_HELLO)
                 offset = ssl_dissect_hnd_hello_ext_status_request(hf, tvb, ext_tree, offset, FALSE);
             break;
-        case SSL_HND_HELLO_EXT_STATUS_REQUEST_V2:
-            if (hnd_type == SSL_HND_CLIENT_HELLO)
-                offset = ssl_dissect_hnd_hello_ext_status_request_v2(hf, tvb, ext_tree, offset);
+        case SSL_HND_HELLO_EXT_CERT_TYPE:
+            offset = ssl_dissect_hnd_hello_ext_cert_type(hf, tvb, ext_tree,
+                                                         offset, next_offset,
+                                                         hnd_type, ext_type,
+                                                         session);
             break;
         case SSL_HND_HELLO_EXT_SUPPORTED_GROUPS:
             offset = ssl_dissect_hnd_hello_ext_supported_groups(hf, tvb, pinfo, ext_tree, offset, next_offset);
@@ -7510,14 +7515,52 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS:
             offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, pinfo, offset, next_offset);
             break;
+        case SSL_HND_HELLO_EXT_USE_SRTP:
+            if (is_dtls) {
+                offset = dtls_dissect_hnd_hello_ext_use_srtp(tvb, ext_tree, offset, next_offset);
+            } else {
+                // XXX expert info: This extension MUST only be used with DTLS, and not with TLS.
+            }
+            break;
+        case SSL_HND_HELLO_EXT_HEARTBEAT:
+            proto_tree_add_item(ext_tree, hf->hf.hs_ext_heartbeat_mode,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            break;
         case SSL_HND_HELLO_EXT_ALPN:
             offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, session);
             break;
-        case SSL_HND_HELLO_EXT_NPN:
-            offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, pinfo, ext_tree, offset, next_offset);
+        case SSL_HND_HELLO_EXT_STATUS_REQUEST_V2:
+            if (hnd_type == SSL_HND_CLIENT_HELLO)
+                offset = ssl_dissect_hnd_hello_ext_status_request_v2(hf, tvb, ext_tree, offset);
             break;
-        case SSL_HND_HELLO_EXT_RENEGOTIATION_INFO:
-            offset = ssl_dissect_hnd_hello_ext_reneg_info(hf, tvb, pinfo, ext_tree, offset, next_offset);
+        case SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE:
+        case SSL_HND_HELLO_EXT_SERVER_CERT_TYPE:
+            offset = ssl_dissect_hnd_hello_ext_cert_type(hf, tvb, ext_tree,
+                                                         offset, next_offset,
+                                                         hnd_type, ext_type,
+                                                         session);
+            break;
+        case SSL_HND_HELLO_EXT_PADDING:
+            proto_tree_add_item(ext_tree, hf->hf.hs_ext_padding_data, tvb, offset, ext_len, ENC_NA);
+            offset += ext_len;
+            break;
+        case SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET:
+            if (ssl) {
+                switch (hnd_type) {
+                case SSL_HND_CLIENT_HELLO:
+                    ssl->state |= SSL_CLIENT_EXTENDED_MASTER_SECRET;
+                    break;
+                case SSL_HND_SERVER_HELLO:
+                    ssl->state |= SSL_SERVER_EXTENDED_MASTER_SECRET;
+                    break;
+                default: /* no default */
+                    break;
+                }
+            }
+            break;
+        case SSL_HND_HELLO_EXT_SESSION_TICKET_TLS:
+            offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, next_offset, hnd_type, ssl);
             break;
         case SSL_HND_HELLO_EXT_KEY_SHARE:
             offset = ssl_dissect_hnd_hello_ext_key_share(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type);
@@ -7540,54 +7583,16 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_PSK_KEY_EXCHANGE_MODES:
             offset = ssl_dissect_hnd_hello_ext_psk_key_exchange_modes(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
+        case SSL_HND_HELLO_EXT_NPN:
+            offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, pinfo, ext_tree, offset, next_offset);
+            break;
+        case SSL_HND_HELLO_EXT_RENEGOTIATION_INFO:
+            offset = ssl_dissect_hnd_hello_ext_reneg_info(hf, tvb, pinfo, ext_tree, offset, next_offset);
+            break;
         case SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_draft_version_tls13,
                                 tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            break;
-        case SSL_HND_HELLO_EXT_SERVER_NAME:
-            offset = ssl_dissect_hnd_hello_ext_server_name(hf, tvb, pinfo, ext_tree, offset, next_offset);
-            break;
-        case SSL_HND_HELLO_EXT_USE_SRTP:
-            if (is_dtls) {
-                offset = dtls_dissect_hnd_hello_ext_use_srtp(tvb, ext_tree, offset, next_offset);
-            } else {
-                // XXX expert info: This extension MUST only be used with DTLS, and not with TLS.
-            }
-            break;
-        case SSL_HND_HELLO_EXT_HEARTBEAT:
-            proto_tree_add_item(ext_tree, hf->hf.hs_ext_heartbeat_mode,
-                                tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
-            break;
-        case SSL_HND_HELLO_EXT_PADDING:
-            proto_tree_add_item(ext_tree, hf->hf.hs_ext_padding_data, tvb, offset, ext_len, ENC_NA);
-            offset += ext_len;
-            break;
-        case SSL_HND_HELLO_EXT_SESSION_TICKET_TLS:
-            offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, next_offset, hnd_type, ssl);
-            break;
-        case SSL_HND_HELLO_EXT_CERT_TYPE:
-        case SSL_HND_HELLO_EXT_SERVER_CERT_TYPE:
-        case SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE:
-            offset = ssl_dissect_hnd_hello_ext_cert_type(hf, tvb, ext_tree,
-                                                         offset, next_offset,
-                                                         hnd_type, ext_type,
-                                                         session);
-            break;
-        case SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET:
-            if (ssl){
-                switch(hnd_type){
-                    case SSL_HND_CLIENT_HELLO:
-                        ssl->state |= SSL_CLIENT_EXTENDED_MASTER_SECRET;
-                    break;
-                    case SSL_HND_SERVER_HELLO:
-                        ssl->state |= SSL_SERVER_EXTENDED_MASTER_SECRET;
-                    break;
-                    default: /* no default */
-                    break;
-                }
-            }
             break;
         default:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_data,
