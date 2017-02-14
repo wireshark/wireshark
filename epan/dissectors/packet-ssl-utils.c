@@ -5845,7 +5845,7 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         proto_tree_add_item(alpn_tree, hf->hf.hs_ext_alpn_str,
                             tvb, offset, name_length, ENC_ASCII|ENC_NA);
         /* Remember first ALPN ProtocolName entry for server. */
-        if (hnd_type == SSL_HND_SERVER_HELLO) {
+        if (hnd_type == SSL_HND_SERVER_HELLO || hnd_type == SSL_HND_ENCRYPTED_EXTENSIONS) {
             proto_name_length = name_length;
             proto_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
                                             proto_name_length, ENC_ASCII);
@@ -5855,7 +5855,7 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* If ALPN is given in ServerHello, then ProtocolNameList MUST contain
      * exactly one "ProtocolName". */
-    if (hnd_type == SSL_HND_SERVER_HELLO && proto_name) {
+    if (proto_name) {
         /* '\0'-terminated string for prefix/full string comparison purposes. */
         for (size_t i = 0; i < G_N_ELEMENTS(ssl_alpn_protocols); i++) {
             const ssl_alpn_protocol_t *alpn_proto = &ssl_alpn_protocols[i];
@@ -6320,6 +6320,8 @@ ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         }
     break;
     case SSL_HND_SERVER_HELLO:
+    case SSL_HND_ENCRYPTED_EXTENSIONS:
+    case SSL_HND_CERTIFICATE:
         cert_type = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf->hf.hs_ext_cert_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -6327,7 +6329,7 @@ ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
             session->client_cert_type = cert_type;
         }
         if (ext_type == SSL_HND_HELLO_EXT_CERT_TYPE || ext_type == SSL_HND_HELLO_EXT_SERVER_CERT_TYPE) {
-           session->server_cert_type = cert_type;
+            session->server_cert_type = cert_type;
         }
     break;
     default: /* no default */
@@ -7499,6 +7501,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_STATUS_REQUEST:
             if (hnd_type == SSL_HND_CLIENT_HELLO)
                 offset = ssl_dissect_hnd_hello_ext_status_request(hf, tvb, ext_tree, offset, FALSE);
+            // TODO dissect CertificateStatus for SSL_HND_CERTIFICATE (TLS 1.3)
             break;
         case SSL_HND_HELLO_EXT_CERT_TYPE:
             offset = ssl_dissect_hnd_hello_ext_cert_type(hf, tvb, ext_tree,
@@ -7533,6 +7536,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_STATUS_REQUEST_V2:
             if (hnd_type == SSL_HND_CLIENT_HELLO)
                 offset = ssl_dissect_hnd_hello_ext_status_request_v2(hf, tvb, ext_tree, offset);
+            // TODO dissect CertificateStatus for SSL_HND_CERTIFICATE (TLS 1.3)
             break;
         case SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE:
         case SSL_HND_HELLO_EXT_SERVER_CERT_TYPE:
