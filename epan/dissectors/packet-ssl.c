@@ -1546,7 +1546,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     guint8          next_byte;
     proto_tree     *ti;
     proto_tree     *ssl_record_tree;
-    proto_item     *pi, *ct_pi;
+    proto_item     *length_pi, *ct_pi;
     guint           content_type_offset;
     guint32         available_bytes;
     tvbuff_t       *decrypted;
@@ -1679,11 +1679,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     offset += 2;
 
     /* add the length */
-    pi = proto_tree_add_uint(ssl_record_tree, hf_ssl_record_length, tvb,
+    length_pi = proto_tree_add_uint(ssl_record_tree, hf_ssl_record_length, tvb,
                         offset, 2, record_length);
-    if (record_length > TLS_MAX_RECORD_LENGTH) {
-        expert_add_info(pinfo, pi, &dissect_ssl3_hf.ei.record_length_invalid);
-    }
     offset += 2;    /* move past length field itself */
 
     /*
@@ -1739,6 +1736,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             PROTO_ITEM_SET_GENERATED(ti);
         }
     }
+    ssl_check_record_length(&dissect_ssl3_hf, pinfo, record_length, length_pi, version, decrypted);
 
     switch ((ContentType) content_type) {
     case SSL_ID_CHG_CIPHER_SPEC:

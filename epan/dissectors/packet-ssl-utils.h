@@ -870,6 +870,11 @@ ssl_end_vector(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, prot
 /* }}} */
 
 
+extern void
+ssl_check_record_length(ssl_common_dissect_t *hf, packet_info *pinfo,
+                        guint record_length, proto_item *length_pi,
+                        guint16 version, tvbuff_t *decrypted_tvb);
+
 void
 ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                packet_info *pinfo, proto_tree *tree,
@@ -1641,7 +1646,7 @@ ssl_common_dissect_t name = {   \
     }, \
     { & name .ei.record_length_invalid, \
         { prefix ".record.length.invalid", PI_PROTOCOL, PI_ERROR, \
-        "Record fragment length must not exceed 2^14", EXPFILL } \
+        "Record fragment length is too large", EXPFILL } \
     }
 /* }}} */
 

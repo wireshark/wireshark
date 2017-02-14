@@ -693,7 +693,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   guint8          next_byte;
   proto_tree     *ti;
   proto_tree     *dtls_record_tree;
-  proto_item     *pi;
+  proto_item     *length_pi;
   tvbuff_t       *decrypted;
   SslRecordInfo  *record = NULL;
   heur_dtbl_entry_t *hdtbl_entry;
@@ -761,11 +761,8 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   offset += 6;
 
   /* add the length */
-  pi = proto_tree_add_uint(dtls_record_tree, hf_dtls_record_length, tvb,
+  length_pi = proto_tree_add_uint(dtls_record_tree, hf_dtls_record_length, tvb,
                         offset, 2, record_length);
-  if (record_length > TLS_MAX_RECORD_LENGTH) {
-    expert_add_info(pinfo, pi, &dissect_dtls_hf.ei.record_length_invalid);
-  }
   offset += 2;    /* move past length field itself */
 
   /*
@@ -794,6 +791,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   if (decrypted) {
     add_new_data_source(pinfo, decrypted, "Decrypted DTLS");
   }
+  ssl_check_record_length(&dissect_dtls_hf, pinfo, record_length, length_pi, session->version, decrypted);
 
 
   switch ((ContentType) content_type) {

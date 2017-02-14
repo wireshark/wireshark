@@ -6669,6 +6669,29 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
     }
 }
 
+void
+ssl_check_record_length(ssl_common_dissect_t *hf, packet_info *pinfo,
+                        guint record_length, proto_item *length_pi,
+                        guint16 version, tvbuff_t *decrypted_tvb)
+{
+    guint max_expansion;
+    if (version == TLSV1DOT3_VERSION) {
+        /* TLS 1.3: Max length is 2^14 + 256 */
+        max_expansion = 256;
+    } else {
+        /* RFC 5246, Section 6.2.3: TLSCiphertext.fragment length MUST NOT exceed 2^14 + 2048 */
+        max_expansion = 2048;
+    }
+    if (record_length > TLS_MAX_RECORD_LENGTH + max_expansion) {
+        expert_add_info_format(pinfo, length_pi, &hf->ei.record_length_invalid,
+                               "TLSCiphertext length MUST NOT exceed 2^14 + %u", max_expansion);
+    }
+    if (decrypted_tvb && tvb_captured_length(decrypted_tvb) > TLS_MAX_RECORD_LENGTH) {
+        expert_add_info_format(pinfo, length_pi, &hf->ei.record_length_invalid,
+                               "TLSPlaintext length MUST NOT exceed 2^14");
+    }
+}
+
 static void
 ssl_set_cipher(SslDecryptSession *ssl, guint16 cipher)
 {
