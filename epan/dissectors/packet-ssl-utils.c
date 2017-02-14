@@ -6714,7 +6714,7 @@ ssl_set_cipher(SslDecryptSession *ssl, guint16 cipher)
 
 /* Client Hello and Server Hello dissections. {{{ */
 static gint
-ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           packet_info* pinfo, guint32 offset, guint32 offset_end, guint8 hnd_type,
                           SslSession *session, SslDecryptSession *ssl,
                           gboolean is_dtls);
@@ -6828,7 +6828,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* SSL v3.0 has no extensions, so length field can indeed be missing. */
     if (offset < offset_end) {
-        ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
+        ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                                   offset_end, SSL_HND_CLIENT_HELLO,
                                   session, ssl, dtls_hfs != NULL);
     }
@@ -6897,7 +6897,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* SSL v3.0 has no extensions, so length field can indeed be missing. */
     if (offset < offset_end) {
-        ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
+        ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                                   offset_end, SSL_HND_SERVER_HELLO,
                                   session, ssl, is_dtls);
     }
@@ -6908,8 +6908,8 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 void
 ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, guint32 offset, guint32 offset_end,
-                               const SslSession *session, SslDecryptSession *ssl,
-                               GHashTable *session_hash)
+                               SslSession *session, SslDecryptSession *ssl,
+                               gboolean is_dtls, GHashTable *session_hash)
 {
     /* https://tools.ietf.org/html/rfc5077#section-3.3 (TLS >= 1.0):
      *  struct {
@@ -6974,14 +6974,9 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
     offset += ticket_len;
 
     if (is_tls13) {
-        guint32     exts_len;
-
-        /* Extension extensions<0..2^16-2> */
-        if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, offset_end, &exts_len,
-                            hf->hf.hs_exts_len, 0, G_MAXUINT16)) {
-            return;
-        }
-        /* TODO handle ticket extensions (only early_data at the moment) */
+        ssl_dissect_hnd_extension(hf, tvb, subtree, pinfo, offset,
+                                  offset_end, SSL_HND_NEWSESSION_TICKET,
+                                  session, ssl, is_dtls);
     }
 } /* }}} */
 
@@ -7001,24 +6996,24 @@ ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                         offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* remaining data are extensions */
-    ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
+    ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                               offset_end, SSL_HND_HELLO_RETRY_REQUEST,
                               session, ssl, is_dtls);
 }
 
 void
 ssl_dissect_hnd_encrypted_extensions(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                     packet_info* pinfo, proto_tree *tree, guint32 offset, guint32 length,
+                                     packet_info* pinfo, proto_tree *tree, guint32 offset, guint32 offset_end,
                                      SslSession *session, SslDecryptSession *ssl,
                                      gboolean is_dtls)
 {
-    /* struct {
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.3.1
+     * struct {
      *     Extension extensions<0..2^16-1>;
      * } EncryptedExtensions;
      */
-    ssl_dissect_hnd_hello_ext(hf, tvb, tree, pinfo, offset,
-                              offset + length, SSL_HND_ENCRYPTED_EXTENSIONS,
+    ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
+                              offset_end, SSL_HND_ENCRYPTED_EXTENSIONS,
                               session, ssl, is_dtls);
 }
 
@@ -7026,8 +7021,8 @@ ssl_dissect_hnd_encrypted_extensions(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                      guint32 offset, guint32 offset_end, packet_info *pinfo,
-                     const SslSession *session, SslDecryptSession *ssl _U_,
-                     GHashTable *key_hash _U_, gint is_from_server)
+                     SslSession *session, SslDecryptSession *ssl _U_,
+                     GHashTable *key_hash _U_, gboolean is_from_server, gboolean is_dtls)
 {
     /* opaque ASN.1Cert<1..2^24-1>;
      *
@@ -7151,16 +7146,9 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
 
                     /* TLS 1.3: Extension extensions<0..2^16-1> */
                     if (session->version == TLSV1DOT3_VERSION) {
-                        guint32 extensions_length;
-                        if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, next_offset, &extensions_length,
-                                            hf->hf.hs_exts_len, 0, G_MAXUINT16)) {
-                            return;
-                        }
-                        offset += 2;
-
-                        // XXX dissect OCSP and SCT extensions
-                        // https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.4.1.1
-                        offset += extensions_length;
+                        offset = ssl_dissect_hnd_extension(hf, tvb, subtree, pinfo, offset,
+                                                           next_offset, SSL_HND_CERTIFICATE,
+                                                           session, ssl, is_dtls);
                     }
                 }
             }
@@ -7177,7 +7165,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
 void
 ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                          proto_tree *tree, guint32 offset, guint32 offset_end,
-                         const SslSession *session)
+                         SslSession *session, gboolean is_dtls)
 {
     /* From SSL 3.0 and up (note that since TLS 1.1 certificate_authorities can be empty):
      *    enum {
@@ -7334,7 +7322,16 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
         }
     }
 
-    /* TODO Extensions specific to certificates (TLS 1.3). */
+    /* TODO this is not valid for TLS 1.3 draft -18. When draft -19 is released, check if this is still correct. */
+    if (session->version == TLSV1DOT3_VERSION) {
+        /*
+         * SslDecryptSession pointer is NULL because Certificate Extensions
+         * should not influence decryption state.
+         */
+        ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
+                                  offset_end, SSL_HND_CERT_REQUEST,
+                                  session, NULL, is_dtls);
+    }
 }
 /* Certificate and Certificate Request dissections. }}} */
 
@@ -7452,26 +7449,26 @@ ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tr
     }
 } /* }}} */
 
-/* Client Hello and Server Hello TLS extensions dissection. {{{ */
+/* Dissection of TLS Extensions in Client Hello, Server Hello, etc. {{{ */
 static gint
-ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                           packet_info* pinfo, guint32 offset, guint32 offset_end, guint8 hnd_type,
                           SslSession *session, SslDecryptSession *ssl,
                           gboolean is_dtls)
 {
-    guint16     extension_length;
+    guint32     exts_len;
     guint16     ext_type;
     guint32     ext_len;
     guint32     next_offset;
     proto_tree *ext_tree;
 
-    if (offset_end - offset < 2)
-        return offset;
-
-    extension_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(tree, hf->hf.hs_exts_len,
-                        tvb, offset, 2, extension_length);
+    /* Extension extensions<0..2^16-2> (for TLS 1.3 HRR/CR min-length is 2) */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &exts_len,
+                        hf->hf.hs_exts_len, 0, G_MAXUINT16)) {
+        return offset_end;
+    }
     offset += 2;
+    offset_end = offset + exts_len;
 
     while (offset_end - offset >= 4)
     {
@@ -7603,6 +7600,11 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             /* Dissection did not end at expected location, fix it. */
             offset = next_offset;
         }
+    }
+
+    /* Check if Extensions vector is correctly terminated. */
+    if (!ssl_end_vector(hf, tvb, pinfo, tree, offset, offset_end)) {
+        offset = offset_end;
     }
 
     return offset;

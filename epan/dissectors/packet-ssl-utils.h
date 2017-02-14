@@ -903,26 +903,26 @@ ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb, pac
 
 extern void
 ssl_dissect_hnd_encrypted_extensions(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
-                                     proto_tree *tree, guint32 offset, guint32 length,
+                                     proto_tree *tree, guint32 offset, guint32 offset_end,
                                      SslSession *session, SslDecryptSession *ssl,
                                      gboolean is_dtls);
 
 extern void
 ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, guint32 offset, guint32 offset_end,
-                               const SslSession *session, SslDecryptSession *ssl,
-                               GHashTable *session_hash);
+                               SslSession *session, SslDecryptSession *ssl,
+                               gboolean is_dtls, GHashTable *session_hash);
 
 extern void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                      guint32 offset, guint32 offset_end, packet_info *pinfo,
-                     const SslSession *session, SslDecryptSession *ssl,
-                     GHashTable *key_hash, gint is_from_server);
+                     SslSession *session, SslDecryptSession *ssl,
+                     GHashTable *key_hash, gboolean is_from_server, gboolean is_dtls);
 
 extern void
 ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                          proto_tree *tree, guint32 offset, guint32 offset_end,
-                         const SslSession *session);
+                         SslSession *session, gboolean is_dtls);
 
 extern void
 ssl_dissect_hnd_cli_cert_verify(ssl_common_dissect_t *hf, tvbuff_t *tvb,

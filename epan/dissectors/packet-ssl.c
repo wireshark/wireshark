@@ -2109,7 +2109,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 /* no need to load keylog file here as it only links a previous
                  * master key with this Session Ticket */
                 ssl_dissect_hnd_new_ses_ticket(&dissect_ssl3_hf, tvb, pinfo,
-                        ssl_hand_tree, offset, offset + length, session, ssl,
+                        ssl_hand_tree, offset, offset + length, session, ssl, FALSE,
                         ssl_master_key_map.tickets);
                 break;
 
@@ -2121,13 +2121,13 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             case SSL_HND_ENCRYPTED_EXTENSIONS:
                 /* XXX expert info if used with non-TLS 1.3? */
                 ssl_dissect_hnd_encrypted_extensions(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree,
-                                                     offset, length, session, ssl, FALSE);
+                                                     offset, offset + length, session, ssl, FALSE);
 
                 break;
 
             case SSL_HND_CERTIFICATE:
                 ssl_dissect_hnd_cert(&dissect_ssl3_hf, tvb, ssl_hand_tree,
-                        offset, offset + length, pinfo, session, ssl, ssl_key_hash, is_from_server);
+                        offset, offset + length, pinfo, session, ssl, ssl_key_hash, is_from_server, FALSE);
                 break;
 
             case SSL_HND_SERVER_KEY_EXCHG:
@@ -2135,7 +2135,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CERT_REQUEST:
-                ssl_dissect_hnd_cert_req(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree, offset, offset + length, session);
+                ssl_dissect_hnd_cert_req(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree, offset, offset + length, session, FALSE);
                 break;
 
             case SSL_HND_SVR_HELLO_DONE:

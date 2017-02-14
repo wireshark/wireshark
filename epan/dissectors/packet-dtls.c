@@ -1276,7 +1276,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             /* no need to load keylog file here as it only links a previous
              * master key with this Session Ticket */
             ssl_dissect_hnd_new_ses_ticket(&dissect_dtls_hf, sub_tvb, pinfo,
-                                           ssl_hand_tree, 0, length, session, ssl,
+                                           ssl_hand_tree, 0, length, session, ssl, TRUE,
                                            dtls_master_key_map.tickets);
             break;
 
@@ -1287,7 +1287,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
           case SSL_HND_CERTIFICATE:
             ssl_dissect_hnd_cert(&dissect_dtls_hf, sub_tvb, ssl_hand_tree, 0, length,
-                pinfo, session, ssl, dtls_key_hash, is_from_server);
+                pinfo, session, ssl, dtls_key_hash, is_from_server, TRUE);
             break;
 
           case SSL_HND_SERVER_KEY_EXCHG:
@@ -1295,7 +1295,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_CERT_REQUEST:
-            ssl_dissect_hnd_cert_req(&dissect_dtls_hf, sub_tvb, pinfo, ssl_hand_tree, 0, length, session);
+            ssl_dissect_hnd_cert_req(&dissect_dtls_hf, sub_tvb, pinfo, ssl_hand_tree, 0, length, session, TRUE);
             break;
 
           case SSL_HND_SVR_HELLO_DONE:
