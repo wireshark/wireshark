@@ -2633,7 +2633,14 @@ proto_tree_add_item_new_ret_length(proto_tree *tree, header_field_info *hfinfo,
 		return NULL;
 	}
 
-	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
+	TRY_TO_FAKE_THIS_ITEM_OR_FREE(tree, hfinfo->id, hfinfo, {
+		/*
+		 * Even if the tree item is not referenced (and thus faked),
+		 * the caller must still be informed of the actual length.
+		 */
+		*lenretval = get_full_length(hfinfo, tvb, start, length,
+		    item_length, encoding);
+	});
 
 	new_fi = new_field_info(tree, hfinfo, tvb, start, item_length);
 
