@@ -168,6 +168,9 @@ void ProfileDialog::updateWidgets()
         case PROF_STAT_COPY:
             if (current_profile->reference) {
                 profile_info = tr("Created from %1").arg(current_profile->reference);
+                if (current_profile->from_global) {
+                    profile_info.append(QString(" %1").arg(tr("(system provided)")));
+                }
                 break;
             }
             /* Fall Through */
