@@ -47,6 +47,7 @@
 
 
 #include "packet-tcp.h"
+#include "packet-ssl.h"
 
 #define PNAME  "Couchbase Protocol"
 #define PSNAME "Couchbase"
@@ -685,11 +686,13 @@ static const value_string feature_vals[] = {
   {0, NULL}
 };
 
-static dissector_handle_t couchbase_tcp_handle;
+static dissector_handle_t couchbase_handle;
 static dissector_handle_t json_handle;
 
 /* desegmentation of COUCHBASE payload */
 static gboolean couchbase_desegment_body = TRUE;
+static guint couchbase_ssl_port = 11207;
+static guint couchbase_ssl_port_pref = 11207;
 
 
 static guint
@@ -2166,7 +2169,9 @@ proto_register_couchbase(void)
   expert_register_field_array(expert_couchbase, ei, array_length(ei));
 
   /* Register our configuration options */
-  couchbase_module = prefs_register_protocol(proto_couchbase, NULL);
+  couchbase_module = prefs_register_protocol(proto_couchbase, &proto_reg_handoff_couchbase);
+
+  couchbase_handle = register_dissector("couchbase", dissect_couchbase_tcp, proto_couchbase);
 
   prefs_register_bool_preference(couchbase_module, "desegment_pdus",
                                  "Reassemble PDUs spanning multiple TCP segments",
@@ -2175,17 +2180,29 @@ proto_register_couchbase(void)
                                  " To use this option, you must also enable \"Allow subdissectors"
                                  " to reassemble TCP streams\" in the TCP protocol settings.",
                                  &couchbase_desegment_body);
+
+  prefs_register_uint_preference(couchbase_module, "ssl_port", "SSL/TLS Data Port",
+                                 "The port used for communicating with the data service via ssl/tls",
+                                 10, &couchbase_ssl_port_pref);
+
+
 }
 
 /* Register the tcp couchbase dissector. */
 void
 proto_reg_handoff_couchbase(void)
 {
-  couchbase_tcp_handle = create_dissector_handle(dissect_couchbase_tcp, proto_couchbase);
+  static gboolean initialized = FALSE;
 
-  dissector_add_uint_range_with_preference("tcp.port", COUCHBASE_DEFAULT_PORT, couchbase_tcp_handle);
-
-  json_handle = find_dissector_add_dependency("json", proto_couchbase);
+  if (!initialized){
+    json_handle = find_dissector_add_dependency("json", proto_couchbase);
+    dissector_add_uint_range_with_preference("tcp.port", COUCHBASE_DEFAULT_PORT, couchbase_handle);
+    initialized = TRUE;
+  } else {
+    ssl_dissector_delete(couchbase_ssl_port, couchbase_handle);
+  }
+  couchbase_ssl_port = couchbase_ssl_port_pref;
+  ssl_dissector_add(couchbase_ssl_port, couchbase_handle);
 }
 
 /*
