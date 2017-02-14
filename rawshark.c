@@ -1005,7 +1005,7 @@ static gboolean
 load_cap_file(capture_file *cf)
 {
     int          err;
-    gchar       *err_info;
+    gchar       *err_info = NULL;
     gint64       data_offset = 0;
 
     guchar pd[WTAP_MAX_PACKET_SIZE];
