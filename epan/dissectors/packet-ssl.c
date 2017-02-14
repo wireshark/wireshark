@@ -102,6 +102,7 @@
 #include "packet-ocsp.h"
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
+#include "packet-ber.h"
 
 void proto_register_ssl(void);
 
@@ -4331,6 +4332,19 @@ proto_register_ssl(void)
                             tcp_port_to_display, ssl_follow_tap_listener);
 }
 
+static int dissect_tls_sct_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    guint32 offset = 0;
+    /* Skip through tag and length for OCTET STRING encoding. */
+    offset = dissect_ber_identifier(pinfo, tree, tvb, offset, NULL, NULL, NULL);
+    offset = dissect_ber_length(pinfo, tree, tvb, offset, NULL, NULL);
+    /*
+     * RFC 6962 (Certificate Transparency) refers to RFC 5246 (TLS 1.2) for the
+     * DigitallySigned format, so asssume that version.
+     */
+    return tls_dissect_sct_list(&dissect_ssl3_hf, tvb, pinfo, tree, offset, tvb_captured_length(tvb), TLSV1DOT2_VERSION);
+}
+
 /* If this dissector uses sub-dissector registration add a registration
  * routine.  This format is required because a script is used to find
  * these routines and create the code that calls these routines.
@@ -4343,6 +4357,10 @@ proto_reg_handoff_ssl(void)
     ssl_parse_uat();
     ssl_parse_old_keys();
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
+
+    /* Certificate Transparency extensions: 2 (Certificate), 5 (OCSP Response) */
+    register_ber_oid_dissector("1.3.6.1.4.1.11129.2.4.2", dissect_tls_sct_ber, proto_ssl, "SignedCertificateTimestampList");
+    register_ber_oid_dissector("1.3.6.1.4.1.11129.2.4.5", dissect_tls_sct_ber, proto_ssl, "SignedCertificateTimestampList");
 }
 
 void

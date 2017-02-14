@@ -6578,6 +6578,93 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
 
     return offset;
 }
+
+static guint32
+tls_dissect_sct(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                guint32 offset, guint32 offset_end, guint16 version)
+{
+    /* https://tools.ietf.org/html/rfc6962#section-3.2
+     *  enum { v1(0), (255) } Version;
+     *  struct {
+     *      opaque key_id[32];
+     *  } LogID;
+     *  opaque CtExtensions<0..2^16-1>;
+     *  struct {
+     *      Version sct_version;
+     *      LogID id;
+     *      uint64 timestamp;
+     *      CtExtensions extensions;
+     *      digitally-signed struct { ... };
+     *  } SignedCertificateTimestamp;
+     */
+    guint64     sct_timestamp_ms;
+    nstime_t    sct_timestamp;
+    guint32     exts_len;
+
+    proto_tree_add_item(tree, hf->hf.sct_sct_version, tvb, offset, 1, ENC_NA);
+    offset++;
+    proto_tree_add_item(tree, hf->hf.sct_sct_logid, tvb, offset, 32, ENC_BIG_ENDIAN);
+    offset += 32;
+    sct_timestamp_ms = tvb_get_ntoh64(tvb, offset);
+    sct_timestamp.secs  = sct_timestamp_ms / 1000;
+    sct_timestamp.nsecs = (sct_timestamp_ms % 1000) * 1000000;
+    proto_tree_add_time(tree, hf->hf.sct_sct_timestamp, tvb, offset, 8, &sct_timestamp);
+    offset += 8;
+    /* opaque CtExtensions<0..2^16-1> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &exts_len,
+                        hf->hf.sct_sct_extensions_length, 0, G_MAXUINT16)) {
+        return offset_end;
+    }
+    offset += 2;
+    if (exts_len > 0) {
+        proto_tree_add_item(tree, hf->hf.sct_sct_extensions, tvb, offset, exts_len, ENC_BIG_ENDIAN);
+        offset += exts_len;
+    }
+    offset = ssl_dissect_digitally_signed(hf, tvb, pinfo, tree, offset, offset_end, version,
+                                          hf->hf.sct_sct_signature_length,
+                                          hf->hf.sct_sct_signature);
+    return offset;
+}
+
+guint32
+tls_dissect_sct_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                     guint32 offset, guint32 offset_end, guint16 version)
+{
+    /* https://tools.ietf.org/html/rfc6962#section-3.3
+     *  opaque SerializedSCT<1..2^16-1>;
+     *  struct {
+     *      SerializedSCT sct_list <1..2^16-1>;
+     *  } SignedCertificateTimestampList;
+     */
+    guint32     list_length, sct_length, next_offset;
+    proto_tree *subtree;
+
+    /* SerializedSCT sct_list <1..2^16-1> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &list_length,
+                        hf->hf.sct_scts_length, 1, G_MAXUINT16)) {
+        return offset_end;
+    }
+    offset += 2;
+
+    while (offset < offset_end) {
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 2, hf->ett.sct, NULL, "Signed Certificate Timestamp");
+
+        /* opaque SerializedSCT<1..2^16-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, offset_end, &sct_length,
+                            hf->hf.sct_sct_length, 1, G_MAXUINT16)) {
+            return offset_end;
+        }
+        offset += 2;
+        next_offset = offset + sct_length;
+        proto_item_set_len(subtree, 2 + sct_length);
+        offset = tls_dissect_sct(hf, tvb, pinfo, subtree, offset, next_offset, version);
+        if (!ssl_end_vector(hf, tvb, pinfo, subtree, offset, next_offset)) {
+            offset = next_offset;
+        }
+    }
+
+    return offset;
+}
 /** TLS Extensions (in Client Hello and Server Hello). }}} */
 
 /* Whether the Content and Handshake Types are valid; handle Protocol Version. {{{ */
@@ -7535,6 +7622,10 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             if (hnd_type == SSL_HND_CLIENT_HELLO)
                 offset = ssl_dissect_hnd_hello_ext_status_request_v2(hf, tvb, ext_tree, offset);
             // TODO dissect CertificateStatus for SSL_HND_CERTIFICATE (TLS 1.3)
+            break;
+        case SSL_HND_HELLO_EXT_SIGNED_CERTIFICATE_TIMESTAMP:
+            if (hnd_type == SSL_HND_SERVER_HELLO || hnd_type == SSL_HND_ENCRYPTED_EXTENSIONS)
+                offset = tls_dissect_sct_list(hf, tvb, pinfo, ext_tree, offset, next_offset, session->version);
             break;
         case SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE:
         case SSL_HND_HELLO_EXT_SERVER_CERT_TYPE:

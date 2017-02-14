@@ -774,6 +774,15 @@ typedef struct ssl_common_dissect {
         gint hs_certificate_request_context_length;
         gint hs_certificate_request_context;
         gint hs_key_update_request_update;
+        gint sct_scts_length;
+        gint sct_sct_length;
+        gint sct_sct_version;
+        gint sct_sct_logid;
+        gint sct_sct_timestamp;
+        gint sct_sct_extensions_length;
+        gint sct_sct_extensions;
+        gint sct_sct_signature;
+        gint sct_sct_signature_length;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -801,6 +810,7 @@ typedef struct ssl_common_dissect {
         gint cipher_suites;
         gint comp_methods;
         gint session_ticket;
+        gint sct;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
@@ -950,6 +960,10 @@ extern void
 tls13_dissect_hnd_key_update(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                              proto_tree *tree, guint32 offset);
 
+extern guint32
+tls_dissect_sct_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                     guint32 offset, guint32 offset_end, guint16 version);
+
 /* {{{ */
 #define SSL_COMMON_LIST_T(name) \
 ssl_common_dissect_t name = {   \
@@ -961,11 +975,12 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                     \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1,                                                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1,                                     \
+        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,           \
@@ -1591,6 +1606,51 @@ ssl_common_dissect_t name = {   \
       { "Key Update Request", prefix ".handshake.key_update.request_update", \
         FT_UINT8, BASE_DEC, VALS(tls13_key_update_request), 0x00,       \
         "Whether the receiver should also update its keys", HFILL }     \
+    },                                                                  \
+    { & name .hf.sct_scts_length,                                       \
+      { "Serialized SCT List Length", prefix ".sct.scts_length",        \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.sct_sct_length,                                        \
+      { "Serialized SCT Length", prefix ".sct.sct_length",              \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.sct_sct_version,                                       \
+      { "SCT Version", prefix ".sct.sct_version",                       \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
+        "SCT Protocol version (v1 (0) is defined in RFC 6962)", HFILL } \
+    },                                                                  \
+    { & name .hf.sct_sct_logid,                                         \
+      { "Log ID", prefix ".sct.sct_logid",                              \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        "SHA-256 hash of log's public key", HFILL }                     \
+    },                                                                  \
+    { & name .hf.sct_sct_timestamp,                                     \
+      { "Timestamp", prefix ".sct.sct_timestamp",                       \
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x00,                \
+        "Timestamp of issuance", HFILL }                                \
+    },                                                                  \
+    { & name .hf.sct_sct_extensions_length,                             \
+      { "Extensions length", prefix ".sct.sct_extensions_length",       \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        "Length of future extensions to this protocol (currently none)", HFILL } \
+    },                                                                  \
+    { & name .hf.sct_sct_extensions,                                    \
+      { "Extensions", prefix ".sct.sct_extensions",                     \
+        FT_NONE, BASE_NONE, NULL, 0x00,                                 \
+        "Future extensions to this protocol (currently none)", HFILL }  \
+    },                                                                  \
+    { & name .hf.sct_sct_signature_length,                              \
+      { "Signature Length", prefix ".sct.sct_signature_length",         \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.sct_sct_signature,                                     \
+      { "Signature", prefix ".sct.sct_signature",                       \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
     }
 /* }}} */
 
@@ -1619,6 +1679,7 @@ ssl_common_dissect_t name = {   \
         & name .ett.cipher_suites,                  \
         & name .ett.comp_methods,                   \
         & name .ett.session_ticket,                 \
+        & name .ett.sct,                            \
 /* }}} */
 
 /* {{{ */
