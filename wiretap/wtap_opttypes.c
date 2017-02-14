@@ -86,7 +86,7 @@ static void wtap_opttype_block_register(wtap_block_type_t block_type, wtap_block
     static const wtap_opttype_t opt_comment = {
         "opt_comment",
         "Comment",
-        WTAP_OPTTYPE_STRING, 
+        WTAP_OPTTYPE_STRING,
         WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED,
         NULL,
         NULL
@@ -1234,20 +1234,13 @@ void wtap_opttypes_initialize(void)
 
 void wtap_opttypes_cleanup(void)
 {
-    if (blocktype_list[WTAP_BLOCK_NG_SECTION]->options) {
-        g_array_free(blocktype_list[WTAP_BLOCK_NG_SECTION]->options, TRUE);
-        blocktype_list[WTAP_BLOCK_NG_SECTION]->options = NULL;
-    }
-    if (blocktype_list[WTAP_BLOCK_IF_DESCR]->options) {
-        g_array_free(blocktype_list[WTAP_BLOCK_IF_DESCR]->options, TRUE);
-        blocktype_list[WTAP_BLOCK_IF_DESCR]->options = NULL;
-    }
-    if (blocktype_list[WTAP_BLOCK_NG_NRB]->options) {
-        g_array_free(blocktype_list[WTAP_BLOCK_NG_NRB]->options, TRUE);
-        blocktype_list[WTAP_BLOCK_NG_NRB]->options = NULL;
-    }
-    if (blocktype_list[WTAP_BLOCK_IF_STATS]->options) {
-        g_array_free(blocktype_list[WTAP_BLOCK_IF_STATS]->options, TRUE);
-        blocktype_list[WTAP_BLOCK_IF_STATS]->options = NULL;
+    guint block_type;
+
+    for (block_type = 0; block_type < (WTAP_BLOCK_END_OF_LIST+num_custom_blocks); block_type++) {
+        if (blocktype_list[block_type]) {
+            if (blocktype_list[block_type]->options)
+                g_array_free(blocktype_list[block_type]->options, TRUE);
+            blocktype_list[block_type] = NULL;
+        }
     }
 }
