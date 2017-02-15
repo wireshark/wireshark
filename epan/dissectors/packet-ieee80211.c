@@ -18177,7 +18177,9 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
          On top of that, at least at some point it appeared that
          the OLPC XO sent out frames with two bytes of 0 between
          the "end" of the 802.11 header and the beginning of
-         the payload.
+         the payload. Something similar has also been observed
+         with Atheros chipsets. There the sequence control field
+         seems repeated.
 
          So, if the packet doesn't start with 0xaa 0xaa:
 
@@ -18193,7 +18195,8 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
            whether the packet starts with 0xff 0xff and, if so, treat it
            as an encapsulated IPX frame, and then check whether the
            packet starts with 0x00 0x00 and, if so, treat it as an OLPC
-           frame. */
+           frame, or check the packet starts with the repetition of the
+           sequence control field and, if so, treat it as an Atheros frame. */
       encap_type = ENCAP_802_2;
       if (tvb_bytes_exist(next_tvb, 0, 2)) {
         octet1 = tvb_get_guint8(next_tvb, 0);
@@ -18204,7 +18207,8 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
             encap_type = ENCAP_ETHERNET;
           else if ((octet1 == 0xff) && (octet2 == 0xff))
             encap_type = ENCAP_IPX;
-          else if ((octet1 == 0x00) && (octet2 == 0x00)) {
+          else if (((octet1 == 0x00) && (octet2 == 0x00)) ||
+                   (((octet2 << 8) | octet1) == seq_control)) {
             proto_tree_add_item(tree, hf_ieee80211_mysterious_olpc_stuff, next_tvb, 0, 2, ENC_NA);
             next_tvb = tvb_new_subset_remaining(next_tvb, 2);
           }
