@@ -5693,6 +5693,11 @@ ssl_end_vector(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, prot
 /** }}} */
 
 
+static guint32
+ssl_dissect_digitally_signed(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                             proto_tree *tree, guint32 offset, guint32 offset_end,
+                             guint16 version, gint hf_sig_len, gint hf_sig);
+
 /* change_cipher_spec(20) dissection */
 void
 ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
@@ -7337,18 +7342,11 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
 }
 /* Certificate and Certificate Request dissections. }}} */
 
-static void
-ssl_dissect_digitally_signed(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                             proto_tree *tree, guint32 offset,
-                             const SslSession *session,
-                             gint hf_sig_len, gint hf_sig);
-
 void
-ssl_dissect_hnd_cli_cert_verify(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                proto_tree *tree, guint32 offset,
-                                const SslSession *session)
+ssl_dissect_hnd_cli_cert_verify(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                proto_tree *tree, guint32 offset, guint32 offset_end, guint16 version)
 {
-    ssl_dissect_digitally_signed(hf, tvb, tree, offset, session,
+    ssl_dissect_digitally_signed(hf, tvb, pinfo, tree, offset, offset_end, version,
                                  hf->hf.hs_client_cert_vrfy_sig_len,
                                  hf->hf.hs_client_cert_vrfy_sig);
 }
@@ -7742,17 +7740,16 @@ dissect_ssl3_hnd_cli_keyex_rsa_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
 
 /* Dissects DigitallySigned (see RFC 5246 4.7 Cryptographic Attributes). {{{ */
-static void
-ssl_dissect_digitally_signed(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                             proto_tree *tree, guint32 offset,
-                             const SslSession *session,
-                             gint hf_sig_len, gint hf_sig)
+static guint32
+ssl_dissect_digitally_signed(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                             proto_tree *tree, guint32 offset, guint32 offset_end,
+                             guint16 version, gint hf_sig_len, gint hf_sig)
 {
-    gint        sig_len;
+    guint32     sig_len;
     proto_item *ti_algo;
     proto_tree *ssl_algo_tree;
 
-    switch (session->version) {
+    switch (version) {
     case TLSV1DOT2_VERSION:
     case DTLSV1DOT2_VERSION:
     case TLSV1DOT3_VERSION: /* XXX merge both fields into one SignatureScheme? */
@@ -7773,18 +7770,23 @@ ssl_dissect_digitally_signed(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     }
 
     /* Sig */
-    sig_len = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_sig_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_sig, tvb, offset + 2, sig_len, ENC_NA);
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &sig_len,
+                        hf_sig_len, 0, G_MAXUINT16)) {
+        return offset_end;
+    }
+    offset += 2;
+    proto_tree_add_item(tree, hf_sig, tvb, offset, sig_len, ENC_NA);
+    offset += sig_len;
+    return offset;
 } /* }}} */
 
 /* ServerKeyExchange algo-specific dissectors. {{{ */
 
 /* dissects signed_params inside a ServerKeyExchange for some keyex algos */
 static void
-dissect_ssl3_hnd_srv_keyex_sig(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                               proto_tree *tree, guint32 offset,
-                               const SslSession *session)
+dissect_ssl3_hnd_srv_keyex_sig(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree, guint32 offset, guint32 offset_end,
+                               guint16 version)
 {
     /*
      * TLSv1.2 (RFC 5246 sec 7.4.8)
@@ -7797,19 +7799,18 @@ dissect_ssl3_hnd_srv_keyex_sig(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      * TLSv1.0/TLSv1.1 (RFC 5436 sec 7.4.8 and 7.4.3) works essentially the same
      * as TLSv1.2, but the hash algorithms are not explicit in digitally-signed.
      *
-     * SSLv3 (RFC 6101 sec 5.6.8) esseentially works the same as TLSv1.0 but it
+     * SSLv3 (RFC 6101 sec 5.6.8) essentially works the same as TLSv1.0 but it
      * does more hashing including the master secret and padding.
      */
-    ssl_dissect_digitally_signed(hf, tvb, tree, offset, session,
+    ssl_dissect_digitally_signed(hf, tvb, pinfo, tree, offset, offset_end, version,
                                  hf->hf.hs_server_keyex_sig_len,
                                  hf->hf.hs_server_keyex_sig);
 }
 
 static void
-dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                proto_tree *tree, guint32 offset,
-                                guint32 length, const SslSession *session,
-                                gboolean anon)
+dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                proto_tree *tree, guint32 offset, guint32 offset_end,
+                                guint16 version, gboolean anon)
 {
     /*
      * RFC 4492 ECC cipher suites for TLS
@@ -7846,7 +7847,7 @@ dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     gint        point_len;
     proto_tree *ssl_ecdh_tree;
 
-    ssl_ecdh_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+    ssl_ecdh_tree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset,
                                   hf->ett.keyex_params, NULL, "EC Diffie-Hellman Server Params");
 
     /* ECParameters.curve_type */
@@ -7872,19 +7873,19 @@ dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* Signature (if non-anonymous KEX) */
     if (!anon) {
-        dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, ssl_ecdh_tree, offset, session);
+        dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, pinfo, ssl_ecdh_tree, offset, offset_end, version);
     }
 }
 
 static void
-dissect_ssl3_hnd_srv_keyex_dhe(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                               proto_tree *tree, guint32 offset, guint32 length,
-                               const SslSession *session, gboolean anon)
+dissect_ssl3_hnd_srv_keyex_dhe(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree, guint32 offset, guint32 offset_end,
+                               guint16 version, gboolean anon)
 {
     gint        p_len, g_len, ys_len;
     proto_tree *ssl_dh_tree;
 
-    ssl_dh_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+    ssl_dh_tree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset,
                                 hf->ett.keyex_params, NULL, "Diffie-Hellman Server Params");
 
     /* p */
@@ -7913,20 +7914,20 @@ dissect_ssl3_hnd_srv_keyex_dhe(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* Signature (if non-anonymous KEX) */
     if (!anon) {
-        dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, ssl_dh_tree, offset, session);
+        dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, pinfo, ssl_dh_tree, offset, offset_end, version);
     }
 }
 
 /* Only used in RSA-EXPORT cipher suites */
 static void
-dissect_ssl3_hnd_srv_keyex_rsa(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                               proto_tree *tree, guint32 offset, guint32 length,
-                               const SslSession *session)
+dissect_ssl3_hnd_srv_keyex_rsa(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree, guint32 offset, guint32 offset_end,
+                               guint16 version)
 {
     gint        modulus_len, exponent_len;
     proto_tree *ssl_rsa_tree;
 
-    ssl_rsa_tree = proto_tree_add_subtree(tree, tvb, offset, length,
+    ssl_rsa_tree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset,
                                  hf->ett.keyex_params, NULL, "RSA-EXPORT Server Params");
 
     /* modulus */
@@ -7946,7 +7947,7 @@ dissect_ssl3_hnd_srv_keyex_rsa(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     offset += 2 + exponent_len;
 
     /* Signature */
-    dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, ssl_rsa_tree, offset, session);
+    dissect_ssl3_hnd_srv_keyex_sig(hf, tvb, pinfo, ssl_rsa_tree, offset, offset_end, version);
 }
 
 /* Used in RSA PSK and PSK cipher suites */
@@ -8025,13 +8026,13 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 void
-ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                          proto_tree *tree, guint32 offset, guint32 length,
+ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                          proto_tree *tree, guint32 offset, guint32 offset_end,
                           const SslSession *session)
 {
     switch (ssl_get_keyex_alg(session->cipher)) {
     case KEX_DH_ANON: /* RFC 5246; ServerDHParams */
-        dissect_ssl3_hnd_srv_keyex_dhe(hf, tvb, tree, offset, length, session, TRUE);
+        dissect_ssl3_hnd_srv_keyex_dhe(hf, tvb, pinfo, tree, offset, offset_end, session->version, TRUE);
         break;
     case KEX_DH_DSS: /* RFC 5246; not allowed */
     case KEX_DH_RSA:
@@ -8039,13 +8040,13 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         break;
     case KEX_DHE_DSS: /* RFC 5246; dhe_dss, dhe_rsa: ServerDHParams, Signature */
     case KEX_DHE_RSA:
-        dissect_ssl3_hnd_srv_keyex_dhe(hf, tvb, tree, offset, length, session, FALSE);
+        dissect_ssl3_hnd_srv_keyex_dhe(hf, tvb, pinfo, tree, offset, offset_end, session->version, FALSE);
         break;
     case KEX_DHE_PSK: /* RFC 4279; diffie_hellman_psk: psk_identity_hint, ServerDHParams */
         /* XXX: implement support for DHE_PSK */
         break;
     case KEX_ECDH_ANON: /* RFC 4492; ec_diffie_hellman: ServerECDHParams (without signature for anon) */
-        dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, tree, offset, length, session, TRUE);
+        dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, pinfo, tree, offset, offset_end, session->version, TRUE);
         break;
     case KEX_ECDHE_PSK: /* RFC 5489; psk_identity_hint, ServerECDHParams */
         /* XXX: implement support for ECDHE_PSK */
@@ -8054,17 +8055,17 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     case KEX_ECDH_RSA:
     case KEX_ECDHE_ECDSA:
     case KEX_ECDHE_RSA:
-        dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, tree, offset, length, session, FALSE);
+        dissect_ssl3_hnd_srv_keyex_ecdh(hf, tvb, pinfo, tree, offset, offset_end, session->version, FALSE);
         break;
     case KEX_KRB5: /* RFC 2712; not allowed */
         /* XXX: add error on not allowed KEX */
         break;
     case KEX_PSK: /* RFC 4279; psk, rsa: psk_identity*/
     case KEX_RSA_PSK:
-        dissect_ssl3_hnd_srv_keyex_psk(hf, tvb, tree, offset, length);
+        dissect_ssl3_hnd_srv_keyex_psk(hf, tvb, tree, offset, offset_end - offset);
         break;
     case KEX_RSA: /* only allowed if the public key in the server certificate is longer than 512 bits*/
-        dissect_ssl3_hnd_srv_keyex_rsa(hf, tvb, tree, offset, length, session);
+        dissect_ssl3_hnd_srv_keyex_rsa(hf, tvb, pinfo, tree, offset, offset_end, session->version);
         break;
     case KEX_SRP_SHA: /* RFC 5054; srp: ServerSRPParams, Signature */
     case KEX_SRP_SHA_DSS:

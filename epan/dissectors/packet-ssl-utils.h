@@ -925,9 +925,8 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
                          SslSession *session, gboolean is_dtls);
 
 extern void
-ssl_dissect_hnd_cli_cert_verify(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                                proto_tree *tree, guint32 offset,
-                                const SslSession *session);
+ssl_dissect_hnd_cli_cert_verify(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                proto_tree *tree, guint32 offset, guint32 offset_end, guint16 version);
 
 extern void
 ssl_dissect_hnd_finished(ssl_common_dissect_t *hf, tvbuff_t *tvb,
@@ -943,8 +942,8 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           const SslSession *session);
 
 extern void
-ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                          proto_tree *tree, guint32 offset, guint32 length,
+ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                          proto_tree *tree, guint32 offset, guint32 offset_end,
                           const SslSession *session);
 
 extern void

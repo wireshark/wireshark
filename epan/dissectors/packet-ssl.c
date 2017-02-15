@@ -2131,7 +2131,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_SERVER_KEY_EXCHG:
-                ssl_dissect_hnd_srv_keyex(&dissect_ssl3_hf, tvb, ssl_hand_tree, offset, length, session);
+                ssl_dissect_hnd_srv_keyex(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree, offset, offset + length, session);
                 break;
 
             case SSL_HND_CERT_REQUEST:
@@ -2144,7 +2144,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CERT_VERIFY:
-                ssl_dissect_hnd_cli_cert_verify(&dissect_ssl3_hf, tvb, ssl_hand_tree, offset, session);
+                ssl_dissect_hnd_cli_cert_verify(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree, offset, offset + length, session->version);
                 break;
 
             case SSL_HND_CLIENT_KEY_EXCHG:
