@@ -99,27 +99,28 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2016-12-12"
-$Win32CurrentTag = "2016-12-12"
+$Win64CurrentTag = "2017-02-15"
+$Win32CurrentTag = "2017-02-15"
 
 # Archive file / subdir.
 $Win64Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
-    "c-ares-1.12.0-win64ws.zip" = "";
+    "c-ares-1.12.0-1-win64ws.zip" = "";
     "GeoIP-1.6.6-win64ws.zip" = "GeoIP-1.6.6-win64ws";
-    "gnutls-3.2.15-2.9-win64ws.zip" = "";
+    "gnutls-3.4.11-1.35-win64ws.zip" = "";
     "gtk+-bundle_2.24.23-3.39-2_win64ws.zip" = "gtk2";
     "kfw-3-2-2-x64-ws.zip" = "";
+    "libgcrypt-1.7.6-win64ws.zip" = "";
     "libsmi-svn-40773-win64ws.zip" = "";
-    "libssh-0.7.3-win64ws.zip" = "";
+    "libssh-0.7.3-1-win64ws.zip" = "";
     "lua-5.2.4_Win64_dllw4_lib.zip" = "lua5.2.4";
-    "lz4-r131-win64ws.zip" = "";
+    "lz4-r131-1-win64ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
-    "nghttp2-1.14.0-win64ws.zip" = "";
+    "nghttp2-1.14.0-1-win64ws.zip" = "";
     "portaudio_v19_2.zip" = "";
-    "sbc-1.3-win64ws.zip" = "";
-    "snappy-1.1.3-win64ws.zip" = "";
-    "spandsp-0.0.6-win64ws.zip" = "";
+    "sbc-1.3-1-win64ws.zip" = "";
+    "snappy-1.1.3-1-win64ws.zip" = "";
+    "spandsp-0.0.6-1-win64ws.zip" = "";
     "upx303w.zip" = "";
     "WinSparkle-0.5.3.zip" = "";
     "WpdPack_4_1_2.zip" = "";
@@ -128,21 +129,22 @@ $Win64Archives = @{
 
 $Win32Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
-    "c-ares-1.12.0-win32ws.zip" = "";
+    "c-ares-1.12.0-1-win32ws.zip" = "";
     "GeoIP-1.6.6-win32ws.zip" = "GeoIP-1.6.6-win32ws";
-    "gnutls-3.2.15-2.7-win32ws.zip" = "";
+    "gnutls-3.4.11-1.36-win32ws.zip" = "";
     "gtk+-bundle_2.24.23-1.1-1_win32ws.zip" = "gtk2";
     "kfw-3-2-2-i386-ws-vc6.zip" = "";
+    "libgcrypt-1.7.6-win32ws.zip" = "";
     "libsmi-svn-40773-win32ws.zip" = "";
-    "libssh-0.7.3-win32ws.zip" = "";
+    "libssh-0.7.3-1-win32ws.zip" = "";
     "lua-5.2.4_Win32_dllw4_lib.zip" = "lua5.2.4";
-    "lz4-r131-win32ws.zip" = "";
+    "lz4-r131-1-win32ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
-    "nghttp2-1.14.0-win32ws.zip" = "";
+    "nghttp2-1.14.0-1-win32ws.zip" = "";
     "portaudio_v19_2.zip" = "";
-    "sbc-1.3-win32ws.zip" = "";
-    "snappy-1.1.3-win32ws.zip" = "";
-    "spandsp-0.0.6-win32ws.zip" = "";
+    "sbc-1.3-1-win32ws.zip" = "";
+    "snappy-1.1.3-1-win32ws.zip" = "";
+    "spandsp-0.0.6-1-win32ws.zip" = "";
     "upx303w.zip" = "";
     "WinSparkle-0.5.3.zip" = "";
     "WpdPack_4_1_2.zip" = "";
@@ -176,11 +178,13 @@ $CleanupItems = @(
     "c-ares-1.1?.0-win??ws"
     "gnutls-3.1.22-*-win??ws"
     "gnutls-3.2.15-*-win??ws"
+    "gnutls-3.4.11-*-win??ws"
     "gtk2"
     "gtk3"
     "kfw-3-2-2-final"
     "kfw-3-2-2-i386-ws-vc6"
     "kfw-3-2-2-x64-ws"
+    "libgcrypt-1.7.6-win??ws"
     "libsmi-0.4.8"
     "libsmi-svn-40773-win??ws"
     "libssh-0.7.?-win??ws"
