@@ -420,7 +420,7 @@ void MainWindow::applyRecentPaneGeometry()
     // Force a geometry recalculation
     QWidget *cur_w = main_ui_->mainStack->currentWidget();
     main_ui_->mainStack->setCurrentWidget(&master_split_);
-    QRect geom = master_split_.geometry();
+    QRect geom = main_ui_->mainStack->geometry();
     QList<int> master_sizes = master_split_.sizes();
     QList<int> extra_sizes = extra_split_.sizes();
     main_ui_->mainStack->setCurrentWidget(cur_w);
