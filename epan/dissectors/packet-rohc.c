@@ -321,7 +321,7 @@ get_self_describing_var_len_val(tvbuff_t *tvb, proto_tree *tree, int offset, int
     }else if ((oct&0xe0)==0xe0){
         /* Four octets */
         *val_len = 4;
-        proto_tree_add_bits_item(tree, hf_rohc_var_len, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(tree, hf_rohc_var_len, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset+=3;
         num_bits = 29;
         val = tvb_get_ntohl(tvb, offset)&0x1fffffff;
