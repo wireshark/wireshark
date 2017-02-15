@@ -559,7 +559,7 @@ static void dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
 /* handshake protocol dissector */
 static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
-                                   guint32 record_length,
+                                   guint32 record_length, gboolean maybe_encrypted,
                                    SslSession *session, gint is_from_server,
                                    SslDecryptSession *conv_data,
                                    const guint8 content_type, const guint16 version);
@@ -1773,12 +1773,12 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         ssl_calculate_handshake_hash(ssl, tvb, offset, record_length);
         if (decrypted) {
             dissect_ssl3_handshake(decrypted, pinfo, ssl_record_tree, 0,
-                                   tvb_reported_length(decrypted), session,
+                                   tvb_reported_length(decrypted), FALSE, session,
                                    is_from_server, ssl, content_type, version);
         } else {
             dissect_ssl3_handshake(tvb, pinfo, ssl_record_tree, offset,
-                                   record_length, session, is_from_server, ssl,
-                                   content_type, version);
+                                   record_length, TRUE, session,
+                                   is_from_server, ssl, content_type, version);
         }
         break;
     case SSL_ID_APP_DATA:
@@ -1939,8 +1939,8 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, guint32 offset,
-                       guint32 record_length, SslSession *session,
-                       gint is_from_server,
+                       guint32 record_length, gboolean maybe_encrypted,
+                       SslSession *session, gint is_from_server,
                        SslDecryptSession *ssl, const guint8 content_type,
                        const guint16 version)
 {
@@ -1964,15 +1964,24 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
      *         } body;
      *     } Handshake;
      */
-    proto_tree  *ssl_hand_tree;
+    proto_tree  *ssl_hand_tree = NULL;
     const gchar *msg_type_str;
     guint8       msg_type;
     guint32      length;
-    gboolean     first_iteration;
+    gboolean     first_iteration = TRUE;
     proto_item  *ti;
 
-    ssl_hand_tree   = NULL;
-    first_iteration = TRUE;
+    /*
+     * If this is not a decrypted buffer, then perhaps it is still in plaintext.
+     * Heuristics: if the buffer is too small, it is likely not encrypted.
+     * Otherwise assume that the Handshake does not contain two successive
+     * HelloRequest messages (type=0x00 length=0x000000, type=0x00). If this
+     * occurs, then we have possibly found the explicit nonce preceding the
+     * encrypted contents for GCM/CCM cipher suites as used in TLS 1.2.
+     */
+    if (maybe_encrypted) {
+        maybe_encrypted = tvb_bytes_exist(tvb, offset, 5) && tvb_get_ntoh40(tvb, offset) == 0;
+    }
 
     /* just as there can be multiple records per packet, there
      * can be multiple messages per record as long as they have
@@ -1994,7 +2003,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
          * situation where the first octet of the encrypted handshake
          * message is actually a known handshake message type.
          */
-        if (offset + length <= record_length)
+        if (!maybe_encrypted && offset + length <= record_length)
             msg_type_str = try_val_to_str(msg_type, ssl_31_handshake_type);
         else
             msg_type_str = NULL;
