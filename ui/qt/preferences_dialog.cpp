@@ -35,6 +35,7 @@
 #include <ui/language.h>
 #include <ui/preference_utils.h>
 #include <ui/simple_dialog.h>
+#include <ui/recent.h>
 #include <main_window.h>
 
 #include "syntax_line_edit.h"
@@ -869,11 +870,19 @@ void PreferencesDialog::on_buttonBox_accepted()
     gchar* err = NULL;
     gboolean must_redissect = FALSE;
 
+    layout_type_e old_layout_type = prefs.gui_layout_type;
+
     // XXX - We should validate preferences as the user changes them, not here.
     // XXX - We're also too enthusiastic about setting must_redissect.
 //    if (!prefs_main_fetch_all(parent_w, &must_redissect))
 //        return; /* Errors in some preference setting - already reported */
     prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (gpointer) &must_redissect);
+
+    if (prefs.gui_layout_type != old_layout_type) {
+        // Layout type changed, reset sizes
+        recent.gui_geometry_main_upper_pane = 0;
+        recent.gui_geometry_main_lower_pane = 0;
+    }
 
     pd_ui_->columnFrame->unstash();
     pd_ui_->filterExpressonsFrame->unstash();
@@ -918,6 +927,10 @@ void PreferencesDialog::on_buttonBox_accepted()
         wsApp->queueAppSignal(WiresharkApplication::PacketDissectionChanged);
     }
     wsApp->queueAppSignal(WiresharkApplication::PreferencesChanged);
+
+    if (prefs.gui_layout_type != old_layout_type) {
+        wsApp->queueAppSignal(WiresharkApplication::RecentPreferencesRead);
+    }
 }
 
 void PreferencesDialog::on_buttonBox_helpRequested()
