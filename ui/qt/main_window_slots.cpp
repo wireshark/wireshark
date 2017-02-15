@@ -427,6 +427,9 @@ void MainWindow::applyRecentPaneGeometry()
     if (recent.gui_geometry_main_upper_pane > 0) {
         master_sizes[0] = recent.gui_geometry_main_upper_pane + 1; // Add back mystery pixel
         master_last_size -= recent.gui_geometry_main_upper_pane + master_split_.handleWidth();
+    } else {
+        master_sizes[0] = master_last_size / master_sizes.length();
+        master_last_size -= master_last_size / master_sizes.length() + master_split_.handleWidth();
     }
 
     if (recent.gui_geometry_main_lower_pane > 0) {
@@ -436,6 +439,15 @@ void MainWindow::applyRecentPaneGeometry()
         } else if (extra_sizes.length() > 0) {
             extra_sizes[0] = recent.gui_geometry_main_lower_pane; // No mystery pixel
             extra_last_size -= recent.gui_geometry_main_lower_pane + extra_split_.handleWidth();
+            extra_sizes.last() = extra_last_size;
+        }
+    } else {
+        if (master_sizes.length() > 2) {
+            master_sizes[1] = master_last_size / 2;
+            master_last_size -= master_last_size / 2 + master_split_.handleWidth();
+        } else {
+            extra_sizes[0] = extra_last_size / 2;
+            extra_last_size -= extra_last_size / 2 + extra_split_.handleWidth();
             extra_sizes.last() = extra_last_size;
         }
     }
