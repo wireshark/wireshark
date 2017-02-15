@@ -35,38 +35,7 @@ typedef enum {
   OPT_LEN_VARIABLE_LENGTH           /**< option is variable-length - optlen is minimum */
 } opt_len_type;
 
-/** Member of table of IP or TCP options. */
-typedef struct ip_tcp_opt {
-  int           optcode;            /**< code for option */
-  const char   *name;               /**< name of option */
-  int          *subtree_index;      /**< pointer to subtree index for option */
-  opt_len_type  len_type;           /**< type of option length field */
-  int           optlen;             /**< value length should be (minimum if VARIABLE) */
-  void  (*dissect)(const struct ip_tcp_opt *,
-                   tvbuff_t *,
-                   int,
-                   guint,
-                   packet_info *,
-                   proto_tree *,
-                   void *);   /**< routine to dissect option */
-} ip_tcp_opt;
 
-typedef struct ip_tcp_opt_type {
-  int* phf_opt_type;
-  int* pett_opt_type;
-  int* phf_opt_type_copy;
-  int* phf_opt_type_class;
-  int* phf_opt_type_number;
-} ip_tcp_opt_type;
-
-/** Routine to dissect options that work like IPv4 options, where the
-   length field in the option, if present, includes the type and
-   length bytes. */
-extern void dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
-                       const ip_tcp_opt *opttab, int nopts, int eol,
-                       ip_tcp_opt_type* opttypes, expert_field* ei_bad,
-                       packet_info *pinfo, proto_tree *opt_tree,
-                       proto_item *opt_item, void * data);
 
 /* Quick-Start option, as defined by RFC4782 */
 #define QS_FUNC_MASK        0xf0
