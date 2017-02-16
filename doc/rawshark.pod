@@ -193,6 +193,10 @@ Read packet data from I<input source>. It can be either the name of a FIFO
 (named pipe) or ``-'' to read data from the standard input, and must have
 the record format specified above.
 
+If you are sending data to rawshark from a parent process on Windows you
+should not close rawshark's standard input handle prematurely, otherwise
+the C runtime might trigger an exception.
+
 =item -R  E<lt>read (display) filterE<gt>
 
 Cause the specified filter (which uses the syntax of read/display filters,
