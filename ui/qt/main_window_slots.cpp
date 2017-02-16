@@ -2151,6 +2151,8 @@ void MainWindow::showPreferencesDialog(PreferencesDialog::PreferencesPane start_
 {
     PreferencesDialog pref_dialog(this);
 
+    saveWindowGeometry();  // Save in case the layout panes are rearranged
+
     pref_dialog.setPane(start_pane);
     pref_dialog.exec();
 
@@ -2162,6 +2164,8 @@ void MainWindow::showPreferencesDialog(PreferencesDialog::PreferencesPane start_
 void MainWindow::showPreferencesDialog(QString module_name)
 {
     PreferencesDialog pref_dialog(this);
+
+    saveWindowGeometry();  // Save in case the layout panes are rearranged
 
     pref_dialog.setPane(module_name);
     pref_dialog.exec();
