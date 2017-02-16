@@ -576,6 +576,11 @@ static int hf_gtpv2_ciot_support_ind_bit3 = -1;
 static int hf_gtpv2_ciot_support_ind_bit2 = -1;
 static int hf_gtpv2_ciot_support_ind_bit1 = -1;
 
+static int hf_gtpv2_length_of_node_name = -1;
+static int hf_gtpv2_node_name = -1;
+static int hf_gtpv2_length_of_node_realm = -1;
+static int hf_gtpv2_node_realm = -1;
+
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
 static gint ett_gtpv2_ie = -1;
@@ -6045,7 +6050,24 @@ dissect_gtpv2_node_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static void
 dissect_gtpv2_node_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int   offset = 0;
+    guint32 name_len;
+
+    /* Octet 5 Length of Node Name */
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_length_of_node_name, tvb, offset, 1, ENC_BIG_ENDIAN, &name_len);
+    offset++;
+    /* Node Name */
+    proto_tree_add_item(tree, hf_gtpv2_node_name, tvb, offset, name_len, ENC_UTF_8 | ENC_NA);
+    offset = offset + name_len;
+    /* Length of Node Realm */
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_length_of_node_realm, tvb, offset, 1, ENC_BIG_ENDIAN, &name_len);
+    offset++;
+    /* Node Realm */
+    proto_tree_add_item(tree, hf_gtpv2_node_realm, tvb, offset, name_len, ENC_UTF_8 | ENC_NA);
+    offset = offset + name_len;
+    if(offset < length){
+        proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length- offset);
+    }
 }
 /*
  * 8.108        Presence Reporting Area Action
@@ -9131,6 +9153,26 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_ciot_support_ind_bit1,
           { "SGNIPDN (SGi Non-IP PDN Support", "gtpv2.ciot_support_ind.sgnipdn",
           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_length_of_node_name,
+          { "Length of Node Name", "gtpv2.length_of_node_name",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_length_of_node_realm,
+          { "Length of Node Realm", "gtpv2.length_of_node_realm",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_node_name,
+          { "Node Name", "gtpv2.node_name",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_node_realm,
+      { "Node Realm", "gtpv2.node_realm",
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL }
       },
     };
