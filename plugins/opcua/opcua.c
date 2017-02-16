@@ -228,6 +228,20 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             opcua_num = tvb_get_letohl(tvb, offset); offset += 4; /* Security Sequence Number */
             opcua_seqid = tvb_get_letohl(tvb, offset); offset += 4; /* Security RequestId */
 
+            if (chunkType == 'A')
+            {
+                fragment_delete(&opcua_reassembly_table, pinfo, opcua_seqid, NULL);
+
+                col_clear_fence(pinfo->cinfo, COL_INFO);
+                col_set_str(pinfo->cinfo, COL_INFO, "Abort message");
+
+                offset = 0;
+                (*pfctParse)(transport_tree, tvb, pinfo, &offset);
+                parseAbort(transport_tree, tvb, pinfo, &offset);
+
+                return tvb_reported_length(tvb);
+            }
+
             /* check if tvb is part of a chunked message:
                the UA protocol does not tell us that, so we look into
                opcua_reassembly_table if the opcua_seqid belongs to a

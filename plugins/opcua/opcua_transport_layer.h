@@ -22,6 +22,7 @@ int parseHello(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffse
 int parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 int parseError(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 int parseMessage(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
+int parseAbort(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 int parseService(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
