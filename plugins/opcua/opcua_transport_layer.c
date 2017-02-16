@@ -127,6 +127,14 @@ int parseMessage(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *
     return -1;
 }
 
+int parseAbort(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+{
+    parseStatusCode(tree, tvb, pinfo, pOffset, hf_opcua_transport_error);
+    parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_reason);
+
+    return -1;
+}
+
 int parseService(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset)
 {
     proto_item *ti;
