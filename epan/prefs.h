@@ -619,6 +619,11 @@ WS_DLL_PUBLIC gboolean prefs_capture_device_monitor_mode(const char *name);
 
 WS_DLL_PUBLIC gboolean prefs_capture_options_dialog_column_is_visible(const gchar *column);
 
+/*
+ * Returns TRUE if the layout pane content is enabled
+ */
+WS_DLL_PUBLIC gboolean prefs_has_layout_pane_content (layout_pane_content_e layout_pane_content);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

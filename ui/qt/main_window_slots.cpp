@@ -483,6 +483,10 @@ void MainWindow::layoutToolbars()
 
 void MainWindow::updatePreferenceActions()
 {
+    main_ui_->actionViewPacketList->setEnabled(prefs_has_layout_pane_content(layout_pane_content_plist));
+    main_ui_->actionViewPacketDetails->setEnabled(prefs_has_layout_pane_content(layout_pane_content_pdetails));
+    main_ui_->actionViewPacketBytes->setEnabled(prefs_has_layout_pane_content(layout_pane_content_pbytes));
+
     main_ui_->actionViewNameResolutionPhysical->setChecked(gbl_resolv_flags.mac_name);
     main_ui_->actionViewNameResolutionNetwork->setChecked(gbl_resolv_flags.network_name);
     main_ui_->actionViewNameResolutionTransport->setChecked(gbl_resolv_flags.transport_name);
@@ -497,9 +501,9 @@ void MainWindow::updateRecentActions()
     main_ui_->actionViewFilterToolbar->setChecked(recent.filter_toolbar_show);
     main_ui_->actionViewWirelessToolbar->setChecked(recent.wireless_toolbar_show);
     main_ui_->actionViewStatusBar->setChecked(recent.statusbar_show);
-    main_ui_->actionViewPacketList->setChecked(recent.packet_list_show);
-    main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show);
-    main_ui_->actionViewPacketBytes->setChecked(recent.byte_view_show);
+    main_ui_->actionViewPacketList->setChecked(recent.packet_list_show && prefs_has_layout_pane_content(layout_pane_content_plist));
+    main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show && prefs_has_layout_pane_content(layout_pane_content_pdetails));
+    main_ui_->actionViewPacketBytes->setChecked(recent.byte_view_show && prefs_has_layout_pane_content(layout_pane_content_pbytes));
 
     foreach (QAction* tda, td_actions.keys()) {
         if (recent.gui_time_format == td_actions[tda]) {

@@ -920,6 +920,7 @@ libwireshark.so.8 libwireshark8 #MINVER#
  prefs_find_preference@Base 1.9.1
  prefs_get_string_list@Base 1.9.1
  prefs_get_title_by_name@Base 1.9.1
+ prefs_has_layout_pane_content@Base 2.2.5
  prefs_is_capture_device_hidden@Base 1.9.1
  prefs_is_registered_protocol@Base 1.9.1
  prefs_module_has_submodules@Base 1.9.1
