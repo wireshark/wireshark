@@ -667,7 +667,12 @@ proto_cleanup(void)
 
 #ifdef HAVE_PLUGINS
 	if (dissector_plugins) {
+#if GLIB_CHECK_VERSION(2, 28, 0)
 		g_slist_free_full(dissector_plugins, dissector_plugin_destroy);
+#else
+		g_slist_foreach(dissector_plugins, (GFunc)dissector_plugin_destroy, NULL);
+		g_slist_free(dissector_plugins);
+#endif
 		dissector_plugins = NULL;
 	}
 #endif
