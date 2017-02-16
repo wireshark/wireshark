@@ -837,10 +837,10 @@ DIAG_ON(cast-qual)
 
         /* Do we need to PCAP header and magic? */
         if (skip_pcap_header) {
-            size_t bytes_left = sizeof(struct pcap_hdr) + sizeof(guint32);
+            unsigned int bytes_left = (unsigned int) sizeof(struct pcap_hdr) + sizeof(guint32);
             gchar buf[sizeof(struct pcap_hdr) + sizeof(guint32)];
             while (bytes_left != 0) {
-                ssize_t bytes = read(fd, buf, (int)bytes_left);
+                ssize_t bytes = ws_read(fd, buf, bytes_left);
                 if (bytes <= 0) {
                     cmdarg_err("Not enough bytes for pcap header.");
                     exit(2);
@@ -883,7 +883,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
     struct pcap_pkthdr mem_hdr;
     struct pcaprec_hdr disk_hdr;
     ssize_t bytes_read = 0;
-    size_t bytes_needed = sizeof(disk_hdr);
+    unsigned int bytes_needed = (unsigned int) sizeof(disk_hdr);
     guchar *ptr = (guchar*) &disk_hdr;
 
     if (want_pcap_pkthdr) {
@@ -891,9 +891,26 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
         ptr = (guchar*) &mem_hdr;
     }
 
+    /*
+     * Newer versions of the VC runtime do parameter validation. If stdin
+     * has been closed, calls to _read, _get_osfhandle, et al will trigger
+     * the invalid parameter handler and crash.
+     * We could alternatively use ReadFile or set an invalid parameter
+     * handler.
+     * We could also tell callers not to close stdin prematurely.
+     */
+#ifdef _WIN32
+    DWORD ghi_flags;
+    if (fd == 0 && GetHandleInformation(GetStdHandle(STD_INPUT_HANDLE), &ghi_flags) == 0) {
+        *err = 0;
+        *err_info = NULL;
+        return FALSE;
+    }
+#endif
+
     /* Copied from capture_loop.c */
     while (bytes_needed > 0) {
-        bytes_read = read(fd, ptr, (int)bytes_needed);
+        bytes_read = ws_read(fd, ptr, bytes_needed);
         if (bytes_read == 0) {
             *err = 0;
             *err_info = NULL;
@@ -939,7 +956,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
 
     ptr = pd;
     while (bytes_needed > 0) {
-        bytes_read = read(fd, ptr, (int)bytes_needed);
+        bytes_read = ws_read(fd, ptr, bytes_needed);
         if (bytes_read == 0) {
             *err = WTAP_ERR_SHORT_READ;
             *err_info = NULL;
