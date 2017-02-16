@@ -4812,6 +4812,14 @@ prefs_capture_options_dialog_column_is_visible(const gchar *column)
     return FALSE;
 }
 
+gboolean
+prefs_has_layout_pane_content (layout_pane_content_e layout_pane_content)
+{
+    return ((prefs.gui_layout_content_1 == layout_pane_content) ||
+            (prefs.gui_layout_content_2 == layout_pane_content) ||
+            (prefs.gui_layout_content_3 == layout_pane_content));
+}
+
 #define PRS_GUI_FILTER_LABEL             "gui.filter_expressions.label"
 #define PRS_GUI_FILTER_EXPR              "gui.filter_expressions.expr"
 #define PRS_GUI_FILTER_ENABLED           "gui.filter_expressions.enabled"

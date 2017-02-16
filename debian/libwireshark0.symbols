@@ -958,6 +958,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_get_uint_base@Base 2.3.0
  prefs_get_uint_value@Base 2.3.0
  prefs_get_uint_value_real@Base 2.3.0
+ prefs_has_layout_pane_content@Base 2.2.5
  prefs_invert_bool_value@Base 2.3.0
  prefs_is_capture_device_hidden@Base 1.9.1
  prefs_is_registered_protocol@Base 1.9.1
