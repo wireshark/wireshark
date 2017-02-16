@@ -963,7 +963,7 @@ void PreferencesDialog::on_buttonBox_accepted()
     wsApp->queueAppSignal(WiresharkApplication::PreferencesChanged);
 
     if (prefs.gui_layout_type != old_layout_type) {
-        wsApp->queueAppSignal(WiresharkApplication::RecentPreferencesRead);
+        wsApp->queueAppSignal(WiresharkApplication::RecentFilesRead);
     }
 }
 
