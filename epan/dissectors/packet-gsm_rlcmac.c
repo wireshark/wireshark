@@ -17888,7 +17888,7 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_rtlli,
       { "rTLLI", "gsm_rlcmac.ul.rtlli",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, VALS(rtlli_vals), 0x0,
         NULL, HFILL
       }
     },
