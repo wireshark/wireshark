@@ -650,7 +650,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                  *  ..... ..... ..... ..... ..... ..... ..... .....
                  */
                 proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_rohc_ext3_inner_ip_flags, ett_rohc_ext3_inner_ip_flags, inner_ip_flags, ENC_BIG_ENDIAN, &ext3_inner_ip_flags_value);
-                rohc_cid_context->rnd = (ext3_inner_ip_flags_value & ROHC_RTP_EXT3_INNER_RND_MASK) >> 1;
+                rohc_cid_context->rnd = ((ext3_inner_ip_flags_value & ROHC_RTP_EXT3_INNER_RND_MASK) != 0);
                 offset++;
             }
             if (ext3_inner_ip_flags_value & ROHC_RTP_EXT3_INNER_IP2_MASK) {
@@ -677,7 +677,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                  */
                 proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_rohc_ext3_outer_ip_flags, ett_rohc_ext3_outer_ip_flags, outer_ip_flags, ENC_BIG_ENDIAN, &ext3_outer_ip_flags_value);
                 /* TODO Update rnd when adding support for inner/outer behavior */
-                rohc_cid_context->rnd = (ext3_outer_ip_flags_value & ROHC_RTP_EXT3_OUTER_RND_MASK) >> 1;
+                rohc_cid_context->rnd = ((ext3_outer_ip_flags_value & ROHC_RTP_EXT3_OUTER_RND_MASK) != 0);
                 offset++;
             }
             if (ext3_flags_value & ROHC_RTP_EXT3_S_MASK) {
