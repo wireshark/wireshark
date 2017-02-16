@@ -69,7 +69,7 @@ void register_follow_stream(const int proto_id, const char* tap_listener,
   if (registered_followers == NULL)
     registered_followers = wmem_tree_new(wmem_epan_scope());
 
-  wmem_tree_insert_string(registered_followers, proto_get_protocol_filter_name(proto_id), follower, 0);
+  wmem_tree_insert_string(registered_followers, proto_get_protocol_short_name(find_protocol_by_id(proto_id)), follower, 0);
 }
 
 int get_follow_proto_id(register_follow_t* follower)
