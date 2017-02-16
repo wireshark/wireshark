@@ -37,6 +37,9 @@ typedef struct {
   time_t base_secs;
 } stanag4607_t;
 
+#define PKT_HDR_SIZE  32 /* size of a packet header */
+#define SEG_HDR_SIZE  5  /* size of a segment header */
+
 static gboolean is_valid_id(guint16 version_id)
 {
 #define VERSION_21 0x3231
@@ -54,7 +57,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
   stanag4607_t *stanag4607 = (stanag4607_t *)wth->priv;
   guint32 millisecs, secs, nsecs;
   gint64 offset = 0;
-  guint8 stanag_pkt_hdr[37];
+  guint8 stanag_pkt_hdr[PKT_HDR_SIZE+SEG_HDR_SIZE];
   int bytes_read;
   guint32 packet_size;
 
@@ -76,6 +79,16 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
 
   /* The next 4 bytes are the packet length */
   packet_size = pntoh32(&stanag_pkt_hdr[2]);
+  if (packet_size < PKT_HDR_SIZE+SEG_HDR_SIZE) {
+    /*
+     * Probably a corrupt capture file; don't, for example, loop
+     * infinitely if the size is zero.
+     */
+    *err = WTAP_ERR_BAD_FILE;
+    *err_info = g_strdup_printf("stanag4607: File has %" G_GUINT32_FORMAT "d-byte packet, "
+      "smaller than minimum of %u", packet_size, PKT_HDR_SIZE+SEG_HDR_SIZE);
+    return FALSE;
+  }
   phdr->caplen = packet_size;
   phdr->len = packet_size;
 
