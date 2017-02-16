@@ -4919,11 +4919,19 @@ typedef struct
   guint8 SPB;
   guint8 CPS;
   guint8 PI;
+  guint8 ECS_P;
+  guint8 CC;
+  guint8 SPARE1;
+  guint8 SPARE2;
+  guint8 SPARE3;
 } DL_Data_Block_EGPRS_Header_t;
 
 typedef DL_Data_Block_EGPRS_Header_t DL_Data_Block_EGPRS_Header_Type1_t;
 typedef DL_Data_Block_EGPRS_Header_t DL_Data_Block_EGPRS_Header_Type2_t;
 typedef DL_Data_Block_EGPRS_Header_t DL_Data_Block_EGPRS_Header_Type3_t;
+typedef DL_Data_Block_EGPRS_Header_t DL_Data_Block_EC_EGPRS_Header_Type1_t;
+typedef DL_Data_Block_EGPRS_Header_t DL_Data_Block_EC_EGPRS_Header_Type2_t;
+typedef DL_Data_Block_EGPRS_Header_t DL_Data_Block_EC_EGPRS_Header_Type3_t;
 
 typedef DL_Data_Block_EGPRS_Header_t DL_Data_Block_EGPRS_Header_Type1_EC_t;
 
@@ -4939,6 +4947,10 @@ typedef struct
   guint8 RSB;
   guint8 SPB;
   guint8 CPS;
+  guint8 FOI;
+  guint8 RI;
+  guint8 DL_CC_EST;
+  guint8 RTLLI;
   guint8 SPARE1;
   guint8 SPARE2;
   guint8 dummy;
@@ -4947,6 +4959,9 @@ typedef struct
 typedef UL_Data_Block_EGPRS_Header_t UL_Data_Block_EGPRS_Header_Type1_t;
 typedef UL_Data_Block_EGPRS_Header_t UL_Data_Block_EGPRS_Header_Type2_t;
 typedef UL_Data_Block_EGPRS_Header_t UL_Data_Block_EGPRS_Header_Type3_t;
+typedef UL_Data_Block_EGPRS_Header_t UL_Data_Block_EC_EGPRS_Header_Type1_t;
+typedef UL_Data_Block_EGPRS_Header_t UL_Data_Block_EC_EGPRS_Header_Type2_t;
+typedef UL_Data_Block_EGPRS_Header_t UL_Data_Block_EC_EGPRS_Header_Type3_t;
 
 typedef struct
 {
