@@ -1597,7 +1597,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_JSON */
-	{ "JavaScript Object Notation", "json", "json", "NULL",
+	{ "JavaScript Object Notation", "json", "json", NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
