@@ -909,7 +909,10 @@ void PreferencesDialog::on_buttonBox_accepted()
 {
     gboolean must_redissect = FALSE;
 
-    layout_type_e old_layout_type = prefs.gui_layout_type;
+    QVector<unsigned> old_layout = QVector<unsigned>() << prefs.gui_layout_type
+                                                       << prefs.gui_layout_content_1
+                                                       << prefs.gui_layout_content_2
+                                                       << prefs.gui_layout_content_3;
 
     // XXX - We should validate preferences as the user changes them, not here.
     // XXX - We're also too enthusiastic about setting must_redissect.
@@ -917,7 +920,12 @@ void PreferencesDialog::on_buttonBox_accepted()
 //        return; /* Errors in some preference setting - already reported */
     prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (gpointer) &must_redissect);
 
-    if (prefs.gui_layout_type != old_layout_type) {
+    QVector<unsigned> new_layout = QVector<unsigned>() << prefs.gui_layout_type
+                                                       << prefs.gui_layout_content_1
+                                                       << prefs.gui_layout_content_2
+                                                       << prefs.gui_layout_content_3;
+
+    if (new_layout[0] != old_layout[0]) {
         // Layout type changed, reset sizes
         recent.gui_geometry_main_upper_pane = 0;
         recent.gui_geometry_main_lower_pane = 0;
@@ -962,7 +970,7 @@ void PreferencesDialog::on_buttonBox_accepted()
     }
     wsApp->queueAppSignal(WiresharkApplication::PreferencesChanged);
 
-    if (prefs.gui_layout_type != old_layout_type) {
+    if (new_layout != old_layout) {
         wsApp->queueAppSignal(WiresharkApplication::RecentFilesRead);
     }
 }
