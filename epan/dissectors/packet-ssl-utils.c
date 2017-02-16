@@ -6606,8 +6606,8 @@ tls_dissect_sct(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, pro
     proto_tree_add_item(tree, hf->hf.sct_sct_logid, tvb, offset, 32, ENC_BIG_ENDIAN);
     offset += 32;
     sct_timestamp_ms = tvb_get_ntoh64(tvb, offset);
-    sct_timestamp.secs  = sct_timestamp_ms / 1000;
-    sct_timestamp.nsecs = (sct_timestamp_ms % 1000) * 1000000;
+    sct_timestamp.secs  = (time_t)(sct_timestamp_ms / 1000);
+    sct_timestamp.nsecs = (int)((sct_timestamp_ms % 1000) * 1000000);
     proto_tree_add_time(tree, hf->hf.sct_sct_timestamp, tvb, offset, 8, &sct_timestamp);
     offset += 8;
     /* opaque CtExtensions<0..2^16-1> */
