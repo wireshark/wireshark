@@ -621,9 +621,12 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
             value_element++;
         }
     }
-
+#if GLIB_CHECK_VERSION(2, 28, 0)
     g_list_free_full(paths, (GDestroyNotify)gtk_tree_path_free);
-
+#else
+    g_list_foreach(paths, (GFunc)gtk_tree_path_free, NULL);
+    g_list_free(paths);
+#endif
     value_display_string = g_strjoinv(" ", value_display_strings);
     g_strfreev(value_display_strings);
 
