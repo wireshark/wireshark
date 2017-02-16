@@ -3,6 +3,10 @@
  * STANAG 4607 file reading
  *
  * http://www.nato.int/structur/AC/224/standard/4607/4607e_JAS_ED3.pdf
+ * (that is now missing from that site, but is available on the Wayback
+ * Machine)
+ *
+ * https://nso.nato.int/nso/zPublic/ap/aedp-7(2).pdf
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
