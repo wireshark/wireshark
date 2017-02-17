@@ -35,6 +35,8 @@
 
 #include <epan/dissectors/packet-pcap_pktdata.h>
 
+#include <stdio.h>
+
 static int proto_pcapng = -1;
 
 static dissector_handle_t  pcap_pktdata_handle;
@@ -56,8 +58,8 @@ static int hf_pcapng_option = -1;
 static int hf_pcapng_option_code = -1;
 static int hf_pcapng_option_code_section_header = -1;
 static int hf_pcapng_option_code_interface_description = -1;
-static int hf_pcapng_option_code_enhanced_packet = -1;
-static int hf_pcapng_option_code_packet = -1;
+static int hf_pcapng_option_code_darwin_enhanced_event = -1;
+static int hf_pcapng_option_code_darwin_event = -1;
 static int hf_pcapng_option_code_interface_statistics = -1;
 static int hf_pcapng_option_code_name_resolution = -1;
 static int hf_pcapng_option_length = -1;
@@ -101,6 +103,7 @@ static int hf_pcapng_option_data_packet_flags_reserved = -1;
 static int hf_pcapng_option_data_packet_flags_fcs_length = -1;
 static int hf_pcapng_option_data_packet_flags_reception_type = -1;
 static int hf_pcapng_option_data_packet_flags_direction = -1;
+
 static int hf_pcapng_option_data_dns_name = -1;
 static int hf_pcapng_option_data_start_time = -1;
 static int hf_pcapng_option_data_end_time = -1;
@@ -132,6 +135,15 @@ static int hf_pcapng_record_ipv4 = -1;
 static int hf_pcapng_record_ipv6 = -1;
 static int hf_pcapng_record_name = -1;
 static int hf_pcapng_record_padding = -1;
+
+static int hf_pcapng_darwin_process_id = -1;
+static int hf_pcapng_option_code_darwin_process_info = -1;
+static int hf_pcapng_option_darwin_process_name = -1;
+static int hf_pcapng_option_darwin_process_uuid = -1;
+static int hf_pcapng_option_data_packet_darwin_dpeb_id = -1;
+static int hf_pcapng_option_data_packet_darwin_svc_class = -1;
+static int hf_pcapng_option_data_packet_darwin_edpeb_id = -1;
+
 
 static expert_field ei_invalid_option_length = EI_INIT;
 static expert_field ei_invalid_record_length = EI_INIT;
@@ -181,8 +193,10 @@ static const int *hfx_pcapng_block_type[] = {
 struct info {
     guint32        file_number;
     guint32        interface_number;
+    guint32        darwin_process_event_number;
     guint32        frame_number;
     wmem_array_t  *interfaces;
+    wmem_array_t  *darwin_process_events;
 };
 
 struct interface_description {
@@ -191,6 +205,9 @@ struct interface_description {
     guint64  timestamp_offset;
 };
 
+struct darwin_process_event_description {
+    guint32  process_id;
+};
 
 static gboolean pref_dissect_next_layer = FALSE;
 
@@ -203,6 +220,7 @@ static gboolean pref_dissect_next_layer = FALSE;
 #define BLOCK_IRIG_TIMESTAMP         0x00000007
 #define BLOCK_ARINC_429              0x00000008
 #define BLOCK_SECTION_HEADER         0x0A0D0D0A
+#define BLOCK_DARWIN_PROCESS         0x80000001
 
 static const value_string block_type_vals[] = {
     { 0x00000001,  "Interface Description Block" },
@@ -214,8 +232,162 @@ static const value_string block_type_vals[] = {
     { 0x00000007,  "IRIG Timestamp Block" },
     { 0x00000008,  "Arinc 429 in AFDX Encapsulation Information Block " },
     { 0x0A0D0D0A,  "Section Header Block" },
+    { 0x80000001,  "Darwin Process Event Block" },
     { 0, NULL }
 };
+
+/*
+ * Apple's Pcapng Darwin Process Event Block
+ *
+ *    A Darwin Process Event Block (DPEB) is an Apple defined container
+ *    for information describing a Darwin process.
+ *
+ *    Tools that write / read the capture file associate an incrementing
+ *    32-bit number (starting from '0') to each Darwin Process Event Block,
+ *    called the DPEB ID for the process in question.  This number is
+ *    unique within each Section and identifies a specific DPEB; a DPEB ID
+ *    is only unique inside the current section. Two Sections can have different
+ *    processes identified by the same DPEB ID values.  DPEB ID are referenced
+ *    by Enhanced Packet Blocks that include options to indicate the Darwin
+ *    process to which the EPB refers.
+ *
+ *
+ *         0                   1                   2                   3
+ *         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *         +---------------------------------------------------------------+
+ *       0 |                   Block Type = 0x80000001                     |
+ *         +---------------------------------------------------------------+
+ *       4 |                     Block Total Length                        |
+ *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       8 |                          Process ID                           |
+ *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *      12 /                                                               /
+ *         /                      Options (variable)                       /
+ *         /                                                               /
+ *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *         |                     Block Total Length                        |
+ *         +---------------------------------------------------------------+
+ *
+ *                   Figure XXX.1: Darwin Process Event Block
+ *
+ *    The meaning of the fields are:
+ *
+ *    o  Block Type: The block type of a Darwin Process Event Block is 2147483649.
+ *
+ *       Note: This specific block type number falls into the range defined
+ *       for "local use" but has in fact been available publically since Darwin
+ *       13.0 for pcapng files generated by Apple's tcpdump when using the PKTAP
+ *       enhanced interface.
+ *
+ *    o  Block Total Length: Total size of this block, as described in
+ *       Pcapng Section 3.1 (General Block Structure).
+ *
+ *    o  Process ID: The process ID (PID) of the process.
+ *
+ *       Note: It is not known if this field is officially defined as a 32 bits
+ *       (4 octets) or something smaller since Darwin PIDs currently appear to
+ *       be limited to maximum value of 100000.
+ *
+ *    o  Options: A list of options (formatted according to the rules defined
+ *       in Section 3.5) can be present.
+ *
+ *    In addition to the options defined in Section 3.5, the following
+ *    Apple defined Darwin options are valid within this block:
+ *
+ *           +------------------+------+----------+-------------------+
+ *           | Name             | Code | Length   | Multiple allowed? |
+ *           +------------------+------+----------+-------------------+
+ *           | darwin_proc_name | 2    | variable | no                |
+ *           | darwin_proc_uuid | 4    | 16       | no                |
+ *           +------------------+------+----------+-------------------+
+ *
+ *              Table XXX.1: Darwin Process Description Block Options
+ *
+ *    darwin_proc_name:
+ *            The darwin_proc_name option is a UTF-8 string containing the
+ *            name of a process producing or consuming an EPB.
+ *
+ *            Examples: "mDNSResponder", "GoogleSoftwareU".
+ *
+ *            Note: It appears that Apple's tcpdump currently truncates process
+ *            names to a maximum of 15 octets followed by a NUL character.
+ *            Multi-byte UTF-8 sequences in process names might be truncated
+ *            resulting in an invalid final UTF-8 character.
+ *
+ *    darwin_proc_uuid:
+ *            The darwin_proc_uuid option is a set of 16 octets representing
+ *            the process UUID.
+ *
+ * Enhanced Packet Block (EPB) options for supporting Darwin process information
+ *
+ *    Enhanced Packet Blocks may be augmented with an Apple defined Darwin
+ *    process event block id option (dpeb_id) and / or an effective Darwin
+ *    process event block id option (edpeb_id) that refer to particular
+ *    Darwin processes via the supplied DPEB ID option payload value.  There
+ *    must be a Darwin Process Event Block for each Darwin process to which an
+ *    augmented EPB references.  If the file does not contain any EPBs that
+ *    contain any Darwin dpeb_id or edpeb_id options then the file does not need
+ *    to have any DPEBs.
+ *
+ *    A Darwin Process Event Block is valid only inside the section to which
+ *    it belongs.  The structure of a Darwin Process Event Block is shown in
+ *    Figure XXX.1 below.
+ *
+ *    An Enhanced Packet Block (EPB) may be augmented with any or all of the
+ *    following block options for Darwin process information:
+ *
+ *          +------------------+-------+--------+-------------------+
+ *          | Name             | Code  | Length | Multiple allowed? |
+ *          +------------------+-------+--------+-------------------+
+ *          | darwin_dpeb_id   | 32769 | 4      | no?               |
+ *          | darwin_svc_class | 32770 | 4      | no?               |
+ *          | darwin_edpeb_id  | 32771 | 4      | no?               |
+ *          +------------------+------+---------+-------------------+
+ *
+ *           Table XXX.2: Darwin options for Enhanced Packet Blocks
+ *
+ *    darwin_dpeb_id:
+ *            The darwin_dpeb_id option specifies the Darwin Process Event
+ *            Block ID for the process (proc) this packet is associated with;
+ *            the correct DPEB will be the one whose DPEB ID (within the
+ *            current Section of the file) is identified by the same number
+ *            (see Section XXX.X) of this field.  The DPEB ID MUST be valid,
+ *            which means that a matching Darwin Process Event Block MUST
+ *            exist.
+ *
+ *    darwin_srv_class:
+ *            The darwin_svc_class option is a number that maps to a
+ *            specific Darwin Service Class mnemonic that the packet is
+ *            associated with.
+ *
+ *    The following Darwin Service Class values are defined:
+ *
+ *              +---------------------+------------------------+
+ *              | Service Class Value | Service Class Mnemonic |
+ *              +---------------------+------------------------+
+ *              | 0                   | BE                     |
+ *              | 100                 | BK_SYS                 |
+ *              | 200                 | BK                     |
+ *              | 300                 | RD                     |
+ *              | 400                 | OAM                    |
+ *              | 500                 | AV                     |
+ *              | 600                 | RV                     |
+ *              | 700                 | VI                     |
+ *              | 800                 | VO                     |
+ *              | 900                 | CTL                    |
+ *              +---------------------+------------------------+
+ *
+ *              Table XXX.3: Darwin Service Class Option Values
+ *
+ *    darwin_edpeb_id:
+ *            The darwin_edpeb_id option specifies the Darwin Process Event
+ *            Block ID for the effective process (eproc) this packet is
+ *            associated with; the correct DPEB will be the one whose DPEB
+ *            ID (within the current Section of the file) is identified by
+ *            the same number (see Section XXX.X) of this field.  The DPEB
+ *            ID MUST be valid, which means that a matching Darwin Process
+ *            Event Block MUST exist.
+ */
 
 static const value_string option_code_section_header_vals[] = {
     { 0x0000,  "End of Options" },
@@ -247,25 +419,30 @@ static const value_string option_code_interface_description_vals[] = {
     { 0, NULL }
 };
 
-static const value_string option_code_enhanced_packet_vals[] = {
+static const value_string option_code_darwin_enhanced_event_vals[] = {
     { 0x0000,  "End of Options" },
     { 0x0001,  "Comment" },
 
     { 0x0002,  "Flags" },
     { 0x0003,  "Hash" },
     { 0x0004,  "Drop Count" },
+    { 32769,   "Darwin DPEB ID" },
+    { 32770,   "Darwin Service Class" },
+    { 32771,   "Darwin Effective DPEB ID" },
     { 0, NULL }
 };
 
-static const value_string option_code_packet_vals[] = {
+static const value_string option_code_darwin_event_vals[] = {
     { 0x0000,  "End of Options" },
     { 0x0001,  "Comment" },
 
     { 0x0002,  "Flags" },
     { 0x0003,  "Hash" },
+    { 32769,   "Darwin DPEB ID" },
+    { 32770,   "Darwin Service Class" },
+    { 32771,   "Darwin Effective DPEB ID" },
     { 0, NULL }
 };
-
 
 static const value_string option_code_name_resolution_vals[] = {
     { 0x0000,  "End of Options" },
@@ -276,7 +453,6 @@ static const value_string option_code_name_resolution_vals[] = {
     { 0x0004,  "DNS IPv6 Address" },
     { 0, NULL }
 };
-
 
 static const value_string option_code_interface_statistics_vals[] = {
     { 0x0000,  "End of Options" },
@@ -292,13 +468,35 @@ static const value_string option_code_interface_statistics_vals[] = {
     { 0, NULL }
 };
 
+static const value_string option_code_darwin_process_info_vals[] = {
+    { 0x0000,  "End of Options" },
+    { 0x0001,  "Comment" },
+
+    { 0x0002,  "Darwin Process Name" },
+    { 0x0004,  "Darwin Process UUID" },
+    { 0, NULL }
+};
+
+static const value_string option_code_darwin_svc_class_vals[] = {
+    { 0x0000,  "BE" },
+    { 0x0064,  "BK_SYS" },
+    { 0x00C8,  "BK" },
+    { 0x012C,  "RD" },
+    { 0x0190,  "OAM" },
+    { 0x01F4,  "AV" },
+    { 0x0258,  "RV" },
+    { 0x02BC,  "VI" },
+    { 0x0320,  "VO" },
+    { 0x0384,  "CTL" },
+    { 0, NULL }
+};
+
 static const value_string record_code_vals[] = {
     { 0x0000,  "End of Records" },
     { 0x0001,  "IPv4 Record" },
     { 0x0002,  "IPv6 Record" },
     { 0, NULL }
 };
-
 
 static const value_string timestamp_resolution_base_vals[] = {
     { 0x0000,  "Power of 10" },
@@ -353,8 +551,10 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
     union       value {
             guint32 u32;
             guint64 u64;
+            guint16 u16;
             guint8  u8;
     } value;
+    e_guid_t uuid;
 
     if (tvb_reported_length(tvb) <= 0)
         return 0;
@@ -380,12 +580,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             vals = option_code_interface_description_vals;
             break;
         case BLOCK_ENHANCED_PACKET:
-            hfj_pcapng_option_code = hf_pcapng_option_code_enhanced_packet;
-            vals = option_code_enhanced_packet_vals;
+            hfj_pcapng_option_code = hf_pcapng_option_code_darwin_enhanced_event;
+            vals = option_code_darwin_enhanced_event_vals;
             break;
         case BLOCK_PACKET:
-            hfj_pcapng_option_code = hf_pcapng_option_code_packet;
-            vals = option_code_packet_vals;
+            hfj_pcapng_option_code = hf_pcapng_option_code_darwin_event;
+            vals = option_code_darwin_event_vals;
             break;
         case BLOCK_NAME_RESOLUTION:
             hfj_pcapng_option_code = hf_pcapng_option_code_name_resolution;
@@ -394,6 +594,10 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
         case BLOCK_INTERFACE_STATISTICS:
             hfj_pcapng_option_code = hf_pcapng_option_code_interface_statistics;
             vals = option_code_interface_statistics_vals;
+            break;
+        case BLOCK_DARWIN_PROCESS:
+            hfj_pcapng_option_code = hf_pcapng_option_code_darwin_process_info;
+            vals = option_code_darwin_process_info_vals;
             break;
         default:
             hfj_pcapng_option_code = hf_pcapng_option_code;
@@ -832,9 +1036,55 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
+            case 32769: /* Darwin DPEB ID */
+                proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_darwin_dpeb_id, tvb, offset, option_length, encoding);
+                value.u32 = tvb_get_guint32(tvb, offset, encoding);
+                offset += option_length;
+
+                str = wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+
+                break;
+            case 32770: /* Darwin Service Type */
+                proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_darwin_svc_class, tvb, offset, option_length, encoding);
+                value.u32 = tvb_get_guint32(tvb, offset, encoding);
+                offset += option_length;
+
+                str = wmem_strdup_printf(wmem_packet_scope(), "%s", val_to_str_const(value.u32, option_code_darwin_svc_class_vals, "Unknown"));
+
+                break;
+            case 32771: /* Darwin Effective DPEB ID */
+                proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_darwin_edpeb_id, tvb, offset, option_length, encoding);
+                value.u32 = tvb_get_guint32(tvb, offset, encoding);
+                offset += option_length;
+
+                str = wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+
+                break;
             default:
                 proto_tree_add_item(option_tree, hf_pcapng_option_data, tvb, offset, option_length, ENC_NA);
                 offset += option_length;
+            }
+
+            break;
+        case BLOCK_DARWIN_PROCESS:
+            switch (option_code) {
+            case 0x0002: /* Darwin Process Name */
+                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_darwin_process_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                offset += option_length;
+                break;
+
+            case 0x0004: /* Darwin Process UUID */
+                proto_tree_add_item(option_tree, hf_pcapng_option_darwin_process_uuid, tvb, offset, option_length, ENC_BIG_ENDIAN);
+                tvb_get_guid(tvb, offset, &uuid, ENC_BIG_ENDIAN);
+                offset += option_length;
+
+                str = guid_to_str(wmem_packet_scope(), &uuid);
+
+                break;
+            default:
+                proto_tree_add_item(option_tree, hf_pcapng_option_data, tvb, offset, option_length, ENC_NA);
+                offset += option_length;
+                break;
             }
 
             break;
@@ -940,6 +1190,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         proto_item_append_text(block_item, " %u", info->file_number);
         info->file_number += 1;
         info->interface_number = 0;
+        info->darwin_process_event_number = 0;
         info->frame_number = 1;
 
         byte_order_magic_item = proto_tree_add_item(block_data_tree, hf_pcapng_section_header_byte_order_magic, tvb, offset, 4, ENC_NA);
@@ -1236,6 +1487,17 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
 
         break;
+    case BLOCK_DARWIN_PROCESS:
+        proto_item_append_text(block_item, " %u", info->darwin_process_event_number);
+        info->darwin_process_event_number += 1;
+
+        proto_tree_add_item(block_data_tree, hf_pcapng_darwin_process_id, tvb, offset, 4, encoding);
+        offset += 4;
+
+        next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4);
+        offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
+
+        break;
     case BLOCK_IRIG_TIMESTAMP:
     case BLOCK_ARINC_429:
     default:
@@ -1283,8 +1545,10 @@ dissect_pcapng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     info.file_number = 1;
     info.interface_number = 0;
+    info.darwin_process_event_number = 0;
     info.frame_number = 1;
     info.interfaces = wmem_array_new(wmem_packet_scope(), sizeof(struct interface_description));
+    info.darwin_process_events = wmem_array_new(wmem_packet_scope(), sizeof(struct darwin_process_event_description));
 
     main_item = proto_tree_add_item(tree, proto_pcapng, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_pcapng);
@@ -1359,14 +1623,14 @@ proto_register_pcapng(void)
             FT_UINT16, BASE_DEC, VALS(option_code_interface_description_vals), 0x00,
             NULL, HFILL }
         },
-        { &hf_pcapng_option_code_enhanced_packet,
+        { &hf_pcapng_option_code_darwin_enhanced_event,
             { "Code",                                      "pcapng.options.option.code",
-            FT_UINT16, BASE_DEC, VALS(option_code_enhanced_packet_vals), 0x00,
+            FT_UINT16, BASE_DEC, VALS(option_code_darwin_enhanced_event_vals), 0x00,
             NULL, HFILL }
         },
-        { &hf_pcapng_option_code_packet,
+        { &hf_pcapng_option_code_darwin_event,
             { "Code",                                      "pcapng.options.option.code",
-            FT_UINT16, BASE_DEC, VALS(option_code_packet_vals), 0x00,
+            FT_UINT16, BASE_DEC, VALS(option_code_darwin_event_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_code_name_resolution,
@@ -1377,6 +1641,11 @@ proto_register_pcapng(void)
         { &hf_pcapng_option_code_interface_statistics,
             { "Code",                                      "pcapng.options.option.code",
             FT_UINT16, BASE_DEC, VALS(option_code_interface_statistics_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_code_darwin_process_info,
+            { "Code",                                      "pcapng.options.option.code",
+            FT_UINT16, BASE_DEC, VALS(option_code_darwin_process_info_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_code,
@@ -1620,6 +1889,21 @@ proto_register_pcapng(void)
             FT_UINT16, BASE_HEX, VALS(packet_flags_direction_vals), 0x0003,
             NULL, HFILL }
         },
+        { &hf_pcapng_option_data_packet_darwin_dpeb_id,
+            { "DPEB ID",                                   "pcapng.options.option.data.packet.darwin.dpeb_id",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_darwin_svc_class,
+            { "Darwin svc",                                "pcapng.options.option.data.packet.darwin.svc_class",
+            FT_UINT32, BASE_DEC, VALS(option_code_darwin_svc_class_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_darwin_edpeb_id,
+            { "Effective DPED ID",                         "pcapng.options.option.data.packet.darwin.edpeb_id",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_pcapng_option_data_dns_name,
             { "DNS Name",                                  "pcapng.options.option.data.dns_name",
             FT_STRING, STR_ASCII, NULL, 0x00,
@@ -1768,6 +2052,21 @@ proto_register_pcapng(void)
         { &hf_pcapng_record_name,
             { "Name",                                      "pcapng.records.record.data.name",
             FT_STRINGZ, STR_ASCII, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_darwin_process_id,
+            { "Darwin Process ID",                         "pcapng.darwin.process_id",
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_darwin_process_name,
+            { "Darwin Process Name",                       "pcapng.darwin.process_name",
+            FT_STRING, STR_ASCII, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_darwin_process_uuid,
+            { "Darwin Process UUID",                       "pcapng.darwin.process_uuid",
+            FT_GUID, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
     };
