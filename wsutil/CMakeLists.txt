@@ -46,6 +46,7 @@ set(WSUTIL_COMMON_FILES
 	filesystem.c
 	frequency-utils.c
 	g711.c
+	glib-compat.c
 	inet_addr.c
 	interface.c
 	jsmn.c

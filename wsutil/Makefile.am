@@ -64,6 +64,7 @@ libwsutil_nonrepl_INCLUDES = \
 	filesystem.h		\
 	frequency-utils.h	\
 	g711.h			\
+	glib-compat.h		\
 	inet_addr.h		\
 	inet_ipv6.h		\
 	interface.h		\
@@ -142,6 +143,7 @@ libwsutil_la_SOURCES = \
 	filesystem.c		\
 	frequency-utils.c	\
 	g711.c			\
+	glib-compat.c		\
 	inet_addr.c		\
 	interface.c		\
 	jsmn.c			\
