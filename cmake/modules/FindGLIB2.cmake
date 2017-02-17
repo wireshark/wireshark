@@ -106,6 +106,7 @@ if( GLIB2_FOUND )
 			"${GLIB2_DLL_DIR}/libgmodule-*.dll"
 			"${GLIB2_DLL_DIR}/libgobject-*.dll"
 			"${GLIB2_DLL_DIR}/libintl-*.dll"
+			"${GLIB2_DLL_DIR}/libgcc_s_*.dll"
 		)
 		set ( GLIB2_DLLS ${_glib2_dlls}
 			# We're storing filenames only. Should we use STRING instead?

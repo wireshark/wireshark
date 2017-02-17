@@ -74,7 +74,7 @@ IF(GNUTLS_FOUND)
     )
     file( GLOB _gnutls_dlls RELATIVE "${GNUTLS_DLL_DIR}"
       "${GNUTLS_DLL_DIR}/libgmp-*.dll"
-      "${GNUTLS_DLL_DIR}/libgcc_s_*.dll"
+      #"${GNUTLS_DLL_DIR}/libgcc_s_*.dll"
       "${GNUTLS_DLL_DIR}/libffi-*.dll"
       "${GNUTLS_DLL_DIR}/libgnutls-*.dll"
       "${GNUTLS_DLL_DIR}/libhogweed-*.dll"
