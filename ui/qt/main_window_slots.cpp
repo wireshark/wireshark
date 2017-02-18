@@ -2481,6 +2481,14 @@ void MainWindow::on_actionViewColorizeNewColoringRule_triggered()
     colorizeConversation(true);
 }
 
+void MainWindow::on_actionViewResetLayout_triggered()
+{
+    recent.gui_geometry_main_upper_pane = 0;
+    recent.gui_geometry_main_lower_pane = 0;
+
+    applyRecentPaneGeometry();
+}
+
 void MainWindow::on_actionViewResizeColumns_triggered()
 {
     for (int col = 0; col < packet_list_->packetListModel()->columnCount(); col++) {

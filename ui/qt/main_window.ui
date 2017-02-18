@@ -359,6 +359,7 @@
     <addaction name="actionViewColoringRules"/>
     <addaction name="menuColorizeConversation"/>
     <addaction name="separator"/>
+    <addaction name="actionViewResetLayout"/>
     <addaction name="actionViewResizeColumns"/>
     <addaction name="separator"/>
     <addaction name="menuInternals"/>
@@ -2109,6 +2110,17 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionViewResetLayout">
+   <property name="text">
+    <string>Reset Layout</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset appearance layout to default size</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+W</string>
    </property>
   </action>
   <action name="actionViewResizeColumns">

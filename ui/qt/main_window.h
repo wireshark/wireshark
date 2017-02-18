@@ -455,6 +455,7 @@ private slots:
     void colorizeActionTriggered();
     void on_actionViewColorizeResetColorization_triggered();
     void on_actionViewColorizeNewColoringRule_triggered();
+    void on_actionViewResetLayout_triggered();
     void on_actionViewResizeColumns_triggered();
 
     void on_actionViewInternalsConversationHashTables_triggered();
