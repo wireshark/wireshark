@@ -166,8 +166,13 @@ void ProfileDialog::updateWidgets()
             }
             break;
         case PROF_STAT_EXISTS:
-            profile_path = current_profile->is_global ? get_global_profiles_dir() : get_profiles_dir();
+            {
+            char* profile_dir = current_profile->is_global ? get_global_profiles_dir() : get_profiles_dir();
+            profile_path = profile_dir;
+            g_free(profile_dir);
+
             profile_path.append(QDir::separator()).append(current_profile->name);
+            }
             break;
         case PROF_STAT_COPY:
             if (current_profile->reference) {

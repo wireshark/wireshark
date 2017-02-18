@@ -120,13 +120,15 @@ WS_DLL_PUBLIC gboolean has_global_profiles(void);
 
 /*
  * Get the directory used to store configuration profile directories.
+ * Caller must free the returned string
  */
-WS_DLL_PUBLIC const char *get_profiles_dir(void);
+WS_DLL_PUBLIC char *get_profiles_dir(void);
 
 /*
  * Get the directory used to store global configuration profile directories.
+ * Caller must free the returned string
  */
-WS_DLL_PUBLIC const char *get_global_profiles_dir(void);
+WS_DLL_PUBLIC char *get_global_profiles_dir(void);
 
 
 /*

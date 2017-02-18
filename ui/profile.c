@@ -312,8 +312,8 @@ init_profile_list(void)
 {
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
-    const gchar   *profiles_dir, *name;
-    gchar         *filename;
+    const gchar   *name;
+    gchar         *profiles_dir, *filename;
 
     empty_profile_list(TRUE);
 
@@ -334,6 +334,7 @@ init_profile_list(void)
         }
         ws_dir_close (dir);
     }
+    g_free(profiles_dir);
 
     /* Global profiles */
     profiles_dir = get_global_profiles_dir();
@@ -350,6 +351,7 @@ init_profile_list(void)
         }
         ws_dir_close (dir);
     }
+    g_free(profiles_dir);
 
     /* Make the current list and the edited list equal */
     copy_profile_list ();
