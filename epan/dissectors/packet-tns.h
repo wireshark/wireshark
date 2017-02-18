@@ -62,4 +62,9 @@
 #define SQLNET_XTRN_PROCSERV_R1 32
 #define SQLNET_XTRN_PROCSERV_R2 68
 
+/* Return OPI Parameter's Type */
+#define OPI_VERSION2            1
+#define OPI_OSESSKEY            2
+#define OPI_OAUTH               3
+
 #endif

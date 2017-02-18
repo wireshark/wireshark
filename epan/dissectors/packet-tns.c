@@ -143,6 +143,11 @@ static int hf_tns_data_opi_version2_banner_len = -1;
 static int hf_tns_data_opi_version2_banner = -1;
 static int hf_tns_data_opi_version2_vsnum = -1;
 
+static int hf_tns_data_opi_num_of_params = -1;
+static int hf_tns_data_opi_param_length = -1;
+static int hf_tns_data_opi_param_name = -1;
+static int hf_tns_data_opi_param_value = -1;
+
 static int hf_tns_data_setp_acc_version = -1;
 static int hf_tns_data_setp_cli_plat = -1;
 static int hf_tns_data_setp_version = -1;
@@ -164,6 +169,8 @@ static gint ett_tns_control = -1;
 static gint ett_tns_data = -1;
 static gint ett_tns_data_flag = -1;
 static gint ett_tns_acc_versions = -1;
+static gint ett_tns_opi_params = -1;
+static gint ett_tns_opi_par = -1;
 static gint ett_tns_sopt_flag = -1;
 static gint ett_tns_ntp_flag = -1;
 static gint ett_tns_conn_flag = -1;
@@ -565,32 +572,73 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 		case SQLNET_RETURN_OPI_PARAM:
 		{
-			/*
-			 * Version2 response has a following pattern:
-			 * ..(.?)Orac[le.+](.?)(....)$
-			 * ||                     |_ vsnum
-			 * ||
-			 * ||_ Indicates the banner length. If equal to 0 then next byte indicates the length.
-			 * |
-			 * |_ Unnecessary byte, skip it.
-			 *
-			 * These differences (to skip 1 or 2 bytes) due to differences in the drivers.
-			 */
-			guint8 skip = 0;
-			                                  /* Orac[le.+] */
-			if ( tvb_get_ntohl(tvb, offset+2) == 0x4f726163 )
-				skip = 1;
-			if ( tvb_get_ntohl(tvb, offset+3) == 0x4f726163 )
-				skip = 2;
+			guint8 skip = 0, opi = 0;
 
-			if ( skip ) /* is Version2 response */
+			if ( tvb_bytes_exist(tvb, offset, 11) )
 			{
-				gint len;
+				/*
+				 * OPI_VERSION2 response has a following pattern:
+				 *
+				 *                _ banner      _ vsnum
+				 *               /             /
+				 *    ..(.?)(Orac[le.+])(.?)(....).+$
+				 *     |
+				 *     \ banner length (if equal to 0 then next byte indicates the length).
+				 *
+				 * These differences (to skip 1 or 2 bytes) due to differences in the drivers.
+				 */
+				                                  /* Orac[le.+] */
+				if ( tvb_get_ntohl(tvb, offset+2) == 0x4f726163 )
+					opi = OPI_VERSION2, skip = 1;
 
+				else if ( tvb_get_ntohl(tvb, offset+3) == 0x4f726163 )
+					opi = OPI_VERSION2, skip = 2;
+
+				/*
+				 * OPI_OSESSKEY response has a following pattern:
+				 *
+				 *               _ pattern (v1|v2)
+				 *              /        _ params
+				 *             /        /
+				 *    (....)(........)(.+).+$
+				 *       ||
+				 *        \ if these two bytes are equal to 0x0c00 then first byte is <Param Counts> (v1),
+				 *          else next byte indicate it (v2).
+				 */
+				                                          /*  ....AUTH (v1) */
+				else if ( tvb_get_ntoh64(tvb, offset+3) == 0x0000000c41555448 )
+					opi = OPI_OSESSKEY, skip = 1;
+				                                          /*  ..AUTH_V (v2) */
+				else if ( tvb_get_ntoh64(tvb, offset+3) == 0x0c0c415554485f53 )
+					opi = OPI_OSESSKEY, skip = 2;
+
+				/*
+				 * OPI_OAUTH response has a following pattern:
+				 *
+				 *               _ pattern (v1|v2)
+				 *              /        _ params
+				 *             /        /
+				 *    (....)(........)(.+).+$
+				 *       ||
+				 *        \ if these two bytes are equal to 0x1300 then first byte is <Param Counts> (v1),
+				 *          else next byte indicate it (v2).
+				 */
+
+				                                          /*  ....AUTH (v1) */
+				else if ( tvb_get_ntoh64(tvb, offset+3) == 0x0000001341555448 )
+					opi = OPI_OAUTH, skip = 1;
+			                                                  /*  ..AUTH_V (v2) */
+				else if ( tvb_get_ntoh64(tvb, offset+3) == 0x1313415554485f56 )
+					opi = OPI_OAUTH, skip = 2;
+
+			}
+
+			if ( opi == OPI_VERSION2 )
+			{
 				proto_tree_add_item(data_tree, hf_tns_data_unused, tvb, offset, skip, ENC_NA);
 				offset += skip;
 
-				len = tvb_get_guint8(tvb, offset);
+				guint8 len = tvb_get_guint8(tvb, offset);
 
 				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_banner_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
@@ -600,6 +648,116 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_vsnum, tvb, offset, 4, skip == 1 ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
 				offset += 4;
+			}
+			else if ( opi == OPI_OSESSKEY || opi == OPI_OAUTH )
+			{
+				proto_tree *params_tree;
+				proto_item *params_ti;
+				guint par, params;
+
+				if ( skip == 1 )
+				{
+					proto_tree_add_item_ret_uint(data_tree, hf_tns_data_opi_num_of_params, tvb, offset, 1, ENC_NA, &params);
+					offset += 1;
+
+					proto_tree_add_item(data_tree, hf_tns_data_unused, tvb, offset, 5, ENC_NA);
+					offset += 5;
+				}
+				else
+				{
+					proto_tree_add_item(data_tree, hf_tns_data_unused, tvb, offset, 1, ENC_NA);
+					offset += 1;
+
+					proto_tree_add_item_ret_uint(data_tree, hf_tns_data_opi_num_of_params, tvb, offset, 1, ENC_NA, &params);
+					offset += 1;
+
+					proto_tree_add_item(data_tree, hf_tns_data_unused, tvb, offset, 2, ENC_NA);
+					offset += 2;
+				}
+
+				params_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1, ett_tns_opi_params, &params_ti, "Parameters");
+
+				for ( par = 1; par <= params; par++ )
+				{
+					proto_tree *par_tree;
+					proto_item *par_ti;
+					guint len, offset_prev;
+
+					par_tree = proto_tree_add_subtree(params_tree, tvb, offset, -1, ett_tns_opi_par, &par_ti, "Parameter");
+					proto_item_append_text(par_ti, " %u", par);
+
+					/* Name length */
+					proto_tree_add_item_ret_uint(par_tree, hf_tns_data_opi_param_length, tvb, offset, 1, ENC_NA, &len);
+					offset += 1;
+
+					/* Name */
+					if ( !(len == 0 || len == 2) ) /* Not empty (2 - SQLDeveloper specific sign). */
+					{
+						proto_tree_add_item(par_tree, hf_tns_data_opi_param_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+						offset += len;
+					}
+
+					/* Value can be NULL. So, save offset to calculate unused data. */
+					offset_prev = offset;
+					offset += skip == 1 ? 4 : 2;
+
+					/* Value length */
+					if ( opi == OPI_OSESSKEY )
+					{
+						len = tvb_get_guint8(tvb, offset);
+					}
+					else /* OPI_OAUTH */
+					{
+						len = tvb_get_guint8(tvb, offset_prev) == 0 ? 0 : tvb_get_guint8(tvb, offset);
+					}
+
+					/*
+					 * Value
+					 *   OPI_OSESSKEY: AUTH_VFR_DATA with length 0, 9, 0x39 comes without data.
+					 *   OPI_OAUTH: AUTH_VFR_DATA with length 0, 0x39 comes without data.
+					 */
+					if ( ((opi == OPI_OSESSKEY) && !(len == 0 || len == 9 || len == 0x39))
+					  || ((opi == OPI_OAUTH) && !(len == 0 || len == 0x39)) )
+					{
+						proto_tree_add_item(par_tree, hf_tns_data_unused, tvb, offset_prev, offset - offset_prev, ENC_NA);
+
+						proto_tree_add_item(par_tree, hf_tns_data_opi_param_length, tvb, offset, 1, ENC_NA);
+						offset += 1;
+
+						proto_tree_add_item(par_tree, hf_tns_data_opi_param_value, tvb, offset, len, ENC_ASCII|ENC_NA);
+						offset += len;
+
+						offset_prev = offset; /* Save offset to calculate rest of unused data */
+					}
+					else
+					{
+						offset += 1;
+					}
+
+					if ( opi == OPI_OSESSKEY )
+					{
+						/* SQL Developer specifix fix */
+						offset += tvb_get_guint8(tvb, offset) == 2 ? 5 : 3;
+					}
+					else /* OPI_OAUTH */
+					{
+						offset += len == 0 ? 1 : 3;
+					}
+
+					if ( skip == 1 )
+					{
+						offset += 1 + ((len == 0 || len == 0x39) ? 3 : 4);
+
+						if ( opi == OPI_OAUTH )
+						{
+							offset += len == 0 ? 2 : 0;
+						}
+					}
+
+					proto_tree_add_item(par_tree, hf_tns_data_unused, tvb, offset_prev, offset - offset_prev, ENC_NA);
+					proto_item_set_end(par_ti, tvb, offset);
+				}
+				proto_item_set_end(params_ti, tvb, offset);
 			}
 			break;
 		}
@@ -1380,6 +1538,19 @@ void proto_register_tns(void)
 			"Version", "tns.data_opi.vers2.version", FT_UINT32, BASE_CUSTOM,
 			CF_FUNC(vsnum_to_vstext_basecustom), 0x0, NULL, HFILL }},
 
+		{ &hf_tns_data_opi_num_of_params, {
+			"Number of parameters", "tns.data_opi.num_of_params", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_opi_param_length, {
+			"Length", "tns.data_opi.param_length", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_opi_param_name, {
+			"Name", "tns.data_opi.param_name", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_opi_param_value, {
+			"Value", "tns.data_opi.param_value", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+
 		{ &hf_tns_reserved_byte, {
 			"Reserved Byte", "tns.reserved_byte", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
@@ -1402,6 +1573,8 @@ void proto_register_tns(void)
 		&ett_tns_data,
 		&ett_tns_data_flag,
 		&ett_tns_acc_versions,
+		&ett_tns_opi_params,
+		&ett_tns_opi_par,
 		&ett_tns_sopt_flag,
 		&ett_tns_ntp_flag,
 		&ett_tns_conn_flag,
