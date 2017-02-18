@@ -314,6 +314,21 @@ static const value_string block_type_vals[] = {
  *            Multi-byte UTF-8 sequences in process names might be truncated
  *            resulting in an invalid final UTF-8 character.
  *
+ *            This is probably because the process name comes from the
+ *            p_comm field in a proc structure in the kernel; that field
+ *            is MAXCOMLEN+1 bytes long, with the +1 being for the NUL
+ *            terminator.  That would give 16 characters, but the
+ *            proc_info kernel interface has a structure with a
+ *            process name field of only MAXCOMLEN bytes.
+ *
+ *            This all ultimately dates back to the "kernel accounting"
+ *            mechanism that appeared in V7 UNIX, with an "accounting
+ *            file" with entries appended whenever a process exits; not
+ *            surprisingly, that code thinks a file name is just a bunch
+ *            of "char"s, with no multi-byte encodings (1979 called, they
+ *            want their character encoding back), so, yes, this can
+ *            mangle UTF-8 file names containing non-ASCII characters.
+ *
  *    darwin_proc_uuid:
  *            The darwin_proc_uuid option is a set of 16 octets representing
  *            the process UUID.
