@@ -35,8 +35,6 @@
 
 #include <epan/dissectors/packet-pcap_pktdata.h>
 
-#include <stdio.h>
-
 static int proto_pcapng = -1;
 
 static dissector_handle_t  pcap_pktdata_handle;
@@ -58,8 +56,8 @@ static int hf_pcapng_option = -1;
 static int hf_pcapng_option_code = -1;
 static int hf_pcapng_option_code_section_header = -1;
 static int hf_pcapng_option_code_interface_description = -1;
-static int hf_pcapng_option_code_darwin_enhanced_event = -1;
-static int hf_pcapng_option_code_darwin_event = -1;
+static int hf_pcapng_option_code_enhanced_packet = -1;
+static int hf_pcapng_option_code_packet = -1;
 static int hf_pcapng_option_code_interface_statistics = -1;
 static int hf_pcapng_option_code_name_resolution = -1;
 static int hf_pcapng_option_length = -1;
@@ -103,7 +101,6 @@ static int hf_pcapng_option_data_packet_flags_reserved = -1;
 static int hf_pcapng_option_data_packet_flags_fcs_length = -1;
 static int hf_pcapng_option_data_packet_flags_reception_type = -1;
 static int hf_pcapng_option_data_packet_flags_direction = -1;
-
 static int hf_pcapng_option_data_dns_name = -1;
 static int hf_pcapng_option_data_start_time = -1;
 static int hf_pcapng_option_data_end_time = -1;
@@ -143,7 +140,6 @@ static int hf_pcapng_option_darwin_process_uuid = -1;
 static int hf_pcapng_option_data_packet_darwin_dpeb_id = -1;
 static int hf_pcapng_option_data_packet_darwin_svc_class = -1;
 static int hf_pcapng_option_data_packet_darwin_edpeb_id = -1;
-
 
 static expert_field ei_invalid_option_length = EI_INIT;
 static expert_field ei_invalid_record_length = EI_INIT;
@@ -434,7 +430,7 @@ static const value_string option_code_interface_description_vals[] = {
     { 0, NULL }
 };
 
-static const value_string option_code_darwin_enhanced_event_vals[] = {
+static const value_string option_code_enhanced_packet_vals[] = {
     { 0x0000,  "End of Options" },
     { 0x0001,  "Comment" },
 
@@ -447,15 +443,12 @@ static const value_string option_code_darwin_enhanced_event_vals[] = {
     { 0, NULL }
 };
 
-static const value_string option_code_darwin_event_vals[] = {
+static const value_string option_code_packet_vals[] = {
     { 0x0000,  "End of Options" },
     { 0x0001,  "Comment" },
 
     { 0x0002,  "Flags" },
     { 0x0003,  "Hash" },
-    { 32769,   "Darwin DPEB ID" },
-    { 32770,   "Darwin Service Class" },
-    { 32771,   "Darwin Effective DPEB ID" },
     { 0, NULL }
 };
 
@@ -595,12 +588,12 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             vals = option_code_interface_description_vals;
             break;
         case BLOCK_ENHANCED_PACKET:
-            hfj_pcapng_option_code = hf_pcapng_option_code_darwin_enhanced_event;
-            vals = option_code_darwin_enhanced_event_vals;
+            hfj_pcapng_option_code = hf_pcapng_option_code_enhanced_packet;
+            vals = option_code_enhanced_packet_vals;
             break;
         case BLOCK_PACKET:
-            hfj_pcapng_option_code = hf_pcapng_option_code_darwin_event;
-            vals = option_code_darwin_event_vals;
+            hfj_pcapng_option_code = hf_pcapng_option_code_packet;
+            vals = option_code_packet_vals;
             break;
         case BLOCK_NAME_RESOLUTION:
             hfj_pcapng_option_code = hf_pcapng_option_code_name_resolution;
@@ -1638,14 +1631,14 @@ proto_register_pcapng(void)
             FT_UINT16, BASE_DEC, VALS(option_code_interface_description_vals), 0x00,
             NULL, HFILL }
         },
-        { &hf_pcapng_option_code_darwin_enhanced_event,
+        { &hf_pcapng_option_code_enhanced_packet,
             { "Code",                                      "pcapng.options.option.code",
-            FT_UINT16, BASE_DEC, VALS(option_code_darwin_enhanced_event_vals), 0x00,
+            FT_UINT16, BASE_DEC, VALS(option_code_enhanced_packet_vals), 0x00,
             NULL, HFILL }
         },
-        { &hf_pcapng_option_code_darwin_event,
+        { &hf_pcapng_option_code_packet,
             { "Code",                                      "pcapng.options.option.code",
-            FT_UINT16, BASE_DEC, VALS(option_code_darwin_event_vals), 0x00,
+            FT_UINT16, BASE_DEC, VALS(option_code_packet_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_code_name_resolution,
