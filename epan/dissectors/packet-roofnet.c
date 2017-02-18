@@ -46,6 +46,7 @@ static const value_string roofnet_pt_vals[] = {
 #define ROOFNET_FLAG_ERROR (1<<0)
 #define ROOFNET_FLAG_UPDATE (1<<1)
 #define ROOFNET_FLAG_LAYER2 (1<<9)
+#define ROOFNET_FLAG_RESERVED 0xFDFC
 #define ROOFNET_FLAG_MASK (ROOFNET_FLAG_ERROR | ROOFNET_FLAG_UPDATE | ROOFNET_FLAG_LAYER2)
 
 /* header length */
@@ -87,6 +88,7 @@ static int hf_roofnet_flags = -1;
 static int hf_roofnet_flags_error = -1;
 static int hf_roofnet_flags_update = -1;
 static int hf_roofnet_flags_layer2 = -1;
+static int hf_roofnet_flags_reserved = -1;
 static int hf_roofnet_data_length = -1;
 static int hf_roofnet_query_dst = -1;
 static int hf_roofnet_seq = -1;
@@ -102,6 +104,7 @@ static const int *flag_list[] = {
     &hf_roofnet_flags_error,
     &hf_roofnet_flags_update,
     &hf_roofnet_flags_layer2,
+    &hf_roofnet_flags_reserved,
     NULL
 };
 
@@ -308,6 +311,11 @@ void proto_register_roofnet(void)
     { &hf_roofnet_flags_layer2,
       { "Roofnet Layer 2", "roofnet.flags.layer2",
         FT_BOOLEAN, 16, NULL, ROOFNET_FLAG_LAYER2, NULL, HFILL }
+    },
+
+    { &hf_roofnet_flags_reserved,
+      { "Roofnet Reserved", "roofnet.flags.reserved",
+        FT_BOOLEAN, 16, NULL, ROOFNET_FLAG_RESERVED, NULL, HFILL }
     },
 
     { &hf_roofnet_data_length,
