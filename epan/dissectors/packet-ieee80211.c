@@ -13525,11 +13525,11 @@ ieee80211_tag_ssid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
    * string value, so we can do something other than run it through
    * format_text(), which won't handle UTF-8.
    */
-  ssid = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, ssid_len, ENC_ASCII);
+  ssid = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, ssid_len, ENC_ASCII);
   if (ssid_len == (gint)tag_len) {
     AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, ssid_len);
   }
-  proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len,
+  proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset, tag_len,
                       ENC_ASCII|ENC_NA);
 
   if (ssid_len > 0) {
@@ -13549,7 +13549,7 @@ ieee80211_tag_ssid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
   beacon_padding += 1; /* padding bug */
 
-  return offset + 2 + tag_len;
+  return offset + tag_len;
 }
 
 static int
