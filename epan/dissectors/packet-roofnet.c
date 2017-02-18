@@ -147,15 +147,15 @@ static guint16 dissect_roofnet_header(proto_tree *tree, tvbuff_t *tvb, guint *of
  */
 static void dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint link)
 {
-  proto_tree *subtree= NULL;
+  proto_tree *subtree = NULL;
 
-  ptvcursor_t *cursor= NULL;
+  ptvcursor_t *cursor = NULL;
 
-  guint32 addr_src= 0;
-  guint32 addr_dst= 0;
+  guint32 addr_src = 0;
+  guint32 addr_dst = 0;
 
-  addr_src= tvb_get_ipv4(tvb, *offset + ROOFNET_LINK_OFFSET_SRC);
-  addr_dst= tvb_get_ipv4(tvb, *offset + ROOFNET_LINK_OFFSET_DST);
+  addr_src = tvb_get_ipv4(tvb, *offset + ROOFNET_LINK_OFFSET_SRC);
+  addr_dst = tvb_get_ipv4(tvb, *offset + ROOFNET_LINK_OFFSET_DST);
 
   subtree = proto_tree_add_subtree_format(tree, tvb, *offset, ROOFNET_LINK_LEN,
                                           ett_roofnet_link, NULL, "link: %u, src: %s, dst: %s",
@@ -185,11 +185,11 @@ static void dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset,
  */
 static void dissect_roofnet_data(proto_tree *tree, tvbuff_t *tvb, packet_info * pinfo, gint offset, guint16 flags)
 {
-  guint16 roofnet_datalen= 0;
-  guint16 remaining_datalen= 0;
+  guint16 roofnet_datalen = 0;
+  guint16 remaining_datalen = 0;
 
   roofnet_datalen = tvb_get_ntohs(tvb, ROOFNET_OFFSET_DATA_LENGTH);
-  remaining_datalen= tvb_reported_length_remaining(tvb, offset);
+  remaining_datalen = tvb_reported_length_remaining(tvb, offset);
 
 
   /* dissect on remaining_datalen */
@@ -218,11 +218,11 @@ static int dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
   proto_item * it;
   proto_tree * roofnet_tree;
-  guint offset= 0;
+  guint offset = 0;
 
-  guint8 roofnet_msg_type= 0;
-  guint8 roofnet_nlinks= 0;
-  guint8 nlink= 1;
+  guint8 roofnet_msg_type = 0;
+  guint8 roofnet_nlinks = 0;
+  guint8 nlink = 1;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Roofnet");
 
@@ -236,7 +236,7 @@ static int dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
   guint16 flags = dissect_roofnet_header(roofnet_tree, tvb, &offset);
 
-  roofnet_nlinks= tvb_get_guint8(tvb, ROOFNET_OFFSET_NLINKS);
+  roofnet_nlinks = tvb_get_guint8(tvb, ROOFNET_OFFSET_NLINKS);
   /* Check that we do not have a malformed roofnet packet */
   if ((roofnet_nlinks*6*4)+ROOFNET_HEADER_LENGTH > ROOFNET_MAX_LENGTH) {
     expert_add_info_format(pinfo, it, &ei_roofnet_too_many_links, "Too many links (%u)", roofnet_nlinks);
@@ -375,7 +375,7 @@ void proto_register_roofnet(void)
 
   expert_module_t* expert_roofnet;
 
-  proto_roofnet = proto_register_protocol("Roofnet Protocol", "Roofnet","roofnet");
+  proto_roofnet = proto_register_protocol("Roofnet Protocol", "Roofnet", "roofnet");
 
   proto_register_field_array(proto_roofnet, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
