@@ -118,6 +118,7 @@ static expert_field ei_roofnet_too_much_data = EI_INIT;
  */
 static guint16 dissect_roofnet_header(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
+  guint16 flags;
   ptvcursor_t *cursor = ptvcursor_new(tree, tvb, *offset);
 
   ptvcursor_add(cursor, hf_roofnet_version, 1, ENC_BIG_ENDIAN);
@@ -128,7 +129,7 @@ static guint16 dissect_roofnet_header(proto_tree *tree, tvbuff_t *tvb, guint *of
   proto_tree_add_checksum(ptvcursor_tree(cursor), ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor),
                           hf_roofnet_cksum, -1, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   ptvcursor_advance(cursor, 2);
-  guint16 flags = tvb_get_ntohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  flags = tvb_get_ntohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   proto_tree_add_bitmask(ptvcursor_tree(cursor), ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor),
                           hf_roofnet_flags, ett_roofnet_flags, flag_list, ENC_BIG_ENDIAN);
   ptvcursor_advance(cursor, 2);
@@ -223,6 +224,7 @@ static int dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   guint8 roofnet_msg_type = 0;
   guint8 roofnet_nlinks = 0;
   guint8 nlink = 1;
+  guint16 flags;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Roofnet");
 
@@ -234,7 +236,7 @@ static int dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   it = proto_tree_add_item(tree, proto_roofnet, tvb, offset, -1, ENC_NA);
   roofnet_tree = proto_item_add_subtree(it, ett_roofnet);
 
-  guint16 flags = dissect_roofnet_header(roofnet_tree, tvb, &offset);
+  flags = dissect_roofnet_header(roofnet_tree, tvb, &offset);
 
   roofnet_nlinks = tvb_get_guint8(tvb, ROOFNET_OFFSET_NLINKS);
   /* Check that we do not have a malformed roofnet packet */
