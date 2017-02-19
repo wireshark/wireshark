@@ -9550,57 +9550,57 @@ a:hover {
         <translation>別のファイルを開く前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="712"/>
+        <location filename="main_window_slots.cpp" line="731"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="817"/>
+        <location filename="main_window_slots.cpp" line="836"/>
         <source>Saving %1</source>
         <translation>保存中 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="857"/>
+        <location filename="main_window_slots.cpp" line="876"/>
         <source>No interface selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="867"/>
+        <location filename="main_window_slots.cpp" line="886"/>
         <source>Invalid capture filter</source>
         <translation>無効なキャプチャフィルタ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1115"/>
+        <location filename="main_window_slots.cpp" line="1134"/>
         <source>Clear Menu</source>
         <translation>メニューをクリア</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1598"/>
+        <location filename="main_window_slots.cpp" line="1617"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wiresharkが初期化している間お待ちください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1699"/>
+        <location filename="main_window_slots.cpp" line="1718"/>
         <source> before closing the file</source>
         <translation>ファイルを閉じる前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1781"/>
+        <location filename="main_window_slots.cpp" line="1800"/>
         <source>Export Selected Packet Bytes</source>
         <translation>選択したパケットバイト列をエクスポート</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1847"/>
+        <location filename="main_window_slots.cpp" line="1866"/>
         <source>No Keys</source>
         <translation>キーはありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1848"/>
+        <location filename="main_window_slots.cpp" line="1867"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>保存するSSLセッション鍵はありません</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1854"/>
+        <location filename="main_window_slots.cpp" line="1873"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9608,74 +9608,74 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1783"/>
+        <location filename="main_window_slots.cpp" line="1802"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Raw(無加工)データ形式 (*.bin *.dat *.raw);;すべてのファイル(</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="762"/>
+        <location filename="main_window_slots.cpp" line="781"/>
         <source>Merging files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1858"/>
+        <location filename="main_window_slots.cpp" line="1877"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSLセッション鍵 (*.keys *.txt);;すべてのファイル (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1976"/>
+        <location filename="main_window_slots.cpp" line="1995"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>テキストをコピーできません 別の項目を試してみてください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2382"/>
-        <location filename="main_window_slots.cpp" line="3493"/>
+        <location filename="main_window_slots.cpp" line="2405"/>
+        <location filename="main_window_slots.cpp" line="3516"/>
         <source>Unable to build conversation filter.</source>
         <translation>会話フィルタを作成できません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2532"/>
-        <location filename="main_window_slots.cpp" line="2545"/>
+        <location filename="main_window_slots.cpp" line="2555"/>
+        <location filename="main_window_slots.cpp" line="2568"/>
         <source> before reloading the file</source>
         <translation>ファイルを再読み込みする前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2579"/>
+        <location filename="main_window_slots.cpp" line="2602"/>
         <source>No filter available. Try another </source>
         <translation>フィルタが利用できません 別のものを試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3500"/>
+        <location filename="main_window_slots.cpp" line="3523"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>この対話の間のフィルタ翻訳エラー</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3509"/>
+        <location filename="main_window_slots.cpp" line="3532"/>
         <source>No previous/next packet in conversation.</source>
         <translation>対話の前/次のパケットがありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3586"/>
+        <location filename="main_window_slots.cpp" line="3609"/>
         <source>No Interface Selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3593"/>
+        <location filename="main_window_slots.cpp" line="3616"/>
         <source> before starting a new capture</source>
         <translation>新規キャプチャを開始する前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3611"/>
+        <location filename="main_window_slots.cpp" line="3634"/>
         <source> before restarting the capture</source>
         <translation>キャプチャを再スタートする前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3819"/>
+        <location filename="main_window_slots.cpp" line="3842"/>
         <source>Wiki Page for %1</source>
         <translation>%1 の Wikiページ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3820"/>
+        <location filename="main_window_slots.cpp" line="3843"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;ワイヤーシャークWikiはコミュニティによって運営されています &lt;/p&gt;&lt;p&gt;いま見ているページはすばらしかったり、不完全だったり、間違っていたり、存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
     </message>
@@ -10542,7 +10542,7 @@ a:hover {
         <translation>値</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="402"/>
+        <location filename="preferences_dialog.cpp" line="403"/>
         <source>Preferences</source>
         <translation>設定</translation>
     </message>
@@ -10631,8 +10631,9 @@ a:hover {
     </message>
     <message>
         <location filename="profile_dialog.ui" line="60"/>
-        <source>Remove this profile. The Default profile and system provided profiles cannot be removed.</source>
-        <translation>このプロファイルを削除します デフォルトプロファイルとシステム提供プロファイルは削除できません</translation>
+        <source>Remove this profile. System provided profiles cannot be removed.</source>
+        <oldsource>Remove this profile. The Default profile and system provided profiles cannot be removed.</oldsource>
+        <translation type="unfinished">このプロファイルを削除します デフォルトプロファイルとシステム提供プロファイルは削除できません</translation>
     </message>
     <message>
         <location filename="profile_dialog.ui" line="71"/>
@@ -10645,42 +10646,57 @@ a:hover {
         <translation>設定プロファイル</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="170"/>
+        <location filename="profile_dialog.cpp" line="163"/>
+        <source>Will be reset to default values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="179"/>
         <source>Created from %1</source>
         <translation>%1 から作成</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="175"/>
+        <location filename="profile_dialog.cpp" line="181"/>
+        <source>(system provided)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="187"/>
         <source>Created from default settings</source>
         <translation>デフォルト設定から作成</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="178"/>
+        <location filename="profile_dialog.cpp" line="190"/>
         <source>Renamed from %1</source>
         <translation>%1 の名前を変更</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="184"/>
+        <location filename="profile_dialog.cpp" line="196"/>
         <source>Go to %1</source>
         <translation>%1 に移動</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="209"/>
+        <location filename="profile_dialog.cpp" line="221"/>
         <source>This is a system provided profile.</source>
         <translation>これはシステム提供プロファイルです</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="213"/>
+        <location filename="profile_dialog.cpp" line="225"/>
         <source>A profile already exists with this name.</source>
         <translation>この名前のプロファイルは既に存在します</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="218"/>
+        <location filename="profile_dialog.cpp" line="230"/>
         <source>A profile already exists with this name</source>
         <translation>既存プロファイル名</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="317"/>
+        <location filename="profile_dialog.cpp" line="234"/>
+        <source>The profile will be reset to default values.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="355"/>
         <source>Profile Error</source>
         <translation>プロファイルエラー</translation>
     </message>
@@ -10855,22 +10871,22 @@ a:hover {
 <context>
     <name>QObject</name>
     <message>
-        <location filename="preferences_dialog.cpp" line="122"/>
+        <location filename="preferences_dialog.cpp" line="123"/>
         <source>Default</source>
         <translation type="unfinished">デフォルト</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="124"/>
+        <location filename="preferences_dialog.cpp" line="125"/>
         <source>Changed</source>
         <translation type="unfinished">変更された</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="142"/>
+        <location filename="preferences_dialog.cpp" line="143"/>
         <source>Has this preference been changed?</source>
         <translation>この設定を変更されましたか？</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="152"/>
+        <location filename="preferences_dialog.cpp" line="153"/>
         <source>Default value is empty</source>
         <translation>デフォルト値は空です</translation>
     </message>
@@ -11406,7 +11422,7 @@ a:hover {
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="176"/>
-        <location filename="preferences_dialog.cpp" line="120"/>
+        <location filename="preferences_dialog.cpp" line="121"/>
         <source>Unknown</source>
         <translation>不明</translation>
     </message>
@@ -15914,6 +15930,29 @@ a:hover {
         <location filename="wireless_frame.cpp" line="319"/>
         <source>Unable to set FCS validation behavior.</source>
         <translation>FCSの確認動作を設定できません</translation>
+    </message>
+</context>
+<context>
+    <name>WiresharkApplication</name>
+    <message>
+        <location filename="wireshark_application.cpp" line="582"/>
+        <source>Dell Backup and Recovery Found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="wireshark_application.cpp" line="583"/>
+        <source>You appear to be running Dell Backup and Recovery 1.8.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="wireshark_application.cpp" line="584"/>
+        <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="wireshark_application.cpp" line="588"/>
+        <source>Offending DLL: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

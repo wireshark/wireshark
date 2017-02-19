@@ -9600,57 +9600,57 @@ text-decoration: underline;
         <translation>przed otwarciem nowego pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="712"/>
+        <location filename="main_window_slots.cpp" line="731"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="817"/>
+        <location filename="main_window_slots.cpp" line="836"/>
         <source>Saving %1</source>
         <translation>Zapisywanie %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="857"/>
+        <location filename="main_window_slots.cpp" line="876"/>
         <source>No interface selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="867"/>
+        <location filename="main_window_slots.cpp" line="886"/>
         <source>Invalid capture filter</source>
         <translation>Niepoprawny filtr przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1115"/>
+        <location filename="main_window_slots.cpp" line="1134"/>
         <source>Clear Menu</source>
         <translation>Wyczyść Menu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1598"/>
+        <location filename="main_window_slots.cpp" line="1617"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Proszę czekać, trwa uruchamianie Wiresharka</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1699"/>
+        <location filename="main_window_slots.cpp" line="1718"/>
         <source> before closing the file</source>
         <translation>przed zapisaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1781"/>
+        <location filename="main_window_slots.cpp" line="1800"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Eksportuj zaznaczony bajty pakietu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1847"/>
+        <location filename="main_window_slots.cpp" line="1866"/>
         <source>No Keys</source>
         <translation>Brak kluczy</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1848"/>
+        <location filename="main_window_slots.cpp" line="1867"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Nie ma żadnych kluczy sesji SSL do zapisu.</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1854"/>
+        <location filename="main_window_slots.cpp" line="1873"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9660,74 +9660,74 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1783"/>
+        <location filename="main_window_slots.cpp" line="1802"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Surowe dane (*.bin *.dat *.raw);;Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="762"/>
+        <location filename="main_window_slots.cpp" line="781"/>
         <source>Merging files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1858"/>
+        <location filename="main_window_slots.cpp" line="1877"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Klucze sesji SSL (*.keys *.txt);; Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1976"/>
+        <location filename="main_window_slots.cpp" line="1995"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2382"/>
-        <location filename="main_window_slots.cpp" line="3493"/>
+        <location filename="main_window_slots.cpp" line="2405"/>
+        <location filename="main_window_slots.cpp" line="3516"/>
         <source>Unable to build conversation filter.</source>
         <translation>Nie można stworzyć filtru konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2532"/>
-        <location filename="main_window_slots.cpp" line="2545"/>
+        <location filename="main_window_slots.cpp" line="2555"/>
+        <location filename="main_window_slots.cpp" line="2568"/>
         <source> before reloading the file</source>
         <translation>przed przeładowaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2579"/>
+        <location filename="main_window_slots.cpp" line="2602"/>
         <source>No filter available. Try another </source>
         <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3500"/>
+        <location filename="main_window_slots.cpp" line="3523"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Błąd kompilacji filtru dla tej konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3509"/>
+        <location filename="main_window_slots.cpp" line="3532"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Brak poprzedniego i następnego pakietu w konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3586"/>
+        <location filename="main_window_slots.cpp" line="3609"/>
         <source>No Interface Selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3593"/>
+        <location filename="main_window_slots.cpp" line="3616"/>
         <source> before starting a new capture</source>
         <translation>przed wystartowaniem nowego przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3611"/>
+        <location filename="main_window_slots.cpp" line="3634"/>
         <source> before restarting the capture</source>
         <translation>przed restartem przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3819"/>
+        <location filename="main_window_slots.cpp" line="3842"/>
         <source>Wiki Page for %1</source>
         <translation>Strona Wiki dla %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3820"/>
+        <location filename="main_window_slots.cpp" line="3843"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Strona Wiki Wiresharka jest zarządzania przez społeczność.&lt;/p&gt;&lt;p&gt;Strona którą chcesz wczytać może być wspaniała, niekompletna, błędna lub nie istnieć.&lt;/p&gt;&lt;p&gt;Kontynuować wczytywanie strony Wiki?&lt;/p&gt;</translation>
     </message>
@@ -10593,7 +10593,7 @@ text-decoration: underline;
         <translation>Wartość</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="402"/>
+        <location filename="preferences_dialog.cpp" line="403"/>
         <source>Preferences</source>
         <translation>Preferencje</translation>
     </message>
@@ -10682,8 +10682,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="profile_dialog.ui" line="60"/>
-        <source>Remove this profile. The Default profile and system provided profiles cannot be removed.</source>
-        <translation>Usuń profil. Profile domyślne oraz dostarczone z tym oprogramowaniem nie mogą być usunięte.</translation>
+        <source>Remove this profile. System provided profiles cannot be removed.</source>
+        <oldsource>Remove this profile. The Default profile and system provided profiles cannot be removed.</oldsource>
+        <translation type="unfinished">Usuń profil. Profile domyślne oraz dostarczone z tym oprogramowaniem nie mogą być usunięte.</translation>
     </message>
     <message>
         <location filename="profile_dialog.ui" line="71"/>
@@ -10696,42 +10697,57 @@ text-decoration: underline;
         <translation>Konfiguracja profili</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="170"/>
+        <location filename="profile_dialog.cpp" line="163"/>
+        <source>Will be reset to default values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="179"/>
         <source>Created from %1</source>
         <translation>Utworzono z %1</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="175"/>
+        <location filename="profile_dialog.cpp" line="181"/>
+        <source>(system provided)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="187"/>
         <source>Created from default settings</source>
         <translation>Utworzono z domyślnych ustawień</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="178"/>
+        <location filename="profile_dialog.cpp" line="190"/>
         <source>Renamed from %1</source>
         <translation>Przemianowano z %1</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="184"/>
+        <location filename="profile_dialog.cpp" line="196"/>
         <source>Go to %1</source>
         <translation>Przejdź do %1</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="209"/>
+        <location filename="profile_dialog.cpp" line="221"/>
         <source>This is a system provided profile.</source>
         <translation>To jest profil dostarczony z tym oprogramowaniem.</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="213"/>
+        <location filename="profile_dialog.cpp" line="225"/>
         <source>A profile already exists with this name.</source>
         <translation>Profil o tej nazwie już istnieje.</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="218"/>
+        <location filename="profile_dialog.cpp" line="230"/>
         <source>A profile already exists with this name</source>
         <translation>Profil o tej nazwie już istnieje</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="317"/>
+        <location filename="profile_dialog.cpp" line="234"/>
+        <source>The profile will be reset to default values.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="355"/>
         <source>Profile Error</source>
         <translation>Błąd w profilu</translation>
     </message>
@@ -10906,22 +10922,22 @@ text-decoration: underline;
 <context>
     <name>QObject</name>
     <message>
-        <location filename="preferences_dialog.cpp" line="122"/>
+        <location filename="preferences_dialog.cpp" line="123"/>
         <source>Default</source>
         <translation type="unfinished">Domyślne</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="124"/>
+        <location filename="preferences_dialog.cpp" line="125"/>
         <source>Changed</source>
         <translation type="unfinished">Zmienione</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="142"/>
+        <location filename="preferences_dialog.cpp" line="143"/>
         <source>Has this preference been changed?</source>
         <translation>Czy to ustawienie zostało zmienione?</translation>
     </message>
     <message>
-        <location filename="preferences_dialog.cpp" line="152"/>
+        <location filename="preferences_dialog.cpp" line="153"/>
         <source>Default value is empty</source>
         <translation>Domyślna wartość jest pusta</translation>
     </message>
@@ -11457,7 +11473,7 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="176"/>
-        <location filename="preferences_dialog.cpp" line="120"/>
+        <location filename="preferences_dialog.cpp" line="121"/>
         <source>Unknown</source>
         <translation>Nienany</translation>
     </message>
@@ -15991,6 +16007,29 @@ text-decoration: underline;
         <location filename="wireless_frame.cpp" line="319"/>
         <source>Unable to set FCS validation behavior.</source>
         <translation>Nie można ustawić zachowania walidacji FCS.</translation>
+    </message>
+</context>
+<context>
+    <name>WiresharkApplication</name>
+    <message>
+        <location filename="wireshark_application.cpp" line="582"/>
+        <source>Dell Backup and Recovery Found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="wireshark_application.cpp" line="583"/>
+        <source>You appear to be running Dell Backup and Recovery 1.8.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="wireshark_application.cpp" line="584"/>
+        <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="wireshark_application.cpp" line="588"/>
+        <source>Offending DLL: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
