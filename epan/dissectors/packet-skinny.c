@@ -119,7 +119,7 @@ static const value_string message_id[] = {
   { 0x0021, "MulticastMediaReceptionAck" },
   { 0x0022, "OpenReceiveChannelAck" },
   { 0x0023, "ConnectionStatisticsRes" },
-  { 0x0024, "OffHookWithCgpn" },
+  { 0x0024, "OffHookWithCalingPartyNumber" },
   { 0x0025, "SoftKeySetReq" },
   { 0x0026, "SoftKeyEvent" },
   { 0x0027, "UnregisterReq" },
@@ -158,6 +158,7 @@ static const value_string message_id[] = {
   { 0x0083, "StopTone" },
   { 0x0085, "SetRinger" },
   { 0x0086, "SetLamp" },
+  { 0x0087, "SetHookFlashDetect" },
   { 0x0088, "SetSpeakerMode" },
   { 0x0089, "SetMicroMode" },
   { 0x008a, "StartMediaTransmission" },
@@ -2662,10 +2663,10 @@ handle_CapabilitiesResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skin
   guint32 payloadCapability = 0;
   capCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_capCount, 4, ENC_LITTLE_ENDIAN);
-  if (capCount <= 16) { /* tvb struct size guard */
+  if (capCount <= 18) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "caps [ref: capCount = %d, max:18]", capCount);
-    if (capCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (capCount * 16) && capCount <= 18) { /* tvb counter size guard */
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "caps [ref:capCount = %d, max:18]", capCount);
+    if (capCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (capCount * 16) && capCount <= 18) {
       for (counter_1 = 0; counter_1 < 18; counter_1++) {
         if (counter_1 < capCount) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "caps [%d / %d]", counter_1 + 1, capCount);
@@ -2727,7 +2728,7 @@ handle_CapabilitiesResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skin
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (capCount * 16)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (capCount * 16));
   }
   skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x009b);
 }
@@ -2852,7 +2853,7 @@ handle_ConnectionStatisticsResMessage(ptvcursor_t *cursor, packet_info * pinfo _
 }
 
 /*
- * Message:   OffHookWithCgpnMessage
+ * Message:   OffHookWithCalingPartyNumberMessage
  * Opcode:    0x0024
  * Type:      CallControl
  * Direction: dev2pbx
@@ -2860,7 +2861,7 @@ handle_ConnectionStatisticsResMessage(ptvcursor_t *cursor, packet_info * pinfo _
  * MsgType:   event
  */
 static void
-handle_OffHookWithCgpnMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
+handle_OffHookWithCalingPartyNumberMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
   guint32 VariableDirnumSize = (hdr_version >= V18_MSG_TYPE) ? 25 : 24;
@@ -3083,10 +3084,10 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
   ptvcursor_add(cursor, hf_skinny_RTPPayloadFormat, 4, ENC_LITTLE_ENDIAN);
   customPictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_customPictureFormatCount, 4, ENC_LITTLE_ENDIAN);
-  if (customPictureFormatCount <= 20) { /* tvb struct size guard */
+  if (customPictureFormatCount <= 6) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [ref: customPictureFormatCount = %d, max:6]", customPictureFormatCount);
-    if (customPictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (customPictureFormatCount * 20) && customPictureFormatCount <= 6) { /* tvb counter size guard */
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [ref:customPictureFormatCount = %d, max:6]", customPictureFormatCount);
+    if (customPictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (customPictureFormatCount * 20) && customPictureFormatCount <= 6) {
       for (counter_1 = 0; counter_1 < 6; counter_1++) {
         if (counter_1 < customPictureFormatCount) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [%d / %d]", counter_1 + 1, customPictureFormatCount);
@@ -3103,7 +3104,7 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (customPictureFormatCount * 20)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (customPictureFormatCount * 20));
   }
   {
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "confResources");
@@ -3111,10 +3112,10 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
     ptvcursor_add(cursor, hf_skinny_maxBW, 4, ENC_LITTLE_ENDIAN);
     serviceResourceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_serviceResourceCount, 4, ENC_LITTLE_ENDIAN);
-    if (serviceResourceCount <= 24) { /* tvb struct size guard */
+    if (serviceResourceCount <= 4) {
       guint32 counter_2 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [ref: serviceResourceCount = %d, max:4]", serviceResourceCount);
-      if (serviceResourceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (serviceResourceCount * 24) && serviceResourceCount <= 4) { /* tvb counter size guard */
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [ref:serviceResourceCount = %d, max:4]", serviceResourceCount);
+      if (serviceResourceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (serviceResourceCount * 24) && serviceResourceCount <= 4) {
         for (counter_2 = 0; counter_2 < 4; counter_2++) {
           if (counter_2 < serviceResourceCount) {
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [%d / %d]", counter_2 + 1, serviceResourceCount);
@@ -3130,7 +3131,7 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
                   ptvcursor_advance(cursor, 4);
                 }
               }
-              ptvcursor_pop_subtree(cursor); /* end for loop tree: layouts */
+              ptvcursor_pop_subtree(cursor);
             } else {
               ptvcursor_advance(cursor, (5 * 4)); /* guard kicked in -> skip the rest */;
             }
@@ -3146,14 +3147,14 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
       }
       ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (serviceResourceCount * 24)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (serviceResourceCount * 24));
     }
     ptvcursor_pop_subtree(cursor);
   }
-  if (audioCapCount <= 16) { /* tvb struct size guard */
+  if (audioCapCount <= 18) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [ref: audioCapCount = %d, max:18]", audioCapCount);
-    if (audioCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (audioCapCount * 16) && audioCapCount <= 18) { /* tvb counter size guard */
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [ref:audioCapCount = %d, max:18]", audioCapCount);
+    if (audioCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (audioCapCount * 16) && audioCapCount <= 18) {
       for (counter_1 = 0; counter_1 < 18; counter_1++) {
         if (counter_1 < audioCapCount) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [%d / %d]", counter_1 + 1, audioCapCount);
@@ -3215,12 +3216,12 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (audioCapCount * 16)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (audioCapCount * 16));
   }
-  if (videoCapCount <= 44) { /* tvb struct size guard */
+  if (videoCapCount <= 10) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [ref: videoCapCount = %d, max:10]", videoCapCount);
-    if (videoCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (videoCapCount * 44) && videoCapCount <= 10) { /* tvb counter size guard */
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [ref:videoCapCount = %d, max:10]", videoCapCount);
+    if (videoCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (videoCapCount * 44) && videoCapCount <= 10) {
       for (counter_1 = 0; counter_1 < 10; counter_1++) {
         if (counter_1 < videoCapCount) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [%d / %d]", counter_1 + 1, videoCapCount);
@@ -3229,10 +3230,10 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
           ptvcursor_add(cursor, hf_skinny_videoCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
           levelPreferenceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
           ptvcursor_add(cursor, hf_skinny_levelPreferenceCount, 4, ENC_LITTLE_ENDIAN);
-          if (levelPreferenceCount <= 24) { /* tvb struct size guard */
+          if (levelPreferenceCount <= 4) {
             guint32 counter_5 = 0;
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [ref: levelPreferenceCount = %d, max:4]", levelPreferenceCount);
-            if (levelPreferenceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (levelPreferenceCount * 24) && levelPreferenceCount <= 4) { /* tvb counter size guard */
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [ref:levelPreferenceCount = %d, max:4]", levelPreferenceCount);
+            if (levelPreferenceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (levelPreferenceCount * 24) && levelPreferenceCount <= 4) {
               for (counter_5 = 0; counter_5 < 4; counter_5++) {
                 if (counter_5 < levelPreferenceCount) {
                   ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [%d / %d]", counter_5 + 1, levelPreferenceCount);
@@ -3250,7 +3251,7 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
             }
             ptvcursor_pop_subtree(cursor);
           } else {
-            ptvcursor_advance(cursor, (levelPreferenceCount * 24)); /* guard kicked in -> skip the rest */;
+            ptvcursor_advance(cursor, (levelPreferenceCount * 24));
           }
           if (payloadCapability == MEDIA_PAYLOAD_H261)           {
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H261");
@@ -3322,12 +3323,12 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (videoCapCount * 44)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (videoCapCount * 44));
   }
-  if (dataCapCount <= 16) { /* tvb struct size guard */
+  if (dataCapCount <= 5) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [ref: dataCapCount = %d, max:5]", dataCapCount);
-    if (dataCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (dataCapCount * 16) && dataCapCount <= 5) { /* tvb counter size guard */
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [ref:dataCapCount = %d, max:5]", dataCapCount);
+    if (dataCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (dataCapCount * 16) && dataCapCount <= 5) {
       for (counter_1 = 0; counter_1 < 5; counter_1++) {
         if (counter_1 < dataCapCount) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [%d / %d]", counter_1 + 1, dataCapCount);
@@ -3343,7 +3344,7 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (dataCapCount * 16)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (dataCapCount * 16));
   }
 }
 
@@ -3523,10 +3524,10 @@ handle_AuditConferenceResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
   ptvcursor_add(cursor, hf_skinny_last, 4, ENC_LITTLE_ENDIAN);
   numberOfEntries = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_numberOfEntries, 4, ENC_LITTLE_ENDIAN);
-  if (numberOfEntries <= 76) { /* tvb struct size guard */
+  if (numberOfEntries <= 32) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "conferenceEntry [ref: numberOfEntries = %d, max:32]", numberOfEntries);
-    if (numberOfEntries && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (numberOfEntries * 76) && numberOfEntries <= 32) { /* tvb counter size guard */
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "conferenceEntry [ref:numberOfEntries = %d, max:32]", numberOfEntries);
+    if (numberOfEntries && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (numberOfEntries * 76) && numberOfEntries <= 32) {
       for (counter_1 = 0; counter_1 < 32; counter_1++) {
         if (counter_1 < numberOfEntries) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "conferenceEntry [%d / %d]", counter_1 + 1, numberOfEntries);
@@ -3545,7 +3546,7 @@ handle_AuditConferenceResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (numberOfEntries * 76)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (numberOfEntries * 76));
   }
   skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x013c);
 }
@@ -3569,9 +3570,9 @@ handle_AuditParticipantResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
   ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
   numberOfEntries = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_numberOfEntries, 4, ENC_LITTLE_ENDIAN);
-  if (numberOfEntries <= 256) { /* tvb integer size guard */
+  if (numberOfEntries <= 256) {
     guint32 counter_2 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "participantEntry [ref: numberOfEntries = %d, max:256]", numberOfEntries);
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "participantEntry [ref:numberOfEntries = %d, max:256]", numberOfEntries);
     for (counter_2 = 0; counter_2 < 256; counter_2++) {
       if (counter_2 < numberOfEntries) {
         ptvcursor_add(cursor, hf_skinny_participantEntry, 4, ENC_LITTLE_ENDIAN);
@@ -3579,9 +3580,9 @@ handle_AuditParticipantResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
         ptvcursor_advance(cursor, 4);
       }
     }
-    ptvcursor_pop_subtree(cursor); /* end for loop tree: participantEntry */
+    ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (256 * 4)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (256 * 4));
   }
   skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x013d ^ conferenceID);
 }
@@ -3680,10 +3681,10 @@ handle_CapabilitiesV2ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
   ptvcursor_add(cursor, hf_skinny_RTPPayloadFormat, 4, ENC_LITTLE_ENDIAN);
   customPictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_customPictureFormatCount, 4, ENC_LITTLE_ENDIAN);
-  if (customPictureFormatCount <= 20) { /* tvb struct size guard */
+  if (customPictureFormatCount <= 6) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [ref: customPictureFormatCount = %d, max:6]", customPictureFormatCount);
-    if (customPictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (customPictureFormatCount * 20) && customPictureFormatCount <= 6) { /* tvb counter size guard */
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [ref:customPictureFormatCount = %d, max:6]", customPictureFormatCount);
+    if (customPictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (customPictureFormatCount * 20) && customPictureFormatCount <= 6) {
       for (counter_1 = 0; counter_1 < 6; counter_1++) {
         if (counter_1 < customPictureFormatCount) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [%d / %d]", counter_1 + 1, customPictureFormatCount);
@@ -3700,7 +3701,7 @@ handle_CapabilitiesV2ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (customPictureFormatCount * 20)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (customPictureFormatCount * 20));
   }
   {
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "confResources");
@@ -3708,10 +3709,10 @@ handle_CapabilitiesV2ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     ptvcursor_add(cursor, hf_skinny_maxBW, 4, ENC_LITTLE_ENDIAN);
     serviceResourceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_serviceResourceCount, 4, ENC_LITTLE_ENDIAN);
-    if (serviceResourceCount <= 24) { /* tvb struct size guard */
+    if (serviceResourceCount <= 4) {
       guint32 counter_2 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [ref: serviceResourceCount = %d, max:4]", serviceResourceCount);
-      if (serviceResourceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (serviceResourceCount * 24) && serviceResourceCount <= 4) { /* tvb counter size guard */
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [ref:serviceResourceCount = %d, max:4]", serviceResourceCount);
+      if (serviceResourceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (serviceResourceCount * 24) && serviceResourceCount <= 4) {
         for (counter_2 = 0; counter_2 < 4; counter_2++) {
           if (counter_2 < serviceResourceCount) {
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [%d / %d]", counter_2 + 1, serviceResourceCount);
@@ -3727,7 +3728,7 @@ handle_CapabilitiesV2ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
                   ptvcursor_advance(cursor, 4);
                 }
               }
-              ptvcursor_pop_subtree(cursor); /* end for loop tree: layouts */
+              ptvcursor_pop_subtree(cursor);
             } else {
               ptvcursor_advance(cursor, (5 * 4)); /* guard kicked in -> skip the rest */;
             }
@@ -3743,14 +3744,14 @@ handle_CapabilitiesV2ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
       }
       ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (serviceResourceCount * 24)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (serviceResourceCount * 24));
     }
     ptvcursor_pop_subtree(cursor);
   }
-  if (audioCapCount <= 16) { /* tvb struct size guard */
+  if (audioCapCount <= 18) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [ref: audioCapCount = %d, max:18]", audioCapCount);
-    if (audioCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (audioCapCount * 16) && audioCapCount <= 18) { /* tvb counter size guard */
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [ref:audioCapCount = %d, max:18]", audioCapCount);
+    if (audioCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (audioCapCount * 16) && audioCapCount <= 18) {
       for (counter_1 = 0; counter_1 < 18; counter_1++) {
         if (counter_1 < audioCapCount) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [%d / %d]", counter_1 + 1, audioCapCount);
@@ -3812,12 +3813,12 @@ handle_CapabilitiesV2ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (audioCapCount * 16)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (audioCapCount * 16));
   }
-  if (videoCapCount <= 60) { /* tvb struct size guard */
+  if (videoCapCount <= 10) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [ref: videoCapCount = %d, max:10]", videoCapCount);
-    if (videoCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (videoCapCount * 60) && videoCapCount <= 10) { /* tvb counter size guard */
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [ref:videoCapCount = %d, max:10]", videoCapCount);
+    if (videoCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (videoCapCount * 60) && videoCapCount <= 10) {
       for (counter_1 = 0; counter_1 < 10; counter_1++) {
         if (counter_1 < videoCapCount) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [%d / %d]", counter_1 + 1, videoCapCount);
@@ -3826,10 +3827,10 @@ handle_CapabilitiesV2ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
           ptvcursor_add(cursor, hf_skinny_videoCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
           levelPreferenceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
           ptvcursor_add(cursor, hf_skinny_levelPreferenceCount, 4, ENC_LITTLE_ENDIAN);
-          if (levelPreferenceCount <= 24) { /* tvb struct size guard */
+          if (levelPreferenceCount <= 4) {
             guint32 counter_5 = 0;
-            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [ref: levelPreferenceCount = %d, max:4]", levelPreferenceCount);
-            if (levelPreferenceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (levelPreferenceCount * 24) && levelPreferenceCount <= 4) { /* tvb counter size guard */
+            ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [ref:levelPreferenceCount = %d, max:4]", levelPreferenceCount);
+            if (levelPreferenceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (levelPreferenceCount * 24) && levelPreferenceCount <= 4) {
               for (counter_5 = 0; counter_5 < 4; counter_5++) {
                 if (counter_5 < levelPreferenceCount) {
                   ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [%d / %d]", counter_5 + 1, levelPreferenceCount);
@@ -3847,7 +3848,7 @@ handle_CapabilitiesV2ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
             }
             ptvcursor_pop_subtree(cursor);
           } else {
-            ptvcursor_advance(cursor, (levelPreferenceCount * 24)); /* guard kicked in -> skip the rest */;
+            ptvcursor_advance(cursor, (levelPreferenceCount * 24));
           }
           if (payloadCapability == MEDIA_PAYLOAD_H261)           {
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadCapability is Media_Payload_H261");
@@ -3935,12 +3936,12 @@ handle_CapabilitiesV2ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (videoCapCount * 60)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (videoCapCount * 60));
   }
-  if (dataCapCount <= 16) { /* tvb struct size guard */
+  if (dataCapCount <= 5) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [ref: dataCapCount = %d, max:5]", dataCapCount);
-    if (dataCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (dataCapCount * 16) && dataCapCount <= 5) { /* tvb counter size guard */
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [ref:dataCapCount = %d, max:5]", dataCapCount);
+    if (dataCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (dataCapCount * 16) && dataCapCount <= 5) {
       for (counter_1 = 0; counter_1 < 5; counter_1++) {
         if (counter_1 < dataCapCount) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [%d / %d]", counter_1 + 1, dataCapCount);
@@ -3956,7 +3957,7 @@ handle_CapabilitiesV2ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (dataCapCount * 16)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (dataCapCount * 16));
   }
   skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x009b);
 }
@@ -3990,11 +3991,11 @@ handle_CapabilitiesV3ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
   ptvcursor_add(cursor, hf_skinny_RTPPayloadFormat, 4, ENC_LITTLE_ENDIAN);
   customPictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_customPictureFormatCount, 4, ENC_LITTLE_ENDIAN);
-  if (customPictureFormatCount <= 20) { /* tvb struct size guard */
+  if (customPictureFormatCount <= 6) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [ref: customPictureFormatCount = %d, max:6]", customPictureFormatCount);
-    if (customPictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (customPictureFormatCount * 20) && customPictureFormatCount <= 6) { /* tvb counter size guard */
-      for (counter_1 = 0; counter_1 < customPictureFormatCount; counter_1++) {
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [ref:customPictureFormatCount = %d, max:6]", customPictureFormatCount);
+    if (customPictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (customPictureFormatCount * 20) && customPictureFormatCount <= 6) {
+      for (counter_1 = 0; counter_1 < 6; counter_1++) {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "customPictureFormat [%d / %d]", counter_1 + 1, customPictureFormatCount);
         ptvcursor_add(cursor, hf_skinny_pictureWidth, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_pictureHeight, 4, ENC_LITTLE_ENDIAN);
@@ -4006,7 +4007,7 @@ handle_CapabilitiesV3ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (customPictureFormatCount * 20)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (customPictureFormatCount * 20));
   }
   {
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "confResources");
@@ -4014,11 +4015,11 @@ handle_CapabilitiesV3ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     ptvcursor_add(cursor, hf_skinny_maxBW, 4, ENC_LITTLE_ENDIAN);
     serviceResourceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_serviceResourceCount, 4, ENC_LITTLE_ENDIAN);
-    if (serviceResourceCount <= 24) { /* tvb struct size guard */
+    if (serviceResourceCount <= 4) {
       guint32 counter_2 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [ref: serviceResourceCount = %d, max:4]", serviceResourceCount);
-      if (serviceResourceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (serviceResourceCount * 24) && serviceResourceCount <= 4) { /* tvb counter size guard */
-        for (counter_2 = 0; counter_2 < serviceResourceCount; counter_2++) {
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [ref:serviceResourceCount = %d, max:4]", serviceResourceCount);
+      if (serviceResourceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (serviceResourceCount * 24) && serviceResourceCount <= 4) {
+        for (counter_2 = 0; counter_2 < 4; counter_2++) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "serviceResource [%d / %d]", counter_2 + 1, serviceResourceCount);
           layoutCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
           ptvcursor_add(cursor, hf_skinny_layoutCount, 4, ENC_LITTLE_ENDIAN);
@@ -4028,7 +4029,7 @@ handle_CapabilitiesV3ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
             for (counter_6 = 0; counter_6 < layoutCount; counter_6++) {
               ptvcursor_add(cursor, hf_skinny_layouts, 4, ENC_LITTLE_ENDIAN);
             }
-            ptvcursor_pop_subtree(cursor); /* end for loop tree: layouts */
+            ptvcursor_pop_subtree(cursor);
           } else {
             ptvcursor_advance(cursor, (layoutCount * 4)); /* guard kicked in -> skip the rest */;
           }
@@ -4041,15 +4042,15 @@ handle_CapabilitiesV3ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
       }
       ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (serviceResourceCount * 24)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (serviceResourceCount * 24));
     }
     ptvcursor_pop_subtree(cursor);
   }
-  if (audioCapCount <= 16) { /* tvb struct size guard */
+  if (audioCapCount <= 18) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [ref: audioCapCount = %d, max:18]", audioCapCount);
-    if (audioCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (audioCapCount * 16) && audioCapCount <= 18) { /* tvb counter size guard */
-      for (counter_1 = 0; counter_1 < audioCapCount; counter_1++) {
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [ref:audioCapCount = %d, max:18]", audioCapCount);
+    if (audioCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (audioCapCount * 16) && audioCapCount <= 18) {
+      for (counter_1 = 0; counter_1 < 18; counter_1++) {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audiocaps [%d / %d]", counter_1 + 1, audioCapCount);
         payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
@@ -4106,24 +4107,24 @@ handle_CapabilitiesV3ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (audioCapCount * 16)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (audioCapCount * 16));
   }
-  if (videoCapCount <= 72) { /* tvb struct size guard */
+  if (videoCapCount <= 10) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [ref: videoCapCount = %d, max:10]", videoCapCount);
-    if (videoCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (videoCapCount * 72) && videoCapCount <= 10) { /* tvb counter size guard */
-      for (counter_1 = 0; counter_1 < videoCapCount; counter_1++) {
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [ref:videoCapCount = %d, max:10]", videoCapCount);
+    if (videoCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (videoCapCount * 4) && videoCapCount <= 10) {
+      for (counter_1 = 0; counter_1 < 10; counter_1++) {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "vidCaps [%d / %d]", counter_1 + 1, videoCapCount);
         payloadCapability = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_videoCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
         levelPreferenceCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_skinny_levelPreferenceCount, 4, ENC_LITTLE_ENDIAN);
-        if (levelPreferenceCount <= 24) { /* tvb struct size guard */
+        if (levelPreferenceCount <= 4) {
           guint32 counter_4 = 0;
-          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [ref: levelPreferenceCount = %d, max:4]", levelPreferenceCount);
-          if (levelPreferenceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (levelPreferenceCount * 24) && levelPreferenceCount <= 4) { /* tvb counter size guard */
-            for (counter_4 = 0; counter_4 < levelPreferenceCount; counter_4++) {
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [ref:levelPreferenceCount = %d, max:4]", levelPreferenceCount);
+          if (levelPreferenceCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (levelPreferenceCount * 24) && levelPreferenceCount <= 4) {
+            for (counter_4 = 0; counter_4 < 4; counter_4++) {
               ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "levelPreference [%d / %d]", counter_4 + 1, levelPreferenceCount);
               ptvcursor_add(cursor, hf_skinny_transmitPreference, 4, ENC_LITTLE_ENDIAN);
               ptvcursor_add(cursor, hf_skinny_format, 4, ENC_LITTLE_ENDIAN);
@@ -4136,7 +4137,7 @@ handle_CapabilitiesV3ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
           }
           ptvcursor_pop_subtree(cursor);
         } else {
-          ptvcursor_advance(cursor, (levelPreferenceCount * 24)); /* guard kicked in -> skip the rest */;
+          ptvcursor_advance(cursor, (levelPreferenceCount * 24));
         }
         ptvcursor_add(cursor, hf_skinny_encryptionCapability, 4, ENC_LITTLE_ENDIAN);
         if (payloadCapability == MEDIA_PAYLOAD_H261)         {
@@ -4226,13 +4227,13 @@ handle_CapabilitiesV3ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (videoCapCount * 72)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (videoCapCount * 4));
   }
-  if (dataCapCount <= 20) { /* tvb struct size guard */
+  if (dataCapCount <= 5) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [ref: dataCapCount = %d, max:5]", dataCapCount);
-    if (dataCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (dataCapCount * 20) && dataCapCount <= 5) { /* tvb counter size guard */
-      for (counter_1 = 0; counter_1 < dataCapCount; counter_1++) {
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [ref:dataCapCount = %d, max:5]", dataCapCount);
+    if (dataCapCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (dataCapCount * 20) && dataCapCount <= 5) {
+      for (counter_1 = 0; counter_1 < 5; counter_1++) {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "dataCaps [%d / %d]", counter_1 + 1, dataCapCount);
         ptvcursor_add(cursor, hf_skinny_payloadCapability, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_skinny_dataCapabilityDirection, 4, ENC_LITTLE_ENDIAN);
@@ -4244,7 +4245,7 @@ handle_CapabilitiesV3ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (dataCapCount * 20)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (dataCapCount * 20));
   }
   skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x009b);
 }
@@ -4623,9 +4624,9 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
     ptvcursor_add(cursor, hf_skinny_keylen, 2, ENC_LITTLE_ENDIAN);
     saltlen = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_saltlen, 2, ENC_LITTLE_ENDIAN);
-    if (keylen <= 16) { /* tvb integer size guard */
+    if (keylen <= 16) {
       guint32 counter_3 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "key [ref: keylen = %d, max:16]", keylen);
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "key [ref:keylen = %d, max:16]", keylen);
       for (counter_3 = 0; counter_3 < 16; counter_3++) {
         if (counter_3 < keylen) {
           ptvcursor_add(cursor, hf_skinny_key, 1, ENC_LITTLE_ENDIAN);
@@ -4633,13 +4634,13 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
           ptvcursor_advance(cursor, 1);
         }
       }
-      ptvcursor_pop_subtree(cursor); /* end for loop tree: key */
+      ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (16 * 1));
     }
-    if (saltlen <= 16) { /* tvb integer size guard */
+    if (saltlen <= 16) {
       guint32 counter_3 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "salt [ref: saltlen = %d, max:16]", saltlen);
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "salt [ref:saltlen = %d, max:16]", saltlen);
       for (counter_3 = 0; counter_3 < 16; counter_3++) {
         if (counter_3 < saltlen) {
           ptvcursor_add(cursor, hf_skinny_salt, 1, ENC_LITTLE_ENDIAN);
@@ -4647,9 +4648,9 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
           ptvcursor_advance(cursor, 1);
         }
       }
-      ptvcursor_pop_subtree(cursor); /* end for loop tree: salt */
+      ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (16 * 1));
     }
     ptvcursor_add(cursor, hf_skinny_isMKIPresent, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_keyDerivationRate, 4, ENC_LITTLE_ENDIAN);
@@ -4942,10 +4943,10 @@ handle_ButtonTemplateResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     ptvcursor_add(cursor, hf_skinny_buttonCount, 4, ENC_LITTLE_ENDIAN);
     totalButtonCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_totalButtonCount, 4, ENC_LITTLE_ENDIAN);
-    if (totalButtonCount <= 2) { /* tvb struct size guard */
+    if (totalButtonCount <= 42) {
       guint32 counter_2 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [ref: totalButtonCount = %d, max:42]", totalButtonCount);
-      if (totalButtonCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (totalButtonCount * 2) && totalButtonCount <= 42) { /* tvb counter size guard */
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [ref:totalButtonCount = %d, max:42]", totalButtonCount);
+      if (totalButtonCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (totalButtonCount * 2) && totalButtonCount <= 42) {
         for (counter_2 = 0; counter_2 < 42; counter_2++) {
           if (counter_2 < totalButtonCount) {
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [%d / %d]", counter_2 + 1, totalButtonCount);
@@ -4959,7 +4960,7 @@ handle_ButtonTemplateResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
       }
       ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (totalButtonCount * 2)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (totalButtonCount * 2));
     }
     ptvcursor_pop_subtree(cursor);
   }
@@ -5038,7 +5039,7 @@ handle_ServerResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_con
     for (counter_2 = 0; counter_2 < 5; counter_2++) {
       ptvcursor_add(cursor, hf_skinny_serverTcpListenPort, 4, ENC_LITTLE_ENDIAN);
     }
-    ptvcursor_pop_subtree(cursor); /* end for loop tree: serverTcpListenPort */
+    ptvcursor_pop_subtree(cursor);
   }
   if (hdr_data_length < 293) {
     {
@@ -5288,9 +5289,9 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
     ptvcursor_add(cursor, hf_skinny_keylen, 2, ENC_LITTLE_ENDIAN);
     saltlen = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_saltlen, 2, ENC_LITTLE_ENDIAN);
-    if (keylen <= 16) { /* tvb integer size guard */
+    if (keylen <= 16) {
       guint32 counter_3 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "key [ref: keylen = %d, max:16]", keylen);
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "key [ref:keylen = %d, max:16]", keylen);
       for (counter_3 = 0; counter_3 < 16; counter_3++) {
         if (counter_3 < keylen) {
           ptvcursor_add(cursor, hf_skinny_key, 1, ENC_LITTLE_ENDIAN);
@@ -5298,13 +5299,13 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
           ptvcursor_advance(cursor, 1);
         }
       }
-      ptvcursor_pop_subtree(cursor); /* end for loop tree: key */
+      ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (16 * 1));
     }
-    if (saltlen <= 16) { /* tvb integer size guard */
+    if (saltlen <= 16) {
       guint32 counter_3 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "salt [ref: saltlen = %d, max:16]", saltlen);
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "salt [ref:saltlen = %d, max:16]", saltlen);
       for (counter_3 = 0; counter_3 < 16; counter_3++) {
         if (counter_3 < saltlen) {
           ptvcursor_add(cursor, hf_skinny_salt, 1, ENC_LITTLE_ENDIAN);
@@ -5312,9 +5313,9 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
           ptvcursor_advance(cursor, 1);
         }
       }
-      ptvcursor_pop_subtree(cursor); /* end for loop tree: salt */
+      ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (16 * 1));
     }
     ptvcursor_add(cursor, hf_skinny_isMKIPresent, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_keyDerivationRate, 4, ENC_LITTLE_ENDIAN);
@@ -5446,10 +5447,10 @@ handle_SoftKeyTemplateResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
     ptvcursor_add(cursor, hf_skinny_softKeyCount, 4, ENC_LITTLE_ENDIAN);
     totalSoftKeyCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_totalSoftKeyCount, 4, ENC_LITTLE_ENDIAN);
-    if (totalSoftKeyCount <= 20) { /* tvb struct size guard */
+    if (totalSoftKeyCount <= 32) {
       guint32 counter_2 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [ref: totalSoftKeyCount = %d, max:32]", totalSoftKeyCount);
-      if (totalSoftKeyCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (totalSoftKeyCount * 20) && totalSoftKeyCount <= 32) { /* tvb counter size guard */
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [ref:totalSoftKeyCount = %d, max:32]", totalSoftKeyCount);
+      if (totalSoftKeyCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (totalSoftKeyCount * 20) && totalSoftKeyCount <= 32) {
         for (counter_2 = 0; counter_2 < 32; counter_2++) {
           if (counter_2 < totalSoftKeyCount) {
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [%d / %d]", counter_2 + 1, totalSoftKeyCount);
@@ -5463,7 +5464,7 @@ handle_SoftKeyTemplateResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
       }
       ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (totalSoftKeyCount * 20)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (totalSoftKeyCount * 20));
     }
     ptvcursor_pop_subtree(cursor);
   }
@@ -5488,10 +5489,10 @@ handle_SoftKeySetResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny
     ptvcursor_add(cursor, hf_skinny_softKeySetCount, 4, ENC_LITTLE_ENDIAN);
     totalSoftKeySetCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_totalSoftKeySetCount, 4, ENC_LITTLE_ENDIAN);
-    if (totalSoftKeySetCount <= 3) { /* tvb struct size guard */
+    if (totalSoftKeySetCount <= 16) {
       guint32 counter_2 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [ref: totalSoftKeySetCount = %d, max:16]", totalSoftKeySetCount);
-      if (totalSoftKeySetCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (totalSoftKeySetCount * 3) && totalSoftKeySetCount <= 16) { /* tvb counter size guard */
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [ref:totalSoftKeySetCount = %d, max:16]", totalSoftKeySetCount);
+      if (totalSoftKeySetCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (totalSoftKeySetCount * 3) && totalSoftKeySetCount <= 16) {
         for (counter_2 = 0; counter_2 < 16; counter_2++) {
           if (counter_2 < totalSoftKeySetCount) {
             ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "definition [%d / %d]", counter_2 + 1, totalSoftKeySetCount);
@@ -5501,7 +5502,7 @@ handle_SoftKeySetResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny
               for (counter_7 = 0; counter_7 < 16; counter_7++) {
                 ptvcursor_add(cursor, hf_skinny_softKeyTemplateIndex, 1, ENC_LITTLE_ENDIAN);
               }
-              ptvcursor_pop_subtree(cursor); /* end for loop tree: softKeyTemplateIndex */
+              ptvcursor_pop_subtree(cursor);
             }
             {
               guint32 counter_7 = 0;
@@ -5509,7 +5510,7 @@ handle_SoftKeySetResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny
               for (counter_7 = 0; counter_7 < 16; counter_7++) {
                 ptvcursor_add(cursor, hf_skinny_softKeyInfoIndex, 2, ENC_LITTLE_ENDIAN);
               }
-              ptvcursor_pop_subtree(cursor); /* end for loop tree: softKeyInfoIndex */
+              ptvcursor_pop_subtree(cursor);
             }
           } else {
             ptvcursor_advance(cursor, 3);
@@ -5519,7 +5520,7 @@ handle_SoftKeySetResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny
       }
       ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (totalSoftKeySetCount * 3)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (totalSoftKeySetCount * 3));
     }
     ptvcursor_pop_subtree(cursor);
   }
@@ -5889,7 +5890,7 @@ handle_StartAnnouncementMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     for (counter_2 = 0; counter_2 < 16; counter_2++) {
       ptvcursor_add(cursor, hf_skinny_matrixConfPartyID, 4, ENC_LITTLE_ENDIAN);
     }
-    ptvcursor_pop_subtree(cursor); /* end for loop tree: matrixConfPartyID */
+    ptvcursor_pop_subtree(cursor);
   }
   ptvcursor_add(cursor, hf_skinny_hearingConfPartyMask, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_annPlayMode, 4, ENC_LITTLE_ENDIAN);
@@ -6178,7 +6179,7 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
       ptvcursor_pop_subtree(cursor);
     }
     ptvcursor_pop_subtree(cursor);
-    ptvcursor_advance(cursor, 28);
+    ptvcursor_advance(cursor, 36);
   } else if (payloadType >= MEDIA_PAYLOAD_H261 && payloadType <= MEDIA_PAYLOAD_H264_FEC)   {
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "Media_Payload_H261 <= payloadType <= Media_Payload_H264_FEC");
     {
@@ -6186,10 +6187,10 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
       ptvcursor_add(cursor, hf_skinny_bitRate, 4, ENC_LITTLE_ENDIAN);
       pictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
       ptvcursor_add(cursor, hf_skinny_pictureFormatCount, 4, ENC_LITTLE_ENDIAN);
-      if (pictureFormatCount <= 8) { /* tvb struct size guard */
+      if (pictureFormatCount <= 5) {
         guint32 counter_3 = 0;
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureFormat [ref: pictureFormatCount = %d, max:5]", pictureFormatCount);
-        if (pictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (pictureFormatCount * 8) && pictureFormatCount <= 5) { /* tvb counter size guard */
+        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureFormat [ref:pictureFormatCount = %d, max:5]", pictureFormatCount);
+        if (pictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (pictureFormatCount * 8) && pictureFormatCount <= 5) {
           for (counter_3 = 0; counter_3 < 5; counter_3++) {
             if (counter_3 < pictureFormatCount) {
               ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureFormat [%d / %d]", counter_3 + 1, pictureFormatCount);
@@ -6203,7 +6204,7 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
         }
         ptvcursor_pop_subtree(cursor);
       } else {
-        ptvcursor_advance(cursor, (pictureFormatCount * 8)); /* guard kicked in -> skip the rest */;
+        ptvcursor_advance(cursor, (pictureFormatCount * 8));
       }
       ptvcursor_add(cursor, hf_skinny_confServiceNum, 4, ENC_LITTLE_ENDIAN);
       if (payloadType == MEDIA_PAYLOAD_H261)       {
@@ -6305,9 +6306,9 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
     ptvcursor_add(cursor, hf_skinny_keylen, 2, ENC_LITTLE_ENDIAN);
     saltlen = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_saltlen, 2, ENC_LITTLE_ENDIAN);
-    if (keylen <= 16) { /* tvb integer size guard */
+    if (keylen <= 16) {
       guint32 counter_3 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "key [ref: keylen = %d, max:16]", keylen);
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "key [ref:keylen = %d, max:16]", keylen);
       for (counter_3 = 0; counter_3 < 16; counter_3++) {
         if (counter_3 < keylen) {
           ptvcursor_add(cursor, hf_skinny_key, 1, ENC_LITTLE_ENDIAN);
@@ -6315,13 +6316,13 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
           ptvcursor_advance(cursor, 1);
         }
       }
-      ptvcursor_pop_subtree(cursor); /* end for loop tree: key */
+      ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (16 * 1));
     }
-    if (saltlen <= 16) { /* tvb integer size guard */
+    if (saltlen <= 16) {
       guint32 counter_3 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "salt [ref: saltlen = %d, max:16]", saltlen);
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "salt [ref:saltlen = %d, max:16]", saltlen);
       for (counter_3 = 0; counter_3 < 16; counter_3++) {
         if (counter_3 < saltlen) {
           ptvcursor_add(cursor, hf_skinny_salt, 1, ENC_LITTLE_ENDIAN);
@@ -6329,9 +6330,9 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
           ptvcursor_advance(cursor, 1);
         }
       }
-      ptvcursor_pop_subtree(cursor); /* end for loop tree: salt */
+      ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (16 * 1));
     }
     ptvcursor_add(cursor, hf_skinny_isMKIPresent, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_keyDerivationRate, 4, ENC_LITTLE_ENDIAN);
@@ -6418,7 +6419,7 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
       ptvcursor_pop_subtree(cursor);
     }
     ptvcursor_pop_subtree(cursor);
-    ptvcursor_advance(cursor, 28);
+    ptvcursor_advance(cursor, 36);
   } else if (payloadType >= MEDIA_PAYLOAD_H261 && payloadType <= MEDIA_PAYLOAD_H264_FEC)   {
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "Media_Payload_H261 <= payloadType <= Media_Payload_H264_FEC");
     {
@@ -6426,10 +6427,10 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
       ptvcursor_add(cursor, hf_skinny_bitRate, 4, ENC_LITTLE_ENDIAN);
       pictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
       ptvcursor_add(cursor, hf_skinny_pictureFormatCount, 4, ENC_LITTLE_ENDIAN);
-      if (pictureFormatCount <= 8) { /* tvb struct size guard */
+      if (pictureFormatCount <= 5) {
         guint32 counter_3 = 0;
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureFormat [ref: pictureFormatCount = %d, max:5]", pictureFormatCount);
-        if (pictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (pictureFormatCount * 8) && pictureFormatCount <= 5) { /* tvb counter size guard */
+        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureFormat [ref:pictureFormatCount = %d, max:5]", pictureFormatCount);
+        if (pictureFormatCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (pictureFormatCount * 8) && pictureFormatCount <= 5) {
           for (counter_3 = 0; counter_3 < 5; counter_3++) {
             if (counter_3 < pictureFormatCount) {
               ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "pictureFormat [%d / %d]", counter_3 + 1, pictureFormatCount);
@@ -6443,7 +6444,7 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
         }
         ptvcursor_pop_subtree(cursor);
       } else {
-        ptvcursor_advance(cursor, (pictureFormatCount * 8)); /* guard kicked in -> skip the rest */;
+        ptvcursor_advance(cursor, (pictureFormatCount * 8));
       }
       ptvcursor_add(cursor, hf_skinny_confServiceNum, 4, ENC_LITTLE_ENDIAN);
       if (payloadType == MEDIA_PAYLOAD_H261)       {
@@ -6545,9 +6546,9 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
     ptvcursor_add(cursor, hf_skinny_keylen, 2, ENC_LITTLE_ENDIAN);
     saltlen = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_saltlen, 2, ENC_LITTLE_ENDIAN);
-    if (keylen <= 16) { /* tvb integer size guard */
+    if (keylen <= 16) {
       guint32 counter_3 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "key [ref: keylen = %d, max:16]", keylen);
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "key [ref:keylen = %d, max:16]", keylen);
       for (counter_3 = 0; counter_3 < 16; counter_3++) {
         if (counter_3 < keylen) {
           ptvcursor_add(cursor, hf_skinny_key, 1, ENC_LITTLE_ENDIAN);
@@ -6555,13 +6556,13 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
           ptvcursor_advance(cursor, 1);
         }
       }
-      ptvcursor_pop_subtree(cursor); /* end for loop tree: key */
+      ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (16 * 1));
     }
-    if (saltlen <= 16) { /* tvb integer size guard */
+    if (saltlen <= 16) {
       guint32 counter_3 = 0;
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "salt [ref: saltlen = %d, max:16]", saltlen);
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "salt [ref:saltlen = %d, max:16]", saltlen);
       for (counter_3 = 0; counter_3 < 16; counter_3++) {
         if (counter_3 < saltlen) {
           ptvcursor_add(cursor, hf_skinny_salt, 1, ENC_LITTLE_ENDIAN);
@@ -6569,9 +6570,9 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
           ptvcursor_advance(cursor, 1);
         }
       }
-      ptvcursor_pop_subtree(cursor); /* end for loop tree: salt */
+      ptvcursor_pop_subtree(cursor);
     } else {
-      ptvcursor_advance(cursor, (16 * 1)); /* guard kicked in -> skip the rest */;
+      ptvcursor_advance(cursor, (16 * 1));
     }
     ptvcursor_add(cursor, hf_skinny_isMKIPresent, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_keyDerivationRate, 4, ENC_LITTLE_ENDIAN);
@@ -6682,10 +6683,10 @@ handle_MiscellaneousCommandMessage(ptvcursor_t *cursor, packet_info * pinfo _U_,
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "recoveryReferencePictureValue");
       recoveryReferencePictureCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
       ptvcursor_add(cursor, hf_skinny_recoveryReferencePictureCount, 4, ENC_LITTLE_ENDIAN);
-      if (recoveryReferencePictureCount <= 8) { /* tvb struct size guard */
+      if (recoveryReferencePictureCount <= 4) {
         guint32 counter_3 = 0;
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "recoveryReferencePicture [ref: recoveryReferencePictureCount = %d, max:4]", recoveryReferencePictureCount);
-        if (recoveryReferencePictureCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (recoveryReferencePictureCount * 8) && recoveryReferencePictureCount <= 4) { /* tvb counter size guard */
+        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "recoveryReferencePicture [ref:recoveryReferencePictureCount = %d, max:4]", recoveryReferencePictureCount);
+        if (recoveryReferencePictureCount && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (recoveryReferencePictureCount * 8) && recoveryReferencePictureCount <= 4) {
           for (counter_3 = 0; counter_3 < 4; counter_3++) {
             if (counter_3 < recoveryReferencePictureCount) {
               ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "recoveryReferencePicture [%d / %d]", counter_3 + 1, recoveryReferencePictureCount);
@@ -6699,7 +6700,7 @@ handle_MiscellaneousCommandMessage(ptvcursor_t *cursor, packet_info * pinfo _U_,
         }
         ptvcursor_pop_subtree(cursor);
       } else {
-        ptvcursor_advance(cursor, (recoveryReferencePictureCount * 8)); /* guard kicked in -> skip the rest */;
+        ptvcursor_advance(cursor, (recoveryReferencePictureCount * 8));
       }
       ptvcursor_pop_subtree(cursor);
     }
@@ -7735,10 +7736,10 @@ handle_CallCountRespMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny
   ptvcursor_add(cursor, hf_skinny_startingLineInstance, 4, ENC_LITTLE_ENDIAN);
   lineDataEntries = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_lineDataEntries, 4, ENC_LITTLE_ENDIAN);
-  if (lineDataEntries <= 4) { /* tvb struct size guard */
+  if (lineDataEntries <= 42) {
     guint32 counter_1 = 0;
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "lineData [ref: lineDataEntries = %d, max:42]", lineDataEntries);
-    if (lineDataEntries && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (lineDataEntries * 4) && lineDataEntries <= 42) { /* tvb counter size guard */
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "lineData [ref:lineDataEntries = %d, max:42]", lineDataEntries);
+    if (lineDataEntries && tvb_get_letohl(ptvcursor_tvbuff(cursor), 0) + 8 >= ptvcursor_current_offset(cursor) + (lineDataEntries * 4) && lineDataEntries <= 42) {
       for (counter_1 = 0; counter_1 < 42; counter_1++) {
         if (counter_1 < lineDataEntries) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "lineData [%d / %d]", counter_1 + 1, lineDataEntries);
@@ -7752,7 +7753,7 @@ handle_CallCountRespMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny
     }
     ptvcursor_pop_subtree(cursor);
   } else {
-    ptvcursor_advance(cursor, (lineDataEntries * 4)); /* guard kicked in -> skip the rest */;
+    ptvcursor_advance(cursor, (lineDataEntries * 4));
   }
   skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x015e);
 }
@@ -7861,7 +7862,7 @@ static const skinny_opcode_map_t skinny_opcode_map[] = {
   {0x0021, handle_MulticastMediaReceptionAckMessage       , SKINNY_MSGTYPE_RESPONSE , "MulticastMediaReceptionAckMessage"},
   {0x0022, handle_OpenReceiveChannelAckMessage            , SKINNY_MSGTYPE_RESPONSE , "OpenReceiveChannelAckMessage"},
   {0x0023, handle_ConnectionStatisticsResMessage          , SKINNY_MSGTYPE_RESPONSE , "ConnectionStatisticsResMessage"},
-  {0x0024, handle_OffHookWithCgpnMessage                  , SKINNY_MSGTYPE_EVENT    , "OffHookWithCgpnMessage"},
+  {0x0024, handle_OffHookWithCalingPartyNumberMessage     , SKINNY_MSGTYPE_EVENT    , "OffHookWithCalingPartyNumberMessage"},
   {0x0025, NULL                                           , SKINNY_MSGTYPE_REQUEST  , "SoftKeySetReqMessage"},
   {0x0026, handle_SoftKeyEventMessage                     , SKINNY_MSGTYPE_EVENT    , "SoftKeyEventMessage"},
   {0x0027, handle_UnregisterReqMessage                    , SKINNY_MSGTYPE_REQUEST  , "UnregisterReqMessage"},
@@ -7900,6 +7901,7 @@ static const skinny_opcode_map_t skinny_opcode_map[] = {
   {0x0083, handle_StopToneMessage                         , SKINNY_MSGTYPE_EVENT    , "StopToneMessage"},
   {0x0085, handle_SetRingerMessage                        , SKINNY_MSGTYPE_EVENT    , "SetRingerMessage"},
   {0x0086, handle_SetLampMessage                          , SKINNY_MSGTYPE_EVENT    , "SetLampMessage"},
+  {0x0087, NULL                                           , SKINNY_MSGTYPE_EVENT    , "SetHookFlashDetectMessage"},
   {0x0088, handle_SetSpeakerModeMessage                   , SKINNY_MSGTYPE_EVENT    , "SetSpeakerModeMessage"},
   {0x0089, handle_SetMicroModeMessage                     , SKINNY_MSGTYPE_EVENT    , "SetMicroModeMessage"},
   {0x008a, handle_StartMediaTransmissionMessage           , SKINNY_MSGTYPE_REQUEST  , "StartMediaTransmissionMessage"},

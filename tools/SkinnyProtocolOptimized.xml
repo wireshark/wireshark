@@ -851,7 +851,7 @@
       <string comment="Statistics" longcomment="variable field size (max: 600]" maxsize="600" name="data" size_fieldname="dataSize" type="char"/>
     </fields>
   </message>
-  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="OffHookWithCgpnMessage" opcode="0x0024" type="CallControl">
+  <message comment="" direction="dev2pbx" dynamic="no" msgtype="event" name="OffHookWithCalingPartyNumberMessage" opcode="0x0024" type="CallControl">
     <fields>
       <string comment="Calling Party Number" declare="yes" name="callingPartyNumber" size="VariableDirnumSize" type="char"/>
       <string comment="Calling Party Voicemail Box Number" declare="yes" name="cgpnVoiceMailbox" size="VariableDirnumSize" type="char"/>
@@ -2152,6 +2152,7 @@
       <enum comment="" name="lampMode" subtype="LampMode" type="uint32"/>
     </fields>
   </message>
+  <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="SetHookFlashDetectMessage" opcode="0x0087" type="CallControl"/>
   <enum name="SpeakerMode">
     <entries>
       <entry comment="" name="SpeakerMode_On" text="On" value="0x0001"/>
