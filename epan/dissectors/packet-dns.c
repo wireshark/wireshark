@@ -1608,7 +1608,7 @@ dissect_type_bitmap_nxt(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int 
 }
 /*
  * SIG, KEY, and CERT RR algorithms.
- * http://www.iana.org/assignments/dns-sec-alg-numbers/dns-sec-alg-numbers.txt (last updated 2012-04-13)
+ * http://www.iana.org/assignments/dns-sec-alg-numbers/dns-sec-alg-numbers.txt (last updated 2017-01-09)
  */
 #define DNS_ALGO_RSAMD5               1 /* RSA/MD5 */
 #define DNS_ALGO_DH                   2 /* Diffie-Hellman */
@@ -1622,6 +1622,8 @@ dissect_type_bitmap_nxt(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int 
 #define DNS_ALGO_ECCGOST             12 /* GOST R 34.10-2001 */
 #define DNS_ALGO_ECDSAP256SHA256     13 /* ECDSA Curve P-256 with SHA-256 */
 #define DNS_ALGO_ECDSAP386SHA386     14 /* ECDSA Curve P-386 with SHA-386 */
+#define DNS_ALGO_ED25519             15 /* Ed25519 */
+#define DNS_ALGO_ED448               16 /* Ed448 */
 #define DNS_ALGO_HMACMD5            157 /* HMAC/MD5 */
 #define DNS_ALGO_INDIRECT           252 /* Indirect key */
 #define DNS_ALGO_PRIVATEDNS         253 /* Private, domain name  */
@@ -1640,6 +1642,8 @@ static const value_string dnssec_algo_vals[] = {
   { DNS_ALGO_ECCGOST,           "GOST R 34.10-2001" },
   { DNS_ALGO_ECDSAP256SHA256,   "ECDSA Curve P-256 with SHA-256" },
   { DNS_ALGO_ECDSAP386SHA386,   "ECDSA Curve P-386 with SHA-386" },
+  { DNS_ALGO_ED25519,           "Ed25519" },
+  { DNS_ALGO_ED448,             "Ed448" },
   { DNS_ALGO_HMACMD5,           "HMAC/MD5" },
   { DNS_ALGO_INDIRECT,          "Indirect key" },
   { DNS_ALGO_PRIVATEDNS,        "Private, domain name" },
