@@ -1369,35 +1369,31 @@ snmp_users_update_cb(void* p _U_, char** err)
 
 	*err = NULL;
 
-	if (num_ueas == 0)
-		/* Nothing to update */
-		return FALSE;
-
-	if (! ue->user.userName.len)
+	if (! ue->user.userName.len) {
 		g_string_append_printf(es,"no userName\n");
-
-	for (i=0; i<num_ueas-1; i++) {
-		snmp_ue_assoc_t* u = &(ueas[i]);
-
+	} else if ((ue->engine.len > 0) && (ue->engine.len < 5 || ue->engine.len > 32)) {
 		/* RFC 3411 section 5 */
-		if ((u->engine.len > 0) && (u->engine.len < 5 || u->engine.len > 32)) {
-			g_string_append_printf(es, "Invalid engineId length (%u). Must be between 5 and 32 (10 and 64 hex digits)\n", u->engine.len);
-		}
+		g_string_append_printf(es, "Invalid engineId length (%u). Must be between 5 and 32 (10 and 64 hex digits)\n", ue->engine.len);
+	} else if (num_ueas) {
+		for (i=0; i<num_ueas-1; i++) {
+			snmp_ue_assoc_t* u = &(ueas[i]);
 
+			if ( u->user.userName.len == ue->user.userName.len
+				&& u->engine.len == ue->engine.len && (u != ue)) {
 
-		if ( u->user.userName.len == ue->user.userName.len
-			&& u->engine.len == ue->engine.len && (u != ue)) {
-
-			if (u->engine.len > 0 && memcmp( u->engine.data, ue->engine.data, u->engine.len ) == 0) {
-				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
-					/* XXX: make a string for the engineId */
-					g_string_append_printf(es,"Duplicate key (userName='%s')\n",ue->user.userName.data);
+				if (u->engine.len > 0 && memcmp( u->engine.data, ue->engine.data, u->engine.len ) == 0) {
+					if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
+						/* XXX: make a string for the engineId */
+						g_string_append_printf(es,"Duplicate key (userName='%s')\n",ue->user.userName.data);
+						break;
+					}
 				}
-			}
 
-			if (u->engine.len == 0) {
-				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
-					g_string_append_printf(es,"Duplicate key (userName='%s' engineId=NONE)\n",ue->user.userName.data);
+				if (u->engine.len == 0) {
+					if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
+						g_string_append_printf(es,"Duplicate key (userName='%s' engineId=NONE)\n",ue->user.userName.data);
+						break;
+					}
 				}
 			}
 		}
