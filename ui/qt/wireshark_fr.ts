@@ -14654,6 +14654,29 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
 </context>
 <context>
+    <name>WiresharkApplication</name>
+    <message>
+        <location filename="wireshark_application.cpp" line="538"/>
+        <source>Dell Backup and Recovery Found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="wireshark_application.cpp" line="539"/>
+        <source>You appear to be running Dell Backup and Recovery 1.8.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="wireshark_application.cpp" line="540"/>
+        <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="wireshark_application.cpp" line="544"/>
+        <source>Offending DLL: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>WiresharkDialog</name>
     <message>
         <location filename="wireshark_dialog.cpp" line="158"/>
