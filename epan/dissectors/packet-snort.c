@@ -289,6 +289,57 @@ static gboolean content_compare_case_insensitive(const guint8* memory, const cha
 }
 
 
+/* Move through the bytes of the tvbuff, looking for a match against the
+ * regexp from the given content.
+ */
+static gboolean look_for_pcre(content_t *content, tvbuff_t *tvb _U_, guint start_offset _U_, guint *match_offset _U_, guint *match_length _U_)
+{
+    /* Create a regex object for the pcre in the content. */
+    GRegex *regex;
+    GMatchInfo *match_info;
+    gboolean match_found = FALSE;
+
+    /* Make sure pcre string is ready for regex library. */
+    if (!content_convert_pcre_for_regex(content)) {
+        return FALSE;
+    }
+
+    /* Copy remaining bytes into NULL-terminated string. */
+    int length_remaining = tvb_captured_length_remaining(tvb, start_offset);
+    gchar *string = (gchar*)g_malloc(length_remaining + 1);
+    tvb_memcpy(tvb, (void*)string, start_offset, length_remaining);
+    string[length_remaining] = '\0';
+
+    /* Create regex */
+    /* For pcre, translated_str already has / /[modifiers] removed.. */
+    regex = g_regex_new(content->translated_str,
+                        content->pcre_case_insensitive ? G_REGEX_CASELESS : (GRegexCompileFlags)0,
+                        (GRegexMatchFlags)0, NULL);
+
+    /* Lookup PCRE match */
+    g_regex_match(regex, string, (GRegexMatchFlags)0, &match_info);
+    /* Only first match needed */
+    /* TODO: need to restart at any NULL before the final end? */
+    if (g_match_info_matches(match_info)) {
+        gint start_pos, end_pos;
+
+        /* Find out where the match is */
+        g_match_info_fetch_pos(match_info,
+                               0, /* match_num */
+                               &start_pos, &end_pos);
+
+        *match_offset = start_offset + start_pos;
+        *match_length = end_pos - start_pos;
+        match_found = TRUE;
+    }
+
+    g_match_info_free(match_info);
+    g_regex_unref(regex);
+    g_free(string);
+
+    return match_found;
+}
+
 /* Move through the bytes of the tvbuff, looking for a match against the expanded
    binary contents of this content object.
  */
@@ -303,14 +354,14 @@ static gboolean look_for_content(content_t *content, tvbuff_t *tvb, guint start_
     for (guint m=start_offset; m <= (tvb_len-converted_content_length); m++) {
         const guint8 *ptr = tvb_get_ptr(tvb, m, converted_content_length);
         if (content->nocase) {
-            if (content_compare_case_insensitive(ptr, content->binary_str, content->translated_length)) {
+            if (content_compare_case_insensitive(ptr, content->translated_str, content->translated_length)) {
                 *match_offset = m;
                 *match_length = content->translated_length;
                 return TRUE;
             }
         }
         else {
-            if (content_compare_case_sensitive(ptr, content->binary_str, content->translated_length)) {
+            if (content_compare_case_sensitive(ptr, content->translated_str, content->translated_length)) {
                 *match_offset = m;
                 *match_length = content->translated_length;
                 return TRUE;
@@ -342,7 +393,12 @@ static gboolean get_content_match(Alert_t *alert, guint content_idx,
     content = &(rule->contents[content_idx]);
 
     /* Look for content match in the packet */
-    return look_for_content(content, tvb, content_start_match, match_offset, match_length);
+    if (content->content_type == Pcre) {
+        return look_for_pcre(content, tvb, content_start_match, match_offset, match_length);
+    }
+    else {
+        return look_for_content(content, tvb, content_start_match, match_offset, match_length);
+    }
 }
 
 
@@ -843,7 +899,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                 case Pcre:
                     content_hf_item = hf_snort_pcre;
                     content_text_template = "Pcre: \"%s\"";
-                    attempt_match = FALSE;
+                    attempt_match = TRUE;
                     break;
                 default:
                     continue;
@@ -863,6 +919,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                 else if (rule->contents[n].distance_set) {
                     offset_to_add = (content_last_match_end-content_start_match) + rule->contents[n].distance;
                 }
+
 
                 /* Now actually look for match from calculated position */
                 /* TODO: could take 'depth' and 'within' into account to limit extent of search,

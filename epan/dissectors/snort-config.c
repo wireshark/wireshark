@@ -652,7 +652,17 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
         rule_set_http_uri(rule);
     }
     else if (strcmp(name, "pcre") == 0) {
-        rule_add_pcre(rule, value);
+        int value_start = 0;
+
+        /* Need at least opening and closing / */
+        if (value_length < 3) {
+            return;
+        }
+
+        /* Not expecting negation (!)... */
+
+        value[options_end_offset-colon_offset-2] = '\0';
+        rule_add_pcre(rule, value+value_start+1);
     }
     else if (strcmp(name, "nocase") == 0) {
         rule_set_content_nocase(rule);
@@ -792,7 +802,7 @@ static gboolean delete_rule(gpointer  key _U_,
 
     for (n=0; n < rule->number_contents; n++) {
         g_free(rule->contents[n].str);
-        g_free(rule->contents[n].binary_str);
+        g_free(rule->contents[n].translated_str);
     }
 
     for (n=0; n < rule->number_references; n++) {
@@ -1081,12 +1091,65 @@ guint content_convert_to_binary(content_t *content)
     }
 
     /* Store result for next time. */
-    content->binary_str = (guchar*)g_malloc(output_idx+1);
-    memcpy(content->binary_str, binary_str, output_idx+1);
+    content->translated_str = (guchar*)g_malloc(output_idx+1);
+    memcpy(content->translated_str, binary_str, output_idx+1);
     content->translated = TRUE;
     content->translated_length = output_idx;
 
     return output_idx;
+}
+
+/* In order to use glib's regex library, need to trim
+  '/' delimiters and any modifiers from the end of the string */
+gboolean content_convert_pcre_for_regex(content_t *content)
+{
+    guint pcre_length, i, end_delimiter_offset = 0;
+
+    /* Return if already converted */
+    if (content->translated_str) {
+        return TRUE;
+    }
+
+    pcre_length = (guint)strlen(content->str);
+
+    /* Start with content->str */
+    if (pcre_length < 3) {
+        /* Can't be valid.  Expect /regex/[modifiers] */
+        return FALSE;
+    }
+
+    /* Verify that string starts with / */
+    if (content->str[0] != '/') {
+        return FALSE;
+    }
+
+    /* Next, look for closing / near end of string */
+    for (i=pcre_length-1; i > 2; i--) {
+        if (content->str[i] == '/') {
+            end_delimiter_offset = i;
+            break;
+        }
+        else {
+            if (content->str[i] == 'i') {
+                content->pcre_case_insensitive = TRUE;
+            }
+            /* TODO: note/handle other common modifiers (s/m/?) */
+        }
+
+    }
+    if (end_delimiter_offset == 0) {
+        /* Didn't find it */
+        return FALSE;
+    }
+
+    /* Store result for next time. */
+    content->translated_str = (guchar*)g_malloc(end_delimiter_offset);
+    memcpy(content->translated_str, content->str+1, end_delimiter_offset - 1);
+    content->translated_str[end_delimiter_offset-1] = '\0';
+    content->translated = TRUE;
+    content->translated_length = end_delimiter_offset - 1;
+
+    return TRUE;
 }
 
 /*

@@ -66,10 +66,13 @@ typedef struct content_t {
     gboolean http_client_body;
     gboolean http_cookie;
 
-    /* Pattern converted into bytes for matching against packet */
-    guchar   *binary_str;
+    /* Pattern converted into bytes for matching against packet.
+       Used for regular patterns and PCREs alike. */
+    guchar   *translated_str;
     gboolean translated;
     guint    translated_length;
+
+    gboolean pcre_case_insensitive;
 } content_t;
 
 /* This is to keep track of a variable referenced by a rule */
@@ -177,6 +180,8 @@ void reset_global_rule_stats(SnortConfig_t *snort_config);
 
 /* Expanding a content field string to the expected binary bytes */
 guint content_convert_to_binary(content_t *content);
+
+gboolean content_convert_pcre_for_regex(content_t *content);
 
 #endif
 
