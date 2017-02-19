@@ -234,10 +234,8 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
         }
     }
 
-
     /* Create top-level struct */
-    hs = g_new(expert_tapdata_t, 1);
-    memset(hs, 0,  sizeof(expert_tapdata_t));
+    hs = g_new0(expert_tapdata_t, 1);
 
     /* Allocate chunk of strings */
     hs->text = g_string_chunk_new(100);
