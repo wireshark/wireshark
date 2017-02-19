@@ -735,7 +735,7 @@ static void dissect_dcp_xattrs(tvbuff_t *tvb, proto_tree *tree,
   proto_tree *xattr_tree, *pair_tree;
   proto_item *ti;
 
-  ti = proto_tree_add_item_ret_uint(tree, hf_xattr_length, tvb, offset, 4, ENC_BIG_ENDIAN, &xattr_size);
+  proto_tree_add_item_ret_uint(tree, hf_xattr_length, tvb, offset, 4, ENC_BIG_ENDIAN, &xattr_size);
   value_len = value_len - (xattr_size + 4);
   offset += 4;
 
@@ -773,7 +773,6 @@ static void dissect_dcp_xattrs(tvbuff_t *tvb, proto_tree *tree,
 
   //The regular value
   proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
-  offset += value_len;
 }
 
 /* Dissects the required extras for subdoc single-path packets */
