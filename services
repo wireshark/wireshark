@@ -7778,6 +7778,8 @@ dsmipv6          4191/udp # Dual Stack MIPv6 NAT Traversal [RFC5555]
 azeti            4192/tcp # Azeti Agent Service [Uwe_Holz] [Uwe_Holz] 2009-11-09
 azeti-bd         4192/udp # azeti blinddate [Michael_Werski] [Michael_Werski] 2010-02-18
 pvxplusio        4193/tcp # PxPlus remote file srvr [Mike_King] [Mike_King] 2009-11-09
+hctl             4197/tcp # Harman HControl Protocol [Harman_International_Industries_Inc] [Darin_Smith] 2017-02-16
+hctl             4197/udp # Harman HControl Protocol [Harman_International_Industries_Inc] [Darin_Smith] 2017-02-16
 eims-admin       4199/tcp # EIMS ADMIN [Glenn_Anderson] [Glenn_Anderson]
 eims-admin       4199/udp # EIMS ADMIN [Glenn_Anderson] [Glenn_Anderson]
 corelccam        4300/tcp # Corel CCam [Jason_Aiken] [Jason_Aiken]
