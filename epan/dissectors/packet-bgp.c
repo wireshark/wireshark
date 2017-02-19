@@ -880,9 +880,14 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_PMSI_TUNNEL_ATTR,    "PMSI_TUNNEL_ATTRIBUTE" },
     { BGPTYPE_AIGP,                "AIGP"},
     { BGPTYPE_LINK_STATE_ATTR,     "LINK_STATE" },
-    { BGPTYPE_LINK_STATE_OLD_ATTR, "LINK_STATE (unofficial code point)" },
+    { 29,                          "Deprecated" },
+    { 30,                          "Deprecated" },
     { BGPTYPE_LARGE_COMMUNITY,     "LARGE_COMMUNITY" },
+    { BGPTYPE_LINK_STATE_OLD_ATTR, "LINK_STATE (unofficial code point)" },
     { BGPTYPE_ATTR_SET,            "ATTR_SET" },
+    { 129,                         "Deprecated" },
+    { 242,                         "Deprecated" },
+    { 243,                         "Deprecated" },
     { 0, NULL }
 };
 
