@@ -39,14 +39,17 @@
            BGP/MPLS IP Virtual Private Networks (VPNs)
  * RFC6608 Subcodes for BGP Finite State Machine Error
  * RFC6793 BGP Support for Four-Octet Autonomous System (AS) Number Space
+ * RFC7311 The Accumulated IGP Metric Attribute for BGP
  * RFC7432 BGP MPLS-Based Ethernet VPN
+ * RFC7752 North-Bound Distribution of Link-State and Traffic Engineering (TE)
+           Information Using BGP
+ * RFC8092 BGP Large Communities Attribute
  * draft-ietf-idr-dynamic-cap
  * draft-ietf-idr-bgp-enhanced-route-refresh-02
  * draft-ietf-idr-bgp-ext-communities-05
  * draft-knoll-idr-qos-attribute-03
  * draft-nalawade-kapoor-tunnel-safi-05
  * draft-ietf-idr-add-paths-04 Additional-Path for BGP-4
- * draft-ietf-idr-aigp-18 for BGP
  * draft-gredler-idr-bgp-ls-segment-routing-ext-01
  * draft-ietf-idr-custom-decision-07 BGP Custom Decision Process
  * draft-rabadan-l2vpn-evpn-prefix-advertisement IP Prefix Advertisement
@@ -210,9 +213,9 @@ static dissector_handle_t bgp_handle;
 #define BGPTYPE_SAFI_SPECIFIC_ATTR  19 /* draft-kapoor-nalawade-idr-bgp-ssa-00.txt */
 #define BGPTYPE_PMSI_TUNNEL_ATTR    22 /* RFC6514 */
 #define BGPTYPE_TUNNEL_ENCAPS_ATTR  23 /* RFC5512 */
-#define BGPTYPE_AIGP                26 /* draft-ietf-idr-aigp-18 */
-#define BGPTYPE_LINK_STATE_ATTR     29 /* draft-ietf-idr-ls-distribution */
-#define BGPTYPE_LARGE_COMMUNITY     32 /* draft-ietf-idr-large-community  */
+#define BGPTYPE_AIGP                26 /* RFC7311 */
+#define BGPTYPE_LINK_STATE_ATTR     29 /* RFC7752 */
+#define BGPTYPE_LARGE_COMMUNITY     32 /* RFC8092 */
 #define BGPTYPE_LINK_STATE_OLD_ATTR 99 /* squatted value used by at least 2
                                           implementations before IANA assignment */
 #define BGPTYPE_ATTR_SET           128 /* RFC6368           */
@@ -500,7 +503,7 @@ static dissector_handle_t bgp_handle;
 #define SAFNUM_VPLS            65
 #define SAFNUM_MDT             66  /* rfc6037 */
 #define SAFNUM_EVPN            70  /* EVPN RFC */
-#define SAFNUM_LINK_STATE      71  /* draft-ietf-idr-ls-distribution */
+#define SAFNUM_LINK_STATE      71  /* RFC7752 */
 #define SAFNUM_LAB_VPNUNICAST 128  /* Draft-rosen-rfc2547bis-03 */
 #define SAFNUM_LAB_VPNMULCAST 129
 #define SAFNUM_LAB_VPNUNIMULC 130
@@ -542,7 +545,7 @@ static dissector_handle_t bgp_handle;
 #define PMSI_MLDP_FEC_TYPE_EXT_TYPE     255
 #define PMSI_MLDP_FEC_ETYPE_RSVD        0
 
-/* draft-ietf-idr-aigp-18 AIGP types */
+/* RFC 7311 AIGP types */
 #define AIGP_TLV_TYPE           1
 
 /* RFC 5512/5640 Sub-TLV Types */
@@ -577,7 +580,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_PREFIX_OSPF_ROUTE_TYPE_NSSA_1     5
 #define BGP_LS_PREFIX_OSPF_ROUTE_TYPE_NSSA_2     6
 
-/* draft-ietf-idr-ls-distribution-03 */
+/* RFC7752 */
 #define BGP_NLRI_TLV_LOCAL_NODE_DESCRIPTORS         256
 #define BGP_NLRI_TLV_REMOTE_NODE_DESCRIPTORS        257
 #define BGP_NLRI_TLV_LINK_LOCAL_REMOTE_IDENTIFIERS  258
@@ -1585,7 +1588,7 @@ static int hf_bgp_pmsi_tunnel_pimbidir_sender = -1;
 static int hf_bgp_pmsi_tunnel_pimbidir_pmc_group = -1;
 static int hf_bgp_pmsi_tunnel_ingress_rep_addr = -1;
 
-/* draft-ietf-idr-aigp-18 attribute */
+/* RFC 7311 attribute */
 static int hf_bgp_aigp_type = -1;
 static int hf_bgp_aigp_tlv_length = -1;
 static int hf_bgp_aigp_accu_igp_metric = -1;
@@ -1712,7 +1715,7 @@ static int hf_bgp_ls_sr_tlv_adjacency_sid_weight = -1;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_label = -1;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_index = -1;
 
-/* draft-ietf-idr-ls-distribution-03 TLVs */
+/* RFC7752 TLVs */
 static int hf_bgp_ls_tlv_local_node_descriptors = -1;              /* 256 */
 static int hf_bgp_ls_tlv_remote_node_descriptors = -1;             /* 257 */
 static int hf_bgp_ls_tlv_link_local_remote_identifiers = -1;       /* 258 */
@@ -8459,7 +8462,7 @@ proto_register_bgp(void)
         {"Tunnel type ingress replication IP end point", "bgp.update.path_attribute.pmsi.ingress_rep_ip", FT_IPv4, BASE_NONE,
         NULL, 0x0, NULL, HFILL}},
 
-        /* draft-ietf-idr-aigp-18 */
+        /* RFC7311 */
       { &hf_bgp_update_path_attribute_aigp,
         { "AIGP Attribute", "bgp.update.path_attribute.aigp", FT_NONE, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
@@ -8473,7 +8476,7 @@ proto_register_bgp(void)
         {"AIGP Accumulated IGP Metric", "bgp.update.attribute.aigp.accu_igp_metric", FT_UINT64, BASE_DEC,
         NULL, 0x0, NULL, HFILL}},
 
-        /* draft-ietf-idr-large-community */
+        /* RFC8092 */
       { &hf_bgp_large_communities,
         { "Large Communities", "bgp.large_communities", FT_STRING, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
