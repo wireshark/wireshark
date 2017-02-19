@@ -3042,11 +3042,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       rr_len     -= 2;
 
       /* Must have value 3, Add check ? */
-      proto_tree_add_item(flags_tree, hf_dns_dnskey_protocol, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(rr_tree, hf_dns_dnskey_protocol, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
 
-      proto_tree_add_item(flags_tree, hf_dns_dnskey_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(rr_tree, hf_dns_dnskey_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       algo = tvb_get_guint8(tvb, cur_offset);
 
       cur_offset += 1;
