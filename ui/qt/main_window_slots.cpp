@@ -432,7 +432,7 @@ void MainWindow::applyRecentPaneGeometry()
     extra_last_size -= extra_split_.handleWidth();
 
     if (recent.gui_geometry_main_upper_pane > 0) {
-        master_sizes[0] = recent.gui_geometry_main_upper_pane + 1; // Add back mystery pixel
+        master_sizes[0] = recent.gui_geometry_main_upper_pane;
         master_last_size -= recent.gui_geometry_main_upper_pane;
     } else {
         master_sizes[0] = master_last_size / master_sizes.length();
@@ -441,10 +441,10 @@ void MainWindow::applyRecentPaneGeometry()
 
     if (recent.gui_geometry_main_lower_pane > 0) {
         if (master_sizes.length() > 2) {
-            master_sizes[1] = recent.gui_geometry_main_lower_pane + 1; // Add back mystery pixel
+            master_sizes[1] = recent.gui_geometry_main_lower_pane;
             master_last_size -= recent.gui_geometry_main_lower_pane;
         } else if (extra_sizes.length() > 0) {
-            extra_sizes[0] = recent.gui_geometry_main_lower_pane; // No mystery pixel
+            extra_sizes[0] = recent.gui_geometry_main_lower_pane;
             extra_last_size -= recent.gui_geometry_main_lower_pane;
             extra_sizes.last() = extra_last_size;
         }
