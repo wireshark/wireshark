@@ -258,7 +258,7 @@ match_selected_cb_do(GtkWidget *filter_te, int action, gchar *text)
     char       *cur_filter, *new_filter;
 
     if ((!text) || (0 == strlen(text))) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter!\nTry expanding or choosing another item.");
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter.\nTry expanding or choosing another item.");
         return;
     }
 
@@ -356,7 +356,7 @@ colorize_selected_ptree_cb(GtkWidget *w _U_, gpointer data _U_, guint8 filt_nr)
                                                        cfile.edt);
         if ((!filter) || (0 == strlen(filter))) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "Could not acquire information to build a filter!\n"
+                "Could not acquire information to build a filter.\n"
                 "Try expanding or choosing another item.");
             return;
         }
@@ -440,7 +440,7 @@ selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
                 "As everyone can edit the Wiki and add new content (or extend existing), "
                 "you are encouraged to add information if you can.\n"
                 "\n"
-                "Hint 1: If you are new to wiki editing, try out editing the Sandbox first!\n"
+                "Hint 1: If you are new to wiki editing, try out editing the Sandbox first.\n"
                 "\n"
                 "Hint 2: If you want to add a new protocol page, you should use the ProtocolTemplate, "
                 "which will save you a lot of editing and will give a consistent look over the pages.",

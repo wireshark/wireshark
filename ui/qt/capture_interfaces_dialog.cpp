@@ -841,7 +841,7 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
              switch (index) {
              case 1: if (global_capture_opts.autostop_filesize > 2000) {
                  QMessageBox::warning(this, tr("Error"),
-                                          tr("Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB."));
+                                          tr("Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB."));
                  return false;
                  } else {
                      global_capture_opts.autostop_filesize *= 1000;
@@ -849,7 +849,7 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
                  break;
              case 2: if (global_capture_opts.autostop_filesize > 2) {
                      QMessageBox::warning(this, tr("Error"),
-                                              tr("Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB."));
+                                              tr("Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB."));
                      return false;
                      } else {
                          global_capture_opts.autostop_filesize *= 1000000;
@@ -860,11 +860,11 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
          /* test if the settings are ok for a ringbuffer */
          if (global_capture_opts.save_file == NULL) {
              QMessageBox::warning(this, tr("Error"),
-                                      tr("Multiple files: No capture file name given! You must specify a filename if you want to use multiple files."));
+                                      tr("Multiple files: No capture file name given. You must specify a filename if you want to use multiple files."));
              return false;
          } else if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
              QMessageBox::warning(this, tr("Error"),
-                                      tr("Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file\n if you want to use multiple files."));
+                                      tr("Multiple files: No file limit given. You must specify a file size or duration at which is switched to the next capture file\n if you want to use multiple files."));
              g_free(global_capture_opts.save_file);
              global_capture_opts.save_file = NULL;
              return false;
@@ -877,7 +877,7 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
             switch (index) {
             case 1: if (global_capture_opts.autostop_filesize > 2000) {
                 QMessageBox::warning(this, tr("Error"),
-                                         tr("Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB."));
+                                         tr("Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB."));
                 return false;
                 } else {
                     global_capture_opts.autostop_filesize *= 1000;
@@ -885,7 +885,7 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
                 break;
             case 2: if (global_capture_opts.autostop_filesize > 2) {
                     QMessageBox::warning(this, tr("Error"),
-                                             tr("Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB."));
+                                             tr("Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB."));
                     return false;
                     } else {
                         global_capture_opts.autostop_filesize *= 1000000;

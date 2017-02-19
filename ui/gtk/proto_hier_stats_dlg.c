@@ -86,7 +86,7 @@ proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, g
     if (filter && strlen(filter) > 0) {
         str = g_strdup(filter);
     } else {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter!\nTry expanding or choosing another item.");
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter.\nTry expanding or choosing another item.");
         return;
     }
 
@@ -100,7 +100,7 @@ proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, g
         if (filter && strlen(filter) > 0) {
             str = g_strdup_printf("%s and %s", strtmp, filter);
         } else {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter!\nTry expanding or choosing another item.");
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter.\nTry expanding or choosing another item.");
             g_free(strtmp);
             return;
         }

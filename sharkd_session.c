@@ -1848,7 +1848,7 @@ sharkd_session_process(char *buf, const jsmntok_t *tokens, int count)
 
 		if (!tok_req)
 		{
-			fprintf(stderr, "sanity check(4): no \"req\"!\n");
+			fprintf(stderr, "sanity check(4): no \"req\".\n");
 			return;
 		}
 
@@ -1909,7 +1909,7 @@ sharkd_session_main(void)
 	jsmntok_t *tokens = NULL;
 	int tokens_max = -1;
 
-	fprintf(stderr, "Hello in child!\n");
+	fprintf(stderr, "Hello in child.\n");
 
 	while (fgets(buf, sizeof(buf), stdin))
 	{

@@ -642,7 +642,7 @@ airpcap_if_info_print(airpcap_if_info_t* if_info)
     guint i;
     if (if_info == NULL)
     {
-        g_print("\nWARNING : AirPcap Interface pointer is NULL!\n");
+        g_print("\nWARNING : AirPcap Interface pointer is NULL.\n");
         return;
     }
 

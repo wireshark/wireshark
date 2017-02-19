@@ -635,7 +635,7 @@ gboolean uat_fld_chk_range(void* u1 _U_, const char* strptr, guint len, const vo
             ret_value = FALSE;
             break;
         default:
-            *err = g_strdup("This should not happen, it is a bug in wireshark! please report to wireshark-dev@wireshark.org");
+            *err = g_strdup("Unable to convert range. Please report this to wireshark-dev@wireshark.org");
             ret_value = FALSE;
             break;
     }

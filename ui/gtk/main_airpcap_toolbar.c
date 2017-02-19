@@ -98,7 +98,7 @@ airpcap_toolbar_encryption_cb(GtkWidget *entry _U_, gpointer user_data _U_)
                 airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
                 /* Save configuration */
                 if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
-                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration.\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
                 }
                 airpcap_if_close(ad);
             } else {
@@ -106,7 +106,7 @@ airpcap_toolbar_encryption_cb(GtkWidget *entry _U_, gpointer user_data _U_)
                 airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
                 /* Save configuration */
                 if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
-                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration.\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
                 }
                 airpcap_if_close(ad);
             }

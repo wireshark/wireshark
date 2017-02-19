@@ -503,7 +503,7 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
     key_list_store        = GTK_LIST_STORE(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY));
     toolbar_cb            = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
 
-#define CANT_SAVE_ERR_STR "Cannot save configuration! Another application " \
+#define CANT_SAVE_ERR_STR "Cannot save configuration. Another application " \
     "might be using AirPcap, or you might not have sufficient privileges."
     /* Set the Decryption Mode */
 
@@ -584,7 +584,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
 
         if ( ((new_key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < WEP_KEY_MIN_CHAR_SIZE))
         {
-            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WEP key size out of range!\nValid key size range is %d-%d characters (%d-%d bits).",WEP_KEY_MIN_CHAR_SIZE,WEP_KEY_MAX_CHAR_SIZE,WEP_KEY_MIN_BIT_SIZE,WEP_KEY_MAX_BIT_SIZE);
+            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WEP key size out of range.\nValid key size range is %d-%d characters (%d-%d bits).",WEP_KEY_MIN_CHAR_SIZE,WEP_KEY_MAX_CHAR_SIZE,WEP_KEY_MIN_BIT_SIZE,WEP_KEY_MAX_BIT_SIZE);
 
             g_string_free(new_type_string,TRUE);
             g_string_free(new_key_string, TRUE);
@@ -595,7 +595,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
 
         if ((new_key_string->len % 2) != 0)
         {
-            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WEP key!\nThe number of characters must be even.");
+            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WEP key.\nThe number of characters must be even.");
 
             g_string_free(new_type_string,TRUE);
             g_string_free(new_key_string, TRUE);
@@ -608,7 +608,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         {
             if (!g_ascii_isxdigit(new_key_string->str[i]))
             {
-                simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WEP key!\nA WEP key must be a hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
+                simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WEP key.\nA WEP key must be a hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
 
                 g_string_free(new_type_string,TRUE);
                 g_string_free(new_key_string, TRUE);
@@ -630,7 +630,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
 
         if ( ((new_key_string->len) > WPA_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < WPA_KEY_MIN_CHAR_SIZE))
         {
-            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WPA key size out of range!\nValid key size range is %d-%d ASCII characters (%d-%d bits).",WPA_KEY_MIN_CHAR_SIZE,WPA_KEY_MAX_CHAR_SIZE,WPA_KEY_MIN_BIT_SIZE,WPA_KEY_MAX_BIT_SIZE);
+            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WPA key size out of range.\nValid key size range is %d-%d ASCII characters (%d-%d bits).",WPA_KEY_MIN_CHAR_SIZE,WPA_KEY_MAX_CHAR_SIZE,WPA_KEY_MIN_BIT_SIZE,WPA_KEY_MAX_BIT_SIZE);
 
             g_string_free(new_type_string,TRUE);
             g_string_free(new_key_string, TRUE);
@@ -644,7 +644,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
          */
         if ((new_ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE)
         {
-            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"SSID key size out of range!\nValid SSID size range is %d-%d ASCII characters (%d-%d bits).",WPA_SSID_MIN_CHAR_SIZE,WPA_SSID_MAX_CHAR_SIZE,WPA_SSID_MIN_BIT_SIZE,WPA_SSID_MAX_BIT_SIZE);
+            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"SSID key size out of range.\nValid SSID size range is %d-%d ASCII characters (%d-%d bits).",WPA_SSID_MIN_CHAR_SIZE,WPA_SSID_MAX_CHAR_SIZE,WPA_SSID_MIN_BIT_SIZE,WPA_SSID_MAX_BIT_SIZE);
 
             g_string_free(new_type_string,TRUE);
             g_string_free(new_key_string, TRUE);
@@ -665,7 +665,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
 
         if ( ((new_key_string->len) != WPA_PSK_KEY_CHAR_SIZE))
         {
-            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WPA PSK/PMK key size is wrong!\nValid key size is %d characters (%d bits).",WPA_PSK_KEY_CHAR_SIZE,WPA_PSK_KEY_BIT_SIZE);
+            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WPA PSK/PMK key size is wrong.\nValid key size is %d characters (%d bits).",WPA_PSK_KEY_CHAR_SIZE,WPA_PSK_KEY_BIT_SIZE);
 
             g_string_free(new_type_string,TRUE);
             g_string_free(new_key_string, TRUE);
@@ -678,7 +678,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         {
             if (!g_ascii_isxdigit(new_key_string->str[i]))
             {
-                simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WPA PSK/PMK key!\nKey must be an hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
+                simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WPA PSK/PMK key.\nKey must be an hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
 
                 g_string_free(new_type_string,TRUE);
                 g_string_free(new_key_string, TRUE);
@@ -761,7 +761,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
 
         if ( ((new_key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < WEP_KEY_MIN_CHAR_SIZE))
         {
-            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WEP key size out of range!\nValid key size range is %d-%d characters (%d-%d bits).",WEP_KEY_MIN_CHAR_SIZE,WEP_KEY_MAX_CHAR_SIZE,WEP_KEY_MIN_BIT_SIZE,WEP_KEY_MAX_BIT_SIZE);
+            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WEP key size out of range.\nValid key size range is %d-%d characters (%d-%d bits).",WEP_KEY_MIN_CHAR_SIZE,WEP_KEY_MAX_CHAR_SIZE,WEP_KEY_MIN_BIT_SIZE,WEP_KEY_MAX_BIT_SIZE);
 
             g_string_free(new_type_string,TRUE);
             g_string_free(new_key_string, TRUE);
@@ -772,7 +772,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
 
         if ((new_key_string->len % 2) != 0)
         {
-            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WEP key!\nThe number of characters must be even.");
+            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WEP key.\nThe number of characters must be even.");
 
             g_string_free(new_type_string,TRUE);
             g_string_free(new_key_string, TRUE);
@@ -785,7 +785,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         {
             if (!g_ascii_isxdigit(new_key_string->str[i]))
             {
-                simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WEP key!\nA WEP key must be an hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
+                simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WEP key.\nA WEP key must be an hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
 
                 g_string_free(new_type_string,TRUE);
                 g_string_free(new_key_string, TRUE);
@@ -811,7 +811,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
 
         if ( ((new_key_string->len) > WPA_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < WPA_KEY_MIN_CHAR_SIZE))
         {
-            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WPA key size out of range!\nValid key size range is %d-%d ASCII characters (%d-%d bits).",WPA_KEY_MIN_CHAR_SIZE,WPA_KEY_MAX_CHAR_SIZE,WPA_KEY_MIN_BIT_SIZE,WPA_KEY_MAX_BIT_SIZE);
+            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WPA key size out of range.\nValid key size range is %d-%d ASCII characters (%d-%d bits).",WPA_KEY_MIN_CHAR_SIZE,WPA_KEY_MAX_CHAR_SIZE,WPA_KEY_MIN_BIT_SIZE,WPA_KEY_MAX_BIT_SIZE);
 
             g_string_free(new_type_string,TRUE);
             g_string_free(new_key_string, TRUE);
@@ -825,7 +825,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
          */
         if ((new_ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE)
         {
-            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"SSID key size out of range!\nValid SSID size range is %d-%d ASCII characters (%d-%d bits).",WPA_SSID_MIN_CHAR_SIZE,WPA_SSID_MAX_CHAR_SIZE,WPA_SSID_MIN_BIT_SIZE,WPA_SSID_MAX_BIT_SIZE);
+            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"SSID key size out of range.\nValid SSID size range is %d-%d ASCII characters (%d-%d bits).",WPA_SSID_MIN_CHAR_SIZE,WPA_SSID_MAX_CHAR_SIZE,WPA_SSID_MIN_BIT_SIZE,WPA_SSID_MAX_BIT_SIZE);
 
             g_string_free(new_type_string,TRUE);
             g_string_free(new_key_string, TRUE);
@@ -850,7 +850,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
 
         if ( ((new_key_string->len) != WPA_PSK_KEY_CHAR_SIZE))
         {
-            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WPA PSK/PMK key size is wrong!\nValid key size is %d characters (%d bits).",WPA_PSK_KEY_CHAR_SIZE,WPA_PSK_KEY_BIT_SIZE);
+            simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WPA PSK/PMK key size is wrong.\nValid key size is %d characters (%d bits).",WPA_PSK_KEY_CHAR_SIZE,WPA_PSK_KEY_BIT_SIZE);
 
             g_string_free(new_type_string,TRUE);
             g_string_free(new_key_string, TRUE);
@@ -863,7 +863,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         {
             if (!g_ascii_isxdigit(new_key_string->str[i]))
             {
-                simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WPA PSK/PMK key!\nKey must be an hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
+                simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WPA PSK/PMK key.\nKey must be an hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
 
                 g_string_free(new_type_string,TRUE);
                 g_string_free(new_key_string, TRUE);
@@ -942,7 +942,7 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     if (gtk_tree_model_iter_n_children(GTK_TREE_MODEL(key_list_store), NULL) >= MAX_ENCRYPTION_KEYS)
     {
-        simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Maximum number (%d) of decryption keys reached! You cannot add another key!\n",MAX_ENCRYPTION_KEYS);
+        simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Maximum number (%d) of decryption keys reached. You cannot add another key.\n",MAX_ENCRYPTION_KEYS);
         return;
     }
 
@@ -2553,7 +2553,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     gtk_widget_show (main_v_box);
     gtk_container_add (GTK_CONTAINER (keys_check_w), main_v_box);
 
-    warning_lb = gtk_label_new("<b>WARNING!</b> Decryption keys specified in Wireshark's preferences file differ from those specified for the AirPcap adapter(s). You can choose to:");
+    warning_lb = gtk_label_new("<b>WARNING</b> Decryption keys specified in Wireshark's preferences file differ from those specified for the AirPcap adapter(s). You can choose to:");
     gtk_label_set_use_markup (GTK_LABEL (warning_lb), TRUE);
     gtk_widget_set_name (warning_lb, "warning_lb");
     gtk_widget_show (warning_lb);

@@ -1306,7 +1306,7 @@ welcome_new(void)
         topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_NETWORK_MEDIA));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 #else
-    label_text =  g_strdup("<span foreground=\"black\">Capturing is not compiled into\nthis version of Wireshark!</span>");
+    label_text =  g_strdup("<span foreground=\"black\">Capturing is not compiled into\nthis version of Wireshark.</span>");
     w = gtk_label_new(label_text);
     gtk_label_set_markup(GTK_LABEL(w), label_text);
     g_free (label_text);
@@ -1401,7 +1401,7 @@ welcome_new(void)
     topic_vb = welcome_topic_new("Updates", &topic_to_fill);
     gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
 
-    label_text =  g_strdup("<span foreground=\"black\">No updates available!</span>");
+    label_text =  g_strdup("<span foreground=\"black\">No updates available.</span>");
     w = gtk_label_new(label_text);
     gtk_label_set_markup(GTK_LABEL(w), label_text);
     g_free (label_text);

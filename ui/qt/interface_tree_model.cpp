@@ -78,7 +78,7 @@ QString InterfaceTreeModel::interfaceError()
     QString errorText;
     if ( rowCount() == 0 )
     {
-        errorText = tr("No Interfaces found!");
+        errorText = tr("No Interfaces found.");
     }
 #ifdef HAVE_LIBPCAP
     else if ( global_capture_opts.ifaces_err != 0 )

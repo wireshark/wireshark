@@ -119,7 +119,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
         if ( g_list_length(if_list) == 0 ) {
 #endif
 
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed, error %d, %s (%s)!",
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed. Error %d, %s (%s)",
                   *err, primary_msg ? primary_msg : "no message",
                   secondary_msg ? secondary_msg : "no secondary message");
             if (err_str) {
@@ -251,7 +251,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     err = sync_if_capabilities_open(ifname, monitor_mode, auth_string, &data,
                                     &primary_msg, &secondary_msg, update_cb);
     if (err != 0) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities failed, error %d, %s (%s)!",
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities failed. Error %d, %s (%s)",
               err, primary_msg ? primary_msg : "no message",
               secondary_msg ? secondary_msg : "no secondary message");
         if (err_str) {
@@ -275,7 +275,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
      * First line is 0 if monitor mode isn't supported, 1 if it is.
      */
     if (raw_list[0] == NULL || *raw_list[0] == '\0') {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities returned no information!");
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities returned no information.");
         if (err_str) {
             *err_str = g_strdup("Dumpcap returned no interface capability information");
         }
@@ -298,7 +298,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
         break;
 
     default:
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities returned bad information!");
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities returned bad information.");
         if (err_str) {
             *err_str = g_strdup_printf("Dumpcap returned \"%s\" for monitor-mode capability",
                                        raw_list[0]);

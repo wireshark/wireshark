@@ -1354,7 +1354,7 @@ main(int argc, char *argv[])
         GSList *export_pdu_tap_name_list = NULL;
 
         if (!*optarg) {
-            cmdarg_err("Tap name is required! Valid names are:");
+            cmdarg_err("A tap name is required. Valid names are:");
             for (export_pdu_tap_name_list = get_export_pdu_tap_list(); export_pdu_tap_name_list; export_pdu_tap_name_list = g_slist_next(export_pdu_tap_name_list)) {
                 cmdarg_err("%s\n", (const char*)(export_pdu_tap_name_list->data));
             }

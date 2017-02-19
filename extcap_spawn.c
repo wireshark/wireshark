@@ -333,11 +333,11 @@ extcap_wait_for_pipe(HANDLE pipe_h, HANDLE pid)
         else if (dw == (WAIT_OBJECT_0 + 1))
         {
             /* extcap process terminated. */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap terminated without connecting to pipe!");
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap terminated without connecting to pipe.");
         }
         else if (dw == WAIT_TIMEOUT)
         {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap didn't connect to pipe within 30 seconds!");
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap didn't connect to pipe within 30 seconds.");
         }
         else
         {

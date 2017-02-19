@@ -956,7 +956,7 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent *e _U_, gpointer u) {
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 6);
 	gtk_container_add(GTK_CONTAINER(win), vbox);
 
-	message  = g_strdup_printf("Changes to '%s' are not being saved!\n"
+	message  = g_strdup_printf("Changes to '%s' are not being saved.\n"
 		"Do you want to save '%s'?", uat->name, uat->name);
 
 	label = gtk_label_new(message);

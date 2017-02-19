@@ -188,7 +188,7 @@ print_usage(FILE *output)
 
   /*fprintf(output, "\n");*/
   fprintf(output, "Input file:\n");
-  fprintf(output, "  -r <infile>              set the filename to read from (no pipes or stdin!)\n");
+  fprintf(output, "  -r <infile>              set the filename to read from (no pipes or stdin)\n");
 
   fprintf(output, "\n");
   fprintf(output, "Processing:\n");
@@ -1026,9 +1026,9 @@ main(int argc, char *argv[])
     }
     CATCH(OutOfMemoryError) {
       fprintf(stderr,
-              "Out Of Memory!\n"
+              "Out Of Memory.\n"
               "\n"
-              "Sorry, but TFShark has to terminate now!\n"
+              "Sorry, but TFShark has to terminate now.\n"
               "\n"
               "Some infos / workarounds can be found at:\n"
               "https://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
