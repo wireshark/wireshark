@@ -47,7 +47,6 @@
 #include <wiretap/wtap_opttypes.h>
 #include <wiretap/pcapng.h>
 
-#include "globals.h"
 #include <epan/decode_as.h>
 #include <epan/timestamp.h>
 #include <epan/packet.h>
