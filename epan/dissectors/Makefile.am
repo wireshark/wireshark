@@ -1754,7 +1754,6 @@ DISSECTOR_INCLUDES = \
 	packet-tftp.h		\
 	packet-tn3270.h		\
 	packet-tn5250.h		\
-	packet-tns.h		\
 	packet-tpkt.h		\
 	packet-tr.h		\
 	packet-tte.h		\
