@@ -3043,6 +3043,7 @@
 				<gavp name="Role-Of-Node"/>
 				<gavp name="Node-Functionality"/>
 				<gavp name="User-Session-ID"/>
+				<gavp name="Outgoing-Session-Id"/>
 				<gavp name="Calling-Party-Address"/>
 				<gavp name="Called-Party-Address"/>
 				<gavp name="Time-Stamps"/>
@@ -6468,6 +6469,65 @@
 		<!--
 		Note: The AVP codes from 2607 to 2699 are reserved for TS 32.299
 		-->
+		<avp name="NNI-Information" code="2703" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Session-Direction"/>
+				<gavp name="NNI-Type"/>
+				<gavp name="Relationship-Mode"/>
+				<gavp name="Neighbour-Node-Address"/>
+			</grouped>
+		</avp>
+		<avp name="NNI-Type" code="2704" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="non-roaming" code="0"/>
+			<enum name="roaming without loopback" code="1"/>
+			<enum name="roaming with loopback" code="2"/>
+		</avp>
+		<avp name="Neighbour-Node-Address" code="2705" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Address"/>
+		</avp>
+		<avp name="Relationship-Mode" code="2706" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="trusted" code="0"/>
+			<enum name="non-trusted" code="1"/>
+		</avp>
+		<avp name="Session-Direction" code="2707" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="inbound" code="0"/>
+			<enum name="outbound" code="1"/>
+		</avp>
+		<avp name="From-Address" code="2708" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Access-Transfer-Information" code="2709" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Access-Transfer-Type"/>
+				<gavp name="Access-Network-Information"/>
+				<gavp name="Cellular-Network-Information"/>
+				<gavp name="Inter-UE-Transfer"/>
+				<gavp name="User-Equipment-Info"/>
+				<gavp name="Instance-Id"/>
+				<gavp name="Related-IMS-Charging-Identifier"/>
+				<gavp name="Related-IMS-Charging-Identifier-Node"/>
+				<gavp name="Change-Time"/>
+			</grouped>
+		</avp>
+    <avp name="Access-Transfer-Type" code="2710" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="PS to CS Transfer" code="0"/>
+			<enum name="CS to PS Transfer" code="1"/>
+			<enum name="PS to PS Transfer" code="2"/>
+			<enum name="CS to CS Transfer" code="3"/>
+		</avp>
+		<avp name="Related-IMS-Charging-Identifier" code="2711" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Related-IMS-Charging-Identifier-Node" code="2712" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Address"/>
+		</avp>
+		<avp name="IMS-Visited-Network-Identifier" code="2713" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
 		<avp name="TWAN-User-Location-Info" code="2714" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SSID"/>
@@ -6476,6 +6536,11 @@
 		</avp>
 		<avp name="BSSID" code="2716" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="TAD-Identifier" code="2717" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="CS" code="0"/>
+			<enum name="PS" code="1"/>
 		</avp>
 		<!--
 		Note: The AVP codes from 2700 to 2799 are reserved for TS 32.299
