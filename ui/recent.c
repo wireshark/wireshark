@@ -384,6 +384,10 @@ static GHashTable *remote_host_list=NULL;
 
 int recent_get_remote_host_list_size(void)
 {
+  if (remote_host_list == NULL) {
+    /* No entries exist. */
+    return 0;
+  }
   return g_hash_table_size (remote_host_list);
 }
 
