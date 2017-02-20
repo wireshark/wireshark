@@ -151,6 +151,11 @@ static int hf_bssgp_mbms_cause = -1;
 static int hf_bssgp_mbms_stop_cause = -1;
 static int hf_bssgp_mbms_num_ra_ids = -1;
 static int hf_bssgp_session_inf = -1;
+static int hf_bssgp_ec_gsm_iot = -1;
+static int hf_bssgp_mocn = -1;
+static int hf_bssgp_csps_coord = -1;
+static int hf_bssgp_eDRX = -1;
+static int hf_bssgp_dcn = 1;
 static int hf_bssgp_gb_if = -1;
 static int hf_bssgp_ps_ho = -1;
 static int hf_bssgp_src_to_trg_transp_cont = -1;
@@ -204,6 +209,7 @@ static int hf_bssgp_ec_dl_coveradge_class = -1;
 static int hf_bssgp_ec_ul_coveradge_class = -1;
 static int hf_bssgp_paging_attempt_count = -1;
 static int hf_bssgp_intended_num_of_pag_attempts = -1;
+static int hf_bssgp_extended_feature_bitmap = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssgp = -1;
@@ -216,6 +222,7 @@ static gint ett_bssgp_pfcs_to_be_set_up_list_t10 = -1;
 static gint ett_bssgp_list_of_setup_pfcs = -1;
 static gint ett_bssgp_pfc_flow_control_parameters_pfc = -1;
 static gint ett_bssgp_ra_id = -1;
+static gint ett_bssgp_extended_feature_bitmap = -1;
 
 static expert_field ei_bssgp_extraneous_data = EI_INIT;
 static expert_field ei_bssgp_missing_mandatory_element = EI_INIT;
@@ -2645,6 +2652,16 @@ de_bssgp_list_of_setup_pfcs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 /*
  * 11.3.84  Extended Feature Bitmap
  */
+static const int *bssgp_ext_feature_bitmap_fields[] = {
+    &hf_bssgp_eDRX,
+    &hf_bssgp_dcn,
+    &hf_bssgp_ec_gsm_iot,
+    &hf_bssgp_csps_coord,
+    &hf_bssgp_mocn,
+    &hf_bssgp_gb_if,
+    &hf_bssgp_ps_ho,
+    NULL
+};
 static guint16
 de_bssgp_ext_feature_bitmap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -2652,10 +2669,9 @@ de_bssgp_ext_feature_bitmap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
 
     curr_offset = offset;
 
-    /* Gigabit Interface */
-    proto_tree_add_item(tree, hf_bssgp_gb_if, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* PS Handover */
     proto_tree_add_item(tree, hf_bssgp_ps_ho, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_with_flags(tree, tvb, curr_offset, hf_bssgp_extended_feature_bitmap,
+        ett_bssgp_extended_feature_bitmap, bssgp_ext_feature_bitmap_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     curr_offset++;
 
     return(curr_offset-offset);
@@ -7094,6 +7110,31 @@ proto_register_bssgp(void)
             FT_UINT8, BASE_DEC|BASE_EXT_STRING, &bssgp_mbms_num_ra_ids_vals_ext, 0xf0,
             NULL, HFILL }
         },
+        { &hf_bssgp_eDRX,
+        { "eDRX", "bssgp.edrx",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_bssgp_eDRX,
+        { "DCN(Dedicated Core Network)", "bssgp.dcn",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_bssgp_ec_gsm_iot,
+          { "EC-GSM-IoT", "bssgp.ec_gsm_iot",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_bssgp_csps_coord,
+          { "CS/PS COORD", "bssgp.csps_coord",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_bssgp_mocn,
+          { "MOCN", "bssgp.mocn",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            NULL, HFILL }
+        },
         { &hf_bssgp_gb_if,
           { "Gigabit Interface", "bssgp.gb_if",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
@@ -7356,10 +7397,16 @@ proto_register_bssgp(void)
             FT_UINT8, BASE_HEX, VALS(bssgp_intended_num_of_pag_attempts_vals), 0x78,
             NULL, HFILL } },
 
+        { &hf_bssgp_extended_feature_bitmap,
+        { "Extended Feature Bitmap", "bssgp.extended_feature_bitmap",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+        },
+
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    10
+#define NUM_INDIVIDUAL_ELEMS    11
     gint *ett[NUM_INDIVIDUAL_ELEMS +
               NUM_BSSGP_ELEM +
               NUM_BSSGP_MSG];
@@ -7389,6 +7436,7 @@ proto_register_bssgp(void)
     ett[7] = &ett_bssgp_new;
     ett[8] = &ett_bssgp_pfc_flow_control_parameters_pfc;
     ett[9] = &ett_bssgp_ra_id,
+    ett[10] = &ett_bssgp_extended_feature_bitmap,
 
         last_offset = NUM_INDIVIDUAL_ELEMS;
 
