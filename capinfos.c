@@ -95,6 +95,9 @@
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
+#define INVALID_OPTION 1
+#define BAD_FLAG 1
+
 /*
  * By default capinfos now continues processing
  * the next filename if and when wiretap detects
@@ -1388,7 +1391,7 @@ main(int argc, char *argv[])
   int    err;
   gchar *err_info;
   int    opt;
-  int    overall_error_status;
+  int    overall_error_status = EXIT_SUCCESS;
   static const struct option long_options[] = {
       {"help", no_argument, NULL, 'h'},
       {"version", no_argument, NULL, 'v'},
@@ -1619,7 +1622,7 @@ main(int argc, char *argv[])
                "See https://www.wireshark.org for more information.\n",
                get_ws_vcs_version_info());
         print_usage(stdout);
-        exit(0);
+        goto exit;
         break;
 
       case 'v':
@@ -1628,19 +1631,21 @@ main(int argc, char *argv[])
         show_version("Capinfos (Wireshark)", comp_info_str, runtime_info_str);
         g_string_free(comp_info_str, TRUE);
         g_string_free(runtime_info_str, TRUE);
-        exit(0);
+        goto exit;
         break;
 
       case '?':              /* Bad flag - print usage message */
         print_usage(stderr);
-        exit(1);
+        overall_error_status = BAD_FLAG;
+        goto exit;
         break;
     }
   }
 
   if ((argc - optind) < 1) {
     print_usage(stderr);
-    exit(1);
+    overall_error_status = INVALID_OPTION;
+    goto exit;
   }
 
   if (!long_report && table_report_header) {
