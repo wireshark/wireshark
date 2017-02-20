@@ -83,7 +83,7 @@ typedef enum {
   FORMAT_CSV,     /* CSV */
   FORMAT_JSON,    /* JSON */
   FORMAT_EK,      /* JSON bulk insert to Elasticsearch */
-  FORMAT_XML,      /* PDML output */
+  FORMAT_XML      /* PDML output */
 } fields_format;
 
 typedef enum {
