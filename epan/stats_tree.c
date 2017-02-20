@@ -245,7 +245,7 @@ stats_tree_reinit(void *p)
     }
 }
 
-void
+static void
 stats_tree_cfg_free(gpointer p)
 {
     stats_tree_cfg* cfg = (stats_tree_cfg*)p;
