@@ -1646,7 +1646,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                   "read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
         }
-        *err_msg = g_strdup_printf("Unknown message from dumpcap, try to show it as a string: %s",
+        *err_msg = g_strdup_printf("Unknown message from dumpcap reading header, try to show it as a string: %s",
                                    msg);
         return -1;
     }
@@ -1656,7 +1656,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
     newly = pipe_read_bytes(pipe_fd, msg, required, err_msg);
     if(newly != required) {
         if (newly != -1) {
-            *err_msg = g_strdup_printf("Unknown message from dumpcap, try to show it as a string: %s",
+            *err_msg = g_strdup_printf("Unknown message from dumpcap reading data, try to show it as a string: %s",
                                        msg);
         }
         return -1;
