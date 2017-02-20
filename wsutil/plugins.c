@@ -438,21 +438,20 @@ plugins_cleanup(void)
     plugin* prev;
     plugin* cur;
 
-    if (!plugin_list)
-        return;
+    if (plugin_list) {
+        prev = plugin_list;
+        cur = plugin_list->next;
 
-    prev = plugin_list;
-    cur = plugin_list->next;
+        do {
+            g_free(prev->name);
+            g_free(prev);
+            prev = cur;
+            cur = cur->next;
+        } while(cur);
 
-    do {
         g_free(prev->name);
         g_free(prev);
-        prev = cur;
-        cur = cur->next;
-    } while(cur);
-
-    g_free(prev->name);
-    g_free(prev);
+    }
 
     g_slist_foreach(plugin_types, free_plugin_type, NULL);
     g_slist_free(plugin_types);
