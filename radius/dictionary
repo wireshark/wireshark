@@ -189,6 +189,7 @@ $INCLUDE dictionary.cisco.vpn5000
 $INCLUDE dictionary.cisco.bbsm
 $INCLUDE dictionary.citrix
 $INCLUDE dictionary.clavister
+$INCLUDE dictionary.cnergee
 $INCLUDE dictionary.colubris
 $INCLUDE dictionary.compatible
 $INCLUDE dictionary.cosine

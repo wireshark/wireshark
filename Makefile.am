@@ -173,6 +173,7 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.cisco.vpn5000 \
 	radius/dictionary.citrix \
 	radius/dictionary.clavister \
+	radius/dictionary.cnergee \
 	radius/dictionary.colubris \
 	radius/dictionary.columbia_university \
 	radius/dictionary.compatible \
