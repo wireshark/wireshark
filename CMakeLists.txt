@@ -1353,7 +1353,9 @@ include(FeatureSummary)
 SET_FEATURE_INFO(SBC "SBC Codec for Bluetooth A2DP stream playing" "http://git.kernel.org/cgit/bluetooth/sbc.git" )
 SET_FEATURE_INFO(SPANDSP "Support for G.722 and G.726 codecs in RTP player" "http://www.soft-switch.org/" )
 SET_FEATURE_INFO(LIBSSH "libssh is library for ssh connections and it is needed to build sshdump/ciscodump" "https://www.libssh.org/get-it/" )
-
+SET_FEATURE_INFO(LZ4 "LZ4 is lossless compression algorithm used in some protocol (CQL...)" "http://www.lz4.org" )
+SET_FEATURE_INFO(SNAPPY "snappy is a fast compressor/decompressor from Google used in some protocol (CQL, kafka...)" "http://google.github.io/snappy/")
+SET_FEATURE_INFO(NGHTTP2 "nghttp2 is used for header (de)compression (HPACK)" "http://www.nghttp2.org" )
 FEATURE_SUMMARY(WHAT ALL)
 
 link_directories(
