@@ -485,6 +485,10 @@ main(int argc, char *argv[])
 
 clean_exit:
   wtap_cleanup();
+  free_progdirs();
+#ifdef HAVE_PLUGINS
+  plugins_cleanup();
+#endif
   return (status == MERGE_OK) ? 0 : 2;
 }
 
