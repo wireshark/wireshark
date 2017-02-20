@@ -54,7 +54,7 @@ gboolean register_service_response_tables(const void *, void *value, void*)
 {
     register_srt_t *srt = (register_srt_t*)value;
     const char* short_name = proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt)));
-    const char *cfg_abbr = srt_table_get_tap_string(srt);
+    char *cfg_abbr = srt_table_get_tap_string(srt);
     tpdCreator tpd_creator = ServiceResponseTimeDialog::createSrtDialog;
 
     /* XXX - These dissectors haven't been converted over to due to an "interactive input dialog" for their
@@ -74,6 +74,7 @@ gboolean register_service_response_tables(const void *, void *value, void*)
                 REGISTER_STAT_GROUP_RESPONSE_TIME,
                 srt_init,
                 tpd_creator);
+    g_free(cfg_abbr);
     return FALSE;
 }
 

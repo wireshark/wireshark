@@ -52,7 +52,7 @@ gboolean register_response_time_delay_tables(const void *, void *value, void*)
 {
     register_rtd_t *rtd = (register_rtd_t*)value;
     const char* short_name = proto_get_protocol_short_name(find_protocol_by_id(get_rtd_proto_id(rtd)));
-    const char *cfg_abbr = rtd_table_get_tap_string(rtd);
+    char *cfg_abbr = rtd_table_get_tap_string(rtd);
 
     cfg_str_to_rtd_[cfg_abbr] = rtd;
     TapParameterDialog::registerDialog(
@@ -61,6 +61,7 @@ gboolean register_response_time_delay_tables(const void *, void *value, void*)
                 REGISTER_STAT_GROUP_RESPONSE_TIME,
                 rtd_init,
                 ResponseTimeDelayDialog::createRtdDialog);
+    g_free(cfg_abbr);
     return FALSE;
 }
 
