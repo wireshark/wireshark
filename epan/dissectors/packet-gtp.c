@@ -9727,12 +9727,12 @@ proto_register_gtp(void)
         },
         {&hf_gtp_ext_comm_flags_uasi,
          { "UASI", "gtp.ext_comm_flags_uasi",
-           FT_UINT8, BASE_DEC, NULL, 0x80,
+           FT_BOOLEAN, 8, NULL, 0x80,
            NULL, HFILL}
         },
         {&hf_gtp_ext_comm_flags_II_dtci,
          { "DTCI", "gtp.ext_comm_flags_II_dtci",
-           FT_UINT8, BASE_DEC, NULL, 0x02,
+           FT_BOOLEAN, 8, NULL, 0x02,
            NULL, HFILL}
         },
         {&hf_gtp_ext_comm_flags_II_pnsi,
