@@ -1350,9 +1350,9 @@ endforeach()
 
 include(FeatureSummary)
 #SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ])
-SET_FEATURE_INFO(SBC "SBC Codec for Bluetooth A2DP stream playing" "www: http://git.kernel.org/cgit/bluetooth/sbc.git" )
+SET_FEATURE_INFO(SBC "SBC Codec for Bluetooth A2DP stream playing" "http://git.kernel.org/cgit/bluetooth/sbc.git" )
 SET_FEATURE_INFO(SPANDSP "Support for G.722 and G.726 codecs in RTP player" "http://www.soft-switch.org/" )
-SET_FEATURE_INFO(LIBSSH "libssh is library for ssh connections and it is needed to build sshdump/ciscodump" "www: https://www.libssh.org/get-it/" )
+SET_FEATURE_INFO(LIBSSH "libssh is library for ssh connections and it is needed to build sshdump/ciscodump" "https://www.libssh.org/get-it/" )
 
 FEATURE_SUMMARY(WHAT ALL)
 
