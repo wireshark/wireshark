@@ -155,7 +155,7 @@ static int hf_bssgp_ec_gsm_iot = -1;
 static int hf_bssgp_mocn = -1;
 static int hf_bssgp_csps_coord = -1;
 static int hf_bssgp_eDRX = -1;
-static int hf_bssgp_dcn = 1;
+static int hf_bssgp_dcn = -1;
 static int hf_bssgp_gb_if = -1;
 static int hf_bssgp_ps_ho = -1;
 static int hf_bssgp_src_to_trg_transp_cont = -1;
@@ -7115,7 +7115,7 @@ proto_register_bssgp(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
             NULL, HFILL }
         },
-        { &hf_bssgp_eDRX,
+        { &hf_bssgp_dcn,
         { "DCN(Dedicated Core Network)", "bssgp.dcn",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
             NULL, HFILL }
