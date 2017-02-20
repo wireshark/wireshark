@@ -154,7 +154,7 @@ typedef enum {
     WTAP_OPTTYPE_NOT_FOUND = -2,
     WTAP_OPTTYPE_TYPE_MISMATCH = -3,
     WTAP_OPTTYPE_NUMBER_MISMATCH = -4,
-    WTAP_OPTTYPE_ALREADY_EXISTS = -5,
+    WTAP_OPTTYPE_ALREADY_EXISTS = -5
 } wtap_opttype_return_val;
 
 struct wtap_opttype_custom
