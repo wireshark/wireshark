@@ -62,7 +62,7 @@ while getopts ":2a:b:C:lmnpP:rstTYwcevWdG" OPTCHAR ; do
            COMMAND_ARGS="-E 0.02"
            # We don't care about the output of editcap
            COMMAND_ARGS2="/dev/null" ;;
-        v) VERBOSE="--num-callers=256" ;;
+        v) VERBOSE="--num-callers=256 -v" ;;
         W) COMMAND=wireshark
            COMMAND_ARGS=""
            VALID=1 ;;
@@ -77,6 +77,13 @@ while getopts ":2a:b:C:lmnpP:rstTYwcevWdG" OPTCHAR ; do
     esac
 done
 shift $(($OPTIND - 1))
+
+# Sanitize parameters
+if [ "$COMMAND" != "tshark" ] && [[ $COMMAND_ARGS =~ Vx ]]
+then
+    printf "\nYou can't use -T if you're not using tshark\n\n" >&2
+    exit 1
+fi
 
 if [ $# -ge 1 ]
 then
@@ -135,7 +142,7 @@ cmdline="$LIBTOOL valgrind --suppressions=`dirname $0`/vg-suppressions $ADDITION
 --tool=$TOOL $CALLGRIND_OUT_FILE $VERBOSE $LEAK_CHECK $REACHABLE $GEN_SUPPRESSIONS $TRACK_ORIGINS \
 $COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2"
 
-if [ $VERBOSE ];then
+if [ "$VERBOSE" != "" ];then
   echo -e "\n$cmdline\n"
 fi
 
