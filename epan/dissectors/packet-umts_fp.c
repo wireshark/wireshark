@@ -3908,7 +3908,8 @@ make_fake_lchid(packet_info *pinfo _U_, gint trchld)
  * for the channel!
  */
 static fp_info *
-fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
+fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
+                                umts_fp_conversation_info_t *p_conv_data,
                                 tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree *tree _U_)
 {
@@ -4188,8 +4189,8 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             /* Set RLC data */
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             /* Make configurable ?(avaliable in NBAP?) */
-            /* For RLC re-assembly to work we need to fake urnti */
-            rlcinf->urnti[0] = fpi->channel;
+            /* For RLC re-assembly to work we need to fake urnti: using the conversation's ID and the prefix of 0xFFF */
+            rlcinf->urnti[0] = (p_conv->conv_index | 0xFFF00000);
             rlcinf->mode[0] = RLC_AM;
             /* rbid[MAX_RLC_CHANS] */
             rlcinf->li_size[0] = RLC_LI_7BITS;
@@ -4305,7 +4306,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 /* CRNC -> Node B */
                 pinfo->link_dir=P2P_DIR_UL;
                 if (p_fp_info == NULL) {
-                    p_fp_info = fp_set_per_packet_inf_from_conv(p_conv_data, tvb, pinfo, fp_tree);
+                    p_fp_info = fp_set_per_packet_inf_from_conv(p_conv, p_conv_data, tvb, pinfo, fp_tree);
                 }
             }
             else {
@@ -4316,7 +4317,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 PROTO_ITEM_SET_GENERATED(item);
                 pinfo->link_dir=P2P_DIR_DL;
                 if (p_fp_info == NULL) {
-                    p_fp_info = fp_set_per_packet_inf_from_conv(p_conv_data, tvb, pinfo, fp_tree);
+                    p_fp_info = fp_set_per_packet_inf_from_conv(p_conv, p_conv_data, tvb, pinfo, fp_tree);
                 }
             }
         }
