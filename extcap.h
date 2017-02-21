@@ -55,6 +55,8 @@ typedef struct _extcap_info {
     gchar * basename;
     gchar * full_path;
     gchar * version;
+
+    GList * interfaces;
 } extcap_info;
 
 struct _extcap_arg;
@@ -83,9 +85,13 @@ append_extcap_interface_list(GList *list, char **err_str);
 gchar *
 extcap_get_help_for_ifname(const char *ifname);
 
-/* get a list of all available extcap tools */
+/* get a list of all available extcap executables and their interfaces */
 GHashTable *
-extcap_tools_list(void);
+extcap_loaded_interfaces(void);
+
+/* remove all loaded interfaces */
+void
+extcap_clear_interfaces(void);
 
 /* returns the configuration for the given interface name, or an
  * empty list, if no configuration has been found */
