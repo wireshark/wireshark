@@ -73,7 +73,7 @@ static heur_dissector_list_t netbios_heur_subdissector_list;
  *
  * A list of "NovelNetBIOS" packet types can be found at
  *
- *	http://www.protocols.com/pbook/novel.htm#NetBIOS
+ *	http://web.archive.org/web/20150319134837/http://www.protocols.com/pbook/novel.htm#NetBIOS
  *
  * and at least some of those packet types appear to match what's in
  * some NBIPX packets.

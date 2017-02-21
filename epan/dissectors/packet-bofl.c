@@ -21,7 +21,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * The following information was copied from
- * http://www.protocols.com/pbook/bridge.htm#WellfleetBOFL
+ * http://web.archive.org/web/20150608035209/http://www.protocols.com/pbook/bridge.htm#WellfleetBOFL
  *
  * The Wellfleet Breath of Life (BOFL) protocol is used as a line sensing
  * protocol on:

@@ -29,7 +29,9 @@
 /*
  * See
  *
- *	http://www.protocols.com/pbook/sna.htm
+ *	ftp://service.boulder.ibm.com/software/network/commserver/publications/csnt_60/snafmt.pdf
+ *
+ *	http://web.archive.org/web/20150522015710/http://www.protocols.com/pbook/sna.htm
  */
 void proto_register_sdlc(void);
 void proto_reg_handoff_sdlc(void);

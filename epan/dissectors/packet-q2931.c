@@ -35,7 +35,7 @@
 /*
  * See
  *
- *	http://www.protocols.com/pbook/atmsig.htm
+ *	http://web.archive.org/web/20150408122122/http://www.protocols.com/pbook/atmsig.htm
  *
  * for some information on Q.2931, although, alas, not the actual message
  * type and information element values - those I got from the FreeBSD 3.2

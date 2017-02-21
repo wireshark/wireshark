@@ -43,7 +43,7 @@
  * http://www.acacia-net.com/Clarinet/Protocol/q9313svn.htm
  * http://www.acacia-net.com/Clarinet/Protocol/q9311sc3.htm
  * http://www.acacia-net.com/Clarinet/Protocol/q9317oz7.htm
- * http://www.protocols.com/pbook/isdn.htm
+ * http://web.archive.org/web/20150510102424/http://www.protocols.com/pbook/isdn.htm
  * http://freesoft.org/CIE/Topics/126.htm
  * http://noc.comstar.ru/miscdocs/ascend-faq-cause-codes.html
  * http://www.andrews-arnold.co.uk/isdn/q931cause.html
