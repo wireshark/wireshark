@@ -980,7 +980,7 @@ static const range_string gsm_a_bssap_cause_rvals[] = {
     { 0x12,     0x12, "Relocation triggered" },
     { 0x14,     0x14, "Requested option not authorised" },
     { 0x15,     0x15, "Alternative channel configuration requested " },
-    { 0x16,     0x16, "Call Identifier already allocated" },
+    { 0x16,     0x16, "Response to an INTERNAL HANDOVER ENQUIRY message" },
     { 0x17,     0x17, "INTERNAL HANDOVER ENQUIRY reject" },
     { 0x18,     0x18, "Redundancy Level not adequate" },
     { 0x19,     0x1f, "Reserved for national use" },
