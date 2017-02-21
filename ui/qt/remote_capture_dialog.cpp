@@ -82,11 +82,13 @@ static void fillBox(gpointer key, gpointer, gpointer user_data)
 
 void RemoteCaptureDialog::fillComboBox()
 {
-    GHashTable *ht = get_remote_host_list();
+    int remote_host_list_size;
+
     ui->hostCombo->addItem(QString(""));
-    if (recent_get_remote_host_list_size() > 0) {
-        g_hash_table_foreach(ht, fillBox, ui->hostCombo);
-        ui->hostCombo->insertSeparator(g_hash_table_size(ht)+1);
+    remote_host_list_size = recent_get_remote_host_list_size();
+    if (remote_host_list_size > 0) {
+        remote_host_list_foreach(fillBox, ui->hostCombo);
+        ui->hostCombo->insertSeparator(remote_host_list_size+1);
         ui->hostCombo->addItem(QString(tr("Clear list")));
     }
 }

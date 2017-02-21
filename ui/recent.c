@@ -412,9 +412,11 @@ free_remote_host (gpointer key _U_, gpointer value, gpointer user _U_)
   return TRUE;
 }
 
-GHashTable *get_remote_host_list(void)
+void
+remote_host_list_foreach(GHFunc func, gpointer user_data)
 {
-  return remote_host_list;
+  if (remote_host_list != NULL)
+    g_hash_table_foreach(remote_host_list, func, user_data);
 }
 
 static void

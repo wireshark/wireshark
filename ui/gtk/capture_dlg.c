@@ -1162,10 +1162,9 @@ iftype_combo_box_new(void)
 
   iftype_cbx = gtk_combo_box_text_new_with_entry();
 
-  ht = get_remote_host_list();
-  if (g_hash_table_size (ht) > 0) {
+  if (recent_get_remote_host_list_size() > 0) {
     /* Add remote hosts */
-    g_hash_table_foreach (ht, iftype_combo_box_add_remote_host, iftype_cbx);
+    remote_host_list_foreach (iftype_combo_box_add_remote_host, iftype_cbx);
     iftype_combo_box_add_remote_separators (iftype_cbx);
   }
 

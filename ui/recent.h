@@ -225,11 +225,13 @@ extern struct remote_host *recent_get_remote_host(const gchar *host);
 extern int recent_get_remote_host_list_size(void);
 
 /**
- * Get the pointer of the remote_host_list.
+ * Iterate over all items in the remote_host_list, calling a
+ * function for each member
  *
- * @return Pointer to the hash table
+ * @param func Function to be called
+ * @param user_data Argument to pass as user data to the function
  */
-extern GHashTable *get_remote_host_list(void);
+extern void remote_host_list_foreach(GHFunc func, gpointer user_data);
 
 /**
  * Free all entries of the remote_host_list.
