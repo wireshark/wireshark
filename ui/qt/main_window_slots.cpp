@@ -838,6 +838,8 @@ void MainWindow::captureFileSaveStarted(const QString &file_path)
 
 void MainWindow::filterExpressionsChanged()
 {
+    bool actions_added = false;
+
     // Recreate filter buttons
     foreach (QAction *act, filter_expression_toolbar_->actions()) {
         // Permanent actions shouldn't have data
@@ -856,8 +858,12 @@ void MainWindow::filterExpressionsChanged()
         dfb_action->setProperty(dfe_property_, true);
         filter_expression_toolbar_->addAction(dfb_action);
         connect(dfb_action, SIGNAL(triggered()), this, SLOT(displayFilterButtonClicked()));
+        actions_added = true;
     }
-    main_ui_->displayFilterToolBar->adjustSize();
+
+    if (actions_added) {
+        main_ui_->displayFilterToolBar->adjustSize();
+    }
 }
 
 //
