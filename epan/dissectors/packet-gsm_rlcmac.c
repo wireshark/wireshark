@@ -1681,7 +1681,7 @@ static expert_field ei_gsm_rlcmac_stream_not_supported = EI_INIT;
 #define GPRS_CS_OFFSET(cS) ((cS)- RLCMAC_CS1)
 #define EGPRS_HEADER_TYPE_OFFSET(hT) ((hT)- RLCMAC_HDR_TYPE_1)
 
-/* Coding and Puncturing Scheme indicator field for Header type 1 in (EC-)EGPRS TBF or downlink EGPRS2 TBF */
+/* Coding and Puncturing Scheme indicator field for Header type 1 in EGPRS TBF or EC TBF or downlink EGPRS2 TBF */
 static const guint8 egprs_Header_type1_coding_puncturing_scheme_to_mcs[] = {
    9 /* 0x00, "(MCS-9/P1 ; MCS-9/P1)" */,
    9 /* 0x01, "(MCS-9/P1 ; MCS-9/P2)" */,
@@ -8916,10 +8916,10 @@ dissect_ec_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint16      bit_length = tvb_reported_length(tvb) * 8;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
-    col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "EC-EGPRS DL:HEADER");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "EC-GSM-IoT DL:HEADER");
     /* Dissect the MAC header */
     ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, 0, -1,
-                                        "GSM RLC/MAC: EC-EGPRS DL HEADER");
+                                        "GSM RLC/MAC: EC-GSM-IoT DL HEADER");
     rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
     rlc_mac->mcs = MCS_INVALID;
@@ -8954,7 +8954,7 @@ dissect_ul_rlc_ec_control_message(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
   csnStreamInit(&ar, 0, tvb_reported_length(tvb) << 3, pinfo);
   data->u.MESSAGE_TYPE = tvb_get_bits8(tvb, 0, 5);
 
-  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "GPRS UL:%s", val_to_str_ext(data->u.MESSAGE_TYPE, &ec_ul_rlc_message_type_vals_ext, "Unknown Message Type"));
+  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "EC-GSM-IoT UL:%s", val_to_str_ext(data->u.MESSAGE_TYPE, &ec_ul_rlc_message_type_vals_ext, "Unknown Message Type"));
   ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, 0, -1,
                                       "%s (%d) (uplink)",
                                       val_to_str_ext(data->u.MESSAGE_TYPE, &ec_ul_rlc_message_type_vals_ext, "Unknown Message Type... "),
@@ -8996,7 +8996,7 @@ dissect_dl_rlc_ec_control_message(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
   csnStreamInit(&ar, header_bit_offset, (tvb_reported_length(tvb) << 3) - header_bit_offset, pinfo);
   data->u.MESSAGE_TYPE = tvb_get_bits8(tvb, header_bit_offset, 5);
 
-  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "GPRS DL:%s", val_to_str_ext(data->u.MESSAGE_TYPE, &ec_dl_rlc_message_type_vals_ext, "Unknown Message Type"));
+  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "EC-GSM-IoT DL:%s", val_to_str_ext(data->u.MESSAGE_TYPE, &ec_dl_rlc_message_type_vals_ext, "Unknown Message Type"));
   ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, 0, -1,
                                       "%s (%d) (downlink)",
                                       val_to_str_ext(data->u.MESSAGE_TYPE, &ec_dl_rlc_message_type_vals_ext, "Unknown Message Type... "),
@@ -9267,9 +9267,9 @@ dissect_ec_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint16      bit_length = tvb_reported_length(tvb) * 8;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL,  "GSM RLC/MAC");
-    col_append_sep_str(pinfo->cinfo, COL_INFO, ":",  "EC-EGPRS UL:HEADER");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ":",  "EC-GSM-IoT UL:HEADER");
     ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
-                                        "GSM RLC/MAC: EC-EGPRS UL HEADER");
+                                        "GSM RLC/MAC: EC-GSM-IoT UL HEADER");
     rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
     data->u.UL_Data_Block_EGPRS_Header.PI = 0;
     rlc_mac->mcs = MCS_INVALID;
