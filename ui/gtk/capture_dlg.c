@@ -1158,7 +1158,6 @@ static GtkWidget *
 iftype_combo_box_new(void)
 {
   GtkWidget *iftype_cbx;
-  GHashTable *ht;
 
   iftype_cbx = gtk_combo_box_text_new_with_entry();
 
