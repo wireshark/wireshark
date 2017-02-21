@@ -236,10 +236,10 @@ static struct tm timecode_default;
 static guint8* pkt_lnstart;
 
 /* Input file */
-static const char *input_filename;
+static char *input_filename;
 static FILE       *input_file  = NULL;
 /* Output file */
-static const char *output_filename;
+static char *output_filename;
 static FILE       *output_file = NULL;
 
 /* Offset base to parse */
@@ -1779,7 +1779,7 @@ parse_options (int argc, char *argv[])
     }
 
     if (strcmp(argv[optind], "-") != 0) {
-        input_filename = g_strdup(argv[optind]);
+        input_filename = argv[optind];
         input_file = ws_fopen(input_filename, "rb");
         if (!input_file) {
             fprintf(stderr, "Cannot open file [%s] for reading: %s\n",
@@ -1793,7 +1793,7 @@ parse_options (int argc, char *argv[])
 
     if (strcmp(argv[optind+1], "-") != 0) {
         /* Write to a file.  Open the file, in binary mode. */
-        output_filename = g_strdup(argv[optind+1]);
+        output_filename = argv[optind+1];
         output_file = ws_fopen(output_filename, "wb");
         if (!output_file) {
             fprintf(stderr, "Cannot open file [%s] for writing: %s\n",
@@ -1915,6 +1915,7 @@ main(int argc, char *argv[])
                 bytes_written, (bytes_written == 1) ? "" : "s");
     }
 clean_exit:
+    text2pcap_lex_destroy();
     fclose(input_file);
     fclose(output_file);
     return ret;
