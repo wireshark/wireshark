@@ -99,7 +99,7 @@
 
 #define ECHO g_string_append(yyextra->current,yytext);
 
-typedef struct {
+typedef struct _dtd_preparse_scanner_state {
 	const gchar* dtd_dirname;
 	const gchar* filename;
 	guint linenum;
@@ -113,7 +113,6 @@ typedef struct {
 } Dtd_PreParse_scanner_state_t;
 
 static const gchar* replace_entity(Dtd_PreParse_scanner_state_t* state, gchar* s);
-static const gchar* location(Dtd_PreParse_scanner_state_t* state);
 
 #define YY_USER_INIT { \
 	BEGIN OUTSIDE; \
@@ -176,7 +175,7 @@ newline    \n
 %%
 
 
-{entity}				if (yyextra->current) g_string_append_printf(yyextra->current,"%s\n%s\n",replace_entity(yyextra, yytext),location(yyextra));
+{entity}				if (yyextra->current) g_string_append_printf(yyextra->current,"%s\n%s\n",replace_entity(yyextra, yytext),dtd_location(yyextra));
 
 {whitespace}				if (yyextra->current) g_string_append(yyextra->current," ");
 
@@ -192,13 +191,13 @@ newline    \n
 
 {newline}				{
 	yyextra->linenum++;
-	if (yyextra->current) g_string_append_printf(yyextra->current,"%s\n",location(yyextra));
+	if (yyextra->current) g_string_append_printf(yyextra->current,"%s\n",dtd_location(yyextra));
 }
 
 
 <OUTSIDE>{entity_start}			{ BEGIN IN_ENTITY; }
 <IN_ENTITY>{name}			{ yyextra->entity_name = g_strdup_printf("%%%s;",yytext); BEGIN NAMED_ENTITY; }
-<NAMED_ENTITY>{quote}			{ yyextra->current = g_string_new(location(yyextra)); BEGIN IN_QUOTE; }
+<NAMED_ENTITY>{quote}			{ yyextra->current = g_string_new(dtd_location(yyextra)); BEGIN IN_QUOTE; }
 <IN_QUOTE>{quote}			{ g_hash_table_insert(yyextra->entities,yyextra->entity_name,yyextra->current);  BEGIN ENTITY_DONE; }
 <IN_QUOTE>{percent}			|
 <IN_QUOTE>{non_quote}			|
@@ -227,10 +226,12 @@ static const gchar* replace_entity(Dtd_PreParse_scanner_state_t* state, gchar* e
 
 }
 
-static const gchar* location(Dtd_PreParse_scanner_state_t* state) {
+const gchar* dtd_location(Dtd_PreParse_scanner_state_t* state) {
 	static gchar* loc = NULL;
 
 	if (loc) g_free(loc);
+
+	if (!state) return NULL;
 
 	loc = g_strdup_printf("<? wireshark:location %s:%u ?>", state->filename, state->linenum);
 
@@ -275,7 +276,7 @@ extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* er
 	state.error = err;
 
 	state.entities = g_hash_table_new(g_str_hash,g_str_equal);
-	state.current = state.output = g_string_new(location(&state));
+	state.current = state.output = g_string_new(dtd_location(&state));
 	state.entity_name = NULL;
 
 	/* Associate the state with the scanner */

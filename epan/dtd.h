@@ -54,7 +54,10 @@ typedef struct _dtd_named_list_t {
 	GPtrArray* list;
 } dtd_named_list_t;
 
+typedef struct _dtd_preparse_scanner_state Dtd_PreParse_scanner_state_t;
+
 extern GString* dtd_preparse(const gchar* dname, const gchar* fname, GString* err);
 extern dtd_build_data_t* dtd_parse(GString* s);
+extern const gchar* dtd_location(Dtd_PreParse_scanner_state_t* state);
 
 #endif
