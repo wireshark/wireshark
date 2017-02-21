@@ -1609,7 +1609,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
          * doing a "stat()" on it.  If it's a drive letter,
          * or if the "stat()" succeeds, we assume it exists.
          */
-        pf_dir_path_copy = pf_dir_path;
+        pf_dir_path_copy = g_strdup(pf_dir_path);
         pf_dir_parent_path = get_dirname(pf_dir_path_copy);
         pf_dir_parent_path_len = strlen(pf_dir_parent_path);
         if (pf_dir_parent_path_len > 0
@@ -1623,6 +1623,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
                 save_errno = errno;
                 *pf_dir_path_return = pf_dir_path;
                 errno = save_errno;
+                g_free(pf_dir_path_copy);
                 return -1;
             }
             /*
@@ -1631,6 +1632,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
             ret = ws_mkdir(pf_dir_parent_path, 0755);
             if (ret == -1) {
                 *pf_dir_path_return = pf_dir_parent_path;
+                g_free(pf_dir_path);
                 return -1;
             }
         }
