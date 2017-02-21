@@ -413,7 +413,7 @@ free_remote_host (gpointer key _U_, gpointer value, gpointer user _U_)
 }
 
 void
-remote_host_list_foreach(GHFunc func, gpointer user_data)
+recent_remote_host_list_foreach(GHFunc func, gpointer user_data)
 {
   if (remote_host_list != NULL)
     g_hash_table_foreach(remote_host_list, func, user_data);
@@ -438,7 +438,7 @@ capture_remote_combo_recent_write_all(FILE *rf)
 }
 
 
-void free_remote_host_list(void)
+void recent_free_remote_host_list(void)
 {
   g_hash_table_foreach_remove(remote_host_list, free_remote_host, NULL);
 }

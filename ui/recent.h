@@ -211,39 +211,40 @@ extern GList *recent_get_cfilter_list(const gchar *ifname);
 extern void recent_add_cfilter(const gchar *ifname, const gchar *s);
 
 /**
- * Get the value of a remote host from the remote_host_list.
+ * Get the value of an entry for a remote host from the remote host list.
  *
- * @param host Host's address
+ * @param host host name for the remote host.
+ *
+ * @return pointer to the entry for the remote host.
  */
 extern struct remote_host *recent_get_remote_host(const gchar *host);
 
 /**
- * Get the number of entries of the remote_host_list.
+ * Get the number of entries of the remote host list.
  *
- * @return size of the hash table
+ * @return number of entries in the list.
  */
 extern int recent_get_remote_host_list_size(void);
 
 /**
- * Iterate over all items in the remote_host_list, calling a
+ * Iterate over all items in the remote host list, calling a
  * function for each member
  *
- * @param func Function to be called
- * @param user_data Argument to pass as user data to the function
+ * @param func function to be called
+ * @param user_data argument to pass as user data to the function
  */
-extern void remote_host_list_foreach(GHFunc func, gpointer user_data);
+extern void recent_remote_host_list_foreach(GHFunc func, gpointer user_data);
 
 /**
- * Free all entries of the remote_host_list.
- *
+ * Free all entries of the remote host list.
  */
-extern void free_remote_host_list(void);
+extern void recent_free_remote_host_list(void);
 
 /**
  * Add an entry to the remote_host_list.
  *
  * @param host Key of the entry
- * @param rh Vakue of the entry
+ * @param rh Value of the entry
  */
 extern void recent_add_remote_host(gchar *host, struct remote_host *rh);
 

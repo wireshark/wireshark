@@ -58,7 +58,7 @@ RemoteCaptureDialog::~RemoteCaptureDialog()
 void RemoteCaptureDialog::hostChanged(QString host)
 {
     if (!host.compare(tr("Clear list"))) {
-        free_remote_host_list();
+        recent_free_remote_host_list();
         ui->hostCombo->clear();
     } else {
         struct remote_host *rh = recent_get_remote_host(host.toUtf8().constData());
@@ -87,7 +87,7 @@ void RemoteCaptureDialog::fillComboBox()
     ui->hostCombo->addItem(QString(""));
     remote_host_list_size = recent_get_remote_host_list_size();
     if (remote_host_list_size > 0) {
-        remote_host_list_foreach(fillBox, ui->hostCombo);
+        recent_remote_host_list_foreach(fillBox, ui->hostCombo);
         ui->hostCombo->insertSeparator(remote_host_list_size+1);
         ui->hostCombo->addItem(QString(tr("Clear list")));
     }
