@@ -1124,6 +1124,45 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
                     break;
 
+                /* Function Code 21 SBO Select - Echo of Master->RTU Message */
+                case LG8979_FC_SBO_SELECT:
+
+                    /* Get 8-bit point number and trip/close command-code */
+                    ptnum = tvb_get_guint8(tvb, offset);
+                    tripclose = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
+
+                    lg8979_point_tree = proto_tree_add_subtree_format(
+                        lg8979_tree, tvb, offset, 2,
+                        ett_lg8979_point, NULL,
+                        "SBO Command, Pt.Num: %u, Code: %s",
+                        ptnum,
+                        val_to_str_const(tripclose, lg8979_sbo_tripclose_vals, "Unknown Control Code"));
+
+                    /* Update the Information Column with Command Details */
+                    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Output: %u, Code: %s",
+                           ptnum, val_to_str_const(tripclose, lg8979_sbo_tripclose_vals, "Unknown Control Code"));
+
+                    /* Add SBO Select Details to tree */
+                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_start_ptnum8,  tvb, offset,   1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_sbo_tripclose, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(lg8979_point_tree, hf_lg8979_sbo_timercnt, tvb, offset+1,  1, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                    break;
+
+                /* Function Code 22 SBO Operate - Echo of Master->RTU Message */
+                case LG8979_FC_SBO_OPERATE:
+
+                    /* Get 8-bit point number */
+                    ptnum = tvb_get_guint8(tvb, offset);
+
+                    /* Update the Information Column with Command Details */
+                    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Output: %u", ptnum);
+
+                    /* Add 8-bit point number to tree */
+                    proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    offset += 1;
+                    break;
+
                 /* Function Code 31 RTU Configuration */
                 case LG8979_FC_RTU_CONFIG:
 
@@ -1266,7 +1305,7 @@ proto_register_lg8979(void)
         { &hf_lg8979_header,
         { "Header", "lg8979.header", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_lg8979_flags,
-        { "Flags", "lg8979.flags", FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }},
+        { "Flags", "lg8979.flags", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
         { &hf_lg8979_shr,
         { "SHR", "lg8979.shr", FT_UINT8, BASE_DEC, NULL, 0x80, "Short Response Flag", HFILL }},
         { &hf_lg8979_mfc,
