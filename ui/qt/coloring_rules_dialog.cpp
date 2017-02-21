@@ -325,10 +325,12 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
     if (button == import_button_) {
         QString file_name = QFileDialog::getOpenFileName(this, wsApp->windowTitleString(tr("Import Coloring Rules")),
                                                          wsApp->lastOpenDir().path());
-        gchar* err_msg = NULL;
-        if (!color_filters_import(file_name.toUtf8().constData(), this, &err_msg, color_filter_add_cb)) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
-            g_free(err_msg);
+        if (!file_name.isEmpty()) {
+            gchar* err_msg = NULL;
+            if (!color_filters_import(file_name.toUtf8().constData(), this, &err_msg, color_filter_add_cb)) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+                g_free(err_msg);
+            }
         }
     } else if (button == export_button_) {
         int num_items = ui->coloringRulesTreeWidget->selectedItems().count();
