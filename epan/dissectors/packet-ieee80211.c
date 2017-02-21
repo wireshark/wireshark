@@ -4010,6 +4010,8 @@ static int hf_ieee80211_vht_user_position_array = -1;
 static int hf_ieee80211_vht_operation_mode_notification = -1;
 static int hf_ieee80211_vht_membership_status_field = -1;
 static int hf_ieee80211_vht_user_position_field = -1;
+static int hf_ieee80211_vht_mu_exclusive_beamforming_report = -1;
+static int hf_ieee80211_vht_mu_Exclusive_beamforming_delta_snr = -1;
 
 static int hf_ieee80211_tag_neighbor_report_bssid = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info = -1;
@@ -4899,6 +4901,7 @@ static gint ett_ff_vhtmimo_cntrl = -1;
 static gint ett_ff_vhtmimo_beamforming_report = -1;
 static gint ett_ff_vhtmimo_beamforming_report_snr = -1;
 static gint ett_ff_vhtmimo_beamforming_report_feedback_matrices = -1;
+static gint ett_ff_vhtmu_exclusive_beamforming_report_matrices = -1;
 
 static gint ett_vht_grpidmgmt = -1;
 static gint ett_vht_msa = -1;
@@ -9048,6 +9051,127 @@ vht_compressed_skip_scidx(guint8 nchan_width, guint8 ng, int scidx)
   return scidx;
 }
 
+static inline int vht_exclusive_skip_scidx(guint8 nchan_width, guint8 ng, int scidx)
+{
+  switch (nchan_width) {
+    /* 20 MHz */
+    case 0:
+      switch (ng) {
+        /* No Grouping */
+        case 0:
+          if (scidx == -2 || scidx == 1)
+              scidx++;
+          else
+              scidx = scidx + 2;
+          break;
+        case 1:
+          switch (scidx) {
+            case -4: case 1:
+              scidx = scidx + 3;
+              break;
+            case -1:
+              scidx = 1;
+              break;
+            default:
+              scidx = scidx + 4;
+              break;
+          }
+          break;
+        default:
+          switch (scidx) {
+            case -4: case 1:
+              scidx = scidx + 3;
+              break;
+            case -1:
+              scidx = 1;
+              break;
+            default:
+              scidx = scidx + 8;
+              break;
+          }
+          break;
+      }
+      break;
+    /* 40 MHz */
+    case 1:
+    /* 80 MHz */
+    case 2:
+      switch (ng) {
+        /* No Grouping */
+        case 0:
+          if (scidx == -2)
+            scidx = 2;
+          else
+            scidx = scidx + 2;
+          break;
+        case 1:
+          scidx = scidx + 4;
+          break;
+        default:
+          if (scidx == -2)
+            scidx = 2;
+          else
+            scidx = scidx + 8;
+          break;
+      }
+      break;
+    /* 160 MHz / 80+80 Mhz */
+    case 3:
+      switch (ng) {
+        /* No Grouping */
+        case 0:
+          switch (scidx) {
+            /* DC subcarriers, skip -4 to 4*/
+            case -6:
+              scidx = 6;
+              break;
+            /* Other subcarriers, skip -128, 128 */
+            case -130:
+              scidx = -126;
+              break;
+            case 126:
+              scidx = 130;
+              break;
+            default:
+              scidx = scidx + 2;
+              break;
+          }
+          break;
+        case 1:
+          switch (scidx) {
+            /* DC subcarriers, skip -4 to 4*/
+            case -6:
+              scidx = 6;
+              break;
+            default:
+              scidx = scidx + 4;
+              break;
+          }
+          break;
+        default:
+          switch (scidx) {
+            case -6:
+              scidx = 6;
+              break;
+            case -130:
+              scidx = -126;
+              break;
+            case 126:
+              scidx = 130;
+              break;
+            default:
+              scidx = scidx + 8;
+              break;
+          }
+        break;
+      }
+      break;
+    default:
+      break;
+  }
+  return scidx;
+}
+
 static guint
 add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
@@ -9058,10 +9182,11 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
   guint8 grouping;
   gboolean codebook_info;
   gboolean feedback_type;
-  proto_item *vht_beam_item;
-  proto_tree *vht_beam_tree, *subtree;
-  int i, matrix_size, len, pos, ns, scidx = 0;
+  proto_item *vht_beam_item, *vht_excl_beam_item;
+  proto_tree *vht_beam_tree, *subtree, *vht_excl_beam_tree;
+  int i, matrix_size, len, pos, ns, scidx = 0, matrix_len;
   guint8 phi, psi, carry;
+  int j, ic, off_len = 0, sscidx = 0, xnsc;
   /* Table 8-53d Order of angles in the Compressed Beamforming Feedback
    * Matrix subfield, IEEE Std 802.11ac-2013 amendment */
   static const guint8 na_arr[8][8] = { {  0,  0,  0,  0,  0,  0,  0,  0 },
@@ -9081,11 +9206,17 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
                                     { 468, 244, 124 }
                                   };
 
+  /* Table 8-53j, no of Subcarriers for which the Delta SNR subfield is sent back to the beamformer.
+   * IEEE Std 802.11ac-2013 amendment */
+  static const int delta_ns_arr[4][3] = { {  30,  16,  10 },
+                                          {  58,  30,  16 },
+                                          { 122,  62,  32 },
+                                          { 244, 124,  64 }
+                                        };
+
+  vht_mimo = tvb_get_letoh24(tvb, offset);
   proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_vht_mimo_cntrl,
                         ett_ff_vhtmimo_cntrl, hf_ieee80211_ff_vht_mimo_cntrl_fields, ENC_LITTLE_ENDIAN);
-
-  /* Extract values for beamforming use */
-  vht_mimo = tvb_get_letoh24(tvb, offset);
   offset += 3;
 
   /* Extract values for beamforming use */
@@ -9095,6 +9226,20 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
   grouping = ((vht_mimo & 0x300) >> 8);
   codebook_info = (vht_mimo & 0x400) >> 10;
   feedback_type = (vht_mimo & 0x800) >> 11;
+
+  if (feedback_type) {
+    if (codebook_info) {
+      psi = 7; phi = 9;
+    } else {
+      psi = 5; phi = 7;
+    }
+  } else {
+    if (codebook_info) {
+      psi = 4; phi = 6;
+    } else {
+      psi = 2; phi = 4;
+    }
+  }
 
   vht_beam_item = proto_tree_add_item(tree, hf_ieee80211_vht_compressed_beamforming_report, tvb,
                                   offset, -1, ENC_NA);
@@ -9113,6 +9258,8 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
     offset += 1;
   }
 
+  matrix_size = na_arr[nr - 1][nc -1] * (psi + phi)/2;
+
   /* Table 8-53c Subfields of the VHT MIMO Control field (802.11ac-2013)
    * reserves value 3 of the Grouping subfield. */
   if (grouping == 3) {
@@ -9121,23 +9268,15 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
     return offset;
   }
 
-  subtree = proto_tree_add_subtree(vht_beam_tree, tvb, offset, -1,
-                        ett_ff_vhtmimo_beamforming_report_feedback_matrices, NULL, "Beamforming Feedback Matrics");
-  if (feedback_type) {
-    if (codebook_info) {
-      psi = 7; phi = 9;
-    } else {
-      psi = 5; phi = 7;
-    }
-  } else {
-    if (codebook_info) {
-      psi = 4; phi = 6;
-    } else {
-      psi = 2; phi = 4;
-    }
-  }
-
   ns = ns_arr[chan_width][grouping];
+  if (((matrix_size)*(ns)) % 8)
+      matrix_len = (((matrix_size) * (ns)) / (8)) + 1;
+  else
+      matrix_len = (((matrix_size) * (ns)) / (8));
+  subtree = proto_tree_add_subtree(vht_beam_tree, tvb, offset, matrix_len,
+                        ett_ff_vhtmimo_beamforming_report_feedback_matrices, NULL, "Beamforming Feedback Matrix");
+
+
   switch(chan_width) {
     case 0:
       scidx = -28;
@@ -9155,7 +9294,6 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
       break;
   }
 
-  matrix_size = na_arr[nr - 1][nc -1] * (psi + phi)/2;
   pos = 0;
   for (i = 0; i < ns; i++) {
     if (pos % 8)
@@ -9173,6 +9311,50 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
                                     offset - carry, len + carry, "Compressed Beamforming Feedback Matrix for subcarrier %d", scidx++);
     offset += len;
     pos += matrix_size;
+  }
+
+  if (feedback_type) {
+    xnsc = delta_ns_arr[chan_width][grouping];
+    if ((nc * xnsc *4) % 8)
+        off_len = (nc * xnsc *4) / 8 + 1;
+    else
+        off_len = (nc * xnsc *4) / 8;
+    switch(chan_width) {
+      case 0:
+        sscidx = -28;
+        break;
+      case 1:
+        sscidx = -58;
+        break;
+      case 2:
+        sscidx = -122;
+        break;
+      case 3:
+        sscidx = -250;
+        break;
+    }
+    vht_excl_beam_item = proto_tree_add_item(tree, hf_ieee80211_vht_mu_exclusive_beamforming_report, tvb, offset, off_len, ENC_NA);
+    vht_excl_beam_tree = proto_item_add_subtree(vht_excl_beam_item, ett_ff_vhtmu_exclusive_beamforming_report_matrices);
+
+    carry = 1;
+    for (j = 1; j <= xnsc; j++) {
+      for (ic = 1; ic <= nc; ic++) {
+        if (carry % 2){
+          pos = 0;
+          len = 1;
+        }
+        else
+        {
+          pos = 1;
+          len = 0;
+        }
+        proto_tree_add_none_format(vht_excl_beam_tree, hf_ieee80211_vht_mu_Exclusive_beamforming_delta_snr, tvb,
+                                      offset - pos, 1, "Delta SNR for space-time stream %d for subcarrier %d", ic, sscidx);
+        offset += len;
+        carry ++;
+      }
+      sscidx = vht_exclusive_skip_scidx(chan_width, grouping, sscidx);
+    }
   }
 
   return offset;
@@ -21025,6 +21207,11 @@ proto_register_ieee80211(void)
        FT_BYTES, BASE_NONE, NULL, 0,
        NULL, HFILL }},
 
+    {&hf_ieee80211_vht_mu_exclusive_beamforming_report,
+      {"VHT MU Exclusive Beamforming Report","wlan.vht.exclusive_beamforming_report",
+       FT_BYTES, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
     {&hf_ieee80211_vht_compressed_beamforming_report_snr,
       {"Signal to Noise Ratio (SNR)", "wlan.vht.compressed_beamforming_report.snr",
        FT_UINT8, BASE_HEX, NULL, 0,
@@ -21032,6 +21219,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vht_compressed_beamforming_feedback_matrix,
       {"Compressed Beamforming Feedback Matrix", "wlan.vht.compressed_beamforming_report.feedback_matrix",
+       FT_NONE, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mu_Exclusive_beamforming_delta_snr,
+      {"Delta SNR for space-time stream Nc for subcarrier k", "wlan.vht.exclusive_beamforming_report.delta_snr",
        FT_NONE, BASE_NONE, NULL, 0,
        NULL, HFILL }},
 
@@ -27330,6 +27522,7 @@ proto_register_ieee80211(void)
     &ett_ff_vhtmimo_beamforming_report,
     &ett_ff_vhtmimo_beamforming_report_snr,
     &ett_ff_vhtmimo_beamforming_report_feedback_matrices,
+    &ett_ff_vhtmu_exclusive_beamforming_report_matrices,
 
     &ett_vht_grpidmgmt,
     &ett_vht_msa,
