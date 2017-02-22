@@ -5664,7 +5664,7 @@ dissect_smb2_FSCTL_STORAGE_QOS_CONTROL(tvbuff_t *tvb, packet_info *pinfo, proto_
 			offset += 8;
 
 			proto_tree_add_item(tree, hf_smb2_ioctl_sqos_kilobyte_count_increment, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-			offset += 8;
+			/*offset += 8;*/
 		}
 
 		dissect_smb2_olb_string(pinfo, tree, tvb, &host_olb, OLB_TYPE_UNICODE_STRING);
