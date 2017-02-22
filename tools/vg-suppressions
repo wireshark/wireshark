@@ -86,3 +86,14 @@
    ...
    fun:g_log_set_handler_full
 }
+
+{
+   Libc leak (dl_init)
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:*alloc
+   ...
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+}
