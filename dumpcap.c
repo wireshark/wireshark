@@ -1344,6 +1344,7 @@ get_if_capabilities(interface_options *interface_opts, char **err_str)
         return NULL;
     }
 #endif
+    caps->data_link_types = NULL;
     deflt = get_pcap_linktype(pch, interface_opts->name);
 #ifdef HAVE_PCAP_LIST_DATALINKS
     nlt = pcap_list_datalinks(pch, &linktypes);
@@ -1354,7 +1355,6 @@ get_if_capabilities(interface_options *interface_opts, char **err_str)
         g_free(caps);
         return NULL;
     }
-    caps->data_link_types = NULL;
     for (i = 0; i < nlt; i++) {
         data_link_info = create_data_link_info(linktypes[i]);
 
