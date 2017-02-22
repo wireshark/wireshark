@@ -162,7 +162,7 @@ json_print_base64(const guint8 *data, int len)
 	int base64_state1 = 0;
 	int base64_state2 = 0;
 	gsize wrote;
-	gchar buf[(1 / 3 + 1) * 4 + 4];
+	gchar buf[(1 / 3 + 1) * 4 + 4 + 1];
 
 	putchar('"');
 
@@ -170,12 +170,18 @@ json_print_base64(const guint8 *data, int len)
 	{
 		wrote = g_base64_encode_step(&data[i], 1, FALSE, buf, &base64_state1, &base64_state2);
 		if (wrote > 0)
-			fwrite(buf, 1, wrote, stdout);
+		{
+			buf[wrote] = '\0';
+			printf("%s", buf);
+		}
 	}
 
 	wrote = g_base64_encode_close(FALSE, buf, &base64_state1, &base64_state2);
 	if (wrote > 0)
-		fwrite(buf, 1, wrote, stdout);
+	{
+		buf[wrote] = '\0';
+		printf("%s", buf);
+	}
 
 	putchar('"');
 }
@@ -1326,7 +1332,7 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 	{
 		unsigned int frames;
 		guint64 bytes;
-	} stat, stat_total;
+	} st, st_total;
 
 	nstime_t *start_ts = NULL;
 
@@ -1351,11 +1357,11 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 			return;
 	}
 
-	stat_total.frames = 0;
-	stat_total.bytes  = 0;
+	st_total.frames = 0;
+	st_total.bytes  = 0;
 
-	stat.frames = 0;
-	stat.bytes  = 0;
+	st.frames = 0;
+	st.bytes  = 0;
 
 	idx = 0;
 
@@ -1378,9 +1384,9 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 
 		if (idx != new_idx)
 		{
-			if (stat.frames != 0)
+			if (st.frames != 0)
 			{
-				printf("%s[%" G_GINT64_FORMAT ",%u,%" G_GUINT64_FORMAT "]", sepa, idx, stat.frames, stat.bytes);
+				printf("%s[%" G_GINT64_FORMAT ",%u,%" G_GUINT64_FORMAT "]", sepa, idx, st.frames, st.bytes);
 				sepa = ",";
 			}
 
@@ -1388,24 +1394,24 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 			if (idx > max_idx)
 				max_idx = idx;
 
-			stat.frames = 0;
-			stat.bytes  = 0;
+			st.frames = 0;
+			st.bytes  = 0;
 		}
 
-		stat.frames += 1;
-		stat.bytes  += fdata->pkt_len;
+		st.frames += 1;
+		st.bytes  += fdata->pkt_len;
 
-		stat_total.frames += 1;
-		stat_total.bytes  += fdata->pkt_len;
+		st_total.frames += 1;
+		st_total.bytes  += fdata->pkt_len;
 	}
 
-	if (stat.frames != 0)
+	if (st.frames != 0)
 	{
-		printf("%s[%" G_GINT64_FORMAT ",%u,%" G_GUINT64_FORMAT "]", sepa, idx, stat.frames, stat.bytes);
+		printf("%s[%" G_GINT64_FORMAT ",%u,%" G_GUINT64_FORMAT "]", sepa, idx, st.frames, st.bytes);
 		/* sepa = ","; */
 	}
 
-	printf("],\"last\":%" G_GINT64_FORMAT ",\"frames\":%u,\"bytes\":%" G_GUINT64_FORMAT "}\n", max_idx, stat_total.frames, stat_total.bytes);
+	printf("],\"last\":%" G_GINT64_FORMAT ",\"frames\":%u,\"bytes\":%" G_GUINT64_FORMAT "}\n", max_idx, st_total.frames, st_total.bytes);
 }
 
 /**
