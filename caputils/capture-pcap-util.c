@@ -1250,7 +1250,7 @@ get_if_capabilities(interface_options *interface_opts, char **err_str)
         /*
          * Allocate the interface capabilities structure.
          */
-        caps = (if_capabilities_t *)g_malloc(sizeof *caps);
+        caps = (if_capabilities_t *)g_malloc0(sizeof *caps);
 
         auth.type = interface_opts->auth_type == CAPTURE_AUTH_PWD ?
             RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
