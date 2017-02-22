@@ -17,7 +17,7 @@
 }
 
 {
-   Remove leak in libgcrypt (gcry_control)
+   Libgcrypt leak (gcry_control)
    Memcheck:Leak
    match-leak-kinds: reachable
    fun:malloc
@@ -28,7 +28,7 @@
 }
 
 {
-   Remove leak in libgcrypt (gcry_check_version)
+   Libgcrypt leak (gcry_check_version)
    Memcheck:Leak
    match-leak-kinds: reachable
    fun:malloc
@@ -37,4 +37,52 @@
    fun:get_tshark_runtime_version_info
    fun:get_runtime_version_info
    fun:main
+}
+
+{
+   Glib Leak (g_get_charset)
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:*alloc
+   ...
+   fun:g_get_charset
+   fun:print_stream_text_alloc
+   ...
+}
+
+{
+   Glib leak (g_get_user_config_dir)
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:g_get_user_config_dir
+   ...
+}
+
+{
+   Glib leak (g_module)
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:g_module_*
+   ...
+}
+
+{
+   Glib leak (g_private_get) - requires glib debugging symbols installed
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   ...
+   fun:g_private_get
+}
+
+{
+   Glib leak (g_log)
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:g_malloc
+   ...
+   fun:g_log_set_handler_full
 }
