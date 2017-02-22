@@ -48,6 +48,10 @@
 /* This needs to match NUM_GEOIP_COLS in hostlist_table.h */
 #define MAX_GEOIP_DBS 13
 
+#ifndef GeoIP_free
+#define GeoIP_free  free
+#endif
+
 /* Column names for each database type */
 value_string geoip_type_name_vals[] = {
     { GEOIP_COUNTRY_EDITION,        "Country" },
@@ -337,7 +341,8 @@ char *
 geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
     GeoIP *gi;
     GeoIPRecord *gir;
-    const char *raw_val;
+    char *name;
+    const char *country;
     char *val, *ret = NULL;
 
     if (dbnum > geoip_db_num_dbs()) {
@@ -350,9 +355,9 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
     if (gi) {
         switch (gi->databaseType) {
             case GEOIP_COUNTRY_EDITION:
-                raw_val = GeoIP_country_name_by_ipnum(gi, addr);
-                if (raw_val) {
-                    ret = db_val_to_utf_8(raw_val, gi);
+                country = GeoIP_country_name_by_ipnum(gi, addr);
+                if (country) {
+                    ret = db_val_to_utf_8(country, gi);
                 }
                 break;
 
@@ -373,10 +378,10 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
             case GEOIP_ORG_EDITION:
             case GEOIP_ISP_EDITION:
             case GEOIP_ASNUM_EDITION:
-                raw_val = GeoIP_name_by_ipnum(gi, addr);
-                if (raw_val) {
-                    ret = db_val_to_utf_8(raw_val, gi);
-                    g_free((char*)raw_val);
+                name = GeoIP_name_by_ipnum(gi, addr);
+                if (name) {
+                    ret = db_val_to_utf_8(name, gi);
+                    GeoIP_free(name);
                 }
                 break;
 
@@ -464,7 +469,8 @@ char *
 geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found) {
     GeoIP *gi;
     geoipv6_t gaddr;
-    const char *raw_val;
+    char *name;
+    const char *country;
     char *val, *ret = NULL;
 #if NUM_DB_TYPES > 31
     GeoIPRecord *gir;
@@ -482,9 +488,9 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found)
     if (gi) {
         switch (gi->databaseType) {
             case GEOIP_COUNTRY_EDITION_V6:
-                raw_val = GeoIP_country_name_by_ipnum_v6(gi, gaddr);
-                if (raw_val) {
-                    ret = db_val_to_utf_8(raw_val, gi);
+                country = GeoIP_country_name_by_ipnum_v6(gi, gaddr);
+                if (country) {
+                    ret = db_val_to_utf_8(country, gi);
                 }
                 break;
 
@@ -504,10 +510,10 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found)
             case GEOIP_ORG_EDITION_V6:
             case GEOIP_ISP_EDITION_V6:
             case GEOIP_ASNUM_EDITION_V6:
-                raw_val = GeoIP_name_by_ipnum_v6(gi, gaddr);
-                if (raw_val) {
-                    ret = db_val_to_utf_8(raw_val, gi);
-                    g_free((char*)raw_val);
+                name = GeoIP_name_by_ipnum_v6(gi, gaddr);
+                if (name) {
+                    ret = db_val_to_utf_8(name, gi);
+                    GeoIP_free(name);
                 }
                 break;
 #endif /* NUM_DB_TYPES */
