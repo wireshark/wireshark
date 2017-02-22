@@ -999,18 +999,13 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 	pcap_t *pch;
 	int status;
 
-	/*
-	 * Allocate the interface capabilities structure.
-	 */
-	caps = (if_capabilities_t *)g_malloc(sizeof *caps);
-
 	pch = pcap_create(interface_opts->name, errbuf);
 	if (pch == NULL) {
 		if (err_str != NULL)
 			*err_str = g_strdup(errbuf);
-		g_free(caps);
 		return NULL;
 	}
+
 	if (is_linux_bonding_device(interface_opts->name)) {
 		/*
 		 * Linux bonding device; not Wi-Fi, so no monitor mode, and
@@ -1032,9 +1027,9 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 		else
 			*err_str = g_strdup(pcap_statustostr(status));
 		pcap_close(pch);
-		g_free(caps);
 		return NULL;
 	}
+	caps = (if_capabilities_t *)g_malloc(sizeof *caps);
 	if (status == 0)
 		caps->can_set_rfmon = FALSE;
 	else if (status == 1) {
@@ -1170,20 +1165,16 @@ get_if_capabilities_pcap_open_live(interface_options *interface_opts,
 	char errbuf[PCAP_ERRBUF_SIZE];
 	pcap_t *pch;
 
-	/*
-	 * Allocate the interface capabilities structure.
-	 */
-	caps = (if_capabilities_t *)g_malloc(sizeof *caps);
-
 	pch = pcap_open_live(interface_opts->name, MIN_PACKET_SIZE, 0, 0,
 	    errbuf);
-	caps->can_set_rfmon = FALSE;
 	if (pch == NULL) {
 		if (err_str != NULL)
 			*err_str = g_strdup(errbuf[0] == '\0' ? "Unknown error (pcap bug; actual error cause not reported)" : errbuf);
-		g_free(caps);
 		return NULL;
 	}
+
+	caps = (if_capabilities_t *)g_malloc(sizeof *caps);
+	caps->can_set_rfmon = FALSE;
 	caps->data_link_types = get_data_link_types(pch, interface_opts,
 	    err_str);
 	if (caps->data_link_types == NULL) {
@@ -1247,11 +1238,6 @@ get_if_capabilities(interface_options *interface_opts, char **err_str)
     if (strncmp (interface_opts->name, "rpcap://", 8) == 0) {
         struct pcap_rmtauth auth;
 
-        /*
-         * Allocate the interface capabilities structure.
-         */
-        caps = (if_capabilities_t *)g_malloc0(sizeof *caps);
-
         auth.type = interface_opts->auth_type == CAPTURE_AUTH_PWD ?
             RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
         auth.username = interface_opts->auth_username;
@@ -1277,9 +1263,12 @@ get_if_capabilities(interface_options *interface_opts, char **err_str)
 	if (pch == NULL) {
 		if (err_str != NULL)
 			*err_str = g_strdup(errbuf[0] == '\0' ? "Unknown error (pcap bug; actual error cause not reported)" : errbuf);
-		g_free(caps);
 		return NULL;
 	}
+
+        caps = (if_capabilities_t *)g_malloc(sizeof *caps);
+        caps->can_set_rfmon = FALSE;
+        caps->data_link_types = NULL;
         deflt = get_pcap_datalink(pch, interface_opts->name);
         data_link_info = create_data_link_info(deflt);
         caps->data_link_types = g_list_append(caps->data_link_types,
