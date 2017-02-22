@@ -964,7 +964,7 @@ proto_register_nsip(void)
   static hf_register_info hf[] = {
     { &hf_nsip_cause,
       { "Cause", "nsip.cause",
-        FT_UINT8, BASE_OCT, VALS(tab_nsip_cause_values), 0x0,
+        FT_UINT8, BASE_HEX, VALS(tab_nsip_cause_values), 0x0,
         NULL, HFILL }
     },
     { &hf_nsip_ns_vci,
@@ -974,7 +974,7 @@ proto_register_nsip(void)
     },
     { &hf_nsip_pdu_type,
       { "PDU type", "nsip.pdu_type",
-        FT_UINT8, BASE_OCT, VALS(tab_nsip_pdu_types), 0x0,
+        FT_UINT8, BASE_HEX, VALS(tab_nsip_pdu_types), 0x0,
         "PDU type information element", HFILL }
     },
     { &hf_nsip_bvci,
