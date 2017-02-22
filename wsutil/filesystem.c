@@ -1549,10 +1549,10 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 #ifdef _WIN32
     char *pf_dir_path_copy, *pf_dir_parent_path;
     size_t pf_dir_parent_path_len;
+    int save_errno;
 #endif
     ws_statb64 s_buf;
     int ret;
-    int save_errno;
 
     if (profilename) {
         /*
@@ -1570,9 +1570,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
         if (ws_stat64(pf_dir_path, &s_buf) != 0) {
             if (errno != ENOENT) {
                 /* Some other problem; give up now. */
-                save_errno = errno;
                 *pf_dir_path_return = pf_dir_path;
-                errno = save_errno;
                 return -1;
             }
 
@@ -1592,9 +1590,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
     if (ws_stat64(pf_dir_path, &s_buf) != 0) {
         if (errno != ENOENT) {
             /* Some other problem; give up now. */
-            save_errno = errno;
             *pf_dir_path_return = pf_dir_path;
-            errno = save_errno;
             return -1;
         }
 #ifdef _WIN32
@@ -1620,10 +1616,10 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
              */
             if (errno != ENOENT) {
                 /* Some other problem; give up now. */
-                save_errno = errno;
                 *pf_dir_path_return = pf_dir_path;
-                errno = save_errno;
+                save_errno = errno;
                 g_free(pf_dir_path_copy);
+                errno = save_errno;
                 return -1;
             }
             /*
@@ -1632,7 +1628,9 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
             ret = ws_mkdir(pf_dir_parent_path, 0755);
             if (ret == -1) {
                 *pf_dir_path_return = pf_dir_parent_path;
+                save_errno = errno;
                 g_free(pf_dir_path);
+                errno = save_errno;
                 return -1;
             }
         }
