@@ -607,7 +607,7 @@ airpcap_driver_fake_if_info_new(void)
     ad = airpcap_if_open(if_info->name, ebuf);
     if (ad)
     {
-        fake_if_info = (airpcap_if_info_t *)g_malloc(sizeof (airpcap_if_info_t));
+        fake_if_info = (airpcap_if_info_t *)g_malloc0(sizeof (airpcap_if_info_t));
         fake_if_info->name = g_strdup(if_info->name);
         fake_if_info->description = g_strdup(if_info->description);
         fake_if_info->loopback = FALSE;

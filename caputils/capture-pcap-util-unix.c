@@ -159,10 +159,9 @@ get_interface_list(int *err, char **err_str)
 	lastlen = 0;
 	len = 100 * sizeof(struct ifreq);
 	for ( ; ; ) {
-		buf = (char *)g_malloc(len);
+		buf = (char *)g_malloc0(len);
 		ifc.ifc_len = len;
 		ifc.ifc_buf = buf;
-		memset (buf, 0, len);
 		if (ioctl(sock, SIOCGIFCONF, &ifc) < 0) {
 			if (errno != EINVAL || lastlen != 0) {
 				if (err_str != NULL) {
