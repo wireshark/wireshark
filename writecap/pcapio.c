@@ -516,6 +516,9 @@ pcapng_write_enhanced_packet_block(FILE* pfile,
         guint64 timestamp;
         guint32 options_length;
         const guint32 padding = 0;
+        guint8 buff[8];
+        guint8 i;
+        guint8 pad_len = 0;
 
         block_total_length = (guint32)(sizeof(struct epb) +
                                        ADD_PADDING(caplen) +
@@ -543,8 +546,28 @@ pcapng_write_enhanced_packet_block(FILE* pfile,
                 return FALSE;
         if (!write_to_file(pfile, pd, caplen, bytes_written, err))
                 return FALSE;
-        if (caplen % 4) {
-                if (!write_to_file(pfile, (const guint8*)&padding, 4 - caplen % 4, bytes_written, err))
+        /* Use more efficient write in case of no "extras" */
+        if(caplen % 4) {
+            pad_len = 4 - (caplen % 4);
+        }
+        if(!comment && flags == 0 && options_length==0){
+            /* Put padding in the buffer */
+            for (i = 0; i < pad_len; i++) {
+                buff[i] = 0;
+            }
+            /* Write the total length */
+            buff[i] = (block_total_length & 0x000000ff);
+            i++;
+            buff[i] = (block_total_length & 0x0000ff00) >> 8;
+            i++;
+            buff[i] = (block_total_length & 0x00ff0000) >> 16;
+            i++;
+            buff[i] = (block_total_length & 0xff000000) >> 24;
+            i++;
+            return write_to_file(pfile, (const guint8*)&buff, i, bytes_written, err);
+        }
+        if (pad_len) {
+                if (!write_to_file(pfile, (const guint8*)&padding, pad_len, bytes_written, err))
                         return FALSE;
         }
         if (!pcapng_write_string_option(pfile, OPT_COMMENT, comment,
