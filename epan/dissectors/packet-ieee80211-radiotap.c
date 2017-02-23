@@ -156,6 +156,13 @@ static int hf_radiotap_vht_datarate[4] = { -1, -1, -1, -1 };
 static int hf_radiotap_vht_gid = -1;
 static int hf_radiotap_vht_p_aid = -1;
 static int hf_radiotap_vht_user = -1;
+static int hf_radiotap_timestamp = -1;
+static int hf_radiotap_timestamp_ts = -1;
+static int hf_radiotap_timestamp_accuracy = -1;
+static int hf_radiotap_timestamp_unit = -1;
+static int hf_radiotap_timestamp_spos = -1;
+static int hf_radiotap_timestamp_flags_32bit = -1;
+static int hf_radiotap_timestamp_flags_accuracy = -1;
 
 /* "Present" flags */
 static int hf_radiotap_present_word = -1;
@@ -179,6 +186,7 @@ static int hf_radiotap_present_xchannel = -1;
 static int hf_radiotap_present_mcs = -1;
 static int hf_radiotap_present_ampdu = -1;
 static int hf_radiotap_present_vht = -1;
+static int hf_radiotap_present_timestamp = -1;
 static int hf_radiotap_present_reserved = -1;
 static int hf_radiotap_present_rtap_ns = -1;
 static int hf_radiotap_present_vendor_ns = -1;
@@ -214,6 +222,8 @@ static gint ett_radiotap_ampdu_flags = -1;
 static gint ett_radiotap_vht = -1;
 static gint ett_radiotap_vht_known = -1;
 static gint ett_radiotap_vht_user = -1;
+static gint ett_radiotap_timestamp = -1;
+static gint ett_radiotap_timestamp_flags = -1;
 
 static expert_field ei_radiotap_data_past_header = EI_INIT;
 static expert_field ei_radiotap_present_reserved = EI_INIT;
@@ -537,6 +547,21 @@ static const true_false_string preamble_type = {
 	"Long",
 };
 
+static const value_string timestamp_unit[] = {
+	{ IEEE80211_RADIOTAP_TS_UNIT_MSEC, "msec" },
+	{ IEEE80211_RADIOTAP_TS_UNIT_USEC, "usec" },
+	{ IEEE80211_RADIOTAP_TS_UNIT_NSEC, "nsec" },
+	{ 0, NULL }
+};
+
+static const value_string timestamp_spos[] = {
+	{ IEEE80211_RADIOTAP_TS_SPOS_MPDU, "first MPDU bit/symbol" },
+	{ IEEE80211_RADIOTAP_TS_SPOS_ACQ, "signal acquisition" },
+	{ IEEE80211_RADIOTAP_TS_SPOS_EOF, "end of frame" },
+	{ IEEE80211_RADIOTAP_TS_SPOS_UNDEF, "undefined" },
+	{ 0, NULL }
+};
+
 /*
  * The NetBSD ieee80211_radiotap man page
  * (http://netbsd.gw.com/cgi-bin/man-cgi?ieee80211_radiotap+9+NetBSD-current)
@@ -853,6 +878,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_vht, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(present_word_tree,
+					    hf_radiotap_present_timestamp, tvb,
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
+
 			ti = proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_reserved, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
@@ -1831,6 +1860,32 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 			break;
 		}
+		case IEEE80211_RADIOTAP_TIMESTAMP: {
+			proto_item *it_root;
+			proto_tree *ts_tree, *flg_tree;
+
+			it_root = proto_tree_add_item(radiotap_tree, hf_radiotap_timestamp,
+					tvb, offset, 12, ENC_NA);
+			ts_tree = proto_item_add_subtree(it_root, ett_radiotap_timestamp);
+
+			proto_tree_add_item(ts_tree, hf_radiotap_timestamp_ts,
+					tvb, offset, 8, ENC_LITTLE_ENDIAN);
+			if (tvb_get_letohs(tvb, offset + 11) & IEEE80211_RADIOTAP_TS_FLG_ACCURACY)
+				proto_tree_add_item(ts_tree, hf_radiotap_timestamp_accuracy,
+					tvb, offset + 8, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ts_tree, hf_radiotap_timestamp_unit,
+					tvb, offset + 10, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ts_tree, hf_radiotap_timestamp_spos,
+					tvb, offset + 10, 1, ENC_LITTLE_ENDIAN);
+			flg_tree = proto_item_add_subtree(ts_tree, ett_radiotap_timestamp_flags);
+			proto_tree_add_item(flg_tree,
+					hf_radiotap_timestamp_flags_32bit, tvb,
+					offset + 11, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(flg_tree,
+					hf_radiotap_timestamp_flags_accuracy, tvb,
+					offset + 11, 1, ENC_LITTLE_ENDIAN);
+			break;
+		}
 		}
 	}
 
@@ -2024,6 +2079,11 @@ void proto_register_radiotap(void)
 		 {"VHT information", "radiotap.present.vht",
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(VHT),
 		  "Specifies if the VHT field is present", HFILL}},
+
+		{&hf_radiotap_present_timestamp,
+		 {"frame timestamp", "radiotap.present.timestamp",
+		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(TIMESTAMP),
+		  "Specifies if the timestamp field is present", HFILL}},
 
 		{&hf_radiotap_present_reserved,
 		 {"Reserved", "radiotap.present.reserved",
@@ -2684,6 +2744,43 @@ void proto_register_radiotap(void)
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
+		{&hf_radiotap_timestamp,
+		 {"timestamp information", "radiotap.timestamp",
+		  FT_NONE, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_timestamp_ts,
+		 {"timestamp", "radiotap.timestamp.ts",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_timestamp_accuracy,
+		 {"accuracy", "radiotap.timestamp.accuracy",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_timestamp_unit,
+		 {"time unit", "radiotap.timestamp.unit",
+		  FT_UINT8, BASE_DEC, VALS(timestamp_unit),
+		  IEEE80211_RADIOTAP_TS_UNIT_MASK,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_timestamp_spos,
+		 {"sampling position", "radiotap.timestamp.samplingpos",
+		  FT_UINT8, BASE_DEC, VALS(timestamp_spos),
+		  IEEE80211_RADIOTAP_TS_SPOS_MASK,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_timestamp_flags_32bit,
+		 {"32-bit counter", "radiotap.timestamp.flags.32bit",
+		  FT_BOOLEAN, 8, TFS(&tfs_yes_no), IEEE80211_RADIOTAP_TS_FLG_32BIT,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_timestamp_flags_accuracy,
+		 {"accuracy field", "radiotap.timestamp.flags.accuracy",
+		  FT_BOOLEAN, 8, TFS(&tfs_present_absent), IEEE80211_RADIOTAP_TS_FLG_ACCURACY,
+		  NULL, HFILL}},
+
 		{&hf_radiotap_vendor_ns,
 		 {"Vendor namespace", "radiotap.vendor_namespace",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -2731,7 +2828,9 @@ void proto_register_radiotap(void)
 		&ett_radiotap_ampdu_flags,
 		&ett_radiotap_vht,
 		&ett_radiotap_vht_known,
-		&ett_radiotap_vht_user
+		&ett_radiotap_vht_user,
+		&ett_radiotap_timestamp,
+		&ett_radiotap_timestamp_flags
 	};
 	static ei_register_info ei[] = {
 		{ &ei_radiotap_present, { "radiotap.present.radiotap_and_vendor", PI_MALFORMED, PI_ERROR, "Both radiotap and vendor namespace specified in bitmask word", EXPFILL }},
