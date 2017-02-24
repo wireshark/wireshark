@@ -329,7 +329,7 @@ as +foo.type=1+ into the filter box.
 * 'FT_UINT8' - This specifies this item is an 8bit unsigned integer.
 This tallies with our call above where we tell it to only look at one byte.
 
-* 'BASE_DEC' - Tor an integer type, this tells it to be printed as a decimal
+* 'BASE_DEC' - For an integer type, this tells it to be printed as a decimal
 number. It could be hexadecimal (BASE_HEX) or octal (BASE_OCT) if that made more sense.
 
 We'll ignore the rest of the structure for now.
