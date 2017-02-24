@@ -759,12 +759,11 @@ QMenu *MainWindow::createPopupMenu()
     menu->addAction(main_ui_->actionViewFilterToolbar);
     menu->addAction(main_ui_->actionViewWirelessToolbar);
 
-    if ( ! main_ui_->actionViewAdditionalToolbars->actions().isEmpty() )
-    {
-        QMenu * subMenu = menu->addMenu(main_ui_->actionViewAdditionalToolbars->title());
-        foreach ( QAction * action, main_ui_->actionViewAdditionalToolbars->actions() )
+    if (!main_ui_->actionViewAdditionalToolbars->actions().isEmpty()) {
+        QMenu *subMenu = menu->addMenu(main_ui_->actionViewAdditionalToolbars->title());
+        foreach (QAction *action, main_ui_->actionViewAdditionalToolbars->actions()) {
             subMenu->addAction(action);
-
+        }
     }
 
     menu->addAction(main_ui_->actionViewStatusBar);
@@ -2585,11 +2584,11 @@ QMenu * MainWindow::searchSubMenu(QString objectName)
 
 void MainWindow::addPluginIFStructures()
 {
-    GList * user_menu = ext_menubar_get_entries();
+    GList *user_menu = ext_menubar_get_entries();
 
     while (user_menu && user_menu->data) {
-        QMenu * subMenu = NULL;
-        ext_menu_t * menu = (ext_menu_t *) user_menu->data;
+        QMenu *subMenu = NULL;
+        ext_menu_t *menu = (ext_menu_t *) user_menu->data;
 
         /* On this level only menu items should exist. Not doing an assert here,
          * as it could be an honest mistake */
@@ -2600,7 +2599,7 @@ void MainWindow::addPluginIFStructures()
 
         /* Create main submenu and add it to the menubar */
         if (menu->parent_menu) {
-            QMenu * sortUnderneath = searchSubMenu(QString(menu->parent_menu));
+            QMenu *sortUnderneath = searchSubMenu(QString(menu->parent_menu));
             if (sortUnderneath)
                 subMenu = sortUnderneath->addMenu(menu->label);
         }
@@ -2618,14 +2617,13 @@ void MainWindow::addPluginIFStructures()
 
     int cntToolbars = 0;
 
-    QMenu * tbMenu = main_ui_->actionViewAdditionalToolbars;
-    GList * if_toolbars = ext_toolbar_get_entries();
-    while ( if_toolbars && if_toolbars->data ) {
+    QMenu *tbMenu = main_ui_->actionViewAdditionalToolbars;
+    GList *if_toolbars = ext_toolbar_get_entries();
+    while (if_toolbars && if_toolbars->data) {
+        ext_toolbar_t *toolbar = (ext_toolbar_t*) if_toolbars->data;
 
-        ext_toolbar_t * toolbar = (ext_toolbar_t*) if_toolbars->data;
-
-        if ( toolbar->type != EXT_TOOLBAR_BAR) {
-            if_toolbars = g_list_next ( if_toolbars );
+        if (toolbar->type != EXT_TOOLBAR_BAR) {
+            if_toolbars = g_list_next (if_toolbars);
             continue;
         }
 
@@ -2634,10 +2632,8 @@ void MainWindow::addPluginIFStructures()
         AdditionalToolBar * ifToolBar = AdditionalToolBar::create(this, toolbar);
         ifToolBar->setVisible(visible);
 
-        if ( ifToolBar )
-        {
-
-            QAction * iftbAction = new QAction(QString(toolbar->name), this);
+        if (ifToolBar) {
+            QAction *iftbAction = new QAction(QString(toolbar->name), this);
             iftbAction->setToolTip(toolbar->tooltip);
             iftbAction->setEnabled(true);
             iftbAction->setCheckable(true);
@@ -2645,13 +2641,11 @@ void MainWindow::addPluginIFStructures()
             iftbAction->setToolTip(tr("Show or hide the toolbar"));
             iftbAction->setData(VariantPointer<ext_toolbar_t>::asQVariant(toolbar));
 
-            QAction * before = 0;
+            QAction *before = 0;
 
-            foreach ( QAction * action, tbMenu->actions() )
-            {
+            foreach (QAction *action, tbMenu->actions()) {
                 /* Ensure we add the menu entries in sorted order */
-                if ( action->text().compare(toolbar->name, Qt::CaseInsensitive) > 0 )
-                {
+                if (action->text().compare(toolbar->name, Qt::CaseInsensitive) > 0) {
                     before = action;
                     break;
                 }
@@ -2662,45 +2656,42 @@ void MainWindow::addPluginIFStructures()
             addToolBar(Qt::TopToolBarArea, ifToolBar);
             insertToolBarBreak(ifToolBar);
 
-            if ( show_hide_actions_ )
+            if (show_hide_actions_)
                 show_hide_actions_->addAction(iftbAction);
 
             cntToolbars++;
         }
 
-        if_toolbars = g_list_next ( if_toolbars );
+        if_toolbars = g_list_next (if_toolbars);
     }
 
-    if ( cntToolbars )
+    if (cntToolbars)
         tbMenu->menuAction()->setVisible(true);
-
 }
 
 void MainWindow::removeAdditionalToolbar(QString toolbarName)
 {
-    if ( toolbarName.length() == 0 )
+    if (toolbarName.length() == 0)
         return;
 
     QList<QToolBar *> toolbars = findChildren<QToolBar *>();
-    foreach(QToolBar * tb, toolbars) {
-        AdditionalToolBar * ifToolBar = dynamic_cast<AdditionalToolBar *>(tb);
+    foreach(QToolBar *tb, toolbars) {
+        AdditionalToolBar *ifToolBar = dynamic_cast<AdditionalToolBar *>(tb);
 
-        if ( ifToolBar && ifToolBar->menuName().compare(toolbarName) ) {
-
+        if (ifToolBar && ifToolBar->menuName().compare(toolbarName)) {
             GList *entry = g_list_find_custom(recent.gui_additional_toolbars, ifToolBar->menuName().toStdString().c_str(), (GCompareFunc) strcmp);
             if (entry) {
                 recent.gui_additional_toolbars = g_list_remove(recent.gui_additional_toolbars, entry->data);
             }
             QList<QAction *> actions = main_ui_->actionViewAdditionalToolbars->actions();
-            foreach(QAction * action, actions) {
-                ext_toolbar_t * item = VariantPointer<ext_toolbar_t>::asPtr(action->data());
-                if ( item && ifToolBar->menuName().compare(item->name) ) {
-                    if ( show_hide_actions_ )
+            foreach(QAction *action, actions) {
+                ext_toolbar_t *item = VariantPointer<ext_toolbar_t>::asPtr(action->data());
+                if (item && ifToolBar->menuName().compare(item->name)) {
+                    if (show_hide_actions_)
                         show_hide_actions_->removeAction(action);
                     main_ui_->actionViewAdditionalToolbars->removeAction(action);
                 }
             }
-
             break;
         }
     }

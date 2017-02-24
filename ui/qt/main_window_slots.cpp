@@ -487,11 +487,11 @@ void MainWindow::layoutToolbars()
     main_ui_->statusBar->setVisible(recent.statusbar_show);
 
     QList<QToolBar *> toolbars = findChildren<QToolBar *>();
-    foreach (QToolBar * bar, toolbars ) {
-        AdditionalToolBar * iftoolbar = dynamic_cast<AdditionalToolBar *>(bar);
-        if ( iftoolbar ) {
+    foreach (QToolBar *bar, toolbars) {
+        AdditionalToolBar *iftoolbar = dynamic_cast<AdditionalToolBar *>(bar);
+        if (iftoolbar) {
             bool visible = false;
-            if ( g_list_find_custom(recent.gui_additional_toolbars, iftoolbar->menuName().toUtf8().constData(), (GCompareFunc) strcmp) )
+            if (g_list_find_custom(recent.gui_additional_toolbars, iftoolbar->menuName().toUtf8().constData(), (GCompareFunc) strcmp))
                 visible = true;
 
             iftoolbar->setVisible(visible);
@@ -523,13 +523,13 @@ void MainWindow::updateRecentActions()
     main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show && prefs_has_layout_pane_content(layout_pane_content_pdetails));
     main_ui_->actionViewPacketBytes->setChecked(recent.byte_view_show && prefs_has_layout_pane_content(layout_pane_content_pbytes));
 
-    foreach ( QAction * action, main_ui_->actionViewAdditionalToolbars->actions() ) {
+    foreach (QAction * action, main_ui_->actionViewAdditionalToolbars->actions()) {
         ext_toolbar_t * toolbar = VariantPointer<ext_toolbar_t>::asPtr(action->data());
         bool checked = false;
-        if ( toolbar && g_list_find_custom(recent.gui_additional_toolbars, toolbar->name, (GCompareFunc) strcmp) )
+        if (toolbar && g_list_find_custom(recent.gui_additional_toolbars, toolbar->name, (GCompareFunc) strcmp))
             checked = true;
 
-        action->setChecked( checked );
+        action->setChecked(checked);
     }
 
     foreach (QAction* tda, td_actions.keys()) {
@@ -2258,9 +2258,9 @@ void MainWindow::showHideMainWidgets(QAction *action)
             action->setChecked(show);
 
             QList<QToolBar *> toolbars = findChildren<QToolBar *>();
-            foreach (QToolBar * bar, toolbars ) {
-                AdditionalToolBar * iftoolbar = dynamic_cast<AdditionalToolBar *>(bar);
-                if ( iftoolbar && iftoolbar->menuName().compare(toolbar->name) == 0 ) {
+            foreach (QToolBar *bar, toolbars) {
+                AdditionalToolBar *iftoolbar = dynamic_cast<AdditionalToolBar *>(bar);
+                if (iftoolbar && iftoolbar->menuName().compare(toolbar->name) == 0) {
                     iftoolbar->setVisible(show);
                 }
             }
@@ -3942,25 +3942,20 @@ void MainWindow::on_actionViewFullScreen_triggered(bool checked)
 
 void MainWindow::activatePluginIFToolbar(bool)
 {
-    QAction * sendingAction = dynamic_cast<QAction *>(sender());
-    if ( ! sendingAction || ! sendingAction->data().isValid() )
+    QAction *sendingAction = dynamic_cast<QAction *>(sender());
+    if (!sendingAction || !sendingAction->data().isValid())
         return;
 
-    ext_toolbar_t * toolbar = VariantPointer<ext_toolbar_t>::asPtr(sendingAction->data());
+    ext_toolbar_t *toolbar = VariantPointer<ext_toolbar_t>::asPtr(sendingAction->data());
 
     QList<QToolBar *> toolbars = findChildren<QToolBar *>();
-    foreach (QToolBar * bar, toolbars )
-    {
-        AdditionalToolBar * iftoolbar = dynamic_cast<AdditionalToolBar *>(bar);
-        if ( iftoolbar && iftoolbar->menuName().compare(toolbar->name) == 0 )
-        {
-            if ( iftoolbar->isVisible() )
-            {
+    foreach (QToolBar *bar, toolbars) {
+        AdditionalToolBar *iftoolbar = dynamic_cast<AdditionalToolBar *>(bar);
+        if (iftoolbar && iftoolbar->menuName().compare(toolbar->name) == 0) {
+            if (iftoolbar->isVisible()) {
                 iftoolbar->setVisible(false);
                 sendingAction->setChecked(true);
-            }
-            else
-            {
+            } else {
                 iftoolbar->setVisible(true);
                 sendingAction->setChecked(true);
             }
