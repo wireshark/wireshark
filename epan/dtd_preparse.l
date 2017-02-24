@@ -99,7 +99,7 @@
 
 #define ECHO g_string_append(yyextra->current,yytext);
 
-typedef struct _dtd_preparse_scanner_state {
+struct _dtd_preparse_scanner_state {
 	const gchar* dtd_dirname;
 	const gchar* filename;
 	guint linenum;
@@ -110,7 +110,7 @@ typedef struct _dtd_preparse_scanner_state {
 	GString* current;
 	GString* output;
 	gchar* entity_name;
-} Dtd_PreParse_scanner_state_t;
+};
 
 static const gchar* replace_entity(Dtd_PreParse_scanner_state_t* state, gchar* s);
 
