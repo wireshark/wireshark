@@ -188,10 +188,7 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     stat_timer_ = NULL;
     stat_cache_ = NULL;
 
-    // XXX - Enable / disable as needed
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
-
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled((global_capture_opts.num_selected > 0)? true: false);
 
     // Start out with the list *not* sorted, so they show up in the order
     // in which they were provided
@@ -231,6 +228,8 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     connect(this, SIGNAL(ifsChanged()), this, SLOT(refreshInterfaceList()));
     connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(updateLocalInterfaces()));
     connect(ui->browseButton, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
+
+    updateWidgets();
 }
 
 /* Update global device selections based on the TreeWidget selection. */
@@ -272,8 +271,6 @@ void CaptureInterfacesDialog::updateGlobalDeviceSelections()
 void CaptureInterfacesDialog::interfaceSelected()
 {
     updateGlobalDeviceSelections();
-
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled((global_capture_opts.num_selected > 0) ? true: false);
 
     emit interfacesChanged();
 
@@ -724,7 +721,7 @@ void CaptureInterfacesDialog::updateInterfaces()
 
     }
 
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled((global_capture_opts.num_selected > 0)? true: false);
+    updateWidgets();
 
     if (!stat_timer_) {
         updateStatistics();
