@@ -290,6 +290,10 @@ is encouraged to update their plugins as outlined below:
 
 6 How to plugin related interface options
 
+To demonstrate the functionality of the plugin interface options, a demonstration
+plugin exists (pluginifdemo). To build it using cmake, the build option ENABLE_PLUGINIFDEMO
+has to be enabled.
+
 6.1 Implement a plugin GUI menu
 
 A plugin (as well as built-in dissectors) may implement a menu within
@@ -352,6 +356,110 @@ The following methods exist so far:
 	/* Jumps to the given frame number */
 	WS_DLL_PUBLIC void plugin_if_goto_frame(guint32 framenr);
 
+6.3 Implement a plugin specific toolbar
+
+A toolbar may be registered which allows implementing an interactive user
+interaction with the main application. The toolbar is generated using the following
+code:
+
+    ext_toolbar_t * tb = ext_toolbar_register_toolbar("Plugin Interface Demo Toolbar");
+
+This registers a toolbar, which will be shown underneath "View->Additional Toolbars" in
+the main menu, as well as the popup action window when right-clicking on any other tool-
+or menubar.
+
+It behaves identically to the existing toolbars and can be hidden as well as defined to
+appear specific to selected profiles. The name with which it is being shown is the given
+name in this function call.
+
+6.3.1 Register elements for the toolbar
+
+To add items to the toolbar, 4 different types of elements do exist.
+
+  * BOOLEAN - a checkbox to select / unselect
+  * BUTTON - a button to click
+  * STRING - a text field with validation options
+  * SELECTOR - a dropdown selection field
+
+To add an element to the toolbar, the following function is being used:
+
+    ext_toolbar_add_entry( ext_toolbar_t * parent, ext_toolbar_item_t type, const gchar *label,
+        const gchar *defvalue, const gchar *tooltip, gboolean capture_only, GList * value_list,
+        gboolean is_required, const gchar * regex, ext_toolbar_action_cb callback, gpointer user_data)
+
+    parent_bar - the parent toolbar for this entry, to be registered by ext_toolbar_register_toolbar
+    name - the entry name (the internal used one) for the item, used to send updates to the element
+    label - the entry label (the displayed name) for the item, visible to the user
+    defvalue - the default value for the toolbar element
+        - EXT_TOOLBAR_BOOLEAN - 1 is for a checked element, 0 is unchecked
+        - EXT_TOOLBAR_STRING - Text already entered upon initial display
+    tooltip - a tooltip to be displayed on mouse-over
+    capture_only - entry is only active, if a capture is active
+    callback - the action which will be invoked after the item is activated
+    value_list - a non-null list of values created by ext_toolbar_add_val(), if the item type
+        is EXT_TOOLBAR_SELECTOR
+    valid_regex - a validation regular expression for EXT_TOOLBAR_STRING
+    is_required - a zero entry for EXT_TOOLBAR_STRING is not allowed
+    user_data - a user defined pointer, which will be added to the toolbar callback
+
+In case of the toolbar type EXT_TOOLBAR_SELECTOR a value list has to be provided. This list
+is generated using ext_toolbar_add_val():
+
+    GList * entries = 0;
+    entries = ext_toolbar_add_val(entries, "1", "ABCD", FALSE );
+    entries = ext_toolbar_add_val(entries, "2", "EFG", FALSE );
+    entries = ext_toolbar_add_val(entries, "3", "HIJ", TRUE );
+    entries = ext_toolbar_add_val(entries, "4", "KLM", FALSE );
+
+6.3.2 Callback for activation of an item
+
+If an item has been activated, the provided callback is being triggered.
+
+    void toolbar_cb(gpointer toolbar_item, gpointer item_data, gpointer user_data)
+
+For EXT_TOOLBAR_BUTTON the callback is triggered upon a click on the button, for
+EXT_TOOLBAR_BOOLEAN and EXT_TOOLBAR_SELECTOR the callback is triggered with every change
+of the selection.
+
+For EXT_TOOLBAR_STRING either the return key has to be hit or the apply button pressed.
+
+The parameters of the callback are defined as follows:
+
+    toolbar_item - an element of the type ext_toolbar_t * representing the item that has been
+                   activated
+    item_data - the data of the item during activation. The content depends on the item type:
+         - EXT_TOOLBAR_BUTTON - the entry is null
+         - EXT_TOOLBAR_BOOLEAN - the entry is 0 if the checkbox is unchecked and 1 if it is checked
+         - EXT_TOOLBAR_STRING - a string representing the context of the textbox. Only valid strings
+                   are being passed, it can be safely assumed, that an applied regular expression has
+                   been checked.
+         - EXT_TOOLBAR_SELECTOR - the value of the selected entry
+    user_data - the data provided during element registration
+
+6.3.3 Sending updates to the toolbar items
+
+A plugin may send updates to the toolbar entry, using one of the following methods. The parameter
+silent defines, if the registered toolbar callback is triggered by the update or not.
+
+    void ext_toolbar_update_value(ext_toolbar_t * entry, gpointer data, gboolean silent)
+
+    - EXT_TOOLBAR_BUTTON, EXT_TOOLBAR_STRING - the displayed text (on the button or in the textbox)
+        are being changed, in that case data is expected to be a string
+    - EXT_TOOLBAR_BOOLEAN - the checkbox value is being changed, to either 0 or 1, in both cases
+        data is expected to be an integer sent by GINT_TO_POINTER(n)
+    - EXT_TOOLBAR_SELECTOR - the display text to be changed. If no element exists with this text,
+        nothing will happen
+
+    void ext_toolbar_update_data(ext_toolbar_t * entry, gpointer data, gboolean silent)
+
+    - EXT_TOOLBAR_SELECTOR - change the value list to the one provided with data. Attention! this
+        does not change the list stored within the item just the one in the displayed combobox
+
+    void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, gpointer data, gpointer value,
+        gboolean silent)
+
+    - EXT_TOOLBAR_SELECTOR - change the display text for the entry with the provided value. Both
+        data and value must be gchar * pointer.
 
 
 ----------------
