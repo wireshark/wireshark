@@ -19,6 +19,12 @@ ATTRIBUTE	Nomadix-Logoff-URL			10	string
 ATTRIBUTE	Nomadix-Net-VLAN			11	integer
 ATTRIBUTE	Nomadix-Config-URL			12	string
 ATTRIBUTE	Nomadix-Goodbye-URL			13	string
+ATTRIBUTE	Nomadix-Qos-Policy			14	string
+ATTRIBUTE	Nomadix-SMTP-Redirect			17	integer
+ATTRIBUTE	Nomadix-Centralized-Mgmt		18	string
+ATTRIBUTE	Nomadix-Group-Policy-Id			19	integer
+ATTRIBUTE	Nomadix-Group-Bw-Max-Up			20	integer
+ATTRIBUTE	Nomadix-Group-Bw-Max-Down		21	integer
 
 VALUE	Nomadix-IP-Upsell		PrivatePool		0
 VALUE	Nomadix-IP-Upsell		PublicPool		1
