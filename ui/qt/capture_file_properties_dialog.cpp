@@ -27,6 +27,7 @@
 #include "summary.h"
 
 #include "wsutil/str_util.h"
+#include "wsutil/utf8_entities.h"
 #include "ws_version_info.h"
 
 #include "qt_ui_utils.h"
@@ -357,8 +358,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         << table_hheader25_tmpl.arg(tr("Marked"))
         << table_row_end;
 
-    // TRANSLATOR Abbreviation for "not applicable"
-    QString n_a = tr("N/A");
+    QString n_a = UTF8_EM_DASH;
     QString captured_str, displayed_str, marked_str;
 
     // Packets

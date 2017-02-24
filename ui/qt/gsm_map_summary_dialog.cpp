@@ -38,6 +38,8 @@
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-gsm_map.h>
 
+#include "wsutil/utf8_entities.h"
+
 #include "ui/capture_globals.h"
 #include "ui/simple_dialog.h"
 
@@ -184,8 +186,7 @@ QString GsmMapSummaryDialog::summaryToHtml()
 
     out << table_end;
 
-    // TRANSLATOR Abbreviation for "not applicable"
-    QString n_a = tr("N/A");
+    QString n_a = UTF8_EM_DASH;
     QString invoke_rate_str, result_rate_str, total_rate_str;
     QString invoke_avg_size_str, result_avg_size_str, total_avg_size_str;
 
