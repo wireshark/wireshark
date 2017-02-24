@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
 		" %s --extcap-interfaces\n"
 		" %s --extcap-interface=%s --extcap-dlts\n"
 		" %s --extcap-interface=%s --extcap-config\n"
-		" %s --extcap-interface=%s --port 5555",
+		" %s --extcap-interface=%s --port 5555 --fifo myfifo --capture",
 		argv[0], argv[0], UDPDUMP_EXTCAP_INTERFACE, argv[0], UDPDUMP_EXTCAP_INTERFACE, argv[0], UDPDUMP_EXTCAP_INTERFACE);
 	extcap_help_add_header(extcap_conf, help_header);
 	g_free(help_header);
