@@ -672,7 +672,6 @@ void WiresharkApplication::cleanup()
 
     qDeleteAll(recent_captures_);
     recent_captures_.clear();
-    free_filter_lists();
 }
 
 void WiresharkApplication::itemStatusFinished(const QString filename, qint64 size, bool accessible) {
@@ -848,7 +847,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 
 WiresharkApplication::~WiresharkApplication()
 {
-    this->cleanup();
+    free_filter_lists();
 }
 
 void WiresharkApplication::registerUpdate(register_action_e action, const char *message)
