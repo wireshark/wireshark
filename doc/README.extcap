@@ -85,7 +85,7 @@ capture. To allow an end-user to specify certain options, such options may be
 provided using the extcap config argument.
 
 To share which options are available for an interface, the extcap responds to
-the command --config, that shows all the available options (aka additional command
+the command --extcap-config, that shows all the available options (aka additional command
 line options).
 
 Those options are automatically presented via a dialog to the user for the individual
@@ -167,10 +167,10 @@ These options do have types, for which the following types are being supported:
 
    arg {number=2}{call=--verify}{display=Verify}{tooltip=Verify package content}{type=boolflag}
 
- * LOGFILE - Let the user provide a filepath to the capture. If FILE_MUSTEXIST is
-   being provided, the GUI checks if the file exists
+ * FILESELECT - Let the user provide a filepath to the capture. If MUSTEXIST is
+   being provided, the GUI checks if the file exists.
 
-   arg {number=3}{call=--logfile}{display=Logfile}{tooltip=A file for log messages}{type=fileselect}{file_mustexist=false}
+   arg {number=3}{call=--logfile}{display=Logfile}{tooltip=A file for log messages}{type=fileselect}{mustexist=false}
 
  * SELECTOR, RADIO, MULTICHECK - an optionfield, where the user may choose one or
    more options from. If PARENT is provided for the value items, the option fields

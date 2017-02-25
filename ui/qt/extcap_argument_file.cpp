@@ -135,7 +135,9 @@ bool ExtcapArgumentFileSelection::isValid()
 
     if ( textBox->text().length() > 0 )
     {
-        if ( QFileInfo(textBox->text()).exists() && _argument->fileexists )
+        if (_argument->fileexists)
+            valid = QFileInfo(textBox->text()).exists();
+        else
             valid = true;
     }
     else if ( ! isRequired() )

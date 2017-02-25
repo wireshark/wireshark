@@ -107,9 +107,18 @@ def extcap_config(interface):
 	args.append ( (7, '--d2test', 'Double 2 Test', 'Long Test Value', 'double', '{default= 123,456}'))
 	args.append ( (8, '--password', 'Password', 'Package message password', 'password', '') )
 	args.append ( (9, '--ts', 'Start Time', 'Capture start time', 'timestamp', '') )
+	args.append ( (10, '--logfile', 'Log File Test', 'The Log File Test', 'fileselect', '') )
+	args.append ( (11, '--radio', 'Radio Test', 'Radio Test Value', 'radio', '') )
+	args.append ( (12, '--multi', 'MultiCheck Test', 'MultiCheck Test Value', 'multicheck', '') )
 
 	values.append ( (3, "if1", "Remote1", "true" ) )
 	values.append ( (3, "if2", "Remote2", "false" ) )
+
+	values.append ( (11, "r1", "Radio1", "false" ) )
+	values.append ( (11, "r2", "Radio2", "true" ) )
+
+	values.append ( (12, "m1", "MultiCheck1", "false" ) )
+	values.append ( (12, "m2", "MultiCheck2", "false" ) )
 
 	for arg in args:
 		print ("arg {number=%d}{call=%s}{display=%s}{tooltip=%s}{type=%s}%s" % arg)
