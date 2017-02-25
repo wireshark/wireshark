@@ -2206,8 +2206,10 @@ free_progdirs(void)
     persconfprofile = NULL;
     g_free(progfile_dir);
     progfile_dir = NULL;
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     g_free(plugin_dir);
     plugin_dir = NULL;
+#endif
 #ifdef HAVE_EXTCAP
     g_free(extcap_dir);
     extcap_dir = NULL;
