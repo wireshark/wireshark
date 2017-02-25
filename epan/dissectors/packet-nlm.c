@@ -92,8 +92,8 @@ static gint ett_nlm_lock = -1;
  */
 
 static gboolean nlm_match_msgres = FALSE;
-static GHashTable *nlm_msg_res_unmatched = NULL;
-static GHashTable *nlm_msg_res_matched = NULL;
+static wmem_map_t *nlm_msg_res_unmatched = NULL;
+static wmem_map_t *nlm_msg_res_matched = NULL;
 
 /* XXX 	when matching the packets we should really check the conversation (only address
 	NOT ports) and command type as well. I am lazy and thinks the cookie itself is
@@ -111,15 +111,6 @@ typedef struct _nlm_msg_res_matched_data {
 	int rep_frame;
 	nstime_t ns;
 } nlm_msg_res_matched_data;
-
-static void
-nlm_msg_res_unmatched_value_destroy(gpointer value)
-{
-	nlm_msg_res_unmatched_data *umd = (nlm_msg_res_unmatched_data *)value;
-
-	wmem_free(NULL, (gpointer)umd->cookie);
-	g_free(umd);
-}
 
 static guint
 nlm_msg_res_unmatched_hash(gconstpointer k)
@@ -164,29 +155,11 @@ nlm_msg_res_matched_equal(gconstpointer k1, gconstpointer k2)
 }
 
 static void
-nlm_msg_res_match_init(void)
-{
-	nlm_msg_res_unmatched =
-		g_hash_table_new_full(nlm_msg_res_unmatched_hash,
-		nlm_msg_res_unmatched_equal,
-		NULL, nlm_msg_res_unmatched_value_destroy);
-	nlm_msg_res_matched = g_hash_table_new_full(nlm_msg_res_matched_hash,
-		nlm_msg_res_matched_equal, NULL, (GDestroyNotify)g_free);
-}
-
-static void
-nlm_msg_res_match_cleanup(void)
-{
-	g_hash_table_destroy(nlm_msg_res_unmatched);
-	g_hash_table_destroy(nlm_msg_res_matched);
-}
-
-static void
 nlm_print_msgres_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
+	md=(nlm_msg_res_matched_data *)wmem_map_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
 	if(md){
 		nstime_t ns;
 		proto_tree_add_uint(tree, hf_nlm_request_in, tvb, 0, 0, md->req_frame);
@@ -200,7 +173,7 @@ nlm_print_msgres_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
+	md=(nlm_msg_res_matched_data *)wmem_map_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
 	if(md){
 		proto_tree_add_uint(tree, hf_nlm_reply_in, tvb, 0, 0, md->rep_frame);
 	}
@@ -210,7 +183,7 @@ nlm_match_fhandle_reply(packet_info *pinfo, proto_tree *tree)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
+	md=(nlm_msg_res_matched_data *)wmem_map_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
 	if(md && md->rep_frame){
 		dissect_fhandle_hidden(pinfo,
 				tree, md->req_frame);
@@ -221,7 +194,7 @@ nlm_match_fhandle_request(packet_info *pinfo, proto_tree *tree)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
+	md=(nlm_msg_res_matched_data *)wmem_map_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
 	if(md && md->rep_frame){
 		dissect_fhandle_hidden(pinfo,
 				tree, md->rep_frame);
@@ -238,19 +211,19 @@ nlm_register_unmatched_res(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	umd.cookie=tvb_get_ptr(tvb, offset+4, -1);
 
 	/* have we seen this cookie before? */
-	old_umd=(nlm_msg_res_unmatched_data *)g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)&umd);
+	old_umd=(nlm_msg_res_unmatched_data *)wmem_map_lookup(nlm_msg_res_unmatched, (gconstpointer)&umd);
 	if(old_umd){
 		nlm_msg_res_matched_data *md_req, *md_rep;
 
-		md_req=(nlm_msg_res_matched_data *)g_malloc(sizeof(nlm_msg_res_matched_data));
-		md_req->req_frame=old_umd->req_frame;
-		md_req->rep_frame=pinfo->num;
-		md_req->ns=old_umd->ns;
-		md_rep=(nlm_msg_res_matched_data *)g_memdup(md_req, sizeof(nlm_msg_res_matched_data));
-		g_hash_table_insert(nlm_msg_res_matched, GINT_TO_POINTER(md_req->req_frame), (gpointer)md_req);
-		g_hash_table_insert(nlm_msg_res_matched, GINT_TO_POINTER(md_rep->rep_frame), (gpointer)md_rep);
+		md_req = wmem_new(wmem_file_scope(), nlm_msg_res_matched_data);
+		md_req->req_frame = old_umd->req_frame;
+		md_req->rep_frame = pinfo->num;
+		md_req->ns = old_umd->ns;
+		md_rep = (nlm_msg_res_matched_data *)wmem_memdup(wmem_file_scope(), md_req, sizeof(nlm_msg_res_matched_data));
+		wmem_map_insert(nlm_msg_res_matched, GINT_TO_POINTER(md_req->req_frame), md_req);
+		wmem_map_insert(nlm_msg_res_matched, GINT_TO_POINTER(md_rep->rep_frame), md_rep);
 
-		g_hash_table_remove(nlm_msg_res_unmatched, (gconstpointer)old_umd);
+		wmem_map_remove(nlm_msg_res_unmatched, old_umd);
 	}
 }
 
@@ -261,20 +234,20 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	nlm_msg_res_unmatched_data *old_umd;
 
 	/* allocate and build the unmatched structure for this request */
-	umd=(nlm_msg_res_unmatched_data *)g_malloc(sizeof(nlm_msg_res_unmatched_data));
-	umd->req_frame=pinfo->num;
-	umd->ns=pinfo->abs_ts;
-	umd->cookie_len=tvb_get_ntohl(tvb, offset);
-	umd->cookie=(const guint8 *)tvb_memdup(NULL, tvb, offset+4, umd->cookie_len);
+	umd = wmem_new(wmem_file_scope(), nlm_msg_res_unmatched_data);
+	umd->req_frame = pinfo->num;
+	umd->ns = pinfo->abs_ts;
+	umd->cookie_len = tvb_get_ntohl(tvb, offset);
+	umd->cookie = (const guint8 *)tvb_memdup(wmem_file_scope(), tvb, offset+4, umd->cookie_len);
 
 	/* remove any old duplicates */
-	old_umd=(nlm_msg_res_unmatched_data *)g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)umd);
+	old_umd=(nlm_msg_res_unmatched_data *)wmem_map_lookup(nlm_msg_res_unmatched, umd);
 	if(old_umd){
-		g_hash_table_remove(nlm_msg_res_unmatched, (gconstpointer)old_umd);
+		wmem_map_remove(nlm_msg_res_unmatched, (gconstpointer)old_umd);
 	}
 
 	/* add new one */
-	g_hash_table_insert(nlm_msg_res_unmatched, (gpointer)umd, (gpointer)umd);
+	wmem_map_insert(nlm_msg_res_unmatched, umd, umd);
 }
 
 
@@ -1202,8 +1175,11 @@ proto_register_nlm(void)
 		"Match MSG/RES packets for async NLM",
 		"Whether the dissector will track and match MSG and RES calls for asynchronous NLM",
 		&nlm_match_msgres);
-	register_init_routine(nlm_msg_res_match_init);
-	register_cleanup_routine(nlm_msg_res_match_cleanup);
+
+	nlm_msg_res_unmatched = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+													nlm_msg_res_unmatched_hash, nlm_msg_res_unmatched_equal);
+	nlm_msg_res_matched = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+													nlm_msg_res_matched_hash, nlm_msg_res_matched_equal);
 }
 
 void

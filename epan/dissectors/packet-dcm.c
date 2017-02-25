@@ -246,9 +246,9 @@ static gboolean global_dcm_tag_subtree = FALSE;             /* Only useful for d
 static gboolean global_dcm_cmd_details = TRUE;              /* Show details in header and info column */
 static gboolean global_dcm_reassemble = TRUE;               /* Merge fragmented PDVs */
 
-static GHashTable *dcm_tag_table = NULL;
-static GHashTable *dcm_uid_table = NULL;
-static GHashTable *dcm_status_table = NULL;
+static wmem_map_t *dcm_tag_table = NULL;
+static wmem_map_t *dcm_uid_table = NULL;
+static wmem_map_t *dcm_status_table = NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_dcm = -1;
@@ -3954,33 +3954,25 @@ dcm_init(void)
 
     /* Create three hash tables for quick lookups */
     /* Add UID objects to hash table */
-    dcm_uid_table = g_hash_table_new(g_str_hash, g_str_equal);
+    dcm_uid_table = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
     for (i = 0; i < array_length(dcm_uid_data); i++) {
-        g_hash_table_insert(dcm_uid_table, (gpointer) dcm_uid_data[i].value,
+        wmem_map_insert(dcm_uid_table, (gpointer) dcm_uid_data[i].value,
         (gpointer) &dcm_uid_data[i]);
     }
 
     /* Add Tag objects to hash table */
-    dcm_tag_table = g_hash_table_new(NULL, NULL);
+    dcm_tag_table = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
     for (i = 0; i < array_length(dcm_tag_data); i++) {
-        g_hash_table_insert(dcm_tag_table, GUINT_TO_POINTER(dcm_tag_data[i].tag),
+        wmem_map_insert(dcm_tag_table, GUINT_TO_POINTER(dcm_tag_data[i].tag),
         (gpointer) &dcm_tag_data[i]);
     }
 
    /* Add Status Values to hash table */
-    dcm_status_table = g_hash_table_new(NULL, NULL);
+    dcm_status_table = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
     for (i = 0; i < array_length(dcm_status_data); i++) {
-        g_hash_table_insert(dcm_status_table, GUINT_TO_POINTER((guint32)dcm_status_data[i].value),
+        wmem_map_insert(dcm_status_table, GUINT_TO_POINTER((guint32)dcm_status_data[i].value),
         (gpointer)&dcm_status_data[i]);
     }
-}
-
-static void
-dcm_cleanup(void)
-{
-    g_hash_table_destroy(dcm_uid_table);
-    g_hash_table_destroy(dcm_tag_table);
-    g_hash_table_destroy(dcm_status_table);
 }
 
 static dcm_state_t *
@@ -4218,7 +4210,7 @@ dcm_rsp2str(guint16 status_value)
     */
 
     /* Use specific text first */
-    status = (dcm_status_t*) g_hash_table_lookup(dcm_status_table, GUINT_TO_POINTER((guint32)status_value));
+    status = (dcm_status_t*) wmem_map_lookup(dcm_status_table, GUINT_TO_POINTER((guint32)status_value));
 
     if (status) {
          s = status->description;
@@ -4850,7 +4842,7 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     case DCM_ITEM_VALUE_TYPE_UID:
         *item_value = (gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, item_len, ENC_ASCII);
 
-        uid = (dcm_uid_t *)g_hash_table_lookup(dcm_uid_table, (gpointer) *item_value);
+        uid = (dcm_uid_t *)wmem_map_lookup(dcm_uid_table, (gpointer) *item_value);
         if (uid) {
             *item_description = uid->name;
             buf_desc = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", *item_description, *item_value);
@@ -4917,7 +4909,7 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
     proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_sopclassuid_len, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
     sopclassuid_str = (gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset+6, sop_class_uid_len, ENC_ASCII);
-    sopclassuid = (dcm_uid_t *)g_hash_table_lookup(dcm_uid_table, (gpointer) sopclassuid_str);
+    sopclassuid = (dcm_uid_t *)wmem_map_lookup(dcm_uid_table, (gpointer) sopclassuid_str);
 
     if (sopclassuid) {
         buf_desc = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", sopclassuid->name, sopclassuid->value);
@@ -5019,7 +5011,7 @@ dissect_dcm_assoc_role_selection(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_sopclassuid_len, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
     sopclassuid_str = (gchar *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset+6, sop_class_uid_len, ENC_ASCII);
-    sopclassuid = (dcm_uid_t *)g_hash_table_lookup(dcm_uid_table, (gpointer) sopclassuid_str);
+    sopclassuid = (dcm_uid_t *)wmem_map_lookup(dcm_uid_table, (gpointer) sopclassuid_str);
 
     scu_role = tvb_get_guint8(tvb, offset+6+sop_class_uid_len);
     scp_role = tvb_get_guint8(tvb, offset+7+sop_class_uid_len);
@@ -5656,7 +5648,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
         if ((strncmp(vr, "UI", 2) == 0)) {
             /* This is a UID. Attempt a lookup. Will only return something for classes of course */
 
-            uid = (dcm_uid_t *)g_hash_table_lookup(dcm_uid_table, (gpointer) vals);
+            uid = (dcm_uid_t *)wmem_map_lookup(dcm_uid_table, (gpointer) vals);
             if (uid) {
                 *tag_value = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", vals, uid->name);
             }
@@ -5893,7 +5885,7 @@ dcm_tag_lookup(guint16 grp, guint16 elm)
     static dcm_tag_t tag_grp_length      = { 0x00000000, "Group Length", "UL", "1", 0, 0 };
 
     /* Try a direct hit first before doing a masked search */
-    tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | elm));
+    tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | elm));
 
     if (tag_def == NULL) {
 
@@ -5911,23 +5903,23 @@ dcm_tag_lookup(guint16 grp, guint16 elm)
         /* There are a few tags that require a mask to be found */
         else if (((grp & 0xFF00) == 0x5000) || ((grp & 0xFF00) == 0x6000) || ((grp & 0xFF00) == 0x7F00)) {
             /* Do a special for groups 0x50xx, 0x60xx and 0x7Fxx */
-            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((((guint32)grp & 0xFF00) << 16) | elm));
+            tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER((((guint32)grp & 0xFF00) << 16) | elm));
         }
         else if ((grp == 0x0020) && ((elm & 0xFF00) == 0x3100)) {
-            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF00)));
+            tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF00)));
         }
         else if ((grp == 0x0028) && ((elm & 0xFF00) == 0x0400)) {
             /* This map was done to 0x041x */
-            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF0F) | 0x0010));
+            tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF0F) | 0x0010));
         }
         else if ((grp == 0x0028) && ((elm & 0xFF00) == 0x0800)) {
-            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF0F)));
+            tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF0F)));
         }
         else if (grp == 0x1000) {
-            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0x000F)));
+            tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0x000F)));
         }
         else if (grp == 0x1010) {
-            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0x0000)));
+            tag_def = (dcm_tag_t *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0x0000)));
         }
 
         if (tag_def == NULL) {
@@ -7206,7 +7198,7 @@ proto_register_dcm(void)
     dicom_eo_tap = register_export_object(proto_dcm, dcm_eo_packet, NULL);
 
     register_init_routine(&dcm_init);
-    register_cleanup_routine(&dcm_cleanup);
+
     /* Register processing of fragmented DICOM PDVs */
     reassembly_table_register(&dcm_pdv_reassembly_table,
                           &addresses_reassembly_table_functions);

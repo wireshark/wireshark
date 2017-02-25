@@ -178,7 +178,7 @@ typedef struct {
     guint32 vc;                 /* child circuit */
 } circuit_chain_key;
 
-static GHashTable *circuit_chain_hashtable = NULL;
+static wmem_map_t *circuit_chain_hashtable = NULL;
 static guint circuit_chain_count = 1;
 
 /* Hash Functions */
@@ -208,12 +208,12 @@ circuit_chain_lookup(const h223_call_info* call_info, guint32 child_vc)
     guint32 circuit_id;
     key.call = call_info;
     key.vc = child_vc;
-    circuit_id = GPOINTER_TO_UINT(g_hash_table_lookup( circuit_chain_hashtable, &key ));
+    circuit_id = GPOINTER_TO_UINT(wmem_map_lookup( circuit_chain_hashtable, &key ));
     if( circuit_id == 0 ) {
         new_key = wmem_new(wmem_file_scope(), circuit_chain_key);
         *new_key = key;
         circuit_id = ++circuit_chain_count;
-        g_hash_table_insert(circuit_chain_hashtable, new_key, GUINT_TO_POINTER(circuit_id));
+        wmem_map_insert(circuit_chain_hashtable, new_key, GUINT_TO_POINTER(circuit_id));
     }
     return circuit_id;
 }
@@ -221,14 +221,7 @@ circuit_chain_lookup(const h223_call_info* call_info, guint32 child_vc)
 static void
 circuit_chain_init(void)
 {
-    circuit_chain_hashtable = g_hash_table_new(circuit_chain_hash, circuit_chain_equal);
     circuit_chain_count = 1;
-}
-
-static void
-circuit_chain_destroy(void)
-{
-    g_hash_table_destroy(circuit_chain_hashtable);
 }
 
 
@@ -1659,7 +1652,8 @@ void proto_register_h223 (void)
     /* register our init routine to be called at the start of a capture,
        to clear out our hash tables etc */
     register_init_routine(&circuit_chain_init);
-    register_cleanup_routine(&circuit_chain_destroy);
+
+    circuit_chain_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), circuit_chain_hash, circuit_chain_equal);
 
     h245_set_h223_set_mc_handle( &h223_set_mc );
     h245_set_h223_add_lc_handle( &h223_add_lc );
