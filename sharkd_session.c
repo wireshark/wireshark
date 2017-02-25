@@ -336,6 +336,9 @@ sharkd_session_process_info(void)
 	printf("]");
 
 	printf(",\"taps\":[");
+	{
+		printf("{\"name\":\"%s\",\"tap\":\"%s\"}", "RTP streams", "rtp-streams");
+	}
 	printf("]");
 
 	printf("}\n");
@@ -928,6 +931,89 @@ sharkd_session_process_tap_conv_cb(void *arg)
 }
 
 /**
+ * sharkd_session_process_tap_rtp_cb()
+ *
+ * Output RTP streams tap:
+ *   (m) tap        - tap name
+ *   (m) type       - tap output type
+ *   (m) streams    - array of object with attributes:
+ *                  (m) ssrc        - RTP synchronization source identifier
+ *                  (m) payload     - stream payload
+ *                  (m) saddr       - source address
+ *                  (m) sport       - source port
+ *                  (m) daddr       - destination address
+ *                  (m) dport       - destination port
+ *                  (m) pkts        - packets count
+ *                  (m) max_delta   - max delta (ms)
+ *                  (m) max_jitter  - max jitter (ms)
+ *                  (m) mean_jitter - mean jitter (ms)
+ *                  (m) expectednr  -
+ *                  (m) totalnr     -
+ *                  (m) problem     - if analyser found the problem
+ *                  (m) ipver       - address IP version (4 or 6)
+ */
+static void
+sharkd_session_process_tap_rtp_cb(void *arg)
+{
+	rtpstream_tapinfo_t *rtp_tapinfo = (rtpstream_tapinfo_t *) arg;
+
+	GList *listx;
+	const char *sepa = "";
+
+	printf("{\"tap\":\"%s\",\"type\":\"%s\"", "rtp-streams", "rtp-streams");
+
+	printf(",\"streams\":[");
+	for (listx = g_list_first(rtp_tapinfo->strinfo_list); listx; listx = listx->next)
+	{
+		rtp_stream_info_t *streaminfo = (rtp_stream_info_t *) listx->data;
+
+		char *src_addr, *dst_addr;
+		char *payload;
+		guint32 expected;
+
+		src_addr = address_to_display(NULL, &(streaminfo->src_addr));
+		dst_addr = address_to_display(NULL, &(streaminfo->dest_addr));
+
+		if (streaminfo->payload_type_name != NULL)
+			payload = wmem_strdup(NULL, streaminfo->payload_type_name);
+		else
+			payload = val_to_str_ext_wmem(NULL, streaminfo->payload_type, &rtp_payload_type_short_vals_ext, "Unknown (%u)");
+
+		printf("%s{\"ssrc\":%u", sepa, streaminfo->ssrc);
+		printf(",\"payload\":\"%s\"", payload);
+
+		printf(",\"saddr\":\"%s\"", src_addr);
+		printf(",\"sport\":%u", streaminfo->src_port);
+
+		printf(",\"daddr\":\"%s\"", dst_addr);
+		printf(",\"dport\":%u", streaminfo->dest_port);
+
+		printf(",\"pkts\":%u", streaminfo->packet_count);
+
+		printf(",\"max_delta\":%f", streaminfo->rtp_stats.max_delta);
+		printf(",\"max_jitter\":%f", streaminfo->rtp_stats.max_jitter);
+		printf(",\"mean_jitter\":%f", streaminfo->rtp_stats.mean_jitter);
+
+		expected = (streaminfo->rtp_stats.stop_seq_nr + streaminfo->rtp_stats.cycles * 65536) - streaminfo->rtp_stats.start_seq_nr + 1;
+		printf(",\"expectednr\":%u", expected);
+		printf(",\"totalnr\":%u", streaminfo->rtp_stats.total_nr);
+
+		printf(",\"problem\":%s", streaminfo->problem ? "true" : "false");
+
+		/* for filter */
+		printf(",\"ipver\":%d", (streaminfo->src_addr.type == AT_IPv6) ? 6 : 4);
+
+		wmem_free(NULL, src_addr);
+		wmem_free(NULL, dst_addr);
+		wmem_free(NULL, payload);
+
+		printf("}");
+		sepa = ",";
+	}
+	printf("]},");
+}
+
+/**
  * sharkd_session_process_tap()
  *
  * Process tap request
@@ -944,6 +1030,7 @@ sharkd_session_process_tap_conv_cb(void *arg)
  *                  for type:stats see sharkd_session_process_tap_stats_cb()
  *                  for type:conv see sharkd_session_process_tap_conv_cb()
  *                  for type:host see sharkd_session_process_tap_conv_cb()
+ *                  for type:rtp-streams see sharkd_session_process_tap_rtp_cb()
  *
  *   (m) err   - error code
  */
@@ -953,6 +1040,9 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 	void *taps_data[16];
 	int taps_count = 0;
 	int i;
+
+	rtpstream_tapinfo_t rtp_tapinfo =
+		{NULL, NULL, NULL, NULL, 0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, FALSE};
 
 	for (i = 0; i < 16; i++)
 	{
@@ -1036,6 +1126,12 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 			tap_error = register_tap_listener(ct_tapname, &ct_data->hash, tap_filter, 0, NULL, tap_func, sharkd_session_process_tap_conv_cb);
 
 			tap_data = &ct_data->hash;
+		}
+		else if (!strcmp(tok_tap, "rtp-streams"))
+		{
+			tap_error = register_tap_listener("rtp", &rtp_tapinfo, tap_filter, 0, rtpstream_reset_cb, rtpstream_packet, sharkd_session_process_tap_rtp_cb);
+
+			tap_data = &rtp_tapinfo;
 		}
 		else
 		{
