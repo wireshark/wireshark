@@ -98,7 +98,7 @@ typedef enum
     EXT_TOOLBAR_BOOLEAN,
     EXT_TOOLBAR_BUTTON,
     EXT_TOOLBAR_STRING,
-    EXT_TOOLBAR_SELECTOR,
+    EXT_TOOLBAR_SELECTOR
 } ext_toolbar_item_t;
 
 typedef struct _ext_toolbar_value_t
