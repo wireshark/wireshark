@@ -1794,17 +1794,17 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>导入着色规则</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="342"/>
+        <location filename="coloring_rules_dialog.cpp" line="344"/>
         <source>Export %1 Coloring Rules</source>
         <translation>导出 %1 着色规则</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="363"/>
+        <location filename="coloring_rules_dialog.cpp" line="365"/>
         <source>Your coloring rules file contains unknown rules</source>
         <translation>您的着色规则文件包含未知规则</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="364"/>
+        <location filename="coloring_rules_dialog.cpp" line="366"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1814,7 +1814,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="obsolete">Wireshark 无法识别您的一个或多个着色规则。保存将会丢弃它们。</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="376"/>
+        <location filename="coloring_rules_dialog.cpp" line="378"/>
         <source>Unable to save coloring rules: %s</source>
         <translation>无法保存着色规则: %s</translation>
     </message>
@@ -9272,47 +9272,47 @@ text-decoration: underline;
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="858"/>
+        <location filename="main_window_slots.cpp" line="864"/>
         <source>No interface selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="868"/>
+        <location filename="main_window_slots.cpp" line="874"/>
         <source>Invalid capture filter</source>
         <translation>无效捕获过滤器</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1116"/>
+        <location filename="main_window_slots.cpp" line="1122"/>
         <source>Clear Menu</source>
         <translation>清除菜单</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1596"/>
+        <location filename="main_window_slots.cpp" line="1602"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wireshark 正在初始化，请稍候</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1686"/>
+        <location filename="main_window_slots.cpp" line="1692"/>
         <source> before closing the file</source>
         <translation>关闭文件前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1768"/>
+        <location filename="main_window_slots.cpp" line="1774"/>
         <source>Export Selected Packet Bytes</source>
         <translation>导出选择分组字节流</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1834"/>
+        <location filename="main_window_slots.cpp" line="1840"/>
         <source>No Keys</source>
         <translation>无密钥</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1835"/>
+        <location filename="main_window_slots.cpp" line="1841"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>没有可以保存的 SSL 会话密钥。</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1841"/>
+        <location filename="main_window_slots.cpp" line="1847"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9320,69 +9320,69 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1770"/>
+        <location filename="main_window_slots.cpp" line="1776"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>原始数据 (*.bin *.dat *.raw);;所有文件 (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1845"/>
+        <location filename="main_window_slots.cpp" line="1851"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSL 会话密钥 (*.keys *.txt);;所有文件 (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1983"/>
+        <location filename="main_window_slots.cpp" line="1989"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2397"/>
-        <location filename="main_window_slots.cpp" line="3499"/>
+        <location filename="main_window_slots.cpp" line="2403"/>
+        <location filename="main_window_slots.cpp" line="3505"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话过滤器。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2547"/>
-        <location filename="main_window_slots.cpp" line="2560"/>
+        <location filename="main_window_slots.cpp" line="2553"/>
+        <location filename="main_window_slots.cpp" line="2566"/>
         <source> before reloading the file</source>
         <translation>重新载入文件前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2594"/>
+        <location filename="main_window_slots.cpp" line="2600"/>
         <source>No filter available. Try another </source>
         <translation>无过滤器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3506"/>
+        <location filename="main_window_slots.cpp" line="3512"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>为此对话编译过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3515"/>
+        <location filename="main_window_slots.cpp" line="3521"/>
         <source>No previous/next packet in conversation.</source>
         <translation>此对话中没有上一个/下一个分组。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3592"/>
+        <location filename="main_window_slots.cpp" line="3598"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3599"/>
+        <location filename="main_window_slots.cpp" line="3605"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3617"/>
+        <location filename="main_window_slots.cpp" line="3623"/>
         <source> before restarting the capture</source>
         <translation>重新开始捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3820"/>
+        <location filename="main_window_slots.cpp" line="3826"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3821"/>
+        <location filename="main_window_slots.cpp" line="3827"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>

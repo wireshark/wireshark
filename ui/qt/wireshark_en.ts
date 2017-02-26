@@ -1787,22 +1787,22 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="342"/>
+        <location filename="coloring_rules_dialog.cpp" line="344"/>
         <source>Export %1 Coloring Rules</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="363"/>
+        <location filename="coloring_rules_dialog.cpp" line="365"/>
         <source>Your coloring rules file contains unknown rules</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="364"/>
+        <location filename="coloring_rules_dialog.cpp" line="366"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="376"/>
+        <location filename="coloring_rules_dialog.cpp" line="378"/>
         <source>Unable to save coloring rules: %s</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9151,47 +9151,47 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="858"/>
+        <location filename="main_window_slots.cpp" line="864"/>
         <source>No interface selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="868"/>
+        <location filename="main_window_slots.cpp" line="874"/>
         <source>Invalid capture filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1116"/>
+        <location filename="main_window_slots.cpp" line="1122"/>
         <source>Clear Menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1596"/>
+        <location filename="main_window_slots.cpp" line="1602"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1686"/>
+        <location filename="main_window_slots.cpp" line="1692"/>
         <source> before closing the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1768"/>
+        <location filename="main_window_slots.cpp" line="1774"/>
         <source>Export Selected Packet Bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1834"/>
+        <location filename="main_window_slots.cpp" line="1840"/>
         <source>No Keys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1835"/>
+        <location filename="main_window_slots.cpp" line="1841"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1841"/>
+        <location filename="main_window_slots.cpp" line="1847"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9200,69 +9200,69 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1770"/>
+        <location filename="main_window_slots.cpp" line="1776"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1845"/>
+        <location filename="main_window_slots.cpp" line="1851"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1983"/>
+        <location filename="main_window_slots.cpp" line="1989"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2397"/>
-        <location filename="main_window_slots.cpp" line="3499"/>
+        <location filename="main_window_slots.cpp" line="2403"/>
+        <location filename="main_window_slots.cpp" line="3505"/>
         <source>Unable to build conversation filter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2547"/>
-        <location filename="main_window_slots.cpp" line="2560"/>
+        <location filename="main_window_slots.cpp" line="2553"/>
+        <location filename="main_window_slots.cpp" line="2566"/>
         <source> before reloading the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2594"/>
+        <location filename="main_window_slots.cpp" line="2600"/>
         <source>No filter available. Try another </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3506"/>
+        <location filename="main_window_slots.cpp" line="3512"/>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3515"/>
+        <location filename="main_window_slots.cpp" line="3521"/>
         <source>No previous/next packet in conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3592"/>
+        <location filename="main_window_slots.cpp" line="3598"/>
         <source>No Interface Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3599"/>
+        <location filename="main_window_slots.cpp" line="3605"/>
         <source> before starting a new capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3617"/>
+        <location filename="main_window_slots.cpp" line="3623"/>
         <source> before restarting the capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3820"/>
+        <location filename="main_window_slots.cpp" line="3826"/>
         <source>Wiki Page for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3821"/>
+        <location filename="main_window_slots.cpp" line="3827"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
