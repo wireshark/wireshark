@@ -47,7 +47,7 @@ class ExtcapValue
 public:
     ExtcapValue(QString value, QString call, bool enabled, bool isDefault) :
         _value(value), _call(call), _enabled(enabled),
-        _isDefault(isDefault), _depth(0) {};
+        _isDefault(isDefault), _depth(0) {}
     virtual ~ExtcapValue();
 
     void setChildren(ExtcapValueList children);
@@ -56,7 +56,7 @@ public:
         if ( _children.length() == 0 )
             return ExtcapValueList();
         return _children;
-    };
+    }
 
     QString value() const { return _value; }
     const QString call() const { return _call; }
