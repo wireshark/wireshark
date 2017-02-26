@@ -78,7 +78,7 @@ static void prefInsertPrefPtr(void * pref_ptr, pref_t * pref)
 
 enum {
     module_type_ = 1000,
-    advanced_type_,
+    advanced_type_
 };
 
 enum {
