@@ -3543,9 +3543,7 @@ static int dissect_ccp_oui_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         return tvb_captured_length(tvb);
 
     oui = tvb_get_ntoh24(tvb, offset + 2);
-    ti = proto_tree_add_uint_format_value(field_tree, hf_ccp_opt_oui, tvb,
-        offset + 2, 3, oui, "%02x:%02x:%02x",
-        (oui >> 16) & 0xff, (oui >> 8) & 0xff, oui & 0xff);
+    ti = proto_tree_add_item(field_tree, hf_ccp_opt_oui, tvb, offset + 2, 3, ENC_NA);
     manuf = uint_get_manuf_name_if_known(oui);
     if (manuf)
         proto_item_append_text(ti, "(%s)", manuf);
@@ -7525,7 +7523,7 @@ proto_register_ccp(void)
             { "Length", "ccp.opt.length", FT_UINT8, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_ccp_opt_oui,
-            { "OUI", "ccp.opt.oui", FT_UINT24, BASE_HEX,
+            { "OUI", "ccp.opt.oui", FT_BYTES, SEP_COLON,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_ccp_opt_subtype,
             { "Subtype", "ccp.opt.subtype", FT_UINT8, BASE_DEC_HEX,
