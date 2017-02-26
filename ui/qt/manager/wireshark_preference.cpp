@@ -53,7 +53,7 @@ public:
     {
         ((QAbstractItemModel*)index.model())->setData(index, QString("BOOL"), Qt::EditRole);
         return WiresharkPreference::editor(parent, option, index);
-    };
+    }
 };
 REGISTER_PREFERENCE_TYPE(PREF_BOOL, BoolPreference)
 
@@ -64,19 +64,19 @@ public:
     virtual QWidget * editor(QWidget *parent, const QStyleOptionViewItem &/*option*/, const QModelIndex &/*index*/)
     {
         return new QLineEdit(parent);
-    };
+    }
 
     virtual void setData(QWidget *editor, const QModelIndex &index)
     {
         QLineEdit* line = static_cast<QLineEdit*>(editor);
         line->setText(index.model()->data(index, Qt::DisplayRole).toString());
-    };
+    }
 
     virtual void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index)
     {
         QLineEdit* line = static_cast<QLineEdit*>(editor);
         model->setData(index, line->text(), Qt::EditRole);
-    };
+    }
 };
 REGISTER_PREFERENCE_TYPE(PREF_STRING, StringPreference)
 
@@ -95,7 +95,7 @@ public:
     virtual QWidget * editor(QWidget *parent, const QStyleOptionViewItem &/*option*/, const QModelIndex &/*index*/)
     {
         return new QComboBox(parent);
-    };
+    }
 
     virtual void setData(QWidget *editor, const QModelIndex &index)
     {
@@ -107,13 +107,13 @@ public:
             if (prefs_get_enum_value(pref->getPref(), pref_stashed) == ev->value)
                 combo->setCurrentIndex(combo->count() - 1);
         }
-    };
+    }
 
     virtual void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index)
     {
         QComboBox* combo = static_cast<QComboBox*>(editor);
         model->setData(index, combo->itemData(combo->currentIndex()), Qt::EditRole);
-    };
+    }
 };
 REGISTER_PREFERENCE_TYPE(PREF_ENUM, EnumPreference)
 
@@ -124,19 +124,19 @@ public:
     virtual QWidget * editor(QWidget *parent, const QStyleOptionViewItem &/*option*/, const QModelIndex &/*index*/)
     {
         return new RangeSyntaxLineEdit(parent);
-    };
+    }
 
     virtual void setData(QWidget *editor, const QModelIndex &index)
     {
         RangeSyntaxLineEdit* syntax = static_cast<RangeSyntaxLineEdit*>(editor);
         syntax->setText(index.model()->data(index, Qt::DisplayRole).toString());
-    };
+    }
 
     virtual void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index)
     {
         RangeSyntaxLineEdit* syntax = static_cast<RangeSyntaxLineEdit*>(editor);
         model->setData(index, syntax->text(), Qt::EditRole);
-    };
+    }
 };
 REGISTER_PREFERENCE_TYPE(PREF_RANGE, RangePreference)
 REGISTER_PREFERENCE_TYPE(PREF_DECODE_AS_RANGE, RangePreference)
@@ -159,7 +159,7 @@ public:
             ((QAbstractItemModel*)index.model())->setData(index, color_dlg.currentColor().name(), Qt::EditRole);
 
         return WiresharkPreference::editor(parent, option, index);
-    };
+    }
 };
 REGISTER_PREFERENCE_TYPE(PREF_COLOR, ColorPreference)
 
@@ -175,7 +175,7 @@ public:
             ((QAbstractItemModel*)index.model())->setData(index, QDir::toNativeSeparators(filename), Qt::EditRole);
         }
         return WiresharkPreference::editor(parent, option, index);
-    };
+    }
 };
 REGISTER_PREFERENCE_TYPE(PREF_SAVE_FILENAME, SaveFilePreference)
 
@@ -191,7 +191,7 @@ public:
             ((QAbstractItemModel*)index.model())->setData(index, QDir::toNativeSeparators(filename), Qt::EditRole);
         }
         return WiresharkPreference::editor(parent, option, index);
-    };
+    }
 };
 REGISTER_PREFERENCE_TYPE(PREF_OPEN_FILENAME, OpenFilePreference)
 
@@ -207,7 +207,7 @@ public:
             ((QAbstractItemModel*)index.model())->setData(index, QDir::toNativeSeparators(filename), Qt::EditRole);
         }
         return WiresharkPreference::editor(parent, option, index);
-    };
+    }
 };
 REGISTER_PREFERENCE_TYPE(PREF_DIRNAME, DirNamePreference)
 
@@ -222,7 +222,7 @@ public:
             uat_dlg.exec();
         }
         return WiresharkPreference::editor(parent, option, index);
-    };
+    }
 };
 REGISTER_PREFERENCE_TYPE(PREF_UAT, UatPreference)
 
