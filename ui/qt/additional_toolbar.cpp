@@ -336,7 +336,22 @@ toolbar_selector_cb(gpointer item, gpointer item_data, gpointer user_data)
         if ( conv_ok && dataValue >= 0 && comboBox->model()->rowCount() < dataValue )
             comboBox->setCurrentIndex(dataValue);
         else
+        {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
             comboBox->setCurrentText(data);
+#else
+            for(int i = 0; i < comboBox->model()->rowCount(); i++)
+            {
+                QStandardItem * dataValue = ((QStandardItemModel *)comboBox->model())->item(i, 0);
+                ext_toolbar_value_t * tbValue = VariantPointer<ext_toolbar_value_t>::asPtr(dataValue->data());
+                if ( data.compare(QString(tbValue->display)) )
+                {
+                    comboBox->setCurrentIndex(i);
+                    break;
+                }
+            }
+#endif
+        }
     }
     else if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATA )
     {
