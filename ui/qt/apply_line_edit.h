@@ -35,8 +35,8 @@ public:
     explicit ApplyLineEdit(QString linePlaceholderText, QWidget *parent = 0);
     ~ApplyLineEdit();
 
-    Q_PROPERTY(QString regex READ regex WRITE setRegEx);
-    Q_PROPERTY(bool emptyAllowed READ emptyAllowed WRITE setEmptyAllowed);
+    Q_PROPERTY(QString regex READ regex WRITE setRegEx)
+    Q_PROPERTY(bool emptyAllowed READ emptyAllowed WRITE setEmptyAllowed)
 
     QString regex();
     void setRegEx(QString);
