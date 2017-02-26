@@ -412,7 +412,7 @@ typedef struct _ext_toolbar_update_list_t
     GList * entries;
 } ext_toolbar_update_list_t;
 
-extern gint
+static gint
 ext_toolbar_find_item(gconstpointer a, gconstpointer b)
 {
     if ( a == 0 || b == 0 )
