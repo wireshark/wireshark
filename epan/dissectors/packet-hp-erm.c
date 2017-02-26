@@ -53,14 +53,15 @@ void proto_reg_handoff_hp_erm(void);
 #define PROTO_SHORT_NAME "HP_ERM"
 #define PROTO_LONG_NAME  "HP encapsulated remote mirroring"
 
-static int  proto_hp_erm       = -1;
-static gint ett_hp_erm         = -1;
-static int  hf_hp_erm_unknown1 = -1;
-static int  hf_hp_erm_unknown2 = -1;
-static int  hf_hp_erm_unknown3 = -1;
-static int  hf_hp_erm_priority = -1;
-static int  hf_hp_erm_cfi      = -1;
-static int  hf_hp_erm_vlan     = -1;
+static int  proto_hp_erm        = -1;
+static gint ett_hp_erm          = -1;
+static int  hf_hp_erm_unknown1  = -1;
+static int  hf_hp_erm_unknown2  = -1;
+static int  hf_hp_erm_unknown3  = -1;
+static int  hf_hp_erm_priority  = -1;
+static int  hf_hp_erm_cfi       = -1;
+static int  hf_hp_erm_vlan      = -1;
+static int  hf_hp_erm_is_tagged = -1;
 
 static const value_string hp_erm_pri_vals[] = {
   { 0, "Background"                        },
@@ -74,11 +75,7 @@ static const value_string hp_erm_pri_vals[] = {
   { 0, NULL                                }
 };
 
-static const value_string hp_erm_cfi_vals[] = {
-  { 0, "Canonical"     },
-  { 1, "Non-canonical" },
-  { 0, NULL            }
-};
+static const true_false_string hp_erm_canonical = { "Non-canonical", "Canonical" };
 
 static dissector_handle_t eth_withoutfcs_handle;
 
@@ -89,6 +86,15 @@ dissect_hp_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree *hp_erm_tree;
     tvbuff_t   *eth_tvb;
     int        offset = 0;
+    const gint *flags[] = {
+        &hf_hp_erm_unknown2,
+        &hf_hp_erm_priority,
+        &hf_hp_erm_cfi,
+        &hf_hp_erm_vlan,
+        &hf_hp_erm_is_tagged,
+        &hf_hp_erm_unknown3,
+        NULL
+    };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
     col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
@@ -99,13 +105,8 @@ dissect_hp_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree_add_item(hp_erm_tree, hf_hp_erm_unknown1, tvb, offset, 8, ENC_NA);
     offset += 8;
 
-    proto_tree_add_item(hp_erm_tree, hf_hp_erm_unknown2, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(hp_erm_tree, hf_hp_erm_priority, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(hp_erm_tree, hf_hp_erm_cfi, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(hp_erm_tree, hf_hp_erm_vlan, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(hp_erm_tree, hf_hp_erm_unknown3, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(hp_erm_tree, tvb, offset, 4, flags, ENC_BIG_ENDIAN);
     offset += 4;
-
 
     eth_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(eth_withoutfcs_handle, eth_tvb, pinfo, tree);
@@ -130,16 +131,20 @@ proto_register_hp_erm(void)
             0x00E00000, NULL, HFILL }},
 
         { &hf_hp_erm_cfi,
-          { "CFI", "hp_erm.cfi", FT_UINT32, BASE_DEC, VALS(hp_erm_cfi_vals),
+          { "CFI", "hp_erm.cfi", FT_BOOLEAN, 32, TFS(&hp_erm_canonical),
             0x00100000, NULL, HFILL }},
 
         { &hf_hp_erm_vlan,
           { "Vlan", "hp_erm.vlan", FT_UINT32, BASE_DEC, NULL,
             0x000FFF00, NULL, HFILL }},
 
+        { &hf_hp_erm_is_tagged,
+          { "Is_Tagged", "hp_erm.is_tagged", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
+            0x00000080, NULL, HFILL }},
+
         { &hf_hp_erm_unknown3,
           { "Unknown3", "hp_erm.unknown3", FT_UINT32, BASE_DEC, NULL,
-            0x000000FF, NULL, HFILL }}
+            0x0000007F, NULL, HFILL }}
     };
 
     static gint *ett[] = {
