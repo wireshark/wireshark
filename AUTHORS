@@ -3685,6 +3685,7 @@ Barbu Paul - Gheorghe	<barbu.paul.gheorghe[AT]gmail.com> {
 
 Martin Kacer	<kacer.martin[AT]gmail.com> {
 	JSON and Elasticsearch tshark output
+	json2pcap
 }
 Ben Stewart		<bst[AT]google.com> {
 	SCTE-35 dissector
@@ -4166,6 +4167,7 @@ Kenny Root		<kenny[AT]the-b.org>
 Kevin Bracey		<kevin.bracey[AT]arm.com>
 Kevin Grigorenko	<kevin.grigorenko[AT]us.ibm.com>
 Kevin Hogan		<kwabena[AT]google.com>
+Kim Bäckström		<kim.backstrom[AT]gmail.com>
 Lars Sundström		<lars.x.sundstrom[AT]ericsson.com>
 Lasse Luttermann Poulsen <lasse.luttermann[AT]gmail.com>
 Laurenz Kamp		<laurenz.kamp[AT]gmx.de>
