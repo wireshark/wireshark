@@ -367,7 +367,7 @@ http_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const
 		entry->pkt_num = pinfo->num;
 		entry->hostname = g_strdup(eo_info->hostname);
 		entry->content_type = g_strdup(eo_info->content_type);
-		entry->filename = g_path_get_basename(eo_info->filename);
+		entry->filename = eo_info->filename ? g_path_get_basename(eo_info->filename) : NULL;
 		entry->payload_len = eo_info->payload_len;
 		entry->payload_data = (guint8 *)g_memdup(eo_info->payload_data, eo_info->payload_len);
 
