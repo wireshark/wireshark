@@ -1337,11 +1337,20 @@ extcap_ensure_interface(const gchar * toolname)
     return element;
 }
 
+static void remove_extcap_entry(gpointer entry, gpointer data _U_)
+{
+    extcap_interface *int_iter = (extcap_interface*)entry;
+
+    if (int_iter->if_type == EXTCAP_SENTENCE_EXTCAP)
+        g_free(int_iter);
+}
+
 static gboolean cb_load_interfaces(const gchar *extcap, const gchar *ifname _U_, gchar *output _U_, void *data _U_,
                               char **err_str _U_)
 {
     GList *interfaces = NULL, *walker = NULL;
     extcap_interface *int_iter = NULL;
+    gchar *toolname = g_path_get_basename(extcap);
 
     GList * interface_keys = g_hash_table_get_keys(_loaded_interfaces);
 
@@ -1355,12 +1364,11 @@ static gboolean cb_load_interfaces(const gchar *extcap, const gchar *ifname _U_,
     {
         int_iter = (extcap_interface *)walker->data;
 
-        gchar * toolname = g_path_get_basename(extcap);
         extcap_info * element = extcap_ensure_interface(toolname);
 
         if ( element == NULL )
         {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, "Cannot store interface %s", extcap );
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, "Cannot store interface %s", extcap);
             walker = g_list_next(walker);
             continue;
         }
@@ -1416,6 +1424,10 @@ static gboolean cb_load_interfaces(const gchar *extcap, const gchar *ifname _U_,
         walker = g_list_next(walker);
     }
 
+    g_list_foreach(interfaces, remove_extcap_entry, NULL);
+    g_list_free(interfaces);
+    g_list_free(interface_keys);
+    g_free(toolname);
     return TRUE;
 }
 
