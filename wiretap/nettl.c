@@ -719,6 +719,7 @@ static gboolean nettl_dump(wtap_dumper *wdh,
             rec_hdr.caplen = g_htonl(phdr->caplen + 3);
             rec_hdr.length = g_htonl(phdr->len + 3);
             /* fall through and fill the rest of the fields */
+        /* FALL THROUGH */
         case WTAP_ENCAP_NETTL_ETHERNET:
         case WTAP_ENCAP_NETTL_TOKEN_RING:
         case WTAP_ENCAP_NETTL_RAW_IP:

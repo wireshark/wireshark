@@ -511,6 +511,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 				 * by falling through.
 				 */
 
+			/* FALL THROUGH */
 			default:
 				if (pkt->esc) {
 					/*
