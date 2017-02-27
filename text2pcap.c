@@ -245,7 +245,7 @@ static FILE       *output_file = NULL;
 /* Offset base to parse */
 static guint32 offset_base = 16;
 
-extern FILE *yyin;
+extern FILE *text2pcap_in;
 
 /* ----- State machine -----------------------------------------------------------*/
 
@@ -1899,8 +1899,8 @@ main(int argc, char *argv[])
     }
     curr_offset = header_length;
 
-    yyin = input_file;
-    if (yylex() == EXIT_SUCCESS) {
+    text2pcap_in = input_file;
+    if (text2pcap_lex() == EXIT_SUCCESS) {
         if (write_current_packet(FALSE) != EXIT_SUCCESS)
             ret = EXIT_FAILURE;
     } else {

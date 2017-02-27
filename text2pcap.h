@@ -42,7 +42,7 @@ typedef enum {
 
 int parse_token(token_t token, char *str);
 
-int yylex(void);
+int text2pcap_lex(void);
 
 #endif
 

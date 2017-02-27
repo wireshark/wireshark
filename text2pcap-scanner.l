@@ -25,6 +25,12 @@
  */
 %option noyywrap
 
+/*
+ * Prefix scanner routines with "text2pcap_" rather than "yy" to avoid a
+ * "redefined macro" warning with flex 2.6.3.
+ */
+%option prefix="text2pcap_"
+
 %{
 
 /********************************************************************************
