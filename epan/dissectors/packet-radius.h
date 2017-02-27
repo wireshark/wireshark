@@ -81,7 +81,7 @@
 
 
 typedef struct _radius_vendor_info_t {
-	const gchar *name;
+	gchar *name;
 	guint code;
 	GHashTable* attrs_by_id;
 	gint ett;
@@ -96,7 +96,7 @@ typedef void (radius_attr_dissector_t)(radius_attr_info_t*, proto_tree*, packet_
 typedef const gchar* (radius_avp_dissector_t)(proto_tree*,tvbuff_t*, packet_info*);
 
 struct _radius_attr_info_t {
-	const gchar *name;
+	gchar *name;
 	guint code;
 	guint encrypt;  /* 0 or value for "encrypt=" option */
 	gboolean tagged;
@@ -138,6 +138,7 @@ radius_attr_dissector_t radius_tlv;
 
 extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_id, radius_avp_dissector_t dissector);
 void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length);
+extern void free_radius_attr_info(gpointer data);
 
 /* from radius_dict.l */
 gboolean radius_load_dictionary (radius_dictionary_t* dict, gchar* directory, const gchar* filename, gchar** err_str);

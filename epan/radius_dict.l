@@ -403,7 +403,7 @@ static void add_vendor(Radius_scanner_state_t* state, const gchar* name, guint32
 		 * by-name hash tables.
 		 */
 		v = g_new(radius_vendor_info_t,1);
-		v->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
+		v->attrs_by_id = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free_radius_attr_info);
 		v->code = id;
 		v->ett = -1;
 		v->name = g_strdup(name);

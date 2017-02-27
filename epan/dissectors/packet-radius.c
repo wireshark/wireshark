@@ -2137,6 +2137,29 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	return tvb_captured_length(tvb);
 }
 
+void
+free_radius_attr_info(gpointer data)
+{
+	radius_attr_info_t* attr = (radius_attr_info_t*)data;
+
+	g_free(attr->name);
+	if (attr->tlvs_by_id)
+		g_hash_table_destroy(attr->tlvs_by_id);
+
+	g_free(attr);
+}
+
+static void
+free_radius_vendor_info(gpointer data)
+{
+	radius_vendor_info_t* vendor = (radius_vendor_info_t*)data;
+
+	g_free(vendor->name);
+	if (vendor->attrs_by_id)
+		g_hash_table_destroy(vendor->attrs_by_id);
+
+	g_free(vendor);
+}
 
 static void
 register_attrs(gpointer k _U_, gpointer v, gpointer p)
@@ -2313,7 +2336,7 @@ radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_id, radius_av
 						       val_to_str_ext_const(vendor_id, &sminmpec_values_ext, "Unknown"),
 						       vendor_id);
 			vendor->code = vendor_id;
-			vendor->attrs_by_id = g_hash_table_new(g_direct_hash, g_direct_equal);
+			vendor->attrs_by_id = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free_radius_attr_info);
 			vendor->ett = no_vendor.ett;
 
 			/* XXX: Default "standard" values: Should be parameters ?  */
@@ -2366,6 +2389,19 @@ radius_init_protocol(void)
 		alternate_port = prefs_find_preference(radius_module, "alternate_port");
 		if (! prefs_get_preference_obsolete(alternate_port))
 			prefs_set_preference_obsolete(alternate_port);
+	}
+}
+
+static void
+radius_shutdown(void)
+{
+	if (dict != NULL) {
+		g_hash_table_destroy(dict->attrs_by_id);
+		g_hash_table_destroy(dict->attrs_by_name);
+		g_hash_table_destroy(dict->vendors_by_id);
+		g_hash_table_destroy(dict->vendors_by_name);
+		g_hash_table_destroy(dict->tlvs_by_name);
+		g_free(dict);
 	}
 }
 
@@ -2634,6 +2670,7 @@ proto_register_radius(void)
 	proto_radius = proto_register_protocol("RADIUS Protocol", "RADIUS", "radius");
 	radius_handle = register_dissector("radius", dissect_radius, proto_radius);
 	register_init_routine(&radius_init_protocol);
+	register_shutdown_routine(radius_shutdown);
 	radius_module = prefs_register_protocol(proto_radius, NULL);
 	prefs_register_string_preference(radius_module, "shared_secret", "Shared Secret",
 					 "Shared secret used to decode User Passwords and validate Response Authenticators",
@@ -2650,11 +2687,13 @@ proto_register_radius(void)
 	proto_register_prefix("radius", register_radius_fields);
 
 	dict = (radius_dictionary_t *)g_malloc(sizeof(radius_dictionary_t));
-	dict->attrs_by_id     = g_hash_table_new(g_direct_hash, g_direct_equal);
-	dict->attrs_by_name   = g_hash_table_new(g_str_hash, g_str_equal);
-	dict->vendors_by_id   = g_hash_table_new(g_direct_hash, g_direct_equal);
+	dict->attrs_by_id     = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free_radius_attr_info);
+	dict->attrs_by_name   = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, free_radius_attr_info);
+	dict->vendors_by_id   = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free_radius_vendor_info);
+	/* Both vendors_by_id and vendors_by_name share the same data, so only worry about
+	  cleaning up the data from one of them.  The other will just clean up its own hash entries */
 	dict->vendors_by_name = g_hash_table_new(g_str_hash, g_str_equal);
-	dict->tlvs_by_name    = g_hash_table_new(g_str_hash, g_str_equal);
+	dict->tlvs_by_name    = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, free_radius_attr_info);
 
 	radius_calls = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), radius_call_hash, radius_call_equal);
 
