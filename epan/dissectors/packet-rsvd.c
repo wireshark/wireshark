@@ -31,6 +31,7 @@
 #include <epan/conversation.h>
 #include <epan/packet.h>
 #include "packet-smb-common.h"
+#include "packet-windows-common.h"
 #include "packet-scsi.h"
 
 void proto_reg_handoff_rsvd(void);
@@ -86,19 +87,37 @@ static int hf_svhdx_tunnel_safe_virtual_size = -1;
 static int hf_svhdx_tunnel_transaction_id = -1;
 static int hf_svhdx_tunnel_meta_operation_type = -1;
 static int hf_svhdx_tunnel_padding = -1;
-static int hf_svhdx_tunnel_new_size = -1;
-static int hf_svhdx_tunnel_expand_only_flag = -1;
-static int hf_svhdx_tunnel_allow_unsafe_virt_size_flag = -1;
-static int hf_svhdx_tunnel_shrink_to_minimum_safe_size_flag = -1;
+static int hf_svhdx_tunnel_resize_new_size = -1;
+static int hf_svhdx_tunnel_resize_expand_only_flag = -1;
+static int hf_svhdx_tunnel_resize_allow_unsafe_virt_size_flag = -1;
+static int hf_svhdx_tunnel_resize_shrink_to_minimum_safe_size_flag = -1;
 static int hf_svhdx_tunnel_meta_operation_start_reserved = -1;
-static int hf_svhdx_tunnel_current_progress = -1;
-static int hf_svhdx_tunnel_complete_value = -1;
-static int hf_svhdx_tunnel_dst_vhdset_name_len = -1;
-static int hf_svhdx_tunnel_dst_vhdset_name = -1;
+static int hf_svhdx_tunnel_snapshot_type = -1;
+static int hf_svhdx_tunnel_snapshot_id = -1;
+static int hf_svhdx_tunnel_create_snapshot_flags = -1;
+static int hf_svhdx_tunnel_create_snapshot_flag_enable_change_tracking = -1;
+static int hf_svhdx_tunnel_create_snapshot_stage1 = -1;
+static int hf_svhdx_tunnel_create_snapshot_stage2 = -1;
+static int hf_svhdx_tunnel_create_snapshot_stage3 = -1;
+static int hf_svhdx_tunnel_create_snapshot_stage4 = -1;
+static int hf_svhdx_tunnel_create_snapshot_stage5 = -1;
+static int hf_svhdx_tunnel_create_snapshot_stage6 = -1;
+static int hf_svhdx_tunnel_create_snapshot_parameters_payload_size = -1;
+static int hf_svhdx_tunnel_convert_dst_vhdset_name_len = -1;
+static int hf_svhdx_tunnel_convert_dst_vhdset_name = -1;
+static int hf_svhdx_tunnel_delete_snapshot_persist_reference = -1;
+static int hf_svhdx_tunnel_meta_op_query_progress_current_progress = -1;
+static int hf_svhdx_tunnel_meta_op_query_progress_complete_value = -1;
+static int hf_svhdx_tunnel_vhdset_information_type = -1;
+static int hf_svhdx_tunnel_vhdset_snapshot_creation_time = -1;
+static int hf_svhdx_tunnel_vhdset_is_valid_snapshot = -1;
+static int hf_svhdx_tunnel_vhdset_parent_snapshot_id = -1;
+static int hf_svhdx_tunnel_vhdset_log_file_id = -1;
 
 static gint ett_rsvd = -1;
 static gint ett_svhdx_tunnel_op_header = -1;
 static gint ett_svhdx_tunnel_scsi_request = -1;
+static gint ett_rsvd_create_snapshot_flags = -1;
 
 static const value_string rsvd_operation_code_vals[] = {
         { 0x02001001, "RSVD_TUNNEL_GET_INITIAL_INFO" },
@@ -587,9 +606,33 @@ static const value_string rsvd_meta_operation_type_vals[] = {
         { 0, NULL }
 };
 
+static const value_string svhdx_snapshot_type_vals[] = {
+        { 0x01, "SvhdxSnapshotTypeVM" },
+        { 0x03, "SvhdxSnapshotTypeCDP" },
+        { 0x04, "SvhdxSnapshotTypeWriteable" },
+        { 0, NULL }
+};
+
+static const value_string svhdx_snapshot_stage_vals[] = {
+        { 0x00, "SvhdxSnapshotStageInvalid" },
+        { 0x01, "SvhdxSnapshotStageInitialize" },
+        { 0x02, "SvhdxSnapshotStageBlockIO" },
+        { 0x03, "SvhdxSnapshotStageSwitchObjectStore" },
+        { 0x04, "SvhdxSnapshotStageUnblockIO" },
+        { 0x05, "SvhdxSnapshotStageFinalize" },
+        { 0, NULL }
+};
+
+#define SVHDX_SNAPSHOT_DISK_FLAG_ENABLE_CHANGE_TRACKING 0x00000001
+
 static int
 dissect_RSVD2_META_OPERATION_START(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
 {
+    static const int * meta_operation_create_snapshot_flags[] = {
+        &hf_svhdx_tunnel_create_snapshot_flag_enable_change_tracking,
+        NULL
+    };
+
     guint32 operation_type = 0;
     guint32 length = 0;
     proto_tree *gfi_sub_tree;
@@ -611,24 +654,63 @@ dissect_RSVD2_META_OPERATION_START(tvbuff_t *tvb, proto_tree *parent_tree, int o
 
         switch (operation_type) {
         case 0x00: /* SvhdxMetaOperationTypeResize */
-            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_new_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_resize_new_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
 
-            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_expand_only_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_resize_expand_only_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_allow_unsafe_virt_size_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_resize_allow_unsafe_virt_size_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_shrink_to_minimum_safe_size_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_resize_shrink_to_minimum_safe_size_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
             proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_meta_operation_start_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             break;
+        case 0x01: /* SvhdxMetaOperationTypeCreateSnapshot */
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_snapshot_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_bitmask(gfi_sub_tree, tvb, offset, hf_svhdx_tunnel_create_snapshot_flags,
+                                   ett_rsvd_create_snapshot_flags, meta_operation_create_snapshot_flags, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_create_snapshot_stage1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_create_snapshot_stage2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_create_snapshot_stage3, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_create_snapshot_stage4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_create_snapshot_stage5, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_create_snapshot_stage6, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_snapshot_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+            offset += 16;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_create_snapshot_parameters_payload_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            break;
+        case 0x02: /* SvhdxMetaOperationTypeOptimize */
+            /* No Data, field MUST be empty */
+            break;
+        case 0x03: /* SvhdxMetaOperationTypeExtractVHD */
+            /* TODO */
+            break;
         case 0x04: /* SvhdxMetaOperationTypeConvertToVHDSet */
             length = tvb_get_letohl(tvb, offset);
-            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_dst_vhdset_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_convert_dst_vhdset_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
 
             if (length) {
@@ -639,14 +721,19 @@ dissect_RSVD2_META_OPERATION_START(tvbuff_t *tvb, proto_tree *parent_tree, int o
                 name = get_unicode_or_ascii_string(tvb, &offset,
                     TRUE, &length, TRUE, TRUE, &bc);
                 if (name) {
-                    proto_tree_add_string(gfi_sub_tree, hf_svhdx_tunnel_dst_vhdset_name, tvb,
+                    proto_tree_add_string(gfi_sub_tree, hf_svhdx_tunnel_convert_dst_vhdset_name, tvb,
                         offset, length, name);
                 }
             }
             break;
 
-        default:
-            /* TODO: implement other types of meta operations */
+        case 0x05: /* SvhdxMetaOperationTypeApplySnapshot */
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_snapshot_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_snapshot_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+            offset += 16;
+
             break;
         }
     }
@@ -669,12 +756,102 @@ dissect_RSVD2_META_OPERATION_QUERY_PROGRESS(tvbuff_t *tvb,
         if (status == 0) { /* If status is not successful, RSVD response buffer is filled by data from request buffer and we should not parse output structure */
             gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_META_OPERATION_QUERY_PROGRESS_RESPONSE");
 
-            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_current_progress, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_meta_op_query_progress_current_progress, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
 
-            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_complete_value, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_meta_op_query_progress_complete_value, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
         }
+    }
+    return offset;
+}
+
+static const value_string svhdx_vhdset_information_type_vals[] = {
+        { 0x02, "SvhdxVHDSetInformationTypeSnapshotList" },
+        { 0x05, "SvhdxVHDSetInformationTypeSnapshotEntry" },
+        { 0x08, "SvhdxVHDSetInformationTypeOptimizeNeeded" },
+        { 0x09, "SvhdxVHDSetInformationTypeCdpSnapshotRoot" },
+        { 0x0A, "SvhdxVHDSetInformationTypeCdpSnapshotActiveList" },
+        { 0x0C, "SvhdxVHDSetInformationTypeCdpSnapshotInactiveList" },
+        { 0, NULL }
+};
+static int
+dissect_RSVD2_VHDSET_QUERY_INFORMATION(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+{
+    proto_tree *gfi_sub_tree;
+    proto_item *gfi_sub_item;
+
+    if (request) {
+        gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_VHDSET_QUERY_INFORMATION_REQUEST");
+
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_vhdset_information_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_snapshot_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_snapshot_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+        offset += 16;
+    } else {
+        guint32 vhdset_info_type = tvb_get_letohl(tvb, offset);
+        switch (vhdset_info_type) {
+        case 0x02: /* SvhdxVHDSetInformationTypeSnapshotList */
+            gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_VHDSET_QUERY_INFORMATION_SNAPSHOT_LIST_RESPONSE");
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_vhdset_information_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            /* TODO: make full dissection */
+
+            break;
+        case 0x05: /* SvhdxVHDSetInformationTypeSnapshotEntry */
+            gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_VHDSET_QUERY_INFORMATION_SNAPSHOT_ENTRY_RESPONSE");
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_vhdset_information_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_padding, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            offset = dissect_nt_64bit_time(tvb, gfi_sub_tree, offset, hf_svhdx_tunnel_vhdset_snapshot_creation_time);
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_snapshot_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_vhdset_is_valid_snapshot, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_snapshot_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+            offset += 16;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_vhdset_parent_snapshot_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+            offset += 16;
+
+            proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_vhdset_log_file_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+            offset += 16;
+
+            break;
+        }
+    }
+    return offset;
+}
+
+static int
+dissect_RSVD2_DELETE_SNAPSHOT(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+{
+    proto_tree *gfi_sub_tree;
+    proto_item *gfi_sub_item;
+
+    if (request) {
+        gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_DELETE_SNAPSHOT_REQUEST");
+
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_snapshot_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+        offset += 16;
+
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_delete_snapshot_persist_reference, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_snapshot_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
     }
     return offset;
 }
@@ -805,6 +982,14 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
         offset += dissect_RSVD2_META_OPERATION_QUERY_PROGRESS(tvb, rsvd_tree, offset, len - offset, request, status);
         break;
 
+    case 0x02002005:
+        offset += dissect_RSVD2_VHDSET_QUERY_INFORMATION(tvb, rsvd_tree, offset, len - offset, request);
+        break;
+
+    case 0x02002006:
+        offset += dissect_RSVD2_DELETE_SNAPSHOT(tvb, rsvd_tree, offset, len - offset, request);
+        break;
+
     case 0x0200200D:
         offset += dissect_RSVD2_QUERY_SAFE_SIZE(tvb, rsvd_tree, offset, len - offset, request);
         break;
@@ -836,8 +1021,9 @@ proto_register_rsvd(void)
                      VALS(rsvd_operation_code_vals), 0, "Operation Code", HFILL }},
 
                 { &hf_svhdx_status,
-                  { "Status", "rsvd.svhdx_status", FT_UINT32, BASE_HEX,
-                    NULL, 0, NULL, HFILL }},
+                  { "Status", "rsvd.svhdx_status", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+                    &NT_errors_ext, 0, NULL, HFILL }},
+
 
                 { &hf_svhdx_request_id,
                   { "RequestId", "rsvd.svhdx_request_id", FT_UINT64, BASE_HEX,
@@ -1017,22 +1203,22 @@ proto_register_rsvd(void)
                     VALS(rsvd_meta_operation_type_vals), 0, "Type of meta-operation", HFILL }},
 
                 { &hf_svhdx_tunnel_padding,
-                  { "Padding", "rsvd.svhdx_meta_operation.padding", FT_UINT32, BASE_DEC,
+                  { "Padding", "rsvd.svhdx_padding", FT_UINT32, BASE_DEC,
                     NULL, 0, NULL, HFILL }},
 
-                { &hf_svhdx_tunnel_new_size,
+                { &hf_svhdx_tunnel_resize_new_size,
                   { "NewSize", "rsvd.svhdx_meta_operation.new_size", FT_UINT64, BASE_DEC,
                     NULL, 0, NULL, HFILL }},
 
-                { &hf_svhdx_tunnel_expand_only_flag,
+                { &hf_svhdx_tunnel_resize_expand_only_flag,
                   { "ExpandOnly", "rsvd.svhdx_meta_operation.expand_only", FT_BOOLEAN, 8,
                     NULL, 0, "Indicates that shared virtual disk size can only expand", HFILL }},
 
-                { &hf_svhdx_tunnel_allow_unsafe_virt_size_flag,
+                { &hf_svhdx_tunnel_resize_allow_unsafe_virt_size_flag,
                   { "AllowUnsafeVirtualSize", "rsvd.svhdx_meta_operation.allow_unsafe_virt_size", FT_BOOLEAN, 8,
                     NULL, 0, "Indicates that the shared virtual disk size can be less than the data it currently contains", HFILL }},
 
-                { &hf_svhdx_tunnel_shrink_to_minimum_safe_size_flag,
+                { &hf_svhdx_tunnel_resize_shrink_to_minimum_safe_size_flag,
                   { "ShrinkToMinimumSafeSize", "rsvd.svhdx_meta_operation.shrink_to_minimum_safe_size", FT_BOOLEAN, 8,
                     NULL, 0, "Indicates that the shared virtual disk size can be shrunk to the data it currently contains", HFILL }},
 
@@ -1040,28 +1226,96 @@ proto_register_rsvd(void)
                   { "Reserved", "rsvd.svhdx_meta_operation.reserved", FT_UINT8, BASE_DEC,
                     NULL, 0, NULL, HFILL }},
 
-                { &hf_svhdx_tunnel_current_progress,
-                  { "CurrentProgressValue", "rsvd.svhdx_meta_operation.current_progress", FT_UINT64, BASE_DEC,
+                { &hf_svhdx_tunnel_snapshot_type,
+                  { "SnapshotType", "rsvd.svhdx_snapshot_type", FT_UINT32, BASE_HEX,
+                    VALS(svhdx_snapshot_type_vals), 0, "Type of snapshot", HFILL }},
+
+                { &hf_svhdx_tunnel_snapshot_id,
+                  { "SnapshotId", "rsvd.svhdx_snapshot_id", FT_GUID, BASE_NONE,
                     NULL, 0, NULL, HFILL }},
 
-                { &hf_svhdx_tunnel_complete_value,
-                  { "CompleteValue", "rsvd.svhdx_meta_operation.complete_value", FT_UINT64, BASE_DEC,
+                { &hf_svhdx_tunnel_create_snapshot_flags,
+                  { "Flags", "rsvd.svhdx_meta_operation.create_snapshot_flags", FT_UINT32, BASE_HEX,
                     NULL, 0, NULL, HFILL }},
 
-                { &hf_svhdx_tunnel_dst_vhdset_name_len,
+                { &hf_svhdx_tunnel_create_snapshot_flag_enable_change_tracking,
+                  { "SVHDX_SNAPSHOT_DISK_FLAG_ENABLE_CHANGE_TRACKING", "rsvd.svhdx_meta_operation.create_snapshot_flag_enable_change_tracking", FT_BOOLEAN, 32,
+                    NULL, SVHDX_SNAPSHOT_DISK_FLAG_ENABLE_CHANGE_TRACKING, "Change tracking to be enabled when snapshot is taken", HFILL }},
+
+                { &hf_svhdx_tunnel_create_snapshot_stage1,
+                  { "Stage1", "rsvd.svhdx_meta_operation.create_snapshot_stage1", FT_UINT32, BASE_HEX,
+                    VALS(svhdx_snapshot_stage_vals), 0, "The first stage", HFILL }},
+
+                { &hf_svhdx_tunnel_create_snapshot_stage2,
+                  { "Stage2", "rsvd.svhdx_meta_operation.create_snapshot_stage2", FT_UINT32, BASE_HEX,
+                    VALS(svhdx_snapshot_stage_vals), 0, "The second stage", HFILL }},
+
+                { &hf_svhdx_tunnel_create_snapshot_stage3,
+                  { "Stage3", "rsvd.svhdx_meta_operation.create_snapshot_stage3", FT_UINT32, BASE_HEX,
+                    VALS(svhdx_snapshot_stage_vals), 0, "The third stage", HFILL }},
+
+                { &hf_svhdx_tunnel_create_snapshot_stage4,
+                  { "Stage4", "rsvd.svhdx_meta_operation.create_snapshot_stage4", FT_UINT32, BASE_HEX,
+                    VALS(svhdx_snapshot_stage_vals), 0, "The fourth stage", HFILL }},
+
+                { &hf_svhdx_tunnel_create_snapshot_stage5,
+                  { "Stage5", "rsvd.svhdx_meta_operation.create_snapshot_stage5", FT_UINT32, BASE_HEX,
+                    VALS(svhdx_snapshot_stage_vals), 0, "The fifth stage", HFILL }},
+
+                { &hf_svhdx_tunnel_create_snapshot_stage6,
+                  { "Stage6", "rsvd.svhdx_meta_operation.create_snapshot_stage6", FT_UINT32, BASE_HEX,
+                    VALS(svhdx_snapshot_stage_vals), 0, "The sixth stage", HFILL }},
+
+                { &hf_svhdx_tunnel_create_snapshot_parameters_payload_size,
+                  { "ParametersPayloadSize", "rsvd.svhdx_meta_operation.create_snapshot_params_payload_size", FT_UINT32, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_convert_dst_vhdset_name_len,
                   { "DestinationVhdSetNameLength", "rsvd.svhdx_meta_operation.dst_vhdset_name_len", FT_UINT32, BASE_DEC,
                     NULL, 0, NULL, HFILL }},
 
-                { &hf_svhdx_tunnel_dst_vhdset_name,
+                { &hf_svhdx_tunnel_convert_dst_vhdset_name,
                   { "DestinationVhdSetName", "rsvd.svhdx_meta_operation.dst_vhdset_name", FT_STRING, BASE_NONE,
-                    NULL, 0, "Name for the new VHD set be created", HFILL }
-        },
+                    NULL, 0, "Name for the new VHD set be created", HFILL }},
+
+                { &hf_svhdx_tunnel_delete_snapshot_persist_reference,
+                  { "PersistReference", "rsvd.svhdx_delete_snapshot_persist_reference", FT_BOOLEAN, 4,
+                    NULL, 0, "Indicate if the snapshot needs to be persisted", HFILL }},
+
+                { &hf_svhdx_tunnel_meta_op_query_progress_current_progress,
+                  { "CurrentProgressValue", "rsvd.svhdx_query_progress.current_progress", FT_UINT64, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_meta_op_query_progress_complete_value,
+                  { "CompleteValue", "rsvd.svhdx_query_progress.complete_value", FT_UINT64, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_vhdset_information_type,
+                  { "VHDSetInformationType", "rsvd.svhdx_vhdset_information_type", FT_UINT32, BASE_HEX,
+                    VALS(svhdx_vhdset_information_type_vals), 0, "The information type requested", HFILL }},
+
+                { &hf_svhdx_tunnel_vhdset_snapshot_creation_time,
+                  { "SnapshotCreationTime", "rsvd.svhdx_vhdset_snapshot_creation_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+                    NULL, 0, "Time when this object was created", HFILL }},
+
+                { &hf_svhdx_tunnel_vhdset_is_valid_snapshot,
+                  { "IsValidSnapshot", "rsvd.svhdx_vhdset_is_valid_snapshot", FT_BOOLEAN, 4,
+                    NULL, 0, "Set to 1 when the snapshot is valid", HFILL }},
+
+                { &hf_svhdx_tunnel_vhdset_parent_snapshot_id,
+                  { "ParentSnapshotId", "rsvd.svhdx_vhdxset_parent_snapshot_id", FT_GUID, BASE_NONE,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_vhdset_log_file_id,
+                  { "LogFileId", "rsvd.svhdx_vhdxset_log_file_id", FT_GUID, BASE_NONE,
+                    NULL, 0, NULL, HFILL }}
     };
 
     static gint *ett[] = {
         &ett_rsvd,
         &ett_svhdx_tunnel_op_header,
-        &ett_svhdx_tunnel_scsi_request
+        &ett_svhdx_tunnel_scsi_request,
+        &ett_rsvd_create_snapshot_flags
     };
 
     proto_rsvd = proto_register_protocol("Remote Shared Virtual Disk",
