@@ -2629,10 +2629,11 @@ void MainWindow::addPluginIFStructures()
 
         bool visible = g_list_find_custom(recent.gui_additional_toolbars, toolbar->name, (GCompareFunc) strcmp) ? true : false;
 
-        AdditionalToolBar * ifToolBar = AdditionalToolBar::create(this, toolbar);
-        ifToolBar->setVisible(visible);
+        AdditionalToolBar *ifToolBar = AdditionalToolBar::create(this, toolbar);
 
         if (ifToolBar) {
+            ifToolBar->setVisible(visible);
+
             QAction *iftbAction = new QAction(QString(toolbar->name), this);
             iftbAction->setToolTip(toolbar->tooltip);
             iftbAction->setEnabled(true);
