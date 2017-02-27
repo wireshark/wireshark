@@ -630,7 +630,7 @@ WSLUA_CONSTRUCTOR Struct_tohex (lua_State *L) {
 WSLUA_CONSTRUCTOR Struct_fromhex (lua_State *L) {
   /* Converts the passed-in hex-ascii string to a binary string. */
 #define WSLUA_ARG_Struct_fromhex_HEXBYTES 1 /* A string consisting of hexadecimal bytes like "00 B1 A2" or "1a2b3c4d" */
-#define WSLUA_OPTARG_Struct_fromhex_SEPARATOR 2 /* A string separator between hex bytes/words (default=" "). */
+#define WSLUA_OPTARG_Struct_fromhex_SEPARATOR 2 /* A string separator between hex bytes/words (default none). */
   const gchar* s = NULL;
   size_t len = 0;
   const gchar* sep = NULL;
