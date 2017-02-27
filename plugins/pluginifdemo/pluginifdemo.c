@@ -86,11 +86,11 @@ proto_register_pluginifdemo(void)
 
     ext_toolbar_t * tb = ext_toolbar_register_toolbar("Plugin Interface Demo Toolbar");
 
-    ext_toolbar_add_entry(tb, EXT_TOOLBAR_BUTTON, "Test Button", 0, "Button to press", FALSE, 0, FALSE, 0, toolbar_cb, 0);
-    ext_toolbar_add_entry(tb, EXT_TOOLBAR_BUTTON, "Test 2 Button", 0, "Button 2 to press", TRUE, 0, FALSE, 0, toolbar_cb, 0);
-    ext_toolbar_add_entry(tb, EXT_TOOLBAR_BOOLEAN, "Test CheckBox", 0, "CheckBox to Select", FALSE, 0, FALSE, 0, toolbar_cb, 0);
-    ext_toolbar_add_entry(tb, EXT_TOOLBAR_STRING, "Reg String", "Default String", "Test Testbox", FALSE, 0, TRUE, 0, toolbar_cb, 0);
-    ext_toolbar_add_entry(tb, EXT_TOOLBAR_STRING, "Test Textbox", "ABC", "Box with Validation", FALSE, 0, FALSE, "^[A-Z]+", toolbar_cb, 0);
+    ext_toolbar_add_entry(tb, EXT_TOOLBAR_BUTTON, "Button 1", 0, "Button 1 to press", FALSE, 0, FALSE, 0, toolbar_cb, 0);
+    ext_toolbar_add_entry(tb, EXT_TOOLBAR_BUTTON, "Button 2", 0, "Button 2 to press", TRUE, 0, FALSE, 0, toolbar_cb, 0);
+    ext_toolbar_add_entry(tb, EXT_TOOLBAR_BOOLEAN, "Checkbox", 0, "Checkbox to Select", FALSE, 0, FALSE, 0, toolbar_cb, 0);
+    ext_toolbar_add_entry(tb, EXT_TOOLBAR_STRING, "String 1", "Default String", "String without validation", FALSE, 0, TRUE, 0, toolbar_cb, 0);
+    ext_toolbar_add_entry(tb, EXT_TOOLBAR_STRING, "String 2", "ABC", "String with validation", FALSE, 0, FALSE, "^[A-Z]+", toolbar_cb, 0);
     GList * entries = 0;
     entries = ext_toolbar_add_val( entries, "1", "ABCD", FALSE );
     entries = ext_toolbar_add_val(entries, "2", "EFG", FALSE );
@@ -100,7 +100,7 @@ proto_register_pluginifdemo(void)
     entries = ext_toolbar_add_val(entries, "6", "QRS", FALSE );
     entries = ext_toolbar_add_val(entries, "7", "TUVW", FALSE );
     entries = ext_toolbar_add_val(entries, "8", "XYZ", FALSE );
-    ext_toolbar_add_entry(tb, EXT_TOOLBAR_SELECTOR, "Test Selector", 0, "Selector to choose from", FALSE, entries, FALSE, 0, toolbar_cb, 0);
+    ext_toolbar_add_entry(tb, EXT_TOOLBAR_SELECTOR, "Selector", 0, "Selector to choose from", FALSE, entries, FALSE, 0, toolbar_cb, 0);
 
     pluginifdemo_toolbar_register(tb);
 }
