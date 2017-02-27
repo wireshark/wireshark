@@ -523,10 +523,10 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 		 */
 		if (g_strcmp0(a->name, name) != 0) {
 			/*
-			 * Yes.  Remove the entry from the by-name hash table
+			 * Yes.  Steal the entry from the by-name hash table
 			 * and re-insert it with the new name.
 			 */
-			g_hash_table_remove(state->dict->attrs_by_name, (gpointer) (a->name));
+			g_hash_table_steal(state->dict->attrs_by_name, (gpointer) (a->name));
 			g_free((gpointer) a->name);
 			a->name = g_strdup(name);
 			g_hash_table_insert(state->dict->attrs_by_name, (gpointer) (a->name),a);
@@ -554,7 +554,7 @@ static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const 
 
 
 	if (! a->tlvs_by_id) {
-		a->tlvs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
+		a->tlvs_by_id = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free_radius_attr_info);
 	}
 
 	code = (guint32) strtoul(codestr, NULL, 10);

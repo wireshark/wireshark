@@ -1506,7 +1506,11 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 				avp_vsa_len -= avp_vsa_header_len;
 
-				dictionary_entry = (radius_attr_info_t *)g_hash_table_lookup(vendor->attrs_by_id, GUINT_TO_POINTER(avp_vsa_type));
+				if (vendor->attrs_by_id) {
+					dictionary_entry = (radius_attr_info_t *)g_hash_table_lookup(vendor->attrs_by_id, GUINT_TO_POINTER(avp_vsa_type));
+				} else {
+					dictionary_entry = NULL;
+				}
 
 				if (!dictionary_entry) {
 					dictionary_entry = &no_dictionary_entry;
@@ -2639,8 +2643,6 @@ register_radius_fields(const char *unused _U_)
 	expert_radius = expert_register_protocol(proto_radius);
 	expert_register_field_array(expert_radius, ei, array_length(ei));
 
-	no_vendor.attrs_by_id = g_hash_table_new(g_direct_hash, g_direct_equal);
-
 	/*
 	 * Handle attributes that have a special format.
 	 */
@@ -2695,13 +2697,16 @@ proto_register_radius(void)
 	proto_register_prefix("radius", register_radius_fields);
 
 	dict = (radius_dictionary_t *)g_malloc(sizeof(radius_dictionary_t));
+	/*
+	 * IDs map to names and vice versa. The attribute and vendor is stored
+	 * only once, but referenced by both name and ID mappings.
+	 * See also radius_dictionary_t in packet-radius.h
+	 */
 	dict->attrs_by_id     = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free_radius_attr_info);
-	dict->attrs_by_name   = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, free_radius_attr_info);
+	dict->attrs_by_name   = g_hash_table_new(g_str_hash, g_str_equal);
 	dict->vendors_by_id   = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free_radius_vendor_info);
-	/* Both vendors_by_id and vendors_by_name share the same data, so only worry about
-	  cleaning up the data from one of them.  The other will just clean up its own hash entries */
 	dict->vendors_by_name = g_hash_table_new(g_str_hash, g_str_equal);
-	dict->tlvs_by_name    = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, free_radius_attr_info);
+	dict->tlvs_by_name    = g_hash_table_new(g_str_hash, g_str_equal);
 
 	radius_calls = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), radius_call_hash, radius_call_equal);
 

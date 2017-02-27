@@ -108,15 +108,23 @@ struct _radius_attr_info_t {
 	int hf_alt;     /* 64-bit version for integers, encrypted version for strings, IPv6 for radius_combo_ip */
 	int hf_tag;
 	int hf_len;
-	GHashTable* tlvs_by_id;
+	GHashTable* tlvs_by_id; /**< Owns the data (see also radius_dictionary_t). */
 };
 
+/*
+ * Attributes and Vendors are a mapping between IDs and names. Names
+ * are normally uniquely identified by a number. Identifiers for
+ * Vendor-Specific Attributes (VSA) are scoped within the vendor.
+ *
+ * The attribute/vendor structures are owned by the by_id tables,
+ * the by_name tables point to the same data.
+ */
 typedef struct _radius_dictionary_t {
 	GHashTable* attrs_by_id;
 	GHashTable* attrs_by_name;
 	GHashTable* vendors_by_id;
 	GHashTable* vendors_by_name;
-	GHashTable* tlvs_by_name;
+	GHashTable* tlvs_by_name;   /**< Used for debugging duplicate assignments, does not own the data. */
 } radius_dictionary_t;
 
 radius_attr_dissector_t radius_integer;
