@@ -74,6 +74,7 @@ static int hf_erf_flags_res   = -1;
 
 static int hf_erf_rlen = -1;
 static int hf_erf_lctr = -1;
+static int hf_erf_color = -1;
 static int hf_erf_wlen = -1;
 
 /* Classification extension header */
@@ -885,6 +886,20 @@ static const erf_meta_hf_template_t erf_meta_sections[] = {
   { ERF_META_SECTION_DNS,           { "DNS Section",                        "section_dns",       FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_SECTION_SOURCE,        { "Source Section",                     "section_source",    FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } }
 };
+
+static int erf_type_has_color(unsigned int type) {
+  switch (type & ERF_HDR_TYPE_MASK) {
+  case ERF_TYPE_COLOR_HDLC_POS:
+  case ERF_TYPE_COLOR_ETH:
+  case ERF_TYPE_COLOR_HASH_POS:
+  case ERF_TYPE_COLOR_HASH_ETH:
+  case ERF_TYPE_DSM_COLOR_HDLC_POS:
+  case ERF_TYPE_DSM_COLOR_ETH:
+  case ERF_TYPE_COLOR_MC_HDLC_POS:
+    return 1;
+  }
+  return 0;
+}
 
 static erf_meta_tag_info_ex_t* erf_meta_tag_info_ex_new(wmem_allocator_t *allocator) {
   gsize i = 0;
@@ -1857,9 +1872,14 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree_add_uint(flags_tree, hf_erf_flags_res, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
 
   proto_tree_add_uint(tree, hf_erf_rlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.rlen);
-  pi=proto_tree_add_uint(tree, hf_erf_lctr, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.lctr);
-  if (pinfo->pseudo_header->erf.phdr.lctr > 0)
-    expert_add_info(pinfo, pi, &ei_erf_packet_loss);
+
+  if (erf_type_has_color(pinfo->pseudo_header->erf.phdr.type)) {
+    pi=proto_tree_add_uint(tree, hf_erf_color, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.lctr);
+  } else {
+    pi=proto_tree_add_uint(tree, hf_erf_lctr, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.lctr);
+    if (pinfo->pseudo_header->erf.phdr.lctr > 0)
+      expert_add_info(pinfo, pi, &ei_erf_packet_loss);
+  }
 
   proto_tree_add_uint(tree, hf_erf_wlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.wlen);
 }
@@ -2827,6 +2847,9 @@ proto_register_erf(void)
      { &hf_erf_lctr,
        { "Loss counter", "erf.lctr",
          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+     { &hf_erf_color,
+       { "Color", "erf.color",
+         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
      { &hf_erf_wlen,
        { "Wire length", "erf.wlen",
          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
