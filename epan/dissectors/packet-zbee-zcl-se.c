@@ -1865,6 +1865,325 @@ proto_reg_handoff_zbee_zcl_tun(void)
                          );
 } /* proto_reg_handoff_zbee_zcl_tun */
 
+
+/* ########################################################################## */
+/* #### (0x0705) PREPAYMENT CLUSTER ########################################## */
+/* ########################################################################## */
+
+/* Attributes */
+#define zbee_zcl_pp_attr_names_VALUE_STRING_LIST(XXX) \
+    /* Prepayment Information Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PAYMENT_CONTROL_CONFIGURATION      , 0x0000, "Payment Control Configuration" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_CREDIT_REMAINING                   , 0x0001, "Credit Remaining" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_EMERGENCY_CREDIT_REMAINING         , 0x0002, "Emergency Credit Remaining" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_ACCUMULATED_DEBT                   , 0x0005, "Accumulated Debt" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_OVERALL_DEBT_CAP                   , 0x0006, "Overall Debt Cap" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_EMERGENCY_CREDIT_LIMIT             , 0x0010, "Emergency Credit Limit / Allowance" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_EMERGENCY_CREDIT_THRESHOLD         , 0x0011, "Emergency Credit Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_MAX_CREDIT_LIMIT                   , 0x0021, "Max Credit Limit" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_MAX_CREDIT_PER_TOPUP               , 0x0022, "Max Credit Per Top Up" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_LOW_CREDIT_WARNING                 , 0x0031, "Low Credit Warning" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_CUT_OFF_VALUE                      , 0x0040, "Cut Off Value" ) \
+    /* Debt Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_DEBT_AMOUNT_1                      , 0x0211, "Debt Amount 1" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_DEBT_RECOVERY_FREQ_1               , 0x0216, "Debt Recovery Frequency 1" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_DEBT_RECOVERY_AMOUNT_1             , 0x0217, "Debt Recovery Amount 1" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_DEBT_RECOVERY_TOP_UP_PERCENTAGE_1  , 0x0219, "Debt Recovery Top Up Percentage 1" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_DEBT_AMOUNT_2                      , 0x0221, "Debt Amount 2" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_DEBT_RECOVERY_FREQ_2               , 0x0226, "Debt Recovery Frequency 2" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_DEBT_RECOVERY_AMOUNT_2             , 0x0227, "Debt Recovery Amount 2" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_DEBT_RECOVERY_TOP_UP_PERCENTAGE_2  , 0x0229, "Debt Recovery Top Up Percentage 2" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_DEBT_AMOUNT_3                      , 0x0231, "Debt Amount 3" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_DEBT_RECOVERY_FREQ_3               , 0x0236, "Debt Recovery Frequency 3" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_DEBT_RECOVERY_AMOUNT_3             , 0x0237, "Debt Recovery Amount 3" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_DEBT_RECOVERY_TOP_UP_PERCENTAGE_3  , 0x0239, "Debt Recovery Top Up Percentage 3" ) \
+    /* Alarm Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREPAYMENT_ALARM_STATUS            , 0x0400, "Prepayment Alarm Status" ) \
+    /* Historical Cost Consumption Information Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_HISTORICAL_COST_CON_FORMAT         , 0x0500, "Historical Cost Consumption Formatting" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_CONSUMPTION_UNIT_OF_MEASUREMENT    , 0x0501, "Consumption Unit of Measurement" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_CURRENCY_SCALING_FACTOR            , 0x0502, "Currency Scaling Factor" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_CURRENCY                           , 0x0503, "Currency" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_CURRENT_DAY_COST_CON_DELIVERED     , 0x051C, "Current Day Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_DAY_COST_CON_DELIVERED    , 0x051E, "Previous Day Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_DAY_2_COST_CON_DELIVERED  , 0x0520, "Previous Day 2 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_DAY_3_COST_CON_DELIVERED  , 0x0522, "Previous Day 3 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_DAY_4_COST_CON_DELIVERED  , 0x0524, "Previous Day 4 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_DAY_5_COST_CON_DELIVERED  , 0x0526, "Previous Day 5 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_DAY_6_COST_CON_DELIVERED  , 0x0528, "Previous Day 6 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_DAY_7_COST_CON_DELIVERED  , 0x052A, "Previous Day 7 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_DAY_8_COST_CON_DELIVERED  , 0x052C, "Previous Day 8 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_CURRENT_WEEK_COST_CON_DELIVERED    , 0x0530, "Current Week Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_WEEK_COST_CON_DELIVERED   , 0x0532, "Previous Week Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_WEEK_2_COST_CON_DELIVERED , 0x0534, "Previous Week 2 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_WEEK_3_COST_CON_DELIVERED , 0x0536, "Previous Week 3 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_WEEK_4_COST_CON_DELIVERED , 0x0538, "Previous Week 4 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_WEEK_5_COST_CON_DELIVERED , 0x053A, "Previous Week 5 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_CURRENT_MON_COST_CON_DELIVERED     , 0x0540, "Current Month Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_COST_CON_DELIVERED    , 0x0542, "Previous Month Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_2_COST_CON_DELIVERED  , 0x0544, "Previous Month 2 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_3_COST_CON_DELIVERED  , 0x0546, "Previous Month 3 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_4_COST_CON_DELIVERED  , 0x0548, "Previous Month 4 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_5_COST_CON_DELIVERED  , 0x054A, "Previous Month 5 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_6_COST_CON_DELIVERED  , 0x054C, "Previous Month 6 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_7_COST_CON_DELIVERED  , 0x054E, "Previous Month 7 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_8_COST_CON_DELIVERED  , 0x0550, "Previous Month 8 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_9_COST_CON_DELIVERED  , 0x0552, "Previous Month 9 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_10_COST_CON_DELIVERED , 0x0554, "Previous Month 10 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_11_COST_CON_DELIVERED , 0x0556, "Previous Month 11 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_12_COST_CON_DELIVERED , 0x0558, "Previous Month 12 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_PREVIOUS_MON_13_COST_CON_DELIVERED , 0x055A, "Previous Month 13 Cost Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PP_HISTORICAL_FREEZE_TIME             , 0x055C, "Historical Freeze Time" ) \
+    /* Smart Energy */ \
+    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS                 , 0xFFFE, "Attribute Reporting Status" )
+
+VALUE_STRING_ARRAY(zbee_zcl_pp_attr_names);
+static value_string_ext zbee_zcl_pp_attr_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_pp_attr_names);
+
+/* Server Commands Received */
+#define zbee_zcl_pp_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_SELECT_AVAILABLE_EMERGENCY_CREDIT   , 0x00, "Select Available Emergency Credit" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_CONSUMER_TOP_UP                     , 0x04, "Consumer Top Up" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_GET_PREPAY_SNAPTSHOT                , 0x07, "Get Prepay Snapshot" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_GET_TOP_UP_LOG                      , 0x08, "Get Top Up Log" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_GET_DEBT_REPAYMENT_LOG              , 0x0A, "Get Debt Repayment Log" )
+
+VALUE_STRING_ENUM(zbee_zcl_pp_srv_rx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_pp_srv_rx_cmd_names);
+
+/* Server Commands Generated */
+#define zbee_zcl_pp_srv_tx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_PUBLISH_PREPAY_SNAPSHOT             , 0x01, "Publish Prepay Snapshot" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_CONSUMER_TOP_UP_RESPONSE            , 0x03, "Consumer Top Up Response" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_PUBLISH_TOP_UP_LOG                  , 0x05, "Publish Top Up Log" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_PUBLISH_DEBT_LOG                    , 0x06, "Publish Debt Log" )
+
+VALUE_STRING_ENUM(zbee_zcl_pp_srv_tx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_pp_srv_tx_cmd_names);
+
+/*************************/
+/* Function Declarations */
+/*************************/
+void proto_register_zbee_zcl_pp(void);
+void proto_reg_handoff_zbee_zcl_pp(void);
+
+/* Attribute Dissector Helpers */
+static void dissect_zcl_pp_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+
+static dissector_handle_t pp_handle;
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_pp = -1;
+
+static int hf_zbee_zcl_pp_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_pp_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_pp_attr_id = -1;
+static int hf_zbee_zcl_pp_attr_reporting_status = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_pp = -1;
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
+static void
+dissect_zcl_pp_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    switch (attr_id) {
+        /* applies to all SE clusters */
+        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS:
+            proto_tree_add_item(tree, hf_zbee_zcl_pp_attr_reporting_status, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        default: /* Catch all */
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+} /*dissect_zcl_pp_attr_data*/
+
+/**
+ *ZigBee ZCL Prepayment cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+static int
+dissect_zbee_zcl_pp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_pp_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_pp_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_pp, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_PP_SELECT_AVAILABLE_EMERGENCY_CREDIT:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_CONSUMER_TOP_UP:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_GET_PREPAY_SNAPTSHOT:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_GET_TOP_UP_LOG:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_GET_DEBT_REPAYMENT_LOG:
+                    /* Add function to dissect payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_pp_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_pp_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_pp, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_PP_PUBLISH_PREPAY_SNAPSHOT:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_CONSUMER_TOP_UP_RESPONSE:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_PUBLISH_TOP_UP_LOG:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_PUBLISH_DEBT_LOG:
+                    /* Add function to dissect payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_pp*/
+
+/**
+ *This function registers the ZCL Prepayment dissector
+ *
+*/
+void
+proto_register_zbee_zcl_pp(void)
+{
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_pp_attr_id,
+            { "Attribute", "zbee_zcl_se.pp.attr_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &zbee_zcl_pp_attr_names_ext,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_attr_reporting_status,                         /* common to all SE clusters */
+            { "Attribute Reporting Status", "zbee_zcl_se.pp.attr.attr_reporting_status",
+            FT_UINT8, BASE_HEX, VALS(zbee_zcl_se_reporting_status_names), 0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_srv_tx_cmd_id,
+            { "Command", "zbee_zcl_se.pp.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_pp_srv_tx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_srv_rx_cmd_id,
+            { "Command", "zbee_zcl_se.pp.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_pp_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+    };
+
+    /* ZCL Prepayment subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_pp,
+    };
+
+    /* Register the ZigBee ZCL Prepayment cluster protocol name and description */
+    proto_zbee_zcl_pp = proto_register_protocol("ZigBee ZCL Prepayment", "ZCL Prepayment", ZBEE_PROTOABBREV_ZCL_PRE_PAYMENT);
+    proto_register_field_array(proto_zbee_zcl_pp, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Prepayment dissector. */
+    pp_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_PRE_PAYMENT, dissect_zbee_zcl_pp, proto_zbee_zcl_pp);
+} /*proto_register_zbee_zcl_pp*/
+
+/**
+ *Hands off the Zcl Prepayment dissector.
+ *
+*/
+void
+proto_reg_handoff_zbee_zcl_pp(void)
+{
+    /* Register our dissector with the ZigBee application dissectors. */
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_PRE_PAYMENT, pp_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_pp,
+                            ett_zbee_zcl_pp,
+                            ZBEE_ZCL_CID_PRE_PAYMENT,
+                            hf_zbee_zcl_pp_attr_id,
+                            hf_zbee_zcl_pp_srv_rx_cmd_id,
+                            hf_zbee_zcl_pp_srv_tx_cmd_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_pp_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_pp*/
+
+
 /* ########################################################################## */
 /* #### (0x0800) KEY ESTABLISHMENT ########################################## */
 /* ########################################################################## */
