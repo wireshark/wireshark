@@ -603,8 +603,9 @@ void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, const gc
 	GArray* a = (GArray*)g_hash_table_lookup(state->value_strings,attrib_name);
 
 	if (! a) {
-		a = g_array_new(TRUE,TRUE,sizeof(value_string));
-		g_hash_table_insert(state->value_strings,g_strdup(attrib_name),a);
+		/* Ensure that the array is zero terminated. */
+		a = g_array_new(TRUE, TRUE, sizeof(value_string));
+		g_hash_table_insert(state->value_strings, g_strdup(attrib_name), a);
 	}
 
 	v.value = value;
@@ -625,8 +626,8 @@ static void setup_tlvs(gpointer k _U_, gpointer v, gpointer p) {
 
 	if (g_hash_table_lookup_extended(state->value_strings, s->name, &key, &vs.p)) {
 		s->vs = (value_string*)(void *)vs.a->data;
+		g_hash_table_steal(state->value_strings, key);
 		g_array_free(vs.a, FALSE);
-		g_hash_table_remove(state->value_strings, key);
 		g_free(key);
 	}
 }
@@ -641,10 +642,10 @@ static void setup_attrs(gpointer k _U_, gpointer v, gpointer p) {
 		gpointer p;
 	} vs;
 
-	if (g_hash_table_lookup_extended(state->value_strings,a->name,&key,&vs.p) ) {
+	if (g_hash_table_lookup_extended(state->value_strings, a->name, &key, &vs.p) ) {
 		a->vs = (value_string*)(void *)vs.a->data;
-		g_array_free(vs.a,FALSE);
-		g_hash_table_remove(state->value_strings,key);
+		g_hash_table_steal(state->value_strings, key);
+		g_array_free(vs.a, FALSE);
 		g_free(key);
 	}
 
@@ -659,17 +660,14 @@ static void setup_vendors(gpointer k _U_, gpointer v, gpointer p) {
 	g_hash_table_foreach(vnd->attrs_by_id,setup_attrs,p);
 }
 
-static gboolean destroy_value_strings(gpointer k, gpointer v, gpointer p _U_) {
+static void destroy_value_strings(gpointer v) {
 	value_string* vs = (value_string*)(void *)(((GArray*)v)->data);
-
-	g_free(k);
 
 	for (;vs->strptr;vs++) {
 		g_free((void*)vs->strptr);
 	}
 
 	g_array_free((GArray*)v,TRUE);
-	return TRUE;
 }
 
 gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar* filename, gchar** err_str) {
@@ -719,7 +717,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 		return FALSE;
 	}
 
-	state.value_strings = g_hash_table_new(g_str_hash,g_str_equal);
+	state.value_strings = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, destroy_value_strings);
 
 	if (Radius_lex_init(&scanner) != 0) {
 		g_string_append_printf(state.error, "Can't initialize scanner: %s",
@@ -750,7 +748,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 
 	g_hash_table_foreach(state.dict->attrs_by_id,setup_attrs,&state);
 	g_hash_table_foreach(state.dict->vendors_by_id,setup_vendors,&state);
-	g_hash_table_foreach_remove(state.value_strings,destroy_value_strings,NULL);
+	g_hash_table_destroy(state.value_strings);
 
 	if (state.error->len > 0) {
 		*err_str = g_string_free(state.error,FALSE);

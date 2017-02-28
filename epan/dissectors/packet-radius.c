@@ -2141,10 +2141,18 @@ void
 free_radius_attr_info(gpointer data)
 {
 	radius_attr_info_t* attr = (radius_attr_info_t*)data;
+	value_string *vs = (value_string *)attr->vs;
 
 	g_free(attr->name);
-	if (attr->tlvs_by_id)
+	if (attr->tlvs_by_id) {
 		g_hash_table_destroy(attr->tlvs_by_id);
+	}
+	if (vs) {
+		for (; vs->strptr; vs++) {
+			g_free((gpointer)vs->strptr);
+		}
+		g_free((gpointer)attr->vs);
+	}
 
 	g_free(attr);
 }
