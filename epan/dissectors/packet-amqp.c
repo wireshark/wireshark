@@ -11010,7 +11010,7 @@ proto_register_amqp(void)
             NULL, HFILL}},
         {&hf_amqp_1_0_amqp_value, {
             "AMQP-Value", "amqp.value",
-            FT_BYTES, BASE_NONE, NULL, 0,
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_1_0_footer, {
             "Footer", "amqp.footer",
