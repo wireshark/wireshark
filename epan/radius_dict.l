@@ -184,7 +184,7 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
  *       name types in the FreeRadius dictionaries.
  */
 
-%START WS_OUT VENDOR VENDOR_W_NAME ATTR ATTR_W_NAME ATTR_W_ID ATTR_W_TYPE ATTR_W_VENDOR VALUE VALUE_W_ATTR VALUE_W_NAME INCLUDE JUNK BEGIN_VENDOR END_VENDOR VENDOR_W_ID VENDOR_W_FORMAT VENDOR_W_TYPE_OCTETS VENDOR_W_LENGTH_OCTETS VENDOR_W_CONTINUATION BEGIN_TLV END_TLV
+%START WS_OUT VENDOR VENDOR_W_NAME ATTR ATTR_W_NAME ATTR_W_ID ATTR_W_TYPE VALUE VALUE_W_ATTR VALUE_W_NAME INCLUDE JUNK BEGIN_VENDOR END_VENDOR VENDOR_W_ID VENDOR_W_FORMAT VENDOR_W_TYPE_OCTETS VENDOR_W_LENGTH_OCTETS VENDOR_W_CONTINUATION BEGIN_TLV END_TLV
 %%
 [:blank:]   ;
 #[^\n]*		;
@@ -294,6 +294,11 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 <ATTR_W_TYPE>encrypt=[123][,]?		{ yyextra->encrypted = (guint) strtoul(yytext+8,NULL,10); }
 <ATTR_W_TYPE>[0-9a-z_-]+=([^\n]*)	;
 <ATTR_W_TYPE>[0-9a-z_-]+		{
+    /*
+     * Support for "ATTRIBUTE name  number  type [vendor|options]", it marks
+     * this as vendor-specific attribute (VSA), but this notation is deprecated
+     * in favor of BEGIN-VENDOR/END-VENDOR blocks.
+     */
     gboolean attribute_ok;
 
     yyextra->attr_vendor = g_strdup(yytext);
@@ -318,14 +323,6 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
     yyextra->encrypted=FALSE;
     BEGIN WS_OUT;
 }
-<ATTR_W_VENDOR>\n					{
-    add_attribute(yyextra, yyextra->attr_name, yyextra->attr_id, yyextra->attr_type, yyextra->attr_vendor, yyextra->encrypted, yyextra->has_tag, yyextra->current_attr);
-    g_free(yyextra->attr_id);
-    g_free(yyextra->attr_vendor);
-    g_free(yyextra->attr_name);
-    yyextra->linenums[yyextra->include_stack_ptr]++;
-    BEGIN WS_OUT;
-};
 
 <VALUE>[0-9a-z_/-]+				{ yyextra->attr_name = g_strdup(yytext); BEGIN VALUE_W_ATTR; }
 <VALUE_W_ATTR>[^[:blank:]]+			{ yyextra->value_repr = g_strdup(yytext); BEGIN VALUE_W_NAME; }
