@@ -62,6 +62,7 @@ static int hf_bt_dht_node = -1;
 static int hf_bt_dht_id = -1;
 
 static int hf_ip = -1;
+static int hf_ip6 = -1;
 static int hf_port = -1;
 static int hf_truncated_data = -1;
 
@@ -311,7 +312,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 }
 
 static int
-dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char **result, const char *label )
+dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char **result, const char *label, gboolean is_ipv6 )
 {
   proto_item *ti;
   proto_tree *sub_tree;
@@ -320,6 +321,7 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
   guint       node_index;
   guint       string_len;
+  guint       node_byte_length;
 
   string_len = bencoded_string_length(tvb, &offset);
 
@@ -327,30 +329,51 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
   sub_tree = proto_item_add_subtree( ti, ett_bt_dht_nodes);
   node_index = 0;
 
-  /* 20 bytes id, 4 bytes ip, 2 bytes port */
-  for( ; string_len>=26; string_len-=26, offset+=26 )
+  /* 26 bytes = 20 bytes id + 4 bytes ipv4 address + 2 bytes port */
+  node_byte_length = 26;
+
+  if ( is_ipv6 )
+  {
+    /* 38 bytes = 20 bytes id + 16 bytes ipv6 address + 2 bytes port */
+    node_byte_length = 38;
+  }
+
+  for( ; string_len>=node_byte_length; string_len-=node_byte_length, offset+=node_byte_length )
   {
     node_index += 1;
 
-
-    node_ti = proto_tree_add_item( sub_tree, hf_bt_dht_node, tvb, offset, 26, ENC_NA);
+    node_ti = proto_tree_add_item( sub_tree, hf_bt_dht_node, tvb, offset, node_byte_length, ENC_NA);
     proto_item_append_text(node_ti, " %d", node_index);
     node_tree = proto_item_add_subtree( node_ti, ett_bt_dht_peers);
 
     proto_tree_add_item( node_tree, hf_bt_dht_id, tvb, offset, 20, ENC_NA);
     proto_item_append_text(node_ti, " (id: %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 20));
-    proto_tree_add_item( node_tree, hf_ip, tvb, offset+20, 4, ENC_BIG_ENDIAN);
-    proto_item_append_text(node_ti, ", IP/Port: %s", tvb_ip_to_str(tvb, offset+20));
-    proto_tree_add_item( node_tree, hf_port, tvb, offset+24, 2, ENC_BIG_ENDIAN);
-    proto_item_append_text(node_ti, ":%u)", tvb_get_ntohs( tvb, offset+24 ));
+
+    if ( is_ipv6 )
+    {
+      proto_tree_add_item( node_tree, hf_ip6, tvb, offset+20, 16, ENC_NA);
+      proto_item_append_text(node_ti, ", IPv6/Port: [%s]", tvb_ip6_to_str(tvb, offset+20));
+
+      proto_tree_add_item( node_tree, hf_port, tvb, offset+36, 2, ENC_BIG_ENDIAN);
+      proto_item_append_text(node_ti, ":%u)", tvb_get_ntohs( tvb, offset+36 ));
+    }
+    else
+    {
+      proto_tree_add_item( node_tree, hf_ip, tvb, offset+20, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(node_ti, ", IPv4/Port: %s", tvb_ip_to_str(tvb, offset+20));
+
+      proto_tree_add_item( node_tree, hf_port, tvb, offset+24, 2, ENC_BIG_ENDIAN);
+      proto_item_append_text(node_ti, ":%u)", tvb_get_ntohs( tvb, offset+24 ));
+    }
   }
+
   if( string_len>0 )
   {
     proto_tree_add_item( tree, hf_truncated_data, tvb, offset, string_len, ENC_NA );
     offset += string_len;
   }
   proto_item_set_text( ti, "%s: %d nodes", label, node_index );
-  col_append_fstr( pinfo->cinfo, COL_INFO, "reply=%d nodes ", node_index );
+  col_append_fstr( pinfo->cinfo, COL_INFO, " reply=%d nodes ", node_index );
   *result = wmem_strdup_printf(wmem_packet_scope(), "%d", node_index);
 
   return offset;
@@ -407,7 +430,11 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* special process */
     if( strcmp(key,"nodes")==0 )
     {
-      offset = dissect_bt_dht_nodes( tvb, pinfo, sub_tree, offset, &val, "Value" );
+      offset = dissect_bt_dht_nodes( tvb, pinfo, sub_tree, offset, &val, "Value", 0 );
+    }
+    else if( strcmp(key,"nodes6")==0 )
+    {
+      offset = dissect_bt_dht_nodes( tvb, pinfo, sub_tree, offset, &val, "Value", 1 );
     }
     else if( strcmp(key,"ip")==0 )
     {
@@ -590,6 +617,10 @@ proto_register_bt_dht(void)
     { &hf_ip,
       { "IP", "bt-dht.ip",
         FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_ip6,
+      { "IP", "bt-dht.ip6",
+        FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_port,
       { "Port", "bt-dht.port",
