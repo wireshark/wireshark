@@ -44,9 +44,12 @@
 #include <epan/tap.h>
 #include <epan/proto_data.h>
 #include <epan/uat.h>
+#include <epan/strutil.h>
+#include <epan/to_str.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/wsgcrypt.h>
 
 #include "packet-ssl.h"
 
@@ -272,6 +275,7 @@ static expert_field ei_sip_sipsec_malformed = EI_INIT;
 static expert_field ei_sip_via_sent_by_port = EI_INIT;
 static expert_field ei_sip_content_length_invalid = EI_INIT;
 static expert_field ei_sip_Status_Code_invalid = EI_INIT;
+static expert_field ei_sip_authorization_invalid = EI_INIT;
 
 /* patterns used for tvb_ws_mempbrk_pattern_guint8 */
 static ws_mempbrk_pattern pbrk_comma_semi;
@@ -968,12 +972,8 @@ header_fields_free_cb(void*r)
 {
     header_field_t* rec = (header_field_t*)r;
 
-    if (rec->header_name) {
-       g_free(rec->header_name);
-    }
-    if (rec->header_desc) {
-        g_free(rec->header_desc);
-    }
+    g_free(rec->header_name);
+    g_free(rec->header_desc);
 }
 
 static void
@@ -1028,6 +1028,89 @@ header_fields_initialize_cb(void)
 UAT_CSTRING_CB_DEF(sip_custom_header_fields, header_name, header_field_t)
 UAT_CSTRING_CB_DEF(sip_custom_header_fields, header_desc, header_field_t)
 
+/* SIP authorization parameters */
+static gboolean global_sip_validate_authorization = FALSE;
+
+typedef struct _authorization_user_t {
+    gchar* username;
+    gchar* realm;
+    gchar* password;
+} authorization_user_t;
+
+static authorization_user_t* sip_authorization_users = NULL;
+static guint sip_authorization_num_users = 0;
+
+static gboolean
+authorization_users_update_cb(void *r, char **err)
+{
+    authorization_user_t *rec = (authorization_user_t *)r;
+    char c;
+
+    if (rec->username == NULL) {
+        *err = g_strdup("Username can't be empty");
+        return FALSE;
+    }
+
+    g_strstrip(rec->username);
+    if (rec->username[0] == 0) {
+        *err = g_strdup("Username can't be empty");
+        return FALSE;
+    }
+
+    /* Check for invalid characters (to avoid asserting out when
+    * registering the field).
+    */
+    c = proto_check_field_name(rec->username);
+    if (c) {
+        *err = g_strdup_printf("Username can't contain '%c'", c);
+        return FALSE;
+    }
+
+    *err = NULL;
+    return TRUE;
+}
+
+static void *
+authorization_users_copy_cb(void* n, const void* o, size_t siz _U_)
+{
+    authorization_user_t* new_rec = (authorization_user_t*)n;
+    const authorization_user_t* old_rec = (const authorization_user_t*)o;
+
+    if (old_rec->username) {
+        new_rec->username = g_strdup(old_rec->username);
+    } else {
+        new_rec->username = NULL;
+    }
+
+    if (old_rec->realm) {
+        new_rec->realm = g_strdup(old_rec->realm);
+    } else {
+        new_rec->realm = NULL;
+    }
+
+    if (old_rec->password) {
+        new_rec->password = g_strdup(old_rec->password);
+    } else {
+        new_rec->password = NULL;
+    }
+
+    return new_rec;
+}
+
+static void
+authorization_users_free_cb(void*r)
+{
+    authorization_user_t* rec = (authorization_user_t*)r;
+
+    g_free(rec->username);
+    g_free(rec->realm);
+    g_free(rec->password);
+}
+
+UAT_CSTRING_CB_DEF(sip_authorization_users, username, authorization_user_t)
+UAT_CSTRING_CB_DEF(sip_authorization_users, realm, authorization_user_t)
+UAT_CSTRING_CB_DEF(sip_authorization_users, password, authorization_user_t)
+
 /* Forward declaration we need below */
 void proto_reg_handoff_sip(void);
 static gboolean dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info *pinfo,
@@ -1058,6 +1141,35 @@ static guint sip_find_invite(packet_info *pinfo,
                 gchar* call_id,
                 guchar cseq_number_set, guint32 cseq_number,
                 guint32 *response_time);
+
+typedef struct
+{
+    gchar * username;
+    gchar * realm;
+    gchar * uri;
+    gchar * nonce;
+    gchar * cnonce;
+    gchar * nonce_count;
+    gchar * response;
+    gchar * qop;
+    gchar * algorithm;
+    gchar * method;
+} sip_authorization_t;
+
+static authorization_user_t * sip_get_authorization(sip_authorization_t *authorization_info);
+static gboolean sip_validate_authorization(sip_authorization_t *authorization_info, gchar *password);
+
+static authorization_user_t * sip_get_authorization(sip_authorization_t *authorization_info)
+{
+    guint i;
+    for (i = 0; i < sip_authorization_num_users; i++) {
+        if ((!strcmp(sip_authorization_users[i].username, authorization_info->username)) &&
+            (!strcmp(sip_authorization_users[i].realm, authorization_info->realm))) {
+            return &sip_authorization_users[i];
+        }
+    }
+    return NULL;
+}
 
 /* SIP content type and internet media type used by other dissectors
  * are the same.  List of media types from IANA at:
@@ -1946,7 +2058,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
  * Returns offset at end of parsing, or -1 for unsuccessful parsing
  */
 static gint
-dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
+dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset, sip_authorization_t *authorization_info)
 {
     gint current_offset, par_name_end_offset, queried_offset, value_offset, value_search_offset;
     gint equals_offset = 0;
@@ -2011,6 +2123,33 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
             proto_tree_add_item(tree, *(auth_parameter->hf_item), tvb,
                                 value_offset, current_offset - value_offset,
                                 ENC_UTF_8|ENC_NA);
+            if (global_sip_validate_authorization) {
+                gint real_value_offset = value_offset;
+                gint real_value_length = current_offset - value_offset;
+                if ((tvb_get_guint8(tvb, value_offset) == '\"') && (tvb_get_guint8(tvb, current_offset - 1) == '\"') && (real_value_length > 1)) {
+                    real_value_offset++;
+                    real_value_length -= 2;
+                }
+                if (g_ascii_strcasecmp(name, "response") == 0) {
+                    authorization_info->response = tvb_get_string_enc(wmem_packet_scope(), tvb, real_value_offset, real_value_length, ENC_ASCII);
+                } else if (g_ascii_strcasecmp(name, "nc") == 0) {
+                    authorization_info->nonce_count = tvb_get_string_enc(wmem_packet_scope(), tvb, real_value_offset, real_value_length, ENC_ASCII);
+                } else if (g_ascii_strcasecmp(name, "username") == 0) {
+                    authorization_info->username = tvb_get_string_enc(wmem_packet_scope(), tvb, real_value_offset, real_value_length, ENC_ASCII);
+                } else if (g_ascii_strcasecmp(name, "realm") == 0) {
+                    authorization_info->realm = tvb_get_string_enc(wmem_packet_scope(), tvb, real_value_offset, real_value_length, ENC_ASCII);
+                } else if (g_ascii_strcasecmp(name, "algorithm") == 0) {
+                    authorization_info->algorithm = tvb_get_string_enc(wmem_packet_scope(), tvb, real_value_offset, real_value_length, ENC_ASCII);
+                } else if (g_ascii_strcasecmp(name, "nonce") == 0) {
+                    authorization_info->nonce = tvb_get_string_enc(wmem_packet_scope(), tvb, real_value_offset, real_value_length, ENC_ASCII);
+                } else if (g_ascii_strcasecmp(name, "qop") == 0) {
+                    authorization_info->qop = tvb_get_string_enc(wmem_packet_scope(), tvb, real_value_offset, real_value_length, ENC_ASCII);
+                } else if (g_ascii_strcasecmp(name, "cnonce") == 0) {
+                    authorization_info->cnonce = tvb_get_string_enc(wmem_packet_scope(), tvb, real_value_offset, real_value_length, ENC_ASCII);
+                } else if (g_ascii_strcasecmp(name, "uri") == 0) {
+                    authorization_info->uri = tvb_get_string_enc(wmem_packet_scope(), tvb, real_value_offset, real_value_length, ENC_ASCII);
+                }
+            }
             break;
         }
     }
@@ -3882,6 +4021,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         /* Add tree using whole text of line */
                         if (hdr_tree) {
                             proto_item *ti_c;
+                            sip_authorization_t authorization_info = { 0 };
+                            authorization_user_t * authorization_user = NULL;
                             /* Add whole line as header tree */
                             sip_element_item = sip_proto_tree_add_string(hdr_tree,
                                                hf_header_array[hf_index], tvb,
@@ -3912,7 +4053,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             }
 
                             /* Parse each individual parameter in the line */
-                            while ((comma_offset = dissect_sip_authorization_item(tvb, sip_element_tree, comma_offset, line_end_offset)) != -1)
+                            while ((comma_offset = dissect_sip_authorization_item(tvb, sip_element_tree, comma_offset, line_end_offset, &authorization_info)) != -1)
                             {
                                 if(comma_offset == line_end_offset)
                                 {
@@ -3926,6 +4067,15 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                     break;
                                 }
                                 comma_offset++; /* skip comma */
+                            }
+                            if ((authorization_info.response != NULL) && (global_sip_validate_authorization)) { /* If there is a response, check for valid credentials */
+                                authorization_user = sip_get_authorization(&authorization_info);
+                                if (authorization_user) {
+                                    authorization_info.method = wmem_strdup(wmem_packet_scope(), stat_info->request_method);
+                                    if (!sip_validate_authorization(&authorization_info, authorization_user->password)) {
+                                        proto_tree_add_expert_format(tree, pinfo, &ei_sip_authorization_invalid, tvb, offset, line_end_offset - offset, "SIP digest does not match known password %s", authorization_user->password);
+                                    }
+                                }
                             }
                         }/*hdr_tree*/
                     break;
@@ -5134,6 +5284,65 @@ guint sip_find_invite(packet_info *pinfo,
 
 
     return result;
+}
+
+static gboolean sip_validate_authorization(sip_authorization_t *authorization_info, gchar *password) {
+    gchar ha1[33] = {0};
+    gchar ha2[33] = {0};
+    gchar response[33] = {0};
+    gcry_md_hd_t md5_handle;
+    if ( (authorization_info->qop == NULL) ||
+        (authorization_info->username == NULL) ||
+        (authorization_info->realm == NULL) ||
+        (authorization_info->method == NULL) ||
+        (authorization_info->uri == NULL) ||
+        (authorization_info->nonce == NULL) ) {
+        return TRUE; /* If no qop, discard */
+    }
+    if (strcmp(authorization_info->qop, "auth") ||
+        (authorization_info->nonce_count == NULL) ||
+        (authorization_info->cnonce == NULL) ||
+        (authorization_info->response == NULL) ||
+        (password == NULL)) {
+        return TRUE; /* Obsolete or not enough information, discard */
+    }
+
+    if (gcry_md_open(&md5_handle, GCRY_MD_MD5, 0)) {
+        return FALSE;
+    }
+
+    gcry_md_write(md5_handle, authorization_info->username, strlen(authorization_info->username));
+    gcry_md_putc(md5_handle, ':');
+    gcry_md_write(md5_handle, authorization_info->realm, strlen(authorization_info->realm));
+    gcry_md_putc(md5_handle, ':');
+    gcry_md_write(md5_handle, password, strlen(password));
+    /* Array is zeroed out so there is always a \0 at index 32 for string termination */
+    bytes_to_hexstr(ha1, gcry_md_read(md5_handle, 0), HASH_MD5_LENGTH);
+    gcry_md_reset(md5_handle);
+    gcry_md_write(md5_handle, authorization_info->method, strlen(authorization_info->method));
+    gcry_md_putc(md5_handle, ':');
+    gcry_md_write(md5_handle, authorization_info->uri, strlen(authorization_info->uri));
+    /* Array is zeroed out so there is always a \0 at index 32 for string termination */
+    bytes_to_hexstr(ha2, gcry_md_read(md5_handle, 0), HASH_MD5_LENGTH);
+    gcry_md_reset(md5_handle);
+    gcry_md_write(md5_handle, ha1, strlen(ha1));
+    gcry_md_putc(md5_handle, ':');
+    gcry_md_write(md5_handle, authorization_info->nonce, strlen(authorization_info->nonce));
+    gcry_md_putc(md5_handle, ':');
+    gcry_md_write(md5_handle, authorization_info->nonce_count, strlen(authorization_info->nonce_count));
+    gcry_md_putc(md5_handle, ':');
+    gcry_md_write(md5_handle, authorization_info->cnonce, strlen(authorization_info->cnonce));
+    gcry_md_putc(md5_handle, ':');
+    gcry_md_write(md5_handle, authorization_info->qop, strlen(authorization_info->qop));
+    gcry_md_putc(md5_handle, ':');
+    gcry_md_write(md5_handle, ha2, strlen(ha2));
+    /* Array is zeroed out so there is always a \0 at index 32 for string termination */
+    bytes_to_hexstr(response, gcry_md_read(md5_handle, 0), HASH_MD5_LENGTH);
+    gcry_md_close(md5_handle);
+    if (!strncmp(response, authorization_info->response, 32)) {
+        return TRUE;
+    }
+    return FALSE;
 }
 
 /* TAP STAT INFO */
@@ -6762,12 +6971,14 @@ void proto_register_sip(void)
         { &ei_sip_sipsec_malformed, { "sip.sec_mechanism.malformed", PI_MALFORMED, PI_WARN, "SIP Security-mechanism header malformed", EXPFILL }},
         { &ei_sip_via_sent_by_port, { "sip.Via.sent-by.port.invalid", PI_MALFORMED, PI_NOTE, "Invalid SIP Via sent-by-port", EXPFILL }},
         { &ei_sip_content_length_invalid, { "sip.content_length.invalid", PI_MALFORMED, PI_NOTE, "Invalid content_length", EXPFILL }},
-        { &ei_sip_Status_Code_invalid, { "sip.Status-Code.invalid", PI_MALFORMED, PI_NOTE, "Invalid Status-Code", EXPFILL }}
+        { &ei_sip_Status_Code_invalid, { "sip.Status-Code.invalid", PI_MALFORMED, PI_NOTE, "Invalid Status-Code", EXPFILL }},
+        { &ei_sip_authorization_invalid, { "sip.authorization.invalid", PI_PROTOCOL, PI_WARN, "Invalid authorization reponse for known credentials", EXPFILL }}
     };
 
     module_t *sip_module;
     expert_module_t* expert_sip;
     uat_t* sip_custom_headers_uat;
+    uat_t* sip_authorization_users_uat;
 
     static tap_param sip_stat_params[] = {
       { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
@@ -6793,6 +7004,13 @@ void proto_register_sip(void)
     static uat_field_t sip_custom_header_uat_fields[] = {
         UAT_FLD_CSTRING(sip_custom_header_fields, header_name, "Header name", "SIP header name"),
         UAT_FLD_CSTRING(sip_custom_header_fields, header_desc, "Field desc", "Description of the value contained in the header"),
+        UAT_END_FIELDS
+    };
+
+    static uat_field_t sip_authorization_users_uat_fields[] = {
+        UAT_FLD_CSTRING(sip_authorization_users, username, "Username", "SIP authorization username"),
+        UAT_FLD_CSTRING(sip_authorization_users, realm, "Realm", "SIP authorization realm"),
+        UAT_FLD_CSTRING(sip_authorization_users, password, "Password", "SIP authorization password"),
         UAT_END_FIELDS
     };
 
@@ -6894,6 +7112,33 @@ void proto_register_sip(void)
     prefs_register_uat_preference(sip_module, "custom_sip_header_fields", "Custom SIP header fields",
         "A table to define custom SIP header for which fields can be setup and used for filtering/data extraction etc.",
         sip_custom_headers_uat);
+
+    prefs_register_bool_preference(sip_module, "validate_authorization",
+        "Validate SIP authorization",
+        "Validate SIP authorizations with known credentials",
+        &global_sip_validate_authorization);
+
+    sip_authorization_users_uat = uat_new("SIP authorization users",
+        sizeof(authorization_user_t),
+        "authorization_users_sip",
+        TRUE,
+        &sip_authorization_users,
+        &sip_authorization_num_users,
+        /* specifies named fields, so affects dissection
+            and the set of named fields */
+        UAT_AFFECTS_DISSECTION|UAT_AFFECTS_FIELDS,
+        NULL,
+        authorization_users_copy_cb,
+        authorization_users_update_cb,
+        authorization_users_free_cb,
+        NULL,
+        NULL,
+        sip_authorization_users_uat_fields
+    );
+
+    prefs_register_uat_preference(sip_module, "authorization_users_sip", "SIP authorization users",
+        "A table to define user credentials used for validating authorization attempts",
+        sip_authorization_users_uat);
 
     register_init_routine(&sip_init_protocol);
     register_cleanup_routine(&sip_cleanup_protocol);
