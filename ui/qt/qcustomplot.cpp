@@ -5624,7 +5624,7 @@ void QCPAxis::generateAutoTicks()
     // Generate tick positions according to mTickStep:
     qint64 firstStep = floor(mRange.lower/mTickStep); // do not use qFloor here, or we'll lose 64 bit precision
     qint64 lastStep = ceil(mRange.upper/mTickStep); // do not use qCeil here, or we'll lose 64 bit precision
-    int tickcount = lastStep-firstStep+1;
+    int tickcount = int(lastStep-firstStep+1);
     if (tickcount < 0) tickcount = 0;
     mTickVector.resize(tickcount);
     for (int i=0; i<tickcount; ++i)

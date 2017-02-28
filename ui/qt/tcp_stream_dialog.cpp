@@ -960,7 +960,7 @@ goodput_adjust_for_sacks(guint32 *seglen, guint32 last_ack,
             *seglen += (next_new->second - next_new->first);
             //   insert next_new before next_old in old_sacks
             // (be sure to save and restore next_old iterator around insert!)
-            int next_old_idx = next_old - old_sacks.begin();
+            int next_old_idx = int(next_old - old_sacks.begin());
             old_sacks.insert(next_old, *next_new);
             next_old = old_sacks.begin() + next_old_idx + 1;
             //   advance to the next remaining sack in new_sacks

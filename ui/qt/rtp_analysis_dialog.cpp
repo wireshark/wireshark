@@ -1153,7 +1153,7 @@ gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTempora
         if (*stop_flag) {
             return FALSE;
         }
-        ui->progressFrame->setValue(tempfile->pos() * 100 / tempfile->size());
+        ui->progressFrame->setValue(int(tempfile->pos() * 100 / tempfile->size()));
 
         sample_count=convert_payload_to_samples(save_data.payload_type, tempfile ,pd_out, save_data.payload_len);
 
@@ -1369,7 +1369,7 @@ gboolean RtpAnalysisDialog::saveAudioRAW(StreamDirection direction, QFile *save_
             return FALSE;
         }
 
-        ui->progressFrame->setValue(tempfile->pos() * 100 / fwd_tempfile_->size());
+        ui->progressFrame->setValue(int(tempfile->pos() * 100 / fwd_tempfile_->size()));
 
         if (save_data.payload_len > 0) {
             for(size_t i = 0; i < save_data.payload_len; i++) {

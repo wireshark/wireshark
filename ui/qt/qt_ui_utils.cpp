@@ -176,7 +176,7 @@ const QString file_size_to_qstring(const gint64 size)
 
 const QString time_t_to_qstring(time_t ti_time)
 {
-    QDateTime date_time = QDateTime::fromTime_t(ti_time);
+    QDateTime date_time = QDateTime::fromTime_t(uint(ti_time));
     QString time_str = date_time.toLocalTime().toString("yyyy-MM-dd hh:mm:ss");
     return time_str;
 }

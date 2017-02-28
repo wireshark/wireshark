@@ -437,7 +437,7 @@ void ImportTextDialog::check_line_edit(SyntaxLineEdit *le, bool &ok_enabled, con
         if (is_short) {
             *val_ptr = num_str.toUShort(&conv_ok, base);
         } else {
-            *val_ptr = num_str.toULong(&conv_ok, base);
+            *val_ptr = (guint)num_str.toULong(&conv_ok, base);
         }
         if (conv_ok && *val_ptr <= max_val) {
             syntax_state = SyntaxLineEdit::Valid;

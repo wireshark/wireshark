@@ -2032,7 +2032,7 @@ void IOGraph::recalcGraphData(capture_file *cap_file)
             mavg_in_average_count++;
             mavg_right++;
         }
-        mavg_to_add = warmup_interval;
+        mavg_to_add = (unsigned int)warmup_interval;
     }
 
     for (int i = 0; i <= cur_idx_; i++) {

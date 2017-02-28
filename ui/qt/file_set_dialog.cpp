@@ -113,12 +113,12 @@ void FileSetDialog::addFile(fileset_entry *entry) {
          * it will be 0.
          */
         if (entry->ctime > 0)
-            created = QDateTime::fromTime_t(entry->ctime).toLocalTime().toString("yyyy-MM-dd HH:mm:ss");
+            created = QDateTime::fromTime_t(uint(entry->ctime)).toLocalTime().toString("yyyy-MM-dd HH:mm:ss");
         else
             created = "Not available";
     }
 
-    modified = QDateTime::fromTime_t(entry->mtime).toLocalTime().toString("yyyy-MM-dd HH:mm:ss");
+    modified = QDateTime::fromTime_t(uint(entry->mtime)).toLocalTime().toString("yyyy-MM-dd HH:mm:ss");
 
     size_str = format_size(entry->size, format_size_unit_bytes|format_size_prefix_si);
 
