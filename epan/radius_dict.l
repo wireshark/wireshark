@@ -524,7 +524,9 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 		if (g_strcmp0(a->name, name) != 0) {
 			/*
 			 * Yes.  Steal the entry from the by-name hash table
-			 * and re-insert it with the new name.
+			 * and re-insert it with the new name.  (Don't
+			 * remove it - that calls the free routine, which
+			 * frees up the entry.)
 			 */
 			g_hash_table_steal(state->dict->attrs_by_name, (gpointer) (a->name));
 			g_free((gpointer) a->name);
