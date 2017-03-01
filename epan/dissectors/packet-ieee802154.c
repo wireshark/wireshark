@@ -3811,7 +3811,7 @@ void proto_register_ieee802154(void)
           NULL, HFILL }},
 
         { &hf_ieee802154_p_ie_6top_sfid,
-        { "SFID (6top Scheduling Fnction ID)", "wpan.ietf_ie.6top.sfid", FT_UINT8, BASE_HEX, NULL, 0x0,
+        { "SFID (6top Scheduling Function ID)", "wpan.ietf_ie.6top.sfid", FT_UINT8, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
 
         { &hf_ieee802154_p_ie_6top_seqnum,
