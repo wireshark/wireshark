@@ -502,8 +502,6 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
     }
 
     if (verbose) {
-        struct sockaddr_in  client;
-
         length = sizeof(client);
         if (getsockname(sock, (struct sockaddr *) &client, &length)) {
             errmsg_print("ERROR getsockname: %s", strerror(errno));
