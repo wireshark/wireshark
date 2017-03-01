@@ -123,7 +123,9 @@ static int setup_listener(const guint16 port, socket_handle_t* sock)
 {
 	int optval;
 	struct sockaddr_in serveraddr;
+#ifndef _WIN32
 	struct timeval timeout = { 1, 0 };
+#endif
 
 	*sock = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -138,10 +140,12 @@ static int setup_listener(const guint16 port, socket_handle_t* sock)
 		goto cleanup_setup_listener;
 	}
 
+#ifndef _WIN32
 	if (setsockopt (*sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, (socklen_t)sizeof(timeout)) < 0) {
 		g_warning("Can't set socket option SO_RCVTIMEO: %s", strerror(errno));
 		goto cleanup_setup_listener;
 	}
+#endif
 
 	memset(&serveraddr, 0x0, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
@@ -298,7 +302,7 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 static void run_listener(const char* fifo, const guint16 port, const char* proto_name)
 {
 	struct sockaddr_in clientaddr;
-	int clientlen = 0;
+	int clientlen = sizeof(clientaddr);
 	socket_handle_t sock;
 	char buf[PKT_BUF_SIZE];
 	ssize_t buflen;
@@ -330,7 +334,20 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 				case EINTR:
 					break;
 				default:
-					g_warning("Error in recvfrom: %s %d", strerror(errno), errno);
+#ifdef _WIN32
+					{
+						wchar_t *errmsg = NULL;
+						int err = WSAGetLastError();
+						FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+							NULL, err,
+							MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+							(LPWSTR)&errmsg, 0, NULL);
+						g_warning("Error in recvfrom: %S (err=%d)", errmsg, err);
+						LocalFree(errmsg);
+					}
+#else
+					g_warning("Error in recvfrom: %s (errno=%d)", strerror(errno), errno);
+#endif
 					run_loop = FALSE;
 					break;
 			}
