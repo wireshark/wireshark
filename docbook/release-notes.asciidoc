@@ -45,6 +45,7 @@ since version 2.2.0:
   A field can now automatically append "seconds" or "ms" to its value without
   additional printf-style APIs.
 * The Default profile can now be reset to default values.
+* You can move back and forth in the selection history in the Qt UI.
 
 //=== Removed Dissectors
 

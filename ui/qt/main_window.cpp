@@ -652,6 +652,10 @@ MainWindow::MainWindow(QWidget *parent) :
             packet_list_, SLOT(goFirstPacket()));
     connect(main_ui_->actionGoLastPacket, SIGNAL(triggered()),
             packet_list_, SLOT(goLastPacket()));
+    connect(main_ui_->actionGoNextHistoryPacket, SIGNAL(triggered()),
+            packet_list_, SLOT(goNextHistoryPacket()));
+    connect(main_ui_->actionGoPreviousHistoryPacket, SIGNAL(triggered()),
+            packet_list_, SLOT(goPreviousHistoryPacket()));
 
     connect(main_ui_->actionViewExpandSubtrees, SIGNAL(triggered()),
             proto_tree_, SLOT(expandSubtrees()));
@@ -1833,6 +1837,8 @@ void MainWindow::initMainToolbarIcons()
     main_ui_->actionGoPreviousConversationPacket->setShortcut(QKeySequence(Qt::META | Qt::Key_Comma));
     main_ui_->actionGoNextConversationPacket->setShortcut(QKeySequence(Qt::META | Qt::Key_Period));
 #endif
+    main_ui_->actionGoPreviousHistoryPacket->setIcon(StockIcon("go-previous"));
+    main_ui_->actionGoNextHistoryPacket->setIcon(StockIcon("go-next"));
     main_ui_->actionGoAutoScroll->setIcon(StockIcon("x-stay-last"));
 
     main_ui_->actionViewColorizePacketList->setIcon(StockIcon("x-colorize-packets"));

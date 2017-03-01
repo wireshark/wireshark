@@ -95,8 +95,10 @@ a capture file. See <<ChUseTabGo>> for additional navigation keystrokes.
 |kbd:[Up]                  |Move to the previous packet or detail item.
 |kbd:[Ctrl+Down], kbd:[F8] |Move to the next packet, even if the packet list isn't focused.
 |kbd:[Ctrl+Up], kbd:[F7]   |Move to the previous packet, even if the packet list isn't focused.
-|kbd:[Ctrl+.]              |Move to the next packet of the conversation (TCP, UDP or IP)
-|kbd:[Ctrl+&#x2c;]         |Move to the previous packet of the conversation (TCP, UDP or IP)
+|kbd:[Ctrl+.]              |Move to the next packet of the conversation (TCP, UDP or IP).
+|kbd:[Ctrl+&#x2c;]         |Move to the previous packet of the conversation (TCP, UDP or IP).
+|kbd:[Alt+Right] or kbd:[Option+Right] (macOS) |Move to the next packet in the selection history.
+|kbd:[Alt+Left] or kbd:[Option+Right] (macOS)  |Move to the previous packet in the selection history.
 |kbd:[Left]                |In the packet detail, closes the selected tree item. If it's already closed, jumps to the parent node.
 |kbd:[Right]               |In the packet detail, opens the selected tree item.
 |kbd:[Shift+Right]         |In the packet detail, opens the selected tree item and all of its subtrees.
@@ -722,8 +724,8 @@ If you currently have a temporary capture file, the Save icon  will be shown ins
 |image:wsug_graphics/toolbar/stock_refresh_24.png[{toolbar-icon-attrs}]      |button:[Reload]|menu:View[Reload]| This item allows you to reload the current capture file.
 |image:wsug_graphics/toolbar/stock_print_24.png[{toolbar-icon-attrs}]        |button:[Print...]|menu:File[Print...]| This item allows you to print all (or some of) the packets in the capture file. It pops up the Wireshark Print dialog box (which is discussed further in <<ChIOPrintSection>>).
 |image:wsug_graphics/toolbar/stock_search_24.png[{toolbar-icon-attrs}]       |button:[Find Packet...]|menu:Edit[Find Packet...]|This item brings up a dialog box that allows you to find a packet. There is further information on finding packets in <<ChWorkFindPacketSection>>.
-|image:wsug_graphics/toolbar/stock_left_arrow_24.png[{toolbar-icon-attrs}]   |button:[Go Back]|menu:Go[Go Back]|This item jumps back in the packet history.
-|image:wsug_graphics/toolbar/stock_right_arrow_24.png[{toolbar-icon-attrs}]  |button:[Go Forward]|menu:Go[Go Forward]|This item jumps forward in the packet history.
+|image:wsug_graphics/toolbar/stock_left_arrow_24.png[{toolbar-icon-attrs}]   |button:[Go Back]|menu:Go[Go Back]|This item jumps back in the packet history. Hold down the Alt key (Option on macOS) to go back in the selection history.
+|image:wsug_graphics/toolbar/stock_right_arrow_24.png[{toolbar-icon-attrs}]  |button:[Go Forward]|menu:Go[Go Forward]|This item jumps forward in the packet history. Hold down the Alt key (Option on macOS) to go forward in the selection history.
 |image:wsug_graphics/toolbar/stock_jump_to_24.png[{toolbar-icon-attrs}]      |button:[Go to Packet...]|menu:Go[Go to Packet...]| This item brings up a dialog box that allows you to specify a packet number to go to that packet.
 |image:wsug_graphics/toolbar/stock_top_24.png[{toolbar-icon-attrs}]          |button:[Go To First Packet]|menu:Go[First Packet]| This item jumps to the first packet of the capture file.
 |image:wsug_graphics/toolbar/stock_bottom_24.png[{toolbar-icon-attrs}]       |button:[Go To Last Packet]|menu:Go[Last Packet]| This item jumps to the last packet of the capture file.

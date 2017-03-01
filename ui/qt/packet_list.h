@@ -87,6 +87,8 @@ public:
     void setCaptureInProgress(bool in_progress = false) { capture_in_progress_ = in_progress; tail_at_end_ = in_progress; }
     void captureFileReadFinished();
     void resetColumns();
+    bool haveNextHistory(bool update_cur = false);
+    bool havePreviousHistory(bool update_cur = false);
 
 protected:
     void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
@@ -133,6 +135,9 @@ private:
     bool columns_changed_;
     bool set_column_visibility_;
     int frozen_row_;
+    QVector<int> selection_history_;
+    int cur_history_;
+    bool in_history_;
 
     void setFrameReftime(gboolean set, frame_data *fdata);
     void setColumnVisibility();
@@ -160,6 +165,8 @@ public slots:
     void goLastPacket();
     void goToPacket(int packet);
     void goToPacket(int packet, int hf_id);
+    void goNextHistoryPacket();
+    void goPreviousHistoryPacket();
     void markFrame();
     void markAllDisplayedFrames(bool set);
     void ignoreFrame();

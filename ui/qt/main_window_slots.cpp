@@ -1192,6 +1192,10 @@ void MainWindow::setMenusForSelectedPacket()
     bool have_frames = false;
     /* A frame is selected */
     bool frame_selected = false;
+    /* A visible packet comes after this one in the selection history */
+    bool next_selection_history = false;
+    /* A visible packet comes before this one in the selection history */
+    bool previous_selection_history = false;
     /* We have marked frames.  (XXX - why check frame_selected?) */
     bool have_marked = false;
     /* We have a marked frame other than the current frame (i.e.,
@@ -1220,6 +1224,8 @@ void MainWindow::setMenusForSelectedPacket()
 
     if (capture_file_.capFile()) {
         frame_selected = capture_file_.capFile()->current_frame != NULL;
+        next_selection_history = packet_list_->haveNextHistory();
+        previous_selection_history = packet_list_->havePreviousHistory();
         have_frames = capture_file_.capFile()->count > 0;
         have_marked = frame_selected && capture_file_.capFile()->marked_count > 0;
         another_is_marked = have_marked &&
@@ -1266,6 +1272,8 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionEditTimeShift->setEnabled(have_frames);
 
     main_ui_->actionGoGoToLinkedPacket->setEnabled(false);
+    main_ui_->actionGoNextHistoryPacket->setEnabled(next_selection_history);
+    main_ui_->actionGoPreviousHistoryPacket->setEnabled(previous_selection_history);
 
     main_ui_->actionAnalyzeAAFSelected->setEnabled(have_filter_expr);
     main_ui_->actionAnalyzeAAFNotSelected->setEnabled(have_filter_expr);

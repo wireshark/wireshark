@@ -259,6 +259,8 @@
     <addaction name="actionGoLastPacket"/>
     <addaction name="actionGoNextConversationPacket"/>
     <addaction name="actionGoPreviousConversationPacket"/>
+    <addaction name="actionGoNextHistoryPacket"/>
+    <addaction name="actionGoPreviousHistoryPacket"/>
     <addaction name="separator"/>
     <addaction name="actionGoAutoScroll"/>
    </widget>
@@ -989,6 +991,28 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+,</string>
+   </property>
+  </action>
+  <action name="actionGoNextHistoryPacket">
+   <property name="text">
+    <string>Next Packet In History</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the next packet in your selection history</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Alt+Right</string>
+   </property>
+  </action>
+  <action name="actionGoPreviousHistoryPacket">
+   <property name="text">
+    <string>Previous Packet In History</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the previous packet in your selection history</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Alt+Left</string>
    </property>
   </action>
   <action name="actionGoFirstPacket">

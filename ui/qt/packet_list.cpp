@@ -247,7 +247,9 @@ PacketList::PacketList(QWidget *parent) :
     rows_inserted_(false),
     columns_changed_(false),
     set_column_visibility_(false),
-    frozen_row_(-1)
+    frozen_row_(-1),
+    cur_history_(-1),
+    in_history_(false)
 {
     QMenu *main_menu_item, *submenu;
     QAction *action;
@@ -493,6 +495,13 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
         int row = selected.first().top();
         cf_select_packet(cap_file_, row);
     }
+
+    if (!in_history_ && cap_file_->current_frame) {
+        cur_history_++;
+        selection_history_.resize(cur_history_);
+        selection_history_.append(cap_file_->current_frame->num);
+    }
+    in_history_ = false;
 
     related_packet_delegate_.clear();
     if (proto_tree_) proto_tree_->clear();
@@ -755,6 +764,42 @@ void PacketList::resetColumns()
     packet_list_model_->resetColumns();
 }
 
+// Return true if we have a visible packet further along in the history.
+bool PacketList::haveNextHistory(bool update_cur)
+{
+    if (selection_history_.size() < 1 || cur_history_ >= selection_history_.size() - 1) {
+        return false;
+    }
+
+    for (int i = cur_history_ + 1; i < selection_history_.size(); i++) {
+        if (packet_list_model_->packetNumberToRow(selection_history_.at(i)) >= 0) {
+            if (update_cur) {
+                cur_history_ = i;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+// Return true if we have a visible packet back in the history.
+bool PacketList::havePreviousHistory(bool update_cur)
+{
+    if (selection_history_.size() < 1 || cur_history_ < 1) {
+        return false;
+    }
+
+    for (int i = cur_history_ - 1; i >= 0; i--) {
+        if (packet_list_model_->packetNumberToRow(selection_history_.at(i)) >= 0) {
+            if (update_cur) {
+                cur_history_ = i;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 // prefs.col_list has changed.
 void PacketList::columnsChanged()
 {
@@ -916,12 +961,14 @@ void PacketList::thaw(bool restore_selection)
 }
 
 void PacketList::clear() {
-    //    packet_history_clear();
     related_packet_delegate_.clear();
     selectionModel()->clear();
     packet_list_model_->clear();
     proto_tree_->clear();
     byte_view_tab_->clear();
+    selection_history_.clear();
+    cur_history_ = -1;
+    in_history_ = false;
 
     QImage overlay;
     overlay_sb_->setNearOverlayImage(overlay);
@@ -1121,6 +1168,12 @@ void PacketList::setMonospaceFont(const QFont &mono_font)
 }
 
 void PacketList::goNextPacket(void) {
+    if (QApplication::keyboardModifiers() | Qt::MetaModifier) {
+        // Alt+toolbar
+        goNextHistoryPacket();
+        return;
+    }
+
     if (selectionModel()->hasSelection()) {
         setCurrentIndex(moveCursor(MoveDown, Qt::NoModifier));
     } else {
@@ -1130,6 +1183,12 @@ void PacketList::goNextPacket(void) {
 }
 
 void PacketList::goPreviousPacket(void) {
+    if (QApplication::keyboardModifiers() | Qt::MetaModifier) {
+        // Alt+toolbar
+        goPreviousHistoryPacket();
+        return;
+    }
+
     if (selectionModel()->hasSelection()) {
         setCurrentIndex(moveCursor(MoveUp, Qt::NoModifier));
     } else {
@@ -1168,6 +1227,24 @@ void PacketList::goToPacket(int packet, int hf_id)
 {
     goToPacket(packet);
     proto_tree_->goToField(hf_id);
+}
+
+void PacketList::goNextHistoryPacket()
+{
+    if (haveNextHistory(true)) {
+        in_history_ = true;
+        goToPacket(selection_history_.at(cur_history_));
+        in_history_ = false;
+    }
+}
+
+void PacketList::goPreviousHistoryPacket()
+{
+    if (havePreviousHistory(true)) {
+        in_history_ = true;
+        goToPacket(selection_history_.at(cur_history_));
+        in_history_ = false;
+    }
 }
 
 void PacketList::markFrame()
