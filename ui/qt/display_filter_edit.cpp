@@ -379,7 +379,7 @@ void DisplayFilterEdit::updateBookmarkMenu()
 
         QAction *prep_action = bb_menu->addAction(prep_text);
         prep_action->setData(df_def->strval);
-        connect(prep_action, SIGNAL(triggered(bool)), this, SLOT(prepareFilter()));
+        connect(prep_action, SIGNAL(triggered(bool)), this, SLOT(applyOrPrepareFilter()));
     }
 
     checkFilter();
@@ -564,12 +564,17 @@ void DisplayFilterEdit::showExpressionPrefs()
     emit showPreferencesDialog(PreferencesDialog::ppFilterExpressions);
 }
 
-void DisplayFilterEdit::prepareFilter()
+void DisplayFilterEdit::applyOrPrepareFilter()
 {
     QAction *pa = qobject_cast<QAction*>(sender());
     if (!pa || pa->data().toString().isEmpty()) return;
 
     setText(pa->data().toString());
+
+    // Holding down the Alt key will only prepare filter.
+    if (!(QApplication::keyboardModifiers() & Qt::AltModifier)) {
+        applyDisplayFilter();
+    }
 }
 
 /*

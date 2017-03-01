@@ -1682,7 +1682,10 @@ void MainWindow::displayFilterButtonClicked()
 
     if (dfb_action) {
         df_combo_box_->lineEdit()->setText(dfb_action->data().toString());
-        df_combo_box_->applyDisplayFilter();
+        // Holding down the Alt key will only prepare filter.
+        if (!(QApplication::keyboardModifiers() & Qt::AltModifier)) {
+            df_combo_box_->applyDisplayFilter();
+        }
         df_combo_box_->lineEdit()->setFocus();
     }
 }

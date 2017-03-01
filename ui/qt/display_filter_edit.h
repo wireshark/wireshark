@@ -62,7 +62,7 @@ private slots:
     void removeFilter();
     void showFilters();
     void showExpressionPrefs();
-    void prepareFilter();
+    void applyOrPrepareFilter();
 
 private:
     DisplayFilterEditType type_;
