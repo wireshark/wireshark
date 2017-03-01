@@ -270,7 +270,7 @@ intended to be a multiplatform tool, there are some drawbacks, as the
 result is a somewhat "non native" look and feel.
 
 GTK{plus} is available for many different platforms including, but not limited to:
-Unix/Linux, OS X and Win32. It's the foundation of the famous GNOME desktop,
+Unix/Linux, macOS and Win32. It's the foundation of the famous GNOME desktop,
 so the future development of GTK should be certain. GTK is implemented in plain
 C (as is Wireshark itself), and available under the LGPL (Lesser General Public
 License), making it free to used by commercial and noncommercial applications.
@@ -377,7 +377,7 @@ http://library.gnome.org/devel/hig-book/stable/[]
 * The KDE Usability/HIG project:
 http://techbase.kde.org/Projects/Usability/HIG[]
 
-* OS X Human Interface Guidelines:
+* macOS Human Interface Guidelines:
 https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/AppleHIGuidelines/Intro/Intro.html[]
 
 * Design apps for the Windows desktop:

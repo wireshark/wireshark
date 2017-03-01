@@ -510,7 +510,7 @@ background colors respectively.
 .A color chooser
 image::wsug_graphics/ws-choose-color-rule.png[{small-screenshot-attrs}]
 
-The color chooser appearance depends on your operating system. The OS X color
+The color chooser appearance depends on your operating system. The macOS color
 picker is shown. Select the color you desire for the selected packets and click
 button:[OK].
 
@@ -652,7 +652,7 @@ image::wsug_graphics/ws-decode-as-show.png[{screenshot-attrs}]
 === Preferences
 
 There are a number of preferences you can set. Simply select the
-menu:Edit[Preferences...] (menu:Wireshark[Preferences...] on OS X) and
+menu:Edit[Preferences...] (menu:Wireshark[Preferences...] on macOS) and
 Wireshark will pop up the Preferences dialog box as shown in
 <<ChCustGUIPrefPage>>, with the ``User Interface'' page as default. On the left
 side is a tree where you can select the page to be shown.

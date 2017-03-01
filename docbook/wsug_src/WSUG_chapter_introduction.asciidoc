@@ -195,14 +195,14 @@ release lifecycle] page for more details.
 
 ==== UNIX / Linux
 
-Wireshark runs on most UNIX and UNIX-like platforms including OS X and
+Wireshark runs on most UNIX and UNIX-like platforms including macOS and
 Linux. The system requirements should be comparable to the Windows
 values listed above.
 
 Binary packages are available for most Unices and Linux distributions
 including the following platforms:
 
-* Apple OS X
+* Apple macOS
 
 * Debian GNU/Linux
 
@@ -237,7 +237,7 @@ mailto:{wireshark-dev-list-email}[].
 You can get the latest copy of the program from the Wireshark website at
 {wireshark-download-url}. The download page should automatically
 highlight the appropriate download for your platform and direct you to
-the nearest mirror. Official Windows and OS X installers are signed by
+the nearest mirror. Official Windows and macOS installers are signed by
 the *Wireshark Foundation*.
 
 A new Wireshark version typically becomes available each month or two.

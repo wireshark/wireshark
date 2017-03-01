@@ -115,7 +115,7 @@ filling in a display filter.
 === The Menu
 
 Wireshark's main menu is located either at the top of the main window (Windows,
-Linux) or at the top of your main screen (OS X). An example is shown in
+Linux) or at the top of your main screen (macOS). An example is shown in
 <<ChUseWiresharkMenu>>.
 
 [NOTE]
@@ -376,7 +376,7 @@ comments, pcap does not.
 This menu item brings up a dialog box for handling configuration profiles.  More
 detail is provided in <<ChCustConfigProfilesSection>>.
 
-|menu:Preferences...[]                        |kbd:[Shift+Ctrl+P] or kbd:[Cmd+,] (OS X)|
+|menu:Preferences...[]                        |kbd:[Shift+Ctrl+P] or kbd:[Cmd+,] (macOS)|
 This menu item brings up a dialog box that allows you to set preferences for
 many parameters that control Wireshark.  You can also save your preferences so
 Wireshark will use them the next time you start it. More detail is provided in
@@ -826,7 +826,7 @@ are more DNS packets further down that use the same port numbers. Wireshark
 treats them as belonging to the same conversation and draws a line connecting
 them.
 
-// Images were created on OS X 10.11 using a retina display. Lines were
+// Images were created on macOS 10.11 using a retina display. Lines were
 // 36 physical pixels high.
 
 [horizontal]

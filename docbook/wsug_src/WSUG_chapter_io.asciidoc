@@ -121,7 +121,7 @@ Specific for this dialog:
 * If Wireshark doesn't recognize the selected file as a capture file it will
   grey out the button:[Open] button.
 
-// XXX Add OS X
+// XXX Add macOS
 
 
 [[ChIOInputFormatsSection]]
@@ -259,7 +259,7 @@ Specific for this dialog:
 
 * Clicking on the + at "Browse for other folders" will allow you to browse files and folders in your file system.
 
-// XXX Add OS X
+// XXX Add macOS
 
 With this dialog box, you can perform the following actions:
 

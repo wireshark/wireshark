@@ -43,7 +43,7 @@ others:
 
 ==== Unix
 
-* Apple OS X
+* Apple macOS
 
 * FreeBSD
 
@@ -217,7 +217,7 @@ for the following systems:
   obtains an .rpm file from which the package manager checks the dependencies
   and installs the software.
 
-* OS X (.dmg file). The typical OS X end user is used to getting a .dmg file
+* macOS (.dmg file). The typical macOS end user is used to getting a .dmg file
   which will install all the required things for him.
 
 * Solaris. A Solaris user obtains a file from which the package manager (PKG)
@@ -307,7 +307,7 @@ The Buildbot runs on a platform collection that represents the different
 
 * Ubuntu x86-64 (Linux, little endian, gcc, Clang)
 
-* OS X x86-64 (BSD, little endian, Clang)
+* macOS x86-64 (BSD, little endian, Clang)
 
 and two buildslaves that run static code analysis to help spot coding issues:
 
