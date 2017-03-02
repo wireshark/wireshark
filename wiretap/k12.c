@@ -573,9 +573,9 @@ memiszero(const void *ptr, size_t count)
     return TRUE;
 }
 
-static void
+static gboolean
 process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
-                    gint len, k12_t *k12)
+                    guint record_len, k12_t *k12, int *err, gchar **err_info)
 {
     guint32 type;
     guint   buffer_offset;
@@ -585,6 +585,23 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
     guint32 src_id;
     k12_src_desc_t* src_desc;
 
+    type = pntoh32(buffer + K12_RECORD_TYPE);
+    buffer_offset = (type == K12_REC_D0020) ? K12_PACKET_FRAME_D0020 : K12_PACKET_FRAME;
+    if (buffer_offset > record_len) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("k12: Frame data offset %u > record length %u",
+                                    buffer_offset, record_len);
+        return FALSE;
+    }
+
+    length = pntoh32(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
+    if (length > record_len - buffer_offset) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("k12: Frame length %u > record frame data %u",
+                                    length, record_len - buffer_offset);
+        return FALSE;
+    }
+
     phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS;
 
@@ -593,17 +610,13 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
     phdr->ts.secs = (guint32) ((ts / 2000000) + 631152000);
     phdr->ts.nsecs = (guint32) ( (ts % 2000000) * 500 );
 
-    length = pntoh32(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
     phdr->len = phdr->caplen = length;
-
-    type = pntoh32(buffer + K12_RECORD_TYPE);
-    buffer_offset = (type == K12_REC_D0020) ? K12_PACKET_FRAME_D0020 : K12_PACKET_FRAME;
 
     ws_buffer_assure_space(target, length);
     memcpy(ws_buffer_start_ptr(target), buffer + buffer_offset, length);
 
     /* extra information need by some protocols */
-    extra_len = len - buffer_offset - length;
+    extra_len = record_len - buffer_offset - length;
     ws_buffer_assure_space(&(k12->extra_info), extra_len);
     memcpy(ws_buffer_start_ptr(&(k12->extra_info)),
            buffer + buffer_offset + length, extra_len);
@@ -633,7 +646,7 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
 
         switch(src_desc->input_type) {
             case K12_PORT_ATMPVC:
-                if ((long)(buffer_offset + length + K12_PACKET_OFFSET_CID) < len) {
+                if ((long)(buffer_offset + length + K12_PACKET_OFFSET_CID) < record_len) {
                     phdr->pseudo_header.k12.input_info.atm.vp =  pntoh16(buffer + buffer_offset + length + K12_PACKET_OFFSET_VP);
                     phdr->pseudo_header.k12.input_info.atm.vc =  pntoh16(buffer + buffer_offset + length + K12_PACKET_OFFSET_VC);
                     phdr->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + buffer_offset + length + K12_PACKET_OFFSET_CID));
@@ -654,6 +667,7 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
 
     phdr->pseudo_header.k12.input = src_id;
     phdr->pseudo_header.k12.stuff = k12;
+    return TRUE;
 }
 
 static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset) {
@@ -691,7 +705,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
         } else if (len < K12_RECORD_SRC_ID + 4) {
             /* Record not large enough to contain a src ID */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("data record length %d too short", len);
+            *err_info = g_strdup_printf("k12: Data record length %d too short", len);
             return FALSE;
         }
         k12->num_of_records--;
@@ -719,9 +733,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
     } while ( ((type & K12_MASK_PACKET) != K12_REC_PACKET && (type & K12_MASK_PACKET) != K12_REC_D0020) || !src_id || !src_desc );
 
-    process_packet_data(&wth->phdr, wth->frame_buffer, buffer, len, k12);
-
-    return TRUE;
+    return process_packet_data(&wth->phdr, wth->frame_buffer, buffer, (guint)len, k12, err, err_info);
 }
 
 
@@ -729,6 +741,7 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *ph
     k12_t *k12 = (k12_t *)wth->priv;
     guint8* buffer;
     gint len;
+    gboolean status;
 
     K12_DBG(5,("k12_seek_read: ENTER"));
 
@@ -750,11 +763,11 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *ph
 
     buffer = k12->rand_read_buff;
 
-    process_packet_data(phdr, buf, buffer, len, k12);
+    status = process_packet_data(phdr, buf, buffer, (guint)len, k12, err, err_info);
 
     K12_DBG(5,("k12_seek_read: DONE OK"));
 
-    return TRUE;
+    return status;
 }
 
 
