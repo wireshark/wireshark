@@ -44,6 +44,7 @@ class ByteViewText : public QAbstractScrollArea
 public:
     explicit ByteViewText(QWidget *parent = 0, tvbuff_t *tvb = NULL, proto_tree *tree = NULL, QTreeWidget *protoTree = NULL, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII);
     ~ByteViewText();
+    virtual QSize minimumSizeHint() const;
 
     bool hasDataSource(const tvbuff_t *ds_tvb = NULL);
     void setFormat(bytes_view_type format);

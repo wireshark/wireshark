@@ -123,6 +123,12 @@ ByteViewText::~ByteViewText()
     ctx_menu_.clear();
 }
 
+QSize ByteViewText::minimumSizeHint() const
+{
+    // Allow panel to be shrinked to any size
+    return QSize();
+}
+
 bool ByteViewText::hasDataSource(const tvbuff_t *ds_tvb) {
     if (ds_tvb != NULL && ds_tvb == tvb_)
         return true;
