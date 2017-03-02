@@ -877,9 +877,9 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
         for (n=0; n < rule->number_contents; n++) {
 
             /* Search for string among tvb contents so we can highlight likely bytes. */
-            unsigned int content_offset;
+            unsigned int content_offset = 0;
             gboolean match_found = FALSE;
-            unsigned int converted_content_length;
+            unsigned int converted_content_length = 0;
             int content_hf_item;
             char *content_text_template;
             gboolean attempt_match;
