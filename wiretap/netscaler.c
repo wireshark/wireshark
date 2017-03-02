@@ -128,7 +128,7 @@ typedef struct nspr_hd_v20
 ** The short header size can be 0-127 bytes long. If MS Bit of ph_RecordSize
 ** is set then record size has 2 bytes
 */
-#define NSPR_V20RECORDSIZE_2BYTES       0x80
+#define NSPR_V20RECORDSIZE_2BYTES       0x80U
 
 /* Performance Data Header with device number */
 typedef struct nspr_headerdev_v10
