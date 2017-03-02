@@ -1874,7 +1874,7 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree_add_uint(tree, hf_erf_rlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.rlen);
 
   if (erf_type_has_color(pinfo->pseudo_header->erf.phdr.type)) {
-    pi=proto_tree_add_uint(tree, hf_erf_color, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.lctr);
+    proto_tree_add_uint(tree, hf_erf_color, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.lctr);
   } else {
     pi=proto_tree_add_uint(tree, hf_erf_lctr, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.lctr);
     if (pinfo->pseudo_header->erf.phdr.lctr > 0)
