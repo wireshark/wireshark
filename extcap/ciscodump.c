@@ -28,6 +28,7 @@
 #include <wsutil/interface.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/glib-compat.h>
 #include <extcap/ssh-base.h>
 #include <writecap/pcapio.h>
 
@@ -113,12 +114,7 @@ static char* local_interfaces_to_filter(const unsigned int remote_port)
 {
 	GSList* interfaces = local_interfaces_to_list();
 	char* filter = interfaces_list_to_filter(interfaces, remote_port);
-#if GLIB_CHECK_VERSION(2, 28, 0)
 	g_slist_free_full(interfaces, g_free);
-#else
-		g_slist_foreach(interfaces, (GFunc)g_free, NULL);
-		g_slist_free(interfaces);
-#endif
 	return filter;
 }
 

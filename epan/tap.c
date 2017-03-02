@@ -40,6 +40,7 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/tap.h>
 #include <wsutil/ws_printf.h> /* ws_g_warning */
+#include <wsutil/glib-compat.h>
 
 static gboolean tapping_is_active=FALSE;
 
@@ -772,12 +773,7 @@ void tap_cleanup(void)
 	}
 
 #ifdef HAVE_PLUGINS
-#if GLIB_CHECK_VERSION(2, 28, 0)
 	g_slist_free_full(tap_plugins, tap_plugin_destroy);
-#else
-	g_slist_foreach(tap_plugins, (GFunc)tap_plugin_destroy, NULL);
-	g_slist_free(tap_plugins);
-#endif
 #endif /* HAVE_PLUGINS */
 }
 

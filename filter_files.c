@@ -30,6 +30,7 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/glib-compat.h>
 
 #include "filter_files.h"
 
@@ -101,42 +102,22 @@ free_filter_entry(gpointer data)
 
 void free_filter_lists(void)
 {
-  if (capture_filters) {
-#if GLIB_CHECK_VERSION(2, 28, 0)
-    g_list_free_full(capture_filters, free_filter_entry);
-#else
-    g_list_foreach(capture_filters, (GFunc)free_filter_entry, NULL);
-    g_list_free(capture_filters);
-#endif
-    capture_filters = NULL;
-  }
-  if (display_filters) {
-#if GLIB_CHECK_VERSION(2, 28, 0)
-    g_list_free_full(display_filters, free_filter_entry);
-#else
-      g_list_foreach(display_filters, (GFunc)free_filter_entry, NULL);
-      g_list_free(display_filters);
-#endif
-      display_filters = NULL;
-  }
-  if (capture_edited_filters) {
-#if GLIB_CHECK_VERSION(2, 28, 0)
-      g_list_free_full(capture_edited_filters, free_filter_entry);
-#else
-      g_list_foreach(capture_edited_filters, (GFunc)free_filter_entry, NULL);
-      g_list_free(capture_edited_filters);
-#endif
-      capture_edited_filters = NULL;
-  }
-  if (display_edited_filters) {
-#if GLIB_CHECK_VERSION(2, 28, 0)
-      g_list_free_full(display_edited_filters, free_filter_entry);
-#else
-      g_list_foreach(display_edited_filters, (GFunc)free_filter_entry, NULL);
-      g_list_free(display_edited_filters);
-#endif
-      display_edited_filters = NULL;
-  }
+    if (capture_filters) {
+        g_list_free_full(capture_filters, free_filter_entry);
+        capture_filters = NULL;
+    }
+    if (display_filters) {
+        g_list_free_full(display_filters, free_filter_entry);
+        display_filters = NULL;
+    }
+    if (capture_edited_filters) {
+        g_list_free_full(capture_edited_filters, free_filter_entry);
+        capture_edited_filters = NULL;
+    }
+    if (display_edited_filters) {
+        g_list_free_full(display_edited_filters, free_filter_entry);
+        display_edited_filters = NULL;
+    }
 }
 
 static GList *
