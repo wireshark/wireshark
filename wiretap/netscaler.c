@@ -972,16 +972,16 @@ static gboolean nstrace_set_start_time(wtap *wth)
             *err_info = g_strdup("nstrace: record header crosses page boundary");\
             return FALSE;\
         }\
-        (phdr)->rec_type = REC_TYPE_PACKET;\
-        TIMEDEFV##ver((phdr),fp,type);\
-        FULLPART##SIZEDEFV##ver((phdr),type,ver);\
-        TRACE_V##ver##_REC_LEN_OFF((phdr),v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
         /* Check sanity of record size */\
-        if ((phdr)->caplen < sizeof *type) {\
+        if (pletoh16(&type->nsprRecordSize) < sizeof *type) {\
             *err = WTAP_ERR_BAD_FILE;\
             *err_info = g_strdup("nstrace: record size is less than record header size");\
             return FALSE;\
         }\
+        (phdr)->rec_type = REC_TYPE_PACKET;\
+        TIMEDEFV##ver((phdr),fp,type);\
+        FULLPART##SIZEDEFV##ver((phdr),type,ver);\
+        TRACE_V##ver##_REC_LEN_OFF((phdr),v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
         /* Make sure the record is entirely contained in the page */\
         if ((nstrace_buflen - nstrace_buf_offset) < (phdr)->caplen) {\
             *err = WTAP_ERR_BAD_FILE;\
@@ -1037,6 +1037,11 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
                 case NSPR_ABSTIME_V10:
                 {
                     nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
+                    if (pletoh16(&fp->nsprRecordSize) == 0) {
+                        *err = WTAP_ERR_BAD_FILE;
+                        *err_info = g_strdup("nstrace: zero size record found");
+                        return FALSE;
+                    }
                     ns_setabstime(nstrace, pletoh32(((nspr_abstime_v10_t *) fp)->abs_Time), pletoh32(&((nspr_abstime_v10_t *) fp)->abs_RelTime));
                     nstrace_buf_offset += pletoh16(&fp->nsprRecordSize);
                     break;
@@ -1045,6 +1050,11 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
                 case NSPR_RELTIME_V10:
                 {
                     nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
+                    if (pletoh16(&fp->nsprRecordSize) == 0) {
+                        *err = WTAP_ERR_BAD_FILE;
+                        *err_info = g_strdup("nstrace: zero size record found");
+                        return FALSE;
+                    }
                     ns_setrelativetime(nstrace, pletoh32(((nspr_abstime_v10_t *) fp)->abs_RelTime));
                     nstrace_buf_offset += pletoh16(&fp->nsprRecordSize);
                     break;
@@ -1057,6 +1067,11 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
                 default:
                 {
                     nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
+                    if (pletoh16(&fp->nsprRecordSize) == 0) {
+                        *err = WTAP_ERR_BAD_FILE;
+                        *err_info = g_strdup("nstrace: zero size record found");
+                        return FALSE;
+                    }
                     nstrace_buf_offset += pletoh16(&fp->nsprRecordSize);
                     break;
                 }
@@ -1136,17 +1151,17 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
             *err_info = g_strdup("nstrace: record header crosses page boundary");\
             return FALSE;\
         }\
+        /* Check sanity of record size */\
+        if (nspr_getv20recordsize((nspr_hd_v20_t *)fp) < sizeof *fp) {\
+            *err = WTAP_ERR_BAD_FILE;\
+            *err_info = g_strdup("nstrace: record size is less than record header size");\
+            return FALSE;\
+        }\
         (phdr)->rec_type = REC_TYPE_PACKET;\
         TIMEDEFV##ver((phdr),fp,type);\
         FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
-        /* Check sanity of record size */\
-        if ((phdr)->caplen < sizeof *fp) {\
-            *err = WTAP_ERR_BAD_FILE;\
-            *err_info = g_strdup("nstrace: record size is less than record header size");\
-            return FALSE;\
-        }\
         /* Make sure the record is entirely contained in the page */\
         if ((nstrace_buflen - nstrace_buf_offset) < (phdr)->caplen) {\
             *err = WTAP_ERR_BAD_FILE;\
@@ -1230,6 +1245,11 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
                 case NSPR_ABSTIME_V20:
                 {
                     nspr_pktracefull_v20_t *fp20 = (nspr_pktracefull_v20_t *) &nstrace_buf[nstrace_buf_offset];
+                    if (nspr_getv20recordsize((nspr_hd_v20_t *)fp20) == 0) {
+                        *err = WTAP_ERR_BAD_FILE;
+                        *err_info = g_strdup("nstrace: zero size record found");
+                        return FALSE;
+                    }
                     nstrace_buf_offset += nspr_getv20recordsize((nspr_hd_v20_t *)fp20);
                     ns_setabstime(nstrace, pletoh32(&((nspr_abstime_v20_t *) fp20)->abs_Time), pletoh16(&((nspr_abstime_v20_t *) fp20)->abs_RelTime));
                     break;
@@ -1238,6 +1258,11 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
                 case NSPR_RELTIME_V20:
                 {
                     nspr_pktracefull_v20_t *fp20 = (nspr_pktracefull_v20_t *) &nstrace_buf[nstrace_buf_offset];
+                    if (nspr_getv20recordsize((nspr_hd_v20_t *)fp20) == 0) {
+                        *err = WTAP_ERR_BAD_FILE;
+                        *err_info = g_strdup("nstrace: zero size record found");
+                        return FALSE;
+                    }
                     ns_setrelativetime(nstrace, pletoh16(&((nspr_abstime_v20_t *) fp20)->abs_RelTime));
                     nstrace_buf_offset += nspr_getv20recordsize((nspr_hd_v20_t *)fp20);
                     break;
@@ -1255,6 +1280,11 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
                 default:
                 {
                     nspr_pktracefull_v20_t *fp20 = (nspr_pktracefull_v20_t *) &nstrace_buf[nstrace_buf_offset];
+                    if (nspr_getv20recordsize((nspr_hd_v20_t *)fp20) == 0) {
+                        *err = WTAP_ERR_BAD_FILE;
+                        *err_info = g_strdup("nstrace: zero size record found");
+                        return FALSE;
+                    }
                     nstrace_buf_offset += nspr_getv20recordsize((nspr_hd_v20_t *)fp20);
                     break;
                 }
@@ -1396,10 +1426,10 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
             nstrace_buf[nstrace_buf_offset])
         {
             hdp = (nspr_hd_v20_t *) &nstrace_buf[nstrace_buf_offset];
-            if(nspr_getv20recordsize(hdp) == 0){
-              *err=WTAP_ERR_BAD_FILE;
-              *err_info = g_strdup("nstrace: zero size record found");
-              return FALSE;
+            if (nspr_getv20recordsize(hdp) == 0) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup("nstrace: zero size record found");
+                return FALSE;
             }
             switch (hdp->phd_RecordType)
             {
