@@ -7217,7 +7217,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_command_response_time_delta,
             { "Command-Response Delta",          "bthci_evt.command_response_delta",
-            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_milliseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_command_pending_time_delta,
