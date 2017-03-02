@@ -40,6 +40,7 @@
 #include "ui/simple_dialog.h"
 
 #include <wsutil/file_util.h>
+#include <wsutil/glib-compat.h>
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW          "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW        "gui.filter_toolbar_show"

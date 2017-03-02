@@ -57,6 +57,7 @@
 
 #include <wsutil/plugins.h>
 #include <wsutil/ws_printf.h> /* ws_debug_printf/ws_g_warning */
+#include <wsutil/glib-compat.h>
 
 /* Ptvcursor limits */
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
