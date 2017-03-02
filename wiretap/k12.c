@@ -646,7 +646,7 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
 
         switch(src_desc->input_type) {
             case K12_PORT_ATMPVC:
-                if ((long)(buffer_offset + length + K12_PACKET_OFFSET_CID) < record_len) {
+                if (buffer_offset + length + K12_PACKET_OFFSET_CID < record_len) {
                     phdr->pseudo_header.k12.input_info.atm.vp =  pntoh16(buffer + buffer_offset + length + K12_PACKET_OFFSET_VP);
                     phdr->pseudo_header.k12.input_info.atm.vc =  pntoh16(buffer + buffer_offset + length + K12_PACKET_OFFSET_VC);
                     phdr->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + buffer_offset + length + K12_PACKET_OFFSET_CID));
