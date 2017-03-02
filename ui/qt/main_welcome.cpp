@@ -79,7 +79,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
 
     setStyleSheet(QString(
                       "MainWelcome {"
-                      "  padding: 2em;"
+                      "  padding: 1em;"
                       " }"
                       "MainWelcome, QAbstractItemView {"
                       "  background-color: palette(base);"

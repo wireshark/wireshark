@@ -40,7 +40,7 @@
        <widget class="QWidget" name="bannerLayout" native="true">
         <property name="minimumSize">
          <size>
-          <width>650</width>
+          <width>550</width>
           <height>0</height>
          </size>
         </property>
