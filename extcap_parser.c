@@ -615,8 +615,15 @@ GList *extcap_parse_interfaces(gchar *output) {
         extcap_interface *ri = NULL;
         extcap_token_sentence *if_sentence = (extcap_token_sentence *) walker->data;
 
-        if (if_sentence != NULL && (ri = extcap_parse_interface_sentence(if_sentence)) != NULL)
-            result = g_list_append(result, ri);
+        if (if_sentence) {
+            if ((g_ascii_strcasecmp(if_sentence->sentence, "interface") == 0) ||
+                (g_ascii_strcasecmp(if_sentence->sentence, "extcap") == 0))
+            {
+                if ((ri = extcap_parse_interface_sentence(if_sentence))) {
+                    result = g_list_append(result, ri);
+                }
+            }
+        }
 
         walker = g_list_next(walker);
     }

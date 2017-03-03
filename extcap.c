@@ -1338,7 +1338,7 @@ extcap_free_interface_info(gpointer data _U_)
 }
 
 static extcap_info *
-extcap_ensure_interface(const gchar * toolname)
+extcap_ensure_interface(const gchar * toolname, gboolean create_if_nonexist)
 {
     extcap_info * element = 0;
 
@@ -1348,13 +1348,33 @@ extcap_ensure_interface(const gchar * toolname)
     if ( ! _loaded_interfaces )
         _loaded_interfaces = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, extcap_free_interface);
 
-    if ( ( element = (extcap_info *) g_hash_table_lookup(_loaded_interfaces, toolname ) ) == NULL )
+    element = (extcap_info *) g_hash_table_lookup(_loaded_interfaces, toolname );
+    if ( ! element && create_if_nonexist )
     {
         g_hash_table_insert(_loaded_interfaces, g_strdup(toolname), g_new0(extcap_info, 1));
         element = (extcap_info *) g_hash_table_lookup(_loaded_interfaces, toolname );
     }
 
     return element;
+}
+
+extcap_info *
+extcap_get_tool_by_ifname(const gchar *ifname)
+{
+    if ( ifname && _tool_for_ifname )
+    {
+        gchar * toolname = (gchar *)g_hash_table_lookup(_tool_for_ifname, ifname);
+        if ( toolname )
+            return extcap_ensure_interface(toolname, FALSE);
+    }
+
+    return NULL;
+}
+
+extcap_info *
+extcap_get_tool_info(const gchar * toolname)
+{
+    return extcap_ensure_interface(toolname, FALSE);
 }
 
 static void remove_extcap_entry(gpointer entry, gpointer data _U_)
@@ -1367,30 +1387,41 @@ static void remove_extcap_entry(gpointer entry, gpointer data _U_)
 
 static gboolean cb_load_interfaces(extcap_callback_info_t cb_info)
 {
-    GList *interfaces = NULL, *walker = NULL;
-    extcap_interface *int_iter = NULL;
-    gchar *toolname = g_path_get_basename(cb_info.extcap);
+    GList * interfaces = NULL, * walker = NULL;
+    extcap_interface * int_iter = NULL;
+    extcap_info * element = NULL;
+    gchar * toolname = g_path_get_basename(cb_info.extcap);
 
     GList * interface_keys = g_hash_table_get_keys(_loaded_interfaces);
 
+    /* Load interfaces from utility */
     interfaces = extcap_parse_interfaces(cb_info.output);
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Loading interface list for %s ", cb_info.extcap);
+
+    /* Seems, that there where no interfaces to be loaded */
+    if ( ! interfaces || g_list_length(interfaces) == 0 )
+    {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Cannot load interfaces for %s", cb_info.extcap );
+        /* Some utilities, androiddump for example, may actually don't present any interfaces, even
+         * if the utility itself is present. In such a case, we return here, but do not return
+         * FALSE, or otherwise further loading of other utilities will be stopped */
+        return TRUE;
+    }
+
+    /* Load or create the storage element for the tool */
+    element = extcap_ensure_interface(toolname, TRUE);
+    if ( element == NULL )
+    {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, "Cannot store interface %s, maybe duplicate?", cb_info.extcap );
+        return FALSE;
+    }
 
     walker = interfaces;
     gchar* help = NULL;
     while (walker != NULL)
     {
         int_iter = (extcap_interface *)walker->data;
-
-        extcap_info * element = extcap_ensure_interface(toolname);
-
-        if ( element == NULL )
-        {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, "Cannot store interface %s", cb_info.extcap);
-            walker = g_list_next(walker);
-            continue;
-        }
 
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Interface found %s\n", int_iter->call);
 
@@ -1406,6 +1437,7 @@ static gboolean cb_load_interfaces(extcap_callback_info_t cb_info)
                 element->version = g_strdup(int_iter->version);
                 element->basename = g_strdup(toolname);
                 element->full_path = g_strdup(cb_info.extcap);
+                element->help = g_strdup(int_iter->help);
             }
 
             help = int_iter->help;

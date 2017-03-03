@@ -55,6 +55,7 @@ typedef struct _extcap_info {
     gchar * basename;
     gchar * full_path;
     gchar * version;
+    gchar * help;
 
     GList * interfaces;
 } extcap_info;
@@ -80,6 +81,12 @@ extcap_get_if_dlts(const gchar * ifname, char ** err_str);
 /* append a list of all extcap capture interfaces to the specified list */
 GList *
 append_extcap_interface_list(GList *list, char **err_str);
+
+extcap_info *
+extcap_get_tool_info(const gchar * toolname);
+
+extcap_info *
+extcap_get_tool_by_ifname(const gchar *ifname);
 
 /* return the help page or NULL for the given ifname */
 gchar *
