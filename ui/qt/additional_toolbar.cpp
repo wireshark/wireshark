@@ -179,8 +179,17 @@ toolbar_button_cb(gpointer item, gpointer item_data, gpointer user_data)
     QPushButton * widget = (QPushButton *)(item_data);
     ext_toolbar_update_t * update_entry = (ext_toolbar_update_t *)user_data;
 
-    if ( widget && update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
-        widget->setText((gchar *)update_entry->user_data);
+    if ( widget )
+    {
+        if ( update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
+            widget->setText((gchar *)update_entry->user_data);
+        else if ( update_entry->type == EXT_TOOLBAR_SET_ACTIVE )
+        {
+            bool enableState = GPOINTER_TO_INT(update_entry->user_data) == 1;
+            widget->setEnabled(enableState);
+        }
+
+    }
 }
 
 QWidget * AdditionalToolbarWidgetAction::createButton(ext_toolbar_t * item, QWidget * parent)
@@ -204,9 +213,11 @@ toolbar_boolean_cb(gpointer item, gpointer item_data, gpointer user_data)
         return;
 
     QCheckBox * widget = (QCheckBox *)(item_data);
+    if ( ! widget )
+        return;
     ext_toolbar_update_t * update_entry = (ext_toolbar_update_t *)user_data;
 
-    if ( widget && update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
+    if ( update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
     {
         bool oldState = false;
         if ( update_entry->silent )
@@ -216,6 +227,11 @@ toolbar_boolean_cb(gpointer item, gpointer item_data, gpointer user_data)
 
         if ( update_entry->silent )
             widget->blockSignals(oldState);
+    }
+    else if ( update_entry->type == EXT_TOOLBAR_SET_ACTIVE )
+    {
+        bool enableState = GPOINTER_TO_INT(update_entry->user_data) == 1;
+        widget->setEnabled(enableState);
     }
 }
 
@@ -270,9 +286,11 @@ toolbar_string_cb(gpointer item, gpointer item_data, gpointer user_data)
         return;
 
     ApplyLineEdit * edit = (ApplyLineEdit *)(item_data);
+    if ( ! edit )
+        return;
     ext_toolbar_update_t * update_entry = (ext_toolbar_update_t *)user_data;
 
-    if ( edit && update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
+    if ( update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
     {
         bool oldState = false;
         if ( update_entry->silent )
@@ -282,6 +300,11 @@ toolbar_string_cb(gpointer item, gpointer item_data, gpointer user_data)
 
         if ( update_entry->silent )
             edit->blockSignals(oldState);
+    }
+    else if ( update_entry->type == EXT_TOOLBAR_SET_ACTIVE )
+    {
+        bool enableState = GPOINTER_TO_INT(update_entry->user_data) == 1;
+        edit->setEnabled(enableState);
     }
 }
 
@@ -327,7 +350,12 @@ toolbar_selector_cb(gpointer item, gpointer item_data, gpointer user_data)
 
     QStandardItemModel * sourceModel = (QStandardItemModel *)comboBox->model();
 
-    if ( update_entry->type != EXT_TOOLBAR_UPDATE_DATA_REMOVE && ! update_entry->user_data )
+    if ( update_entry->type == EXT_TOOLBAR_SET_ACTIVE )
+    {
+        bool enableState = GPOINTER_TO_INT(update_entry->user_data) == 1;
+        comboBox->setEnabled(enableState);
+    }
+    else if ( update_entry->type != EXT_TOOLBAR_UPDATE_DATA_REMOVE && ! update_entry->user_data )
         return;
 
     if ( update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )

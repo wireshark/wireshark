@@ -140,7 +140,8 @@ typedef enum
     EXT_TOOLBAR_UPDATE_DATA,
     EXT_TOOLBAR_UPDATE_DATABYINDEX,
     EXT_TOOLBAR_UPDATE_DATA_ADD,
-    EXT_TOOLBAR_UPDATE_DATA_REMOVE
+    EXT_TOOLBAR_UPDATE_DATA_REMOVE,
+    EXT_TOOLBAR_SET_ACTIVE
 } ext_toolbar_update_type_t;
 
 typedef struct _ext_toolbar_update_t
@@ -356,6 +357,8 @@ WS_DLL_PUBLIC void ext_toolbar_update_data_remove_entry(ext_toolbar_t * entry, g
 /* Search for and return if found an entry from the toolbar with the given label */
 WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_entry_by_label(const ext_toolbar_t * toolbar, const gchar * label);
 
+/* Set the ui element for the given enry to the status */
+WS_DLL_PUBLIC void ext_toolbar_update_data_set_active(ext_toolbar_t * entry, gboolean status);
 
 /*
  * Structure definition for the plugin_if_get_ws_info function

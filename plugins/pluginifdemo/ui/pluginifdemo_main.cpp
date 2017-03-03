@@ -229,6 +229,24 @@ void PluginIFDemo_Main::on_cmbElements_currentTextChanged(const QString & newTex
 
 }
 
+void PluginIFDemo_Main::on_btnEnable_clicked()
+{
+    ext_toolbar_t * item = ext_toolbar_entry_by_label(_toolbar, ui->cmbElements->currentText().toStdString().c_str());
+    if ( ! item )
+        return;
+
+    ext_toolbar_update_data_set_active(item, true);
+}
+
+void PluginIFDemo_Main::on_btnDisable_clicked()
+{
+    ext_toolbar_t * item = ext_toolbar_entry_by_label(_toolbar, ui->cmbElements->currentText().toStdString().c_str());
+    if ( ! item )
+        return;
+
+    ext_toolbar_update_data_set_active(item, false);
+}
+
 void PluginIFDemo_Main::on_btnAddItem_clicked()
 {
     if ( ui->txtNewItemDisplay->text().length() <= 0 || ui->txtNewItemValue->text().length() <= 0 )

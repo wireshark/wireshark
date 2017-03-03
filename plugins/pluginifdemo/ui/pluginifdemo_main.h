@@ -102,6 +102,8 @@ private slots:
     void on_btnSendList_clicked();
     void on_cmbElements_currentTextChanged(const QString & newText);
     void on_lstItems_clicked(const QModelIndex &idx);
+    void on_btnEnable_clicked();
+    void on_btnDisable_clicked();
 
     void logChanged(QString message);
     void closeDialog();
