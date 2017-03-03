@@ -100,20 +100,20 @@ different folders are used for these files.
 [options="header"]
 |===============
 |File/Folder|Description|Unix/Linux folders|Windows folders
-|_preferences_|Settings from the Preferences dialog box.|/etc/wireshark.conf, $HOME/.wireshark/preferences|%WIRESHARK%\wireshark.conf, %APPDATA%\Wireshark\preferences
-|_recent_|Recent GUI settings (e.g. recent files lists).|$HOME/.wireshark/recent|%APPDATA%\Wireshark\recent
-|_cfilters_|Capture filters.|$HOME/.wireshark/cfilters|%WIRESHARK%\cfilters, %APPDATA%\Wireshark\cfilters
-|_dfilters_|Display filters.|$HOME/.wireshark/dfilters|%WIRESHARK%\dfilters, %APPDATA%\Wireshark\dfilters
-|_colorfilters_|Coloring rules.|$HOME/.wireshark/colorfilters|%WIRESHARK%\colorfilters, %APPDATA%\Wireshark\colorfilters
-|_$$disabled_protos$$_|Disabled protocols.|$HOME/.wireshark/disabled_protos|%WIRESHARK%\disabled_protos, %APPDATA%\Wireshark\disabled_protos
-|_ethers_|Ethernet name resolution.|/etc/ethers, $HOME/.wireshark/ethers|%WIRESHARK%\ethers, %APPDATA%\Wireshark\ethers
-|_manuf_|Ethernet name resolution.|/etc/manuf, $HOME/.wireshark/manuf|%WIRESHARK%\manuf, %APPDATA%\Wireshark\manuf
-|_hosts_|IPv4 and IPv6 name resolution.|/etc/hosts, $HOME/.wireshark/hosts|%WIRESHARK%\hosts, %APPDATA%\Wireshark\hosts
-|_services_|Network services.|/etc/services, $HOME/.wireshark/services|%WIRESHARK%\services, %APPDATA%\Wireshark\services
-|_subnets_|IPv4 subnet name resolution.|/etc/subnets, $HOME/.wireshark/subnets|%WIRESHARK%\subnets, %APPDATA%\Wireshark\subnets
-|_ipxnets_|IPX name resolution.|/etc/ipxnets, $HOME/.wireshark/ipxnets|%WIRESHARK%\ipxnets, %APPDATA%\Wireshark\ipxnets
-|_vlans_|VLAN ID name resolution.|$HOME/.wireshark/vlans|%APPDATA%\Wireshark\vlans
-|_plugins_|Plugin directories.|/usr/share/wireshark/plugins, /usr/local/share/wireshark/plugins, $HOME/.wireshark/plugins|%WIRESHARK%\plugins\<version>,%APPDATA%\Wireshark\plugins
+|_preferences_|Settings from the Preferences dialog box.|/etc/wireshark.conf, $XDG_CONFIG_HOME/wireshark/preferences|%WIRESHARK%\wireshark.conf, %APPDATA%\Wireshark\preferences
+|_recent_|Recent GUI settings (e.g. recent files lists).|$XDG_CONFIG_HOME/wireshark/recent|%APPDATA%\Wireshark\recent
+|_cfilters_|Capture filters.|$XDG_CONFIG_HOME/wireshark/cfilters|%WIRESHARK%\cfilters, %APPDATA%\Wireshark\cfilters
+|_dfilters_|Display filters.|$XDG_CONFIG_HOME/wireshark/dfilters|%WIRESHARK%\dfilters, %APPDATA%\Wireshark\dfilters
+|_colorfilters_|Coloring rules.|$XDG_CONFIG_HOME/wireshark/colorfilters|%WIRESHARK%\colorfilters, %APPDATA%\Wireshark\colorfilters
+|_$$disabled_protos$$_|Disabled protocols.|$XDG_CONFIG_HOME/wireshark/disabled_protos|%WIRESHARK%\disabled_protos, %APPDATA%\Wireshark\disabled_protos
+|_ethers_|Ethernet name resolution.|/etc/ethers, $XDG_CONFIG_HOME/wireshark/ethers|%WIRESHARK%\ethers, %APPDATA%\Wireshark\ethers
+|_manuf_|Ethernet name resolution.|/etc/manuf, $XDG_CONFIG_HOME/wireshark/manuf|%WIRESHARK%\manuf, %APPDATA%\Wireshark\manuf
+|_hosts_|IPv4 and IPv6 name resolution.|/etc/hosts, $XDG_CONFIG_HOME/wireshark/hosts|%WIRESHARK%\hosts, %APPDATA%\Wireshark\hosts
+|_services_|Network services.|/etc/services, $XDG_CONFIG_HOME/wireshark/services|%WIRESHARK%\services, %APPDATA%\Wireshark\services
+|_subnets_|IPv4 subnet name resolution.|/etc/subnets, $XDG_CONFIG_HOME/wireshark/subnets|%WIRESHARK%\subnets, %APPDATA%\Wireshark\subnets
+|_ipxnets_|IPX name resolution.|/etc/ipxnets, $XDG_CONFIG_HOME/wireshark/ipxnets|%WIRESHARK%\ipxnets, %APPDATA%\Wireshark\ipxnets
+|_vlans_|VLAN ID name resolution.|$XDG_CONFIG_HOME/wireshark/vlans|%APPDATA%\Wireshark\vlans
+|_plugins_|Plugin directories.|/usr/share/wireshark/plugins, /usr/local/share/wireshark/plugins, $XDG_CONFIG_HOME/wireshark/plugins|%WIRESHARK%\plugins\<version>,%APPDATA%\Wireshark\plugins
 |_temp_|Temporary files.|Environment: TMPDIR|Environment: TMPDIR or TEMP
 |===============
 
@@ -131,7 +131,11 @@ Files\Wireshark_
 The _/etc_ folder is the global Wireshark configuration folder. The folder
 actually used on your system may vary, maybe something like: _/usr/local/etc_.
 
-$HOME is usually something like: _/home/<username>_
+$XDG_CONFIG_HOME/wireshark usually expands to $HOME/.config/wireshark and
+$HOME is usually something like: _/home/<username>_.
+For backwards compatibility with Wireshark before 2.2, if
+$XDG_CONFIG_HOME/wireshark does not exist and $HOME/.wireshark is present, then
+the latter will be used.
 
 [float]
 ===== File contents
@@ -219,7 +223,7 @@ when you press the Save button in the ``Enabled Protocols'' dialog box.
 _ethers_::
 When Wireshark is trying to translate Ethernet hardware addresses to names, it
 consults the files listed in <<AppFilesTabFolders>>. If an address is not found
-in /etc/ethers, Wireshark looks in $HOME/.wireshark/ethers
+in /etc/ethers, Wireshark looks in $XDG_CONFIG_HOME/wireshark/ethers
 +
 --
 Each line in these files consists of one hardware address and name separated by
