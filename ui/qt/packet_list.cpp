@@ -1167,8 +1167,9 @@ void PacketList::setMonospaceFont(const QFont &mono_font)
     header()->setFont(wsApp->font());
 }
 
-void PacketList::goNextPacket(void) {
-    if (QApplication::keyboardModifiers() | Qt::MetaModifier) {
+void PacketList::goNextPacket(void)
+{
+    if (QApplication::keyboardModifiers() & Qt::AltModifier) {
         // Alt+toolbar
         goNextHistoryPacket();
         return;
@@ -1182,8 +1183,9 @@ void PacketList::goNextPacket(void) {
     }
 }
 
-void PacketList::goPreviousPacket(void) {
-    if (QApplication::keyboardModifiers() | Qt::MetaModifier) {
+void PacketList::goPreviousPacket(void)
+{
+    if (QApplication::keyboardModifiers() & Qt::AltModifier) {
         // Alt+toolbar
         goPreviousHistoryPacket();
         return;
