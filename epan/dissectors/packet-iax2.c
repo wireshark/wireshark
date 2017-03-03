@@ -1579,7 +1579,7 @@ static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, tvbuff
     time_t start_secs = iax_packet->call_data->start_time.secs;
     time_t abs_secs = start_secs + longts/1000;
 
-    if (pinfo->abs_ts.secs - abs_secs > MAX_SECS_DIFF) {
+    if (pinfo->fd->abs_ts.secs - abs_secs > MAX_SECS_DIFF) {
       proto_tree_add_expert(iax2_tree, pinfo, &ei_iax_invalid_ts, tvb, 0, 0);
     } else {
       /* deal with short timestamps by assuming that packets are never more than
