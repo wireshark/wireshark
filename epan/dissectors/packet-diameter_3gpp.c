@@ -402,6 +402,7 @@ static int hf_diameter_3gpp_feature_list1_rx_flags_bit14 = -1;
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit15 = -1;
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit16 = -1;
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit17 = -1;
+static int hf_diameter_3gpp_feature_list1_rx_flags_bit18 = -1;
 static int hf_diameter_3gpp_feature_list1_rx_flags_spare_bits = -1;
 
 static int hf_diameter_3gpp_feature_list2_rx_flags_bit0 = -1;
@@ -796,6 +797,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             /* 3GPP TS 129 214 Table 5.4.1.1: Features of Feature-List-ID 1 used in Rx */
             const int *flags[] = {
                 &hf_diameter_3gpp_feature_list1_rx_flags_spare_bits,
+                &hf_diameter_3gpp_feature_list1_rx_flags_bit18,
                 &hf_diameter_3gpp_feature_list1_rx_flags_bit17,
                 &hf_diameter_3gpp_feature_list1_rx_flags_bit16,
                 &hf_diameter_3gpp_feature_list1_rx_flags_bit15,
@@ -3933,13 +3935,18 @@ proto_register_diameter_3gpp(void)
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_feature_list1_rx_flags_bit17,
-        { "AMCPTT", "diameter.3gpp.feature_list1_rx_flags_bit17",
+        { "MCPTT", "diameter.3gpp.feature_list1_rx_flags_bit17",
             FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00020000,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list1_rx_flags_bit18,
+        { "PrioritySharing", "diameter.3gpp.feature_list1_rx_flags_bit18",
+            FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00040000,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_feature_list1_rx_flags_spare_bits,
         { "Spare", "diameter.3gpp.feature_list2_s6a_flags_spare",
-            FT_UINT32, BASE_HEX, NULL, 0xFFFC0000,
+            FT_UINT32, BASE_HEX, NULL, 0xFFF80000,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_feature_list2_rx_flags_bit0,
