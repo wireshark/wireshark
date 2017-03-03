@@ -4021,7 +4021,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         /* Add tree using whole text of line */
                         if (hdr_tree) {
                             proto_item *ti_c;
-                            sip_authorization_t authorization_info = { 0 };
+                            sip_authorization_t authorization_info = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
                             authorization_user_t * authorization_user = NULL;
                             /* Add whole line as header tree */
                             sip_element_item = sip_proto_tree_add_string(hdr_tree,
