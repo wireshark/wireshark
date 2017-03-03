@@ -217,6 +217,33 @@
         </layout>
        </item>
        <item>
+        <widget class="QCheckBox" name="chkAddRemoveImmediate">
+         <property name="text">
+          <string>Add and remove will immediately be send to interface</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkSendSelect">
+         <property name="text">
+          <string>Update interface with selection</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
           <widget class="QLabel" name="label_5">

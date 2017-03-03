@@ -244,6 +244,21 @@ void PluginIFDemo_Main::on_btnAddItem_clicked()
         return;
 
     listModel->appendRow(new QStandardItem(content));
+
+    if ( ui->chkAddRemoveImmediate->checkState() == Qt::Checked )
+    {
+        ext_toolbar_t * item = ext_toolbar_entry_by_label(_toolbar, ui->cmbElements->currentText().toStdString().c_str());
+        if ( ! item || item->item_type != EXT_TOOLBAR_SELECTOR )
+            return;
+
+        bool silent = ui->chkSilent->checkState() == Qt::Checked ? true : false;
+
+        gchar * value = g_strdup(ui->txtNewItemValue->text().toUtf8().constData());
+        gchar * display = g_strdup(ui->txtNewItemDisplay->text().toUtf8().constData());
+        ext_toolbar_update_data_add_entry(item, display, value, silent);
+        g_free(value);
+        g_free(display);
+    }
 }
 
 void PluginIFDemo_Main::on_btnRemoveItem_clicked()
@@ -255,7 +270,28 @@ void PluginIFDemo_Main::on_btnRemoveItem_clicked()
 
     QModelIndexList selIndeces = selModel-> selectedIndexes();
     foreach(QModelIndex idx, selIndeces)
+    {
+        if ( ui->chkAddRemoveImmediate->checkState() == Qt::Checked )
+        {
+            ext_toolbar_t * item = ext_toolbar_entry_by_label(_toolbar, ui->cmbElements->currentText().toStdString().c_str());
+            if ( ! item || item->item_type != EXT_TOOLBAR_SELECTOR )
+                return;
+
+            bool silent = ui->chkSilent->checkState() == Qt::Checked ? true : false;
+
+            QString content = listModel->data(idx).toString();
+            int pos = content.indexOf(":");
+
+            gchar * value = g_strdup(content.left(pos).toUtf8().constData() );
+            /* -2 because removal of : and space */
+            gchar * display = g_strdup(content.right(content.size() - pos - 2).toUtf8().constData());
+            ext_toolbar_update_data_remove_entry(item, display, value, silent);
+            g_free(value);
+            g_free(display);
+        }
+
         listModel->removeRow(idx.row());
+    }
 }
 
 void PluginIFDemo_Main::on_btnSendList_clicked()
@@ -306,6 +342,26 @@ void PluginIFDemo_Main::on_btnSendUpdateItem_clicked()
             (gpointer) displayValue.toStdString().c_str(), (gpointer) cmbIndexText.toStdString().c_str(), silent );
 }
 
+void PluginIFDemo_Main::on_lstItems_clicked(const QModelIndex &idx)
+{
+    if ( ! _toolbar || ! idx.isValid() )
+        return;
+
+    ext_toolbar_t * item = ext_toolbar_entry_by_label(_toolbar, ui->cmbElements->currentText().toStdString().c_str());
+    if ( ! item || item->item_type != EXT_TOOLBAR_SELECTOR )
+        return;
+
+    bool silent = ui->chkSilent->checkState() == Qt::Checked ? true : false;
+
+    QString content = listModel->data(listModel->index(idx.row(), 0)).toString();
+    int pos = content.indexOf(":");
+
+    gchar * idxData = g_strdup(content.left(pos).toUtf8().constData() );
+
+    ext_toolbar_update_value(item, idxData, silent);
+    g_free(idxData);
+
+}
 /*
  * Editor modelines
  *

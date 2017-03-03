@@ -188,8 +188,6 @@ QWidget * AdditionalToolbarWidgetAction::createButton(ext_toolbar_t * item, QWid
     if ( ! item || item->type != EXT_TOOLBAR_ITEM || item->item_type != EXT_TOOLBAR_BUTTON )
         return 0;
 
-    QString defValue = item->defvalue;
-
     QPushButton * button = new QPushButton(item->name, parent);
     button->setText(item->name);
     connect(button, SIGNAL(clicked()), this, SLOT(onButtonClicked()));
@@ -327,36 +325,28 @@ toolbar_selector_cb(gpointer item, gpointer item_data, gpointer user_data)
     if ( update_entry->silent )
         oldState = comboBox->blockSignals(true);
 
+    QStandardItemModel * sourceModel = (QStandardItemModel *)comboBox->model();
+
+    if ( update_entry->type != EXT_TOOLBAR_UPDATE_DATA_REMOVE && ! update_entry->user_data )
+        return;
+
     if ( update_entry->type == EXT_TOOLBAR_UPDATE_VALUE )
     {
         QString data = QString((gchar *)update_entry->user_data);
-        bool conv_ok = false;
 
-        int dataValue = data.toInt(&conv_ok, 10);
-        if ( conv_ok && dataValue >= 0 && comboBox->model()->rowCount() < dataValue )
-            comboBox->setCurrentIndex(dataValue);
-        else
+        for(int i = 0; i < sourceModel->rowCount(); i++)
         {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-            comboBox->setCurrentText(data);
-#else
-            for(int i = 0; i < comboBox->model()->rowCount(); i++)
+            QStandardItem * dataValue = ((QStandardItemModel *)sourceModel)->item(i, 0);
+            ext_toolbar_value_t * tbValue = VariantPointer<ext_toolbar_value_t>::asPtr(dataValue->data(Qt::UserRole));
+            if ( tbValue && data.compare(QString(tbValue->value)) == 0 )
             {
-                QStandardItem * dataValue = ((QStandardItemModel *)comboBox->model())->item(i, 0);
-                ext_toolbar_value_t * tbValue = VariantPointer<ext_toolbar_value_t>::asPtr(dataValue->data());
-                if ( data.compare(QString(tbValue->display)) )
-                {
-                    comboBox->setCurrentIndex(i);
-                    break;
-                }
+                comboBox->setCurrentIndex(i);
+                break;
             }
-#endif
         }
     }
     else if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATA )
     {
-        QStandardItemModel * sourceModel = (QStandardItemModel *)comboBox->model();
-
         GList * walker = (GList *)update_entry->user_data;
         if ( g_list_length(walker) == 0 )
             return;
@@ -374,24 +364,54 @@ toolbar_selector_cb(gpointer item, gpointer item_data, gpointer user_data)
             walker = g_list_next(walker);
         }
     }
-    else if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATABYINDEX )
+    else if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATABYINDEX ||
+            update_entry->type == EXT_TOOLBAR_UPDATE_DATA_ADD ||
+            update_entry->type == EXT_TOOLBAR_UPDATE_DATA_REMOVE )
     {
-        QStandardItemModel * sourceModel = (QStandardItemModel *)comboBox->model();
-
-        if ( ! update_entry->user_data || ! update_entry->data_index )
+        if ( ! update_entry->data_index )
             return;
 
         gchar * idx = (gchar *)update_entry->data_index;
         gchar * display = (gchar *)update_entry->user_data;
 
-        for ( int i = 0; i < sourceModel->rowCount(); i++ )
+        if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATABYINDEX )
         {
-            QStandardItem * item = sourceModel->item(i, 0);
-            ext_toolbar_value_t * entry = VariantPointer<ext_toolbar_value_t>::asPtr(item->data(Qt::UserRole));
-            if ( entry && g_strcmp0( entry->value, idx) == 0 )
+            for ( int i = 0; i < sourceModel->rowCount(); i++ )
             {
-                item->setText(display);
-                break;
+                QStandardItem * item = sourceModel->item(i, 0);
+                ext_toolbar_value_t * entry = VariantPointer<ext_toolbar_value_t>::asPtr(item->data(Qt::UserRole));
+                if ( entry && g_strcmp0( entry->value, idx) == 0 )
+                {
+                    g_free(entry->display);
+                    entry->display = g_strdup(display);
+                    item->setData(VariantPointer<ext_toolbar_value_t>::asQVariant(entry), Qt::UserRole);
+                    item->setText(display);
+                    break;
+                }
+            }
+        }
+        else if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATA_ADD )
+        {
+            ext_toolbar_value_t * listvalue = g_new0(ext_toolbar_value_t, 1);
+            listvalue->display = g_strdup(display);
+            listvalue->value = g_strdup(idx);
+
+            QStandardItem * si = new QStandardItem(listvalue->display);
+            si->setData(VariantPointer<ext_toolbar_value_t>::asQVariant(listvalue), Qt::UserRole);
+            sourceModel->appendRow(si);
+        }
+        else if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATA_REMOVE )
+        {
+            QList<QStandardItem *> entryList = sourceModel->findItems(display);
+            /* Search for index if display did not find anything */
+            if ( entryList.size() == 0 )
+                entryList = sourceModel->findItems(idx);
+
+            foreach(QStandardItem *entry, entryList)
+            {
+                QModelIndex index = sourceModel->indexFromItem(entry);
+                if ( index.isValid() )
+                    sourceModel->removeRow(index.row());
             }
         }
     }

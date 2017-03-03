@@ -138,7 +138,9 @@ typedef enum
 {
     EXT_TOOLBAR_UPDATE_VALUE,
     EXT_TOOLBAR_UPDATE_DATA,
-    EXT_TOOLBAR_UPDATE_DATABYINDEX
+    EXT_TOOLBAR_UPDATE_DATABYINDEX,
+    EXT_TOOLBAR_UPDATE_DATA_ADD,
+    EXT_TOOLBAR_UPDATE_DATA_REMOVE
 } ext_toolbar_update_type_t;
 
 typedef struct _ext_toolbar_update_t
@@ -319,15 +321,41 @@ WS_DLL_PUBLIC void ext_toolbar_update_data(ext_toolbar_t * entry, gpointer data,
  * This is used to update a single entry of a selector list, by giving it's value and a new display
  * entry
  *
- * @param entry the entry to be updated
+ * @param entry the toolbar item to be updated
  * @param data the display data for the entry
- * @param value the value for the entry to be updated
+ * @param idx the value for the entry to be updated
  * @param silent the update for the entry should not trigger additional actions
  */
-WS_DLL_PUBLIC void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, gpointer data, gpointer value, gboolean silent);
+WS_DLL_PUBLIC void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, gpointer data, gpointer idx, gboolean silent);
+
+/* Adds the entry data by index
+ *
+ * This is used to add a single entry to a selector list, by giving it's new value and a new display
+ * entry. If the value already exists, the selector may choose to ignore the command
+ *
+ * @param entry the toolbar item to be updated
+ * @param data the display data for the entry to be added
+ * @param idx the value for the entry to be added
+ * @param silent the adding of the entry should not trigger additional actions
+ */
+WS_DLL_PUBLIC void ext_toolbar_update_data_add_entry(ext_toolbar_t * entry, gpointer data, gpointer idx, gboolean silent);
+
+/* Removes an entry data by index
+ *
+ * This is used to remove a single entry to a selector list, by giving it's value and a display
+ * entry. If the value already exists, the selector may choose to ignore the command. Both value
+ * and display must be given, as it is not established, how the entry is found in the selector list
+ *
+ * @param entry the toolbar item to be updated
+ * @param data the display data for the entry to be removed
+ * @param idx the value for the entry to be removed
+ * @param silent the removal of the entry should not trigger additional actions
+ */
+WS_DLL_PUBLIC void ext_toolbar_update_data_remove_entry(ext_toolbar_t * entry, gpointer data, gpointer idx, gboolean silent);
 
 /* Search for and return if found an entry from the toolbar with the given label */
 WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_entry_by_label(const ext_toolbar_t * toolbar, const gchar * label);
+
 
 /*
  * Structure definition for the plugin_if_get_ws_info function

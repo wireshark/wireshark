@@ -101,6 +101,7 @@ private slots:
     void on_btnRemoveItem_clicked();
     void on_btnSendList_clicked();
     void on_cmbElements_currentTextChanged(const QString & newText);
+    void on_lstItems_clicked(const QModelIndex &idx);
 
     void logChanged(QString message);
     void closeDialog();

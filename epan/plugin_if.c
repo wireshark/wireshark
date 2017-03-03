@@ -499,6 +499,18 @@ void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, gpointer data, gpoi
         ext_toolbar_update_entry( EXT_TOOLBAR_UPDATE_DATABYINDEX, entry, data, idx, silent );
 }
 
+void ext_toolbar_update_data_add_entry(ext_toolbar_t * entry, gpointer data, gpointer idx, gboolean silent)
+{
+    if ( entry->item_type == EXT_TOOLBAR_SELECTOR )
+        ext_toolbar_update_entry( EXT_TOOLBAR_UPDATE_DATA_ADD, entry, data, idx, silent );
+}
+
+void ext_toolbar_update_data_remove_entry(ext_toolbar_t * entry, gpointer data, gpointer idx, gboolean silent)
+{
+    if ( entry->item_type == EXT_TOOLBAR_SELECTOR )
+        ext_toolbar_update_entry( EXT_TOOLBAR_UPDATE_DATA_REMOVE, entry, data, idx, silent );
+}
+
 /* Implementation of GUI callback methods follows.
  * This is a necessity, as using modern UI systems, gui interfaces often operate
  * in different threads then the calling application. Even more so, if the calling
