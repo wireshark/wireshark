@@ -214,7 +214,8 @@ translation, do the following:
 
 Alternatively you can put your QM and flag files in the 'languages'
 directory in the Wireshark user configuration directory
-('~/.wireshark/languages/' on UNIX).
+('$XDG_CONFIG_HOME/wireshark/languages/' or '$HOME/.wireshark/languages/' on
+UNIX).
 
 For more information about Qt Linguist see
 http://qt-project.org/doc/qt-4.8/linguist-manual.html[its manual].
