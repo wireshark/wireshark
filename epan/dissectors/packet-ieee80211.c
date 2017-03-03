@@ -14249,9 +14249,9 @@ ieee80211_tag_tclas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   guint8 version;
   proto_item *class_mask;
   proto_tree *mask_tree;
-  if (tag_len < 6)
+  if (tag_len < 5)
   {
-    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag length %u too short, must be >= 6", tag_len);
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag length %u too short, must be >= 5", tag_len);
     return 1;
   }
 
