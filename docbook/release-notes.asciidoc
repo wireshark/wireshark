@@ -14,12 +14,69 @@ The following vulnerabilities have been fixed:
 
 * ws-salink:2017-03[]
 +
-A dissector went awry.
-(ws-buglink:XXXX[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: XXXX
-// Fixed in master-2.2: XXXX
-// Fixed in master-2.0: XXXX
+LDSS dissector crash
+(ws-buglink:13346[])
+//cve-idlink:2017-XXXX[]
+// Fixed in master: eeab554cf2
+// Fixed in master-2.2: a1d434d9db
+// Fixed in master-2.0: 4f753c1270
+
+* ws-salink:2017-04[]
++
+RTMTP dissector infinite loop
+(ws-buglink:13347[])
+//cve-idlink:2017-XXXX[]
+// Fixed in master: ee185445f4
+// Fixed in master-2.2: 2b3a0909be
+// Fixed in master-2.0: n/a
+
+* ws-salink:2017-05[]
++
+WSP dissector infinite loop
+(ws-buglink:13348[])
+//cve-idlink:2017-XXXX[]
+// Fixed in master: cfe7b85b86
+// Fixed in master-2.2: b708d4e6b4
+// Fixed in master-2.0: 62afef4127
+
+* ws-salink:2017-06[]
++
+STANAG 4607 file parser infinite loop
+(ws-buglink:13416[])
+//cve-idlink:2017-XXXX[]
+// Fixed in master: c7042bedbb
+// Fixed in master-2.2: 83aa52d9ba
+// Fixed in master-2.0: 38b428a317
+
+* ws-salink:2017-07[]
++
+NetScaler file parser infinite loop
+(ws-buglink:13429[])
+//cve-idlink:2017-XXXX[]
+// Fixed in master: e4dfeed2ca
+// Fixed in master-2.2: d00ced1548
+// Fixed in master-2.0: a998c9195f
+
+* ws-salink:2017-08[]
++
+NetScaler file parser crash
+(ws-buglink:13430[])
+//cve-idlink:2017-XXXX[]
+// Fixed in master: 19c51d27b9, b98bb5188c
+// Fixed in master-2.2: 7eb76d2975, 70184273ad
+// Fixed in master-2.0: 9f3bc84b7e, 5e9cd0ab84
+
+* ws-salink:2017-09[]
++
+K12 file parser crash
+(ws-buglink:13431[])
+//cve-idlink:2017-XXXX[]
+// Fixed in master: b019c5931c, 4bd3c4d44d
+// Fixed in master-2.2: 37bbc14b05, 7d1d41ae8b
+// Fixed in master-2.0: 7edc761a01, c83d7c0432
+
+The 32-bit and 64-bit Windows installers might have been susceptible to a
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13369[DLL hijacking flaw].
 
 The following bugs have been fixed:
 
@@ -29,7 +86,33 @@ The following bugs have been fixed:
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.5rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* Display filter textbox loses focus during live capturing. (ws-buglink:11890[])
 
+* Wireshark crashes when saving pcaps, opening pcaps, and exporting specified packets. (ws-buglink:12036[])
+
+* tshark stalls on FreeBSD if androiddump is present. (ws-buglink:13104[])
+
+* UTF-8 characters in packet list column title. (ws-buglink:13342[])
+
+* Recent capture file list should appear immediately on startup. (ws-buglink:13352[])
+
+* editcap segfault if a packet length is shorter than ignore bytes parameter. (ws-buglink:13378[])
+
+* dftest segfault with automated build of 2.2.5. (ws-buglink:13387[])
+
+* UMTS MAC Dissector shows Packet size limited for BCCH payload. (ws-buglink:13392[])
+
+* VS2010 win32 编译失败. (ws-buglink:13398[])
+
+* EAP AKA not being decoded properly. (ws-buglink:13411[])
+
+* Dumpcap crashes during rpcap setup. (ws-buglink:13418[])
+
+* Crash on closing SNMP capture file if snmp credentials are present. (ws-buglink:13420[])
+
+* GPRS-NS message PDU type displayed in octal instead of hexadecimal. (ws-buglink:13428[])
+
+// Left off at 7d1d41ae8b
 === New and Updated Features
 
 There are no new features in this release.
