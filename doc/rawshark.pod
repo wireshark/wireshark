@@ -312,7 +312,9 @@ systems, and in the main installation directory (for example,
 F<C:\Program Files\Wireshark\preferences>) on Windows systems.
 
 The personal preferences file is looked for in
-F<$HOME/.wireshark/preferences> on
+F<$XDG_CONFIG_HOME/wireshark/preferences>
+(or, if F<$XDG_CONFIG_HOME/wireshark> does not exist while F<$HOME/.wireshark>
+is present, F<$HOME/.wireshark/preferences>) on
 UNIX-compatible systems and F<%APPDATA%\Wireshark\preferences> (or, if
 %APPDATA% isn't defined, F<%USERPROFILE%\Application
 Data\Wireshark\preferences>) on Windows systems.
