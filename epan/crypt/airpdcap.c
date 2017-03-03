@@ -2175,19 +2175,31 @@ static INT
 AirPDcapTDLSDeriveKey(
     PAIRPDCAP_SEC_ASSOCIATION sa,
     const guint8 *data,
+#if GCRYPT_VERSION_NUMBER >= 0x010600
     guint offset_rsne,
+#else
+    guint offset_rsne _U_,
+#endif
     guint offset_fte,
+#if GCRYPT_VERSION_NUMBER >= 0x010600
     guint offset_timeout,
+#else
+    guint offset_timeout _U_,
+#endif
     guint offset_link,
+#if GCRYPT_VERSION_NUMBER >= 0x010600
     guint8 action)
+#else
+    guint8 action _U_)
+#endif
 {
 
     gcry_md_hd_t sha256_handle;
     gcry_md_hd_t hmac_handle;
     const guint8 *snonce, *anonce, *initiator, *responder, *bssid;
     guint8 key_input[32];
-    guint8 mic[16], seq_num = action + 1;
 #if GCRYPT_VERSION_NUMBER >= 0x010600
+    guint8 mic[16], seq_num = action + 1;
     guint8 zeros[16] = { 0 };
     gcry_mac_hd_t cmac_handle;
     size_t cmac_len = 16;
