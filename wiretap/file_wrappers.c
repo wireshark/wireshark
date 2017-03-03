@@ -813,8 +813,8 @@ file_fdopen(int fd)
 #endif
 
     /* allocate buffers */
-    state->in = (unsigned char *)g_try_malloc(want);
-    state->out = (unsigned char *)g_try_malloc(want << 1);
+    state->in = (unsigned char *)g_try_malloc((gsize)want);
+    state->out = (unsigned char *)g_try_malloc(((gsize)want) << 1);
     state->size = want;
     if (state->in == NULL || state->out == NULL) {
         g_free(state->out);
