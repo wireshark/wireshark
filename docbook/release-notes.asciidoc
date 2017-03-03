@@ -75,6 +75,25 @@ K12 file parser crash
 // Fixed in master-2.2: 37bbc14b05, 7d1d41ae8b
 // Fixed in master-2.0: 7edc761a01, c83d7c0432
 
+* ws-salink:2017-10[]
++
+IAX2 dissector infinite loop
+(ws-buglink:13432[])
+//cve-idlink:2017-XXXX[]
+// Fixed in master: ca68749
+// Fixed in master-2.2: 9f297d6
+// Fixed in master-2.0: 0b89174, 48f1324
+
+* ws-salink:2017-11[]
++
+NetScaler file parser infinite loop
+(ws-buglink:12083[])
+//cve-idlink:2017-XXXX[]
+// Fixed in master: 875d95e
+// Fixed in master-2.2: 875d95e
+// Fixed in master-2.0: 284ad58
+
+
 The 32-bit and 64-bit Windows installers might have been susceptible to a
 https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13369[DLL hijacking flaw].
 
@@ -112,7 +131,6 @@ The following bugs have been fixed:
 
 * GPRS-NS message PDU type displayed in octal instead of hexadecimal. (ws-buglink:13428[])
 
-// Left off at 7d1d41ae8b
 === New and Updated Features
 
 There are no new features in this release.
@@ -130,6 +148,19 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+GPRS-NS
+GTPv2
+IAX2
+IEEE 802.11
+LDSS
+MS-WSP
+OpcUa
+ROHC
+RTMTP
+SNMP
+STANAG 4607
+T.38
+UMTS FP
 --sort-and-group--
 
 === New and Updated Capture File Support
@@ -137,6 +168,8 @@ There are no new protocols in this release.
 There is no new or updated capture file support in this release.
 
 --sort-and-group--
+K12
+NetScaler
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
