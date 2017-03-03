@@ -189,6 +189,7 @@ static expert_field ei_iax_too_many_transfers = EI_INIT;
 static expert_field ei_iax_circuit_id_conflict = EI_INIT;
 static expert_field ei_iax_peer_address_unsupported = EI_INIT;
 static expert_field ei_iax_invalid_len = EI_INIT;
+static expert_field ei_iax_invalid_ts = EI_INIT;
 
 static dissector_handle_t iax2_handle;
 
@@ -1565,9 +1566,10 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
   return offset;
 }
 
-static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, iax_packet_data *iax_packet, guint16 shortts)
+#define MAX_SECS_DIFF 60 /* Arbitrary. Needs to be within loop bounds below. */
+static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, tvbuff_t *tvb, iax_packet_data *iax_packet, guint16 shortts)
 {
-  guint32     longts =shortts;
+  guint       longts =shortts;
   nstime_t    ts;
   proto_item *item;
 
@@ -1580,11 +1582,16 @@ static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, iax_pa
     time_t start_secs = iax_packet->call_data->start_time.secs;
     time_t abs_secs = start_secs + longts/1000;
 
-    /* deal with short timestamps by assuming that packets are never more than
-     * 16 seconds late */
-    while(abs_secs < pinfo->abs_ts.secs - 16) {
-      longts += 32768;
-      abs_secs = start_secs + longts/1000;
+    if (pinfo->abs_ts.secs - abs_secs > MAX_SECS_DIFF) {
+      proto_tree_add_expert(iax2_tree, pinfo, &ei_iax_invalid_ts, tvb, 0, 0);
+    } else {
+      /* deal with short timestamps by assuming that packets are never more than
+      * 16 seconds late */
+      /* XXX Use arithmetic here instead of a loop? */
+      while(abs_secs < pinfo->abs_ts.secs - 16) {
+        longts += 32768;
+        abs_secs = start_secs + longts/1000;
+      }
     }
 
     iax_packet->abstime.secs=abs_secs;
@@ -1597,13 +1604,13 @@ static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, iax_pa
   iax2_info->timestamp = longts;
 
   if (iax2_tree) {
-    item = proto_tree_add_time(iax2_tree, hf_iax2_absts, NULL, 0, 0, &iax_packet->abstime);
+    item = proto_tree_add_time(iax2_tree, hf_iax2_absts, tvb, 0, 0, &iax_packet->abstime);
     PROTO_ITEM_SET_GENERATED(item);
 
     ts  = pinfo->abs_ts;
     nstime_delta(&ts, &ts, &iax_packet->abstime);
 
-    item = proto_tree_add_time(iax2_tree, hf_iax2_lateness, NULL, 0, 0, &ts);
+    item = proto_tree_add_time(iax2_tree, hf_iax2_lateness, tvb, 0, 0, &ts);
     PROTO_ITEM_SET_GENERATED(item);
   }
 }
@@ -1677,7 +1684,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
       }
 
       proto_tree_add_uint(iax2_tree, hf_iax2_ts, tvb, offset+2, 4, ts);
-      iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
+      iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
 
       proto_tree_add_item(iax2_tree, hf_iax2_oseqno, tvb, offset+6, 1,
                           ENC_BIG_ENDIAN);
@@ -1690,7 +1697,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
       /* add the type-specific subtree */
       packet_type_tree = proto_item_add_subtree(packet_type_base, ett_iax2_type);
   } else {
-    iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
   }
 
 
@@ -1894,10 +1901,10 @@ static guint32 dissect_minivideopacket(tvbuff_t *tvb, guint32 offset,
     }
 
     proto_tree_add_item(iax2_tree, hf_iax2_minividts, tvb, offset, 2, ENC_BIG_ENDIAN);
-    iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
     proto_tree_add_item(iax2_tree, hf_iax2_minividmarker, tvb, offset, 2, ENC_BIG_ENDIAN);
   } else {
-    iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
   }
 
   offset += 2;
@@ -1936,9 +1943,9 @@ static guint32 dissect_minipacket(tvbuff_t *tvb, guint32 offset, guint16 scallno
     }
 
     proto_tree_add_uint(iax2_tree, hf_iax2_minits, tvb, offset, 2, ts);
-    iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
   } else {
-    iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
   }
 
 
@@ -3180,7 +3187,8 @@ proto_register_iax2(void)
     { &ei_iax_too_many_transfers, { "iax2.too_many_transfers", PI_PROTOCOL, PI_WARN, "Too many transfers for iax_call", EXPFILL }},
     { &ei_iax_circuit_id_conflict, { "iax2.circuit_id_conflict", PI_PROTOCOL, PI_WARN, "Circuit ID conflict", EXPFILL }},
     { &ei_iax_peer_address_unsupported, { "iax2.peer_address_unsupported", PI_PROTOCOL, PI_WARN, "Peer address unsupported", EXPFILL }},
-    { &ei_iax_invalid_len, { "iax2.invalid_len", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }}
+    { &ei_iax_invalid_len, { "iax2.invalid_len", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
+    { &ei_iax_invalid_ts, { "iax2.invalid_ts", PI_PROTOCOL, PI_WARN, "Invalid timestamp", EXPFILL }}
   };
 
   expert_module_t* expert_iax;
