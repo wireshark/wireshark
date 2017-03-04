@@ -1754,6 +1754,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         parameters_item = proto_tree_add_none_format(command_tree, hf_parameters, tvb,
                 offset, 0, "Parameters");
         parameters_tree = proto_item_add_subtree(parameters_item, ett_bthfp_parameters);
+        first_parameter_offset = offset;
 
         data = NULL;
 
@@ -1801,7 +1802,6 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     parameter_length += 1;
                 }
 
-                first_parameter_offset = offset;
                 if (type == TYPE_ACTION || type == TYPE_RESPONSE) {
                     if (i_at_cmd && (i_at_cmd->dissect_parameter != NULL &&
                             !i_at_cmd->dissect_parameter(tvb, pinfo, parameters_tree, offset, role,
