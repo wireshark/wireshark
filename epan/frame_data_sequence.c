@@ -291,13 +291,27 @@ free_frame_data_array(void *array, guint count, guint level, gboolean last)
 void
 free_frame_data_sequence(frame_data_sequence *fds)
 {
-  guint32 count  = fds->count;
-  guint   levels = 0;
+  guint   levels;
 
   /* calculate how many levels we have */
-  while (count) {
-    levels++;
-    count >>= LOG2_NODES_PER_LEVEL;
+  if (fds->count == 0) {
+    /* The tree is empty; there are no levels. */
+    levels = 0;
+  } else if (fds->count <= NODES_PER_LEVEL) {
+    /* It's a 1-level tree. */
+    levels = 1;
+  } else if (fds->count <= NODES_PER_LEVEL*NODES_PER_LEVEL) {
+    /* It's a 2-level tree. */
+    levels = 2;
+  } else if (fds->count <= NODES_PER_LEVEL*NODES_PER_LEVEL*NODES_PER_LEVEL) {
+    /* It's a 3-level tree. */
+    levels = 3;
+  } else {
+    /* fds->count is 2^32-1 at most, and NODES_PER_LEVEL^4
+       2^(LOG2_NODES_PER_LEVEL*4), and LOG2_NODES_PER_LEVEL is 10,
+       so fds->count is always less < NODES_PER_LEVEL^4. */
+    /* It's a 4-level tree. */
+    levels = 4;
   }
 
   /* call the recursive free function */
