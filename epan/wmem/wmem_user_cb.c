@@ -67,7 +67,7 @@ wmem_register_callback(wmem_allocator_t *allocator,
         wmem_user_cb_t callback, void *user_data)
 {
     wmem_user_cb_container_t *container;
-    static guint next_id = 0;
+    static guint next_id = 1;
 
     container = wmem_new(NULL, wmem_user_cb_container_t);
 

@@ -211,11 +211,10 @@ wmem_tree_new(wmem_allocator_t *allocator)
 {
     wmem_tree_t *tree;
 
-    tree = wmem_new(allocator, wmem_tree_t);
+    tree = wmem_new0(allocator, wmem_tree_t);
     tree->master    = allocator;
     tree->allocator = allocator;
-    tree->root      = NULL;
-    tree->post_rotation_cb = NULL;
+
     return tree;
 }
 
@@ -251,11 +250,9 @@ wmem_tree_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave)
 {
     wmem_tree_t *tree;
 
-    tree = wmem_new(master, wmem_tree_t);
+    tree = wmem_new0(master, wmem_tree_t);
     tree->master    = master;
     tree->allocator = slave;
-    tree->root      = NULL;
-    tree->post_rotation_cb      = NULL;
 
     tree->master_cb_id = wmem_register_callback(master, wmem_tree_destroy_cb,
             tree);
