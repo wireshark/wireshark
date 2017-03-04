@@ -112,6 +112,7 @@ static const value_string rtr_error_code_vals[] = {
     { 5, "Unsupported PDU Type" },
     { 6, "Withdrawal of Unknown Record" },
     { 7, "Duplicate Announcement Received" },
+    { 8, "Unexpected Protocol Version" },
     { 0, NULL }
 };
 
