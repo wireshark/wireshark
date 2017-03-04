@@ -76,6 +76,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  byte_array_equal@Base 1.9.1
  bytes_to_hexstr@Base 2.1.0
  bytes_to_str@Base 1.99.2
+ bytesprefix_to_str@Base 2.3.0
+ bytesval_to_str@Base 2.3.0
  bytestring_to_str@Base 1.9.1
  call_ber_oid_callback@Base 1.9.1
  call_capture_dissector@Base 2.3.0
@@ -1507,6 +1509,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tree_expanded@Base 1.12.0~rc1
  tree_expanded_set@Base 1.12.0~rc1
  try_capture_dissector@Base 2.1.0
+ try_bytesprefix_to_str@Base 2.3.0
+ try_bytesval_to_str@Base 2.3.0
  try_rval_to_str@Base 1.9.1
  try_rval_to_str_idx@Base 1.9.1
  try_rval64_to_str@Base 2.3.0

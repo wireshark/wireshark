@@ -72,14 +72,6 @@
 void proto_register_isakmp(void);
 void proto_reg_handoff_isakmp(void);
 
-/* Struct for the byte_to_str, match_bytestr_idx, and match_bytestr functions */
-
-typedef struct _byte_string {
-  const gchar   *value;
-  const guint16 len;
-  const gchar   *strptr;
-} byte_string;
-
 typedef struct _attribute_common_fields {
   int all;
   int format;
@@ -2826,8 +2818,7 @@ static const guint8 VID_FORTINET_ENDPOINT_CONTROL[] = { /* Endpoint Control (For
         0x0B, 0xAF, 0xBB, 0xD3, 0x4A, 0xD3, 0x04, 0x4E
 };
 
-/* Based from value_string.c/h */
-static const byte_string vendor_id[] = {
+static const bytes_string vendor_id[] = {
   { VID_SSH_IPSEC_EXPRESS_1_1_0, sizeof(VID_SSH_IPSEC_EXPRESS_1_1_0), "Ssh Communications Security IPSEC Express version 1.1.0" },
   { VID_SSH_IPSEC_EXPRESS_1_1_1, sizeof(VID_SSH_IPSEC_EXPRESS_1_1_1), "Ssh Communications Security IPSEC Express version 1.1.1" },
   { VID_SSH_IPSEC_EXPRESS_1_1_2, sizeof(VID_SSH_IPSEC_EXPRESS_1_1_2), "Ssh Communications Security IPSEC Express version 1.1.2" },
@@ -2939,50 +2930,6 @@ static const byte_string vendor_id[] = {
   { VID_FORTINET_ENDPOINT_CONTROL, sizeof(VID_FORTINET_ENDPOINT_CONTROL), "Endpoint Control (Fortinet)" },
   { 0, 0, NULL }
 };
-
-
-/* Tries to match val against each element in the value_string array vs.
-   Returns the associated string ptr, and sets "*idx" to the index in
-   that table, on a match, and returns NULL, and sets "*idx" to -1,
-   on failure. */
-static const gchar*
-match_strbyte_idx(const guint8 *val, const gint val_len, const byte_string *vs, gint *idx) {
-  gint i = 0;
-
-  if (vs) {
-    while (vs[i].strptr) {
-      if (val_len >= vs[i].len && !memcmp(vs[i].value, val, vs[i].len)) {
-        *idx = i;
-        return(vs[i].strptr);
-      }
-      i++;
-    }
-  }
-
-  *idx = -1;
-  return NULL;
-}
-/* Like match_strbyte_idx(), but doesn't return the index. */
-static const gchar*
-match_strbyte(const guint8 *val,const gint val_len, const byte_string *vs) {
-  gint ignore_me;
-  return match_strbyte_idx(val, val_len, vs, &ignore_me);
-}
-
-/* Tries to match val against each element in the value_string array vs.
-   Returns the associated string ptr on a match.
-   Formats val with fmt, and returns the resulting string, on failure. */
-static const gchar*
-byte_to_str(const guint8 *val,const gint val_len, const byte_string *vs, const char *fmt) {
-  const gchar *ret;
-
-  DISSECTOR_ASSERT(fmt != NULL);
-  ret = match_strbyte(val, val_len, vs);
-  if (ret != NULL)
-    return ret;
-
-  return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
-}
 
 
 
@@ -4777,7 +4724,7 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 
   pVID = tvb_get_ptr(tvb, offset, length);
 
-  vendorstring = byte_to_str(pVID, (gint)length, vendor_id, "Unknown Vendor ID");
+  vendorstring = bytesprefix_to_str(pVID, (size_t)length, vendor_id, "Unknown Vendor ID");
   proto_tree_add_item(tree, hf_isakmp_vid_bytes, tvb, offset, length, ENC_NA);
   proto_tree_add_string(tree, hf_isakmp_vid_string, tvb, offset, length, vendorstring);
   proto_item_append_text(tree," : %s", vendorstring);

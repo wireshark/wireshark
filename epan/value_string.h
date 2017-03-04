@@ -274,6 +274,32 @@ WS_DLL_PUBLIC
 const gchar *
 try_rval64_to_str_idx(const guint64 val, const range_string *rs, gint *idx);
 
+/* BYTES TO STRING MATCHING */
+
+typedef struct _bytes_string {
+  const guint8 *value;
+  const size_t  value_length;
+  const gchar  *strptr;
+} bytes_string;
+
+WS_DLL_PUBLIC
+const gchar *
+bytesval_to_str(const guint8 *val, const size_t val_len, const bytes_string *bs, const char *fmt)
+G_GNUC_PRINTF(4, 0);
+
+WS_DLL_PUBLIC
+const gchar *
+try_bytesval_to_str(const guint8 *val, const size_t val_len, const bytes_string *bs);
+
+WS_DLL_PUBLIC
+const gchar *
+bytesprefix_to_str(const guint8 *prefix, const size_t prefix_len, const bytes_string *bs, const char *fmt)
+G_GNUC_PRINTF(4, 0);
+
+WS_DLL_PUBLIC
+const gchar *
+try_bytesprefix_to_str(const guint8 *prefix, const size_t prefix_len, const bytes_string *bs);
+
 /* MISC (generally do not use) */
 
 WS_DLL_LOCAL
