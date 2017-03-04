@@ -265,6 +265,45 @@ wmem_tree_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave)
     return tree;
 }
 
+static void
+free_tree_node(wmem_allocator_t *allocator, wmem_tree_node_t* node, gboolean free_keys, gboolean free_values)
+{
+    if (node == NULL) {
+        return;
+    }
+
+    if (node->left) {
+        free_tree_node(allocator, node->left, free_keys, free_values);
+    }
+
+    if (node->is_subtree) {
+        wmem_tree_destroy((wmem_tree_t *)node->data, free_keys, free_values);
+        node->data = NULL;
+    }
+
+    if (node->right) {
+        free_tree_node(allocator, node->right, free_keys, free_values);
+    }
+
+    if (free_keys) {
+        wmem_free(allocator, (void*)node->key);
+    }
+
+    if (free_values) {
+        wmem_free(allocator, node->data);
+    }
+    wmem_free(allocator, node);
+}
+
+void
+wmem_tree_destroy(wmem_tree_t *tree, gboolean free_keys, gboolean free_values)
+{
+    free_tree_node(tree->allocator, tree->root, free_keys, free_values);
+    wmem_unregister_callback(tree->master, tree->master_cb_id);
+    wmem_unregister_callback(tree->allocator, tree->slave_cb_id);
+    wmem_free(tree->master, tree);
+}
+
 gboolean
 wmem_tree_is_empty(wmem_tree_t *tree)
 {
