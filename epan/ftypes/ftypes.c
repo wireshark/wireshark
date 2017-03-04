@@ -499,8 +499,13 @@ fvalue_slice(fvalue_t *fv, drange_t *d_range)
 void
 fvalue_set_byte_array(fvalue_t *fv, GByteArray *value)
 {
-	g_assert(fv->ftype->set_value_byte_array);
-	fv->ftype->set_value_byte_array(fv, value);
+	g_assert(fv->ftype->ftype == FT_BYTES ||
+			fv->ftype->ftype == FT_UINT_BYTES ||
+			fv->ftype->ftype == FT_OID ||
+			fv->ftype->ftype == FT_REL_OID ||
+			fv->ftype->ftype == FT_SYSTEM_ID);
+	g_assert(fv->ftype->set_value.set_value_byte_array);
+	fv->ftype->set_value.set_value_byte_array(fv, value);
 }
 
 void

@@ -185,7 +185,8 @@ ftype_register_ipv4(void)
 		val_to_repr,			/* val_to_string_repr */
 		val_repr_len,			/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */

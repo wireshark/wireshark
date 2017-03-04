@@ -395,7 +395,8 @@ ftype_register_time(void)
 		absolute_val_to_repr,		/* val_to_string_repr */
 		absolute_val_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		time_fvalue_set,		/* set_value_time */
@@ -439,7 +440,8 @@ ftype_register_time(void)
 		relative_val_to_repr,		/* val_to_string_repr */
 		relative_val_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		time_fvalue_set,		/* set_value_time */

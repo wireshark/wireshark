@@ -90,8 +90,11 @@ struct _ftype_t {
 	FvalueToStringRepr	val_to_string_repr;
 	FvalueStringReprLen	len_string_repr;
 
+	union {
+		FvalueSetByteArrayFunc	set_value_byte_array;
+	} set_value;
+
 	/* could be union */
-	FvalueSetByteArrayFunc	set_value_byte_array;
 	FvalueSetBytesFunc	set_value_bytes;
 	FvalueSetGuidFunc	set_value_guid;
 	FvalueSetTimeFunc	set_value_time;

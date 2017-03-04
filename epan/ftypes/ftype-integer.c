@@ -1026,7 +1026,8 @@ ftype_register_integers(void)
 		char_to_repr,			/* val_to_string_repr */
 		char_repr_len,			/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1070,7 +1071,8 @@ ftype_register_integers(void)
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1114,8 +1116,9 @@ ftype_register_integers(void)
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
 
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
-		NULL,				/* set_value_byte_array */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
 		NULL,				/* set_value_string */
@@ -1158,7 +1161,8 @@ ftype_register_integers(void)
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1202,7 +1206,8 @@ ftype_register_integers(void)
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1246,7 +1251,8 @@ ftype_register_integers(void)
 		uinteger64_to_repr,		/* val_to_string_repr */
 		uinteger64_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1290,7 +1296,8 @@ ftype_register_integers(void)
 		uinteger64_to_repr,		/* val_to_string_repr */
 		uinteger64_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1334,7 +1341,8 @@ ftype_register_integers(void)
 		uinteger64_to_repr,		/* val_to_string_repr */
 		uinteger64_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1378,7 +1386,8 @@ ftype_register_integers(void)
 		uinteger64_to_repr,		/* val_to_string_repr */
 		uinteger64_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1422,7 +1431,8 @@ ftype_register_integers(void)
 		integer_to_repr,		/* val_to_string_repr */
 		integer_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1466,7 +1476,8 @@ ftype_register_integers(void)
 		integer_to_repr,		/* val_to_string_repr */
 		integer_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1510,7 +1521,8 @@ ftype_register_integers(void)
 		integer_to_repr,		/* val_to_string_repr */
 		integer_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1554,7 +1566,8 @@ ftype_register_integers(void)
 		integer_to_repr,		/* val_to_string_repr */
 		integer_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1598,7 +1611,8 @@ ftype_register_integers(void)
 		integer64_to_repr,		/* val_to_string_repr */
 		integer64_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1642,7 +1656,8 @@ ftype_register_integers(void)
 		integer64_to_repr,		/* val_to_string_repr */
 		integer64_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1686,7 +1701,8 @@ ftype_register_integers(void)
 		integer64_to_repr,		/* val_to_string_repr */
 		integer64_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1730,7 +1746,8 @@ ftype_register_integers(void)
 		integer64_to_repr,		/* val_to_string_repr */
 		integer64_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1774,7 +1791,8 @@ ftype_register_integers(void)
 		boolean_to_repr,		/* val_to_string_repr */
 		boolean_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1819,7 +1837,8 @@ ftype_register_integers(void)
 		ipxnet_to_repr,			/* val_to_string_repr */
 		ipxnet_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1864,7 +1883,8 @@ ftype_register_integers(void)
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1909,7 +1929,8 @@ ftype_register_integers(void)
 		eui64_to_repr,			/* val_to_string_repr */
 		eui64_repr_len,			/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */

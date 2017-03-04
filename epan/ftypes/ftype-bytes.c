@@ -737,7 +737,8 @@ ftype_register_bytes(void)
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
-		bytes_fvalue_set,		/* set_value_byte_array */
+		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -782,7 +783,8 @@ ftype_register_bytes(void)
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
-		bytes_fvalue_set,		/* set_value_byte_array */
+		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -827,7 +829,8 @@ ftype_register_bytes(void)
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		ax25_fvalue_set,		/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -872,7 +875,8 @@ ftype_register_bytes(void)
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		vines_fvalue_set,		/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -917,7 +921,8 @@ ftype_register_bytes(void)
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		ether_fvalue_set,		/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -962,7 +967,8 @@ ftype_register_bytes(void)
 		oid_to_repr,			/* val_to_string_repr */
 		oid_repr_len,			/* len_string_repr */
 
-		oid_fvalue_set,		/* set_value_byte_array */
+		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1007,7 +1013,8 @@ ftype_register_bytes(void)
 		rel_oid_to_repr,		/* val_to_string_repr */
 		rel_oid_repr_len,		/* len_string_repr */
 
-		oid_fvalue_set,		/* set_value_byte_array (same as full oid) */
+		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1052,7 +1059,8 @@ ftype_register_bytes(void)
 		system_id_to_repr,		/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
-		system_id_fvalue_set,	/* set_value_byte_array */
+		{ .set_value_byte_array = system_id_fvalue_set }, /* union set_value */
+
 		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
@@ -1097,7 +1105,8 @@ ftype_register_bytes(void)
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
-		NULL,				/* set_value_byte_array */
+		{ NULL },			/* union set_value */
+
 		fcwwn_fvalue_set,		/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
