@@ -2624,7 +2624,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                                 hf_catapult_dct2000_ipprim_src_addr_v4 :
                                                 hf_catapult_dct2000_ipprim_src_addr_v6,
                                             tvb, source_addr_offset, source_addr_length,
-                                            (source_addr_length == 4) ? ENC_BIG_ENDIAN : ENC_NA);
+                                            ENC_NA);
 
                         /* Add hidden item for "side-less" addr */
                         addr_ti = proto_tree_add_item(ipprim_tree,
@@ -2632,7 +2632,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                                           hf_catapult_dct2000_ipprim_addr_v4 :
                                                           hf_catapult_dct2000_ipprim_addr_v6,
                                                       tvb, source_addr_offset, source_addr_length,
-                                                      (source_addr_length == 4) ? ENC_BIG_ENDIAN : ENC_NA);
+                                                      ENC_NA);
                         PROTO_ITEM_SET_HIDDEN(addr_ti);
                     }
                     if (source_port_offset != 0) {
@@ -2664,7 +2664,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                                 hf_catapult_dct2000_ipprim_dst_addr_v4 :
                                                 hf_catapult_dct2000_ipprim_dst_addr_v6,
                                             tvb, dest_addr_offset, dest_addr_length,
-                                            (dest_addr_length == 4) ? ENC_BIG_ENDIAN : ENC_NA);
+                                            ENC_NA);
 
                         /* Add hidden item for "side-less" addr */
                         addr_ti = proto_tree_add_item(ipprim_tree,
@@ -2672,7 +2672,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                                           hf_catapult_dct2000_ipprim_addr_v4 :
                                                           hf_catapult_dct2000_ipprim_addr_v6,
                                                       tvb, dest_addr_offset, dest_addr_length,
-                                                      (dest_addr_length == 4) ? ENC_BIG_ENDIAN : ENC_NA);
+                                                      ENC_NA);
                         PROTO_ITEM_SET_HIDDEN(addr_ti);
                     }
                     if (dest_port_offset != 0) {
@@ -2773,7 +2773,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                                 hf_catapult_dct2000_sctpprim_dst_addr_v4 :
                                                 hf_catapult_dct2000_sctpprim_dst_addr_v6,
                                             tvb, dest_addr_offset, dest_addr_length,
-                                            (dest_addr_length == 4) ? ENC_BIG_ENDIAN : ENC_NA);
+                                            ENC_NA);
 
                         /* Add hidden item for "side-less" addr */
                         addr_ti = proto_tree_add_item(sctpprim_tree,
@@ -2781,7 +2781,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                                           hf_catapult_dct2000_sctpprim_addr_v4 :
                                                           hf_catapult_dct2000_sctpprim_addr_v6,
                                                       tvb, dest_addr_offset, dest_addr_length,
-                                                      (dest_addr_length == 4) ? ENC_BIG_ENDIAN : ENC_NA);
+                                                      ENC_NA);
                         PROTO_ITEM_SET_HIDDEN(addr_ti);
                     }
 
