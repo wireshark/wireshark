@@ -2026,8 +2026,8 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
             pcap_opts->cap_pipe_state = STATE_EXPECT_DATA;
             return 0;
         }
-        /* no data to read? fall through */
-
+        /* no data to read? */
+        /* FALLTHROUGH */
     case PD_DATA_READ:
         /* Fill in a "struct pcap_pkthdr", and process the packet. */
         phdr.ts.tv_sec = pcap_opts->cap_pipe_rechdr.hdr.ts_sec;
