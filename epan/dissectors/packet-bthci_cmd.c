@@ -2486,7 +2486,7 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
         case 0x000d: /* Write Link Policy Settings */
             proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
-            /* deliberately fall through */
+            /* FALL THROUGH */
         case 0x000f: /* Write Default Link Policy Settings */
             proto_tree_add_item(tree, hf_bthci_cmd_link_policy_setting_switch, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_link_policy_setting_hold  , tvb, offset, 2, ENC_LITTLE_ENDIAN);

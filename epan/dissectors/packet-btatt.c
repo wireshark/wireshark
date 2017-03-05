@@ -3662,7 +3662,7 @@ get_request(tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 opcode,
           if (tvb_captured_length_remaining(tvb, offset) < 1)
               return NULL;
           opcode = tvb_get_guint8(tvb, 1) + 1;
-          /* No break */
+          /* FALL THROUGH */
       case 0x03: /* Exchange MTU Response */
       case 0x05: /* Find Information Response */
       case 0x07: /* Find By Type Value Response */
@@ -3695,7 +3695,7 @@ get_request(tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 opcode,
         if (tvb_captured_length_remaining(tvb, offset) < 1)
             return NULL;
         opcode = tvb_get_guint8(tvb, 1) + 1;
-        /* No break */
+        /* FALL THROUGH */
     case 0x03: /* Exchange MTU Response */
     case 0x05: /* Find Information Response */
     case 0x07: /* Find By Type Value Response */
