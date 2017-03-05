@@ -6077,14 +6077,14 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             {
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-                return offset;
+                return offset + available;
             }
 
             if (available < packet_length)
             {
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = packet_length - available;
-                return offset;
+                return offset + available;
             }
 
             remember_offset(pinfo, session, packet, tcpinfo);
