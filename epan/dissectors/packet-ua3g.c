@@ -3233,8 +3233,8 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                             {
                                 /* XXX: What is the point of this assignment? */
                                 framing_rtp = tvb_get_guint8(tvb, offset + 3);
-                                /* FALLTHROUGH */
                             }
+                            /* FALLTHROUGH */
                         case 0x01: /* Date Of End Of Communication */
                         case 0x02: /* Node Number */
                         case 0x03: /* Ticket Protocol Version */

@@ -1135,7 +1135,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             }
         }
-        /* otherwise fall through */
+        /* fall through */
 
     case NCP_POSITIVE_ACK:        /* Positive Acknowledgement */
     case NCP_SERVICE_REQUEST:    /* Server NCP Request */

@@ -1383,6 +1383,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 		case PWATM_MODE_AAL5_SDU:
 			DISSECTOR_ASSERT(pd->submode == PWATM_SUBMODE_ADMIN_CELL);
 			/*fallthrough for ATM admin cell submode only*/
+			/* FALL THROUGH */
 		case PWATM_MODE_N1_CW:
 		case PWATM_MODE_N1_NOCW:
 			pd->vpi		= (tvb_get_ntohs (tvb, 0) >> 4);

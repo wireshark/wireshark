@@ -570,7 +570,7 @@ dissect_osd_attributes_list(packet_info *pinfo, tvbuff_t *tvb, int offset,
             /* user object id */
             dissect_osd_user_object_id(tvb, offset, tt);
             offset += 8;
-            /* fallthrough to the next case */
+            /* fallthrough */
         case 0x09: /* retrieved/set attributes OSD-1: 7.1.3.3  OSD-2: 7.1.4.3*/
             offset = dissect_osd_attribute_list_entry(pinfo, tvb, tt, ti, offset, lun_info, osd2);
             break;

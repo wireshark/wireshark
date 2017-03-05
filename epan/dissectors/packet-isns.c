@@ -654,7 +654,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         /* Fall Thru if there are attributes */
         if (tvb_reported_length_remaining(tvb, offset) == 0)
             return tvb_captured_length(tvb);
-
+    /* FALL THROUGH */
     /* Messages */
     case ISNS_FUNC_DEVATTRREG:
     case ISNS_FUNC_DEVATTRQRY:

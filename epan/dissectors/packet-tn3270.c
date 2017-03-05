@@ -5186,7 +5186,7 @@ dissect_inbound_stream(proto_tree *tn3270_tree, packet_info *pinfo, tvbuff_t *tv
       /* XXX: Is this the correct/complete set of AID bytes for this case ? */
       if (tvb_reported_length_remaining(tvb, offset) <= 0)
         break;
-      /* fall into next */
+      /* FALL THROUGH */
     case  AID_READ_PARTITION_AID:
     case  AID_NO_AID_GENERATED:
     case  AID_NO_AID_GENERATED_PRINTER_ONLY:

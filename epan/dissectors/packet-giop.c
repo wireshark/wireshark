@@ -4036,7 +4036,7 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
      */
 
 
-
+    /* FALL THROUGH */
   case NO_EXCEPTION:
 
 
