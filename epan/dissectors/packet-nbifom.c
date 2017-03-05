@@ -326,6 +326,7 @@ dissect_nbifom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             if (pinfo->link_dir == P2P_DIR_DL) {
                 break;
             } /* else fall through case 4 */
+            /* FALL THROUGH */
         case 4:
             dissect_nbifom_routing_rules(tvb, pinfo, subtree, offset, param_contents_len);
             offset += param_contents_len;

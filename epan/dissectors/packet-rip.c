@@ -229,7 +229,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             }
             if(is_md5_auth && tvb_reported_length_remaining(tvb, offset) == 20)
                     break;
-            /* Intentional fall through: auth Entry MUST be the first! */
+            /* Intentional fall through */ /* auth Entry MUST be the first! */
         default:
             proto_tree_add_expert_format(rip_tree, pinfo, &ei_rip_unknown_address_family, tvb, offset,
                             RIP_ENTRY_LENGTH, "Unknown address family %u", family);

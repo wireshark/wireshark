@@ -999,6 +999,7 @@ ucp_handle_mt(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int *offset)
         case '4':                               /* TMsg, no of bits     */
             ucp_handle_string(tree, tvb, hf_ucp_parm_NB, offset);
             /* fall through here for the data piece     */
+            /* FALLTHROUGH */
         case '2':
             ucp_handle_data(tree, tvb, hf_ucp_data_section, offset);
             break;

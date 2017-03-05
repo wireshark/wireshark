@@ -21260,12 +21260,12 @@ const gchar* gsm_map_opr_code(guint32 val, proto_item *item) {
   case 44: /*mt-forwardSM*/
     /* FALLTHRU */
   case 46: /*mo-forwardSM*/
-    /* FALLTHRU */
     if (application_context_version < 3) {
       proto_item_set_text(item, "%s (%d)", val_to_str_const(val, gsm_map_V1V2_opr_code_strings, "Unknown GSM-MAP opcode"), val);
       return val_to_str_const(val, gsm_map_V1V2_opr_code_strings, "Unknown GSM-MAP opcode");
     }
     /* Else use the default map operation translation */
+    /* FALLTHRU */
   default:
     return val_to_str_ext_const(val, &gsm_old_GSMMAPOperationLocalvalue_vals_ext, "Unknown GSM-MAP opcode");
     break;

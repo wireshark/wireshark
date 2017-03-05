@@ -1130,7 +1130,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     case ASPFUNC_TICKLE:
     case ASPFUNC_WRTCONT:
       proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, ENC_NA);
-      /* fall */
+      /* FALL THROUGH */
     case ASPFUNC_ATTN:  /* FIXME capture and spec disagree */
     default:
       proto_item_set_len(asp_tree, 4);

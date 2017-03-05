@@ -1654,6 +1654,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 /* Try heuristic dissection. */
                 if (dissector_try_heuristic(ieee802154_heur_subdissector_list, payload_tvb, pinfo, tree, &hdtbl_entry, packet)) break;
                 /* Fall-through to dump undissectable payloads. */
+                /* FALL THROUGH */
             default:
                 /* Could not subdissect, call the data dissector instead. */
                 call_data_dissector(payload_tvb, pinfo, tree);

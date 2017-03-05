@@ -9441,7 +9441,7 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             }
         }
 
-        /* FALL THROUGH TO REQUEST */
+        /* FALL THROUGH */
 
     case TEP_PDU_REQUEST:
 

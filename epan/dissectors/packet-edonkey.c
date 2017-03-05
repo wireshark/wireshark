@@ -2952,7 +2952,7 @@ static int dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
               dissector = dissect_edonkey_tcp_message;
               break;
             }
-
+            /* FALL THROUGH */
         default:
             message_name = "Unknown";
             dissector = NULL;

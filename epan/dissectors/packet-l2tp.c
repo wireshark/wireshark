@@ -1436,6 +1436,7 @@ static l2tpv3_session_t *store_l2_sublayer(l2tpv3_session_t *_session,
         case MESSAGE_TYPE_ICCN:
         case MESSAGE_TYPE_OCCN:
             session->lcce1.l2_specific = result;
+        /* FALL THROUGH */
         case MESSAGE_TYPE_ICRP:
         case MESSAGE_TYPE_OCRP:
             session->lcce2.l2_specific = result;

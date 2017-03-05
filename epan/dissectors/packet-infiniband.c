@@ -1746,6 +1746,7 @@ skip_lrh:
             }
         }
             /* otherwise fall through and start parsing BTH */
+        /* FALL THROUGH */
         case IBA_LOCAL: {
             proto_item *base_transport_header_item;
             proto_tree *base_transport_header_tree;
@@ -5385,6 +5386,7 @@ skip_lrh:
              *      Fall through switch and start parsing Local Headers and BTH
              * }
              */
+        /* FALL THROUGH */
         case IBA_LOCAL:
             bthFollows = TRUE;
 

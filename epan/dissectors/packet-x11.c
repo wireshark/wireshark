@@ -3422,7 +3422,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
                   }
 
                   /* QueryExtension expects a reply, fall through */
-
+      /* FALLTHROUGH */
       case X_AllocColor:
       case X_AllocColorCells:
       case X_AllocColorPlanes:

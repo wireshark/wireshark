@@ -1181,6 +1181,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 			 * then data part could be the same as if opcode is NTPCTRL_OP_READVAR
 			 * --> so, no "break" here!
 			 */
+			/* FALL THROUGH */
 		case NTPCTRL_OP_READVAR:
 		case NTPCTRL_OP_WRITEVAR:
 		case NTPCTRL_OP_READCLOCK:

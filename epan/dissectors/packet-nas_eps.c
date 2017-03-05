@@ -5651,6 +5651,7 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
                 call_dissector(gsm_a_dtap_handle, new_tvb,pinfo, nas_eps_tree);
                 break;
             } /* else fall through default */
+        /* FALL THROUGH */
         default:
             proto_tree_add_expert_format(nas_eps_tree, pinfo, &ei_nas_eps_unknown_pd, tvb, offset, -1, "Not a NAS EPS PD %u (%s)",
                                          pd, val_to_str_const(pd, protocol_discriminator_vals, "Unknown"));
@@ -5803,6 +5804,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                 call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, nas_eps_tree);
                 break;
             } /* else fall through default */
+        /* FALL THROUGH */
         default:
             proto_tree_add_expert_format(nas_eps_tree, pinfo, &ei_nas_eps_unknown_pd, tvb, offset, -1, "Not a NAS EPS PD %u (%s)",
                              pd, val_to_str_const(pd, protocol_discriminator_vals, "Unknown"));
