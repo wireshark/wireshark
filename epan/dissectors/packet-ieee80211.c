@@ -17081,6 +17081,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
                            "Non-DMG STA shouldn't transmit BlockAckReq frame with Extended Compressed BlockAckReq");
                    break;
                 }
+              /* FALL THROUGH */
               case 2: /* Compressed BlockAckReq */
               {
                 proto_tree_add_item(bar_sub_tree,
