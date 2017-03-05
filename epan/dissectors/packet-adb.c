@@ -438,16 +438,14 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             data_length = command_data->data_length;
             crc32 = command_data->crc32;
 
-            if (direction == P2P_DIR_SENT)
+            if (direction == P2P_DIR_SENT) {
                 if (command_data->command == A_CLSE)
                     side_id = command_data->arg1; /* OUT: local id */
                 else
                     side_id = command_data->arg0; /* OUT: local id */
-            else
-                if (command_data->command == A_OKAY) {
+            } else {
                     side_id = command_data->arg1; /* IN: remote id */
-                } else
-                    side_id = command_data->arg1; /* IN: remote id */
+            }
 
             key[3].length = 1;
             key[3].key = &side_id;
