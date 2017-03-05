@@ -470,7 +470,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		proto_tree_add_item(ns_tree, hf_ns_ts_recent, tvb, (pnstr->ns_activity_offset + 12), 4, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(ns_tree, hf_ns_http_abort_tracking_reason, tvb, (pnstr->dst_vmname_len_offset + 1), 1, ENC_LITTLE_ENDIAN);
 
-		/* fall through to next case */
+		/* fall through */
 
 	case NSPR_HEADER_VERSION205:
 
@@ -481,7 +481,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		if(dst_vmname_len){
 			proto_tree_add_item(ns_tree,hf_ns_dst_vm,tvb,pnstr->data_offset+src_vmname_len,dst_vmname_len,ENC_ASCII|ENC_NA);
 			}
-		/* fall through to next case */
+		/* fall through */
 
 
 	case NSPR_HEADER_VERSION204:
@@ -501,16 +501,16 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 		proto_tree_add_bitmask(ns_tree, tvb, pnstr->clflags_offset, hf_ns_clflags, ett_ns_flags, clflags, ENC_NA);
 		}
-		/* fall through to next case */
+		/* fall through */
 
 	case NSPR_HEADER_VERSION203:
 		proto_tree_add_item(ns_tree, hf_ns_coreid, tvb, pnstr->coreid_offset, 2, ENC_LITTLE_ENDIAN);
-		/* fall through to next case */
+		/* fall through */
 
 	case NSPR_HEADER_VERSION202:
 		proto_tree_add_item_ret_uint(ns_tree, hf_ns_vlantag, tvb, pnstr->vlantag_offset, 2, ENC_LITTLE_ENDIAN, &vlan);
 		col_add_fstr(pinfo->cinfo, COL_8021Q_VLAN_ID, "%d", vlan);
-		/* fall through to next case */
+		/* fall through */
 
 	case NSPR_HEADER_VERSION201:
 		proto_tree_add_item(ns_tree, hf_ns_pcbdevno, tvb, pnstr->pcb_offset, 4, ENC_LITTLE_ENDIAN);
