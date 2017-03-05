@@ -355,6 +355,7 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
   case 'a' :
     big = 1;
+    /* FALL THROUGH */
   case 'A': /* Add order, no MPID */
     offset = order(tvb, pinfo, nasdaq_itch_tree, offset, big);
     if (version == 2) {
@@ -371,6 +372,7 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
   case 'e' :
     big = 1;
+    /* FALL THROUGH */
   case 'E' : /* Order executed */
     /*offset =*/ executed(tvb, pinfo, nasdaq_itch_tree, offset, big);
     break;
@@ -385,6 +387,7 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
   case 'x' :
     big = 1;
+    /* FALL THROUGH */
   case 'X' : /* Order cancel */
     offset = order_ref_number(tvb, pinfo, nasdaq_itch_tree, offset);
     /*offset = */number_of_shares(tvb, pinfo, nasdaq_itch_tree, hf_nasdaq_itch_canceled, offset, big);
@@ -397,6 +400,7 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
   case 'p' :
     big = 1;
+    /* FALL THROUGH */
   case 'P' : /* Trade identifier */
     offset = order(tvb, pinfo, nasdaq_itch_tree, offset, big);
     proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_match, tvb, offset, 9, ENC_ASCII|ENC_NA);
