@@ -2159,7 +2159,7 @@ static guint sid_buffer_hash_fn(gconstpointer key)
     /* The sid buffer is a length byte followed by data. */
     guint hash = 5381;
     const guint8 *str = (const guint8 *)key;
-    guint8 i;
+    guint16 i;
 
     for (i = 0; i <= str[0]; i++)
         hash = ((hash << 5) + hash) + str[i]; /* hash * 33 + c */
