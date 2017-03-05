@@ -2288,7 +2288,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                }
 
 
-                /* intentionally missing break */
+                /* Intentionally fall through */
             case UNCONNECTED_MSG:
                request_info = NULL;
                if ( request_key )
