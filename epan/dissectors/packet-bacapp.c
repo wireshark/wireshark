@@ -7150,7 +7150,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
                 offset = fReadAccessResult(tvb, pinfo, tree, offset);
                 break;
             }
-            /* intentially fall through here so don't reorder this case statement */
+            /* intentionally fall through */ /* here so don't reorder this case statement */
         default:
             if (tag_info) {
                 if (tag_is_opening(tag_info)) {
@@ -9674,6 +9674,7 @@ fPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
         case 1: /* propertyArrayIndex */
             offset = fPropertyArrayIndex(tvb, pinfo, tree, offset);
             if (list != 0) break; /* Continue decoding if this may be a list */
+            break;
         default:
             lastoffset = offset; /* Set loop end condition */
             break;
@@ -9705,6 +9706,7 @@ fBACnetObjectPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         case 1: /* PropertyIdentifier and propertyArrayIndex */
             offset = fPropertyReference(tvb, pinfo, tree, offset, 1, 0);
             col_set_writable(pinfo->cinfo, COL_INFO, FALSE); /* don't set all infos into INFO column */
+            break;
         default:
             lastoffset = offset; /* Set loop end condition */
             break;
