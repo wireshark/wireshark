@@ -290,6 +290,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         case 0x0B: /* DATC */
             if (show_deprecated)
                 expert_add_info(pinfo, pitem, &ei_bthid_transaction_type_deprecated);
+            /* FALL THROUGH */
         case 0x0A: /* DATA */
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_reserved_32, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_report_type, tvb, offset, 1, ENC_BIG_ENDIAN);
