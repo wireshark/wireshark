@@ -3378,8 +3378,10 @@ cigi3_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
             offset = cigi3_add_event_notification(tvb, cigi_packet_tree, offset);
         } else if ( packet_id == CIGI3_PACKET_ID_IMAGE_GENERATOR_MESSAGE ) {
             offset = cigi3_add_image_generator_message(tvb, cigi_packet_tree, offset);
+#if 0 /* Fix -Wduplicated-branches */
         } else if ( packet_id >= CIGI3_PACKET_ID_USER_DEFINED_MIN && packet_id <= CIGI3_PACKET_ID_USER_DEFINED_MAX ) {
             offset = cigi_add_data(tvb, cigi_packet_tree, offset);
+#endif
         } else {
             offset = cigi_add_data(tvb, cigi_packet_tree, offset);
         }
