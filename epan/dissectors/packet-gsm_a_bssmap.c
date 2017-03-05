@@ -1629,13 +1629,13 @@ be_cell_id_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 
         if (add_string)
             g_snprintf(add_string, string_len, " - LAC (0x%04x)", value);
-        /* FALLTHRU */
         if (disc == 0x0b) {
             /* If SAI, SAC follows */
             proto_tree_add_item(tree, hf_gsm_a_bssmap_sac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
             curr_offset += 2;
             break;
         }
+        /* FALLTHRU */
 
     case 0x09: /* For intersystem handover from GSM to UMTS or cdma2000: */
 
