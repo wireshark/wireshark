@@ -1859,7 +1859,7 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                                    gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GSM_DESC].strptr);
         while (gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_repeat_gsm_desc))
         {
-            gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_band_indicator);
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_band_indicator, tvb, bit_offset++, 1, ENC_NA);
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_arfcn, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
             bit_offset += 10;
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bsic, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
@@ -3549,7 +3549,7 @@ de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
-            gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_bts_power_control_mode);
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bts_power_control_mode, tvb, curr_bit_offset++, 1, ENC_NA);
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
             curr_bit_offset += 1;
         }
@@ -3791,15 +3791,15 @@ de_rr_ia_rest_oct_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree, gint
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
         /* fixed bits '01' */
-        gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_early_r97_version_reserved_bit);
-        gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_later_r97_version_reserved_bit);
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_early_r97_version_reserved_bit, tvb, curr_bit_offset++, 1, ENC_NA);
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_later_r97_version_reserved_bit, tvb, curr_bit_offset++, 1, ENC_NA);
         curr_bit_offset += de_tbf_starting_time(tvb, subtree, curr_bit_offset);
         if (gsm_rr_csn_HL_flag(tvb,subtree, 0,curr_bit_offset++, hf_gsm_a_rr_p0_present))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
             /* The value '1' was allocated in an earlier version of the protocol and shall not be used */
-            gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_earlier_version_reserved_bit);
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_earlier_version_reserved_bit, tvb, curr_bit_offset++, 1, ENC_NA);
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
             curr_bit_offset += 1;
         }
@@ -3882,7 +3882,7 @@ de_rr_ia_rest_oct_packet_downlink_assignment(tvbuff_t *tvb, proto_tree *tree, gu
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
         curr_bit_offset += 4;
-        gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_pr_mode_present);
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode_present, tvb, curr_bit_offset++, 1, ENC_NA);
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
         curr_bit_offset += 1;
     }
@@ -4177,7 +4177,7 @@ de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
 
     curr_bit_offset = offset<<3;
 
-    gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_compressed_inter_rat_handover_info);
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_compressed_inter_rat_handover_info, tvb, curr_bit_offset++, 1, ENC_NA);
 
     if (gsm_rr_csn_HL_flag(tvb, subtree, 0, curr_bit_offset++, hf_gsm_a_rr_additions_in_rel_13))
     {
@@ -5387,8 +5387,8 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_
             bit_offset_sav = bit_offset;
             subtree2 = proto_tree_add_subtree(subtree, tvb, bit_offset>>3, -1, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_FDD_DESC], &item2,
                                         gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
-            gsm_rr_csn_flag(tvb, subtree2, bit_offset++, hf_gsm_a_rr_utran_fdd_description_earlier_version_bit_reserved1);
-            gsm_rr_csn_flag(tvb, subtree2, bit_offset++, hf_gsm_a_rr_utran_fdd_description_earlier_version_bit_reserved2);
+            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_utran_fdd_description_earlier_version_bit_reserved1, tvb, bit_offset++, 1, ENC_NA);
+            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_utran_fdd_description_earlier_version_bit_reserved2, tvb, bit_offset++, 1, ENC_NA);
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_uarfcn, tvb, bit_offset, 14, ENC_BIG_ENDIAN);
             bit_offset += 14;
             if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, hf_gsm_a_rr_bandwidth_fdd_present))
@@ -5403,8 +5403,8 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_
             bit_offset_sav = bit_offset;
             subtree2 = proto_tree_add_subtree(subtree, tvb, bit_offset>>3, -1, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_TDD_DESC], &item2,
                     gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
-            gsm_rr_csn_flag(tvb, subtree2, bit_offset++, hf_gsm_a_rr_utran_tdd_description_earlier_version_bit_reserved1);
-            gsm_rr_csn_flag(tvb, subtree2, bit_offset++, hf_gsm_a_rr_utran_tdd_description_earlier_version_bit_reserved2);
+            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_utran_tdd_description_earlier_version_bit_reserved1, tvb, bit_offset++, 1, ENC_NA);
+            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_utran_tdd_description_earlier_version_bit_reserved2, tvb, bit_offset++, 1, ENC_NA);
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_uarfcn, tvb, bit_offset, 14, ENC_BIG_ENDIAN);
             bit_offset += 14;
             if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, hf_gsm_a_rr_bandwidth_tdd_present))
@@ -5650,7 +5650,7 @@ de_rr_si2quater_meas_info_utran_fdd_desc(tvbuff_t *tvb, proto_tree *tree, gint b
     }
     while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_repeated_umts_fdd_neighbour_cells))
     {
-        gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_repeated_umts_fdd_neighbour_cells_earlier_version_bit_reserved);
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_repeated_umts_fdd_neighbour_cells_earlier_version_bit_reserved, tvb, curr_bit_offset++, 1, ENC_NA);
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_uarfcn, tvb, curr_bit_offset, 14, ENC_BIG_ENDIAN);
         curr_bit_offset += 14;
         xdd_indic0 = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_fdd_cell_info_param_value0);
@@ -5729,7 +5729,7 @@ de_rr_si2quater_meas_info_utran_tdd_desc(tvbuff_t *tvb, proto_tree *tree, gint b
     }
     while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_repeated_umts_tdd_neighbour_cells))
     {
-        gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_repeated_umts_tdd_neighbour_cells_earlier_version_bit_reserved);
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_repeated_umts_tdd_neighbour_cells_earlier_version_bit_reserved, tvb, curr_bit_offset++, 1, ENC_NA);
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tdd_uarfcn, tvb, curr_bit_offset, 14, ENC_BIG_ENDIAN);
         curr_bit_offset += 14;
         xdd_indic0 = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_tdd_cell_info_param_value0);
