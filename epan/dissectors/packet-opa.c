@@ -1119,6 +1119,7 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         if (nextHdr != 0x1B) {   /* no BTH following. */
             break;
         }
+        /* FALL THROUGH */
     case 2: /* LOCAL - BTH - Base Transport Header */
         parse_opa_bth(tvb, pinfo, tree, &offset, &opCode);
         bthFollows = TRUE;
