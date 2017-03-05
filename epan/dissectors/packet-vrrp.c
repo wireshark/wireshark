@@ -104,7 +104,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item *ti, *tv;
     proto_tree *vrrp_tree, *ver_type_tree;
     guint8      priority, addr_count = 0, auth_type = VRRP_AUTH_TYPE_NONE;
-    guint16     computed_cksum;
+    guint16     computed_cksum = 0;
 
     is_ipv6 = (pinfo->src.type == AT_IPv6);
 
@@ -185,6 +185,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     computed_cksum = in_cksum(cksum_vec, 4);
                     break;
                 }
+            /* FALL THROUGH */
             case 2:
             default:
                 SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, vrrp_len);
