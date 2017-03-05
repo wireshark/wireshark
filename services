@@ -1368,8 +1368,8 @@ dhcp-failover2    847/tcp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 dhcp-failover2    847/udp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 gdoi              848/tcp # GDOI [RFC3547]
 gdoi              848/udp # GDOI [RFC3547]
-domain-s          853/tcp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2017-01-23 [RFC7858][RFC-ietf-dprive-dnsodtls-15]
-domain-s          853/udp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2017-01-23 [RFC7858][RFC-ietf-dprive-dnsodtls-15]
+domain-s          853/tcp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2017-01-23 [RFC7858][RFC8094]
+domain-s          853/udp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2017-01-23 [RFC7858][RFC8094]
 iscsi             860/tcp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 iscsi             860/udp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 owamp-control     861/tcp # OWAMP-Control [RFC4656]
@@ -8945,6 +8945,7 @@ qmvideo          5689/udp # QM video network management protocol [Jamie_Lokier] 
 rbsystem         5693/tcp # Robert Bosch Data Transfer [Robert_Bosch_GmbH] [Klaus_Warth] 2011-08-01 2012-07-17
 kmip             5696/tcp # Key Management Interoperability Protocol [OASIS_KMIP_Technical_Committee] [Robin_Cover] 2011-07-25
 supportassist    5700/tcp # Dell SupportAssist data center management [Dell_Technologies] [Rohitdev_Kulshrestha] 2016-07-05
+storageos        5705/tcp # StorageOS REST API [StorageOS] [Simon_Croome] 2017-03-03
 proshareaudio    5713/tcp # proshare conf audio [gunner] [gunner]
 proshareaudio    5713/udp # proshare conf audio [gunner] [gunner]
 prosharevideo    5714/tcp # proshare conf video [gunner] [gunner]
@@ -9292,6 +9293,8 @@ skip-cert-recv   6455/tcp # SKIP Certificate Receive [Tom_Markson] [Tom_Markson]
 skip-cert-recv   6455/udp # SKIP Certificate Receive [Tom_Markson] [Tom_Markson]
 skip-cert-send   6456/tcp # SKIP Certificate Send [Tom_Markson] [Tom_Markson]
 skip-cert-send   6456/udp # SKIP Certificate Send [Tom_Markson] [Tom_Markson]
+ieee11073-20701  6464/tcp # Port assignment for medical device communication in     accordance to IEEE 11073-20701 [David_Gregorczyk] [David_Gregorczyk] 2017-03-02
+ieee11073-20701  6464/udp # Port assignment for medical device communication in     accordance to IEEE 11073-20701 [David_Gregorczyk] [David_Gregorczyk] 2017-03-02
 lvision-lm       6471/tcp # LVision License Manager [Brian_McKinnon] [Brian_McKinnon]
 lvision-lm       6471/udp # LVision License Manager [Brian_McKinnon] [Brian_McKinnon]
 sun-sr-http      6480/tcp # Service Registry Default HTTP Domain [Paul_Sterk] [Paul_Sterk] 2006-03
