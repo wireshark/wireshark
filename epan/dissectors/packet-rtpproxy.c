@@ -614,6 +614,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_status, tvb, offset, realsize - offset, ENC_ASCII | ENC_NA);
                 break;
             }
+        /* FALL THROUGH */
         case 'i':
         case 'x':
         case 'u':
@@ -629,6 +630,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 call_dissector(bencode_handle, subtvb, pinfo, rtpproxy_tree);
                 break;
             }
+        /* FALL THROUGH */
         case 'p':
         case 'v':
         case 'r':
