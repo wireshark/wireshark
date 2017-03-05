@@ -315,7 +315,7 @@ static proto_item* dissect_pbb_tlvvalue(tvbuff_t *tvb, proto_tree *tlvTree, guin
     /* other tlvTypes are common with categories PACKET and ADDRESS,
        do not break.
     */
-
+    /* FALL THROUGH */
   case TLV_CAT_PACKET:
   case TLV_CAT_ADDRESS:
 
