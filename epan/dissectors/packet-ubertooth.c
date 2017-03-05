@@ -1763,6 +1763,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             }
             break;
         }
+    /* FALLTHROUGH */
     case 0: /* Ping */
     case 2: /* Tx Symbols */        /* NOTE: This one seems to be not implemented in firmware at all*/
     case 26: /* Bootloader Flash */ /* NOTE: This one seems to be not implemented in firmware at all*/
