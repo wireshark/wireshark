@@ -2591,6 +2591,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   case ERF_TYPE_MC_ATM:
     dissect_mc_atm_header(tvb, pinfo, erf_tree);
     /* continue with type ATM */
+    /* FALL THROUGH */
 
   case ERF_TYPE_ATM:
     memset(&atm_info, 0, sizeof(atm_info));
@@ -2641,6 +2642,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   case ERF_TYPE_MC_AAL5:
     dissect_mc_aal5_header(tvb, pinfo, erf_tree);
     /* continue with type AAL5 */
+    /* FALL THROUGH */
 
   case ERF_TYPE_AAL5:
     atm_hdr = tvb_get_ntohl(tvb, 0);
@@ -2742,6 +2744,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   case ERF_TYPE_MC_HDLC:
     dissect_mc_hdlc_header(tvb, pinfo, erf_tree);
     /* continue with type HDLC */
+    /* FALL THROUGH */
 
   case ERF_TYPE_HDLC_POS:
   case ERF_TYPE_COLOR_HDLC_POS:
