@@ -3439,6 +3439,7 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_
                                    tvb_get_ntohieee_float(tvb, offset+tlv_off+12),
                                    tvb_get_ntohieee_float(tvb, offset+tlv_off+16),
                                    tvb_get_ntohieee_float(tvb, offset+tlv_off+20));
+            break;
 
         /* L2CP RFC 6004 */
         case 3:
