@@ -7510,8 +7510,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
             "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
                 ansi_a_elem_1_strings[elem_idx].value, \
                 ansi_a_elem_1_strings[elem_idx].strptr, \
-                /* coverity[array_null] */ \
-                (elem_name_addition == NULL) ? "" : elem_name_addition \
+                elem_name_addition \
             ); \
     } \
     if (curr_len <= 0) return; \
@@ -7541,8 +7540,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
             "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
                 ansi_a_elem_1_strings[elem_idx].value, \
                 ansi_a_elem_1_strings[elem_idx].strptr, \
-                /* coverity[array_null] */ \
-                (elem_name_addition == NULL) ? "" : elem_name_addition \
+                elem_name_addition \
             ); \
     } \
     if (curr_len <= 0) return; \
