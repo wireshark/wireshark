@@ -1233,13 +1233,13 @@ static ssize_t
 cap_pipe_read(int pipe_fd, char *buf, size_t sz, gboolean from_socket _U_)
 {
 #ifdef _WIN32
-   if (from_socket) {
-      return recv(pipe_fd, buf, (int)sz, 0);
-   } else {
-      return -1;
-   }
+    if (from_socket) {
+        return recv(pipe_fd, buf, (int)sz, 0);
+    } else {
+        return -1;
+    }
 #else
-   return ws_read(pipe_fd, buf, sz);
+    return ws_read(pipe_fd, buf, sz);
 #endif
 }
 
@@ -1365,80 +1365,80 @@ cap_pipe_select(int pipe_fd)
 static int
 cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, int errmsgl)
 {
-  char *sockname = pipename + 4;
-  struct sockaddr_in sa;
-  char buf[16];
-  char *p;
-  unsigned long port;
-  size_t len;
-  int fd;
+    char *sockname = pipename + 4;
+    struct sockaddr_in sa;
+    char buf[16];
+    char *p;
+    unsigned long port;
+    size_t len;
+    int fd;
 
-  memset(&sa, 0, sizeof(sa));
+    memset(&sa, 0, sizeof(sa));
 
-  p = strchr(sockname, ':');
-  if (p == NULL) {
-    len = strlen(sockname);
-    port = DEF_TCP_PORT;
-  }
-  else {
-    len = p - sockname;
-    port = strtoul(p + 1, &p, 10);
-    if (*p || port > 65535) {
+    p = strchr(sockname, ':');
+    if (p == NULL) {
+        len = strlen(sockname);
+        port = DEF_TCP_PORT;
+    }
+    else {
+        len = p - sockname;
+        port = strtoul(p + 1, &p, 10);
+        if (*p || port > 65535) {
+            goto fail_invalid;
+        }
+    }
+
+    if (len > 15) {
       goto fail_invalid;
     }
-  }
 
-  if (len > 15) {
-    goto fail_invalid;
-  }
+    g_snprintf ( buf,(gulong)len + 1, "%s", sockname );
+    buf[len] = '\0';
+    if (!ws_inet_pton4(buf, (guint32 *)&sa.sin_addr)) {
+        goto fail_invalid;
+    }
 
-  g_snprintf ( buf,(gulong)len + 1, "%s", sockname );
-  buf[len] = '\0';
-  if (!ws_inet_pton4(buf, (guint32 *)&sa.sin_addr)) {
-    goto fail_invalid;
-  }
+    sa.sin_family = AF_INET;
+    sa.sin_port = g_htons((u_short)port);
 
-  sa.sin_family = AF_INET;
-  sa.sin_port = g_htons((u_short)port);
-
-  if (((fd = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) ||
-      (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0)) {
+    if (((fd = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) ||
+         (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0)) {
 #ifdef _WIN32
-      LPTSTR errorText = NULL;
-      int lastError;
+        LPTSTR errorText = NULL;
+        int lastError;
 
-      lastError = WSAGetLastError();
-      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
-                    FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                    FORMAT_MESSAGE_IGNORE_INSERTS,
-                    NULL, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                    (LPTSTR)&errorText, 0, NULL);
+        lastError = WSAGetLastError();
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
+                      FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                      FORMAT_MESSAGE_IGNORE_INSERTS,
+                      NULL, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                      (LPTSTR)&errorText, 0, NULL);
 #endif
-      g_snprintf(errmsg, errmsgl,
-      "The capture session could not be initiated due to the socket error: \n"
+        g_snprintf(errmsg, errmsgl,
+            "The capture session could not be initiated due to the socket error: \n"
 #ifdef _WIN32
-      "         %d: %S", lastError, errorText ? (char *)errorText : "Unknown");
-      if (errorText)
-          LocalFree(errorText);
+            "         %d: %S", lastError, errorText ? (char *)errorText : "Unknown");
+        if (errorText)
+            LocalFree(errorText);
 #else
-      "         %d: %s", errno, g_strerror(errno));
+            "         %d: %s", errno, g_strerror(errno));
 #endif
-      pcap_src->cap_pipe_err = PIPERR;
+        pcap_src->cap_pipe_err = PIPERR;
 
-      if (fd >= 0)
-          cap_pipe_close(fd, TRUE);
-      return -1;
-  }
+        if (fd >= 0)
+            cap_pipe_close(fd, TRUE);
+        return -1;
+    }
 
-  pcap_src->from_cap_socket = TRUE;
-  return fd;
+    pcap_src->from_cap_socket = TRUE;
+    return fd;
 
 fail_invalid:
-  g_snprintf(errmsg, errmsgl,
-      "The capture session could not be initiated because\n"
-      "\"%s\" is not a valid socket specification", pipename);
-  pcap_src->cap_pipe_err = PIPERR;
-  return -1;
+    g_snprintf(errmsg, errmsgl,
+        "The capture session could not be initiated because\n"
+        "\"%s\" is not a valid socket specification", pipename);
+    pcap_src->cap_pipe_err = PIPERR;
+    return -1;
 }
 
 /* Wrapper: distinguish between closesocket on Windows; use ws_close
@@ -1448,11 +1448,11 @@ static void
 cap_pipe_close(int pipe_fd, gboolean from_socket _U_)
 {
 #ifdef _WIN32
-   if (from_socket) {
-      closesocket(pipe_fd);
-   }
+    if (from_socket) {
+        closesocket(pipe_fd);
+    }
 #else
-   ws_close(pipe_fd);
+    ws_close(pipe_fd);
 #endif
 }
 
