@@ -101,6 +101,7 @@ static int proto_pn_io_controller = -1;
 static int proto_pn_io_supervisor = -1;
 static int proto_pn_io_parameterserver = -1;
 static int proto_pn_io_implicitar = -1;
+int proto_pn_io_apdu_status = -1;
 
 static int hf_pn_io_opnum = -1;
 static int hf_pn_io_reserved16 = -1;
@@ -160,11 +161,13 @@ static int hf_pn_io_iocr_SubframeData =-1;
 /* static int hf_pn_io_iocr_txports_port = -1; */
 /* static int hf_pn_io_iocr_txports_redundantport = -1; */
 static int hf_pn_io_sr_properties_Reserved_1 = -1;
+static int hf_pn_io_sr_properties_Mode = -1;
 static int hf_pn_io_sr_properties_Reserved_2 = -1;
+static int hf_pn_io_sr_properties_Reserved_3 = -1;
 static int hf_pn_io_RedundancyDataHoldFactor = -1;
 static int hf_pn_io_sr_properties = -1;
-static int hf_pn_io_sr_properties_InputValidOnBackupAR = -1;
-static int hf_pn_io_sr_properties_ActivateRedundancyAlarm = -1;
+static int hf_pn_io_sr_properties_InputValidOnBackupAR_with_SRProperties_Mode_0 = -1;
+static int hf_pn_io_sr_properties_InputValidOnBackupAR_with_SRProperties_Mode_1 = -1;
 
 static int hf_pn_io_arvendor_strucidentifier_if0_low = -1;
 static int hf_pn_io_arvendor_strucidentifier_if0_high = -1;
@@ -243,6 +246,12 @@ static int hf_pn_io_alarmcr_tagheaderlow = -1;
 static int hf_pn_io_IRData_uuid = -1;
 static int hf_pn_io_ar_uuid = -1;
 static int hf_pn_io_target_ar_uuid = -1;
+static int hf_pn_io_ar_discriminator = -1;
+static int hf_pn_io_ar_configid = -1;
+static int hf_pn_io_ar_arnumber = -1;
+static int hf_pn_io_ar_arresource = -1;
+static int hf_pn_io_ar_arreserved = -1;
+static int hf_pn_io_ar_selector = -1;
 static int hf_pn_io_api_tree = -1;
 static int hf_pn_io_module_tree = -1;
 static int hf_pn_io_submodule_tree = -1;
@@ -808,6 +817,7 @@ static gint ett_pn_io_rs_reason_code = -1;
 static gint ett_pn_io_soe_digital_input_current_value = -1;
 static gint ett_pn_io_rs_adjust_info = -1;
 static gint ett_pn_io_soe_adjust_specifier = -1;
+static gint ett_pn_io_sr_properties = -1;
 static gint ett_pn_io_line_delay = -1;
 
 static gint ett_pn_io_GroupProperties = -1;
@@ -1799,17 +1809,18 @@ static const value_string pn_io_MultipleInterfaceMode_NameOfDevice[] = {
     { 0, NULL }
 };
 
-static const value_string pn_io_sr_properties_BackupAR[] = {
-    { 0x00000000, "The device may deliver valid input data" },
-    { 0x00000001, "The device shall deliver valid input data" },
-    { 0, NULL }
-};
+static const true_false_string tfs_pn_io_sr_properties_BackupAR_with_SRProperties_Mode_0 =
+    { "The device shall deliver valid input data", "The IO controller shall not evaluate the input data." };
 
-static const value_string pn_io_sr_properties_ActivateRedundancyAlarm[] = {
-    { 0x00000000, "The device shall not send Redundancy alarm" },
-    { 0x00000001, "The device shall send Redundancy alarm" },
-    { 0, NULL }
-};
+static const true_false_string tfs_pn_io_sr_properties_BackupAR_with_SRProperties_Mode_1 =
+    { "The device shall deliver valid input data", "The IO device shall mark the data as invalid using APDU_Status.DataStatus.DataValid == Invalid." };
+
+static const true_false_string tfs_pn_io_sr_properties_Mode =
+    { "Default The IO device shall use APDU_Status.DataStatus.DataValid == Invalid if input data is request as not valid.",
+      "The IO controller do not support APDU_Status.DataStatus.DataValid == Invalid if input data is request as not valid." };
+
+static const true_false_string tfs_pn_io_sr_properties_Reserved1 =
+    { "Legacy mode", "Shall be set to zero for this standard." };
 
 static const value_string pn_io_iocr_properties_media_redundancy[] = {
     { 0x00000000, "No media redundant frame transfer" },
@@ -2904,6 +2915,30 @@ static const range_string pn_io_am_location_level_vals[] = {
 
 static const value_string pn_io_am_location_reserved_vals[] = {
     { 0x00, "Reserved" },
+    { 0, NULL }
+};
+
+static const range_string pn_io_RedundancyDataHoldFactor[] = {
+    { 0x0000, 0x0002, "Reserved" },
+    { 0x0003, 0x00C7, "Optional - An expiration of the time leads to an AR termination." },
+    { 0x00C8, 0xFFFF, "Mandatory - An expiration of the time leads to an AR termination." },
+    { 0, 0, NULL }
+};
+
+static const value_string pn_io_ar_arnumber[] = {
+    { 0x0000, "reserved" },
+    { 0x0001, "1st AR of an ARset" },
+    { 0x0002, "2nd AR of an ARset" },
+    { 0x0003, "3rd AR of an ARset" },
+    { 0x0004, "4th AR of an ARset" },
+    /*0x0005 - 0xFFFF reserved */
+    { 0, NULL }
+};
+
+static const value_string pn_io_ar_arresource[] = {
+    { 0x0000, "reserved" },
+    { 0x0002, "Communication endpoint shall allocate two ARs for the ARset" },
+    /*0x0001 and 0x0003 - 0xFFFF reserved */
     { 0, NULL }
 };
 
@@ -8167,7 +8202,15 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
     guint16    u16NameLength;
     char      *pStationName;
     pnio_ar_t *par;
-
+    proto_item          *sub_item;
+    proto_tree          *sub_tree;
+    guint16             u16ArNumber;
+    guint16             u16ArResource;
+    guint16             u16ArReserved;
+    proto_item          *sub_item_selector;
+    proto_tree          *sub_tree_selector;
+    conversation_t      *conversation;
+    apduStatusSwitch    *apdu_status_switch = NULL;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -8189,8 +8232,60 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
                         u16ARType, decode_ARType_spezial(u16ARType, u32ARProperties));
     }
     offset = offset + 2;
-    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ar_uuid, &aruuid);
+
+    if (u16ARType == 0x0020)
+    {
+        sub_item = proto_tree_add_item(tree, hf_pn_io_ar_uuid, tvb, offset, 16, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_ar_info);
+
+        proto_tree_add_item(sub_tree, hf_pn_io_ar_discriminator, tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_item(sub_tree, hf_pn_io_ar_configid, tvb, offset, 8, ENC_NA);
+        offset += 8;
+
+        sub_item_selector = proto_tree_add_item(sub_tree, hf_pn_io_ar_selector, tvb, offset, 2, ENC_BIG_ENDIAN);
+        sub_tree_selector = proto_item_add_subtree(sub_item_selector, ett_pn_io_ar_info);
+        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree_selector, drep, hf_pn_io_ar_arnumber, &u16ArNumber);
+        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree_selector, drep, hf_pn_io_ar_arresource, &u16ArResource);
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree_selector, drep, hf_pn_io_ar_arreserved, &u16ArReserved);
+
+        /* When ARType==IOCARSR, then find or create conversation for this frame */
+        if (!pinfo->fd->flags.visited) {
+            /* Get current conversation endpoints using MAC addresses */
+            conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_UDP, 0, 0, 0);
+            if (conversation == NULL) {
+                /* If conversation is null, then create new conversation */
+                /* Connect Request is sent by controller and not by device. */
+                /* All conversations are based on Controller MAC as address */
+                conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_UDP, 0, 0, 0);
+            }
+
+            /* Try to get apdu status switch information from the conversation */
+            apdu_status_switch = (apduStatusSwitch*)conversation_get_proto_data(conversation, proto_pn_io_apdu_status);
+
+            /* If apdu status switch is null, then fill it*/
+            /* If apdu status switch is not null, then update it*/
+            if (apdu_status_switch == NULL) {
+                /* apdu status switch information is valid for whole file*/
+                apdu_status_switch = wmem_new0(wmem_file_scope(), apduStatusSwitch);
+                apdu_status_switch->dl_src = conversation->key_ptr->addr1;
+                apdu_status_switch->dl_dst = conversation->key_ptr->addr2;
+                apdu_status_switch->isRedundancyActive = TRUE;
+                conversation_add_proto_data(conversation, proto_pn_io_apdu_status, apdu_status_switch);
+            }
+            else {
+                apdu_status_switch->dl_src = conversation->key_ptr->addr1;
+                apdu_status_switch->dl_dst = conversation->key_ptr->addr2;
+                apdu_status_switch->isRedundancyActive = TRUE;
+            }
+        }
+    }
+    else
+    {
+        offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_ar_uuid, &aruuid);
+    }
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_sessionkey, &u16SessionKey);
     offset = dissect_pn_mac(tvb, offset, pinfo, tree,
@@ -8984,6 +9079,9 @@ dissect_SRInfoBlock_block(tvbuff_t *tvb, int offset,
 {
     guint16 u16RedundancyDataHoldFactor;
     guint32 u32sr_properties;
+    guint8 u8SRPropertiesMode;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -8992,12 +9090,30 @@ dissect_SRInfoBlock_block(tvbuff_t *tvb, int offset,
     }
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_RedundancyDataHoldFactor, &u16RedundancyDataHoldFactor);
 
-    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_sr_properties, &u32sr_properties);
-    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_sr_properties_InputValidOnBackupAR, &u32sr_properties);
-    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_sr_properties_ActivateRedundancyAlarm, &u32sr_properties);
-    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_sr_properties_Reserved_1, &u32sr_properties);
-    offset =
-       dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_sr_properties_Reserved_2, &u32sr_properties);
+    u32sr_properties = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_sr_properties, tvb, offset, 4, ENC_BIG_ENDIAN);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_sr_properties);
+
+    u8SRPropertiesMode = (guint8)((u32sr_properties >> 2) & 0x01);
+
+    /* SRProperties.InputValidOnBackupAR with SRProperties.Mode == 1 */
+    if (u8SRPropertiesMode)
+    {
+        dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_sr_properties_InputValidOnBackupAR_with_SRProperties_Mode_1, &u32sr_properties);
+    }
+    /* SRProperties.InputValidOnBackupAR with SRProperties.Mode == 0 */
+    else
+    {
+        dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_sr_properties_InputValidOnBackupAR_with_SRProperties_Mode_0, &u32sr_properties);
+    }
+    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_sr_properties_Reserved_1, &u32sr_properties);
+    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_sr_properties_Mode, &u32sr_properties);
+
+    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_sr_properties_Reserved_2, &u32sr_properties);
+
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_sr_properties_Reserved_3, &u32sr_properties);
     return offset;
 }
 
@@ -11939,7 +12055,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_RedundancyDataHoldFactor,
       { "RedundancyDataHoldFactor", "pn_io.RedundancyDataHoldFactor",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_RedundancyDataHoldFactor), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_sr_properties,
@@ -11947,24 +12063,34 @@ proto_register_pn_io (void)
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_sr_properties_InputValidOnBackupAR,
+    { &hf_pn_io_sr_properties_InputValidOnBackupAR_with_SRProperties_Mode_0,
       { "InputValidOnBackupAR", "pn_io.sr_properties.InputValidOnBackupAR",
-        FT_UINT32, BASE_HEX, VALS(pn_io_sr_properties_BackupAR), 0x01,
+        FT_BOOLEAN, 32, TFS(&tfs_pn_io_sr_properties_BackupAR_with_SRProperties_Mode_0), 0x01,
         NULL, HFILL }
     },
-    { &hf_pn_io_sr_properties_ActivateRedundancyAlarm,
-      { "ActivateRedundancyAlarm", "pn_io.sr_properties.ActivateRedundancyAlarm",
-        FT_UINT32, BASE_HEX, VALS(pn_io_sr_properties_ActivateRedundancyAlarm), 0x02,
+    { &hf_pn_io_sr_properties_InputValidOnBackupAR_with_SRProperties_Mode_1,
+      { "InputValidOnBackupAR", "pn_io.sr_properties.InputValidOnBackupAR",
+        FT_BOOLEAN, 32, TFS(&tfs_pn_io_sr_properties_BackupAR_with_SRProperties_Mode_1), 0x01,
         NULL, HFILL }
     },
     { &hf_pn_io_sr_properties_Reserved_1,
       { "Reserved_1", "pn_io.sr_properties.Reserved_1",
-        FT_UINT32, BASE_HEX, NULL, 0x0FFFC,
+        FT_BOOLEAN, 32, TFS(&tfs_pn_io_sr_properties_Reserved1), 0x00000002,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_sr_properties_Mode,
+      { "Mode", "pn_io.sr_properties.Mode",
+        FT_BOOLEAN, 32, TFS(&tfs_pn_io_sr_properties_Mode), 0x00000004,
         NULL, HFILL }
     },
     { &hf_pn_io_sr_properties_Reserved_2,
       { "Reserved_2", "pn_io.sr_properties.Reserved_2",
-        FT_UINT32, BASE_HEX, NULL, 0x0FFFF0000,
+        FT_UINT32, BASE_HEX, NULL, 0x0000FFF8,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_sr_properties_Reserved_3,
+      { "Reserved_3", "pn_io.sr_properties.Reserved_3",
+        FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
         NULL, HFILL }
     },
     { &hf_pn_io_arvendor_strucidentifier_if0_low,
@@ -12300,6 +12426,36 @@ proto_register_pn_io (void)
     { &hf_pn_io_target_ar_uuid,
       { "TargetARUUID", "pn_io.target_ar_uuid",
         FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ar_discriminator,
+      { "Discriminator", "pn_io.ar_discriminator",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ar_configid,
+      { "ConfigID", "pn_io.ar_configid",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ar_arnumber,
+      { "ARnumber", "pn_io.ar_arnumber",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ar_arnumber), 0x0007,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ar_arresource,
+      { "ARresource", "pn_io.ar_arnumber",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ar_arresource), 0x0018,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ar_arreserved,
+      { "ARreserved", "pn_io.ar_arreserved",
+        FT_UINT16, BASE_HEX, NULL, 0xFFE0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ar_selector,
+      { "Selector", "pn_io.ar_selector",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_api,
@@ -14595,6 +14751,7 @@ proto_register_pn_io (void)
         &ett_pn_io_asset_management_info,
         &ett_pn_io_asset_management_block,
         &ett_pn_io_am_location,
+        &ett_pn_io_sr_properties,
         &ett_pn_io_line_delay
     };
 
@@ -14626,6 +14783,7 @@ proto_register_pn_io (void)
     proto_pn_io_supervisor = proto_register_protocol_in_name_only("PROFINET IO (Supervisor)", "PNIO (Supervisor Interface)", "pn_io_supervisor", proto_pn_io, FT_PROTOCOL);
     proto_pn_io_parameterserver = proto_register_protocol_in_name_only("PROFINET IO (Parameter Server)", "PNIO (Parameter Server Interface)", "pn_io_parameterserver", proto_pn_io, FT_PROTOCOL);
     proto_pn_io_implicitar = proto_register_protocol_in_name_only("PROFINET IO (Implicit Ar)", "PNIO (Implicit Ar)", "pn_io_implicitar", proto_pn_io, FT_PROTOCOL);
+    proto_pn_io_apdu_status = proto_register_protocol_in_name_only("PROFINET IO (Apdu Status)", "PNIO (Apdu Status)", "pn_io_apdu_status", proto_pn_io, FT_PROTOCOL);
 
     proto_register_field_array (proto_pn_io, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));

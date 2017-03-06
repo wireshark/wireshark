@@ -51,12 +51,18 @@ static int hf_pn_rt_cycle_counter = -1;
 static int hf_pn_rt_transfer_status = -1;
 static int hf_pn_rt_data_status = -1;
 static int hf_pn_rt_data_status_ignore = -1;
+static int hf_pn_rt_frame_info_type = -1;
+static int hf_pn_rt_frame_info_function_meaning_input_conv = -1;
+static int hf_pn_rt_frame_info_function_meaning_output_conv = -1;
 static int hf_pn_rt_data_status_Reserved_2 = -1;
 static int hf_pn_rt_data_status_ok = -1;
 static int hf_pn_rt_data_status_operate = -1;
 static int hf_pn_rt_data_status_res3 = -1;
 static int hf_pn_rt_data_status_valid = -1;
 static int hf_pn_rt_data_status_redundancy = -1;
+static int hf_pn_rt_data_status_redundancy_output_cr = -1;
+static int hf_pn_rt_data_status_redundancy_input_cr_state_is_backup = -1;
+static int hf_pn_rt_data_status_redundancy_input_cr_state_is_primary = -1;
 static int hf_pn_rt_data_status_primary = -1;
 
 static int hf_pn_rt_sf_crc16 = -1;
@@ -107,8 +113,33 @@ static const value_string pn_rt_position_control[] = {
 };
 #endif
 
+static const true_false_string tfs_pn_rt_ds_redundancy_output_cr =
+    { "Unknown", "Redundancy has no meaning for OutputCRs, it is set to the fixed value of zero" };
+
+static const true_false_string tfs_pn_rt_ds_redundancy_input_cr_state_is_backup =
+    { "None primary AR of a given AR-set is present", "Default - One primary AR of a given AR-set is present" };
+
+static const true_false_string tfs_pn_rt_ds_redundancy_input_cr_state_is_primary =
+    { "The ARState from the IO device point of view is Backup", "Default - The ARState from the IO device point of view is Primary" };
+
+static const value_string pn_rt_frame_info_function_meaning_input_conv[] = {
+    {0x00, "Backup Acknowledge without actual data" },
+    {0x02, "Primary Missing without actual data" },
+    {0x04, "Backup Acknowledge with actual data independent from the Arstate" },
+    {0x05, "Primary Acknowledge"},
+    {0x06, "Primary Missing with actual data independent from the Arstate" },
+    {0x07, "Primary Fault" },
+    {0, NULL}
+};
+
+static const value_string pn_rt_frame_info_function_meaning_output_conv[] = {
+    { 0x04, "Backup Request" },
+    { 0x05, "Primary Request" },
+    { 0, NULL }
+};
+
 static const value_string pn_rt_ds_redundancy[] = {
-    { 0x00, "One primary AR of a given AR-set is present" },
+    { 0x00, "Redundancy has no meaning for OutputCRs / One primary AR of a given AR-set is present" },
     { 0x01, "None primary AR of a given AR-set is present" },
     { 0, NULL }
 };
@@ -136,10 +167,53 @@ static const value_string plugin_proto_checksum_vals[] = {
 };
 
 static void
-dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 u8DataStatus)
+dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, guint8 u8DataStatus)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
+    guint8 u8DataValid;
+    guint8 u8Redundancy;
+    guint8 u8State;
+    conversation_t    *conversation;
+    gboolean    inputFlag = FALSE;
+    gboolean    outputFlag = FALSE;
+    apduStatusSwitch *apdu_status_switch;
+
+    u8State = (u8DataStatus & 0x01);
+    u8Redundancy = (u8DataStatus >> 1) & 0x01;
+    u8DataValid = (u8DataStatus >> 2) & 0x01;
+
+    /* if PN Connect Request has been read, IOC mac is dl_src and IOD mac is dl_dst */
+    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_UDP, 0, 0, 0);
+
+    if (conversation != NULL) {
+        apdu_status_switch = (apduStatusSwitch*)conversation_get_proto_data(conversation, proto_pn_io_apdu_status);
+        if (apdu_status_switch != NULL && apdu_status_switch->isRedundancyActive) {
+            /* IOC -> IOD: OutputCR */
+            if (addresses_equal(&(pinfo->src), &(conversation->key_ptr->addr1)) && addresses_equal(&(pinfo->dst), &(conversation->key_ptr->addr2))) {
+                outputFlag = TRUE;
+                inputFlag = FALSE;
+            }
+            /* IOD -> IOC: InputCR */
+            if (addresses_equal(&(pinfo->dst), &(conversation->key_ptr->addr1)) && addresses_equal(&(pinfo->src), &(conversation->key_ptr->addr2))) {
+                inputFlag = TRUE;
+                outputFlag = FALSE;
+            }
+        }
+    }
+
+    /* input conversation is found */
+    if (inputFlag)
+    {
+        proto_tree_add_string_format_value(tree, hf_pn_rt_frame_info_type, tvb,
+            offset, 0, "Input", "Input Frame (IO_Device -> IO_Controller)");
+    }
+    /* output conversation is found. */
+    else if (outputFlag)
+    {
+        proto_tree_add_string_format_value(tree, hf_pn_rt_frame_info_type, tvb,
+            offset, 0, "Output", "Output Frame (IO_Controller -> IO_Device)");
+    }
 
     sub_item = proto_tree_add_uint_format(tree, hf_pn_rt_data_status,
         tvb, offset, 1, u8DataStatus,
@@ -155,6 +229,52 @@ dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 u8DataSta
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_ok,         tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_operate,    tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_res3,       tvb, offset, 1, u8DataStatus);
+    /* input conversation is found */
+    if (inputFlag)
+    {
+        proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_valid, tvb, offset, 1, u8DataStatus);
+        proto_tree_add_item(tree, hf_pn_rt_frame_info_function_meaning_input_conv, tvb, offset, 1, u8DataStatus);
+        if (u8State == 0 && u8Redundancy == 0 && u8DataValid == 1)
+        {
+            proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
+        }
+        else if (u8State == 0 && u8Redundancy == 0 && u8DataValid == 0)
+        {
+            proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
+        }
+        else if (u8State == 0 && u8Redundancy == 1 && u8DataValid == 1)
+        {
+            proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
+        }
+        else if (u8State == 0 && u8Redundancy == 1 && u8DataValid == 0)
+        {
+            proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
+        }
+        else if (u8State == 1 && u8Redundancy == 0 && u8DataValid == 1)
+        {
+            proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_primary, tvb, offset, 1, u8DataStatus);
+        }
+        else if (u8State == 1 && u8Redundancy == 1 && u8DataValid == 1)
+        {
+            proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_primary, tvb, offset, 1, u8DataStatus);
+        }
+
+        proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_primary, tvb, offset, 1, u8DataStatus);
+        return;
+    }
+    // output conversation is found.
+    else if (outputFlag)
+    {
+        proto_tree_add_item(tree, hf_pn_rt_frame_info_function_meaning_output_conv, tvb, offset, 1, u8DataStatus);
+
+        proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_valid, tvb, offset, 1, u8DataStatus);
+        proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_output_cr, tvb, offset, 1, u8DataStatus);
+        proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_primary, tvb, offset, 1, u8DataStatus);
+
+        return;
+    }
+
+    // If no conversation is found
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_valid,      tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy, tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_primary,    tvb, offset, 1, u8DataStatus);
@@ -302,7 +422,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             offset += 1;
 
             u8SFDataStatus = tvb_get_guint8(tvb, offset);
-            dissect_DataStatus(tvb, offset, sub_tree, u8SFDataStatus);
+            dissect_DataStatus(tvb, offset, sub_tree, pinfo, u8SFDataStatus);
             offset += 1;
 
             offset = dissect_pn_user_data(tvb, offset, pinfo, sub_tree, u8SFDataLength, "DataItem");
@@ -774,7 +894,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
               pdu_len - 4, 2, u16CycleCounter, "CycleCounter: %u", u16CycleCounter);
 
             /* add data status subtree */
-            dissect_DataStatus(tvb, pdu_len - 2, pn_rt_tree, u8DataStatus);
+            dissect_DataStatus(tvb, pdu_len - 2, pn_rt_tree, pinfo, u8DataStatus);
 
             /* add transfer status */
             if (u8TransferStatus) {
@@ -831,6 +951,20 @@ proto_register_pn_rt(void)
           { "Ignore (1:Ignore/0:Evaluate)", "pn_rt.ds_ignore", FT_UINT8, BASE_HEX, 0, 0x80,
             NULL, HFILL }},
 
+        { &hf_pn_rt_frame_info_type,
+          { "PN Frame Type", "pn_rt.ds_frame_info_type", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_pn_rt_frame_info_function_meaning_input_conv,
+          { "Function/Meaning", "pn_rt.ds_frame_info_meaning",
+            FT_UINT8, BASE_HEX, VALS(pn_rt_frame_info_function_meaning_input_conv), 0x7,
+            NULL, HFILL } },
+
+        { &hf_pn_rt_frame_info_function_meaning_output_conv,
+          { "Function/Meaning", "pn_rt.ds_frame_info_meaning",
+            FT_UINT8, BASE_HEX, VALS(pn_rt_frame_info_function_meaning_output_conv), 0x7,
+            NULL, HFILL } },
+
         { &hf_pn_rt_data_status_Reserved_2,
           { "Reserved_2 (should be zero)", "pn_rt.ds_Reserved_2",
             FT_UINT8, BASE_HEX, 0, 0x40,
@@ -859,6 +993,21 @@ proto_register_pn_rt(void)
         { &hf_pn_rt_data_status_redundancy,
           { "Redundancy", "pn_rt.ds_redundancy",
             FT_UINT8, BASE_HEX, VALS(pn_rt_ds_redundancy), 0x02,
+            NULL, HFILL }},
+
+        { &hf_pn_rt_data_status_redundancy_output_cr,
+          { "Redundancy", "pn_rt.ds_redundancy",
+            FT_BOOLEAN, 8, TFS(&tfs_pn_rt_ds_redundancy_output_cr), 0x02,
+            NULL, HFILL }},
+
+        { &hf_pn_rt_data_status_redundancy_input_cr_state_is_backup,
+          { "Redundancy", "pn_rt.ds_redundancy",
+            FT_BOOLEAN, 8, TFS(&tfs_pn_rt_ds_redundancy_input_cr_state_is_backup), 0x02,
+            NULL, HFILL }},
+
+        { &hf_pn_rt_data_status_redundancy_input_cr_state_is_primary,
+          { "Redundancy", "pn_rt.ds_redundancy",
+            FT_BOOLEAN, 8, TFS(&tfs_pn_rt_ds_redundancy_input_cr_state_is_primary), 0x02,
             NULL, HFILL }},
 
         { &hf_pn_rt_data_status_primary,

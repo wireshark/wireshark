@@ -37,6 +37,7 @@
 
 /* ---- Structures for pnio_rtc1 ---- */
 extern int       proto_pn_dcp;
+extern int proto_pn_io_apdu_status;
 extern gboolean  pnio_ps_selection;  /* given by pnio preferences */
 
 /* Structure for general station information */
@@ -62,6 +63,13 @@ typedef struct tagStationInfo {
     /* Different ModuleIdentnumber */
     wmem_list_t *diff_module;
 } stationInfo;
+
+typedef struct tagApduStatusSwitch
+{
+    gboolean isRedundancyActive;
+    address dl_dst;
+    address dl_src;
+}apduStatusSwitch;
 
 /* Structure for IOCS Frames */
 typedef struct tagIocsObject {
