@@ -494,6 +494,10 @@ else()
 		# No longer supported by El Capitan clang on C++
 		#
 		-fno-delete-null-pointer-checks
+
+		# Works only with GCC 7
+		-Wduplicated-branches
+
 	)
 
 	set(C_EXTRA_WARN_FLAGS

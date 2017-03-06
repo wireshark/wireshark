@@ -748,6 +748,10 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 		# never enable this one with -Werror.
 		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wbad-function-cast, C)
+
+		# Works only with GCC 7
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wduplicated-branches)
+
 	fi
 ])
 
