@@ -4,9 +4,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  add_plugin_type@Base 1.12.0~rc1
  adler32_bytes@Base 1.12.0~rc1
  adler32_str@Base 1.12.0~rc1
- aes_cmac_encrypt_finish@Base 2.1.0
- aes_cmac_encrypt_starts@Base 2.1.0
- aes_cmac_encrypt_update@Base 2.1.0
  alaw2linear@Base 1.12.0~rc1
  ascii_strdown_inplace@Base 1.10.0
  ascii_strup_inplace@Base 1.10.0
@@ -42,7 +39,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  create_persconffile_profile@Base 1.12.0~rc1
  create_tempdir@Base 1.12.0~rc1
  create_tempfile@Base 1.12.0~rc1
- crypt_des_ecb@Base 1.12.0~rc1
+ crypt_des_ecb@Base 2.3.0
  data_file_url@Base 2.3.0
  delete_persconffile_profile@Base 1.12.0~rc1
  file_exists@Base 1.12.0~rc1
@@ -122,9 +119,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  report_open_failure@Base 1.12.0~rc1
  report_read_failure@Base 1.12.0~rc1
  report_write_failure@Base 1.12.0~rc1
- rijndael_decrypt@Base 1.12.0~rc1
- rijndael_encrypt@Base 1.12.0~rc1
- rijndael_set_key@Base 1.12.0~rc1
  running_in_build_directory@Base 1.12.0~rc1
  running_with_special_privs@Base 1.10.0
  scan_plugins@Base 1.12.0~rc1

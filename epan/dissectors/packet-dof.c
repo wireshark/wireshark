@@ -205,7 +205,6 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include <wsutil/aes.h>
 #include <wsutil/str_util.h>
 #include <epan/to_str.h>
 #include "packet-tcp.h"
@@ -2025,7 +2024,7 @@ static expert_field ei_decode_failure = EI_INIT;
 typedef struct _ccm_session_data
 {
     guint protocol_id;
-    void *cipher_data;
+    gcry_cipher_hd_t cipher_data;
     GHashTable *cipher_data_table;
     /* Starts at 1, incrementing for each new key. */
     guint32 period;
@@ -2425,6 +2424,23 @@ static const value_string dof_2008_16_security_12_m[] = {
 static int hf_security_12_count = -1;
 static int hf_security_12_permission_group_identifier = -1;
 
+static gboolean
+dof_sessions_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
+{
+    ccm_session_data *ccm_data = (ccm_session_data*) user_data;
+    gcry_cipher_close(ccm_data->cipher_data);
+    if (ccm_data->cipher_data_table) {
+        g_hash_table_destroy(ccm_data->cipher_data_table);
+    }
+    /* unregister this callback */
+    return FALSE;
+}
+
+static void dof_cipher_data_destroy (gpointer data)
+{
+    gcry_cipher_hd_t cipher_data = (gcry_cipher_hd_t) data;
+    gcry_cipher_close(cipher_data);
+}
 
 static int dissect_2008_1_dsp_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -3217,8 +3233,6 @@ static dof_globals globals;
 
 static dof_packet_data* create_packet_data(packet_info *pinfo);
 static int dof_dissect_dnp_length(tvbuff_t *tvb, packet_info *pinfo, guint8 version, gint *offset);
-static void encryptInPlace(guint protocol_id, void *cipher_state, guint8 *ptct, guint8 ptct_len);
-
 #define VALIDHEX(c) ( ((c) >= '0' && (c) <= '9') || ((c) >= 'A' && (c) <= 'F') || ((c) >= 'a' && (c) <= 'f') )
 
 
@@ -5222,49 +5236,7 @@ static void learn_operation_sid(dof_2009_1_pdu_20_opid *opid, guint8 length, con
     opid->op_sid = (dof_2009_1_pdu_19_sid)key;
 }
 
-static void encryptInPlace(guint protocol_id, void *cipher_state, guint8 *ptct, guint8 ptct_len)
-{
-    switch (protocol_id)
-    {
-    case DOF_PROTOCOL_CCM: /* Encrypt is AES */
-    {
-        rijndael_ctx *ctx = (rijndael_ctx *)cipher_state;
-        guint8 ct[16];
-
-        if (ptct_len != 16)
-        {
-            memset(ptct, 0, ptct_len);
-            return;
-        }
-
-        rijndael_encrypt(ctx, ptct, ct);
-        memcpy(ptct, ct, sizeof(ct));
-    }
-        break;
-
-    case DOF_PROTOCOL_TEP: /* Encrypt is AES */
-    {
-        rijndael_ctx *ctx = (rijndael_ctx *)cipher_state;
-        guint8 ct[16];
-
-        if (ptct_len != 16)
-        {
-            memset(ptct, 0, ptct_len);
-            return;
-        }
-
-        rijndael_encrypt(ctx, ptct, ct);
-        memcpy(ptct, ct, sizeof(ct));
-    }
-        break;
-
-    default: /* Unsupported, zero the mac. */
-        memset(ptct, 0, ptct_len);
-        return;
-    }
-}
-
-static void generateMac(guint protocol_id, void *cipher_state, guint8 *nonce, const guint8 *epp, gint a_len, guint8 *data, gint len, guint8 *mac, gint mac_len)
+static void generateMac(gcry_cipher_hd_t cipher_state, guint8 *nonce, const guint8 *epp, gint a_len, guint8 *data, gint len, guint8 *mac, gint mac_len)
 {
     guint16 i;
     guint16 cnt;
@@ -5276,7 +5248,7 @@ static void generateMac(guint protocol_id, void *cipher_state, guint8 *nonce, co
     mac[14] = len >> 8;
     mac[15] = len & 0xFF;
 
-    encryptInPlace(protocol_id, cipher_state, mac, 16);
+    gcry_cipher_encrypt(cipher_state, mac, 16, NULL, 0);
 
     mac[0] ^= (a_len >> 8);
     mac[1] ^= (a_len);
@@ -5285,7 +5257,7 @@ static void generateMac(guint protocol_id, void *cipher_state, guint8 *nonce, co
     for (cnt = 0; cnt < a_len; cnt++, i++)
     {
         if (i % 16 == 0)
-            encryptInPlace(protocol_id, cipher_state, mac, 16);
+            gcry_cipher_encrypt(cipher_state, mac, 16, NULL, 0);
 
         mac[i % 16] ^= epp[cnt];
     }
@@ -5294,12 +5266,12 @@ static void generateMac(guint protocol_id, void *cipher_state, guint8 *nonce, co
     for (cnt = 0; cnt < len; cnt++, i++)
     {
         if (i % 16 == 0)
-            encryptInPlace(protocol_id, cipher_state, mac, 16);
+            gcry_cipher_encrypt(cipher_state, mac, 16, NULL, 0);
 
         mac[i % 16] ^= data[cnt];
     }
 
-    encryptInPlace(protocol_id, cipher_state, mac, 16);
+    gcry_cipher_encrypt(cipher_state, mac, 16, NULL, 0);
 }
 
 static int decrypt(ccm_session_data *session, ccm_packet_data *pdata, guint8 *nonce, const guint8 *epp, gint a_len, guint8 *data, gint len)
@@ -5355,7 +5327,7 @@ static int decrypt(ccm_session_data *session, ccm_packet_data *pdata, guint8 *no
                 ctr[14] += 1;
             ctr[15] += 1;
             memcpy(encrypted_ctr, ctr, 16);
-            encryptInPlace(session->protocol_id, session->cipher_data, encrypted_ctr, 16);
+            gcry_cipher_encrypt(session->cipher_data, encrypted_ctr, 16, NULL, 0);
         }
 
         data[i] ^= encrypted_ctr[i % 16];
@@ -5368,13 +5340,13 @@ static int decrypt(ccm_session_data *session, ccm_packet_data *pdata, guint8 *no
     ctr[14] = 0;
     ctr[15] = 0;
     memcpy(encrypted_ctr, ctr, 16);
-    encryptInPlace(session->protocol_id, session->cipher_data, encrypted_ctr, 16);
+    gcry_cipher_encrypt(session->cipher_data, encrypted_ctr, 16, NULL, 0);
 
     for (i = 0; i < session->mac_len; i++)
         mac[i] ^= encrypted_ctr[i];
 
     /* Now we have to generate the MAC... */
-    generateMac(session->protocol_id, session->cipher_data, nonce, epp, a_len, data, (gint)(len - session->mac_len), computed_mac, session->mac_len);
+    generateMac(session->cipher_data, nonce, epp, a_len, data, (gint)(len - session->mac_len), computed_mac, session->mac_len);
     if (!memcmp(mac, computed_mac, session->mac_len))
         return 1;
 
@@ -7602,6 +7574,7 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             ccm_data = (ccm_session_data *)wmem_alloc0(wmem_file_scope(), sizeof(ccm_session_data));
             if (!ccm_data)
                 return 0;
+            wmem_register_callback(wmem_file_scope(), dof_sessions_destroy_cb, ccm_data);
 
             key_data->security_mode_key_data = ccm_data;
 
@@ -7619,7 +7592,9 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             switch (ccm_data->protocol_id)
             {
             case DOF_PROTOCOL_CCM:
-                ccm_data->cipher_data = wmem_alloc0(wmem_file_scope(), sizeof(rijndael_ctx));
+                if (gcry_cipher_open(&ccm_data->cipher_data, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_ECB, 0)) {
+                    return 0;
+                }
                 break;
 
             default:
@@ -7632,7 +7607,11 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             switch (ccm_data->protocol_id)
             {
             case DOF_PROTOCOL_CCM:
-                rijndael_set_key((rijndael_ctx *)ccm_data->cipher_data, key_data->session_key, 256);
+                if (gcry_cipher_setkey(ccm_data->cipher_data, key_data->session_key, 32)) {
+                    gcry_cipher_close(ccm_data->cipher_data);
+                    ccm_data->cipher_data = NULL;
+                    return 0;
+                }
                 break;
 
             default:
@@ -7653,20 +7632,26 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             guint8 period = (header & 0x70) >> 4;
             if (ccm_data->cipher_data_table == NULL)
             {
-                guint8 *ekey = (guint8 *)wmem_alloc0(wmem_file_scope(), sizeof(rijndael_ctx));
+                gcry_cipher_hd_t ekey;
+                if (gcry_cipher_open(&ekey, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_ECB, 0)) {
+                    return 0;
+                }
 
-                /* TODO: This needs to be freed. */
-                ccm_data->cipher_data_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+                ccm_data->cipher_data_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, dof_cipher_data_destroy);
                 ccm_data->period = 1;
                 ccm_data->periods[period] = ccm_data->period;
 
                 switch (ccm_data->protocol_id)
                 {
                 case DOF_PROTOCOL_CCM:
-                    rijndael_set_key((rijndael_ctx *)ekey, key_data->session_key, 256);
+                    if (gcry_cipher_setkey(ekey, key_data->session_key, 32)) {
+                        gcry_cipher_close(ekey);
+                        return 0;
+                    }
                     break;
 
                 default:
+                    gcry_cipher_close(ekey);
                     return 0;
                 }
 
@@ -7678,14 +7663,21 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
                 if (!lookup)
                 {
-                    guint8 *ekey = (guint8 *)wmem_alloc0(wmem_file_scope(), sizeof(rijndael_ctx));
+                    gcry_cipher_hd_t ekey;
+                    if (gcry_cipher_open(&ekey, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_ECB, 0)) {
+                        return 0;
+                    }
                     switch (ccm_data->protocol_id)
                     {
                     case DOF_PROTOCOL_CCM:
-                        rijndael_set_key((rijndael_ctx *)ekey, key_data->session_key, 256);
+                        if (gcry_cipher_setkey(ekey, key_data->session_key, 32)) {
+                            gcry_cipher_close(ekey);
+                            return 0;
+                        }
                         break;
 
                     default:
+                        gcry_cipher_close(ekey);
                         return 0;
                     }
 
@@ -7698,14 +7690,21 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                     guint8 *in_table = (guint8 *)g_hash_table_lookup(ccm_data->cipher_data_table, GUINT_TO_POINTER(lookup));
                     if (memcmp(key_data->session_key, in_table, 32) != 0)
                     {
-                        guint8 *ekey = (guint8 *)wmem_alloc0(wmem_file_scope(), sizeof(rijndael_ctx));
+                        gcry_cipher_hd_t ekey;
+                        if (gcry_cipher_open(&ekey, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_ECB, 0)) {
+                            return 0;
+                        }
                         switch (ccm_data->protocol_id)
                         {
                         case DOF_PROTOCOL_CCM:
-                            rijndael_set_key((rijndael_ctx *)ekey, key_data->session_key, 256);
+                            if (gcry_cipher_setkey(ekey, key_data->session_key, 32)) {
+                                gcry_cipher_close(ekey);
+                                return 0;
+                            }
                             break;
 
                         default:
+                            gcry_cipher_close(ekey);
                             return 0;
                         }
 
@@ -9519,7 +9518,6 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
             if (!packet->processed && rekey_data)
             {
-                rijndael_ctx cipher_state;
                 int i;
 
                 /* Produce a (possibly empty) list of potential keys based on our
@@ -9529,6 +9527,7 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 for (i = 0; i < globals.global_security->identity_data_count; i++)
                 {
                     dof_identity_data *identity = globals.global_security->identity_data + i;
+                    gcry_cipher_hd_t rijndael_handle;
                     int j;
 
                     if (identity->domain_length != rekey_data->domain_length)
@@ -9542,9 +9541,13 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
                     tvb_memcpy(tvb, ticket, start_offset, 64);
 
-                    rijndael_set_key(&cipher_state, identity->secret, 256);
-                    encryptInPlace(DOF_PROTOCOL_TEP, &cipher_state, ticket, 16);
-                    encryptInPlace(DOF_PROTOCOL_TEP, &cipher_state, ticket + 16, 16);
+                    if (!gcry_cipher_open(&rijndael_handle, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_ECB, 0)) {
+                        if (!gcry_cipher_setkey(rijndael_handle, identity->secret, 32)) {
+                            gcry_cipher_encrypt(rijndael_handle, ticket, 16, NULL, 0);
+                            gcry_cipher_encrypt(rijndael_handle, ticket + 16, 16, NULL, 0);
+                        }
+                        gcry_cipher_close(rijndael_handle);
+                    }
 
                     for (j = 0; j < 32; j++)
                         ticket[j + 32] = ticket[j + 32] ^ ticket[j];

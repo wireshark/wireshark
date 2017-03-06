@@ -39,7 +39,6 @@ endif
 # present in the APIs/ABIs of some, but not all, targets.
 libwsutil_nonrepl_INCLUDES = \
 	adler32.h		\
-	aes.h			\
 	base32.h		\
 	base64.h		\
 	bits_count_ones.h	\
@@ -59,7 +58,6 @@ libwsutil_nonrepl_INCLUDES = \
 	crc16.h			\
 	crc16-plain.h		\
 	crc32.h			\
-	des.h			\
 	eax.h			\
 	filesystem.h		\
 	frequency-utils.h	\
@@ -114,7 +112,6 @@ lib_LTLIBRARIES = libwsutil.la
 libwsutil_la_SOURCES = \
 	$(libwsutil_nonrepl_INCLUDES)	\
 	adler32.c		\
-	aes.c			\
 	airpdcap_wep.c		\
 	base32.c		\
 	base64.c		\
@@ -133,7 +130,6 @@ libwsutil_la_SOURCES = \
 	crc16.c			\
 	crc16-plain.c		\
 	crc32.c			\
-	des.c			\
 	eax.c			\
 	filesystem.c		\
 	frequency-utils.c	\

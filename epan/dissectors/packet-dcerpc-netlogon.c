@@ -27,7 +27,6 @@
 
 #include <epan/packet.h>
 #include <wsutil/wsgcrypt.h>
-#include <wsutil/des.h>
 
 /* for dissect_mscldap_string */
 #include "packet-ldap.h"
@@ -6685,8 +6684,8 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
                 {
                     password = pass_list[i];
                     if (!ws_hmac_buffer(GCRY_MD_MD5, session_key, md5, HASH_MD5_LENGTH, (guint8*) &password, 16)) {
-                        crypt_des_ecb(buf,(unsigned char*)&vars->server_challenge,session_key,1);
-                        crypt_des_ecb((unsigned char*)&calculated_cred,buf,session_key+7,1);
+                        crypt_des_ecb(buf,(unsigned char*)&vars->server_challenge,session_key);
+                        crypt_des_ecb((unsigned char*)&calculated_cred,buf,session_key+7);
 #if 0
                         printnbyte((guint8*)&calculated_cred,8,"Calculated creds:","\n");
 #endif

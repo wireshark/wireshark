@@ -23,7 +23,6 @@ include(UseABICheck)
 
 set(WSUTIL_COMMON_FILES
 	adler32.c
-	aes.c
 	airpdcap_wep.c
 	base32.c
 	base64.c
@@ -41,7 +40,6 @@ set(WSUTIL_COMMON_FILES
 	crc7.c
 	crc8.c
 	crc11.c
-	des.c
 	eax.c
 	filesystem.c
 	frequency-utils.c

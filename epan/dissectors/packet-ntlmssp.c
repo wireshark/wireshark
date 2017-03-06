@@ -40,7 +40,6 @@
 #include <epan/proto_data.h>
 
 #include <wsutil/wsgcrypt.h>
-#include <wsutil/des.h>
 #include <wsutil/crc32.h>
 #include <wsutil/str_util.h>
 
@@ -379,16 +378,14 @@ crypt_des_ecb_long(guint8 *response,
                    const guint8 *key,
                    const guint8 *data)
 {
-  guint8 pw21[21]; /* 21 bytes place for the needed key */
+  guint8 pw21[21] = { 0 }; /* 21 bytes place for the needed key */
 
-  memset(pw21, 0, sizeof(pw21));
   memcpy(pw21, key, 16);
 
   memset(response, 0, 24);
-  /* crypt_des_ecb(data, key)*/
-  crypt_des_ecb(response, data, pw21, 1);
-  crypt_des_ecb(response + 8, data, pw21 + 7, 1);
-  crypt_des_ecb(response + 16, data, pw21 + 14, 1);
+  crypt_des_ecb(response, data, pw21);
+  crypt_des_ecb(response + 8, data, pw21 + 7);
+  crypt_des_ecb(response + 16, data, pw21 + 14);
 
   return 1;
 }
@@ -410,9 +407,9 @@ ntlmssp_generate_challenge_response(guint8 *response,
 
   memset(response, 0, 24);
 
-  crypt_des_ecb(response, challenge, pw21, 1);
-  crypt_des_ecb(response + 8, challenge, pw21 + 7, 1);
-  crypt_des_ecb(response + 16, challenge, pw21 + 14, 1);
+  crypt_des_ecb(response, challenge, pw21);
+  crypt_des_ecb(response + 8, challenge, pw21 + 7);
+  crypt_des_ecb(response + 16, challenge, pw21 + 14);
 
   return 1;
 }
@@ -444,7 +441,7 @@ static void
 get_keyexchange_key(unsigned char keyexchangekey[NTLMSSP_KEY_LEN], const unsigned char sessionbasekey[NTLMSSP_KEY_LEN], const unsigned char lm_challenge_response[24], int flags)
 {
   guint8 basekey[NTLMSSP_KEY_LEN];
-  guint8 zeros[24];
+  guint8 zeros[24] = { 0 };
 
   memset(keyexchangekey, 0, NTLMSSP_KEY_LEN);
   memset(basekey, 0, NTLMSSP_KEY_LEN);
@@ -453,8 +450,8 @@ get_keyexchange_key(unsigned char keyexchangekey[NTLMSSP_KEY_LEN], const unsigne
   memset(basekey, 0xBD, 8);
   if (flags&NTLMSSP_NEGOTIATE_LM_KEY) {
     /*data, key*/
-    crypt_des_ecb(keyexchangekey, lm_challenge_response, basekey, 1);
-    crypt_des_ecb(keyexchangekey+8, lm_challenge_response, basekey+7, 1);
+    crypt_des_ecb(keyexchangekey, lm_challenge_response, basekey);
+    crypt_des_ecb(keyexchangekey+8, lm_challenge_response, basekey+7);
   }
   else {
     if (flags&NTLMSSP_REQUEST_NON_NT_SESSION) {
@@ -463,9 +460,8 @@ get_keyexchange_key(unsigned char keyexchangekey[NTLMSSP_KEY_LEN], const unsigne
        * memcpy(keyexchangekey, lm_hash, 8);
        * Let's trust samba implementation it mights seem weird but they are more often rights than the spec !
        */
-      memset(zeros, 0, 24);
-      crypt_des_ecb(keyexchangekey, zeros, basekey, 3);
-      crypt_des_ecb(keyexchangekey+8, zeros, basekey+7, 1);
+      crypt_des_ecb(keyexchangekey, zeros, basekey);
+      crypt_des_ecb(keyexchangekey+8, zeros, basekey+7);
     }
     else {
       /* it is stated page 65 of NTLM SSP spec that sessionbasekey should be encrypted with hmac_md5 using the concact of both challenge
@@ -715,8 +711,8 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
     }
   }
   if ((flags & NTLMSSP_NEGOTIATE_LM_KEY && !(flags & NTLMSSP_NEGOTIATE_NT_ONLY)) || !(flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY)  || !(flags & NTLMSSP_NEGOTIATE_NTLM)) {
-    crypt_des_ecb(lm_password_hash, lmhash_key, lm_password_upper, 1);
-    crypt_des_ecb(lm_password_hash+8, lmhash_key, lm_password_upper+7, 1);
+    crypt_des_ecb(lm_password_hash, lmhash_key, lm_password_upper);
+    crypt_des_ecb(lm_password_hash+8, lmhash_key, lm_password_upper+7);
     ntlmssp_generate_challenge_response(lm_challenge_response,
                                         lm_password_hash, serverchallenge);
     memcpy(sessionbasekey, lm_password_hash, NTLMSSP_KEY_LEN);
