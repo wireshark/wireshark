@@ -158,13 +158,18 @@ static const value_string t30_control_vals[] = {
     { 0,    NULL }
 };
 
+// initial identification - format 0000 XXXX
 #define T30_FC_DIS      0x01
 #define T30_FC_CSI      0x02
 #define T30_FC_NSF      0x04
+
+// pre-message response signals - format X010 XXXX
 #define T30_FC_CFR      0x21
 #define T30_FC_FTT      0x22
 #define T30_FC_CTR      0x23
 #define T30_FC_CSA      0x24
+
+// post-message resopnses - format X011 XXXX
 #define T30_FC_MCF      0x31
 #define T30_FC_RTN      0x32
 #define T30_FC_RTP      0x33
@@ -175,6 +180,8 @@ static const value_string t30_control_vals[] = {
 #define T30_FC_ERR      0x38
 #define T30_FC_PPR      0x3D
 #define T30_FC_FDM      0x3F
+
+// command to receive - format X100 XXXX
 #define T30_FC_DCS      0x41
 #define T30_FC_TSI      0x42
 #define T30_FC_SUB      0x43
@@ -183,13 +190,19 @@ static const value_string t30_control_vals[] = {
 #define T30_FC_TSA      0x46
 #define T30_FC_IRA      0x47
 #define T30_FC_CTC      0x48
+
+// other line control signals - format X101 XXXX
 #define T30_FC_FNV      0x53
 #define T30_FC_TR       0x56
 #define T30_FC_TNR      0x57
 #define T30_FC_CRP      0x58
 #define T30_FC_DCN      0x5F
+
+// not sure about the format and mask
 #define T30_FC_FCD      0x60
 #define T30_FC_RCP      0x61
+
+// post-message commands - format X111 XXXX
 #define T30_FC_EOM      0x71
 #define T30_FC_MPS      0x72
 #define T30_FC_EOR      0x73
@@ -200,6 +213,8 @@ static const value_string t30_control_vals[] = {
 #define T30_FC_PRI_MPS  0x7A
 #define T30_FC_PRI_EOP  0x7C
 #define T30_FC_PPS      0x7D
+
+// Command to send - format 1000 XXXX
 #define T30_FC_DTC      0x81
 #define T30_FC_CIG      0x82
 #define T30_FC_PWD      0x83
@@ -208,6 +223,12 @@ static const value_string t30_control_vals[] = {
 #define T30_FC_PSA      0x86
 #define T30_FC_CIA      0x87
 #define T30_FC_ISP      0x88
+
+
+
+
+
+
 
 static const value_string t30_facsimile_control_field_vals[] = {
     /* 0x01 */    { T30_FC_DIS,      "Digital Identification Signal" },
@@ -969,41 +990,49 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                         val_to_str_ext_const(octet & 0x7F, &t30_facsimile_control_field_vals_short_ext, "<unknown>"),
                         val_to_str_ext_const(octet & 0x7F, &t30_facsimile_control_field_vals_ext, "<unknown>") );
     /*
-        The T.30 spec shows some bits of the control being hardcoded to 1, but there is no reason to have a
+        The T.30 spec has three groups of codes: 0000 XXXX, 1000 XXXX and X.......
         bitmask here.
     */
+
     switch (octet) {
-    case T30_FC_DIS:
-    case T30_FC_DTC:
-        dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, TRUE, t38);
-        break;
-    case T30_FC_DCS:
-        dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, FALSE, t38);
-        break;
-    case T30_FC_CSI:
-    case T30_FC_CIG:
-    case T30_FC_TSI:
-    case T30_FC_PWD:
-    case T30_FC_SEP:
-    case T30_FC_SUB:
-    case T30_FC_SID:
-    case T30_FC_PSA:
-        dissect_t30_numbers(tvb, offset, pinfo, frag_len, tr_fif, t38);
-        break;
-    case T30_FC_NSF:
-    case T30_FC_NSC:
-    case T30_FC_NSS:
-        dissect_t30_non_standard_cap(tvb, offset, pinfo, frag_len, tr_fif);
-        break;
-    case T30_FC_FCD:
-        dissect_t30_facsimile_coded_data(tvb, offset, pinfo, frag_len, tr_fif, t38);
-        break;
-    case T30_FC_PPS:
-        dissect_t30_partial_page_signal(tvb, offset, pinfo, frag_len, tr_fif, t38);
-        break;
-    case T30_FC_PPR:
-        dissect_t30_partial_page_request(tvb, offset, pinfo, frag_len, tr_fif);
-        break;
+        case T30_FC_DTC:
+            dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, TRUE, t38);
+            break;
+        case T30_FC_CIG:
+        case T30_FC_PWD:
+            dissect_t30_numbers(tvb, offset, pinfo, frag_len, tr_fif, t38);
+            break;
+        default:
+            switch (octet & 0x7F) {
+            case T30_FC_DIS:
+                dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, TRUE, t38);
+                break;
+            case T30_FC_DCS:
+                dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, FALSE, t38);
+                break;
+            case T30_FC_CSI:
+            case T30_FC_TSI:
+            case T30_FC_SEP:
+            case T30_FC_SUB:
+            case T30_FC_SID:
+            case T30_FC_PSA:
+                dissect_t30_numbers(tvb, offset, pinfo, frag_len, tr_fif, t38);
+                break;
+            case T30_FC_NSF:
+            case T30_FC_NSC:
+            case T30_FC_NSS:
+                dissect_t30_non_standard_cap(tvb, offset, pinfo, frag_len, tr_fif);
+                break;
+            case T30_FC_FCD:
+                dissect_t30_facsimile_coded_data(tvb, offset, pinfo, frag_len, tr_fif, t38);
+                break;
+            case T30_FC_PPS:
+                dissect_t30_partial_page_signal(tvb, offset, pinfo, frag_len, tr_fif, t38);
+                break;
+            case T30_FC_PPR:
+                dissect_t30_partial_page_request(tvb, offset, pinfo, frag_len, tr_fif);
+                break;
+            }
     }
 
     col_append_str(pinfo->cinfo, COL_INFO, ")");
