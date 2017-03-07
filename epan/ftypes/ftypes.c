@@ -511,8 +511,13 @@ fvalue_set_byte_array(fvalue_t *fv, GByteArray *value)
 void
 fvalue_set_bytes(fvalue_t *fv, const guint8 *value)
 {
-	g_assert(fv->ftype->set_value_bytes);
-	fv->ftype->set_value_bytes(fv, value);
+	g_assert(fv->ftype->ftype == FT_AX25 ||
+			fv->ftype->ftype == FT_VINES ||
+			fv->ftype->ftype == FT_ETHER ||
+			fv->ftype->ftype == FT_FCWWN ||
+			fv->ftype->ftype == FT_IPv6);
+	g_assert(fv->ftype->set_value.set_value_bytes);
+	fv->ftype->set_value.set_value_bytes(fv, value);
 }
 
 void

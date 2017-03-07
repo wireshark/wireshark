@@ -1440,7 +1440,6 @@ Example: 114 is 0x0072
 
         { NULL },                             /* union set_value */
 
-        NULL,                                 /* set_value_bytes */
         NULL,                                 /* set_value_guid */
         NULL,                                 /* set_value_time */
         NULL,                                 /* set_value_string */
@@ -1513,7 +1512,6 @@ Example: 36.4 is 0xFF00016C
 
         { NULL },                            /* union set_value */
 
-        NULL,                                /* set_value_bytes */
         NULL,                                /* set_value_guid */
         NULL,                                /* set_value_time */
         NULL,                                /* set_value_string */

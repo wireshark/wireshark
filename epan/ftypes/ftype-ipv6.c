@@ -235,9 +235,8 @@ ftype_register_ipv6(void)
 		ipv6_to_repr,			/* val_to_string_repr */
 		ipv6_repr_len,			/* len_string_repr */
 
-		{ NULL },			/* union set_value */
+		{ .set_value_bytes = ipv6_fvalue_set },	/* union set_value */
 
-		ipv6_fvalue_set,		/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
 		NULL,				/* set_value_string */

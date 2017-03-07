@@ -41,7 +41,6 @@ ftype_register_none(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_bytes */
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
 		NULL,				/* set_value_string */

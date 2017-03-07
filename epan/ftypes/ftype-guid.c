@@ -137,7 +137,6 @@ ftype_register_guid(void)
 
         { NULL },            /* union set_value */
 
-        NULL,                /* set_value_bytes */
         guid_fvalue_set_guid, /* set_value_guid */
         NULL,                /* set_value_time */
         NULL,                /* set_value_string */
