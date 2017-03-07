@@ -1358,8 +1358,8 @@ dissect_obex_application_parameter_bt_pbap(tvbuff_t *tvb, packet_info *pinfo, pr
                 proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_list_start_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
                 break;
             case 0x06: /* Filter */
-                proto_tree_add_bitmask(parameter_tree, tvb, offset, hf_pbap_application_parameter_data_filter, ett_obex_filter,  hfx_pbap_application_parameter_data_filter_1, ENC_BIG_ENDIAN);
-                proto_tree_add_bitmask(parameter_tree, tvb, offset, hf_pbap_application_parameter_data_filter, ett_obex_filter,  hfx_pbap_application_parameter_data_filter_0, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(parameter_tree, tvb, offset + 0, hf_pbap_application_parameter_data_filter, ett_obex_filter,  hfx_pbap_application_parameter_data_filter_1, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(parameter_tree, tvb, offset + 4, hf_pbap_application_parameter_data_filter, ett_obex_filter,  hfx_pbap_application_parameter_data_filter_0, ENC_BIG_ENDIAN);
                 break;
             case 0x07: /* Format */
                 proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_format, tvb, offset, 1, ENC_NA);
@@ -1377,8 +1377,8 @@ dissect_obex_application_parameter_bt_pbap(tvbuff_t *tvb, packet_info *pinfo, pr
                 proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_secondary_version_counter, tvb, offset, 16, ENC_NA);
                 break;
             case 0x0C: /* vCard Selector */
-                proto_tree_add_bitmask(parameter_tree, tvb, offset, hf_pbap_application_parameter_vcard_selector, ett_obex_filter,  hfx_pbap_application_parameter_data_filter_1, ENC_BIG_ENDIAN);
-                proto_tree_add_bitmask(parameter_tree, tvb, offset, hf_pbap_application_parameter_vcard_selector, ett_obex_filter,  hfx_pbap_application_parameter_data_filter_0, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(parameter_tree, tvb, offset + 0, hf_pbap_application_parameter_vcard_selector, ett_obex_filter,  hfx_pbap_application_parameter_data_filter_1, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(parameter_tree, tvb, offset + 4, hf_pbap_application_parameter_vcard_selector, ett_obex_filter,  hfx_pbap_application_parameter_data_filter_0, ENC_BIG_ENDIAN);
                 break;
             case 0x0D: /* Database Identifier */
                 proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_database_identifier, tvb, offset, 16, ENC_NA);
