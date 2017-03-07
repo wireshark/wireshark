@@ -165,7 +165,6 @@ ftype_register_pcre(void)
 
         { NULL },           /* union set_value */
 
-        NULL,               /* set_value_guid */
         NULL,               /* set_value_time */
         gregex_fvalue_set,  /* set_value_string */
         NULL,               /* set_value_protocol */

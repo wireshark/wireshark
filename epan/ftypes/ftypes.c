@@ -523,8 +523,9 @@ fvalue_set_bytes(fvalue_t *fv, const guint8 *value)
 void
 fvalue_set_guid(fvalue_t *fv, const e_guid_t *value)
 {
-	g_assert(fv->ftype->set_value_guid);
-	fv->ftype->set_value_guid(fv, value);
+	g_assert(fv->ftype->ftype == FT_GUID);
+	g_assert(fv->ftype->set_value.set_value_guid);
+	fv->ftype->set_value.set_value_guid(fv, value);
 }
 
 void

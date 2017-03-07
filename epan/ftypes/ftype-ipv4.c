@@ -187,7 +187,6 @@ ftype_register_ipv4(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
 		NULL,				/* set_value_string */
 		NULL,				/* set_value_protocol */

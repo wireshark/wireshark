@@ -465,7 +465,6 @@ ftype_register_tvbuff(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
 		NULL,				/* set_value_string */
 		value_set,			/* set_value_protocol */

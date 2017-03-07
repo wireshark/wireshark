@@ -135,9 +135,8 @@ ftype_register_guid(void)
         guid_to_repr,        /* val_to_string_repr */
         guid_repr_len,       /* len_string_repr */
 
-        { NULL },            /* union set_value */
+        { .set_value_guid = guid_fvalue_set_guid }, /* union set_value */
 
-        guid_fvalue_set_guid, /* set_value_guid */
         NULL,                /* set_value_time */
         NULL,                /* set_value_string */
         NULL,                /* set_value_protocol */
