@@ -2945,6 +2945,9 @@ static void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, proto_tree *
                 proto_tree_add_format_text(tree, tvb, current_offset, length);
             }
         }
+        else {
+            proto_tree_add_format_text(tree, tvb, current_offset, length);
+        }
 
         current_offset = semi_colon_offset + 1;
     }
