@@ -231,6 +231,8 @@ static gint hf_sip_feature_cap            = -1;
 static gint hf_sip_p_acc_net_i_acc_type   = -1;
 static gint hf_sip_p_acc_net_i_ucid_3gpp  = -1;
 
+static gint hf_sip_service_priority = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_sip                       = -1;
 static gint ett_sip_reqresp               = -1;
@@ -1555,6 +1557,53 @@ sip_proto_set_format_text(const proto_tree *tree, proto_item *item, tvbuff_t *tv
     if (tree != item && item && PTREE_DATA(item)->visible)
         proto_item_set_text(item, "%s", tvb_format_text(tvb, offset, length));
 }
+/*
+ * XXXX If/when more parameters are added consider doing something similar to what's done in 
+ * packet-magaco.c for find_megaco_localParam_names() possibly adding the hf to the array and have a generic
+ * dissection function here.
+ */
+static void
+dissect_sip_generic_parameters(tvbuff_t *tvb, proto_tree* tree, packet_info *pinfo _U_, gint current_offset, gint line_end_offset)
+{
+    gint semi_colon_offset, par_name_end_offset, equals_offset, length;
+    /* Loop over the generic parameter(s)*/
+    while (current_offset < line_end_offset) {
+        gchar *param_name = NULL;
+
+        /* skip Spaces and Tabs */
+        current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+
+        semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
+
+        if (semi_colon_offset == -1) {
+            semi_colon_offset = line_end_offset;
+        }
+
+        length = semi_colon_offset - current_offset;
+
+        /* Parse parameter and value */
+        equals_offset = tvb_find_guint8(tvb, current_offset + 1, length, '=');
+        if (equals_offset != -1) {
+            /* Has value part */
+            par_name_end_offset = equals_offset;
+            /* Extract the parameter name */
+            param_name = tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, par_name_end_offset - current_offset, ENC_UTF_8 | ENC_NA);
+            /* Access-Info fields  */
+            if ((param_name != NULL) && (g_ascii_strcasecmp(param_name, "service-priority") == 0)) {
+                proto_tree_add_item(tree, hf_sip_service_priority, tvb,
+                    equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8 | ENC_NA);
+            }
+            else {
+                proto_tree_add_format_text(tree, tvb, current_offset, length);
+            }
+        }
+        else {
+            proto_tree_add_format_text(tree, tvb, current_offset, length);
+        }
+        current_offset = semi_colon_offset + 1;
+    }
+}
+
 
 /*
  *           History-Info = "History-Info" HCOLON
@@ -3566,6 +3615,35 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             sip_uri_offset_init(&uri_offsets);
                             if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
                                  display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_pai_uri);
+                        }
+                        break;
+                    case POS_P_ASSOCIATED_URI:
+                        if (hdr_tree)
+                        {
+                            sip_element_item = sip_proto_tree_add_string(hdr_tree,
+                                hf_header_array[hf_index], tvb,
+                                offset, next_offset - offset,
+                                value_offset, value_len);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+                            /*
+                             * P-Associated-URI       = "P-Associated-URI" HCOLON
+                             *                          [p-aso-uri-spec]
+                             *                          *(COMMA p-aso-uri-spec)
+                             * p-aso-uri-spec         = name-addr *(SEMI ai-param)
+                             * ai-param               = generic-param
+                             */
+                            /* Skip to the end of the URI directly */
+                            semi_colon_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, '>');
+                            if (semi_colon_offset != -1) {
+                                semi_colon_offset = tvb_find_guint8(tvb, semi_colon_offset, line_end_offset - semi_colon_offset, ';');
+                                if (semi_colon_offset != -1) {
+                                    sip_element_tree = proto_item_add_subtree(sip_element_item,
+                                        ett_sip_element);
+                                    /* We have generic parameters */
+                                    dissect_sip_generic_parameters(tvb, sip_element_tree, pinfo, semi_colon_offset + 1, line_end_offset);
+                                }
+                            }
+
                         }
                         break;
                     case POS_HISTORY_INFO:
@@ -6909,13 +6987,17 @@ void proto_register_sip(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
-        {
-            &hf_sip_feature_cap,
-            { "Feature Cap",  "sip.feature_cap",
-                FT_STRING, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }
+        { &hf_sip_feature_cap,
+          { "Feature Cap",  "sip.feature_cap",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_sip_service_priority,
+          { "Service Priority",  "sip.service_priority",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         }
-    };
+    }; 
 
     /* raw_sip header field(s) */
     static hf_register_info raw_hf[] = {
