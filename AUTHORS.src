@@ -3699,6 +3699,10 @@ Kim Kempf		<kim.kempf[AT]apcon.com> {
 	802.1BR E-Tag dissector
 }
 
+S. Shapira		<sswsdev[AT]gmail.com> {
+	UMTS FP heuristic dissectors
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>

@@ -480,30 +480,30 @@ static const value_string common_control_frame_type_vals[] = {
 
 /* 0 to 7*/
 static const guint8 hsdsch_macdflow_id_rlc_map[] = {
-	RLC_UM,                   /*0 SRB */
-	RLC_AM,                   /*1 Interactive PS*/
-	RLC_AM,                   /*2 Interatcive PS*/
-	RLC_UNKNOWN_MODE,         /*3 ???*/
-	RLC_AM,                   /*4 Streaming PS*/
-	RLC_UNKNOWN_MODE,
-	RLC_UNKNOWN_MODE,
-	RLC_UNKNOWN_MODE
+    RLC_UM,                   /*0 SRB */
+    RLC_AM,                   /*1 Interactive PS*/
+    RLC_AM,                   /*2 Interatcive PS*/
+    RLC_UNKNOWN_MODE,         /*3 ???*/
+    RLC_AM,                   /*4 Streaming PS*/
+    RLC_UNKNOWN_MODE,
+    RLC_UNKNOWN_MODE,
+    RLC_UNKNOWN_MODE
 };
 
 /* Mapping hsdsch MACd-FlowId to MAC_CONTENT, basically flowid = 1 (0) => SRB*/
 /* 1 to 8*/
 static const guint8 hsdsch_macdflow_id_mac_content_map[] = {
-	MAC_CONTENT_DCCH,	/*1 SRB */
-	MAC_CONTENT_PS_DTCH, /*2 Interactive PS*/
-	MAC_CONTENT_PS_DTCH,	/*3 Interatcive PS*/
-	RLC_UNKNOWN_MODE, /*4 ???*/
-	MAC_CONTENT_PS_DTCH,	/*5 Streaming PS*/
-	RLC_UNKNOWN_MODE,
-	RLC_UNKNOWN_MODE,
-	RLC_UNKNOWN_MODE
-	};
+    MAC_CONTENT_DCCH,    /*1 SRB */
+    MAC_CONTENT_PS_DTCH, /*2 Interactive PS*/
+    MAC_CONTENT_PS_DTCH, /*3 Interatcive PS*/
+    RLC_UNKNOWN_MODE,    /*4 ???*/
+    MAC_CONTENT_PS_DTCH, /*5 Streaming PS*/
+    RLC_UNKNOWN_MODE,
+    RLC_UNKNOWN_MODE,
+    RLC_UNKNOWN_MODE
+};
 
-/* Make fake logical channel id's based on MACdFlow-ID's, 
+/* Make fake logical channel id's based on MACdFlow-ID's,
 * XXXX Bug 12121 expanded the number of entries to 8(+2),
 * not at all sure what the proper value should be 0xfF?
 */
@@ -3828,6 +3828,645 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset, header_length);
     }
 }
+/* Validates the header CRC in a Control FP frame */
+/* Should only be used in heuristic dissectors! */
+static gboolean
+check_control_frame_crc_for_heur(tvbuff_t * tvb)
+{
+    guint8 crc = 0;
+    guint8 calc_crc = 0;
+    guint8 * data = NULL;
+
+    crc = tvb_get_guint8(tvb, 0) >> 1;
+    /* Get data. */
+    data = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb));
+    /* Include only FT flag bit in CRC calculation. */
+    data[0] = data[0] & 1;
+    calc_crc = crc7update(0, data, tvb_reported_length(tvb));
+    calc_crc = crc7finalize(calc_crc);
+
+    return calc_crc == crc;
+}
+/* Validates the header CRC in a Data FP frame */
+/* Should only be used in heuristic dissectors! */
+static gboolean
+check_header_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
+{
+    guint8 crc = 0;
+    guint8 calc_crc = 0;
+    guint8 * data = NULL;
+
+    crc = tvb_get_guint8(tvb, 0) >> 1;
+    /* Get data of header excluding the first byte */
+    data = (guint8 *)tvb_get_ptr(tvb, 1, header_length - 1);
+
+    calc_crc = crc7update(0, data, header_length - 1);
+    calc_crc = crc7finalize(calc_crc);
+
+    return calc_crc == crc;
+}
+/* Validates the payload CRC in a Data FP frame */
+/* Should only be used in heuristic dissectors! */
+static gboolean
+check_payload_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
+{
+    guint16 frame_length;
+    guint16 crc_index;
+    guint16 crc = 0;
+    guint16 calc_crc = 0;
+    guint16 payload_index;
+    guint16 payload_length;
+    guint8 *data = NULL;
+
+    frame_length = tvb_reported_length(tvb);
+    if (frame_length < 2) {
+        return FALSE;
+    }
+    /* Payload CRC is in the last 2 bytes of the packet */
+    crc_index = frame_length - 2;
+    crc = tvb_get_bits16(tvb, crc_index * 8, 16, ENC_BIG_ENDIAN);
+
+    payload_index = header_length; /* payload first index is the same as the header length */
+    payload_length = (frame_length - payload_index) - 2;
+    data = (guint8 *)tvb_get_ptr(tvb, payload_index, payload_length);
+    calc_crc = crc16_8005_noreflect_noxor(data, payload_length);
+
+    return calc_crc == crc;
+}
+/* Generates a unique 32bit identifier based on the frame's meta data */
+/* This ID is used in the RLC dissector for reassembly */
+/* Should only be used in heuristic dissectors! */
+static guint32
+generate_ue_id_for_heur(packet_info *pinfo)
+{
+    if (pinfo->ptype != PT_UDP &&  pinfo->src.type == AT_IPv4 &&  pinfo->dst.type == AT_IPv4) {
+        /* This logic assumes FP is delivered over IP/UDP*/
+        /* Will return the same ID even if the address and ports are reversed */
+
+        /* srcXor: [ ------- Source Address ------- ] (4 bytes)*/
+        /*                         XOR                         */
+        /*         [  Source Port  ][  Source Port  ] (4 bytes)*/
+        int srcXor = *((guint32*)pinfo->src.data) ^ ((pinfo->srcport << 16) | (pinfo->srcport));
+
+        /* dstXor: [ ---- Destination  Address ---- ] (4 bytes)*/
+        /*                         XOR                         */
+        /*         [ - Dest Port - ][ - Dest Port - ] (4 bytes)*/
+        int dstXor = *((guint32*)pinfo->dst.data) ^ ((pinfo->destport << 16) | (pinfo->destport));
+        return srcXor ^ dstXor;
+    }
+    else {
+        /* Fallback - When IP and/or UDP are missing for whatever reason */
+        /* Using the frame number of the first heuristicly dissected frame as the UE ID should be unique enough */
+        /* The bitwise NOT operator is used to prevent low UE ID values which are likely to collide with legitimate UE IDs derived from C-RNTIs in FACH/RACH */
+        return ~(pinfo->num);
+    }
+}
+/*
+* Attaches conversation info to both the downlink and uplink 'conversations' (streams)
+* (Required since only one of them is checked in every dissected FP packet)
+*/
+static void
+fill_pch_coversation_info_for_heur(umts_fp_conversation_info_t* umts_fp_conversation_info ,packet_info *pinfo)
+{
+    umts_fp_conversation_info->iface_type = IuB_Interface;
+    umts_fp_conversation_info->division = Division_FDD;
+    umts_fp_conversation_info->dl_frame_number = pinfo->num;
+    umts_fp_conversation_info->ul_frame_number = pinfo->num;
+    umts_fp_conversation_info->dch_crc_present = 1;
+    umts_fp_conversation_info->com_context_id = generate_ue_id_for_heur(pinfo);
+    umts_fp_conversation_info->rlc_mode = FP_RLC_AM;
+    copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &pinfo->src);
+    umts_fp_conversation_info->crnc_port = pinfo->srcport;
+    umts_fp_conversation_info->channel = CHANNEL_PCH;
+    umts_fp_conversation_info->num_dch_in_flow = 1;
+    umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = 1;
+    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[1] = 1;
+}
+static void
+set_both_sides_umts_fp_conv_data(packet_info *pinfo, umts_fp_conversation_info_t *umts_fp_conversation_info)
+{
+    conversation_t   *packet_direction_conv;
+    conversation_t   *other_direction_conv;
+
+    if (pinfo == NULL) {
+        return;
+    }
+
+    /* Finding or creating conversation for the way the packet is heading */
+    packet_direction_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+        pinfo->ptype,
+        pinfo->destport, pinfo->srcport, NO_ADDR_B);
+
+    if (packet_direction_conv == NULL) {
+        /* Conversation does not exist yet, creating one now. */
+        packet_direction_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+            pinfo->ptype,
+            pinfo->destport, pinfo->srcport, NO_ADDR_B);
+    }
+    conversation_add_proto_data(packet_direction_conv, proto_fp, umts_fp_conversation_info);
+
+    /* Finding or creating conversation for the other side */
+    other_direction_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst,
+        pinfo->ptype,
+        pinfo->srcport, pinfo->destport, NO_ADDR_B);
+
+    if (other_direction_conv == NULL) {
+        /* Conversation does not exist yet, creating one now. */
+        other_direction_conv = conversation_new(pinfo->num, &pinfo->net_src, &pinfo->net_dst,
+            pinfo->ptype,
+            pinfo->srcport, pinfo->destport, NO_ADDR_B);
+    }
+    conversation_add_proto_data(other_direction_conv, proto_fp, umts_fp_conversation_info);
+
+}
+static gboolean
+heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    conversation_t   *p_conv;
+    umts_fp_conversation_info_t* umts_fp_conversation_info;
+    struct fp_info *p_fp_info;
+    int length;
+    guint8 frame_type;
+    guint8 tfi;
+
+    /* Trying to find existing conversation */
+    p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+        pinfo->ptype,
+        pinfo->destport, pinfo->srcport, NO_ADDR_B);
+
+    if (p_conv != NULL) {
+        /* Checking if the conversation was already framed */
+        umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
+        if (umts_fp_conversation_info) {
+            if (umts_fp_conversation_info->channel == CHANNEL_DCH) {
+                conversation_set_dissector(p_conv, fp_handle);
+                dissect_fp(tvb, pinfo, tree, data);
+                return TRUE;
+            }
+            else {
+                return FALSE;
+            }
+        }
+    }
+
+    /* Making sure FP info isn't already attached */
+    p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+    if (p_fp_info) {
+        return FALSE;
+    }
+
+    frame_type = tvb_get_guint8(tvb, 0) & 0x01;
+    if (frame_type == 1) { /* is 'control' frame type*/
+        /* Asserting that the Header CRC is correct */
+        if (!check_control_frame_crc_for_heur(tvb)) {
+            return FALSE;
+        }
+        /* All checks passed - This is an unknown FP frame. */
+        /* To allow dissection of this frame after umts_fp_conversation_info will be added in a later frame */
+        /* the conversation must be created here if it doesn't exist yet*/
+        if (p_conv == NULL) {
+            p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                pinfo->ptype,
+                pinfo->destport, pinfo->srcport, NO_ADDR_B);
+        }
+        return FALSE;
+    }
+
+    length = tvb_reported_length(tvb);
+    tfi = tvb_get_guint8(tvb, 2) & 0x1f;
+
+    /* Checking if this is a DCH frame with 0 TBs*/
+    if (tfi == 0x00)
+    {
+        if (length != 5 /* DL */ && length != 7 /* UL */) {
+            return FALSE;
+        }
+        if (!check_header_crc_for_heur(tvb, 3)) {
+            return FALSE;
+        }
+        if (!check_payload_crc_for_heur(tvb, 3)) {
+            return FALSE;
+        }
+        /* All checks passed - This is an unknown DCH FP frame. */
+        /* To allow dissection of this frame after umts_fp_conversation_info will be added in a later frame */
+        /* the conversation must be created here if it doesn't exist yet*/
+        if (p_conv == NULL) {
+            p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                pinfo->ptype,
+                pinfo->destport, pinfo->srcport, NO_ADDR_B);
+        }
+        return FALSE;
+    }
+
+    /* Checking this is a DCH frame with 1 TB */
+    if (tfi != 0x01) {
+        return FALSE;
+    }
+
+    /* Expecting specific lengths: 24 for downlink frames, 26 for uplink frames */
+    length = tvb_reported_length(tvb);
+    if (length != 24 /* DL */ && length != 26 /* UL */) {
+        return FALSE;
+    }
+
+    if (!check_header_crc_for_heur(tvb, 3)) {
+        return FALSE;
+    }
+    if (!check_payload_crc_for_heur(tvb, 3)) {
+        return FALSE;
+    }
+
+    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    umts_fp_conversation_info->iface_type = IuB_Interface;
+    umts_fp_conversation_info->division = Division_FDD;
+    umts_fp_conversation_info->dl_frame_number = pinfo->num;
+    umts_fp_conversation_info->ul_frame_number = pinfo->num;
+    umts_fp_conversation_info->dch_crc_present = 1;
+    umts_fp_conversation_info->com_context_id = generate_ue_id_for_heur(pinfo);
+    umts_fp_conversation_info->rlc_mode = FP_RLC_AM;
+    if (length == 24 || length == 5) { /* Downlink */
+        copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &pinfo->src);
+        umts_fp_conversation_info->crnc_port = pinfo->srcport;
+    }
+    else { /* Uplink*/
+        copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &pinfo->dst);
+        umts_fp_conversation_info->crnc_port = pinfo->destport;
+    }
+    umts_fp_conversation_info->channel = CHANNEL_DCH;
+    umts_fp_conversation_info->num_dch_in_flow = 1;
+    umts_fp_conversation_info->dchs_in_flow_list[0] = 31;
+    umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = 1;
+    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[1] = 1;
+    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = 148;
+    umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = 1;
+    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[1] = 1;
+    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[1] = 148;
+    set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+    conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
+    dissect_fp(tvb, pinfo, tree, data);
+    return TRUE;
+}
+static gboolean
+heur_dissect_fp_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    conversation_t   *p_conv;
+    umts_fp_conversation_info_t* umts_fp_conversation_info;
+    struct fp_info *p_fp_info;
+    int length;
+    guint8 frame_type;
+    guint8 tfi;
+    guint8 tctf;
+
+    /* Finding or creating conversation */
+    p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+        pinfo->ptype,
+        pinfo->destport, pinfo->srcport, NO_ADDR_B);
+
+    if (p_conv != NULL) {
+        /* Checking if the conversation was already framed */
+        umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
+        if (umts_fp_conversation_info) {
+            if (umts_fp_conversation_info->channel == CHANNEL_FACH_FDD) {
+                conversation_set_dissector(p_conv, fp_handle);
+                dissect_fp(tvb, pinfo, tree, data);
+                return TRUE;
+            }
+            else {
+                return FALSE;
+            }
+        }
+    }
+
+    /* Expecting specific lengths: 27 for frames with 1 TB, 48 for frames with 2 TBs */
+    length = tvb_reported_length(tvb);
+    if (length != 27 && length != 48) {
+        return FALSE;
+    }
+
+    p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+
+    /* Making sure FP info isn't already attached */
+    if (p_fp_info) {
+        return FALSE;
+    }
+
+    frame_type = tvb_get_guint8(tvb, 0) & 0x01;
+    if (frame_type == 1) { /* is 'control' frame type*/
+                           /* We can't tell the FP type and content of control frames */
+        return FALSE;
+    }
+
+    tfi = tvb_get_guint8(tvb, 2) & 0x1f;
+    if (length == 27 && tfi != 0x01) {
+        return FALSE;
+    }
+    if (length == 48 && tfi != 0x02) {
+        return FALSE;
+    }
+
+    tctf = tvb_get_guint8(tvb, 4);
+    /* Asserting the TCTF field contains a valid (non reserved) value according to TS 25.321 Table 9.2.1-2 */
+    if (tctf != 0x40 && /* CCCH */
+        tctf != 0x50 && /* MCCH */
+        tctf != 0x5F && /* MSCH */
+        tctf != 0x80 && /* CTCH */
+        (tctf >> 4) != 0x06 && /* MTCH */
+        (tctf >> 6) != 0x00 && /* BCCH */
+        (tctf >> 6) != 0x03) { /* DCCH or DTCH over FACH */
+        return FALSE;
+    }
+
+    if (!check_header_crc_for_heur(tvb, 4)) {
+        return FALSE;
+    }
+    if (!check_payload_crc_for_heur(tvb, 4)) {
+        return FALSE;
+    }
+
+    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    umts_fp_conversation_info->iface_type = IuB_Interface;
+    umts_fp_conversation_info->division = Division_FDD;
+    umts_fp_conversation_info->dl_frame_number = pinfo->num;
+    umts_fp_conversation_info->ul_frame_number = pinfo->num;
+    umts_fp_conversation_info->dch_crc_present = 1;
+    umts_fp_conversation_info->com_context_id = generate_ue_id_for_heur(pinfo);
+    umts_fp_conversation_info->rlc_mode = FP_RLC_AM;
+    copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &pinfo->src);
+    umts_fp_conversation_info->crnc_port = pinfo->srcport;
+    umts_fp_conversation_info->channel = CHANNEL_FACH_FDD;
+    umts_fp_conversation_info->num_dch_in_flow = 1;
+    umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = 1;
+    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[1] = 1;
+    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = 168;
+    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[2] = 2;
+    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[2] = 168;
+    set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+    conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
+    dissect_fp(tvb, pinfo, tree, data);
+    return TRUE;
+}
+static gboolean
+heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    conversation_t   *p_conv;
+    umts_fp_conversation_info_t* umts_fp_conversation_info;
+    struct fp_info *p_fp_info;
+    int length;
+    guint8 frame_type;
+    guint8 tfi;
+    guint8 tctf;
+
+    /* Finding or creating conversation */
+    p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+        pinfo->ptype,
+        pinfo->destport, pinfo->srcport, NO_ADDR_B);
+
+    if (p_conv != NULL) {
+        /* Checking if the conversation was already framed */
+        umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
+        if (umts_fp_conversation_info) {
+            if (umts_fp_conversation_info->channel == CHANNEL_RACH_FDD) {
+                conversation_set_dissector(p_conv, fp_handle);
+                dissect_fp(tvb, pinfo, tree, data);
+                return TRUE;
+            }
+            else {
+                return FALSE;
+            }
+        }
+    }
+
+    /* Expecting specific lengths: all rach frames are 28 bytes long */
+    length = tvb_reported_length(tvb);
+    if (length != 28) {
+        return FALSE;
+    }
+
+    p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+
+    /* Making sure FP info isn't already attached */
+    if (p_fp_info) {
+        return FALSE;
+    }
+
+    frame_type = tvb_get_guint8(tvb, 0) & 0x01;
+    if (frame_type == 1) { /* is 'control' frame type*/
+                           /* We can't tell the FP type and content of control frames */
+        return FALSE;
+    }
+
+    tfi = tvb_get_guint8(tvb, 2) & 0x1f;
+    if (tfi != 0x00) {
+        return FALSE;
+    }
+
+    tctf = tvb_get_guint8(tvb, 4) >> 6;
+    /* Asserting the TCTF field contains a valid (non reserved) value according to TS 25.321 Table 9.2.1-4 */
+    if (tctf != 0x00 && /* CCCH */
+        tctf != 0x01)  /* DCCH over RACH */
+    {
+        return FALSE;
+    }
+
+    if (!check_header_crc_for_heur(tvb, 4)) {
+        return FALSE;
+    }
+    if (!check_payload_crc_for_heur(tvb, 4)) {
+        return FALSE;
+    }
+
+    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    umts_fp_conversation_info->iface_type = IuB_Interface;
+    umts_fp_conversation_info->division = Division_FDD;
+    umts_fp_conversation_info->dl_frame_number = pinfo->num;
+    umts_fp_conversation_info->ul_frame_number = pinfo->num;
+    umts_fp_conversation_info->dch_crc_present = 1;
+    umts_fp_conversation_info->com_context_id = generate_ue_id_for_heur(pinfo);
+    umts_fp_conversation_info->rlc_mode = FP_RLC_AM;
+    copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &pinfo->dst);
+    umts_fp_conversation_info->crnc_port = pinfo->destport;
+    umts_fp_conversation_info->channel = CHANNEL_RACH_FDD;
+    umts_fp_conversation_info->num_dch_in_flow = 1;
+    umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = 0;
+    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[0] = 1;
+    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[0] = 168;
+    set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+    conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
+    dissect_fp(tvb, pinfo, tree, data);
+    return TRUE;
+}
+static gboolean
+heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    conversation_t   *p_conv;
+    umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
+    struct fp_info *p_fp_info;
+    int length;
+    guint8 frame_type;
+    guint8 reserved_bits;
+    guint8 tfi;
+    guint8 pi_byte_length;
+    gboolean pi_present;
+    gboolean tb_size_found;
+    gboolean pi_length_found;
+
+    /* To correctly dissect a PCH stream 2 parameters are required: PI Bitmap length & TB length */
+    /* Unfortunately, both are optional in each packet and in some cases no packet will contain both */
+    /* Hence gathering the info from 2 different frames is sometimes required. */
+
+    length = tvb_reported_length(tvb);
+
+    /* Finding or creating conversation */
+    p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+        pinfo->ptype,
+        pinfo->destport, pinfo->srcport, NO_ADDR_B);
+
+    if (p_conv != NULL) {
+        /* Checking if the conversation was already framed */
+        umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
+        if (umts_fp_conversation_info) {
+            if (umts_fp_conversation_info->channel == CHANNEL_PCH) {
+                pi_length_found = umts_fp_conversation_info->paging_indications != 0;
+                tb_size_found = umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] != 0;
+                if (pi_length_found && tb_size_found) {
+                    /* Stream already framed - contains both PI length and TB size */
+                    dissect_fp(tvb, pinfo, tree, data);
+                    return TRUE;
+                }
+            }
+            else {
+                return FALSE;
+            }
+        }
+        else {
+            /* FP conversatio info not attached - no PCH info is known */
+            tb_size_found = FALSE;
+            pi_length_found = FALSE;
+        }
+    }
+    else {
+        /* A conversatio does not exist yet - no PCH info is known */
+        tb_size_found = FALSE;
+        pi_length_found = FALSE;
+    }
+
+    p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+    /* Making sure FP info isn't already attached */
+    if (p_fp_info) {
+        return FALSE;
+    }
+
+    frame_type = tvb_get_guint8(tvb, 0) & 0x01;
+    if (frame_type == 1) { /* is 'control' frame type*/
+                           /* We can't tell the FP type and content of control frames */
+        return FALSE;
+    }
+
+    /* Checking bits after CFN and before PI indicator are zeroed */
+    reserved_bits = tvb_get_guint8(tvb, 2) & 0x0E;
+    if (reserved_bits != 0x00) {
+        return FALSE;
+    }
+
+    tfi = tvb_get_guint8(tvb, 3) & 0x1f;
+    if (tfi != 0x00 && tfi != 0x01) {
+        return FALSE;
+    }
+
+    if (!check_header_crc_for_heur(tvb, 4)) {
+        return FALSE;
+    }
+    if (!check_payload_crc_for_heur(tvb, 4)) {
+        return FALSE;
+    }
+
+    pi_present = tvb_get_guint8(tvb, 2) & 0x01; /* Rightmost bit in the 3rd byte */
+    if (pi_present) {
+        if (tfi == 0x00 && !pi_length_found) {
+            /* PI Bitmap present and No TB. Can calculate PI bitmap length */
+            guint8 pi_bit_length;
+            pi_byte_length = length - 6; /* Removing header length (4) and footer length (2)*/
+            switch (pi_byte_length)
+            {
+            case 3: /* 18 bits bitmap + padding */
+                pi_bit_length = 18;
+                break;
+            case 5: /* 36 bits bitmap + padding */
+                pi_bit_length = 36;
+                break;
+            case 9: /* 72 bits bitmap */
+                pi_bit_length = 72;
+                break;
+            case 18: /* 144 bits bitmap */
+                pi_bit_length = 144;
+                break;
+            default:
+                return FALSE;
+            }
+            if (p_conv == NULL) {
+                /* Conversation does not exist yet, creating one now. */
+                p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                    pinfo->ptype,
+                    pinfo->destport, pinfo->srcport, NO_ADDR_B);
+            }
+            if (!umts_fp_conversation_info) {
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+                fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
+            }
+            umts_fp_conversation_info->paging_indications = pi_bit_length;
+            set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+            pi_length_found = TRUE;
+        }
+        else if (tfi == 0x01 && !tb_size_found && pi_present) {
+            /* TB present and PI bitmap length is known. Can calculate TB length.*/
+            pi_byte_length = (umts_fp_conversation_info->paging_indications + 7) / 8;
+            if (p_conv == NULL) {
+                /* Conversation does not exist yet, creating one now. */
+                p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                    pinfo->ptype,
+                    pinfo->destport, pinfo->srcport, NO_ADDR_B);
+            }
+            if (!umts_fp_conversation_info) {
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+                fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
+            }
+            umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = (length - (pi_byte_length + 6)) * 8; /* Removing header length (4), footer length (2) and PI bitmap length*/
+            set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+            tb_size_found = TRUE;
+        }
+    }
+    else {
+        if (tfi == 0x01 && !tb_size_found) {
+            /* TB present and PI bitmap is missing. Can calculate TB length.*/
+            if (p_conv == NULL) {
+                /* Conversation does not exist yet, creating one now. */
+                p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                    pinfo->ptype,
+                    pinfo->destport, pinfo->srcport, NO_ADDR_B);
+            }
+            if (!umts_fp_conversation_info) {
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+                fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
+            }
+            umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = (length - 6) * 8; /* Removing header length (4), footer length (2) */
+            set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+            tb_size_found = TRUE;
+        }
+    }
+
+    if (pi_length_found && tb_size_found) {
+        /* Stream completely framed! */
+        conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
+        dissect_fp(tvb, pinfo, tree, data);
+        return TRUE;
+    }
+    else {
+        /* Some data still missing */
+        return FALSE;
+    }
+}
+/* This method can frame UDP streams containing FP packets but dissection of those packets will */
+/* fail since the FP conversation info is never attached */
 static gboolean
 heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -5744,6 +6383,10 @@ void proto_reg_handoff_fp(void)
     mac_fdd_hsdsch_handle     = find_dissector_add_dependency("mac.fdd.hsdsch", proto_fp);
 
     heur_dissector_add("udp", heur_dissect_fp, "FP over UDP", "fp_udp", proto_fp, HEURISTIC_DISABLE);
+    heur_dissector_add("udp", heur_dissect_fp_dcch_over_dch, "FP over UDP (DCCH over DCH)", "fp_udp_dcch_dch", proto_fp, HEURISTIC_DISABLE);
+    heur_dissector_add("udp", heur_dissect_fp_fach, "FP over UDP (FACH)", "fp_udp_fach", proto_fp, HEURISTIC_DISABLE);
+    heur_dissector_add("udp", heur_dissect_fp_rach, "FP over UDP (RACH)", "fp_udp_rach", proto_fp, HEURISTIC_DISABLE);
+    heur_dissector_add("udp", heur_dissect_fp_pch, "FP over UDP (PCH)", "fp_udp_pch", proto_fp, HEURISTIC_DISABLE);
 
     fp_aal2_handle = create_dissector_handle(dissect_fp_aal2, proto_fp);
     dissector_add_uint("atm.aal2.type", TRAF_UMTS_FP, fp_aal2_handle);

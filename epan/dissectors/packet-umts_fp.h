@@ -146,7 +146,8 @@ typedef struct
     guint32 dl_frame_number;    /* the frame where this conversation is started from CRNC */
     guint32 ul_frame_number;    /* the frame where this conversation is started from Node B */
     address crnc_address;
-    guint16 crnc_port;
+    guint16     /* Expecting specific lengths: 27 for frames with 1 TB, 48 for frames with 2 TBs */
+		crnc_port;
         gint com_context_id;    /*Identifies a single UE in the network*/
 
     /* For PCH channel */
