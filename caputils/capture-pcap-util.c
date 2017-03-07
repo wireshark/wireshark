@@ -881,16 +881,26 @@ get_data_link_types(pcap_t *pch, interface_options *interface_opts,
 	nlt = pcap_list_datalinks(pch, &linktypes);
 	if (nlt < 0) {
 		/*
-		 * This either returns a negative number for an error
-		 *  or returns a number > 0 and sets linktypes.
+		 * A negative return is an error.
 		 */
-		pcap_close(pch);
 		if (err_str != NULL) {
-			if (nlt == -1)
+#ifdef HAVE_PCAP_CREATE
+			/*
+			 * If we have pcap_create(), we have
+			 * pcap_statustostr(), and we can get back errors
+			 * other than PCAP_ERROR (-1), such as
+			 * PCAP_ERROR_NOT_ACTIVATED. and we should report
+			 * them properly.
+			 */
+			if (nlt == PCAP_ERROR)
 				*err_str = g_strdup_printf("pcap_list_datalinks() failed: %s",
 				    pcap_geterr(pch));
 			else
 				*err_str = g_strdup(pcap_statustostr(nlt));
+#else /* HAVE_PCAP_CREATE */
+			*err_str = g_strdup_printf("pcap_list_datalinks() failed: %s",
+			    pcap_geterr(pch));
+#endif /* HAVE_PCAP_CREATE */
 		}
 		return NULL;
 	}
