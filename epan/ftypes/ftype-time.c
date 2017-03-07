@@ -395,9 +395,8 @@ ftype_register_time(void)
 		absolute_val_to_repr,		/* val_to_string_repr */
 		absolute_val_repr_len,		/* len_string_repr */
 
-		{ NULL },			/* union set_value */
+		{ .set_value_time = time_fvalue_set },	/* union set_value */
 
-		time_fvalue_set,		/* set_value_time */
 		NULL,				/* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
@@ -438,9 +437,8 @@ ftype_register_time(void)
 		relative_val_to_repr,		/* val_to_string_repr */
 		relative_val_repr_len,		/* len_string_repr */
 
-		{ NULL },			/* union set_value */
+		{ .set_value_time = time_fvalue_set },	/* union set_value */
 
-		time_fvalue_set,		/* set_value_time */
 		NULL,				/* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */

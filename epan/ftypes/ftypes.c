@@ -531,8 +531,9 @@ fvalue_set_guid(fvalue_t *fv, const e_guid_t *value)
 void
 fvalue_set_time(fvalue_t *fv, const nstime_t *value)
 {
-	g_assert(fv->ftype->set_value_time);
-	fv->ftype->set_value_time(fv, value);
+	g_assert(IS_FT_TIME(fv->ftype->ftype));
+	g_assert(fv->ftype->set_value.set_value_time);
+	fv->ftype->set_value.set_value_time(fv, value);
 }
 
 void

@@ -1440,7 +1440,6 @@ Example: 114 is 0x0072
 
         { NULL },                             /* union set_value */
 
-        NULL,                                 /* set_value_time */
         NULL,                                 /* set_value_string */
         NULL,                                 /* set_value_protocol */
         sfloat_ieee_11073_value_set,          /* set_value_uinteger */
@@ -1511,7 +1510,6 @@ Example: 36.4 is 0xFF00016C
 
         { NULL },                            /* union set_value */
 
-        NULL,                                /* set_value_time */
         NULL,                                /* set_value_string */
         NULL,                                /* set_value_protocol */
         float_ieee_11073_value_set,          /* set_value_uinteger */
