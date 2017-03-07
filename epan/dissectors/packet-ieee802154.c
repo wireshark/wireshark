@@ -175,7 +175,7 @@ static void dissect_ieee802154_header_ie       (tvbuff_t *, packet_info *, proto
 static int  dissect_ieee802154_payload_mlme_sub_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset);
 static int  dissect_ieee802154_payload_ie      (tvbuff_t *, packet_info *, proto_tree *, int offset);
 static int  dissect_ieee802154_vendor_ie (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, gint pie_length);
-static void dissect_802154_h_ie_time_correction (tvbuff_t *, proto_tree *, guint *);
+static void dissect_802154_h_ie_time_correction(tvbuff_t *, proto_tree *, guint *, packet_info *pinfo);
 static void dissect_802154_p_ie_sh_mlme_tsch_sync (tvbuff_t *, proto_tree *, guint, guint *);
 static void dissect_802154_p_ie_sh_mlme_tsch_slotframe_link (tvbuff_t *, proto_tree *, guint16, guint *);
 static void dissect_802154_p_ie_lg_mlme_channel_hopping(tvbuff_t *, proto_tree *, guint16, guint *);
@@ -232,10 +232,9 @@ static int hf_ieee802154_header_ie_type = -1;
 static int hf_ieee802154_header_ie_id = -1;
 static int hf_ieee802154_header_ie_length = -1;
 static int hf_ieee802154_header_ie_data = -1;
-static int hf_ieee802154_h_ie_time_correction1 = -1;
-static int hf_ieee802154_h_ie_time_correction2 = -1;
-static int hf_ieee802154_h_ie_time_correction3 = -1;
-static int hf_ieee802154_h_ie_time_correction4 = -1;
+static int hf_ieee802154_time_correction = -1;
+static int hf_ieee802154_nack = -1;
+static int hf_ieee802154_time_correction_value = -1;
 static int hf_ieee802154_payload_ie = -1;
 static int hf_ieee802154_payload_ie_type = -1;
 static int hf_ieee802154_payload_ie_id = -1;
@@ -406,6 +405,7 @@ static expert_field ei_ieee802154_frame_ver = EI_INIT;
 static expert_field ei_ieee802154_seqno_suppression = EI_INIT;
 static expert_field ei_ieee802154_p_ie_6top_type = EI_INIT;
 static expert_field ei_ieee802154_p_ie_6top_code = EI_INIT;
+static expert_field ei_ieee802154_time_correction_error = EI_INIT;
 
 static int ieee802_15_4_short_address_type = -1;
 /*
@@ -1733,33 +1733,65 @@ dissect_ieee802154_fcs:
 /**
  *Subdissector command for the Header Information Element TSCH Time Correction
  *
+ * This field is constructed by taking a signed 16-bit 2's compliment time
+ * correction in the range of - 2048 us to 2047 us, AND'ing it with 0xfff, and
+ * OR'ing again with 0x8000 to indicate a negative acknowledgment.
+ *
  *@param tvb pointer to buffer containing raw packet.
  *@param h_inf_elem_tree pointer to data tree wireshark uses to display packet.
  *@param offset offset into the tvbuff to begin dissection.
  */
 static void
-dissect_802154_h_ie_time_correction(tvbuff_t *tvb, proto_tree *h_inf_elem_tree, guint *offset){
+dissect_802154_h_ie_time_correction(tvbuff_t *tvb, proto_tree *h_inf_elem_tree, guint *offset, packet_info *pinfo) {
 
-    guint16     time_correction;
-    proto_tree  *h_inf_elem_tree_payload = NULL;
+    guint16     raw_data;
+    proto_tree  *time_correction_tree = NULL;
+    gboolean    is_nack;
+    proto_item  *time_correction_item = NULL;
+    proto_item  *boolean_item = NULL;
+    proto_item  *drift_item = NULL;
 
-    time_correction = tvb_get_letohs(tvb, *offset);
+    raw_data = tvb_get_letohs(tvb, *offset);
+    is_nack = (gboolean) ((raw_data & (guint16)0x8000) ? 1 : 0);
+    gint16 drift_us = 0;
 
-    h_inf_elem_tree_payload = proto_tree_add_subtree_format(h_inf_elem_tree, tvb, *offset, 2, ett_ieee802154_h_ie_payload, NULL,
-                "Data: Time Correction IE, Content(0x%04x)", time_correction);
+    if(raw_data & 0x0800) { /* Negative integer */
+        drift_us = (gint16) (raw_data | 0xf000);
+    } else { /* Positive integer */
+        drift_us = (gint16) (raw_data & 0x0fff);
+    }
+    time_correction_item = proto_tree_add_item(h_inf_elem_tree, hf_ieee802154_time_correction, tvb, *offset, 2, ENC_NA);
+    time_correction_tree = proto_item_add_subtree(time_correction_item, ett_ieee802154_h_ie_payload);
+    proto_item_set_text(time_correction_item, "Time correction: %d us | Non-acknowledgement: %s", drift_us, (guint32) is_nack ? "True" : "False");
 
-    if(time_correction <= 0x07ff) {
-        proto_tree_add_item(h_inf_elem_tree_payload, hf_ieee802154_h_ie_time_correction1, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    /* Acknowledge with positive time correction in microseconds */
+    if(raw_data <= 0x07ff) {
+        drift_item = proto_tree_add_int(time_correction_tree, hf_ieee802154_time_correction_value, tvb, *offset, 2, drift_us);
+        boolean_item = proto_tree_add_boolean(time_correction_tree, hf_ieee802154_nack, tvb, *offset, 2, (guint32) is_nack);
     }
-    else if ((time_correction >= 0x0800) && (time_correction <= 0x0fff)){
-        proto_tree_add_item(h_inf_elem_tree_payload, hf_ieee802154_h_ie_time_correction2, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    /* Acknowledge with negative time correction in microseconds */
+    else if ((0x0800 <= raw_data) && (raw_data <= 0x0fff)){
+        drift_item = proto_tree_add_int(time_correction_tree, hf_ieee802154_time_correction_value, tvb, *offset, 2, drift_us);
+        boolean_item = proto_tree_add_boolean(time_correction_tree, hf_ieee802154_nack, tvb, *offset, 2, (guint32) is_nack);
     }
-    else if ((time_correction >= 0x8000) && (time_correction <= 0x87ff)){
-        proto_tree_add_item(h_inf_elem_tree_payload, hf_ieee802154_h_ie_time_correction3, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    /* Negative acknowledgment with positive time correction in microseconds */
+    else if ((0x8000 <= raw_data) && (raw_data <= 0x87ff)){
+        drift_item = proto_tree_add_int(time_correction_tree, hf_ieee802154_time_correction_value, tvb, *offset, 2, drift_us);
+        boolean_item = proto_tree_add_boolean(time_correction_tree, hf_ieee802154_nack, tvb, *offset, 2, (guint32) is_nack);
     }
-    else if ((time_correction >= 0x8800) && (time_correction <= 0x8fff )){
-        proto_tree_add_item(h_inf_elem_tree_payload, hf_ieee802154_h_ie_time_correction4, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    /* Negative acknowledgment with negative time correction in microseconds */
+    else if ((0x8800 <= raw_data) && (raw_data <= 0x8fff )){
+        drift_item = proto_tree_add_int(time_correction_tree, hf_ieee802154_time_correction_value, tvb, *offset, 2, drift_us);
+        boolean_item = proto_tree_add_boolean(time_correction_tree, hf_ieee802154_nack, tvb, *offset, 2, (guint32) is_nack);
     }
+    /* Incorrect value */
+    else {
+        expert_add_info_format(pinfo, time_correction_item, &ei_ieee802154_time_correction_error, "Incorrect value. Reference: IEEE-802.15.4-2015. Table 7-8: Values of the Time Sync Info field for ACK with timing Information");
+    }
+
+    PROTO_ITEM_SET_GENERATED(drift_item);
+    PROTO_ITEM_SET_GENERATED(boolean_item);
+
     *offset += 2;
 } /* dissect_802154_h_ie_time_correction */
 
@@ -2199,7 +2231,7 @@ dissect_ieee802154_pendaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
  *payload IEs to follow, so it is always set by the termination.
  *
  *@param tvb pointer to buffer containing raw packet.
- *@param pinfo pointer to packet information fields (unused).
+ *@param pinfo pointer to packet information fields.
  *@param tree pointer to command subtree.
  *@param offset offset into the tvbuff to begin dissection.
  *@param packet IEEE 802.15.4 packet information.
@@ -2238,7 +2270,7 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         if (length > 0) {
             switch(id){
                 case IEEE802154_HEADER_IE_TIME_CORR:
-                    dissect_802154_h_ie_time_correction(tvb, subtree, offset);
+                    dissect_802154_h_ie_time_correction(tvb, subtree, offset, pinfo);
                     break;
                 case IEEE802154_HEADER_VENDOR_SPECIFIC:
                 case IEEE802154_HEADER_IE_CSL:
@@ -3641,20 +3673,16 @@ void proto_register_ieee802154(void)
         { &hf_ieee802154_header_ie_data,
         { "Data",                           "wpan.header_ie.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-        { &hf_ieee802154_h_ie_time_correction1,
-        { "Ack - positive time correction",                       "wpan.h_ie_time_correction", FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+        /* Time correction IE */
+        { &hf_ieee802154_time_correction,
+        { "Time correction",                "wpan.time_correction", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee802154_nack,
+        { "Non-acknowledgement",            "wpan.nack", FT_BOOLEAN, 16, NULL, 0x8000,
             NULL, HFILL }},
 
-        { &hf_ieee802154_h_ie_time_correction2,
-        { "Ack - negative time correction",                       "wpan.h_ie_time_correction", FT_UINT16, BASE_DEC, NULL, 0x0FFF,
-            NULL, HFILL }},
-
-        { &hf_ieee802154_h_ie_time_correction3,
-        { "Non Ack - positive time correction",                       "wpan.h_ie_time_correction", FT_UINT16, BASE_DEC, NULL, 0x0FFF,
-            NULL, HFILL }},
-
-        { &hf_ieee802154_h_ie_time_correction4,
-        { "Non Ack - negative time correction",                       "wpan.h_ie_time_correction", FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+        { &hf_ieee802154_time_correction_value,
+        { "Time correction",                "wpan.time_correction_value", FT_INT16, BASE_DEC, NULL, 0x0FFF,
             NULL, HFILL }},
 
         /* Payload IEs */
@@ -4131,6 +4159,8 @@ void proto_register_ieee802154(void)
                 "Unsupported Type of Message", EXPFILL }},
         { &ei_ieee802154_p_ie_6top_code, { "wpan.ietf_ie.6top.code.unsupported", PI_PROTOCOL, PI_WARN,
                 "Unsupported Request Command or Return Code", EXPFILL }},
+        { &ei_ieee802154_time_correction_error, { "wpan.time_correction.error", PI_PROTOCOL, PI_WARN,
+                "Incorrect value. Reference: IEEE-802.15.4-2015. Table 7-8: Values of the Time Sync Info field for ACK with timing Information", EXPFILL}},
 
     };
 
