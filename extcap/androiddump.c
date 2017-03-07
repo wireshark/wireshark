@@ -2019,7 +2019,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     char                       *pos;
     const char                 *logcat_buffer;
     const char                 *logcat_log_buffer;
-    int                         command_length;
+    size_t                      command_length;
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_WIRESHARK_UPPER_PDU);
 
