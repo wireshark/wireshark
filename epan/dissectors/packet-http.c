@@ -3158,7 +3158,8 @@ dissect_http_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		return tvb_captured_length(tvb);
 	}
 
-	end_of_stream = IS_TH_FIN(tcpinfo->flags);
+	/* XXX - how to detect end-of-stream without tcpinfo */
+	end_of_stream = (tcpinfo && IS_TH_FIN(tcpinfo->flags));
 	dissect_http_on_stream(tvb, pinfo, tree, conv_data, end_of_stream);
 	return tvb_captured_length(tvb);
 }
