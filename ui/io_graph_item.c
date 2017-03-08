@@ -116,6 +116,7 @@ GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_u
             case IOG_ITEM_UNIT_CALC_LOAD:
                 break;
             default:
+                g_assert(item_unit < NUM_IOG_ITEM_UNITS);
                 err_str = g_string_new("");
                 g_string_printf(err_str, "\"%s\" is a relative-time field. %s calculations are not supported on it.",
                     field_name,
