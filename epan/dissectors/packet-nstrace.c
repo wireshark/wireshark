@@ -42,6 +42,12 @@
 #define NS_TCPCC_INVALID  0x06
 #define NS_TCPCC_LAST 0x07
 
+#define TRCDBG_PRR 0x1
+#define TRCDBG_BRST 0X2
+#define TRCDBG_DRB 0X4
+#define TRCDBG_NILE 0x8
+#define TRCDBG_RTT 0x10
+
 
 /* Netscaler Record types */
 #define NSREC_NULL     0x00
@@ -110,6 +116,8 @@
 #define APP_ARP     0x1E
 #define APP_SSLENC  0x1F
 #define APP_MPTCPOUT 0x20
+#define APP_DRB     0x21
+#define APP_PRR     0x22
 
 void proto_register_ns(void);
 void proto_reg_handoff_ns(void);
@@ -170,19 +178,58 @@ static int hf_ns_tcpdbg2_tcp_cfgsndbuf = -1;
 static int hf_ns_tcpdbg2_tcp_flvr    = -1;
 static int hf_ns_trcdbg = -1;
 static int hf_ns_trcdbg_val1 = -1;
+static int hf_ns_trcdbg_val1_PRR = -1;
+static int hf_ns_trcdbg_val1_NILE = -1;
+static int hf_ns_trcdbg_val1_RTT = -1;
+static int hf_ns_trcdbg_val1_BURST = -1;
 static int hf_ns_trcdbg_val2 = -1;
+static int hf_ns_trcdbg_val2_PRR = -1;
+static int hf_ns_trcdbg_val2_NILE = -1;
+static int hf_ns_trcdbg_val2_RTT = -1;
 static int hf_ns_trcdbg_val3 = -1;
+static int hf_ns_trcdbg_val3_PRR = -1;
+static int hf_ns_trcdbg_val3_NILE = -1;
+static int hf_ns_trcdbg_val3_RTT = -1;
 static int hf_ns_trcdbg_val4 = -1;
+static int hf_ns_trcdbg_val4_PRR = -1;
+static int hf_ns_trcdbg_val4_NILE = -1;
+static int hf_ns_trcdbg_val4_RTT = -1;
 static int hf_ns_trcdbg_val5 = -1;
+static int hf_ns_trcdbg_val5_DRB_APP = -1;
+static int hf_ns_trcdbg_val5_NILE = -1;
+static int hf_ns_trcdbg_val5_RTT = -1;
 static int hf_ns_trcdbg_val6 = -1;
+static int hf_ns_trcdbg_val6_DRB_APP = -1;
+static int hf_ns_trcdbg_val6_NILE = -1;
+static int hf_ns_trcdbg_val6_RTT = -1;
 static int hf_ns_trcdbg_val7 = -1;
+static int hf_ns_trcdbg_val7_DRB = -1;
+static int hf_ns_trcdbg_val7_NILE = -1;
+static int hf_ns_trcdbg_val7_DRB_APP = -1;
 static int hf_ns_trcdbg_val8 = -1;
+static int hf_ns_trcdbg_val8_DRB = -1;
+static int hf_ns_trcdbg_val8_NILE = -1;
+static int hf_ns_trcdbg_val8_DRB_APP = -1;
 static int hf_ns_trcdbg_val9 = -1;
+static int hf_ns_trcdbg_val9_DRB = -1;
+static int hf_ns_trcdbg_val9_NILE = -1;
 static int hf_ns_trcdbg_val10 = -1;
+static int hf_ns_trcdbg_val10_DRB = -1;
+static int hf_ns_trcdbg_val10_NILE = -1;
 static int hf_ns_trcdbg_val11 = -1;
+static int hf_ns_trcdbg_val11_RTT = -1;
+static int hf_ns_trcdbg_val11_DRB = -1;
+static int hf_ns_trcdbg_val11_DRB_APP = -1;
+static int hf_ns_trcdbg_val11_NILE = -1;
+static int hf_ns_trcdbg_val11_BURST = -1;
 static int hf_ns_trcdbg_val12 = -1;
+static int hf_ns_trcdbg_val12_NILE = -1;
+static int hf_ns_trcdbg_val12_RTT = -1;
 static int hf_ns_trcdbg_val13 = -1;
+static int hf_ns_trcdbg_val13_DRB = -1;
+static int hf_ns_trcdbg_val13_NILE = -1;
 static int hf_ns_trcdbg_val14 = -1;
+static int hf_ns_trcdbg_val14_NILE = -1;
 static int hf_ns_trcdbg_val15 = -1;
 static int hf_ns_httpInfo = -1;
 static int hf_ns_httpInfo_httpabort = -1;
@@ -302,6 +349,8 @@ static const value_string ns_app_vals[] = {
   { APP_ARP,   "ARP"    },
   { APP_SSLENC,"SSL-ENC"},
   { APP_MPTCPOUT,"MPTCP-OUT"  },
+  { APP_DRB,    "DRB"    },
+  { APP_PRR,    "PRR"    },
   { 0,   NULL    },
 };
 static value_string_ext ns_app_vals_ext = VALUE_STRING_EXT_INIT(ns_app_vals);
@@ -594,6 +643,7 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 	guint8    ssl_internal=0;
 	guint		offset;
 	int flavour_value = 0;
+	int app_value = 0;
 	int morerecs=1;
 	int loopcount=0;
 	int reclen = 0, nextrec = 0;
@@ -601,6 +651,7 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 	gboolean record_header;
 	proto_tree* subtree;
 	proto_item* subitem;
+	unsigned int tcp_mode = 0;
 	static const int * cluster_flags[] = {
 		&hf_ns_clu_clflags_fp,
 		&hf_ns_clu_clflags_fr,
@@ -610,6 +661,20 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 		&hf_ns_clu_clflags_res,
 		NULL,
 	};
+	int hf_ns_trcdbg_val1_final = hf_ns_trcdbg_val1;
+	int hf_ns_trcdbg_val2_final = hf_ns_trcdbg_val2;
+	int hf_ns_trcdbg_val3_final = hf_ns_trcdbg_val3;
+	int hf_ns_trcdbg_val4_final = hf_ns_trcdbg_val4;
+	int hf_ns_trcdbg_val5_final = hf_ns_trcdbg_val5;
+	int hf_ns_trcdbg_val6_final = hf_ns_trcdbg_val6;
+	int hf_ns_trcdbg_val7_final = hf_ns_trcdbg_val7;
+	int hf_ns_trcdbg_val8_final = hf_ns_trcdbg_val8;
+	int hf_ns_trcdbg_val9_final = hf_ns_trcdbg_val9;
+	int hf_ns_trcdbg_val10_final = hf_ns_trcdbg_val10;
+	int hf_ns_trcdbg_val11_final = hf_ns_trcdbg_val11;
+	int hf_ns_trcdbg_val12_final = hf_ns_trcdbg_val12;
+	int hf_ns_trcdbg_val13_final = hf_ns_trcdbg_val13;
+	int hf_ns_trcdbg_val14_final = hf_ns_trcdbg_val14;
 
 	nsheaderlen = tvb_get_letohs(tvb, NSPR_V35_HEADER_LEN_OFFSET);
 	offset = NSPR_V35_TOTAL_SIZE;
@@ -677,20 +742,93 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 			/* Add tcpdebug2 subtree */
 			subitem = proto_tree_add_item(ns_tree, hf_ns_trcdbg, tvb, offset, reclen, ENC_NA);
 			subtree = proto_item_add_subtree(subitem, ett_ns_trcdbg);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val1, tvb, offset + 3, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val2, tvb, offset + 7, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val3, tvb, offset + 11, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val4, tvb, offset + 15, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val5, tvb, offset + 19, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val6, tvb, offset + 23, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val7, tvb, offset + 27, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val8, tvb, offset + 31, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val9, tvb, offset + 35, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val10, tvb, offset + 39, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val11, tvb, offset + 43, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val12, tvb, offset + 47, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val13, tvb, offset + 51, 4, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(subtree, hf_ns_trcdbg_val14, tvb, offset + 55, 4, ENC_LITTLE_ENDIAN);
+			app_value = tvb_get_guint8(tvb, NSPR_V35_APP_OFFSET);
+			tcp_mode = tvb_get_guint32(tvb, offset + 59, ENC_LITTLE_ENDIAN);
+			switch(tcp_mode)
+			{
+				case TRCDBG_PRR:
+				case TRCDBG_DRB:
+				case (TRCDBG_DRB | TRCDBG_PRR):
+					switch(app_value)
+					{
+						case APP_PRR:
+							hf_ns_trcdbg_val1_final = hf_ns_trcdbg_val1_PRR;
+							hf_ns_trcdbg_val2_final = hf_ns_trcdbg_val2_PRR;
+							hf_ns_trcdbg_val3_final = hf_ns_trcdbg_val3_PRR;
+							hf_ns_trcdbg_val4_final = hf_ns_trcdbg_val4_PRR;
+							hf_ns_trcdbg_val7_final = hf_ns_trcdbg_val7_DRB;
+							hf_ns_trcdbg_val8_final = hf_ns_trcdbg_val8_DRB;
+							hf_ns_trcdbg_val9_final = hf_ns_trcdbg_val9_DRB;
+							hf_ns_trcdbg_val10_final = hf_ns_trcdbg_val10_DRB;
+							hf_ns_trcdbg_val11_final = hf_ns_trcdbg_val11_DRB;
+							hf_ns_trcdbg_val13_final = hf_ns_trcdbg_val13_DRB;
+							break;
+						case APP_DRB:
+							hf_ns_trcdbg_val5_final = hf_ns_trcdbg_val5_DRB_APP;
+							hf_ns_trcdbg_val6_final = hf_ns_trcdbg_val6_DRB_APP;
+							hf_ns_trcdbg_val7_final = hf_ns_trcdbg_val7_DRB_APP;
+							hf_ns_trcdbg_val8_final = hf_ns_trcdbg_val8_DRB_APP;
+							hf_ns_trcdbg_val9_final = hf_ns_trcdbg_val9_DRB;
+							hf_ns_trcdbg_val10_final = hf_ns_trcdbg_val10_DRB;
+							hf_ns_trcdbg_val11_final = hf_ns_trcdbg_val11_DRB_APP;
+							hf_ns_trcdbg_val13_final = hf_ns_trcdbg_val13_DRB;
+							break;
+						default:
+							hf_ns_trcdbg_val7_final = hf_ns_trcdbg_val7_DRB;
+							hf_ns_trcdbg_val8_final = hf_ns_trcdbg_val8_DRB;
+							hf_ns_trcdbg_val9_final = hf_ns_trcdbg_val9_DRB;
+							hf_ns_trcdbg_val10_final = hf_ns_trcdbg_val10_DRB;
+							hf_ns_trcdbg_val11_final = hf_ns_trcdbg_val11_DRB;
+							hf_ns_trcdbg_val13_final = hf_ns_trcdbg_val13_DRB;
+					}
+					break;
+				case TRCDBG_RTT:
+					hf_ns_trcdbg_val1_final = hf_ns_trcdbg_val1_RTT;
+					hf_ns_trcdbg_val2_final = hf_ns_trcdbg_val2_RTT;
+					hf_ns_trcdbg_val3_final = hf_ns_trcdbg_val3_RTT;
+					hf_ns_trcdbg_val4_final = hf_ns_trcdbg_val4_RTT;
+					hf_ns_trcdbg_val5_final = hf_ns_trcdbg_val5_RTT;
+					hf_ns_trcdbg_val6_final = hf_ns_trcdbg_val6_RTT;
+					hf_ns_trcdbg_val11_final = hf_ns_trcdbg_val11_RTT;
+					hf_ns_trcdbg_val12_final = hf_ns_trcdbg_val12_RTT;
+					break;
+				case TRCDBG_BRST:
+					hf_ns_trcdbg_val1_final = hf_ns_trcdbg_val1_BURST;
+					hf_ns_trcdbg_val11_final = hf_ns_trcdbg_val11_BURST;
+					break;
+				case TRCDBG_NILE:
+					hf_ns_trcdbg_val1_final = hf_ns_trcdbg_val1_NILE;
+					hf_ns_trcdbg_val2_final = hf_ns_trcdbg_val2_NILE;
+					hf_ns_trcdbg_val3_final = hf_ns_trcdbg_val3_NILE;
+					hf_ns_trcdbg_val4_final = hf_ns_trcdbg_val4_NILE;
+					hf_ns_trcdbg_val5_final = hf_ns_trcdbg_val5_NILE;
+					hf_ns_trcdbg_val6_final = hf_ns_trcdbg_val6_NILE;
+					hf_ns_trcdbg_val7_final = hf_ns_trcdbg_val7_NILE;
+					hf_ns_trcdbg_val8_final = hf_ns_trcdbg_val8_NILE;
+					hf_ns_trcdbg_val9_final = hf_ns_trcdbg_val9_NILE;
+					hf_ns_trcdbg_val10_final = hf_ns_trcdbg_val10_NILE;
+					hf_ns_trcdbg_val11_final = hf_ns_trcdbg_val11_NILE;
+					hf_ns_trcdbg_val12_final = hf_ns_trcdbg_val12_NILE;
+					hf_ns_trcdbg_val13_final = hf_ns_trcdbg_val13_NILE;
+					hf_ns_trcdbg_val14_final = hf_ns_trcdbg_val14_NILE;
+				default:
+					break;
+			}
+
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val1_final, tvb, offset + 3, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val2_final, tvb, offset + 7, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val3_final, tvb, offset + 11, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val4_final, tvb, offset + 15, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val5_final, tvb, offset + 19, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val6_final, tvb, offset + 23, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val7_final, tvb, offset + 27, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val8_final, tvb, offset + 31, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val9_final, tvb, offset + 35, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val10_final, tvb, offset + 39, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val11_final, tvb, offset + 43, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val12_final, tvb, offset + 47, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val13_final, tvb, offset + 51, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_ns_trcdbg_val14_final, tvb, offset + 55, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(subtree, hf_ns_trcdbg_val15, tvb, offset + 59, 4, ENC_LITTLE_ENDIAN);
 
 			offset += reclen;
@@ -1133,8 +1271,50 @@ proto_register_ns(void)
 		NULL, HFILL }
 		},
 
+		{ &hf_ns_trcdbg_val1_PRR,
+		{ "bytes_in_flight", "nstrace.trcdbg.val1",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val1_NILE,
+		{ "Alpha_min", "nstrace.trcdbg.val1",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val1_RTT,
+		{ "RTT_timems", "nstrace.trcdbg.val1",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val1_BURST,
+		{ "Rate_bytes_msec", "nstrace.trcdbg.val1",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
 		{ &hf_ns_trcdbg_val2,
 		{ "val2", "nstrace.trcdbg.val2",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val2_PRR,
+		{ "Cong_state", "nstrace.trcdbg.val2",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val2_RTT,
+		{ "real_time_RTT", "nstrace.trcdbg.val2",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val2_NILE,
+		{ "Alpha_max", "nstrace.trcdbg.val2",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 		},
@@ -1145,8 +1325,44 @@ proto_register_ns(void)
 		NULL, HFILL }
 		},
 
+		{ &hf_ns_trcdbg_val3_PRR,
+		{ "prr_delivered", "nstrace.trcdbg.val3",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val3_RTT,
+		{ "rtt_min", "nstrace.trcdbg.val3",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val3_NILE,
+		{ "nile_da", "nstrace.trcdbg.val3",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
 		{ &hf_ns_trcdbg_val4,
 		{ "val4", "nstrace.trcdbg.val4",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val4_PRR,
+		{ "prr_out", "nstrace.trcdbg.val4",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val4_RTT,
+		{ "ts_ecr", "nstrace.trcdbg.val4",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val4_NILE,
+		{ "nile_dm", "nstrace.trcdbg.val4",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 		},
@@ -1157,8 +1373,45 @@ proto_register_ns(void)
 		NULL, HFILL }
 		},
 
+		{ &hf_ns_trcdbg_val5_DRB_APP,
+		{ "RetxQ_bytes", "nstrace.trcdbg.val5",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val5_RTT,
+		{ "rtt_seq", "nstrace.trcdbg.val5",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val5_NILE,
+		{ "d1_percent", "nstrace.trcdbg.val5",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+
 		{ &hf_ns_trcdbg_val6,
 		{ "val6", "nstrace.trcdbg.val6",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val6_DRB_APP,
+		{ "waitQ_bytes", "nstrace.trcdbg.val6",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val6_RTT,
+		{ "cong_state", "nstrace.trcdbg.val6",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val6_NILE,
+		{ "d2_percent", "nstrace.trcdbg.val6",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 		},
@@ -1169,8 +1422,44 @@ proto_register_ns(void)
 		NULL, HFILL }
 		},
 
+		{ &hf_ns_trcdbg_val7_DRB,
+		{ "adv_wnd", "nstrace.trcdbg.val7",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val7_DRB_APP,
+		{ "link_adv_wnd", "nstrace.trcdbg.val7",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val7_NILE,
+		{ "d3_percent", "nstrace.trcdbg.val7",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
 		{ &hf_ns_trcdbg_val8,
 		{ "val8", "nstrace.trcdbg.val8",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val8_DRB,
+		{ "link_snd_cwnd", "nstrace.trcdbg.val8",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val8_DRB_APP,
+		{ "snd_cwnd", "nstrace.trcdbg.val8",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val8_NILE,
+		{ "nile_d1", "nstrace.trcdbg.val8",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 		},
@@ -1181,8 +1470,32 @@ proto_register_ns(void)
 		NULL, HFILL }
 		},
 
+		{ &hf_ns_trcdbg_val9_DRB,
+		{ "cong_state", "nstrace.trcdbg.val9",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val9_NILE,
+		{ "nile_d2", "nstrace.trcdbg.val9",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
 		{ &hf_ns_trcdbg_val10,
 		{ "val10", "nstrace.trcdbg.val10",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val10_DRB,
+		{ "target_wnd", "nstrace.trcdbg.val10",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val10_NILE,
+		{ "nile_d3", "nstrace.trcdbg.val10",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 		},
@@ -1193,8 +1506,50 @@ proto_register_ns(void)
 		NULL, HFILL }
 		},
 
+		{ &hf_ns_trcdbg_val11_DRB,
+		{ "delta_rcvbuf", "nstrace.trcdbg.val11",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val11_DRB_APP,
+		{ "link_delta_rcvbuf", "nstrace.trcdbg.val11",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val11_NILE,
+		{ "beta_min", "nstrace.trcdbg.val11",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val11_RTT,
+		{ "rtt_smoothed", "nstrace.trcdbg.val11",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val11_BURST,
+		{ "rate_data_credit", "nstrace.trcdbg.val11",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
 		{ &hf_ns_trcdbg_val12,
 		{ "val12", "nstrace.trcdbg.val12",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val12_RTT,
+		{ "rtt_variance", "nstrace.trcdbg.val12",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val12_NILE,
+		{ "beta_min", "nstrace.trcdbg.val12",
 		FT_INT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 		},
@@ -1205,8 +1560,26 @@ proto_register_ns(void)
 		NULL, HFILL }
 		},
 
+		{ &hf_ns_trcdbg_val13_DRB,
+		{ "cmpr_advWnd_trgt", "nstrace.trcdbg.val13",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val13_NILE,
+		{ "rtt_factor", "nstrace.trcdbg.val13",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
 		{ &hf_ns_trcdbg_val14,
 		{ "val14", "nstrace.trcdbg.val14",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+		},
+
+		{ &hf_ns_trcdbg_val14_NILE,
+		{ "rtt_filter", "nstrace.trcdbg.val14",
 		FT_INT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 		},
