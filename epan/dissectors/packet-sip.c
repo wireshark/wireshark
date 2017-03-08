@@ -1558,7 +1558,7 @@ sip_proto_set_format_text(const proto_tree *tree, proto_item *item, tvbuff_t *tv
         proto_item_set_text(item, "%s", tvb_format_text(tvb, offset, length));
 }
 /*
- * XXXX If/when more parameters are added consider doing something similar to what's done in 
+ * XXXX If/when more parameters are added consider doing something similar to what's done in
  * packet-magaco.c for find_megaco_localParam_names() possibly adding the hf to the array and have a generic
  * dissection function here.
  */
@@ -6997,7 +6997,7 @@ void proto_register_sip(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         }
-    }; 
+    };
 
     /* raw_sip header field(s) */
     static hf_register_info raw_hf[] = {
