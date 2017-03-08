@@ -463,7 +463,7 @@ char *expand_reference(SnortConfig_t *snort_config, char *reference)
     snort_debug_printf("expand_reference(%s)\n", reference);
     char *prefix = read_token(reference, ',', &length, &accumulated_length, FALSE);
 
-    if (prefix != '\0') {
+    if (*prefix != '\0') {
         /* Convert to lowercase before lookup */
         guint n;
         for (n=0; prefix[n] != '\0'; n++) {
@@ -527,7 +527,7 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
 
     /* Read the filename */
     include_filename = read_token(line+accumulated_length, ' ', &length, &accumulated_length, FALSE);
-    if (include_filename != '\0') {
+    if (*include_filename != '\0') {
         FILE *new_config_fd;
         char substituted_filename[512];
         gboolean is_rule_file = FALSE;
