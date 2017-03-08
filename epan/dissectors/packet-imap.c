@@ -94,6 +94,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   gint            uid_offset = 0;
   gint            folder_offset = 0;
   const guchar    *line;
+  const guchar    *lineend;
   const guchar    *uid_line;
   const guchar    *folder_line;
   gint            next_offset;
@@ -191,6 +192,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        */
       linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
       line = tvb_get_ptr(tvb, offset, linelen);
+      lineend = (line + linelen);
 
       /*
        * Put the line into the protocol tree.
@@ -212,7 +214,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
          * Extract the first token, and, if there is a first
          * token, add it as the request or reply tag.
          */
-        tokenlen = get_token_len(line, line + linelen, &next_token);
+        tokenlen = get_token_len(line, lineend, &next_token);
         if (tokenlen != 0) {
           proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request_tag : hf_imap_response_tag, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
 
@@ -225,7 +227,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
          * Extract second token, and, if there is a second
          * token, and it's not uid, add it as the request or reply command.
          */
-        tokenlen = get_token_len(line, line + linelen, &next_token);
+        tokenlen = get_token_len(line, lineend, &next_token);
         if (tokenlen != 0) {
           for (iter = 0; iter < tokenlen && iter < MAX_BUFFER-1; iter++) {
             tokenbuf[iter] = g_ascii_tolower(line[iter]);
@@ -239,7 +241,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             uid_offset = offset;
             uid_offset += (gint) (next_token - line);
             uid_line = next_token;
-            uid_tokenlen = get_token_len(uid_line, uid_line + (linelen - tokenlen), &uid_next_token);
+            uid_tokenlen = get_token_len(uid_line, lineend, &uid_next_token);
             if (tokenlen != 0) {
               proto_tree_add_item(reqresp_tree, hf_imap_request_command, tvb, uid_offset, uid_tokenlen, ENC_ASCII|ENC_NA);
 
@@ -254,7 +256,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
               folder_offset = uid_offset;
               folder_offset += (gint) (uid_next_token - uid_line);
               folder_line = uid_next_token;
-              folder_tokenlen = get_token_len(folder_line, folder_line + (linelen - tokenlen - uid_tokenlen), &folder_next_token);
+              folder_tokenlen = get_token_len(folder_line, lineend, &folder_next_token);
             }
           } else {
             /*
@@ -274,7 +276,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
               folder_offset = offset;
               folder_offset += (gint) (next_token - line);
               folder_line = next_token;
-              folder_tokenlen = get_token_len(folder_line, folder_line + (linelen - tokenlen - 1), &folder_next_token);
+              folder_tokenlen = get_token_len(folder_line, lineend, &folder_next_token);
             }
           }
 
@@ -304,7 +306,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
              */
             folder_offset += (gint) (folder_next_token - folder_line);
             folder_line = folder_next_token;
-            folder_tokenlen = get_token_len(folder_line, folder_line + (linelen - tokenlen), &folder_next_token);
+            folder_tokenlen = get_token_len(folder_line, lineend, &folder_next_token);
 
             if (folder_tokenlen != 0)
               proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII|ENC_NA);
