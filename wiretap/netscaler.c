@@ -858,7 +858,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 #define nspr_getv10recordsize(hdp) (pletoh16(&(hdp)->nsprRecordSize))
 #define nspr_getv20recordtype(hdp) ((hdp)->phd_RecordType)
 #define nspr_getv20recordsize(hdp) \
-    (((hdp)->phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES)? \
+    (size_t)(((hdp)->phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES)? \
         (((hdp)->phd_RecordSizeHigh * NSPR_V20RECORDSIZE_2BYTES)+ \
          ((hdp)->phd_RecordSizeLow & ~NSPR_V20RECORDSIZE_2BYTES)) : \
           (hdp)->phd_RecordSizeLow)
@@ -1315,7 +1315,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 #define FULLSIZEDEFV30(phdr,fp,ver)\
     do {\
         (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
-        (phdr)->len = pletoh16(&fp->fp_PktSizeOrg) + nspr_pktracefull_v##ver##_s;\
+        (phdr)->len = pletoh16(&fp->fp_PktSizeOrg) + nspr_pktracefull_v##ver##_s + fp->fp_src_vmname_len + fp->fp_dst_vmname_len;\
         (phdr)->caplen = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
     }while(0)
 
