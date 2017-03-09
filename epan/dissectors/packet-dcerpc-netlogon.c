@@ -6697,12 +6697,14 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
                 }
 #endif
             }
+#if 0 /* Fix -Wduplicated-branches */
             else if( flags&NETLOGON_FLAG_USEAES)
             {
-                /*Not implemented*/
+                /* Not implemented */
                 debugprintf("AES not supported yet\n");
                 memset(session_key,0,16);
             }
+#endif
             else
             {
                 /*Not implemented*/
