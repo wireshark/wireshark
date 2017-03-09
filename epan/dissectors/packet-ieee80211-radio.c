@@ -791,7 +791,6 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
           guint Nsts, bits, Mstbc, bits_per_symbol, symbols;
           guint stbc_streams;
           guint ness;
-          gboolean fec;
 
           /*
            * If we don't have necessary fields, or if we have them but
@@ -858,28 +857,18 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
           }
           preamble += 4 * (Nhtdltf[Nsts-1] + Nhteltf[ness]);
 
-          if (info_n->has_fec) {
-            fec = info_n->fec;
-          } else {
-            fec = 0;
+          if (!info_n->has_fec) {
             assumed_bcc_fec = TRUE;
           }
 
           /* data field calculation */
-          if (fec == 0) {
-            /* see ieee80211n-2009 20.3.11 (20-32) - for BCC FEC */
-            bits = 8 * frame_length + 16 + ieee80211_ht_Nes[info_n->mcs_index] * 6;
-            Mstbc = stbc_streams ? 2 : 1;
-            bits_per_symbol = ieee80211_ht_Dbps[info_n->mcs_index] * (bandwidth_40 ? 2 : 1);
-            symbols = bits / (bits_per_symbol * Mstbc);
-          } else {
-            /* TODO: handle LDPC FEC, it changes the rounding
-             * Currently this is the same logic as BCC */
-            bits = 8 * frame_length + 16 + ieee80211_ht_Nes[info_n->mcs_index] * 6;
-            Mstbc = stbc_streams ? 2 : 1;
-            bits_per_symbol = ieee80211_ht_Dbps[info_n->mcs_index] * (bandwidth_40 ? 2 : 1);
-            symbols = bits / (bits_per_symbol * Mstbc);
-          }
+          /* see ieee80211n-2009 20.3.11 (20-32) - for BCC FEC */
+          /* TODO: handle LDPC FEC (info_n->fec == 1), it changes the rounding
+           * Currently this is the same logic as BCC */
+          bits = 8 * frame_length + 16 + ieee80211_ht_Nes[info_n->mcs_index] * 6;
+          Mstbc = stbc_streams ? 2 : 1;
+          bits_per_symbol = ieee80211_ht_Dbps[info_n->mcs_index] * (bandwidth_40 ? 2 : 1);
+          symbols = bits / (bits_per_symbol * Mstbc);
 
           /* round up to whole symbols */
           if((bits % (bits_per_symbol * Mstbc)) > 0)
