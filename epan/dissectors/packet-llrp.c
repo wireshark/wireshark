@@ -1490,7 +1490,7 @@ static guint dissect_llrp_item_array(tvbuff_t * const tvb, packet_info *pinfo,
     }
     while(num--) {
         proto_tree_add_item(tree, hfindex_item, tvb,
-                offset, item_size, item_size == 1 ? ENC_NA : ENC_BIG_ENDIAN);
+                offset, item_size, ENC_BIG_ENDIAN);
         offset += item_size;
     }
     return offset;
