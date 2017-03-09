@@ -2303,9 +2303,11 @@ register_attrs(gpointer k _U_, gpointer v, gpointer p)
 		hfri[2].hfinfo.display = BASE_NONE;
 
 		len_hf++;
+#if 0 /* Fix -Wduplicated-branches */
 	} else if (a->type == radius_tlv) {
 		hfri[0].hfinfo.type = FT_BYTES;
 		hfri[0].hfinfo.display = BASE_NONE;
+#endif
 	} else {
 		hfri[0].hfinfo.type = FT_BYTES;
 		hfri[0].hfinfo.display = BASE_NONE;
