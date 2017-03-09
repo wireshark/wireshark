@@ -2703,7 +2703,7 @@ capture_loop_dispatch(loop_data *ld,
 
             /*
              * WinPcap's remote capturing feature doesn't work with pcap_dispatch(),
-             * see https://wiki.wireshark.org/CaptureSetup_2fWinPcapRemote
+             * see https://wiki.wireshark.org/CaptureSetup/WinPcapRemote
              * This should be fixed in the WinPcap 4.0 alpha release.
              *
              * For reference, an example remote interface:
@@ -3165,6 +3165,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #endif
     start_time = create_timestamp();
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop running.");
+    capture_opts_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, capture_opts);
 
     /* WOW, everything is prepared! */
     /* please fasten your seat belts, we will enter now the actual capture loop */
