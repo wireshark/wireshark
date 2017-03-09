@@ -7308,17 +7308,12 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             pduFunc = &dissect_DIS_PARSER_FIRE_PDU;
             break;
         case DIS_PDUTYPE_DETONATION:
-            if ( header.version < DIS_VERSION_IEEE_1278_1_2012 )
-            {
-                pduFunc = &dissect_DIS_PARSER_DETONATION_PDU;
-            }
-            else
-            {
-                /* TODO: Version 7 changed the Detonation PDU format
-                 *       Need a different parser
-                 */
-                pduFunc = &dissect_DIS_PARSER_DETONATION_PDU;
-            }
+            /* TODO: Version 7 (header.version >= DIS_VERSION_IEEE_1278_1_2012)
+             *       changed the Detonation PDU format
+             *       Need a different parser
+             */
+            pduFunc = &dissect_DIS_PARSER_DETONATION_PDU;
+
             break;
 
         /* DIS Simulation Management PDUs */
