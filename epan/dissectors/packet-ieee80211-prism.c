@@ -587,29 +587,16 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
                 }
             }
 
-            if (stbc) {
-                result = wmem_strdup_printf(wmem_packet_scope(),
-                    "%u.%u Mb/s VHT MCS %d NSS %d Partial AID %d BW %d MHz %s %s %s GroupID %d %s %s",
-                    disp_rate/10, disp_rate%10,
-                    mcs, nss, partial_aid, bw,
-                    sgi ? "[SGI]" : "",
-                    ldpc ? "[LDPC]" : "",
-                    stbc ? "[STBC]" : "",
-                    groupid,
-                    "[SU_PPDU]",
-                    txbf ? "[TxBF]" : "");
-            } else {
-                result = wmem_strdup_printf(wmem_packet_scope(),
-                    "%u.%u Mb/s VHT MCS %d NSS %d Partial AID %d BW %d MHz %s %s %s GroupID %d %s %s",
-                    disp_rate/10, disp_rate%10,
-                    mcs, nss, partial_aid, bw,
-                    sgi ? "[SGI]" : "",
-                    ldpc ? "[LDPC]" : "",
-                    stbc ? "[STBC]" : "",
-                    groupid,
-                    "[SU_PPDU]",
-                    txbf ? "[TxBF]" : "");
-            }
+            result = wmem_strdup_printf(wmem_packet_scope(),
+                "%u.%u Mb/s VHT MCS %d NSS %d Partial AID %d BW %d MHz %s %s %s GroupID %d %s %s",
+                disp_rate/10, disp_rate%10,
+                mcs, nss, partial_aid, bw,
+                sgi ? "[SGI]" : "",
+                ldpc ? "[LDPC]" : "",
+                stbc ? "[STBC]" : "",
+                groupid,
+                "[SU_PPDU]",
+                txbf ? "[TxBF]" : "");
         } else {
             nsts_u1 = (sig_a_1 >> 10) & 0x7;
             nsts_u2 = (sig_a_1 >> 13) & 0x7;
