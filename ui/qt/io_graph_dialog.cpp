@@ -1399,9 +1399,9 @@ void IOGraphDialog::on_deleteToolButton_clicked()
     if (!item) return;
 
     IOGraph *iog = VariantPointer<IOGraph>::asPtr(item->data(name_col_, Qt::UserRole));
-    delete iog;
 
     delete item;
+    delete iog;
 
     // We should probably be smarter about this.
     hint_err_.clear();
