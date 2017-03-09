@@ -640,7 +640,9 @@ void RtpStreamDialog::on_streamTreeWidget_itemSelectionChanged()
 
 void RtpStreamDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
-    if (button == prepare_button_) {
+    if (button == find_reverse_button_) {
+        on_actionFindReverse_triggered();
+    } else if (button == prepare_button_) {
         on_actionPrepareFilter_triggered();
     } else if (button == export_button_) {
         on_actionExportAsRtpDump_triggered();
