@@ -412,6 +412,11 @@ static int hf_smb2_svhdx_open_device_context_originator_flags = -1;
 static int hf_smb2_svhdx_open_device_context_open_request_id = -1;
 static int hf_smb2_svhdx_open_device_context_initiator_host_name_len = -1;
 static int hf_smb2_svhdx_open_device_context_initiator_host_name = -1;
+static int hf_smb2_svhdx_open_device_context_virtual_disk_properties_initialized = -1;
+static int hf_smb2_svhdx_open_device_context_server_service_version = -1;
+static int hf_smb2_svhdx_open_device_context_virtual_sector_size = -1;
+static int hf_smb2_svhdx_open_device_context_physical_sector_size = -1;
+static int hf_smb2_svhdx_open_device_context_virtual_size = -1;
 static int hf_smb2_posix_v1_version = -1;
 static int hf_smb2_posix_v1_request = -1;
 static int hf_smb2_posix_v1_supported_features = -1;
@@ -7089,9 +7094,10 @@ dissect_smb2_APP_INSTANCE_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect the MS-RSVD stuff that turns up when HyperV uses SMB3.x
  */
 static void
-dissect_smb2_svhdx_open_device_context_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+dissect_smb2_svhdx_open_device_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
 {
-	int         offset   = 0;
+	int offset = 0;
+	guint32 version;
 	proto_item *item;
 	proto_item *sub_tree;
 
@@ -7101,8 +7107,8 @@ dissect_smb2_svhdx_open_device_context_request(tvbuff_t *tvb, packet_info *pinfo
 	sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb2_svhdx_open_device_context, NULL, "SVHDX OPEN DEVICE CONTEXT");
 
 	/* Version */
-	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_version,
-			    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(sub_tree, hf_smb2_svhdx_open_device_context_version,
+			    tvb, offset, 4, ENC_LITTLE_ENDIAN, &version);
 	offset += 4;
 
 	/* HasInitiatorId */
@@ -7143,12 +7149,33 @@ dissect_smb2_svhdx_open_device_context_request(tvbuff_t *tvb, packet_info *pinfo
 	/* InitiatorHostName */
 	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_initiator_host_name,
 			    tvb, offset, 126, ENC_ASCII | ENC_NA);
-}
+	offset += 126;
 
-static void
-dissect_smb2_svhdx_open_device_context_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
-{
-	report_create_context_malformed_buffer(tvb, pinfo, tree, "SHVXD OPEN DEVICE CONTEXT Response");
+	if (version == 2) {
+		/* VirtualDiskPropertiesInitialized */
+		proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_virtual_disk_properties_initialized,
+					tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		/* ServerServiceVersion */
+		proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_server_service_version,
+					tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		/* VirtualSectorSize */
+		proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_virtual_sector_size,
+					tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		/* PhysicalSectorSize */
+		proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_physical_sector_size,
+					tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		/* VirtualSize */
+		proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_virtual_size,
+					tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	}
 }
 
 static const int *posix_flags_fields[] = {
@@ -7428,7 +7455,7 @@ struct create_context_data_tag_dissectors create_context_dissectors_array[] = {
 	{ "6aa6bc45-a7ef-4af7-9008-fa462e144d74", "SMB2_CREATE_APP_INSTANCE_ID",
 	  { dissect_smb2_APP_INSTANCE_buffer_request, dissect_smb2_APP_INSTANCE_buffer_response } },
 	{ "9ecfcb9c-c104-43e6-980e-158da1f6ec83", "SVHDX_OPEN_DEVICE_CONTEXT",
-	  { dissect_smb2_svhdx_open_device_context_request, dissect_smb2_svhdx_open_device_context_response} },
+	  { dissect_smb2_svhdx_open_device_context, dissect_smb2_svhdx_open_device_context} },
 	{ "34263501-2921-4912-2586-447794114531", "SMB2_POSIX_V1_CAPS",
 	  { dissect_smb2_posix_v1_caps_request, dissect_smb2_posix_v1_caps_response } },
 	{ "AAPL", "SMB2_AAPL_CREATE_CONTEXT",
@@ -10880,6 +10907,31 @@ proto_register_smb2(void)
 		{ &hf_smb2_svhdx_open_device_context_initiator_host_name,
 			{ "HostName", "smb2.svhdx_open_device_context.host_name", FT_STRING, BASE_NONE,
 			 NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_svhdx_open_device_context_virtual_disk_properties_initialized,
+			{ "VirtualDiskPropertiesInitialized", "smb2.svhdx_open_device_context.virtual_disk_properties_initialized", FT_BOOLEAN, 32,
+			NULL, 0, "Whether VirtualSectorSize, PhysicalSectorSize, and VirtualSize fields are filled", HFILL }
+		},
+
+		{ &hf_smb2_svhdx_open_device_context_server_service_version,
+			{ "ServerServiceVersion", "smb2.svhdx_open_device_context.server_service_version", FT_UINT32, BASE_DEC,
+			NULL, 0, "The current version of the protocol running on the server", HFILL }
+		},
+
+		{ &hf_smb2_svhdx_open_device_context_virtual_sector_size,
+			{ "VirtualSectorSize", "smb2.svhdx_open_device_context.virtual_sector_size", FT_UINT32, BASE_DEC,
+			NULL, 0, "The virtual sector size of the virtual disk", HFILL }
+		},
+
+		{ &hf_smb2_svhdx_open_device_context_physical_sector_size,
+			{ "PhysicalSectorSize", "smb2.svhdx_open_device_context.physical_sector_size", FT_UINT32, BASE_DEC,
+			NULL, 0, "The physical sector size of the virtual disk", HFILL }
+		},
+
+		{ &hf_smb2_svhdx_open_device_context_virtual_size,
+			{ "VirtualSize", "smb2.svhdx_open_device_context.virtual_size", FT_UINT64, BASE_DEC,
+			NULL, 0, "The current length of the virtual disk, in bytes", HFILL }
 		},
 
 		{ &hf_smb2_posix_v1_version,
