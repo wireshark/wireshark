@@ -95,10 +95,10 @@ struct _ftype_t {
 		FvalueSetBytesFunc	set_value_bytes;
 		FvalueSetGuidFunc	set_value_guid;
 		FvalueSetTimeFunc	set_value_time;
+		FvalueSetStringFunc	set_value_string;
 	} set_value;
 
 	/* could be union */
-	FvalueSetStringFunc	set_value_string;
 	FvalueSetProtocolFunc	set_value_protocol;
 	FvalueSetUnsignedIntegerFunc	set_value_uinteger;
 	FvalueSetSignedIntegerFunc		set_value_sinteger;

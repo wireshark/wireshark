@@ -539,8 +539,11 @@ fvalue_set_time(fvalue_t *fv, const nstime_t *value)
 void
 fvalue_set_string(fvalue_t *fv, const gchar *value)
 {
-	g_assert(fv->ftype->set_value_string);
-	fv->ftype->set_value_string(fv, value);
+	g_assert(IS_FT_STRING(fv->ftype->ftype) ||
+			fv->ftype->ftype == FT_UINT_STRING ||
+			fv->ftype->ftype == FT_PCRE);
+	g_assert(fv->ftype->set_value.set_value_string);
+	fv->ftype->set_value.set_value_string(fv, value);
 }
 
 void

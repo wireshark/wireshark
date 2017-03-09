@@ -240,9 +240,8 @@ ftype_register_string(void)
 		string_to_repr,			/* val_to_string_repr */
 		string_repr_len,		/* len_string_repr */
 
-		{ NULL },			/* union set_value */
+		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 
-		string_fvalue_set_string,       /* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
@@ -282,9 +281,8 @@ ftype_register_string(void)
 		string_to_repr,			/* val_to_string_repr */
 		string_repr_len,		/* len_string_repr */
 
-		{ NULL },			/* union set_value */
+		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 
-		string_fvalue_set_string,       /* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
@@ -324,9 +322,8 @@ ftype_register_string(void)
 		string_to_repr,			/* val_to_string_repr */
 		string_repr_len,		/* len_string_repr */
 
-		{ NULL },			/* union set_value */
+		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 
-		string_fvalue_set_string,       /* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
@@ -366,9 +363,8 @@ ftype_register_string(void)
 		string_to_repr,			/* val_to_string_repr */
 		string_repr_len,		/* len_string_repr */
 
-		{ NULL },			/* union set_value */
+		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 
-		string_fvalue_set_string,       /* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */

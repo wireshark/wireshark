@@ -137,7 +137,6 @@ ftype_register_guid(void)
 
         { .set_value_guid = guid_fvalue_set_guid }, /* union set_value */
 
-        NULL,                /* set_value_string */
         NULL,                /* set_value_protocol */
         NULL,                /* set_value_uinteger */
         NULL,                /* set_value_sinteger */

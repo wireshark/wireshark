@@ -739,7 +739,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
@@ -782,7 +781,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
@@ -825,7 +823,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_bytes = ax25_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_integer */
@@ -868,7 +865,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_bytes = vines_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_integer */
@@ -911,7 +907,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_bytes = ether_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
@@ -954,7 +949,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
@@ -997,7 +991,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
@@ -1040,7 +1033,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_byte_array = system_id_fvalue_set }, /* union set_value */
 
-		NULL,				/* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
@@ -1083,7 +1075,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_bytes = fcwwn_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_string */
 		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */

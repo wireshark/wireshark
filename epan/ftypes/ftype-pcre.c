@@ -163,9 +163,8 @@ ftype_register_pcre(void)
         gregex_to_repr,     /* val_to_string_repr */
         gregex_repr_len,    /* len_string_repr */
 
-        { NULL },           /* union set_value */
+        { .set_value_string = gregex_fvalue_set }, /* union set_value */
 
-        gregex_fvalue_set,  /* set_value_string */
         NULL,               /* set_value_protocol */
         NULL,               /* set_value_uinteger */
         NULL,               /* set_value_sinteger */
