@@ -308,7 +308,6 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *da
     proto_item *ti;
     proto_tree *v150fw_tree, *field_tree;
     guint8 extb, ric;
-    guint16 ext_len = 0;
     gint payload_length;
     unsigned int offset = 0;
 
@@ -323,9 +322,6 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *da
         /* Get fields needed for further dissection */
         extb = tvb_get_guint8(tvb, offset) & 0x01; /* extension bit */
         ric = tvb_get_guint8(tvb, offset + 1);
-
-        if(extb && payload_length >= 6) /* get optional extension fields */
-            ext_len = tvb_get_ntohs(tvb, offset + 4) & 0x07FF;
 
         proto_tree_add_item(v150fw_tree, hf_v150fw_event_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(v150fw_tree, hf_v150fw_force_response_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -376,13 +372,9 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *da
         if(extb && payload_length >= 6) /* display optional extension fields */
         {
             proto_tree_add_item(v150fw_tree, hf_v150fw_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-            if(ext_len != (payload_length - 6))
-            {
-                /* TODO - ext field len doesn't match actual len... that isn't illegal, but is perhaps worth noting */
-                proto_tree_add_item(v150fw_tree, hf_v150fw_extension_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-            } else {
-                proto_tree_add_item(v150fw_tree, hf_v150fw_extension_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-            }
+            /* TODO ext field len doesn't match actual len (ext_len != (payload_length - 6)),
+             * that isn't illegal, but is perhaps worth noting */
+            proto_tree_add_item(v150fw_tree, hf_v150fw_extension_len, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* display optional extension fields */
