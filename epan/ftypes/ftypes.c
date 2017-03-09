@@ -549,8 +549,9 @@ fvalue_set_string(fvalue_t *fv, const gchar *value)
 void
 fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const gchar *name)
 {
-	g_assert(fv->ftype->set_value_protocol);
-	fv->ftype->set_value_protocol(fv, value, name);
+	g_assert(fv->ftype->ftype == FT_PROTOCOL);
+	g_assert(fv->ftype->set_value.set_value_protocol);
+	fv->ftype->set_value.set_value_protocol(fv, value, name);
 }
 
 void

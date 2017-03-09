@@ -1028,7 +1028,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1069,7 +1068,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1110,7 +1108,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1151,7 +1148,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1192,7 +1188,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1233,7 +1228,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		set_uinteger64,			/* set_value_uinteger64 */
@@ -1274,7 +1268,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		set_uinteger64,			/* set_value_uinteger64 */
@@ -1315,7 +1308,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		set_uinteger64,			/* set_value_uinteger64 */
@@ -1356,7 +1348,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		set_uinteger64,			/* set_value_uinteger64 */
@@ -1397,7 +1388,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		set_sinteger,			/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1438,7 +1428,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		set_sinteger,			/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1479,7 +1468,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		set_sinteger,			/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1520,7 +1508,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		set_sinteger,			/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1561,7 +1548,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1602,7 +1588,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1643,7 +1628,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1684,7 +1668,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1725,7 +1708,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		set_uinteger64,			/* set_value_uinteger64 */
@@ -1767,7 +1749,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1809,7 +1790,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -1851,7 +1831,6 @@ ftype_register_integers(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		set_uinteger64,			/* set_value_uinteger64 */

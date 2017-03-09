@@ -463,9 +463,8 @@ ftype_register_tvbuff(void)
 		val_to_repr,			/* val_to_string_repr */
 		val_repr_len,			/* len_string_repr */
 
-		{ NULL },			/* union set_value */
+		{ .set_value_protocol = value_set },	/* union set_value */
 
-		value_set,			/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
