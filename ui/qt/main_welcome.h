@@ -80,6 +80,7 @@ signals:
 #ifdef HAVE_EXTCAP
     void showExtcapOptions(QString &device_name);
 #endif
+    void interfacesChanged();
 
 public slots:
     void setCaptureFilterText(const QString capture_filter);

@@ -128,6 +128,7 @@ private:
     void updateSelectedFilter();
 
     void updateGlobalDeviceSelections();
+    void updateFromGlobalDeviceSelections();
 };
 
 #endif /* HAVE_LIBPCAP */

@@ -210,6 +210,8 @@ void InterfaceFrame::triggeredIfTypeButton()
 void InterfaceFrame::interfaceListChanged()
 {
     resetInterfaceTreeDisplay();
+    // Ensure that device selection is consistent with the displayed selection.
+    updateSelectedInterfaces();
 
 #ifdef HAVE_LIBPCAP
     if (!stat_timer_) {

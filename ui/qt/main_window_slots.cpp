@@ -3758,6 +3758,9 @@ void MainWindow::on_actionCaptureOptions_triggered()
                 this->main_welcome_->getInterfaceFrame(), SLOT(interfaceListChanged()));
         connect(capture_interfaces_dialog_, SIGNAL(captureFilterTextEdited(QString)),
                 this->main_welcome_, SLOT(setCaptureFilterText(QString)));
+        // Propagate selection changes from main UI to dialog.
+        connect(this->main_welcome_, SIGNAL(interfacesChanged()),
+                capture_interfaces_dialog_, SLOT(interfaceSelected()));
 
         connect(capture_interfaces_dialog_, SIGNAL(setFilterValid(bool, const QString)),
                 this, SLOT(startInterfaceCapture(bool, const QString)));

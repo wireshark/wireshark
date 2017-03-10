@@ -272,11 +272,43 @@ void CaptureInterfacesDialog::updateGlobalDeviceSelections()
 #endif
 }
 
+/* Update TreeWidget selection based on global device selections. */
+void CaptureInterfacesDialog::updateFromGlobalDeviceSelections()
+{
+#ifdef HAVE_LIBPCAP
+    QTreeWidgetItemIterator iter(ui->interfaceTree);
+
+    // Prevent recursive interface interfaceSelected signals
+    ui->interfaceTree->blockSignals(true);
+
+    while (*iter) {
+        QString device_name = (*iter)->data(col_interface_, Qt::UserRole).value<QString>();
+        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (device_name.compare(QString().fromUtf8(device.name)) == 0) {
+                if (device.selected != (*iter)->isSelected()) {
+                    (*iter)->setSelected(device.selected);
+                }
+                break;
+            }
+        }
+        ++iter;
+    }
+
+    ui->interfaceTree->blockSignals(false);
+#endif
+}
+
 void CaptureInterfacesDialog::interfaceSelected()
 {
-    updateGlobalDeviceSelections();
-
-    emit interfacesChanged();
+    if (sender() == ui->interfaceTree) {
+        // Local changes, propagate our changes
+        updateGlobalDeviceSelections();
+        emit interfacesChanged();
+    } else {
+        // Changes from the welcome screen, adjust to its state.
+        updateFromGlobalDeviceSelections();
+    }
 
     updateSelectedFilter();
 

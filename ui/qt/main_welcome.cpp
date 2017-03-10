@@ -327,6 +327,9 @@ void MainWelcome::interfaceSelected()
     } else {
         welcome_ui_->captureFilterComboBox->lineEdit()->setText(user_filter);
     }
+
+    // Notify others (capture interfaces dialog) that the selection has changed.
+    emit interfacesChanged();
 }
 
 #ifdef HAVE_EXTCAP
