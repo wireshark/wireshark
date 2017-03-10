@@ -72,7 +72,7 @@ private:
 #endif
 
     bool changeIsAllowed(InterfaceTreeColumns col) const;
-    bool isAllowedToBeChanged(const QModelIndex &index) const;
+    bool isAvailableField(const QModelIndex &index) const;
     bool isAllowedToBeEdited(const QModelIndex &index) const;
 
 };

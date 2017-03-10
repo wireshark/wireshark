@@ -345,7 +345,7 @@ interface_t * InterfaceTreeCacheModel::lookup(const QModelIndex &index) const
 #endif
 
 /* This checks if the column can be edited for the given index. This differs from
- * isAllowedToBeChanged in such a way, that it is only used in flags and not any
+ * isAvailableField in such a way, that it is only used in flags and not any
  * other method.*/
 bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) const
 {
@@ -374,7 +374,8 @@ bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) cons
     return true;
 }
 
-bool InterfaceTreeCacheModel::isAllowedToBeChanged(const QModelIndex &index) const
+// Whether this field is available for modification and display.
+bool InterfaceTreeCacheModel::isAvailableField(const QModelIndex &index) const
 {
     Q_UNUSED(index);
 
@@ -387,11 +388,9 @@ bool InterfaceTreeCacheModel::isAllowedToBeChanged(const QModelIndex &index) con
     InterfaceTreeColumns col = (InterfaceTreeColumns) index.column();
     if ( col == IFTREE_COL_HIDDEN )
     {
-        if ( prefs.capture_device )
-        {
-            if ( ! g_strcmp0(prefs.capture_device, device->display_name) )
-                return false;
-        }
+        // Do not allow default capture interface to be hidden.
+        if ( ! g_strcmp0(prefs.capture_device, device->display_name) )
+            return false;
     }
 #endif
 
@@ -407,7 +406,7 @@ Qt::ItemFlags InterfaceTreeCacheModel::flags(const QModelIndex &index) const
 
     InterfaceTreeColumns col = (InterfaceTreeColumns) index.column();
 
-    if ( changeIsAllowed(col) && isAllowedToBeChanged(index) && isAllowedToBeEdited(index) )
+    if ( changeIsAllowed(col) && isAvailableField(index) && isAllowedToBeEdited(index) )
     {
         if ( checkableColumns.contains(col) )
         {
@@ -427,7 +426,7 @@ bool InterfaceTreeCacheModel::setData(const QModelIndex &index, const QVariant &
     if ( ! index.isValid() )
         return false;
 
-    if ( ! isAllowedToBeChanged(index) )
+    if ( ! isAvailableField(index) )
         return false;
 
     int row = index.row();
@@ -466,7 +465,7 @@ QVariant InterfaceTreeCacheModel::data(const QModelIndex &index, int role) const
 
     InterfaceTreeColumns col = (InterfaceTreeColumns)index.column();
 
-    if ( isAllowedToBeEdited(index) )
+    if ( isAvailableField(index) && isAllowedToBeEdited(index) )
     {
         if ( ( ( role == Qt::DisplayRole || role == Qt::EditRole ) && editableColumns.contains(col) ) ||
                 ( role == Qt::CheckStateRole && checkableColumns.contains(col) ) )
@@ -529,6 +528,10 @@ QVariant InterfaceTreeCacheModel::data(const QModelIndex &index, int role) const
             {
                 if ( col == IFTREE_COL_HIDDEN )
                 {
+                    // Do not allow default capture interface to be hidden.
+                    if ( ! g_strcmp0(prefs.capture_device, device->display_name) )
+                        return QVariant();
+
                     /* Hidden is a de-selection, therefore inverted logic here */
                     return device->hidden ? Qt::Unchecked : Qt::Checked;
                 }
