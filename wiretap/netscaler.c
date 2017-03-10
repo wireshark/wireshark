@@ -856,7 +856,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 #define nspr_getv10recordsize(hdp) (pletoh16(&(hdp)->nsprRecordSize))
 #define nspr_getv20recordtype(hdp) ((hdp)->phd_RecordType)
 #define nspr_getv20recordsize(hdp) \
-    (size_t)(((hdp)->phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES)? \
+    (guint32)(((hdp)->phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES)? \
         (((hdp)->phd_RecordSizeHigh * NSPR_V20RECORDSIZE_2BYTES)+ \
          ((hdp)->phd_RecordSizeLow & ~NSPR_V20RECORDSIZE_2BYTES)) : \
           (hdp)->phd_RecordSizeLow)
