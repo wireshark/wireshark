@@ -503,7 +503,8 @@ static dissector_handle_t bgp_handle;
 #define SAFNUM_VPLS            65
 #define SAFNUM_MDT             66  /* rfc6037 */
 #define SAFNUM_EVPN            70  /* EVPN RFC */
-#define SAFNUM_LINK_STATE      71  /* RFC7752 */
+#define SAFNUM_BGP_LS          71  /* RFC7752 */
+#define SAFNUM_BGP_LS_VPN      72  /* RFC7752 */
 #define SAFNUM_LAB_VPNUNICAST 128  /* Draft-rosen-rfc2547bis-03 */
 #define SAFNUM_LAB_VPNMULCAST 129
 #define SAFNUM_LAB_VPNUNIMULC 130
@@ -1184,7 +1185,8 @@ static const value_string bgpattr_nlri_safi[] = {
     { SAFNUM_ENCAPSULATION,     "Encapsulation"},
     { SAFNUM_TUNNEL,            "Tunnel"},
     { SAFNUM_VPLS,              "VPLS"},
-    { SAFNUM_LINK_STATE,        "Link State"},
+    { SAFNUM_BGP_LS,            "BGP-LS"},
+    { SAFNUM_BGP_LS_VPN,        "BGP-LS-VPN"},
     { SAFNUM_LAB_VPNUNICAST,    "Labeled VPN Unicast" },        /* draft-rosen-rfc2547bis-03 */
     { SAFNUM_LAB_VPNMULCAST,    "Labeled VPN Multicast" },
     { SAFNUM_LAB_VPNUNIMULC,    "Labeled VPN Unicast+Multicast" },
@@ -1646,7 +1648,7 @@ static int hf_bgp_mcast_vpn_nlri_route_key = -1;
 static int hf_bgp_ls_type = -1;
 static int hf_bgp_ls_length = -1;
 
-static int hf_bgp_ls_safi72_nlri = -1;
+static int hf_bgp_ls_nlri = -1;
 static int hf_bgp_ls_safi128_nlri = -1;
 static int hf_bgp_ls_safi128_nlri_route_distinguisher = -1;
 static int hf_bgp_ls_safi128_nlri_route_distinguisher_type = -1;
@@ -3222,7 +3224,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, wmem_strbu
                     break;
             } /* switch (safi) */
             break;
-        case AFNUM_LINK_STATE:
+        case AFNUM_BGP_LS:
             length = nhlen;
             if (nhlen == 4) {
                 wmem_strbuf_append(strbuf, tvb_ip_to_str(tvb, offset));
@@ -5275,14 +5277,14 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 return -1;
         } /* switch (safi) */
         break;
-    case AFNUM_LINK_STATE:
+    case AFNUM_BGP_LS:
         nlri_type = tvb_get_ntohs(tvb, offset);
         total_length = tvb_get_ntohs(tvb, offset + 2);
         length = total_length;
         total_length += 4;
 
-        if (safi == SAFNUM_LINK_STATE) {
-            ti = proto_tree_add_item(tree, hf_bgp_ls_safi72_nlri, tvb, offset, total_length , ENC_NA);
+        if (safi == SAFNUM_BGP_LS || safi == SAFNUM_BGP_LS_VPN) {
+            ti = proto_tree_add_item(tree, hf_bgp_ls_nlri, tvb, offset, total_length , ENC_NA);
         } else if (safi == SAFNUM_LAB_VPNUNICAST) {
             ti = proto_tree_add_item(tree, hf_bgp_ls_safi128_nlri, tvb, offset, total_length , ENC_NA);
         } else
@@ -7049,7 +7051,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                     case AFNUM_INET6:
                     case AFNUM_L2VPN:
                     case AFNUM_L2VPN_OLD:
-                    case AFNUM_LINK_STATE:
+                    case AFNUM_BGP_LS:
 
                         j = 0;
                         while (j < nexthop_len) {
@@ -7095,7 +7097,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                                          ett_bgp_mp_reach_nlri, NULL, "Network layer reachability information (%u byte%s)",
                                                          tlen, plurality(tlen, "", "s"));
                 if (tlen)  {
-                    if (af != AFNUM_INET && af != AFNUM_INET6 && af != AFNUM_L2VPN && af != AFNUM_LINK_STATE) {
+                    if (af != AFNUM_INET && af != AFNUM_INET6 && af != AFNUM_L2VPN && af != AFNUM_BGP_LS) {
                         proto_tree_add_expert(subtree3, pinfo, &ei_bgp_unknown_afi, tvb, o + i + aoff, tlen);
                     } else {
                         while (tlen > 0) {
@@ -9033,8 +9035,8 @@ proto_register_bgp(void)
       { &hf_bgp_ls_length,
         { "Length", "bgp.ls.length", FT_UINT16, BASE_DEC,
           NULL, 0x0, "The total length of the message payload in octets", HFILL }},
-      { &hf_bgp_ls_safi72_nlri,
-        { "Link State SAFI 72 NLRI", "bgp.ls.nlri_safi72", FT_NONE,
+      { &hf_bgp_ls_nlri,
+        { "BGP-LS NLRI", "bgp.ls.nlri", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_safi128_nlri,
         { "Link State SAFI 128 NLRI", "bgp.ls.nlri_safi128", FT_NONE,
