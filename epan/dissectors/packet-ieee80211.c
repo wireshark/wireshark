@@ -10023,6 +10023,67 @@ dissect_wme_qos_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 }
 
 static int
+decode_qos_parameter_set(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int ftype)
+{
+  int i;
+  /* WME QoS Info Field */
+  offset = dissect_wme_qos_info(tree, tvb, pinfo, offset, ftype);
+  proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_reserved, tvb, offset, 1, ENC_NA);
+  offset += 1;
+  /* AC Parameters */
+  for (i = 0; i < 4; i++)
+  {
+    proto_item *ac_item, *aci_aifsn_item, *ecw_item;
+    proto_tree *ac_tree, *aci_aifsn_tree, *ecw_tree;
+    guint8 aci_aifsn, ecw, ecwmin, ecwmax;
+    guint16 cwmin, cwmax;
+
+    ac_item = proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_ac_parameters, tvb, offset, 4, ENC_NA);
+    ac_tree = proto_item_add_subtree(ac_item, ett_wme_ac);
+
+    /* ACI/AIFSN Field */
+    aci_aifsn_item = proto_tree_add_item(ac_tree, hf_ieee80211_wfa_ie_wme_acp_aci_aifsn, tvb, offset, 1, ENC_NA);
+    aci_aifsn_tree = proto_item_add_subtree(aci_aifsn_item, ett_wme_aci_aifsn);
+    proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_aci, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_acm, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_aifsn, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_reserved, tvb, offset, 1, ENC_NA);
+    aci_aifsn = tvb_get_guint8(tvb, offset);
+    /* 802.11-2012, 8.4.2.31 EDCA Parameter Set element */
+    if (aci_aifsn < 2) {
+       expert_add_info_format(pinfo, aci_aifsn_tree, &ei_ieee80211_qos_bad_aifsn,
+         "The minimum value for the AIFSN subfield is 2 (found %u).", aci_aifsn);
+    }
+    proto_item_append_text(ac_item, " ACI %u (%s), ACM %s, AIFSN %u",
+      (aci_aifsn & 0x60) >> 5, try_val_to_str((aci_aifsn & 0x60) >> 5, ieee80211_wfa_ie_wme_acs_vals),
+      (aci_aifsn & 0x10) ? "yes" : "no", aci_aifsn & 0x0f);
+    offset += 1;
+
+    /* ECWmin/ECWmax field */
+    ecw_item = proto_tree_add_item(ac_tree, hf_ieee80211_wfa_ie_wme_acp_ecw, tvb, offset, 1, ENC_NA);
+    ecw_tree = proto_item_add_subtree(ecw_item, ett_wme_ecw);
+    ecw = tvb_get_guint8(tvb, offset);
+    ecwmin = ecw & 0x0f;
+    ecwmax = (ecw & 0xf0) >> 4;
+    cwmin= (1 << ecwmin) - 1;
+    cwmax= (1 << ecwmax) - 1;
+    proto_tree_add_item(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_ecw_max, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_ecw_min, tvb, offset, 1, ENC_NA);
+    proto_tree_add_uint(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_cw_max, tvb, offset, 1, cwmax);
+    proto_tree_add_uint(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_cw_min, tvb, offset, 1, cwmin);
+    proto_item_append_text(ac_item, ", ECWmin/max %u/%u (CWmin/max %u/%u)", ecwmin, ecwmax, cwmin, cwmax);
+    offset += 1;
+
+    /* TXOP Limit */
+    proto_tree_add_item(ac_tree, hf_ieee80211_wfa_ie_wme_acp_txop_limit, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(ac_item, ", TXOP %u", tvb_get_letohs(tvb, offset));
+    offset += 2;
+  }
+
+  return offset;
+}
+
+static int
 dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 tag_len, int ftype)
 {
   guint8 type;
@@ -10127,60 +10188,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
         }
         case 1: /* WME Parameter Element */
         {
-          int i;
-          /* WME QoS Info Field */
-          offset = dissect_wme_qos_info(tree, tvb, pinfo, offset, ftype);
-          proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_reserved, tvb, offset, 1, ENC_NA);
-          offset += 1;
-          /* AC Parameters */
-          for (i = 0; i < 4; i++)
-          {
-            proto_item *ac_item, *aci_aifsn_item, *ecw_item;
-            proto_tree *ac_tree, *aci_aifsn_tree, *ecw_tree;
-            guint8 aci_aifsn, ecw, ecwmin, ecwmax;
-            guint16 cwmin, cwmax;
-
-            ac_item = proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_ac_parameters, tvb, offset, 4, ENC_NA);
-            ac_tree = proto_item_add_subtree(ac_item, ett_wme_ac);
-
-            /* ACI/AIFSN Field */
-            aci_aifsn_item = proto_tree_add_item(ac_tree, hf_ieee80211_wfa_ie_wme_acp_aci_aifsn, tvb, offset, 1, ENC_NA);
-            aci_aifsn_tree = proto_item_add_subtree(aci_aifsn_item, ett_wme_aci_aifsn);
-            proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_aci, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_acm, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_aifsn, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_reserved, tvb, offset, 1, ENC_NA);
-            aci_aifsn = tvb_get_guint8(tvb, offset);
-            /* 802.11-2012, 8.4.2.31 EDCA Parameter Set element */
-            if (aci_aifsn < 2) {
-               expert_add_info_format(pinfo, aci_aifsn_tree, &ei_ieee80211_qos_bad_aifsn,
-                 "The minimum value for the AIFSN subfield is 2 (found %u).", aci_aifsn);
-            }
-            proto_item_append_text(ac_item, " ACI %u (%s), ACM %s, AIFSN %u",
-              (aci_aifsn & 0x60) >> 5, try_val_to_str((aci_aifsn & 0x60) >> 5, ieee80211_wfa_ie_wme_acs_vals),
-              (aci_aifsn & 0x10) ? "yes" : "no", aci_aifsn & 0x0f);
-            offset += 1;
-
-            /* ECWmin/ECWmax field */
-            ecw_item = proto_tree_add_item(ac_tree, hf_ieee80211_wfa_ie_wme_acp_ecw, tvb, offset, 1, ENC_NA);
-            ecw_tree = proto_item_add_subtree(ecw_item, ett_wme_ecw);
-            ecw = tvb_get_guint8(tvb, offset);
-            ecwmin = ecw & 0x0f;
-            ecwmax = (ecw & 0xf0) >> 4;
-            cwmin= (1 << ecwmin) - 1;
-            cwmax= (1 << ecwmax) - 1;
-            proto_tree_add_item(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_ecw_max, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_ecw_min, tvb, offset, 1, ENC_NA);
-            proto_tree_add_uint(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_cw_max, tvb, offset, 1, cwmax);
-            proto_tree_add_uint(ecw_tree, hf_ieee80211_wfa_ie_wme_acp_cw_min, tvb, offset, 1, cwmin);
-            proto_item_append_text(ac_item, ", ECWmin/max %u/%u (CWmin/max %u/%u)", ecwmin, ecwmax, cwmin, cwmax);
-            offset += 1;
-
-            /* TXOP Limit */
-            proto_tree_add_item(ac_tree, hf_ieee80211_wfa_ie_wme_acp_txop_limit, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(ac_item, ", TXOP %u", tvb_get_letohs(tvb, offset));
-            offset += 2;
-          }
+          offset = decode_qos_parameter_set(tree, tvb, pinfo, offset, ftype);
           break;
         }
         case 2:   /* WME TSPEC Element */
@@ -14329,21 +14337,23 @@ ieee80211_tag_qbss_load(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return tvb_captured_length(tvb);
 }
 
-#if 0 /* ToDo */
 /* 8.4.2.31 in 802-11-2012 */
 static int
 ieee80211_tag_edca_param_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  offset += add_ff_qos_info_ap(tree, tvb, pinfo, offset);
-  offset += 1;  /* reserved */
-  offset += 4;  /* AC_BE */
-  offset += 4;  /* AC_BK */
-  offset += 4;  /* AC_VI */
-  offset += 4;  /* AC_VO */
+
+  if ((tag_len != 18))
+  {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 18", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  offset = decode_qos_parameter_set(tree, tvb, pinfo, offset, field_data->ftype);
   return tvb_captured_length(tvb);
 }
-#endif
 
 /* TSPEC element (13) */
 static int
@@ -28114,9 +28124,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_FH_HOPPING_TABLE, create_dissector_handle(ieee80211_tag_fh_hopping_table, -1));
   dissector_add_uint("wlan.tag.number", TAG_REQUEST, create_dissector_handle(ieee80211_tag_request, -1));
   dissector_add_uint("wlan.tag.number", TAG_QBSS_LOAD, create_dissector_handle(ieee80211_tag_qbss_load, -1));
-#if 0
   dissector_add_uint("wlan.tag.number", TAG_EDCA_PARAM_SET, create_dissector_handle(ieee80211_tag_edca_param_set, -1));
-#endif
   dissector_add_uint("wlan.tag.number", TAG_TSPEC, create_dissector_handle(ieee80211_tag_tspec, -1));
   dissector_add_uint("wlan.tag.number", TAG_TCLAS, create_dissector_handle(ieee80211_tag_tclas, -1));
   dissector_add_uint("wlan.tag.number", TAG_SCHEDULE, create_dissector_handle(ieee80211_tag_schedule, -1));
