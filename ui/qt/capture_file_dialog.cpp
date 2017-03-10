@@ -167,6 +167,9 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
         msg_dialog.setDefaultButton(QMessageBox::Cancel);
     }
 
+    discard_button->setAutoDefault(false);
+    discard_button->setFocus();
+
     msg_dialog.exec();
     /* According to the Qt doc:
      * when using QMessageBox with custom buttons, exec() function returns an opaque value.
