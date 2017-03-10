@@ -54,6 +54,10 @@ if_list_comparator_alph(const void *first_arg, const void *second_arg)
     }
 }
 
+/*
+ * Try to populate the given device with options (like capture filter) from
+ * the capture options that are in use for an existing capture interface.
+ */
 static void
 fill_from_ifaces (interface_t *device)
 {
@@ -77,10 +81,6 @@ fill_from_ifaces (interface_t *device)
         device->cfilter = g_strdup(interface_opts.cfilter);
         if (interface_opts.linktype != -1) {
             device->active_dlt = interface_opts.linktype;
-        }
-        if (!device->selected) {
-            device->selected = TRUE;
-            global_capture_opts.num_selected++;
         }
         return;
     }
@@ -111,6 +111,7 @@ scan_local_interfaces(void (*update_cb)(void))
     interface_options interface_opts;
     gboolean          found = FALSE;
     static gboolean   running = FALSE;
+    GHashTable        *selected_devices;
 
     if (running) {
         /* scan_local_interfaces internally calls update_cb to process UI events
@@ -122,40 +123,47 @@ scan_local_interfaces(void (*update_cb)(void))
     }
     running = TRUE;
 
+    /*
+     * Clear list of known interfaces (all_ifaces) that will be re-discovered on
+     * scanning, but remember their selection state.
+     *
+     * XXX shouldn't this copy settings (like capture filter) from the "old"
+     * device to the "new" device? Refreshing the interfaces list should
+     * probably just remove disappeared devices and add discovered devices.
+     */
+    selected_devices = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
     if (global_capture_opts.all_ifaces->len > 0) {
         for (i = (int)global_capture_opts.all_ifaces->len-1; i >= 0; i--) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device.local && device.type != IF_PIPE && device.type != IF_STDIN) {
                 global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-
+                /*
+                 * Device is about to be destroyed, unmark as selected. It will
+                 * be reselected on rediscovery.
+                 */
                 if (device.selected) {
+                    gchar *device_name = g_strdup(device.name);
+                    /* g_hash_table_add() only exists since 2.32. */
+                    g_hash_table_replace(selected_devices, device_name, device_name);
                     global_capture_opts.num_selected--;
-                    /* if device was to be used after this statement,
-                       we should set device.selected=FALSE here */
                 }
 
-                /* if we remove an interface from all_interfaces,
-                   it must also be removed from ifaces if it is present there
-                   otherwise, it would be re-added to all_interfaces below
-                   (interfaces set with -i on the command line are initially present in ifaces but not
-                   in all_interfaces, but these interfaces are not removed here) */
-                for (j = 0; j < global_capture_opts.ifaces->len; j++) {
-                    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
-                    if (strcmp(device.name, interface_opts.name) == 0) {
-                        /* 2nd param must be the index of ifaces (not all_ifaces) */
-                        capture_opts_del_iface(&global_capture_opts, j);
-                    }
-                }
                 capture_opts_free_interface_t(&device);
             }
         }
     }
-    /* Scan through the list and build a list of strings to display. */
+
+    /* Retrieve list of interface information (if_info_t) into if_list. */
     g_free(global_capture_opts.ifaces_err_info);
     if_list = capture_interface_list(&global_capture_opts.ifaces_err,
                                      &global_capture_opts.ifaces_err_info,
                                      update_cb);
     count = 0;
+
+    /*
+     * For each discovered interface name, create a new device and add extra
+     * information (like supported DLTs, assigned IP addresses).
+     */
     for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
         memset(&device, 0, sizeof(device));
         if_info = (if_info_t *)if_entry->data;
@@ -300,7 +308,13 @@ scan_local_interfaces(void (*update_cb)(void))
         }
 #endif
 
+        /* Copy interface options for active capture devices. */
         fill_from_ifaces(&device);
+        /* Restore device selection (for next capture). */
+        if (!device.selected && g_hash_table_lookup(selected_devices, device.name)) {
+            device.selected = TRUE;
+            global_capture_opts.num_selected++;
+        }
 
 #ifdef HAVE_EXTCAP
         /* Extcap devices start with no cached args */
@@ -320,9 +334,21 @@ scan_local_interfaces(void (*update_cb)(void))
         count++;
     }
     free_interface_list(if_list);
-    /* see whether there are additional interfaces in ifaces */
+
+    /*
+     * Pipes and stdin are not really discoverable interfaces, so re-add them to
+     * the list of all interfaces (all_ifaces).
+     */
     for (j = 0; j < global_capture_opts.ifaces->len; j++) {
         interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
+
+        /* Skip non-pipes (like Ethernet, Wi-Fi, ...). */
+        if (interface_opts.if_type != IF_PIPE && interface_opts.if_type != IF_STDIN) {
+            /* Note: the interface options are not destroyed for these
+             * interfaces in case it is briefly removed and re-added. */
+            continue;
+        }
+
         found = FALSE;
         for (i = 0; i < (int)global_capture_opts.all_ifaces->len; i++) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
@@ -339,6 +365,7 @@ scan_local_interfaces(void (*update_cb)(void))
                 g_strdup(device.name);
             device.hidden       = FALSE;
             device.selected     = TRUE;
+            /* XXX shouldn't this be interface_opts.if_type (for IF_STDIN)? */
             device.type         = IF_PIPE;
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
             device.buffer = interface_opts.buffer_size;
@@ -371,6 +398,8 @@ scan_local_interfaces(void (*update_cb)(void))
             global_capture_opts.num_selected++;
         }
     }
+
+    g_hash_table_destroy(selected_devices);
     running = FALSE;
 }
 
