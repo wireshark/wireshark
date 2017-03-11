@@ -2646,6 +2646,7 @@ dissect_audio_phone(proto_tree *msg_tree,
             proto_tree_add_item(msg_tree,hf_audio_transducer_pair,tvb,offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
          }
+         break;
       case 0x14:
    /*Query APB Response*/
          proto_tree_add_item(msg_tree,hf_audio_apb_number,tvb,offset,1,ENC_BIG_ENDIAN);
