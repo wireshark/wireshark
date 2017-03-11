@@ -464,7 +464,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
             if (it->calc_type == CALC_TYPE_FRAMES_AND_BYTES)
                 parent->max_vals[it->colnum] =
                     MAX(parent->max_vals[it->colnum], it->counter);
-
+            break;
         case CALC_TYPE_BYTES:
         case CALC_TYPE_COUNT:
         case CALC_TYPE_LOAD:
