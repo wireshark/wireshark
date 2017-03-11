@@ -2392,7 +2392,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         tag_tree = proto_tree_add_subtree(section_tree, tvb, offset + 4, taglength, tag_info->ett, &tag_pi, tag_info->tag_template->hfinfo.name);
         /* Address */
-        pi = proto_tree_add_item(tag_tree, tag_info->extra->hf_values[0], tvb, offset + 4, MIN(addr_len, taglength), IS_FT_INT(tag_ft) || IS_FT_UINT(tag_ft) ? ENC_BIG_ENDIAN : ENC_NA);
+        pi = proto_tree_add_item(tag_tree, tag_info->extra->hf_values[0], tvb, offset + 4, MIN(addr_len, taglength), ENC_BIG_ENDIAN);
         /* Name */
         proto_tree_add_item(tag_tree, tag_info->extra->hf_values[1], tvb, offset + 4 + addr_len, taglength - addr_len, ENC_UTF_8);
         if (pi) {
