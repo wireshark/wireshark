@@ -6496,7 +6496,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
 
                         raw_value = tvb_get_ntohl(tvb, offset+4);
                         proto_tree_add_uint_format_value(community_tree, hf_bgp_ext_com_eigrp_bw,
-                                tvb, offset+4, 4, raw_value, "%u (%u Kbps)", raw_value, 2560000000U / raw_value);
+                                tvb, offset+4, 4, raw_value, "%u (%u Kbps)", raw_value, raw_value ? (2560000000U / raw_value) : 0);
                         proto_item_append_text(community_tree, ", B: %u", raw_value);
                         }
                         break;
