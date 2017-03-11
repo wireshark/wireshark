@@ -1132,9 +1132,13 @@ guint oid_subid2encoded(wmem_allocator_t *scope, guint subids_len, guint32* subi
 		switch(len) {
 			default: *bytes_p=NULL; return 0;
 			case 5: *(b++) = ((subid & 0xF0000000) >> 28) | 0x80;
+			/* FALL THROUGH */
 			case 4: *(b++) = ((subid & 0x0FE00000) >> 21) | 0x80;
+			/* FALL THROUGH */
 			case 3: *(b++) = ((subid & 0x001FC000) >> 14) | 0x80;
+			/* FALL THROUGH */
 			case 2: *(b++) = ((subid & 0x00003F80) >> 7)  | 0x80;
+			/* FALL THROUGH */
 			case 1: *(b++) =   subid & 0x0000007F ; break;
 		}
 	}
