@@ -14469,7 +14469,8 @@ ieee80211_tag_edca_param_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return tvb_captured_length(tvb);
   }
 
-  offset = decode_qos_parameter_set(tree, tvb, pinfo, offset, field_data->ftype);
+  decode_qos_parameter_set(tree, tvb, pinfo, offset, field_data->ftype);
+
   return tvb_captured_length(tvb);
 }
 
