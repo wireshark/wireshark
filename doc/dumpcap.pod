@@ -16,7 +16,7 @@ S<[ B<-D> ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-g> ]>
 S<[ B<-h> ]>
-S<[ B<-i> E<lt>capture interfaceE<gt>|rpcap://E<lt>hostE<gt>/E<lt>capture interfaceE<gt>|TCP@E<lt>hostE<gt>:E<lt>portE<gt>|- ]>
+S<[ B<-i> E<lt>capture interfaceE<gt>|rpcap://E<lt>hostE<gt>:E<lt>portE<gt>/E<lt>capture interfaceE<gt>|TCP@E<lt>hostE<gt>:E<lt>portE<gt>|- ]>
 S<[ B<-I> ]>
 S<[ B<-L> ]>
 S<[ B<-M> ]>
@@ -199,7 +199,7 @@ user's group).
 
 Print the version and options and exits.
 
-=item -i  E<lt>capture interfaceE<gt>|rpcap://E<lt>hostE<gt>/E<lt>capture interfaceE<gt>|TCP@E<lt>hostE<gt>:E<lt>portE<gt>|-
+=item -i  E<lt>capture interfaceE<gt>|rpcap://E<lt>hostE<gt>:E<lt>portE<gt>/E<lt>capture interfaceE<gt>|TCP@E<lt>hostE<gt>:E<lt>portE<gt>|-
 
 Set the name of the network interface or pipe to use for live packet
 capture.
