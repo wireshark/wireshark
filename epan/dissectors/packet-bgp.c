@@ -7928,7 +7928,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                  * more bytes we need, and return.
                  */
                 pinfo->desegment_offset = offset;
-                pinfo->desegment_len = bgp_len - length_remaining;
+                pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                 return tvb_captured_length(tvb);
             }
         }
