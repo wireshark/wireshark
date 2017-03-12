@@ -15509,7 +15509,7 @@ ieee80211_tag_erp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int *ieee80211_tag_erp_info[] = {
+  static const int *ieee80211_tag_erp_info_flags[] = {
     &hf_ieee80211_tag_erp_info_erp_present,
     &hf_ieee80211_tag_erp_info_use_protection,
     &hf_ieee80211_tag_erp_info_barker_preamble_mode,
@@ -15524,7 +15524,7 @@ ieee80211_tag_erp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   }
 
   proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_erp_info,
-                                    ett_tag_erp_info_tree, ieee80211_tag_erp_info,
+                                    ett_tag_erp_info_tree, ieee80211_tag_erp_info_flags,
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
 
   return tvb_captured_length(tvb);
@@ -16174,7 +16174,7 @@ ieee80211_tag_dmg_operation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int * ieee80211_tag_dmg_operation[] = {
+  static const int * ieee80211_tag_dmg_operation_flags[] = {
     &hf_ieee80211_tag_pcp_tddti,
     &hf_ieee80211_tag_pcp_PSA,
     &hf_ieee80211_tag_pcp_handover,
@@ -16186,7 +16186,7 @@ ieee80211_tag_dmg_operation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 10", tag_len);
     return tvb_captured_length(tvb);
   }
-  proto_tree_add_bitmask_list(tree, tvb, offset, 1, ieee80211_tag_dmg_operation, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask_list(tree, tvb, offset, 1, ieee80211_tag_dmg_operation_flags, ENC_LITTLE_ENDIAN);
   offset += 2;
   proto_tree_add_item(tree, hf_ieee80211_tag_PSRSI, tvb, offset, 1, ENC_NA);
   offset += 1;
@@ -16481,7 +16481,7 @@ ieee80211_tag_dmg_tspec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be at least 14", tag_len);
     return tvb_captured_length(tvb);
   }
-  static const int * ieee80211_tag_tspec[] = {
+  static const int * ieee80211_tag_tspec_flags[] = {
     &hf_ieee80211_tag_tspec_allocation_id,
     &hf_ieee80211_tag_tspec_allocation_type,
     &hf_ieee80211_tag_tspec_allocation_format,
@@ -16495,7 +16495,7 @@ ieee80211_tag_dmg_tspec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     NULL
   };
 
-  proto_tree_add_bitmask_list(tree, tvb, offset, 3, ieee80211_tag_tspec, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask_list(tree, tvb, offset, 3, ieee80211_tag_tspec_flags, ENC_LITTLE_ENDIAN);
   offset += 3;
   isGrant = ((field_data->ftype==CTRL_GRANT)||(field_data->ftype==CTRL_GRANT_ACK));
   offset += add_ff_beamforming_ctrl(tree, tvb, pinfo, 2, isGrant);
@@ -16730,7 +16730,7 @@ ieee80211_tag_switching_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  static const int * ieee80211_tag_switching_stream[] = {
+  static const int * ieee80211_tag_switching_stream_flags[] = {
     &hf_ieee80211_tag_switching_stream_old_tid,
     &hf_ieee80211_tag_switching_stream_old_direction,
     &hf_ieee80211_tag_switching_stream_new_tid,
@@ -16755,7 +16755,7 @@ ieee80211_tag_switching_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   offset += 1;
   while(param_num > 0)
   {
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, ieee80211_tag_switching_stream, ENC_NA);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, ieee80211_tag_switching_stream_flags, ENC_NA);
     param_num--;
     offset += 2;
   }
