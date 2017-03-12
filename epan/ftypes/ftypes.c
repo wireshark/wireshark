@@ -574,8 +574,12 @@ fvalue_set_uinteger(fvalue_t *fv, guint32 value)
 void
 fvalue_set_sinteger(fvalue_t *fv, gint32 value)
 {
-	g_assert(fv->ftype->set_value_sinteger);
-	fv->ftype->set_value_sinteger(fv, value);
+	g_assert(fv->ftype->ftype == FT_INT8 ||
+			fv->ftype->ftype == FT_INT16 ||
+			fv->ftype->ftype == FT_INT24 ||
+			fv->ftype->ftype == FT_INT32);
+	g_assert(fv->ftype->set_value.set_value_sinteger);
+	fv->ftype->set_value.set_value_sinteger(fv, value);
 }
 
 void
