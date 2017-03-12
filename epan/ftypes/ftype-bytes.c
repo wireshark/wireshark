@@ -828,7 +828,7 @@ ftype_register_bytes(void)
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
-		NULL,				/* set_value_uinteger */
+		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_integer */
 		NULL,				/* get_value_uinteger64 */
 		NULL,				/* get_value_sinteger64 */
@@ -869,7 +869,7 @@ ftype_register_bytes(void)
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
-		NULL,				/* set_value_uinteger */
+		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_integer */
 		NULL,				/* get_value_uinteger64 */
 		NULL,				/* get_value_sinteger64 */
