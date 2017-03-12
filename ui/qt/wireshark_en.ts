@@ -847,136 +847,136 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="388"/>
+        <location filename="capture_file_dialog.cpp" line="391"/>
         <source>All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="394"/>
+        <location filename="capture_file_dialog.cpp" line="397"/>
         <source>All Capture Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="430"/>
+        <location filename="capture_file_dialog.cpp" line="433"/>
         <source>Format:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="435"/>
+        <location filename="capture_file_dialog.cpp" line="438"/>
         <source>Size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="440"/>
+        <location filename="capture_file_dialog.cpp" line="443"/>
         <source>Start / elapsed:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="486"/>
+        <location filename="capture_file_dialog.cpp" line="489"/>
         <source>Automatically detect file type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="784"/>
+        <location filename="capture_file_dialog.cpp" line="787"/>
         <source>%1, error after %2 packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="791"/>
+        <location filename="capture_file_dialog.cpp" line="794"/>
         <source>%1, timed out at %2 packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="452"/>
+        <location filename="capture_file_dialog.cpp" line="455"/>
         <source>Prepend packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="453"/>
+        <location filename="capture_file_dialog.cpp" line="456"/>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="456"/>
+        <location filename="capture_file_dialog.cpp" line="459"/>
         <source>Merge chronologically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="457"/>
+        <location filename="capture_file_dialog.cpp" line="460"/>
         <source>Insert packets in chronological order.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="461"/>
+        <location filename="capture_file_dialog.cpp" line="464"/>
         <source>Append packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="462"/>
+        <location filename="capture_file_dialog.cpp" line="465"/>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="477"/>
+        <location filename="capture_file_dialog.cpp" line="480"/>
         <source>Read filter:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="495"/>
+        <location filename="capture_file_dialog.cpp" line="498"/>
         <source>Compress with g&amp;zip</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="526"/>
+        <location filename="capture_file_dialog.cpp" line="529"/>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="556"/>
+        <location filename="capture_file_dialog.cpp" line="559"/>
         <source>Save Capture File As</source>
         <oldsource>Wireshark: Save Capture File As</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="562"/>
+        <location filename="capture_file_dialog.cpp" line="565"/>
         <source>Save as:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="584"/>
+        <location filename="capture_file_dialog.cpp" line="587"/>
         <source>Export Specified Packets</source>
         <oldsource>Wireshark: Export Specified Packets</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="588"/>
+        <location filename="capture_file_dialog.cpp" line="591"/>
         <source>Export as:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="617"/>
+        <location filename="capture_file_dialog.cpp" line="620"/>
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="730"/>
+        <location filename="capture_file_dialog.cpp" line="733"/>
         <source>directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="737"/>
+        <location filename="capture_file_dialog.cpp" line="740"/>
         <source>unknown file format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="739"/>
+        <location filename="capture_file_dialog.cpp" line="742"/>
         <source>error opening file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="818"/>
+        <location filename="capture_file_dialog.cpp" line="821"/>
         <source>unknown</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9351,7 +9351,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2648"/>
+        <location filename="main_window.cpp" line="2651"/>
         <source>Show or hide the toolbar</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9369,17 +9369,17 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2083"/>
+        <location filename="main_window.cpp" line="2086"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2104"/>
+        <location filename="main_window.cpp" line="2107"/>
         <source>The Wireshark Network Analyzer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2129"/>
+        <location filename="main_window.cpp" line="2132"/>
         <source>Capturing from %1</source>
         <translation type="unfinished"></translation>
     </message>
