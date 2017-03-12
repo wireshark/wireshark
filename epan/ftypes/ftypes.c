@@ -557,8 +557,18 @@ fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const gchar *name)
 void
 fvalue_set_uinteger(fvalue_t *fv, guint32 value)
 {
-	g_assert(fv->ftype->set_value_uinteger);
-	fv->ftype->set_value_uinteger(fv, value);
+	g_assert(fv->ftype->ftype == FT_IEEE_11073_SFLOAT ||
+			fv->ftype->ftype == FT_IEEE_11073_FLOAT ||
+			fv->ftype->ftype == FT_CHAR ||
+			fv->ftype->ftype == FT_UINT8 ||
+			fv->ftype->ftype == FT_UINT16 ||
+			fv->ftype->ftype == FT_UINT24 ||
+			fv->ftype->ftype == FT_UINT32 ||
+			fv->ftype->ftype == FT_IPXNET ||
+			fv->ftype->ftype == FT_FRAMENUM ||
+			fv->ftype->ftype == FT_IPv4);
+	g_assert(fv->ftype->set_value.set_value_uinteger);
+	fv->ftype->set_value.set_value_uinteger(fv, value);
 }
 
 void

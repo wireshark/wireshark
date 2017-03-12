@@ -185,9 +185,8 @@ ftype_register_ipv4(void)
 		val_to_repr,			/* val_to_string_repr */
 		val_repr_len,			/* len_string_repr */
 
-		{ NULL },			/* union set_value */
+		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 
-		set_uinteger,		/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
 		NULL,				/* set_value_sinteger64 */
