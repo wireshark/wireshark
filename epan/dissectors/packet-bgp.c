@@ -352,14 +352,19 @@ static dissector_handle_t bgp_handle;
 
 #define BGP_EXT_COM_STYPE_AS4_RT        0x02    /* Route Target [RFC5668] */
 #define BGP_EXT_COM_STYPE_AS4_RO        0x03    /* Route Origin [RFC5668] */
-#define BGP_EXT_COM_STYPE_AS4_GEN       0x04    /* Generic [draft-ietf-idr-as4octet-extcomm-generic-subtype] */
+#define BGP_EXT_COM_STYPE_AS4_GEN       0x04    /* Generic (deprecated) [draft-ietf-idr-as4octet-extcomm-generic-subtype] */
 #define BGP_EXT_COM_STYPE_AS4_OSPF_DID  0x05    /* OSPF Domain Identifier [RFC4577] */
+#define BGP_EXT_COM_STYPE_AS4_BGP_DC    0x08    /* BGP Data Collection [RFC4384] */
 #define BGP_EXT_COM_STYPE_AS4_S_AS      0x09    /* Source AS [RFC6514] */
 #define BGP_EXT_COM_STYPE_AS4_CIS_V     0x10    /* Cisco VPN Identifier [Eric_Rosen] */
+#define BGP_EXT_COM_STYPE_AS4_RT_REC    0x13    /* Route-Target Record [draft-ietf-bess-service-chaining] */
 
 /* Non-Transitive Four-Octet AS-Specific Extended Community Sub-Types */
 
-#define BGP_EXT_COM_STYPE_AS4_GEN       0x04    /* Generic [draft-ietf-idr-as4octet-extcomm-generic-subtype] */
+/*
+ * #define BGP_EXT_COM_STYPE_AS4_GEN       0x04
+ * Generic (deprecated) [draft-ietf-idr-as4octet-extcomm-generic-subtype]
+*/
 
 /* Transitive IPv4-Address-Specific Extended Community Sub-Types */
 
@@ -654,7 +659,6 @@ static dissector_handle_t bgp_handle;
 #define BGP_NLRI_TLV_LEN_MAX_METRIC                     3
 #define BGP_NLRI_TLV_LEN_IGP_FLAGS                      1
 #define BGP_NLRI_TLV_LEN_PREFIX_METRIC                  4
-#define BGP_NLRI_TLV_LEN_AREA_ID                        4
 #define BGP_NLRI_TLV_LEN_NODE_FLAG_BITS                 1
 
 /* draft-gredler-idr-bgp-ls-segment-routing-ext-01 */
@@ -1003,9 +1007,11 @@ static const value_string bgpext_com_stype_tr_as4[] = {
     { BGP_EXT_COM_STYPE_AS4_RT,       "Route Target" },
     { BGP_EXT_COM_STYPE_AS4_RO,       "Route Origin" },
     { BGP_EXT_COM_STYPE_AS4_GEN,      "Generic" },
+    { BGP_EXT_COM_STYPE_AS4_BGP_DC,   "BGP Data Collection"},
     { BGP_EXT_COM_STYPE_AS4_OSPF_DID, "OSPF Domain Identifier" },
     { BGP_EXT_COM_STYPE_AS4_S_AS,     "Source AS" },
     { BGP_EXT_COM_STYPE_AS4_CIS_V,    "Cisco VPN Identifier" },
+    { BGP_EXT_COM_STYPE_AS4_RT_REC,   "Route-Target Record"},
     { 0, NULL}
 };
 
@@ -1340,7 +1346,6 @@ static const value_string flowspec_nlri_opvaluepair_type[] = {
     { BGPNLRI_FSPEC_FRAGMENT, "IP fragment filter" },
     {0, NULL },
 };
-#define BGPNLRI_FSPEC_FRAGMENT     12 /* RFC 5575         */
 
 /* Subtype Route Refresh, draft-ietf-idr-bgp-enhanced-route-refresh-02 */
 static const value_string route_refresh_subtype_vals[] = {
