@@ -870,6 +870,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
         guint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;\
         guint32 nstrace_buflen = nstrace->nstrace_buflen;\
         int bytes_read;\
+        guint32 record_size;\
         do\
         {\
             while (nstrace_buf_offset < nstrace_buflen)\
@@ -886,7 +887,10 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
                         nstrace_buf_offset = nstrace_buflen;\
                         break;\
                     default:\
-                        nstrace_buf_offset += nspr_getv##ver##recordsize(fp);\
+                        record_size = nspr_getv##ver##recordsize(fp);\
+                        if (record_size == 0)\
+                            return FALSE;\
+                        nstrace_buf_offset += record_size;\
                 }\
             }\
             nstrace_buf_offset = 0;\
