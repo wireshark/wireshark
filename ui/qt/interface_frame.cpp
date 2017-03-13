@@ -144,12 +144,15 @@ QMenu * InterfaceFrame::getSelectionMenu()
     }
 #endif
 
+#if 0
+    // Disabled until bug 13354 is fixed
     contextMenu->addSeparator();
     QAction * toggleHideAction = new QAction(tr("Show hidden interfaces"), this);
     toggleHideAction->setCheckable(true);
     toggleHideAction->setChecked(! proxyModel->filterHidden());
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHiddenInterfaces()));
     contextMenu->addAction(toggleHideAction);
+#endif
 
     return contextMenu;
 }

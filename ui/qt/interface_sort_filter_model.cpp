@@ -142,7 +142,10 @@ void InterfaceSortFilterModel::resetPreferenceData()
         }
     }
 
+#if 0
+    // Disabled until bug 13354 is fixed
     _filterHidden = ! prefs.gui_interfaces_show_hidden;
+#endif
 #ifdef HAVE_PCAP_REMOTE
     _remoteDisplay = prefs.gui_interfaces_remote_display;
 #endif
