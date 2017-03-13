@@ -111,6 +111,8 @@ class InterfaceTreeWidgetItem : public QTreeWidgetItem
 public:
     InterfaceTreeWidgetItem(QTreeWidget *tree) : QTreeWidgetItem(tree) {}
     bool operator< (const QTreeWidgetItem &other) const;
+    QVariant data(int column, int role) const;
+    void setData(int column, int role, const QVariant &value);
     QList<int> points;
 
     void updateInterfaceColumns(interface_t *device)
@@ -1116,6 +1118,29 @@ bool InterfaceTreeWidgetItem::operator< (const QTreeWidgetItem &other) const {
     return QTreeWidgetItem::operator<(other);
 }
 
+QVariant InterfaceTreeWidgetItem::data(int column, int role) const
+{
+    // See setData for the special col_traffic_ treatment.
+    if (column == col_traffic_ && role == Qt::UserRole) {
+        return qVariantFromValue(points);
+    }
+
+    return QTreeWidgetItem::data(column, role);
+}
+
+void InterfaceTreeWidgetItem::setData(int column, int role, const QVariant &value)
+{
+    // Workaround for closing editors on updates to the points list: normally
+    // QTreeWidgetItem::setData emits dataChanged when the value (list) changes.
+    // We could store a pointer to the list, or just have this hack that does
+    // not emit dataChanged.
+    if (column == col_traffic_ && role == Qt::UserRole) {
+        points = value.value<QList<int> >();
+        return;
+    }
+
+    QTreeWidgetItem::setData(column, role, value);
+}
 
 //
 // InterfaceTreeDelegate
