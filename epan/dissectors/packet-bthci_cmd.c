@@ -314,7 +314,7 @@ static int hf_bthci_cmd_le_advts_filter_policy = -1;
 static int hf_bthci_cmd_le_data_length = -1;
 static int hf_bthci_cmd_le_advts_enable = -1;
 static int hf_bthci_cmd_le_scan_enable = -1;
-static int hf_bthci_cmd_le_filter_dublicates = -1;
+static int hf_bthci_cmd_le_filter_duplicates = -1;
 static int hf_bthci_cmd_le_scan_type = -1;
 static int hf_bthci_cmd_le_scan_interval = -1;
 static int hf_bthci_cmd_le_scan_window = -1;
@@ -3391,7 +3391,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
         case 0x000c: /* LE Set Scan Enable */
             proto_tree_add_item(tree, hf_bthci_cmd_le_scan_enable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            proto_tree_add_item(tree, hf_bthci_cmd_le_filter_dublicates, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_filter_duplicates, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             break;
 
@@ -3820,7 +3820,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
         case 0x0042: /* LE Set Extended Scan Enable */
             proto_tree_add_item(tree, hf_bthci_cmd_le_scan_enable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            proto_tree_add_item(tree, hf_bthci_cmd_le_filter_dublicates, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_filter_duplicates, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             item = proto_tree_add_item(tree, hf_bthci_cmd_le_scan_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*10.0);
@@ -5518,8 +5518,8 @@ proto_register_bthci_cmd(void)
             FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x0,
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_le_filter_dublicates,
-          { "Filter Dublicates", "bthci_cmd.le_filter_dublicates",
+        { &hf_bthci_cmd_le_filter_duplicates,
+          { "Filter Duplicates", "bthci_cmd.le_filter_duplicates",
             FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x0,
             NULL, HFILL }
         },
