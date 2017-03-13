@@ -53,6 +53,7 @@
  * RFC 5417: CAPWAP Access Controller DHCP Option
  * RFC 5969: IPv6 Rapid Deployment on IPv4 Infrastructures (6rd)
  * RFC 6607: Virtual Subnet Selection Options for DHCPv4 and DHCPv6
+ * RFC 7710: Captive-Portal Identification Using DHCP or Router Advertisements (RAs)
  * draft-ietf-dhc-fqdn-option-07.txt
  * TFTP Server Address Option for DHCPv4 [draft-raj-dhc-tftp-addr-option-06.txt: http://tools.ietf.org/html/draft-raj-dhc-tftp-addr-option-06]
  * BOOTP and DHCP Parameters
@@ -534,6 +535,7 @@ static int hf_bootp_option_subnet_selection_option = -1;		/* 118 */
 static int hf_bootp_option_lost_server_domain_name = -1;		/* 137 */
 static int hf_bootp_option_capwap_access_controller = -1;		/* 138 */
 static int hf_bootp_option_tftp_server_address = -1;			/* 150 */
+static int hf_bootp_option_captive_portal = -1;				/* 160 */
 static int hf_bootp_option_mudurl = -1;					/* 161 */
 static int hf_bootp_option_pxe_config_file = -1;			/* 209 */
 static int hf_bootp_option_pxe_path_prefix = -1;			/* 210 */
@@ -1377,7 +1379,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 157 */ { "Unassigned",				opaque, NULL },
 /* 158 */ { "Unassigned",				opaque, NULL },
 /* 159 */ { "Unassigned",				opaque, NULL },
-/* 160 */ { "Unassigned",				opaque, NULL },
+/* 160 */ { "DHCP Captive-Portal",			special, NULL },
 /* 161 */ { "Manufacturer Usage Description",		string, &hf_bootp_option_mudurl},
 /* 162 */ { "Unassigned",				opaque, NULL },
 /* 163 */ { "Unassigned",				opaque, NULL },
@@ -2910,6 +2912,14 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 		}
 		break;
 	}
+
+	case 160: {	/* DHCP Captive-Portal */
+		proto_item *ti_cp;
+		ti_cp = proto_tree_add_item(v_tree, hf_bootp_option_captive_portal, tvb, optoff, optlen, ENC_ASCII|ENC_NA);
+		PROTO_ITEM_SET_URL(ti_cp);
+		break;
+	}
+
 
 	case 212: {	/* 6RD option (RFC 5969) */
 		if (optlen < 22) {
@@ -8374,6 +8384,11 @@ proto_register_bootp(void)
 		  { "PXELINUX path prefix", "bootp.option.pxe_path_prefix",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Option 210: PXE Path Prefix", HFILL }},
+
+		{ &hf_bootp_option_captive_portal,
+		  { "Captive Portal", "bootp.option.captive_portal",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "The contact URI for the captive portal that the user should connect to", HFILL }},
 
 		{ &hf_bootp_option_6RD_ipv4_mask_len,
 		  { "6RD IPv4 Mask Length", "bootp.option.6RD.ipv4_mask_len",
