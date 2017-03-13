@@ -4470,7 +4470,7 @@ packet_info *pinfo, proto_tree *tree, guint8 *drep)
         /* level 11 */
         proto_tree_add_bits_item(sub_tree, hf_pn_io_am_location_level_11, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
         bit_offset += 10;
-        offset += bit_offset*8;
+        offset = bit_offset >> 3;
         break;
     case (0x02):
         /* Reserved1 */
@@ -4506,6 +4506,7 @@ packet_info *pinfo, proto_tree *tree, guint8 *drep)
             hf_pn_io_am_location_reserved4, &am_location_reserved4);
         break;
     default: /* will not execute because of the line preceding the switch */
+        offset += 15;
         break;
     }
 
@@ -4583,7 +4584,7 @@ guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
     }
 
     /* align padding */
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
 
     /* IM_UniqueIdentifier */
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
@@ -4645,7 +4646,7 @@ guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
     }
 
     /* align padding */
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
 
     /* IM_UniqueIdentifier */
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
@@ -4698,7 +4699,7 @@ guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
         return offset;
     }
 
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
 
     /* IM_UniqueIdentifier */
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
