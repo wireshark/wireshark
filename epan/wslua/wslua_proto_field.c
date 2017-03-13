@@ -387,13 +387,13 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
             base = BASE_DEC;  /* Default base for integer */
         } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be either base.DEC, base.HEX, base.OCT,"
-                               " base.DEC_HEX, base.DEC_HEX or base.HEX_DEC");
+                               " base.DEC_HEX or base.HEX_DEC");
             return 0;
         }
-        if ((base == BASE_HEX || base == BASE_OCT) &&
+        if ((base != BASE_DEC) &&
             (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64))
         {
-            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"This type does not display as hexadecimal");
+            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be base.DEC for signed integer");
             return 0;
         }
         if (nargs >= WSLUA_OPTARG_ProtoField_new_VALUESTRING && !lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING)) {
@@ -546,11 +546,11 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
             luaL_argerror(L, 5, "FRAMENUM can not have a bitmask");
     } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
         luaL_argerror(L, 3, "Base must be either base.DEC, base.HEX, base.OCT,"
-                      " base.DEC_HEX, base.DEC_HEX or base.HEX_DEC");
+                      " base.DEC_HEX or base.HEX_DEC");
         return 0;
-    } else if ((base == BASE_HEX || base == BASE_OCT) &&
+    } else if ((base != BASE_DEC) &&
                (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64)) {
-      luaL_argerror(L, 3, "This type does not display as hexadecimal");
+      luaL_argerror(L, 3, "Base must be base.DEC for signed integer");
       return 0;
     }
 
@@ -634,7 +634,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int8 Creates a `ProtoField` of a signed 8-bit integer (i.e., a byte). */
 /* WSLUA_ARG_Protofield_int8_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_int8_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_int8_BASE One of `base.DEC`, `base.HEX` or `base.OCT`. */
+/* WSLUA_OPTARG_Protofield_int8_BASE Must be `base.DEC`. */
 /* WSLUA_OPTARG_Protofield_int8_VALUESTRING A table containing the text that corresponds to the values. */
 /* WSLUA_OPTARG_Protofield_int8_MASK Integer mask of this field. */
 /* WSLUA_OPTARG_Protofield_int8_DESC Description of the field. */
@@ -643,7 +643,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int16 Creates a `ProtoField` of a signed 16-bit integer. */
 /* WSLUA_ARG_Protofield_int16_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_int16_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_int16_BASE One of `base.DEC`, `base.HEX` or `base.OCT`. */
+/* WSLUA_OPTARG_Protofield_int16_BASE Must be `base.DEC`. */
 /* WSLUA_OPTARG_Protofield_int16_VALUESTRING A table containing the text that corresponds to the values. */
 /* WSLUA_OPTARG_Protofield_int16_MASK Integer mask of this field. */
 /* WSLUA_OPTARG_Protofield_int16_DESC Description of the field. */
@@ -652,7 +652,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int24 Creates a `ProtoField` of a signed 24-bit integer. */
 /* WSLUA_ARG_Protofield_int24_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_int24_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_int24_BASE One of `base.DEC`, `base.HEX` or `base.OCT`. */
+/* WSLUA_OPTARG_Protofield_int24_BASE Must be `base.DEC`. */
 /* WSLUA_OPTARG_Protofield_int24_VALUESTRING A table containing the text that corresponds to the values. */
 /* WSLUA_OPTARG_Protofield_int24_MASK Integer mask of this field. */
 /* WSLUA_OPTARG_Protofield_int24_DESC Description of the field. */
@@ -661,7 +661,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int32 Creates a `ProtoField` of a signed 32-bit integer. */
 /* WSLUA_ARG_Protofield_int32_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_int32_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_int32_BASE One of `base.DEC`, `base.HEX` or `base.OCT`. */
+/* WSLUA_OPTARG_Protofield_int32_BASE Must be `base.DEC`. */
 /* WSLUA_OPTARG_Protofield_int32_VALUESTRING A table containing the text that corresponds to the values. */
 /* WSLUA_OPTARG_Protofield_int32_MASK Integer mask of this field. */
 /* WSLUA_OPTARG_Protofield_int32_DESC Description of the field. */
@@ -670,7 +670,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* _WSLUA_CONSTRUCTOR_ ProtoField_int64 Creates a `ProtoField` of a signed 64-bit integer. */
 /* WSLUA_ARG_Protofield_int64_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_int64_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_int64_BASE One of `base.DEC`, `base.HEX` or `base.OCT`. */
+/* WSLUA_OPTARG_Protofield_int64_BASE Must be `base.DEC`. */
 /* WSLUA_OPTARG_Protofield_int64_VALUESTRING A table containing the text that corresponds to the values. */
 /* WSLUA_OPTARG_Protofield_int64_MASK Integer mask of this field. */
 /* WSLUA_OPTARG_Protofield_int64_DESC Description of the field. */
