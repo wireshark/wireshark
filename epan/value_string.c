@@ -683,15 +683,15 @@ try_bytesval_to_str(const guint8 *val, const size_t val_len, const bytes_string 
 }
 
 /* Like val_to_str, but tries to find a prefix (instead of an exact) match
-   against any element of the bytes_string array bs. */
+   of any prefix from the bytes_string array bs against the haystack. */
 const gchar *
-bytesprefix_to_str(const guint8 *prefix, const size_t prefix_len, const bytes_string *bs, const char *fmt)
+bytesprefix_to_str(const guint8 *haystack, const size_t haystack_len, const bytes_string *bs, const char *fmt)
 {
     const gchar *ret;
 
     DISSECTOR_ASSERT(fmt != NULL);
 
-    ret = try_bytesprefix_to_str(prefix, prefix_len, bs);
+    ret = try_bytesprefix_to_str(haystack, haystack_len, bs);
     if (ret != NULL)
         return ret;
 
@@ -700,15 +700,16 @@ bytesprefix_to_str(const guint8 *prefix, const size_t prefix_len, const bytes_st
 }
 
 /* Like try_val_to_str, but tries to find a prefix (instead of an exact) match
-   against any element of the bytes_string array bs. */
+   of any prefix from the bytes_string array bs against the haystack. */
 const gchar *
-try_bytesprefix_to_str(const guint8 *prefix, const size_t prefix_len, const bytes_string *bs)
+try_bytesprefix_to_str(const guint8 *haystack, const size_t haystack_len, const bytes_string *bs)
 {
     guint i = 0;
 
     if (bs) {
         while (bs[i].strptr) {
-            if (prefix_len >= bs[i].value_length && !memcmp(bs[i].value, prefix, prefix_len)) {
+            if (haystack_len >= bs[i].value_length &&
+                !memcmp(bs[i].value, haystack, bs[i].value_length)) {
                 return bs[i].strptr;
             }
             i++;

@@ -293,12 +293,12 @@ try_bytesval_to_str(const guint8 *val, const size_t val_len, const bytes_string 
 
 WS_DLL_PUBLIC
 const gchar *
-bytesprefix_to_str(const guint8 *prefix, const size_t prefix_len, const bytes_string *bs, const char *fmt)
+bytesprefix_to_str(const guint8 *haystack, const size_t haystack_len, const bytes_string *bs, const char *fmt)
 G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC
 const gchar *
-try_bytesprefix_to_str(const guint8 *prefix, const size_t prefix_len, const bytes_string *bs);
+try_bytesprefix_to_str(const guint8 *haystack, const size_t haystack_len, const bytes_string *bs);
 
 /* MISC (generally do not use) */
 
