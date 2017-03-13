@@ -172,7 +172,6 @@ ftype_register_double(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_uinteger64 */
 		NULL,				/* set_value_sinteger64 */
 		double_fvalue_set_floating,	/* set_value_floating */
 
@@ -211,7 +210,6 @@ ftype_register_double(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_uinteger64 */
 		NULL,				/* set_value_sinteger64 */
 		double_fvalue_set_floating,	/* set_value_floating */
 

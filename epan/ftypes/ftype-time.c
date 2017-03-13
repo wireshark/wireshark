@@ -397,7 +397,6 @@ ftype_register_time(void)
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_uinteger64 */
 		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
@@ -435,7 +434,6 @@ ftype_register_time(void)
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_uinteger64 */
 		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
