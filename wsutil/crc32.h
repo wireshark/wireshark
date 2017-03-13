@@ -96,6 +96,15 @@ WS_DLL_PUBLIC guint32 crc32_mpeg2_seed(const guint8 *buf, guint len, guint32 see
  */
 WS_DLL_PUBLIC guint32 crc32_0x0AA725CF_seed(const guint8 *buf, guint len, guint32 seed);
 
+/** Computes CRC32 checksum for the given data with the polynom 0x5D6DCB using
+ *  precompiled CRC table
+ * @param buf a pointer to a buffer of the given length
+ * @param len the length of the given buffer
+ * @param seed The seed to use.
+ * @return the CRC32 checksum for the buffer
+ */
+WS_DLL_PUBLIC guint32 crc32_0x5D6DCB_seed(const guint8 *buf, guint len, guint32 seed);
+
 WS_DLL_PUBLIC int AirPDcapWepDecrypt(
 	const guchar *seed,
 	const size_t seed_len,

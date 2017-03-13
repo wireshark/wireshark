@@ -31,6 +31,9 @@
 #include <epan/proto_data.h>
 
 #include <wsutil/pint.h>
+#include <wsutil/crc8.h>
+#include <wsutil/crc16.h>
+#include <wsutil/crc32.h>
 #include "packet-cip.h"
 #include "packet-cipsafety.h"
 
@@ -59,8 +62,13 @@ static int hf_cipsafety_mode_byte_ping_count      = -1;
 static int hf_cipsafety_mode_byte_tbd             = -1;
 static int hf_cipsafety_mode_byte_not_tbd         = -1;
 static int hf_cipsafety_crc_s1                    = -1;
+static int hf_cipsafety_crc_s1_status             = -1;
 static int hf_cipsafety_crc_s2                    = -1;
+static int hf_cipsafety_crc_s2_status             = -1;
 static int hf_cipsafety_crc_s3                    = -1;
+static int hf_cipsafety_crc_s3_status             = -1;
+static int hf_cipsafety_complement_crc_s3         = -1;
+static int hf_cipsafety_complement_crc_s3_status  = -1;
 static int hf_cipsafety_timestamp                 = -1;
 static int hf_cipsafety_ack_byte                  = -1;
 static int hf_cipsafety_ack_byte_ping_count_reply = -1;
@@ -81,6 +89,7 @@ static int hf_cipsafety_time_correction           = -1;
 static int hf_cipsafety_crc_s5_0                  = -1;
 static int hf_cipsafety_crc_s5_1                  = -1;
 static int hf_cipsafety_crc_s5_2                  = -1;
+static int hf_cipsafety_crc_s5_status             = -1;
 static int hf_cipsafety_complement_data           = -1;
 
 /* CIP Safety header field identifiers */
@@ -281,6 +290,12 @@ static expert_field ei_cipsafety_tbd_not_copied = EI_INIT;
 static expert_field ei_cipsafety_run_idle_not_complemented = EI_INIT;
 static expert_field ei_mal_io = EI_INIT;
 static expert_field ei_mal_sercosiii_link_error_count_p1p2 = EI_INIT;
+static expert_field ei_cipsafety_not_complement_data = EI_INIT;
+static expert_field ei_cipsafety_crc_s1 = EI_INIT;
+static expert_field ei_cipsafety_crc_s2 = EI_INIT;
+static expert_field ei_cipsafety_crc_s3 = EI_INIT;
+static expert_field ei_cipsafety_complement_crc_s3 = EI_INIT;
+static expert_field ei_cipsafety_crc_s5 = EI_INIT;
 
 static expert_field ei_mal_ssupervisor_exception_detail_ced = EI_INIT;
 static expert_field ei_mal_ssupervisor_exception_detail_ded = EI_INIT;
@@ -301,6 +316,17 @@ static expert_field ei_mal_svalidator_coordination_conn_inst = EI_INIT;
 static expert_field ei_mal_svalidator_prod_cons_fault_count = EI_INIT;
 
 static dissector_handle_t cipsafety_handle;
+
+typedef struct cip_safety_packet_data {
+   guint16 rollover_value;
+   guint16 timestamp_value;
+} cip_safety_packet_data_t;
+
+#define MODE_BYTE_CRC_S1_MASK  0xE0
+#define MODE_BYTE_CRC_S1_TIME_STAMP_MASK  0x1F
+#define MODE_BYTE_CRC_S3_MASK  0xE0
+#define MODE_BYTE_CRC_S5_BASE_MASK  0xE0
+#define MODE_BYTE_CRC_S5_EXTENDED_MASK  0x1F
 
 const value_string cipsafety_ssn_date_vals[8] = {
 
@@ -1231,6 +1257,146 @@ dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 /************************************************
  *
+ * CRC handling
+ *
+ ************************************************/
+static guint8 compute_crc_s1_pid(guint16 conn_serial_number, guint16 vendor_id, guint32 device_serial_number)
+{
+    guint8 temp_buf[8];
+    memcpy(temp_buf, &vendor_id, 2);
+    memcpy(&temp_buf[2], &device_serial_number, 4);
+    memcpy(&temp_buf[6], &conn_serial_number, 2);
+
+    return crc8_0x37(temp_buf, 8, 0);
+}
+
+static guint8 compute_crc_s1_timestamp(guint8 pid_seed, guint8 mode_byte_mask, guint16 timestamp)
+{
+    guint8 mode_byte_crc = crc8_0x37(&mode_byte_mask, 1, pid_seed);
+    guint8 timestamp_crc = crc8_0x37((guint8*)&timestamp, 2, mode_byte_crc);
+
+    return timestamp_crc;
+}
+
+static guint8 compute_crc_s1_data(guint8 pid_seed, guint8 mode_byte_mask, guint8 *buf, int len)
+{
+    guint8 mode_byte_crc = crc8_0x37(&mode_byte_mask, 1, pid_seed);
+
+    return crc8_0x37(buf, len, mode_byte_crc);
+}
+
+static guint8 compute_crc_s2_data(guint8 pid_seed, guint8 mode_byte_mask, guint8 *comp_buf, int len)
+{
+    int i;
+    guint8 mode_byte_crc = crc8_0x3B(&mode_byte_mask, 1, pid_seed);
+
+    for (i = 0; i < len; i++)
+        comp_buf[i] ^= 0xFF;
+
+    return crc8_0x3B(comp_buf, len, mode_byte_crc);
+}
+
+static guint16 compute_crc_s3_pid(guint16 conn_serial_number, guint16 vendor_id, guint32 device_serial_number)
+{
+    guint8 temp_buf[8];
+    memcpy(temp_buf, &vendor_id, 2);
+    memcpy(&temp_buf[2], &device_serial_number, 4);
+    memcpy(&temp_buf[6], &conn_serial_number, 2);
+
+    return crc16_0x080F_seed(temp_buf, 8, 0);
+}
+
+static guint16 compute_crc_s3_base_data(guint16 pid_seed, guint8 mode_byte_mask, guint8 *buf, int len)
+{
+    guint16 mode_byte_crc = crc16_0x080F_seed(&mode_byte_mask, 1, pid_seed);
+
+    return crc16_0x080F_seed(buf, len, mode_byte_crc);
+}
+
+static guint16 compute_crc_s3_extended_data(guint16 pid_seed, guint16 rollover_value, guint8 mode_byte_mask, guint8 *buf, int len)
+{
+    guint16 rollover_crc = crc16_0x080F_seed((guint8*)&rollover_value, 2, pid_seed);
+    guint16 mode_byte_crc = crc16_0x080F_seed(&mode_byte_mask, 1, rollover_crc);
+
+    return crc16_0x080F_seed(buf, len, mode_byte_crc);
+}
+
+static guint16 compute_crc_s3_time(guint16 pid_seed, guint8 ack_mcast_byte, guint16 timestamp_value)
+{
+    guint16 mode_byte_crc = crc16_0x080F_seed(&ack_mcast_byte, 1, pid_seed);
+    guint16 timestamp_crc;
+
+    timestamp_crc = crc16_0x080F_seed((guint8*)&timestamp_value, 2, mode_byte_crc);
+
+    return timestamp_crc;
+}
+
+static guint32 compute_crc_s5_pid(guint16 conn_serial_number, guint16 vendor_id, guint32 device_serial_number)
+{
+    guint8 temp_buf[8];
+    memcpy(temp_buf, &vendor_id, 2);
+    memcpy(&temp_buf[2], &device_serial_number, 4);
+    memcpy(&temp_buf[6], &conn_serial_number, 2);
+
+    return crc32_0x5D6DCB_seed(temp_buf, 8, 0);
+}
+
+static guint32 compute_crc_s5_short_data(guint32 pid_seed, guint16 rollover_value, guint8 mode_byte_mask, guint16 timestamp_value, guint8 *buf, int len)
+{
+    guint32 rollover_crc = crc32_0x5D6DCB_seed((guint8*)&rollover_value, 2, pid_seed);
+    guint32 mode_byte_crc = crc32_0x5D6DCB_seed(&mode_byte_mask, 1, rollover_crc);
+    guint32 data_crc, timestamp_crc;
+
+    data_crc = crc32_0x5D6DCB_seed(buf, len, mode_byte_crc);
+    timestamp_crc = crc32_0x5D6DCB_seed((guint8*)&timestamp_value, 2, data_crc);
+
+    return timestamp_crc;
+}
+
+static guint32 compute_crc_s5_long_data(guint32 pid_seed, guint16 rollover_value, guint8 mode_byte_mask, guint16 timestamp_value, guint8 *comp_buf, int len)
+{
+    int i;
+    guint32 rollover_crc = crc32_0x5D6DCB_seed((guint8*)&rollover_value, 2, pid_seed);
+    guint32 mode_byte_crc = crc32_0x5D6DCB_seed(&mode_byte_mask, 1, rollover_crc);
+    guint32 comp_data_crc, timestamp_crc;
+
+    for (i = 0; i < len; i++)
+        comp_buf[i] ^= 0xFF;
+
+    comp_data_crc = crc32_0x5D6DCB_seed(comp_buf, len, mode_byte_crc);
+    timestamp_crc = crc32_0x5D6DCB_seed((guint8*)&timestamp_value, 2, comp_data_crc);
+
+    return timestamp_crc;
+}
+
+static guint32 compute_crc_s5_time(guint32 pid_seed, guint8 ack_mcast_byte, guint16 timestamp_value)
+{
+    guint32 mode_byte_crc = crc32_0x5D6DCB_seed(&ack_mcast_byte, 1, pid_seed);
+    guint32 timestamp_crc;
+
+    timestamp_crc = crc32_0x5D6DCB_seed((guint8*)&timestamp_value, 2, mode_byte_crc);
+
+    return timestamp_crc;
+}
+
+static gboolean verify_compliment_data(tvbuff_t *tvb, int data_offset, int complement_data_offset, int data_size)
+{
+    const guint8 *data = tvb_get_ptr(tvb, data_offset, data_size);
+    const guint8 *complement_data = tvb_get_ptr(tvb, complement_data_offset, data_size);
+    int i;
+
+    for (i = 0; i < data_size; i++)
+    {
+        if ((data[i] ^ complement_data[i])!= 0xFF)
+            return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+/************************************************
+ *
  * Dissector for CIP Safety I/O Data
  *
  ************************************************/
@@ -1315,14 +1481,21 @@ dissect_mcast_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 static void
-dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int item_length, packet_info *pinfo)
+dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int item_length, packet_info *pinfo, cip_safety_info_t* safety_info)
 {
    int base_length, io_data_size;
    gboolean multicast = (((pntoh32(pinfo->dst.data)) & 0xf0000000) == 0xe0000000);
    gboolean server_dir = FALSE;
    enum enip_connid_type conn_type = ECIDT_UNKNOWN;
    enum cip_safety_format_type format = CIP_SAFETY_BASE_FORMAT;
-   cip_safety_info_t* safety_info = (cip_safety_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cipsafety, 0 );
+   guint16 timestamp, conn_sn = 0, vendorID = 0;
+   guint8 mode_byte;
+   guint32 device_sn = 0;
+   cip_safety_packet_data_t* packet_data = NULL;
+   guint32 test_crc_c5, value_c5 = 0, tmp_c5;
+   proto_item *complement_item, *crc_s5_item, *crc_s5_status_item;
+   gboolean short_format = TRUE;
+   gboolean compute_crc = ((safety_info != NULL) && (safety_info->eip_conn_info != NULL));
 
    /* Make entries in Protocol column and Info column on summary display */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP Safety");
@@ -1331,8 +1504,8 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
    if (safety_info != NULL)
    {
       conn_type = safety_info->conn_type;
-      format = safety_info->format;
-      server_dir = safety_info->server_dir;
+      format = safety_info->eip_conn_info->safety.format;
+      server_dir = (safety_info->eip_conn_info->TransportClass_trigger & CI_PRODUCTION_DIR_MASK) ? TRUE : FALSE;
    }
 
    /* compute the base packet length to determine what is actual I/O data */
@@ -1341,40 +1514,165 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
    if (((conn_type == ECIDT_O2T) && (server_dir == FALSE)) ||
        ((conn_type == ECIDT_T2O) && (server_dir == TRUE)))
    {
+      if (compute_crc)
+      {
+         if ((conn_type == ECIDT_O2T) && (server_dir == FALSE))
+         {
+            conn_sn = safety_info->eip_conn_info->ConnSerialNumber;
+            vendorID = safety_info->eip_conn_info->VendorID;
+            device_sn = safety_info->eip_conn_info->DeviceSerialNumber;
+         }
+         else
+         {
+            conn_sn = safety_info->eip_conn_info->safety.target_conn_sn;
+            vendorID = safety_info->eip_conn_info->safety.target_vendorID;
+            device_sn = safety_info->eip_conn_info->safety.target_device_sn;
+         }
+      }
+
       /* consumer data */
       dissect_ack_byte(tree, tvb, 0, pinfo);
       proto_tree_add_item(tree, hf_cipsafety_consumer_time_value, tvb, 1, 2, ENC_LITTLE_ENDIAN);
+      timestamp = tvb_get_letohs(tvb, 1);
 
       switch (format)
       {
       case CIP_SAFETY_BASE_FORMAT:
          proto_tree_add_item(tree, hf_cipsafety_ack_byte2, tvb, 3, 1, ENC_LITTLE_ENDIAN);
-         proto_tree_add_item(tree, hf_cipsafety_crc_s3, tvb, 4, 2, ENC_LITTLE_ENDIAN);
+         if (compute_crc)
+         {
+            proto_tree_add_checksum(tree, tvb, 4,
+                        hf_cipsafety_crc_s3, hf_cipsafety_crc_s3_status, &ei_cipsafety_crc_s3, pinfo,
+                        compute_crc_s3_time(compute_crc_s3_pid(conn_sn, vendorID, device_sn),
+                                                                tvb_get_guint8(tvb, 0), /* ack byte */
+                                                                timestamp),
+                        ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+         }
+         else
+         {
+            proto_tree_add_checksum(tree, tvb, 4,
+                        hf_cipsafety_crc_s3, hf_cipsafety_crc_s3_status, &ei_cipsafety_crc_s3,
+                        pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+         }
          break;
       case CIP_SAFETY_EXTENDED_FORMAT:
          proto_tree_add_item(tree, hf_cipsafety_crc_s5_0, tvb, 3, 1, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(tree, hf_cipsafety_crc_s5_1, tvb, 4, 1, ENC_LITTLE_ENDIAN);
-         proto_tree_add_item(tree, hf_cipsafety_crc_s5_2, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+         crc_s5_item = proto_tree_add_item(tree, hf_cipsafety_crc_s5_2, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+
+         /* CRC-S5 doesn't use proto_tree_add_checksum because the checksum is broken up into multiple fields */
+         if (compute_crc)
+         {
+            test_crc_c5 = compute_crc_s5_time(compute_crc_s5_pid(conn_sn, vendorID, device_sn),
+                                    tvb_get_guint8(tvb, 0), /* ack byte */
+                                    timestamp);
+
+            tmp_c5 = tvb_get_guint8(tvb, 3);
+            value_c5 = tmp_c5;
+            tmp_c5 = tvb_get_guint8(tvb, 4);
+            value_c5 += ((tmp_c5 << 8) & 0xFF00);
+            tmp_c5 = tvb_get_guint8(tvb, 5);
+            value_c5 += ((tmp_c5 << 16) & 0xFF0000);
+
+            if (test_crc_c5 == value_c5)
+            {
+               proto_item_append_text(crc_s5_item, " [correct]");
+               crc_s5_status_item = proto_tree_add_uint(tree, hf_cipsafety_crc_s5_status, tvb, 5, 0, PROTO_CHECKSUM_E_GOOD);
+            }
+            else
+            {
+               proto_item_append_text(crc_s5_item, " incorrect, should be 0x%08x", test_crc_c5);
+               crc_s5_status_item = proto_tree_add_uint(tree, hf_cipsafety_crc_s5_status, tvb, 5, 0, PROTO_CHECKSUM_E_BAD);
+               expert_add_info_format(pinfo, crc_s5_item, &ei_cipsafety_crc_s5, "Bad checksum [should be 0x%08x]", test_crc_c5);
+            }
+         }
+         else
+         {
+            crc_s5_status_item = proto_tree_add_uint(tree, hf_cipsafety_crc_s5_status, tvb, 5, 0, PROTO_CHECKSUM_E_UNVERIFIED);
+         }
+         PROTO_ITEM_SET_GENERATED(crc_s5_status_item);
+
          break;
       }
    }
    else if (((conn_type == ECIDT_O2T) && (server_dir == TRUE)) ||
             ((conn_type == ECIDT_T2O) && (server_dir == FALSE)))
    {
+      if (compute_crc)
+      {
+         if ((conn_type == ECIDT_O2T) && (server_dir == TRUE))
+         {
+            conn_sn = safety_info->eip_conn_info->ConnSerialNumber;
+            vendorID = safety_info->eip_conn_info->VendorID;
+            device_sn = safety_info->eip_conn_info->DeviceSerialNumber;
+         }
+         else
+         {
+            conn_sn = safety_info->eip_conn_info->safety.target_conn_sn;
+            vendorID = safety_info->eip_conn_info->safety.target_vendorID;
+            device_sn = safety_info->eip_conn_info->safety.target_device_sn;
+         }
+      }
+
+      if (item_length-base_length > 2)
+         short_format = FALSE;
+
       /* producer data */
       switch (format)
       {
       case CIP_SAFETY_BASE_FORMAT:
-         if (item_length-base_length <= 2)
+         if (short_format)
          {
-            /* Short Format (1-2 bytes I/O data) */
-            proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, item_length-base_length, ENC_NA);
-            dissect_mode_byte(tree, tvb, item_length-base_length, pinfo);
+            io_data_size = item_length-base_length;
 
-            proto_tree_add_item(tree, hf_cipsafety_crc_s1,    tvb, item_length-base_length+1, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_cipsafety_crc_s2,    tvb, item_length-base_length+2, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_cipsafety_timestamp, tvb, item_length-base_length+3, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_cipsafety_crc_s1,    tvb, item_length-base_length+5, 1, ENC_LITTLE_ENDIAN);
+            /* Short Format (1-2 bytes I/O data) */
+            proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_NA);
+            dissect_mode_byte(tree, tvb, io_data_size, pinfo);
+            mode_byte = tvb_get_guint8(tvb, io_data_size);
+
+            if (compute_crc)
+            {
+               proto_tree_add_checksum(tree, tvb, io_data_size+1,
+                        hf_cipsafety_crc_s1, hf_cipsafety_crc_s1_status, &ei_cipsafety_crc_s1, pinfo,
+                        compute_crc_s1_data(compute_crc_s1_pid(conn_sn, vendorID, device_sn),
+                                (mode_byte & MODE_BYTE_CRC_S1_MASK),
+                                (guint8*)tvb_get_ptr(tvb, 0, io_data_size), io_data_size),
+                        ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+
+               proto_tree_add_checksum(tree, tvb, io_data_size+2,
+                        hf_cipsafety_crc_s2, hf_cipsafety_crc_s2_status, &ei_cipsafety_crc_s2, pinfo,
+                        compute_crc_s2_data(compute_crc_s1_pid(conn_sn, vendorID, device_sn),
+                                ((mode_byte ^ 0xFF) & MODE_BYTE_CRC_S1_MASK),
+                                /* I/O data is duplicated because it will be complemented inline */
+                                (guint8*)tvb_memdup(wmem_packet_scope(), tvb, 0, io_data_size), io_data_size),
+                        ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            }
+            else
+            {
+               proto_tree_add_checksum(tree, tvb, io_data_size+1,
+                        hf_cipsafety_crc_s1, hf_cipsafety_crc_s1_status, &ei_cipsafety_crc_s1,
+                        pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+               proto_tree_add_checksum(tree, tvb, io_data_size+2,
+                        hf_cipsafety_crc_s2, hf_cipsafety_crc_s2_status, &ei_cipsafety_crc_s2,
+                        pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            }
+            proto_tree_add_item(tree, hf_cipsafety_timestamp, tvb, io_data_size+3, 2, ENC_LITTLE_ENDIAN);
+            timestamp = tvb_get_letohs(tvb, io_data_size+3);
+            if (compute_crc)
+            {
+               proto_tree_add_checksum(tree, tvb, io_data_size+5,
+                        hf_cipsafety_crc_s1, hf_cipsafety_crc_s1_status, &ei_cipsafety_crc_s1, pinfo,
+                        compute_crc_s1_timestamp(compute_crc_s1_pid(conn_sn, vendorID, device_sn),
+                                (mode_byte & MODE_BYTE_CRC_S1_TIME_STAMP_MASK),
+                                timestamp),
+                        ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            }
+            else
+            {
+               proto_tree_add_checksum(tree, tvb, io_data_size+5,
+                        hf_cipsafety_crc_s1, hf_cipsafety_crc_s1_status, &ei_cipsafety_crc_s1,
+                        pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            }
 
             if (multicast)
             {
@@ -1398,11 +1696,59 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
 
             proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_NA);
             dissect_mode_byte(tree, tvb, io_data_size, pinfo);
-            proto_tree_add_item(tree, hf_cipsafety_crc_s3, tvb, io_data_size+1, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_cipsafety_complement_data, tvb, io_data_size+3, io_data_size, ENC_NA);
-            proto_tree_add_item(tree, hf_cipsafety_crc_s3, tvb, (io_data_size*2)+3, 2, ENC_LITTLE_ENDIAN);
+            mode_byte = tvb_get_guint8(tvb, io_data_size);
+
+            if (compute_crc)
+            {
+               proto_tree_add_checksum(tree, tvb, io_data_size+1,
+                        hf_cipsafety_crc_s3, hf_cipsafety_crc_s3_status, &ei_cipsafety_crc_s3, pinfo,
+                        compute_crc_s3_base_data(compute_crc_s3_pid(conn_sn, vendorID, device_sn),
+                                mode_byte & MODE_BYTE_CRC_S3_MASK, (guint8*)tvb_get_ptr(tvb, 0, io_data_size), io_data_size),
+                        ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            }
+            else
+            {
+               proto_tree_add_checksum(tree, tvb, io_data_size+1,
+                        hf_cipsafety_crc_s3, hf_cipsafety_crc_s3_status, &ei_cipsafety_crc_s3,
+                        pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            }
+
+            complement_item = proto_tree_add_item(tree, hf_cipsafety_complement_data, tvb, io_data_size+3, io_data_size, ENC_NA);
+            if (!verify_compliment_data(tvb, 0, io_data_size+3, io_data_size))
+                expert_add_info(pinfo, complement_item, &ei_cipsafety_not_complement_data);
+
+            if (compute_crc)
+            {
+               proto_tree_add_checksum(tree, tvb, (io_data_size*2)+3,
+                        hf_cipsafety_complement_crc_s3, hf_cipsafety_complement_crc_s3_status, &ei_cipsafety_complement_crc_s3, pinfo,
+                        compute_crc_s3_base_data(compute_crc_s3_pid(conn_sn, vendorID, device_sn),
+                                ((mode_byte ^ 0xFF) & MODE_BYTE_CRC_S3_MASK),
+                                (guint8*)tvb_get_ptr(tvb, io_data_size+3, io_data_size), io_data_size),
+                        ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            }
+            else
+            {
+               proto_tree_add_checksum(tree, tvb, (io_data_size*2)+3,
+                        hf_cipsafety_complement_crc_s3, hf_cipsafety_complement_crc_s3_status, &ei_cipsafety_complement_crc_s3,
+                        pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            }
             proto_tree_add_item(tree, hf_cipsafety_timestamp, tvb, (io_data_size*2)+5, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_cipsafety_crc_s1, tvb, (io_data_size*2)+7, 1, ENC_LITTLE_ENDIAN);
+            timestamp = tvb_get_letohs(tvb, (io_data_size*2)+5);
+            if (compute_crc)
+            {
+               proto_tree_add_checksum(tree, tvb, (io_data_size*2)+7,
+                        hf_cipsafety_crc_s1, hf_cipsafety_crc_s1_status, &ei_cipsafety_crc_s1, pinfo,
+                        compute_crc_s1_timestamp(compute_crc_s1_pid(conn_sn, vendorID, device_sn),
+                                (mode_byte & MODE_BYTE_CRC_S1_TIME_STAMP_MASK),
+                                timestamp),
+                        ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            }
+            else
+            {
+               proto_tree_add_checksum(tree, tvb, (io_data_size*2)+7,
+                        hf_cipsafety_crc_s1, hf_cipsafety_crc_s1_status, &ei_cipsafety_crc_s1,
+                        pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+            }
 
             if (multicast)
             {
@@ -1414,16 +1760,84 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
          }
          break;
       case CIP_SAFETY_EXTENDED_FORMAT:
-         if (item_length-base_length <= 2)
+         if (short_format)
+         {
+            io_data_size = item_length-base_length;
+            timestamp = tvb_get_letohs(tvb, io_data_size+3);
+         }
+         else
+         {
+            io_data_size = multicast ? ((item_length-14)/2) : ((item_length-8)/2);
+            timestamp = tvb_get_letohs(tvb, (io_data_size*2)+5);
+         }
+         mode_byte = tvb_get_guint8(tvb, io_data_size);
+
+         if (compute_crc)
+         {
+            /* Determine if packet timestamp results in rollover count increment */
+            if (!pinfo->fd->flags.visited)
+            {
+               if ((timestamp != 0) && (timestamp < safety_info->eip_conn_info->safety.running_timestamp_value))
+               {
+                  safety_info->eip_conn_info->safety.running_rollover_value++;
+               }
+
+               safety_info->eip_conn_info->safety.running_timestamp_value = timestamp;
+
+               /* Save the rollover value for CRC calculations */
+               packet_data = wmem_new0(wmem_file_scope(), cip_safety_packet_data_t);
+               packet_data->rollover_value = safety_info->eip_conn_info->safety.running_rollover_value;
+
+               p_add_proto_data(wmem_file_scope(), pinfo, proto_cipsafety, 0, packet_data);
+            }
+            else
+            {
+               packet_data = (cip_safety_packet_data_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cipsafety, 0);
+            }
+         }
+
+         if (short_format)
          {
             /* Short Format (1-2 bytes I/O data) */
-            proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, item_length-base_length, ENC_NA);
-            dissect_mode_byte(tree, tvb, item_length-base_length, pinfo);
+            proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_NA);
+            dissect_mode_byte(tree, tvb, io_data_size, pinfo);
 
-            proto_tree_add_item(tree, hf_cipsafety_crc_s5_0, tvb, item_length-base_length+1, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_cipsafety_crc_s5_1, tvb, item_length-base_length+2, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_cipsafety_timestamp, tvb, item_length-base_length+3, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_cipsafety_crc_s5_2, tvb, item_length-base_length+5, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_cipsafety_crc_s5_0, tvb, io_data_size+1, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_cipsafety_crc_s5_1, tvb, io_data_size+2, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_cipsafety_timestamp, tvb, io_data_size+3, 2, ENC_LITTLE_ENDIAN);
+            crc_s5_item = proto_tree_add_item(tree, hf_cipsafety_crc_s5_2, tvb, io_data_size+5, 1, ENC_LITTLE_ENDIAN);
+
+            /* CRC-S5 doesn't use proto_tree_add_checksum because the checksum is broken up in non-consecutive bytes */
+            if (compute_crc && (packet_data != NULL))
+            {
+               test_crc_c5 = compute_crc_s5_short_data(compute_crc_s5_pid(conn_sn, vendorID, device_sn),
+                                        ((timestamp != 0) ? packet_data->rollover_value : 0), mode_byte & MODE_BYTE_CRC_S5_BASE_MASK, timestamp,
+                                        (guint8*)tvb_get_ptr(tvb, 0, io_data_size), io_data_size);
+
+               tmp_c5 = tvb_get_guint8(tvb, io_data_size+1);
+               value_c5 = tmp_c5;
+               tmp_c5 = tvb_get_guint8(tvb, io_data_size+2);
+               value_c5 += ((tmp_c5 << 8) & 0xFF00);
+               tmp_c5 = tvb_get_guint8(tvb, io_data_size+5);
+               value_c5 += ((tmp_c5 << 16) & 0xFF0000);
+
+               if (test_crc_c5 == value_c5)
+               {
+                  proto_item_append_text(crc_s5_item, " [correct]");
+                  crc_s5_status_item = proto_tree_add_uint(tree, hf_cipsafety_crc_s5_status, tvb, io_data_size+5, 0, PROTO_CHECKSUM_E_GOOD);
+               }
+               else
+               {
+                   proto_item_append_text(crc_s5_item, " incorrect, should be 0x%08x", test_crc_c5);
+                   crc_s5_status_item = proto_tree_add_uint(tree, hf_cipsafety_crc_s5_status, tvb, io_data_size+5, 0, PROTO_CHECKSUM_E_BAD);
+                   expert_add_info_format(pinfo, crc_s5_item, &ei_cipsafety_crc_s5, "Bad checksum [should be 0x%08x]", test_crc_c5);
+               }
+            }
+            else
+            {
+               crc_s5_status_item = proto_tree_add_uint(tree, hf_cipsafety_crc_s5_status, tvb, io_data_size+5, 0, PROTO_CHECKSUM_E_UNVERIFIED);
+            }
+            PROTO_ITEM_SET_GENERATED(crc_s5_status_item);
 
             if (multicast)
             {
@@ -1444,17 +1858,88 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
                return;
             }
 
-            io_data_size = multicast ? ((item_length-14)/2) : ((item_length-8)/2);
-
             proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_NA);
             dissect_mode_byte(tree, tvb, io_data_size, pinfo);
 
-            proto_tree_add_item(tree, hf_cipsafety_crc_s3, tvb, io_data_size+1, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_cipsafety_complement_data, tvb, io_data_size+3, io_data_size, ENC_NA);
+            if (compute_crc)
+            {
+               /* Determine if packet timestamp results in rollover count increment */
+               if (!pinfo->fd->flags.visited)
+               {
+                  if ((timestamp != 0) && (timestamp < safety_info->eip_conn_info->safety.running_timestamp_value))
+                  {
+                     safety_info->eip_conn_info->safety.running_rollover_value++;
+                  }
+
+                  safety_info->eip_conn_info->safety.running_timestamp_value = timestamp;
+
+                  /* Save the rollover value for CRC calculations */
+                  packet_data = wmem_new0(wmem_file_scope(), cip_safety_packet_data_t);
+                  packet_data->rollover_value = safety_info->eip_conn_info->safety.running_rollover_value;
+
+                  p_add_proto_data(wmem_file_scope(), pinfo, proto_cipsafety, 0, packet_data);
+               }
+               else
+               {
+                  packet_data = (cip_safety_packet_data_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cipsafety, 0);
+               }
+
+               if (packet_data != NULL)
+               {
+                  proto_tree_add_checksum(tree, tvb, io_data_size+1,
+                           hf_cipsafety_crc_s3, hf_cipsafety_crc_s3_status, &ei_cipsafety_crc_s3, pinfo,
+                           compute_crc_s3_extended_data(compute_crc_s3_pid(conn_sn, vendorID, device_sn),
+                                ((timestamp != 0) ? packet_data->rollover_value : 0), mode_byte & MODE_BYTE_CRC_S3_MASK, (guint8*)tvb_get_ptr(tvb, 0, io_data_size), io_data_size),
+                           ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+               }
+            }
+            else
+            {
+               proto_tree_add_checksum(tree, tvb, io_data_size+1,
+                        hf_cipsafety_crc_s3, hf_cipsafety_crc_s3_status, &ei_cipsafety_crc_s3,
+                        pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+
+            }
+            complement_item = proto_tree_add_item(tree, hf_cipsafety_complement_data, tvb, io_data_size+3, io_data_size, ENC_NA);
+            if (!verify_compliment_data(tvb, 0, io_data_size+3, io_data_size))
+                expert_add_info(pinfo, complement_item, &ei_cipsafety_not_complement_data);
             proto_tree_add_item(tree, hf_cipsafety_crc_s5_0, tvb, (io_data_size*2)+3, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_cipsafety_crc_s5_1, tvb, (io_data_size*2)+4, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_cipsafety_timestamp, tvb, (io_data_size*2)+5, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tree, hf_cipsafety_crc_s5_2, tvb, (io_data_size*2)+7, 1, ENC_LITTLE_ENDIAN);
+            crc_s5_item = proto_tree_add_item(tree, hf_cipsafety_crc_s5_2, tvb, (io_data_size*2)+7, 1, ENC_LITTLE_ENDIAN);
+
+            /* CRC-S5 doesn't use proto_tree_add_checksum because the checksum is broken up in non-consecutive bytes */
+            if (compute_crc && (packet_data != NULL))
+            {
+               test_crc_c5 = compute_crc_s5_long_data(compute_crc_s5_pid(conn_sn, vendorID, device_sn),
+                                        ((timestamp != 0) ? packet_data->rollover_value : 0), mode_byte & MODE_BYTE_CRC_S5_EXTENDED_MASK, timestamp,
+                                        /* I/O data is duplicated because it will be complemented inline */
+                                        (guint8*)tvb_memdup(wmem_packet_scope(), tvb, 0, io_data_size), io_data_size);
+
+               tmp_c5 = tvb_get_guint8(tvb, (io_data_size*2)+3);
+               value_c5 = tmp_c5;
+               tmp_c5 = tvb_get_guint8(tvb, (io_data_size*2)+4);
+               value_c5 += ((tmp_c5 << 8) & 0xFF00);
+               tmp_c5 = tvb_get_guint8(tvb, (io_data_size*2)+7);
+               value_c5 += ((tmp_c5 << 16) & 0xFF0000);
+
+               if (test_crc_c5 == value_c5)
+               {
+                  proto_item_append_text(crc_s5_item, " [correct]");
+                  crc_s5_status_item = proto_tree_add_uint(tree, hf_cipsafety_crc_s5_status, tvb, (io_data_size*2)+7, 0, PROTO_CHECKSUM_E_GOOD);
+               }
+               else
+               {
+                   proto_item_append_text(crc_s5_item, " incorrect, should be 0x%08x", test_crc_c5);
+                   crc_s5_status_item = proto_tree_add_uint(tree, hf_cipsafety_crc_s5_status, tvb, (io_data_size*2)+7, 0, PROTO_CHECKSUM_E_BAD);
+                   expert_add_info_format(pinfo, crc_s5_item, &ei_cipsafety_crc_s5, "Bad checksum [should be 0x%08x]", test_crc_c5);
+               }
+            }
+            else
+            {
+               crc_s5_status_item = proto_tree_add_uint(tree, hf_cipsafety_crc_s5_status, tvb, (io_data_size*2)+7, 0, PROTO_CHECKSUM_E_UNVERIFIED);
+            }
+            PROTO_ITEM_SET_GENERATED(crc_s5_status_item);
 
             if (multicast)
             {
@@ -1476,16 +1961,17 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
 }
 
 static int
-dissect_cipsafety(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_cipsafety(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
    proto_item *ti;
    proto_tree *safety_tree;
+   cip_safety_info_t* safety_info = (cip_safety_info_t*)data;
 
    /* Create display subtree for the protocol */
    ti = proto_tree_add_item(tree, proto_cipsafety, tvb, 0, -1, ENC_NA);
    safety_tree = proto_item_add_subtree( ti, ett_cip_safety);
 
-   dissect_cip_safety_data(safety_tree, ti, tvb, tvb_reported_length(tvb), pinfo );
+   dissect_cip_safety_data(safety_tree, ti, tvb, tvb_reported_length(tvb), pinfo, safety_info);
    return tvb_captured_length(tvb);
 }
 
@@ -1641,17 +2127,37 @@ proto_register_cipsafety(void)
         { "CRC S1", "cipsafety.crc_s1",
           FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
       },
+      { &hf_cipsafety_crc_s1_status,
+        { "CRC S1 Status", "cipsafety.crc_s1.status",
+          FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0, NULL, HFILL }
+      },
       { &hf_cipsafety_crc_s2,
         { "CRC S2", "cipsafety.crc_s2",
           FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+      },
+      { &hf_cipsafety_crc_s2_status,
+        { "CRC S2 Status", "cipsafety.crc_s2.status",
+          FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0, NULL, HFILL }
       },
       { &hf_cipsafety_crc_s3,
         { "CRC S3", "cipsafety.crc_s3",
           FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
       },
+      { &hf_cipsafety_crc_s3_status,
+        { "CRC S3 Status", "cipsafety.crc_s3.status",
+          FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0, NULL, HFILL }
+      },
+      { &hf_cipsafety_complement_crc_s3,
+        { "Complement CRC S3", "cipsafety.complement_crc_s3",
+          FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+      },
+      { &hf_cipsafety_complement_crc_s3_status,
+        { "Complement CRC S3 Status", "cipsafety.complement_crc_s3.status",
+          FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0, NULL, HFILL }
+      },
       { &hf_cipsafety_timestamp,
         { "Timestamp", "cipsafety.timestamp",
-          FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+          FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cipsafety_ack_byte,
         { "ACK Byte", "cipsafety.ack_byte",
@@ -1728,6 +2234,10 @@ proto_register_cipsafety(void)
       { &hf_cipsafety_crc_s5_2,
         { "CRC S5_2", "cipsafety.crc_s5_2",
           FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+      },
+      { &hf_cipsafety_crc_s5_status,
+        { "CRC S5 Status", "cipsafety.crc_s5.status",
+          FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0, NULL, HFILL }
       },
       { &hf_cipsafety_complement_data,
         { "Complement Data", "cipsafety.complement_data",
@@ -2349,6 +2859,12 @@ proto_register_cipsafety(void)
       { &ei_cipsafety_run_idle_not_complemented, { "cipsafety.run_idle_not_complemented", PI_PROTOCOL, PI_WARN, "Run/Idle bit not complemented", EXPFILL }},
       { &ei_mal_io, { "cipsafety.malformed.io", PI_MALFORMED, PI_ERROR, "Malformed CIP Safety I/O packet", EXPFILL }},
       { &ei_mal_sercosiii_link_error_count_p1p2, { "cipsafety.malformed.sercosiii_link.error_count_p1p2", PI_MALFORMED, PI_ERROR, "Malformed SERCOS III Attribute 5", EXPFILL }},
+      { &ei_cipsafety_not_complement_data, { "cipsafety.not_complement_data", PI_PROTOCOL, PI_WARN, "Data not complemented", EXPFILL }},
+      { &ei_cipsafety_crc_s1, { "cipsafety.crc_s1.incorrect", PI_PROTOCOL, PI_WARN, "CRC-S1 incorrect", EXPFILL }},
+      { &ei_cipsafety_crc_s2, { "cipsafety.crc_s2.incorrect", PI_PROTOCOL, PI_WARN, "CRC-S2 incorrect", EXPFILL }},
+      { &ei_cipsafety_crc_s3, { "cipsafety.crc_s3.incorrect", PI_PROTOCOL, PI_WARN, "CRC-S3 incorrect", EXPFILL }},
+      { &ei_cipsafety_complement_crc_s3, { "cipsafety.complement_crc_s3.incorrect", PI_PROTOCOL, PI_WARN, "Complement CRC-S3 incorrect", EXPFILL }},
+      { &ei_cipsafety_crc_s5, { "cipsafety.crc_s5.incorrect", PI_PROTOCOL, PI_WARN, "CRC-S5 incorrect", EXPFILL }},
       };
 
    static ei_register_info ei_ssupervisor[] = {

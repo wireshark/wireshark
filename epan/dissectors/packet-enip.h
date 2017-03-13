@@ -103,6 +103,22 @@ typedef struct {
    cip_req_info_t* cip_info;
 } enip_request_info_t;
 
+typedef struct enip_conn_val {
+   guint16 ConnSerialNumber;
+   guint16 VendorID;
+   guint32 DeviceSerialNumber;
+   guint32 O2TConnID;
+   guint32 T2OConnID;
+   guint8  TransportClass_trigger;
+   guint32 open_frame;
+   guint32 open_reply_frame;
+   guint32 close_frame;
+   guint32 connid;
+   cip_safety_epath_info_t safety;
+   gboolean motion;
+   guint32 ClassID;
+} enip_conn_val_t;
+
 enum enip_connid_type {ECIDT_UNKNOWN, ECIDT_O2T, ECIDT_T2O};
 
 /* proto_data types */

@@ -14,6 +14,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  copy_file_binary_mode@Base 1.12.0~rc1
  copy_persconffile_profile@Base 1.12.0~rc1
  crc11_307_noreflect_noxor@Base 1.10.0
+ crc16_0x080F_seed@Base 2.3.0
  crc16_0x3D65_seed@Base 1.99.0
  crc16_0x5935@Base 1.10.0
  crc16_0x755B@Base 1.12.0~rc1
@@ -24,6 +25,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  crc16_iso14443a@Base 2.1.0
  crc16_plain_update@Base 1.10.0
  crc16_x25_ccitt_seed@Base 1.99.3
+ crc32_0x5D6DCB_seed@Base 2.3.0
  crc32_0x0AA725CF_seed@Base 1.12.0~rc1
  crc32_ccitt@Base 1.10.0
  crc32_ccitt_seed@Base 1.10.0
@@ -35,6 +37,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  crc6_compute@Base 1.12.0~rc1
  crc7update@Base 1.10.0
  crc8_0x2F@Base 1.10.0
+ crc8_0x37@Base 2.3.0
+ crc8_0x3B@Base 2.3.0
  create_persconffile_dir@Base 1.12.0~rc1
  create_persconffile_profile@Base 1.12.0~rc1
  create_tempdir@Base 1.12.0~rc1

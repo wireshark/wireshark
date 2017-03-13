@@ -48,8 +48,7 @@
 
 typedef struct cip_safety_info {
    enum enip_connid_type conn_type;
-   enum cip_safety_format_type format;
-   gboolean server_dir;
+   enip_conn_val_t* eip_conn_info;
 } cip_safety_info_t;
 
 

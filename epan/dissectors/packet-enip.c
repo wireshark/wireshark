@@ -95,7 +95,6 @@ void proto_reg_handoff_enip(void);
 /* Initialize the protocol and registered fields */
 static int proto_enip = -1;
 static int proto_enipio = -1;
-static int proto_cipsafety = -1;
 
 static int hf_enip_command = -1;
 static int hf_enip_length = -1;
@@ -898,22 +897,6 @@ typedef struct enip_conn_key {
    guint32 O2TConnID;
    guint32 T2OConnID;
 } enip_conn_key_t;
-
-typedef struct enip_conn_val {
-   guint16 ConnSerialNumber;
-   guint16 VendorID;
-   guint32 DeviceSerialNumber;
-   guint32 O2TConnID;
-   guint32 T2OConnID;
-   guint8  TransportClass_trigger;
-   guint32 open_frame;
-   guint32 open_reply_frame;
-   guint32 close_frame;
-   guint32 connid;
-   cip_safety_epath_info_t safety;
-   gboolean motion;
-   guint32 ClassID;
-} enip_conn_val_t;
 
 typedef struct _enip_conv_info_t {
    wmem_tree_t *O2TConnIDs;
@@ -2196,7 +2179,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
    gboolean               FwdOpen      = FALSE;
    gboolean               FwdOpenReply = FALSE;
    enum enip_connid_type  connid_type  = ECIDT_UNKNOWN;
-   cip_safety_info_t*     cip_safety;
+   cip_safety_info_t      cip_safety;
    guint32                trans_id, ucmm_request;
    conversation_t        *conversation;
 
@@ -2392,12 +2375,10 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                          if (conn_info->safety.safety_seg == TRUE)
                          {
                             /* Add any possible safety related data */
-                            cip_safety = wmem_new(wmem_file_scope(), cip_safety_info_t);
-                            cip_safety->conn_type = connid_type;
-                            cip_safety->server_dir = (conn_info->TransportClass_trigger & CI_PRODUCTION_DIR_MASK) ? TRUE : FALSE;
-                            cip_safety->format = conn_info->safety.format;
-                            p_add_proto_data(wmem_file_scope(), pinfo, proto_cipsafety, 0, cip_safety);
-                            call_dissector(cipsafety_handle, next_tvb, pinfo, dissector_tree);
+                            cip_safety.conn_type = connid_type;
+                            cip_safety.eip_conn_info = conn_info;
+
+                            call_dissector_with_data(cipsafety_handle, next_tvb, pinfo, dissector_tree, &cip_safety);
                          }
                          else if (conn_info->motion == TRUE)
                          {
@@ -4451,7 +4432,6 @@ proto_reg_handoff_enip(void)
    dlr_handle = create_dissector_handle(dissect_dlr, proto_dlr);
    dissector_add_uint("ethertype", ETHERTYPE_DLR, dlr_handle);
 
-   proto_cipsafety = proto_get_id_by_filter_name( "cipsafety" );
    subdissector_class_table = find_dissector_table("cip.class.iface");
 
 } /* end of proto_reg_handoff_enip() */
