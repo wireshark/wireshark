@@ -29,6 +29,7 @@
 
 #include "qt_ui_utils.h"
 #include "ui/capture_globals.h"
+#include "wsutil/utf8_entities.h"
 
 #include "wiretap/wtap.h"
 
@@ -485,7 +486,7 @@ QVariant InterfaceTreeCacheModel::data(const QModelIndex &index, int role) const
         if ( role == Qt::CheckStateRole )
             return QVariant();
         else if ( role == Qt::DisplayRole )
-            return QString("-");
+            return QString(UTF8_EM_DASH);
     }
 
     if ( row < sourceModel->rowCount() )
