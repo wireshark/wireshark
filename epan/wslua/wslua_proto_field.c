@@ -146,16 +146,17 @@ static unsigned string_to_base(const gchar* str) {
 }
 
 static value_string* value_string_from_table(lua_State* L, int idx) {
-    GArray* vs = g_array_new(TRUE,TRUE,sizeof(value_string));
+    GArray* vs;
     value_string* vs32;
 
-    if(lua_isnil(L,idx)) {
+    if (lua_isnil(L,idx)) {
         return NULL;
     } else if (!lua_istable(L,idx)) {
-        g_array_free(vs,TRUE);
         luaL_argerror(L,idx,"must be a table");
         return NULL;
     }
+
+    vs = g_array_new(TRUE,TRUE,sizeof(value_string));
 
     lua_pushnil(L);
 
@@ -200,16 +201,17 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
 }
 
 static val64_string* val64_string_from_table(lua_State* L, int idx) {
-    GArray* vs = g_array_new(TRUE,TRUE,sizeof(val64_string));
+    GArray* vs;
     val64_string* vs64;
 
-    if(lua_isnil(L,idx)) {
+    if (lua_isnil(L,idx)) {
         return NULL;
     } else if (!lua_istable(L,idx)) {
-        g_array_free(vs,TRUE);
         luaL_argerror(L,idx,"must be a table");
         return NULL;
     }
+
+    vs = g_array_new(TRUE,TRUE,sizeof(val64_string));
 
     lua_pushnil(L);
 
@@ -506,9 +508,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
                                " base.DEC_HEX, base.HEX_DEC or base.UNIT_STRING");
             return 0;
         }
-        if (nargs >= WSLUA_OPTARG_ProtoField_new_VALUESTRING &&
-            !lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING))
-        {
+        if (nargs >= WSLUA_OPTARG_ProtoField_new_VALUESTRING) {
             if (unit_string) {
                 uns = unit_name_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING);
             } else if (type == FT_UINT64 || type == FT_INT64) {
@@ -567,11 +567,11 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
         break;
     case FT_FLOAT:
     case FT_DOUBLE:
-        if ((base & BASE_UNIT_STRING) &&
-            (nargs >= WSLUA_OPTARG_ProtoField_new_VALUESTRING) &&
-            !lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING))
-        {
+        if (base & BASE_UNIT_STRING) {
+            unit_string = TRUE;
             base &= ~BASE_UNIT_STRING;
+        }
+        if (nargs >= WSLUA_OPTARG_ProtoField_new_VALUESTRING) {
             uns = unit_name_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING);
         }
         /* FALLTHRU */
@@ -617,6 +617,11 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     default:
         WSLUA_ARG_ERROR(ProtoField_new,TYPE,"Invalid ProtoField field type");
         break;
+    }
+
+    if (unit_string && !uns) {
+        WSLUA_OPTARG_ERROR(ProtoField_new,VALUESTRING, "Base is base.UNIT_STRING but no table is given");
+        return 0;
     }
 
     f = g_new(wslua_field_t,1);
@@ -667,10 +672,19 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     unit_name_string* uns = NULL;
     guint32 mask = wslua_optguint32(L,5,0);
     const gchar* blob = luaL_optstring(L,6,NULL);
+    gboolean unit_string = FALSE;
 
     if (!name[0]) {
         luaL_argerror(L, 2, "cannot be an empty string");
         return 0;
+    }
+
+    if (base & BASE_UNIT_STRING) {
+        unit_string = TRUE;
+        base &= ~BASE_UNIT_STRING;
+        if (base == BASE_NONE) {
+            base = BASE_DEC;
+        }
     }
 
     if (lua_gettop(L) > 3 && !lua_isnil(L, 4)) {
@@ -680,12 +694,8 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
                 luaL_argerror(L, 4, "Invalid frametype");
                 return 0;
             }
-        } else if (base & BASE_UNIT_STRING) {
+        } else if (unit_string) {
             uns = unit_name_string_from_table(L,4);
-            base &= ~BASE_UNIT_STRING;
-            if (base == BASE_NONE) {
-                base = BASE_DEC;
-            }
         } else if (type == FT_UINT64 || type == FT_INT64) {
             vs64 = val64_string_from_table(L,4);
         } else {
@@ -705,6 +715,11 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
         luaL_argerror(L, 3, "Base must be either base.DEC, base.HEX, base.OCT,"
                       " base.DEC_HEX, base.HEX_DEC or base.UNIT_STRING");
+        return 0;
+    }
+
+    if (unit_string && !uns) {
+        luaL_argerror(L, 4, "Base is base.UNIT_STRING but no table is given");
         return 0;
     }
 
