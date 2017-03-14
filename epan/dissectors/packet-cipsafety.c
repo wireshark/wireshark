@@ -469,7 +469,6 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
    int                        req_path_size;
    int                        temp_data;
    guint8                     service, gen_status, add_stat_size;
-   cip_req_info_t*            preq_info;
    cip_simple_request_info_t  req_data;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIPS Supervisor");
@@ -482,27 +481,15 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
    proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
    proto_item_append_text( rrsc_item, "%s (%s)",
-               val_to_str( ( service & 0x7F ), cip_sc_vals_ssupervisor , "Unknown Service (0x%02x)"),
-               val_to_str_const( ( service & 0x80 )>>7, cip_sc_rr, "") );
+               val_to_str( ( service & CIP_SC_MASK ), cip_sc_vals_ssupervisor , "Unknown Service (0x%02x)"),
+               val_to_str_const( ( service & CIP_SC_RESPONSE_MASK )>>7, cip_sc_rr, "") );
 
    /* Add Service code */
    proto_tree_add_item(rrsc_tree, hf_cip_ssupervisor_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
-   preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
-   if ((preq_info != NULL) &&
-       (preq_info->ciaData != NULL))
-   {
-      memcpy(&req_data, preq_info->ciaData, sizeof(cip_simple_request_info_t));
-   }
-   else
-   {
-      req_data.iClass     = (guint32)-1;
-      req_data.iInstance  = (guint32)-1;
-      req_data.iAttribute = (guint32)-1;
-      req_data.iMember    = (guint32)-1;
-   }
+   load_cip_request_data(pinfo, &req_data);
 
-   if(service & 0x80 )
+   if (service & CIP_SC_RESPONSE_MASK)
    {
       /* Response message */
 
@@ -518,7 +505,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
 
          if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
          {
-            switch (service & 0x7F)
+            switch (service & CIP_SC_MASK)
             {
             case SC_SSUPER_VALIDATE_CONFIGURATION:
                proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_validate_configuration_sccrc,
@@ -531,7 +518,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
                break;
             }
          }
-         else if ((gen_status == 0xD0) && ((service & 0x7F) == SC_SSUPER_VALIDATE_CONFIGURATION))
+         else if ((gen_status == 0xD0) && ((service & CIP_SC_MASK) == SC_SSUPER_VALIDATE_CONFIGURATION))
          {
             if (add_stat_size > 0)
             {
@@ -1078,7 +1065,6 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
    proto_tree                *rrsc_tree, *cmd_data_tree;
    int                        req_path_size;
    guint8                     service, gen_status, add_stat_size;
-   cip_req_info_t*            preq_info;
    cip_simple_request_info_t  req_data;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIPS Validator");
@@ -1091,29 +1077,17 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
    proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
    proto_item_append_text( rrsc_item, "%s (%s)",
-               val_to_str( ( service & 0x7F ),
+               val_to_str( ( service & CIP_SC_MASK ),
                   cip_sc_vals_svalidator , "Unknown Service (0x%02x)"),
-               val_to_str_const( ( service & 0x80 )>>7,
+               val_to_str_const( ( service & CIP_SC_RESPONSE_MASK )>>7,
                   cip_sc_rr, "") );
 
    /* Add Service code */
    proto_tree_add_item(rrsc_tree, hf_cip_svalidator_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
-   preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
-   if ((preq_info != NULL) &&
-       (preq_info->ciaData != NULL))
-   {
-      memcpy(&req_data, preq_info->ciaData, sizeof(cip_simple_request_info_t));
-   }
-   else
-   {
-      req_data.iClass     = (guint32)-1;
-      req_data.iInstance  = (guint32)-1;
-      req_data.iAttribute = (guint32)-1;
-      req_data.iMember    = (guint32)-1;
-   }
+   load_cip_request_data(pinfo, &req_data);
 
-   if(service & 0x80 )
+   if (service & CIP_SC_RESPONSE_MASK)
    {
       /* Response message */
 
@@ -1130,7 +1104,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
          if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
          {
             /* Success responses */
-            if (((service & 0x7F) == SC_GET_ATT_ALL) &&
+            if (((service & CIP_SC_MASK) == SC_GET_ATT_ALL) &&
                 (req_data.iInstance != (guint32)-1) &&
                 (req_data.iInstance != 0))
             {
@@ -1199,12 +1173,12 @@ dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
    int             offset  = 0;
 
    service = tvb_get_guint8( tvb, offset );
-   service_code = service & 0x7F;
+   service_code = service & CIP_SC_MASK;
 
    /* Handle GetAttributeAll and SetAttributeAll in CCO class */
    if (service_code == SC_GET_ATT_ALL)
    {
-      if (service & 0x80)
+      if (service & CIP_SC_RESPONSE_MASK)
       {
          /* Service response */
          preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
@@ -1620,7 +1594,7 @@ proto_register_cipsafety(void)
    {
       { &hf_cip_reqrsp,
         { "Request/Response", "cip.rr",
-          FT_UINT8, BASE_HEX, VALS(cip_sc_rr), 0x80, "Request or Response message", HFILL }
+          FT_UINT8, BASE_HEX, VALS(cip_sc_rr), CIP_SC_RESPONSE_MASK, "Request or Response message", HFILL }
       },
       { &hf_cip_data,
         { "Data", "cip.data",
@@ -1793,7 +1767,7 @@ proto_register_cipsafety(void)
    static hf_register_info hf_ssupervisor[] = {
       { &hf_cip_ssupervisor_sc,
         { "Service", "cipsafety.ssupervisor.sc",
-          FT_UINT8, BASE_HEX, VALS(cip_sc_vals_ssupervisor), 0x7F, NULL, HFILL }
+          FT_UINT8, BASE_HEX, VALS(cip_sc_vals_ssupervisor), CIP_SC_MASK, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_recover_data,
         { "Data", "cipsafety.ssupervisor.recover.data",
@@ -2228,7 +2202,7 @@ proto_register_cipsafety(void)
    static hf_register_info hf_svalidator[] = {
       { &hf_cip_svalidator_sc,
         { "Service", "cipsafety.svalidator.sc",
-          FT_UINT8, BASE_HEX, VALS(cip_sc_vals_svalidator), 0x7F, NULL, HFILL }
+          FT_UINT8, BASE_HEX, VALS(cip_sc_vals_svalidator), CIP_SC_MASK, NULL, HFILL }
       },
 
       { &hf_cip_svalidator_sconn_fault_count,

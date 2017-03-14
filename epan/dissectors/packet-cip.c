@@ -5522,8 +5522,6 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
    req_path_size = tvb_get_guint8( tvb, offset+1);
    offset += ((req_path_size*2)+2);
-   if (tvb_reported_length_remaining(tvb, offset) <= 0)
-      return tvb_reported_length(tvb);
 
    int parsed_len = 0;
 
@@ -5536,8 +5534,12 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       parsed_len = dissect_cip_set_attribute_list_req(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, req_data);
       break;
    case SC_RESET:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_reset_param, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      parsed_len = 1;
+      // Parameter to reset is optional.
+      if (tvb_reported_length_remaining(tvb, offset) > 0)
+      {
+         proto_tree_add_item(cmd_data_tree, hf_cip_sc_reset_param, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+         parsed_len = 1;
+      }
       break;
    case SC_MULT_SERV_PACK:
       parsed_len = dissect_cip_multiple_service_packet(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, TRUE);
@@ -5852,7 +5854,7 @@ dissect_cip_find_next_object_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
    return 1 + num_instances * 2;
 }
 
-static void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_data)
+void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_data)
 {
     cip_req_info_t* preq_info;
     preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
@@ -5871,6 +5873,22 @@ static void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t 
     }
 }
 
+static gboolean should_dissect_cip_response(tvbuff_t *tvb, int offset, guint8 gen_status)
+{
+    // Only parse the response if there is data left or it has a response status that allows additional data
+    //   to be returned.
+    if ((tvb_reported_length_remaining(tvb, offset) == 0)
+        && gen_status != CI_GRC_SUCCESS
+        && gen_status != CI_GRC_ATTR_LIST_ERROR
+        && gen_status != CI_GRC_SERVICE_ERROR
+        && gen_status != CI_GRC_INVALID_LIST_STATUS)
+    {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static int
 dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -5878,7 +5896,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    proto_tree *cmd_data_tree;
    cip_simple_request_info_t req_data;
    int offset = 0;
-   int item_length = tvb_reported_length(tvb);
+   guint8 gen_status = tvb_get_guint8(tvb, offset + 2);
    guint8 service = tvb_get_guint8(tvb, offset) & CIP_SC_MASK;
    guint16 add_stat_size = tvb_get_guint8( tvb, offset+3 ) * 2;
 
@@ -5886,19 +5904,16 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
    add_cip_service_to_info_column(pinfo, service, cip_sc_vals);
 
-   /* If there is any command specific data create a sub-tree for it */
-   if( (item_length-4-add_stat_size ) != 0 )
-   {
-      cmd_data_tree = proto_tree_add_subtree(tree, tvb, offset, item_length-4-add_stat_size,
-                           ett_cmd_data, &cmd_data_item, val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)"));
-      proto_item_append_text(cmd_data_item, " (Response)");
-   }
-   else
-   {
-      return tvb_reported_length(tvb);
-   }
+   cmd_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+       ett_cmd_data, &cmd_data_item, val_to_str(service, cip_sc_vals, "Unknown Service (0x%02x)"));
+   proto_item_append_text(cmd_data_item, " (Response)");
 
    load_cip_request_data(pinfo, &req_data);
+
+   if (should_dissect_cip_response(tvb, offset, gen_status) == FALSE)
+   {
+      return 0;
+   }
 
    int parsed_len = 0;
 
@@ -5931,8 +5946,8 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       parsed_len = 1;
       break;
    default:
-       // No specific handling for other services.
-       break;
+      // No specific handling for other services.
+      break;
    }
 
    // Display any remaining unparsed data.

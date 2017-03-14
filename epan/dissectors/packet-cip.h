@@ -349,6 +349,7 @@ extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offse
 extern attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute);
 extern int dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, cip_simple_request_info_t* req_data);
+extern void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_data);
 
 /*
 ** Exported variables
