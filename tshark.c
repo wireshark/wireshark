@@ -183,6 +183,7 @@ static gboolean print_details;     /* TRUE if we're to print packet details info
 static gboolean print_hex;         /* TRUE if we're to print hex/ascci information */
 static gboolean line_buffered;
 static gboolean really_quiet = FALSE;
+static gchar* delimiter_char = " ";
 
 static print_format_e print_format = PR_FMT_TEXT;
 static print_stream_t *print_stream = NULL;
@@ -388,7 +389,7 @@ print_usage(FILE *output)
   fprintf(output, "  -P                       print packet summary even when writing to a file\n");
   fprintf(output, "  -S <separator>           the line separator to print between packets\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
-  fprintf(output, "  -T pdml|ps|psml|json|jsonraw|ek|text|fields\n");
+  fprintf(output, "  -T pdml|ps|psml|json|jsonraw|ek|tabs|text|fields|?\n");
   fprintf(output, "                           format of text output (def: text)\n");
   fprintf(output, "  -j <protocolfilter>      protocols layers filter if -T ek|pdml|json selected\n");
   fprintf(output, "                           (e.g. \"ip ip.flags text\", filter does not expand child\n");
@@ -406,7 +407,7 @@ print_usage(FILE *output)
   fprintf(output, "     aggregator=,|/s|<char> select comma, space, printable character as\n");
   fprintf(output, "                           aggregator\n");
   fprintf(output, "     quote=d|s|n           select double, single, no quotes for values\n");
-  fprintf(output, "  -t a|ad|d|dd|e|r|u|ud    output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -t a|ad|d|dd|e|r|u|ud|?  output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
   fprintf(output, "  -l                       flush standard output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
@@ -1079,6 +1080,7 @@ main(int argc, char *argv[])
 
   /* Print format defaults to this. */
   print_format = PR_FMT_TEXT;
+  delimiter_char = " ";
 
   output_fields = output_fields_new();
 
@@ -1299,6 +1301,10 @@ main(int argc, char *argv[])
       if (strcmp(optarg, "text") == 0) {
         output_action = WRITE_TEXT;
         print_format = PR_FMT_TEXT;
+      } else if (strcmp(optarg, "tabs") == 0) {
+        output_action = WRITE_TEXT;
+        print_format = PR_FMT_TEXT;
+        delimiter_char = "\t";
       } else if (strcmp(optarg, "ps") == 0) {
         output_action = WRITE_TEXT;
         print_format = PR_FMT_PS;
@@ -1353,7 +1359,10 @@ main(int argc, char *argv[])
                         "\t\"text\"    Text of a human-readable one-line summary of each of the\n"
                         "\t          packets, or a multi-line view of the details of each of the\n"
                         "\t          packets, depending on whether the -V flag was specified.\n"
-                        "\t          This is the default.");
+                        "\t          This is the default.\n"
+                        "\t\"tabs\"    Similar to the text report except that each column of the\n"
+                        "\t          human-readable one-line summary is delimited with an ASCII\n"
+                        "\t          horizontal tab character.");
         exit_status = INVALID_OPTION;
         goto clean_exit;
       }
@@ -3762,6 +3771,7 @@ print_columns(capture_file *cf)
   size_t  column_len;
   size_t  col_len;
   col_item_t* col_item;
+  gchar str_format[11];
 
   line_bufp = get_line_buf(256);
   buf_offset = 0;
@@ -3860,12 +3870,13 @@ print_columns(capture_file *cf)
         case COL_DEF_DST:
         case COL_RES_DST:
         case COL_UNRES_DST:
-          put_string(line_bufp + buf_offset, " " UTF8_RIGHTWARDS_ARROW " ", 5);
+          g_snprintf(str_format, sizeof(str_format), " %s%s", UTF8_RIGHTWARDS_ARROW, delimiter_char);
+          put_string(line_bufp + buf_offset, str_format, 5);
           buf_offset += 5;
           break;
 
         default:
-          put_string(line_bufp + buf_offset, " ", 1);
+          put_string(line_bufp + buf_offset, delimiter_char, 1);
           buf_offset += 1;
           break;
         }
@@ -3879,12 +3890,13 @@ print_columns(capture_file *cf)
         case COL_DEF_DL_DST:
         case COL_RES_DL_DST:
         case COL_UNRES_DL_DST:
-          put_string(line_bufp + buf_offset, " " UTF8_RIGHTWARDS_ARROW " ", 5);
+          g_snprintf(str_format, sizeof(str_format), " %s%s", UTF8_RIGHTWARDS_ARROW, delimiter_char);
+          put_string(line_bufp + buf_offset, str_format, 5);
           buf_offset += 5;
           break;
 
         default:
-          put_string(line_bufp + buf_offset, " ", 1);
+          put_string(line_bufp + buf_offset, delimiter_char, 1);
           buf_offset += 1;
           break;
         }
@@ -3898,12 +3910,13 @@ print_columns(capture_file *cf)
         case COL_DEF_NET_DST:
         case COL_RES_NET_DST:
         case COL_UNRES_NET_DST:
-          put_string(line_bufp + buf_offset, " " UTF8_RIGHTWARDS_ARROW " ", 5);
+          g_snprintf(str_format, sizeof(str_format), " %s%s", UTF8_RIGHTWARDS_ARROW, delimiter_char);
+          put_string(line_bufp + buf_offset, str_format, 5);
           buf_offset += 5;
           break;
 
         default:
-          put_string(line_bufp + buf_offset, " ", 1);
+          put_string(line_bufp + buf_offset, delimiter_char, 1);
           buf_offset += 1;
           break;
         }
@@ -3917,12 +3930,13 @@ print_columns(capture_file *cf)
         case COL_DEF_SRC:
         case COL_RES_SRC:
         case COL_UNRES_SRC:
-          put_string(line_bufp + buf_offset, " " UTF8_LEFTWARDS_ARROW " ", 5);
+          g_snprintf(str_format, sizeof(str_format), " %s%s", UTF8_LEFTWARDS_ARROW, delimiter_char);
+          put_string(line_bufp + buf_offset, str_format, 5);
           buf_offset += 5;
           break;
 
         default:
-          put_string(line_bufp + buf_offset, " ", 1);
+          put_string(line_bufp + buf_offset, delimiter_char, 1);
           buf_offset += 1;
           break;
         }
@@ -3936,12 +3950,13 @@ print_columns(capture_file *cf)
         case COL_DEF_DL_SRC:
         case COL_RES_DL_SRC:
         case COL_UNRES_DL_SRC:
-          put_string(line_bufp + buf_offset, " " UTF8_LEFTWARDS_ARROW " ", 5);
+          g_snprintf(str_format, sizeof(str_format), " %s%s", UTF8_LEFTWARDS_ARROW, delimiter_char);
+          put_string(line_bufp + buf_offset, str_format, 5);
           buf_offset += 5;
           break;
 
         default:
-          put_string(line_bufp + buf_offset, " ", 1);
+          put_string(line_bufp + buf_offset, delimiter_char, 1);
           buf_offset += 1;
           break;
         }
@@ -3955,19 +3970,20 @@ print_columns(capture_file *cf)
         case COL_DEF_NET_SRC:
         case COL_RES_NET_SRC:
         case COL_UNRES_NET_SRC:
-          put_string(line_bufp + buf_offset, " " UTF8_LEFTWARDS_ARROW " ", 5);
+          g_snprintf(str_format, sizeof(str_format), " %s%s", UTF8_LEFTWARDS_ARROW, delimiter_char);
+          put_string(line_bufp + buf_offset, str_format, 5);
           buf_offset += 5;
           break;
 
         default:
-          put_string(line_bufp + buf_offset, " ", 1);
+          put_string(line_bufp + buf_offset, delimiter_char, 1);
           buf_offset += 1;
           break;
         }
         break;
 
       default:
-        put_string(line_bufp + buf_offset, " ", 1);
+        put_string(line_bufp + buf_offset, delimiter_char, 1);
         buf_offset += 1;
         break;
       }

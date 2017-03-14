@@ -40,7 +40,7 @@ S<[ B<-R> E<lt>Read filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> E<lt>separatorE<gt> ]>
 S<[ B<-t> a|ad|adoy|d|dd|e|r|u|ud|udoy ]>
-S<[ B<-T> ek|fields|json|pdml|ps|psml|text ]>
+S<[ B<-T> ek|fields|json|pdml|ps|psml|tabs|text ]>
 S<[ B<-u> E<lt>seconds typeE<gt>]>
 S<[ B<-U> E<lt>tap_nameE<gt>]>
 S<[ B<-v> ]>
@@ -748,7 +748,7 @@ was captured
 
 The default format is relative.
 
-=item -T  ek|fields|json|jsonraw|pdml|ps|psml|text
+=item -T  ek|fields|json|jsonraw|pdml|ps|psml|tabs|text
 
 Set the format of the output when viewing decoded packet data.  The
 options are one of:
@@ -794,6 +794,10 @@ whether the B<-V> flag was specified.
 B<psml> Packet Summary Markup Language, an XML-based format for the summary
 information of a decoded packet.  This information is equivalent to the
 information shown in the one-line summary printed by default.
+
+B<tabs> Similar to the default B<text> report except the human-readable one-line
+summary of each packet will include an ASCII horizontal tab (0x09) character
+as a delimiter between each column.
 
 B<text> Text of a human-readable one-line summary of each of the packets, or a
 multi-line view of the details of each of the packets, depending on
