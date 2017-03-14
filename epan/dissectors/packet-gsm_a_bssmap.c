@@ -886,11 +886,11 @@ typedef enum
     BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information    3.2.2.125    */
     BE_SELECTED_PLMN_ID,                /* Selected PLMN ID                    3.2.2.126    */
     BE_LAST_USED_EUTRAN_PLMN_ID,        /* Last used E - UTRAN PLMN ID         3.2.2.127    */
-        /*Old Location Area Identification	3.2.2.128*/
-        /*Attach Indicator	3.2.2.129*/
-        /*Selected Operator	3.2.2.130*/
-        /*PS Registered Operator	3.2.2.131*/
-        /*CS Registered Operator	3.2.2.132*/
+        /*Old Location Area Identification    3.2.2.128*/
+        /*Attach Indicator    3.2.2.129*/
+        /*Selected Operator    3.2.2.130*/
+        /*PS Registered Operator    3.2.2.131*/
+        /*CS Registered Operator    3.2.2.132*/
 
     BE_NONE                             /* NONE */
 }
@@ -4879,6 +4879,16 @@ bssmap_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     ELEM_OPT_TV(BE_CALL_ID, GSM_A_PDU_TYPE_BSSMAP, BE_CALL_ID, NULL);
     /* Kc128  3.2.2.109   MSC-BSS C (note 15) 17 */
     ELEM_OPT_TV(BE_KC128, GSM_A_PDU_TYPE_BSSMAP, BE_KC128, NULL);
+    /* Global Call Reference    3.2.2.115   MSC-BSS    O (note 16)    3-n*/
+    ELEM_OPT_TLV(BE_GLOBAL_CALL_REF, GSM_A_PDU_TYPE_BSSMAP, BE_GLOBAL_CALL_REF, NULL);
+    /* LCLS-Configuration    3.2.2.116    MSC-BSS    O (note 16)    2*/
+    ELEM_OPT_TV(BE_LCLS_CONF, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CONF, NULL);
+    /* LCLS-Connection-Status-Control    3.2.2.117    MSC-BSS    O (note 17)    2*/
+    ELEM_OPT_TV(BE_LCLS_CON_STATUS_CONTROL, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CON_STATUS_CONTROL, NULL);
+    /* LCLS-Correlation-Not-Needed    3.2.2.118    MSC-BSS    O (note 18)    1*/
+    ELEM_OPT_T(BE_LCLS_CORR_NOT_NEEDED, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CORR_NOT_NEEDED, NULL);
+    /* CS to PS SRVCC    3.2.2.122    MSC-BSS    O (note 19)    1*/
+
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -4920,6 +4930,8 @@ bssmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     ELEM_OPT_TLV(BE_SPEECH_CODEC, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC, "(Chosen)");
     /* Codec List (BSS supported)   3.2.2.103   MSC-BSS O (note 11) 3-n */
     ELEM_OPT_TLV(BE_SPEECH_CODEC_LST, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC_LST, "(BSS Supported)");
+    /* LCLS-BSS-Status    3.2.2.119    BSS-MSC    O (note 12)    2 */
+    ELEM_OPT_TV(BE_LCLS_BSS_STATUS, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_BSS_STATUS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -5113,6 +5125,14 @@ bssmap_ho_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     ELEM_OPT_TV(BE_CALL_ID, GSM_A_PDU_TYPE_BSSMAP, BE_CALL_ID, NULL);
     /* Kc128  3.2.2.109   MSC-BSS C (note 27) 17 */
     ELEM_OPT_TV(BE_KC128, GSM_A_PDU_TYPE_BSSMAP, BE_KC128, NULL);
+    /* Global Call Reference    3.2.2.115    MSC - BSS    O(note 28)    3 - n*/
+    ELEM_OPT_TLV(BE_GLOBAL_CALL_REF, GSM_A_PDU_TYPE_BSSMAP, BE_GLOBAL_CALL_REF, NULL);
+    /* LCLS-Configuration    3.2.2.116    MSC - BSS    O(note 28)    2*/
+    ELEM_OPT_TV(BE_LCLS_CONF, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CONF, NULL);
+    /* LCLS-Connection-Status-Control    3.2.2.117    MSC - BSS    O(note 28)    2*/
+    ELEM_OPT_TV(BE_LCLS_CON_STATUS_CONTROL, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CON_STATUS_CONTROL, NULL);
+    /* CS to PS SRVCC    3.2.2.122    MSC - BSS    O(note 29)    1*/
+
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -5158,6 +5178,8 @@ bssmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     ELEM_OPT_TLV(BE_SPEECH_CODEC, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC, "(Used)");
     /* CSG Identifier  3.2.2.110   BSS-MSC O (note 11) 7 */
     ELEM_OPT_TLV(BE_CSG_ID, GSM_A_PDU_TYPE_BSSMAP, BE_CSG_ID, NULL);
+    /* Source eNB to target eNB transparent information (E-UTRAN)    3.2.2.123    BSS-MSC    O (note 12)    3-m */
+    /* CS to PS SRVCC Indication    3.2.2.124    BSS-MSC    O (note 13)    1 */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -5201,6 +5223,8 @@ bssmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     ELEM_OPT_TLV(BE_SPEECH_CODEC_LST, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC_LST, "(BSS Supported)");
     /* Speech Codec (Chosen)    3.2.2.104   BSS-MSC O (note 12) 3-5 */
     ELEM_OPT_TLV(BE_SPEECH_CODEC, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC, "(Chosen)");
+    /* LCLS-BSS-Status    3.2.2.119    BSS-MSC    O (note 13)    2 */
+    ELEM_OPT_TV(BE_LCLS_BSS_STATUS, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_BSS_STATUS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -5250,7 +5274,7 @@ bssmap_ho_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     ELEM_OPT_TV(BE_TALKER_PRI, GSM_A_PDU_TYPE_BSSMAP, BE_TALKER_PRI, NULL);
     /* Speech Codec (Chosen)    3.2.2.104    BSS-MSC O (note 2)  3-5 */
     ELEM_OPT_TLV(BE_SPEECH_CODEC, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC, "(Chosen)");
-    /* Codec List (BSS Supported)   3.2.2.103   BSS-MSC	O (note 3)  3-n */
+    /* Codec List (BSS Supported)   3.2.2.103   BSS-MSC    O (note 3)  3-n */
     ELEM_OPT_TLV(BE_SPEECH_CODEC_LST, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC_LST, "(BSS Supported)");
     /* Chosen Encryption Algorithm  3.2.2.44    BSS-MSC O (note 4)  2 */
     ELEM_OPT_TV(BE_CHOSEN_ENC_ALG, GSM_A_PDU_TYPE_BSSMAP, BE_CHOSEN_ENC_ALG, NULL);
@@ -5558,6 +5582,8 @@ bssmap_ho_performed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     ELEM_OPT_TLV(BE_SPEECH_CODEC_LST, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC_LST, "(BSS Supported)");
     /* Speech Codec (Chosen)    3.2.2.104   BSS-MSC O (note 8)  3-5 */
     ELEM_OPT_TLV(BE_SPEECH_CODEC, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC, "(Chosen)");
+    /* LCLS-BSS-Status    3.2.2.119    BSS-MSC    O (note 9)    2 */
+    ELEM_OPT_TV(BE_LCLS_BSS_STATUS, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_BSS_STATUS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -5742,6 +5768,10 @@ bssmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     /* IMSI 3.2.2.6 BSS-MSC O (note 7) 3-10 */
     ELEM_OPT_TLV(BE_IMSI, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
     /* Selected PLMN ID 3.2.2.126 BSS-MSC O (note 8) 4 */
+    ELEM_OPT_TV(BE_SELECTED_PLMN_ID, GSM_A_PDU_TYPE_BSSMAP, BE_SELECTED_PLMN_ID, NULL);
+    /* Selected Operator    3.2.2.130    BSS-MSC    O (note 9, 10)    4 */
+    /* PS Registered Operator    3.2.2.131    BSS-MSC    O (note 9, 11)    4 */
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
 /*
@@ -6139,6 +6169,13 @@ bssmap_vgcs_vbs_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     ELEM_OPT_TLV(BE_VSTK_INF, GSM_A_PDU_TYPE_BSSMAP, BE_VSTK_INF, NULL);
     /* Cell Identifier List Segment 3.2.2.27a   MSC-BSS O (note 3)  4-? */
     ELEM_OPT_TLV(BE_CELL_ID_LIST_SEG, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID_LIST_SEG, NULL);
+    /* AoIP Transport Layer Address(MGW)    3.2.2.102    MSC - BSS    O(note 6, 7)    8 - 20 */
+    ELEM_OPT_TLV(BE_AOIP_TRANS_LAY_ADD, GSM_A_PDU_TYPE_BSSMAP, BE_AOIP_TRANS_LAY_ADD, NULL);
+    /* Call Identifier    3.2.2.105    MSC - BSS    O(note 6, 7)    5 */
+    ELEM_OPT_TV(BE_CALL_ID, GSM_A_PDU_TYPE_BSSMAP, BE_CALL_ID, NULL);
+    /* Codec List(MSC Preferred)    3.2.2.103    MSC - BSS    O(note 6, 7)    3 - n */
+    ELEM_OPT_TLV(BE_SPEECH_CODEC_LST, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC_LST, "(MSC Preferred)");
+
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -6165,6 +6202,12 @@ bssmap_vgcs_vbs_ass_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     ELEM_OPT_TV(BE_CIC, GSM_A_PDU_TYPE_BSSMAP, BE_CIC, NULL);
     /* Circuit Pool 3.2.2.45    BSS-MSC O (note 1)  2 */
     ELEM_OPT_TV(BE_CCT_POOL, GSM_A_PDU_TYPE_BSSMAP, BE_CCT_POOL, NULL);
+    /* AoIP Transport Layer Address (BSS)    3.2.2.102    BSS-MSC    O (note 6, 7)    8-20 */
+    ELEM_OPT_TLV(BE_AOIP_TRANS_LAY_ADD, GSM_A_PDU_TYPE_BSSMAP, BE_AOIP_TRANS_LAY_ADD, NULL);
+    /* Speech Codec (Chosen)    3.2.2.104    BSS-MSC    O (note 6, 7)    3-5 */
+    ELEM_OPT_TLV(BE_SPEECH_CODEC, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC, "(Chosen)");
+    /* Call Identifier    3.2.2.105    BSS-MSC    O (note 6, 7)    5 */
+    ELEM_OPT_TV(BE_CALL_ID, GSM_A_PDU_TYPE_BSSMAP, BE_CALL_ID, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -6187,6 +6230,8 @@ bssmap_vgcs_vbs_ass_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     ELEM_OPT_TV(BE_CCT_POOL, GSM_A_PDU_TYPE_BSSMAP, BE_CCT_POOL, NULL);
     /* Circuit Pool List    3.2.2.46    BSS-MSC O (note 2)  V */
     ELEM_OPT_TLV(BE_CCT_POOL_LIST, GSM_A_PDU_TYPE_BSSMAP, BE_CCT_POOL_LIST, NULL);
+    /* Codec List (BSS Supported)    3.2.2.103    BSS-MSC    O (note 3)    3-n */
+    ELEM_OPT_TLV(BE_SPEECH_CODEC_LST, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC_LST, "(BSS Supported)");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -6463,6 +6508,9 @@ bssmap_common_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     ELEM_MAND_TLV(BE_IMSI, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL, ei_gsm_a_bssmap_missing_mandatory_element);
     /* SNA Access Information   3.2.2.82    MSC-BSC O (note)    2+n */
     ELEM_OPT_TLV(BE_SNA_ACC_INF, GSM_A_PDU_TYPE_BSSMAP, BE_SNA_ACC_INF, NULL);
+    /* Selected PLMN ID    3.2.2.126    MSC-BSC    O (note 3)    */
+    ELEM_OPT_TV(BE_SELECTED_PLMN_ID, GSM_A_PDU_TYPE_BSSMAP, BE_SELECTED_PLMN_ID, NULL);
+    /* Last used E-UTRAN PLMN ID    3.2.2.127    MSC-BSC    O (note 4)    4 */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -6811,6 +6859,8 @@ bssmap_int_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     ELEM_OPT_TV(BE_CALL_ID, GSM_A_PDU_TYPE_BSSMAP, BE_CALL_ID, NULL);
     /* Downlink DTX Flag  3.2.2.26   MSC-BSS O (note 5) 2 */
     ELEM_OPT_TV(BE_DOWN_DTX_FLAG, GSM_A_PDU_TYPE_BSSMAP, BE_DOWN_DTX_FLAG, NULL);
+    /* LCLS-Connection-Status-Control    3.2.2.117    MSC-BSS    O (note 6)    2 */
+    ELEM_OPT_TV(BE_LCLS_CON_STATUS_CONTROL, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CON_STATUS_CONTROL, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -6895,6 +6945,7 @@ bssmap_reroute_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     ELEM_OPT_TV(BE_SEND_SEQN, GSM_A_PDU_TYPE_BSSMAP, BE_SEND_SEQN, NULL);
     /* IMSI 3.2.2.6 MSC-BSS O (note 5) 3-10 */
     ELEM_OPT_TLV(BE_IMSI, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
+    /* Old Location Area Identification    3.2.2.128    MSC-BSS    O (note 6)    6 */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -6925,7 +6976,9 @@ bssmap_reroute_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  */
 
     /* LCLS-Configuration 3.2.2.116 MSC-BSS O (note1) 2 */
+    /* ELEM_OPT_TV(BE_LCLS_CONF, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CONF, NULL); */
     /* LCLS-Connection-Status-Control 3.2.2.117 MSC-BSS O (note1) 2 */
+    /* ELEM_OPT_TV(BE_LCLS_CON_STATUS_CONTROL, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CON_STATUS_CONTROL, NULL); */
 
 /*
  * 3.2.1.92 LCLS-CONNECT-CONTROL-ACK
@@ -6939,7 +6992,19 @@ bssmap_reroute_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  */
 
     /* LCLS-BSS-Status 3.2.2.119 BSS-MSC O (note 1) 2 */
+    /* ELEM_OPT_TV(BE_LCLS_BSS_STATUS, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_BSS_STATUS, NULL);*/
     /* LCLS-Break-Request 3.2.2.120 BSS-MSC O (note 1) 1 */
+
+/*
+ * 3.2.1.94     MS REGISTRATION ENQUIRY
+ */
+    /* IMSI    3.2.2.6    BSS-MSC    M    3-10 */
+/*
+ * 3.2.1.95     MS REGISTRATION ENQUIRY RESPONSE
+ */
+    /* IMSI    3.2.2.6    MSC-BSS    M    3-10 */
+    /* CS Registered Operator    3.2.2.132    MSC-BSS    O (note 1)    4 */
+
 
 #endif
 #define NUM_GSM_BSSMAP_MSG (int)(sizeof(gsm_a_bssmap_msg_strings)/sizeof(value_string))
