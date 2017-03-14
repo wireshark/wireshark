@@ -341,10 +341,9 @@ static void dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                                    const SslSession *session, guint32 record_length,
                                    gboolean decrypted);
 
-static int dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
-                                                  proto_tree *tree,
-                                                  guint32 offset,
-                                                  SslDecryptSession* ssl);
+static int dissect_dtls_hnd_hello_verify_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                                 packet_info *pinfo, proto_tree *tree,
+                                                 guint32 offset, guint32 offset_end);
 
 /*
  * Support Functions
@@ -1269,7 +1268,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_HELLO_VERIFY_REQUEST:
-            dissect_dtls_hnd_hello_verify_request(sub_tvb, ssl_hand_tree, 0,  ssl);
+            dissect_dtls_hnd_hello_verify_request(&dissect_dtls_hf, sub_tvb, pinfo,
+                                                  ssl_hand_tree, 0, length);
             break;
 
           case SSL_HND_NEWSESSION_TICKET:
@@ -1426,8 +1426,9 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
-dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
-                                      guint32 offset, SslDecryptSession* ssl _U_)
+dissect_dtls_hnd_hello_verify_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                      packet_info *pinfo, proto_tree *tree,
+                                      guint32 offset, guint32 offset_end)
 {
   /*
    * struct {
@@ -1436,29 +1437,24 @@ dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
    * } HelloVerifyRequest;
    */
 
-  guint8 cookie_length;
+  guint32 cookie_length;
 
   /* show the client version */
   proto_tree_add_item(tree, dissect_dtls_hf.hf.hs_server_version, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-
-  /* look for a cookie */
-  cookie_length = tvb_get_guint8(tvb, offset);
-
-  proto_tree_add_uint(tree, dtls_hfs.hf_dtls_handshake_cookie_len,
-                        tvb, offset, 1, cookie_length);
-  offset ++;            /* skip opaque length */
+  if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &cookie_length,
+                      dtls_hfs.hf_dtls_handshake_cookie_len, 0, 32)) {
+      return offset;
+  }
+  offset++;
 
   if (cookie_length > 0)
   {
-     proto_tree_add_bytes_format(tree, dtls_hfs.hf_dtls_handshake_cookie,
-                                    tvb, offset, cookie_length,
-                                    NULL, "Cookie (%u byte%s)",
-                                    cookie_length,
-                                    plurality(cookie_length, "", "s"));
-     offset += cookie_length;
+    proto_tree_add_item(tree, dtls_hfs.hf_dtls_handshake_cookie,
+                        tvb, offset, cookie_length, ENC_NA);
+    offset += cookie_length;
   }
 
   return offset;
