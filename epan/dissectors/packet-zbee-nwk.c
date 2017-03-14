@@ -1447,6 +1447,7 @@ dissect_zbee_beacon_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* All ZigBee frames must always have a 16-bit source address. */
     if (!packet) return FALSE;
     if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) return FALSE;
+    if (tvb_captured_length(tvb) == 0) return FALSE;
 
     /* ZigBee beacons begin with a protocol identifier. */
     if (tvb_get_guint8(tvb, 0) != ZBEE_NWK_BEACON_PROTOCOL_ID) return FALSE;
@@ -1550,6 +1551,7 @@ dissect_zbip_beacon_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* All ZigBee frames must always have a 16-bit source address. */
     if (!packet) return FALSE;
     if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) return FALSE;
+    if (tvb_captured_length(tvb) == 0) return FALSE;
 
     /* ZigBee beacons begin with a protocol identifier. */
     if (tvb_get_guint8(tvb, 0) != ZBEE_IP_BEACON_PROTOCOL_ID) return FALSE;
