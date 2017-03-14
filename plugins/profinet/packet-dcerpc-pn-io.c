@@ -753,9 +753,6 @@ static int hf_pn_io_am_location_reserved4 = -1;
 static int hf_pn_io_am_software_revision = -1;
 static int hf_pn_io_am_hardware_revision = -1;
 static int hf_pn_io_am_type_identification = -1;
-static int hf_pn_io_am_information = -1;
-static int hf_pn_io_am_information_reserved_8_15 = -1;
-static int hf_pn_io_am_information_reserved_0_7 = -1;
 
 /* static int hf_pn_io_packedframe_SFCRC = -1; */
 static gint ett_pn_io = -1;
@@ -909,7 +906,7 @@ static const value_string pn_io_block_type[] = {
     { 0x0030, "I&M0FilterDataSubmodul"},
     { 0x0031, "I&M0FilterDataModul"},
     { 0x0032, "I&M0FilterDataDevice"},
-    { 0x0033, "AMFilterData" },
+    { 0x0033, "Reserved" },
     { 0x0034, "I&M5Data"},
     { 0x0035, "AssetManagementData"},
     { 0x0036, "AM_FullInformation"},
@@ -4734,39 +4731,6 @@ guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
         hf_pn_io_am_type_identification, &u16AM_TypeIdentification);
 
-    return offset;
-}
-
-static int
-dissect_AMFilterDataInfo(tvbuff_t *tvb, int offset,
-packet_info *pinfo, proto_tree *tree, guint8 *drep)
-{
-    proto_item *sub_item;
-    proto_tree *sub_tree;
-    guint16 u16AM_Information;
-
-    sub_item = proto_tree_add_item(tree, hf_pn_io_am_information, tvb, offset, 2, ENC_BIG_ENDIAN);
-    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_rs_alarm_info);
-
-    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-        hf_pn_io_am_information_reserved_0_7, &u16AM_Information);
-
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-        hf_pn_io_am_information_reserved_8_15, &u16AM_Information);
-    return offset;
-}
-
-static int
-dissect_AMFilterData_Block(tvbuff_t *tvb, int offset,
-packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep,
-guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
-{
-    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
-            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
-        return offset;
-    }
-    offset = dissect_AMFilterDataInfo(tvb, offset, pinfo, tree, drep);
     return offset;
 }
 
@@ -10330,9 +10294,6 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0032):
         dissect_IandM0FilterData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
-    case(0x0033):
-        dissect_AMFilterData_Block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
-        break;
     case(0x0034):
         dissect_IandM5Data_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
@@ -14669,21 +14630,6 @@ proto_register_pn_io (void)
     { &hf_pn_io_am_type_identification,
       { "AM Type Identification", "pn_io.am_type_identification",
         FT_UINT16, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }
-    },
-    { &hf_pn_io_am_information_reserved_8_15,
-      { "AM_Information.Reserved2", "pn_io.am_information_reserved_8_15",
-        FT_UINT16, BASE_HEX, NULL, 0x0FF00,
-        NULL, HFILL }
-    },
-    { &hf_pn_io_am_information,
-      { "AM_Information", "pn_io.am_information",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }
-    },
-    { &hf_pn_io_am_information_reserved_0_7,
-      { "AM_Information.Reserved1", "pn_io.am_information_reserved_0_7",
-        FT_UINT16, BASE_HEX, NULL, 0x000FF,
         NULL, HFILL }
     },
     };
