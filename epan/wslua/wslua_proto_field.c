@@ -495,15 +495,15 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
                 base = BASE_OCT; /* default base for characters (BASE_HEX instead?) */
             else
                 base = BASE_DEC;  /* Default base for integer */
-        } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
-            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be either base.DEC, base.HEX, base.OCT,"
-                               " base.DEC_HEX, base.HEX_DEC or base.UNIT_STRING");
-            return 0;
         }
         if ((base != BASE_DEC) &&
             (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64))
         {
-            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be base.DEC or base.UNIT_STRING for signed integer");
+            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be either base.DEC or base.UNIT_STRING");
+            return 0;
+        } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
+            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be either base.DEC, base.HEX, base.OCT,"
+                               " base.DEC_HEX, base.HEX_DEC or base.UNIT_STRING");
             return 0;
         }
         if (nargs >= WSLUA_OPTARG_ProtoField_new_VALUESTRING &&
@@ -698,14 +698,14 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
             luaL_argerror(L, 3, "FRAMENUM must use base.NONE");
         else if (mask)
             luaL_argerror(L, 5, "FRAMENUM can not have a bitmask");
+    } else if ((base != BASE_DEC) &&
+               (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64)) {
+        luaL_argerror(L, 3, "Base must be either base.DEC or base.UNIT_STRING");
+        return 0;
     } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
         luaL_argerror(L, 3, "Base must be either base.DEC, base.HEX, base.OCT,"
                       " base.DEC_HEX, base.HEX_DEC or base.UNIT_STRING");
         return 0;
-    } else if ((base != BASE_DEC) &&
-               (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64)) {
-      luaL_argerror(L, 3, "Base must be base.DEC or base.UNIT_STRING for signed integer");
-      return 0;
     }
 
     f = g_new(wslua_field_t,1);
