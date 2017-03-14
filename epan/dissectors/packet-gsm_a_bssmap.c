@@ -357,23 +357,27 @@ value_string_ext gsm_bssmap_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_bssmap_
 /* 3.2.3 Signalling Field Element Coding */
 static const value_string bssmap_field_element_ids[] = {
 
-    { 0x1,  "BSSMAP Field Element: Extra information" },                    /* 3.2.3.1  */
-    { 0x2,  "BSSMAP Field Element: Current Channel Type 2" },               /* 3.2.2.2  */
-    { 0x3,  "BSSMAP Field Element: Target cell radio information" },        /* 3.2.3.3  */
-    { 0x4,  "BSSMAP Field Element: GPRS Suspend information" },             /* 3.2.3.4  */
-    { 0x5,  "BSSMAP Field Element: MultiRate configuration information" },  /* 3.2.3.5  */
-    { 0x6,  "BSSMAP Field Element: Dual Transfer Mode information" },       /* 3.2.3.6  */
-    { 0x7,  "BSSMAP Field Element: Inter RAT Handover Info" },              /* 3.2.3.7  */
-    /*{ 0x7,    "UE Capability information" },*/                            /* 3.2.3.7  */
-    { 0x8,  "BSSMAP Field Element: cdma2000 Capability Information" },      /* 3.2.3.8  */
-    { 0x9,  "BSSMAP Field Element: Downlink Cell Load Information" },       /* 3.2.3.9  */
-    { 0xa,  "BSSMAP Field Element: Uplink Cell Load Information" },         /* 3.2.3.10 */
-    { 0xb,  "BSSMAP Field Element: Cell Load Information Group" },          /* 3.2.3.11 */
-    { 0xc,  "BSSMAP Field Element: Cell Load Information" },                /* 3.2.3.12 */
-    { 0x0d, "BSSMAP Field Element: PS Indication" },                        /* 3.2.3.13 */
-    { 0x0e, "BSSMAP Field Element: DTM Handover Command Indication" },      /* 3.2.3.14 */
+    { 0x1,  "BSSMAP Field Element: Extra information" },                                    /* 3.2.3.1  */
+    { 0x2,  "BSSMAP Field Element: Current Channel Type 2" },                               /* 3.2.2.2  */
+    { 0x3,  "BSSMAP Field Element: Target cell radio information" },                        /* 3.2.3.3  */
+    { 0x4,  "BSSMAP Field Element: GPRS Suspend information" },                             /* 3.2.3.4  */
+    { 0x5,  "BSSMAP Field Element: MultiRate configuration information" },                  /* 3.2.3.5  */
+    { 0x6,  "BSSMAP Field Element: Dual Transfer Mode information" },                       /* 3.2.3.6  */
+    { 0x7,  "BSSMAP Field Element: Inter RAT Handover Info" },                              /* 3.2.3.7  */
+    /*{ 0x7,    "UE Capability information" },*/                                            /* 3.2.3.7  */
+    { 0x8,  "BSSMAP Field Element: cdma2000 Capability Information" },                      /* 3.2.3.8  */
+    { 0x9,  "BSSMAP Field Element: Downlink Cell Load Information" },                       /* 3.2.3.9  */
+    { 0xa,  "BSSMAP Field Element: Uplink Cell Load Information" },                         /* 3.2.3.10 */
+    { 0xb,  "BSSMAP Field Element: Cell Load Information Group" },                          /* 3.2.3.11 */
+    { 0xc,  "BSSMAP Field Element: Cell Load Information" },                                /* 3.2.3.12 */
+    { 0x0d, "BSSMAP Field Element: PS Indication" },                                        /* 3.2.3.13 */
+    { 0x0e, "BSSMAP Field Element: DTM Handover Command Indication" },                      /* 3.2.3.14 */
+    { 0x0f, "BSSMAP Field Element: IRAT Measurement Configuration" },                       /* 3.2.3.16 */
+    { 0x10, "BSSMAP Field Element: Source Cell ID" },                                       /* 3.2.3.17 */
+    { 0x11, "BSSMAP Field Element: IRAT Measurement Configuration (extended E-ARFCNs)" },   /* 3.2.3.18 */
     { 0x6f, "VGCS talker mode" }, /* although technically not a Field Element,
                                      this IE can appear in Old BSS to New BSS information */
+    { 0xfe, "BSSMAP Field Element: D-RNTI" },                                               /* 3.2.3.15 */
     { 0, NULL }
 };
 
@@ -507,6 +511,7 @@ static int proto_a_bssmap = -1;
 static int hf_gsm_a_bssmap_msg_type = -1;
 int hf_gsm_a_bssmap_elem_id = -1;
 static int hf_gsm_a_bssmap_field_elem_id = -1;
+static int hf_gsm_a_bssmap_field_elem_id_len = -1;
 static int hf_gsm_a_bssmap_cell_ci = -1;
 static int hf_gsm_a_bssmap_cell_lac = -1;
 static int hf_gsm_a_bssmap_sac = -1;
@@ -880,6 +885,13 @@ typedef enum
     BE_CS_TO_PS_SRVCC_IND,              /* CS to PS SRVCC Indication           3.2.2.124    */
     BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information    3.2.2.125    */
     BE_SELECTED_PLMN_ID,                /* Selected PLMN ID                    3.2.2.126    */
+    BE_LAST_USED_EUTRAN_PLMN_ID,        /* Last used E - UTRAN PLMN ID         3.2.2.127    */
+        /*Old Location Area Identification	3.2.2.128*/
+        /*Attach Indicator	3.2.2.129*/
+        /*Selected Operator	3.2.2.130*/
+        /*PS Registered Operator	3.2.2.131*/
+        /*CS Registered Operator	3.2.2.132*/
+
     BE_NONE                             /* NONE */
 }
 bssmap_elem_idx_t;
@@ -4766,7 +4778,6 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     guint32 curr_offset, ie_len, fe_start_offset;
     gint idx;
     const gchar *str;
-    proto_item *item = NULL;
     proto_tree *  bss_to_bss_tree = NULL;
 
     curr_offset = offset;
@@ -4785,13 +4796,14 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
         if (!str)
             str = "Unknown";
 
+        /* Add subtree */
+        bss_to_bss_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset - 2, ie_len + 2, ett_bss_to_bss_info, NULL, "%s", str);
         /*
-         * add Field Element name
+         * add Field Element name and length
          */
-        item = proto_tree_add_uint_format(tree, hf_gsm_a_bssmap_field_elem_id,
-        tvb, curr_offset - 2, ie_len + 2, oct, "%s (%X)", str, oct);
+        proto_tree_add_item(bss_to_bss_tree, hf_gsm_a_bssmap_field_elem_id, tvb, curr_offset -2 , 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(bss_to_bss_tree, hf_gsm_a_bssmap_field_elem_id_len, tvb, curr_offset - 1, 1, ENC_BIG_ENDIAN);
 
-        bss_to_bss_tree = proto_item_add_subtree(item, ett_bss_to_bss_info);
         fe_start_offset = curr_offset;
 
         /*
@@ -5214,6 +5226,7 @@ bssmap_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     ELEM_OPT_TLV(BE_NEW_BSS_TO_OLD_BSS_INF, GSM_A_PDU_TYPE_BSSMAP, BE_NEW_BSS_TO_OLD_BSS_INF, NULL);
     /* Talker Priority  3.2.2.89    MSC-BSS O (note 3)  2 */
     ELEM_OPT_TV(BE_TALKER_PRI, GSM_A_PDU_TYPE_BSSMAP, BE_TALKER_PRI, NULL);
+    /* CN to MS transparent information 3.2.2.125   MSC-BSS O (note 4)  19-n */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -5235,12 +5248,16 @@ bssmap_ho_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     ELEM_OPT_TV(BE_RR_CAUSE, GSM_A_PDU_TYPE_BSSMAP, BE_RR_CAUSE, NULL);
     /* Talker Priority  3.2.2.89    BSS-MSC O (note 1)  2 */
     ELEM_OPT_TV(BE_TALKER_PRI, GSM_A_PDU_TYPE_BSSMAP, BE_TALKER_PRI, NULL);
-    /* Speech Codec (Chosen)    3.2.2.nn    BSS-MSC O (note 2)  3-5 */
+    /* Speech Codec (Chosen)    3.2.2.104    BSS-MSC O (note 2)  3-5 */
     ELEM_OPT_TLV(BE_SPEECH_CODEC, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC, "(Chosen)");
+    /* Codec List (BSS Supported)   3.2.2.103   BSS-MSC	O (note 3)  3-n */
+    ELEM_OPT_TLV(BE_SPEECH_CODEC_LST, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC_LST, "(BSS Supported)");
     /* Chosen Encryption Algorithm  3.2.2.44    BSS-MSC O (note 4)  2 */
     ELEM_OPT_TV(BE_CHOSEN_ENC_ALG, GSM_A_PDU_TYPE_BSSMAP, BE_CHOSEN_ENC_ALG, NULL);
     /* Chosen Channel   3.2.2.33    BSS-MSC O (note 5)  2 */
     ELEM_OPT_TV(BE_CHOSEN_CHAN, GSM_A_PDU_TYPE_BSSMAP, BE_CHOSEN_CHAN, NULL);
+    /* LCLS-BSS-Status  3.2.2.119   BSS-MSC O (note 6)  2 */
+    ELEM_OPT_TV(BE_LCLS_BSS_STATUS, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_BSS_STATUS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -7204,6 +7221,11 @@ proto_register_gsm_a_bssmap(void)
     { &hf_gsm_a_bssmap_field_elem_id,
         { "Field Element ID",   "gsm_a.bssmap.field_elem_id",
         FT_UINT8, BASE_HEX, VALS(bssmap_field_element_ids), 0,
+        NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_field_elem_id_len,
+    { "Length",   "gsm_a.bssmap.field_elem_id_len",
+        FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_cell_ci,
