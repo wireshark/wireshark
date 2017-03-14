@@ -140,8 +140,8 @@ $wtap_presence_flags_table =~ s/\n$/\n}\n/msi;
 #	values from enum fttype
 #
 
-$ft_types_table = " -- Field Types\nftypes = {\n";
-$frametypes_table = " -- Field Type FRAMENUM Types\nframetype = {\n";
+$ft_types_table = "-- Field Types\nftypes = {\n";
+$frametypes_table = "-- Field Type FRAMENUM Types\nframetype = {\n";
 
 my $ftype_num = 0;
 my $frametypes_num = 0;
@@ -168,9 +168,9 @@ $frametypes_table =~ s/,\n$/\n}\n/msi;
 #	#defines for encodings and expert group and severity levels
 #
 
-$bases_table        = "-- Display Bases\n base = {\n";
-$str_type_table     = "-- String Types\n str = {\n";
-$byte_sep_table     = "-- Byte Separators\n sep = {\n";
+$bases_table        = "-- Display Bases\nbase = {\n";
+$str_type_table     = "-- String Types\nstr = {\n";
+$byte_sep_table     = "-- Byte Separators\nsep = {\n";
 $encodings          = "-- Encodings\n";
 $expert_pi          = "-- Expert flags and facilities (deprecated - see 'expert' table below)\n";
 $expert_pi_tbl      = "-- Expert flags and facilities\nexpert = {\n";
