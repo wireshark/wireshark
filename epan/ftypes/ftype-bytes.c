@@ -739,7 +739,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
@@ -777,7 +776,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
@@ -815,7 +813,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_bytes = ax25_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
@@ -853,7 +850,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_bytes = vines_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
@@ -891,7 +887,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_bytes = ether_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
@@ -929,7 +924,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
@@ -967,7 +961,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
@@ -1005,7 +998,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_byte_array = system_id_fvalue_set }, /* union set_value */
 
-		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
@@ -1043,7 +1035,6 @@ ftype_register_bytes(void)
 
 		{ .set_value_bytes = fcwwn_fvalue_set },	/* union set_value */
 
-		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */

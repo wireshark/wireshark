@@ -598,8 +598,12 @@ fvalue_set_uinteger64(fvalue_t *fv, guint64 value)
 void
 fvalue_set_sinteger64(fvalue_t *fv, gint64 value)
 {
-	g_assert(fv->ftype->set_value_sinteger64);
-	fv->ftype->set_value_sinteger64(fv, value);
+	g_assert(fv->ftype->ftype == FT_INT40 ||
+			fv->ftype->ftype == FT_INT48 ||
+			fv->ftype->ftype == FT_INT56 ||
+			fv->ftype->ftype == FT_INT64);
+	g_assert(fv->ftype->set_value.set_value_sinteger64);
+	fv->ftype->set_value.set_value_sinteger64(fv, value);
 }
 
 void

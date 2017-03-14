@@ -100,10 +100,10 @@ struct _ftype_t {
 		FvalueSetUnsignedIntegerFunc	set_value_uinteger;
 		FvalueSetSignedIntegerFunc	set_value_sinteger;
 		FvalueSetUnsignedInteger64Func	set_value_uinteger64;
+		FvalueSetSignedInteger64Func	set_value_sinteger64;
 	} set_value;
 
 	/* could be union */
-	FvalueSetSignedInteger64Func		set_value_sinteger64;
 	FvalueSetFloatingFunc	set_value_floating;
 
 	/* could be union */

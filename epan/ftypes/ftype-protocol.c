@@ -465,7 +465,6 @@ ftype_register_tvbuff(void)
 
 		{ .set_value_protocol = value_set },	/* union set_value */
 
-		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */

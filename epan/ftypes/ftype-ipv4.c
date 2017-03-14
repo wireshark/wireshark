@@ -187,7 +187,6 @@ ftype_register_ipv4(void)
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 
-		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
