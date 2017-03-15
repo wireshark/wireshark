@@ -108,7 +108,7 @@ static int hf_dvb_s2_bb_sync = -1;
 static int hf_dvb_s2_bb_syncd = -1;
 static int hf_dvb_s2_bb_crc = -1;
 static int hf_dvb_s2_bb_crc_status = -1;
-static int hf_dvb_s2_bb_df = -1;
+static int hf_dvb_s2_bb_eip_crc32 = -1;
 
 static int hf_dvb_s2_bb_packetized = -1;
 static int hf_dvb_s2_bb_transport = -1;
@@ -772,6 +772,8 @@ static const value_string bb_low_ro[] = {
 #define DVB_S2_BB_OFFS_SYNC             6
 #define DVB_S2_BB_OFFS_SYNCD            7
 #define DVB_S2_BB_OFFS_CRC              9
+#define DVB_S2_BB_EIP_CRC32_LEN         4
+#define DVB_S2_BB_SYNC_EIP_CRC32        1
 
 /* *** DVB-S2 GSE Frame *** */
 
@@ -1020,6 +1022,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
     proto_tree *dvb_s2_bb_tree;
 
     guint8      input8, matype1;
+    guint8      sync_flag = 0;
     guint16     input16, bb_data_len = 0, user_packet_length;
 
     int         sub_dissected        = 0, flag_is_ms = 0, new_off = 0;
@@ -1092,6 +1095,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
                                cur_off + DVB_S2_BB_OFFS_DFL, 2, input16, "%d bits (%d bytes)", input16, input16 / 8);
 
     new_off += 1;
+    sync_flag = tvb_get_guint8(tvb, cur_off + DVB_S2_BB_OFFS_SYNC);
     proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_sync, tvb, cur_off + DVB_S2_BB_OFFS_SYNC, 1, ENC_BIG_ENDIAN);
 
     new_off += 2;
@@ -1118,21 +1122,22 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
 
         if (dvb_s2_df_dissection) {
             while (bb_data_len) {
-                /* start DVB-GSE dissector */
-                sub_dissected = dissect_dvb_s2_gse(tvb, cur_off + new_off, tree, pinfo, bb_data_len);
-                new_off += sub_dissected;
-
-                if ((sub_dissected <= bb_data_len) && (sub_dissected >= DVB_S2_GSE_MINSIZE)) {
-                    bb_data_len -= sub_dissected;
-                    if (bb_data_len < DVB_S2_GSE_MINSIZE)
-                        bb_data_len = 0;
-                } else {
+                if (sync_flag == DVB_S2_BB_SYNC_EIP_CRC32 && bb_data_len == DVB_S2_BB_EIP_CRC32_LEN) {
+                    proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_eip_crc32, tvb, cur_off + new_off, bb_data_len, ENC_NA);
                     bb_data_len = 0;
+                    new_off += DVB_S2_BB_EIP_CRC32_LEN;
+                } else {
+                    /* start DVB-GSE dissector */
+                    sub_dissected = dissect_dvb_s2_gse(tvb, cur_off + new_off, tree, pinfo, bb_data_len);
+                    new_off += sub_dissected;
+
+                    if ((sub_dissected <= bb_data_len) && (sub_dissected >= DVB_S2_GSE_MINSIZE)) {
+                        bb_data_len -= sub_dissected;
+                        if (bb_data_len < DVB_S2_GSE_MINSIZE)
+                            bb_data_len = 0;
+                    }
                 }
             }
-        } else {
-            proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_df, tvb, cur_off + new_off, bb_data_len, ENC_NA);
-            new_off += bb_data_len;
         }
         break;
 
@@ -1409,7 +1414,7 @@ void proto_register_dvb_s2_modeadapt(void)
         {&hf_dvb_s2_bb_crc, {
                 "Checksum", "dvb-s2_bb.crc",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
-                "CRC-8", HFILL}
+                "BB Header CRC-8", HFILL}
         },
         {&hf_dvb_s2_bb_crc_status, {
                 "Checksum Status", "dvb-s2_bb.crc.status",
@@ -1431,11 +1436,11 @@ void proto_register_dvb_s2_modeadapt(void)
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 "Stream of an unknown reserved type", HFILL}
         },
-        {&hf_dvb_s2_bb_df, {
-                "DATA FIELD", "dvb-s2_bb.df",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                "BBFrame user data", HFILL}
-        },
+        {&hf_dvb_s2_bb_eip_crc32, {
+                "EIP CRC32", "dvb-s2_bb.eip_crc32",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                "Explicit Integrity Protection CRC32", HFILL}
+        }
     };
 
     static gint *ett_bb[] = {
