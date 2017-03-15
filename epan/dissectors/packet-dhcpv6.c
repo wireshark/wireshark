@@ -152,6 +152,7 @@ static int hf_mip6_hoa = -1;
 static int hf_nai = -1;
 static int hf_pd_exclude_pref_len = -1;
 static int hf_pd_exclude_subnet_id = -1;
+static int hf_option_captive_portal = -1;
 static int hf_dhcpv6_hopcount = -1;
 static int hf_dhcpv6_xid = -1;
 static int hf_dhcpv6_peeraddr = -1;
@@ -2175,6 +2176,12 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_item(subtree, hf_pd_exclude_pref_len, tvb, off, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_pd_exclude_subnet_id , tvb, off+1, optlen-1, ENC_NA);
         break;
+    case OPTION_CAPTIVE_PORTAL:{
+        proto_item *ti_cp;
+        ti_cp = proto_tree_add_item(subtree, hf_option_captive_portal, tvb, off, optlen, ENC_ASCII|ENC_NA);
+        PROTO_ITEM_SET_URL(ti_cp);
+        break;
+        }
     }
 
     return 4 + optlen;
@@ -2522,6 +2529,8 @@ proto_register_dhcpv6(void)
           { "NTP Server Address", "dhcpv6.ntpserver.addr", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_option_ntpserver_mc_addr,
           { "NTP Multicast Address", "dhcpv6.ntpserver.mc_addr", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { &hf_option_captive_portal,
+          { "Captive Portal", "dhcpv6.captive_portal", FT_STRING, BASE_NONE, NULL, 0x0, "The contact URI for the captive portal that the user should connect to", HFILL }},
         { &hf_option_ntpserver_fqdn,
           { "NTP Server FQDN", "dhcpv6.ntpserver.fqdn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_packetcable_ccc_suboption,
