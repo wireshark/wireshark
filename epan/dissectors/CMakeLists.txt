@@ -492,6 +492,7 @@ set(DISSECTOR_SRC
 	packet-dns.c
 	packet-dof.c
 	packet-dplay.c
+	packet-dpnet.c
 	packet-dpnss-link.c
 	packet-dpnss.c
 	packet-drda.c
