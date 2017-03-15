@@ -155,7 +155,7 @@ local testfield =
         OID            = ProtoField.oid    ("test.basic.oid",     "Basic OID"),
         REL_OID        = ProtoField.rel_oid("test.basic.rel_oid", "Basic Relative OID"),
         ABSOLUTE_LOCAL = ProtoField.absolute_time("test.basic.absolute.local","Basic absolute local"),
-        ABSOLUTE_UTC   = ProtoField.absolute_time("test.basic.absolute.utc",  "Basic absolute utc", 1001),
+        ABSOLUTE_UTC   = ProtoField.absolute_time("test.basic.absolute.utc",  "Basic absolute utc", base.UTC),
         IPv4           = ProtoField.ipv4   ("test.basic.ipv4",    "Basic ipv4 address"),
         IPv6           = ProtoField.ipv6   ("test.basic.ipv6",    "Basic ipv6 address"),
         -- GUID           = ProtoField.guid   ("test.basic.guid",    "Basic GUID"),
@@ -164,7 +164,7 @@ local testfield =
     time =
     {
         ABSOLUTE_LOCAL = ProtoField.absolute_time("test.time.absolute.local","Time absolute local"),
-        ABSOLUTE_UTC   = ProtoField.absolute_time("test.time.absolute.utc",  "Time absolute utc", 1001),
+        ABSOLUTE_UTC   = ProtoField.absolute_time("test.time.absolute.utc",  "Time absolute utc", base.UTC),
     },
 
     bytes =

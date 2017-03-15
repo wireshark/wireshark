@@ -98,6 +98,11 @@ struct field_display_string_t {
     unsigned base;
 };
 
+/*
+ * This table is primarily used to convert from string representation
+ * to int representation in string_to_base().
+ * Some string values are added for backward compatibility.
+ */
 static const struct field_display_string_t base_displays[] = {
     {"base.NONE", BASE_NONE},
     {"base.DEC", BASE_DEC},
@@ -120,9 +125,12 @@ static const struct field_display_string_t base_displays[] = {
     {"24",24},
     {"32",32},
     /* for FT_ABSOLUTE_TIME use values in absolute_time_display_e */
-    {"LOCAL", ABSOLUTE_TIME_LOCAL},
-    {"UTC", ABSOLUTE_TIME_UTC},
-    {"DOY_UTC", ABSOLUTE_TIME_DOY_UTC},
+    {"base.LOCAL", ABSOLUTE_TIME_LOCAL},
+    {"base.UTC", ABSOLUTE_TIME_UTC},
+    {"base.DOY_UTC", ABSOLUTE_TIME_DOY_UTC},
+    {"LOCAL", ABSOLUTE_TIME_LOCAL},        /* for backward compatibility */
+    {"UTC", ABSOLUTE_TIME_UTC},            /* for backward compatibility */
+    {"DOY_UTC", ABSOLUTE_TIME_DOY_UTC},    /* for backward compatibility */
     {NULL,0}
 };
 
@@ -534,7 +542,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
         if (base == BASE_NONE) {
             base = ABSOLUTE_TIME_LOCAL;  /* Default base for FT_ABSOLUTE_TIME */
         } else if (base < ABSOLUTE_TIME_LOCAL || base > ABSOLUTE_TIME_DOY_UTC) {
-            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be either LOCAL, UTC, or DOY_UTC");
+            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be either base.LOCAL, base.UTC, or base.DOY_UTC");
             return 0;
         }
         if (mask) {
@@ -945,7 +953,7 @@ static int ProtoField_time(lua_State* L,enum ftenum type) {
 
     if (type == FT_ABSOLUTE_TIME) {
         if (base < ABSOLUTE_TIME_LOCAL || base > ABSOLUTE_TIME_DOY_UTC) {
-            luaL_argerror(L, 3, "Base must be either LOCAL, UTC, or DOY_UTC");
+            luaL_argerror(L, 3, "Base must be either base.LOCAL, base.UTC, or base.DOY_UTC");
             return 0;
         }
     }

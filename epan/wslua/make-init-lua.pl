@@ -227,6 +227,26 @@ while(<PROTO_H>) {
 close PROTO_H;
 
 #
+# Extract values from time_fmt.h:
+#
+#	ABSOLUTE_TIME_XXX values for absolute time bases
+#
+
+my $absolute_time_num = 0;
+
+open TIME_FMT_H, "< $WSROOT/epan/time_fmt.h" or die "cannot open '$WSROOT/epan/time_fmt.h':  $!";
+while(<TIME_FMT_H>) {
+    if (/^\s+ABSOLUTE_TIME_([A-Z_]+)[ ]*=[ ]*([0-9]+)[,\s]+(?:\/\* (.*?) \*\/)?/) {
+        $bases_table .= "\t[\"$1\"] = $2,  -- $3\n";
+        $absolute_time_num = $2 + 1;
+    } elsif (/^\s+ABSOLUTE_TIME_([A-Z_]+)[,\s]+(?:\/\* (.*?) \*\/)?/) {
+        $bases_table .= "\t[\"$1\"] = $absolute_time_num,  -- $2\n";
+        $absolute_time_num++;
+    }
+}
+close TIME_FTM_H;
+
+#
 # Extract values from stat_groups.h:
 #
 #	MENU_X_X values for register_stat_group_t
