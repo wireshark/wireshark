@@ -116,9 +116,14 @@ ProtocolIE-ContainerPairList
 	switch (ProcedureCode) {
 
 	case RNSAP_ID_DOWNLINKSIGNALLINGTRANSFER:
-		parameter_handle = rrc_dl_dcch_handle;
+		/* TODO: seperate into Iur and Iur-g cases: */
+		/* For the Iur-g interface, L3 message is a GERAN-RRC message for which a dissector does not currently exist */
+		/* For the Iur interface, L3 message is a UMTS RRC DL-CCCH message */
+		parameter_handle = rrc_dl_ccch_handle;
 		break;
 	case RNSAP_ID_UPLINKSIGNALLINGTRANSFER:
+		parameter_handle = rrc_ul_ccch_handle;
+		break;
 	default:
 		break;
 	}

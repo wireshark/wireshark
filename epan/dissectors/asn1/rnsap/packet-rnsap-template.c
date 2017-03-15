@@ -50,7 +50,8 @@
 void proto_register_rnsap(void);
 void proto_reg_handoff_rnsap(void);
 
-static dissector_handle_t rrc_dl_dcch_handle = NULL;
+static dissector_handle_t rrc_dl_ccch_handle = NULL;
+static dissector_handle_t rrc_ul_ccch_handle = NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_rnsap = -1;
@@ -176,7 +177,8 @@ void proto_register_rnsap(void) {
 void
 proto_reg_handoff_rnsap(void)
 {
-	rrc_dl_dcch_handle = find_dissector_add_dependency("rrc.dl.dcch", proto_rnsap);
+	rrc_dl_ccch_handle = find_dissector_add_dependency("rrc.dl.ccch", proto_rnsap);
+	rrc_ul_ccch_handle = find_dissector_add_dependency("rrc.ul.ccch", proto_rnsap);
 
 	dissector_add_uint("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);
 	/* Add heuristic dissector */
