@@ -163,6 +163,7 @@ static int hf_quic_tag_mids = -1;
 static int hf_quic_tag_fhol = -1;
 static int hf_quic_tag_sttl = -1;
 static int hf_quic_tag_smhl = -1;
+static int hf_quic_tag_tbkp = -1;
 
 /* Public Reset Tags */
 static int hf_quic_tag_rnon = -1;
@@ -392,6 +393,7 @@ static const value_string message_tag_vals[] = {
 #define TAG_FHOL 0x46484F4C
 #define TAG_STTL 0x5354544C
 #define TAG_SMHL 0x534D484C
+#define TAG_TBKP 0x54424B50
 
 /* Public Reset Tag */
 #define TAG_RNON 0x524E4F4E
@@ -437,6 +439,7 @@ static const value_string tag_vals[] = {
     { TAG_FHOL, "Force Head Of Line blocking" },
     { TAG_STTL, "Server Config TTL" },
     { TAG_SMHL, "Support Max Header List (size)" },
+    { TAG_TBKP, "Token Binding Key Params" },
 
     { TAG_RNON, "Public Reset Nonce Proof" },
     { TAG_RSEQ, "Rejected Packet Number" },
@@ -1627,6 +1630,12 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
             case TAG_SMHL:
                 proto_tree_add_item(tag_tree, hf_quic_tag_smhl, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
+                tag_offset += 4;
+                tag_len -= 4;
+            break;
+            case TAG_TBKP:
+                proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_tbkp, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += 4;
                 tag_len -= 4;
             break;
@@ -2843,6 +2852,11 @@ proto_register_quic(void)
         { &hf_quic_tag_smhl,
             { "Support Max Header List (size)", "quic.tag.smhl",
                FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_tag_tbkp,
+            { "Token Binding Key Params.", "quic.tag.tbkp",
+               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
 
