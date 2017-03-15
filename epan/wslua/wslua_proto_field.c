@@ -107,14 +107,13 @@ static const struct field_display_string_t base_displays[] = {
     {"base.HEX_DEC", BASE_HEX_DEC},
     {"base.UNIT_STRING", BASE_UNIT_STRING},
     /* String types */
-    {"str.ASCII", STR_ASCII},
-    {"str.UNICODE", STR_UNICODE},
+    {"base.ASCII", STR_ASCII},
+    {"base.UNICODE", STR_UNICODE},
     /* Byte separators */
-    {"sep.NONE", SEP_NONE},
-    {"sep.DOT", SEP_DOT},
-    {"sep.DASH", SEP_DASH},
-    {"sep.COLON", SEP_COLON},
-    {"sep.SPACE", SEP_SPACE},
+    {"base.DOT", SEP_DOT},
+    {"base.DASH", SEP_DASH},
+    {"base.COLON", SEP_COLON},
+    {"base.SPACE", SEP_SPACE},
     /* for FT_BOOLEAN, how wide the parent bitfield is */
     {"8",8},
     {"16",16},
@@ -546,7 +545,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     case FT_STRING:
     case FT_STRINGZ:
         if (base != STR_ASCII && base != STR_UNICODE) {
-            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Display must be either str.ASCII or str.UNICODE");
+            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Display must be either base.ASCII or base.UNICODE");
             return 0;
         }
         if (mask) {
@@ -556,8 +555,8 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
         break;
     case FT_BYTES:
     case FT_UINT_BYTES:
-        if (base != SEP_NONE && (base < SEP_DOT || base > SEP_SPACE)) {
-            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Display must be either sep.NONE, sep.DOT, sep.DASH, sep.COLON or sep.SPACE");
+        if (base != BASE_NONE && (base < SEP_DOT || base > SEP_SPACE)) {
+            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Display must be either base.NONE, base.DOT, base.DASH, base.COLON or base.SPACE");
             return 0;
         }
         if (mask) {
@@ -1068,12 +1067,12 @@ static int ProtoField_other_display(lua_State* L,enum ftenum type) {
         base = (unsigned)luaL_optinteger(L,3,BASE_NONE);
         if (type == FT_STRING || type == FT_STRINGZ) {
             if (base != STR_ASCII && base != STR_UNICODE) {
-                luaL_argerror(L, 3, "Display must be either str.ASCII or str.UNICODE");
+                luaL_argerror(L, 3, "Display must be either base.ASCII or base.UNICODE");
                 return 0;
             }
         } else if (type == FT_BYTES || type == FT_UINT_BYTES) {
-            if (base != SEP_NONE && (base < SEP_DOT || base > SEP_SPACE)) {
-                luaL_argerror(L, 3, "Display must be either sep.NONE, sep.DOT, sep.DASH, sep.COLON or sep.SPACE");
+            if (base != BASE_NONE && (base < SEP_DOT || base > SEP_SPACE)) {
+                luaL_argerror(L, 3, "Display must be either base.NONE, base.DOT, base.DASH, base.COLON or base.SPACE");
                 return 0;
             }
         }
@@ -1108,28 +1107,28 @@ static int ProtoField_other_display(lua_State* L,enum ftenum type) {
 /* _WSLUA_CONSTRUCTOR_ ProtoField_string Creates a `ProtoField` of a string value. */
 /* WSLUA_ARG_Protofield_string_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_string_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_string_DISPLAY One of `str.ASCII` or `str.UNICODE`. */
+/* WSLUA_OPTARG_Protofield_string_DISPLAY One of `base.ASCII` or `base.UNICODE`. */
 /* WSLUA_OPTARG_Protofield_string_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_stringz Creates a `ProtoField` of a zero-terminated string value. */
 /* WSLUA_ARG_Protofield_stringz_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_stringz_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_stringz_DISPLAY One of `str.ASCII` or `str.UNICODE`. */
+/* WSLUA_OPTARG_Protofield_stringz_DISPLAY One of `base.ASCII` or `base.UNICODE`. */
 /* WSLUA_OPTARG_Protofield_stringz_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_bytes Creates a `ProtoField` for an arbitrary number of bytes. */
 /* WSLUA_ARG_Protofield_bytes_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_bytes_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_bytes_DISPLAY One of `sep.NONE`, `sep.DOT`, `sep.DASH`, `sep.COLON` or `sep.SPACE`. */
+/* WSLUA_OPTARG_Protofield_bytes_DISPLAY One of `base.NONE`, `base.DOT`, `base.DASH`, `base.COLON` or `base.SPACE`. */
 /* WSLUA_OPTARG_Protofield_bytes_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
 
 /* _WSLUA_CONSTRUCTOR_ ProtoField_ubytes Creates a `ProtoField` for an arbitrary number of unsigned bytes. */
 /* WSLUA_ARG_Protofield_ubytes_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_ubytes_NAME Actual name of the field (the string that appears in the tree). */
-/* WSLUA_OPTARG_Protofield_ubytes_DISPLAY One of `sep.NONE`, `sep.DOT`, `sep.DASH`, `sep.COLON` or `sep.SPACE`. */
+/* WSLUA_OPTARG_Protofield_ubytes_DISPLAY One of `base.NONE`, `base.DOT`, `base.DASH`, `base.COLON` or `base.SPACE`. */
 /* WSLUA_OPTARG_Protofield_ubytes_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
 

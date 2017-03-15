@@ -39,8 +39,6 @@ my $frametypes_table = '';
 my $wtap_rec_types_table = '';
 my $wtap_presence_flags_table = '';
 my $bases_table = '';
-my $str_type_table = '';
-my $byte_sep_table = '';
 my $encodings = '';
 my $expert_pi = '';
 my $expert_pi_tbl = '';
@@ -58,8 +56,6 @@ my %replacements = %{{
     WTAP_REC_TYPES => \$wtap_rec_types_table,
     WTAP_PRESENCE_FLAGS => \$wtap_presence_flags_table,
     BASES => \$bases_table,
-    STRING_TYPES => \$str_type_table,
-    BYTE_SEPARATORS => \$byte_sep_table,
     ENCODINGS => \$encodings,
     EXPERT => \$expert_pi,
     EXPERT_TABLE => \$expert_pi_tbl,
@@ -169,8 +165,6 @@ $frametypes_table =~ s/,\n$/\n}\n/msi;
 #
 
 $bases_table        = "-- Display Bases\nbase = {\n";
-$str_type_table     = "-- String Types\nstr = {\n";
-$byte_sep_table     = "-- Byte Separators\nsep = {\n";
 $encodings          = "-- Encodings\n";
 $expert_pi          = "-- Expert flags and facilities (deprecated - see 'expert' table below)\n";
 $expert_pi_tbl      = "-- Expert flags and facilities\nexpert = {\n";
@@ -186,22 +180,14 @@ my $skip_this = 0;
 while(<PROTO_H>) {
     $skip_this = 0;
 
-    if (/^\s+BASE_([A-Z_]+)[ ]*=[ ]*([0-9]+)[, ]+/ ) {
-        $bases_table .= "\t[\"$1\"] = $2,\n";
+    if (/^\s+(?:BASE|STR|SEP)_([A-Z_]+)[ ]*=[ ]*([0-9]+)[,\s]+(?:\/\*\*< (.*?) \*\/)?/) {
+        $bases_table .= "\t[\"$1\"] = $2,  -- $3\n";
     }
 
-    if (/^#define\s+BASE_(UNIT_STRING)[ ]*((0x)?[0-9]+) / ) {
+    if (/^#define\s+BASE_(UNIT_STRING)[ ]*((?:0x)?[0-9]+)[ ]+(?:\/\*\*< (.*?) \*\/)?/) {
         # Handle BASE_UNIT_STRING as a valid base value in Lua
         my $num = hex($2);
-        $bases_table .= "\t[\"$1\"] = $num,\n";
-    }
-
-    if (/^\s+STR_([A-Z_]+)[ ]*=[ ]*([0-9]+),/ ) {
-        $str_type_table .= "\t[\"$1\"] = $2,\n";
-    }
-
-    if (/^\s+SEP_([A-Z_]+)[ ]*=[ ]*([0-9]+),/ ) {
-        $byte_sep_table .= "\t[\"$1\"] = $2,\n";
+        $bases_table .= "\t[\"$1\"] = $num,  -- $3\n";
     }
 
     if (/^.define\s+PI_SEVERITY_MASK /) {
@@ -264,10 +250,8 @@ while(<STAT_GROUPS>) {
 close STAT_GROUPS;
 
 
-$bases_table .= "}\n\n";
-$str_type_table .= "}\n\n";
-$byte_sep_table .= "}\n\n";
-$encodings .= "\n\n";
+$bases_table .= "}\n";
+$encodings .= "\n";
 $expert_pi .= "\n";
 $expert_pi_severity .= "\t},\n";
 $expert_pi_group .= "\t},\n";
