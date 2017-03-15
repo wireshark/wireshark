@@ -170,9 +170,7 @@ ftype_register_double(void)
 		float_val_to_repr,		/* val_to_string_repr */
 		float_val_repr_len,		/* len_string_repr */
 
-		{ NULL },			/* union set_value */
-
-		double_fvalue_set_floating,	/* set_value_floating */
+		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
@@ -207,9 +205,7 @@ ftype_register_double(void)
 		double_val_to_repr,		/* val_to_string_repr */
 		double_val_repr_len,		/* len_string_repr */
 
-		{ NULL },			/* union set_value */
-
-		double_fvalue_set_floating,	/* set_value_floating */
+		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */

@@ -1440,7 +1440,6 @@ Example: 114 is 0x0072
 
         { .set_value_uinteger = sfloat_ieee_11073_value_set }, /* union set_value */
 
-        NULL,                                 /* set_value_floating */
 
         NULL,                                 /* get_value */
         sfloat_ieee_11073_value_get,          /* get_value_uinteger */
@@ -1504,7 +1503,6 @@ Example: 36.4 is 0xFF00016C
 
         { .set_value_uinteger = float_ieee_11073_value_set }, /* union set_value */
 
-        NULL,                                /* set_value_floating */
 
         NULL,                                /* get_value */
         float_ieee_11073_value_get,          /* get_value_uinteger */

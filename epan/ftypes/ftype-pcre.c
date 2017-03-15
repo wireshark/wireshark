@@ -165,7 +165,6 @@ ftype_register_pcre(void)
 
         { .set_value_string = gregex_fvalue_set }, /* union set_value */
 
-        NULL,               /* set_value_floating */
 
         gregex_fvalue_get,  /* get_value */
         NULL,               /* get_value_uinteger */

@@ -41,7 +41,6 @@ ftype_register_none(void)
 
 		{ NULL },			/* union set_value */
 
-		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */

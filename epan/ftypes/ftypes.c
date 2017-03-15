@@ -609,8 +609,10 @@ fvalue_set_sinteger64(fvalue_t *fv, gint64 value)
 void
 fvalue_set_floating(fvalue_t *fv, gdouble value)
 {
-	g_assert(fv->ftype->set_value_floating);
-	fv->ftype->set_value_floating(fv, value);
+	g_assert(fv->ftype->ftype == FT_FLOAT ||
+			fv->ftype->ftype == FT_DOUBLE);
+	g_assert(fv->ftype->set_value.set_value_floating);
+	fv->ftype->set_value.set_value_floating(fv, value);
 }
 
 
