@@ -1,7 +1,7 @@
 /* packet-gtpv2.c
  *
  * Routines for GTPv2 dissection
- * Copyright 2009 - 2016, Anders Broman <anders.broman [at] ericsson.com>
+ * Copyright 2009 - 2017, Anders Broman <anders.broman [at] ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1513,10 +1513,8 @@ dissect_gtpv2_src_tgt_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* 6.4 Target to Source Transparent Container */
 static void
-dissect_gtpv2_tgt_src_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_tgt_src_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    tvbuff_t   *new_tvb;
-    proto_tree *sub_tree;
     int offset = 0;
 
     proto_tree_add_item(tree, hf_gtpv2_len_trans_con, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1524,13 +1522,40 @@ dissect_gtpv2_tgt_src_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* Transparent Container */
     proto_tree_add_item(tree, hf_gtpv2_transparent_container, tvb, offset, length-1, ENC_NA);
+#if 0
+    /* It's to hard to figure out the content...
+    6.4 Target to Source Transparent Container
 
+    The Target to Source Transparent Container contains information that shall be transferred transparently by CN entities
+    from the target RAN to the source RAN.
+
+    When the target network is GERAN, the Transparent container field contains the value part of the Layer 3 Information
+    IE defined in 3GPP TS 48.008 [8], i.e., octets 3 to n, excluding octet 1 (Element ID) and octet 2 (Length).
+
+    When the target network is UTRAN, this container carries the Target RNC to Source RNC Transparent Container IE
+    defined in 3GPP TS 25.413 [9]. The Transparent container field contains a transparent copy of the corresponding
+    ASN.1/PER IE (see subclauses 8.2.2 and 8.48 in 3GPP TS 29.274 [3]).
+
+    When the target network is E-UTRAN, the container carries the Target eNB To Source eNB Transparent Container IE
+    defined in 3GPP TS 36.413 [14]. The Transparent container field contains a transparent copy of the corresponding
+    ASN.1/PER IE (see subclauses 8.2.2 and 8.48 in 3GPP TS 29.274 [3]).
+
+    The receiver of this Information Element shall ignore the length of the transparent container encoded in octet 5 and shall
+    derive the actual length of the container from the length encoded in octets 2 to 3 minus 1.
+
+    For backward compatibility, the sender of this Information Element shall set the octet 5 to the actual length of the
+    transparent container if the size of the container is smaller or equal to 255 octets, and to the value "255" otherwise.
+
+    */
     if (message_type == GTPV2_SRVCC_PS_TO_CS_RESPONSE) {
+        tvbuff_t   *new_tvb;
+        proto_tree *sub_tree;
+
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length-1, ett_gtpv2_utran_con, NULL, "Target RNC to Source RNC Transparent Container");
         new_tvb = tvb_new_subset_remaining(tvb, offset);
         dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
     }
-
+#endif
 }
 
 /* 6.5 MM Context for E-UTRAN SRVCC */
