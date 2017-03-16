@@ -163,6 +163,7 @@ MOC_HDRS = \
 	bluetooth_hci_summary_dialog.h			\
 	byte_view_tab.h					\
 	byte_view_text.h				\
+	cache_proxy_model.h				\
 	capture_file.h					\
 	capture_file_dialog.h				\
 	capture_file_properties_dialog.h		\
@@ -449,6 +450,7 @@ WIRESHARK_QT_SRC = \
 	bluetooth_hci_summary_dialog.cpp		\
 	byte_view_tab.cpp				\
 	byte_view_text.cpp				\
+	cache_proxy_model.cpp				\
 	capture_file.cpp				\
 	capture_file_dialog.cpp				\
 	capture_file_properties_dialog.cpp		\

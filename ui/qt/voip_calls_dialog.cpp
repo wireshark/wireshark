@@ -64,8 +64,10 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     // Create the model that stores the actual data and the proxy model that is
     // responsible for sorting and filtering data in the display.
     call_infos_model_ = new VoipCallsInfoModel(this);
+    cache_model_ = new CacheProxyModel(this);
+    cache_model_->setSourceModel(call_infos_model_);
     sorted_model_ = new VoipCallsInfoSortedModel(this);
-    sorted_model_->setSourceModel(call_infos_model_);
+    sorted_model_->setSourceModel(cache_model_);
     ui->callTreeView->setModel(sorted_model_);
 
     connect(ui->callTreeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
@@ -132,6 +134,10 @@ void VoipCallsDialog::endRetapPackets()
 
 void VoipCallsDialog::captureFileClosing()
 {
+    // The time formatting is currently provided by VoipCallsInfoModel, but when
+    // the cache is active, the ToD cannot be modified.
+    ui->todCheckBox->setEnabled(false);
+    cache_model_->setSourceModel(NULL);
     voip_calls_remove_all_tap_listeners(&tapinfo_);
     tapinfo_.session = NULL;
     WiresharkDialog::captureFileClosing();

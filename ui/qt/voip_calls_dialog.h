@@ -29,6 +29,7 @@
 #include "ui/voip_calls.h"
 
 #include "voip_calls_info_model.h"
+#include "cache_proxy_model.h"
 #include "wireshark_dialog.h"
 
 #include <QMenu>
@@ -68,6 +69,7 @@ protected slots:
 private:
     Ui::VoipCallsDialog *ui;
     VoipCallsInfoModel *call_infos_model_;
+    CacheProxyModel *cache_model_;
     QSortFilterProxyModel *sorted_model_;
 
     QWidget &parent_;
