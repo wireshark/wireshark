@@ -239,6 +239,7 @@ static int hf_llrp_read_data                      = -1;
 static int hf_llrp_num_words_written              = -1;
 static int hf_llrp_permlock_status                = -1;
 static int hf_llrp_vendor_id                      = -1;
+static int hf_llrp_vendor_unknown                 = -1;
 static int hf_llrp_impinj_param_type              = -1;
 static int hf_llrp_save_config                    = -1;
 static int hf_llrp_impinj_req_data                = -1;
@@ -2259,6 +2260,10 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 case LLRP_VENDOR_IMPINJ:
                     suboffset = dissect_llrp_impinj_parameter(tvb, pinfo, param_tree, suboffset, param_end);
                     break;
+                default:
+                    proto_tree_add_item(param_tree, hf_llrp_vendor_unknown, tvb, offset, param_end-4, ENC_NA);
+                    suboffset += param_end-4;
+                    break;
                 }
                 break;
             }
@@ -3528,6 +3533,10 @@ proto_register_llrp(void)
 
         { &hf_llrp_vendor_id,
         { "Vendor ID", "llrp.param.vendor_id", FT_UINT32, BASE_DEC, VALS(llrp_vendors), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_vendor_unknown,
+        { "Vendor Unknown", "llrp.param.vendor_unknown", FT_UINT32, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
         { &hf_llrp_impinj_param_type,
