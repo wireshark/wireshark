@@ -454,6 +454,14 @@ static int hf_pn_io_MultipleInterfaceMode_NameOfDevice = -1;
 static int hf_pn_io_MultipleInterfaceMode_reserved_1 = -1;
 static int hf_pn_io_MultipleInterfaceMode_reserved_2 = -1;
 /* added Portstatistics */
+static int hf_pn_io_pdportstatistic_counter_status = -1;
+static int hf_pn_io_pdportstatistic_counter_status_ifInOctets = -1;
+static int hf_pn_io_pdportstatistic_counter_status_ifOutOctets = -1;
+static int hf_pn_io_pdportstatistic_counter_status_ifInDiscards = -1;
+static int hf_pn_io_pdportstatistic_counter_status_ifOutDiscards = -1;
+static int hf_pn_io_pdportstatistic_counter_status_ifInErrors = -1;
+static int hf_pn_io_pdportstatistic_counter_status_ifOutErrors = -1;
+static int hf_pn_io_pdportstatistic_counter_status_reserved = -1;
 static int hf_pn_io_pdportstatistic_ifInOctets = -1;
 static int hf_pn_io_pdportstatistic_ifOutOctets = -1;
 static int hf_pn_io_pdportstatistic_ifInDiscards = -1;
@@ -816,6 +824,7 @@ static gint ett_pn_io_rs_adjust_info = -1;
 static gint ett_pn_io_soe_adjust_specifier = -1;
 static gint ett_pn_io_sr_properties = -1;
 static gint ett_pn_io_line_delay = -1;
+static gint ett_pn_io_counter_status = -1;
 
 static gint ett_pn_io_GroupProperties = -1;
 
@@ -2949,6 +2958,16 @@ static const range_string pn_io_cable_delay_value[] = {
     { 0x00000000, 0x00000000, "Reserved" },
     { 0x00000001, 0x7FFFFFFF, "Cable delay in nanoseconds" },
     { 0, 0, NULL }
+};
+
+static const true_false_string pn_io_pdportstatistic_counter_status_contents = {
+    "The contents of the field are invalid. They shall be set to zero.",
+    "The contents of the field are valid"
+};
+
+static const value_string pn_io_pdportstatistic_counter_status_reserved[] = {
+    { 0x00, "Reserved" },
+    { 0, NULL }
 };
 
 static int
@@ -6817,14 +6836,47 @@ dissect_PDPortStatistic_block(tvbuff_t *tvb, int offset,
  packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
     guint32 u32StatValue;
-
-    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+    guint16 u16CounterStatus;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+    if (u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
     }
-    /* Padding */
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+    switch (u8BlockVersionLow) {
+    case(0):
+        /* Padding */
+        offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+    break;
+    case(1):
+        sub_item = proto_tree_add_item(tree, hf_pn_io_pdportstatistic_counter_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_counter_status);
+        /* bit 0 */
+        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_pdportstatistic_counter_status_ifInOctets, &u16CounterStatus);
+        /* bit 1 */
+        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_pdportstatistic_counter_status_ifOutOctets, &u16CounterStatus);
+        /* bit 2 */
+        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_pdportstatistic_counter_status_ifInDiscards, &u16CounterStatus);
+        /* bit 3 */
+        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_pdportstatistic_counter_status_ifOutDiscards, &u16CounterStatus);
+        /* bit 4 */
+        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_pdportstatistic_counter_status_ifInErrors, &u16CounterStatus);
+        /* bit 5 */
+        dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_pdportstatistic_counter_status_ifOutErrors, &u16CounterStatus);
+        /* bit 6-15 */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_pdportstatistic_counter_status_reserved, &u16CounterStatus);
+    break;
+    default: /* will not execute because of the line preceding the switch */
+    break;
+    }
 
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_pdportstatistic_ifInOctets, &u32StatValue);
@@ -13309,11 +13361,60 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
     { &hf_pn_io_MultipleInterfaceMode_NameOfDevice,
-      { "MultipleInterfaceMode.NameOfDevice", "pn_io.MultipleInterfaceMode_NameOfDevice", FT_UINT32, BASE_HEX, VALS(pn_io_MultipleInterfaceMode_NameOfDevice), 0x01, NULL, HFILL }},
+      { "MultipleInterfaceMode.NameOfDevice", "pn_io.MultipleInterfaceMode_NameOfDevice",
+        FT_UINT32, BASE_HEX, VALS(pn_io_MultipleInterfaceMode_NameOfDevice), 0x01,
+        NULL, HFILL }
+    },
     { &hf_pn_io_MultipleInterfaceMode_reserved_1,
-      { "MultipleInterfaceMode.Reserved_1", "pn_io.MultipleInterfaceMode_reserved_1", FT_UINT32, BASE_HEX, NULL, 0xFFFE, NULL, HFILL }},
+      { "MultipleInterfaceMode.Reserved_1", "pn_io.MultipleInterfaceMode_reserved_1",
+        FT_UINT32, BASE_HEX, NULL, 0xFFFE,
+        NULL, HFILL }
+    },
     { &hf_pn_io_MultipleInterfaceMode_reserved_2,
-      { "MultipleInterfaceMode.Reserved_2", "pn_io.MultipleInterfaceMode_reserved_2", FT_UINT32, BASE_HEX, NULL, 0xFFFF0000, NULL, HFILL }},
+      { "MultipleInterfaceMode.Reserved_2", "pn_io.MultipleInterfaceMode_reserved_2",
+        FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pdportstatistic_counter_status,
+      { "CounterStatus", "pn_io.CounterStatus",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pdportstatistic_counter_status_ifInOctets,
+      { "CounterStatus.ifInOctets", "pn_io.CounterStatus.ifInOctets",
+        FT_BOOLEAN, 16, TFS(&pn_io_pdportstatistic_counter_status_contents), 0x0001,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pdportstatistic_counter_status_ifOutOctets,
+      { "CounterStatus.ifOutOctets", "pn_io.CounterStatus.ifOutOctets",
+        FT_BOOLEAN, 16, TFS(&pn_io_pdportstatistic_counter_status_contents), 0x0002,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_pdportstatistic_counter_status_ifInDiscards,
+      { "CounterStatus.ifInDiscards", "pn_io.CounterStatus.ifInDiscards",
+        FT_BOOLEAN, 16, TFS(&pn_io_pdportstatistic_counter_status_contents), 0x0004,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pdportstatistic_counter_status_ifOutDiscards,
+      { "CounterStatus.ifOutDiscards", "pn_io.CounterStatus.ifOutDiscards",
+        FT_BOOLEAN, 16, TFS(&pn_io_pdportstatistic_counter_status_contents), 0x0008,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pdportstatistic_counter_status_ifInErrors,
+      { "CounterStatus.ifInErrors", "pn_io.CounterStatus.ifInErrors",
+        FT_BOOLEAN, 16, TFS(&pn_io_pdportstatistic_counter_status_contents), 0x0010,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pdportstatistic_counter_status_ifOutErrors,
+      { "CounterStatus.ifOutErrors", "pn_io.CounterStatus.ifOutErrors",
+        FT_BOOLEAN, 16, TFS(&pn_io_pdportstatistic_counter_status_contents), 0x0020,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pdportstatistic_counter_status_reserved,
+      { "CounterStatus.Reserved", "pn_io.CounterStatus.Reserved",
+        FT_UINT16, BASE_HEX, VALS(pn_io_pdportstatistic_counter_status_reserved), 0xFFC0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pdportstatistic_ifInOctets,
       { "ifInOctets", "pn_io.ifInOctets",
         FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -14699,7 +14800,8 @@ proto_register_pn_io (void)
         &ett_pn_io_asset_management_block,
         &ett_pn_io_am_location,
         &ett_pn_io_sr_properties,
-        &ett_pn_io_line_delay
+        &ett_pn_io_line_delay,
+        &ett_pn_io_counter_status
     };
 
     static ei_register_info ei[] = {
