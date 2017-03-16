@@ -876,15 +876,31 @@
         <source>Automatically detect file type</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="capture_file_dialog.cpp" line="787"/>
-        <source>%1, error after %2 packets</source>
-        <translation type="unfinished"></translation>
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation>
+            <numerusform>%1, error after %Ln packet</numerusform>
+            <numerusform>%1, error after %Ln packets</numerusform>
+        </translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="capture_file_dialog.cpp" line="794"/>
-        <source>%1, timed out at %2 packets</source>
-        <translation type="unfinished"></translation>
+        <source>%1, timed out at %Ln packet(s)</source>
+        <oldsource>%1, timed out at %2 packets</oldsource>
+        <translation>
+            <numerusform>%1, timed out at %Ln packet</numerusform>
+            <numerusform>%1, timed out at %Ln packets</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="capture_file_dialog.cpp" line="797"/>
+        <source>%1, %Ln packet(s)</source>
+        <translation>
+            <numerusform>%1, %Ln packet</numerusform>
+            <numerusform>%1, %Ln packets</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="455"/>
