@@ -172,7 +172,7 @@ ftype_register_double(void)
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -207,7 +207,7 @@ ftype_register_double(void)
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */

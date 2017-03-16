@@ -105,7 +105,7 @@ struct _ftype_t {
 	} set_value;
 
 	/* could be union */
-	FvalueGetFunc		get_value;
+	FvalueGetFunc		get_value_ptr;
 	FvalueGetUnsignedIntegerFunc	get_value_uinteger;
 	FvalueGetSignedIntegerFunc		get_value_sinteger;
 	FvalueGetUnsignedInteger64Func	get_value_uinteger64;

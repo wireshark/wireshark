@@ -740,7 +740,7 @@ ftype_register_bytes(void)
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -776,7 +776,7 @@ ftype_register_bytes(void)
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -812,7 +812,7 @@ ftype_register_bytes(void)
 		{ .set_value_bytes = ax25_fvalue_set },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_integer */
 		NULL,				/* get_value_uinteger64 */
@@ -848,7 +848,7 @@ ftype_register_bytes(void)
 		{ .set_value_bytes = vines_fvalue_set },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_integer */
 		NULL,				/* get_value_uinteger64 */
@@ -884,7 +884,7 @@ ftype_register_bytes(void)
 		{ .set_value_bytes = ether_fvalue_set },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -920,7 +920,7 @@ ftype_register_bytes(void)
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -956,7 +956,7 @@ ftype_register_bytes(void)
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -992,7 +992,7 @@ ftype_register_bytes(void)
 		{ .set_value_byte_array = system_id_fvalue_set }, /* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1028,7 +1028,7 @@ ftype_register_bytes(void)
 		{ .set_value_bytes = fcwwn_fvalue_set },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */

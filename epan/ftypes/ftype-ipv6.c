@@ -238,7 +238,7 @@ ftype_register_ipv6(void)
 		{ .set_value_bytes = ipv6_fvalue_set },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */

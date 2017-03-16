@@ -619,8 +619,8 @@ fvalue_set_floating(fvalue_t *fv, gdouble value)
 gpointer
 fvalue_get(fvalue_t *fv)
 {
-	g_assert(fv->ftype->get_value);
-	return fv->ftype->get_value(fv);
+	g_assert(fv->ftype->get_value_ptr);
+	return fv->ftype->get_value_ptr(fv);
 }
 
 guint32

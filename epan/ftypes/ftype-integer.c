@@ -1029,7 +1029,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1064,7 +1064,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1099,7 +1099,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		get_uinteger,			/* get_value_integer */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1134,7 +1134,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		get_uinteger,			/* get_value_integer */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1169,7 +1169,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		get_uinteger,			/* get_value_integer */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1204,7 +1204,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */
@@ -1239,7 +1239,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */
@@ -1274,7 +1274,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */
@@ -1309,7 +1309,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */
@@ -1344,7 +1344,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		get_sinteger,			/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1379,7 +1379,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		get_sinteger,			/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1414,7 +1414,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		get_sinteger,			/* get_value_integer */
 		NULL,				/* get_value_uinteger64 */
@@ -1449,7 +1449,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger = set_sinteger },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		get_sinteger,			/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1484,7 +1484,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1519,7 +1519,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1554,7 +1554,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1589,7 +1589,7 @@ ftype_register_integers(void)
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1624,7 +1624,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */
@@ -1660,7 +1660,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1696,7 +1696,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -1732,7 +1732,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 
 
-		NULL,				/* get_value */
+		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */

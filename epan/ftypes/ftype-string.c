@@ -243,7 +243,7 @@ ftype_register_string(void)
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -278,7 +278,7 @@ ftype_register_string(void)
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -313,7 +313,7 @@ ftype_register_string(void)
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
@@ -348,7 +348,7 @@ ftype_register_string(void)
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 
 
-		value_get,			/* get_value */
+		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
