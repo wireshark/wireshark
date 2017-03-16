@@ -48,7 +48,7 @@
 # define ROS_OP_OPCODE_MASK (~ROS_OP_MASK)
 
 # define op_ros_bind   (-1) /* pseudo operation code for asn2wrs generated binds */
-# define err_ros_bind  (-1) /* pseudo eror code for asn2wrs generated binds */
+# define err_ros_bind  (-2) /* pseudo error code for asn2wrs generated binds */
 
 typedef struct _ros_opr_t {
   gint32 opcode;
