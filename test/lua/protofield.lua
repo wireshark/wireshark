@@ -30,7 +30,7 @@ local function setFailed(name)
 end
 
 -- expected number of runs
-local taptests = { [OTHER]=16 }
+local taptests = { [OTHER]=28 }
 local function getResults()
     print("\n-----------------------------\n")
     for k,v in pairs(taptests) do
@@ -70,6 +70,45 @@ end
 local test_proto = Proto.new("test", "Test Proto")
 test_proto.fields.time_field = ProtoField.uint16("test.time", "Time", base.UNIT_STRING, {" sec", " secs"})
 test_proto.fields.dist_field = ProtoField.uint16("test.dist", "Distance", base.UNIT_STRING, {" km"})
+
+-- Field name: empty, illegal, incompatible
+success = pcall(ProtoField.int8, nil, "empty field name 1")
+test("ProtoField-empty-field-name-1", not success)
+
+success = pcall(ProtoField.int8, "", "empty field name 2")
+test("ProtoField-empty-field-name-2", not success)
+
+success = pcall(ProtoField.int8, "test.$", "illegal field name")
+test("ProtoField-illegal-field-name", not success)
+
+success = pcall(ProtoField.int8, "frame.time", "incompatible field name")
+test("ProtoField-incompatible-field-name", not success)
+
+-- Actual name: empty
+success = pcall(ProtoField.int8, "test.empty_name_1")
+test("ProtoField-empty-name-1", success)  -- will use abbrev
+
+success = pcall(ProtoField.int8, "test.empty_name_2", "")
+test("ProtoField-empty-name-2", not success)
+
+-- Signed integer base values, only base.DEC should work
+success = pcall(ProtoField.int8, "test.int.base_none", "int base NONE", base.NONE)
+test("ProtoField-int-base-none", not success)
+
+success = pcall(ProtoField.int8, "test.int.base_dec", "int base DEC", base.DEC)
+test("ProtoField-int-base-dec", success)
+
+success = pcall(ProtoField.int8, "test.int.base_hex", "int base HEX", base.HEX)
+test("ProtoField-int-base-hex", not success)
+
+success = pcall(ProtoField.int8, "test.int.base_oct", "int base OCT", base.OCT)
+test("ProtoField-int-base-oct", not success)
+
+success = pcall(ProtoField.int8, "test.int.base_dec_hex", "int base DEC_HEX", base.DEC_HEX)
+test("ProtoField-int-base-dec-hex", not success)
+
+success = pcall(ProtoField.int8, "test.int.base_hex_dec", "int base HEX_DEC", base.HEX_DEC)
+test("ProtoField-int-base-hex-dec", not success)
 
 -- Passing no table should not work
 success = pcall(ProtoField.uint16, "test.bad0", "Bad0", base.UNIT_STRING)
