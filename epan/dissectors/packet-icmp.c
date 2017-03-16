@@ -895,11 +895,13 @@ dissect_extensions(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree *
 			break;
 		}		/* end switch class_num */
 
-		/* Skip the object header */
-		offset += 4;
-
 		/* The switches couldn't decode the object */
 		if (unknown_object == TRUE) {
+			proto_tree_add_item(ext_object_tree, hf_icmp_ext_c_type, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+
+			/* Skip the object header */
+			offset += 4;
+
 			proto_item_set_text(tf_object,
 					    "Unknown object (%d/%d)",
 					    class_num, c_type);
