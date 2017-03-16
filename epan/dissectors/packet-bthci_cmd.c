@@ -4692,9 +4692,9 @@ proto_register_bthci_cmd(void)
             NULL, HFILL }
         },
         { &hf_bthci_cmd_window,
-          { "Interval", "bthci_cmd.window",
+          { "Window", "bthci_cmd.window",
             FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Window", HFILL }
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_device_name,
           { "Device Name",           "bthci_cmd.device_name",
