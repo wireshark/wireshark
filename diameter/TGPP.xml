@@ -438,6 +438,7 @@
 		<enum name="ACCESS_NETWORK_INFO_REPORT" code="12"/>
 		<enum name="INDICATION_OF_RECOVERY_FROM_LIMITED_PCC_DEPLOYMENT" code="13"/>
 		<enum name="INDICATION_OF_ACCESS_NETWORK_INFO_REPORTING_FAILURE" code="14"/>
+		<enum name="INDICATION_OF_TRANSFER_POLICY_EXPIRED" code="15"/>
 	</avp>
 
 	<avp name="Max-Requested-Bandwidth-DL" code="515" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
