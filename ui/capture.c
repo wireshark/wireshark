@@ -679,6 +679,7 @@ capture_stat_start(capture_options *capture_opts) {
       device = g_array_index(capture_opts->all_ifaces, interface_t, i);
       if (device.type != IF_PIPE) {
         sc_item = (if_stat_cache_item_t *)g_malloc0(sizeof(if_stat_cache_item_t));
+        g_assert(device.if_info.name);
         sc_item->name = g_strdup(device.if_info.name);
         sc->cache_list = g_list_append(sc->cache_list, sc_item);
       }
