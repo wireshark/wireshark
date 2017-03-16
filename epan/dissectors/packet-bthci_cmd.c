@@ -94,6 +94,7 @@ static int hf_bthci_cmd_packet_type_hv1 = -1;
 static int hf_bthci_cmd_packet_type_hv2 = -1;
 static int hf_bthci_cmd_packet_type_hv3 = -1;
 static int hf_bthci_cmd_role = -1;
+static int hf_bthci_cmd_acr_role = -1;
 static int hf_bthci_cmd_pin_code_length = -1;
 static int hf_bthci_cmd_pin_code = -1;
 static int hf_bthci_cmd_pin_type = -1;
@@ -1287,6 +1288,12 @@ static const value_string cmd_role_vals[] = {
     {0, NULL }
 };
 
+static const value_string cmd_acr_role_vals[] = {
+    {0x00, "Become the Master for this connection. The LM will perform the role switch."},
+    {0x01, "Remain the Slave for this connection. The LM will NOT perform the role switch."},
+    {0, NULL }
+};
+
 static const value_string cmd_pin_types[] = {
     {0x00, "Variable PIN" },
     {0x01, "Fixed PIN" },
@@ -1796,12 +1803,10 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         case 0x0009: /* Accept Connection Request */ {
             guint8  bd_addr[6];
-            guint8  role;
 
             offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, bd_addr);
 
-            proto_tree_add_item(tree, hf_bthci_cmd_role, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            role = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_bthci_cmd_acr_role, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
             if (!pinfo->fd->flags.visited) {
@@ -1834,12 +1839,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                 device_role = (device_role_t *) wmem_new(wmem_file_scope(), device_role_t);
                 device_role->change_in_frame = frame_number;
-                if (role == 0)
-                    device_role->role = ROLE_SLAVE;
-                else if (role == 1)
-                    device_role->role = ROLE_MASTER;
-                else
-                    device_role->role = ROLE_UNKNOWN;
+                device_role->role = ROLE_MASTER;
 
                 wmem_tree_insert32_array(bluetooth_data->bdaddr_to_role, key, device_role);
             }
@@ -3732,6 +3732,11 @@ proto_register_bthci_cmd(void)
         { &hf_bthci_cmd_role,
           { "Role",        "bthci_cmd.role",
             FT_UINT8, BASE_HEX, VALS(cmd_role_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_acr_role,
+          { "Role",        "bthci_cmd.acr.role",
+            FT_UINT8, BASE_HEX, VALS(cmd_acr_role_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_pin_code_length,
