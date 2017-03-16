@@ -788,7 +788,7 @@ dissect_zcl_ias_zone_status(proto_tree *tree, tvbuff_t *tvb, guint offset)
         NULL
     };
 
-    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_zcl_ias_zone_status, ett_zbee_zcl_ias_zone_status, ias_zone_statuses, ENC_NA);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_zcl_ias_zone_status, ett_zbee_zcl_ias_zone_status, ias_zone_statuses, ENC_LITTLE_ENDIAN);
 
 } /* dissect_zcl_ias_zone_status */
 
