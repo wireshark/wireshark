@@ -186,14 +186,13 @@ ftype_register_ipv4(void)
 		val_repr_len,			/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
-
+		{ NULL },			/* union get_value */
 
 		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
 		NULL,				/* get_value_sinteger64 */
-		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,

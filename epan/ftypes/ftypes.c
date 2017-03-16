@@ -654,8 +654,10 @@ fvalue_get_sinteger64(fvalue_t *fv)
 double
 fvalue_get_floating(fvalue_t *fv)
 {
-	g_assert(fv->ftype->get_value_floating);
-	return fv->ftype->get_value_floating(fv);
+	g_assert(fv->ftype->ftype == FT_FLOAT ||
+			fv->ftype->ftype == FT_DOUBLE);
+	g_assert(fv->ftype->get_value.get_value_floating);
+	return fv->ftype->get_value.get_value_floating(fv);
 }
 
 gboolean

@@ -1439,14 +1439,13 @@ Example: 114 is 0x0072
         sfloat_ieee_11073_val_repr_len,       /* len_string_repr */
 
         { .set_value_uinteger = sfloat_ieee_11073_value_set }, /* union set_value */
-
+        { NULL },                             /* union get_value */
 
         NULL,                                 /* get_value_ptr */
         sfloat_ieee_11073_value_get,          /* get_value_uinteger */
         NULL,                                 /* get_value_sinteger */
         NULL,                                 /* get_value_uinteger64 */
         NULL,                                 /* get_value_sinteger64 */
-        NULL,                                 /* get_value_floating */
 
         sfloat_ieee_11073_cmp_eq,
         sfloat_ieee_11073_cmp_ne,
@@ -1502,14 +1501,13 @@ Example: 36.4 is 0xFF00016C
         float_ieee_11073_val_repr_len,       /* len_string_repr */
 
         { .set_value_uinteger = float_ieee_11073_value_set }, /* union set_value */
-
+        { NULL },                             /* union get_value */
 
         NULL,                                /* get_value_ptr */
         float_ieee_11073_value_get,          /* get_value_uinteger */
         NULL,                                /* get_value_sinteger */
         NULL,                                /* get_value_uinteger64 */
         NULL,                                /* get_value_sinteger64 */
-        NULL,                                /* get_value_floating */
 
         float_ieee_11073_cmp_eq,
         float_ieee_11073_cmp_ne,
