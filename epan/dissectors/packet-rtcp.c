@@ -554,14 +554,12 @@ static int hf_rtcp_psfb_fir_fci_reserved = -1;
 static int hf_rtcp_psfb_sli_first = -1;
 static int hf_rtcp_psfb_sli_number = -1;
 static int hf_rtcp_psfb_sli_picture_id = -1;
-#if 0
 static int hf_rtcp_psfb_remb_fci_identifier = -1;
 static int hf_rtcp_psfb_remb_fci_number_ssrcs = -1;
 static int hf_rtcp_psfb_remb_fci_ssrc = -1;
 static int hf_rtcp_psfb_remb_fci_exp = -1;
 static int hf_rtcp_psfb_remb_fci_mantissa = -1;
 static int hf_rtcp_psfb_remb_fci_bitrate = -1;
-#endif
 static int hf_rtcp_rtpfb_tmbbr_fci_ssrc = -1;
 static int hf_rtcp_rtpfb_tmbbr_fci_exp = -1;
 static int hf_rtcp_rtpfb_tmbbr_fci_mantissa = -1;
@@ -1069,7 +1067,6 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *
     return offset;
 }
 
-#if 0
 static int
 dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci, int *read_fci)
 {
@@ -1080,7 +1077,7 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
 
     fci_tree = proto_tree_add_subtree_format( rtcp_tree, tvb, offset, 8, ett_ssrc, NULL, "REMB %d", num_fci );
 
-    /* Uniquie identifier 'REMB' */
+    /* Unique identifier 'REMB' */
     proto_tree_add_item( fci_tree, hf_rtcp_psfb_remb_fci_identifier, tvb, offset, 4, ENC_ASCII|ENC_NA );
     offset += 4;
 
@@ -1115,8 +1112,6 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
 
     return offset;
 }
-#endif
-
 
 static int
 dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item)
@@ -1340,14 +1335,16 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
              * the a=rtcp-fb attribute, but if we don't, we'd need to have
              * the user specify it somehow.
              */
-#if 0
-            /* Handle REMB (Receiver Estimated Maximum Bitrate) - http://tools.ietf.org/html/draft-alvestrand-rmcat-remb-00 */
-            offset = dissect_rtcp_psfb_remb(tvb, offset, rtcp_tree, top_item, counter, &read_fci);
-#else
-            /* Handle MS Application Layer Feedback Messages - MS-RTP */
-            offset = dissect_rtcp_asfb_ms(tvb, offset, rtcp_tree, pinfo);
-            read_fci = num_fci;     /* Consume all the bytes. */
-#endif
+            guint32 magic_value = tvb_get_ntohl( tvb, offset);
+            /* look for string literal 'REMB' which is 0x52454d42 hex */
+            if (magic_value == 0x52454d42) {
+                /* Handle REMB (Receiver Estimated Maximum Bitrate) - http://tools.ietf.org/html/draft-alvestrand-rmcat-remb-00 */
+                offset = dissect_rtcp_psfb_remb(tvb, offset, rtcp_tree, top_item, counter, &read_fci);
+            } else {
+                /* Handle MS Application Layer Feedback Messages - MS-RTP */
+                offset = dissect_rtcp_asfb_ms(tvb, offset, rtcp_tree, pinfo);
+                read_fci = num_fci;     /* Consume all the bytes. */
+            }
             break;
         }
         case 3:             /* Reference Picture Selection Indication (RPSI) - Not decoded*/
@@ -5380,7 +5377,6 @@ proto_register_rtcp(void)
                 NULL, HFILL
             }
         },
-#if 0
         {
       &hf_rtcp_psfb_remb_fci_identifier,
             {
@@ -5453,7 +5449,6 @@ proto_register_rtcp(void)
                 NULL, HFILL
             }
         },
-#endif
     {
       &hf_rtcp_rtpfb_tmbbr_fci_ssrc,
             {
