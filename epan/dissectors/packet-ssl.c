@@ -553,8 +553,7 @@ static gint dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 /* alert message dissector */
 static void dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, guint32 offset,
-                               const SslSession *session, gboolean is_from_server,
-                               SslDecryptSession *ssl);
+                               const SslSession *session);
 
 /* handshake protocol dissector */
 static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
@@ -1764,9 +1763,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         break;
     case SSL_ID_ALERT:
         if (decrypted) {
-            dissect_ssl3_alert(decrypted, pinfo, ssl_record_tree, 0, session, is_from_server, ssl);
+            dissect_ssl3_alert(decrypted, pinfo, ssl_record_tree, 0, session);
         } else {
-            dissect_ssl3_alert(tvb, pinfo, ssl_record_tree, offset, session, is_from_server, ssl);
+            dissect_ssl3_alert(tvb, pinfo, ssl_record_tree, offset, session);
         }
         break;
     case SSL_ID_HANDSHAKE:
@@ -1854,8 +1853,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
                    proto_tree *tree, guint32 offset,
-                   const SslSession *session, gboolean is_from_server,
-                   SslDecryptSession *ssl)
+                   const SslSession *session)
 {
     /*     struct {
      *         AlertLevel level;
@@ -1886,16 +1884,6 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
 
     desc_byte = tvb_get_guint8(tvb, offset+1); /* grab the desc byte */
     desc = try_val_to_str(desc_byte, ssl_31_alert_description);
-
-    /*
-     * TLS 1.3: clients send an Alert at warning (1) level with description
-     * end_of_early_data (1) to end 0-RTT application data.
-     */
-    if (level_byte == 1 && desc_byte == 1 && !is_from_server && ssl) {
-        ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
-        tls13_change_key(ssl, &ssl_master_key_map, FALSE, TLS_SECRET_HANDSHAKE);
-        ssl->has_early_data = FALSE;
-    }
 
     /* now set the text in the record layer line */
     if (level && desc)
@@ -2121,6 +2109,15 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 ssl_dissect_hnd_new_ses_ticket(&dissect_ssl3_hf, tvb, pinfo,
                         ssl_hand_tree, offset, offset + length, session, ssl, FALSE,
                         ssl_master_key_map.tickets);
+                break;
+
+            case SSL_HND_END_OF_EARLY_DATA:
+                /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.5 */
+                if (!is_from_server && ssl) {
+                    ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
+                    tls13_change_key(ssl, &ssl_master_key_map, FALSE, TLS_SECRET_HANDSHAKE);
+                    ssl->has_early_data = FALSE;
+                }
                 break;
 
             case SSL_HND_HELLO_RETRY_REQUEST:

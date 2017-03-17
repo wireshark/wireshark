@@ -558,6 +558,7 @@ const value_string ssl_31_handshake_type[] = {
     { SSL_HND_SERVER_HELLO,      "Server Hello" },
     { SSL_HND_HELLO_VERIFY_REQUEST, "Hello Verify Request"},
     { SSL_HND_NEWSESSION_TICKET, "New Session Ticket" },
+    { SSL_HND_END_OF_EARLY_DATA, "End of Early Data" },
     { SSL_HND_HELLO_RETRY_REQUEST, "Hello Retry Request" },
     { SSL_HND_ENCRYPTED_EXTENSIONS, "Encrypted Extensions" },
     { SSL_HND_CERTIFICATE,       "Certificate" },
@@ -6823,6 +6824,7 @@ ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls)
     case SSL_HND_CLIENT_HELLO:
     case SSL_HND_SERVER_HELLO:
     case SSL_HND_NEWSESSION_TICKET:
+    case SSL_HND_END_OF_EARLY_DATA:
     case SSL_HND_HELLO_RETRY_REQUEST:
     case SSL_HND_ENCRYPTED_EXTENSIONS:
     case SSL_HND_CERTIFICATE:
