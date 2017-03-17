@@ -6175,16 +6175,16 @@ ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb
                                          proto_tree *tree, guint32 offset, guint32 offset_end,
                                          guint8 hnd_type)
 {
-    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.2.6
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.2.8
      *  struct {
-     *      opaque identity<0..2^16-1>;
+     *      opaque identity<1..2^16-1>;
      *      uint32 obfuscated_ticket_age;
      *  } PskIdentity;
      *  opaque PskBinderEntry<32..255>;
      *  struct {
      *      select (Handshake.msg_type) {
      *          case client_hello:
-     *              PskIdentity identities<6..2^16-1>;
+     *              PskIdentity identities<7..2^16-1>;
      *              PskBinderEntry binders<33..2^16-1>;
      *          case server_hello:
      *              uint16 selected_identity;
@@ -6200,9 +6200,9 @@ ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb
         case SSL_HND_CLIENT_HELLO: {
             guint32 identities_length, identities_end, binders_length;
 
-            /* PskIdentity identities<6..2^16-1> */
+            /* PskIdentity identities<7..2^16-1> */
             if (!ssl_add_vector(hf, tvb, pinfo, psk_tree, offset, offset_end, &identities_length,
-                                hf->hf.hs_ext_psk_identities_length, 6, G_MAXUINT16)) {
+                                hf->hf.hs_ext_psk_identities_length, 7, G_MAXUINT16)) {
                 return offset_end;
             }
             offset += 2;
@@ -6214,9 +6214,9 @@ ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb
 
                 identity_tree = proto_tree_add_subtree(psk_tree, tvb, offset, 4, hf->ett.hs_ext_psk_identity, NULL, "PSK Identity (");
 
-                /* opaque identity<0..2^16-1> */
+                /* opaque identity<1..2^16-1> */
                 if (!ssl_add_vector(hf, tvb, pinfo, identity_tree, offset, identities_end, &identity_length,
-                                    hf->hf.hs_ext_psk_identity_identity_length, 0, G_MAXUINT16)) {
+                                    hf->hf.hs_ext_psk_identity_identity_length, 1, G_MAXUINT16)) {
                     return identities_end;
                 }
                 offset += 2;
