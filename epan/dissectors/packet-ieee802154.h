@@ -194,6 +194,11 @@
 #define IEEE802154_AUX_KEY_ID_MODE_SHIFT    3
 #define IEEE802154_AUX_KEY_RESERVED_MASK    0xE0  /* Reserved */
 
+/* Thread-specific well-known key support */
+#define IEEE802154_THR_WELL_KNOWN_KEY_INDEX 0xff
+#define IEEE802154_THR_WELL_KNOWN_KEY_SRC   0xffffffff
+#define IEEE802154_THR_WELL_KNOWN_EXT_ADDR  0x3506feb823d48712ULL
+
 typedef enum {
     SECURITY_LEVEL_NONE = 0x00,
     SECURITY_LEVEL_MIC_32 = 0x01,
@@ -211,6 +216,12 @@ typedef enum {
     KEY_ID_MODE_KEY_EXPLICIT_4 = 0x02,
     KEY_ID_MODE_KEY_EXPLICIT_8 = 0x03
 } ieee802154_key_id_mode;
+
+typedef enum {
+    KEY_HASH_NONE = 0x00,
+    KEY_HASH_ZIP = 0x01,
+    KEY_HASH_THREAD = 0x02
+} ieee802154_key_hash;
 
 /* Header IE Element ID */
 #define IEEE802154_HEADER_VENDOR_SPECIFIC   0x00
@@ -403,12 +414,56 @@ typedef struct {
     guint16             src16;
     guint16             dst16;
     ieee802154_map_rec *map_rec;
+    void               *packet;
 } ieee802154_hints_t;
+
+typedef enum {
+    DECRYPT_PACKET_SUCCEEDED,
+    DECRYPT_NOT_ENCRYPTED,
+    DECRYPT_VERSION_UNSUPPORTED,
+    DECRYPT_PACKET_TOO_SMALL,
+    DECRYPT_PACKET_NO_EXT_SRC_ADDR,
+    DECRYPT_PACKET_NO_KEY,
+    DECRYPT_PACKET_DECRYPT_FAILED,
+    DECRYPT_PACKET_MIC_CHECK_FAILED
+} ws_decrypt_status;
+
+/* UAT key structure. */
+typedef struct {
+    gchar *pref_key;
+    guint  key_index;
+    ieee802154_key_hash hash_type;
+    guint8 key[IEEE802154_CIPHER_SIZE];
+    guint8 mle_key[IEEE802154_CIPHER_SIZE];
+} ieee802154_key_t;
 
 /* */
 void dissect_ieee802154_superframe      (tvbuff_t *, packet_info *, proto_tree *, guint *);
 void dissect_ieee802154_gtsinfo         (tvbuff_t *, packet_info *, proto_tree *, guint *);
 void dissect_ieee802154_pendaddr        (tvbuff_t *, packet_info *, proto_tree *, guint *);
+void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet, guint *offset);
+void ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, guint32 frame_counter, guint8 level, gint ctr_val);
+gboolean ccm_ctr_encrypt(const gchar *key, const gchar *iv, gchar *mic, gchar *data, gint length);
+gboolean ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const gchar *m, gint m_len, gchar *mic);
+
+typedef struct {
+    unsigned char* rx_mic;
+    guint*         rx_mic_length;
+    guint          aux_offset;
+    guint          aux_length;
+    ws_decrypt_status* status;
+    unsigned char *key;
+    guint key_number;
+} ieee802154_payload_info_t;
+
+typedef gboolean (*ieee802154_set_key_func) (ieee802154_packet * packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* key_info);
+typedef tvbuff_t* (*ieee802154_payload_func) (tvbuff_t *, guint, packet_info *, ieee802154_packet *, ieee802154_payload_info_t*);
+tvbuff_t *dissect_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info * pinfo, proto_tree* key_tree, ieee802154_packet * packet,
+                                     ieee802154_payload_info_t* payload_info, ieee802154_set_key_func set_key_func, ieee802154_payload_func payload_func);
+
+
+typedef gboolean (*ieee802154_set_mac_key_func) (ieee802154_packet * packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* uat_key);
+extern void register_ieee802154_mac_key_hash_handler(guint hash_identifier, ieee802154_set_mac_key_func key_func);
 
 /* Short to Extended Address Prototypes */
 extern ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *, guint16, guint16, guint64,
@@ -420,5 +475,7 @@ extern gboolean ieee802154_long_addr_equal(gconstpointer a, gconstpointer b);
 
 extern gboolean ieee802154_short_addr_invalidate(guint16, guint16, guint);
 extern gboolean ieee802154_long_addr_invalidate(guint64, guint);
+
+extern ieee802154_map_tab_t ieee802154_map;
 
 #endif /* PACKET_IEEE802154_H */
