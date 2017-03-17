@@ -209,6 +209,7 @@ static const value_string mysql_command_vals[] = {
 	{MYSQL_STMT_FETCH, "Fetch Data"},
 	{0, NULL}
 };
+value_string_ext mysql_command_vals_ext = VALUE_STRING_EXT_INIT(mysql_command_vals);
 
 /* decoding table: exec_flags */
 static const value_string mysql_exec_flags_vals[] = {
@@ -400,6 +401,7 @@ static const value_string mysql_collation_vals[] = {
 	{247, "utf8mb4 COLLATE utf8mb4_vietnamese_ci"},
 	{0, NULL}
 };
+value_string_ext mysql_collation_vals_ext = VALUE_STRING_EXT_INIT(mysql_collation_vals);
 
 
 /* allowed MYSQL_SHUTDOWN levels */
@@ -1309,10 +1311,10 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 	req_tree = proto_item_add_subtree(tf, ett_request);
 
 	opcode = tvb_get_guint8(tvb, offset);
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(opcode, mysql_command_vals, "Unknown (%u)"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_ext(opcode, &mysql_command_vals_ext, "Unknown (%u)"));
 
 	proto_tree_add_item(req_tree, hf_mysql_command, tvb, offset, 1, ENC_NA);
-	proto_item_append_text(tf, " %s", val_to_str(opcode, mysql_command_vals, "Unknown (%u)"));
+	proto_item_append_text(tf, " %s", val_to_str_ext(opcode, &mysql_command_vals_ext, "Unknown (%u)"));
 	offset += 1;
 
 
@@ -2270,11 +2272,9 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		}
 	}
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_mysql, tvb, offset, -1, ENC_NA);
-		mysql_tree = proto_item_add_subtree(ti, ett_mysql);
-		proto_tree_add_item(mysql_tree, hf_mysql_packet_length, tvb, offset, 3, ENC_LITTLE_ENDIAN);
-	}
+	ti = proto_tree_add_item(tree, proto_mysql, tvb, offset, -1, ENC_NA);
+	mysql_tree = proto_item_add_subtree(ti, ett_mysql);
+	proto_tree_add_item(mysql_tree, hf_mysql_packet_length, tvb, offset, 3, ENC_LITTLE_ENDIAN);
 	offset+= 3;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MySQL");
@@ -2345,7 +2345,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 #endif
 
 	/* remaining payload indicates an error */
-	if (tree && tvb_reported_length_remaining(tvb, offset) > 0) {
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		ti = proto_tree_add_item(mysql_tree, hf_mysql_payload, tvb, offset, -1, ENC_NA);
 		expert_add_info(pinfo, ti, &ei_mysql_dissector_incomplete);
 	}
@@ -2385,7 +2385,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_command,
 		{ "Command", "mysql.command",
-		FT_UINT8, BASE_DEC, VALS(mysql_command_vals), 0x0,
+		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &mysql_command_vals_ext, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_error_code,
@@ -2640,7 +2640,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_charset,
 		{ "Charset", "mysql.charset",
-		FT_UINT8, BASE_DEC, VALS(mysql_collation_vals), 0x0,
+		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &mysql_collation_vals_ext, 0x0,
 		"MySQL Charset", HFILL }},
 
 		{ &hf_mysql_table_name,
@@ -2725,7 +2725,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_server_language,
 		{ "Server Language", "mysql.server_language",
-		FT_UINT8, BASE_DEC, VALS(mysql_collation_vals), 0x0,
+		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &mysql_collation_vals_ext, 0x0,
 		"MySQL Charset", HFILL }},
 
 		{ &hf_mysql_server_status,
@@ -3000,7 +3000,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_fld_charsetnr,
 		{ "Charset number", "mysql.field.charsetnr",
-		FT_UINT16, BASE_DEC, VALS(mysql_collation_vals), 0x0,
+		FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mysql_collation_vals_ext, 0x0,
 		"Field: charset number", HFILL }},
 
 		{ &hf_mysql_fld_length,
