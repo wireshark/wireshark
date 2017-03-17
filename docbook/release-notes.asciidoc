@@ -69,12 +69,15 @@ iPerf2
 ISO 15765
 Local Service Discovery (LSD)
 M2 Application Protocol
+Mesh Link Establishment (MLE)
 Nordic BLE Sniffer
 NVMe Fabrics RDMA
 NVMe
+OpenThread simulator
 RFTap Protocol
 SCTE-35 Digital Program Insertion Messages
 Snort Post-dissector
+Thread CoAP
 Unified Diagnostic Services (UDS)
 vSocket
 Windows Cluster Management API (clusapi)

@@ -240,6 +240,8 @@ static void* ieee802154_key_copy_cb(void* n, const void* o, size_t siz _U_) {
     const ieee802154_key_t* old_record = (const ieee802154_key_t*)o;
 
     new_record->pref_key = g_strdup(old_record->pref_key);
+    new_record->key_index = old_record->key_index;
+    new_record->hash_type = old_record->hash_type;
 
     return new_record;
 }

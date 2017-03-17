@@ -420,6 +420,7 @@ sub is_from_other_protocol_whitelist {
 	if (($proto_filename eq "packet-k12.c") && (index($_[0], "aal2") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-k12.c") && (index($_[0], "atm") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-m3ua.c") && (index($_[0], "mtp3") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-mle.c") && (index($_[0], "wpan") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-mpeg-dsmcc.c") && (index($_[0], "mpeg_sect") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-mpeg-dsmcc.c") && (index($_[0], "etv.dsmcc") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-mpeg1.c") && (index($_[0], "rtp.payload_mpeg_") >= 0)) {return 1;}

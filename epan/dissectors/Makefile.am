@@ -913,6 +913,7 @@ DISSECTOR_SRC = \
 	packet-mip.c		\
 	packet-mip6.c		\
 	packet-mka.c		\
+	packet-mle.c		\
 	packet-mmse.c		\
 	packet-mndp.c		\
 	packet-mojito.c		\
@@ -1035,6 +1036,7 @@ DISSECTOR_SRC = \
 	packet-openflow_v4.c	\
 	packet-openflow_v5.c	\
 	packet-opensafety.c	\
+	packet-openthread.c	\
 	packet-openvpn.c	\
 	packet-openwire.c	\
 	packet-opsi.c		\
@@ -1284,6 +1286,7 @@ DISSECTOR_SRC = \
 	packet-text-media.c	\
 	packet-tfp.c		\
 	packet-tftp.c		\
+	packet-thread.c	\
 	packet-thrift.c		\
 	packet-time.c		\
 	packet-tipc.c		\
@@ -1629,6 +1632,7 @@ DISSECTOR_INCLUDES = \
 	packet-mbim.h		\
 	packet-mbtcp.h		\
 	packet-mgcp.h		\
+	packet-mle.h		\
 	packet-mms.h		\
 	packet-mount.h		\
 	packet-mp4ves.h		\
