@@ -5879,6 +5879,57 @@ ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     return offset;
 } /* }}} */
 
+/* Dissection of DistinguishedName (for CertificateRequest and
+ * certificate_authorities extension). {{{ */
+static guint32
+tls_dissect_certificate_authorities(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                    proto_tree *tree, guint32 offset, guint32 offset_end)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    guint32     dnames_length, next_offset;
+    asn1_ctx_t  asn1_ctx;
+
+
+    /* Note: minimum length is 0 for TLS 1.1/1.2 and 3 for earlier/later */
+    /* DistinguishedName certificate_authorities<0..2^16-1> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &dnames_length,
+                        hf->hf.hs_dnames_len, 0, G_MAXUINT16)) {
+        return offset_end;
+    }
+    offset += 2;
+    next_offset = offset + dnames_length;
+
+    if (dnames_length > 0) {
+        ti = proto_tree_add_none_format(tree,
+                hf->hf.hs_dnames,
+                tvb, offset, dnames_length,
+                "Distinguished Names (%d byte%s)",
+                dnames_length,
+                plurality(dnames_length, "", "s"));
+        subtree = proto_item_add_subtree(ti, hf->ett.dnames);
+
+        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
+        while (offset < next_offset) {
+            /* get the length of the current certificate */
+            guint32 name_length;
+            /* opaque DistinguishedName<1..2^16-1> */
+            if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, next_offset, &name_length,
+                                hf->hf.hs_dname_len, 1, G_MAXUINT16)) {
+                return next_offset;
+            }
+            offset += 2;
+
+            dissect_x509if_DistinguishedName(FALSE, tvb, offset, &asn1_ctx,
+                                             subtree, hf->hf.hs_dname);
+            offset += name_length;
+        }
+    }
+    return offset;
+} /* }}} */
+
+
 /** TLS Extensions (in Client Hello and Server Hello). {{{ */
 static gint
 ssl_dissect_hnd_hello_ext_sig_hash_algs(ssl_common_dissect_t *hf, tvbuff_t *tvb,
@@ -7438,18 +7489,7 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
      *        DistinguishedName certificate_authorities<0..2^16-1>;
      *    } CertificateRequest;
      *
-     * draft-ietf-tls-tls13-18 (soon obsolete!):
-     * Note: certificate_extensions is not dissected since it is removed in next
-     * draft.
-     *
-     *    struct {
-     *        opaque certificate_request_context<0..2^8-1>;
-     *        SignatureScheme supported_signature_algorithms<2..2^16-2>;
-     *        DistinguishedName certificate_authorities<0..2^16-1>;
-     *        CertificateExtension certificate_extensions<0..2^16-1>;
-     *    } CertificateRequest;
-     *
-     * draft-ietf-tls-tls13 (between -18 and -19, 2017-01-30):
+     * draft-ietf-tls-tls13-19:
      *
      *    struct {
      *        opaque certificate_request_context<0..2^8-1>;
@@ -7458,7 +7498,7 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
      */
     proto_item *ti;
     proto_tree *subtree;
-    guint32     dnames_length = 0, next_offset;
+    guint32     next_offset;
     asn1_ctx_t  asn1_ctx;
 
     if (!tree)
@@ -7506,7 +7546,6 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
     switch (session->version) {
         case TLSV1DOT2_VERSION:
         case DTLSV1DOT2_VERSION:
-        case TLSV1DOT3_VERSION: /* XXX draft -18 only, remove for next version */
             offset = ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, offset_end);
             break;
 
@@ -7514,40 +7553,6 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
             break;
     }
 
-    /* DistinguishedName certificate_authorities<0..2^16-1> */
-    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &dnames_length,
-                        hf->hf.hs_dnames_len, 0, G_MAXUINT16)) {
-        return;
-    }
-    offset += 2;
-    next_offset = offset + dnames_length;
-
-    if (dnames_length > 0) {
-        ti = proto_tree_add_none_format(tree,
-                hf->hf.hs_dnames,
-                tvb, offset, dnames_length,
-                "Distinguished Names (%d byte%s)",
-                dnames_length,
-                plurality(dnames_length, "", "s"));
-        subtree = proto_item_add_subtree(ti, hf->ett.dnames);
-
-        while (offset < next_offset) {
-            /* get the length of the current certificate */
-            guint32 name_length;
-            /* opaque DistinguishedName<1..2^16-1> */
-            if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, next_offset, &name_length,
-                                hf->hf.hs_dname_len, 1, G_MAXUINT16)) {
-                return;
-            }
-            offset += 2;
-
-            dissect_x509if_DistinguishedName(FALSE, tvb, offset, &asn1_ctx,
-                                             subtree, hf->hf.hs_dname);
-            offset += name_length;
-        }
-    }
-
-    /* TODO this is not valid for TLS 1.3 draft -18. When draft -19 is released, check if this is still correct. */
     if (session->version == TLSV1DOT3_VERSION) {
         /*
          * SslDecryptSession pointer is NULL because Certificate Extensions
@@ -7556,6 +7561,9 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
         ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                                   offset_end, SSL_HND_CERT_REQUEST,
                                   session, NULL, is_dtls);
+    } else {
+        /* for TLS 1.2 and older, the certificate_authorities field. */
+        tls_dissect_certificate_authorities(hf, tvb, pinfo, tree, offset, offset_end);
     }
 }
 /* Certificate and Certificate Request dissections. }}} */
