@@ -3505,7 +3505,7 @@ tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gb
         return FALSE;
     }
 
-    key_length = (guint) gcry_cipher_get_algo_blklen(cipher_algo);
+    key_length = (guint) gcry_cipher_get_algo_keylen(cipher_algo);
     /* AES-GCM/AES-CCM/Poly1305-ChaCha20 all have N_MIN=N_MAX = 12. */
     iv_length = 12;
     ssl_debug_printf("%s key_length %u iv_length %u\n", G_STRFUNC, key_length, iv_length);
