@@ -41,6 +41,7 @@
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
+#include <epan/oids.h>
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
@@ -49,6 +50,7 @@
 #include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
 #include <ws_version_info.h>
+#include "packet-ber.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-ssl-utils.h"
@@ -1187,6 +1189,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_COOKIE, "cookie" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_PSK_KEY_EXCHANGE_MODES, "psk_key_exchange_modes" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_CERTIFICATE_AUTHORITIES, "certificate_authorities" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.2.3.1 */
+    { SSL_HND_HELLO_EXT_OID_FILTERS, "oid_filters" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.3.2.1 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* https://tools.ietf.org/id/draft-agl-tls-nextprotoneg-03.html */
     { SSL_HND_HELLO_EXT_CHANNEL_ID_OLD, "channel_id_old" }, /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-00
        https://twitter.com/ericlaw/status/274237352531083264 */
@@ -6387,6 +6390,71 @@ ssl_dissect_hnd_hello_ext_certificate_authorities(ssl_common_dissect_t *hf, tvbu
 }
 
 static gint
+ssl_dissect_hnd_hello_ext_oid_filters(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                      proto_tree *tree, guint32 offset, guint32 offset_end)
+{
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.3.2.1
+     *  struct {
+     *      opaque certificate_extension_oid<1..2^8-1>;
+     *      opaque certificate_extension_values<0..2^16-1>;
+     *  } OIDFilter;
+     *  struct {
+     *      OIDFilter filters<0..2^16-1>;
+     *  } OIDFilterExtension;
+     */
+    proto_tree *subtree;
+    guint32     filters_length, oid_length, values_length, value_offset;
+    asn1_ctx_t  asn1_ctx;
+    const char *oid, *name;
+
+    /* OIDFilter filters<0..2^16-1> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &filters_length,
+                        hf->hf.hs_ext_psk_ke_modes_length, 0, G_MAXUINT16)) {
+        return offset_end;
+    }
+    offset += 2;
+    offset_end = offset + filters_length;
+
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
+    while (offset < offset_end) {
+        subtree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset,
+                                         hf->ett.hs_ext_oid_filter, NULL, "OID Filter");
+
+        /* opaque certificate_extension_oid<1..2^8-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, offset_end, &oid_length,
+                    hf->hf.hs_ext_oid_filters_oid_length, 1, G_MAXUINT8)) {
+            return offset_end;
+        }
+        offset++;
+        dissect_ber_object_identifier_str(FALSE, &asn1_ctx, subtree, tvb, offset,
+                                          hf->hf.hs_ext_oid_filters_oid, &oid);
+        offset += oid_length;
+
+        /* Append OID to tree label */
+        name = oid_resolved_from_string(wmem_packet_scope(), oid);
+        proto_item_append_text(subtree, " (%s)", name ? name : oid);
+
+        /* opaque certificate_extension_values<0..2^16-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, offset_end, &values_length,
+                    hf->hf.hs_ext_oid_filters_values_length, 0, G_MAXUINT16)) {
+            return offset_end;
+        }
+        offset += 2;
+        proto_item_set_len(subtree, 1 + oid_length + 2 + values_length);
+        if (values_length > 0) {
+            value_offset = offset;
+            value_offset = dissect_ber_identifier(pinfo, subtree, tvb, value_offset, NULL, NULL, NULL);
+            value_offset = dissect_ber_length(pinfo, subtree, tvb, value_offset, NULL, NULL);
+            call_ber_oid_callback(oid, tvb, value_offset, pinfo, subtree, NULL);
+        }
+        offset += values_length;
+    }
+
+    return offset;
+}
+
+static gint
 ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                       packet_info *pinfo, proto_tree *tree,
                                       guint32 offset, guint32 offset_end)
@@ -7819,6 +7887,9 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_CERTIFICATE_AUTHORITIES:
             offset = ssl_dissect_hnd_hello_ext_certificate_authorities(hf, tvb, pinfo, ext_tree, offset, next_offset);
+            break;
+        case SSL_HND_HELLO_EXT_OID_FILTERS:
+            offset = ssl_dissect_hnd_hello_ext_oid_filters(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_NPN:
             offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, pinfo, ext_tree, offset, next_offset);

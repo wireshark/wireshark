@@ -173,6 +173,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_COOKIE                        44
 #define SSL_HND_HELLO_EXT_PSK_KEY_EXCHANGE_MODES        45
 #define SSL_HND_HELLO_EXT_CERTIFICATE_AUTHORITIES       47
+#define SSL_HND_HELLO_EXT_OID_FILTERS                   48
 #define SSL_HND_HELLO_EXT_NPN                           13172 /* 0x3374 */
 #define SSL_HND_HELLO_EXT_CHANNEL_ID_OLD                30031 /* 0x754f */
 #define SSL_HND_HELLO_EXT_CHANNEL_ID                    30032 /* 0x7550 */
@@ -786,6 +787,10 @@ typedef struct ssl_common_dissect {
         gint sct_sct_signature;
         gint sct_sct_signature_length;
         gint hs_ext_max_early_data_size;
+        gint hs_ext_oid_filters_length;
+        gint hs_ext_oid_filters_oid_length;
+        gint hs_ext_oid_filters_oid;
+        gint hs_ext_oid_filters_values_length;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -802,6 +807,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_pre_shared_key;
         gint hs_ext_psk_identity;
         gint hs_ext_server_name;
+        gint hs_ext_oid_filter;
         gint hs_sig_hash_alg;
         gint hs_sig_hash_algs;
         gint urlhash;
@@ -979,11 +985,11 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1,                                             \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,           \
@@ -1659,6 +1665,26 @@ ssl_common_dissect_t name = {   \
       { "Maximum Early Data Size", prefix ".early_data.max_early_data_size", \
         FT_UINT32, BASE_DEC, NULL, 0x00,                                \
         "Maximum amount of 0-RTT data that the client may send", HFILL } \
+    },                                                                  \
+    { & name .hf.hs_ext_oid_filters_length,                             \
+      { "OID Filters Length", prefix ".extension.oid_filters_length",   \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_oid_filters_oid_length,                         \
+      { "Certificate Extension OID Length", prefix ".extension.oid_filters.oid_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_oid_filters_oid,                                \
+      { "Certificate Extension OID", prefix ".extension.oid_filters.oid", \
+        FT_OID, BASE_NONE, NULL, 0x00,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_oid_filters_values_length,                      \
+      { "Certificate Extension Values Length", prefix ".extension.oid_filters.values_length", \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
     }
 /* }}} */
 
@@ -1676,6 +1702,7 @@ ssl_common_dissect_t name = {   \
         & name .ett.hs_ext_pre_shared_key,          \
         & name .ett.hs_ext_psk_identity,            \
         & name .ett.hs_ext_server_name,             \
+        & name .ett.hs_ext_oid_filter,              \
         & name .ett.hs_sig_hash_alg,                \
         & name .ett.hs_sig_hash_algs,               \
         & name .ett.urlhash,                        \
