@@ -46,6 +46,7 @@
 #include <epan/stats_tree_priv.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/conversation_table.h>
+#include <epan/expert.h>
 #include <epan/export_object.h>
 #include <epan/follow.h>
 
@@ -369,6 +370,7 @@ sharkd_session_process_info(void)
 	printf(",\"taps\":[");
 	{
 		printf("{\"name\":\"%s\",\"tap\":\"%s\"}", "RTP streams", "rtp-streams");
+		printf(",{\"name\":\"%s\",\"tap\":\"%s\"}", "Expert Information", "expert");
 	}
 	printf("]");
 
@@ -693,6 +695,96 @@ sharkd_session_free_tap_stats_cb(void *psp)
 	stats_tree *st = (stats_tree *) psp;
 
 	stats_tree_free(st);
+}
+
+struct sharkd_expert_tap
+{
+	GSList *details;
+	GStringChunk *text;
+};
+
+/**
+ * sharkd_session_process_tap_expert_cb()
+ *
+ * Output expert tap:
+ *
+ *   (m) tap         - tap name
+ *   (m) type:expert - tap output type
+ *   (m) details     - array of object with attributes:
+ *                  (m) f - frame number, which generated expert information
+ *                  (o) s - severity
+ *                  (o) g - group
+ *                  (m) m - expert message
+ *                  (o) p - protocol
+ */
+static void
+sharkd_session_process_tap_expert_cb(void *tapdata)
+{
+	struct sharkd_expert_tap *etd = (struct sharkd_expert_tap *) tapdata;
+	GSList *list;
+	const char *sepa = "";
+
+	printf("{\"tap\":\"%s\",\"type\":\"%s\"", "expert", "expert");
+
+	printf(",\"details\":[");
+	for (list = etd->details; list; list = list->next)
+	{
+		expert_info_t *ei = (expert_info_t *) list->data;
+		const char *tmp;
+
+		printf("%s{", sepa);
+
+		printf("\"f\":%u,", ei->packet_num);
+
+		tmp = try_val_to_str(ei->severity, expert_severity_vals);
+		if (tmp)
+			printf("\"s\":\"%s\",", tmp);
+
+		tmp = try_val_to_str(ei->group, expert_group_vals);
+		if (tmp)
+			printf("\"g\":\"%s\",", tmp);
+
+		printf("\"m\":");
+		json_puts_string(ei->summary);
+		printf(",");
+
+		if (ei->protocol)
+		{
+			printf("\"p\":");
+			json_puts_string(ei->protocol);
+		}
+
+		printf("}");
+		sepa = ",";
+	}
+	printf("]");
+
+	printf("},");
+}
+
+static gboolean
+sharkd_session_packet_tap_expert_cb(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pointer)
+{
+	struct sharkd_expert_tap *etd = (struct sharkd_expert_tap *) tapdata;
+	expert_info_t *ei             = (expert_info_t *) pointer;
+
+	ei = (expert_info_t *) g_memdup(ei, sizeof(*ei));
+	ei->protocol = g_string_chunk_insert_const(etd->text, ei->protocol);
+	ei->summary  = g_string_chunk_insert_const(etd->text, ei->summary);
+
+	etd->details = g_slist_prepend(etd->details, ei);
+
+	return TRUE;
+}
+
+static void
+sharkd_session_free_tap_expert_cb(void *tapdata)
+{
+	struct sharkd_expert_tap *etd = (struct sharkd_expert_tap *) tapdata;
+
+	g_slist_free_full(etd->details, g_free);
+	g_string_chunk_free(etd->text);
+	g_free(etd);
 }
 
 struct sharkd_conv_tap_data
@@ -1191,6 +1283,7 @@ sharkd_session_process_tap_rtp_cb(void *arg)
  *                  for type:host see sharkd_session_process_tap_conv_cb()
  *                  for type:rtp-streams see sharkd_session_process_tap_rtp_cb()
  *                  for type:eo see sharkd_session_process_tap_eo_cb()
+ *                  for type:expert see sharkd_session_process_tap_expert_cb()
  *
  *   (m) err   - error code
  */
@@ -1240,6 +1333,18 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
 			tap_data = st;
 			tap_free = sharkd_session_free_tap_stats_cb;
+		}
+		else if (!strcmp(tok_tap, "expert"))
+		{
+			struct sharkd_expert_tap *expert_tap;
+
+			expert_tap = g_new0(struct sharkd_expert_tap, 1);
+			expert_tap->text = g_string_chunk_new(100);
+
+			tap_error = register_tap_listener("expert", expert_tap, NULL, 0, NULL, sharkd_session_packet_tap_expert_cb, sharkd_session_process_tap_expert_cb);
+
+			tap_data = expert_tap;
+			tap_free = sharkd_session_free_tap_expert_cb;
 		}
 		else if (!strncmp(tok_tap, "conv:", 5) || !strncmp(tok_tap, "endpt:", 6))
 		{
@@ -1577,30 +1682,8 @@ sharkd_session_process_frame_cb_tree(proto_tree *tree, tvbuff_t **tvbs)
 
 		if (FI_GET_FLAG(finfo, PI_SEVERITY_MASK))
 		{
-			const char *severity = NULL;
+			const char *severity = try_val_to_str(FI_GET_FLAG(finfo, PI_SEVERITY_MASK), expert_severity_vals);
 
-			switch (FI_GET_FLAG(finfo, PI_SEVERITY_MASK))
-			{
-				case PI_COMMENT:
-					severity = "comment";
-					break;
-
-				case PI_CHAT:
-					severity = "chat";
-					break;
-
-				case PI_NOTE:
-					severity = "note";
-					break;
-
-				case PI_WARN:
-					severity = "warn";
-					break;
-
-				case PI_ERROR:
-					severity = "error";
-					break;
-			}
 			g_assert(severity != NULL);
 
 			printf(",\"s\":\"%s\"", severity);
