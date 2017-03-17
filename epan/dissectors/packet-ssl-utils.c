@@ -6204,6 +6204,39 @@ ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb
     return offset;
 }
 
+static guint32
+ssl_dissect_hnd_hello_ext_early_data(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo _U_,
+                                     proto_tree *tree, guint32 offset, guint32 offset_end _U_,
+                                     guint8 hnd_type, SslDecryptSession *ssl)
+{
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.2.7
+     *  struct {} Empty;
+     *  struct {
+     *      select (Handshake.msg_type) {
+     *          case new_session_ticket:   uint32 max_early_data_size;
+     *          case client_hello:         Empty;
+     *          case encrypted_extensions: Empty;
+     *      };
+     *  } EarlyDataIndication;
+     */
+    switch (hnd_type) {
+    case SSL_HND_CLIENT_HELLO:
+        /* Remember that early_data will follow the handshake. */
+        if (ssl) {
+            ssl_debug_printf("%s found early_data extension\n", G_STRFUNC);
+            ssl->has_early_data = TRUE;
+        }
+        break;
+    case SSL_HND_NEWSESSION_TICKET:
+        proto_tree_add_item(tree, hf->hf.hs_ext_max_early_data_size, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        break;
+    default:
+        break;
+    }
+    return offset;
+}
+
 static gint
 ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                              proto_tree *tree, guint32 offset, guint32 offset_end)
@@ -7744,10 +7777,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_pre_shared_key(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type);
             break;
         case SSL_HND_HELLO_EXT_EARLY_DATA:
-            if (hnd_type == SSL_HND_CLIENT_HELLO && ssl) {
-                ssl_debug_printf("%s found early_data extension\n", G_STRFUNC);
-                ssl->has_early_data = TRUE;
-            }
+            offset = ssl_dissect_hnd_hello_ext_early_data(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
             break;
         case SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS:
             offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, pinfo, ext_tree, offset, next_offset);

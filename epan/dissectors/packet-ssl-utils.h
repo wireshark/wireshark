@@ -783,6 +783,7 @@ typedef struct ssl_common_dissect {
         gint sct_sct_extensions;
         gint sct_sct_signature;
         gint sct_sct_signature_length;
+        gint hs_ext_max_early_data_size;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -976,7 +977,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1,                                                 \
+        -1, -1, -1, -1, -1,                                             \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1651,6 +1652,11 @@ ssl_common_dissect_t name = {   \
       { "Signature", prefix ".sct.sct_signature",                       \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_max_early_data_size,                            \
+      { "Maximum Early Data Size", prefix ".early_data.max_early_data_size", \
+        FT_UINT32, BASE_DEC, NULL, 0x00,                                \
+        "Maximum amount of 0-RTT data that the client may send", HFILL } \
     }
 /* }}} */
 
