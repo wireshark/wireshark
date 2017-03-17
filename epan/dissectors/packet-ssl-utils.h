@@ -769,7 +769,7 @@ typedef struct ssl_common_dissect {
 
         /* TLS 1.3 */
         gint hs_ext_draft_version_tls13;
-        gint hs_ext_psk_ke_modes_len;
+        gint hs_ext_psk_ke_modes_length;
         gint hs_ext_psk_ke_mode;
         gint hs_certificate_request_context_length;
         gint hs_certificate_request_context;
@@ -1583,13 +1583,13 @@ ssl_common_dissect_t name = {   \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
         "Indicate the version of draft supported by client", HFILL }    \
     },                                                                  \
-    { & name .hf.hs_ext_psk_ke_modes_len,                                   \
-      { "PSK Key Exchange Modes Length", prefix ".handshake.psk_ke_modes_len", \
+    { & name .hf.hs_ext_psk_ke_modes_length,                            \
+      { "PSK Key Exchange Modes Length", prefix ".extension.psk_ke_modes_length", \
         FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_psk_ke_mode,                                    \
-      { "PSK Key Exchange Mode", prefix ".handshake.psk_ke_mode",       \
+      { "PSK Key Exchange Mode", prefix ".extension.psk_ke_mode",       \
         FT_UINT8, BASE_DEC, VALS(tls_hello_ext_psk_ke_mode), 0x0,       \
         "Key exchange modes where the client supports use of PSKs", HFILL } \
     },                                                                  \

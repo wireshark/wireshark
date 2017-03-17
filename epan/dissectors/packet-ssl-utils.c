@@ -1200,10 +1200,10 @@ const value_string tls_hello_ext_server_name_type_vs[] = {
     { 0, NULL }
 };
 
-/* draft-ietf-tls-tls13-18 4.2.7 */
+/* draft-ietf-tls-tls13-19 4.2.6 */
 const value_string tls_hello_ext_psk_ke_mode[] = {
     { 0, "PSK-only key establishment (psk_ke)" },
-    { 1, "PSK key establishment with (EC)DHE key establishment (psk_dhe_ke)" },
+    { 1, "PSK with (EC)DHE key establishment (psk_dhe_ke)" },
     { 0, NULL }
 };
 
@@ -6295,7 +6295,7 @@ static gint
 ssl_dissect_hnd_hello_ext_psk_key_exchange_modes(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                                  proto_tree *tree, guint32 offset, guint32 offset_end)
 {
-    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.2.7
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.2.6
      * enum { psk_ke(0), psk_dhe_ke(1), (255) } PskKeyExchangeMode;
      *
      * struct {
@@ -6306,7 +6306,7 @@ ssl_dissect_hnd_hello_ext_psk_key_exchange_modes(ssl_common_dissect_t *hf, tvbuf
 
     /* PskKeyExchangeMode ke_modes<1..255> */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &ke_modes_length,
-                        hf->hf.hs_ext_psk_ke_modes_len, 1, 255)) {
+                        hf->hf.hs_ext_psk_ke_modes_length, 1, 255)) {
         return offset_end;
     }
     offset++;
