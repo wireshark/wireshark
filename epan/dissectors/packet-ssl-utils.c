@@ -7262,14 +7262,19 @@ ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                     SslSession *session, SslDecryptSession *ssl,
                                     gboolean is_dtls)
 {
-    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-18#section-4.1.4
+    /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.1.4
      * struct {
      *     ProtocolVersion server_version;
+     *     CipherSuite cipher_suite;
      *     Extension extensions<2..2^16-1>;
      * } HelloRetryRequest;
      */
     proto_tree_add_item(tree, hf->hf.hs_server_version, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf->hf.hs_cipher_suite,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
