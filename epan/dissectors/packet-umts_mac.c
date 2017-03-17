@@ -452,7 +452,7 @@ static int dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                     /* TODO */
                     break;
                 default:
-                    proto_item_append_text(ti, " (Unknown FACH Content");
+                    proto_item_append_text(ti, " (Unknown FACH Content)");
                     expert_add_info_format(pinfo, NULL, &ei_mac_unknown_content, "Unknown FACH Content for this transportblock");
             }
             break;

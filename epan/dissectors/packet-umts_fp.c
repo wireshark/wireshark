@@ -2629,7 +2629,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         header_crc_pi = proto_tree_add_uint_format(tree, hf_fp_edch_header_crc, tvb,
                 offset, 2, header_crc,
-                "%u%u%u%u%u%u%u.%u%u%u%u.... = E-DCH Header CRC: 0x%x",
+                "%u%u%u%u %u%u%u. %u%u%u%u .... = E-DCH Header CRC: 0x%x",
                 (header_crc >> 10) & 1,
                 (header_crc >> 9) & 1,
                 (header_crc >> 8) & 1,
