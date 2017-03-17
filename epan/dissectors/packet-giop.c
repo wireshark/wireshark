@@ -4582,13 +4582,13 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
     len = get_CDR_ulong(tvb, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
     proto_tree_add_uint (locate_request_tree, hf_giop_objekt_key_len, tvb, offset-4, 4, len);
 
-    if (len > (guint32)tvb_reported_length_remaining(tvb, offset-4)) {
+    if (len > (guint32)tvb_reported_length_remaining(tvb, offset)) {
         expert_add_info_format(pinfo, tf, &ei_giop_length_too_big, "Object key length bigger than packet size");
         return;
     }
 
     if (len > 0) {
-        proto_tree_add_item(locate_request_tree, hf_giop_objekt_key, tvb, offset-len, len, ENC_NA);
+        proto_tree_add_item(locate_request_tree, hf_giop_objekt_key, tvb, offset, len, ENC_NA);
     }
   }
   else     /* GIOP 1.2 and higher */
