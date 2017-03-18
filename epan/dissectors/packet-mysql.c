@@ -209,7 +209,7 @@ static const value_string mysql_command_vals[] = {
 	{MYSQL_STMT_FETCH, "Fetch Data"},
 	{0, NULL}
 };
-value_string_ext mysql_command_vals_ext = VALUE_STRING_EXT_INIT(mysql_command_vals);
+static value_string_ext mysql_command_vals_ext = VALUE_STRING_EXT_INIT(mysql_command_vals);
 
 /* decoding table: exec_flags */
 static const value_string mysql_exec_flags_vals[] = {
@@ -401,7 +401,7 @@ static const value_string mysql_collation_vals[] = {
 	{247, "utf8mb4 COLLATE utf8mb4_vietnamese_ci"},
 	{0, NULL}
 };
-value_string_ext mysql_collation_vals_ext = VALUE_STRING_EXT_INIT(mysql_collation_vals);
+static value_string_ext mysql_collation_vals_ext = VALUE_STRING_EXT_INIT(mysql_collation_vals);
 
 
 /* allowed MYSQL_SHUTDOWN levels */
