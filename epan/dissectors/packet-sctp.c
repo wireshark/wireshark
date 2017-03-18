@@ -1374,11 +1374,7 @@ sctp_ack_block(packet_info *pinfo, sctp_half_assoc_t *h, tvbuff_t *tvb,
     for(;t;t = t->next) {
       guint32 tsn = t->tsn;
 
-      if ( tsn  < h->peer->first_tsn ) {
-        tsn += (0xffffffff - (h->peer->first_tsn)) + 1;
-      } else {
-        tsn -= h->peer->first_tsn;
-      }
+      tsn -= h->peer->first_tsn;
 
       if (t->ack.framenum == framenum && ( (!tsn_start_ptr) || rel_start <= tsn) && tsn <= rel_end)
         ack_tree(t, acks_tree, tvb, pinfo);
