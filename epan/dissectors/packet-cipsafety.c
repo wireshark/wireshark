@@ -1501,7 +1501,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP Safety");
 
    /* determine the connection type as it affects the fields dissected */
-   if (safety_info != NULL)
+   if (safety_info != NULL && safety_info->eip_conn_info != NULL)
    {
       conn_type = safety_info->conn_type;
       format = safety_info->eip_conn_info->safety.format;
