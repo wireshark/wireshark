@@ -1833,12 +1833,7 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 			/*
 			 * NTP time stamp, big-endian.
 			 */
-			tmpsecs  = tvb_get_letohl(tvb, start);
-			if (tmpsecs)
-				time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME_ZERO);
-			else
-				time_stamp->secs = tmpsecs; /* 0 */
-						time_stamp->secs  = (time_t)tvb_get_letohl(tvb, start);
+			time_stamp->secs = (time_t)tvb_get_letohl(tvb, start);
 			if (length == 8) {
 				/*
 				 * We're using nanoseconds here (and we will
