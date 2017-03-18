@@ -1810,10 +1810,7 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 #define NTP_BASETIME_ZERO G_GUINT64_CONSTANT(0)
 
 			tmpsecs  = tvb_get_ntohl(tvb, start);
-			if (tmpsecs)
-				time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME_ZERO);
-			else
-				time_stamp->secs = tmpsecs; /* 0 */
+			time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME_ZERO);
 
 			if (length == 8) {
 				/*
