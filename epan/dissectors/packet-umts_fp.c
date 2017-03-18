@@ -4417,7 +4417,7 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
             pi_length_found = TRUE;
         }
-        else if (tfi == 0x01 && !tb_size_found && pi_present) {
+        else if (tfi == 0x01 && !tb_size_found && pi_length_found) {
             /* TB present and PI bitmap length is known. Can calculate TB length.*/
             pi_byte_length = (umts_fp_conversation_info->paging_indications + 7) / 8;
             if (p_conv == NULL) {
