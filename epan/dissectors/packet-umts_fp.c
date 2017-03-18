@@ -4025,7 +4025,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         /* To allow dissection of this frame after umts_fp_conversation_info will be added in a later frame */
         /* the conversation must be created here if it doesn't exist yet*/
         if (p_conv == NULL) {
-            p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+            conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                 pinfo->ptype,
                 pinfo->destport, pinfo->srcport, NO_ADDR_B);
         }
@@ -4051,7 +4051,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         /* To allow dissection of this frame after umts_fp_conversation_info will be added in a later frame */
         /* the conversation must be created here if it doesn't exist yet*/
         if (p_conv == NULL) {
-            p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+            conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                 pinfo->ptype,
                 pinfo->destport, pinfo->srcport, NO_ADDR_B);
         }
@@ -4403,12 +4403,6 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             default:
                 return FALSE;
             }
-            if (p_conv == NULL) {
-                /* Conversation does not exist yet, creating one now. */
-                p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
-                    pinfo->ptype,
-                    pinfo->destport, pinfo->srcport, NO_ADDR_B);
-            }
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
@@ -4420,12 +4414,6 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         else if (tfi == 0x01 && !tb_size_found && pi_length_found) {
             /* TB present and PI bitmap length is known. Can calculate TB length.*/
             pi_byte_length = (umts_fp_conversation_info->paging_indications + 7) / 8;
-            if (p_conv == NULL) {
-                /* Conversation does not exist yet, creating one now. */
-                p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
-                    pinfo->ptype,
-                    pinfo->destport, pinfo->srcport, NO_ADDR_B);
-            }
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
@@ -4438,12 +4426,6 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     else {
         if (tfi == 0x01 && !tb_size_found) {
             /* TB present and PI bitmap is missing. Can calculate TB length.*/
-            if (p_conv == NULL) {
-                /* Conversation does not exist yet, creating one now. */
-                p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
-                    pinfo->ptype,
-                    pinfo->destport, pinfo->srcport, NO_ADDR_B);
-            }
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
