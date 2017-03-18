@@ -6106,7 +6106,7 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
 {
    int temp_data;
    unsigned char app_rep_size;
-   guint32 O2TConnID, T2OConnID, DeviceSerialNumber, target_device_sn;
+   guint32 O2TConnID, T2OConnID, DeviceSerialNumber, target_device_sn = 0;
    guint16 ConnSerialNumber, VendorID, init_rollover_value = 0, init_timestamp_value = 0,
            target_conn_sn = 0, target_vendorID = 0;
    proto_tree *pid_tree, *safety_tree;
