@@ -1338,7 +1338,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     tone_silence = tvb_get_guint8(tvb, offset + 2);
 #endif
 
-                    ua3g_param_tree = proto_tree_add_subtree_format(ua3g_body_tree, tvb, offset, 6,
+                    ua3g_param_tree = proto_tree_add_subtree_format(ua3g_body_tree, tvb, offset, 3,
 #if 0
                         ett_ua3g_param, NULL, "Tone Pair %d: Id: %d, Duration: %d ms, Silence: %d ms",
                         ii+1, tone_id, tone_duration, tone_silence);
