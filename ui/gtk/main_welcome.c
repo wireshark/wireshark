@@ -886,7 +886,7 @@ add_interface_to_list(guint indx)
 #else
     icon = pixbuf_to_widget(remote_sat_pb_data);
 #endif
-    view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
+    view = (GtkWidget *)g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
     size = gtk_tree_model_iter_n_children(model, NULL);
     lines = g_strdup_printf("%d", size-1);
