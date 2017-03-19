@@ -3699,6 +3699,10 @@ Kim Kempf		<kim.kempf[AT]apcon.com> {
 	802.1BR E-Tag dissector
 }
 
+S. Shapira		<sswsdev[AT]gmail.com> {
+	UMTS FP heuristic dissectors
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
@@ -4291,7 +4295,6 @@ Russel Howe		<russel[AT]appliedinvention.com>
 Rustam Safargalin	<rustam.safargalin[AT]sifox.ru>
 Ryan Mullen		<rmmullen[AT]gmail.com>
 Rémy Léone		<remy.leone[AT]gmail.com>
-S. Shapira		<sswsdev[AT]gmail.com>
 Samiran Saha		<ssahasamiran[AT]gmail.com>
 Sandeep Dahiya		<sdahiya[AT]gmail.com>
 Sander Steffann		<sander[AT]steffann.nl>
@@ -4379,6 +4382,7 @@ cff339			<cff339[AT]gmail.com>
 kardam			<netkardam[AT]gmail.com>
 kkoizumi		<kkoizumi46[AT]gmail.com>
 sfd			<stephen.donnelly[AT]endace.com>
+Éric Piel		<piel[AT]delmic.com>
 Øyvind Rønningstad	<ronningstad[AT]gmail.com>
 Дмитрий Цветцих		<dmitrycvet[AT]gmail.com>
 
