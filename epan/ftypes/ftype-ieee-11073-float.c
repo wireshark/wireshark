@@ -1444,7 +1444,6 @@ Example: 114 is 0x0072
         NULL,                                 /* get_value_ptr */
         sfloat_ieee_11073_value_get,          /* get_value_uinteger */
         NULL,                                 /* get_value_sinteger */
-        NULL,                                 /* get_value_uinteger64 */
 
         sfloat_ieee_11073_cmp_eq,
         sfloat_ieee_11073_cmp_ne,
@@ -1505,7 +1504,6 @@ Example: 36.4 is 0xFF00016C
         NULL,                                /* get_value_ptr */
         float_ieee_11073_value_get,          /* get_value_uinteger */
         NULL,                                /* get_value_sinteger */
-        NULL,                                /* get_value_uinteger64 */
 
         float_ieee_11073_cmp_eq,
         float_ieee_11073_cmp_ne,
