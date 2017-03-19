@@ -768,7 +768,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     " Seq=%" G_GINT64_MODIFIER "u",
                     dccph->seq);
 
-    /* dissecting type dependant additional fields */
+    /* dissecting type dependent additional fields */
     switch (dccph->type) {
     case 0x0: /* DCCP-Request */
     case 0xA: /* DCCP-Listen */

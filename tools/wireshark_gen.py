@@ -586,7 +586,7 @@ class wireshark_gen_C:
     # static const char get_Penguin_Echo_get_width_at[] = "_get_width" ;
     # static const char set_Penguin_Echo_set_width_at[] = "_set_width" ;
     #
-    # TODO: Implement some language dependant templates to handle naming conventions
+    # TODO: Implement some language dependent templates to handle naming conventions
     #       language <=> attribute. for C, C++. Java etc
     #
     # OR, just add a runtime GUI option to select language binding for attributes -- FS
@@ -2883,7 +2883,7 @@ static const value_string @valstringname@[] = {
 """
 
     #
-    # get/set accessor method names are language mapping dependant.
+    # get/set accessor method names are language mapping dependent.
     #
 
     template_attributes_declare_Java_get = """static const char get_@sname@_at[] = \"_get_@atname@\" ;"""

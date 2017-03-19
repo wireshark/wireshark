@@ -216,7 +216,7 @@ static expert_field ei_btavrcp_unexpected_data = EI_INIT;
 
 static dissector_handle_t btavrcp_handle;
 
-#define OPCODE_VENDOR_DEPENDANT 0x00
+#define OPCODE_VENDOR_DEPENDENT 0x00
 #define OPCODE_UNIT             0x30
 #define OPCODE_SUBUNIT          0x31
 #define OPCODE_PASSTHROUGH      0x7C
@@ -345,7 +345,7 @@ static const value_string ctype_vals[] = {
 };
 
 static const value_string opcode_vals[] = {
-    { OPCODE_VENDOR_DEPENDANT,   "Vendor dependent" },
+    { OPCODE_VENDOR_DEPENDENT,   "Vendor dependent" },
     { OPCODE_UNIT,               "Unit Info" },
     { OPCODE_SUBUNIT,            "Subunit Info" },
     { OPCODE_PASSTHROUGH,        "Pass Through" },
@@ -1004,7 +1004,7 @@ dissect_subunit(tvbuff_t *tvb, proto_tree *tree, gint offset, gboolean is_comman
 
 
 static gint
-dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          gint offset, guint ctype, guint32 *op, guint32 *op_arg,
                          gboolean is_command, avrcp_proto_data_t *avrcp_proto_data)
 {
@@ -2150,8 +2150,8 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case OPCODE_SUBUNIT:
                 offset = dissect_subunit(tvb, btavrcp_tree, offset, is_command);
                 break;
-            case OPCODE_VENDOR_DEPENDANT:
-                offset = dissect_vendor_dependant(tvb, pinfo, btavrcp_tree,
+            case OPCODE_VENDOR_DEPENDENT:
+                offset = dissect_vendor_dependent(tvb, pinfo, btavrcp_tree,
                         offset, ctype, &op, &op_arg, is_command, &avrcp_proto_data);
                 break;
         };

@@ -1723,7 +1723,7 @@ dissect_spice_record_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 4;
             proto_tree_add_item(record_tree, hf_audio_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
-            /* TODO - mode dependant, there may be more data here */
+            /* TODO - mode dependent, there may be more data here */
             break;
         default:
             expert_add_info_format(pinfo, msgtype_item, &ei_spice_unknown_message, "Unknown record client message - cannot dissect");

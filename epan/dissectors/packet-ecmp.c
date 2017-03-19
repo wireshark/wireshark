@@ -644,7 +644,7 @@ static int hf_ecmp_param_format_read_not_allowed = -1;
 static int hf_ecmp_param_format_protected_from_destinations = -1;
 static int hf_ecmp_param_format_parameter_not_visible = -1;
 static int hf_ecmp_param_format_not_clonable = -1;
-static int hf_ecmp_param_format_voltage_or_current_rating_dependant = -1;
+static int hf_ecmp_param_format_voltage_or_current_rating_dependent = -1;
 static int hf_ecmp_param_format_parameter_has_no_default = -1;
 static int hf_ecmp_param_format_number_of_decimal_places = -1;
 static int hf_ecmp_param_format_variable_maximum_and_minimum = -1;
@@ -1591,7 +1591,7 @@ static void get_object_info_response(packet_info* pinfo, int offset, tvbuff_t *t
 							&hf_ecmp_param_format_protected_from_destinations,
 							&hf_ecmp_param_format_parameter_not_visible,
 							&hf_ecmp_param_format_not_clonable,
-							&hf_ecmp_param_format_voltage_or_current_rating_dependant,
+							&hf_ecmp_param_format_voltage_or_current_rating_dependent,
 							&hf_ecmp_param_format_parameter_has_no_default,
 							&hf_ecmp_param_format_number_of_decimal_places,
 							&hf_ecmp_param_format_variable_maximum_and_minimum,
@@ -3401,7 +3401,7 @@ void proto_register_ecmp (void)
 	{ &hf_ecmp_param_format_protected_from_destinations, { "PT- Protected from destinations", "ecmp.param_format.protected_from_destinations", FT_UINT32, BASE_DEC, NULL, 0x00000008, NULL, HFILL }},
 	{ &hf_ecmp_param_format_parameter_not_visible, { "NV- Parameter not visible", "ecmp.param_format.parameter_not_visible", FT_UINT32, BASE_DEC, NULL, 0x00000010, NULL, HFILL }},
 	{ &hf_ecmp_param_format_not_clonable, { "NC- Not clonable", "ecmp.param_format.not_clonable", FT_UINT32, BASE_DEC, NULL, 0x00000020, NULL, HFILL }},
-	{ &hf_ecmp_param_format_voltage_or_current_rating_dependant, { "RA- Voltage or current rating dependant", "ecmp.param_format.voltage_or_current_rating_dependant", FT_UINT32, BASE_DEC, NULL, 0x00000040, NULL, HFILL }},
+	{ &hf_ecmp_param_format_voltage_or_current_rating_dependent, { "RA- Voltage or current rating dependent", "ecmp.param_format.voltage_or_current_rating_dependent", FT_UINT32, BASE_DEC, NULL, 0x00000040, NULL, HFILL }},
 	{ &hf_ecmp_param_format_parameter_has_no_default, { "ND- Parameter has no default", "ecmp.param_format.parameter_has_no_default", FT_UINT32, BASE_DEC, NULL, 0x00000080, NULL, HFILL }},
 	{ &hf_ecmp_param_format_number_of_decimal_places, { "DP- Number of Decimal places", "ecmp.param_format.number_of_decimal_places", FT_UINT32, BASE_DEC, NULL, 0x00000F00, NULL, HFILL }},
 	{ &hf_ecmp_param_format_variable_maximum_and_minimum, { "VM- Variable maximum and minimum", "ecmp.param_format.variable_maximum_and_minimum", FT_UINT32, BASE_DEC, NULL, 0x00001000, NULL, HFILL }},
