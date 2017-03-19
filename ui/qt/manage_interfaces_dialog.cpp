@@ -270,7 +270,8 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
     GList *if_entry, *lt_entry;
     if_info_t *if_info;
     char *if_string = NULL;
-    gchar *descr, *str = NULL, *link_type_name = NULL, *auth_str;
+    gchar *descr, *str = NULL, *auth_str;
+    // gchar *link_type_name = NULL;
     if_capabilities_t *caps;
     gint linktype_count;
     bool monitor_mode, found = false;
@@ -398,7 +399,7 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
                     linkr->dlt = -1;
                 }
                 if (linktype_count == 0) {
-                    link_type_name = g_strdup(str);
+                    // link_type_name = g_strdup(str);
                     device.active_dlt = data_link_info->dlt;
                 }
                 linkr->name = g_strdup(str);
@@ -412,7 +413,7 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
             device.monitor_mode_supported = FALSE;
 #endif
             device.active_dlt = -1;
-            link_type_name = g_strdup("default");
+            // link_type_name = g_strdup("default");
         }
         device.addresses = g_strdup(ip_str->str);
         device.no_addresses = ips;
