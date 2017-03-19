@@ -54,12 +54,12 @@ static GList * append_remote_list(GList *iflist)
 
     for (rlist = g_list_nth(remote_interface_list, 0); rlist != NULL; rlist = g_list_next(rlist)) {
         if_info = (if_info_t *)rlist->data;
-        temp = g_malloc0(sizeof(if_info_t));
+        temp = (if_info_t*) g_malloc0(sizeof(if_info_t));
         temp->name = g_strdup(if_info->name);
         temp->friendly_name = g_strdup(if_info->friendly_name);
         temp->vendor_description = g_strdup(if_info->vendor_description);
         for (list = g_slist_nth(if_info->addrs, 0); list != NULL; list = g_slist_next(list)) {
-            temp_addr = g_malloc0(sizeof(if_addr_t));
+            temp_addr = (if_addr_t *) g_malloc0(sizeof(if_addr_t));
             if_addr = (if_addr_t *)list->data;
             if (if_addr) {
                 temp_addr->ifat_type = if_addr->ifat_type;
@@ -350,12 +350,12 @@ void add_interface_to_remote_list(if_info_t *if_info)
     GSList *list;
     if_addr_t *if_addr, *temp_addr;
 
-    if_info_t *temp = g_malloc0(sizeof(if_info_t));
+    if_info_t *temp = (if_info_t*) g_malloc0(sizeof(if_info_t));
     temp->name = g_strdup(if_info->name);
     temp->friendly_name = g_strdup(if_info->friendly_name);
     temp->vendor_description = g_strdup(if_info->vendor_description);
     for (list = g_slist_nth(if_info->addrs, 0); list != NULL; list = g_slist_next(list)) {
-        temp_addr = g_malloc0(sizeof(if_addr_t));
+        temp_addr = (if_addr_t *)g_malloc0(sizeof(if_addr_t));
         if_addr = (if_addr_t *)list->data;
         if (if_addr) {
             temp_addr->ifat_type = if_addr->ifat_type;

@@ -158,13 +158,13 @@ static void children_massacre(void) {
 }
 
 
+#define ERR_STR_LEN 1024
 static void dispatcher_fatal(int cause, const char* fmt, ...) {
-	size_t len= 1024;
-	gchar err_str[len];
+	gchar err_str[ERR_STR_LEN];
 	va_list ap;
 
 	va_start(ap, fmt);
-	g_vsnprintf(err_str,len,fmt,ap);
+	g_vsnprintf(err_str, ERR_STR_LEN, fmt,ap);
 	va_end(ap);
 
 	DISP_DBG((0,"fatal cause=%d msg=\"%s\"",cause ,err_str));
@@ -177,13 +177,12 @@ static void dispatcher_fatal(int cause, const char* fmt, ...) {
 #define DISP_FATAL(attrs) dispatcher_fatal attrs
 
 static void dispatcher_err(int errnum, const char* fmt, ...) {
-	size_t len= 1024;
-	gchar err_str[len];
+	gchar err_str[ERR_STR_LEN];
 	va_list ap;
 	static GByteArray* ba;
 
 	va_start(ap, fmt);
-	g_vsnprintf(err_str,len,fmt,ap);
+	g_vsnprintf(err_str, ERR_STR_LEN, fmt,ap);
 	va_end(ap);
 
 	DISP_DBG((0,"error=\"%s\"",err_str));
@@ -1019,6 +1018,7 @@ void dispatcher_alrm(int sig _U_) {
 void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds, char* argv0, int (*main)(int, char **)) {
 	static struct dispatcher d;
 	int i;
+	int ret;
 
 	DISP_DBG_INIT();
 	DISP_DBG((2,"Dispatcher Starting"));
@@ -1059,7 +1059,7 @@ void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds, char* argv0, in
 	DISP_WRITE(dispatcher->parent_out, NULL, 0, ECHLD_HELLO, 0);
 
 	ret = dispatcher_loop();
-	capture_opts_cleanup(dispatcher->capture_opts);
+	capture_opts_cleanup(&(dispatcher->capture_opts));
 	exit(ret);
 }
 

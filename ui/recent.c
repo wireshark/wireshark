@@ -404,7 +404,7 @@ void recent_add_remote_host(gchar *host, struct remote_host *rh)
 static gboolean
 free_remote_host (gpointer key _U_, gpointer value, gpointer user _U_)
 {
-  struct remote_host *rh = value;
+  struct remote_host *rh = (struct remote_host *) value;
 
   g_free (rh->r_host);
   g_free (rh->remote_port);
@@ -424,8 +424,8 @@ recent_remote_host_list_foreach(GHFunc func, gpointer user_data)
 static void
 recent_print_remote_host (gpointer key _U_, gpointer value, gpointer user)
 {
-  FILE *rf = user;
-  struct remote_host_info *ri = value;
+  FILE *rf = (FILE *)user;
+  struct remote_host_info *ri = (struct remote_host_info *)value;
 
   fprintf (rf, RECENT_KEY_REMOTE_HOST ": %s,%s,%d\n", ri->remote_host, ri->remote_port, ri->auth_type);
 }
@@ -462,7 +462,7 @@ capture_remote_combo_add_recent(const gchar *s)
 {
   GList *vals = prefs_get_string_list (s);
   GList *valp = vals;
-  gint   auth_type;
+  capture_auth auth_type;
   char  *p;
   struct remote_host *rh;
 
@@ -473,10 +473,10 @@ capture_remote_combo_add_recent(const gchar *s)
     remote_host_list = g_hash_table_new (g_str_hash, g_str_equal);
   }
 
-  rh = g_malloc (sizeof (*rh));
+  rh =(struct remote_host *) g_malloc (sizeof (*rh));
 
   /* First value is the host */
-  rh->r_host = g_strdup (valp->data);
+  rh->r_host = (gchar *)g_strdup ((const gchar *)valp->data);
   if (strlen(rh->r_host) == 0) {
     /* Empty remote host */
     g_free(rh->r_host);
@@ -488,7 +488,7 @@ capture_remote_combo_add_recent(const gchar *s)
 
   if (valp) {
     /* Found value 2, this is the port number */
-    rh->remote_port = g_strdup (valp->data);
+    rh->remote_port = (gchar *)g_strdup ((const gchar *)valp->data);
     valp = valp->next;
   } else {
     /* Did not find a port number */
@@ -497,7 +497,7 @@ capture_remote_combo_add_recent(const gchar *s)
 
   if (valp) {
     /* Found value 3, this is the authentication type */
-    auth_type = (gint)strtol(valp->data, &p, 0);
+    auth_type = (capture_auth)strtol((const gchar *)valp->data, &p, 0);
     if (p != valp->data && *p == '\0') {
       rh->auth_type = auth_type;
     }

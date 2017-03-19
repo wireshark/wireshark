@@ -134,22 +134,22 @@ typedef enum {
 
 #ifdef HAVE_PCAP_REMOTE
 struct remote_host_info {
-    gchar    *remote_host;      /**< Host name or network address for remote capturing */
-    gchar    *remote_port;      /**< TCP port of remote RPCAP server */
-    gint      auth_type;        /**< Authentication type */
-    gchar    *auth_username;    /**< Remote authentication parameters */
-    gchar    *auth_password;    /**< Remote authentication parameters */
-    gboolean  datatx_udp;
-    gboolean  nocap_rpcap;
-    gboolean  nocap_local;
+    gchar        *remote_host;      /**< Host name or network address for remote capturing */
+    gchar        *remote_port;      /**< TCP port of remote RPCAP server */
+    capture_auth  auth_type;        /**< Authentication type */
+    gchar        *auth_username;    /**< Remote authentication parameters */
+    gchar        *auth_password;    /**< Remote authentication parameters */
+    gboolean      datatx_udp;
+    gboolean      nocap_rpcap;
+    gboolean      nocap_local;
 };
 
 struct remote_host {
-    gchar    *r_host;           /**< Host name or network address for remote capturing */
-    gchar    *remote_port;      /**< TCP port of remote RPCAP server */
-    gint      auth_type;        /**< Authentication type */
-    gchar    *auth_username;    /**< Remote authentication parameters */
-    gchar    *auth_password;    /**< Remote authentication parameters */
+    gchar        *r_host;           /**< Host name or network address for remote capturing */
+    gchar        *remote_port;      /**< TCP port of remote RPCAP server */
+    capture_auth  auth_type;        /**< Authentication type */
+    gchar        *auth_username;    /**< Remote authentication parameters */
+    gchar        *auth_password;    /**< Remote authentication parameters */
 };
 
 typedef struct remote_options_tag {
