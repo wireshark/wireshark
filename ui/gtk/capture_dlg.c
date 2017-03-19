@@ -1076,6 +1076,7 @@ struct iftype_info {
   const char     *name;
 };
 
+#if 0
 /* List of available types of PCAP interface */
 static struct iftype_info iftype[] = {
   { CAPTURE_IFLOCAL, "Local" },
@@ -1083,6 +1084,9 @@ static struct iftype_info iftype[] = {
 };
 
 #define REMOTE_HOST_START ((sizeof(iftype) / sizeof(iftype[0])) + 1)
+#else
+#define REMOTE_HOST_START 3
+#endif
 #define REMOTE_HOST_SEPARATOR "---"
 
 static void
