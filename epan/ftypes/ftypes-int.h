@@ -105,15 +105,13 @@ struct _ftype_t {
 	} set_value;
 
 	union {
+		FvalueGetFunc		get_value_ptr;
 		FvalueGetUnsignedIntegerFunc	get_value_uinteger;
 		FvalueGetSignedIntegerFunc	get_value_sinteger;
 		FvalueGetUnsignedInteger64Func	get_value_uinteger64;
 		FvalueGetSignedInteger64Func	get_value_sinteger64;
 		FvalueGetFloatingFunc	get_value_floating;
 	} get_value;
-
-	/* could be union */
-	FvalueGetFunc		get_value_ptr;
 
 	FvalueCmp		cmp_eq;
 	FvalueCmp		cmp_ne;

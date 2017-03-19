@@ -164,9 +164,7 @@ ftype_register_pcre(void)
         gregex_repr_len,    /* len_string_repr */
 
         { .set_value_string = gregex_fvalue_set }, /* union set_value */
-        { NULL },            /* union get_value */
-
-        gregex_fvalue_get,  /* get_value_ptr */
+        { .get_value_ptr = gregex_fvalue_get },    /* union get_value */
 
         NULL,               /* cmp_eq */
         NULL,               /* cmp_ne */

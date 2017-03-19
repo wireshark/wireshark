@@ -738,9 +738,7 @@ ftype_register_bytes(void)
 		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
-		{ NULL },			/* union get_value */
-
-		value_get,			/* get_value_ptr */
+		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_eq,
 		cmp_ne,
@@ -769,9 +767,7 @@ ftype_register_bytes(void)
 		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
-		{ NULL },			/* union get_value */
-
-		value_get,			/* get_value_ptr */
+		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_eq,
 		cmp_ne,
@@ -800,9 +796,7 @@ ftype_register_bytes(void)
 		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = ax25_fvalue_set },	/* union set_value */
-		{ NULL },			/* union get_value */
-
-		value_get,			/* get_value_ptr */
+		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_eq,
 		cmp_ne,
@@ -831,9 +825,7 @@ ftype_register_bytes(void)
 		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = vines_fvalue_set },	/* union set_value */
-		{ NULL },			/* union get_value */
-
-		value_get,			/* get_value_ptr */
+		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_eq,
 		cmp_ne,
@@ -862,9 +854,7 @@ ftype_register_bytes(void)
 		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = ether_fvalue_set },	/* union set_value */
-		{ NULL },			/* union get_value */
-
-		value_get,			/* get_value_ptr */
+		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_eq,
 		cmp_ne,
@@ -893,9 +883,7 @@ ftype_register_bytes(void)
 		oid_repr_len,			/* len_string_repr */
 
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
-		{ NULL },			/* union get_value */
-
-		value_get,			/* get_value_ptr */
+		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_eq,
 		cmp_ne,
@@ -924,9 +912,7 @@ ftype_register_bytes(void)
 		rel_oid_repr_len,		/* len_string_repr */
 
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
-		{ NULL },			/* union get_value */
-
-		value_get,			/* get_value_ptr */
+		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_eq,
 		cmp_ne,
@@ -955,9 +941,7 @@ ftype_register_bytes(void)
 		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_byte_array = system_id_fvalue_set }, /* union set_value */
-		{ NULL },			/* union get_value */
-
-		value_get,			/* get_value_ptr */
+		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_eq,
 		cmp_ne,
@@ -986,9 +970,7 @@ ftype_register_bytes(void)
 		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = fcwwn_fvalue_set },	/* union set_value */
-		{ NULL },			/* union get_value */
-
-		value_get,			/* get_value_ptr */
+		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_eq,
 		cmp_ne,

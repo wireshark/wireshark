@@ -42,8 +42,6 @@ ftype_register_none(void)
 		{ NULL },			/* union set_value */
 		{ NULL },			/* union get_value */
 
-		NULL,				/* get_value_ptr */
-
 		NULL,				/* cmp_eq */
 		NULL,				/* cmp_ne */
 		NULL,				/* cmp_gt */

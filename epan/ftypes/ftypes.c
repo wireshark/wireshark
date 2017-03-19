@@ -619,8 +619,25 @@ fvalue_set_floating(fvalue_t *fv, gdouble value)
 gpointer
 fvalue_get(fvalue_t *fv)
 {
-	g_assert(fv->ftype->get_value_ptr);
-	return fv->ftype->get_value_ptr(fv);
+	g_assert(fv->ftype->ftype == FT_BYTES ||
+			fv->ftype->ftype == FT_UINT_BYTES ||
+			fv->ftype->ftype == FT_AX25 ||
+			fv->ftype->ftype == FT_VINES ||
+			fv->ftype->ftype == FT_ETHER ||
+			fv->ftype->ftype == FT_OID ||
+			fv->ftype->ftype == FT_REL_OID ||
+			fv->ftype->ftype == FT_SYSTEM_ID ||
+			fv->ftype->ftype == FT_FCWWN ||
+			fv->ftype->ftype == FT_GUID ||
+			fv->ftype->ftype == FT_IPv4 ||
+			fv->ftype->ftype == FT_IPv6 ||
+			fv->ftype->ftype == FT_PCRE ||
+			fv->ftype->ftype == FT_PROTOCOL ||
+			IS_FT_STRING(fv->ftype->ftype) ||
+			fv->ftype->ftype == FT_UINT_STRING ||
+			IS_FT_TIME(fv->ftype->ftype));
+	g_assert(fv->ftype->get_value.get_value_ptr);
+	return fv->ftype->get_value.get_value_ptr(fv);
 }
 
 guint32

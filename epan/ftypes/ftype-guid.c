@@ -136,9 +136,7 @@ ftype_register_guid(void)
         guid_repr_len,       /* len_string_repr */
 
         { .set_value_guid = guid_fvalue_set_guid }, /* union set_value */
-        { NULL },            /* union get_value */
-
-        value_get,           /* get_value_ptr */
+        { .get_value_ptr = value_get },             /* union get_value */
 
         cmp_eq,
         cmp_ne,

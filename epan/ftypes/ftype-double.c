@@ -173,8 +173,6 @@ ftype_register_double(void)
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 		{ .get_value_floating = value_get_floating },	/* union get_value */
 
-		NULL,				/* get_value_ptr */
-
 		cmp_eq,
 		cmp_ne,
 		cmp_gt,
@@ -203,8 +201,6 @@ ftype_register_double(void)
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
 		{ .get_value_floating = value_get_floating },	/* union get_value */
-
-		NULL,				/* get_value_ptr */
 
 		cmp_eq,
 		cmp_ne,
