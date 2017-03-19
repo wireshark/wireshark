@@ -856,7 +856,7 @@ static char *decode_key_name(int unicode)
 {
     char *key_name;
 
-    key_name = (char *)wmem_alloc(wmem_packet_scope(), 10);
+    key_name = (char *)wmem_alloc(wmem_packet_scope(), 24);
 
     if ((unicode <= 0x20)
         || (unicode == 0x7F)
@@ -866,15 +866,15 @@ static char *decode_key_name(int unicode)
         || (unicode == 0xE9)
         || (unicode == 0xF9))
     {
-        g_snprintf(key_name, 10, "%s", val_to_str_ext_const(unicode, &str_key_name_ext, "Unknown"));
+        g_snprintf(key_name, 24, "%s", val_to_str_ext_const(unicode, &str_key_name_ext, "Unknown"));
     }
     else if (unicode <= 0xFF)
     {
-        g_snprintf(key_name, 10, "%c", unicode);
+        g_snprintf(key_name, 24, "%c", unicode);
     }
     else
     {
-        g_snprintf(key_name, 10, "%s", val_to_str_ext_const(unicode, &str_key_name_ext, "Unknown"));
+        g_snprintf(key_name, 24, "%s", val_to_str_ext_const(unicode, &str_key_name_ext, "Unknown"));
     }
     return key_name;
 }
