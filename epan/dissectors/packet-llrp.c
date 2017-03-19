@@ -1505,14 +1505,6 @@ static guint dissect_llrp_item_array(tvbuff_t * const tvb, packet_info *pinfo,
             PARAM_TREE_ADD_STAY(hfindex, length, flag); \
             suboffset += length
 
-#define PARAM_TREE_ADD_SPEC_STAY(type, hfindex, length, number, string) \
-            proto_tree_add_##type(param_tree, hf_llrp_##hfindex, tvb, \
-                    suboffset, length, number, string, number)
-
-#define PARAM_TREE_ADD_SPEC(type, hfindex, length, number, string) \
-            PARAM_TREE_ADD_SPEC_STAY(type, hfindex, length, number, string); \
-            suboffset += length
-
 static guint
 dissect_llrp_impinj_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *param_tree,
         guint suboffset, const guint param_end)
@@ -1832,31 +1824,31 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 PARAM_TREE_ADD(client_opspec_timeout, 2, ENC_BIG_ENDIAN);
                 num = tvb_get_ntohl(tvb, suboffset);
                 if(num == LLRP_NO_LIMIT)
-                    PARAM_TREE_ADD_SPEC_STAY(uint_format_value, max_num_rospec, 4, num, "No limit (%u)");
+                    proto_tree_add_uint_format_value(param_tree, hf_llrp_max_num_rospec, tvb, suboffset, 4, num, "No limit (%u)", num);
                 else
                     PARAM_TREE_ADD_STAY(max_num_rospec, 4, ENC_BIG_ENDIAN);
                 suboffset += 4;
                 num = tvb_get_ntohl(tvb, suboffset);
                 if(num == LLRP_NO_LIMIT)
-                    PARAM_TREE_ADD_SPEC_STAY(uint_format_value, max_num_spec_per_rospec, 4, num, "No limit (%u)");
+                    proto_tree_add_uint_format_value(param_tree, hf_llrp_max_num_spec_per_rospec, tvb, suboffset, 4, num, "No limit (%u)", num);
                 else
                     PARAM_TREE_ADD_STAY(max_num_spec_per_rospec, 4, ENC_BIG_ENDIAN);
                 suboffset += 4;
                 num = tvb_get_ntohl(tvb, suboffset);
                 if(num == LLRP_NO_LIMIT)
-                    PARAM_TREE_ADD_SPEC_STAY(uint_format_value, max_num_inventory_per_aispec, 4, num, "No limit (%u)");
+                    proto_tree_add_uint_format_value(param_tree, hf_llrp_max_num_inventory_per_aispec, tvb, suboffset, 4, num, "No limit (%u)", num);
                 else
                     PARAM_TREE_ADD_STAY(max_num_inventory_per_aispec, 4, ENC_BIG_ENDIAN);
                 suboffset += 4;
                 num = tvb_get_ntohl(tvb, suboffset);
                 if(num == LLRP_NO_LIMIT)
-                    PARAM_TREE_ADD_SPEC_STAY(uint_format_value, max_num_accessspec, 4, num, "No limit (%u)");
+                    proto_tree_add_uint_format_value(param_tree, hf_llrp_max_num_accessspec, tvb, suboffset, 4, num, "No limit (%u)", num);
                 else
                     PARAM_TREE_ADD_STAY(max_num_accessspec, 4, ENC_BIG_ENDIAN);
                 suboffset += 4;
                 num = tvb_get_ntohl(tvb, suboffset);
                 if(num == LLRP_NO_LIMIT)
-                    PARAM_TREE_ADD_SPEC_STAY(uint_format_value, max_num_opspec_per_accressspec, 4, num, "No limit (%u)");
+                    proto_tree_add_uint_format_value(param_tree, hf_llrp_max_num_opspec_per_accressspec, tvb, suboffset, 4, num, "No limit (%u)", num);
                 else
                     PARAM_TREE_ADD_STAY(max_num_opspec_per_accressspec, 4, ENC_BIG_ENDIAN);
                 suboffset += 4;
@@ -2114,7 +2106,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 PARAM_TREE_ADD(can_support_XPC, 1, ENC_NA);
                 num = tvb_get_ntohs(tvb, suboffset);
                 if(num == LLRP_NO_LIMIT)
-                    PARAM_TREE_ADD_SPEC_STAY(uint_format_value, max_num_filter_per_query, 2, num, "No limit (%u)");
+                    proto_tree_add_uint_format_value(param_tree, hf_llrp_max_num_spec_per_rospec, tvb, suboffset, 2, num, "No limit (%u)", num);
                 else
                     PARAM_TREE_ADD_STAY(max_num_filter_per_query, 2, ENC_BIG_ENDIAN);
                 suboffset += 2;
@@ -2410,8 +2402,6 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 #undef PARAM_TREE_ADD_STAY
 #undef PARAM_TREE_ADD
-#undef PARAM_TREE_ADD_SPEC_STAY
-#undef PARAM_TREE_ADD_SPEC
 
 static guint
 dissect_llrp_impinj_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
