@@ -578,8 +578,8 @@ if (h245_pi != NULL)
   actx->private_data = priv_data;
 #.END
 
-#.FN_BODY GenericMessage/subMessageIdentifier  VAL_PTR = &subMessageIdentifer
-  guint32 subMessageIdentifer;
+#.FN_BODY GenericMessage/subMessageIdentifier  VAL_PTR = &subMessageIdentifier
+  guint32 subMessageIdentifier;
   gef_ctx_t *gefx;
 
   gefx = gef_ctx_get(actx->private_data);
@@ -594,13 +594,13 @@ if (h245_pi != NULL)
 
 %(DEFAULT_BODY)s
   if (gefx) {
-    gefx->subid = wmem_strdup_printf(wmem_packet_scope(), "%%u", subMessageIdentifer);
+    gefx->subid = wmem_strdup_printf(wmem_packet_scope(), "%%u", subMessageIdentifier);
     gef_ctx_update_key(gef_ctx_get(actx->private_data));
   }
   if (hf_index == hf_h245_subMessageIdentifier_standard)
   {
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", val_to_str(subMessageIdentifer, h245_h239subMessageIdentifier_vals, "<unknown>") );
-    g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(subMessageIdentifer, h245_h239subMessageIdentifier_vals, "<unknown>"));
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", val_to_str(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>") );
+    g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>"));
   }
 #.END
 
