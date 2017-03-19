@@ -49,6 +49,8 @@
 #include <epan/expert.h>
 #include <epan/export_object.h>
 #include <epan/follow.h>
+#include <epan/rtd_table.h>
+#include <epan/srt_table.h>
 
 #include <epan/dissectors/packet-h225.h>
 #include <epan/rtp_pt.h>
@@ -261,6 +263,44 @@ sharkd_export_object_visit_cb(const void *key _U_, void *value, void *user_data)
 }
 
 static gboolean
+sharkd_srt_visit_cb(const void *key _U_, void *value, void *user_data)
+{
+	register_srt_t *srt = (register_srt_t *) value;
+	int *pi = (int *) user_data;
+
+	const int proto_id = get_srt_proto_id(srt);
+	const char *filter = proto_get_protocol_filter_name(proto_id);
+	const char *label  = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
+
+	printf("%s{", (*pi) ? "," : "");
+		printf("\"name\":\"Service Response Time/%s\"", label);
+		printf(",\"tap\":\"srt:%s\"", filter);
+	printf("}");
+
+	*pi = *pi + 1;
+	return FALSE;
+}
+
+static gboolean
+sharkd_rtd_visit_cb(const void *key _U_, void *value, void *user_data)
+{
+	register_rtd_t *rtd = (register_rtd_t *) value;
+	int *pi = (int *) user_data;
+
+	const int proto_id = get_rtd_proto_id(rtd);
+	const char *filter = proto_get_protocol_filter_name(proto_id);
+	const char *label  = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
+
+	printf("%s{", (*pi) ? "," : "");
+		printf("\"name\":\"Response Time Delay/%s\"", label);
+		printf(",\"tap\":\"rtd:%s\"", filter);
+	printf("}");
+
+	*pi = *pi + 1;
+	return FALSE;
+}
+
+static gboolean
 sharkd_follower_visit_cb(const void *key _U_, void *value, void *user_data)
 {
 	register_follow_t *follower = (register_follow_t*) value;
@@ -299,12 +339,20 @@ sharkd_follower_visit_cb(const void *key _U_, void *value, void *user_data)
  *
  *   (m) eo      - available export object list, array of object with attributes:
  *                  'name' - export object name
- *                  'tap'  - sharkd tap-name for conversation
+ *                  'tap'  - sharkd tap-name for eo
+ *
+ *   (m) srt     - available service response time list, array of object with attributes:
+ *                  'name' - service response time name
+ *                  'tap'  - sharkd tap-name for srt
+ *
+ *   (m) rtd     - available response time delay list, array of object with attributes:
+ *                  'name' - response time delay name
+ *                  'tap'  - sharkd tap-name for rtd
  *
  *   (m) taps - available taps, array of object with attributes:
  *                  'name' - tap name
  *                  'tap'  - sharkd tap-name
-
+ *
  *   (m) follow - available followers, array of object with attributes:
  *                  'name' - tap name
  *                  'tap'  - sharkd tap-name
@@ -377,6 +425,16 @@ sharkd_session_process_info(void)
 	printf(",\"eo\":[");
 	i = 0;
 	eo_iterate_tables(sharkd_export_object_visit_cb, &i);
+	printf("]");
+
+	printf(",\"srt\":[");
+	i = 0;
+	srt_table_iterate_tables(sharkd_srt_visit_cb, &i);
+	printf("]");
+
+	printf(",\"rtd\":[");
+	i = 0;
+	rtd_table_iterate_tables(sharkd_rtd_visit_cb, &i);
 	printf("]");
 
 	printf(",\"follow\":[");
@@ -1090,6 +1148,220 @@ sharkd_session_free_tap_conv_cb(void *arg)
 	g_free(iu);
 }
 
+/**
+ * sharkd_session_process_tap_rtd_cb()
+ *
+ * Output rtd tap:
+ *   (m) tap        - tap name
+ *   (m) type       - tap output type
+ *   (m) stats - statistics rows - array object with attributes:
+ *                  (m) type - statistic name
+ *                  (m) num - number of messages
+ *                  (m) min - minimum SRT time
+ *                  (m) max - maximum SRT time
+ *                  (m) tot - total SRT time
+ *                  (m) min_frame - minimal SRT
+ *                  (m) max_frame - maximum SRT
+ *                  (o) open_req - Open Requests
+ *                  (o) disc_rsp - Discarded Responses
+ *                  (o) req_dup  - Duplicated Requests
+ *                  (o) rsp_dup  - Duplicated Responses
+ *   (o) open_req   - Open Requests
+ *   (o) disc_rsp   - Discarded Responses
+ *   (o) req_dup    - Duplicated Requests
+ *   (o) rsp_dup    - Duplicated Responses
+ */
+static void
+sharkd_session_process_tap_rtd_cb(void *arg)
+{
+	rtd_data_t *rtd_data = (rtd_data_t *) arg;
+	register_rtd_t *rtd  = (register_rtd_t *) rtd_data->user_data;
+
+	guint i, j;
+
+	const char *filter = proto_get_protocol_filter_name(get_rtd_proto_id(rtd));
+
+	/* XXX, some dissectors are having single table and multiple timestats (mgcp, megaco),
+	 *      some multiple table and single timestat (radius, h225)
+	 *      and it seems that value_string is used one for timestamp-ID, other one for table-ID
+	 *      I wonder how it will gonna work with multiple timestats and multiple timestat...
+	 * (for usage grep for: register_rtd_table)
+	 */
+	const value_string *vs = get_rtd_value_string(rtd);
+	const char *sepa = "";
+
+	printf("{\"tap\":\"rtd:%s\",\"type\":\"rtd\"", filter);
+
+	if (rtd_data->stat_table.num_rtds == 1)
+	{
+		const rtd_timestat *ms = &rtd_data->stat_table.time_stats[0];
+
+		printf(",\"open_req\":%u", ms->open_req_num);
+		printf(",\"disc_rsp\":%u", ms->disc_rsp_num);
+		printf(",\"req_dup\":%u", ms->req_dup_num);
+		printf(",\"rsp_dup\":%u", ms->rsp_dup_num);
+	}
+
+	printf(",\"stats\":[");
+	for (i = 0; i < rtd_data->stat_table.num_rtds; i++)
+	{
+		const rtd_timestat *ms = &rtd_data->stat_table.time_stats[i];
+
+		for (j = 0; j < ms->num_timestat; j++)
+		{
+			const char *type_str;
+
+			if (ms->rtd[j].num == 0)
+				continue;
+
+			printf("%s{", sepa);
+
+			if (rtd_data->stat_table.num_rtds == 1)
+				type_str = val_to_str_const(j, vs, "Other"); /* 1 table - description per row */
+			else
+				type_str = val_to_str_const(i, vs, "Other"); /* multiple table - description per table */
+			printf("\"type\":");
+			json_puts_string(type_str);
+
+			printf(",\"num\":%u", ms->rtd[j].num);
+			printf(",\"min\":%.9f", nstime_to_sec(&(ms->rtd[j].min)));
+			printf(",\"max\":%.9f", nstime_to_sec(&(ms->rtd[j].max)));
+			printf(",\"tot\":%.9f", nstime_to_sec(&(ms->rtd[j].tot)));
+			printf(",\"min_frame\":%u", ms->rtd[j].min_num);
+			printf(",\"max_frame\":%u", ms->rtd[j].max_num);
+
+			if (rtd_data->stat_table.num_rtds != 1)
+			{
+				/* like in tshark, display it on every row */
+				printf(",\"open_req\":%u", ms->open_req_num);
+				printf(",\"disc_rsp\":%u", ms->disc_rsp_num);
+				printf(",\"req_dup\":%u", ms->req_dup_num);
+				printf(",\"rsp_dup\":%u", ms->rsp_dup_num);
+			}
+
+			printf("}");
+			sepa = ",";
+		}
+	}
+	printf("]},");
+}
+
+static void
+sharkd_session_free_tap_rtd_cb(void *arg)
+{
+	rtd_data_t *rtd_data = (rtd_data_t *) arg;
+
+	free_rtd_table(&rtd_data->stat_table, NULL, NULL);
+	g_free(rtd_data);
+}
+
+/**
+ * sharkd_session_process_tap_srt_cb()
+ *
+ * Output srt tap:
+ *   (m) tap        - tap name
+ *   (m) type       - tap output type
+ *
+ *   (m) tables - array of object with attributes:
+ *                  (m) n - table name
+ *                  (m) f - table filter
+ *                  (o) c - table column name
+ *                  (m) r - table rows - array object with attributes:
+ *                            (m) n   - row name
+ *                            (m) idx - procedure index
+ *                            (m) num - number of events
+ *                            (m) min - minimum SRT time
+ *                            (m) max - maximum SRT time
+ *                            (m) tot - total SRT time
+ */
+static void
+sharkd_session_process_tap_srt_cb(void *arg)
+{
+	srt_data_t *srt_data = (srt_data_t *) arg;
+	register_srt_t *srt = (register_srt_t *) srt_data->user_data;
+
+	const char *filter = proto_get_protocol_filter_name(get_srt_proto_id(srt));
+
+	guint i;
+
+	printf("{\"tap\":\"srt:%s\",\"type\":\"srt\"", filter);
+
+	printf(",\"tables\":[");
+	for (i = 0; i < srt_data->srt_array->len; i++)
+	{
+		/* SRT table */
+		srt_stat_table *rst = g_array_index(srt_data->srt_array, srt_stat_table *, i);
+		const char *sepa = "";
+
+		int j;
+
+		if (i)
+			printf(",");
+		printf("{");
+
+		printf("\"n\":");
+		if (rst->name)
+			json_puts_string(rst->name);
+		else if (rst->short_name)
+			json_puts_string(rst->short_name);
+		else
+			printf("\"table%u\"", i);
+
+		if (rst->filter_string)
+		{
+			printf(",\"f\":");
+			json_puts_string(rst->filter_string);
+		}
+
+		if (rst->proc_column_name)
+		{
+			printf(",\"c\":");
+			json_puts_string(rst->proc_column_name);
+		}
+
+		printf(",\"r\":[");
+		for (j = 0; j < rst->num_procs; j++)
+		{
+			/* SRT row */
+			srt_procedure_t *proc = &rst->procedures[j];
+
+			if (proc->stats.num == 0)
+				continue;
+
+			printf("%s{", sepa);
+
+			printf("\"n\":");
+			json_puts_string(proc->procedure);
+
+			if (rst->filter_string)
+				printf(",\"idx\":%d", proc->proc_index);
+
+			printf(",\"num\":%u", proc->stats.num);
+
+			printf(",\"min\":%.9f", nstime_to_sec(&proc->stats.min));
+			printf(",\"max\":%.9f", nstime_to_sec(&proc->stats.max));
+			printf(",\"tot\":%.9f", nstime_to_sec(&proc->stats.tot));
+
+			printf("}");
+			sepa = ",";
+		}
+		printf("]}");
+	}
+
+	printf("]},");
+}
+
+static void
+sharkd_session_free_tap_srt_cb(void *arg)
+{
+	srt_data_t *srt_data = (srt_data_t *) arg;
+	register_srt_t *srt = (register_srt_t *) srt_data->user_data;
+
+	free_srt_table(srt, srt_data->srt_array, NULL, NULL);
+	g_array_free(srt_data->srt_array, TRUE);
+	g_free(srt_data);
+}
+
 struct sharkd_export_object_list
 {
 	struct sharkd_export_object_list *next;
@@ -1284,6 +1556,8 @@ sharkd_session_process_tap_rtp_cb(void *arg)
  *                  for type:rtp-streams see sharkd_session_process_tap_rtp_cb()
  *                  for type:eo see sharkd_session_process_tap_eo_cb()
  *                  for type:expert see sharkd_session_process_tap_expert_cb()
+ *                  for type:rtd see sharkd_session_process_tap_rtd_cb()
+ *                  for type:srt see sharkd_session_process_tap_srt_cb()
  *
  *   (m) err   - error code
  */
@@ -1393,6 +1667,65 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
 			tap_data = &ct_data->hash;
 			tap_free = sharkd_session_free_tap_conv_cb;
+		}
+		else if (!strncmp(tok_tap, "rtd:", 4))
+		{
+			register_rtd_t *rtd = get_rtd_table_by_name(tok_tap + 4);
+			rtd_data_t *rtd_data;
+			char *err;
+
+			if (!rtd)
+			{
+				fprintf(stderr, "sharkd_session_process_tap() rtd=%s not found\n", tok_tap + 4);
+				continue;
+			}
+
+			rtd_table_get_filter(rtd, "", &tap_filter, &err);
+			if (err != NULL)
+			{
+				fprintf(stderr, "sharkd_session_process_tap() rtd=%s err=%s\n", tok_tap + 4, err);
+				g_free(err);
+				continue;
+			}
+
+			rtd_data = g_new0(rtd_data_t, 1);
+			rtd_data->user_data = rtd;
+			rtd_table_dissector_init(rtd, &rtd_data->stat_table, NULL, NULL);
+
+			tap_error = register_tap_listener(get_rtd_tap_listener_name(rtd), rtd_data, tap_filter, 0, NULL, get_rtd_packet_func(rtd), sharkd_session_process_tap_rtd_cb);
+
+			tap_data = rtd_data;
+			tap_free = sharkd_session_free_tap_rtd_cb;
+		}
+		else if (!strncmp(tok_tap, "srt:", 4))
+		{
+			register_srt_t *srt = get_srt_table_by_name(tok_tap + 4);
+			srt_data_t *srt_data;
+			char *err;
+
+			if (!srt)
+			{
+				fprintf(stderr, "sharkd_session_process_tap() srt=%s not found\n", tok_tap + 4);
+				continue;
+			}
+
+			srt_table_get_filter(srt, "", &tap_filter, &err);
+			if (err != NULL)
+			{
+				fprintf(stderr, "sharkd_session_process_tap() srt=%s err=%s\n", tok_tap + 4, err);
+				g_free(err);
+				continue;
+			}
+
+			srt_data = g_new0(srt_data_t, 1);
+			srt_data->srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table *));
+			srt_data->user_data = srt;
+			srt_table_dissector_init(srt, srt_data->srt_array, NULL, NULL);
+
+			tap_error = register_tap_listener(get_srt_tap_listener_name(srt), srt_data, tap_filter, 0, NULL, get_srt_packet_func(srt), sharkd_session_process_tap_srt_cb);
+
+			tap_data = srt_data;
+			tap_free = sharkd_session_free_tap_srt_cb;
 		}
 		else if (!strncmp(tok_tap, "eo:", 3))
 		{
