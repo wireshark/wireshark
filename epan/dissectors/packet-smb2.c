@@ -200,6 +200,12 @@ static int hf_smb2_negotiate_context_type = -1;
 static int hf_smb2_negotiate_context_data_length = -1;
 static int hf_smb2_negotiate_context_offset = -1;
 static int hf_smb2_negotiate_context_count = -1;
+static int hf_smb2_hash_alg_count = -1;
+static int hf_smb2_hash_algorithm = -1;
+static int hf_smb2_salt_length = -1;
+static int hf_smb2_salt = -1;
+static int hf_smb2_cipher_count = -1;
+static int hf_smb2_cipher_id = -1;
 static int hf_smb2_ea_size = -1;
 static int hf_smb2_ea_flags = -1;
 static int hf_smb2_ea_name_len = -1;
@@ -342,6 +348,7 @@ static int hf_smb2_rdma_v1_length = -1;
 static int hf_smb2_session_flags = -1;
 static int hf_smb2_ses_flags_guest = -1;
 static int hf_smb2_ses_flags_null = -1;
+static int hf_smb2_ses_flags_encrypt = -1;
 static int hf_smb2_share_flags = -1;
 static int hf_smb2_share_flags_dfs = -1;
 static int hf_smb2_share_flags_dfs_root = -1;
@@ -762,6 +769,20 @@ static const value_string smb2_find_info_levels[] = {
 static const value_string smb2_negotiate_context_types[] = {
 	{ SMB2_PREAUTH_INTEGRITY_CAPABILITIES,  "SMB2_PREAUTH_INTEGRITY_CAPABILITIES" },
 	{ SMB2_ENCRYPTION_CAPABILITIES,	"SMB2_ENCRYPTION_CAPABILITIES" },
+	{ 0, NULL }
+};
+
+#define SMB2_HASH_ALGORITHM_SHA_512    0x0001
+static const value_string smb2_hash_algorithm_types[] = {
+	{ SMB2_HASH_ALGORITHM_SHA_512, "SHA-512" },
+	{ 0, NULL }
+};
+
+#define SMB2_CIPHER_AES_128_CCM        0x0001
+#define SMB2_CIPHER_AES_128_GCM        0x0002
+static const value_string smb2_cipher_types[] = {
+	{ SMB2_CIPHER_AES_128_CCM, "AES-128-CCM" },
+	{ SMB2_CIPHER_AES_128_GCM, "AES-128-GCM" },
 	{ 0, NULL }
 };
 
@@ -2764,6 +2785,7 @@ dissect_smb2_ses_req_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 
 #define SES_FLAGS_GUEST		0x0001
 #define SES_FLAGS_NULL		0x0002
+#define SES_FLAGS_ENCRYPT	0x0004
 
 static int
 dissect_smb2_ses_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
@@ -2771,6 +2793,7 @@ dissect_smb2_ses_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	static const int * flags[] = {
 		&hf_smb2_ses_flags_guest,
 		&hf_smb2_ses_flags_null,
+		&hf_smb2_ses_flags_encrypt,
 		NULL
 	};
 
@@ -4062,13 +4085,11 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static int
 dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
 {
-	int start_offset = offset;
 	guint16 type;
 	const gchar *type_str;
-	guint16 data_length;
+	guint32 i, data_length, salt_length, hash_count, cipher_count;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
-	tvbuff_t *sub_tvb;
 
 	sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_smb2_negotiate_context_element, &sub_item, "Negotiate Context");
 
@@ -4080,24 +4101,50 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	offset += 2;
 
 	/* data length */
-	data_length = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(sub_tree, hf_smb2_negotiate_context_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(sub_tree, hf_smb2_negotiate_context_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &data_length);
 	offset += 2;
 
 	/* reserved */
 	proto_tree_add_item(sub_tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
-	/* data */
-	sub_tvb = tvb_new_subset_length(tvb, offset, data_length);
-	offset += data_length;
+	switch (type)
+	{
+		case SMB2_PREAUTH_INTEGRITY_CAPABILITIES:
+			proto_tree_add_item_ret_uint(sub_tree, hf_smb2_hash_alg_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &hash_count);
+			offset += 2;
+			proto_tree_add_item_ret_uint(sub_tree, hf_smb2_salt_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &salt_length);
+			offset += 2;
 
-	proto_item_set_len(sub_item, offset - start_offset);
+			for (i = 0; i < hash_count; i++)
+			{
+				proto_tree_add_item(sub_tree, hf_smb2_hash_algorithm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+			}
 
-	/*
-	 * TODO: disssect the context data
-	 */
-	proto_tree_add_item(sub_tree, hf_smb2_unknown, sub_tvb, 0, data_length, ENC_NA);
+			if (salt_length)
+			{
+				proto_tree_add_item(sub_tree, hf_smb2_salt, tvb, offset, salt_length, ENC_NA);
+				offset += salt_length;
+			}
+			break;
+
+		case SMB2_ENCRYPTION_CAPABILITIES:
+			proto_tree_add_item_ret_uint(sub_tree, hf_smb2_cipher_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &cipher_count);
+			offset += 2;
+
+			for (i = 0; i < cipher_count; i ++)
+			{
+				proto_tree_add_item(sub_tree, hf_smb2_cipher_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+			}
+			break;
+
+		default:
+			proto_tree_add_item(sub_tree, hf_smb2_unknown, tvb, offset, data_length, ENC_NA);
+			offset += data_length;
+			break;
+	}
 
 	return offset;
 }
@@ -9872,6 +9919,30 @@ proto_register_smb2(void)
 			NULL, 0, "NegotiateContext Count", HFILL }
 		},
 
+		{ &hf_smb2_hash_alg_count,
+			{ "HashAlgorithmCount", "smb2.negotiate_context.hash_alg_count", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_hash_algorithm,
+			{ "HashAlgorithm", "smb2.negotiate_context.hash_algorithm", FT_UINT16, BASE_HEX,
+			VALS(smb2_hash_algorithm_types), 0, NULL, HFILL }},
+
+		{ &hf_smb2_salt_length,
+			{ "SaltLength", "smb2.negotiate_context.salt_length", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_salt,
+			{ "Salt", "smb2.negotiate_context.salt", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_cipher_count,
+			{ "CipherCount", "smb2.negotiate_context.cipher_count", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_cipher_id,
+			{ "CipherId", "smb2.negotiate_context.cipher_id", FT_UINT16, BASE_HEX,
+			VALS(smb2_cipher_types), 0, NULL, HFILL }},
+
 		{ &hf_smb2_current_time,
 			{ "Current Time", "smb2.current_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "Current Time at server", HFILL }
@@ -10447,6 +10518,10 @@ proto_register_smb2(void)
 			{ "Null", "smb2.ses_flags.null", FT_BOOLEAN, 16,
 			NULL, SES_FLAGS_NULL, NULL, HFILL }
 		},
+
+		{ &hf_smb2_ses_flags_encrypt,
+			{ "Encrypt", "smb2.ses_flags.encrypt", FT_BOOLEAN, 16,
+			NULL, SES_FLAGS_ENCRYPT, NULL, HFILL }},
 
 		{ &hf_smb2_secmode_flags_sign_required,
 			{ "Signing required", "smb2.sec_mode.sign_required", FT_BOOLEAN, 8,
