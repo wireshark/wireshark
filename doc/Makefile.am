@@ -295,7 +295,6 @@ EXTRA_DIST =				\
 	README.developer		\
 	README.display_filter		\
 	README.dissector		\
-	README.epan_child		\
 	README.extcap			\
 	README.heuristic		\
 	README.idl2wrs			\
