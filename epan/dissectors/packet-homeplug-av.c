@@ -4942,7 +4942,7 @@ proto_register_homeplug_av(void)
           FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
       { &hf_homeplug_av_nw_info_tei,
-        { "Terminal Equipement Identifer", "homeplug_av.nw_info.tei",
+        { "Terminal Equipement Identifier", "homeplug_av.nw_info.tei",
           FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_homeplug_av_nw_info_sta_role,

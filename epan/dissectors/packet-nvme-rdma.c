@@ -948,7 +948,7 @@ proto_register_nvme_rdma(void)
                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_connect_data_hostid,
-            { "Host Identifer", "nvme-rdma.cmd.connect.data.hostid",
+            { "Host Identifier", "nvme-rdma.cmd.connect.data.hostid",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_rdma_cmd_connect_data_cntlid,
