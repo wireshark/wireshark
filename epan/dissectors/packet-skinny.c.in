@@ -356,7 +356,7 @@ static void skinny_reqrep_add_response(ptvcursor_t *cursor, packet_info * pinfo,
       wmem_map_insert(skinny_conv->requests, GUINT_TO_POINTER(req_resp->request_frame), (void *)req_resp);
       wmem_map_insert(skinny_conv->responses, GUINT_TO_POINTER(pinfo->num), (void *)req_resp);
     } else {
-      DPRINT(("SKINNY: no match found for reponse frame=%d and key=%d\n", pinfo->num, request_key));
+      DPRINT(("SKINNY: no match found for response frame=%d and key=%d\n", pinfo->num, request_key));
     }
   }
 

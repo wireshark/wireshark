@@ -3693,7 +3693,7 @@ proto_register_kafka(void)
                HFILL }
         },
         { &hf_kafka_response_frame,
-            { "Response Frame", "kafka.reponse_frame",
+            { "Response Frame", "kafka.response_frame",
                FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0,
                NULL, HFILL }
         },

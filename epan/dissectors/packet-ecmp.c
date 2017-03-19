@@ -1725,7 +1725,7 @@ static int get_parameter_responses(packet_info* pinfo, int offset, guint8 comman
 					}
 				} else {
 					offset++;
-					/*display reponse data_byte*/
+					/*display response data_byte*/
 					start_offset = offset;
 					ecmp_parameter_response_tree = proto_tree_add_subtree_format(ecmp_parameter_number_tree, tvb, offset, 0, ett_ecmp_command, &ecmp_response_item, "Response %d:", (a+1));
 					proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_parameter_status, tvb, offset, 1, ENC_BIG_ENDIAN);

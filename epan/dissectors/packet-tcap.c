@@ -2627,7 +2627,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
       }
 
-      /* Check if the reponse with this reqSeqNum has been seen */
+      /* Check if the response with this reqSeqNum has been seen */
       if (pinfo->num == p_tcaphash_ansicall->context->last_frame) {
         /* We have seen this response before -> do nothing */
 #ifdef DEBUG_TCAPSRT
