@@ -1876,26 +1876,6 @@ else
 fi
 AC_SUBST(sharkd_bin)
 
-# Enable/disable echld
-AC_ARG_ENABLE(echld,
-  AC_HELP_STRING( [--enable-echld],
-		  [support echld (Experimental) @<:@default=no@:>@]),
-    have_echld=$enableval,have_echld=no)
-
-AM_CONDITIONAL(HAVE_ECHLD, test "x$have_echld" = "xyes")
-if test "x$have_echld" = "xyes"
-then
-  AC_DEFINE(HAVE_ECHLD, 1, [Define if echld is enabled])
-  echld_test_bin="echld_test\$(EXEEXT)"
-  echld_dir="echld"
-else
-  have_echld="no"
-  echld_test_bin=""
-  echld_dir=""
-fi
-AC_SUBST(echld_test_bin)
-AC_SUBST(echld_dir)
-
 # Enable/disable tfshark
 AC_ARG_ENABLE(tfshark,
   AC_HELP_STRING( [--enable-tfshark],
@@ -3012,7 +2992,6 @@ AC_CONFIG_FILES(
   writecap/Makefile
   writecap/doxygen.cfg
   wsutil/Makefile
-  echld/Makefile
   _CUSTOM_AC_OUTPUT_
 )
 
@@ -3161,7 +3140,6 @@ echo "                      Build sshdump : $enable_sshdump"
 echo "                    Build ciscodump : $enable_ciscodump"
 echo "                  Build randpktdump : $enable_randpktdump"
 echo "                      Build udpdump : $enable_udpdump"
-echo "                        Build echld : $have_echld"
 echo ""
 echo "   Save files as pcap-ng by default : $enable_pcap_ng_default"
 echo "  Install dumpcap with capabilities : $setcap_message"

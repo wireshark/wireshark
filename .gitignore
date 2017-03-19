@@ -85,7 +85,6 @@ depcomp
 dftest
 dumpcap
 editcap
-echld_test
 exntest
 install-sh
 libtool

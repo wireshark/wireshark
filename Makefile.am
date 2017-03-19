@@ -45,12 +45,11 @@ bin_PROGRAMS = \
 	@dumpcap_bin@		\
 	@reordercap_bin@	\
 	@rawshark_bin@		\
-	@sharkd_bin@		\
-	@echld_test_bin@
+	@sharkd_bin@
 
 EXTRA_PROGRAMS = wireshark-gtk wireshark tshark tfshark capinfos captype \
 	editcap mergecap dftest randpkt text2pcap dumpcap reordercap \
-	rawshark sharkd echld_test
+	rawshark sharkd
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -718,30 +717,6 @@ dftest_LDADD = \
 	@PCAP_LIBS@			\
 	${EPAN_EXTRA_LIBS}
 
-echld_test_SOURCES = \
-	echld_test.c			\
-	capture_opts.c			\
-	capture_stop_conditions.c	\
-	cfile.c				\
-	conditions.c			\
-	ringbuffer.c			\
-	sync_pipe_write.c
-
-echld_test_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
-
-echld_test_LDADD = \
-	epan/libwireshark.la		\
-	echld/libechld.la		\
-	writecap/libwritecap.a		\
-	wsutil/libwsutil.la		\
-	@GLIB_LIBS@			\
-	@PCAP_LIBS@			\
-	@C_ARES_LIBS@
-
-echld_test_DEPENDENCIES = \
-	echld/libechld.la	\
-	epan/libwireshark.la
-
 dumpcap_SOURCES = \
 	capture_opts.c			\
 	capture_stop_conditions.c	\
@@ -908,7 +883,6 @@ DIST_SUBDIRS = \
 	codecs		\
 	doc		\
 	epan		\
-	echld		\
 	ui		\
 	ui/cli		\
 	ui/gtk		\
@@ -932,7 +906,6 @@ SUBDIRS = \
 	epan			\
 	capchild		\
 	caputils		\
-	@echld_dir@		\
 	@plugins_dir@		\
 	packaging		\
 	help			\

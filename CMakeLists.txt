@@ -1173,10 +1173,6 @@ if(NOT WIN32)
 	add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libwiretap dumpabi-libwsutil)
 endif()
 
-if(ENABLE_ECHLD)
-	add_subdirectory( echld )
-endif()
-
 if(BUILD_wireshark_gtk AND GTK_FOUND)
 	add_subdirectory( ui/gtk )
 endif()

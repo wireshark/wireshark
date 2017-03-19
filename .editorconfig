@@ -33,7 +33,7 @@ indent_size = 4
 [{capinfos,captype,mergecap,tfshark,tshark}.c]
 indent_size = 2
 
-[{dftest,echld_test,randpkt,trigcap}.c]
+[{dftest,randpkt,trigcap}.c]
 indent_style = tab
 indent_size = tab
 

@@ -53,7 +53,6 @@ else()
 endif()
 # todo
 option(ENABLE_STATIC     "Build a static version of Wireshark (not yet working)" OFF)
-option(ENABLE_ECHLD      "Enable echld support" OFF)
 option(ENABLE_PLUGINS    "Build with plugins" ON)
 option(ENABLE_PLUGIN_IFDEMO    "Build with plugin interface demo" OFF)
 option(ENABLE_EXTCAP     "Build with extcap hooks" ON)
