@@ -1027,10 +1027,9 @@ ftype_register_integers(void)
 		char_repr_len,			/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
-		{ NULL },			/* union get_value */
+		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		get_uinteger,			/* get_value_uinteger */
 
 		cmp_eq,
 		cmp_ne,
@@ -1058,10 +1057,9 @@ ftype_register_integers(void)
 		uinteger_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
-		{ NULL },			/* union get_value */
+		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		get_uinteger,			/* get_value_uinteger */
 
 		cmp_eq,
 		cmp_ne,
@@ -1089,10 +1087,9 @@ ftype_register_integers(void)
 		uinteger_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
-		{ NULL },			/* union get_value */
+		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		get_uinteger,			/* get_value_integer */
 
 		cmp_eq,
 		cmp_ne,
@@ -1120,10 +1117,9 @@ ftype_register_integers(void)
 		uinteger_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
-		{ NULL },			/* union get_value */
+		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		get_uinteger,			/* get_value_integer */
 
 		cmp_eq,
 		cmp_ne,
@@ -1151,10 +1147,9 @@ ftype_register_integers(void)
 		uinteger_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
-		{ NULL },			/* union get_value */
+		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		get_uinteger,			/* get_value_integer */
 
 		cmp_eq,
 		cmp_ne,
@@ -1185,7 +1180,6 @@ ftype_register_integers(void)
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1216,7 +1210,6 @@ ftype_register_integers(void)
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1247,7 +1240,6 @@ ftype_register_integers(void)
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1278,7 +1270,6 @@ ftype_register_integers(void)
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1309,7 +1300,6 @@ ftype_register_integers(void)
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq,
 		cmp_ne,
@@ -1340,7 +1330,6 @@ ftype_register_integers(void)
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq,
 		cmp_ne,
@@ -1371,7 +1360,6 @@ ftype_register_integers(void)
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq,
 		cmp_ne,
@@ -1402,7 +1390,6 @@ ftype_register_integers(void)
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq,
 		cmp_ne,
@@ -1433,7 +1420,6 @@ ftype_register_integers(void)
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1464,7 +1450,6 @@ ftype_register_integers(void)
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1495,7 +1480,6 @@ ftype_register_integers(void)
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1526,7 +1510,6 @@ ftype_register_integers(void)
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1557,7 +1540,6 @@ ftype_register_integers(void)
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		bool_eq,			/* cmp_eq */
 		bool_ne,			/* cmp_ne */
@@ -1586,10 +1568,9 @@ ftype_register_integers(void)
 		ipxnet_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
-		{ NULL },			/* union get_value */
+		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		get_uinteger,			/* get_value_uinteger */
 
 		cmp_eq,
 		cmp_ne,
@@ -1618,10 +1599,9 @@ ftype_register_integers(void)
 		uinteger_repr_len,		/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
-		{ NULL },			/* union get_value */
+		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		get_uinteger,			/* get_value_uinteger */
 
 		cmp_eq,
 		cmp_ne,
@@ -1653,7 +1633,6 @@ ftype_register_integers(void)
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq64,
 		cmp_ne64,

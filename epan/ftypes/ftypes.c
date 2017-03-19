@@ -626,8 +626,17 @@ fvalue_get(fvalue_t *fv)
 guint32
 fvalue_get_uinteger(fvalue_t *fv)
 {
-	g_assert(fv->ftype->get_value_uinteger);
-	return fv->ftype->get_value_uinteger(fv);
+	g_assert(fv->ftype->ftype == FT_IEEE_11073_SFLOAT ||
+			fv->ftype->ftype == FT_IEEE_11073_FLOAT ||
+			fv->ftype->ftype == FT_CHAR ||
+			fv->ftype->ftype == FT_UINT8 ||
+			fv->ftype->ftype == FT_UINT16 ||
+			fv->ftype->ftype == FT_UINT24 ||
+			fv->ftype->ftype == FT_UINT32 ||
+			fv->ftype->ftype == FT_IPXNET ||
+			fv->ftype->ftype == FT_FRAMENUM);
+	g_assert(fv->ftype->get_value.get_value_uinteger);
+	return fv->ftype->get_value.get_value_uinteger(fv);
 }
 
 gint32

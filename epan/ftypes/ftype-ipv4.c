@@ -189,7 +189,6 @@ ftype_register_ipv4(void)
 		{ NULL },			/* union get_value */
 
 		value_get,			/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq,
 		cmp_ne,

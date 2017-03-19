@@ -239,7 +239,6 @@ ftype_register_ipv6(void)
 		{ NULL },			/* union get_value */
 
 		value_get,			/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq,
 		cmp_ne,

@@ -174,7 +174,6 @@ ftype_register_double(void)
 		{ .get_value_floating = value_get_floating },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq,
 		cmp_ne,
@@ -206,7 +205,6 @@ ftype_register_double(void)
 		{ .get_value_floating = value_get_floating },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		cmp_eq,
 		cmp_ne,

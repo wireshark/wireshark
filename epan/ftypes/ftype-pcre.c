@@ -167,7 +167,6 @@ ftype_register_pcre(void)
         { NULL },            /* union get_value */
 
         gregex_fvalue_get,  /* get_value_ptr */
-        NULL,               /* get_value_uinteger */
 
         NULL,               /* cmp_eq */
         NULL,               /* cmp_ne */

@@ -43,7 +43,6 @@ ftype_register_none(void)
 		{ NULL },			/* union get_value */
 
 		NULL,				/* get_value_ptr */
-		NULL,				/* get_value_uinteger */
 
 		NULL,				/* cmp_eq */
 		NULL,				/* cmp_ne */
