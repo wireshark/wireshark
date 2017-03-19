@@ -161,7 +161,7 @@ To see interface DLTs:
     ciscodump --extcap-interface=cisco --extcap-dlts
 
   Output:
-    dlt {number=147}{name=cisco}{display=Remote capture dependant DLT}
+    dlt {number=147}{name=cisco}{display=Remote capture dependent DLT}
 
 To see interface configuration options:
 
