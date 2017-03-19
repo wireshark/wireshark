@@ -384,8 +384,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         address_with_resolution_to_str(wmem_packet_scope(), &pinfo->dst));
     fh_tree = proto_item_add_subtree(ti, ett_ether);
     addr_item = proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst_addr);
-    if (addr_item)
-        addr_tree = proto_item_add_subtree(addr_item, ett_addr);
+    addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_dst_resolved, tvb, 0, 6,
         dst_addr_name);
     PROTO_ITEM_SET_GENERATED(addr_item);
@@ -399,8 +398,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
 
     addr_item = proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
-    if (addr_item)
-        addr_tree = proto_item_add_subtree(addr_item, ett_addr);
+    addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_src_resolved, tvb, 6, 6,
         src_addr_name);
     PROTO_ITEM_SET_GENERATED(addr_item);
@@ -443,10 +441,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
       fh_tree=NULL;
     }
 
-    addr_item=proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst_addr);
-    if(addr_item){
-        addr_tree = proto_item_add_subtree(addr_item, ett_addr);
-    }
+    addr_item = proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst_addr);
+    addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_dst_resolved, tvb, 0, 6,
         dst_addr_name);
     PROTO_ITEM_SET_GENERATED(addr_item);
@@ -459,10 +455,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
 
-    addr_item=proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
-    if(addr_item){
-        addr_tree = proto_item_add_subtree(addr_item, ett_addr);
-    }
+    addr_item = proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
+    addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_src_resolved, tvb, 6, 6,
         src_addr_name);
     PROTO_ITEM_SET_GENERATED(addr_item);
@@ -500,11 +494,9 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
       fh_tree = proto_item_add_subtree(ti, ett_ether2);
     }
 
-    addr_item=proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst_addr);
-    if(addr_item){
-        addr_tree = proto_item_add_subtree(addr_item, ett_addr);
-    }
-    addr_item=proto_tree_add_string(addr_tree, hf_eth_dst_resolved, tvb, 0, 6,
+    addr_item = proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst_addr);
+    addr_tree = proto_item_add_subtree(addr_item, ett_addr);
+    addr_item = proto_tree_add_string(addr_tree, hf_eth_dst_resolved, tvb, 0, 6,
         dst_addr_name);
     PROTO_ITEM_SET_GENERATED(addr_item);
     PROTO_ITEM_SET_HIDDEN(addr_item);
@@ -516,12 +508,10 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
 
-    addr_item=proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
-    if(addr_item){
-        addr_tree = proto_item_add_subtree(addr_item, ett_addr);
-        if (tvb_get_guint8(tvb, 6) & 0x01) {
-            expert_add_info(pinfo, addr_item, &ei_eth_src_not_group);
-        }
+    addr_item = proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
+    addr_tree = proto_item_add_subtree(addr_item, ett_addr);
+    if (tvb_get_guint8(tvb, 6) & 0x01) {
+      expert_add_info(pinfo, addr_item, &ei_eth_src_not_group);
     }
     addr_item=proto_tree_add_string(addr_tree, hf_eth_src_resolved, tvb, 6, 6,
         src_addr_name);
