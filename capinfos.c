@@ -976,16 +976,29 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     /*
      * this is silly to put into a table format, but oh well
      * note that there may be *more than one* of each of these types
-     * of options
+     * of options.  To mitigate some of the potential silliness should
+     * the if(cap_comment) block be moved AFTER the if(cap_file_more_info)
+     * block?  That would make any comments the last item(s) in each row.
+     * And/or should we add an cli option to inhibit the cap_comment to
+     * more easily manage the potential silliness?  Potential silliness
+     * includes multiple comments and/or comments with embeded newlines.
      */
     if (cap_comment) {
       unsigned int i;
       char *opt_comment;
+      gboolean have_cap = FALSE;
 
       for (i = 0; wtap_block_get_nth_string_option_value(cf_info->shb, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
+        have_cap = TRUE;
         putsep();
         putquote();
         printf("%s", opt_comment);
+        putquote();
+      }
+      if(!have_cap) {
+        /* Maintain column alignment when we have no OPT_COMMENT */
+        putsep();
+        putquote();
         putquote();
       }
     }
@@ -993,24 +1006,26 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     if (cap_file_more_info) {
       char *str;
 
+      putsep();
+      putquote();
       if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_HARDWARE, &str) == WTAP_OPTTYPE_SUCCESS) {
-        putsep();
-        putquote();
         printf("%s", str);
-        putquote();
       }
+      putquote();
+
+      putsep();
+      putquote();
       if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_OS, &str) == WTAP_OPTTYPE_SUCCESS) {
-        putsep();
-        putquote();
         printf("%s", str);
-        putquote();
       }
+      putquote();
+
+      putsep();
+      putquote();
       if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS) {
-        putsep();
-        putquote();
         printf("%s", str);
-        putquote();
       }
+      putquote();
     }
   }
 
