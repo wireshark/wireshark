@@ -11070,6 +11070,7 @@ athand-mmp      20999/udp # AT Hand MMP [Stepan_Riha] [Stepan_Riha]
 irtrans         21000/tcp # IRTrans Control [Marcus_Mueller] [Marcus_Mueller] 2004-11
 irtrans         21000/udp # IRTrans Control [Marcus_Mueller] [Marcus_Mueller] 2004-11
 notezilla-lan   21010/tcp # Notezilla.Lan Server [Conceptworld_Corporation] [Gautam_Jain] 2013-08-20
+aigairserver    21221/tcp # Services for Air Server [AIG_S.L.] [Edelmiro_Gonzalez_Martinez] 2017-03-16
 rdm-tfs         21553/tcp # Raima RDM TFS [Paul_Johnson] [Paul_Johnson] 2011-05-02
 dfserver        21554/tcp # MineScape Design File Server [Michael_Purser] [Michael_Purser] 2006-06
 dfserver        21554/udp # MineScape Design File Server [Michael_Purser] [Michael_Purser] 2006-06
