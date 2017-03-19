@@ -240,7 +240,6 @@ ftype_register_ipv6(void)
 
 		value_get,			/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
-		NULL,				/* get_value_sinteger */
 
 		cmp_eq,
 		cmp_ne,

@@ -633,8 +633,12 @@ fvalue_get_uinteger(fvalue_t *fv)
 gint32
 fvalue_get_sinteger(fvalue_t *fv)
 {
-	g_assert(fv->ftype->get_value_sinteger);
-	return fv->ftype->get_value_sinteger(fv);
+	g_assert(fv->ftype->ftype == FT_INT8 ||
+			fv->ftype->ftype == FT_INT16 ||
+			fv->ftype->ftype == FT_INT24 ||
+			fv->ftype->ftype == FT_INT32);
+	g_assert(fv->ftype->get_value.get_value_sinteger);
+	return fv->ftype->get_value.get_value_sinteger(fv);
 }
 
 guint64
