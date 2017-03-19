@@ -647,8 +647,12 @@ fvalue_get_uinteger64(fvalue_t *fv)
 gint64
 fvalue_get_sinteger64(fvalue_t *fv)
 {
-	g_assert(fv->ftype->get_value_sinteger64);
-	return fv->ftype->get_value_sinteger64(fv);
+	g_assert(fv->ftype->ftype == FT_INT40 ||
+			fv->ftype->ftype == FT_INT48 ||
+			fv->ftype->ftype == FT_INT56 ||
+			fv->ftype->ftype == FT_INT64);
+	g_assert(fv->ftype->get_value.get_value_sinteger64);
+	return fv->ftype->get_value.get_value_sinteger64(fv);
 }
 
 double

@@ -1033,7 +1033,6 @@ ftype_register_integers(void)
 		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
@@ -1067,7 +1066,6 @@ ftype_register_integers(void)
 		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
@@ -1101,7 +1099,6 @@ ftype_register_integers(void)
 		get_uinteger,			/* get_value_integer */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
@@ -1135,7 +1132,6 @@ ftype_register_integers(void)
 		get_uinteger,			/* get_value_integer */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
@@ -1169,7 +1165,6 @@ ftype_register_integers(void)
 		get_uinteger,			/* get_value_integer */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
@@ -1203,7 +1198,6 @@ ftype_register_integers(void)
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1237,7 +1231,6 @@ ftype_register_integers(void)
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1271,7 +1264,6 @@ ftype_register_integers(void)
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1305,7 +1297,6 @@ ftype_register_integers(void)
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1339,7 +1330,6 @@ ftype_register_integers(void)
 		NULL,				/* get_value_uinteger */
 		get_sinteger,			/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
@@ -1373,7 +1363,6 @@ ftype_register_integers(void)
 		NULL,				/* get_value_uinteger */
 		get_sinteger,			/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
@@ -1407,7 +1396,6 @@ ftype_register_integers(void)
 		NULL,				/* get_value_uinteger */
 		get_sinteger,			/* get_value_integer */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
@@ -1441,7 +1429,6 @@ ftype_register_integers(void)
 		NULL,				/* get_value_uinteger */
 		get_sinteger,			/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
@@ -1469,13 +1456,12 @@ ftype_register_integers(void)
 		integer64_repr_len,		/* len_string_repr */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
-		{ NULL },			/* union get_value */
+		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		get_sinteger64,			/* get_value_sinteger64 */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1503,13 +1489,12 @@ ftype_register_integers(void)
 		integer64_repr_len,		/* len_string_repr */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
-		{ NULL },			/* union get_value */
+		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		get_sinteger64,			/* get_value_sinteger64 */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1537,13 +1522,12 @@ ftype_register_integers(void)
 		integer64_repr_len,		/* len_string_repr */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
-		{ NULL },			/* union get_value */
+		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		get_sinteger64,			/* get_value_sinteger64 */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1571,13 +1555,12 @@ ftype_register_integers(void)
 		integer64_repr_len,		/* len_string_repr */
 
 		{ .set_value_sinteger64 = set_sinteger64 },	/* union set_value */
-		{ NULL },			/* union get_value */
+		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
 		NULL,				/* get_value_ptr */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		get_sinteger64,			/* get_value_sinteger64 */
 
 		cmp_eq64,
 		cmp_ne64,
@@ -1611,7 +1594,6 @@ ftype_register_integers(void)
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		bool_eq,			/* cmp_eq */
 		bool_ne,			/* cmp_ne */
@@ -1646,7 +1628,6 @@ ftype_register_integers(void)
 		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
@@ -1681,7 +1662,6 @@ ftype_register_integers(void)
 		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
@@ -1716,7 +1696,6 @@ ftype_register_integers(void)
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq64,
 		cmp_ne64,

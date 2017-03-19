@@ -177,7 +177,6 @@ ftype_register_double(void)
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
@@ -212,7 +211,6 @@ ftype_register_double(void)
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_uinteger64 */
-		NULL,				/* get_value_sinteger64 */
 
 		cmp_eq,
 		cmp_ne,
