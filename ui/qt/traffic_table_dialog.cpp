@@ -136,7 +136,7 @@ gboolean TrafficTableDialog::fillTypeMenuFunc(const void *key, void *value, void
     endp_action->setData(qVariantFromValue(proto_id));
     endp_action->setCheckable(true);
     endp_action->setChecked(data->enabled_protos_.contains(proto_id));
-    data->dialog_->connect(endp_action, SIGNAL(triggered()), data->dialog_, SLOT(data->dialog_->toggleTable()));
+    data->dialog_->connect(endp_action, SIGNAL(triggered()), data->dialog_, SLOT(toggleTable()));
     data->dialog_->traffic_type_menu_.addAction(endp_action);
 
     return FALSE;
