@@ -1371,7 +1371,6 @@ print_usage(FILE *output)
   fprintf(output, "\n");
   fprintf(output, "If no options are given the default is to display all infos in long report\n");
   fprintf(output, "output format.\n");
-  fprintf(output, "\nFile hashing support (-H) is not present.\n");
 }
 
 #ifdef HAVE_PLUGINS
