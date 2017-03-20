@@ -1493,7 +1493,8 @@ static int      hf_cflow_forwarding_status_forward_code             = -1;
 static int      hf_cflow_forwarding_status_consume_code             = -1;
 static int      hf_cflow_forwarding_status_drop_code                = -1;
 static int      hf_cflow_nbar_appl_desc                             = -1;
-static int      hf_cflow_nbar_appl_id                               = -1;
+static int      hf_cflow_nbar_appl_id_class_eng_id                  = -1;
+static int      hf_cflow_nbar_appl_id_selector_id                   = -1;
 static int      hf_cflow_nbar_appl_name                             = -1;
 static int      hf_cflow_peer_srcas                                 = -1;
 static int      hf_cflow_peer_dstas                                 = -1;
@@ -2235,17 +2236,6 @@ proto_tree_add_mpls_label(proto_tree *pdutree, tvbuff_t *tvb, int offset, int le
                                           "MPLS-Label%d: bad length %d", level, length);
     }
     return ti;
-}
-
-
-static void
-nbar_fmt_id(gchar *result, guint32 nbar_id)
-{
-    guint32 nbar_id_type = (nbar_id>>24)&0xFF;
-    nbar_id &= 0xFFFFFF;
-
-    g_snprintf(result, ITEM_LABEL_LENGTH,
-               "NBAR Application ID: %d:%d (type:id)", nbar_id_type, nbar_id);
 }
 
 
@@ -4071,8 +4061,10 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 95: /* NBAR applicationId */
-            ti = proto_tree_add_item(pdutree, hf_cflow_nbar_appl_id,
-                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(pdutree, hf_cflow_nbar_appl_id_class_eng_id,
+                                     tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pdutree, hf_cflow_nbar_appl_id_selector_id,
+                                tvb, offset+1, length -1, ENC_NA);
             break;
 
         case 96: /* NBAR applicationName */
@@ -8281,10 +8273,15 @@ proto_register_netflow(void)
           FT_STRING, STR_UNICODE, NULL, 0x0,
           "Application Desc (NBAR)", HFILL}
         },
-        {&hf_cflow_nbar_appl_id,
-         {"ApplicationID", "cflow.appl_id",
-          FT_UINT32, BASE_CUSTOM, CF_FUNC(nbar_fmt_id), 0x0,
-          "Application ID (NBAR)", HFILL}
+        {&hf_cflow_nbar_appl_id_class_eng_id,
+         {"Classification Engine ID", "cflow.appl_id.classification_engine_id",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Application ID", HFILL}
+        },
+        {&hf_cflow_nbar_appl_id_selector_id,
+         {"Selector ID", "cflow.appl_id.selector_id",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Application ID", HFILL}
         },
         {&hf_cflow_nbar_appl_name,
          {"ApplicationName", "cflow.appl_name",
