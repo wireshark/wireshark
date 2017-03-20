@@ -3008,8 +3008,10 @@ dissect_pmip6_opt_ipv4hareq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(opt_tree, hf_mip6_ipv4ha_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    item = proto_tree_add_item_ret_uint(opt_tree, hf_mip6_ipv4ha_ha, tvb,
-            offset, MIP6_IPV4HAREQ_HA_LEN, ENC_BIG_ENDIAN, &dword);
+    /* Field is an IPv4 address, so can't be retrieved by proto_tree_add_item_ret_uint */
+    dword = tvb_get_ntohl(tvb,offset);
+    item = proto_tree_add_item(opt_tree, hf_mip6_ipv4ha_ha, tvb,
+            offset, MIP6_IPV4HAREQ_HA_LEN, ENC_BIG_ENDIAN);
     if (dword == 0) {
         proto_item_append_text(item, " - Request that the local mobility anchor perform the address allocation");
     }
@@ -3669,6 +3671,7 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
     dissector_handle_t option_dissector;
     tvbuff_t       *next_tvb;
     proto_item     *ti;
+    proto_tree     *unknown_tree;
 
     while ((gint)length > 0) {
         opt = tvb_get_guint8(tvb, offset);
@@ -3710,11 +3713,10 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
                 return;
             }
 
-            option_dissector = dissector_get_uint_handle(mip6_option_table, opt);
             if (option_dissector == NULL) {
-                opt_tree = proto_tree_add_subtree(opt_tree, tvb, offset, len+2, ett_mip6_opt_unknown, &ti, name);
-                proto_tree_add_item(opt_tree, hf_mip6_mobility_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, 1, 1, ENC_NA);
+                unknown_tree = proto_tree_add_subtree(opt_tree, tvb, offset, len+2, ett_mip6_opt_unknown, &ti, name);
+                proto_tree_add_item(unknown_tree, hf_mip6_mobility_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(unknown_tree, hf_mip6_opt_len, tvb, 1, 1, ENC_NA);
 
                 expert_add_info(pinfo, ti, &ei_mip6_ie_not_dissected);
             } else {
