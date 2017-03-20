@@ -20,6 +20,8 @@ S<[ B<-h> ]>
 S<[ B<-H> ]>
 S<[ B<-i> ]>
 S<[ B<-I> ]>
+S<[ B<-k> ]>
+S<[ B<-K> ]>
 S<[ B<-l> ]>
 S<[ B<-L> ]>
 S<[ B<-m> ]>
@@ -174,6 +176,14 @@ is not available in table format.
 
 Displays the capture comment. For pcapng files, this is the comment from the
 section header block.
+
+=item -K
+
+Use this option to suppress printing capture comments.  By default capture
+comments are enabled.  Capture comments are relatively freeform and might
+contain embedded new-line characters and/or other delimiting characters
+making it harder for a human or machine to easily parse the capinfos output.
+Excluding capture comments can aid in post-processing of output.
 
 =item -l
 

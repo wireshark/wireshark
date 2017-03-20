@@ -702,14 +702,6 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
 
   if (cf_info->shb != NULL) {
-    if (cap_comment) {
-      unsigned int i;
-      char *str;
-
-      for (i = 0; wtap_block_get_nth_string_option_value(cf_info->shb, OPT_COMMENT, i, &str) == WTAP_OPTTYPE_SUCCESS; i++) {
-        show_option_string("Capture comment:     ", str);
-      }
-    }
     if (cap_file_more_info) {
       char *str;
 
@@ -719,6 +711,14 @@ print_stats(const gchar *filename, capture_info *cf_info)
         show_option_string("Capture oper-sys:    ", str);
       if (wtap_block_get_string_option_value(cf_info->shb, OPT_SHB_USERAPPL, &str) == WTAP_OPTTYPE_SUCCESS)
         show_option_string("Capture application: ", str);
+    }
+    if (cap_comment) {
+      unsigned int i;
+      char *str;
+
+      for (i = 0; wtap_block_get_nth_string_option_value(cf_info->shb, OPT_COMMENT, i, &str) == WTAP_OPTTYPE_SUCCESS; i++) {
+        show_option_string("Capture comment:     ", str);
+      }
     }
 
     if (cap_file_idb && cf_info->num_interfaces != 0) {
@@ -788,12 +788,12 @@ print_stats_table_header(void)
     print_stats_table_header_label("MD5");
   }
   if (cap_order)          print_stats_table_header_label("Strict time order");
-  if (cap_comment)        print_stats_table_header_label("Capture comment");
   if (cap_file_more_info) {
     print_stats_table_header_label("Capture hardware");
     print_stats_table_header_label("Capture oper-sys");
     print_stats_table_header_label("Capture application");
   }
+  if (cap_comment)        print_stats_table_header_label("Capture comment");
 
   printf("\n");
 }
@@ -973,36 +973,6 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   }
 
   if (cf_info->shb != NULL) {
-    /*
-     * this is silly to put into a table format, but oh well
-     * note that there may be *more than one* of each of these types
-     * of options.  To mitigate some of the potential silliness should
-     * the if(cap_comment) block be moved AFTER the if(cap_file_more_info)
-     * block?  That would make any comments the last item(s) in each row.
-     * And/or should we add an cli option to inhibit the cap_comment to
-     * more easily manage the potential silliness?  Potential silliness
-     * includes multiple comments and/or comments with embeded newlines.
-     */
-    if (cap_comment) {
-      unsigned int i;
-      char *opt_comment;
-      gboolean have_cap = FALSE;
-
-      for (i = 0; wtap_block_get_nth_string_option_value(cf_info->shb, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
-        have_cap = TRUE;
-        putsep();
-        putquote();
-        printf("%s", opt_comment);
-        putquote();
-      }
-      if(!have_cap) {
-        /* Maintain column alignment when we have no OPT_COMMENT */
-        putsep();
-        putquote();
-        putquote();
-      }
-    }
-
     if (cap_file_more_info) {
       char *str;
 
@@ -1027,6 +997,38 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
       }
       putquote();
     }
+
+    /*
+     * One might argue that the following is silly to put into a table format,
+     * but oh well note that there may be *more than one* of each of these types
+     * of options.  To mitigate some of the potential silliness the if(cap_comment)
+     * block is moved AFTER the if(cap_file_more_info) block.  This will make any
+     * comments the last item(s) in each row.  We now have a new -K option to
+     * disable cap_comment to more easily manage the potential silliness.
+     * Potential silliness includes multiple comments (therefore resulting in
+     * more than one additional column and/or comments with embeded newlines
+     * and/or possible delimiters).
+     */
+    if (cap_comment) {
+      unsigned int i;
+      char *opt_comment;
+      gboolean have_cap = FALSE;
+
+      for (i = 0; wtap_block_get_nth_string_option_value(cf_info->shb, OPT_COMMENT, i, &opt_comment) == WTAP_OPTTYPE_SUCCESS; i++) {
+        have_cap = TRUE;
+        putsep();
+        putquote();
+        printf("%s", opt_comment);
+        putquote();
+      }
+      if(!have_cap) {
+        /* Maintain column alignment when we have no OPT_COMMENT */
+        putsep();
+        putquote();
+        putquote();
+      }
+    }
+
   }
 
   printf("\n");
@@ -1365,6 +1367,7 @@ print_usage(FILE *output)
   fprintf(output, "  -h display this help and exit\n");
   fprintf(output, "  -C cancel processing if file open fails (default is to continue)\n");
   fprintf(output, "  -A generate all infos (default)\n");
+  fprintf(output, "  -K disable displaying the capture comment\n");
   fprintf(output, "\n");
   fprintf(output, "Options are processed from left to right order with later options superceding\n");
   fprintf(output, "or adding to earlier options.\n");
@@ -1480,7 +1483,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Process the options */
-  while ((opt = getopt_long(argc, argv, "abcdehiklmoqrstuvxyzABCEFHILMNQRST", long_options, NULL)) !=-1) {
+  while ((opt = getopt_long(argc, argv, "abcdehiklmoqrstuvxyzABCEFHIKLMNQRST", long_options, NULL)) !=-1) {
 
     switch (opt) {
 
@@ -1566,6 +1569,10 @@ main(int argc, char *argv[])
       case 'k':
         if (report_all_infos) disable_all_infos();
         cap_comment = TRUE;
+        break;
+
+      case 'K':
+        cap_comment = FALSE;
         break;
 
       case 'F':
