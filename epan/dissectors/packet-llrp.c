@@ -2253,8 +2253,8 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     suboffset = dissect_llrp_impinj_parameter(tvb, pinfo, param_tree, suboffset, param_end);
                     break;
                 default:
-                    proto_tree_add_item(param_tree, hf_llrp_vendor_unknown, tvb, offset, param_end-4, ENC_NA);
-                    suboffset += param_end-4;
+                    proto_tree_add_item(param_tree, hf_llrp_vendor_unknown, tvb, suboffset, len-4-2-2, ENC_NA);
+                    suboffset += len-4-2-2;
                     break;
                 }
                 break;
@@ -3526,7 +3526,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_vendor_unknown,
-        { "Vendor Unknown", "llrp.param.vendor_unknown", FT_UINT32, BASE_DEC, NULL, 0,
+        { "Vendor Unknown", "llrp.param.vendor_unknown", FT_BYTES, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
         { &hf_llrp_impinj_param_type,
