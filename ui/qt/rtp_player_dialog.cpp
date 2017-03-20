@@ -129,7 +129,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     ctx_menu_->addSeparator();
     ctx_menu_->addAction(ui->actionDragZoom);
     ctx_menu_->addAction(ui->actionToggleTimeOrigin);
-    ctx_menu_->addAction(ui->actionCrosshairs);
+//    ctx_menu_->addAction(ui->actionCrosshairs);
 
     connect(ui->audioPlot, SIGNAL(mouseMove(QMouseEvent*)),
             this, SLOT(updateHintLabel()));

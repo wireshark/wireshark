@@ -513,8 +513,8 @@ void RtpAnalysisDialog::on_actionNextProblem_triggered()
     QTreeWidgetItem *sel_ti = cur_tree->selectedItems()[0];
     if (sel_ti->type() != rtp_analysis_type_) return;
     QTreeWidgetItem *test_ti = cur_tree->itemBelow(sel_ti);
+    if (!test_ti) test_ti = cur_tree->topLevelItem(0);
     while (test_ti != sel_ti) {
-        if (!test_ti) test_ti = cur_tree->topLevelItem(0);
         RtpAnalysisTreeWidgetItem *ra_ti = dynamic_cast<RtpAnalysisTreeWidgetItem *>((RtpAnalysisTreeWidgetItem *)test_ti);
         if (!ra_ti->frameStatus()) {
             cur_tree->setCurrentItem(ra_ti);
@@ -522,6 +522,7 @@ void RtpAnalysisDialog::on_actionNextProblem_triggered()
         }
 
         test_ti = cur_tree->itemBelow(test_ti);
+        if (!test_ti) test_ti = cur_tree->topLevelItem(0);
     }
 }
 
