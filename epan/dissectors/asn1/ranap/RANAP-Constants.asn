@@ -1,6 +1,6 @@
 -- RANAP-Constants.asn
 --
--- 3GPP TS 25.413 V10.4.0 (2011-12)
+-- 3GPP TS 25.413 V13.2.0 (2016-06)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.6	Constant Definitions
@@ -72,8 +72,9 @@ id-enhancedRelocationComplete		INTEGER ::= 43
 id-enhancedRelocationCompleteConfirm	INTEGER ::= 44
 id-RANAPenhancedRelocation			INTEGER ::= 45
 id-SRVCCPreparation					INTEGER ::= 46
-
-
+id-UeRadioCapabilityMatch					INTEGER ::= 47
+id-UeRegistrationQuery						INTEGER ::= 48
+id-RerouteNASRequest						INTEGER ::= 49
 
 -- **************************************************************
 --
@@ -122,6 +123,9 @@ maxNrOfEUTRAFreqs					INTEGER ::= 8
 maxNrOfCellIds						INTEGER ::= 32
 maxNrOfRAIs							INTEGER ::= 8
 maxNrOfLAIs							INTEGER ::= 8
+maxSizeOfIMSInfo					INTEGER ::= 32
+maxnoofMDTPLMNs						INTEGER ::= 16
+maxAddPosSet						INTEGER ::= 8
 
 -- **************************************************************
 --
@@ -130,8 +134,8 @@ maxNrOfLAIs							INTEGER ::= 8
 -- **************************************************************
 
 id-AreaIdentity 								INTEGER ::= 0
-id-Not-Used-1									INTEGER ::= 1
-id-Not-Used-2									INTEGER ::= 2
+id-Not-Used-1 									INTEGER ::= 1
+id-Not-Used-2 									INTEGER ::= 2
 id-CN-DomainIndicator 							INTEGER ::= 3
 id-Cause 										INTEGER ::= 4
 id-ChosenEncryptionAlgorithm 					INTEGER ::= 5
@@ -202,8 +206,8 @@ id-UE-ID 										INTEGER ::= 69
 id-UL-GTP-PDU-SequenceNumber 					INTEGER ::= 70
 id-RAB-FailedtoReportItem						INTEGER ::= 71
 id-RAB-FailedtoReportList 						INTEGER ::= 72
-id-Not-Used-73									INTEGER ::= 73
-id-Not-Used-74									INTEGER ::= 74
+id-Not-Used-73 									INTEGER ::= 73
+id-Not-Used-74 									INTEGER ::= 74
 id-KeyStatus									INTEGER ::= 75
 id-DRX-CycleLengthCoefficient 					INTEGER ::= 76
 id-IuSigConIdList								INTEGER ::= 77
@@ -230,8 +234,8 @@ id-LastKnownServiceArea							INTEGER ::= 97
 id-SRB-TrCH-Mapping								INTEGER ::= 98
 id-InterSystemInformation-TransparentContainer	INTEGER ::= 99
 id-NewBSS-To-OldBSS-Information 						INTEGER ::= 100
-id-Not-Used-101											INTEGER ::= 101
-id-Not-Used-102											INTEGER ::= 102
+id-Not-Used-101 										INTEGER ::= 101
+id-Not-Used-102 										INTEGER ::= 102
 id-SourceRNC-PDCP-context-info							INTEGER ::= 103
 id-InformationTransferID								INTEGER ::= 104
 id-SNA-Access-Information								INTEGER ::= 105
@@ -361,7 +365,7 @@ id-SRVCC-Operation-Possible								INTEGER ::= 228
 id-CSG-Id-List											INTEGER ::= 229
 id-PSRABtobeReplaced									INTEGER ::= 230
 id-E-UTRAN-Service-Handover								INTEGER ::= 231
-id-Not-Used-232											INTEGER ::= 232
+id-Not-Used-232 										INTEGER ::= 232
 id-UE-AggregateMaximumBitRate							INTEGER ::= 233
 id-CSG-Membership-Status 								INTEGER ::= 234
 id-Cell-Access-Mode										INTEGER ::= 235
@@ -375,12 +379,50 @@ id-Correlation-ID										INTEGER ::= 242
 id-IRAT-Measurement-Configuration						INTEGER ::= 243
 id-MDT-Configuration									INTEGER ::= 244
 id-Priority-Class-Indicator								INTEGER ::= 245
-id-Not-Used-246											INTEGER ::= 246
+id-Not-Used-246 										INTEGER ::= 246
 id-RNSAPRelocationParameters							INTEGER ::= 247
 id-RABParametersList									INTEGER ::= 248
 id-Management-Based-MDT-Allowed							INTEGER ::= 249
 id-HigherBitratesThan16MbpsFlag							INTEGER ::= 250
 id-Trace-Collection-Entity-IP-Addess					INTEGER ::= 251
 id-End-Of-CSFB											INTEGER ::= 252
+id-Time-UE-StayedInCell-EnhancedGranularity				INTEGER ::= 253
+id-Out-Of-UTRAN											INTEGER ::= 254
+id-TraceRecordingSessionReference				INTEGER ::= 255
+id-IMSI											INTEGER ::= 256
+id-HO-Cause												INTEGER ::= 257
+id-VoiceSupportMatchIndicator							INTEGER ::= 258
+id-RSRVCC-HO-Indication									INTEGER ::= 259
+id-RSRVCC-Information									INTEGER ::= 260
+id-AnchorPLMN-ID										INTEGER ::= 261
+id-Tunnel-Information-for-BBF							INTEGER ::= 262
+id-Management-Based-MDT-PLMN-List						INTEGER ::= 263
+id-SignallingBasedMDTPLMNList							INTEGER ::= 264
+id-M4Report												INTEGER ::= 265
+id-M5Report												INTEGER ::= 266
+id-M6Report												INTEGER ::= 267
+id-M7Report												INTEGER ::= 268
+id-TimingDifferenceULDL									INTEGER ::= 269
+id-Serving-Cell-Identifier								INTEGER ::= 270
+id-EARFCN-Extended										INTEGER ::= 271
+id-RSRVCC-Operation-Possible							INTEGER ::= 272
+id-SIPTO-LGW-TransportLayerAddress						INTEGER ::= 273
+id-SIPTO-Correlation-ID									INTEGER ::= 274
+id-LHN-ID												INTEGER ::= 275
+id-Session-Re-establishment-Indicator					INTEGER ::= 276
+id-LastE-UTRANPLMNIdentity								INTEGER ::= 277
+id-RSRQ-Type											INTEGER ::= 278
+id-RSRQ-Extension										INTEGER ::= 279
+id-Additional-CSPS-coordination-information				INTEGER ::= 280
+id-UERegistrationQueryResult							INTEGER ::= 281
+id-IuSigConIdRangeEnd									INTEGER ::= 282
+id-BarometricPressure									INTEGER ::= 283
+id-Additional-PositioningDataSet 						INTEGER ::= 284
+id-CivicAddress											INTEGER ::= 285
+id-SGSN-Group-Identity									INTEGER ::= 286
+id-P-TMSI												INTEGER ::= 287
+id-RANAP-Message										INTEGER ::= 288
+id-PowerSavingIndicator									INTEGER ::= 289
+id-UE-Usage-Type										INTEGER ::= 290
 
 END

@@ -464,6 +464,9 @@ id-enhancedRelocationComplete         ProcedureCode
 id-enhancedRelocationCompleteConfirm  ProcedureCode
 id-RANAPenhancedRelocation            ProcedureCode
 id-SRVCCPreparation                   ProcedureCode
+id-UeRadioCapabilityMatch             ProcedureCode
+id-UeRegistrationQuery                ProcedureCode
+id-RerouteNASRequest                  ProcedureCode
 
 # ProtocolIE-ID
 id-AreaIdentity                                 ProtocolIE-ID
@@ -721,6 +724,44 @@ id-Management-Based-MDT-Allowed                 ProtocolIE-ID
 id-HigherBitratesThan16MbpsFlag                 ProtocolIE-ID
 id-Trace-Collection-Entity-IP-Addess            ProtocolIE-ID
 id-End-Of-CSFB                                  ProtocolIE-ID
+id-Time-UE-StayedInCell-EnhancedGranularity     ProtocolIE-ID
+id-Out-Of-UTRAN                                 ProtocolIE-ID
+id-TraceRecordingSessionReference               ProtocolIE-ID
+id-IMSI                                         ProtocolIE-ID
+id-HO-Cause                                     ProtocolIE-ID
+id-VoiceSupportMatchIndicator                   ProtocolIE-ID
+id-RSRVCC-HO-Indication                         ProtocolIE-ID
+id-RSRVCC-Information                           ProtocolIE-ID
+id-AnchorPLMN-ID                                ProtocolIE-ID
+id-Tunnel-Information-for-BBF                   ProtocolIE-ID
+id-Management-Based-MDT-PLMN-List               ProtocolIE-ID
+id-SignallingBasedMDTPLMNList                   ProtocolIE-ID
+id-M4Report                                     ProtocolIE-ID
+id-M5Report                                     ProtocolIE-ID
+id-M6Report                                     ProtocolIE-ID
+id-M7Report                                     ProtocolIE-ID
+id-TimingDifferenceULDL                         ProtocolIE-ID
+id-Serving-Cell-Identifier                      ProtocolIE-ID
+id-EARFCN-Extended                              ProtocolIE-ID
+id-RSRVCC-Operation-Possible                    ProtocolIE-ID
+id-SIPTO-LGW-TransportLayerAddress              ProtocolIE-ID
+id-SIPTO-Correlation-ID                         ProtocolIE-ID
+id-LHN-ID                                       ProtocolIE-ID
+id-Session-Re-establishment-Indicator           ProtocolIE-ID
+id-LastE-UTRANPLMNIdentity                      ProtocolIE-ID
+id-RSRQ-Type                                    ProtocolIE-ID
+id-RSRQ-Extension                               ProtocolIE-ID
+id-Additional-CSPS-coordination-information     ProtocolIE-ID
+id-UERegistrationQueryResult                    ProtocolIE-ID
+id-IuSigConIdRangeEnd                           ProtocolIE-ID
+id-BarometricPressure                           ProtocolIE-ID
+id-Additional-PositioningDataSet                ProtocolIE-ID
+id-CivicAddress                                 ProtocolIE-ID
+id-SGSN-Group-Identity                          ProtocolIE-ID
+id-P-TMSI                                       ProtocolIE-ID
+id-RANAP-Message                                ProtocolIE-ID
+id-PowerSavingIndicator                         ProtocolIE-ID
+id-UE-Usage-Type                                ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -872,6 +913,11 @@ EncryptionKey                                             N ranap.ies id-Encrypt
 IntegrityProtectionKey                                    N ranap.ies id-IntegrityProtectionKey
 SRVCC-Information                                         N ranap.ies id-SRVCC-Information
 GlobalCN-ID                                               N ranap.ies id-GlobalCN-IDPS
+VoiceSupportMatchIndicator                                N ranap.ies id-VoiceSupportMatchIndicator
+SGSN-Group-Identity                                       N ranap.ies id-SGSN-Group-Identity
+P-TMSI                                                    N ranap.ies id-P-TMSI
+#N ranap.ies id-RANAP-Message
+UE-Usage-Type                                             N ranap.ies id-UE-Usage-Type
 
 #RANAP-PROTOCOL-IES-PAIR
 RAB-SetupOrModifyItemFirst                                N ranap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -982,6 +1028,41 @@ Management-Based-MDT-Allowed                              N ranap.extension id-M
 HigherBitratesThan16MbpsFlag                              N ranap.extension id-HigherBitratesThan16MbpsFlag
 TransportLayerAddress                                     N ranap.extension id-Trace-Collection-Entity-IP-Addess
 End-Of-CSFB                                               N ranap.extension id-End-Of-CSFB
+Time-UE-StayedInCell-EnhancedGranularity                  N ranap.extension id-Time-UE-StayedInCell-EnhancedGranularity
+Out-Of-UTRAN                                              N ranap.extension id-Out-Of-UTRAN
+
+TraceRecordingSessionReference                            N ranap.extension id-TraceRecordingSessionReference
+IMSI                                                      N ranap.extension id-IMSI
+Cause                                                     N ranap.extension id-HO-Cause
+RSRVCC-HO-Indication                                      N ranap.extension id-RSRVCC-HO-Indication
+RSRVCC-Information                                        N ranap.extension id-RSRVCC-Information
+PLMNidentity                                              N ranap.extension id-AnchorPLMN-ID
+TunnelInformation                                         N ranap.extension id-Tunnel-Information-for-BBF
+MDT-PLMN-List                                             N ranap.extension id-Management-Based-MDT-PLMN-List
+MDT-PLMN-List                                             N ranap.extension id-SignallingBasedMDTPLMNList
+M4Report                                                  N ranap.extension id-M4Report
+M5Report                                                  N ranap.extension id-M5Report
+M6Report                                                  N ranap.extension id-M6Report
+M7Report                                                  N ranap.extension id-M7Report
+TimingDifferenceULDL                                      N ranap.extension id-TimingDifferenceULDL
+UTRAN-CellID                                              N ranap.extension id-Serving-Cell-Identifier
+EARFCN-Extended                                           N ranap.extension id-EARFCN-Extended
+RSRVCC-Operation-Possible                                 N ranap.extension id-RSRVCC-Operation-Possible
+TransportLayerAddress                                     N ranap.extension id-SIPTO-LGW-TransportLayerAddress
+Correlation-ID                                            N ranap.extension id-SIPTO-Correlation-ID
+LHN-ID                                                    N ranap.extension id-LHN-ID
+Session-Re-establishment-Indicator                        N ranap.extension id-Session-Re-establishment-Indicator
+PLMNidentity                                              N ranap.extension id-LastE-UTRANPLMNIdentity
+RSRQ-Type                                                 N ranap.extension id-RSRQ-Type
+RSRQ-Extension                                            N ranap.extension id-RSRQ-Extension
+Additional-CSPS-coordination-information                  N ranap.extension id-Additional-CSPS-coordination-information
+UERegistrationQueryResult                                 N ranap.extension id-UERegistrationQueryResult
+IuSignallingConnectionIdentifier                          N ranap.extension id-IuSigConIdRangeEnd
+BarometricPressure                                        N ranap.extension id-BarometricPressure
+Additional-PositioningDataSet                             N ranap.extension id-Additional-PositioningDataSet
+CivicAddress                                              N ranap.extension id-CivicAddress
+PowerSavingIndicator                                      N ranap.extension id-PowerSavingIndicator
+
 
 #RANAP-ELEMENTARY-PROCEDURE
 Iu-ReleaseCommand                             N ranap.proc.imsg id-Iu-Release
@@ -1066,6 +1147,13 @@ RANAP-EnhancedRelocationInformationResponse   N ranap.proc.sout id-RANAPenhanced
 SRVCC-CSKeysRequest                           N ranap.proc.imsg id-SRVCCPreparation
 SRVCC-CSKeysResponse                          N ranap.proc.out id-SRVCCPreparation
 
+UeRadioCapabilityMatchRequest                 N ranap.proc.imsg id-UeRadioCapabilityMatch
+UeRadioCapabilityMatchResponse                N ranap.proc.out id-UeRadioCapabilityMatch
+
+UeRegistrationQueryRequest                    N ranap.proc.imsg id-UeRegistrationQuery
+UeRegistrationQueryResponse                   N ranap.proc.out id-UeRegistrationQuery
+
+RerouteNASRequest                             N ranap.proc.imsg id-RerouteNASRequest
 #.END
 
 #

@@ -1,6 +1,6 @@
 -- RANAP-PDU-Descriptions.asn
 --
--- 3GPP TS 25.413 V10.4.0 (2011-12)
+-- 3GPP TS 25.413 V13.2.0 (2016-06)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.2	Elementary Procedure Definitions
@@ -110,7 +110,13 @@ FROM RANAP-CommonDataTypes
 	MBMSRABRelease,
 	MBMSRABReleaseFailure,
 	SRVCC-CSKeysRequest,
-	SRVCC-CSKeysResponse
+	SRVCC-CSKeysResponse,
+	UeRadioCapabilityMatchRequest,
+	UeRadioCapabilityMatchResponse,
+	UeRegistrationQueryRequest,
+	UeRegistrationQueryResponse,
+	RerouteNASRequest
+
 FROM RANAP-PDU-Contents
 
 	id-LocationRelatedData,
@@ -158,7 +164,10 @@ FROM RANAP-PDU-Contents
 	id-MBMSCNDe-Registration-Procedure,
 	id-MBMSRABEstablishmentIndication,
 	id-MBMSRABRelease,
-	id-SRVCCPreparation
+	id-SRVCCPreparation,
+	id-UeRadioCapabilityMatch,
+	id-UeRegistrationQuery,
+	id-RerouteNASRequest
 
 FROM RANAP-Constants;
 
@@ -260,7 +269,9 @@ RANAP-ELEMENTARY-PROCEDURES-CLASS-1 RANAP-ELEMENTARY-PROCEDURE ::= {
 	mBMSRABRelease				|
 	enhancedRelocationComplete	|
 	rANAP-enhancedRelocation	|
-	sRVCCPreparation}
+	sRVCCPreparation			|
+	ueRadioCapabilityMatch		|
+	ueRegistrationQuery }
 
 RANAP-ELEMENTARY-PROCEDURES-CLASS-2 RANAP-ELEMENTARY-PROCEDURE ::= {
 	rAB-ReleaseRequest		|
@@ -286,7 +297,8 @@ RANAP-ELEMENTARY-PROCEDURES-CLASS-2 RANAP-ELEMENTARY-PROCEDURE ::= {
 	uESpecificInformation	|
 	directInformationTransfer	|
 	mBMSRABEstablishmentIndication	|
-	enhancedRelocationCompleteConfirm
+	enhancedRelocationCompleteConfirm	|
+	rerouteNASRequest
 }
 
 RANAP-ELEMENTARY-PROCEDURES-CLASS-3 RANAP-ELEMENTARY-PROCEDURE ::= {
@@ -611,5 +623,24 @@ sRVCCPreparation RANAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY			reject
 }
 
-END
+ueRadioCapabilityMatch RANAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UeRadioCapabilityMatchRequest
+	OUTCOME					UeRadioCapabilityMatchResponse
+	PROCEDURE CODE			id-UeRadioCapabilityMatch
+	CRITICALITY				ignore
+}
 
+ueRegistrationQuery RANAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UeRegistrationQueryRequest
+	OUTCOME					UeRegistrationQueryResponse
+	PROCEDURE CODE			id-UeRegistrationQuery
+	CRITICALITY				ignore
+}
+
+rerouteNASRequest RANAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	RerouteNASRequest
+	PROCEDURE CODE		id-RerouteNASRequest
+	CRITICALITY			reject
+}
+
+END

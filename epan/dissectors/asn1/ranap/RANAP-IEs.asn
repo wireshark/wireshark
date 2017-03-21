@@ -1,6 +1,6 @@
 -- RANAP-IEs.asn
 --
--- 3GPP TS 25.413 V10.4.0 (2011-12)
+-- 3GPP TS 25.413 V13.2.0 (2016-06)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.4	Information Element Definitions
@@ -50,6 +50,9 @@ IMPORTS
 	maxNrOfRAIs,
 	maxNrOfLAIs,
 	maxNrOfVol,
+	maxSizeOfIMSInfo,
+	maxnoofMDTPLMNs,
+	maxAddPosSet,
 
 	id-CN-DomainIndicator,
 	id-MessageStructure,
@@ -93,7 +96,25 @@ IMPORTS
 	id-CSG-Id,
 	id-CSFB-Information,
 	id-IRAT-Measurement-Configuration,
-	id-Management-Based-MDT-Allowed
+	id-Management-Based-MDT-Allowed,
+	id-Time-UE-StayedInCell-EnhancedGranularity,
+	id-HO-Cause,
+	id-TraceRecordingSessionReference,
+	id-IMSI,
+	id-Management-Based-MDT-PLMN-List,
+	id-SignallingBasedMDTPLMNList,
+	id-M4Report,
+	id-M5Report,
+	id-M6Report,
+	id-M7Report,
+	id-TimingDifferenceULDL,
+	id-Trace-Collection-Entity-IP-Addess,
+	id-Serving-Cell-Identifier,
+	id-EARFCN-Extended,
+	id-LastE-UTRANPLMNIdentity,
+	id-RSRQ-Type,
+	id-RSRQ-Extension,
+	id-Additional-PositioningDataSet
 
 
 FROM RANAP-Constants
@@ -115,6 +136,23 @@ AccuracyFulfilmentIndicator ::= ENUMERATED{
 	requested-Accuracy-Not-Fulfilled,
 	...
 }
+
+Additional-CSPS-coordination-information ::= SEQUENCE {
+	old-LAI					LAI							OPTIONAL,
+	old-RAC					RAC							OPTIONAL,
+	nRI						BIT STRING (SIZE (10))		OPTIONAL,
+	uE-is-Attaching			NULL						OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {Additional-CSPS-coordination-information-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-CSPS-coordination-information-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-PositioningDataSet ::= SEQUENCE(SIZE(1..maxAddPosSet)) OF Additional-PositioningMethodAndUsage
+
+Additional-PositioningMethodAndUsage ::= OCTET STRING (SIZE(1))
 
 AllocationOrRetentionPriority ::= SEQUENCE {
 	priorityLevel			PriorityLevel,
@@ -306,6 +344,8 @@ AuthorisedSNAs ::= SEQUENCE (SIZE (1..maxNrOfSNAs)) OF SNAC
 
 
 -- B
+
+BarometricPressure ::= INTEGER (30000..115000)
 
 BindingID				::= OCTET STRING (SIZE (4))
 
@@ -499,6 +539,8 @@ CellType ::= ENUMERATED{
 	...
 }
 
+CivicAddress ::= OCTET STRING
+
 ClientType ::= ENUMERATED {
 	emergency-Services,
 	value-Added-Services,
@@ -667,6 +709,8 @@ DSCH-ID ::= INTEGER (0..255)
 
 
 -- E
+
+EARFCN-Extended		::= INTEGER (65536..262143, ...)
 
 E-DCH-MAC-d-Flow-ID		::= INTEGER (0.. maxNrOfEDCHMACdFlows-1)
 
@@ -955,6 +999,19 @@ ImmediateMDT	::= SEQUENCE {
 	-- Included in case of event-triggered reporting for measurement M1
 	m2report					M2Report				OPTIONAL,
 	-- Included in case of event-triggered reporting for measurement M2
+	...,
+	iE-Extensions		ProtocolExtensionContainer { { ImmediateMDT-ExtIEs} } OPTIONAL
+}
+
+ImmediateMDT-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	{ID id-M4Report		CRITICALITY ignore	EXTENSION M4Report		PRESENCE optional}|
+	-- Included in case that measurement M4 is activated
+	{ID id-M5Report		CRITICALITY ignore	EXTENSION M5Report		PRESENCE optional}|
+	-- Included in case that measurement M5 is activated
+	{ID id-M6Report		CRITICALITY ignore	EXTENSION M6Report		PRESENCE optional}|
+	-- Included in case that measurement M6 is activated
+	{ID id-M7Report		CRITICALITY ignore	EXTENSION M7Report		PRESENCE optional},
+	-- Included in case that measurement M7 is activated
 	...
 }
 
@@ -1091,8 +1148,15 @@ LastVisitedUTRANCell-Item ::= SEQUENCE {
 }
 
 LastVisitedUTRANCell-Item-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Rel-11 to support enhanced granularity for time UE stayed in cell --
+	{ ID id-Time-UE-StayedInCell-EnhancedGranularity	CRITICALITY ignore	EXTENSION Time-UE-StayedInCell-EnhancedGranularity		PRESENCE	optional }|
+	{ ID id-HO-Cause									CRITICALITY ignore	EXTENSION Cause														PRESENCE	optional },
 	...
 }
+
+LHN-ID ::= OCTET STRING (SIZE (32..256))
+
+Links-to-log ::= ENUMERATED {uplink, downlink, both-uplink-and-downlink, ...}
 
 ListOF-SNAs ::= SEQUENCE (SIZE (1..maxNrOfSNAs)) OF SNAC
 
@@ -1113,8 +1177,8 @@ LoadValue	::= INTEGER (0..100)
 LocationRelatedDataRequestType	::= SEQUENCE {
 	requestedLocationRelatedDataType			RequestedLocationRelatedDataType,
 	requestedGPSAssistanceData					RequestedGPSAssistanceData	OPTIONAL,
-	-- This IE shall be present if the Requested Location Related Data Type IE is set to 'Dedicated Assistance Data for Assisted GPS' or
-	-- `Dedicated Assistance Data for Assisted GPS and GANSS'
+	-- This IE shall be present if the Requested Location Related Data Type IE is set to ‘Dedicated Assistance Data for Assisted GPS’ or
+	-- `Dedicated Assistance Data for Assisted GPS and GANSS’
 	...
 }
 
@@ -1177,6 +1241,64 @@ M2Report	::= CHOICE {
 	event1I				Event1I-Parameters,
 	...
 }
+
+M4Report	::= CHOICE {
+	all							NULL,
+	m4-collection-parameters	M4-Collection-Parameters,
+	...
+}
+
+M4-Collection-Parameters ::= SEQUENCE {
+	m4-period		M4-Period,
+	m4-threshold	M4-Threshold	OPTIONAL,
+	iE-Extensions	ProtocolExtensionContainer { { M4-Collection-Parameters-ExtIEs} } OPTIONAL,
+	...
+}
+
+M4-Collection-Parameters-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+M4-Period  ::= ENUMERATED {ms100, ms250, ms500, ms1000, ms2000, ms3000, ms4000, ms6000, ...}
+
+
+M4-Threshold ::= INTEGER (0..31)
+
+
+M5Report	::= CHOICE {
+	when-available		NULL,
+	m5-period			M5-Period,
+	...
+}
+M5-Period ::= ENUMERATED {ms100, ms250, ms500, ms1000, ms2000, ms3000, ms4000, ms6000, ...}
+
+
+
+M6Report ::= SEQUENCE {
+	m6-period			M6-Period,
+	m6-links-to-log		Links-to-log,
+	iE-Extensions		ProtocolExtensionContainer { { M6Report-ExtIEs} } OPTIONAL,
+	...
+}
+
+M6Report-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+M6-Period ::= ENUMERATED {ms1000, ms2000, ms3000, ms4000, ms6000, ms8000, ms12000, ms16000, ms20000, ms24000, ms28000, ms32000, ms64000, ...}
+
+M7Report ::= SEQUENCE {
+	m7-period			M7-Period,
+	m7-links-to-log		Links-to-log,
+	iE-Extensions		ProtocolExtensionContainer { { M7Report-ExtIEs} } OPTIONAL,
+	...
+}
+
+M7Report-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+M7-Period ::= ENUMERATED {ms1000, ms2000, ms3000, ms4000, ms6000, ms8000, ms12000, ms16000, ms20000, ms24000, ms28000, ms32000, ms64000, ...}
 
 Management-Based-MDT-Allowed ::= ENUMERATED {
 	allowed, ... }
@@ -1261,22 +1383,26 @@ MDT-Configuration	::= SEQUENCE {
 }
 
 MDT-Configuration-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-SignallingBasedMDTPLMNList				CRITICALITY ignore	EXTENSION MDT-PLMN-List		PRESENCE optional },
 ...
 }
 
-MDTMode				::= CHOICE {
+MDTMode ::= CHOICE {
 	immediateMDT		ImmediateMDT,
 	loggedMDT			LoggedMDT,
 	...
 }
 
-MDT-Report-Parameters	::=	SEQUENCE {
+MDT-PLMN-List ::= SEQUENCE (SIZE (1..maxnoofMDTPLMNs)) OF
+	PLMNidentity
+
+MDT-Report-Parameters ::= SEQUENCE {
 	reportInterval			ReportInterval,
 	reportAmount			ReportAmount,
 	...
 }
 
-MeasurementQuantity		::= ENUMERATED {
+MeasurementQuantity ::= ENUMERATED {
 		cpichEcNo,
 		cpichRSCP,
 		pathloss,
@@ -1290,25 +1416,27 @@ MSISDN ::= OCTET STRING (SIZE (1..9))
 -- N
 
 
-NAS-PDU					::= OCTET STRING
+NAS-PDU ::= OCTET STRING
 
-NAS-SequenceNumber			::= BIT STRING (SIZE (2))
+NAS-SequenceNumber ::= BIT STRING (SIZE (2))
 -- Reference: 24.008
 
-NAS-SynchronisationIndicator	::= BIT STRING (SIZE (4))
+NAS-SynchronisationIndicator ::= BIT STRING (SIZE (4))
 
-NewBSS-To-OldBSS-Information		::= OCTET STRING
+NewBSS-To-OldBSS-Information ::= OCTET STRING
 
 NonSearchingIndication ::= ENUMERATED {
 	non-searching,
 	searching
 }
 
-NRTLoadInformationValue	::= INTEGER (0..3)
+NRTLoadInformationValue ::= INTEGER (0..3)
 
-NumberOfIuInstances			::= INTEGER (1..2)
+Null-NRI ::= BIT STRING (SIZE (10))
 
-NumberOfSteps				::= INTEGER (1..16)
+NumberOfIuInstances ::= INTEGER (1..2)
+
+NumberOfSteps ::= INTEGER (1..16)
 
 -- O
 
@@ -1327,10 +1455,15 @@ Offload-RAB-Parameters-APN ::= OCTET STRING (SIZE (1..255))
 
 Offload-RAB-Parameters-ChargingCharacteristics ::= OCTET STRING (SIZE (2))
 
-OldBSS-ToNewBSS-Information		::= OCTET STRING
+OldBSS-ToNewBSS-Information ::= OCTET STRING
 
 OMC-ID					::= OCTET STRING (SIZE (3..22))
 -- Reference: GSM TS 12.20 [25]
+
+Out-Of-UTRAN ::= ENUMERATED{
+	cell-reselection-to-EUTRAN,
+	...
+}
 
 -- P
 
@@ -1458,6 +1591,8 @@ PLMNs-in-shared-network-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Port-Number ::= OCTET STRING (SIZE (2))
+
 PositioningDataDiscriminator ::= BIT STRING (SIZE(4))
 
 PositioningDataSet ::= SEQUENCE(SIZE(1..maxSet)) OF PositioningMethodAndUsage
@@ -1479,7 +1614,8 @@ PositionData ::= SEQUENCE {
 }
 
 PositionData-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-GANSS-PositioningDataSet			CRITICALITY ignore	EXTENSION GANSS-PositioningDataSet				PRESENCE optional },
+	{ ID id-GANSS-PositioningDataSet			CRITICALITY ignore	EXTENSION GANSS-PositioningDataSet				PRESENCE optional}|
+	{ ID id-Additional-PositioningDataSet		CRITICALITY ignore	EXTENSION Additional-PositioningDataSet		PRESENCE optional},
 	...
 }
 
@@ -1501,6 +1637,12 @@ Priority-Class-Indicator ::= BIT STRING (SIZE(8))
 
 ProvidedData ::= CHOICE {
 	shared-network-information				Shared-Network-Information,
+	...
+}
+
+PowerSavingIndicator ::= ENUMERATED {
+	psmConfigured,
+	eDRXConfigured,
 	...
 }
 
@@ -1688,7 +1830,9 @@ RejectCauseValue ::= ENUMERATED {
 	no-Suitable-Cell-In-Location-Area,
 	gPRS-Services-Not-Allowed-In-This-PLMN,
 	cS-PS-coordination-required,
-	...
+	...,
+	network-failure,
+	not-authorized-for-this-CSG
 }
 
 
@@ -1730,7 +1874,10 @@ ReportInterval		::=	ENUMERATED {
 						ms24000,
 						ms32000,
 						ms64000,
-						... }
+						...,
+						ms8000,
+						ms28000
+}
 
 ReportAmount		::=	ENUMERATED { n1, n2, n4, n8, n16, n32, n64, infinity, ... }
 
@@ -1859,6 +2006,11 @@ RNCTraceInformation::= SEQUENCE {
 }
 
 RNCTraceInformation-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 11 to enable anonymization MDT for area based MDT --
+	{ID id-TraceRecordingSessionReference		CRITICALITY ignore	EXTENSION TraceRecordingSessionReference	PRESENCE optional}|
+	{ID id-IMSI									CRITICALITY ignore	EXTENSION IMSI									PRESENCE optional}|
+	{ID id-Trace-Collection-Entity-IP-Addess	CRITICALITY ignore	EXTENSION TransportLayerAddress				PRESENCE optional}|
+	{ID id-Serving-Cell-Identifier				CRITICALITY ignore	EXTENSION UTRAN-CellID							PRESENCE optional},
 	...
 }
 
@@ -1878,6 +2030,28 @@ RNSAPRelocationParameters-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 RRC-Container				::= OCTET STRING
 
 RTLoadValue	::= INTEGER (0..100)
+
+RSRVCC-HO-Indication ::= ENUMERATED {
+	ps-only,
+	...
+}
+
+RSRVCC-Information ::= SEQUENCE {
+	nonce					BIT STRING (SIZE (128)),
+	iMSInformation			OCTET STRING(SIZE(1.. maxSizeOfIMSInfo)),
+	iE-Extensions			ProtocolExtensionContainer { { RSRVCC-Information-ExtIEs} } OPTIONAL,
+	...
+
+}
+
+RSRVCC-Information-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RSRVCC-Operation-Possible ::= ENUMERATED {
+	rsrvcc-possible,
+	...
+}
 
 -- S
 
@@ -1905,6 +2079,8 @@ Shared-Network-Information ::= SEQUENCE {
 		iE-Extensions			ProtocolExtensionContainer { {Shared-Network-Information-ExtIEs} } OPTIONAL,
 		...
 	}
+
+Session-Re-establishment-Indicator	::= ENUMERATED {true, ...}
 
 Shared-Network-Information-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 	...
@@ -1951,6 +2127,13 @@ SDU-Parameters ::= SEQUENCE (SIZE (1..maxRAB-Subflows)) OF
 SDU-Parameters-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+SGSN-Group-Identity ::= CHOICE {
+	null-NRI				Null-NRI,
+	sGSN-Group-ID			SGSN-Group-ID
+}
+
+SGSN-Group-ID ::= OCTET STRING (SIZE (2))
 
 SNA-Access-Information ::= SEQUENCE {
 		authorisedPLMNs			AuthorisedPLMNs,
@@ -2046,7 +2229,11 @@ SourceRNC-ToTargetRNC-TransparentContainer-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 10 to indicate to the Target RNC the need of continued IRAT measurement --
 	{ID id-IRAT-Measurement-Configuration		CRITICALITY ignore	EXTENSION IRAT-Measurement-Configuration		PRESENCE optional}|
 -- Extension for Release 10 to indicate Management Based MDT Allowed --
-	{ID id-Management-Based-MDT-Allowed			CRITICALITY ignore	EXTENSION Management-Based-MDT-Allowed			PRESENCE optional},
+	{ID id-Management-Based-MDT-Allowed			CRITICALITY ignore	EXTENSION Management-Based-MDT-Allowed			PRESENCE optional}|
+-- Extension for Release 11 to indicate Management Based MDT PLMN List --
+	{ID id-Management-Based-MDT-PLMN-List		CRITICALITY ignore	EXTENSION MDT-PLMN-List								PRESENCE optional}|
+-- Extension for Release 11 to indicate the last E-UTRAN PLMN Identity --
+	{ID id-LastE-UTRANPLMNIdentity				CRITICALITY ignore	EXTENSION PLMNidentity								PRESENCE optional},
 	...
 }
 
@@ -2057,6 +2244,8 @@ IRAT-Measurement-Configuration ::= SEQUENCE {
 	iE-Extensions				ProtocolExtensionContainer { {IRAT-Measurement-Configuration-ExtIEs} } OPTIONAL}
 
 IRAT-Measurement-Configuration-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	{ID id-RSRQ-Type						CRITICALITY ignore	EXTENSION RSRQ-Type						PRESENCE optional}|
+	{ID id-RSRQ-Extension					CRITICALITY ignore	EXTENSION RSRQ-Extension				PRESENCE optional},
 	...
 }
 
@@ -2068,6 +2257,13 @@ IRATmeasurementParameters::= SEQUENCE {
 IRATmeasurementParameters-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+RSRQ-Type ::= SEQUENCE {
+	allSymbols							BOOLEAN,
+	wideBand							BOOLEAN
+}
+
+RSRQ-Extension ::= INTEGER (-30..46, ...)
 
 EUTRANFrequencies ::= SEQUENCE (SIZE (1..maxNrOfEUTRAFreqs)) OF SEQUENCE {
 	earfcn					INTEGER (0..65535),
@@ -2084,6 +2280,7 @@ MeasBand ::= ENUMERATED {
 }
 
 EUTRANFrequencies-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-EARFCN-Extended			CRITICALITY reject	EXTENSION EARFCN-Extended		PRESENCE optional},
 	...
 }
 
@@ -2234,8 +2431,11 @@ TemporaryUE-ID ::= CHOICE {
 
 Time-UE-StayedInCell ::= INTEGER (0..4095)
 
+Time-UE-StayedInCell-EnhancedGranularity ::= INTEGER (0..40950)
+
 TimeToMBMSDataTransfer		::= OCTET STRING(SIZE(1))
 
+TimingDifferenceULDL	::= OCTET STRING (SIZE(1))
 
 TMGI ::= SEQUENCE {
 	pLMNidentity			PLMNidentity,
@@ -2336,6 +2536,18 @@ TrCH-ID-List ::= SEQUENCE (SIZE (1..maxRAB-Subflows)) OF
 
 TriggerID				::= OCTET STRING (SIZE (3..22))
 
+TunnelInformation ::= SEQUENCE {
+	transportLayerAddress	TransportLayerAddress,
+	uDP-Port-Number			Port-Number				OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {Tunnel-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+Tunnel-Information-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
 TypeOfError ::= ENUMERATED {
 	not-understood,
 	missing,
@@ -2366,6 +2578,35 @@ UE-ID ::= CHOICE {
 	...,
 	imeisv				IMEISV
 
+}
+
+UE-IsNotServed::= SEQUENCE {
+	permanentNAS-UE-ID		PermanentNAS-UE-ID,
+	iE-Extensions			ProtocolExtensionContainer { { UE-IsNotServed-ExtIEs } }		OPTIONAL,
+	...
+}
+
+UE-IsNotServed-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+UE-IsServed::= SEQUENCE {
+	permanentNAS-UE-ID		PermanentNAS-UE-ID,
+	pLMNidentity			PLMNidentity,
+	iE-Extensions			ProtocolExtensionContainer { { UE-IsServed-ExtIEs } }		OPTIONAL,
+	...
+}
+
+UE-IsServed-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UE-Usage-Type ::= INTEGER (0..255)
+
+UERegistrationQueryResult ::= CHOICE {
+	uE-IsServed			UE-IsServed,
+	uE-IsNotServed		UE-IsNotServed
 }
 
 UESBI-Iu ::= SEQUENCE {
@@ -2400,6 +2641,8 @@ UPInformation		::=		SEQUENCE {
 }
 
 UPInformation-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	{ID id-TimingDifferenceULDL		CRITICALITY ignore	EXTENSION TimingDifferenceULDL		PRESENCE optional},
+
 	...
 }
 
@@ -2498,5 +2741,11 @@ VerticalSpeedDirection ::= ENUMERATED {
 }
 
 VerticalAccuracyCode			::= INTEGER (0..127)
+
+VoiceSupportMatchIndicator ::= ENUMERATED {
+	supported,
+	not-supported,
+	...
+}
 
 END
