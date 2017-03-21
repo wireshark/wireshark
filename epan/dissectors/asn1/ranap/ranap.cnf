@@ -402,6 +402,15 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   if (value_tvb)
     dissect_s1ap_UE_HistoryInformation_PDU(value_tvb,  %(ACTX)s->pinfo, tree, NULL);
 
+# Contains the BSSGP RIM PDU as defined in TS 48.018 [36].
+#.FN_BODY RIMInformation VAL_PTR=&value_tvb
+  tvbuff_t *value_tvb = NULL;
+
+  %(DEFAULT_BODY)s
+  if (value_tvb){
+    call_dissector_only(bssgp_handle, value_tvb, %(ACTX)s->pinfo, tree, NULL);
+  }
+
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &ranap_ProtocolIE_ID_vals_ext
 GTP-TEI TYPE = FT_UINT32  DISPLAY = BASE_HEX_DEC STRINGS = NULL

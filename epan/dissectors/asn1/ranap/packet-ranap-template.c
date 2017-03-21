@@ -68,6 +68,7 @@ static int proto_ranap = -1;
 static dissector_handle_t rrc_s_to_trnc_handle = NULL;
 static dissector_handle_t rrc_t_to_srnc_handle = NULL;
 static dissector_handle_t rrc_ho_to_utran_cmd = NULL;
+static dissector_handle_t bssgp_handle = NULL;
 
 static int hf_ranap_transportLayerAddress_ipv4 = -1;
 static int hf_ranap_transportLayerAddress_ipv6 = -1;
@@ -382,6 +383,7 @@ proto_reg_handoff_ranap(void)
     rrc_s_to_trnc_handle = find_dissector_add_dependency("rrc.s_to_trnc_cont", proto_ranap);
     rrc_t_to_srnc_handle = find_dissector_add_dependency("rrc.t_to_srnc_cont", proto_ranap);
     rrc_ho_to_utran_cmd = find_dissector_add_dependency("rrc.irat.ho_to_utran_cmd", proto_ranap);
+    bssgp_handle = find_dissector("bssgp");
     initialized = TRUE;
 #include "packet-ranap-dis-tab.c"
   } else {
