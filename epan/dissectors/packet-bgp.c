@@ -1816,6 +1816,13 @@ static int hf_bgp_ls_node_flag_bits_abr = -1;
 /* BGP flow spec nlri header field */
 
 static int hf_bgp_flowspec_nlri_t = -1;
+static int hf_bgp_flowspec_nlri_route_distinguisher = -1;
+static int hf_bgp_flowspec_nlri_route_distinguisher_type = -1;
+static int hf_bgp_flowspec_nlri_route_dist_admin_asnum_2 = -1;
+static int hf_bgp_flowspec_nlri_route_dist_admin_ipv4 = -1;
+static int hf_bgp_flowspec_nlri_route_dist_admin_asnum_4 = -1;
+static int hf_bgp_flowspec_nlri_route_dist_asnum_2 = -1;
+static int hf_bgp_flowspec_nlri_route_dist_asnum_4 = -1;
 static int hf_bgp_flowspec_nlri_filter = -1;
 static int hf_bgp_flowspec_nlri_filter_type = -1;
 static int hf_bgp_flowspec_nlri_length = -1;
@@ -2710,16 +2717,19 @@ decode_bgp_nlri_op_dscp_value(proto_tree *parent_tree, proto_item *parent_item, 
  * Decode an FLOWSPEC nlri as define in RFC 5575
  */
 static int
-decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, packet_info *pinfo)
+decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, guint8 safi, packet_info *pinfo)
 {
     guint     tot_flow_len;       /* total length of the flow spec NLRI */
     guint     offset_len;         /* offset of the flow spec NLRI itself could be 1 or 2 bytes */
     guint     cursor_fspec;       /* cursor to move into flow spec nlri */
     gint      filter_len = -1;
     guint16   len_16;
+    guint32   rd_type;
     proto_item *item;
     proto_item *filter_item;
+    proto_item *disting_item;
     proto_tree *nlri_tree;
+    proto_tree *disting_tree;
     proto_tree *filter_tree;
 
 
@@ -2755,6 +2765,44 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
 
     offset = offset + offset_len;
     cursor_fspec = 0;
+
+    /* when SAFI is VPN Flow Spec, then write route distinguisher */
+    if (safi == SAFNUM_FSPEC_VPN_RULE)
+    {
+        disting_item = proto_tree_add_item(nlri_tree, hf_bgp_flowspec_nlri_route_distinguisher,
+                                           tvb, offset, BGP_ROUTE_DISTINGUISHER_SIZE, ENC_NA);
+        disting_tree = proto_item_add_subtree(disting_item, ett_bgp_flow_spec_nlri);
+        proto_tree_add_item_ret_uint(disting_tree, hf_bgp_flowspec_nlri_route_distinguisher_type,
+                                     tvb, offset, 2, ENC_BIG_ENDIAN, &rd_type);
+        /* Route Distinguisher Type */
+        switch (rd_type) {
+        case FORMAT_AS2_LOC:
+            proto_tree_add_item(disting_tree, hf_bgp_flowspec_nlri_route_dist_admin_asnum_2,
+                                tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(disting_tree, hf_bgp_flowspec_nlri_route_dist_asnum_4,
+                                tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+            break;
+
+        case FORMAT_IP_LOC:
+            proto_tree_add_item(disting_tree, hf_bgp_flowspec_nlri_route_dist_admin_ipv4,
+                                tvb, offset + 2, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(disting_tree, hf_bgp_flowspec_nlri_route_dist_asnum_2,
+                                tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+            break;
+
+        case FORMAT_AS4_LOC:
+            proto_tree_add_item(disting_tree, hf_bgp_flowspec_nlri_route_dist_admin_asnum_4,
+                                tvb, offset + 2, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(disting_tree, hf_bgp_flowspec_nlri_route_dist_asnum_2,
+                                tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+            break;
+
+        default:
+            expert_add_info_format(pinfo, disting_tree, &ei_bgp_length_invalid,
+                                   "Unknown Route Distinguisher type (%u)", rd_type);
+        }
+        cursor_fspec += BGP_ROUTE_DISTINGUISHER_SIZE;
+    }
 
     while (cursor_fspec < tot_flow_len)
     {
@@ -5023,7 +5071,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
 
            case SAFNUM_FSPEC_RULE:
            case SAFNUM_FSPEC_VPN_RULE:
-             total_length = decode_flowspec_nlri(tree, tvb, offset, afi, pinfo);
+             total_length = decode_flowspec_nlri(tree, tvb, offset, afi, safi, pinfo);
              if(total_length < 0)
                return(-1);
              total_length++;
@@ -5220,7 +5268,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 break;
             case SAFNUM_FSPEC_RULE:
             case SAFNUM_FSPEC_VPN_RULE:
-                total_length = decode_flowspec_nlri(tree, tvb, offset, afi, pinfo);
+                total_length = decode_flowspec_nlri(tree, tvb, offset, afi, safi, pinfo);
                 if(total_length < 0)
                     return(-1);
                 total_length++;
@@ -8646,6 +8694,27 @@ proto_register_bgp(void)
       { &hf_bgp_flowspec_nlri_t,
         { "FLOW-SPEC nlri", "bgp.flowspec_nlri", FT_BYTES, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_flowspec_nlri_route_distinguisher,
+        { "Route Distinguisher", "bgp.flowspec_route_distinguisher", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_flowspec_nlri_route_distinguisher_type,
+        { "Route Distinguisher Type", "bgp.flowspec_route_distinguisher_type", FT_UINT16,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_flowspec_nlri_route_dist_admin_asnum_2,
+        { "Administrator Subfield", "bgp.flowspec_route_distinguisher_admin_as_num_2", FT_UINT16,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_flowspec_nlri_route_dist_admin_ipv4,
+        { "Administrator Subfield", "bgp.flowspec_route_distinguisher_admin_ipv4", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_flowspec_nlri_route_dist_admin_asnum_4,
+        { "Administrator Subfield", "bgp.flowspec_route_distinguisher_admin_as_num_4", FT_UINT32,
+          BASE_HEX_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_flowspec_nlri_route_dist_asnum_2,
+        { "Assigned Number Subfield", "bgp.flowspec_route_distinguisher_asnum_2", FT_UINT16,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_flowspec_nlri_route_dist_asnum_4,
+        { "Assigned Number Subfield", "bgp.flowspec_route_distinguisher_asnum_4", FT_UINT32,
+          BASE_HEX_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_flowspec_nlri_filter,
         { "Filter", "bgp.flowspec_nlri.filter", FT_NONE, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
