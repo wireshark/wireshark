@@ -1295,7 +1295,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
 
     /* Existance of the Auxiliary Security Header is controlled by the Security Enabled Field */
-    if (packet->security_enable) {
+    if ((packet->security_enable) && (packet->version != IEEE802154_VERSION_2003)) {
       proto_tree *header_tree, *field_tree;
       guint8                    security_control;
       guint                     aux_length = 5; /* Minimum length of the auxiliary header. */
