@@ -1961,6 +1961,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
              * encoded as defined in TS 25.331
              */
             proto_tree_add_expert_format(tree, pinfo, &ei_bssgp_not_dissected_yet, tvb, curr_offset, len-(curr_offset-offset), "UTRA SI Container - not dissected yet");
+            curr_offset = curr_offset + (len - (curr_offset - offset));
             break;
 
         default :
