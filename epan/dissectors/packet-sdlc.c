@@ -27,11 +27,14 @@
 #include <epan/xdlc.h>
 
 /*
- * See
+ * See:
  *
- *	ftp://service.boulder.ibm.com/software/network/commserver/publications/csnt_60/snafmt.pdf
+ * http://web.archive.org/web/20020206033700/http://www.wanresources.com/snacell.html
  *
- *	http://web.archive.org/web/20150522015710/http://www.protocols.com/pbook/sna.htm
+ * http://web.archive.org/web/20150522015710/http://www.protocols.com/pbook/sna.htm
+ *
+ * Systems Network Architecture Formats, GA27-3136-20:
+ * https://publibz.boulder.ibm.com/cgi-bin/bookmgr/BOOKS/D50A5007/CCONTENTS
  */
 void proto_register_sdlc(void);
 void proto_reg_handoff_sdlc(void);
