@@ -62,7 +62,7 @@ enum {
 	/* Modifiers to Get request */
 	WS_NLM_F_ROOT = 0x100,   /* specify tree root */
 	WS_NLM_F_MATCH = 0x200,  /* return all matching */
-	WS_NLM_F_ATOMIC = 0x400, /* = (NETLINK_MSG_F_ROOT | NETLINK_MSG_F_MATCH) */
+	WS_NLM_F_ATOMIC = 0x400, /* return an atomic snapshot of the table */
 
 	/* Modifiers to NEW request */
 	WS_NLM_F_REPLACE = 0x100,  /* Override existing */

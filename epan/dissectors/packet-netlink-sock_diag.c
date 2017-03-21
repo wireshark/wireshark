@@ -53,7 +53,8 @@ enum {
 	WS_DCCPDIAG_GETSOCK    = 19,
 
 /* <linux/sock_diag.h> */
-	WS_SOCK_DIAG_BY_FAMILY = 20
+	WS_SOCK_DIAG_BY_FAMILY = 20,
+	WS_SOCK_DESTROY        = 21
 };
 
 enum {
@@ -101,7 +102,15 @@ enum ws_inet_diag_attr_type {
 	WS_INET_DIAG_TOS       = 5,
 	WS_INET_DIAG_TCLASS    = 6,
 	WS_INET_DIAG_SKMEMINFO = 7,
-	WS_INET_DIAG_SHUTDOWN  = 8
+	WS_INET_DIAG_SHUTDOWN  = 8,
+	WS_INET_DIAG_DCTCPINFO = 9,
+	WS_INET_DIAG_PROTOCOL  = 10,
+	WS_INET_DIAG_SKV6ONLY  = 11,
+	WS_INET_DIAG_LOCALS    = 12,
+	WS_INET_DIAG_PEERS     = 13,
+	WS_INET_DIAG_PAD       = 14,
+	WS_INET_DIAG_MARK      = 15,
+	WS_INET_DIAG_BBRINFO   = 16,
 };
 
 enum ws_netlink_diag_show_type {
@@ -153,7 +162,8 @@ enum {
 	WS_CLOSE_WAIT  = 8,
 	WS_LAST_ACK    = 9,
 	WS_LISTEN      = 10,
-	WS_CLOSING     = 11
+	WS_CLOSING     = 11,
+	WS_NEW_SYNC_RECV = 12
 };
 
 static int ett_netlink_sock_diag = -1;
@@ -193,6 +203,7 @@ static const value_string socket_state_vals[] = {
 	{ WS_LAST_ACK,    "LAST_ACK" },
 	{ WS_LISTEN,      "LISTEN" },
 	{ WS_CLOSING,     "CLOSING" },
+	{ WS_NEW_SYNC_RECV, "NEW_SYNC_RECV" },
 	{ 0, NULL }
 };
 
@@ -534,6 +545,14 @@ static const value_string netlink_sock_diag_inet_attr_vals[] = {
 	{ WS_INET_DIAG_TCLASS,     "tclass" },
 	{ WS_INET_DIAG_SKMEMINFO,  "skmeminfo" },
 	{ WS_INET_DIAG_SHUTDOWN,   "shutdown" },
+	{ WS_INET_DIAG_DCTCPINFO,  "dctcpinfo" },
+	{ WS_INET_DIAG_PROTOCOL,   "protocol" },
+	{ WS_INET_DIAG_SKV6ONLY,   "skv6only" },
+	{ WS_INET_DIAG_LOCALS,     "locals" },
+	{ WS_INET_DIAG_PEERS,      "peers" },
+	{ WS_INET_DIAG_PAD,        "pad" },
+	{ WS_INET_DIAG_MARK,       "mark" },
+	{ WS_INET_DIAG_BBRINFO,    "bbrinfo" },
 	{ 0, NULL }
 };
 
@@ -579,6 +598,14 @@ dissect_sock_diag_inet_attributes(tvbuff_t *tvb, void *data, proto_tree *tree, i
 		case WS_INET_DIAG_CONG:
 		case WS_INET_DIAG_TOS:
 		case WS_INET_DIAG_TCLASS:
+		case WS_INET_DIAG_DCTCPINFO:
+		case WS_INET_DIAG_PROTOCOL:
+		case WS_INET_DIAG_SKV6ONLY:
+		case WS_INET_DIAG_LOCALS:
+		case WS_INET_DIAG_PEERS:
+		case WS_INET_DIAG_PAD:
+		case WS_INET_DIAG_MARK:
+		case WS_INET_DIAG_BBRINFO:
 		default:
 			return 0;
 	}
@@ -1065,6 +1092,7 @@ static const value_string netlink_sock_diag_type_vals[] = {
 	{ WS_TCPDIAG_GETSOCK,     "TCPDIAG_GETSOCK" },
 	{ WS_DCCPDIAG_GETSOCK,    "DCCPDIAG_GETSOCK" },
 	{ WS_SOCK_DIAG_BY_FAMILY, "SOCK_DIAG_BY_FAMILY" },
+	{ WS_SOCK_DESTROY,        "SOCK_DESTROY" },
 	{ 0, NULL }
 };
 

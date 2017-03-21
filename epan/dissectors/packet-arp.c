@@ -506,6 +506,10 @@ const value_string arp_hrd_vals[] = {
   {ARPHDR_HW_EXP1,            "Experimental 1"             },
   {ARPHDR_HFI,                "HFI"                        },
   {ARPHDR_HW_EXP2,            "Experimental 2"             },
+  /* Virtual ARP types for non ARP hardware used in Linux cooked mode. */
+  {ARPHRD_LOOPBACK,           "Loopback"                   },
+  {ARPHRD_IPGRE,              "GRE over IP"                },
+  {ARPHRD_NETLINK,            "Netlink"                    },
   {0, NULL                  } };
 
 /* Offsets of fields within an ARP packet. */
