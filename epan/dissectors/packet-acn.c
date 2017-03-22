@@ -41,6 +41,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/strutil.h>
 #include <epan/to_str.h>
 
 /* Forward declarations */
@@ -71,8 +72,8 @@ void proto_reg_handoff_acn(void);
 #define ACN_DMP_ADT_V_VIRTUAL   0
 #define ACN_DMP_ADT_V_ACTUAL    1
 
-#define ACN_DMP_ADT_R_ABSOLUTE  0
-#define ACN_DMP_ADT_R_RELATIVE  1
+#define ACN_DMP_ADT_R_RELATIVE  0
+#define ACN_DMP_ADT_R_ABSOLUTE  1
 
 #define ACN_DMP_ADT_D_NS        0
 #define ACN_DMP_ADT_D_RS        1
@@ -134,6 +135,58 @@ void proto_reg_handoff_acn(void);
 #define ACN_REASON_CODE_ASKED_TO_LEAVE      11
 #define ACN_REASON_CODE_NO_RECIPIENT        12
 
+/* Blob Information */
+#define ACN_BLOB_FIELD_TYPE1             1
+#define ACN_BLOB_FIELD_TYPE2             2
+#define ACN_BLOB_FIELD_TYPE3             3
+#define ACN_BLOB_FIELD_TYPE4             4
+#define ACN_BLOB_FIELD_TYPE5             5
+#define ACN_BLOB_FIELD_TYPE6             6
+#define ACN_BLOB_FIELD_TYPE7             7
+#define ACN_BLOB_FIELD_TYPE8             8
+#define ACN_BLOB_FIELD_TYPE9             9
+#define ACN_BLOB_FIELD_TYPE10            10
+#define ACN_BLOB_FIELD_TYPE11            11
+#define ACN_BLOB_FIELD_TYPE12            12
+
+#define ACN_BLOB_RANGE_MID               0
+#define ACN_BLOB_RANGE_START             1
+#define ACN_BLOB_RANGE_END               2
+#define ACN_BLOB_RANGE_SINGLE            3
+
+#define ACN_BLOB_IPV4                               1
+#define ACN_BLOB_IPV6                               2
+#define ACN_BLOB_ERROR1                             3
+#define ACN_BLOB_ERROR2                             4
+#define ACN_BLOB_METADATA                           5
+#define ACN_BLOB_METADATA_DEVICES                   6
+#define ACN_BLOB_METADATA_TYPES                     7
+#define ACN_BLOB_TIME1                              8
+#define ACN_BLOB_DIMMER_PROPERTIES                  9
+#define ACN_BLOB_DIMMER_LOAD_PROPERTIES             10
+#define ACN_BLOB_DIMMING_RACK_PROPERTIES            11
+#define ACN_BLOB_DIMMING_RACK_STATUS_PROPERTIES     12
+#define ACN_BLOB_DIMMER_STATUS_PROPERTIES           13
+#define ACN_BLOB_SET_LEVELS_OPERATION               14
+#define ACN_BLOB_PRESET_OPERATION                   15
+#define ACN_BLOB_ADVANCED_FEATURES_OPERATION        16
+#define ACN_BLOB_DIRECT_CONTROL_OPERATION           17
+#define ACN_BLOB_GENERATE_CONFIG_OPERATION          18
+#define ACN_BLOB_ERROR3                             19
+#define ACN_BLOB_DIMMER_PROPERTIES2                 20
+#define ACN_BLOB_DIMMER_LOAD_PROPERTIES2            21
+#define ACN_BLOB_DIMMER_RACK_PROPERTIES2            22
+#define ACN_BLOB_DIMMER_RACK_STATUS_PROPERTIES2     23
+#define ACN_BLOB_DIMMER_STATUS_PROPERTIES2          24
+#define ACN_BLOB_TIME2                              25
+#define ACN_BLOB_RPC                                26
+#define ACN_BLOB_DHCP_CONFIG_SUBNET                 27
+#define ACN_BLOB_DHCP_CONFIG_STATIC_ROUTE           28
+#define ACN_BLOB_ENERGY_MANAGEMENT                  29
+#define ACN_BLOB_TIME3                              30
+
+#define ACN_BLOB_PRESET_PROPERTIES                  250
+
 #define ACN_DMP_VECTOR_UNKNOWN               0
 #define ACN_DMP_VECTOR_GET_PROPERTY          1
 #define ACN_DMP_VECTOR_SET_PROPERTY          2
@@ -151,6 +204,7 @@ void proto_reg_handoff_acn(void);
 #define ACN_DMP_VECTOR_ALLOCATE_MAP         14
 #define ACN_DMP_VECTOR_ALLOCATE_MAP_REPLY   15
 #define ACN_DMP_VECTOR_DEALLOCATE_MAP       16
+#define ACN_DMP_VECTOR_SYNC_EVENT           17
 
 #define ACN_DMP_REASON_CODE_NONSPECIFIC                  1
 #define ACN_DMP_REASON_CODE_NOT_A_PROPERTY               2
@@ -172,6 +226,37 @@ void proto_reg_handoff_acn(void);
 
 #define ACN_PREF_DMX_DISPLAY_20PL 0
 #define ACN_PREF_DMX_DISPLAY_16PL 1
+
+
+#define MAGIC_V1           0    /* 1.0 default version */
+#define MAGIC_COMMAND      1    /* 2.0 command         */
+#define MAGIC_REPLY        2    /* 2.0 reply           */
+#define MAGIC_REPLY_TYPE_3 3    /* 2.0 reply type 3    */
+
+#define V1_SWITCH_TO_NET1       1
+#define V1_SWITCH_TO_NET2       2
+#define V1_BOOTP          1114467
+
+#define V2_CMD_SWITCH_TO_NET1               1
+#define V2_CMD_SWITCH_TO_NET2               2
+#define V2_CMD_DOWNLOAD                     3
+#define V2_CMD_SOFTBOOT                     4
+#define V2_CMD_PHYSICAL_BEACON              5
+#define V2_CMD_NETWORK_BEACON               6
+#define V2_CMD_SWITCH_TO_ACN                7
+#define V2_CMD_SWITCH_TO_DYNAMIC_IP         8
+#define V2_CMD_EXTENDED_NETWORK_BEACON      9
+#define V2_CMD_IP_CONFIGURATION            10
+#define V2_CMD_RESTORE_FACTORY_DEFAULT     11
+#define V2_CMD_PHYSICAL_BEACON_BY_CID      12
+#define V2_CMD_NET2_DOWNLOAD           110163
+
+#define MAGIC_SWITCH_TO_DYNAMIC_RESET_LEASE    0
+#define MAGIC_SWITCH_TO_DYNAMIC_MAINTAIN_LEASE 1
+
+#define MAGIC_DYNAMIC_IP_MAINTAIN_LEASE 0
+#define MAGIC_DYNAMIC_IP_RESET_LEASE    1
+#define MAGIC_STATIC_IP                 2
 
 typedef struct
 {
@@ -211,6 +296,7 @@ static gint ett_acn_channel_member_info_block = -1;
 static gint ett_acn_channel_parameter = -1;
 static gint ett_acn_address = -1;
 static gint ett_acn_address_type = -1;
+static gint ett_acn_blob = -1;
 static gint ett_acn_pdu_flags = -1;
 static gint ett_acn_dmp_pdu = -1;
 static gint ett_acn_sdt_pdu = -1;
@@ -225,6 +311,30 @@ static gint ett_acn_dmx_pdu = -1;
 /*  Register fields */
 /* In alphabetical order */
 static int hf_acn_association = -1;
+static int hf_acn_blob = -1;
+/* static int hf_acn_blob_dimmer_load_properties2_type = -1; */
+static int hf_acn_blob_field_length = -1;
+static int hf_acn_blob_field_type = -1;
+static int hf_acn_blob_field_value_number = -1;
+static int hf_acn_blob_field_value_ipv4 = -1;
+static int hf_acn_blob_field_value_ipv6 = -1;
+static int hf_acn_blob_field_value_float = -1;
+static int hf_acn_blob_field_value_double = -1;
+static int hf_acn_blob_field_value_guid = -1;
+static int hf_acn_blob_field_value_string = -1;
+/* static int hf_acn_blob_metadata_types_type = -1; */
+static int hf_acn_blob_range_number = -1;
+/* static int hf_acn_blob_range_start = -1; */
+static int hf_acn_blob_range_type = -1;
+static int hf_acn_blob_tree_field_type = -1;
+static int hf_acn_blob_type = -1;
+static int hf_acn_blob_version = -1;
+static int hf_acn_blob_time_zone = -1;
+static int hf_acn_blob_dst_type = -1;
+static int hf_acn_blob_dst_start_day = -1;
+static int hf_acn_blob_dst_stop_day = -1;
+static int hf_acn_blob_dst_start_locality = -1;
+static int hf_acn_blob_dst_stop_locality = -1;
 static int hf_acn_channel_number = -1;
 static int hf_acn_cid = -1;
 /* static int hf_acn_client_protocol_id = -1; */
@@ -308,23 +418,58 @@ static gboolean global_acn_dmx_display_zeros = FALSE;
 static gboolean global_acn_dmx_display_leading_zeros = FALSE;
 
 
+static int proto_magic = -1;
+static gint ett_magic = -1;
+
+/* Register fields */
+static int hf_magic_protocol_id = -1;
+static int hf_magic_pdu_subtype = -1;
+static int hf_magic_major_version = -1;
+static int hf_magic_minor_version = -1;
+
+static int hf_magic_v1command_vals = -1;
+
+static int hf_magic_command_vals = -1;
+static int hf_magic_command_beacon_duration = -1;
+static int hf_magic_command_tftp = -1;
+static int hf_magic_command_reset_lease = -1;
+static int hf_magic_command_cid = -1;
+static int hf_magic_command_ip_configuration = -1;
+static int hf_magic_command_ip_address = -1;
+static int hf_magic_command_subnet_mask = -1;
+static int hf_magic_command_gateway = -1;
+
+static int hf_magic_reply_ip_address = -1;
+static int hf_magic_reply_subnet_mask = -1;
+static int hf_magic_reply_gateway = -1;
+static int hf_magic_reply_tftp = -1;
+
+static int hf_magic_reply_version = -1;
+static int hf_magic_reply_device_type_name = -1;
+static int hf_magic_reply_default_name = -1;
+static int hf_magic_reply_user_name = -1;
+static int hf_magic_reply_cid = -1;
+static int hf_magic_reply_dcid = -1;
+static int hf_magic_reply_invalid_type = -1;
+
+
 static const value_string acn_protocol_id_vals[] = {
-  { ACN_PROTOCOL_ID_SDT, "SDT Protocol" },
-  { ACN_PROTOCOL_ID_DMP, "DMP Protocol" },
-  { ACN_PROTOCOL_ID_DMX, "DMX Protocol" },
+  { ACN_PROTOCOL_ID_SDT,   "SDT Protocol" },
+  { ACN_PROTOCOL_ID_DMP,   "DMP Protocol" },
+  { ACN_PROTOCOL_ID_DMX,   "DMX Protocol" },
   { ACN_PROTOCOL_ID_DMX_2, "Ratified DMX Protocol" },
   { 0,       NULL },
 };
 
 static const value_string acn_dmp_adt_r_vals[] = {
-  { 0, "Relative" },
-  { 1, "Absolute" },
+  { ACN_DMP_ADT_R_RELATIVE, "Relative" },
+  { ACN_DMP_ADT_R_ABSOLUTE, "Absolute" },
   { 0,       NULL },
 };
 
 static const value_string acn_dmp_adt_v_vals[] = {
-  { 0, "Actual" },
-  { 1, "Virtual" },
+  { ACN_DMP_ADT_V_ACTUAL,  "Actual" },
+  { ACN_DMP_ADT_V_VIRTUAL, "Virtual" },
   { 0,       NULL },
 };
 
@@ -372,6 +517,1652 @@ static const value_string acn_dmx_vector_vals[] = {
   { 0,       NULL },
 };
 
+static const value_string acn_blob_advanced_features_operation_field_name[] = {
+  { 1, "Operation Type" },
+  { 2, "Use Controlled Loads" },
+  { 3, "Start Dimmer Address" },
+  { 4, "End Dimmer Address" },
+  { 5, "Space" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_dimmer_load_properties2_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "Reserved" },
+  { 12, "Is Load Recorded" },
+  { 13, "Output Voltage Step 1" },
+  { 14, "Output Voltage Step 2" },
+  { 15, "Output Voltage Step 3" },
+  { 16, "Output Voltage Step 4" },
+  { 17, "Output Voltage Step 5" },
+  { 18, "Output Voltage Step 6" },
+  { 19, "Output Voltage Step 7" },
+  { 20, "Output Voltage Step 8" },
+  { 21, "Output Voltage Step 9" },
+  { 22, "Output Voltage Step 10" },
+  { 23, "Output Voltage Step 11" },
+  { 24, "Output Voltage Step 12" },
+  { 25, "Output Voltage Step 13" },
+  { 26, "Output Voltage Step 14" },
+  { 27, "Output Voltage Step 15" },
+  { 28, "Output Voltage Step 16" },
+  { 29, "Output Voltage Step 17" },
+  { 30, "Output Voltage Step 18" },
+  { 31, "Output Voltage Step 19" },
+  { 32, "Output Voltage Step 20" },
+  { 33, "Amperage Step 1" },
+  { 34, "Amperage Step 2" },
+  { 35, "Amperage Step 3" },
+  { 36, "Amperage Step 4" },
+  { 37, "Amperage Step 5" },
+  { 38, "Amperage Step 6" },
+  { 39, "Amperage Step 7" },
+  { 40, "Amperage Step 8" },
+  { 41, "Amperage Step 9" },
+  { 42, "Amperage Step 10" },
+  { 43, "Amperage Step 11" },
+  { 44, "Amperage Step 12" },
+  { 45, "Amperage Step 13" },
+  { 46, "Amperage Step 14" },
+  { 47, "Amperage Step 15" },
+  { 48, "Amperage Step 16" },
+  { 49, "Amperage Step 17" },
+  { 50, "Amperage Step 18" },
+  { 51, "Amperage Step 19" },
+  { 52, "Amperage Step 20" },
+  { 53, "Voltage Time Step 1" },
+  { 54, "Voltage Time Step 2" },
+  { 55, "Voltage Time Step 3" },
+  { 56, "Voltage Time Step 4" },
+  { 57, "Voltage Time Step 5" },
+  { 58, "Voltage Time Step 6" },
+  { 59, "Voltage Time Step 7" },
+  { 60, "Voltage Time Step 8" },
+  { 61, "Voltage Time Step 9" },
+  { 62, "Voltage Time Step 10" },
+  { 63, "Voltage Time Step 11" },
+  { 64, "Voltage Time Step 12" },
+  { 65, "Voltage Time Step 13" },
+  { 66, "Voltage Time Step 14" },
+  { 67, "Voltage Time Step 15" },
+  { 68, "Voltage Time Step 16" },
+  { 69, "Voltage Time Step 17" },
+  { 70, "Voltage Time Step 18" },
+  { 71, "Voltage Time Step 19" },
+  { 72, "Voltage Time Step 20" },
+  { 73, "Is Rig Check Recorded" },
+  { 74, "Recorded Level" },
+  { 75, "Recorded Current" },
+  { 0, NULL }
+};
+static value_string_ext acn_blob_dimmer_load_properties2_field_name_ext = VALUE_STRING_EXT_INIT(acn_blob_dimmer_load_properties2_field_name);
+
+static const value_string acn_blob_dimmer_properties2_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "Reserved" },
+  { 12, "Dimmer Name" },
+  { 13, "Dimmer Module" },
+  { 14, "Dimmer Mode" },
+  { 15, "Dimmer Control" },
+  { 16, "Dimmer Curve" },
+  { 17, "On Level Percent" },
+  { 18, "Off Level Percent" },
+  { 19, "On Time(sec)" },
+  { 20, "Off Time(sec)" },
+  { 21, "Dimmer AF Enabled" },
+  { 22, "Threshold" },
+  { 23, "Min Scale" },
+  { 24, "Unregulated Min Scale" },
+  { 25, "Max Scale" },
+  { 26, "Unregulated Max Scale" },
+  { 27, "Voltage Regulation" },
+  { 28, "Preheat Enable" },
+  { 29, "Preheat Time" },
+  { 30, "DC Output Prevent" },
+  { 31, "Inrush Protect" },
+  { 32, "AF Sensitivity" },
+  { 33, "AF Reaction Time" },
+  { 34, "Scale Load" },
+  { 35, "PTIO" },
+  { 36, "Allow In Preset" },
+  { 37, "Allow In Panic" },
+  { 38, "Allow In Panic DD" },
+  { 39, "Loads Reporting Mode" },
+  { 40, "New Dimmer Space Number" },
+  { 41, "New Dimmer Number" },
+  { 42, "DMX A Patch" },
+  { 43, "DMX B Patch" },
+  { 44, "sACN Patch" },
+  { 45, "DMX A Patch DD" },
+  { 46, "DMX B Patch DD" },
+  { 47, "sACN Patch DD" },
+  { 48, "DMX A 16-bit Enable" },
+  { 49, "DMX B 16-bit Enable" },
+  { 50, "sACN 16-bit Enable" },
+  { 51, "Dimmer Zone" },
+  { 0, NULL }
+};
+static value_string_ext acn_blob_dimmer_properties2_field_name_ext = VALUE_STRING_EXT_INIT(acn_blob_dimmer_properties2_field_name);
+
+static const value_string acn_blob_dimmer_rack_properties2_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "Reserved" },
+  { 12, "Rack CID" },
+  { 13, "Rack Number" },
+  { 14, "Rack Name" },
+  { 15, "Rack Model" },
+  { 16, "Rack AF Enable" },
+  { 17, "Temperature Format" },
+  { 18, "Data Loss Behavior DMX A" },
+  { 19, "Data Loss Behavior DMX B" },
+  { 20, "Data Loss Behavior sACN" },
+  { 21, "Data Loss Cross/Wait Time DMX A" },
+  { 22, "Data Loss Cross/Wait Time DMX B" },
+  { 23, "Data Loss Wait Time sACN" },
+  { 24, "Data Loss Fade Time DMX A" },
+  { 25, "Data Loss Fade Time DMX B" },
+  { 26, "Data Loss Fade Time sACN" },
+  { 27, "Data Loss Preset DMX A" },
+  { 28, "Data Loss Preset DMX B" },
+  { 29, "Data Port Priority DMX A" },
+  { 30, "Data Port Priority DMX B" },
+  { 31, "Data Port Enabled DMX A" },
+  { 32, "Data Port Enabled DMX B" },
+  { 33, "Data Port Enabled sACN" },
+  { 34, "16 Bit Enabled DMX A" },
+  { 35, "16 Bit Enabled DMX B" },
+  { 36, "16 Bit Enabled sACN" },
+  { 37, "Patch From Home Screen" },
+  { 38, "SCR Off Time" },
+  { 39, "Time Mode" },
+  { 40, "Offset from UTC" },
+  { 41, "Universal Hold Last Look Time" },
+  { 42, "Reactivate Presets On Boot" },
+  { 43, "Voltage High Warning Level" },
+  { 44, "Temperature High Warning Level" },
+  { 45, "Fan Operation Timing" },
+  { 46, "Allow Backplane Communication Errors" },
+  { 47, "Activate Presets on Boot" },
+  { 48, "SmartLink2 Power Supply Enable" },
+  { 49, "Remote Record Enable" },
+  { 50, "System Number" },
+  { 51, "Architectural Priority" },
+  { 52, "Data Loss Preset Space DMX A" },
+  { 53, "Data Loss Preset Space DMX B" },
+  { 0, NULL }
+};
+static value_string_ext acn_blob_dimmer_rack_properties2_field_name_ext = VALUE_STRING_EXT_INIT(acn_blob_dimmer_rack_properties2_field_name);
+
+static const value_string acn_blob_dimmer_rack_status_properties2_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "Reserved" },
+  { 12, "CPU Tempeture" },
+  { 13, "Time of Last Reboot" },
+  { 14, "Time Now" },
+  { 15, "Rack Phasing" },
+  { 16, "Power Frequency" },
+  { 17, "Phase A Voltage" },
+  { 18, "Phase B Voltage" },
+  { 19, "Phase C Voltage" },
+  { 20, "DMX A Port Status" },
+  { 21, "DMX B Port Status" },
+  { 22, "Active Preset Group IDs" },
+  { 23, "Active Preset Group ID[0]" },
+  { 24, "Active Preset Group ID[1]" },
+  { 25, "Active Preset Group ID[2]" },
+  { 26, "Active Preset Group ID[3]" },
+  { 27, "Active Preset Group ID[4]" },
+  { 28, "Active Preset Group ID[5]" },
+  { 29, "Active Preset Group ID[6]" },
+  { 30, "Active Preset Group ID[7]" },
+  { 31, "Active Preset Group ID[8]" },
+  { 32, "Active Preset Group ID[9]" },
+  { 33, "Active Preset Group ID[10]" },
+  { 34, "Active Preset Group ID[11]" },
+  { 35, "Active Preset Group ID[12]" },
+  { 36, "Active Preset Group ID[13]" },
+  { 37, "Active Preset Group ID[14]" },
+  { 38, "Active Preset Group ID[15]" },
+  { 39, "Active Preset Group ID[16]" },
+  { 40, "Active Preset Group ID[17]" },
+  { 41, "Active Preset Group ID[18]" },
+  { 42, "Active Preset Group ID[19]" },
+  { 43, "Active Preset Group ID[20]" },
+  { 44, "Active Preset Group ID[21]" },
+  { 45, "Active Preset Group ID[22]" },
+  { 46, "Active Preset Group ID[23]" },
+  { 47, "Active Preset Group ID[24]" },
+  { 48, "Active Preset Group ID[25]" },
+  { 49, "Active Preset Group ID[26]" },
+  { 50, "Active Preset Group ID[27]" },
+  { 51, "Active Preset Group ID[28]" },
+  { 52, "Active Preset Group ID[29]" },
+  { 53, "Active Preset Group ID[30]" },
+  { 54, "Active Preset Group ID[31]" },
+  { 55, "Active Preset Group ID[32]" },
+  { 56, "Active Preset Group ID[33]" },
+  { 57, "Active Preset Group ID[34]" },
+  { 58, "Active Preset Group ID[35]" },
+  { 59, "Active Preset Group ID[36]" },
+  { 60, "Active Preset Group ID[37]" },
+  { 61, "Active Preset Group ID[38]" },
+  { 62, "Active Preset Group ID[39]" },
+  { 63, "Active Preset Group ID[40]" },
+  { 64, "Active Preset Group ID[41]" },
+  { 65, "Active Preset Group ID[42]" },
+  { 66, "Active Preset Group ID[43]" },
+  { 67, "Active Preset Group ID[44]" },
+  { 68, "Active Preset Group ID[45]" },
+  { 69, "Active Preset Group ID[46]" },
+  { 70, "Active Preset Group ID[47]" },
+  { 71, "Active Preset Group ID[48]" },
+  { 72, "Active Preset Group ID[49]" },
+  { 73, "Active Preset Group ID[50]" },
+  { 74, "Active Preset Group ID[51]" },
+  { 75, "Active Preset Group ID[52]" },
+  { 76, "Active Preset Group ID[53]" },
+  { 77, "Active Preset Group ID[54]" },
+  { 78, "Active Preset Group ID[55]" },
+  { 79, "Active Preset Group ID[56]" },
+  { 80, "Active Preset Group ID[57]" },
+  { 81, "Active Preset Group ID[58]" },
+  { 82, "Active Preset Group ID[59]" },
+  { 83, "Active Preset Group ID[60]" },
+  { 84, "Active Preset Group ID[61]" },
+  { 85, "Active Preset Group ID[62]" },
+  { 86, "Active Preset Group ID[63]" },
+  { 87, "Rack AF State" },
+  { 88, "Number of Stored Presets for This Rack" },
+  { 89, "Number of Lugs in This Rack" },
+  { 90, "DSP Version" },
+  { 91, "AF Card Version Slot 1" },
+  { 92, "AF Card Version Slot 2" },
+  { 93, "AF Card Version Slot 3" },
+  { 94, "AF Card Version Slot 4" },
+  { 95, "HCS08 Version" },
+  { 96, "FPGA Version" },
+  { 97, "Upload Progress AF Card 1" },
+  { 98, "Upload Progress AF Card 2" },
+  { 99, "Upload Progress AF Card 3" },
+  { 100, "Upload Progress AF Card 4" },
+  { 0, NULL }
+};
+static value_string_ext acn_blob_dimmer_rack_status_properties2_field_name_ext = VALUE_STRING_EXT_INIT(acn_blob_dimmer_rack_status_properties2_field_name);
+
+static const value_string acn_blob_dimmer_status_properties2_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "Reserved" },
+  { 12, "Source Winning Control" },
+  { 13, "Priority of Winning Source" },
+  { 14, "Winning Level" },
+  { 15, "Winning DMX A Level" },
+  { 16, "Winning DMX B Level" },
+  { 17, "Winning sACN Level" },
+  { 18, "Source Winning Control DD" },
+  { 19, "Priority of Winning Soruce DD" },
+  { 20, "Winning Level DD" },
+  { 21, "Winning DMX A Level DD" },
+  { 22, "Winning DMX B Level DD" },
+  { 23, "Winning DMX sACN Level DD" },
+  { 24, "Actual Load" },
+  { 25, "Load Status" },
+  { 0, NULL }
+};
+static value_string_ext acn_blob_dimmer_status_properties2_field_name_ext = VALUE_STRING_EXT_INIT(acn_blob_dimmer_status_properties2_field_name);
+
+
+static const value_string acn_blob_direct_control_operation_field_name[] = {
+  { 1, "Space" },
+  { 2, "Dimmer Number" },
+  { 3, "DD Side" },
+  { 4, "Level" },
+  { 5, "Priority" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_error3_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "sACN Address" },
+  { 12, "Error Type" },
+  { 13, "Severity" },
+  { 14, "Timestamp" },
+  { 15, "Error Text" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_field_type_vals[] = {
+  { ACN_BLOB_FIELD_TYPE1, "1 Byte Signed Integer" },
+  { ACN_BLOB_FIELD_TYPE2, "2 Bits Signed Integer" },
+  { ACN_BLOB_FIELD_TYPE3, "4 Bits Signed Integer" },
+  { ACN_BLOB_FIELD_TYPE4, "8 Bits Signed Integer" },
+  { ACN_BLOB_FIELD_TYPE5, "1 Byte Unsigned Integer" },
+  { ACN_BLOB_FIELD_TYPE6, "2 Bits Unsigned Integer" },
+  { ACN_BLOB_FIELD_TYPE7, "4 Bits Unsigned Integer" },
+  { ACN_BLOB_FIELD_TYPE8, "8 Bits Unsigned Integer" },
+  { ACN_BLOB_FIELD_TYPE9, "Float" },
+  { ACN_BLOB_FIELD_TYPE10, "Double" },
+  { ACN_BLOB_FIELD_TYPE11, "Variblob" },
+  { ACN_BLOB_FIELD_TYPE12, "Ignore" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_generate_config_operation_field_name[] = {
+  { 1, "First Dimmer" },
+  { 2, "Numbering Style" },
+  { 3, "Use Dimmer Doubling" },
+  { 4, "Default Module Type" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_ip_field_name[] = {
+  { 1, "IP Address" },
+  { 2, "Subnet Mask" },
+  { 3, "Gateway" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_error1_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  /*{9,  "Space"}, */
+  { 9, "UDN" },
+  { 10, "sACN Address" },
+  { 11, "Error Type" },
+  { 12, "Severity" },
+  { 13, "Timestamp" },
+  { 14, "Error Text" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_error2_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "sACN Address" },
+  { 12, "Error Type" },
+  { 13, "Severity" },
+  { 14, "Timestamp" },
+  { 15, "Error Text" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_metadata_devices_field_name[] = {
+  { 1, "Device Type" },
+  { 2, "Identifier Name 1" },
+  { 3, "Identifier Name 2" },
+  { 4, "Identifier Name 3" },
+  { 5, "Identifier Name 4" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_metadata_field_name[] = {
+  { 1, "Device Type" },
+  { 2, "Metadata Type" },
+  { 3, "Identifier Name 1" },
+  { 4, "Identifier Name 2" },
+  { 5, "Identifier Name 3" },
+  { 6, "Identifier Name 4" },
+  { 7, "Metadata 1" },
+  { 8, "Metadata 2" },
+  { 9, "Metadata 3" },
+  { 10, "Metadata 4" },
+  { 11, "Metadata 5" },
+  { 12, "Metadata 6" },
+  { 13, "Metadata 7" },
+  { 14, "Metadata 8" },
+  { 15, "Device CID" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_metadata_types_field_name[] = {
+  { 1, "Metadata Type" },
+  { 2, "Identifier Name 1" },
+  { 3, "Identifier Name 2" },
+  { 4, "Identifier Name 3" },
+  { 5, "Identifier Name 4" },
+  { 6, "Identifier Name 5" },
+  { 7, "Identifier Name 6" },
+  { 8, "Identifier Name 7" },
+  { 9, "Identifier Name 8" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_time1_field_name[] = {
+  { 1, "Time" },
+  { 2, "Time Zone Name" },
+  { 3, "Time Zone Offset Hour" },
+  { 4, "Time Zone Offset Min" },
+  { 5, "Time Zone Offset Sec" },
+  { 6, "DST Name" },
+  { 7, "Start Month" },
+  { 8, "Start Week" },
+  { 9, "Start Day" },
+  { 10, "End Month" },
+  { 11, "End Week" },
+  { 12, "End Day" },
+  { 13, "Timed Event Update" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_dimmer_properties1_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "Reserved" },
+  { 12, "Dimmer Name" },
+  { 13, "Dimmer Module" },
+  { 14, "Dimmer Mode" },
+  { 15, "Dimmer Control" },
+  { 16, "Dimmer Curve" },
+  { 17, "On Level Percent" },
+  { 18, "Off Level Percent" },
+  { 19, "On Time(sec)" },
+  { 20, "Off Time(sec)" },
+  { 21, "Dimmer AF Enabled" },
+  { 22, "Threshold" },
+  { 23, "Min Scale" },
+  { 24, "Unregulated Min Scale" },
+  { 25, "Max Scale" },
+  { 26, "Unregulated Max Scale" },
+  { 27, "Voltage Regulation" },
+  { 28, "Preheat Enable" },
+  { 29, "Preheat Time" },
+  { 30, "DC Output Prevent" },
+  { 31, "Inrush Protect" },
+  { 32, "AF Sensitivity" },
+  { 33, "AF Reaction Time" },
+  { 34, "Scale Load" },
+  { 35, "PTIO" },
+  { 36, "Allow In Preset" },
+  { 37, "Allow In Panic" },
+  { 38, "Allow In Panic DD" },
+  /*{39, "Loads Reporting Mode"},
+  {40, "New Dimmer Space Number"}, */
+  { 39, "Report No Loads Enable" },
+  { 40, "Loads Error Reporting Enable" },
+  { 41, "Dimmer Space" },
+  { 42, "New Dimmer Number" },
+  { 43, "DMX A Patch" },
+  { 44, "DMX B Patch" },
+  { 45, "sACN Patch" },
+  { 46, "DMX A Patch DD" },
+  { 47, "DMX B Patch DD" },
+  { 48, "sACN Patch DD" },
+  { 0, NULL }
+};
+static value_string_ext acn_blob_dimmer_properties1_field_name_ext = VALUE_STRING_EXT_INIT(acn_blob_dimmer_properties1_field_name);
+
+static const value_string acn_blob_dimmer_load_properties1_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "Reserved" },
+  { 12, "Is Load Recorded" },
+  { 13, "Output Voltage Step 1" },
+  { 14, "Output Voltage Step 2" },
+  { 15, "Output Voltage Step 3" },
+  { 16, "Output Voltage Step 4" },
+  { 17, "Output Voltage Step 5" },
+  { 18, "Output Voltage Step 6" },
+  { 19, "Output Voltage Step 7" },
+  { 20, "Output Voltage Step 8" },
+  { 21, "Output Voltage Step 9" },
+  { 22, "Output Voltage Step 10" },
+  { 23, "Output Voltage Step 11" },
+  { 24, "Output Voltage Step 12" },
+  { 25, "Output Voltage Step 13" },
+  { 26, "Output Voltage Step 14" },
+  { 27, "Output Voltage Step 15" },
+  { 28, "Output Voltage Step 16" },
+  { 29, "Output Voltage Step 17" },
+  { 30, "Output Voltage Step 18" },
+  { 31, "Output Voltage Step 19" },
+  { 32, "Output Voltage Step 20" },
+  { 33, "Amperage Step 1" },
+  { 34, "Amperage Step 2" },
+  { 35, "Amperage Step 3" },
+  { 36, "Amperage Step 4" },
+  { 37, "Amperage Step 5" },
+  { 38, "Amperage Step 6" },
+  { 39, "Amperage Step 7" },
+  { 40, "Amperage Step 8" },
+  { 41, "Amperage Step 9" },
+  { 42, "Amperage Step 10" },
+  { 43, "Amperage Step 11" },
+  { 44, "Amperage Step 12" },
+  { 45, "Amperage Step 13" },
+  { 46, "Amperage Step 14" },
+  { 47, "Amperage Step 15" },
+  { 48, "Amperage Step 16" },
+  { 49, "Amperage Step 17" },
+  { 50, "Amperage Step 18" },
+  { 51, "Amperage Step 19" },
+  { 52, "Amperage Step 20" },
+  { 53, "Voltage Time Step 1" },
+  { 54, "Voltage Time Step 2" },
+  { 55, "Voltage Time Step 3" },
+  { 56, "Voltage Time Step 4" },
+  { 57, "Voltage Time Step 5" },
+  { 58, "Voltage Time Step 6" },
+  { 59, "Voltage Time Step 7" },
+  { 60, "Voltage Time Step 8" },
+  { 61, "Voltage Time Step 9" },
+  { 62, "Voltage Time Step 10" },
+  { 63, "Voltage Time Step 11" },
+  { 64, "Voltage Time Step 12" },
+  { 65, "Voltage Time Step 13" },
+  { 66, "Voltage Time Step 14" },
+  { 67, "Voltage Time Step 15" },
+  { 68, "Voltage Time Step 16" },
+  { 69, "Voltage Time Step 17" },
+  { 70, "Voltage Time Step 18" },
+  { 71, "Voltage Time Step 19" },
+  { 72, "Voltage Time Step 20" },
+  { 0, NULL }
+};
+static value_string_ext acn_blob_dimmer_load_properties1_field_name_ext = VALUE_STRING_EXT_INIT(acn_blob_dimmer_load_properties1_field_name);
+
+static const value_string acn_blob_dimmer_rack_properties1_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "Reserved" },
+  { 12, "Rack CID" },
+  { 13, "Rack Number" },
+  { 14, "Rack Name" },
+  { 15, "Rack Model" },
+  { 16, "Rack AF Enable" },
+  { 17, "Temperature Format" },
+  { 18, "Data Loss Behavior DMX A" },
+  { 19, "Data Loss Behavior DMX B" },
+  { 20, "Data Loss Behavior sACN" },
+  { 21, "Data Loss Cross/Wait Time DMX A" },
+  { 22, "Data Loss Cross/Wait Time DMX B" },
+  { 23, "Data Loss Wait Time sACN" },
+  { 24, "Data Loss Fade Time DMX A" },
+  { 25, "Data Loss Fade Time DMX B" },
+  { 26, "Data Loss Fade Time sACN" },
+  { 27, "Data Loss Preset DMX A" },
+  { 28, "Data Loss Preset DMX B" },
+  { 29, "Data Port Priority DMX A" },
+  { 30, "Data Port Priority DMX B" },
+  { 31, "Data Port Enabled DMX A" },
+  { 32, "Data Port Enabled DMX B" },
+  { 33, "Data Port Enabled sACN" },
+  { 34, "16 Bit Enabled DMX A" },
+  { 35, "16 Bit Enabled DMX B" },
+  { 36, "16 Bit Enabled sACN" },
+  { 37, "Patch From Home Screen" },
+  { 38, "SCR Off Time" },
+  { 39, "Time Mode" },
+  { 40, "Offset from UTC" },
+  { 41, "Universal Hold Last Look Time" },
+  { 42, "Reactivate Presets On Boot" },
+  { 43, "Voltage High Warning Level" },
+  { 44, "Temperature High Warning Level" },
+  { 45, "Fan Operation Timing" },
+  { 46, "Allow Backplane Communication Errors" },
+  { 0, NULL }
+};
+static value_string_ext acn_blob_dimmer_rack_properties1_field_name_ext = VALUE_STRING_EXT_INIT(acn_blob_dimmer_rack_properties1_field_name);
+
+
+static const value_string acn_blob_dimmer_rack_status_properties1_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "Reserved" },
+  { 12, "CPU Tempeture" },
+  { 13, "Time of Last Reboot" },
+  { 14, "Time Now" },
+  { 15, "Rack Phasing" },
+  { 16, "Power Frequency" },
+  { 17, "Phase A Voltage" },
+  { 18, "Phase B Voltage" },
+  { 19, "Phase C Voltage" },
+  { 20, "DMX A Port Status" },
+  { 21, "DMX B Port Status" },
+  { 22, "Rack AF State" },
+  { 23, "Number of Stored Presets for This Rack" },
+  { 24, "Number of Lugs in This Rack" },
+  { 25, "DSP Version" },
+  { 26, "AF Card Version Slot 1" },
+  { 27, "AF Card Version Slot 2" },
+  { 28, "AF Card Version Slot 3" },
+  { 29, "AF Card Version Slot 4" },
+  { 30, "HCS08 Version" },
+  { 31, "FPGA Version" },
+  { 32, "Upload Progress AF Card 1" },
+  { 33, "Upload Progress AF Card 2" },
+  { 34, "Upload Progress AF Card 3" },
+  { 35, "Upload Progress AF Card 4" },
+  { 0, NULL }
+};
+static value_string_ext acn_blob_dimmer_rack_status_properties1_field_name_ext = VALUE_STRING_EXT_INIT(acn_blob_dimmer_rack_status_properties1_field_name);
+
+static const value_string acn_blob_dimmer_status_properties1_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "Reserved" },
+  { 12, "Source Winning Control" },
+  { 13, "Priority of Winning Source" },
+  { 14, "Winning Level" },
+  { 15, "Winning DMX A Level" },
+  { 16, "Winning DMX B Level" },
+  { 17, "Winning sACN Level" },
+  { 18, "Source Winning Control DD" },
+  { 19, "Priority of Winning Soruce DD" },
+  { 20, "Winning Level DD" },
+  { 21, "Winning DMX A Level DD" },
+  { 22, "Winning DMX B Level DD" },
+  { 23, "Winning DMX sACN Level DD" },
+  { 24, "Actual Load" },
+  { 0, NULL }
+};
+static value_string_ext acn_blob_dimmer_status_properties1_field_name_ext = VALUE_STRING_EXT_INIT(acn_blob_dimmer_status_properties1_field_name);
+
+static const value_string acn_blob_preset_operation_field_name[] = {
+  { 1, "Operation Type" },
+  { 2, "Preset Number" },
+  { 3, "Space" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_preset_properties_field_name[] = {
+  { 1, "System" },
+  { 2, "Processor" },
+  { 3, "Rack" },
+  { 4, "Lug" },
+  { 5, "Module" },
+  { 6, "Station" },
+  { 7, "Port" },
+  { 8, "Subdevice" },
+  { 9, "Space" },
+  { 10, "UDN" },
+  { 11, "Reserved" },
+  { 12, "Preset Number" },
+  { 13, "Preset Name" },
+  { 14, "Fade In Time" },
+  { 15, "Fade Out Time" },
+  { 16, "Priority" },
+  { 17, "Levels" },
+  { 18, "Level[0]" },
+  { 19, "Level[1]" },
+  { 20, "Level[2]" },
+  { 21, "Level[3]" },
+  { 22, "Level[4]" },
+  { 23, "Level[5]" },
+  { 24, "Level[6]" },
+  { 25, "Level[7]" },
+  { 26, "Level[8]" },
+  { 27, "Level[9]" },
+  { 28, "Level[10]" },
+  { 29, "Level[11]" },
+  { 30, "Level[12]" },
+  { 31, "Level[13]" },
+  { 32, "Level[14]" },
+  { 33, "Level[15]" },
+  { 34, "Level[16]" },
+  { 35, "Level[17]" },
+  { 36, "Level[18]" },
+  { 37, "Level[19]" },
+  { 38, "Level[20]" },
+  { 39, "Level[21]" },
+  { 40, "Level[22]" },
+  { 41, "Level[23]" },
+  { 42, "Level[24]" },
+  { 43, "Level[25]" },
+  { 44, "Level[26]" },
+  { 45, "Level[27]" },
+  { 46, "Level[28]" },
+  { 47, "Level[29]" },
+  { 48, "Level[30]" },
+  { 49, "Level[31]" },
+  { 50, "Level[32]" },
+  { 51, "Level[33]" },
+  { 52, "Level[34]" },
+  { 53, "Level[35]" },
+  { 54, "Level[36]" },
+  { 55, "Level[37]" },
+  { 56, "Level[38]" },
+  { 57, "Level[39]" },
+  { 58, "Level[40]" },
+  { 59, "Level[41]" },
+  { 60, "Level[42]" },
+  { 61, "Level[43]" },
+  { 62, "Level[44]" },
+  { 63, "Level[45]" },
+  { 64, "Level[46]" },
+  { 65, "Level[47]" },
+  { 66, "Level[48]" },
+  { 67, "Level[49]" },
+  { 68, "Level[50]" },
+  { 69, "Level[51]" },
+  { 70, "Level[52]" },
+  { 71, "Level[53]" },
+  { 72, "Level[54]" },
+  { 73, "Level[55]" },
+  { 74, "Level[56]" },
+  { 75, "Level[57]" },
+  { 76, "Level[58]" },
+  { 77, "Level[59]" },
+  { 78, "Level[60]" },
+  { 79, "Level[61]" },
+  { 80, "Level[62]" },
+  { 81, "Level[63]" },
+  { 82, "Level[64]" },
+  { 83, "Level[65]" },
+  { 84, "Level[66]" },
+  { 85, "Level[67]" },
+  { 86, "Level[68]" },
+  { 87, "Level[69]" },
+  { 88, "Level[70]" },
+  { 89, "Level[71]" },
+  { 90, "Level[72]" },
+  { 91, "Level[73]" },
+  { 92, "Level[74]" },
+  { 93, "Level[75]" },
+  { 94, "Level[76]" },
+  { 95, "Level[77]" },
+  { 96, "Level[78]" },
+  { 97, "Level[79]" },
+  { 98, "Level[80]" },
+  { 99, "Level[81]" },
+  { 100, "Level[82]" },
+  { 101, "Level[83]" },
+  { 102, "Level[84]" },
+  { 103, "Level[85]" },
+  { 104, "Level[86]" },
+  { 105, "Level[87]" },
+  { 106, "Level[88]" },
+  { 107, "Level[89]" },
+  { 108, "Level[90]" },
+  { 109, "Level[91]" },
+  { 110, "Level[92]" },
+  { 111, "Level[93]" },
+  { 112, "Level[94]" },
+  { 113, "Level[95]" },
+  { 114, "Level[96]" },
+  { 115, "Level[97]" },
+  { 116, "Level[98]" },
+  { 117, "Level[99]" },
+  { 118, "Level[100]" },
+  { 119, "Level[101]" },
+  { 120, "Level[102]" },
+  { 121, "Level[103]" },
+  { 122, "Level[104]" },
+  { 123, "Level[105]" },
+  { 124, "Level[106]" },
+  { 125, "Level[107]" },
+  { 126, "Level[108]" },
+  { 127, "Level[109]" },
+  { 128, "Level[110]" },
+  { 129, "Level[111]" },
+  { 130, "Level[112]" },
+  { 131, "Level[113]" },
+  { 132, "Level[114]" },
+  { 133, "Level[115]" },
+  { 134, "Level[116]" },
+  { 135, "Level[117]" },
+  { 136, "Level[118]" },
+  { 137, "Level[119]" },
+  { 138, "Level[120]" },
+  { 139, "Level[121]" },
+  { 140, "Level[122]" },
+  { 141, "Level[123]" },
+  { 142, "Level[124]" },
+  { 143, "Level[125]" },
+  { 144, "Level[126]" },
+  { 145, "Level[127]" },
+  { 146, "Level[128]" },
+  { 147, "Level[129]" },
+  { 148, "Level[130]" },
+  { 149, "Level[131]" },
+  { 150, "Level[132]" },
+  { 151, "Level[133]" },
+  { 152, "Level[134]" },
+  { 153, "Level[135]" },
+  { 154, "Level[136]" },
+  { 155, "Level[137]" },
+  { 156, "Level[138]" },
+  { 157, "Level[139]" },
+  { 158, "Level[140]" },
+  { 159, "Level[141]" },
+  { 160, "Level[142]" },
+  { 161, "Level[143]" },
+  { 162, "Level[144]" },
+  { 163, "Level[145]" },
+  { 164, "Level[146]" },
+  { 165, "Level[147]" },
+  { 166, "Level[148]" },
+  { 167, "Level[149]" },
+  { 168, "Level[150]" },
+  { 169, "Level[151]" },
+  { 170, "Level[152]" },
+  { 171, "Level[153]" },
+  { 172, "Level[154]" },
+  { 173, "Level[155]" },
+  { 174, "Level[156]" },
+  { 175, "Level[157]" },
+  { 176, "Level[158]" },
+  { 177, "Level[159]" },
+  { 178, "Level[160]" },
+  { 179, "Level[161]" },
+  { 180, "Level[162]" },
+  { 181, "Level[163]" },
+  { 182, "Level[164]" },
+  { 183, "Level[165]" },
+  { 184, "Level[166]" },
+  { 185, "Level[167]" },
+  { 186, "Level[168]" },
+  { 187, "Level[169]" },
+  { 188, "Level[170]" },
+  { 189, "Level[171]" },
+  { 190, "Level[172]" },
+  { 191, "Level[173]" },
+  { 192, "Level[174]" },
+  { 193, "Level[175]" },
+  { 194, "Level[176]" },
+  { 195, "Level[177]" },
+  { 196, "Level[178]" },
+  { 197, "Level[179]" },
+  { 198, "Level[180]" },
+  { 199, "Level[181]" },
+  { 200, "Level[182]" },
+  { 201, "Level[183]" },
+  { 202, "Level[184]" },
+  { 203, "Level[185]" },
+  { 204, "Level[186]" },
+  { 205, "Level[187]" },
+  { 206, "Level[188]" },
+  { 207, "Level[189]" },
+  { 208, "Level[190]" },
+  { 209, "Level[191]" },
+  { 0, NULL }
+};
+static value_string_ext acn_blob_preset_properties_field_name_ext = VALUE_STRING_EXT_INIT(acn_blob_preset_properties_field_name);
+
+static const value_string acn_blob_range_type_vals[] = {
+  { ACN_BLOB_RANGE_MID, "Middle range Blob" },
+  { ACN_BLOB_RANGE_START, "Start range Blob" },
+  { ACN_BLOB_RANGE_END, "End Range Blob" },
+  { ACN_BLOB_RANGE_SINGLE, "Single Blob" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_set_levels_operation_field_name[] = {
+  { 1, "Start Dimmer Address" },
+  { 2, "End Dimmer Address" },
+  { 3, "DD Side" },
+  { 4, "Space" },
+  { 5, "Level" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_time2_field_name[] = {
+  { 1, "Time" },
+  { 2, "Time Zone Name" },
+  { 3, "Time Zone Offset Hour" },
+  { 4, "Time Zone Offset Min" },
+  { 5, "Time Zone Offset Sec" },
+  { 6, "DST Name" },
+  { 7, "Start Month" },
+  { 8, "Start Week" },
+  { 9, "Start Day" },
+  { 10, "End Month" },
+  { 11, "End Week" },
+  { 12, "End Day" },
+  { 13, "Timed Event Update" },
+  { 14, "Unix Time Zone Environment-compatible Name" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_rpc_field_name[] = {
+  { 1, "Command" },
+  { 2, "Transaction ID" },
+  { 3, "Number of Arguments" },
+  { 4, "Argument" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_dhcp_config_subnet_field_name[] = {
+  { 1, "Command" },
+  { 2, "Subnet" },
+  { 3, "Netmask" },
+  { 4, "Given Next Server" },
+  { 5, "Given Router" },
+  { 6, "Given Netmask" },
+  { 7, "Default Lease Time" },
+  { 8, "Max Lease Time" },
+  { 9, "Given Domain Name" },
+  { 10, "Given DNS Servers" },
+  { 11, "Given NTP Server" },
+  { 12, "Given Time Zone Offset Hour" },
+  { 13, "Given Time Zone Offset Minute" },
+  { 14, "Given Time Zone Offset Second" },
+  { 15, "Given Time Zone DST Name" },
+  { 16, "Given Time Zone Start Month" },
+  { 17, "Given Time Zone Start Week" },
+  { 18, "Given Time Zone Start Day" },
+  { 19, "Given Time Zone End Month" },
+  { 20, "Given Time Zone End Week" },
+  { 21, "Given Time Zone End Day" },
+  { 22, "Given UNIX Timezone Name" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_dhcp_config_static_route_field_name[] = {
+  { 1, "Command" },
+  { 2, "Subnet" },
+  { 3, "Netmask" },
+  { 4, "MAC Address" },
+  { 5, "Host Name" },
+  { 6, "Address" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_energy_management_field_name[] = {
+  { 1, "Project ID" },
+  { 2, "Space" },
+  { 3, "Circuit Power Count" },
+  { 4, "Circuit" },
+  { 5, "Power" },
+  { 6, "Shed Actual" },
+  { 7, "Shed Potential" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_time3_field_name[] = {
+  { 1, "Time" },
+  { 2, "Time Zone Index" },
+  { 3, "City" },
+  { 4, "Country" },
+  { 5, "Longitude" },
+  { 6, "Latitude" },
+  { 7, "UTC Offset Hours" },
+  { 8, "UTC Offset Minutes" },
+  { 9, "Time Zone Name" },
+  { 10, "DST Type" },
+  { 11, "DST Start Month" },
+  { 12, "DST Start Week" },
+  { 13, "DST Start Day" },
+  { 14, "DST Start Hours" },
+  { 15, "DST Start Minutes" },
+  { 16, "DST Start Locality" },
+  { 17, "DST Stop Month" },
+  { 18, "DST Stop Week" },
+  { 19, "DST Stop Day" },
+  { 20, "DST Stop Hours" },
+  { 21, "DST Stop Minutes" },
+  { 22, "DST Stop Locality" },
+  { 23, "Timed Event Update" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_time3_time_zone_vals[] = {
+  { 0, "Aalborg, Denmark - Central European Standard Time : (UTC+01:00)" },
+  { 1, "Aberdeen, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 2, "Abu Dhabi, United Arab Emirates - Gulf Standard Time : (UTC+04:00)" },
+  { 3, "Abuja, Nigeria - West Africa Time : (UTC+01:00)" },
+  { 4, "Accra, Ghana - Greenwich Mean Time : (UTC)" },
+  { 5, "Addis Ababa, Ethiopia - Eastern Africa Standard Time : (UTC+03:00)" },
+  { 6, "Adelaide, SA, Australia - Australian Central Standard Time : (UTC+09:30)" },
+  { 7, "Agana, GU, Guam - Chamorro Standard Time : (UTC+10:00)" },
+  { 8, "Ahmadabad, India - India Standard Time : (UTC+05:30)" },
+  { 9, "Akita, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 10, "Akron, OH, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 11, "Albuquerque, NM, USA - Mountain Standard Time : (UTC-07:00)" },
+  { 12, "Alexandria, VA, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 13, "Algiers, Algeria - Central European Standard Time : (UTC+01:00)" },
+  { 14, "Allentown, PA, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 15, "Almaty, Kazakhstan - Alma-Ata Time : (UTC+06:00)" },
+  { 16, "Amman, Jordan - Arabia Standard Time : (UTC+03:00)" },
+  { 17, "Amsterdam, Netherlands - Central European Standard Time : (UTC+01:00)" },
+  { 18, "Anaheim, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 19, "Anchorage, AK, USA - Alaska Standard Time : (UTC-09:00)" },
+  { 20, "Andorra la Vella, Andorra - Central European Standard Time : (UTC+01:00)" },
+  { 21, "Angers, France - Central European Standard Time : (UTC+01:00)" },
+  { 22, "Ankara, Turkey - Eastern European Standard Time : (UTC+02:00)" },
+  { 23, "Ann Arbor, MI, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 24, "Antananarivo, Madagascar - Eastern Africa Standard Time : (UTC+03:00)" },
+  { 25, "Antwerp, Belgium - Central European Standard Time : (UTC+01:00)" },
+  { 26, "Apia, Samoa - West Samoa Time : (UTC+14:00)" },
+  { 27, "Ashgabat, Turkmenistan - Turkmenistan Time : (UTC+05:00)" },
+  { 28, "Asmara, Eritrea - Eastern Africa Standard Time : (UTC+03:00)" },
+  { 29, "Athens, Greece - Eastern European Standard Time : (UTC+02:00)" },
+  { 30, "Atlanta, GA, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 31, "Auckland, New Zealand - New Zealand Standard Time : (UTC+12:00)" },
+  { 32, "Austin, TX, USA - Central Standard Time : (UTC-06:00)" },
+  { 33, "Badajoz, Spain - Central European Standard Time : (UTC+01:00)" },
+  { 34, "Baghdad, Iraq - Arabia Standard Time : (UTC+03:00)" },
+  { 35, "Bakersfield, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 36, "Baku, Azerbaijan - Azerbaijan Time : (UTC+04:00)" },
+  { 37, "Baltimore, MD, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 38, "Bamako, Mali - Greenwich Mean Time : (UTC)" },
+  { 39, "Bandar Seri Begawan, Brunei - Brunei Darussalam Time : (UTC+08:00)" },
+  { 40, "Bangalore, India - India Standard Time : (UTC+05:30)" },
+  { 41, "Bangkok, Thailand - Indochina Time : (UTC+07:00)" },
+  { 42, "Bangui, Central African Republic - West Africa Time : (UTC+01:00)" },
+  { 43, "Banjul, Gambia - Greenwich Mean Time : (UTC)" },
+  { 44, "Barcelona, Spain - Central European Standard Time : (UTC+01:00)" },
+  { 45, "Bari, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 46, "Baton Rouge, LA, USA - Central Standard Time : (UTC-06:00)" },
+  { 47, "Beaumont, TX, USA - Central Standard Time : (UTC-06:00)" },
+  { 48, "Beijing, China - China Standard Time : (UTC+08:00)" },
+  { 49, "Beirut, Lebanon - Eastern European Standard Time : (UTC+02:00)" },
+  { 50, "Belem, Brazil - Brasilia Time : (UTC-03:00)" },
+  { 51, "Belfast, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 52, "Belgrade, Serbia - Central European Standard Time : (UTC+01:00)" },
+  { 53, "Belmopan, Belize - Central Standard Time : (UTC-06:00)" },
+  { 54, "Belo Horizonte, Brazil - Brasilia Time : (UTC-03:00)" },
+  { 55, "Bergen, Norway - Central European Standard Time : (UTC+01:00)" },
+  { 56, "Berkeley, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 57, "Berlin, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 58, "Bern, Switzerland - Central European Standard Time : (UTC+01:00)" },
+  { 59, "Birmingham, AL, USA - Central Standard Time : (UTC-06:00)" },
+  { 60, "Birmingham, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 61, "Bishkek, Kyrgyzstan - Kyrgyzstan Time : (UTC+06:00)" },
+  { 62, "Bissau, Guinea-Bissau - Greenwich Mean Time : (UTC)" },
+  { 63, "Boise, ID, USA - Mountain Standard Time : (UTC-07:00)" },
+  { 64, "Bologna, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 65, "Bonn, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 66, "Bordeaux, France - Central European Standard Time : (UTC+01:00)" },
+  { 67, "Boston, MA, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 68, "Bournemouth, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 69, "Brasilia, Brazil - Brasilia Time : (UTC-03:00)" },
+  { 70, "Bratislava, Slovakia - Central European Standard Time : (UTC+01:00)" },
+  { 71, "Brazzaville, Republic of the Congo - West Africa Time : (UTC+01:00)" },
+  { 72, "Bremen, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 73, "Brest, France - Central European Standard Time : (UTC+01:00)" },
+  { 74, "Bridgeport, CT, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 75, "Bridgetown, Barbados - Atlantic Standard Time : (UTC-04:00)" },
+  { 76, "Brisbane, QLD, Australia - Australian Eastern Standard Time : (UTC+10:00)" },
+  { 77, "Brno, Czech Republic - Central European Standard Time : (UTC+01:00)" },
+  { 78, "Brussels, Belgium - Central European Standard Time : (UTC+01:00)" },
+  { 79, "Bucharest, Romania - Eastern European Standard Time : (UTC+02:00)" },
+  { 80, "Budapest, Hungary - Central European Standard Time : (UTC+01:00)" },
+  { 81, "Buenos Aires, Argentina - Argentina Time : (UTC-03:00)" },
+  { 82, "Buffalo, NY, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 83, "Bujumbura, Burundi - South Africa Standard Time : (UTC+02:00)" },
+  { 84, "Cagliari, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 85, "Cairo, Egypt - Eastern European Standard Time : (UTC+02:00)" },
+  { 86, "Calgary, AB, Canada - Mountain Standard Time : (UTC-07:00)" },
+  { 87, "Cali, Colombia - Colombia Time : (UTC-05:00)" },
+  { 88, "Canberra, Australia - Australian Eastern Standard Time : (UTC+10:00)" },
+  { 89, "Cape Town, South Africa - South Africa Standard Time : (UTC+02:00)" },
+  { 90, "Caracas, Venezuela - Venezuelan Standard Time : (UTC-04:30)" },
+  { 91, "Cardiff, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 92, "Cedar Rapids, IA, USA - Central Standard Time : (UTC-06:00)" },
+  { 93, "Charlotte, NC, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 94, "Charlottetown, PE, Canada - Atlantic Standard Time : (UTC-04:00)" },
+  { 95, "Chatham Islands, Chatham Islands, New Zealand - Chatham Island Standard Time : (UTC+12:45)" },
+  { 96, "Chengdu, China - China Standard Time : (UTC+08:00)" },
+  { 97, "Chennai, India - India Standard Time : (UTC+05:30)" },
+  { 98, "Chiba, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 99, "Chicago, IL, USA - Central Standard Time : (UTC-06:00)" },
+  { 100, "Chisinau, Moldova - Eastern European Standard Time : (UTC+02:00)" },
+  { 101, "Chongqing, China - China Standard Time : (UTC+08:00)" },
+  { 102, "Cincinnati, OH, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 103, "Cleveland, OH, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 104, "Colorado Springs, CO, USA - Mountain Standard Time : (UTC-07:00)" },
+  { 105, "Columbus, GA, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 106, "Columbus, OH, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 107, "Conakry, Guinea - Greenwich Mean Time : (UTC)" },
+  { 108, "Copenhagen, Denmark - Central European Standard Time : (UTC+01:00)" },
+  { 109, "Cork, Ireland - Greenwich Mean Time : (UTC)" },
+  { 110, "Corpus Christi, TX, USA - Central Standard Time : (UTC-06:00)" },
+  { 111, "Curitiba, Brazil - Brasilia Time : (UTC-03:00)" },
+  { 112, "Dakar, Senegal - Greenwich Mean Time : (UTC)" },
+  { 113, "Dallas, TX, USA - Central Standard Time : (UTC-06:00)" },
+  { 114, "Damascus, Syria - Eastern European Standard Time : (UTC+02:00)" },
+  { 115, "Dar es Salaam, Tanzania - Eastern Africa Standard Time : (UTC+03:00)" },
+  { 116, "Darwin, NT, Australia - Australian Central Standard Time : (UTC+09:30)" },
+  { 117, "Dayton, OH, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 118, "Delhi, India - India Standard Time : (UTC+05:30)" },
+  { 119, "Denver, CO, USA - Mountain Standard Time : (UTC-07:00)" },
+  { 120, "Des Moines, IA, USA - Central Standard Time : (UTC-06:00)" },
+  { 121, "Detroit, MI, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 122, "Dhaka, Bangladesh - Central Asia Standard Time : (UTC+06:00)" },
+  { 123, "Dijon, France - Romance Standard Time : (UTC+01:00)" },
+  { 124, "Djibouti, Djibouti - Eastern Africa Standard Time : (UTC+03:00)" },
+  { 125, "Doha, Qatar - Arabia Standard Time : (UTC+03:00)" },
+  { 126, "Dortmund, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 127, "Dresden, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 128, "Dublin, Ireland - Greenwich Mean Time : (UTC)" },
+  { 129, "Dushanbe, Tajikistan - Tajikistan Time : (UTC+05:00)" },
+  { 130, "Dusseldorf, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 131, "Edinburgh, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 132, "Edmonton, AB, Canada - Mountain Standard Time : (UTC-07:00)" },
+  { 133, "El Paso, TX, USA - Mountain Standard Time : (UTC-07:00)" },
+  { 134, "Erfurt, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 135, "Eucla, WA, Australia - Australian Central Western Standard Time  : (UTC+08:45)" },
+  { 136, "Eugene, OR, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 137, "Evansville, IN, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 138, "Florence, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 139, "Fort Defiance, AZ, USA - Mountain Standard Time : (UTC-07:00)" },
+  { 140, "Fort Lauderdale, FL, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 141, "Fort Wayne, IN, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 142, "Fort Worth, TX, USA - Central Standard Time : (UTC-06:00)" },
+  { 143, "Fortaleza, Brazil - Brasilia Time : (UTC-03:00)" },
+  { 144, "Frankfurt, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 145, "Freetown, Sierra Leone - Greenwich Mean Time : (UTC)" },
+  { 146, "Freiburg, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 147, "Fremont, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 148, "Fresno, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 149, "Fukuoka, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 150, "Gaborone, Botswana - Central Africa Time : (UTC+02:00)" },
+  { 151, "Galway, Ireland - Greenwich Mean Time : (UTC)" },
+  { 152, "Geneva, Switzerland - Central European Standard Time : (UTC+01:00)" },
+  { 153, "Genova, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 154, "George Town, Cayman Islands - Eastern Standard Time : (UTC-05:00)" },
+  { 155, "Georgetown, Guyana - Guyana Time : (UTC-04:00)" },
+  { 156, "Glasgow, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 157, "Glendale, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 158, "Granada, Spain - Central European Standard Time : (UTC+01:00)" },
+  { 159, "Grand Rapids, MI, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 160, "Guadalajara, Mexico - Central Standard Time : (UTC-06:00)" },
+  { 161, "Guangzhou, China - China Standard Time : (UTC+08:00)" },
+  { 162, "Guatemala City, Guatemala - Central Standard Time : (UTC-06:00)" },
+  { 163, "Haikou, China - China Standard Time : (UTC+08:00)" },
+  { 164, "Halifax, NS, Canada - Atlantic Standard Time : (UTC-04:00)" },
+  { 165, "Hamburg, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 166, "Hamilton, Bermuda - Atlantic Standard Time : (UTC-04:00)" },
+  { 167, "Hannover, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 168, "Hanoi, Vietnam - Indochina Time : (UTC+07:00)" },
+  { 169, "Harare, Zimbabwe - Central Africa Time : (UTC+02:00)" },
+  { 170, "Harbin, China - China Standard Time : (UTC+08:00)" },
+  { 171, "Hartford, CT, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 172, "Havana, Cuba - Cuba Standard Time : (UTC-05:00)" },
+  { 173, "Helsinki, Finland - Eastern European Standard Time : (UTC+02:00)" },
+  { 174, "Hiroshima, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 175, "Hobart, TAS, Australia - Australian Eastern Standard Time : (UTC+10:00)" },
+  { 176, "Hong Kong SAR, China - China Standard Time : (UTC+08:00)" },
+  { 177, "Honiara, Solomon Islands - Solomon Islands Time : (UTC+11:00)" },
+  { 178, "Honolulu, HI, USA - Hawaii-Aleutian Standard Time : (UTC-10:00)" },
+  { 179, "Houston, TX, USA - Central Standard Time : (UTC-06:00)" },
+  { 180, "Hull, PQ, Canada - Eastern Standard Time : (UTC-05:00)" },
+  { 181, "Huntsville, AL, USA - Central Standard Time : (UTC-06:00)" },
+  { 182, "Indianapolis, IN, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 183, "Irkutsk, Russia - Irkutsk Time : (UTC+08:00)" },
+  { 184, "Islamabad, Pakistan - Pakistan Standard Time : (UTC+05:00)" },
+  { 185, "Istanbul, Turkey - Eastern European Standard Time : (UTC+02:00)" },
+  { 186, "Jackson, MS, USA - Central Standard Time : (UTC-06:00)" },
+  { 187, "Jacksonville, FL, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 188, "Jakarta, Indonesia - Western Indonesian Time : (UTC+07:00)" },
+  { 189, "Jerusalem, Israel - Israel Standard Time : (UTC+02:00)" },
+  { 190, "Kabul, Afghanistan - Afghanistan Standard Time : (UTC+04:30)" },
+  { 191, "Kampala, Uganda - Eastern Africa Standard Time : (UTC+03:00)" },
+  { 192, "Kanazawa, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 193, "Kansas City, KS, USA - Central Standard Time : (UTC-06:00)" },
+  { 194, "Kansas City, MO, USA - Central Standard Time : (UTC-06:00)" },
+  { 195, "Karachi, Pakistan - Pakistan Standard Time : (UTC+05:00)" },
+  { 196, "Kathmandu, Nepal - Nepal Standard Time : (UTC+05:45)" },
+  { 197, "Kelowna, BC, Canada - Pacific Standard Time : (UTC-08:00)" },
+  { 198, "Khartoum, Sudan - Eastern Africa Standard Time : (UTC+03:00)" },
+  { 199, "Kiev, Ukraine - Eastern European Standard Time : (UTC+02:00)" },
+  { 200, "Kigali, Rwanda - Central Africa Time : (UTC+02:00)" },
+  { 201, "Kingston, Jamaica - Eastern Standard Time : (UTC-05:00)" },
+  { 202, "Kingston, Norfolk Island - Norfolk Time : (UTC+11:30)" },
+  { 203, "Kinshasa, Democratic Republic of the Congo - West Africa Time : (UTC+01:00)" },
+  { 204, "Kiritimati, Christmas Island, Kiribati - Line Islands Time : (UTC+14:00)" },
+  { 205, "Knoxville, TN, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 206, "Kobe, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 207, "Kochi, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 208, "Kolkata (Calcutta), India - India Standard Time : (UTC+05:30)" },
+  { 209, "Krasnoyarsk, Russia - Krasnoyarsk Time : (UTC+07:00)" },
+  { 210, "Kuala Lumpur, Malaysia - Singapore Standard Time : (UTC+08:00)" },
+  { 211, "Kuwait, Kuwait - Arabia Standard Time : (UTC+03:00)" },
+  { 212, "Kwangju, Korea - Korea Standard Time : (UTC+09:00)" },
+  { 213, "Kyoto, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 214, "La Paz, Bolivia - Bolivia Time : (UTC-04:00)" },
+  { 215, "Lansing, MI, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 216, "Laredo, TX, USA - Central Standard Time : (UTC-06:00)" },
+  { 217, "Las Vegas, NV, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 218, "Leipzig, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 219, "Lexington, KY, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 220, "Lhasa, China - China Standard Time : (UTC+08:00)" },
+  { 221, "Libreville, Gabon - West Africa Time : (UTC+01:00)" },
+  { 222, "Lille, France - Central European Standard Time : (UTC+01:00)" },
+  { 223, "Lilongwe, Malawi - Central Africa Time : (UTC+02:00)" },
+  { 224, "Lima, Peru - Peru Time : (UTC-05:00)" },
+  { 225, "Limerick, Ireland - Greenwich Mean Time : (UTC)" },
+  { 226, "Limoges, France - Central European Standard Time : (UTC+01:00)" },
+  { 227, "Lincoln, NE, USA - Central Standard Time : (UTC-06:00)" },
+  { 228, "Lisbon, Portugal - Greenwich Mean Time : (UTC)" },
+  { 229, "Little Rock, AR, USA - Central Standard Time : (UTC-06:00)" },
+  { 230, "Liverpool, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 231, "Ljubljana, Slovenia - Central European Standard Time : (UTC+01:00)" },
+  { 232, "London, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 233, "Londonderry, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 234, "Long Beach, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 235, "Lord Howe Island, Lord Howe Island, Australia - Lord Howe Standard Time : (UTC+10:30)" },
+  { 236, "Los Angeles, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 237, "Louisville, KY, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 238, "Luanda, Angola - West Africa Time : (UTC+01:00)" },
+  { 239, "Lubbock, TX, USA - Central Standard Time : (UTC-06:00)" },
+  { 240, "Lusaka, Zambia - Central Africa Time : (UTC+02:00)" },
+  { 241, "Luxembourg, Luxembourg - Central European Standard Time : (UTC+01:00)" },
+  { 242, "Lyon, France - Central European Standard Time : (UTC+01:00)" },
+  { 243, "Madison, WI, USA - Central Standard Time : (UTC-06:00)" },
+  { 244, "Madrid, Spain - Central European Standard Time : (UTC+01:00)" },
+  { 245, "Malabo, Equatorial Guinea - West Africa Time : (UTC+01:00)" },
+  { 246, "Malaga, Spain - Central European Standard Time : (UTC+01:00)" },
+  { 247, "Managua, Nicaragua - Central Standard Time : (UTC-06:00)" },
+  { 248, "Manama, Bahrain - Arabia Standard Time : (UTC+03:00)" },
+  { 249, "Manaus, Brazil - Amazon Time : (UTC-04:00)" },
+  { 250, "Manchester, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 251, "Manila, Philippines - Philippine Time : (UTC+08:00)" },
+  { 252, "Maputo, Mozambique - Central Africa Time : (UTC+02:00)" },
+  { 253, "Maracaibo, Venezuela - Venezuelan Standard Time : (UTC-04:30)" },
+  { 254, "Marseille, France - Central European Standard Time : (UTC+01:00)" },
+  { 255, "Maseru, Lesotho - South Africa Standard Time : (UTC+02:00)" },
+  { 256, "Masqat, Oman - Gulf Standard Time : (UTC+04:00)" },
+  { 257, "Mbabane, Swaziland - South Africa Standard Time : (UTC+02:00)" },
+  { 258, "Medellin, Colombia - Colombia Time : (UTC-05:00)" },
+  { 259, "Melbourne, VIC, Australia - Australian Eastern Standard Time : (UTC+10:00)" },
+  { 260, "Memphis, TN, USA - Central Standard Time : (UTC-06:00)" },
+  { 261, "Metz, France - Central European Standard Time : (UTC+01:00)" },
+  { 262, "Mexico City, Mexico - Central Standard Time : (UTC-06:00)" },
+  { 263, "Miami, FL, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 264, "Milan, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 265, "Milwaukee, WI, USA - Central Standard Time : (UTC-06:00)" },
+  { 266, "Minneapolis, MN, USA - Central Standard Time : (UTC-06:00)" },
+  { 267, "Minsk, Belarus - Further-Eastern European Time : (UTC+03:00)" },
+  { 268, "Mobile, AL, USA - Central Standard Time : (UTC-06:00)" },
+  { 269, "Mogadishu, Somalia - Eastern Africa Standard Time : (UTC+03:00)" },
+  { 270, "Monaco, Monaco - Central European Standard Time : (UTC+01:00)" },
+  { 271, "Monrovia, Liberia - Greenwich Mean Time : (UTC)" },
+  { 272, "Monterrey, Mexico - Central Standard Time : (UTC-06:00)" },
+  { 273, "Montevideo, Uruguay - Uruguay Time : (UTC-03:00)" },
+  { 274, "Montreal, PQ, Canada - Eastern Standard Time : (UTC-05:00)" },
+  { 275, "Morioka, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 276, "Moscow, Russia - Moscow Standard Time : (UTC+03:00)" },
+  { 277, "Mumbai, India - India Standard Time : (UTC+05:30)" },
+  { 278, "Munich, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 279, "Murmansk, Russia - Moscow Standard Time : (UTC+03:00)" },
+  { 280, "N'Djamena, Chad - West Africa Time : (UTC+01:00)" },
+  { 281, "Nagano, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 282, "Nagasaki, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 283, "Nagoya, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 284, "Nairobi, Kenya - Eastern Africa Standard Time : (UTC+03:00)" },
+  { 285, "Nanjing, China - China Standard Time : (UTC+08:00)" },
+  { 286, "Naples, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 287, "Nashville, TN, USA - Central Standard Time : (UTC-06:00)" },
+  { 288, "Nassau, Bahamas - Eastern Standard Time : (UTC-05:00)" },
+  { 289, "New Orleans, LA, USA - Central Standard Time : (UTC-06:00)" },
+  { 290, "New York, NY, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 291, "Newark, NJ, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 292, "Niamey, Niger - West Africa Time : (UTC+01:00)" },
+  { 293, "Nicosia, Cyprus - Eastern European Standard Time : (UTC+02:00)" },
+  { 294, "Norwich, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 295, "Nouakchott, Mauritania - Greenwich Mean Time : (UTC)" },
+  { 296, "Novosibirsk, Russia - Novosibirsk Time : (UTC+06:00)" },
+  { 297, "Nuku'alofa, Tonga - Tonga Standard Time : (UTC+13:00)" },
+  { 298, "Nuuk, Greenland - West Greenland Time : (UTC-03;00)" },
+  { 299, "Oakland, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 300, "Oklahoma City, OK, USA - Central Standard Time : (UTC-06:00)" },
+  { 301, "Omaha, NE, USA - Central Standard Time : (UTC-06:00)" },
+  { 302, "Orlando, FL, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 303, "Osaka, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 304, "Oshawa, ON, Canada - Eastern Standard Time : (UTC-05:00)" },
+  { 305, "Oslo, Norway - Central European Standard Time : (UTC+01:00)" },
+  { 306, "Ottawa, ON, Canada - Eastern Standard Time : (UTC-05:00)" },
+  { 307, "Ouagadougou, Burkina Faso - Greenwich Mean Time : (UTC)" },
+  { 308, "Overland Park, KS, USA - Central Standard Time : (UTC-06:00)" },
+  { 309, "Oviedo, Spain - Central European Standard Time : (UTC+01:00)" },
+  { 310, "Palermo, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 311, "Palma de Mallorca, Spain - Central European Standard Time : (UTC+01:00)" },
+  { 312, "Panama City, Panama - Eastern Standard Time : (UTC-05:00)" },
+  { 313, "Paramaribo, Surinam - Suriname Time : (UTC-03:00)" },
+  { 314, "Paris, France - Central European Standard Time : (UTC+01:00)" },
+  { 315, "Pasadena, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 316, "Pasadena, TX, USA - Central Standard Time : (UTC-06:00)" },
+  { 317, "Peoria, IL, USA - Central Standard Time : (UTC-06:00)" },
+  { 318, "Perth, WA, Australia - Australia Western Standard Time : (UTC+08:00)" },
+  { 319, "Perugia, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 320, "Philadelphia, PA, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 321, "Phnom Penh, Cambodia - Indochina Time : (UTC+07:00)" },
+  { 322, "Phoenix, AZ, USA - Mountain Standard Time : (UTC-07:00)" },
+  { 323, "Pisa, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 324, "Pittsburgh, PA, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 325, "Plymouth, United Kingdom - Greenwich Mean Time : (UTC)" },
+  { 326, "Port Louis, Mauritius - Mauritius Time : (UTC+04:00)" },
+  { 327, "Port Moresby, Papua New Guinea - Papua New Guinea Time : (UTC+10:00)" },
+  { 328, "Port-au-Prince, Haiti - Eastern Standard Time : (UTC-05:00)" },
+  { 329, "Port-of-Spain, Trinidad and Tobago - Atlantic Standard Time : (UTC-04:00)" },
+  { 330, "Portland, OR, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 331, "Porto Alegre, Brazil - Brasilia Time : (UTC-03:00)" },
+  { 332, "Porto, Portugal - Western European Time : (UTC)" },
+  { 333, "Porto-Novo, Benin - West Africa Time : (UTC+01:00)" },
+  { 334, "Prague, Czech Republic - Central European Standard Time : (UTC+01:00)" },
+  { 335, "Praia, Cape Verde - Cape Verde Time : (UTC-01:00)" },
+  { 336, "Pretoria, South Africa - South Africa Standard Time : (UTC+02:00)" },
+  { 337, "Providence, RI, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 338, "Puebla de Zaragoza, Mexico - Eastern Standard Time : (UTC-05:00)" },
+  { 339, "Pusan, Korea - Korea Standard Time : (UTC+09:00)" },
+  { 340, "Pyongyang, North Korea - Korea Standard Time : (UTC+09:00)" },
+  { 341, "Quebec City, PQ, Canada - Eastern Standard Time : (UTC-05:00)" },
+  { 342, "Quito, Ecuador - Ecuador Time : (UTC-05:00)" },
+  { 343, "Rabat, Morocco - Western European Time : (UTC)" },
+  { 344, "Raleigh, NC, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 345, "Recife, Brazil - Brasilia Time : (UTC-03:00)" },
+  { 346, "Redmond, WA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 347, "Reggio Calabria, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 348, "Regina, SK, Canada - Central Standard Time : (UTC-06:00)" },
+  { 349, "Richmond, VA, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 350, "Riga, Latvia - Eastern European Standard Time : (UTC+02:00)" },
+  { 351, "Rio de Janeiro, Brazil - Brasilia Time : (UTC-03:00)" },
+  { 352, "Riyadh, Saudi Arabia - Arabia Standard Time : (UTC+03:00)" },
+  { 353, "Rockford, IL, USA - Central Standard Time : (UTC-06:00)" },
+  { 354, "Rome, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 355, "Roseau, Dominica - Atlantic Standard Time : (UTC-04:00)" },
+  { 356, "Roswell, NM, USA - Mountain Standard Time : (UTC-07:00)" },
+  { 357, "Rouen, France - Central European Standard Time : (UTC+01:00)" },
+  { 358, "Sacramento, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 359, "Saint John, NB, Canada - Atlantic Standard Time : (UTC-04:00)" },
+  { 360, "Saint Louis, MO, USA - Central Standard Time : (UTC-06:00)" },
+  { 361, "Saint Paul, MN, USA - Central Standard Time : (UTC-06:00)" },
+  { 362, "Salt Lake City, UT, USA - Mountain Standard Time : (UTC-07:00)" },
+  { 363, "Salvador, Brazil - Brasilia Time : (UTC-03:00)" },
+  { 364, "Salzburg, Austria - Central European Standard Time : (UTC+01:00)" },
+  { 365, "San Antonio, TX, USA - Central Standard Time : (UTC-06:00)" },
+  { 366, "San Bernardino, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 367, "San Diego, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 368, "San Francisco, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 369, "San Jose, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 370, "San Salvador, El Salvador - Central Standard Time : (UTC-06:00)" },
+  { 371, "Sana'a, Yemen - Arabia Standard Time : (UTC+03:00)" },
+  { 372, "Santa Ana, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 373, "Santa Rosa, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 374, "Santander, Spain - Central European Standard Time : (UTC+01:00)" },
+  { 375, "Santiago, Chile - Chile Standard Time : (UTC-04:00)" },
+  { 376, "Santo Domingo, Dominican Republic - Atlantic Standard Time : (UTC-04:00)" },
+  { 377, "Sao Paulo, Brazil - Brasilia Time : (UTC-03:00)" },
+  { 378, "Sapporo, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 379, "Sarajevo, Bosnia and Herzegovina - Central European Standard Time : (UTC+01:00)" },
+  { 380, "Saskatoon, SK, Canada - Central Standard Time : (UTC-06:00)" },
+  { 381, "Savannah, GA, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 382, "Seattle, WA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 383, "Sendai, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 384, "Seoul, Korea - Korea Standard Time : (UTC+09:00)" },
+  { 385, "Sevilla, Spain - Central European Standard Time : (UTC+01:00)" },
+  { 386, "Shanghai, China - China Standard Time : (UTC+08:00)" },
+  { 387, "Shreveport, LA, USA - Central Standard Time : (UTC-06:00)" },
+  { 388, "Simi Valley, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 389, "Singapore, Singapore - Singapore Standard Time : (UTC+08:00)" },
+  { 390, "Sioux Falls, SD, USA - Central Standard Time : (UTC-06:00)" },
+  { 391, "Skopje, F.Y.R.O. Macedonia - Central European Standard Time : (UTC+01:00)" },
+  { 392, "Sofia, Bulgaria - Eastern European Standard Time : (UTC+02:00)" },
+  { 393, "South Bend, IN, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 394, "Spokane, WA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 395, "Springfield, IL, USA - Central Standard Time : (UTC-06:00)" },
+  { 396, "Springfield, MA, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 397, "Springfield, MO, USA - Central Standard Time : (UTC-06:00)" },
+  { 398, "Sri Jayawardenepura, Sri Lanka - India Standard Time : (UTC+05:30)" },
+  { 399, "St. Catharines, ON, Canada - Eastern Standard Time : (UTC-05:00)" },
+  { 400, "St. John's, NF, Canada - Newfoundland Standard Time : (UTC-03:30)" },
+  { 401, "St. Petersburg, FL, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 402, "St. Petersburg, Russia - Moscow Standard Time : (UTC+03:00)" },
+  { 403, "Stockholm, Sweden - Central European Standard Time : (UTC+01:00)" },
+  { 404, "Stockton, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 405, "Strasbourg, France - Central European Standard Time : (UTC+01:00)" },
+  { 406, "Stuttgart, Germany - Central European Standard Time : (UTC+01:00)" },
+  { 407, "Sucre, Bolivia - Bolivia Time : (UTC-04:00)" },
+  { 408, "Sunnyvale, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 409, "Suva, Fiji Islands - Fiji Standard Time : (UTC+12:00)" },
+  { 410, "Sydney, NSW, Australia - Australian Eastern Standard Time : (UTC+10:00)" },
+  { 411, "Syracuse, NY, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 412, "T'bilisi, Georgia - Georgia Standard Time : (UTC+04:00)" },
+  { 413, "Taejon, Korea - Korea Standard Time : (UTC+09:00)" },
+  { 414, "Taiohae, Marquesas Islands,  French Polynesia - Marquesas Time : (UTC-9:30)" },
+  { 415, "Taipei, Taiwan - China Standard Time : (UTC+08:00)" },
+  { 416, "Tallinn, Estonia - Eastern European Standard Time : (UTC+02:00)" },
+  { 417, "Tampa, FL, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 418, "Taranto, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 419, "Tashkent, Uzbekistan - Uzbekistan Time : (UTC+05:00)" },
+  { 420, "Tegucigalpa, Honduras - Central Standard Time : (UTC-06:00)" },
+  { 421, "Tehran, Iran - Iran Standard Time : (UTC+03:30)" },
+  { 422, "Tel Aviv, Israel - Israel Standard Time : (UTC+02:00)" },
+  { 423, "The Hague, Netherlands - Central European Standard Time : (UTC+01:00)" },
+  { 424, "Thimphu, Bhutan - Bhutan Time : (UTC+06:00)" },
+  { 425, "Thunder Bay, ON, Canada - Eastern Standard Time : (UTC-05:00)" },
+  { 426, "Tirana, Albania - Central European Standard Time : (UTC+01:00)" },
+  { 427, "Tokyo, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 428, "Toledo, OH, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 429, "Torino, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 430, "Toronto, ON, Canada - Eastern Standard Time : (UTC-05:00)" },
+  { 431, "Torrance, CA, USA - Pacific Standard Time : (UTC-08:00)" },
+  { 432, "Toulouse, France - Central European Standard Time : (UTC+01:00)" },
+  { 433, "Tripoli, Libya - Eastern European Standard Time : (UTC+02:00)" },
+  { 434, "Tucson, AZ, USA - Mountain Standard Time : (UTC-07:00)" },
+  { 435, "Tulsa, OK, USA - Central Standard Time : (UTC-06:00)" },
+  { 436, "Tunis, Tunisia - West Africa Time : (UTC+01:00)" },
+  { 437, "Ulaanbaatar, Mongolia - Ulaanbaatar Time : (UTC+08:00)" },
+  { 438, "Urumqi, China - China Standard Time : (UTC+08:00)" },
+  { 439, "Vaduz, Liechtenstein - Central European Standard Time : (UTC+01:00)" },
+  { 440, "Valencia, Spain - Central European Standard Time : (UTC+01:00)" },
+  { 441, "Valletta, Malta - Central European Standard Time : (UTC+01:00)" },
+  { 442, "Vancouver, BC, Canada - Pacific Standard Time : (UTC-08:00)" },
+  { 443, "Vatican City, Vatican City - Central European Standard Time : (UTC+01:00)" },
+  { 444, "Venice, Italy - Central European Standard Time : (UTC+01:00)" },
+  { 445, "Veracruz, Mexico - Central Standard Time : (UTC-06:00)" },
+  { 446, "Victoria, Seychelles - Seychelles Time : (UTC+04:00)" },
+  { 447, "Vienna, Austria - Central European Standard Time : (UTC+01:00)" },
+  { 448, "Vientiane, Laos - Indochina Time : (UTC+07:00)" },
+  { 449, "Vilnius, Lithuania - Eastern European Standard Time : (UTC+02:00)" },
+  { 450, "Vladivostok, Russia - Vladivostok Standard Time : (UTC+10:00)" },
+  { 451, "Volgograd, Russia - Moscow Standard Time : (UTC+03:00)" },
+  { 452, "Waco, TX, USA - Central Standard Time : (UTC-06:00)" },
+  { 453, "Warsaw, Poland - Central European Standard Time : (UTC+01:00)" },
+  { 454, "Washington, DC, USA - Eastern Standard Time : (UTC-05:00)" },
+  { 455, "Wellington, New Zealand - New Zealand Standard Time : (UTC+12:00)" },
+  { 456, "Whitehorse, YT, Canada - Pacific Standard Time : (UTC-08:00)" },
+  { 457, "Windhoek, Namibia - West Africa Time : (UTC+01:00)" },
+  { 458, "Winnipeg, MB, Canada - Central Standard Time : (UTC-06:00)" },
+  { 459, "Wuhan, China - China Standard Time : (UTC+08:00)" },
+  { 460, "Xian, China - China Standard Time : (UTC+08:00)" },
+  { 461, "Yakutsk, Russia - Yakutsk Standard Time : (UTC+09:00)" },
+  { 462, "Yangon, Myanmar - Myanmar Standard Time : (UTC+06:30)" },
+  { 463, "Yekaterinburg, Russia - Yekaterinburg Standard Time : (UTC+05:00)" },
+  { 464, "Yellowknife, NT, Canada - Mountain Standard Time : (UTC-07:00)" },
+  { 465, "Yerevan, Armenia - Armenia Time : (UTC+04:00)" },
+  { 466, "Yokohama, Japan - Japan Standard Time : (UTC+09:00)" },
+  { 467, "Zagreb, Croatia - Central European Standard Time : (UTC+01:00)" },
+  { 468, "Zaragoza, Spain - Central European Standard Time : (UTC+01:00)" },
+  { 469, "Zurich, Switzerland - Central European Standard Time : (UTC+01:00)" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_time3_dst_vals[] = {
+  { 0, "DST US" },
+  { 1, "DST Europe" },
+  { 2, "DST Funky" },
+  { 3, "DST None" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_time3_month_vals[] = {
+  { 0, "None" },
+  { 1, "January" },
+  { 2, "February" },
+  { 3, "March" },
+  { 4, "April" },
+  { 5, "May" },
+  { 6, "June" },
+  { 7, "July" },
+  { 8, "August" },
+  { 9, "September" },
+  { 10, "October" },
+  { 11, "November" },
+  { 12, "December" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_time3_week_vals[] = {
+  { 0, "None" },
+  { 1, "First" },
+  { 2, "Second" },
+  { 3, "Third" },
+  { 4, "Fourth" },
+  { 5, "Last" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_time3_day_vals[] = {
+  { 0, "Sunday" },
+  { 1, "Monday" },
+  { 2, "Tuesday" },
+  { 3, "Wednesday" },
+  { 4, "Thursday" },
+  { 5, "Friday" },
+  { 6, "Saturday" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_time3_locality_vals[] = {
+  { 0, "LOCAL" },
+  { 1, "UTC" },
+  { 0, NULL }
+};
+
+static const value_string acn_blob_type_vals[] = {
+  { ACN_BLOB_IPV4,                           "IPv4 Blob" },
+  { ACN_BLOB_IPV6,                           "IPv6 Blob" },
+  { ACN_BLOB_ERROR1,                         "Error Blob v1" },
+  { ACN_BLOB_ERROR2,                         "Error Blob v2" },
+  { ACN_BLOB_METADATA,                       "Metadata" },
+  { ACN_BLOB_METADATA_DEVICES,               "Metadata Devices" },
+  { ACN_BLOB_METADATA_TYPES,                 "Metadata Types" },
+  { ACN_BLOB_TIME1,                          "Time Blob (deprecated 1)" },
+  { ACN_BLOB_DIMMER_PROPERTIES,              "Dimmer Properties Blob v1" },
+  { ACN_BLOB_DIMMER_LOAD_PROPERTIES,         "Dimmer Load Properties Blob v1" },
+  { ACN_BLOB_DIMMING_RACK_PROPERTIES,        "Dimming Rack Properties Blob v1" },
+  { ACN_BLOB_DIMMING_RACK_STATUS_PROPERTIES, "Dimming Rack Status Properties Blob v1" },
+  { ACN_BLOB_DIMMER_STATUS_PROPERTIES,       "Dimmer Status Properties Blob v1" },
+  { ACN_BLOB_SET_LEVELS_OPERATION,           "Set Levels Operation Blob" },
+  { ACN_BLOB_PRESET_OPERATION,               "Preset Operation Blob" },
+  { ACN_BLOB_ADVANCED_FEATURES_OPERATION,    "Advanced Features Operation Blob" },
+  { ACN_BLOB_DIRECT_CONTROL_OPERATION,       "Direct Control Operation Blob" },
+  { ACN_BLOB_GENERATE_CONFIG_OPERATION,      "Generate Config Operation Blob" },
+  { ACN_BLOB_ERROR3,                         "Error Blob v3" },
+  { ACN_BLOB_DIMMER_PROPERTIES2,             "Dimmer Properties Blob v2" },
+  { ACN_BLOB_DIMMER_LOAD_PROPERTIES2,        "Dimmer Load Properties Blob v2" },
+  { ACN_BLOB_DIMMER_RACK_PROPERTIES2,        "Dimming Rack Properties Blob v2" },
+  { ACN_BLOB_DIMMER_RACK_STATUS_PROPERTIES2, "Dimming Rack Status Properties Blob v2" },
+  { ACN_BLOB_DIMMER_STATUS_PROPERTIES2,      "Dimmer Status Properties Blob v2" },
+  { ACN_BLOB_TIME2,                          "Time Blob (deprecated 2)" },
+  { ACN_BLOB_RPC,                            "RPC Blob" },
+  { ACN_BLOB_DHCP_CONFIG_SUBNET,             "DHCP Config Subnet Blob" },
+  { ACN_BLOB_DHCP_CONFIG_STATIC_ROUTE,       "DHCP Config Static Route Blob" },
+  { ACN_BLOB_ENERGY_MANAGEMENT,              "Energy Management Blob" },
+  { ACN_BLOB_PRESET_PROPERTIES,              "Preset Properties Blob" },
+  { ACN_BLOB_TIME3,                          "Time Blob v2" },
+  { 0, NULL }
+};
+
 static const value_string acn_dmp_vector_vals[] = {
   {ACN_DMP_VECTOR_UNKNOWN,            "Unknown"},
   {ACN_DMP_VECTOR_GET_PROPERTY,       "Get Property"},
@@ -389,7 +2180,8 @@ static const value_string acn_dmp_vector_vals[] = {
   {ACN_DMP_VECTOR_SUBSCRIBE_REJECT,   "Subscribe Reject"},
   {ACN_DMP_VECTOR_ALLOCATE_MAP,       "Allocate Map"},
   {ACN_DMP_VECTOR_ALLOCATE_MAP_REPLY, "Allocate Map Reply"},
-  {ACN_DMP_VECTOR_DEALLOCATE_MAP,     "Deallocate Map"},
+  { ACN_DMP_VECTOR_DEALLOCATE_MAP,    "Deallocate Map" },
+  { ACN_DMP_VECTOR_SYNC_EVENT,        "Sync Event" },
   { 0,       NULL },
 };
 
@@ -451,6 +2243,260 @@ static const enum_val_t dmx_display_line_format[] = {
   { NULL, NULL, 0 }
 };
 
+
+static const value_string magic_pdu_subtypes[] = {
+  { MAGIC_V1,           "V1" },
+  { MAGIC_COMMAND,      "V2 Command" },
+  { MAGIC_REPLY,        "V2 Reply" },
+  { MAGIC_REPLY_TYPE_3, "V2 Reply Type 3" },
+  { 0, NULL }
+};
+
+static const value_string magic_v1command_vals[] = {
+  { V1_SWITCH_TO_NET1, "Switch to Net1" },
+  { V1_SWITCH_TO_NET2, "Switch to Net2" },
+  { V1_BOOTP,          "bootp" },
+  { 0, NULL }
+};
+
+static const value_string magic_command_vals[] = {
+  { V2_CMD_SWITCH_TO_NET1,          "Switch to Net1 mode" },
+  { V2_CMD_SWITCH_TO_NET2,          "Switch to Net2 mode" },
+  { V2_CMD_DOWNLOAD,                "Code download" },
+  { V2_CMD_SOFTBOOT,                "Soft reboot" },
+  { V2_CMD_PHYSICAL_BEACON,         "Physical beacon" },
+  { V2_CMD_NETWORK_BEACON,          "Network beacon" },
+  { V2_CMD_SWITCH_TO_ACN,           "Switch to ACN mode" },
+  { V2_CMD_SWITCH_TO_DYNAMIC_IP,    "Switch to dynamic IP address configuration" },
+  { V2_CMD_EXTENDED_NETWORK_BEACON, "Extended network beacon" },
+  { V2_CMD_IP_CONFIGURATION,        "IP configuration" },
+  { V2_CMD_RESTORE_FACTORY_DEFAULT, "Restore factory default" },
+  { V2_CMD_PHYSICAL_BEACON_BY_CID,  "Physical beacon by CID" },
+  { V2_CMD_NET2_DOWNLOAD,           "NET2 code download and reboot" },
+  { 0, NULL }
+};
+
+static const value_string magic_reset_lease_vals[] = {
+  { MAGIC_SWITCH_TO_DYNAMIC_RESET_LEASE,    "Reset lease" },
+  { MAGIC_SWITCH_TO_DYNAMIC_MAINTAIN_LEASE, "Maintain lease" },
+  { 0, NULL }
+};
+
+static const value_string magic_ip_configuration_vals[] = {
+  { MAGIC_DYNAMIC_IP_MAINTAIN_LEASE, "Dynamic IP, maintain lease" },
+  { MAGIC_DYNAMIC_IP_RESET_LEASE,    "Dynamic IP, reset lease" },
+  { MAGIC_STATIC_IP,                 "Static IP" },
+  { 0, NULL }
+};
+
+/******************************************************************************/
+/* Test to see if it is a Magic Bullet Packet                                 */
+static gboolean
+is_magic(tvbuff_t *tvb)
+{
+  static const guint8 magic_protocol_id = 15;
+
+  if (tvb_get_guint8(tvb, 0) == magic_protocol_id)
+    return TRUE;
+
+  return FALSE;
+}
+
+/******************************************************************************/
+/* Dissect Magic Bullet                                                       */
+static int
+dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  guint8 pdu_subtype;
+  guint offset = 0;
+  const char *pdu_subtype_string;
+  proto_tree *ti;
+  proto_tree *magic_tree;
+  guint32 command;
+  guint32 str_len;
+  guint32 major, minor, patch, aud, crit, build;
+  gchar *buffer;
+
+  /* Set the protocol column */
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAGIC");
+
+  /* Create our tree */
+  ti = proto_tree_add_item(tree, proto_magic, tvb, offset, -1, ENC_NA);
+  magic_tree = proto_item_add_subtree(ti, ett_magic);
+
+  /* Protocol ID */
+  proto_tree_add_item(magic_tree, hf_magic_protocol_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset++;
+
+  /* PDU Type */
+  pdu_subtype = tvb_get_guint8(tvb, offset);
+  pdu_subtype_string = val_to_str(pdu_subtype, magic_pdu_subtypes, "Unknown (0x%02x)");
+
+  /* Adjust info column */
+  col_clear(pinfo->cinfo, COL_INFO);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "MAGIC - %s", pdu_subtype_string);
+
+  /* Append subtype description */
+  proto_item_append_text(ti, ": %s", pdu_subtype_string);
+
+  proto_tree_add_item(magic_tree, hf_magic_pdu_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset++;
+  proto_tree_add_item(magic_tree, hf_magic_major_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset++;
+  proto_tree_add_item(magic_tree, hf_magic_minor_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset++;
+
+  switch (pdu_subtype) {
+    case MAGIC_V1:
+      proto_tree_add_item(magic_tree, hf_magic_v1command_vals, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      offset += 4;
+      break;
+
+    case MAGIC_COMMAND:
+      /* note, v2 is big-endian */
+      proto_tree_add_item_ret_uint(magic_tree, hf_magic_command_vals, tvb, offset, 4, ENC_BIG_ENDIAN, &command);
+      offset += 4;
+      /* deal with variable parameter */
+      switch (command) {
+        case V2_CMD_DOWNLOAD:
+          proto_tree_add_item(magic_tree, hf_magic_command_tftp, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
+          break;
+        case V2_CMD_PHYSICAL_BEACON:
+          proto_tree_add_item(magic_tree, hf_magic_command_beacon_duration, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
+          break;
+        case V2_CMD_NETWORK_BEACON:
+          proto_tree_add_item(magic_tree, hf_magic_command_beacon_duration, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
+          break;
+        case V2_CMD_SWITCH_TO_DYNAMIC_IP:
+          proto_tree_add_item(magic_tree, hf_magic_command_reset_lease, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
+          break;
+        case V2_CMD_EXTENDED_NETWORK_BEACON:
+          proto_tree_add_item(magic_tree, hf_magic_command_beacon_duration, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
+          break;
+        case V2_CMD_IP_CONFIGURATION:
+          proto_tree_add_item(magic_tree, hf_magic_command_cid, tvb, offset, 16, ENC_BIG_ENDIAN);
+          offset += 16;
+          proto_tree_add_item(magic_tree, hf_magic_command_ip_configuration, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
+          proto_tree_add_item(magic_tree, hf_magic_command_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
+          proto_tree_add_item(magic_tree, hf_magic_command_subnet_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
+          proto_tree_add_item(magic_tree, hf_magic_command_gateway, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
+          break;
+        case V2_CMD_RESTORE_FACTORY_DEFAULT:
+          proto_tree_add_item(magic_tree, hf_magic_command_cid, tvb, offset, 16, ENC_BIG_ENDIAN);
+          offset += 16;
+          break;
+        case V2_CMD_PHYSICAL_BEACON_BY_CID:
+          proto_tree_add_item(magic_tree, hf_magic_command_cid, tvb, offset, 16, ENC_BIG_ENDIAN);
+          offset += 16;
+          proto_tree_add_item(magic_tree, hf_magic_command_beacon_duration, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
+          break;
+        /* case V2_CMD_SOFTBOOT:       */
+        /* case V2_CMD_SWITCH_TO_NET1: */
+        /* case V2_CMD_SWITCH_TO_NET2: */
+        /* case V2_CMD_SWITCH_TO_ACN:  */
+        /* case V2_CMD_NET2_DOWNLOAD:  */
+      }
+      break;
+
+    case MAGIC_REPLY:
+      /* note, v2 is big-endian */
+      proto_tree_add_item(magic_tree, hf_magic_reply_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(magic_tree, hf_magic_reply_subnet_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(magic_tree, hf_magic_reply_gateway, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(magic_tree, hf_magic_reply_tftp, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+
+      /* encoded and display version */
+      major = tvb_get_guint8(tvb, offset++);
+      minor = tvb_get_guint8(tvb, offset++);
+      patch = tvb_get_guint8(tvb, offset++);
+      aud = tvb_get_guint8(tvb, offset++);
+      crit = tvb_get_guint8(tvb, offset++);
+      build = tvb_get_ntohs(tvb, offset);
+      offset += 2;
+
+      offset -= 7;
+      buffer = wmem_strdup_printf(wmem_packet_scope(), "%d.%d.%d.%d.%d.%d", major, minor, patch, aud, crit, build);
+      proto_tree_add_string(magic_tree, hf_magic_reply_version, tvb, offset, 7, buffer);
+      offset += 7;
+
+      /* Device Type Name string */
+      proto_tree_add_item_ret_length(magic_tree, hf_magic_reply_device_type_name, tvb, offset, 1, ENC_NA|ENC_ASCII, &str_len);
+      offset += str_len;
+
+      /* Default Name string */
+      proto_tree_add_item_ret_length(magic_tree, hf_magic_reply_default_name, tvb, offset, 1, ENC_NA|ENC_ASCII, &str_len);
+      offset += str_len;
+
+      /* User Name string */
+      proto_tree_add_item_ret_length(magic_tree, hf_magic_reply_user_name, tvb, offset, 1, ENC_NA|ENC_ASCII, &str_len);
+      offset += str_len;
+      break;
+
+    case MAGIC_REPLY_TYPE_3:
+      command = tvb_get_ntohl(tvb, offset);
+      proto_tree_add_item(magic_tree, hf_magic_command_vals, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(magic_tree, hf_magic_reply_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(magic_tree, hf_magic_reply_subnet_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(magic_tree, hf_magic_reply_gateway, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(magic_tree, hf_magic_reply_tftp, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(magic_tree, hf_magic_reply_cid, tvb, offset, 16, ENC_BIG_ENDIAN);
+      offset += 16;
+      proto_tree_add_item(magic_tree, hf_magic_reply_dcid, tvb, offset, 16, ENC_BIG_ENDIAN);
+      offset += 16;
+
+      /* encoded and display version */
+      major = tvb_get_guint8(tvb, offset++);
+      minor = tvb_get_guint8(tvb, offset++);
+      patch = tvb_get_guint8(tvb, offset++);
+      aud = tvb_get_guint8(tvb, offset++);
+      crit = tvb_get_guint8(tvb, offset++);
+      build = tvb_get_ntohs(tvb, offset);
+      offset += 2;
+
+      offset -= 7;
+      buffer = wmem_strdup_printf(wmem_packet_scope(), "%d.%d.%d.%d.%d.%d", major, minor, patch, aud, crit, build);
+      proto_tree_add_string(magic_tree, hf_magic_reply_version, tvb, offset, 7, buffer);
+      offset += 7;
+
+      /* Device Type Name string */
+      proto_tree_add_item_ret_length(magic_tree, hf_magic_reply_device_type_name, tvb, offset, 1, ENC_NA|ENC_ASCII, &str_len);
+      offset += str_len;
+
+      /* Default Name string */
+      proto_tree_add_item_ret_length(magic_tree, hf_magic_reply_default_name, tvb, offset, 1, ENC_NA|ENC_ASCII, &str_len);
+      offset += str_len;
+
+      /* User Name string */
+      proto_tree_add_item_ret_length(magic_tree, hf_magic_reply_user_name, tvb, offset, 1, ENC_NA|ENC_ASCII, &str_len);
+      offset += str_len;
+      break;
+
+    default:
+      proto_tree_add_int(magic_tree, hf_magic_reply_invalid_type, tvb, offset, -1, pdu_subtype);
+      offset = tvb_captured_length(tvb);
+  }
+  return offset;
+}
+
 /******************************************************************************/
 /* Test to see if it is an ACN Packet                                         */
 static gboolean
@@ -479,12 +2525,18 @@ dissect_acn_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
    * a heuristic dissector called before us!
    */
 
-  /* abort if it is NOT an ACN packet */
-  if (!is_acn(tvb)) return FALSE;
+  if (is_acn(tvb)) {
+    dissect_acn(tvb, pinfo, tree);
+    return TRUE;
+  }
 
-  /* else, dissect it */
-  dissect_acn(tvb, pinfo, tree);
-  return TRUE;
+  if (is_magic(tvb)) {
+    dissect_magic(tvb, pinfo, tree);
+    return TRUE;
+  }
+
+  /* abort if it is NOT an ACN or Magic Bullet packet */
+  return FALSE;
 }
 
 /******************************************************************************/
@@ -555,7 +2607,7 @@ acn_add_channel_member_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static guint32
 acn_add_expiry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int hf)
 {
-  proto_tree_add_item(tree, hf, tvb, offset, 2, ENC_NA);
+  proto_tree_add_item(tree, hf, tvb, offset, 1, ENC_NA);
   offset += 1;
   return offset;
 }
@@ -658,7 +2710,7 @@ acn_add_dmp_address_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   guint8       D;
   const gchar *name;
 
-    /* header contains address and data type */
+  /* header contains address and data type */
   adt->flags = tvb_get_guint8(tvb, offset);
 
   D = ACN_DMP_ADT_EXTRACT_D(adt->flags);
@@ -860,7 +2912,6 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 
 /*******************************************************************************/
 /* Display DMP Data                                                            */
-#define BUFFER_SIZE 128
 static guint32
 acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, acn_dmp_adt_type *adt)
 {
@@ -869,11 +2920,10 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
   guint32     data_value;
   guint32     data_address;
   guint32     x,y;
-  gchar       buffer[BUFFER_SIZE];
+  gchar      *buffer;
+  wmem_strbuf_t *default_buffer;
   proto_item *ti;
   guint32     ok_to_process = FALSE;
-
-  buffer[0] = 0;
 
   /* We would like to rip through Property Address-Data pairs                 */
   /* but since we don't now how many there are nor how big the data size is,  */
@@ -927,13 +2977,13 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
 
       switch (A) {
         case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-          g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%2.2X ->", data_address);
+          buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%2.2X ->", data_address);
           break;
         case ACN_DMP_ADT_A_2: /* Two octet address, (range: two octet address, increment, and count). */
-          g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%4.4X ->", data_address);
+          buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%4.4X ->", data_address);
           break;
         case ACN_DMP_ADT_A_4: /* Four octet address, (range: four octet address, increment, and count). */
-          g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%8.8X ->", data_address);
+          buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%8.8X ->", data_address);
           break;
         default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
           offset += data_size;
@@ -958,16 +3008,17 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
           proto_tree_add_uint_format(tree, hf_acn_data32, tvb, offset, 4, data_value, "%s %8.8X", buffer, data_value);
           break;
         default:
+          default_buffer = wmem_strbuf_new(wmem_packet_scope(), "");
           /* build string of values */
           for (y=0; y<20 && y<data_size; y++) {
             data_value = tvb_get_guint8(tvb, offset+y);
-            g_snprintf(buffer, BUFFER_SIZE, "%s %2.2X", buffer, data_value);
+            wmem_strbuf_append_printf(default_buffer, " %2.2X", data_value);
           }
           /* add the item */
           ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, ENC_NA);
           offset += data_size;
           /* change the text */
-          proto_item_set_text(ti, "%s", buffer);
+          proto_item_set_text(ti, "%s", wmem_strbuf_get_str(default_buffer));
           break;
       } /* of switch (data_size) */
       offset += data_size;
@@ -981,13 +3032,13 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
       for (x=0; x<adt->count; x++) {
         switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-            g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%2.2X ->", data_address);
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%2.2X ->", data_address);
             break;
           case ACN_DMP_ADT_A_2: /* Two octet address, (range: two octet address, increment, and count). */
-            g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%4.4X ->", data_address);
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%4.4X ->", data_address);
             break;
           case ACN_DMP_ADT_A_4: /* Four octet address, (range: four octet address, increment, and count). */
-            g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%8.8X ->", data_address);
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%8.8X ->", data_address);
             break;
           default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
             return offset;
@@ -1012,14 +3063,15 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             break;
           default:
             /* build string of values */
+            default_buffer = wmem_strbuf_new(wmem_packet_scope(), "");
             for (y=0; y<20 && y<data_size; y++) {
               data_value = tvb_get_guint8(tvb, offset+y);
-              g_snprintf(buffer, BUFFER_SIZE, "%s %2.2X", buffer, data_value);
+              wmem_strbuf_append_printf(default_buffer, " %2.2X", data_value);
             }
             /* add the item */
             ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, ENC_NA);
             /* change the text */
-            proto_item_set_text(ti, "%s", buffer);
+            proto_item_set_text(ti, "%s", wmem_strbuf_get_str(default_buffer));
             break;
         } /* of switch (data_size) */
         data_address += adt->increment;
@@ -1035,13 +3087,13 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
       for (x=0; x<adt->count; x++) {
         switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-            g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%2.2X ->", data_address);
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%2.2X ->", data_address);
             break;
           case ACN_DMP_ADT_A_2: /* Two octet address, (range: two octet address, increment, and count). */
-            g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%4.4X ->", data_address);
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%4.4X ->", data_address);
             break;
           case ACN_DMP_ADT_A_4: /* Four octet address, (range: four octet address, increment, and count). */
-            g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%8.8X ->", data_address);
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%8.8X ->", data_address);
             break;
           default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
             return offset;
@@ -1066,14 +3118,15 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             break;
           default:
             /* build string of values */
+            default_buffer = wmem_strbuf_new(wmem_packet_scope(), "");
             for (y=0; y<20 && y<data_size; y++) {
               data_value = tvb_get_guint8(tvb, offset+y);
-              g_snprintf(buffer, BUFFER_SIZE, "%s %2.2X", buffer, data_value);
+              wmem_strbuf_append_printf(default_buffer, " %2.2X", data_value);
             }
             /* add the item */
             ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, ENC_NA);
             /* change the text */
-            proto_item_set_text(ti, "%s", buffer);
+            proto_item_set_text(ti, "%s", wmem_strbuf_get_str(default_buffer));
             break;
         } /* of switch (data_size) */
 
@@ -1090,13 +3143,11 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
       proto_item_set_text(ti, "Mixed size data items");
       break;
   } /* of switch (D) */
-
   return offset;
 }
 
 /*******************************************************************************/
 /* Display DMP Reason codes                                                    */
-  #define BUFFER_SIZE 128
 static guint32
 acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, acn_dmp_adt_type *adt)
 {
@@ -1105,10 +3156,8 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   guint32      data_address;
   guint32      x;
 
-  gchar        buffer[BUFFER_SIZE];
+  gchar       *buffer;
   const gchar *name;
-
-  buffer[0] = 0;
 
   D = ACN_DMP_ADT_EXTRACT_D(adt->flags);
   A = ACN_DMP_ADT_EXTRACT_A(adt->flags);
@@ -1117,13 +3166,13 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
       data_address = adt->address;
       switch (A) {
         case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-          g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%2.2X ->", data_address);
+          buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%2.2X ->", data_address);
           break;
         case ACN_DMP_ADT_A_2: /* Two octet address, (range: two octet address, increment, and count). */
-          g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%4.4X ->", data_address);
+          buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%4.4X ->", data_address);
           break;
         case ACN_DMP_ADT_A_4: /* Four octet address, (range: four octet address, increment, and count). */
-          g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%8.8X ->", data_address);
+          buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%8.8X ->", data_address);
           break;
         default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
           return offset;
@@ -1141,13 +3190,13 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
       for (x=0; x<adt->count; x++) {
         switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-            g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%2.2X ->", data_address);
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%2.2X ->", data_address);
             break;
           case ACN_DMP_ADT_A_2: /* Two octet address, (range: two octet address, increment, and count). */
-            g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%4.4X ->", data_address);
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%4.4X ->", data_address);
             break;
           case ACN_DMP_ADT_A_4: /* Four octet address, (range: four octet address, increment, and count). */
-            g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%8.8X ->", data_address);
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%8.8X ->", data_address);
             break;
           default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
             return offset;
@@ -1169,13 +3218,13 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
       for (x=0; x<adt->count; x++) {
         switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-            g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%2.2X ->", data_address);
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%2.2X ->", data_address);
             break;
           case ACN_DMP_ADT_A_2: /* Two octet address, (range: two octet address, increment, and count). */
-            g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%4.4X ->", data_address);
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%4.4X ->", data_address);
             break;
           case ACN_DMP_ADT_A_4: /* Four octet address, (range: four octet address, increment, and count). */
-            g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%8.8X ->", data_address);
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "Addr 0x%8.8X ->", data_address);
             break;
           default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
             return offset;
@@ -1189,8 +3238,698 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
       } /* of (x=0;x<adt->count;x++) */
       break;
   } /* of switch (D) */
-
   return offset;
+}
+
+/******************************************************************************/
+/* Get Field Type Parameters */
+static void
+get_field_type_parameters(tvbuff_t *tvb, int blob_offset, guint8 field_type, guint8 *field_length, guint8 *blob_offset1, guint8 *blob_offset2, guint8 *blob_offset3)
+{
+  /* Switch Over Field Type to Determine Data */
+  switch (field_type) {
+    case ACN_BLOB_FIELD_TYPE1:
+    case ACN_BLOB_FIELD_TYPE5:
+      /* Set field length and blob_offsets to use */
+      *field_length = 1;
+      *blob_offset1 = 0;
+      *blob_offset2 = 1;
+      *blob_offset3 = *field_length;
+      break;
+    case ACN_BLOB_FIELD_TYPE2:
+    case ACN_BLOB_FIELD_TYPE6:
+      /* Set field length and blob_offsets to use */
+      *field_length = 2;
+      *blob_offset1 = 0;
+      *blob_offset2 = 1;
+      *blob_offset3 = *field_length;
+      break;
+    case ACN_BLOB_FIELD_TYPE3:
+    case ACN_BLOB_FIELD_TYPE7:
+      /* Set field length and blob_offsets to use */
+      *field_length = 4;
+      *blob_offset1 = 0;
+      *blob_offset2 = 1;
+      *blob_offset3 = *field_length;
+      break;
+    case ACN_BLOB_FIELD_TYPE4:
+    case ACN_BLOB_FIELD_TYPE8:
+      /* Set field length and blob_offsets to use */
+      *field_length = 8;
+      *blob_offset1 = 0;
+      *blob_offset2 = 1;
+      *blob_offset3 = *field_length;
+      break;
+    case ACN_BLOB_FIELD_TYPE9:
+      /* float */
+      /* Set field length and blob_offsets to use */
+      *field_length = 4;
+      *blob_offset1 = 0;
+      *blob_offset2 = 1;
+      *blob_offset3 = *field_length;
+      break;
+    case ACN_BLOB_FIELD_TYPE10:
+      /* double */
+      /* Set field length and blob_offsets to use */
+      *field_length = 8;
+      *blob_offset1 = 0;
+      *blob_offset2 = 1;
+      *blob_offset3 = *field_length;
+      break;
+    case ACN_BLOB_FIELD_TYPE11:
+      /* Set field length and blob_offsets to use */
+      *field_length = tvb_get_guint8(tvb, blob_offset + 2);
+      *blob_offset1 = 2;
+      *blob_offset2 = 1;
+      *blob_offset3 = (*field_length) - 2;
+      break;
+    case ACN_BLOB_FIELD_TYPE12:
+      /* Set field length and blob_offsets to use for ignores */
+      *field_length = 0;
+      *blob_offset1 = 0;
+      *blob_offset2 = 0;
+      *blob_offset3 = 1;
+      break;
+    default:
+      /* Set field length and blob_offsets to use for unknowns */
+      *field_length = 0;
+      *blob_offset1 = 0;
+      *blob_offset2 = 0;
+      *blob_offset3 = 1;
+  }
+}
+
+/******************************************************************************/
+/* Get Field Name */
+static const gchar *
+get_field_name(guint8 blob_type, guint16 field_number)
+{
+  guint16 temp_field_number;
+  const gchar *field_name;
+
+  /*Find the field sub tree name depending on the blob type.*/
+  switch (blob_type) {
+    case ACN_BLOB_IPV4:
+    case ACN_BLOB_IPV6:
+      field_name = val_to_str(field_number, acn_blob_ip_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_ERROR1:
+      field_name = val_to_str(field_number, acn_blob_error1_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_ERROR2:
+      field_name = val_to_str(field_number, acn_blob_error2_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_METADATA:
+      field_name = val_to_str(field_number, acn_blob_metadata_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_METADATA_DEVICES:
+      field_name = val_to_str(field_number, acn_blob_metadata_devices_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_METADATA_TYPES:
+      field_name = val_to_str(field_number, acn_blob_metadata_types_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_TIME1:
+      field_name = val_to_str(field_number, acn_blob_time1_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_DIMMER_PROPERTIES:
+      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_properties1_field_name_ext, "not valid (%d)");
+      break;
+    case ACN_BLOB_DIMMER_LOAD_PROPERTIES:
+      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_load_properties1_field_name_ext, "not valid (%d)");
+      break;
+    case ACN_BLOB_DIMMING_RACK_PROPERTIES:
+      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_rack_properties1_field_name_ext, "not valid (%d)");
+      break;
+    case ACN_BLOB_DIMMING_RACK_STATUS_PROPERTIES:
+      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_rack_status_properties1_field_name_ext, "not valid (%d)");
+      break;
+    case ACN_BLOB_DIMMER_STATUS_PROPERTIES:
+      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_status_properties1_field_name_ext, "not valid (%d)");
+      break;
+    case ACN_BLOB_SET_LEVELS_OPERATION:
+      field_name = val_to_str(field_number, acn_blob_set_levels_operation_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_PRESET_OPERATION:
+      field_name = val_to_str(field_number, acn_blob_preset_operation_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_ADVANCED_FEATURES_OPERATION:
+      field_name = val_to_str(field_number, acn_blob_advanced_features_operation_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_DIRECT_CONTROL_OPERATION:
+      field_name = val_to_str(field_number, acn_blob_direct_control_operation_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_GENERATE_CONFIG_OPERATION:
+      field_name = val_to_str(field_number, acn_blob_generate_config_operation_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_ERROR3:
+      field_name = val_to_str(field_number, acn_blob_error3_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_DIMMER_PROPERTIES2:
+      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_properties2_field_name_ext, "not valid (%d)");
+      break;
+    case ACN_BLOB_DIMMER_LOAD_PROPERTIES2:
+      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_load_properties2_field_name_ext, "not valid (%d)");
+      break;
+    case ACN_BLOB_DIMMER_RACK_PROPERTIES2:
+      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_rack_properties2_field_name_ext, "not valid (%d)");
+      break;
+    case ACN_BLOB_DIMMER_RACK_STATUS_PROPERTIES2:
+      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_rack_status_properties2_field_name_ext, "not valid (%d)");
+      break;
+    case ACN_BLOB_DIMMER_STATUS_PROPERTIES2:
+      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_status_properties2_field_name_ext, "not valid (%d)");
+      break;
+    case ACN_BLOB_TIME2:
+      field_name = val_to_str(field_number, acn_blob_time2_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_RPC:
+      {
+        temp_field_number = field_number;
+        /* field names 4 repeats: 1, 2, 3, 4, 4, 4, ... */
+        if (temp_field_number > 3)
+          temp_field_number = 4;
+        field_name = val_to_str(temp_field_number, acn_blob_rpc_field_name, "not valid (%d)");
+      }
+      break;
+    case ACN_BLOB_DHCP_CONFIG_SUBNET:
+      field_name = val_to_str(field_number, acn_blob_dhcp_config_subnet_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_DHCP_CONFIG_STATIC_ROUTE:
+      field_name = val_to_str(field_number, acn_blob_dhcp_config_static_route_field_name, "not valid (%d)");
+      break;
+    case ACN_BLOB_ENERGY_MANAGEMENT:
+      {
+        temp_field_number = field_number;
+        /* field names 4 through 7 repeat: 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7, ... */
+        if (temp_field_number > 3)
+          temp_field_number = (field_number % 4) + 4;
+        field_name = val_to_str(temp_field_number, acn_blob_energy_management_field_name, "not valid (%d)");
+      }
+      break;
+    case ACN_BLOB_PRESET_PROPERTIES:
+      field_name = val_to_str_ext(field_number, &acn_blob_preset_properties_field_name_ext, "not valid (%d)");
+      break;
+    case ACN_BLOB_TIME3:
+      field_name = val_to_str(field_number, acn_blob_time3_field_name, "not valid (%d)");
+      break;
+    default:
+      field_name = "Unknown field";
+      break;
+  }
+
+  return field_name;
+}
+
+/******************************************************************************/
+/* Display Blob Field Value */
+static void
+display_blob_field_value(tvbuff_t *tvb, proto_tree *field_tree, guint16 field_number, guint8 blob_type, guint8 field_type, guint8 field_length, int blob_offset, guint8 blob_offset3, int display_variblob_as_CID)
+{
+  gint8             field_value8;
+  gint32            field_value32;
+  const gchar      *field_string;
+  proto_item       *ti;
+
+  /* Add field value to field sub tree */
+  if (field_type == ACN_BLOB_FIELD_TYPE12) {
+    /* "ignore" always takes priority */
+    proto_tree_add_string(field_tree, hf_acn_blob_field_value_string, tvb, blob_offset, field_length, "Ignore");
+  }
+  else if (blob_type == ACN_BLOB_IPV4) {
+    proto_tree_add_item(field_tree, hf_acn_blob_field_value_ipv4, tvb, blob_offset, field_length, ENC_BIG_ENDIAN);
+  }
+  else if (blob_type == ACN_BLOB_IPV6) {
+    proto_tree_add_item(field_tree, hf_acn_blob_field_value_ipv6, tvb, blob_offset, field_length, ENC_NA);
+  }
+  else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 2)) {
+    /* time zone index */
+    field_value32 = (gint32)(tvb_get_ntohl(tvb, blob_offset));
+    if (field_value32 == -1) {
+      field_string = "Field Value: Custom";
+    }
+    else {
+      field_string = val_to_str(field_value32, acn_blob_time3_time_zone_vals, "not valid (%d)");
+    }
+    proto_tree_add_int_format(field_tree, hf_acn_blob_time_zone, tvb, blob_offset, 4, field_value32, "%s", field_string);
+  }
+  else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 10)) {
+    /* DST type */
+    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_string = val_to_str(field_value8, acn_blob_time3_dst_vals, "not valid (%d)");
+    proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
+  }
+  else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 11)) {
+    /* DST on month */
+    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_string = val_to_str(field_value8, acn_blob_time3_month_vals, "not valid (%d)");
+    proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
+  }
+  else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 12)) {
+    /* DST on week */
+    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_string = val_to_str(field_value8, acn_blob_time3_week_vals, "not valid (%d)");
+    proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
+  }
+  else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 13)) {
+    /* DST start day */
+    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_string = val_to_str(field_value8, acn_blob_time3_day_vals, "not valid (%d)");
+    proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_start_day, tvb, blob_offset, 1, field_value8, "%s", field_string);
+  }
+  else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 16)) {
+    /* DST start locality */
+    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_string = val_to_str(field_value8, acn_blob_time3_locality_vals, "not valid (%d)");
+    proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_start_locality, tvb, blob_offset, 1, field_value8, "%s", field_string);
+  }
+  else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 17)) {
+    /* DST off month */
+    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_string = val_to_str(field_value8, acn_blob_time3_month_vals, "not valid (%d)");
+    proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
+  }
+  else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 18)) {
+    /* DST off week */
+    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_string = val_to_str(field_value8, acn_blob_time3_week_vals, "not valid (%d)");
+    proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
+  }
+  else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 19)) {
+    /* DST stop day */
+    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_string = val_to_str(field_value8, acn_blob_time3_day_vals, "not valid (%d)");
+    proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_stop_day, tvb, blob_offset, 1, field_value8, "%s", field_string);
+  }
+  else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 22)) {
+    /* DST stop locality */
+    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_string = val_to_str(field_value8, acn_blob_time3_locality_vals, "not valid (%d)");
+    proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_stop_locality, tvb, blob_offset, 1, field_value8, "%s", field_string);
+  }
+  else {
+    switch (field_type) {
+      case ACN_BLOB_FIELD_TYPE1:
+        /* Need special code to display signed data */
+        ti = proto_tree_add_item(field_tree, hf_acn_blob_field_value_number, tvb, blob_offset, 1, ENC_BIG_ENDIAN);
+        proto_item_set_len(ti, blob_offset3);
+        break;
+      case ACN_BLOB_FIELD_TYPE2:
+        /* Need special code to display signed data */
+        ti = proto_tree_add_item(field_tree, hf_acn_blob_field_value_number, tvb, blob_offset, 2, ENC_BIG_ENDIAN);
+        proto_item_set_len(ti, blob_offset3);
+        break;
+      case ACN_BLOB_FIELD_TYPE3:
+        /* Need special code to display signed data */
+        ti = proto_tree_add_item(field_tree, hf_acn_blob_field_value_number, tvb, blob_offset, 3, ENC_BIG_ENDIAN);
+        proto_item_set_len(ti, blob_offset3);
+        break;
+      case ACN_BLOB_FIELD_TYPE4:
+        /* Need special code to display signed data */
+        ti = proto_tree_add_item(field_tree, hf_acn_blob_field_value_number, tvb, blob_offset, 4, ENC_BIG_ENDIAN);
+        proto_item_set_len(ti, blob_offset3);
+        break;
+      case ACN_BLOB_FIELD_TYPE9:
+        /* float */
+        proto_tree_add_item(field_tree, hf_acn_blob_field_value_float, tvb, blob_offset, field_length, ENC_BIG_ENDIAN);
+        break;
+      case ACN_BLOB_FIELD_TYPE10:
+        /* double */
+        proto_tree_add_item(field_tree, hf_acn_blob_field_value_double, tvb, blob_offset, field_length, ENC_BIG_ENDIAN);
+        break;
+      case ACN_BLOB_FIELD_TYPE11:
+        if (blob_offset3 == 0) {
+          proto_tree_add_string(field_tree, hf_acn_blob_field_value_string, tvb, blob_offset, 0, "<none>");
+        }
+        else if (display_variblob_as_CID) {
+          proto_tree_add_item(field_tree, hf_acn_blob_field_value_guid, tvb, blob_offset, field_length, ENC_BIG_ENDIAN);
+        }
+        else {
+          proto_tree_add_item(field_tree, hf_acn_blob_field_value_string, tvb, blob_offset, blob_offset3, ENC_UTF_8 | ENC_NA);
+        }
+        break;
+      /* "ignore", handled above */
+      /* case ACN_BLOB_FIELD_TYPE12: */
+      /*   proto_tree_add_string(field_tree, hf_acn_blob_field_value_string, tvb, blob_offset, field_length, "Field Value: Ignore"); */
+      /*   break; */
+      default:
+        proto_tree_add_item(field_tree, hf_acn_blob_field_value_number, tvb, blob_offset, blob_offset3, ENC_BIG_ENDIAN);
+        break;
+    }
+  }
+}
+
+/******************************************************************************/
+/* Display Blob Field */
+static void
+display_blob_field(tvbuff_t *tvb, proto_tree *blob_tree, guint8 blob_type, int *blob_offset, guint16 *field_number, int display_variblob_as_CID)
+{
+  guint8            field_type;
+  guint8            field_length;
+  guint8            blob_offset1;
+  guint8            blob_offset2;
+  guint8            blob_offset3;
+  guint16           temp_field_number;
+
+  proto_item       *fi;
+  proto_tree       *field_tree = NULL;
+  proto_item       *ti;
+
+  const gchar      *field_name;
+
+  if ((blob_type == ACN_BLOB_ENERGY_MANAGEMENT) && (*field_number > 3)) {
+    /* an exception to blob field rules: no "type" subfield, no "length" subfield */
+
+    /* field names 4 through 7 repeat: 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7, ... */
+    temp_field_number = (*field_number % 4) + 4;
+
+    switch (temp_field_number) {
+      case 4:
+        /* uint2 */
+        field_length = 2;
+        blob_offset3 = 2;
+        field_name = get_field_name(blob_type, temp_field_number);
+
+        /* Create Sub Tree for Field Type*/
+        fi = proto_tree_add_item(blob_tree, hf_acn_blob_tree_field_type, tvb, *blob_offset, field_length, ENC_NA);
+        field_tree = proto_item_add_subtree(fi, ett_acn_blob);
+
+        /* Add the Field Name Found to Sub Tree */
+        proto_item_append_text(fi, ": %s", field_name);
+
+        ti = proto_tree_add_item(field_tree, hf_acn_blob_field_value_number, tvb, *blob_offset, 2, ENC_BIG_ENDIAN);
+        proto_item_set_len(ti, blob_offset3);
+        break;
+      case 5:
+      case 6:
+      case 7:
+        /* uint4 */
+        field_length = 4;
+        blob_offset3 = 4;
+        field_name = get_field_name(blob_type, temp_field_number);
+
+        /* Create Sub Tree for Field Type*/
+        fi = proto_tree_add_item(blob_tree, hf_acn_blob_tree_field_type, tvb, *blob_offset, field_length, ENC_NA);
+        field_tree = proto_item_add_subtree(fi, ett_acn_blob);
+
+        /* Add the Field Name Found to Sub Tree */
+        proto_item_append_text(fi, ": %s", field_name);
+        ti = proto_tree_add_item(field_tree, hf_acn_blob_field_value_number, tvb, *blob_offset, 4, ENC_BIG_ENDIAN);
+        proto_item_set_len(ti, blob_offset3);
+        break;
+    }
+  }
+  else {
+    /* Get field type*/
+    field_type = tvb_get_guint8(tvb, *blob_offset);
+    get_field_type_parameters(tvb, *blob_offset, field_type, &field_length, &blob_offset1, &blob_offset2, &blob_offset3);
+    field_name = get_field_name(blob_type, *field_number);
+
+    /* Create Sub Tree for Field Type*/
+    fi = proto_tree_add_item(blob_tree, hf_acn_blob_tree_field_type, tvb, *blob_offset, field_length + 1, ENC_NA);
+    field_tree = proto_item_add_subtree(fi, ett_acn_blob);
+
+    /* Add the Field Name Found to Sub Tree */
+    proto_item_append_text(fi, ": %s", field_name);
+
+    /* Add field type to field sub tree */
+    proto_tree_add_uint(field_tree, hf_acn_blob_field_type, tvb, *blob_offset, 1, field_type);
+    *blob_offset += blob_offset1;
+
+    /* Add field length to field sub tree */
+    proto_tree_add_uint(field_tree, hf_acn_blob_field_length, tvb, *blob_offset, 1, field_length);
+    *blob_offset += blob_offset2;
+
+    display_blob_field_value(tvb, field_tree, *field_number, blob_type, field_type, field_length, *blob_offset, blob_offset3, display_variblob_as_CID);
+  }
+
+  *blob_offset += blob_offset3;
+  *field_number += 1;
+}
+
+/******************************************************************************/
+/* Dissect Blob Metadata */
+static guint32
+dissect_acn_blob_metadata(tvbuff_t *tvb, proto_tree *blob_tree, int blob_offset, int end_offset)
+{
+  guint8   blob_type = ACN_BLOB_METADATA;
+  guint16  field_number = 1;
+  gboolean display_variblob_as_CID;
+
+  /* Loop though dissecting fields until the end is reached */
+  while (blob_offset < end_offset) {
+    if (field_number == 15) {
+
+      display_variblob_as_CID = 1;
+    }
+    else {
+      display_variblob_as_CID = 0;
+
+    }
+
+    display_blob_field(tvb, blob_tree, blob_type, &blob_offset, &field_number, display_variblob_as_CID);
+  }
+  return 0;
+}
+
+/******************************************************************************/
+/* Dissect Blob Preset Properties */
+static guint32
+dissect_acn_blob_preset_properties(tvbuff_t *tvb, proto_tree *blob_tree, int blob_offset, int end_offset)
+{
+  guint8       blob_type = ACN_BLOB_PRESET_PROPERTIES;
+  guint8       field_type;
+  guint8       field_length;
+  guint8       blob_offset1;
+  guint8       blob_offset2;
+  guint8       blob_offset3;
+  guint8       sub_blob_index;
+  guint16      field_number = 1;
+  guint8       max_sub_blobs = 192;
+  proto_item  *fi;
+  proto_tree  *sub_blob_tree = NULL;
+  const gchar *field_name;
+
+  /* Loop though dissecting fields until the end is reached */
+  while (blob_offset < end_offset) {
+    if (field_number == 17) {
+      /* Create subtree for "Levels" */
+      field_type = tvb_get_guint8(tvb, blob_offset);
+      get_field_type_parameters(tvb, blob_offset, field_type, &field_length, &blob_offset1, &blob_offset2, &blob_offset3);
+
+      field_name = get_field_name(blob_type, field_number);
+      field_number += 1;
+
+      /* Create Sub Tree for Field Type */
+      fi = proto_tree_add_item(blob_tree, hf_acn_blob_tree_field_type, tvb, blob_offset, (field_length + 1) * max_sub_blobs, ENC_NA);
+      sub_blob_tree = proto_item_add_subtree(fi, ett_acn_blob);
+
+      proto_item_append_text(fi, ": %s", field_name);
+      sub_blob_index = 0;
+
+      while ((sub_blob_index < max_sub_blobs) && (blob_offset < end_offset)) {
+        display_blob_field(tvb, sub_blob_tree, blob_type, &blob_offset, &field_number, 0);
+
+        sub_blob_index += 1;
+      }
+
+    }
+
+    else {
+      display_blob_field(tvb, blob_tree, blob_type, &blob_offset, &field_number, 0);
+    }
+
+  }
+  return 0;
+}
+
+/******************************************************************************/
+/* Dissect Blob Dimming Rack Properties v2 */
+static guint32
+dissect_acn_blob_dimming_rack_properties_v2(tvbuff_t *tvb, proto_tree *blob_tree, int blob_offset, int end_offset)
+{
+  guint8       blob_type = ACN_BLOB_DIMMER_RACK_PROPERTIES2;
+  guint16      field_number = 1;
+  gboolean     display_variblob_as_CID;
+
+  /* Loop though dissecting fields until the end is reached */
+  while (blob_offset < end_offset) {
+    if (field_number == 12) {
+
+      display_variblob_as_CID = 1;
+
+    }
+    else {
+
+      display_variblob_as_CID = 0;
+
+    }
+
+    display_blob_field(tvb, blob_tree, blob_type, &blob_offset, &field_number, display_variblob_as_CID);
+  }
+  return 0;
+}
+
+/******************************************************************************/
+/* Dissect Blob Dimming Rack Status Properties v2 */
+static guint32
+dissect_acn_blob_dimming_rack_status_properties_v2(tvbuff_t *tvb, proto_tree *blob_tree, int blob_offset, int end_offset)
+{
+  guint8       blob_type;
+  guint8       field_type;
+  guint8       field_length;
+  guint8       blob_offset1;
+  guint8       blob_offset2;
+  guint8       blob_offset3;
+  guint8       sub_blob_index;
+  guint16      field_number;
+
+  int          number_of_sub_blobs;
+
+  proto_item  *fi;
+  proto_tree  *sub_blob_tree = NULL;
+
+  const gchar *field_name;
+
+  /*First Assignments*/
+  blob_type = ACN_BLOB_DIMMER_RACK_STATUS_PROPERTIES2;
+  field_number = 1;
+  number_of_sub_blobs = 64;
+
+  /* Loop though dissecting fields until the end is reached */
+  while (blob_offset < end_offset) {
+    if (field_number == 22) {
+      /* Create subtree for "Active Preset Group IDs" */
+      field_type = tvb_get_guint8(tvb, blob_offset);
+      get_field_type_parameters(tvb, blob_offset, field_type, &field_length, &blob_offset1, &blob_offset2, &blob_offset3);
+
+      field_name = get_field_name(blob_type, field_number);
+      field_number += 1;
+
+      /* Create Sub Tree for Field Type */
+      fi = proto_tree_add_item(blob_tree, hf_acn_blob_tree_field_type, tvb, blob_offset, (field_length + 1) * number_of_sub_blobs, ENC_NA);
+      sub_blob_tree = proto_item_add_subtree(fi, ett_acn_blob);
+
+      proto_item_append_text(fi, ": %s", field_name);
+
+      sub_blob_index = 0;
+
+      while ((sub_blob_index < number_of_sub_blobs) && (blob_offset < end_offset)) {
+        display_blob_field(tvb, sub_blob_tree, blob_type, &blob_offset, &field_number, 0);
+
+        sub_blob_index += 1;
+
+      }
+
+    }
+
+    else {
+      display_blob_field(tvb, blob_tree, blob_type, &blob_offset, &field_number, 0);
+    }
+
+  }
+  return 0;
+}
+
+/******************************************************************************/
+/* Get Blob Type From Fields
+Both "Dimmer Properties v2" and "Preset Properties" ended up with blob type 20 */
+static guint8
+get_blob_type_from_fields(tvbuff_t *tvb, int blob_offset, int end_offset)
+{
+  guint8  field_type;
+  guint8  field_length;
+  guint8  blob_offset1;
+  guint8  blob_offset2;
+  guint8  blob_offset3;
+  guint16 field_number = 1;
+
+  while (blob_offset < end_offset) {
+    field_type = tvb_get_guint8(tvb, blob_offset);
+    if (field_number == 12) {
+      if (field_type == ACN_BLOB_FIELD_TYPE11) {
+        /* string: dimmer name field */
+        return ACN_BLOB_DIMMER_PROPERTIES2;
+      }
+      /* number: preset number field */
+      return ACN_BLOB_PRESET_PROPERTIES;
+    }
+    get_field_type_parameters(tvb, blob_offset, field_type, &field_length, &blob_offset1, &blob_offset2, &blob_offset3);
+    blob_offset += blob_offset2 + blob_offset3;
+    field_number += 1;
+  }
+
+  return ACN_BLOB_DIMMER_PROPERTIES2;
+}
+
+/******************************************************************************/
+/* Dissect Blob */
+static guint32
+dissect_acn_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdu_tree, int blob_offset, int end_offset)
+{
+  /* Declarations for blobs*/
+  guint8     version;
+  guint8     range;
+  guint8     blob_type;
+  guint8     range_number;
+  guint16    field_number = 1;
+  proto_item *bi;
+  proto_tree *blob_tree = NULL;
+  const gchar *blob_name;
+  /* const gchar *range_type; */
+
+  /* Add blob to tree */
+  bi = proto_tree_add_item(pdu_tree, hf_acn_blob, tvb, blob_offset, end_offset, ENC_NA);
+  blob_tree = proto_item_add_subtree(bi, 0);
+  end_offset = blob_offset + end_offset;
+  blob_offset += 4;
+
+  /* Add Blob version item to tree */
+  version = tvb_get_guint8(tvb, blob_offset);
+  proto_tree_add_item(blob_tree, hf_acn_blob_version, tvb, blob_offset, 1, version);
+  blob_offset += 1;
+
+  /* Add Blob Start and End Range Info */
+  range = tvb_get_guint8(tvb, blob_offset);
+  proto_tree_add_item(blob_tree, hf_acn_blob_range_type, tvb, blob_offset, 1, range);
+  /* range_type = val_to_str(range, acn_blob_range_type_vals, "not valid (%d)"); */
+  blob_offset += 1;
+
+  /* Add Blob Range Number */
+  range_number = tvb_get_guint8(tvb, blob_offset);
+  proto_tree_add_item(blob_tree, hf_acn_blob_range_number, tvb, blob_offset, 1, range_number);
+  blob_offset += 1;
+
+  /* Add Blob Meta-Type */
+  blob_type = tvb_get_guint8(tvb, blob_offset);
+  if (blob_type == ACN_BLOB_DIMMER_PROPERTIES2) {
+    /* Dimmer  Properties v2 and Preset Properties have the same 'type' value (20) */
+    blob_type = get_blob_type_from_fields(tvb, blob_offset + 1, end_offset);
+  }
+
+  proto_tree_add_item(blob_tree, hf_acn_blob_type, tvb, blob_offset, 1, blob_type);
+
+  blob_name = val_to_str(blob_type, acn_blob_type_vals, "not valid (%d)");
+  proto_item_append_text(bi, ": %s", blob_name);
+  blob_offset += 1;
+
+  if (blob_type == ACN_BLOB_METADATA) {
+    return dissect_acn_blob_metadata(tvb, blob_tree, blob_offset, end_offset);
+  }
+  if (blob_type == ACN_BLOB_PRESET_PROPERTIES) {
+    return dissect_acn_blob_preset_properties(tvb, blob_tree, blob_offset, end_offset);
+  }
+  if (blob_type == ACN_BLOB_DIMMER_RACK_PROPERTIES2) {
+    return dissect_acn_blob_dimming_rack_properties_v2(tvb, blob_tree, blob_offset, end_offset);
+  }
+  if (blob_type == ACN_BLOB_DIMMER_RACK_STATUS_PROPERTIES2) {
+    return dissect_acn_blob_dimming_rack_status_properties_v2(tvb, blob_tree, blob_offset, end_offset);
+  }
+
+  /* Loop though dissecting fields until the end is reached */
+  while (blob_offset < end_offset) {
+    display_blob_field(tvb, blob_tree, blob_type, &blob_offset, &field_number, 0);
+  }
+  return 0;
 }
 
 /******************************************************************************/
@@ -1199,6 +3938,7 @@ static guint32
 dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   /* common to all pdu */
+  gboolean          blob_exists = 0;
   guint8            pdu_flags;
   guint32           pdu_start;
   guint32           pdu_length;
@@ -1215,6 +3955,8 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   guint32           end_offset;
   guint32           data_length;
   guint32           address_count;
+  guint32           blob_offset;
+  guint32           blob_end_offset = 0;
 
   proto_item       *ti, *pi;
   proto_tree       *pdu_tree  = NULL;
@@ -1315,6 +4057,24 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   }
   end_offset = data_offset + data_length;
 
+  /* Check if blob exists, find beginning offset */
+  blob_offset = data_offset;
+  while (blob_offset < end_offset - 3 && blob_exists != 1) {
+    if (tvb_get_ntohl(tvb, blob_offset) == 0x426c6f62) {
+      /* 0x426c6f62 == "Blob" */
+      blob_exists = 1;
+      break;
+    }
+    blob_offset += 1;
+  }
+
+  /* Fix the end_offset for finding Address-Data pair if blob exists*/
+  if (blob_exists == 1) {
+    blob_end_offset = end_offset - blob_offset;
+    end_offset = blob_offset;
+    data_length = blob_offset - data_offset;
+  }
+
   switch (vector) {
     case ACN_DMP_VECTOR_UNKNOWN:
       break;
@@ -1357,6 +4117,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
       }
       break;
     case ACN_DMP_VECTOR_EVENT:
+    case ACN_DMP_VECTOR_SYNC_EVENT:
       /* Rip through Property Address-Data pairs */
       /* But, in reality, this generally won't work as we have know way of       */
       /* calculating the next Address-Data pair                                  */
@@ -1499,6 +4260,11 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     case ACN_DMP_VECTOR_DEALLOCATE_MAP:
       /* No data for this */
       break;
+  }
+
+  /* If blob exists, call function to dissect blob*/
+  if (blob_exists == 1) {
+    dissect_acn_blob(tvb, pinfo, pdu_tree, blob_offset, blob_end_offset);
   }
 
   return pdu_start + pdu_length;
@@ -1887,7 +4653,7 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
   acn_dmp_adt_type  adt       = {0,0,0,0,0,0};
   const gchar      *name;
   guint32           vector;
-  gchar             buffer[BUFFER_SIZE];
+  gchar            *buffer;
   char             *buf_ptr;
   guint             x;
   guint8            level;
@@ -1898,8 +4664,11 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
   guint             halfline;
   guint16           dmx_count;
   guint16           dmx_start_code;
+  guint16           info_start_code;
+  guint8            dmx_2_start_code;
 
-  buffer[0] = 0;
+  buffer = (gchar*)wmem_alloc(wmem_packet_scope(), BUFFER_SIZE);
+  buffer[0] = '\0';
 
   /* save start of pdu block */
   pdu_start = offset;
@@ -2005,7 +4774,8 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_item(pdu_tree, hf_acn_dmx_count, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
 
-      if (protocol_id==ACN_PROTOCOL_ID_DMX_2) {
+    if (protocol_id == ACN_PROTOCOL_ID_DMX_2) {
+        dmx_2_start_code = (guint8)tvb_get_ntohs(tvb, data_offset - 1);
         proto_tree_add_item(pdu_tree, hf_acn_dmx_2_start_code, tvb, data_offset, 1, ENC_BIG_ENDIAN);
         data_offset += 1;
         dmx_count   -= 1;
@@ -2041,10 +4811,15 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
       } else {
         leading_char = ' ';
       }
-
       /* add a snippet to info (this may be slow) */
+    if (protocol_id == ACN_PROTOCOL_ID_DMX_2) {
+      info_start_code = dmx_2_start_code;
+    }
+    else {
+      info_start_code = dmx_start_code;
+    }
       col_append_fstr(pinfo->cinfo,COL_INFO, ", Sc %02x, [%02x %02x %02x %02x %02x %02x...]",
-        dmx_start_code,
+        info_start_code,
         tvb_get_guint8(tvb, data_offset),
         tvb_get_guint8(tvb, data_offset+1),
         tvb_get_guint8(tvb, data_offset+2),
@@ -2112,8 +4887,6 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
   }
   return pdu_start + pdu_length;
 }
-
-
 
 /******************************************************************************/
 /* Dissect DMX Base PDU                                                       */
@@ -2258,7 +5031,7 @@ dissect_acn_dmx_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, prot
       }
 
       universe = tvb_get_ntohs(tvb, data_offset);
-      proto_tree_add_item(pdu_tree, hf_acn_dmx_universe       , tvb, data_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(pdu_tree, hf_acn_dmx_universe, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
 
       /* add universe to info */
@@ -2728,7 +5501,7 @@ dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   data_offset += 2;
   proto_tree_add_item(acn_tree, hf_acn_postamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
   data_offset += 2;
-  proto_tree_add_item(acn_tree, hf_acn_packet_identifier, tvb, data_offset, 12, ENC_UTF_8|ENC_NA);
+  proto_tree_add_item(acn_tree, hf_acn_packet_identifier, tvb, data_offset, 12, ENC_UTF_8 | ENC_NA);
   data_offset += 12;
 
   /* one past the last byte */
@@ -2760,6 +5533,146 @@ proto_register_acn(void)
     { &hf_acn_association,
       { "Association", "acn.association",
         FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    /* Blob */
+    { &hf_acn_blob,
+      { "Blob", "acn.blob",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+#if 0
+    /* Blob Dimmer Load Properties 2 Type */
+    { &hf_acn_blob_dimmer_load_properties2_type,
+      { "Blob Field", "acn.blob_dimmer_load_properties2_type",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+#endif
+    /* Blob Field Length */
+    { &hf_acn_blob_field_length,
+      { "Field Length", "acn.blob_field_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    /* Blob Field Type */
+    { &hf_acn_blob_field_type,
+      { "Field Type", "acn.blob_field_type",
+        FT_UINT8, BASE_DEC, VALS(acn_blob_field_type_vals), 0x0,
+        NULL, HFILL }
+    },
+    /* Blob Field Value Number*/
+    { &hf_acn_blob_field_value_number,
+      { "Field Value", "acn.blob_field_value_number",
+        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_acn_blob_field_value_ipv4,
+      { "Field Value", "acn.blob_field_value_ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_acn_blob_field_value_ipv6,
+      { "Field Value", "acn.blob_field_value_ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_acn_blob_field_value_float,
+      { "Field Value", "acn.blob_field_value_float",
+        FT_FLOAT, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_acn_blob_field_value_double,
+      { "Field Value", "acn.blob_field_value_double",
+        FT_DOUBLE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_acn_blob_field_value_guid,
+      { "Field Value", "acn.blob_field_value_guid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* Blob Field Value String*/
+    { &hf_acn_blob_field_value_string,
+      { "Field Value", "acn.blob_field_value_string",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    /* Blob Metadata Device Type */
+    { &hf_acn_blob_tree_field_type,
+      { "Blob Field", "acn.blob_tree_field_type",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+#if 0
+    /* Blob Metadata Types Type */
+    { &hf_acn_blob_metadata_types_type,
+      { "Blob Field", "acn.blob_metadata_types_type",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+#endif
+    /* Blob Range Number */
+    { &hf_acn_blob_range_number,
+      { "Blob Range Number", "acn.blob_range_number",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    /* Blob Range Type */
+    { &hf_acn_blob_range_type,
+      { "Blob Range Type", "acn.blob_range_type",
+        FT_UINT8, BASE_HEX, VALS(acn_blob_range_type_vals), 0x0,
+        NULL, HFILL }
+    },
+#if 0
+    /* Blob Range Start */
+    { &hf_acn_blob_range_start,
+      { "Blob Range Start", "acn.blob_range_start",
+        FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+#endif
+    /* Blob Type */
+    { &hf_acn_blob_type,
+      { "Blob Type", "acn.blob_type",
+        FT_UINT8, BASE_DEC, VALS(acn_blob_type_vals), 0x0,
+        NULL, HFILL }
+    },
+    /* Blob Version */
+    { &hf_acn_blob_version,
+      { "Blob Version", "acn.blob_version",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_acn_blob_time_zone,
+      { "Time Zone", "acn.blob_time_zone",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_acn_blob_dst_type,
+      { "DST Type", "acn.blob_dst_type",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_acn_blob_dst_start_day,
+      { "DST Start Day", "acn.blob_dst_start_day",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_acn_blob_dst_stop_day,
+      { "DST Stop Day", "acn.blob_dst_stop_day",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_acn_blob_dst_start_locality,
+      { "DST Start Locality", "acn.blob_dst_start_locality",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_acn_blob_dst_stop_locality,
+      { "DST Stop Locality", "acn.blob_dst_stop_locality",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     /* Channel Number */
@@ -3195,6 +6108,183 @@ proto_register_acn(void)
     }
   };
 
+  static hf_register_info magic_hf[] = {
+    /* Protocol ID */
+    { &hf_magic_protocol_id,
+      { "Protocol ID", "magic.protocol_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* PDU Type */
+    { &hf_magic_pdu_subtype,
+      { "PDU type", "magic.type",
+        FT_UINT8, BASE_DEC, VALS(magic_pdu_subtypes), 0x0,
+        NULL, HFILL },
+    },
+
+    /* Major Version */
+    { &hf_magic_major_version,
+      { "Major Version", "magic.major_version",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* Minor Version */
+    { &hf_magic_minor_version,
+      { "Minor Version", "magic.minor_version",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* V1 Command */
+    { &hf_magic_v1command_vals,
+      { "Command", "magic.v1_command",
+        FT_UINT32, BASE_DEC, VALS(magic_v1command_vals), 0x0,
+        NULL, HFILL }
+    },
+
+    /* V2 Command */
+    { &hf_magic_command_vals,
+      { "Command", "magic.command",
+        FT_UINT32, BASE_DEC, VALS(magic_command_vals), 0x0,
+        NULL, HFILL }
+    },
+
+    /* Beacon Duration */
+    { &hf_magic_command_beacon_duration,
+      { "Duration", "magic.beacon_duration",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Beacon Duration", HFILL }
+    },
+
+    /* TFTP */
+    { &hf_magic_command_tftp,
+      { "TFTP IP", "magic.tftp",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        "IP of TFTP server", HFILL }
+    },
+
+    /* Reset Lease */
+    { &hf_magic_command_reset_lease,
+      { "Reset Lease", "magic.reset_lease",
+        FT_UINT32, BASE_DEC, VALS(magic_reset_lease_vals), 0x0,
+        NULL, HFILL }
+    },
+
+    /* CID */
+    { &hf_magic_command_cid,
+      { "CID", "magic.cid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* Command IP Configuration */
+    { &hf_magic_command_ip_configuration,
+      { "IP Configuration", "magic.ip_configuration",
+        FT_UINT32, BASE_DEC, VALS(magic_ip_configuration_vals), 0x0,
+        NULL, HFILL }
+    },
+
+    /* Command IP Address */
+    { &hf_magic_command_ip_address,
+      { "IP Address", "magic.ip_address",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* Command Subnet Mask */
+    { &hf_magic_command_subnet_mask,
+      { "Subnet Mask", "magic.subnet_mask",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* Command Gateway */
+    { &hf_magic_command_gateway,
+      { "Gateway", "magic.gateway",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* Reply IP Address */
+    { &hf_magic_reply_ip_address,
+      { "IP", "magic.reply.ip_address",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        "Local IP Address", HFILL }
+    },
+
+    /* Reply Subnet Mask */
+    { &hf_magic_reply_subnet_mask,
+      { "Subnet Mask", "magic.reply.subnet_mask",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        "Local Subnet Mask", HFILL }
+    },
+
+    /* Reply Gateway */
+    { &hf_magic_reply_gateway,
+      { "Gateway", "magic.reply.gateway",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        "Local Gateway", HFILL }
+    },
+
+    /* Reply TFTP */
+    { &hf_magic_reply_tftp,
+      { "TFTP IP", "magic.reply.tftp",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        "IP of TFTP server", HFILL }
+    },
+
+    /* Reply Version */
+    { &hf_magic_reply_version,
+      { "Reply Version", "magic.reply.version",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    /* Reply Device Type Name */
+    { &hf_magic_reply_device_type_name,
+      { "Device Type Name", "magic.reply.device_type_name",
+        FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+        "Reply Device Type Name", HFILL }
+    },
+
+    /* Reply Default Name */
+    { &hf_magic_reply_default_name,
+      { "Default Name", "magic.reply.default_name",
+        FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+        "Reply Default Name", HFILL }
+    },
+
+    /* Reply User Name */
+    { &hf_magic_reply_user_name,
+      { "User Name", "magic.reply.user_name",
+        FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+        "Reply User Name", HFILL }
+    },
+
+    /* CID */
+    { &hf_magic_reply_cid,
+      { "CID", "magic.reply.cid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        "Reply CID", HFILL }
+    },
+
+    /* DCID */
+    { &hf_magic_reply_dcid,
+      { "DCID", "magic.reply.dcid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        "Reply DCID", HFILL }
+    },
+
+    /* Invalid Reply Type */
+    { &hf_magic_reply_invalid_type,
+      { "Invalid type", "magic.reply.dcid",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Invalid Reply Type", HFILL }
+    }
+  };
+
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_acn,
@@ -3212,7 +6302,13 @@ proto_register_acn(void)
     &ett_acn_dmx_address,
     &ett_acn_dmx_2_options,
     &ett_acn_dmx_data_pdu,
-    &ett_acn_dmx_pdu
+    &ett_acn_dmx_pdu,
+    &ett_acn_blob
+  };
+
+  /* Setup protocol subtree array */
+  static gint *magic_ett[] = {
+    &ett_magic
   };
 
   module_t *acn_module;
@@ -3220,6 +6316,12 @@ proto_register_acn(void)
     "Architecture for Control Networks", /* name */
     "ACN",                               /* short name */
     "acn"                                /* abbrev */
+    );
+
+  proto_magic = proto_register_protocol(
+    "Magic",                             /* name */
+    "MAGIC",                             /* short name */
+    "magic"                              /* abbrev */
     );
 
   proto_register_field_array(proto_acn, hf, array_length(hf));
@@ -3256,6 +6358,9 @@ proto_register_acn(void)
                                  &global_acn_dmx_display_line_format,
                                  dmx_display_line_format,
                                  TRUE);
+
+  proto_register_field_array(proto_magic, magic_hf, array_length(magic_hf));
+  proto_register_subtree_array(magic_ett, array_length(magic_ett));
 }
 
 
