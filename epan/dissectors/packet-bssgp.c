@@ -3683,6 +3683,12 @@ typedef enum
     DE_BSSGP_OLD_RA_IDENTIFICATION,                             /* 11.3.127	Old Routing Area Identification */
     DE_BSSGP_ATTACH_INDIC,                                      /* 11.3.128 Attach Indicator */
     DE_BSSGP_PLMN_ID,                                           /* 11.3.129 PLMN Identity */
+        /*
+        x9e	MME Query
+        x9f	SGSN Group Identity
+        xa0	Additional P-TMSI
+        xa1	UE Usage Type */
+
     DE_BSSGP_NONE                                               /* NONE */
 }
 bssgp_elem_idx_t;
@@ -4256,7 +4262,12 @@ bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     ELEM_OPT_TELV(BSSGP_IEI_OLD_RA_IDENTIFICATION, GSM_A_PDU_TYPE_GM, DE_RAI, " - Old routing area identification");
     /* Attach Indicator(note 13) Attach Indicator / 11.3.128 O TLV 3 */
     ELEM_OPT_TELV(BSSGP_IEI_ATTACH_INDIC, GSM_A_PDU_TYPE_GM, DE_BSSGP_ATTACH_INDIC, NULL);
+
+    /* SGSN Group Identity (note 15)	SGSN Group Identity/11.3.131	C	TLV	5 */
+    /* Additional P-TMSI (note 15)	Additional P-TMSI/11.3.132	C	TLV	6 */
+    /* UE Usage Type (note 15)	UE Usage Type/11.3.133	C	TLV	3 */
     /* Alignment octets Alignment octets/11.3.1 O TLV 2-5 */
+
     ELEM_OPT_TELV(0x00, BSSGP_PDU_TYPE, DE_BSSGP_ALIGNMENT_OCTETS, NULL);
     /* LLC-PDU (note 4) LLC-PDU/11.3.15 M TLV 2-? */
     ELEM_MAND_TELV(0x0e, BSSGP_PDU_TYPE, DE_BSSGP_LLC_PDU, NULL, ei_bssgp_missing_mandatory_element);
@@ -4309,6 +4320,10 @@ bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     ELEM_OPT_TELV(BSSGP_IEI_PLMN_ID, BSSGP_PDU_TYPE, DE_BSSGP_PLMN_ID, " - Selected Operator");
     /* CS Registered Operator(note 8, 10) PLMN Identity / 11.3.129 O TLV 5 */
     ELEM_OPT_TELV(BSSGP_IEI_PLMN_ID, BSSGP_PDU_TYPE, DE_BSSGP_PLMN_ID, " - CS Registered Operator");
+
+    /* SGSN Group Identity (note 11)	SGSN Group Identity /11.3.131	O	TLV	5 */
+    /* UE Usage Type (note 11)	UE Usage Type/11.3.133	O	TLV	3 */
+
     /* Alignment octets Alignment octets/11.3.1 O TLV 2-5  */
     ELEM_OPT_TELV(0x00, BSSGP_PDU_TYPE, DE_BSSGP_ALIGNMENT_OCTETS, NULL);
     /* LLC-PDU (note) LLC-PDU/11.3.15 M TLV 2-?  */
@@ -4743,37 +4758,9 @@ bssgp_resume_nack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
 
-/*
- * 10.3.12   PAGING PS REJECT
- */
-
-static void
-bssgp_paging_ps_reject(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
-{
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
-
-    curr_offset = offset;
-    curr_len = len;
-    /* This PDU indicates that a BSS has determined the nominal paging group of the MS occurs too far into the future.
-     * Direction: BSS to SGSN
-     */
-
-    pinfo->link_dir = P2P_DIR_UL;
-
-    /* IMSI IMSI/11.3.14 M TLV 5 -10 */
-    ELEM_MAND_TELV(BSSGP_IEI_IMSI, BSSGP_PDU_TYPE, DE_BSSGP_IMSI, NULL, ei_bssgp_missing_mandatory_element);
-    /* P-TMSI (note 1) TMSI/11.3.36 O TLV 6 */
-    ELEM_OPT_TELV(BSSGP_IEI_TMSI, GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, NULL);
-    /* Time Until Next Paging Occasion Time Until Next Paging Occasion/11.3.123 M TLV 3 */
-    ELEM_MAND_TELV(BSSGP_IEI_TUNPO, BSSGP_PDU_TYPE, DE_BSSGP_TUNPO, NULL, ei_bssgp_missing_mandatory_element);
-
-    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
-}
 
 /*
- * 10.3.13   DUMMY PAGING PS
+ * 10.3.12   DUMMY PAGING PS
  */
 
 static void
@@ -4801,7 +4788,7 @@ bssgp_dummy_paging_ps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 }
 
 /*
- * 10.3.14   DUMMY PAGING PS RESPONSE
+ * 10.3.13   DUMMY PAGING PS RESPONSE
  */
 
 static void
@@ -4826,6 +4813,48 @@ bssgp_dummy_paging_ps_response(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
 
+/*
+* 10.3.14   PAGING PS REJECT
+*/
+
+static void
+bssgp_paging_ps_reject(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+    /* This PDU indicates that a BSS has determined the nominal paging group of the MS occurs too far into the future.
+    * Direction: BSS to SGSN
+    */
+
+    pinfo->link_dir = P2P_DIR_UL;
+
+    /* IMSI IMSI/11.3.14 M TLV 5 -10 */
+    ELEM_MAND_TELV(BSSGP_IEI_IMSI, BSSGP_PDU_TYPE, DE_BSSGP_IMSI, NULL, ei_bssgp_missing_mandatory_element);
+    /* P-TMSI (note 1) TMSI/11.3.36 O TLV 6 */
+    ELEM_OPT_TELV(BSSGP_IEI_TMSI, GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, NULL);
+    /* Time Until Next Paging Occasion Time Until Next Paging Occasion/11.3.123 M TLV 3 */
+    ELEM_MAND_TELV(BSSGP_IEI_TUNPO, BSSGP_PDU_TYPE, DE_BSSGP_TUNPO, NULL, ei_bssgp_missing_mandatory_element);
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
+}
+
+/*
+ * 10.3.15	MS REGISTRATION ENQUIRY
+ */
+
+    /* IMSI	IMSI/11.3.14	M	TLV	5-10 */
+    /* MME Query	MME Query/11.3.130	O	TLV	3 */
+
+/*
+ *10.3.16	MS REGISTRATION ENQUIRY RESPONSE
+ */
+
+    /* IMSI	IMSI/11.3.14	M	TLV	5-10 */
+    /* PS Registered Operator (note 1)	PLMN Identity/11.3.129	O	TLV	5 */
 /*
  * 10.4 PDU functional definitions and contents at NM SAP
  * 10.4.1   FLUSH-LL
@@ -5922,6 +5951,10 @@ bssgp_perform_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     /* Requested GANSS Assistance Data (note 6) Requested GANSS Assistance Data/11.3.99 O TLV 3-? */
     ELEM_OPT_TLV(0x7b, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_ASS_DTA, NULL);
 
+    /* eDRX Parameters (note 7)	eDRX Parameters/11.3.122	O	TLV	3 */
+    /* Coverage Class	Coverage Class/11.3.124	O	TLV	3 */
+    /* MS Radio Access Capability (note 8)	MS Radio Access Capability/11.3.22	O	TLV	7-? */
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
 
@@ -6409,13 +6442,13 @@ static const value_string bssgp_msg_strings[] = {
 /* 0x0e */  { BSSGP_PDU_RESUME,                       "RESUME" },                       /* 10.3.9 RESUME */
 /* 0x0f */  { BSSGP_PDU_RESUME_ACK,                   "RESUME-ACK" },                   /* 10.3.10 RESUME-ACK */
 /* 0x10 */  { BSSGP_PDU_RESUME_NACK,                  "RESUME-NACK" },                  /* 10.3.11 RESUME-NACK */
-/* 0x11 */  { BSSGP_PDU_PAGING_PS_REJECT,             "PAGING-PS-REJECT" },             /* 10.3.12 PAGING PS REJECT */
-/* 0x12 */  { BSSGP_PDU_DUMMY_PAGING_PS,              "DUMMY-PAGING-PS" },              /* 10.3.13 DUMMY PAGING PS */
-/* 0x13 */  { BSSGP_PDU_DUMMY_PAGING_PS_RESPONSE,     "DUMMY-PAGING-PS-RESPONSE" },     /* 10.3.14 DUMMY PAGING PS RESPONSE */
+/* 0x11 */  { BSSGP_PDU_PAGING_PS_REJECT,             "PAGING-PS-REJECT" },             /* 10.3.14 PAGING PS REJECT */
+/* 0x12 */  { BSSGP_PDU_DUMMY_PAGING_PS,              "DUMMY-PAGING-PS" },              /* 10.3.12 DUMMY PAGING PS */
+/* 0x13 */  { BSSGP_PDU_DUMMY_PAGING_PS_RESPONSE,     "DUMMY-PAGING-PS-RESPONSE" },     /* 10.3.13 DUMMY PAGING PS RESPONSE */
 
 /* 0x14 to 0x1f Reserved */
-/* 0x14 */  { BSSGP_PDU_RESERVED_0X14,                 "Reserved" },                    /*  */
-/* 0x15 */  { BSSGP_PDU_RESERVED_0X15,                 "Reserved" },                    /*  */
+/* 0x14 */  { BSSGP_PDU_RESERVED_0X14,                 "MS-REGISTRATION-ENQUIRY" },          /* 10.3.15 MS REGISTRATION ENQUIRY */
+/* 0x15 */  { BSSGP_PDU_RESERVED_0X15,                 "MS-REGISTRATION-ENQUIRY-RESPONSE" }, /* 10.3.16 MS REGISTRATION ENQUIRY RESPONSE */
 /* 0x16 */  { BSSGP_PDU_RESERVED_0X16,                 "Reserved" },                    /*  */
 /* 0x17 */  { BSSGP_PDU_RESERVED_0X17,                 "Reserved" },                    /*  */
 /* 0x18 */  { BSSGP_PDU_RESERVED_0X18,                 "Reserved" },                    /*  */
