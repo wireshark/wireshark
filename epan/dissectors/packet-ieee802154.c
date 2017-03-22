@@ -785,8 +785,6 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* Add the protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4 non-ASK PHY");
-    /* Add the packet length. */
-    col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_captured_length(tvb));
 
     phr=tvb_get_guint8(tvb,offset+4+1);
 
@@ -985,8 +983,6 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
     /* Add the protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4");
-    /* Add the packet length. */
-    col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_captured_length(tvb));
 
     /* Add the packet length to the filter field */
     hidden_item = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_frame_length, NULL, 0, 0, tvb_reported_length(tvb));
