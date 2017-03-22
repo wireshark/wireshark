@@ -778,7 +778,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_COMMENT): /* opt_comment */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
-                    wtap_block_add_string_option(wblock->block, OPT_COMMENT, option_content, oh.option_length);
+                    wtap_block_add_string_option(wblock->block, oh.option_code, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_if_descr_block: opt_comment %s", tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -789,7 +789,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
                     /* Fails with multiple options; we silently ignore the failure */
-                    wtap_block_add_string_option(wblock->block, OPT_IDB_NAME, option_content, oh.option_length);
+                    wtap_block_add_string_option(wblock->block, oh.option_code, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_if_descr_block: if_name %s", tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -800,7 +800,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
                     /* Fails with multiple options; we silently ignore the failure */
-                    wtap_block_add_string_option(wblock->block, OPT_IDB_DESCR, option_content, oh.option_length);
+                    wtap_block_add_string_option(wblock->block, oh.option_code, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_if_descr_block: if_description %s", tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -817,7 +817,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                     if (pn->byte_swapped)
                         tmp64 = GUINT64_SWAP_LE_BE(tmp64);
                     /* Fails with multiple options; we silently ignore the failure */
-                    wtap_block_add_uint64_option(wblock->block, OPT_IDB_SPEED, tmp64);
+                    wtap_block_add_uint64_option(wblock->block, oh.option_code, tmp64);
                     pcapng_debug("pcapng_read_if_descr_block: if_speed %" G_GINT64_MODIFIER "u (bps)", tmp64);
                 } else {
                     pcapng_debug("pcapng_read_if_descr_block: if_speed length %u not 8 as expected", oh.option_length);
@@ -850,7 +850,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                     }
                     if_descr_mand->time_units_per_second = time_units_per_second;
                     /* Fails with multiple options; we silently ignore the failure */
-                    wtap_block_add_uint8_option(wblock->block, OPT_IDB_TSRESOL, if_tsresol);
+                    wtap_block_add_uint8_option(wblock->block, oh.option_code, if_tsresol);
                     if (time_units_per_second >= 1000000000)
                         tsprecision = WTAP_TSPREC_NSEC;
                     else if (time_units_per_second >= 1000000)
@@ -888,7 +888,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                         if_filter.if_filter_bpf_bytes = (guint8 *)option_content+1;
                     }
                     /* Fails with multiple options; we silently ignore the failure */
-                    wtap_block_add_custom_option(wblock->block, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
+                    wtap_block_add_custom_option(wblock->block, oh.option_code, &if_filter, sizeof if_filter);
                     g_free(if_filter.if_filter_str);
                 } else {
                     pcapng_debug("pcapng_read_if_descr_block: if_filter length %u seems strange", oh.option_length);
@@ -903,7 +903,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
                     /* Fails with multiple options; we silently ignore the failure */
-                    wtap_block_add_string_option(wblock->block, OPT_IDB_OS, option_content, oh.option_length);
+                    wtap_block_add_string_option(wblock->block, oh.option_code, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_if_descr_block: if_os %s", tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -913,7 +913,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_IDB_FCSLEN): /* if_fcslen */
                 if (oh.option_length == 1) {
                     /* Fails with multiple options; we silently ignore the failure */
-                    wtap_block_add_uint8_option(wblock->block, OPT_IDB_TSRESOL, option_content[0]);
+                    wtap_block_add_uint8_option(wblock->block, oh.option_code, option_content[0]);
                     pn->if_fcslen = option_content[0];
                     pcapng_debug("pcapng_read_if_descr_block: if_fcslen %u", pn->if_fcslen);
                     /* XXX - add sanity check */
