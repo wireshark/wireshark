@@ -2644,7 +2644,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
                 return EXIT_CODE_GENERIC;
             }
 
-            if (used_buffer_length += length > 1) {
+            if ((used_buffer_length += length) > 1) {
                 break;
             }
         }
