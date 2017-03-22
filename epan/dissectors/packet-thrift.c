@@ -505,8 +505,11 @@ void proto_register_thrift(void) {
 }
 
 void proto_reg_handoff_thrift(void) {
+    static dissector_handle_t thrift_http_handle;
 
     heur_dissector_add("tcp", dissect_thrift_heur, "Thrift over TCP", "thrift_tcp", proto_thrift, HEURISTIC_ENABLE);
+    thrift_http_handle = create_dissector_handle(dissect_thrift_heur, proto_thrift);
+    dissector_add_string("media_type", "application/x-thrift", thrift_http_handle);
 
 }
 /*
