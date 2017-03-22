@@ -472,7 +472,7 @@ proto_register_nbifom(void)
             { "End source port range", "nbifom.routing_rule.flags.end_src_port_range", FT_BOOLEAN, 32,
               TFS(&tfs_present_not_present), 0x00020000, NULL, HFILL }},
         { &hf_nbifom_routing_rule_flags_start_src_port_range,
-            { "Start source port range", "nbifom.routing_rule.flags.start_src_port_rang", FT_BOOLEAN, 32,
+            { "Start source port range", "nbifom.routing_rule.flags.start_src_port_range", FT_BOOLEAN, 32,
               TFS(&tfs_present_not_present), 0x00010000, NULL, HFILL }},
         { &hf_nbifom_routing_rule_flags_spare_bits0xffff,
             { "Spare", "nbifom.routing_rule.flags.spare", FT_UINT32, BASE_HEX,
