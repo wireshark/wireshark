@@ -1427,6 +1427,11 @@ DIAG_ON(cast-qual)
     }
 #endif /* HAVE_LIBPCAP */
 
+    // UAT files used in configuration profiles which are used in Qt dialogs
+    // are not registered during startup because they only get loaded when
+    // the dialog is shown.  Register them here.
+    g_free(get_persconffile_path("io_graphs", TRUE));
+
     profile_store_persconffiles(FALSE);
 
     ret_val = wsApp->exec();
