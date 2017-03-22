@@ -77,9 +77,11 @@ static int bssgp_decode_nri = 0;
 static guint bssgp_nri_length = 4;
 
 static guint8 g_pdu_type, g_rim_application_identity;
+static guint32 g_bssgp_ran_inf_pdu_t_ext_c;
 static proto_tree *gparent_tree;
 static dissector_handle_t llc_handle;
 static dissector_handle_t rrlp_handle;
+static dissector_handle_t rrc_sys_info_cont_handle;
 
 static module_t *bssgp_module;
 static dissector_table_t diameter_3gpp_avp_dissector_table;
@@ -234,6 +236,7 @@ static expert_field ei_bssgp_unknown_app_container = EI_INIT;
 static expert_field ei_bssgp_ra_discriminator = EI_INIT;
 static expert_field ei_bssgp_unknown_rim_app_id = EI_INIT;
 static expert_field ei_bssgp_msg_type = EI_INIT;
+static expert_field ei_bssgp_ran_inf_app_cont_utra_si = EI_INIT;
 
 /* PDU type coding, v6.5.0, table 11.3.26, p 80 */
 #define BSSGP_PDU_DL_UNITDATA                  0x00
@@ -1954,13 +1957,31 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
              * Reporting Cell Identifier: This field is encoded as the Source Cell Identifier IE
              * (UTRAN Source Cell ID) as defined in 3GPP TS 25.413
              */
-            new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+            new_tvb = tvb_new_subset_length_caplen(tvb, curr_offset, len, len);
             curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, pinfo, tree, NULL);
             /* Octet (m+1)-n UTRA SI Container
              * UTRA SI Container: This field contains System Information Container valid for the reporting cell
              * encoded as defined in TS 25.331
+             * The Application Container IE included in the RIM container IE of a RAN-INFORMATION/End PDU or of a
+             * RAN-INFORMATION/Stop PDU shall contain only the identity of the reporting cell.
              */
-            proto_tree_add_expert_format(tree, pinfo, &ei_bssgp_not_dissected_yet, tvb, curr_offset, len-(curr_offset-offset), "UTRA SI Container - not dissected yet");
+            if (curr_offset >= len - 1) {
+                switch (g_bssgp_ran_inf_pdu_t_ext_c) {
+                case 0:
+                    /* RAN-INFORMATION/Stop PDU */
+                    /*Falltrough */
+                case 4:
+                    /* RAN-INFORMATION/End PDU*/
+                    return(curr_offset - offset);
+                    break;
+                default:
+                    break;
+                }
+                proto_tree_add_expert_format(tree, pinfo, &ei_bssgp_ran_inf_app_cont_utra_si, tvb, curr_offset-1, 1, "UTRA SI Container - not present");
+                return(curr_offset - offset);
+            }
+            new_tvb = tvb_new_subset_length_caplen(tvb, curr_offset, (len - (curr_offset - offset)), (len - (curr_offset - offset)));
+            call_dissector_only(rrc_sys_info_cont_handle, new_tvb, pinfo, tree, NULL);
             curr_offset = curr_offset + (len - (curr_offset - offset));
             break;
 
@@ -2124,7 +2145,7 @@ de_bssgp_rim_pdu_indications(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
         case BSSGP_PDU_RAN_INFORMATION:
             /* 11.3.65.2 RAN-INFORMATION RIM PDU Indications */
             /* Table 11.3.65.2: RAN-INFORMATION PDU Type Extension coding */
-            proto_tree_add_item(tree, hf_bssgp_ran_inf_pdu_t_ext_c, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_bssgp_ran_inf_pdu_t_ext_c, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &g_bssgp_ran_inf_pdu_t_ext_c);
             proto_tree_add_item(tree, hf_bssgp_rim_pdu_ind_ack, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             curr_offset++;
             break;
@@ -6738,6 +6759,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     /* Save pinfo */
     g_rim_application_identity = 0;
+    g_bssgp_ran_inf_pdu_t_ext_c = 0xfffffff;
     gparent_tree = tree;
     len = tvb_reported_length(tvb);
 
@@ -7423,6 +7445,7 @@ proto_register_bssgp(void)
         { &ei_bssgp_ra_discriminator, { "bssgp.ra_discriminator.unknown", PI_PROTOCOL, PI_WARN, "Unknown RIM Routing Address discriminator", EXPFILL }},
         { &ei_bssgp_unknown_rim_app_id, { "bssgp.rim_app_id.unknown", PI_PROTOCOL, PI_WARN, "Unknown RIM Application Identity", EXPFILL }},
         { &ei_bssgp_msg_type, { "bssgp.msg_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown message", EXPFILL }},
+        { &ei_bssgp_ran_inf_app_cont_utra_si,{ "bssgp.ran_inf_app_cont_utra_si", PI_PROTOCOL, PI_WARN, "UTRA SI Container missing", EXPFILL } },
     };
 
     expert_module_t* expert_bssgp;
@@ -7481,6 +7504,7 @@ proto_reg_handoff_bssgp(void)
 {
     llc_handle = find_dissector("llcgprs");
     rrlp_handle = find_dissector("rrlp");
+    rrc_sys_info_cont_handle = find_dissector("rrc.sysinfo.cont");
 
     diameter_3gpp_avp_dissector_table = find_dissector_table("diameter.3gpp");
 }
