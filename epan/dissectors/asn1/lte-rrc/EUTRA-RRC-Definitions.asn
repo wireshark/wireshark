@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V13.4.0 (2016-12)
+-- 3GPP TS 36.331 V13.5.0 (2017-03)
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1572,10 +1572,16 @@ SCGFailureInformation-r12-IEs ::=	SEQUENCE {
 }
 
 SCGFailureInformation-v1310-IEs ::= SEQUENCE {
-	lateNonCriticalExtension			OCTET STRING						OPTIONAL,
+	lateNonCriticalExtension			OCTET STRING (CONTAINING SCGFailureInformation-v12d0-IEs)						OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
 
+-- Late non-critical extensions:
+SCGFailureInformation-v12d0-IEs ::= SEQUENCE {
+	failureReportSCG-v12d0				FailureReportSCG-v12d0 				OPTIONAL,	nonCriticalExtension				SEQUENCE {}							OPTIONAL
+}
+
+-- Regular non-critical extensions:
 FailureReportSCG-r12 ::= 			SEQUENCE {
 	failureType-r12						ENUMERATED {t313-Expiry, randomAccessProblem,
 												rlc-MaxNumRetx, scg-ChangeFailure },
@@ -1586,6 +1592,10 @@ FailureReportSCG-r12 ::= 			SEQUENCE {
 	]],
 	[[	measResultServFreqListExt-r13	MeasResultServFreqListExt-r13		OPTIONAL
 	]]
+}
+
+FailureReportSCG-v12d0 ::= SEQUENCE {
+	measResultNeighCells-v12d0			MeasResultList2EUTRA-v9e0			OPTIONAL
 }
 
 
@@ -1870,7 +1880,12 @@ SystemInformationBlockType1-v1320-IEs ::=	SEQUENCE {
 		}																	OPTIONAL,	-- Need OR
 		mpdcch-pdsch-HoppingOffset-r13			INTEGER (1..maxAvailNarrowBands-r13)	OPTIONAL	-- Need OR
 	}																OPTIONAL,	-- Cond Hopping
-	nonCriticalExtension						SEQUENCE {}					OPTIONAL
+	nonCriticalExtension						SystemInformationBlockType1-v1350-IEs					OPTIONAL
+}
+
+SystemInformationBlockType1-v1350-IEs ::=	SEQUENCE {
+	cellSelectionInfoCE1-r13				CellSelectionInfoCE1-r13	OPTIONAL,	-- Need OP
+	nonCriticalExtension					SEQUENCE {}				OPTIONAL
 }
 
 PLMN-IdentityList ::=					SEQUENCE (SIZE (1..maxPLMN-r11)) OF PLMN-IdentityInfo
@@ -2394,13 +2409,13 @@ SystemInformationBlockType2 ::=		SEQUENCE {
 	[[	acdc-BarringForCommon-r13			ACDC-BarringForCommon-r13		OPTIONAL,	-- Need OP
 		acdc-BarringPerPLMN-List-r13		ACDC-BarringPerPLMN-List-r13	OPTIONAL	-- Need OP
 	]],
-	[[
-		udt-RestrictingForCommon-r13			UDT-Restricting-r13				OPTIONAL,	-- Need OR
+	[[	udt-RestrictingForCommon-r13			UDT-Restricting-r13				OPTIONAL,	-- Need OR
 		udt-RestrictingPerPLMN-List-r13		UDT-RestrictingPerPLMN-List-r13	OPTIONAL,	-- Need OR
 		cIoT-EPS-OptimisationInfo-r13		CIOT-EPS-OptimisationInfo-r13 	OPTIONAL,	-- Need OP
 		useFullResumeID-r13					ENUMERATED {true}				OPTIONAL	-- Need OP
+	]],
+	[[	unicastFreqHoppingInd-r13			ENUMERATED {true}				OPTIONAL	 -- Need OP
 	]]
-
 }
 
 SystemInformationBlockType2-v8h0-IEs ::=	SEQUENCE {
@@ -2537,7 +2552,9 @@ SystemInformationBlockType3 ::=		SEQUENCE {
 		redistributionServingInfo-r13			RedistributionServingInfo-r13 OPTIONAL,	--Need OR
 		cellSelectionInfoCE-r13					CellSelectionInfoCE-r13		OPTIONAL,		-- Need OP
 		t-ReselectionEUTRA-CE-r13				T-ReselectionEUTRA-CE-r13	OPTIONAL		-- Need OP
-		]]
+	]],
+	[[	cellSelectionInfoCE1-r13				CellSelectionInfoCE1-r13	OPTIONAL	-- Need OP
+	]]
 }
 
 RedistributionServingInfo-r13 ::=		SEQUENCE {
@@ -2590,6 +2607,9 @@ SystemInformationBlockType5 ::=		SEQUENCE {
 	]],
 	[[	interFreqCarrierFreqList-v1310		InterFreqCarrierFreqList-v1310		OPTIONAL,	-- Need OR
 		interFreqCarrierFreqListExt-v1310	InterFreqCarrierFreqListExt-v1310	OPTIONAL	-- Need OR
+	]],
+	[[	interFreqCarrierFreqList-v1350		InterFreqCarrierFreqList-v1350	OPTIONAL,	-- Need OR
+		interFreqCarrierFreqListExt-v1350	InterFreqCarrierFreqListExt-v1350	OPTIONAL	-- Need OR
 	]]
 }
 
@@ -2619,6 +2639,10 @@ InterFreqCarrierFreqListExt-v1280 ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreq
 InterFreqCarrierFreqList-v1310 ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreqCarrierFreqInfo-v1310
 
 InterFreqCarrierFreqListExt-v1310 ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreqCarrierFreqInfo-v1310
+
+InterFreqCarrierFreqList-v1350 ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreqCarrierFreqInfo-v1350
+
+InterFreqCarrierFreqListExt-v1350 ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreqCarrierFreqInfo-v1350
 
 InterFreqCarrierFreqInfo ::=	SEQUENCE {
 	dl-CarrierFreq						ARFCN-ValueEUTRA,
@@ -2697,6 +2721,10 @@ InterFreqCarrierFreqInfo-v1310	::=	SEQUENCE {
 	redistributionInterFreqInfo-r13		RedistributionInterFreqInfo-r13		OPTIONAL, --Need OP
 	cellSelectionInfoCE-r13				CellSelectionInfoCE-r13			OPTIONAL,	-- Need OP
 	t-ReselectionEUTRA-CE-r13			T-ReselectionEUTRA-CE-r13		OPTIONAL	-- Need OP
+}
+
+InterFreqCarrierFreqInfo-v1350	::= SEQUENCE {
+	cellSelectionInfoCE1-r13			CellSelectionInfoCE1-r13			OPTIONAL	-- Need OP
 }
 
 InterFreqNeighCellList ::=			SEQUENCE (SIZE (1..maxCellInter)) OF InterFreqNeighCellInfo
@@ -5989,6 +6017,12 @@ CellSelectionInfoCE-r13 ::=		SEQUENCE {
 }
 
 
+CellSelectionInfoCE1-r13 ::=		SEQUENCE {
+	q-RxLevMinCE1-r13				Q-RxLevMin,
+	q-QualMinRSRQ-CE1-r13			Q-QualMin-r9						OPTIONAL	-- Need OR
+}
+
+
 CellReselectionSubPriority-r13 ::=			ENUMERATED {oDot2, oDot4, oDot6, oDot8}
 
 
@@ -7565,7 +7599,14 @@ UE-EUTRA-Capability-v1330-IEs ::= SEQUENCE {
 
 UE-EUTRA-Capability-v1340-IEs ::= SEQUENCE {
 	ue-CategoryUL-v1340				INTEGER (15)							OPTIONAL,
-	nonCriticalExtension				SEQUENCE {}							OPTIONAL
+	nonCriticalExtension			UE-EUTRA-Capability-v1350-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v1350-IEs ::= SEQUENCE {
+	ue-CategoryDL-v1350				ENUMERATED {oneBis}						OPTIONAL,
+	ue-CategoryUL-v1350				ENUMERATED {oneBis} 					OPTIONAL,
+	ce-Parameters-v1350				CE-Parameters-v1350,
+	nonCriticalExtension				SEQUENCE {}								OPTIONAL
 }
 
 UE-EUTRA-CapabilityAddXDD-Mode-r9 ::=	SEQUENCE {
@@ -8362,6 +8403,10 @@ CE-Parameters-v1320 ::=		SEQUENCE {
 	intraFreqA3-CE-ModeB-r13				ENUMERATED {supported}				OPTIONAL,
 	intraFreqHO-CE-ModeA-r13				ENUMERATED {supported}				OPTIONAL,
 	intraFreqHO-CE-ModeB-r13				ENUMERATED {supported}				OPTIONAL
+}
+
+CE-Parameters-v1350 ::=		SEQUENCE {
+	unicastFrequencyHopping-r13				ENUMERATED {supported}			OPTIONAL
 }
 
 LAA-Parameters-r13 ::=				SEQUENCE {

@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V13.4.0 (2016-12)
+-- 3GPP TS 36.331 V13.5.0 (2017-03)
 --
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -518,7 +518,12 @@ SystemInformationBlockType1-NB ::=	SEQUENCE {
 	si-RadioFrameOffset-r13				INTEGER (1..15)		OPTIONAL,	-- Need OP
 	systemInfoValueTagList-r13			SystemInfoValueTagList-NB-r13	OPTIONAL,	-- Need OR
 	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
-	nonCriticalExtension				SEQUENCE {}						OPTIONAL
+	nonCriticalExtension				SystemInformationBlockType1-NB-v1350-IEs		OPTIONAL
+}
+
+SystemInformationBlockType1-NB-v1350-IEs ::= SEQUENCE {
+	cellSelectionInfo-v1350				CellSelectionInfo-NB-v1350	OPTIONAL, -- Cond Qrxlevmin
+	nonCriticalExtension				SEQUENCE {}					OPTIONAL
 }
 
 PLMN-IdentityList-NB-r13 ::=		SEQUENCE (SIZE (1..maxPLMN-r11)) OF PLMN-IdentityInfo-NB-r13
@@ -549,6 +554,9 @@ SIB-Type-NB-r13 ::=					ENUMERATED {
 										sibType3-NB-r13, sibType4-NB-r13, sibType5-NB-r13,
 										sibType14-NB-r13, sibType16-NB-r13, spare3, spare2, spare1}
 
+CellSelectionInfo-NB-v1350 ::=		SEQUENCE {
+	delta-RxLevMin-v1350				INTEGER (-8..-1)
+}
 
 
 UECapabilityEnquiry-NB ::=	SEQUENCE {
@@ -633,7 +641,13 @@ SystemInformationBlockType3-NB-r13 ::=	SEQUENCE {
 	multiBandInfoList-r13					SEQUENCE (SIZE (1..maxMultiBands)) OF
 												NS-PmaxList-NB-r13			OPTIONAL,	-- Need OR
 	lateNonCriticalExtension					OCTET STRING				OPTIONAL,
-	...
+	...,
+	[[	intraFreqCellReselectionInfo-v1350		IntraFreqCellReselectionInfo-NB-v1350 OPTIONAL 	-- Cond Qrxlevmin
+	]]
+}
+
+IntraFreqCellReselectionInfo-NB-v1350 ::=	SEQUENCE {
+	delta-RxLevMin-v1350						INTEGER (-8..-1)
 }
 
 
@@ -666,7 +680,9 @@ InterFreqCarrierFreqInfo-NB-r13 ::=	SEQUENCE {
 	interFreqNeighCellList-r13			InterFreqNeighCellList-NB-r13	OPTIONAL, 		-- Need OR
 	interFreqBlackCellList-r13			InterFreqBlackCellList-NB-r13	OPTIONAL, 		-- Need OR
 	multiBandInfoList-r13				MultiBandInfoList-NB-r13		OPTIONAL,		-- Need OR
-	...
+	...,
+	[[	delta-RxLevMin-v1350					INTEGER (-8..-1)		OPTIONAL -- Cond Qrxlevmin
+	]]
 }
 
 InterFreqNeighCellList-NB-r13 ::=		SEQUENCE (SIZE (1..maxCellInter)) OF PhysCellId
@@ -1077,7 +1093,11 @@ RLF-TimersAndConstants-NB-r13 ::=	CHOICE {
 												ms20000, ms30000},
 		n311-r13							ENUMERATED {
 												n1, n2, n3, n4, n5, n6, n8, n10},
-		...
+		...,
+		[[ t311-v1350						ENUMERATED {
+												ms40000, ms60000, ms90000, ms120000}
+														OPTIONAL	-- Need OR
+		]]
 	}
 }
 
@@ -1188,7 +1208,11 @@ UE-TimersAndConstants-NB-r13 ::=	SEQUENCE {
 											ms20000, ms30000},
 	n311-r13							ENUMERATED {
 											n1, n2, n3, n4, n5, n6, n8, n10},
-	...
+	...,
+	[[ t311-v1350						ENUMERATED {
+											ms40000, ms60000, ms90000, ms120000}
+														OPTIONAL	-- Need OR
+	]]
 }
 
 

@@ -1,9 +1,9 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V13.4.0 Release 13) packet dissection
+ * (3GPP TS 36.331 V13.5.0 Release 13) packet dissection
  * Copyright 2008, Vincent Helfre
- * Copyright 2009-2016, Pascal Quantin
+ * Copyright 2009-2017, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -824,6 +824,18 @@ static const value_string lte_rrc_q_RxLevMinOffset_vals[] = {
   { 6, "12dB"},
   { 7, "14dB"},
   { 8, "16dB"},
+  { 0, NULL}
+};
+
+static const value_string lte_rrc_delta_RxLevMin_v1350_vals[] = {
+  { -8, "-16dBm"},
+  { -7, "-14dBm"},
+  { -6, "-12dBm"},
+  { -5, "-10dBm"},
+  { -4, "-8dBm"},
+  { -3, "-6dBm"},
+  { -2, "-4dBm"},
+  { -1, "-2dBm"},
   { 0, NULL}
 };
 
