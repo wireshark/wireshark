@@ -270,8 +270,7 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
     GList *if_entry, *lt_entry;
     if_info_t *if_info;
     char *if_string = NULL;
-    gchar *descr, *str = NULL, *auth_str;
-    // gchar *link_type_name = NULL;
+    gchar *descr, *auth_str;
     if_capabilities_t *caps;
     gint linktype_count;
     bool monitor_mode, found = false;
@@ -283,11 +282,15 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
     GString *ip_str;
     link_row *linkr = NULL;
     interface_t device;
+    guint num_interfaces;
 
-    guint num_interfaces = global_capture_opts.all_ifaces->len;
+    num_interfaces = global_capture_opts.all_ifaces->len;
     for (if_entry = g_list_first(rlist); if_entry != NULL; if_entry = g_list_next(if_entry)) {
         auth_str = NULL;
         if_info = (if_info_t *)if_entry->data;
+#if 0
+        add_interface_to_remote_list(if_info);
+#endif
         for (i = 0; i < num_interfaces; i++) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device.hidden)
@@ -392,18 +395,15 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
                  * used.
                  */
                 if (data_link_info->description != NULL) {
-                    str = g_strdup(data_link_info->description);
+                    linkr->name = g_strdup(data_link_info->description);
                     linkr->dlt = data_link_info->dlt;
                 } else {
-                    str = g_strdup_printf("%s (not supported)", data_link_info->name);
+                    linkr->name = g_strdup_printf("%s (not supported)", data_link_info->name);
                     linkr->dlt = -1;
                 }
                 if (linktype_count == 0) {
-                    // link_type_name = g_strdup(str);
                     device.active_dlt = data_link_info->dlt;
                 }
-                linkr->name = g_strdup(str);
-                g_free(str);
                 device.links = g_list_append(device.links, linkr);
                 linktype_count++;
             } /* for link_types */
@@ -413,7 +413,6 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
             device.monitor_mode_supported = FALSE;
 #endif
             device.active_dlt = -1;
-            // link_type_name = g_strdup("default");
         }
         device.addresses = g_strdup(ip_str->str);
         device.no_addresses = ips;
