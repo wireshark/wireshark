@@ -1663,7 +1663,7 @@ void proto_register_icmp(void)
 		  NULL, HFILL}},
 
 		{&hf_icmp_addr_entry_size,
-		 {"Number of addresses", "icmp.addr_entry_size", FT_UINT8, BASE_DEC, NULL,
+		 {"Address entry size", "icmp.addr_entry_size", FT_UINT8, BASE_DEC, NULL,
 		  0x0,
 		  NULL, HFILL}},
 
