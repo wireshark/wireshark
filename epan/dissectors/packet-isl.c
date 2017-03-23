@@ -37,11 +37,11 @@ void proto_reg_handoff_isl(void);
 /*
  * See
  *
- *  http://www.cisco.com/en/US/tech/tk389/tk689/technologies_tech_note09186a0080094665.shtml
+ *  http://www.cisco.com/c/en/us/support/docs/lan-switching/8021q/17056-741-4.html
  *
  * and
  *
- *  http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/frames.htm
+ *  http://docstore.mik.ua/univercd/cc/td/doc/product/lan/trsrb/frames.htm
  *
  * for information on ISL.
  */

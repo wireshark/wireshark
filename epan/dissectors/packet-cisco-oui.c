@@ -33,11 +33,11 @@ static int hf_llc_cisco_pid = -1;
 /*
  * See various Cisco documents, including
  *
- *	http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/vlan.htm
+ *	http://docstore.mik.ua/univercd/cc/td/doc/product/lan/trsrb/vlan.htm
  *
- * and
+ *	http://docstore.mik.ua/univercd/cc/td/doc/product/lan/trsrb/frames.htm
  *
- *	http://www.cisco.com/en/US/products/hw/switches/ps663/products_tech_note09186a0080094713.shtml
+ *	http://web.archive.org/web/20110407152854/http://www.cisco.com/en/US/products/hw/switches/ps663/products_tech_note09186a0080094713.shtml
  *
  * for various PID values - and for a DRIP frame format.
  */

@@ -30,7 +30,7 @@
  *
  * http://standards.ieee.org/regauth/oui/oui.txt
  *
- * http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/vlan.htm
+ * http://docstore.mik.ua/univercd/cc/td/doc/product/lan/trsrb/vlan.htm
  *
  * for the PIDs for VTP and DRiP that go with an OUI of OUI_CISCO.
  */
