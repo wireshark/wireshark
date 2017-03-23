@@ -265,7 +265,7 @@ void ManageInterfacesDialog::remoteSelectionChanged(QTreeWidgetItem*, int)
     updateWidgets();
 }
 
-void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *roptions)
+void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_options *roptions)
 {
     GList *if_entry, *lt_entry;
     if_info_t *if_info;
@@ -438,6 +438,11 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
         g_array_append_val(global_capture_opts.all_ifaces, device);
         g_string_free(ip_str, TRUE);
     } /*for*/
+}
+
+void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *roptions)
+{
+    updateRemoteInterfaceList(rlist, roptions);
     showRemoteInterfaces();
 }
 
