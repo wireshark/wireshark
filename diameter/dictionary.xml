@@ -5124,8 +5124,71 @@
 		<avp name="HESSID" code="1525" may-encrypt="yes" vendor-id="TGPP" vendor-bit="must" mandatory="must">
 			<type type-name="UTF8String"/>
 		</avp>
+		<avp name="Access-Network-Info" code="1526" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SSID"/>
+				<gavp name="BSSID "/>
+				<gavp name="Location-Information"/>
+				<gavp name="Location-Data"/>
+				<gavp name="Operator-Name"/>
+				<gavp name="Logical-Access-ID"/>
+			</grouped>
+		</avp>
+		<avp name="TWAN-Connection-Mode" code="1527" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="TWAN-Connectivity-Parameters" code="1528" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Connectivity-Flags"/>
+				<gavp name="Service-Selection"/>
+				<gavp name="PDN-Type"/>
+				<gavp name="Served-Party-IP-Address"/>
+				<gavp name="TWAN-PCO"/>
+				<gavp name="TWAG-UP-Address"/>
+				<gavp name="TWAN-S2a-Failure-Cause"/>
+				<gavp name="SM-Back-Off-Timer"/>
+			</grouped>
+		</avp>
+		<avp name="Connectivity-Flags" code="1529" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="TWAN-PCO" code="1530" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="TWAG-CP-Address" code="1531" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Address"/>
+		</avp>
+		<avp name="TWAG-UP-Address" code="1532" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="TWAN-S2a-Failure-Cause" code="1533" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="SM-Back-Off-Timer" code="1534" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="WLCP-Key" code="1535" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Origination-Time-Stamp" code="1536" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+
+		<avp name="Emergency-Services" code="1538" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Maximum-Wait-Time" code="1539" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="IMEI-Check-In-VPLMN-Result" code="1540" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="ERP-Authorization" code="1541" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+
 		<!--
-		Note: The AVP codes from 1526 to 1599 are reserved for TS 29.273
+		Note: The AVP codes from 1542 to 1599 are reserved for TS 29.273
 		-->
 
 		<avp name="Emergency-Indication" code="1538" may-encrypt="no" vendor-bit="must" vendor-id="TGPP" mandatory="mustnot">
