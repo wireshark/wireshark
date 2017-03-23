@@ -580,6 +580,7 @@ static int hf_gtpv2_length_of_node_name = -1;
 static int hf_gtpv2_node_name = -1;
 static int hf_gtpv2_length_of_node_realm = -1;
 static int hf_gtpv2_node_realm = -1;
+static int hf_gtpv2_ms_ts = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -958,11 +959,11 @@ static value_string_ext gtpv2_message_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv
 #define GTPV2_IE_METRIC                 182
 #define GTPV2_IE_SEQ_NO                 183
 #define GTPV2_IE_APN_AND_REL_CAP        184
-/* 185: WLAN Offloadability Indication*/
+#define GTPV2_IE_WLAN_OFFLOADABILITY_IND 185
 #define GTPV2_IE_PAGING_AND_SERVICE_INF 186
 #define GTPV2_IE_INTEGER_NUMBER         187
+#define GTPV2_IE_MILLISECOND_TS         188
 /*
-188	Millisecond Time Stamp
 189	Monitoring Event Information
 190	ECGI List
 191	Remote UE Context
@@ -6461,6 +6462,21 @@ dissect_gtpv2_integer_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     }
 
 }
+/*
+ * 8.119 Millisecond Time Stamp
+ */
+
+static void
+dissect_gtpv2_ms_ts(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+{
+    int offset = 0;
+    /* Octets 5 to 10 represent a 48 bit unsigned integer in network order format and are encoded as
+     * the number of milliseconds since 00:00:00 January 1, 1900 00:00 UTC, i.e. as the
+     * rounded value of 1000 x the value of the 64-bit timestamp (Seconds  + (Fraction / (1<<32)))
+     * defined in section 6 of IETF RFC 5905
+     */
+    proto_tree_add_item(tree, hf_gtpv2_ms_ts, tvb, offset, 6, ENC_BIG_ENDIAN);
+}
 
 /*
  * 8.125 CIoT Optimizations Support Indication
@@ -6626,11 +6642,11 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_METRIC, dissect_gtpv2_metric},                               /* 182, 8.113 Metric */
     {GTPV2_IE_SEQ_NO, dissect_gtpv2_seq_no},                               /* 183, 8.114 Sequence Number */
     {GTPV2_IE_APN_AND_REL_CAP, dissect_gtpv2_apn_and_relative_capacity},   /* 184, 8.115 APN and Relative Capacity */
-                                                                           /* 185, 8.116 WLAN Offloadability Indication */
+    {GTPV2_IE_WLAN_OFFLOADABILITY_IND,dissect_gtpv2_unknown },             /* 185, 8.116 WLAN Offloadability Indication */
 
     {GTPV2_IE_PAGING_AND_SERVICE_INF, dissect_gtpv2_paging_and_service_inf}, /* 186, 8.117 Paging and Service Information */
     {GTPV2_IE_INTEGER_NUMBER, dissect_gtpv2_integer_number},                 /* 187, 8.118 Integer Number */
-                                                                             /* 188, 8.119 Millisecond Time Stamp */
+    { GTPV2_IE_MILLISECOND_TS, dissect_gtpv2_ms_ts },                        /* 188, 8.119 Millisecond Time Stamp */
                                                                              /* 189, 8.120 Monitoring Event Information */
                                                                              /* 190, 8.121 ECGI List */
                                                                              /* 191, 8.122 Remote UE Context */
@@ -9198,6 +9214,11 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_node_realm,
       { "Node Realm", "gtpv2.node_realm",
           FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ms_ts,
+      { "Millisecond Time Stamp", "gtpv2.ms_ts",
+          FT_UINT48, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
     };
