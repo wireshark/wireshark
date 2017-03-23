@@ -5171,13 +5171,15 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Origination-Time-Stamp" code="1536" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned64"/>
+		</avp>
+		<avp name="Maximum-Wait-Time" code="1537" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-
 		<avp name="Emergency-Services" code="1538" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Maximum-Wait-Time" code="1539" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+		<avp name="AAR-Flags" code="1539" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="IMEI-Check-In-VPLMN-Result" code="1540" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
