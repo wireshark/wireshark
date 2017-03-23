@@ -5229,6 +5229,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         case 0x1c: /* Read Clock Offset Complete */
             offset = dissect_bthci_evt_read_clock_offset_complete(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data);
+            add_opcode(opcode_list, 0x041F, COMMAND_STATUS_NORMAL); /* Read Clock Offset */
             break;
 
         case 0x1d: /* Connection Packet Type Changed */
