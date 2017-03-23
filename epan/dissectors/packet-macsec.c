@@ -1,5 +1,5 @@
 /* packet-macsec.c
- * Routines for MACsec dissection
+ * Routines for IEEE 802.1AE MACsec dissection
  * Copyright 2013, Allan W. Nielsen <anielsen@vitesse.com>
  *
  * Wireshark - Network traffic analyzer
@@ -29,13 +29,15 @@
 void proto_register_macsec(void);
 void proto_reg_handoff_macsec(void);
 
+/* TCI/AN field masks */
+#define TCI_MASK     0xFC
 #define TCI_V_MASK   0x80
 #define TCI_ES_MASK  0x40
 #define TCI_SC_MASK  0x20
 #define TCI_SCB_MASK 0x10
 #define TCI_E_MASK   0x08
 #define TCI_C_MASK   0x04
-#define TCI_AN_MASK  0x03
+#define AN_MASK      0x03
 
 
 static int proto_macsec = -1;
@@ -49,8 +51,8 @@ static int hf_macsec_TCI_C                 = -1;
 static int hf_macsec_AN                    = -1;
 static int hf_macsec_SL                    = -1;
 static int hf_macsec_PN                    = -1;
-static int hf_macsec_SCI_System_identifier = -1;
-static int hf_macsec_SCI_port_number       = -1;
+static int hf_macsec_SCI_system_identifier = -1;
+static int hf_macsec_SCI_port_identifier   = -1;
 static int hf_macsec_ICV                   = -1;
 
 /* Initialize the subtree pointers */
@@ -59,12 +61,12 @@ static gint ett_macsec_tci = -1;
 
 /* Code to actually dissect the packets */
 static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    unsigned    sectag_length,     data_length, icv_length = 16;
-    unsigned    sectag_offset = 0, data_offset, icv_offset;
+    unsigned    sectag_length, data_length, icv_length;
+    unsigned    data_offset, icv_offset;
     guint8      tci_an_field;
 
-    proto_item *macsec_item, *tci_item;
-    proto_tree *macsec_tree, *tci_tree;
+    proto_item *macsec_item;
+    proto_tree *macsec_tree;
 
     tvbuff_t *next_tvb;
 
@@ -74,8 +76,10 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         return 0;
     }
 
+    icv_length = 16;  /* Fixed size for version 0 */
+
     if (tci_an_field & TCI_SC_MASK) {
-        sectag_length = 14;
+        sectag_length = 14;  /* optional SCI present */
     } else {
         sectag_length = 6;
     }
@@ -85,6 +89,7 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         return 0;
     }
 
+    /* Get the payload section */
     data_offset = sectag_length;
     data_length = tvb_captured_length(tvb) - sectag_length - icv_length;
     icv_offset  = data_length + data_offset;
@@ -99,41 +104,35 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 proto_macsec, tvb, 0, sectag_length, ENC_NA);
         macsec_tree = proto_item_add_subtree(macsec_item, ett_macsec);
 
-        tci_item = proto_tree_add_uint_format(macsec_tree, hf_macsec_TCI, tvb,
-                sectag_offset, 1, tci_an_field,
-                "TCI=0x%02x: V=%d, ES=%d, SC=%d, SCB=%d, E=%d, C=%d, AN=%d",
-                tci_an_field,
-                ((TCI_V_MASK &   tci_an_field) ? 1:0),
-                ((TCI_ES_MASK &  tci_an_field) ? 1:0),
-                ((TCI_SC_MASK &  tci_an_field) ? 1:0),
-                ((TCI_SCB_MASK & tci_an_field) ? 1:0),
-                ((TCI_E_MASK &   tci_an_field) ? 1:0),
-                ((TCI_C_MASK &   tci_an_field) ? 1:0),
-                (TCI_AN_MASK &   tci_an_field));
-        tci_tree = proto_item_add_subtree(tci_item, ett_macsec_tci);
+        static const int * flags[] = {
+            &hf_macsec_TCI_V,
+            &hf_macsec_TCI_ES,
+            &hf_macsec_TCI_SC,
+            &hf_macsec_TCI_SCB,
+            &hf_macsec_TCI_E,
+            &hf_macsec_TCI_C,
+            NULL
+        };
 
-        proto_tree_add_item(tci_tree, hf_macsec_TCI_V, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tci_tree, hf_macsec_TCI_ES, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tci_tree, hf_macsec_TCI_SC, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tci_tree, hf_macsec_TCI_SCB, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tci_tree, hf_macsec_TCI_E, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tci_tree, hf_macsec_TCI_C, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tci_tree, hf_macsec_AN, tvb, sectag_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(macsec_tree, hf_macsec_SL, tvb, sectag_offset + 1, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(macsec_tree, hf_macsec_PN, tvb, sectag_offset + 2, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_with_flags(macsec_tree, tvb, 0,
+                hf_macsec_TCI, ett_macsec_tci, flags, ENC_NA, BMT_NO_TFS);
+
+        proto_tree_add_item(macsec_tree, hf_macsec_AN, tvb, 0, 1, ENC_NA);
+        proto_tree_add_item(macsec_tree, hf_macsec_SL, tvb, 1, 1, ENC_NA);
+        proto_tree_add_item(macsec_tree, hf_macsec_PN, tvb, 2, 4, ENC_BIG_ENDIAN);
 
         if (sectag_length == 14) {
-            proto_tree_add_item(macsec_tree, hf_macsec_SCI_System_identifier,
-                    tvb, sectag_offset + 6, 6, ENC_NA);
-            proto_tree_add_item(macsec_tree, hf_macsec_SCI_port_number, tvb,
-                    sectag_offset + 12, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(macsec_tree, hf_macsec_SCI_system_identifier,
+                    tvb, 6, 6, ENC_NA);
+            proto_tree_add_item(macsec_tree, hf_macsec_SCI_port_identifier, tvb,
+                    12, 2, ENC_BIG_ENDIAN);
         }
-
-        call_data_dissector(next_tvb, pinfo, tree);
 
         proto_tree_add_item(macsec_tree, hf_macsec_ICV, tvb, icv_offset,
                 icv_length, ENC_NA);
     }
+
+    call_data_dissector(next_tvb, pinfo, tree);
 
     return tvb_captured_length(tvb);
 }
@@ -142,34 +141,58 @@ void
 proto_register_macsec(void)
 {
     static hf_register_info hf[] = {
-        { &hf_macsec_TCI, { "TAG Control Information", "macsec.TCI",FT_UINT8,
-                            BASE_HEX, NULL, 0xfc, NULL, HFILL} },
-        { &hf_macsec_TCI_V, { "VER", "macsec.TCI.V", FT_UINT8, BASE_HEX,
-                                NULL, 0x80, NULL, HFILL} },
-        { &hf_macsec_TCI_ES, { "ES", "macsec.TCI.ES", FT_UINT8, BASE_HEX, NULL,
-                                 0x40, NULL, HFILL} },
-        { &hf_macsec_TCI_SC, { "SC", "macsec.TCI.SC", FT_UINT8, BASE_HEX, NULL,
-                                 0x20, NULL, HFILL} },
-        { &hf_macsec_TCI_SCB, { "SCB", "macsec.TCI.SCB", FT_UINT8, BASE_HEX,
-                                  NULL, 0x10, NULL, HFILL} },
-        { &hf_macsec_TCI_E, { "E", "macsec.TCI.E", FT_UINT8, BASE_HEX, NULL,
-                                0x08, NULL, HFILL} },
-        { &hf_macsec_TCI_C, { "C", "macsec.TCI.C", FT_UINT8, BASE_HEX, NULL,
-                                0x04, NULL, HFILL} },
-        { &hf_macsec_AN, { "AN", "macsec.AN", FT_UINT8,
-                             BASE_HEX, NULL, 0x03, NULL, HFILL} },
-        { &hf_macsec_SL, { "Short length", "macsec.SL", FT_UINT8, BASE_DEC,
-                             NULL, 0xFF, NULL, HFILL} },
-        { &hf_macsec_PN, { "Packet number", "macsec.PN", FT_UINT32, BASE_DEC,
-                             NULL, 0xFFFFFFFF, NULL, HFILL} },
-        { &hf_macsec_SCI_System_identifier,
-            { "System Identifier", "macsec.SCI.SytemIdentifier",
-                FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL} },
-        { &hf_macsec_SCI_port_number,
-            { "Port number", "macsec.SCI.port_number",
-                FT_UINT16, BASE_DEC, NULL, 0xFFFF, NULL, HFILL} },
-        { &hf_macsec_ICV, { "ICV", "macsec.ICV",
-                              FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL} }
+        { &hf_macsec_TCI,
+            { "TCI", "macsec.TCI", FT_UINT8, BASE_HEX,
+              NULL, TCI_MASK, "TAG Control Information", HFILL }
+        },
+        { &hf_macsec_TCI_V,
+            { "VER", "macsec.TCI.V", FT_UINT8, BASE_HEX,
+              NULL, TCI_V_MASK, "Version", HFILL }
+        },
+        { &hf_macsec_TCI_ES,
+            { "ES", "macsec.TCI.ES", FT_BOOLEAN, 8,
+              TFS(&tfs_set_notset), TCI_ES_MASK, "End Station", HFILL }
+        },
+        { &hf_macsec_TCI_SC,
+            { "SC", "macsec.TCI.SC", FT_BOOLEAN, 8,
+              TFS(&tfs_set_notset), TCI_SC_MASK, "Secure Channel", HFILL }
+        },
+        { &hf_macsec_TCI_SCB,
+            { "SCB", "macsec.TCI.SCB", FT_BOOLEAN, 8,
+              TFS(&tfs_set_notset), TCI_SCB_MASK, "Single Copy Broadcast", HFILL }
+        },
+        { &hf_macsec_TCI_E,
+            { "E", "macsec.TCI.E", FT_BOOLEAN, 8,
+              TFS(&tfs_set_notset), TCI_E_MASK, "Encryption", HFILL }
+        },
+        { &hf_macsec_TCI_C,
+            { "C", "macsec.TCI.C", FT_BOOLEAN, 8,
+              TFS(&tfs_set_notset), TCI_C_MASK, "Changed Text", HFILL }
+        },
+        { &hf_macsec_AN,
+            { "AN", "macsec.AN", FT_UINT8, BASE_HEX,
+              NULL, AN_MASK, "Association Number", HFILL }
+        },
+        { &hf_macsec_SL,
+            { "Short length", "macsec.SL", FT_UINT8, BASE_DEC,
+              NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_PN,
+            { "Packet number", "macsec.PN", FT_UINT32, BASE_DEC,
+              NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_SCI_system_identifier,
+            { "System Identifier", "macsec.SCI.system_identifier", FT_ETHER, BASE_NONE,
+                NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_SCI_port_identifier,
+            { "Port Identifier", "macsec.SCI.port_identifier", FT_UINT16, BASE_DEC,
+              NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_ICV,
+            { "ICV", "macsec.ICV", FT_BYTES, BASE_NONE,
+              NULL, 0, NULL, HFILL }
+        }
     };
 
     /* Setup protocol subtree array */
@@ -179,7 +202,7 @@ proto_register_macsec(void)
     };
 
     /* Register the protocol name and description */
-    proto_macsec = proto_register_protocol("802.1AE Secure tag", "MACsec", "macsec");
+    proto_macsec = proto_register_protocol("802.1AE Security tag", "MACsec", "macsec");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_macsec, hf, array_length(hf));
