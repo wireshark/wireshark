@@ -979,6 +979,9 @@ set(DISSECTOR_SRC
 	packet-nntp.c
 	packet-noe.c
 	packet-nordic_ble.c
+	packet-ns-ha.c
+	packet-ns-mep.c
+	packet-ns-rpc.c
 	packet-nsip.c
 	packet-nsh.c
 	packet-nsrp.c

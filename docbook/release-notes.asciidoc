@@ -81,6 +81,9 @@ HomePNA
 X-Rite i1 Display Pro (and derivatives) USB protocol
 IndigoCare iCall protocol
 IndigoCare Netrix protocol
+NetScaler HA Protocol
+NetScaler Metric Exchange Protocol
+NetScaler RPC Protocol
 --sort-and-group--
 
 === Updated Protocol Support
