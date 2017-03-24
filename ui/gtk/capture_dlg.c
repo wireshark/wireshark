@@ -1205,7 +1205,7 @@ error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data
 }
 
 static void
-insert_new_rows(GList *list)
+insert_new_rows(GList *rlist)
 {
   GtkTreeIter        iter;
   GtkTreeView       *if_cb;
@@ -1217,7 +1217,7 @@ insert_new_rows(GList *list)
   GList             *if_entry, *lt_entry;
   if_info_t         *if_info;
   char              *if_string = NULL;
-  gchar             *descr, *auth_str = NULL;
+  gchar             *descr, *auth_str;
   if_capabilities_t *caps;
   gint               linktype_count;
   gboolean           monitor_mode, found = FALSE;
@@ -1230,13 +1230,16 @@ insert_new_rows(GList *list)
   link_row          *linkr = NULL;
   interface_t        device;
   guint              num_interfaces;
+  remote_options    *roptions;
 
   if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
 
+  roptions = &global_remote_opts;
   /* Scan through the list and build a list of strings to display. */
   num_interfaces = global_capture_opts.all_ifaces->len;
-  for (if_entry = g_list_first(list); if_entry != NULL; if_entry = g_list_next(if_entry)) {
+  for (if_entry = g_list_first(rlist); if_entry != NULL; if_entry = g_list_next(if_entry)) {
+    auth_str = NULL;
     if_info = (if_info_t *)if_entry->data;
     add_interface_to_remote_list(if_info);
     for (i = 0; i < num_interfaces; i++) {
@@ -1292,9 +1295,9 @@ insert_new_rows(GList *list)
     }
     device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
     monitor_mode = prefs_capture_device_monitor_mode(if_string);
-    if (global_remote_opts.remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
-      auth_str = g_strdup_printf("%s:%s", global_remote_opts.remote_host_opts.auth_username,
-                                 global_remote_opts.remote_host_opts.auth_password);
+    if (roptions->remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
+      auth_str = g_strdup_printf("%s:%s", roptions->remote_host_opts.auth_username,
+                                 roptions->remote_host_opts.auth_password);
     }
     caps = capture_get_if_capabilities(if_string, monitor_mode, auth_str, NULL, main_window_update);
     g_free(auth_str);
@@ -1318,7 +1321,6 @@ insert_new_rows(GList *list)
           break;
         default:
           /* In case we add non-IP addresses */
-          temp_addr_str = NULL;
           break;
       }
 
@@ -1362,21 +1364,21 @@ insert_new_rows(GList *list)
     }
     device.addresses = g_strdup(ip_str->str);
     device.no_addresses = ips;
-    device.remote_opts.src_type = global_remote_opts.src_type;
+    device.remote_opts.src_type = roptions->src_type;
     if (device.remote_opts.src_type == CAPTURE_IFREMOTE) {
       device.local = FALSE;
     }
-    device.remote_opts.remote_host_opts.remote_host = g_strdup(global_remote_opts.remote_host_opts.remote_host);
-    device.remote_opts.remote_host_opts.remote_port = g_strdup(global_remote_opts.remote_host_opts.remote_port);
-    device.remote_opts.remote_host_opts.auth_type = global_remote_opts.remote_host_opts.auth_type;
-    device.remote_opts.remote_host_opts.auth_username = g_strdup(global_remote_opts.remote_host_opts.auth_username);
-    device.remote_opts.remote_host_opts.auth_password = g_strdup(global_remote_opts.remote_host_opts.auth_password);
-    device.remote_opts.remote_host_opts.datatx_udp = global_remote_opts.remote_host_opts.datatx_udp;
-    device.remote_opts.remote_host_opts.nocap_rpcap = global_remote_opts.remote_host_opts.nocap_rpcap;
-    device.remote_opts.remote_host_opts.nocap_local = global_remote_opts.remote_host_opts.nocap_local;
+    device.remote_opts.remote_host_opts.remote_host = g_strdup(roptions->remote_host_opts.remote_host);
+    device.remote_opts.remote_host_opts.remote_port = g_strdup(roptions->remote_host_opts.remote_port);
+    device.remote_opts.remote_host_opts.auth_type = roptions->remote_host_opts.auth_type;
+    device.remote_opts.remote_host_opts.auth_username = g_strdup(roptions->remote_host_opts.auth_username);
+    device.remote_opts.remote_host_opts.auth_password = g_strdup(roptions->remote_host_opts.auth_password);
+    device.remote_opts.remote_host_opts.datatx_udp = roptions->remote_host_opts.datatx_udp;
+    device.remote_opts.remote_host_opts.nocap_rpcap = roptions->remote_host_opts.nocap_rpcap;
+    device.remote_opts.remote_host_opts.nocap_local = roptions->remote_host_opts.nocap_local;
 #ifdef HAVE_PCAP_SETSAMPLING
-    device.remote_opts.sampling_method = global_remote_opts.sampling_method;
-    device.remote_opts.sampling_param = global_remote_opts.sampling_param;
+    device.remote_opts.sampling_method = roptions->sampling_method;
+    device.remote_opts.sampling_param = roptions->sampling_param;
 #endif
     device.selected = TRUE;
     global_capture_opts.num_selected++;
