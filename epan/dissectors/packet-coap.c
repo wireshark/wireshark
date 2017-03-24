@@ -53,6 +53,7 @@ static int hf_coap_code			= -1;
 static int hf_coap_mid			= -1;
 static int hf_coap_payload		= -1;
 static int hf_coap_payload_desc		= -1;
+static int hf_coap_payload_length	= -1;
 static int hf_coap_opt_name		= -1;
 static int hf_coap_opt_desc		= -1;
 static int hf_coap_opt_delta		= -1;
@@ -1013,7 +1014,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	/* dissect the payload */
 	if (coap_length > offset) {
 		proto_tree *payload_tree;
-		proto_item *payload_item;
+		proto_item *payload_item, *length_item;
 		tvbuff_t   *payload_tvb;
 		guint	    payload_length = coap_length - offset;
 		const char *coap_ctype_str_dis;
@@ -1053,7 +1054,9 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 						     str_payload);
 		payload_tree = proto_item_add_subtree(payload_item, ett_coap_payload);
 
-		proto_tree_add_string(payload_tree, hf_coap_payload_desc, tvb, offset, -1, coinfo->ctype_str);
+		proto_tree_add_string(payload_tree, hf_coap_payload_desc, tvb, offset, 0, coinfo->ctype_str);
+		length_item = proto_tree_add_uint(payload_tree, hf_coap_payload_length, tvb, offset, 0, payload_length);
+		PROTO_ITEM_SET_GENERATED(length_item);
 		payload_tvb = tvb_new_subset_length(tvb, offset, payload_length);
 
 		dissector_try_string(media_type_dissector_table, coap_ctype_str_dis,
@@ -1106,8 +1109,13 @@ proto_register_coap(void)
 		    NULL, HFILL }
 		},
 		{ &hf_coap_payload_desc,
-		  { "Payload Desc", "coap.opt.payload_desc",
+		  { "Payload Desc", "coap.payload_desc",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_coap_payload_length,
+		    { "Payload Length", "coap.payload_length",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_coap_opt_name,
