@@ -4447,6 +4447,299 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         return FALSE;
     }
 }
+static gboolean
+heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    conversation_t   *p_conv;
+    umts_fp_conversation_info_t* umts_fp_conversation_info;
+    struct fp_info *p_fp_info;
+    guint32 length;
+    guint8 frame_type;
+    guint16 mac_d_pdu_length;
+    guint16 num_of_pdus;
+    guint32 expected_total_size;
+    guint32 next_pdu_index;
+    guint16 index_step;
+    guint8 pre_pdu_padding;
+
+    /* Trying to find existing conversation */
+    p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+        pinfo->ptype,
+        pinfo->destport, pinfo->srcport, NO_ADDR_B);
+
+    if (p_conv != NULL) {
+        /* Checking if the conversation was already framed */
+        umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
+        if (umts_fp_conversation_info) {
+            if (umts_fp_conversation_info->channel == CHANNEL_HSDSCH && umts_fp_conversation_info->hsdsch_entity == hs) {
+                conversation_set_dissector(p_conv, fp_handle);
+                dissect_fp(tvb, pinfo, tree, data);
+                return TRUE;
+            }
+            else {
+                return FALSE;
+            }
+        }
+    }
+
+    /* Making sure FP info isn't already attached */
+    p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+    if (p_fp_info) {
+        return FALSE;
+    }
+
+    frame_type = tvb_get_guint8(tvb, 0) & 0x01;
+    if (frame_type == 1) { /* is 'control' frame type*/
+                           /* Asserting that the Header CRC is correct */
+        if (!check_control_frame_crc_for_heur(tvb)) {
+            return FALSE;
+        }
+        /* All checks passed - This is an unknown FP frame. */
+        /* To allow dissection of this frame after umts_fp_conversation_info will be added in a later frame */
+        /* the conversation must be created here if it doesn't exist yet*/
+        if (p_conv == NULL) {
+            conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                pinfo->ptype,
+                pinfo->destport, pinfo->srcport, NO_ADDR_B);
+        }
+        return FALSE;
+    }
+
+    length = tvb_reported_length(tvb);
+    /* Lengths limit: Smallest HS-DSCH type 1 data frame is 55 bytes (1 PDU of 336 bits) */
+    if (length < 55) {
+        return FALSE;
+    }
+
+    mac_d_pdu_length = tvb_get_guint16(tvb, 2, ENC_NA) >> 3;
+    /* Only valid PDU lengths are 336 or 656 */
+    if (mac_d_pdu_length != 336 && mac_d_pdu_length != 656) {
+        return FALSE;
+    }
+
+    num_of_pdus = tvb_get_guint8(tvb, 4);
+    /* PDUs count shouldn't be 0*/
+    if (num_of_pdus == 0) {
+        return FALSE;
+    }
+    /* Maximum PDUs count constraint: 32 PDUs * 336 bits or 17 PDUs * 656 bits */
+    if ((mac_d_pdu_length == 336 && num_of_pdus > 32) || (mac_d_pdu_length == 656 && num_of_pdus > 17)) {
+        return FALSE;
+    }
+
+    /* Making sure the expected packet size is smaller/equals to the entire packet's size */
+    expected_total_size = (num_of_pdus * mac_d_pdu_length / 8) + 7 /*Header length*/ + 2 /*Footer length*/;
+    if (expected_total_size > length) {
+        return FALSE;
+    }
+
+    /* Iterating through the PDUs making sure the padding nibble is present in all of them */
+    next_pdu_index = 7;
+    index_step = mac_d_pdu_length / 8;
+    for (int i = 0; i < num_of_pdus; i++)
+    {
+        pre_pdu_padding = tvb_get_guint8(tvb, next_pdu_index) >> 4;
+        if (pre_pdu_padding != 0x00)
+        {
+            /* One of the padding nibbles is not zeroed */
+            return FALSE;
+        }
+        next_pdu_index += index_step;
+    }
+
+    if (!check_header_crc_for_heur(tvb, 7)) {
+        return FALSE;
+    }
+    if (!check_payload_crc_for_heur(tvb, 7)) {
+        return FALSE;
+    }
+
+    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    umts_fp_conversation_info->iface_type = IuB_Interface;
+    umts_fp_conversation_info->division = Division_FDD;
+    umts_fp_conversation_info->dl_frame_number = pinfo->num;
+    umts_fp_conversation_info->ul_frame_number = pinfo->num;
+    umts_fp_conversation_info->dch_crc_present = 1;
+    umts_fp_conversation_info->com_context_id = generate_ue_id_for_heur(pinfo);
+    umts_fp_conversation_info->rlc_mode = FP_RLC_AM;
+    copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &pinfo->src);
+    umts_fp_conversation_info->crnc_port = pinfo->srcport;
+    umts_fp_conversation_info->channel = CHANNEL_HSDSCH;
+    umts_fp_conversation_info->hsdsch_entity = hs;
+    umts_fp_conversation_info->hsdsch_macdflow_id = 0;
+    set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+    conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
+    dissect_fp(tvb, pinfo, tree, data);
+    return TRUE;
+}
+static gboolean
+heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    conversation_t   *p_conv;
+    umts_fp_conversation_info_t* umts_fp_conversation_info;
+    struct fp_info *p_fp_info;
+    guint32 length;
+    guint8 frame_type;
+    guint8 reserved_fach_ind_bits;
+    guint8 pdu_block_header_reserved_bit;
+    guint8 pdu_block_headers_count;
+    guint16 next_pdu_block_header_index;
+    guint16 pdu_block_header_pdu_length;
+    guint8 pdu_block_header_pdus_count;
+    guint8 pdu_block_header_lchid;
+    guint8 total_header_length;
+    guint16 expected_payload_length;
+
+    /* Trying to find existing conversation */
+    p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+        pinfo->ptype,
+        pinfo->destport, pinfo->srcport, NO_ADDR_B);
+
+    if (p_conv != NULL) {
+        /* Checking if the conversation was already framed */
+        umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
+        if (umts_fp_conversation_info) {
+            if (umts_fp_conversation_info->channel == CHANNEL_HSDSCH && umts_fp_conversation_info->hsdsch_entity == ehs) {
+                conversation_set_dissector(p_conv, fp_handle);
+                dissect_fp(tvb, pinfo, tree, data);
+                return TRUE;
+            }
+            else {
+                return FALSE;
+            }
+        }
+    }
+
+    /* Making sure FP info isn't already attached */
+    p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+    if (p_fp_info) {
+        return FALSE;
+    }
+
+    frame_type = tvb_get_guint8(tvb, 0) & 0x01;
+    if (frame_type == 1) { /* is 'control' frame type*/
+                           /* Asserting that the Header CRC is correct */
+        if (!check_control_frame_crc_for_heur(tvb)) {
+            return FALSE;
+        }
+        /* All checks passed - This is an unknown FP frame. */
+        /* To allow dissection of this frame after umts_fp_conversation_info will be added in a later frame */
+        /* the conversation must be created here if it doesn't exist yet*/
+        if (p_conv == NULL) {
+            conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                pinfo->ptype,
+                pinfo->destport, pinfo->srcport, NO_ADDR_B);
+        }
+        return FALSE;
+    }
+
+    length = tvb_reported_length(tvb);
+    /* Lengths limit: header size + at least 1 PDU Block Header + CRC Payload size */
+    if (length < 11) {
+        return FALSE;
+    }
+
+    pdu_block_header_reserved_bit = (tvb_get_guint8(tvb, 7) & 0x10) >> 4;
+    if (pdu_block_header_reserved_bit == 0x1) {
+        return FALSE;
+    }
+
+    /* Expecting at least 1 PDU Block Header */
+    pdu_block_headers_count = tvb_get_guint8(tvb, 2) >> 3;
+    if (pdu_block_headers_count == 0) {
+        return FALSE;
+    }
+
+    // Getting 3 rightmost bits in the FACH Indicator's byte, which are reserved and should be 0
+    reserved_fach_ind_bits = tvb_get_guint8(tvb, 3) & 0x03;
+    if (reserved_fach_ind_bits != 0x00) {
+        return FALSE;
+    }
+
+    /* Iterating through the block headers looking for invalid fields and */
+    /* calculating the expected total packet length */
+    total_header_length = 6;
+    expected_payload_length = 0;
+    for (int i = 0; i < pdu_block_headers_count; i++)
+    {
+        /* Making sure the next index is not out of range */
+        if (((guint32)(8 + (i * 3))) >= length) {
+            return FALSE;
+        }
+
+        /* Getting blocks length and count from the i-th header */
+        if (i % 2 == 0) {
+            next_pdu_block_header_index = (i * 25) / 10;
+        }
+        else {
+            next_pdu_block_header_index = (((i-1) * 25) / 10) + 2;
+        }
+        pdu_block_header_pdu_length = tvb_get_guint16(tvb, 6 + next_pdu_block_header_index, ENC_NA) >> 5;
+        pdu_block_header_pdus_count = tvb_get_guint8(tvb, 7 + next_pdu_block_header_index) & 0x0F;
+        pdu_block_header_lchid = tvb_get_guint8(tvb, 8 + next_pdu_block_header_index) >> 4;
+
+
+        /* Making sure PDUs' Length isn't zeroed*/
+        if (pdu_block_header_pdu_length == 0) {
+            return FALSE;
+        }
+        /* Making sure PDUs Count isn't zeroed */
+        if (pdu_block_header_pdus_count == 0) {
+            return FALSE;
+        }
+
+        /* Adding this header's length to expected length*/
+        if (i % 2 == 0) {
+            total_header_length += 3;
+        }
+        else {
+            total_header_length += 2;
+        }
+        /* Adding this header's paylod's size to expected length*/
+        expected_payload_length += (pdu_block_header_pdu_length * pdu_block_header_pdus_count);
+
+        /* Checking padding after lchid */
+        if ((tvb_get_guint8(tvb, 8 + (i * 3)) & 0x0F) != 0x00) {
+            return FALSE;
+        }
+        /* Checking lchid for reserved value 0x0F*/
+
+        if (pdu_block_header_lchid == 0x0F) {
+            return FALSE;
+        }
+    }
+    /* Adding Payload CRC'slength to payload length*/
+    expected_payload_length += 2;
+    /* Calculated expected packet size must not exceed captured length */
+    if ((guint32)(total_header_length + expected_payload_length) > length) {
+        return FALSE;
+    }
+
+    if (!check_header_crc_for_heur(tvb, total_header_length)) {
+        return FALSE;
+    }
+    if (!check_payload_crc_for_heur(tvb, total_header_length)) {
+        return FALSE;
+    }
+
+    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    umts_fp_conversation_info->iface_type = IuB_Interface;
+    umts_fp_conversation_info->division = Division_FDD;
+    umts_fp_conversation_info->dl_frame_number = pinfo->num;
+    umts_fp_conversation_info->ul_frame_number = pinfo->num;
+    umts_fp_conversation_info->dch_crc_present = 1;
+    umts_fp_conversation_info->com_context_id = generate_ue_id_for_heur(pinfo);
+    umts_fp_conversation_info->rlc_mode = FP_RLC_AM;
+    copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &pinfo->src);
+    umts_fp_conversation_info->crnc_port = pinfo->srcport;
+    umts_fp_conversation_info->channel = CHANNEL_HSDSCH;
+    umts_fp_conversation_info->hsdsch_entity = ehs;
+    umts_fp_conversation_info->hsdsch_macdflow_id = 1;
+    set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+    conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
+    dissect_fp(tvb, pinfo, tree, data);
+    return TRUE;
+}
 /* This method can frame UDP streams containing FP packets but dissection of those packets will */
 /* fail since the FP conversation info is never attached */
 static gboolean
@@ -6369,6 +6662,8 @@ void proto_reg_handoff_fp(void)
     heur_dissector_add("udp", heur_dissect_fp_fach, "FP over UDP (FACH)", "fp_udp_fach", proto_fp, HEURISTIC_DISABLE);
     heur_dissector_add("udp", heur_dissect_fp_rach, "FP over UDP (RACH)", "fp_udp_rach", proto_fp, HEURISTIC_DISABLE);
     heur_dissector_add("udp", heur_dissect_fp_pch, "FP over UDP (PCH)", "fp_udp_pch", proto_fp, HEURISTIC_DISABLE);
+    heur_dissector_add("udp", heur_dissect_fp_hsdsch_type_1, "FP over UDP (HS-DSCH Type 1)", "fp_udp_hsdsch_type_1", proto_fp, HEURISTIC_DISABLE);
+    heur_dissector_add("udp", heur_dissect_fp_hsdsch_type_2, "FP over UDP (HS-DSCH Type 2)", "fp_udp_hsdsch_type_2", proto_fp, HEURISTIC_DISABLE);
 
     fp_aal2_handle = create_dissector_handle(dissect_fp_aal2, proto_fp);
     dissector_add_uint("atm.aal2.type", TRAF_UMTS_FP, fp_aal2_handle);
