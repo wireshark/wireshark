@@ -83,7 +83,7 @@ http://www.iana.org/assignments/service-names-port-numbers/service-names-port-nu
 
 #define SID_ULP         0x01
 #define SID_PROTO_TCP   0x06
-#define NVME_RDMA_TCP_PORT_RANGE    "4220"
+#define NVME_RDMA_TCP_PORT_RANGE    "4420" /* IANA registered */
 
 #define SID_MASK (SID_ULP_MASK | SID_PROTO_MASK)
 #define SID_ULP_TCP ((SID_ULP << 3 * 8) | (SID_PROTO_TCP << 2 * 8))
