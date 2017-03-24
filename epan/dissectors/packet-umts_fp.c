@@ -959,7 +959,7 @@ dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         if (preferences_call_mac_dissectors  /*&& !rlc_is_ciphered(pinfo)*/) {
 
-            tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, -1);
+            tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, length);
 
 
             fpi->cur_tb = pdu;    /*Set proper pdu index for MAC and higher layers*/
