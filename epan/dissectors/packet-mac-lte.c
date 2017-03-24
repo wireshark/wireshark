@@ -35,7 +35,7 @@ void proto_reg_handoff_mac_lte(void);
 
 /* Described in:
  * 3GPP TS 36.321 Evolved Universal Terrestrial Radio Access (E-UTRA)
- *                Medium Access Control (MAC) protocol specification v13.2.0
+ *                Medium Access Control (MAC) protocol specification v13.5.0
  */
 
 
@@ -595,6 +595,7 @@ static const value_string ulsch_lcid_vals[] =
     { 9,                                    "9"},
     { 10,                                   "10"},
     { 11,                                   "CCCH (Category 0)"},
+    { 12,                                   "CCCH (frequency hopping for unicast)"},
     { TRUNCATED_SIDELINK_BSR,               "Truncated Sidelink BSR"},
     { SIDELINK_BSR,                         "Sidelink BSR"},
     { DUAL_CONN_POWER_HEADROOM_REPORT_LCID, "Dual Connectivity Power Headroom Report"},
@@ -4346,8 +4347,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                      "(%s",
                                      val_to_str_const(lcids[number_of_headers],
                                                       ulsch_lcid_vals, "(Unknown LCID)"));
-            if (lcids[number_of_headers] == 11) {
-                /* This LCID is used for CCCH by Category 0 devices
+            if (lcids[number_of_headers] == 11 || lcids[number_of_headers] == 12) {
+                /* This LCID is used for CCCH by Category 0 devices / devices using frequency hopping for unicast
                    Let's remap it to LCID 0 for statistics and other checks */
                 lcids[number_of_headers] = 0;
             }
