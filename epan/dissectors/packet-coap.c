@@ -1057,7 +1057,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		payload_tvb = tvb_new_subset_length(tvb, offset, payload_length);
 
 		dissector_try_string(media_type_dissector_table, coap_ctype_str_dis,
-				     payload_tvb, pinfo, payload_tree, NULL);
+				     payload_tvb, pinfo, parent_tree, NULL);
 	}
 
 	return tvb_captured_length(tvb);
