@@ -265,7 +265,7 @@ void ManageInterfacesDialog::remoteSelectionChanged(QTreeWidgetItem*, int)
     updateWidgets();
 }
 
-void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_options *roptions)
+void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_options* roptions)
 {
     GList *if_entry, *lt_entry;
     if_info_t *if_info;
@@ -346,12 +346,10 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
         }
         device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
         monitor_mode = prefs_capture_device_monitor_mode(if_string);
-#ifdef HAVE_PCAP_REMOTE
         if (roptions->remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
             auth_str = g_strdup_printf("%s:%s", roptions->remote_host_opts.auth_username,
                                        roptions->remote_host_opts.auth_password);
         }
-#endif
         caps = capture_get_if_capabilities(if_string, monitor_mode, auth_str, NULL, main_window_update);
         g_free(auth_str);
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
