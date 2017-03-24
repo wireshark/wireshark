@@ -1207,40 +1207,39 @@ error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data
 static void
 insert_new_rows(GList *list)
 {
-  interface_t        device;
   GtkTreeIter        iter;
-  GList             *if_entry;
-  if_info_t         *if_info;
-  char              *if_string = NULL, *temp = NULL, *snaplen_string;
-  gchar             *descr;
-  if_capabilities_t *caps;
-  gint               linktype_count;
-  gboolean           monitor_mode;
-  GSList            *curr_addr;
-  int                ips       = 0;
-  guint              i;
-  if_addr_t         *addr;
-  GList             *lt_entry;
-  data_link_info_t  *data_link_info;
-  gchar             *str       = NULL, *link_type_name = NULL;
-  gboolean           found     = FALSE;
-  GString           *ip_str;
   GtkTreeView       *if_cb;
   GtkTreeModel      *model;
-  link_row          *linkr     = NULL;
-  address           addr_str;
-  char*             temp_addr_str = NULL;
+  char              *snaplen_string;
+  gchar             *link_type_name = NULL;
+  char              *temp = NULL;
+
+  GList             *if_entry, *lt_entry;
+  if_info_t         *if_info;
+  char              *if_string = NULL;
+  gchar             *descr, *auth_str = NULL;
+  if_capabilities_t *caps;
+  gint               linktype_count;
+  gboolean           monitor_mode, found = FALSE;
+  GSList            *curr_addr;
+  int                ips = 0;
+  guint              i;
+  if_addr_t         *addr;
+  data_link_info_t  *data_link_info;
+  GString           *ip_str;
+  link_row          *linkr = NULL;
+  interface_t        device;
+  guint              num_interfaces;
 
   if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
+
   /* Scan through the list and build a list of strings to display. */
+  num_interfaces = global_capture_opts.all_ifaces->len;
   for (if_entry = g_list_first(list); if_entry != NULL; if_entry = g_list_next(if_entry)) {
-    gchar *auth_str = NULL;
     if_info = (if_info_t *)if_entry->data;
-#ifdef HAVE_PCAP_REMOTE
     add_interface_to_remote_list(if_info);
-#endif
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+    for (i = 0; i < num_interfaces; i++) {
       device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
       if (strcmp(device.name, if_info->name) == 0) {
         found = TRUE;
@@ -1252,7 +1251,6 @@ insert_new_rows(GList *list)
       continue;
     }
     ip_str = g_string_new("");
-    str = "";
     ips = 0;
     memset(&device, 0, sizeof(device));
     device.name = g_strdup(if_info->name);
@@ -1294,21 +1292,19 @@ insert_new_rows(GList *list)
     }
     device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
     monitor_mode = prefs_capture_device_monitor_mode(if_string);
-#ifdef HAVE_PCAP_REMOTE
     if (global_remote_opts.remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
       auth_str = g_strdup_printf("%s:%s", global_remote_opts.remote_host_opts.auth_username,
                                  global_remote_opts.remote_host_opts.auth_password);
     }
-#endif
     caps = capture_get_if_capabilities(if_string, monitor_mode, auth_str, NULL, main_window_update);
     g_free(auth_str);
-    gtk_list_store_append (GTK_LIST_STORE(model), &iter);
     for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
+      address addr_str;
+      char* temp_addr_str = NULL;
       if (ips != 0) {
         g_string_append(ip_str, "\n");
       }
       addr = (if_addr_t *)curr_addr->data;
-
       switch (addr->ifat_type) {
         case IF_AT_IPv4:
           set_address(&addr_str, AT_IPv4, 4, &addr->addr.ip4_addr);
@@ -1345,18 +1341,15 @@ insert_new_rows(GList *list)
          * used.
          */
         if (data_link_info->description != NULL) {
-          str = g_strdup(data_link_info->description);
+          linkr->name = g_strdup(data_link_info->description);
           linkr->dlt = data_link_info->dlt;
         } else {
-          str = g_strdup_printf("%s (not supported)", data_link_info->name);
+          linkr->name = g_strdup_printf("%s (not supported)", data_link_info->name);
           linkr->dlt = -1;
         }
         if (linktype_count == 0) {
-          link_type_name = g_strdup(str);
           device.active_dlt = data_link_info->dlt;
         }
-        linkr->name = g_strdup(str);
-        g_free(str);
         device.links = g_list_append(device.links, linkr);
         linktype_count++;
       } /* for link_types */
@@ -1366,17 +1359,10 @@ insert_new_rows(GList *list)
       device.monitor_mode_supported = FALSE;
 #endif
       device.active_dlt = -1;
-      link_type_name = g_strdup("default");
     }
     device.addresses = g_strdup(ip_str->str);
     device.no_addresses = ips;
-    if (ips == 0) {
-      temp = g_strdup_printf("<b>%s</b>", device.display_name);
-    } else {
-      temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
-    }
-#ifdef HAVE_PCAP_REMOTE
-    device.remote_opts.src_type= global_remote_opts.src_type;
+    device.remote_opts.src_type = global_remote_opts.src_type;
     if (device.remote_opts.src_type == CAPTURE_IFREMOTE) {
       device.local = FALSE;
     }
@@ -1388,9 +1374,6 @@ insert_new_rows(GList *list)
     device.remote_opts.remote_host_opts.datatx_udp = global_remote_opts.remote_host_opts.datatx_udp;
     device.remote_opts.remote_host_opts.nocap_rpcap = global_remote_opts.remote_host_opts.nocap_rpcap;
     device.remote_opts.remote_host_opts.nocap_local = global_remote_opts.remote_host_opts.nocap_local;
-#else
-    device.local = TRUE;
-#endif
 #ifdef HAVE_PCAP_SETSAMPLING
     device.remote_opts.sampling_method = global_remote_opts.sampling_method;
     device.remote_opts.sampling_param = global_remote_opts.sampling_param;
@@ -1398,8 +1381,26 @@ insert_new_rows(GList *list)
     device.selected = TRUE;
     global_capture_opts.num_selected++;
     g_array_append_val(global_capture_opts.all_ifaces, device);
+    g_string_free(ip_str, TRUE);
+
+    if (caps == NULL) {
+      link_type_name = g_strdup("default");
+    } else {
+      data_link_info = (data_link_info_t *)caps->data_link_types->data;
+      if (data_link_info->description != NULL) {
+        link_type_name = g_strdup(data_link_info->description);
+      } else {
+        link_type_name = g_strdup_printf("%s (not supported)", data_link_info->name);
+      }
+    }
+    if (ips == 0) {
+      temp = g_strdup_printf("<b>%s</b>", device.display_name);
+    } else {
+      temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
+    }
     snaplen_string = g_strdup_printf("%d", device.snaplen);
 
+    gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 #if defined(HAVE_PCAP_CREATE)
     gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, device.buffer, MONITOR, "no",FILTER, "",-1);
 #elif defined(CAN_SET_CAPTURE_BUFFER_SIZE)
@@ -1407,10 +1408,7 @@ insert_new_rows(GList *list)
  #else
     gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, -1);
 #endif
-    g_string_free(ip_str, TRUE);
-#ifdef HAVE_PCAP_REMOTE
     add_interface_to_list(global_capture_opts.all_ifaces->len-1);
-#endif
   } /*for*/
   gtk_tree_view_set_model(GTK_TREE_VIEW(if_cb), model);
 }
