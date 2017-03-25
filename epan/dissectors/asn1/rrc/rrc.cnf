@@ -728,17 +728,17 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
       switch (GPOINTER_TO_UINT(actx->private_data)-1) {
         case RRC_NAS_SYS_INFO_CN_COMMON:
           subtree = proto_tree_add_subtree(tree, nas_sys_info_gsm_map_tvb, 0, length,
-					ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "CN Common GSM-MAP NAS system information");
+                    ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "CN Common GSM-MAP NAS system information");
           de_cn_common_gsm_map_nas_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
           break;
         case RRC_NAS_SYS_INFO_CS:
           subtree = proto_tree_add_subtree(tree, nas_sys_info_gsm_map_tvb, 0, length,
-					ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "CS domain specific system information");
+                    ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "CS domain specific system information");
           de_cs_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
           break;
         case RRC_NAS_SYS_INFO_PS:
           subtree = proto_tree_add_subtree(tree, nas_sys_info_gsm_map_tvb, 0, length,
-				ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "PS domain specific system information");
+                    ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "PS domain specific system information");
           de_ps_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
           break;
         default:
@@ -748,9 +748,22 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
     }
   }
 
-/*Here we try to figure out which HS-DSCH channels are multiplexed*/
-#.FN_BODY DL-TransportChannelType-r5 VAL_PTR = &type
+#.FN_BODY CellIdentity VAL_PTR = &cell_id_tvb
+  tvbuff_t * cell_id_tvb = NULL;
+  proto_item *temp_ti;
+  proto_tree *cell_identity_tree;
 
+%(DEFAULT_BODY)s
+  if(cell_id_tvb != NULL) {
+      cell_identity_tree = proto_item_add_subtree(actx->created_item, ett_rrc_cellIdentity);
+      temp_ti = proto_tree_add_bits_item(cell_identity_tree, hf_rrc_cellIdentity_rnc_id,cell_id_tvb, 0, 12, ENC_BIG_ENDIAN);
+      PROTO_ITEM_SET_GENERATED(temp_ti);
+      temp_ti = proto_tree_add_bits_item(cell_identity_tree, hf_rrc_cellIdentity_c_id, cell_id_tvb, 12, 16, ENC_BIG_ENDIAN);
+      PROTO_ITEM_SET_GENERATED(temp_ti);
+  }
+
+#.FN_BODY DL-TransportChannelType-r5 VAL_PTR = &type
+/*Here we try to figure out which HS-DSCH channels are multiplexed*/
     guint *flowd_p;
     guint *cur_val=NULL;
     struct rrc_info *rrcinf;
@@ -783,9 +796,9 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
         }
 
     }
-/*Here we try to figure out which HS-DSCH channels are multiplexed*/
-#.FN_BODY DL-TransportChannelType-r7 VAL_PTR = &type
 
+#.FN_BODY DL-TransportChannelType-r7 VAL_PTR = &type
+/*Here we try to figure out which HS-DSCH channels are multiplexed*/
     guint *flowd_p;
     guint *cur_val=NULL;
     struct rrc_info *rrcinf;

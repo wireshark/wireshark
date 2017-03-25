@@ -108,6 +108,7 @@ static int ett_rrc = -1;
 static gint ett_rrc_eutraFeatureGroupIndicators = -1;
 static gint ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo = -1;
 static gint ett_rrc_ims_info = -1;
+static gint ett_rrc_cellIdentity = -1;
 
 static expert_field ei_rrc_no_hrnti = EI_INIT;
 
@@ -122,6 +123,8 @@ static int hf_rrc_ims_info_atgw_trans_det_cont_type = -1;
 static int hf_rrc_ims_info_atgw_udp_port = -1;
 static int hf_rrc_ims_info_atgw_ipv4 = -1;
 static int hf_rrc_ims_info_atgw_ipv6 = -1;
+static int hf_rrc_cellIdentity_rnc_id = -1;
+static int hf_rrc_cellIdentity_c_id = -1;
 
 static const true_false_string rrc_eutra_feat_group_ind_1_val = {
   "UTRA CELL_PCH to EUTRA RRC_IDLE cell reselection - Supported",
@@ -310,6 +313,14 @@ void proto_register_rrc(void) {
         {"ATGW IPv6", "rrc.rsrvcc_info.ims_info_atgw_ipv6",
         FT_IPv6, BASE_NONE, NULL, 0x0,
         "rSR-VCC IMS information ATGW IPv6", HFILL}},
+    { &hf_rrc_cellIdentity_rnc_id,
+        {"RNC Identifier", "rrc.cellIdentity.rnc_id",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "The RNC Identifier (RNC-Id) part of the Cell Identity", HFILL }},
+    { &hf_rrc_cellIdentity_c_id,
+        {"Cell Identifier", "rrc.cellIdentity.c_id",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "The Cell Identifier (C-Id) part of the Cell Identity", HFILL }}
   };
 
   /* List of subtrees */
@@ -319,6 +330,7 @@ void proto_register_rrc(void) {
     &ett_rrc_eutraFeatureGroupIndicators,
     &ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo,
     &ett_rrc_ims_info,
+    &ett_rrc_cellIdentity,
   };
 
   static ei_register_info ei[] = {
