@@ -1211,7 +1211,7 @@ void proto_register_dvb_s2_modeadapt(void)
         { &ei_dvb_s2_bb_issy_invalid, {"dvb-s2_bb.issy_invalid", PI_PROTOCOL, PI_WARN, "ISSY is active, which is not allowed for GSE packets", EXPFILL }},
         { &ei_dvb_s2_bb_npd_invalid, {"dvb-s2_bb.npd_invalid", PI_PROTOCOL, PI_WARN, "NPD is active, which is not allowed for GSE packets", EXPFILL }},
         { &ei_dvb_s2_bb_upl_invalid, {"dvb-s2_bb.upl_invalid", PI_PROTOCOL, PI_WARN, "User Packet Length non-zero, which is not allowed for GSE packets", EXPFILL }},
-        { &ei_dvb_s2_bb_reserved, {"dvb-s2_bb.reserved", PI_PROTOCOL, PI_WARN, "Reserved frame format in TS/GS is not defined", EXPFILL }},
+        { &ei_dvb_s2_bb_reserved, {"dvb-s2_bb.reserved_frame_format", PI_PROTOCOL, PI_WARN, "Reserved frame format in TS/GS is not defined", EXPFILL }},
         { &ei_dvb_s2_bb_header_ambiguous, { "dvb-s2_bb.header_ambiguous", PI_ASSUMPTION, PI_WARN, "Mode Adaptation header ambiguous", EXPFILL }},
     };
 
