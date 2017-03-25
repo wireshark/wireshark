@@ -427,6 +427,20 @@ static dissector_handle_t xml_handle;
 /* Forward declarations */
 static int dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
 
+/*
+ *  AVP Code: 8 IMSI-MNC-MCC
+ */
+static int
+dissect_diameter_3gpp_imsi_mnc_mcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    guint32 str_len;
+
+    str_len = tvb_reported_length(tvb);
+    dissect_e212_mcc_mnc_in_utf8_address(tvb, pinfo, tree, 0);
+
+    return str_len;
+}
+
 /* AVP Code: 15 3GPP-SGSN-IPv6-Address */
 static int
 dissect_diameter_3gpp_sgsn_ipv6_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -2062,6 +2076,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
     /* Registered by packet-gtp.c */
+
+    /* AVP Code: 8 3GPP-IMSI-MNC-MCC */
+    dissector_add_uint("diameter.3gpp", 8, create_dissector_handle(dissect_diameter_3gpp_imsi_mnc_mcc, proto_diameter_3gpp));
 
     /* AVP Code: 15 3GPP-SGSN-IPv6-Address */
     dissector_add_uint("diameter.3gpp", 15, create_dissector_handle(dissect_diameter_3gpp_sgsn_ipv6_address, proto_diameter_3gpp));
