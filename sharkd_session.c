@@ -43,6 +43,8 @@
 
 #include <epan/column.h>
 
+#include <ui/ssl_key_export.h>
+
 #include <epan/stats_tree_priv.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/conversation_table.h>
@@ -2830,6 +2832,25 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
 			json_print_base64(eo_entry->payload_data, (int) eo_entry->payload_len); /* XXX, export object will be truncated if >= 2^31 */
 			printf("}\n");
 		}
+	}
+	else if (!strcmp(tok_token, "ssl-secrets"))
+	{
+		char *str = ssl_export_sessions();
+
+		if (str)
+		{
+			const char *mime     = "text/plain";
+			const char *filename = "keylog.txt";
+
+			printf("{\"file\":");
+			json_puts_string(filename);
+			printf(",\"mime\":");
+			json_puts_string(mime);
+			printf(",\"data\":");
+			json_print_base64(str, strlen(str));
+			printf("}\n");
+		}
+		g_free(str);
 	}
 }
 
