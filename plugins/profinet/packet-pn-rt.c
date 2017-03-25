@@ -138,11 +138,8 @@ static const value_string pn_rt_frame_info_function_meaning_output_conv[] = {
     { 0, NULL }
 };
 
-static const value_string pn_rt_ds_redundancy[] = {
-    { 0x00, "Redundancy has no meaning for OutputCRs / One primary AR of a given AR-set is present" },
-    { 0x01, "None primary AR of a given AR-set is present" },
-    { 0, NULL }
-};
+static const true_false_string tfs_pn_rt_ds_redundancy =
+    {"Redundancy has no meaning for OutputCRs / One primary AR of a given AR-set is present" , "None primary AR of a given AR-set is present" };
 
 static const value_string pn_rt_frag_status_error[] = {
     { 0x00, "reserved" },
@@ -992,7 +989,7 @@ proto_register_pn_rt(void)
 
         { &hf_pn_rt_data_status_redundancy,
           { "Redundancy", "pn_rt.ds_redundancy",
-            FT_UINT8, BASE_HEX, VALS(pn_rt_ds_redundancy), 0x02,
+            FT_BOOLEAN, 8, TFS(&tfs_pn_rt_ds_redundancy), 0x02,
             NULL, HFILL }},
 
         { &hf_pn_rt_data_status_redundancy_output_cr,
