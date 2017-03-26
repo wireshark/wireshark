@@ -67,7 +67,7 @@ void proto_reg_handoff_rtps(void);
 #define MAX_GUID_SIZE           (160)
 #define MAX_VENDOR_ID_SIZE      (128)
 #define MAX_PARAM_SIZE          (256)
-#define MAX_NTP_TIME_SIZE       (128)
+#define MAX_TIMESTAMP_SIZE      (128)
 
 static const char *const SM_EXTRA_RPLUS  = "(r+)";
 static const char *const SM_EXTRA_RMINUS = "(r-)";
@@ -268,8 +268,8 @@ static int hf_rtps_pgm_data_holder_class_id                 = -1;
 /* static int hf_rtps_pgm_data_holder_stringseq_name           = -1; */
 /* static int hf_rtps_pgm_data_holder_long_long                = -1; */
 
-static int hf_rtps_param_ntpt_sec                               = -1;
-static int hf_rtps_param_ntpt_fraction                          = -1;
+static int hf_rtps_param_timestamp_sec                          = -1;
+static int hf_rtps_param_timestamp_fraction                     = -1;
 static int hf_rtps_transportInfo_classId                        = -1;
 static int hf_rtps_transportInfo_messageSizeMax                 = -1;
 static int hf_rtps_param_app_ack_count                          = -1;
@@ -451,7 +451,7 @@ static gint ett_rtps_app_id                     = -1;
 static gint ett_rtps_locator_udp_v4             = -1;
 static gint ett_rtps_locator                    = -1;
 static gint ett_rtps_locator_list               = -1;
-static gint ett_rtps_ntp_time                   = -1;
+static gint ett_rtps_timestamp                  = -1;
 static gint ett_rtps_bitmap                     = -1;
 static gint ett_rtps_seq_string                 = -1;
 static gint ett_rtps_seq_ulong                  = -1;
@@ -2173,30 +2173,35 @@ static void rtps_util_add_transport_info(proto_tree *tree,
 }
 
 /* ------------------------------------------------------------------------- */
-/* Insert in the protocol tree the next 8 bytes interpreted as NtpTime
+/* Insert in the protocol tree the next 8 bytes interpreted as an RTPS time_t,
+ * which is like an NTP time stamp, except that it uses the UNIX epoch,
+ * rather than the NTP epoch, as the time base.  Doesn't check for TIME_ZERO,
+ * TIME_INVALID, or TIME_INFINITE, and doesn't show the seconds and
+ * fraction field separately.
  */
-void rtps_util_add_ntp_time(proto_tree *tree,
+void rtps_util_add_timestamp(proto_tree *tree,
                         tvbuff_t *tvb,
                         gint       offset,
                         const guint encoding,
                         int hf_time) {
 
-  /* ENC_TIME_NTP_BASE_ZERO applies the BASETIME specified by the standard (zero)*/
   proto_tree_add_item(tree, hf_time, tvb, offset, 8,
-                      ENC_TIME_NTP_BASE_ZERO|encoding);
+                      ENC_TIME_RTPS|encoding);
 
 }
 
 /* ------------------------------------------------------------------------- */
-/* Insert in the protocol tree the next 8 bytes interpreted as NtpTime
-*/
-static void rtps_util_add_ntp_time_sec_and_fraction(proto_tree *tree,
+/* Insert in the protocol tree the next 8 bytes interpreted as an RTPS time_t.
+ * Checks for special values except for TIME_INVALID, and shows the
+ * seconds and fraction as separate fields.
+ */
+static void rtps_util_add_timestamp_sec_and_fraction(proto_tree *tree,
   tvbuff_t *tvb,
   gint       offset,
   const guint encoding,
   int hf_time _U_) {
 
-  guint8  tempBuffer[MAX_NTP_TIME_SIZE];
+  guint8  tempBuffer[MAX_TIMESTAMP_SIZE];
   gdouble absolute;
   gint32 sec;
   guint32 frac;
@@ -2208,20 +2213,20 @@ static void rtps_util_add_ntp_time_sec_and_fraction(proto_tree *tree,
     frac = tvb_get_guint32(tvb, offset+4, encoding);
 
     if ((sec == 0x7fffffff) && (frac == 0xffffffff)) {
-      g_strlcpy(tempBuffer, "INFINITE", MAX_NTP_TIME_SIZE);
+      g_strlcpy(tempBuffer, "INFINITE", MAX_TIMESTAMP_SIZE);
     } else if ((sec == 0) && (frac == 0)) {
-      g_strlcpy(tempBuffer, "0 sec", MAX_NTP_TIME_SIZE);
+      g_strlcpy(tempBuffer, "0 sec", MAX_TIMESTAMP_SIZE);
     } else {
       absolute = (gdouble)sec + (gdouble)frac / ((gdouble)(0x80000000) * 2.0);
-      g_snprintf(tempBuffer, MAX_NTP_TIME_SIZE,
+      g_snprintf(tempBuffer, MAX_TIMESTAMP_SIZE,
         "%f sec (%ds + 0x%08x)", absolute, sec, frac);
     }
 
     time_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8,
-           ett_rtps_ntp_time, NULL, "%s: %s", "lease_duration", tempBuffer);
+           ett_rtps_timestamp, NULL, "%s: %s", "lease_duration", tempBuffer);
 
-    proto_tree_add_item(time_tree, hf_rtps_param_ntpt_sec, tvb, offset, 4, encoding);
-    proto_tree_add_item(time_tree, hf_rtps_param_ntpt_fraction, tvb, offset+4, 4, encoding);
+    proto_tree_add_item(time_tree, hf_rtps_param_timestamp_sec, tvb, offset, 4, encoding);
+    proto_tree_add_item(time_tree, hf_rtps_param_timestamp_fraction, tvb, offset+4, 4, encoding);
   }
 }
 
@@ -2276,7 +2281,7 @@ void rtps_util_add_durability_service_qos(proto_tree *tree,
 
   subtree = proto_tree_add_subtree(tree, tvb, offset, 28, ett_rtps_durability_service, NULL, "PID_DURABILITY_SERVICE");
 
-  rtps_util_add_ntp_time_sec_and_fraction(subtree, tvb, offset, encoding, hf_rtps_durability_service_cleanup_delay);
+  rtps_util_add_timestamp_sec_and_fraction(subtree, tvb, offset, encoding, hf_rtps_durability_service_cleanup_delay);
   proto_tree_add_item(subtree, hf_rtps_durability_service_history_kind, tvb, offset+8, 4, encoding);
   proto_tree_add_item(subtree, hf_rtps_durability_service_history_depth, tvb, offset+12, 4, encoding);
   proto_tree_add_item(subtree, hf_rtps_durability_service_max_samples, tvb, offset+16, 4, encoding);
@@ -2295,7 +2300,7 @@ void rtps_util_add_liveliness_qos(proto_tree *tree, tvbuff_t *tvb, gint offset, 
   subtree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_rtps_liveliness, NULL, "PID_LIVELINESS");
 
   proto_tree_add_item(subtree, hf_rtps_liveliness_kind, tvb, offset, 4, encoding);
-  rtps_util_add_ntp_time_sec_and_fraction(subtree, tvb, offset+4, encoding, hf_rtps_liveliness_lease_duration);
+  rtps_util_add_timestamp_sec_and_fraction(subtree, tvb, offset+4, encoding, hf_rtps_liveliness_lease_duration);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -4113,7 +4118,7 @@ static gboolean dissect_parameter_sequence_rti(proto_tree *rtps_parameter_tree, 
 
     case PID_REACHABILITY_LEASE_DURATION:
       ENSURE_LENGTH(8);
-      rtps_util_add_ntp_time_sec_and_fraction(rtps_parameter_tree, tvb, offset, encoding,
+      rtps_util_add_timestamp_sec_and_fraction(rtps_parameter_tree, tvb, offset, encoding,
                            hf_rtps_participant_lease_duration);
     break;
     /* 0...2...........7...............15.............23...............31
@@ -4628,7 +4633,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
      */
     case PID_PARTICIPANT_LEASE_DURATION:
       ENSURE_LENGTH(8);
-      rtps_util_add_ntp_time_sec_and_fraction(rtps_parameter_tree, tvb, offset, encoding,
+      rtps_util_add_timestamp_sec_and_fraction(rtps_parameter_tree, tvb, offset, encoding,
                              hf_rtps_participant_lease_duration);
       break;
 
@@ -4644,7 +4649,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
      */
     case PID_TIME_BASED_FILTER:
       ENSURE_LENGTH(8);
-      rtps_util_add_ntp_time_sec_and_fraction(rtps_parameter_tree, tvb, offset, encoding,
+      rtps_util_add_timestamp_sec_and_fraction(rtps_parameter_tree, tvb, offset, encoding,
                              hf_rtps_time_based_filter_minimum_separation);
       break;
 
@@ -4788,7 +4793,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
        * 'maxBlockingTime'.
        */
       if (size == 12) {
-        rtps_util_add_ntp_time(rtps_parameter_tree, tvb, offset + 4,
+        rtps_util_add_timestamp(rtps_parameter_tree, tvb, offset + 4,
                     encoding, hf_rtps_reliability_max_blocking_time);
       }
       break;
@@ -4890,7 +4895,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_DEADLINE_OFFERED: /* Deprecated */
     case PID_DEADLINE:
       ENSURE_LENGTH(8);
-      rtps_util_add_ntp_time_sec_and_fraction(rtps_parameter_tree, tvb, offset, encoding, hf_rtps_deadline_period);
+      rtps_util_add_timestamp_sec_and_fraction(rtps_parameter_tree, tvb, offset, encoding, hf_rtps_deadline_period);
       break;
 
     /* 0...2...........7...............15.............23...............31
@@ -4918,7 +4923,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_LATENCY_BUDGET_OFFERED:
     case PID_LATENCY_BUDGET:
       ENSURE_LENGTH(8);
-      rtps_util_add_ntp_time_sec_and_fraction(rtps_parameter_tree, tvb, offset,
+      rtps_util_add_timestamp_sec_and_fraction(rtps_parameter_tree, tvb, offset,
                     encoding, hf_rtps_latency_budget_duration);
       break;
 
@@ -4954,7 +4959,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
      */
     case PID_LIFESPAN:
       ENSURE_LENGTH(8);
-      rtps_util_add_ntp_time_sec_and_fraction(rtps_parameter_tree, tvb, offset, encoding,
+      rtps_util_add_timestamp_sec_and_fraction(rtps_parameter_tree, tvb, offset, encoding,
                              hf_rtps_lifespan_duration);
       break;
 
@@ -5480,7 +5485,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
 
     case PID_PERSISTENCE:
       ENSURE_LENGTH(8);
-      rtps_util_add_ntp_time_sec_and_fraction(rtps_parameter_tree, tvb, offset, encoding,
+      rtps_util_add_timestamp_sec_and_fraction(rtps_parameter_tree, tvb, offset, encoding,
                         hf_rtps_persistence);
       break;
 
@@ -8477,7 +8482,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
 
       /* Timestamp [only if T==1] */
       if ((flags2 & FLAG_SAMPLE_INFO_T) != 0) {
-        rtps_util_add_ntp_time(si_tree, tvb, offset, encoding, hf_rtps_data_batch_timestamp);
+        rtps_util_add_timestamp(si_tree, tvb, offset, encoding, hf_rtps_data_batch_timestamp);
         offset += 8;
       }
 
@@ -8675,7 +8680,7 @@ void dissect_INFO_TS(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flag
   offset += 4;
 
   if ((flags & FLAG_INFO_TS_T) == 0) {
-    rtps_util_add_ntp_time(tree,
+    rtps_util_add_timestamp(tree,
                         tvb,
                         offset,
                         encoding,
@@ -10153,61 +10158,61 @@ void proto_register_rtps(void) {
     { &hf_rtps_durability_service_cleanup_delay,
       { "Service Cleanup Delay", "rtps.durability.service_cleanup_delay",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
-        "Time using the NTP standard format", HFILL }
+        "Time using the RTPS time_t standard format", HFILL }
     },
 
     { &hf_rtps_liveliness_lease_duration,
       { "Lease Duration", "rtps.liveliness.lease_duration",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
-        "Time using the NTP standard format", HFILL }
+        "Time using the RTPS time_t standard format", HFILL }
     },
 
     { &hf_rtps_participant_lease_duration,
       { "Duration", "rtps.participant_lease_duration",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
-        "Time using the NTP standard format", HFILL }
+        "Time using the RTPS time_t standard format", HFILL }
     },
 
     { &hf_rtps_time_based_filter_minimum_separation,
       { "Minimum Separation", "rtps.time_based_filter.minimum_separation",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
-        "Time using the NTP standard format", HFILL }
+        "Time using the RTPS time_t standard format", HFILL }
     },
 
     { &hf_rtps_reliability_max_blocking_time,
       { "Max Blocking Time", "rtps.reliability.max_blocking_time",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
-        "Time using the NTP standard format", HFILL }
+        "Time using the RTPS time_t standard format", HFILL }
     },
 
     { &hf_rtps_deadline_period,
       { "Period", "rtps.deadline_period",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
-        "Time using the NTP standard format", HFILL }
+        "Time using the RTPS time_t standard format", HFILL }
     },
 
     { &hf_rtps_latency_budget_duration,
       { "Duration", "rtps.latency_budget.duration",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
-        "Time using the NTP standard format", HFILL }
+        "Time using the RTPS time_t standard format", HFILL }
     },
 
     { &hf_rtps_lifespan_duration,
       { "Duration", "rtps.lifespan",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
-        "Time using the NTP standard format", HFILL }
+        "Time using the RTPS time_t standard format", HFILL }
     },
 
     { &hf_rtps_persistence,
       { "Persistence", "rtps.persistence",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
-        "Time using the NTP standard format", HFILL }
+        "Time using the RTPS time_t standard format", HFILL }
     },
 
     { &hf_rtps_info_ts_timestamp,
       { "Timestamp", "rtps.info_ts.timestamp",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
-        "Time using the NTP standard format", HFILL }
+        "Time using the RTPS time_t standard format", HFILL }
     },
 
     { &hf_rtps_locator_kind,
@@ -10511,17 +10516,17 @@ void proto_register_rtps(void) {
     },
 
     /* Parameter / NtpTime ------------------------------------------------- */
-    { &hf_rtps_param_ntpt_sec, {
+    { &hf_rtps_param_timestamp_sec, {
       "seconds", "rtps.param.ntpTime.sec",
         FT_INT32, BASE_DEC, NULL, 0,
-        "The 'second' component of a NTP time",
+        "The 'second' component of an RTPS time_t",
         HFILL }
     },
 
-    { &hf_rtps_param_ntpt_fraction, {
+    { &hf_rtps_param_timestamp_fraction, {
       "fraction", "rtps.param.ntpTime.fraction",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "The 'fraction' component of a NTP time",
+        "The 'fraction' component of an RTPS time_t",
         HFILL }
     },
 
@@ -10751,7 +10756,7 @@ void proto_register_rtps(void) {
     { &hf_rtps_data_batch_timestamp,
       { "Timestamp", "rtps.data_batch.timestamp",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
-        "Time using the NTP standard format", HFILL }
+        "Time using the RTPS time_t standard format", HFILL }
     },
 
     { &hf_rtps_data_batch_offset_to_last_sample_sn,
@@ -11607,7 +11612,7 @@ void proto_register_rtps(void) {
     &ett_rtps_locator_udp_v4,
     &ett_rtps_locator,
     &ett_rtps_locator_list,
-    &ett_rtps_ntp_time,
+    &ett_rtps_timestamp,
     &ett_rtps_bitmap,
     &ett_rtps_seq_string,
     &ett_rtps_seq_ulong,

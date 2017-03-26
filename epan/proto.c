@@ -1803,16 +1803,14 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 			time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
 			break;
 
-		case ENC_TIME_NTP_BASE_ZERO|ENC_BIG_ENDIAN:
+		case ENC_TIME_RTPS|ENC_BIG_ENDIAN:
 			/*
-			 * DDS NTP time stamp, big-endian.
+			 * Time stamp using the same seconds/fraction format
+			 * as NTP, but with the origin of the time stamp being
+			 * the UNIX epoch rather than the NTP epoch; big-
+			 * endian.
 			 */
-
-#define NTP_BASETIME_ZERO G_GUINT64_CONSTANT(0)
-
-			tmpsecs  = tvb_get_ntohl(tvb, start);
-			time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME_ZERO);
-
+			time_stamp->secs = (time_t)tvb_get_ntohl(tvb, start);
 			if (length == 8) {
 				/*
 				 * We're using nanoseconds here (and we will
@@ -1827,9 +1825,12 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 			}
 			break;
 
-		case ENC_TIME_NTP_BASE_ZERO|ENC_LITTLE_ENDIAN:
+		case ENC_TIME_RTPS|ENC_LITTLE_ENDIAN:
 			/*
-			 * NTP time stamp, big-endian.
+			 * Time stamp using the same seconds/fraction format
+			 * as NTP, but with the origin of the time stamp being
+			 * the UNIX epoch rather than the NTP epoch; little-
+			 * endian.
 			 */
 			time_stamp->secs = (time_t)tvb_get_letohl(tvb, start);
 			if (length == 8) {
