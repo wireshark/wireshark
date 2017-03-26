@@ -2809,7 +2809,8 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
 			{
 				int row;
 
-				sscanf(&tok_token[eo_type_len + 1], "%d", &row);
+				if (sscanf(&tok_token[eo_type_len + 1], "%d", &row) != 1)
+					break;
 
 				eo_entry = (export_object_entry_t *) g_slist_nth_data(object_list->entries, row);
 				break;
