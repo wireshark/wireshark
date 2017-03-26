@@ -447,7 +447,6 @@ gboolean BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo,
         break;
     case BLUETOOTH_DEVICE_RESET:
         for (int i_row = 0; i_row < dialog->ui->tableWidget->rowCount(); i_row += 1) {
-            QTableWidgetItem  *item;
             bluetooth_item_data_t       *item_data;
 
             item = dialog->ui->tableWidget->item(i_row, column_number_value);
