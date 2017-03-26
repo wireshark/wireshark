@@ -1070,13 +1070,13 @@ options_airpcap_advanced_cb(GtkWidget *w, gpointer d)
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
+#if 0
 /* PCAP interface type menu item */
 struct iftype_info {
   capture_source  id;
   const char     *name;
 };
 
-#if 0
 /* List of available types of PCAP interface */
 static struct iftype_info iftype[] = {
   { CAPTURE_IFLOCAL, "Local" },
