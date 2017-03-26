@@ -11235,24 +11235,20 @@ text-decoration: underline;
         <translation>%1 (%L2%)</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="88"/>
         <source>Error</source>
-        <translation>错误</translation>
+        <translation type="vanished">错误</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="129"/>
         <source>On</source>
-        <translation>打开</translation>
+        <translation type="vanished">打开</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="130"/>
         <source>Off</source>
-        <translation>关闭</translation>
+        <translation type="vanished">关闭</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="138"/>
         <source>Tunneling: %1  Fast Start: %2</source>
-        <translation>隧道: %1  快速启动: %2</translation>
+        <translation type="vanished">隧道: %1  快速启动: %2</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.cpp" line="171"/>
@@ -12326,22 +12322,22 @@ text-decoration: underline;
         <translation>无法保存 RTP 数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1271"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1272"/>
         <source>Can&apos;t synchronize when only one channel is selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1406"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1407"/>
         <source>Save forward and reverse stream audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1412"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1413"/>
         <source>Raw (*.raw)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1642"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1643"/>
         <source>SSRC value not found.</source>
         <translation>未找到 SSRC 值。</translation>
     </message>
@@ -12366,58 +12362,58 @@ text-decoration: underline;
         <translation>无音频</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="630"/>
+        <location filename="rtp_analysis_dialog.cpp" line="631"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="631"/>
+        <location filename="rtp_analysis_dialog.cpp" line="632"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="632"/>
+        <location filename="rtp_analysis_dialog.cpp" line="633"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows 位图 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="634"/>
+        <location filename="rtp_analysis_dialog.cpp" line="635"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="645"/>
+        <location filename="rtp_analysis_dialog.cpp" line="646"/>
         <source>Save Graph As</source>
         <translation>图形保存为</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="816"/>
+        <location filename="rtp_analysis_dialog.cpp" line="817"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>无法保存到一个文件：捕获到的分组长度错误。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="828"/>
+        <location filename="rtp_analysis_dialog.cpp" line="829"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation>无法保存在一个文件中：带有填充字节的 RTP 数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="861"/>
-        <location filename="rtp_analysis_dialog.cpp" line="870"/>
+        <location filename="rtp_analysis_dialog.cpp" line="862"/>
+        <location filename="rtp_analysis_dialog.cpp" line="871"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>无法保存到一个文件：文件 I/O 问题。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="843"/>
+        <location filename="rtp_analysis_dialog.cpp" line="844"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation>无法保存到一个文件：并非所有分组的所有数据被捕获。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1399"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1400"/>
         <source>Save forward stream audio</source>
         <translation>保存正向音频流</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1402"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1403"/>
         <source>Save reverse stream audio</source>
         <translation>保存反向音频流</translation>
     </message>
@@ -12426,7 +12422,7 @@ text-decoration: underline;
         <translation type="vanished">保存音频</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1411"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1412"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun 音频 (*.au)</translation>
     </message>
@@ -12435,15 +12431,15 @@ text-decoration: underline;
         <translation type="vanished">;;原始数据 (*.raw)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1271"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1433"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1445"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1456"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1272"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1434"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1446"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1457"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1433"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1434"/>
         <source>Unable to save in that format</source>
         <translation>无法保存到该格式</translation>
     </message>
@@ -12452,47 +12448,47 @@ text-decoration: underline;
         <translation type="vanished">无法保存到文件：alaw/ulaw 流只支持保存到 au 格式。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1445"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1446"/>
         <source>Unable to save %1</source>
         <translation>无法保存 %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1449"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1450"/>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1456"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1457"/>
         <source>Can save audio with 8000 Hz clock rate only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1481"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1482"/>
         <source>Save forward stream CSV</source>
         <translation>保存正向流 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1484"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1485"/>
         <source>Save reverse stream CSV</source>
         <translation>保存反向流 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1488"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1489"/>
         <source>Save CSV</source>
         <translation>保存 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1494"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1495"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>逗号分隔值 (*.csv)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1584"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1585"/>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
         <translation>此版本的 Wireshark 没有 &quot;rtp.ssrc&quot; 字段。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1618"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1619"/>
         <source>Please select an RTPv2 packet with an SSRC value</source>
         <translation>请选择一个有 SSRC 值的 RTPv2 分组</translation>
     </message>
@@ -15807,135 +15803,189 @@ text-decoration: underline;
 <context>
     <name>VoipCallsDialog</name>
     <message>
-        <location filename="voip_calls_dialog.ui" line="36"/>
         <source>Start Time</source>
-        <translation>开始时间</translation>
+        <translation type="vanished">开始时间</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="41"/>
         <source>Stop Time</source>
-        <translation>结束时间</translation>
+        <translation type="vanished">结束时间</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="46"/>
         <source>Initial Speaker</source>
-        <translation>呼叫发起方</translation>
+        <translation type="vanished">呼叫发起方</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="51"/>
         <source>From</source>
-        <translation>从</translation>
+        <translation type="vanished">从</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="56"/>
         <source>To</source>
-        <translation>到</translation>
+        <translation type="vanished">到</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="61"/>
         <source>Protocol</source>
-        <translation>协议</translation>
+        <translation type="vanished">协议</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="66"/>
-        <source>Duration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="voip_calls_dialog.ui" line="71"/>
         <source>Packets</source>
-        <translation>分组</translation>
+        <translation type="vanished">分组</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="76"/>
         <source>State</source>
-        <translation>状态</translation>
+        <translation type="vanished">状态</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="81"/>
         <source>Comments</source>
-        <translation>注释</translation>
+        <translation type="vanished">注释</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="89"/>
+        <location filename="voip_calls_dialog.ui" line="39"/>
         <source>&lt;small&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="111"/>
+        <location filename="voip_calls_dialog.ui" line="61"/>
         <source>Time of Day</source>
         <translation type="unfinished">当天时间</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="130"/>
+        <location filename="voip_calls_dialog.ui" line="80"/>
         <source>Select &amp;All</source>
         <translation>全选(&amp;A)</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="133"/>
+        <location filename="voip_calls_dialog.ui" line="83"/>
         <source>Select all calls</source>
         <translation>选择所有呼叫</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="141"/>
+        <location filename="voip_calls_dialog.ui" line="91"/>
         <source>Copy as CSV</source>
         <translation>复制为 CSV</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="144"/>
+        <location filename="voip_calls_dialog.ui" line="94"/>
         <source>Copy stream list as CSV.</source>
         <translation>复制流列表为 CSV。</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="149"/>
+        <location filename="voip_calls_dialog.ui" line="99"/>
         <source>Copy as YAML</source>
         <translation>复制为 YAML</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="152"/>
+        <location filename="voip_calls_dialog.ui" line="102"/>
         <source>Copy stream list as YAML.</source>
         <translation>复制流列表为 YAML。</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="231"/>
+        <location filename="voip_calls_dialog.cpp" line="76"/>
         <source>SIP Flows</source>
         <translation>SIP流</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="14"/>
-        <location filename="voip_calls_dialog.cpp" line="231"/>
+        <location filename="voip_calls_dialog.cpp" line="76"/>
         <source>VoIP Calls</source>
         <translation>VoIP 呼叫</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="238"/>
+        <location filename="voip_calls_dialog.cpp" line="83"/>
         <source>Prepare Filter</source>
         <translation>准备过滤器</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="239"/>
+        <location filename="voip_calls_dialog.cpp" line="84"/>
         <source>Flow Sequence</source>
         <translation>流序列</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="242"/>
+        <location filename="voip_calls_dialog.cpp" line="87"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="245"/>
+        <location filename="voip_calls_dialog.cpp" line="90"/>
         <source>as CSV</source>
         <translation>作为 CSV</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="248"/>
+        <location filename="voip_calls_dialog.cpp" line="93"/>
         <source>as YAML</source>
         <translation>作为YAML</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="409"/>
+        <location filename="voip_calls_dialog.cpp" line="244"/>
         <source>No Audio</source>
         <translation>无音频</translation>
+    </message>
+</context>
+<context>
+    <name>VoipCallsInfoModel</name>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="97"/>
+        <source>On</source>
+        <translation type="unfinished">打开</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="98"/>
+        <source>Off</source>
+        <translation type="unfinished">关闭</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="106"/>
+        <source>Tunneling: %1  Fast Start: %2</source>
+        <translation type="unfinished">隧道: %1  快速启动: %2</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="126"/>
+        <source>Start Time</source>
+        <translation type="unfinished">开始时间</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="128"/>
+        <source>Stop Time</source>
+        <translation type="unfinished">结束时间</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="130"/>
+        <source>Initial Speaker</source>
+        <translation type="unfinished">呼叫发起方</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="132"/>
+        <source>From</source>
+        <translation type="unfinished">从</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="134"/>
+        <source>To</source>
+        <translation type="unfinished">到</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="136"/>
+        <source>Protocol</source>
+        <translation type="unfinished">协议</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="138"/>
+        <source>Duration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="140"/>
+        <source>Packets</source>
+        <translation type="unfinished">分组</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="142"/>
+        <source>State</source>
+        <translation type="unfinished">状态</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="144"/>
+        <source>Comments</source>
+        <translation type="unfinished">注释</translation>
     </message>
 </context>
 <context>

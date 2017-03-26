@@ -11253,24 +11253,20 @@ text-decoration: underline;
         <translation>%1 (%L2%)</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="88"/>
         <source>Error</source>
-        <translation>Fehler</translation>
+        <translation type="vanished">Fehler</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="129"/>
         <source>On</source>
-        <translation>An</translation>
+        <translation type="vanished">An</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="130"/>
         <source>Off</source>
-        <translation>Aus</translation>
+        <translation type="vanished">Aus</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="138"/>
         <source>Tunneling: %1  Fast Start: %2</source>
-        <translation>Tunneling: %1  Fast Start: %2</translation>
+        <translation type="vanished">Tunneling: %1  Fast Start: %2</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.cpp" line="171"/>
@@ -12344,22 +12340,22 @@ text-decoration: underline;
         <translation>RTP Daten können nicht gesichert werden.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1271"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1272"/>
         <source>Can&apos;t synchronize when only one channel is selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1406"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1407"/>
         <source>Save forward and reverse stream audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1412"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1413"/>
         <source>Raw (*.raw)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1642"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1643"/>
         <source>SSRC value not found.</source>
         <translation>SSRC Wert nicht gefunden</translation>
     </message>
@@ -12384,58 +12380,58 @@ text-decoration: underline;
         <translation>Kein Ton</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="630"/>
+        <location filename="rtp_analysis_dialog.cpp" line="631"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="631"/>
+        <location filename="rtp_analysis_dialog.cpp" line="632"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="632"/>
+        <location filename="rtp_analysis_dialog.cpp" line="633"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="634"/>
+        <location filename="rtp_analysis_dialog.cpp" line="635"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="645"/>
+        <location filename="rtp_analysis_dialog.cpp" line="646"/>
         <source>Save Graph As</source>
         <translation>Graph speichern als</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="816"/>
+        <location filename="rtp_analysis_dialog.cpp" line="817"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>Speichern in eine Datei fehlgeschlagen: Falsche Länge des aufgezeichneten Pakets.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="828"/>
+        <location filename="rtp_analysis_dialog.cpp" line="829"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation>Speichern in eine Datei fehlgeschlagen: RTP Daten mit Blindgruppen.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="861"/>
-        <location filename="rtp_analysis_dialog.cpp" line="870"/>
+        <location filename="rtp_analysis_dialog.cpp" line="862"/>
+        <location filename="rtp_analysis_dialog.cpp" line="871"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>Speichern in eine Datei fehlgeschlagen: I/O Problem.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="843"/>
+        <location filename="rtp_analysis_dialog.cpp" line="844"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation>Speichern in eine Datei fehlgeschlagen: Nicht alle Daten aufgezeichnet.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1399"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1400"/>
         <source>Save forward stream audio</source>
         <translation>Audiostream des Hinwegs speichern</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1402"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1403"/>
         <source>Save reverse stream audio</source>
         <translation>Audiostream des Rückweges speichern</translation>
     </message>
@@ -12444,7 +12440,7 @@ text-decoration: underline;
         <translation type="vanished">Audio speichern</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1411"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1412"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun Audio (*.au)</translation>
     </message>
@@ -12453,15 +12449,15 @@ text-decoration: underline;
         <translation type="vanished">;;Raw (*.raw)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1271"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1433"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1445"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1456"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1272"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1434"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1446"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1457"/>
         <source>Warning</source>
         <translation>Warnungen</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1433"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1434"/>
         <source>Unable to save in that format</source>
         <translation>Dieses Format kann nicht gespeichert werden</translation>
     </message>
@@ -12470,47 +12466,47 @@ text-decoration: underline;
         <translation type="vanished">Speichern nicht möglich: In das au Format können nur alaw/ulaw Streams gespeichert werden</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1445"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1446"/>
         <source>Unable to save %1</source>
         <translation>Kann %1 nicht sichern</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1449"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1450"/>
         <source>Saving %1</source>
         <translation>Speichere %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1456"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1457"/>
         <source>Can save audio with 8000 Hz clock rate only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1481"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1482"/>
         <source>Save forward stream CSV</source>
         <translation>Hinweg Stream als CSV speichern</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1484"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1485"/>
         <source>Save reverse stream CSV</source>
         <translation>Rückweg Stream als CSV speichern</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1488"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1489"/>
         <source>Save CSV</source>
         <translation>Als CSV speichern</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1494"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1495"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>Komma getrennte Werte (*.csv)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1584"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1585"/>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
         <translation>In dieser Wireshark-Version ist kein &quot;rtp.ssrc&quot; Feld vorhanden.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1618"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1619"/>
         <source>Please select an RTPv2 packet with an SSRC value</source>
         <translation>Bitte ein RTPv2 Paket mit einem SSRC Wert auswählen</translation>
     </message>
@@ -15856,135 +15852,189 @@ text-decoration: underline;
 <context>
     <name>VoipCallsDialog</name>
     <message>
-        <location filename="voip_calls_dialog.ui" line="36"/>
         <source>Start Time</source>
-        <translation>Startzeitpunkt</translation>
+        <translation type="vanished">Startzeitpunkt</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="41"/>
         <source>Stop Time</source>
-        <translation>Endzeitpunkt</translation>
+        <translation type="vanished">Endzeitpunkt</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="46"/>
         <source>Initial Speaker</source>
-        <translation>Initiierender Sprecher</translation>
+        <translation type="vanished">Initiierender Sprecher</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="51"/>
         <source>From</source>
-        <translation>Von</translation>
+        <translation type="vanished">Von</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="56"/>
         <source>To</source>
-        <translation>Nach</translation>
+        <translation type="vanished">Nach</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="61"/>
         <source>Protocol</source>
-        <translation>Protokoll</translation>
+        <translation type="vanished">Protokoll</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="66"/>
-        <source>Duration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="voip_calls_dialog.ui" line="71"/>
         <source>Packets</source>
-        <translation>Pakete</translation>
+        <translation type="vanished">Pakete</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="76"/>
         <source>State</source>
-        <translation>Zustand</translation>
+        <translation type="vanished">Zustand</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="81"/>
         <source>Comments</source>
-        <translation>Kommentare</translation>
+        <translation type="vanished">Kommentare</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="89"/>
+        <location filename="voip_calls_dialog.ui" line="39"/>
         <source>&lt;small&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="111"/>
+        <location filename="voip_calls_dialog.ui" line="61"/>
         <source>Time of Day</source>
         <translation type="unfinished">Uhrzeit</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="130"/>
+        <location filename="voip_calls_dialog.ui" line="80"/>
         <source>Select &amp;All</source>
         <translation>&amp;Alle auswählen</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="133"/>
+        <location filename="voip_calls_dialog.ui" line="83"/>
         <source>Select all calls</source>
         <translation>Alle Anrufe auswählen</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="141"/>
+        <location filename="voip_calls_dialog.ui" line="91"/>
         <source>Copy as CSV</source>
         <translation>Als CSV kopieren</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="144"/>
+        <location filename="voip_calls_dialog.ui" line="94"/>
         <source>Copy stream list as CSV.</source>
         <translation>Liste der Streams als CSV kopieren.</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="149"/>
+        <location filename="voip_calls_dialog.ui" line="99"/>
         <source>Copy as YAML</source>
         <translation>Als YAML kopieren</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="152"/>
+        <location filename="voip_calls_dialog.ui" line="102"/>
         <source>Copy stream list as YAML.</source>
         <translation>Liste der Streams als YAML kopieren.</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="231"/>
+        <location filename="voip_calls_dialog.cpp" line="76"/>
         <source>SIP Flows</source>
         <translation>SIP Flows</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="14"/>
-        <location filename="voip_calls_dialog.cpp" line="231"/>
+        <location filename="voip_calls_dialog.cpp" line="76"/>
         <source>VoIP Calls</source>
         <translation>VoIP Anrufe</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="238"/>
+        <location filename="voip_calls_dialog.cpp" line="83"/>
         <source>Prepare Filter</source>
         <translation>Filter vorbereiten</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="239"/>
+        <location filename="voip_calls_dialog.cpp" line="84"/>
         <source>Flow Sequence</source>
         <translation>Flow Sequenzen</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="242"/>
+        <location filename="voip_calls_dialog.cpp" line="87"/>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="245"/>
+        <location filename="voip_calls_dialog.cpp" line="90"/>
         <source>as CSV</source>
         <translation>als CSV</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="248"/>
+        <location filename="voip_calls_dialog.cpp" line="93"/>
         <source>as YAML</source>
         <translation>als YAML</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="409"/>
+        <location filename="voip_calls_dialog.cpp" line="244"/>
         <source>No Audio</source>
         <translation>Kein Ton</translation>
+    </message>
+</context>
+<context>
+    <name>VoipCallsInfoModel</name>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="97"/>
+        <source>On</source>
+        <translation type="unfinished">An</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="98"/>
+        <source>Off</source>
+        <translation type="unfinished">Aus</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="106"/>
+        <source>Tunneling: %1  Fast Start: %2</source>
+        <translation type="unfinished">Tunneling: %1  Fast Start: %2</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="126"/>
+        <source>Start Time</source>
+        <translation type="unfinished">Startzeitpunkt</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="128"/>
+        <source>Stop Time</source>
+        <translation type="unfinished">Endzeitpunkt</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="130"/>
+        <source>Initial Speaker</source>
+        <translation type="unfinished">Initiierender Sprecher</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="132"/>
+        <source>From</source>
+        <translation type="unfinished">Von</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="134"/>
+        <source>To</source>
+        <translation type="unfinished">Nach</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="136"/>
+        <source>Protocol</source>
+        <translation type="unfinished">Protokoll</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="138"/>
+        <source>Duration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="140"/>
+        <source>Packets</source>
+        <translation type="unfinished">Pakete</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="142"/>
+        <source>State</source>
+        <translation type="unfinished">Zustand</translation>
+    </message>
+    <message>
+        <location filename="voip_calls_info_model.cpp" line="144"/>
+        <source>Comments</source>
+        <translation type="unfinished">Kommentare</translation>
     </message>
 </context>
 <context>
