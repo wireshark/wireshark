@@ -68,7 +68,7 @@ dissect_gsmtap_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
 	ti = proto_tree_add_item(tree, proto_gsmtap_log, tvb, 0, -1, ENC_NA);
 	log_tree = proto_item_add_subtree(ti, ett_gsmtap_log);
 
-	proto_tree_add_item(log_tree, hf_log_ts, tvb, offset, 8, ENC_TIME_NTP_BASE_ZERO|ENC_BIG_ENDIAN);
+	proto_tree_add_item(log_tree, hf_log_ts, tvb, offset, 8, ENC_TIME_TIMEVAL|ENC_BIG_ENDIAN);
 	offset += 8;
 	proto_tree_add_item_ret_string(log_tree, hf_log_ident, tvb, offset, 16, ENC_NA, wmem_packet_scope(), &log_ident);
 	offset += 16;

@@ -1726,27 +1726,6 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 				time_stamp->nsecs = 0;
 			break;
 
-		case ENC_TIME_TOD|ENC_BIG_ENDIAN:
-			/*
-			 * TOD time stamp, big-endian.
-			 */
-/* XXX - where should this go? */
-#define TOD_BASETIME G_GUINT64_CONSTANT(2208988800)
-
-			todsecs  = tvb_get_ntoh64(tvb, start) >> 12;
-			time_stamp->secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
-			time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
-			break;
-
-		case ENC_TIME_TOD|ENC_LITTLE_ENDIAN:
-			/*
-			 * TOD time stamp, big-endian.
-			 */
-			todsecs  = tvb_get_letoh64(tvb, start) >> 12 ;
-			time_stamp->secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
-			time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
-			break;
-
 		case ENC_TIME_NTP|ENC_BIG_ENDIAN:
 			/*
 			 * NTP time stamp, big-endian.
@@ -1802,6 +1781,28 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 				time_stamp->nsecs = 0;
 			}
 			break;
+
+		case ENC_TIME_TOD|ENC_BIG_ENDIAN:
+			/*
+			 * TOD time stamp, big-endian.
+			 */
+/* XXX - where should this go? */
+#define TOD_BASETIME G_GUINT64_CONSTANT(2208988800)
+
+			todsecs  = tvb_get_ntoh64(tvb, start) >> 12;
+			time_stamp->secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
+			time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
+			break;
+
+		case ENC_TIME_TOD|ENC_LITTLE_ENDIAN:
+			/*
+			 * TOD time stamp, big-endian.
+			 */
+			todsecs  = tvb_get_letoh64(tvb, start) >> 12 ;
+			time_stamp->secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
+			time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
+			break;
+
 		case ENC_TIME_NTP_BASE_ZERO|ENC_BIG_ENDIAN:
 			/*
 			 * DDS NTP time stamp, big-endian.
@@ -1843,6 +1844,24 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 			} else {
 				time_stamp->nsecs = 0;
 			}
+			break;
+
+		case ENC_TIME_TIMEVAL|ENC_BIG_ENDIAN:
+			/*
+			 * 4-byte UNIX epoch, followed by 4-byte fractional
+			 * time in microseconds, both big-endian.
+			 */
+			time_stamp->secs  = (time_t)tvb_get_ntohl(tvb, start);
+			time_stamp->nsecs = tvb_get_ntohl(tvb, start+4)*1000;
+			break;
+
+		case ENC_TIME_TIMEVAL|ENC_LITTLE_ENDIAN:
+			/*
+			 * 4-byte UNIX epoch, followed by 4-byte fractional
+			 * time in microseconds, both little-endian.
+			 */
+			time_stamp->secs  = (time_t)tvb_get_letohl(tvb, start);
+			time_stamp->nsecs = tvb_get_letohl(tvb, start+4)*1000;
 			break;
 
 		default:

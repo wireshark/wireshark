@@ -362,18 +362,46 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
     #define ENC_HOST_ENDIAN ENC_BIG_ENDIAN
 #endif
 
-
 /*
  * Historically FT_TIMEs were only timespecs; the only question was whether
  * they were stored in big- or little-endian format.
  *
  * For backwards compatibility, we interpret an encoding of 1 as meaning
  * "little-endian timespec", so that passing TRUE is interpreted as that.
+ *
+ * We now support:
+ *
+ *  ENC_TIME_TIMESPEC - 4 or 8 bytes; the first 4 bytes are seconds since
+ *  the UN*X epoch (1970-01-01 00:00:00 UTC), and, if there are 8 bytes,
+ *  the next 4 bytes are nanoseconds since that second.  (I.e., a UN*X
+ *  struct timespec with a 4-byte time_t.)
+ *
+ *  ENC_TIME_NTP - 4 or 8 bytes; the first 4 bytes are seconds since
+ *  the NTP epoch (1901-01-01 00:00:00 GMT), and, if there are 8 bytes,
+ *  the next 4 bytes are 1/2^32's of a second since that second.  (I.e.,
+ *  a 64-bit count of 1/2^32's of a second since the NTP epoch, with
+ *  the upper 32 bits first and the lower 32 bits second, even when
+ *  little-endian.)
+ *
+ *  ENC_TIME_TOD - 8 bytes, as a count of microseconds since the System/3x0
+ *  and z/Architecture epoch (1900-01-01 00:00:00 GMT).
+ *
+ *  ENC_TIME_NTP_BASE_ZERO - 4 or 8 bytes; the first 4 bytes are seconds
+ *  since the UN*X epoch, and, if there are 8 bytes, the next 4 bytes are
+ *  are 1/2^32's of a second since that second.  (I.e., it's the offspring
+ *  of a mating between UN*X time and NTP time.)
+ *
+ *  ENC_TIME_TIMEVAL - 8 bytes; the first 4 bytes are seconds since
+ *  the UN*X epoch (1970-01-01 00:00:00 UTC), and, if there are 8 bytes,
+ *  the next 4 bytes are microseconds since that second.  (I.e., a UN*X
+ *  struct timeval with a 4-byte time_t.)
  */
-#define ENC_TIME_TIMESPEC           0x00000000	/* "struct timespec" */
-#define ENC_TIME_NTP                0x00000002	/* NTP times */
-#define ENC_TIME_TOD                0x00000004	/* System/3xx and z/Architecture time-of-day clock */
-#define ENC_TIME_NTP_BASE_ZERO      0x00000008  /* NTP times with different BASETIME */
+#define ENC_TIME_TIMESPEC           0x00000000
+#define ENC_TIME_NTP                0x00000002
+#define ENC_TIME_TOD                0x00000004
+#define ENC_TIME_NTP_BASE_ZERO      0x00000008
+#define ENC_TIME_TIMEVAL            0x00000010
+
 /*
  * Historically, the only place the representation mattered for strings
  * was with FT_UINT_STRINGs, where we had FALSE for the string length
