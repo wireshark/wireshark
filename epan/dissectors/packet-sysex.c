@@ -1394,7 +1394,7 @@ proto_register_sysex(void)
 
     static ei_register_info ei[] = {
         { &ei_sysex_message_start_byte, { "sysex.message_start_byte", PI_PROTOCOL, PI_WARN, "SYSEX Error: Wrong start byte", EXPFILL }},
-        { &ei_digitech_checksum_bad, { "sysex.digitech.checksum_bad", PI_CHECKSUM, PI_WARN, "ARP packet storm detected", EXPFILL }},
+        { &ei_digitech_checksum_bad, { "sysex.digitech.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
         { &ei_sysex_message_end_byte, { "sysex.message_end_byte", PI_PROTOCOL, PI_WARN, "SYSEX Error: Wrong end byte", EXPFILL }},
         { &ei_sysex_undecoded, { "sysex.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
     };

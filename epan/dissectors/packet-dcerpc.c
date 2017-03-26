@@ -615,7 +615,6 @@ static int hf_dcerpc_payload_stub_data = -1;
 static int hf_dcerpc_stub_data_with_sec_vt = -1;
 static int hf_dcerpc_stub_data = -1;
 static int hf_dcerpc_auth_padding = -1;
-static int hf_dcerpc_auth_verifier = -1;
 static int hf_dcerpc_auth_info = -1;
 static int hf_dcerpc_auth_credentials = -1;
 static int hf_dcerpc_fault_stub_data = -1;
@@ -673,7 +672,7 @@ static expert_field ei_dcerpc_cn_status = EI_INIT;
 static expert_field ei_dcerpc_fragment_reassembled = EI_INIT;
 static expert_field ei_dcerpc_fragment = EI_INIT;
 static expert_field ei_dcerpc_no_request_found = EI_INIT;
-static expert_field ei_dcerpc_context_change = EI_INIT;
+/* static expert_field ei_dcerpc_context_change = EI_INIT */;
 static expert_field ei_dcerpc_cn_ctx_id_no_bind = EI_INIT;
 static expert_field ei_dcerpc_bind_not_acknowledged = EI_INIT;
 static expert_field ei_dcerpc_verifier_unavailable = EI_INIT;
@@ -6954,7 +6953,6 @@ proto_register_dcerpc(void)
         { &hf_dcerpc_stub_data, { "Stub data", "dcerpc.stub_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_auth_padding, { "Auth Padding", "dcerpc.auth_padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_auth_info, { "Auth Info", "dcerpc.auth_info", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_dcerpc_auth_verifier, { "Auth Verifier", "dcerpc.auth_verifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_auth_credentials, { "Auth Credentials", "dcerpc.auth_credentials", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_fault_stub_data, { "Fault stub data", "dcerpc.fault_stub_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_fragment_data, { "Fragment data", "dcerpc.fragment_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -6991,16 +6989,18 @@ proto_register_dcerpc(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_dcerpc_fragment, { "dcerpc.fragment.reassemble", PI_REASSEMBLE, PI_CHAT, "%s fragment", EXPFILL }},
-        { &ei_dcerpc_fragment_reassembled, { "dcerpc.fragment_reassembled", PI_REASSEMBLE, PI_CHAT, "%s fragment, reassembled", EXPFILL }},
-        { &ei_dcerpc_cn_ctx_id_no_bind, { "dcerpc.cn_ctx_id.no_bind", PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID %u - capture start too late?", EXPFILL }},
+        { &ei_dcerpc_fragment, { "dcerpc.fragment.reassemble", PI_REASSEMBLE, PI_CHAT, "Fragment", EXPFILL }},
+        { &ei_dcerpc_fragment_reassembled, { "dcerpc.fragment_reassembled", PI_REASSEMBLE, PI_CHAT, "Fragment, reassembled", EXPFILL }},
+        { &ei_dcerpc_cn_ctx_id_no_bind, { "dcerpc.cn_ctx_id.no_bind", PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID", EXPFILL }},
         { &ei_dcerpc_no_request_found, { "dcerpc.no_request_found", PI_SEQUENCE, PI_NOTE, "No request to this DCE/RPC call found", EXPFILL }},
-        { &ei_dcerpc_cn_status, { "dcerpc.cn_status.expert", PI_RESPONSE_CODE, PI_NOTE, "Fault: %s", EXPFILL }},
+        { &ei_dcerpc_cn_status, { "dcerpc.cn_status.expert", PI_RESPONSE_CODE, PI_NOTE, "Fault", EXPFILL }},
         { &ei_dcerpc_fragment_multiple, { "dcerpc.fragment_multiple", PI_SEQUENCE, PI_CHAT, "Multiple DCE/RPC fragments/PDU's in one packet", EXPFILL }},
-        { &ei_dcerpc_context_change, { "dcerpc.context_change", PI_SEQUENCE, PI_CHAT, "Context change: %s", EXPFILL }},
+#if 0  /* XXX - too much "output noise", removed for now  */
+        { &ei_dcerpc_context_change, { "dcerpc.context_change", PI_SEQUENCE, PI_CHAT, "Context change", EXPFILL }},
+#endif
         { &ei_dcerpc_bind_not_acknowledged, { "dcerpc.bind_not_acknowledged", PI_SEQUENCE, PI_WARN, "Bind not acknowledged", EXPFILL }},
-        { &ei_dcerpc_verifier_unavailable, { "dcerpc.verifier_unavailable", PI_UNDECODED, PI_WARN, NULL, EXPFILL }},
-        { &ei_dcerpc_invalid_pdu_authentication_attempt, { "dcerpc.invalid_pdu_authentication_attempt", PI_UNDECODED, PI_WARN, NULL, EXPFILL }},
+        { &ei_dcerpc_verifier_unavailable, { "dcerpc.verifier_unavailable", PI_UNDECODED, PI_WARN, "Verifier unavailable", EXPFILL }},
+        { &ei_dcerpc_invalid_pdu_authentication_attempt, { "dcerpc.invalid_pdu_authentication_attempt", PI_UNDECODED, PI_WARN, "Invalid authentication attempt", EXPFILL }},
         /* Generated from convert_proto_tree_add_text.pl */
         { &ei_dcerpc_long_frame, { "dcerpc.long_frame", PI_PROTOCOL, PI_WARN, "Long frame", EXPFILL }},
         { &ei_dcerpc_cn_rts_command, { "dcerpc.cn_rts_command.unknown", PI_PROTOCOL, PI_WARN, "unknown RTS command number", EXPFILL }},

@@ -158,9 +158,9 @@ static gint ett_state = -1;
 #define RIEMANN_WIRE_BYTES 2
 #define RIEMANN_WIRE_FLOAT 5
 
-static expert_field ef_error_unknown_wire_tag = EI_INIT;
-static expert_field ef_error_unknown_field_number = EI_INIT;
-static expert_field ef_error_insufficient_data = EI_INIT;
+static expert_field ei_error_unknown_wire_tag = EI_INIT;
+static expert_field ei_error_unknown_field_number = EI_INIT;
+static expert_field ei_error_insufficient_data = EI_INIT;
 
 static void
 riemann_verify_wire_format(guint64 field_number, const char *field_name, int expected, int actual,
@@ -186,7 +186,7 @@ riemann_verify_wire_format(guint64 field_number, const char *field_name, int exp
             wire_name = "unknown (check packet-riemann.c)";
             break;
         }
-        expert_add_info_format(pinfo, pi, &ef_error_unknown_wire_tag,
+        expert_add_info_format(pinfo, pi, &ei_error_unknown_wire_tag,
                                "Expected %s (%d) field to be an %s (%d), but it is %d",
                                field_name, (int)field_number, wire_name, expected, actual);
     }
@@ -196,13 +196,13 @@ riemann_verify_wire_format(guint64 field_number, const char *field_name, int exp
     riemann_verify_wire_format(fn, field_name, expected, wire, pinfo, pi)
 
 #define UNKNOWN_FIELD_NUMBER_FOR(message_name) \
-    expert_add_info_format(pinfo, pi, &ef_error_unknown_field_number, \
+    expert_add_info_format(pinfo, pi, &ei_error_unknown_field_number, \
                            "Unknown field number %d for " message_name " (wire format %d)", \
                            (int)fn, (int)wire);
 
 #define VERIFY_SIZE_FOR(message_name) \
     if (size < 0) { \
-       expert_add_info_format(pinfo, pi, &ef_error_insufficient_data, \
+       expert_add_info_format(pinfo, pi, &ei_error_insufficient_data, \
                               "Insufficient data for " message_name " (%d bytes needed)", \
                               (int)size * -1); \
     }
@@ -783,15 +783,15 @@ proto_register_riemann(void)
     };
 
     static ei_register_info ei[] = {
-        { &ef_error_unknown_wire_tag,
+        { &ei_error_unknown_wire_tag,
           { "riemann.unknown_wire_tag", PI_MALFORMED, PI_ERROR,
-            NULL, EXPFILL }},
-        { &ef_error_unknown_field_number,
+            "Invalid format type", EXPFILL }},
+        { &ei_error_unknown_field_number,
           { "riemann.unknown_field_number", PI_MALFORMED, PI_ERROR,
-            NULL, EXPFILL }},
-        { &ef_error_insufficient_data,
+            "Unknown field number", EXPFILL }},
+        { &ei_error_insufficient_data,
           { "riemann.insufficient_data", PI_MALFORMED, PI_ERROR,
-            NULL, EXPFILL }}
+            "Insufficient data", EXPFILL }}
     };
 
     static gint *ett[] = {

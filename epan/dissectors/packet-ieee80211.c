@@ -28062,11 +28062,11 @@ proto_register_ieee80211(void)
 
     { &ei_ieee80211_fcs,
       { "wlan.fcs.bad_checksum", PI_MALFORMED, PI_ERROR,
-        NULL, EXPFILL }},
+        "Bad checksum", EXPFILL }},
 
     { &ei_ieee80211_mismatched_akm_suite,
       { "wlan.rsn.akms.mismatched", PI_PROTOCOL, PI_ERROR,
-        NULL, EXPFILL }},
+        "Mismatched AKMS", EXPFILL }},
   };
 
   expert_module_t *expert_ieee80211;
