@@ -658,7 +658,8 @@ sharkd_session_process_analyse(void)
  *
  * Input:
  *   (o) filter - filter to be used
- *   (o) range  - packet range to be used [TODO]
+ *   (o) skip=N   - skip N frames
+ *   (o) limit=N  - show only N frames
  *
  * Output array of frames with attributes:
  *   (m) c   - array of column data
@@ -672,12 +673,17 @@ static void
 sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int count)
 {
 	const char *tok_filter = json_find_attr(buf, tokens, count, "filter");
+	const char *tok_skip   = json_find_attr(buf, tokens, count, "skip");
+	const char *tok_limit  = json_find_attr(buf, tokens, count, "limit");
 
 	const guint8 *filter_data = NULL;
 
 	const char *frame_sepa = "";
-	unsigned int framenum;
 	int col;
+
+	guint32 framenum;
+	guint32 skip;
+	guint32 limit;
 
 	column_info *cinfo = &cfile.cinfo;
 
@@ -688,6 +694,20 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 			return;
 	}
 
+	skip = 0;
+	if (tok_skip)
+	{
+		if (!ws_strtou32(tok_skip, NULL, &skip))
+			return;
+	}
+
+	limit = 0;
+	if (tok_limit)
+	{
+		if (!ws_strtou32(tok_limit, NULL, &limit))
+			return;
+	}
+
 	printf("[");
 	for (framenum = 1; framenum <= cfile.count; framenum++)
 	{
@@ -695,6 +715,12 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 
 		if (filter_data && !(filter_data[framenum / 8] & (1 << (framenum % 8))))
 			continue;
+
+		if (skip)
+		{
+			skip--;
+			continue;
+		}
 
 		sharkd_dissect_columns(framenum, cinfo, (fdata->color_filter == NULL));
 
@@ -724,6 +750,9 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 
 		printf("}");
 		frame_sepa = ",";
+
+		if (limit && --limit == 0)
+			break;
 	}
 	printf("]\n");
 
