@@ -661,6 +661,7 @@ main(int argc, char *argv[])
   gboolean             arg_error = FALSE;
 
 #ifdef _WIN32
+  int                  result;
   WSADATA              wsaData;
 #endif  /* _WIN32 */
 
@@ -1769,7 +1770,12 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
   /* Start windows sockets */
-  WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+  result = WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+  if (result != 0)
+  {
+    exit_status = INIT_FAILED;
+    goto clean_exit;
+  }
 #endif /* _WIN32 */
 
   /* Notify all registered modules that have had any of their preferences

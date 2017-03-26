@@ -339,6 +339,7 @@ int main(int argc, char *qt_argv[])
     char               **argv = qt_argv;
 
 #ifdef _WIN32
+    int                  result;
     WSADATA              wsaData;
 #endif  /* _WIN32 */
 
@@ -509,7 +510,12 @@ int main(int argc, char *qt_argv[])
 
 #ifdef _WIN32
     /* Start windows sockets */
-    WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+    result = WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+    if (result != 0)
+    {
+        ret_val = INIT_FAILED;
+        goto clean_exit;
+    }
 #endif  /* _WIN32 */
 
     /* Read the profile dependent (static part) of the recent file. */

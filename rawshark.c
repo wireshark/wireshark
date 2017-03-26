@@ -429,6 +429,7 @@ main(int argc, char *argv[])
     gboolean             arg_error = FALSE;
 
 #ifdef _WIN32
+    int                  result;
     WSADATA              wsaData;
 #else
     struct rlimit limit;
@@ -824,7 +825,12 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
     /* Start windows sockets */
-    WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+    result = WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+    if (result != 0)
+    {
+        ret = INIT_ERROR;
+        goto clean_exit;
+    }
 #endif /* _WIN32 */
 
     /* At this point MATE will have registered its field array so we can

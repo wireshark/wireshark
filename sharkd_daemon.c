@@ -73,8 +73,13 @@ socket_init(char *path)
 
 #ifdef _WIN32
 	WSADATA wsaData;
+	int result;
 
-	WSAStartup(MAKEWORD(1, 1), &wsaData);
+	result = WSAStartup(MAKEWORD(1, 1), &wsaData);
+	if (result != 0) {
+		g_warning("ERROR: WSAStartup failed with error: %d", result);
+		return INVALID_SOCKET;
+	}
 #endif
 
 #ifdef SHARKD_UNIX_SUPPORT

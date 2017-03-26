@@ -3779,6 +3779,7 @@ main(int argc, char *argv[])
     gboolean          arg_error             = FALSE;
 
 #ifdef _WIN32
+    int               result;
     WSADATA           wsaData;
 #else
     struct sigaction  action, oldaction;
@@ -3970,7 +3971,13 @@ main(int argc, char *argv[])
     /*wpcap_packet_load();*/
 
     /* Start windows sockets */
-    WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+    result = WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+    if (result != 0)
+    {
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_ERROR,
+                          "ERROR: WSAStartup failed with error: %d", result);
+        exit_main(1);
+    }
 
     /* Set handler for Ctrl+C key */
     SetConsoleCtrlHandler(capture_cleanup_handler, TRUE);

@@ -2066,6 +2066,7 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
     WSADATA              wsaData;
+    int                  result;
 #endif  /* _WIN32 */
 
     char                *rf_path;
@@ -2197,7 +2198,13 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
     /* Start windows sockets */
-    WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+    result = WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+    if (result != 0) {
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                      "Error: WSAStartup failed with error: %d", result);
+        ret = INIT_FAILED;
+        goto clean_exit;
+    }
 #endif  /* _WIN32 */
 
     profile_store_persconffiles (TRUE);
