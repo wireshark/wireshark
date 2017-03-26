@@ -278,6 +278,9 @@ parse_netscreen_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer* buf,
 
 	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	/* Suppress compiler warnings */
+	memset(cap_int, 0, sizeof(cap_int));
+	memset(cap_dst, 0, sizeof(cap_dst));
 
 	if (sscanf(line, "%9d.%9d: %15[a-z0-9/:.-](%1[io]) len=%9d:%12s->%12s/",
 		   &sec, &dsec, cap_int, direction, &pkt_len, cap_src, cap_dst) < 5) {
