@@ -308,6 +308,7 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
         ips = 0;
         memset(&device, 0, sizeof(device));
         device.name = g_strdup(if_info->name);
+        device.if_info.name = g_strdup("Don't crash on bug 13448");
         /* Is this interface hidden and, if so, should we include it
            anyway? */
         descr = capture_dev_user_descr_find(if_info->name);
