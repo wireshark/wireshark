@@ -122,7 +122,7 @@ Linux) or at the top of your main screen (macOS). An example is shown in
 
 [NOTE]
 ====
-Some menu items will be disabled (greyed out( if the corresponding feature isn't
+Some menu items will be disabled (greyed out) if the corresponding feature isn't
 available. For example, you cannot save a capture file if you haven't captured
 or loaded any packets.
 ====
@@ -712,7 +712,7 @@ image::wsug_graphics/ws-main-toolbar.png[{screenshot-attrs}]
 |Toolbar Icon|Toolbar Item|Menu Item|Description
 |image:wsug_graphics/toolbar/capture_interfaces_24.png[{toolbar-icon-attrs}] |button:[Interfaces...]|menu:Capture[Interfaces...]| This item brings up the Capture Interfaces List dialog box (discussed further in <<ChCapCapturingSection>>).
 |image:wsug_graphics/toolbar/capture_options_24.png[{toolbar-icon-attrs}]    |button:[Options...]|menu:Capture[Options...]| This item brings up the Capture Options dialog box (discussed further in <<ChCapCapturingSection>>) and allows you to start capturing packets.
-|image:wsug_graphics/toolbar/capture_start_24.png[{toolbar-icon-attrs}]      |button:[Start]|menu:Capture[Start]| This item starts capturing packets with the options form the last time.
+|image:wsug_graphics/toolbar/capture_start_24.png[{toolbar-icon-attrs}]      |button:[Start]|menu:Capture[Start]| This item starts capturing packets with the options from the last time.
 |image:wsug_graphics/toolbar/capture_stop_24.png[{toolbar-icon-attrs}]       |button:[Stop]|menu:Capture[Stop]| This item stops the currently running live capture process <<ChCapCapturingSection>>).
 |image:wsug_graphics/toolbar/capture_restart_24.png[{toolbar-icon-attrs}]    |button:[Restart]|menu:Capture[Restart]| This item stops the currently running live capture process and restarts it again, for convenience.
 |image:wsug_graphics/toolbar/stock_open_24.png[{toolbar-icon-attrs}]         |button:[Open...]|menu:File[Open...]| This item brings up the file open dialog box that allows you to load a capture file for viewing. It is discussed in more detail in <<ChIOOpen>>.
