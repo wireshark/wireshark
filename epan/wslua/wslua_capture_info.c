@@ -112,7 +112,7 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,time_precision,wth->file_tsprec,
 
 /* WSLUA_ATTRIBUTE CaptureInfo_snapshot_length RW The maximum packet length that could be recorded.
 
-    Setting it to `0` means unknown.  Wireshark cannot handle anything bigger than 65535 bytes.
+    Setting it to `0` means unknown.  Wireshark cannot handle anything bigger than WTAP_MAX_PACKET_SIZE (262144) bytes.
  */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,snapshot_length,wth->snapshot_length);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,snapshot_length,wth->snapshot_length,guint);
