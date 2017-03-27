@@ -3234,7 +3234,7 @@ static const value_string user_control_point_response_value_vals[] = {
     { 0x02,   "Opcode not Supported"},
     { 0x03,   "Invalid Parameter"},
     { 0x04,   "Operation Failed"},
-    { 0x04,   "User not Authorized"},
+    { 0x05,   "User not Authorized"},
     {0x0, NULL}
 };
 
