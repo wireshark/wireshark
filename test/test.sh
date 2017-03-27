@@ -62,6 +62,7 @@ Usage: $THIS [-c] [-h] [-s <suite>]
       prerequisites
       unittests
       wslua
+      dissection
 FIN
         exit 0
 fi
@@ -110,6 +111,7 @@ source $TESTS_DIR/suite-nameres.sh
 source $TESTS_DIR/suite-wslua.sh
 source $TESTS_DIR/suite-mergecap.sh
 source $TESTS_DIR/suite-text2pcap.sh
+source $TESTS_DIR/suite-dissection.sh
 
 test_cleanup() {
 	if [ $TEST_OUTDIR_CLEAN = 1 ]; then
@@ -172,6 +174,7 @@ test_suite() {
 	test_suite_add "Mergecap" mergecap_suite
 	test_suite_add "File formats" fileformats_suite
 	test_suite_add "Text2pcap" text2pcap_suite
+	test_suite_add "Dissection" dissection_suite
 }
 
 
@@ -222,6 +225,9 @@ if [ -n "$RUN_SUITE" ] ; then
 			exit $? ;;
 		"text2pcap")
 			test_suite_run "Text2pcap" text2pcap_suite
+			exit $? ;;
+		"dissection")
+			test_suite_run "Dissection" dissection_suite
 			exit $? ;;
 	esac
 fi
