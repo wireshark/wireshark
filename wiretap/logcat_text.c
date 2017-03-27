@@ -185,24 +185,27 @@ static void get_time(gchar *string, struct wtap_pkthdr *phdr) {
 static gboolean logcat_text_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
         Buffer *buf, gint file_type) {
     gint8 *pd;
-    gchar cbuff[WTAP_MAX_PACKET_SIZE];
+    gchar *cbuff;
     gchar *ret = NULL;
 
+    cbuff = (gchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
     do {
         ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE, fh);
     } while (NULL != ret && 3 > strlen(cbuff) && !file_eof(fh));
 
     if (NULL == ret || 3 > strlen(cbuff)) {
+        g_free(cbuff);
         return FALSE;
     }
 
     if (WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG == file_type &&
             !g_regex_match_simple(SPECIAL_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW), G_REGEX_MATCH_NOTEMPTY)) {
         gint64 file_off = 0;
-        gchar lbuff[WTAP_MAX_PACKET_SIZE];
+        gchar *lbuff;
         int err;
         gchar *ret2 = NULL;
 
+        lbuff = (gchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
         file_off = file_tell(fh);
         ret2 = file_gets(lbuff,WTAP_MAX_PACKET_SIZE, fh);
         while (NULL != ret2 && 2 < strlen(lbuff) && !file_eof(fh)) {
@@ -212,10 +215,13 @@ static gboolean logcat_text_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
         }
 
         if(NULL == ret2 || 2 < strlen(lbuff)) {
+            g_free(cbuff);
+            g_free(lbuff);
             return FALSE;
         }
 
         file_seek(fh,file_off,SEEK_SET,&err);
+        g_free(lbuff);
     }
 
     phdr->rec_type = REC_TYPE_PACKET;
@@ -239,6 +245,7 @@ static gboolean logcat_text_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
         phdr->ts.nsecs = (int) 0;
     }
     memcpy(pd, cbuff, phdr->caplen + 1);
+    g_free(cbuff);
     return TRUE;
 }
 
@@ -265,12 +272,13 @@ static gboolean logcat_text_seek_read(wtap *wth, gint64 seek_off,
 }
 
 wtap_open_return_val logcat_text_open(wtap *wth, int *err, gchar **err_info _U_) {
-    gchar cbuff[WTAP_MAX_PACKET_SIZE];
+    gchar *cbuff;
     gchar *ret = NULL;
 
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
 
+    cbuff = (gchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
     do {
         ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE, wth->fh);
     } while (NULL != ret && !file_eof(wth->fh)
@@ -307,17 +315,20 @@ wtap_open_return_val logcat_text_open(wtap *wth, int *err, gchar **err_info _U_)
         wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG;
         wth->file_encap = WTAP_ENCAP_LOGCAT_LONG;
     } else {
+        g_free(cbuff);
         return WTAP_OPEN_NOT_MINE;
     }
 
-    if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
+    if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+        g_free(cbuff);
         return WTAP_OPEN_ERROR;
-
+    }
     wth->snapshot_length = 0;
 
     wth->subtype_read = logcat_text_read;
     wth->subtype_seek_read = logcat_text_seek_read;
     wth->file_tsprec = WTAP_TSPREC_USEC;
+    g_free(cbuff);
     return WTAP_OPEN_MINE;
 }
 
