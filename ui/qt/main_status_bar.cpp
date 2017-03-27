@@ -424,7 +424,7 @@ void MainStatusBar::showCaptureStatistics()
         packets_str.append(QString(tr("Packets: %1"))
                           .arg(cs_count_));
     } else if (cap_file_ && cs_count_ > 0) {
-        packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 %4 Marked: %3"))
+        packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 (%3%)"))
                           .arg(cap_file_->count)
                           .arg(cap_file_->displayed_count)
                           .arg((100.0*cap_file_->displayed_count)/cap_file_->count, 0, 'f', 1)
