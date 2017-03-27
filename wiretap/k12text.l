@@ -129,7 +129,7 @@ typedef struct {
 	guint g_ms;
 	guint g_ns;
 	gint g_encap;
-	guint8 bb[WTAP_MAX_PACKET_SIZE];
+	guint8 *bb;
 	guint ii;
 	gboolean is_k12text;
 	gboolean at_eof;
@@ -359,7 +359,10 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 	if ( file_seek(wth->fh, k12text->next_frame_offset, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
+	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE);
+
 	if (!k12text_run_scanner(&state, wth->fh, NEXT_FRAME, err, err_info)) {
+		g_free(state.bb);
 		return FALSE;
 	}
 
@@ -371,18 +374,21 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = state.error_str;
 		}
+		g_free(state.bb);
 		return FALSE;
 	}
 
 	*data_offset = k12text->next_frame_offset;           /* file position for beginning of this frame   */
 	k12text->next_frame_offset += state.file_bytes_read; /* file position after end of this frame       */
 
-	if (!k12text_set_headers(&wth->phdr, &state, err, err_info))
+	if (!k12text_set_headers(&wth->phdr, &state, err, err_info)) {
+		g_free(state.bb);
 		return FALSE;
-
+	}
 	ws_buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 	memcpy(ws_buffer_start_ptr(wth->frame_buffer), state.bb, wth->phdr.caplen);
 
+	g_free(state.bb);
 	return TRUE;
 }
 
@@ -394,6 +400,8 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *
 	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
+	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE);
+
 	if (!k12text_run_scanner(&state, wth->random_fh, NEXT_FRAME, err, err_info)) {
 		return FALSE;
 	}
@@ -406,15 +414,18 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *
 		} else {
 			*err_info = state.error_str;
 		}
+		g_free(state.bb);
 		return FALSE;
 	}
 
-	if (!k12text_set_headers(phdr, &state, err, err_info))
+	if (!k12text_set_headers(phdr, &state, err, err_info)) {
+		g_free(state.bb);
 		return FALSE;
-
+	}
 	ws_buffer_assure_space(buf, phdr->caplen);
 	memcpy(ws_buffer_start_ptr(buf), state.bb, phdr->caplen);
 
+	g_free(state.bb);
 	return TRUE;
 }
 
@@ -424,17 +435,21 @@ k12text_open(wtap *wth, int *err, gchar **err_info _U_)
 	k12text_t *k12text;
 	k12text_state_t state;
 
+	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE);
 	if (!k12text_run_scanner(&state, wth->fh, MAGIC, err, err_info)) {
+		g_free(state.bb);
 		return WTAP_OPEN_ERROR;
 	}
 
 	if (!state.is_k12text) {
 		/* *err might have been set to WTAP_ERR_SHORT_READ */
 		*err = 0;
+		g_free(state.bb);
 		return WTAP_OPEN_NOT_MINE;
 	}
 
 	if ( file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+		g_free(state.bb);
 		return WTAP_OPEN_ERROR;
 	}
 
@@ -448,6 +463,7 @@ k12text_open(wtap *wth, int *err, gchar **err_info _U_)
 	wth->subtype_seek_read = k12text_seek_read;
 	wth->file_tsprec = WTAP_TSPREC_NSEC;
 
+	g_free(state.bb);
 	return WTAP_OPEN_MINE;
 }
 
