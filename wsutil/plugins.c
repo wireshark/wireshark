@@ -435,22 +435,12 @@ free_plugin_type(gpointer p, gpointer user_data _U_)
 void
 plugins_cleanup(void)
 {
-    plugin* prev;
-    plugin* cur;
+    plugin* cur, *next;
 
-    if (plugin_list) {
-        prev = plugin_list;
-        cur = plugin_list->next;
-
-        do {
-            g_free(prev->name);
-            g_free(prev);
-            prev = cur;
-            cur = cur->next;
-        } while(cur);
-
-        g_free(prev->name);
-        g_free(prev);
+    for (cur = plugin_list; cur != NULL; cur = next) {
+        next = cur->next;
+        g_free(cur->name);
+        g_free(cur);
     }
 
     g_slist_foreach(plugin_types, free_plugin_type, NULL);
