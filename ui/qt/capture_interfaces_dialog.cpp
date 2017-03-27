@@ -55,6 +55,8 @@
 #include <epan/addr_resolv.h>
 #include <wsutil/filesystem.h>
 
+#include <wiretap/wtap.h>
+
 #include "qt_ui_utils.h"
 #include "sparkline_delegate.h"
 
@@ -668,7 +670,7 @@ void CaptureInterfacesDialog::updateInterfaces()
             if (capture_dev_user_snaplen_find(device->name, &hassnap, &snaplen)) {
                 /* Default snap length set in preferences */
                 device->snaplen = snaplen;
-                device->has_snaplen = hassnap;
+                device->has_snaplen = snaplen == WTAP_MAX_PACKET_SIZE ? FALSE : hassnap;
             } else {
                 /* No preferences set yet, use default values */
                 device->snaplen = WTAP_MAX_PACKET_SIZE;
@@ -751,6 +753,7 @@ void CaptureInterfacesDialog::updateStatistics(void)
 {
     interface_t *device;
 
+    disconnect(ui->interfaceTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(interfaceItemChanged(QTreeWidgetItem*,int)));
     for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
 
         for (guint if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
@@ -768,6 +771,7 @@ void CaptureInterfacesDialog::updateStatistics(void)
             ti->setData(col_traffic_, Qt::UserRole, qVariantFromValue(points));
         }
     }
+    connect(ui->interfaceTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(interfaceItemChanged(QTreeWidgetItem*,int)));
     ui->interfaceTree->viewport()->update();
 }
 
@@ -1186,7 +1190,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
         case col_snaplen_:
         {
             QSpinBox *sb = new QSpinBox(parent);
-            sb->setRange(1, 65535);
+            sb->setRange(1, WTAP_MAX_PACKET_SIZE);
             sb->setValue(snap);
             sb->setWrapping(true);
             connect(sb, SIGNAL(valueChanged(int)), this, SLOT(snapshotLengthChanged(int)));
@@ -1197,7 +1201,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
         case col_buffer_:
         {
             QSpinBox *sb = new QSpinBox(parent);
-            sb->setRange(1, 65535);
+            sb->setRange(1, WTAP_MAX_PACKET_SIZE);
             sb->setValue(buffer);
             sb->setWrapping(true);
             connect(sb, SIGNAL(valueChanged(int)), this, SLOT(bufferSizeChanged(int)));
