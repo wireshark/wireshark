@@ -148,6 +148,7 @@ static int hf_pim_register_flag_border = -1;
 static int hf_pim_register_flag_null_register = -1;
 static int hf_pim_mode = -1;
 static int hf_pim_holdtime = -1;
+static int hf_pim_holdtime_t = -1;
 static int hf_pim_numgroups = -1;
 static int hf_pim_numjoins = -1;
 static int hf_pim_numprunes = -1;
@@ -326,6 +327,18 @@ static const value_string pim_ip_version_vals[] = {
     { 6, "IPv6" },
     { 0, NULL }
 };
+
+static const value_string unique_infinity[] = {
+    { 0xffff, "Infinity" },
+    { 0, NULL }
+};
+
+static const value_string unique_infinity_t[] = {
+    { 0, "goodbye" },
+    { 0xffff, "Infinity" },
+    { 0, NULL }
+};
+
 /* This function is only called from the IGMP dissector */
 static int
 dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
@@ -432,17 +445,10 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     switch (pim_type) {
     case 0:     /* query */
     {
-        guint32 holdtime;
-        proto_item *ti_hold;
-
         proto_tree_add_item(pimopt_tree, hf_pim_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 2;
 
-        ti_hold = proto_tree_add_item_ret_uint(pimopt_tree, hf_pim_holdtime, tvb,
-                                   offset, 2, ENC_BIG_ENDIAN, &holdtime);
-        if(holdtime == 0xFFFF){
-            proto_item_append_text(ti_hold, " (Infinity)");
-        }
+        proto_tree_add_item(pimopt_tree, hf_pim_holdtime, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         break;
     }
@@ -516,12 +522,10 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     {
         int off;
         int ngroup, i, njoin, nprune, j;
-        guint32 holdtime;
         proto_tree *grouptree = NULL;
         proto_item *tigroup;
         proto_tree *subtree = NULL;
         proto_item *tisub;
-        proto_item *ti_hold;
 
         proto_tree_add_item(pimopt_tree, hf_pim_upstream_neighbor_ip4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
@@ -530,11 +534,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         proto_tree_add_item(pim_tree, hf_pim_res_bytes, tvb, offset, 2, ENC_NA);
         offset += 2;
 
-        ti_hold = proto_tree_add_item_ret_uint(pimopt_tree, hf_pim_holdtime, tvb,
-                                   offset, 2, ENC_BIG_ENDIAN, &holdtime);
-        if(holdtime == 0xFFFF){
-            proto_item_append_text(ti_hold, " (Infinity)");
-        }
+        proto_tree_add_item(pimopt_tree, hf_pim_holdtime, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* reserved stuff */
@@ -590,9 +590,6 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     case 4:     /* rp-reachability */
     {
-        guint32 holdtime;
-        proto_item *ti_hold;
-
         proto_tree_add_item(pimopt_tree, hf_pim_group_address_ip4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
@@ -606,11 +603,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         proto_tree_add_item(pim_tree, hf_pim_res_bytes, tvb, offset, 2, ENC_NA);
         offset += 2;
 
-        ti_hold = proto_tree_add_item_ret_uint(pimopt_tree, hf_pim_holdtime, tvb,
-                                   offset, 2, ENC_BIG_ENDIAN, &holdtime);
-        if(holdtime == 0xFFFF){
-            proto_item_append_text(ti_hold, " (Infinity)");
-        }
+        proto_tree_add_item(pimopt_tree, hf_pim_holdtime, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         break;
     }
@@ -932,8 +925,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         while (tvb_reported_length_remaining(tvb, offset) >= 2) {
             guint16 hello_opt, opt_len;
             guint32 holdtime;
+            const gchar* hold_str;
             proto_item *opt_item;
-            proto_item *ti_hold;
             proto_tree *opt_tree;
 
             opt_count++;
@@ -948,21 +941,13 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             switch(hello_opt) {
             case PIM_HELLO_HOLD_T: /* Hello Hold Time Option */
 
-                ti_hold = proto_tree_add_item_ret_uint(opt_tree, hf_pim_holdtime, tvb,
+                proto_tree_add_item_ret_uint(opt_tree, hf_pim_holdtime_t, tvb,
                                            offset+4, 2, ENC_BIG_ENDIAN, &holdtime);
-                switch(holdtime){
-                    case 0:
-                        proto_item_append_text(ti_hold, " (goodbye)");
-                        proto_item_append_text(opt_item, ": %u (goodbye)", holdtime);
-                    break;
-                    case 0xFFFF:
-                        proto_item_append_text(ti_hold, " (Infinity)");
-                        proto_item_append_text(opt_item, ": %u (Infinity)", holdtime);
-                    break;
-                    default:
-                        proto_item_append_text(opt_item, ": %u", holdtime);
-                    break;
-                }
+                proto_item_append_text(opt_item, ": %u", holdtime);
+                hold_str = try_val_to_str(holdtime, unique_infinity_t);
+                if (hold_str != NULL)
+                    proto_item_append_text(opt_item, " (%s)", hold_str);
+
                 break;
 
             case PIM_HELLO_LAN_PRUNE_DELAY: /* LAN Prune Delay Option */
@@ -1122,12 +1107,10 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         int advance;
         int off;
         int ngroup, i, njoin, nprune, j;
-        guint32 holdtime;
         proto_tree *grouptree = NULL;
         proto_item *tigroup;
         proto_tree *subtree = NULL;
         proto_item *tisub;
-        proto_item *ti_hold;
 
         if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, NULL, NULL,
                                    hf_pim_upstream_neighbor_ip4, hf_pim_upstream_neighbor_ip6, &advance))
@@ -1143,11 +1126,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_tree_add_item(pimopt_tree, hf_pim_numgroups, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        ti_hold = proto_tree_add_item_ret_uint(pimopt_tree, hf_pim_holdtime, tvb,
-                                   offset, 2, ENC_BIG_ENDIAN, &holdtime);
-        if(holdtime == 0xFFFF){
-            proto_item_append_text(ti_hold, " (Infinity)");
-        }
+        proto_tree_add_item(pimopt_tree, hf_pim_holdtime, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         for (i = 0; i < ngroup; i++) {
@@ -1194,10 +1173,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         int advance;
         int i, j;
         int frpcnt;
-        guint32 holdtime;
         proto_tree *grouptree = NULL;
         proto_item *tigroup;
-        proto_item *ti_hold;
 
         proto_tree_add_item(pimopt_tree, hf_pim_fragment_tag, tvb,
                                    offset, 2, ENC_BIG_ENDIAN);
@@ -1236,11 +1213,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     goto breakbreak4;
                 offset += advance;
 
-                ti_hold = proto_tree_add_item_ret_uint(pimopt_tree, hf_pim_holdtime, tvb,
-                                           offset, 2, ENC_BIG_ENDIAN, &holdtime);
-                if(holdtime == 0xFFFF){
-                    proto_item_append_text(ti_hold, " (Infinity)");
-                }
+                proto_tree_add_item(pimopt_tree, hf_pim_holdtime, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 proto_tree_add_item(grouptree, hf_pim_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
@@ -1285,9 +1258,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     {
         int advance;
         int pfxcnt;
-        guint32 holdtime;
         int i;
-        proto_item *ti_hold;
 
         pfxcnt = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(pimopt_tree, hf_pim_prefix_count, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1295,11 +1266,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_tree_add_item(pimopt_tree, hf_pim_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        ti_hold = proto_tree_add_item_ret_uint(pimopt_tree, hf_pim_holdtime, tvb,
-                                   offset, 2, ENC_BIG_ENDIAN, &holdtime);
-        if(holdtime == 0xFFFF){
-            proto_item_append_text(ti_hold, " (Infinity)");
-        }
+        proto_tree_add_item(pimopt_tree, hf_pim_holdtime, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
@@ -1506,7 +1473,13 @@ proto_register_pim(void)
             },
             { &hf_pim_holdtime,
               { "Holdtime", "pim.holdtime",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_infinity), 0x0,
+                "The amount of time a receiver must keep the neighbor "
+                "reachable, in seconds.", HFILL }
+            },
+            { &hf_pim_holdtime_t,
+              { "Holdtime", "pim.holdtime",
+                FT_UINT16, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_infinity_t), 0x0,
                 "The amount of time a receiver must keep the neighbor "
                 "reachable, in seconds.", HFILL }
             },

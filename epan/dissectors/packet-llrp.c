@@ -1424,6 +1424,37 @@ static value_string_ext impinj_hub_fault_type_ext = VALUE_STRING_EXT_INIT(impinj
 #define LLRP_HEADER_LENGTH  10
 #define LLRP_NO_LIMIT        0
 
+static const value_string unique_no_limit[] = {
+    { LLRP_NO_LIMIT, "No Limit" },
+    { 0, NULL },
+};
+
+static const value_string unique_all_rospecs[] = {
+    { LLRP_ROSPEC_ALL, "All ROSpecs" },
+    { 0, NULL },
+};
+
+static const value_string unique_all_access_specs[] = {
+    { LLRP_ACCESSSPEC_ALL, "All Access Specs" },
+    { 0, NULL },
+};
+
+static const value_string unique_all_antenna[] = {
+    { LLRP_ANTENNA_ALL, "All Antenna" },
+    { 0, NULL },
+};
+
+static const value_string unique_all_gpi_ports[] = {
+    { LLRP_GPI_PORT_ALL, "All GPI Ports" },
+    { 0, NULL },
+};
+
+static const value_string unique_all_gpo_ports[] = {
+    { LLRP_GPO_PORT_ALL, "All GPO Ports" },
+    { 0, NULL },
+};
+
+
 static guint
 dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint offset, const guint end, const guint depth);
@@ -1907,36 +1938,17 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 suboffset += 1;
                 proto_tree_add_item(param_tree, hf_llrp_client_opspec_timeout, tvb, suboffset, 2, ENC_BIG_ENDIAN);
                 suboffset += 2;
-                num = tvb_get_ntohl(tvb, suboffset);
-                if(num == LLRP_NO_LIMIT)
-                    proto_tree_add_uint_format_value(param_tree, hf_llrp_max_num_rospec, tvb, suboffset, 4, num, "No limit (%u)", num);
-                else
-                    proto_tree_add_item(param_tree, hf_llrp_max_num_rospec, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(param_tree, hf_llrp_max_num_rospec, tvb, suboffset, 4, ENC_BIG_ENDIAN);
                 suboffset += 4;
-                num = tvb_get_ntohl(tvb, suboffset);
-                if(num == LLRP_NO_LIMIT)
-                    proto_tree_add_uint_format_value(param_tree, hf_llrp_max_num_spec_per_rospec, tvb, suboffset, 4, num, "No limit (%u)", num);
-                else
-                    proto_tree_add_item(param_tree, hf_llrp_max_num_spec_per_rospec, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(param_tree, hf_llrp_max_num_spec_per_rospec, tvb, suboffset, 4, ENC_BIG_ENDIAN);
                 suboffset += 4;
-                num = tvb_get_ntohl(tvb, suboffset);
-                if(num == LLRP_NO_LIMIT)
-                    proto_tree_add_uint_format_value(param_tree, hf_llrp_max_num_inventory_per_aispec, tvb, suboffset, 4, num, "No limit (%u)", num);
-                else
-                    proto_tree_add_item(param_tree, hf_llrp_max_num_inventory_per_aispec, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(param_tree, hf_llrp_max_num_inventory_per_aispec, tvb, suboffset, 4, ENC_BIG_ENDIAN);
                 suboffset += 4;
-                num = tvb_get_ntohl(tvb, suboffset);
-                if(num == LLRP_NO_LIMIT)
-                    proto_tree_add_uint_format_value(param_tree, hf_llrp_max_num_accessspec, tvb, suboffset, 4, num, "No limit (%u)", num);
-                else
-                    proto_tree_add_item(param_tree, hf_llrp_max_num_accessspec, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(param_tree, hf_llrp_max_num_accessspec, tvb, suboffset, 4, ENC_BIG_ENDIAN);
                 suboffset += 4;
-                num = tvb_get_ntohl(tvb, suboffset);
-                if(num == LLRP_NO_LIMIT)
-                    proto_tree_add_uint_format_value(param_tree, hf_llrp_max_num_opspec_per_accressspec, tvb, suboffset, 4, num, "No limit (%u)", num);
-                else
-                    proto_tree_add_item(param_tree, hf_llrp_max_num_opspec_per_accressspec, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(param_tree, hf_llrp_max_num_opspec_per_accressspec, tvb, suboffset, 4, ENC_BIG_ENDIAN);
                 suboffset += 4;
+
                 break;
             case LLRP_TLV_REGU_CAPABILITIES:
                 proto_tree_add_item(param_tree, hf_llrp_country_code, tvb, suboffset, 2, ENC_BIG_ENDIAN);
@@ -2288,11 +2300,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(param_tree, hf_llrp_can_support_UMI_method2, tvb, suboffset, 1, ENC_NA);
                 proto_tree_add_item(param_tree, hf_llrp_can_support_XPC, tvb, suboffset, 1, ENC_NA);
                 suboffset += 1;
-                num = tvb_get_ntohs(tvb, suboffset);
-                if(num == LLRP_NO_LIMIT)
-                    proto_tree_add_uint_format_value(param_tree, hf_llrp_max_num_spec_per_rospec, tvb, suboffset, 2, num, "No limit (%u)", num);
-                else
-                    proto_tree_add_item(param_tree, hf_llrp_max_num_filter_per_query, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(param_tree, hf_llrp_max_num_filter_per_query, tvb, suboffset, 2, ENC_BIG_ENDIAN);
                 suboffset += 2;
                 break;
             case LLRP_TLV_C1G2_UHF_RF_MD_TBL_ENT:
@@ -2684,8 +2692,7 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     gboolean    ends_with_parameters;
     guint8      requested_data;
-    guint16     antenna_id, gpi_port, gpo_port;
-    guint32     spec_id, vendor;
+    guint32     vendor;
     proto_item *request_item, *antenna_item, *gpi_item, *gpo_item;
     guint (*dissect_custom_message)(tvbuff_t *tvb,
             packet_info *pinfo, proto_tree *tree, guint offset) = NULL;
@@ -2729,26 +2736,14 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case LLRP_TYPE_ENABLE_ROSPEC:
         case LLRP_TYPE_DISABLE_ROSPEC:
         case LLRP_TYPE_DELETE_ROSPEC:
-            spec_id = tvb_get_ntohl(tvb, offset);
-            if (spec_id == LLRP_ROSPEC_ALL)
-                proto_tree_add_uint_format(tree, hf_llrp_rospec, tvb,
-                        offset, 4, spec_id, "All ROSpecs (%u)", spec_id);
-            else
-                proto_tree_add_item(tree, hf_llrp_rospec, tvb,
-                        offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_llrp_rospec, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             break;
         /* Some just have an AccessSpec ID */
         case LLRP_TYPE_ENABLE_ACCESSSPEC:
         case LLRP_TYPE_DELETE_ACCESSSPEC:
         case LLRP_TYPE_DISABLE_ACCESSSPEC:
-            spec_id = tvb_get_ntohl(tvb, offset);
-            if (spec_id == LLRP_ACCESSSPEC_ALL)
-                proto_tree_add_uint_format(tree, hf_llrp_accessspec, tvb,
-                        offset, 4, spec_id, "All Access Specs (%u)", spec_id);
-            else
-                proto_tree_add_item(tree, hf_llrp_accessspec, tvb,
-                        offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_llrp_accessspec, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             break;
         case LLRP_TYPE_GET_READER_CAPABILITIES:
@@ -2758,13 +2753,7 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         /* GET_READER_CONFIG is more complicated */
         case LLRP_TYPE_GET_READER_CONFIG:
-            antenna_id = tvb_get_ntohs(tvb, offset);
-            if (antenna_id == LLRP_ANTENNA_ALL)
-                antenna_item = proto_tree_add_uint_format(tree, hf_llrp_antenna_id, tvb,
-                        offset, 2, antenna_id, "All Antennas (%u)", antenna_id);
-            else
-                antenna_item = proto_tree_add_item(tree, hf_llrp_antenna_id, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+            antenna_item = proto_tree_add_item(tree, hf_llrp_antenna_id, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             requested_data = tvb_get_guint8(tvb, offset);
@@ -2772,22 +2761,10 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
-            gpi_port = tvb_get_ntohs(tvb, offset);
-            if (gpi_port == LLRP_GPI_PORT_ALL)
-                gpi_item = proto_tree_add_uint_format(tree, hf_llrp_gpi_port, tvb,
-                        offset, 2, gpi_port, "All GPI Ports (%u)", gpi_port);
-            else
-                gpi_item = proto_tree_add_item(tree, hf_llrp_gpi_port, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+            gpi_item = proto_tree_add_item(tree, hf_llrp_gpi_port, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            gpo_port = tvb_get_ntohs(tvb, offset);
-            if (gpo_port == LLRP_GPO_PORT_ALL)
-                gpo_item = proto_tree_add_uint_format(tree, hf_llrp_gpo_port, tvb,
-                        offset, 2, gpo_port, "All GPO Ports (%u)", gpo_port);
-            else
-                gpo_item = proto_tree_add_item(tree, hf_llrp_gpo_port, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+            gpo_item = proto_tree_add_item(tree, hf_llrp_gpo_port, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             switch (requested_data)
@@ -2996,19 +2973,19 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_rospec,
-        { "ROSpec ID", "llrp.rospec", FT_UINT32, BASE_DEC, NULL, 0,
+        { "ROSpec ID", "llrp.rospec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_all_rospecs), 0,
           NULL, HFILL }},
 
         { &hf_llrp_antenna_id,
-        { "Antenna ID", "llrp.antenna_id", FT_UINT16, BASE_DEC, NULL, 0,
+        { "Antenna ID", "llrp.antenna_id", FT_UINT16, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_all_antenna), 0,
           NULL, HFILL }},
 
         { &hf_llrp_gpi_port,
-        { "GPI Port Number", "llrp.gpi_port", FT_UINT16, BASE_DEC, NULL, 0,
+        { "GPI Port Number", "llrp.gpi_port", FT_UINT16, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_all_gpi_ports), 0,
           NULL, HFILL }},
 
         { &hf_llrp_gpo_port,
-        { "GPO Port Number", "llrp.gpo_port", FT_UINT16, BASE_DEC, NULL, 0,
+        { "GPO Port Number", "llrp.gpo_port", FT_UINT16, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_all_gpo_ports), 0,
           NULL, HFILL }},
 
         { &hf_llrp_rest_fact,
@@ -3016,7 +2993,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_accessspec,
-        { "Access Spec ID", "llrp.accessspec", FT_UINT32, BASE_DEC, NULL, 0,
+        { "Access Spec ID", "llrp.accessspec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_all_access_specs), 0,
           NULL, HFILL }},
 
         { &hf_llrp_vendor,
@@ -3136,23 +3113,23 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_max_num_rospec,
-        { "Maximum number of ROSpecs", "llrp.param.max_num_rospec", FT_UINT32, BASE_DEC, NULL, 0,
+        { "Maximum number of ROSpecs", "llrp.param.max_num_rospec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0,
           NULL, HFILL }},
 
         { &hf_llrp_max_num_spec_per_rospec,
-        { "Maximum number of spec per ROSpec", "llrp.param.max_num_spec_per_rospec", FT_UINT32, BASE_DEC, NULL, 0,
+        { "Maximum number of spec per ROSpec", "llrp.param.max_num_spec_per_rospec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0,
           NULL, HFILL }},
 
         { &hf_llrp_max_num_inventory_per_aispec,
-        { "Maximum number of Inventory Spec per AISpec", "llrp.param.max_num_inventory_per_aispec", FT_UINT32, BASE_DEC, NULL, 0,
+        { "Maximum number of Inventory Spec per AISpec", "llrp.param.max_num_inventory_per_aispec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0,
           NULL, HFILL }},
 
         { &hf_llrp_max_num_accessspec,
-        { "Maximum number of AccessSpec", "llrp.param.max_num_accessspec", FT_UINT32, BASE_DEC, NULL, 0,
+        { "Maximum number of AccessSpec", "llrp.param.max_num_accessspec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0,
           NULL, HFILL }},
 
         { &hf_llrp_max_num_opspec_per_accressspec,
-        { "Maximum number of OpSpec per AccessSpec", "llrp.param.max_num_opspec_per_accressspec", FT_UINT32, BASE_DEC, NULL, 0,
+        { "Maximum number of OpSpec per AccessSpec", "llrp.param.max_num_opspec_per_accressspec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0,
           NULL, HFILL }},
 
         /* TODO add translation */
@@ -3537,7 +3514,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_max_num_filter_per_query,
-        { "Maximum number of select filters per query", "llrp.param.max_num_filter_per_query", FT_UINT16, BASE_DEC, NULL, 0,
+        { "Maximum number of select filters per query", "llrp.param.max_num_filter_per_query", FT_UINT16, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0,
           NULL, HFILL }},
 
         { &hf_llrp_mode_ident,

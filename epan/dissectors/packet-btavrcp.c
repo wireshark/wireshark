@@ -596,6 +596,11 @@ static const value_string player_subtype_vals[] = {
     { 0, NULL }
 };
 
+static const value_string unique_all_supported_attributes[] = {
+    { 0x00,   "All Supported Attributes" },
+    { 0, NULL }
+};
+
 void proto_register_btavrcp(void);
 void proto_reg_handoff_btavrcp(void);
 
@@ -1477,9 +1482,8 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - 0x%08X%08X", (guint) (identifier >> 32), (guint) (identifier & 0xFFFFFFFF));
                 if (identifier == 0x00) col_append_str(pinfo->cinfo, COL_INFO, " (PLAYING)");
 
-                pitem = proto_tree_add_item(tree, hf_btavrcp_number_of_attributes, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, hf_btavrcp_number_of_attributes, tvb, offset, 1, ENC_BIG_ENDIAN);
                 number_of_attributes = tvb_get_guint8(tvb, offset);
-                if (number_of_attributes == 0) proto_item_append_text(pitem, " (All Supported Attributes)");
                 offset += 1;
                 offset = dissect_attribute_id_list(tvb, tree, offset, number_of_attributes);
             } else {
@@ -2004,7 +2008,6 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 guint64     uid;
                 guint       uid_counter;
                 guint       scope;
-                proto_item  *pitem = NULL;
 
                 proto_tree_add_item(tree, hf_btavrcp_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
                 scope = tvb_get_guint8(tvb, offset);
@@ -2015,13 +2018,12 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tree, hf_btavrcp_uid_counter, tvb, offset, 2, ENC_BIG_ENDIAN);
                 uid_counter = tvb_get_ntohs(tvb, offset);
                 offset += 2;
-                pitem = proto_tree_add_item(tree, hf_btavrcp_number_of_attributes, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, hf_btavrcp_number_of_attributes, tvb, offset, 1, ENC_BIG_ENDIAN);
                 number_of_attributes = tvb_get_guint8(tvb, offset);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
                         val_to_str_const(scope, scope_vals, "unknown"), uid, uid_counter);
 
-                if (number_of_attributes == 0) proto_item_append_text(pitem, " (All Supported Attributes)");
                 offset += 1;
                 offset = dissect_attribute_id_list(tvb, tree, offset, number_of_attributes);
             } else {
@@ -2482,7 +2484,7 @@ proto_register_btavrcp(void)
         },
         { &hf_btavrcp_number_of_attributes,
             { "Number of Attributes",            "btavrcp.number_of_attributes",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_all_supported_attributes), 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_attribute_count,

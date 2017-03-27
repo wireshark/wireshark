@@ -117,7 +117,8 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                   BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX, BASE_HEX_DEC,
                   BASE_CUSTOM, or BASE_NONE, possibly ORed with
                   BASE_RANGE_STRING, BASE_EXT_STRING, BASE_VAL64_STRING,
-                  BASE_ALLOW_ZERO, BASE_UNIT_STRING or BASE_NO_DISPLAY_VALUE
+                  BASE_ALLOW_ZERO, BASE_UNIT_STRING, BASE_VALS_NO_UNKNOWN or
+                  BASE_NO_DISPLAY_VALUE
 
                   BASE_NONE may be used with a non-NULL FIELDCONVERT when the
                   numeric value of the field itself is not of significance to
@@ -949,6 +950,11 @@ indicate the end of the array).  The 'strings' field would be set to
 
 If the field has a numeric rather than an enumerated type, the 'strings'
 field would be set to NULL.
+If BASE_VALS_NO_UNKNOWN is also applied to the display bitmask, then if
+the numeric value of a field doesn't match any values in the value_string
+then just the numeric value is displayed (i.e. no "Unknown"). This is intended
+for value_strings that may only have a single value or maybe an enumeration
+for mix/max values of a field.
 
 -- Extended value strings
 You can also use an extended version of the value_string for faster lookups.
@@ -993,9 +999,10 @@ val64_strings are like value_strings, except that the integer type
 used is a guint64 (instead of guint32). Instead of using the VALS()
 macro for the 'strings' field in the header_field_info struct array,
 'VALS64()' is used.
+BASE_VALS_NO_UNKNOWN can also be used for val64_string.
 
 -- Unit string
-Some integer fields, of type FT_UINT* and float fiels, of type FT_FLOAT
+Some integer fields, of type FT_UINT* and float fields, of type FT_FLOAT
 or FT_DOUBLE, need units of measurement to help convey the field value.
 
 A 'unit_name_string' structure is a way to add a unit suffix to a field.

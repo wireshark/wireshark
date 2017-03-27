@@ -789,6 +789,11 @@ static const value_string smb2_cipher_types[] = {
 	{ 0, NULL }
 };
 
+static const val64_string unique_unsolicited_response[] = {
+	{ 0xffffffffffffffff, "unsolicited response" },
+	{ 0, NULL }
+};
+
 #define SMB2_NUM_PROCEDURES     256
 
 static void
@@ -8914,7 +8919,6 @@ static int
 dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean first_in_chain)
 {
 	gboolean    smb2_transform_header = FALSE;
-	proto_item *msg_id_item;
 	proto_item *item		  = NULL;
 	proto_tree *tree		  = NULL;
 	proto_item *header_item		  = NULL;
@@ -9056,10 +9060,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		/* Message ID */
 		si->msg_id = tvb_get_letoh64(tvb, offset);
 		ssi_key.msg_id = si->msg_id;
-		msg_id_item = proto_tree_add_item(header_tree, hf_smb2_msg_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-		if (msg_id_item && (si->msg_id == G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF))) {
-			proto_item_append_text(msg_id_item, " (unsolicited response)");
-		}
+		proto_tree_add_item(header_tree, hf_smb2_msg_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
 		/* Tree ID and Session ID */
@@ -9279,8 +9280,8 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_msg_id,
-			{ "Message ID", "smb2.msg_id", FT_UINT64, BASE_DEC,
-			NULL, 0, NULL, HFILL }
+			{ "Message ID", "smb2.msg_id", FT_UINT64, BASE_DEC|BASE_VAL64_STRING|BASE_VALS_NO_UNKNOWN,
+			VALS64(unique_unsolicited_response), 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_tid,

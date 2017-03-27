@@ -1903,6 +1903,26 @@ static const value_string cp15_op_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string unique_selects_volatile_string_parameters[] = {
+	{ 0, "Selects volatile string parameters" },
+	{ 0, NULL }
+};
+
+static const value_string unique_disable_message_generation[] = {
+	{ 0xFF, "Disable Message Generation" },
+	{ 0, NULL }
+};
+
+static const value_string unique_sel_is_empty[] = {
+	{ 0xFFFF, "SEL is empty" },
+	{ 0, NULL }
+};
+
+static const value_string unique_event_processed_not_logged[] = {
+	{ 0, "Event processed but cannot be logged" },
+	{ 0, NULL }
+};
+
 static void
 cfgparam_00(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree)
 {
@@ -1993,16 +2013,10 @@ cfgparam_12(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *s_tree;
-	guint8 tmp;
 
 	ti = proto_tree_add_item(tree, hf_ipmi_se_cp12_byte1, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_se_cp12_byte1);
-	tmp = tvb_get_guint8(tvb, 0) & 0x7f;
-	ti = proto_tree_add_item(s_tree, hf_ipmi_se_cp12_alert_stringsel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	if (tmp == 0) {
-		proto_item_append_text(ti, " (Selects volatile string parameters)");
-	}
-
+	proto_tree_add_item(s_tree, hf_ipmi_se_cp12_alert_stringsel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_cp12_evfilter, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_cp12_alert_stringset, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 }
@@ -2145,16 +2159,7 @@ static const struct true_false_string tfs_2b_enabled = {
 static void
 rq00(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	unsigned int addr;
-	proto_item *ti;
-
-	addr = tvb_get_guint8(tvb, 0);
-	ti = proto_tree_add_item(tree, hf_ipmi_se_00_addr, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	if (addr == 0xff)
-	{
-		proto_item_append_text(ti, " (Disable Message Generation)");
-	}
-
+	proto_tree_add_item(tree, hf_ipmi_se_00_addr, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_00_lun, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
@@ -2163,16 +2168,7 @@ rq00(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	unsigned int addr;
-	proto_item *ti;
-
-	addr = tvb_get_guint8(tvb, 0);
-	ti = proto_tree_add_item(tree, hf_ipmi_se_01_addr, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	if (addr == 0xff)
-	{
-		proto_item_append_text(ti, " (Disable Message Generation)");
-	}
-
+	proto_tree_add_item(tree, hf_ipmi_se_01_addr, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_01_lun, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
@@ -2374,23 +2370,10 @@ static const value_string cc14[] = {
 static void
 rs15(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint16 tmp;
-	proto_item *ti;
-
 	ipmi_add_timestamp(tree, hf_ipmi_se_15_tstamp, tvb, 0);
-	tmp = tvb_get_letohs(tvb, 4);
-	ti = proto_tree_add_item(tree, hf_ipmi_se_15_lastrec, tvb, 4, 2, ENC_LITTLE_ENDIAN);
-	if (tmp == 0xffff)
-	{
-		proto_item_append_text(ti, " (SEL is empty)");
-	}
+	proto_tree_add_item(tree, hf_ipmi_se_15_lastrec, tvb, 4, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_15_proc_sw, tvb, 6, 2, ENC_LITTLE_ENDIAN);
-	tmp = tvb_get_letohs(tvb, 8);
-	ti = proto_tree_add_item(tree, hf_ipmi_se_15_proc_bmc, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-	if (tmp == 0)
-	{
-		proto_item_append_text(ti, " (Event processed but cannot be logged)");
-	}
+	proto_tree_add_item(tree, hf_ipmi_se_15_proc_bmc, tvb, 8, 2, ENC_LITTLE_ENDIAN);
 }
 
 static const value_string cc15[] = {
@@ -2989,7 +2972,7 @@ proto_register_ipmi_se(void)
 				"ipmi.cp12.byte1", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_se_cp12_alert_stringsel,
 			{ "Alert String Selector (set selector)",
-				"ipmi.cp12.alert_stringsel", FT_UINT8, BASE_HEX, NULL, 0x7f, NULL, HFILL }},
+				"ipmi.cp12.alert_stringsel", FT_UINT8, BASE_HEX|BASE_VALS_NO_UNKNOWN, VALS(unique_selects_volatile_string_parameters), 0x7f, NULL, HFILL }},
 		{ &hf_ipmi_se_cp12_evfilter,
 			{ "Filter Number",
 				"ipmi.cp12.evfilter", FT_UINT8, BASE_HEX, NULL, 0x7f, NULL, HFILL }},
@@ -3038,14 +3021,14 @@ proto_register_ipmi_se(void)
 
 		{ &hf_ipmi_se_00_addr,
 			{ "Event Receiver slave address",
-				"ipmi.se00.addr", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+				"ipmi.se00.addr", FT_UINT8, BASE_HEX|BASE_VALS_NO_UNKNOWN, VALS(unique_disable_message_generation), 0, NULL, HFILL }},
 		{ &hf_ipmi_se_00_lun,
 			{ "Event Receiver LUN",
 				"ipmi.se00.lun", FT_UINT8, BASE_HEX, NULL, 0x3, NULL, HFILL }},
 
 		{ &hf_ipmi_se_01_addr,
 			{ "Event Receiver slave address",
-				"ipmi.se01.addr", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+				"ipmi.se01.addr", FT_UINT8, BASE_HEX|BASE_VALS_NO_UNKNOWN, VALS(unique_disable_message_generation), 0, NULL, HFILL }},
 		{ &hf_ipmi_se_01_lun,
 			{ "Event Receiver LUN",
 				"ipmi.se01.lun", FT_UINT8, BASE_HEX, NULL, 0x3, NULL, HFILL }},
@@ -3135,13 +3118,13 @@ proto_register_ipmi_se(void)
 				"ipmi.se15.tstamp", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_se_15_lastrec,
 			{ "Record ID for last record in SEL",
-				"ipmi.se15.lastrec", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+				"ipmi.se15.lastrec", FT_UINT16, BASE_HEX|BASE_VALS_NO_UNKNOWN, VALS(unique_sel_is_empty), 0, NULL, HFILL }},
 		{ &hf_ipmi_se_15_proc_sw,
 			{ "Last SW Processed Event Record ID",
 				"ipmi.se15.proc_sw", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_se_15_proc_bmc,
 			{ "Last BMC Processed Event Record ID",
-				"ipmi.se15.proc_bmc", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+				"ipmi.se15.proc_bmc", FT_UINT16, BASE_HEX|BASE_VALS_NO_UNKNOWN, VALS(unique_event_processed_not_logged), 0, NULL, HFILL }},
 
 		{ &hf_ipmi_se_16_chan,
 			{ "Channel",

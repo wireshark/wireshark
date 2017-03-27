@@ -188,10 +188,18 @@ static const value_string connection_priority[] = {
     { 0, NULL }
 };
 
-
-
 static const char *alcap_proto_name = "AAL type 2 signalling protocol (Q.2630)";
 static const char *alcap_proto_name_short = "ALCAP";
+
+static const value_string all_paths_vals[] = {
+    { 0, "All Paths in association" },
+    { 0, NULL }
+};
+
+static const value_string all_cids_vals[] = {
+    { 0, "All CIDs in the Path" },
+    { 0, NULL }
+};
 
 /* Initialize the subtree pointers */
 static gint ett_alcap = -1;
@@ -496,27 +504,22 @@ static const gchar* dissect_fields_ceid(packet_info* pinfo, tvbuff_t *tvb, proto
      * 7.4.3 Path Identifier
      * 7.4.4 Channel Identifier
      */
-    proto_item* pi;
-
     if (len != 5) {
         proto_tree_add_expert(tree, pinfo, &ei_alcap_parameter_field_bad_length, tvb, offset, len);
         return NULL;
     }
 
-    pi = proto_tree_add_item(tree,hf_alcap_ceid_pathid,tvb,offset,4,ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_alcap_ceid_pathid, tvb, offset, 4, ENC_BIG_ENDIAN, &msg_info->pathid);
 
-    msg_info->pathid = tvb_get_ntohl(tvb,offset);
     msg_info->cid = tvb_get_guint8(tvb,offset+4);
 
     if (msg_info->pathid == 0) {
-        proto_item_append_text(pi," (All Paths in association)");
         return "Path: 0 (All Paths)";
     }
 
-    pi = proto_tree_add_item(tree,hf_alcap_ceid_cid,tvb,offset+4,1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree,hf_alcap_ceid_cid,tvb,offset+4,1,ENC_BIG_ENDIAN);
 
     if (msg_info->cid == 0) {
-        proto_item_append_text(pi," (All CIDs in the Path)");
         return wmem_strdup_printf(wmem_packet_scope(), "Path: %u CID: 0 (Every CID)",msg_info->pathid);
     } else {
         return wmem_strdup_printf(wmem_packet_scope(), "Path: %u CID: %u",msg_info->pathid,msg_info->cid);
@@ -1583,12 +1586,12 @@ proto_register_alcap(void)
 
     { &hf_alcap_ceid_pathid,
       { "Path ID", "alcap.ceid.pathid",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(all_paths_vals), 0,
         NULL, HFILL }
     },
     { &hf_alcap_ceid_cid,
       { "CID", "alcap.ceid.cid",
-        FT_UINT8, BASE_DEC, NULL, 0,
+        FT_UINT8, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(all_cids_vals), 0,
         NULL, HFILL }
     },
 

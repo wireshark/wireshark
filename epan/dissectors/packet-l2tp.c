@@ -959,6 +959,11 @@ static const value_string iwf_types_vals[] = {
     { 0,     NULL },
 };
 
+static const val64_string unique_indeterminable_or_no_link[] = {
+    { 0, "indeterminable or no physical p2p link" },
+    { 0, NULL },
+};
+
 static const true_false_string tfs_up_down = { "Up", "Down" };
 static const true_false_string tfs_new_existing = { "New", "Existing" };
 
@@ -1976,7 +1981,7 @@ static void process_control_avps(tvbuff_t *tvb,
                                  l2tpv3_tunnel_t *tunnel)
 {
     proto_tree *l2tp_lcp_avp_tree, *l2tp_avp_tree = NULL, *l2tp_avp_tree_sub, *l2tp_avp_csu_tree;
-    proto_item *tf, *te, *tc;
+    proto_item *te, *tc;
 
     int                msg_type  = 0;
     gboolean           isStopCcn = FALSE;
@@ -2472,31 +2477,17 @@ static void process_control_avps(tvbuff_t *tvb,
             store_cma_nonce(tunnel, tvb, idx, avp_len, msg_type);
             break;
         case TX_CONNECT_SPEED_V3:
-        {
-            guint64 speed;
             if (avp_len < 8)
                 break;
 
-            speed = tvb_get_ntoh64(tvb, idx);
-            tf = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_tx_connect_speed_v3, tvb, idx, 8, ENC_BIG_ENDIAN);
-            if (speed == 0) {
-                proto_item_append_text(tf, " (indeterminable or no physical p2p link)");
-            }
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_tx_connect_speed_v3, tvb, idx, 8, ENC_BIG_ENDIAN);
             break;
-        }
         case RX_CONNECT_SPEED_V3:
-        {
-            guint64 speed;
             if (avp_len < 8)
                 break;
 
-            speed = tvb_get_ntoh64(tvb, idx);
-            tf = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_rx_connect_speed_v3, tvb, idx, 8, ENC_BIG_ENDIAN);
-            if (speed == 0) {
-                proto_item_append_text(tf, " (indeterminable or no physical p2p link)");
-            }
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_rx_connect_speed_v3, tvb, idx, 8, ENC_BIG_ENDIAN);
             break;
-        }
         case CONNECT_SPEED_UPDATE:
         {
             tc = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_csu, tvb, idx, avp_len, ENC_NA);
@@ -3720,8 +3711,8 @@ proto_register_l2tp(void)
       { &hf_l2tp_avp_circuit_type, { "Circuit Type", "l2tp.avp.circuit_type", FT_BOOLEAN, 16, TFS(&tfs_new_existing), 0x0002, NULL, HFILL }},
       { &hf_l2tp_avp_preferred_language, { "Preferred Language", "l2tp.avp.preferred_language", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_l2tp_avp_nonce, { "Nonce", "l2tp.avp.nonce", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_l2tp_avp_tx_connect_speed_v3, { "Tx Connect Speed v3", "l2tp.avp.tx_connect_speed_v3", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_l2tp_avp_rx_connect_speed_v3, { "Rx Connect Speed v3", "l2tp.avp.rx_connect_speed_v3", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_tx_connect_speed_v3, { "Tx Connect Speed v3", "l2tp.avp.tx_connect_speed_v3", FT_UINT64, BASE_HEX|BASE_VAL64_STRING|BASE_VALS_NO_UNKNOWN, VALS64(unique_indeterminable_or_no_link), 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_rx_connect_speed_v3, { "Rx Connect Speed v3", "l2tp.avp.rx_connect_speed_v3", FT_UINT64, BASE_HEX|BASE_VAL64_STRING|BASE_VALS_NO_UNKNOWN, VALS64(unique_indeterminable_or_no_link), 0x0, NULL, HFILL }},
       { &hf_l2tp_lapd_info, { "LAPD info", "l2tp.lapd_info", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_l2tp_session_id, { "Packet Type", "l2tp.session_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_l2tp_zero_length_body_message, { "Zero Length Body message", "l2tp.zero_length_body_message", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},

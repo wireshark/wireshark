@@ -217,6 +217,11 @@ static const value_string tfs_support[] = {
 	{0, NULL}
 };
 
+static const value_string unique_no_limit[] = {
+	{0, "no limit"},
+	{0, NULL}
+};
+
 /* Decode REG-REQ sub-TLV's. */
 void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len, packet_info *pinfo, guint offset, gint proto_registry)
 {
@@ -314,10 +319,7 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 			add_tlv_subtree(&tlv_info, reg_req_tree, hf_reg_arq, tvb, offset, ENC_BIG_ENDIAN);
 			break;
 		case REG_DSX_FLOW_CONTROL:
-			tlv_item = add_tlv_subtree(&tlv_info, reg_req_tree, hf_reg_dsx_flow_control, tvb, offset, ENC_BIG_ENDIAN);
-			if (tvb_get_guint8(tvb, tlv_offset) == 0) {
-				proto_item_append_text(tlv_item, " (no limit)");
-			}
+			add_tlv_subtree(&tlv_info, reg_req_tree, hf_reg_dsx_flow_control, tvb, offset, ENC_BIG_ENDIAN);
 			break;
 		case REG_MAC_CRC_SUPPORT:
 			if (!include_cor2_changes) {
@@ -328,10 +330,7 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 			}
 			break;
 		case REG_MCA_FLOW_CONTROL:
-			tlv_item = add_tlv_subtree(&tlv_info, reg_req_tree, hf_reg_mca_flow_control, tvb, offset, ENC_BIG_ENDIAN);
-			if (tvb_get_guint8(tvb, tlv_offset) == 0) {
-				proto_item_append_text(tlv_item, " (no limit)");
-			}
+			add_tlv_subtree(&tlv_info, reg_req_tree, hf_reg_mca_flow_control, tvb, offset, ENC_BIG_ENDIAN);
 			break;
 		case REG_MCAST_POLLING_CIDS:
 			add_tlv_subtree(&tlv_info, reg_req_tree, hf_reg_mcast_polling_cids, tvb, offset, ENC_BIG_ENDIAN);
@@ -741,7 +740,7 @@ void proto_register_mac_mgmt_msg_reg_req(void)
 			&hf_reg_dsx_flow_control,
 			{
 				"DSx flow control", "wmx.reg.dsx_flow_control",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0x0, NULL, HFILL
 			}
 		},
 		/* When REG-REQ TLV 7 is length 2 */
@@ -960,7 +959,7 @@ void proto_register_mac_mgmt_msg_reg_req(void)
 			&hf_reg_tlv_t_43_bandwidth_request_ul_tx_power_report_header_support,
 			{
 				"Bandwidth request and UL Tx Power Report header support",
-				"wimax.reg.bandwidth_request_ul_tx_pwr_report_header_support",
+				"wmx.reg.bandwidth_request_ul_tx_pwr_report_header_support",
 				FT_UINT24, BASE_DEC, VALS(tfs_support), 0x1, NULL, HFILL
 			}
 		},
@@ -1073,7 +1072,7 @@ void proto_register_mac_mgmt_msg_reg_req(void)
 			&hf_reg_mca_flow_control,
 			{
 				"MCA flow control", "wmx.reg.mca_flow_control",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0x0, NULL, HFILL
 			}
 		},
 		{

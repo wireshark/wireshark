@@ -7118,6 +7118,13 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 							hfinfo->name, hfinfo->abbrev,
 							ftype_name(hfinfo->type));
 					}
+					if (hfinfo->display & BASE_VALS_NO_UNKNOWN) {
+						g_error("Field '%s' (%s) is an integral value (%s)"
+							" that is being displayed as BASE_NONE but"
+							" with BASE_VALS_NO_UNKNOWN",
+							hfinfo->name, hfinfo->abbrev,
+							ftype_name(hfinfo->type));
+					}
 					break;
 
 				default:
@@ -8269,13 +8276,28 @@ fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed)
 		 * frame-number field - they're just integers giving
 		 * the ordinal frame number.
 		 */
-		const char *val_str = hf_try_val_to_str_const(value, hfinfo, "Unknown");
+		const char *val_str = hf_try_val_to_str(value, hfinfo);
 
 		out = hfinfo_number_vals_format(hfinfo, buf, value);
-		if (out == NULL) /* BASE_NONE so don't put integer in descr */
-			label_fill(label_str, 0, hfinfo, val_str);
-		else
-			label_fill_descr(label_str, 0, hfinfo, val_str, out);
+		if (hfinfo->display & BASE_VALS_NO_UNKNOWN) {
+			/*
+			 * Unique values only display value_string string
+			 * if there is a match.  Otherwise it's just a number
+			 */
+			if (val_str) {
+				label_fill_descr(label_str, 0, hfinfo, val_str, out);
+			} else {
+				label_fill(label_str, 0, hfinfo, out);
+			}
+		} else {
+			if (val_str == NULL)
+				val_str = "Unknown";
+
+			if (out == NULL) /* BASE_NONE so don't put integer in descr */
+				label_fill(label_str, 0, hfinfo, val_str);
+			else
+				label_fill_descr(label_str, 0, hfinfo, val_str, out);
+		}
 	}
 	else if (IS_BASE_PORT(hfinfo->display)) {
 		gchar tmp[ITEM_LABEL_LENGTH];

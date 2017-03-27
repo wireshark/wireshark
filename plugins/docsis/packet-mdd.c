@@ -284,6 +284,12 @@ static const value_string upstream_transmit_power_reporting_vals[] = {
   {0, NULL}
 };
 
+static const value_string unique_unlimited[] = {
+  { 0, "Unlimited" },
+  {0, NULL}
+};
+
+
 /* Windows does not allow data copy between dlls */
 const true_false_string mdd_tfs_on_off = { "On", "Off" };
 
@@ -546,10 +552,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                     proto_item_append_text(text_item, " (%d ms)", (256*tvb_get_guint8 (tvb, subpos) + tvb_get_guint8 (tvb, subpos + 1)) * 20);
                     break;
                   case MAXIMUM_NUMBER_OF_REPORTS_PER_EVENT:
-                    text_item = proto_tree_add_item (tlv_tree, hf_docsis_mdd_maximum_number_of_reports_per_event, tvb, subpos, 1, ENC_BIG_ENDIAN);
-                    if ( tvb_get_guint8 (tvb, subpos) == 0) {
-                      proto_item_append_text(text_item, " (Unlimited)");
-                    }
+                    proto_tree_add_item (tlv_tree, hf_docsis_mdd_maximum_number_of_reports_per_event, tvb, subpos, 1, ENC_BIG_ENDIAN);
                     break;
                 }
                 subpos += sublength + 2;
@@ -770,7 +773,7 @@ void proto_register_docsis_mdd (void)
     },
     {&hf_docsis_mdd_maximum_number_of_reports_per_event,
      {"Maximum Number of Reports per Event", "docsis_mdd.maximum_number_of_reports_per_event",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
+      FT_UINT8, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_unlimited), 0x0,
       "Mdd Maximum Number of Reports per Event", HFILL}
     },
     {&hf_docsis_mdd_upstream_transmit_power_reporting,

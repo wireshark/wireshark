@@ -1282,6 +1282,23 @@ static const value_string mpl_seed_id_lengths[] = {
 };
 static const guint8 mpl_seed_id_code_to_length[] = { 0, 2, 8, 16 }; /* bytes */
 
+static const value_string unique_infinity[] = {
+    { 0xffffffff, "Infinity" },
+    { 0, NULL}
+};
+
+static const value_string dnssl_infinity[] = {
+    { 0, "DNSSL domain name MUST no longer be used" },
+    { 0xffffffff, "Infinity" },
+    { 0, NULL}
+};
+
+static const value_string rdnss_infinity[] = {
+    { 0, "RDNSS address MUST no longer be used" },
+    { 0xffffffff, "Infinity" },
+    { 0, NULL}
+};
+
 static int
 dissect_contained_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1641,27 +1658,11 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 1;
 
                 /* Prefix Valid Lifetime */
-                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_valid_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
-
-                switch(tvb_get_ntohl(tvb, opt_offset)){
-                    case 0xffffffff:
-                        proto_item_append_text(ti_opt, " (Infinity)");
-                        break;
-                    default:
-                        break;
-                }
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_valid_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                 opt_offset += 4;
 
                 /* Prefix Preferred Lifetime */
-                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_preferred_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
-
-                switch(tvb_get_ntohl(tvb, opt_offset)){
-                    case 0xffffffff:
-                        proto_item_append_text(ti_opt, " (Infinity)");
-                        break;
-                    default:
-                        break;
-                }
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_preferred_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                 opt_offset += 4;
 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_NA);
@@ -2059,15 +2060,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 1;
 
                 /* Route Lifetime */
-                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_route_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
-
-                switch(tvb_get_ntohl(tvb, opt_offset)){
-                    case 0xffffffff:
-                        proto_item_append_text(ti_opt, " (Infinity)");
-                        break;
-                    default:
-                        break;
-                }
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_route_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                 opt_offset += 4;
 
                 /* Prefix */
@@ -2103,20 +2096,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 2;
 
                 /* RDNSS Lifetime */
-                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_rdnss_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
-                /* A value of all one bits (0xffffffff) represents infinity.  A value of
-                 * zero means that the RDNSS address MUST no longer be used.
-                 */
-                switch(tvb_get_ntohl(tvb, opt_offset)){
-                    case 0:
-                        proto_item_append_text(ti_opt, " (RDNSS address MUST no longer be used)");
-                        break;
-                    case 0xffffffff:
-                        proto_item_append_text(ti_opt, " (Infinity)");
-                        break;
-                    default:
-                        break;
-                }
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_rdnss_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                 opt_offset += 4;
 
                 while(opt_offset < (offset + opt_len) ) {
@@ -2262,17 +2242,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 2;
 
                 /* DNSSL Lifetime */
-                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_dnssl_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
-                switch(tvb_get_ntohl(tvb, opt_offset)){
-                    case 0:
-                        proto_item_append_text(ti_opt, " (DNSSL domain name MUST no longer be used)");
-                        break;
-                    case 0xffffffff:
-                        proto_item_append_text(ti_opt, " (Infinity)");
-                        break;
-                    default:
-                        break;
-                }
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_dnssl_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                 opt_offset += 4;
                 while(opt_offset < (offset + opt_len) ) {
 
@@ -2681,15 +2651,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 opt_offset +=1;
 
                 /* Prefix lifetime. */
-                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
-
-                switch(tvb_get_ntohl(tvb, opt_offset)){
-                    case 0xffffffff:
-                        proto_item_append_text(ti_opt, " (Infinity)");
-                        break;
-                    default:
-                        break;
-                }
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                 opt_offset += 4;
 
                 switch(opt_len){
@@ -2887,25 +2849,11 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 opt_offset += 1;
 
                 /* Valid lifetime. */
-                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_vlifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
-                switch(tvb_get_ntohl(tvb, opt_offset)){
-                    case 0xffffffff:
-                        proto_item_append_text(ti_opt, " (Infinity)");
-                        break;
-                    default:
-                        break;
-                }
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_vlifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                 opt_offset += 4;
 
                 /* Preferred Lifetime */
-                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_plifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
-                switch(tvb_get_ntohl(tvb, opt_offset)){
-                    case 0xffffffff:
-                        proto_item_append_text(ti_opt, " (Infinity)");
-                        break;
-                    default:
-                        break;
-                }
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_plifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                 opt_offset += 4;
 
                 /* 4 reserved bytes. */
@@ -3622,25 +3570,11 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
             rr_offset += 1;
 
             /* Valid Lifetime */
-            ti = proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_validlifetime, tvb, rr_offset, 4, ENC_BIG_ENDIAN);
-            switch(tvb_get_ntohl(tvb, rr_offset)){
-                case 0xffffffff:
-                    proto_item_append_text(ti, " (Infinity)");
-                break;
-                default:
-                break;
-            }
+            proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_validlifetime, tvb, rr_offset, 4, ENC_BIG_ENDIAN);
             rr_offset += 4;
 
             /* Preferred Lifetime */
-            ti = proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_preferredlifetime, tvb, rr_offset, 4, ENC_BIG_ENDIAN);
-            switch(tvb_get_ntohl(tvb, rr_offset)){
-                case 0xffffffff:
-                    proto_item_append_text(ti, " (Infinity)");
-                break;
-                default:
-                break;
-            }
+            proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_preferredlifetime, tvb, rr_offset, 4, ENC_BIG_ENDIAN);
             rr_offset += 4;
 
 
@@ -4725,10 +4659,10 @@ proto_register_icmpv6(void)
           { "Reserved", "icmpv6.opt.prefix.flag.reserved", FT_UINT8, BASE_DEC, NULL, 0x1f,
             NULL, HFILL }},
         { &hf_icmpv6_opt_prefix_valid_lifetime,
-          { "Valid Lifetime", "icmpv6.opt.prefix.valid_lifetime", FT_UINT32, BASE_DEC, NULL, 0x00,
+          { "Valid Lifetime", "icmpv6.opt.prefix.valid_lifetime", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_infinity), 0x00,
             "The length of time in seconds that the prefix is valid for the purpose of on-link determination", HFILL }},
         { &hf_icmpv6_opt_prefix_preferred_lifetime,
-          { "Preferred Lifetime", "icmpv6.opt.prefix.preferred_lifetime", FT_UINT32, BASE_DEC, NULL, 0x00,
+          { "Preferred Lifetime", "icmpv6.opt.prefix.preferred_lifetime", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_infinity), 0x00,
             "The length of time in seconds that addresses generated from the prefix via stateless address autoconfiguration remain preferred", HFILL }},
         { &hf_icmpv6_opt_prefix,
           { "Prefix", "icmpv6.opt.prefix", FT_IPv6, BASE_NONE, NULL, 0x00,
@@ -4839,7 +4773,7 @@ proto_register_icmpv6(void)
           { "Reserved", "icmpv6.opt.route_info.flag.reserved", FT_UINT8, BASE_DEC, NULL, ND_RA_FLAG_RESERV_MASK,
             "Must be 0", HFILL }},
         { &hf_icmpv6_opt_route_lifetime,
-          { "Route Lifetime", "icmpv6.opt.route_lifetime", FT_UINT32, BASE_DEC, NULL, 0x00,
+          { "Route Lifetime", "icmpv6.opt.route_lifetime", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_infinity), 0x00,
             "The length of time in seconds that the prefix is valid for the purpose of route determination", HFILL }},
         { &hf_icmpv6_opt_name_type,
           { "Name Type", "icmpv6.opt.name_type", FT_UINT8, BASE_DEC, VALS(icmpv6_option_name_type_vals), 0x0,
@@ -4892,7 +4826,7 @@ proto_register_icmpv6(void)
           { "IPv6 Address", "icmpv6.opt.ipv6_address", FT_IPv6, BASE_NONE, NULL, 0x0,
             "IPv6 addresses of the interface", HFILL }},
         { &hf_icmpv6_opt_rdnss_lifetime,
-          { "Lifetime", "icmpv6.opt.rdnss.lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+          { "Lifetime", "icmpv6.opt.rdnss.lifetime", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(rdnss_infinity), 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_rdnss,
           { "Recursive DNS Servers", "icmpv6.opt.rdnss", FT_IPv6, BASE_NONE, NULL, 0x0,
@@ -4958,7 +4892,7 @@ proto_register_icmpv6(void)
           { "MN-Value", "icmpv6.opt.mn.value", FT_BYTES, BASE_NONE, NULL, 0x0,
             "The value specified by the Option-Code", HFILL }},
         { &hf_icmpv6_opt_dnssl_lifetime,
-          { "Lifetime", "icmpv6.opt.dnssl.lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+          { "Lifetime", "icmpv6.opt.dnssl.lifetime", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(dnssl_infinity), 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_dnssl,
           { "Domain Names", "icmpv6.opt.dnssl", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -5113,10 +5047,10 @@ proto_register_icmpv6(void)
           { "Reserved", "icmpv6.rr.pco.up.flagmask.reserved", FT_UINT8, BASE_DEC, NULL, 0x3f,
             NULL, HFILL }},
         { &hf_icmpv6_rr_pco_up_validlifetime,
-           { "Valid Lifetime", "icmpv6.rr.pco.up.validlifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+           { "Valid Lifetime", "icmpv6.rr.pco.up.validlifetime", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_infinity), 0x0,
              "The number of seconds for which the New Prefix will be valid", HFILL }},
         { &hf_icmpv6_rr_pco_up_preferredlifetime,
-           { "Preferred Lifetime", "icmpv6.rr.pco.up.preferredlifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+           { "Preferred Lifetime", "icmpv6.rr.pco.up.preferredlifetime", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_infinity), 0x0,
              "The number of seconds for which the New Prefix will be preferred", HFILL }},
         { &hf_icmpv6_rr_pco_up_flag,
            { "Flags", "icmpv6.rr.pco.up.flag", FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -5580,7 +5514,7 @@ proto_register_icmpv6(void)
            { "Reserved","icmpv6.rpl.opt.route.reserved", FT_UINT8, BASE_DEC, NULL, RPL_OPT_ROUTE_RESERVED,
              "Reserved (Must be Zero)", HFILL }},
         { &hf_icmpv6_rpl_opt_route_lifetime,
-           { "Route Lifetime", "icmpv6.rpl.opt.route.lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+           { "Route Lifetime", "icmpv6.rpl.opt.route.lifetime", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_infinity), 0x0,
              "The length of time in seconds (relative to the time the packet is sent) that the prefix is valid for route determination", HFILL }},
         { &hf_icmpv6_rpl_opt_route_prefix,
            { "Prefix", "icmpv6.rpl.opt.route.prefix", FT_IPv6, BASE_NONE, NULL, 0x0,
@@ -5698,10 +5632,10 @@ proto_register_icmpv6(void)
            { "Reserved", "icmpv6.rpl.opt.config.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_OPT_PREFIX_FLAG_RSV,
              "Must Be Zero", HFILL }},
         { &hf_icmpv6_rpl_opt_prefix_vlifetime,
-           { "Valid Lifetime", "icmpv6.rpl.opt.prefix.valid_lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+           { "Valid Lifetime", "icmpv6.rpl.opt.prefix.valid_lifetime", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_infinity), 0x0,
              "The length of time in seconds that the prefix is valid for the purpose of on-link determination", HFILL }},
         { &hf_icmpv6_rpl_opt_prefix_plifetime,
-           { "Preferred Lifetime", "icmpv6.rpl.opt.prefix.preferred_lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+           { "Preferred Lifetime", "icmpv6.rpl.opt.prefix.preferred_lifetime", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_infinity), 0x0,
              "The length of time in seconds that addresses generated from the prefix via stateless address autoconfiguration remain preferred", HFILL }},
         { &hf_icmpv6_rpl_opt_prefix,
            { "Destination Prefix", "icmpv6.rpl.opt.prefix", FT_IPv6, BASE_NONE, NULL, 0x0,
