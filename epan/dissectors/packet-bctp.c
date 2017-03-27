@@ -61,7 +61,7 @@ static const range_string tpi_vals[] = {
 
 static const value_string bvei_vals[] = {
 	{0,"No indication"},
-	{0,"Version Error Indication, BCTP version not supported"},
+	{1,"Version Error Indication, BCTP version not supported"},
 	{0,NULL}
 };
 
