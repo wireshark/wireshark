@@ -171,7 +171,7 @@ static const value_string aq_opc_tbl[] = {
     { NVME_AQ_OPC_FW_COMMIT,     "Firmware Commit"},
     { NVME_AQ_OPC_FW_IMG_DOWNLOAD, "Firmware Image Download"},
     { NVME_AQ_OPC_NS_ATTACH,     "Namespace attach"},
-    { NVME_AQ_OPC_KEEP_ALIVE,    "Kepp Alive"},
+    { NVME_AQ_OPC_KEEP_ALIVE,    "Keep Alive"},
     { 0, NULL}
 };
 
