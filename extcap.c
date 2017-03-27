@@ -137,7 +137,8 @@ guint extcap_count(void)
             /* full path to extcap binary */
             g_string_printf(extcap_path, "%s" G_DIR_SEPARATOR_S "%s", dirname, file);
             /* treat anything executable as an extcap binary */
-            if (g_file_test(extcap_path->str, G_FILE_TEST_IS_EXECUTABLE))
+            if (g_file_test(extcap_path->str, G_FILE_TEST_IS_REGULAR) &&
+                g_file_test(extcap_path->str, G_FILE_TEST_IS_EXECUTABLE))
             {
                 count++;
             }
@@ -239,20 +240,25 @@ static gboolean extcap_foreach(gint argc, gchar **args,
 
             /* full path to extcap binary */
             g_string_printf(extcap_path, "%s" G_DIR_SEPARATOR_S "%s", dirname, file);
-            if (extcap_if_exists(cb_info.ifname) && !extcap_if_exists_for_extcap(cb_info.ifname, extcap_path->str))
+            /* treat anything executable as an extcap binary */
+            if (g_file_test(extcap_path->str, G_FILE_TEST_IS_REGULAR) &&
+                g_file_test(extcap_path->str, G_FILE_TEST_IS_EXECUTABLE))
             {
-                continue;
+                if (extcap_if_exists(cb_info.ifname) && !extcap_if_exists_for_extcap(cb_info.ifname, extcap_path->str))
+                {
+                    continue;
+                }
+
+                if (extcap_spawn_sync((gchar *) dirname, extcap_path->str, argc, args, &command_output))
+                {
+                    cb_info.output = command_output;
+                    cb_info.extcap = extcap_path->str;
+
+                    keep_going = cb(cb_info);
+                }
+
+                g_free(command_output);
             }
-
-            if (extcap_spawn_sync((gchar *) dirname, extcap_path->str, argc, args, &command_output))
-            {
-                cb_info.output = command_output;
-                cb_info.extcap = extcap_path->str;
-
-                keep_going = cb(cb_info);
-            }
-
-            g_free(command_output);
         }
 
         g_dir_close(dir);
