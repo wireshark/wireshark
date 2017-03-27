@@ -10032,7 +10032,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_transport_round_trip_time_string,
          {"Transport Round-Trip-Time",
-          "cflow.transport_rtt",
+          "cflow.transport_rtt.string",
           FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
           NULL, HFILL}
         },
@@ -10086,7 +10086,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_transport_rtp_jitter_mean_string,
          {"RTP Mean Jitter",
-          "cflow.transport_jitter_mean",
+          "cflow.transport_jitter_mean.string",
           FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
           NULL, HFILL}
         },
@@ -10098,7 +10098,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_transport_rtp_jitter_min_string,
          {"RTP Min Jitter",
-          "cflow.transport_jitter_min",
+          "cflow.transport_jitter_min.string",
           FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
           NULL, HFILL}
         },
@@ -10110,7 +10110,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_transport_rtp_jitter_max_string,
          {"RTP Max Jitter",
-          "cflow.transport_jitter_max",
+          "cflow.transport_jitter_max.string",
           FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
           NULL, HFILL}
         },
