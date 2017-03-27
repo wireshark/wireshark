@@ -677,7 +677,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 	renderer = gtk_cell_renderer_spin_new ();
-	buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new(DEFAULT_CAPTURE_BUFFER_SIZE, 1, 65535, 1.0, 10.0, 0.0);
+	buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new(DEFAULT_CAPTURE_BUFFER_SIZE, 1, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
 	g_object_set(G_OBJECT(renderer), "adjustment", buffer_size_adj, NULL);
 	column = gtk_tree_view_column_new_with_attributes ("Default buffer size (MiB)", renderer,
 							   "text", BUF_COLUMN,
@@ -834,7 +834,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_buffersize_lb, 0, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_buffersize_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_buffersize_lb);
-	buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new(DEFAULT_CAPTURE_BUFFER_SIZE, 1, 65535, 1.0, 10.0, 0.0);
+	buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new(DEFAULT_CAPTURE_BUFFER_SIZE, 1, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
 	if_buffersize_cb = gtk_spin_button_new (buffer_size_adj, 0, 0);
 	g_signal_connect(if_buffersize_cb, "value-changed", G_CALLBACK(ifopts_edit_buffersize_changed_cb),
 			cur_list);
@@ -852,7 +852,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 			cur_list);
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_snaplen_tg, 2, row, 1, 1);
 	gtk_widget_show(if_snaplen_tg);
-	snaplen_adj = (GtkAdjustment *) gtk_adjustment_new(65535, 1, 65535, 1.0, 10.0, 0.0);
+	snaplen_adj = (GtkAdjustment *) gtk_adjustment_new(WTAP_MAX_PACKET_SIZE, 1, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
 	if_snaplen_cb = gtk_spin_button_new (snaplen_adj, 0, 0);
 	g_signal_connect(if_snaplen_cb, "value-changed", G_CALLBACK(ifopts_edit_snaplen_changed_cb),
 			cur_list);

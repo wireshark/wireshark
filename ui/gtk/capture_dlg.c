@@ -37,6 +37,8 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/strtoi.h>
 
+#include <wiretap/wtap.h>
+
 #include "ui/capture.h"
 #include "caputils/capture_ifinfo.h"
 #include "caputils/capture-pcap-util.h"
@@ -2646,7 +2648,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   device.monitor_mode_supported = FALSE;
 #endif
   device.has_snaplen = FALSE;
-  device.snaplen = 65535;
+  device.snaplen = WTAP_MAX_PACKET_SIZE;
   device.cfilter = NULL;
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
   device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
@@ -2971,7 +2973,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_lb, FALSE, FALSE, 0);
 
   buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) device.buffer,
-    1, 65535, 1.0, 10.0, 0.0);
+    1, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
   buffer_size_sb = gtk_spin_button_new (buffer_size_adj, 0, 0);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON (buffer_size_sb), (gfloat) device.buffer);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (buffer_size_sb), TRUE);

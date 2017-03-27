@@ -1154,7 +1154,7 @@ file_import_dlg_new(void)
 
     framelen_te = gtk_entry_new();
     gtk_widget_set_tooltip_text(framelen_te,
-                                "The maximum size of the frames to write to the import capture file (max 65535)");
+                                "The maximum size of the frames to write to the import capture file (max 262144)");
     gtk_box_pack_start(GTK_BOX(framelen_hb), framelen_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(import_frm), IMPORT_FRAME_LENGTH_TE_KEY, framelen_te);
