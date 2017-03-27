@@ -360,7 +360,7 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 
 	fclose(fp);
 	closesocket(sock);
-    g_free(buf);
+	g_free(buf);
 }
 
 int main(int argc, char *argv[])
