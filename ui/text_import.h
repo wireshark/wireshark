@@ -37,7 +37,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define IMPORT_MAX_PACKET 65535
+#define IMPORT_MAX_PACKET WTAP_MAX_PACKET_SIZE
 
 /* The parameter interface */
 
