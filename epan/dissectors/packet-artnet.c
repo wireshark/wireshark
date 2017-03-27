@@ -1168,7 +1168,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x4C58, "Lex Products Corp." },
   { 0x4C59, "Laser Technology Ltd." },
   { 0x4C5A, "LightMinded Industries, Inc." },
-  { 0x4C5A, "Sumolight GmbH" },
+/*  { 0x4C5A, "Sumolight GmbH" }, */
   { 0x4C5B, "LightLife, Gesellschaft fuer audiovisuelle Erlebnisse mbH" },
   { 0x4C64, "LED Team" },
   { 0x4C65, "Legargeant and Associates" },
