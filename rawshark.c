@@ -1031,7 +1031,7 @@ load_cap_file(capture_file *cf)
     gchar       *err_info = NULL;
     gint64       data_offset = 0;
 
-    guchar pd[WTAP_MAX_PACKET_SIZE];
+    guchar      *pd;
     struct wtap_pkthdr phdr;
     epan_dissect_t edt;
 
@@ -1039,6 +1039,7 @@ load_cap_file(capture_file *cf)
 
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 
+    pd = (guchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
     while (raw_pipe_read(&phdr, pd, &err, &err_info, &data_offset)) {
         process_packet(cf, &edt, data_offset, &phdr, pd);
     }
@@ -1046,7 +1047,7 @@ load_cap_file(capture_file *cf)
     epan_dissect_cleanup(&edt);
 
     wtap_phdr_cleanup(&phdr);
-
+    g_free(pd);
     if (err != 0) {
         /* Print a message noting that the read failed somewhere along the line. */
         switch (err) {
