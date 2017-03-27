@@ -1319,7 +1319,23 @@ static const true_false_string mpls_bos_tfs = {
     ""
 };
 
+/* https://www.iana.org/assignments/ipfix/ipfix.xhtml#classification-engine-ids */
 
+static const value_string classification_engine_types[] = {
+    { 0, "invalid" },
+    { 1, "IANA-L3" },
+    { 2, "PANA-L3" },
+    { 3, "IANA-L4" },
+    { 4, "PANA-L4" },
+    { 6, "USER-Defined" },
+    { 12, "PANA-L2" },
+    { 13, "PANA-L7" },
+    { 18, "ETHERTYPE" },
+    { 19, "LLC" },
+    { 20, "PANA-L7-PEN" },
+    { 21, "Qosmos ixEngine" },
+    { 0, NULL }
+};
 /*
  * wireshark tree identifiers
  */
@@ -8275,7 +8291,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_nbar_appl_id_class_eng_id,
          {"Classification Engine ID", "cflow.appl_id.classification_engine_id",
-          FT_UINT8, BASE_DEC, NULL, 0x0,
+          FT_UINT8, BASE_DEC, VALS(classification_engine_types), 0x0,
           "Application ID", HFILL}
         },
         {&hf_cflow_nbar_appl_id_selector_id,
