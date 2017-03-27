@@ -477,7 +477,7 @@ print_usage(FILE *output)
                     "                               rpcap://<host>/<interface>\n"
                     "                               TCP@<host>:<port>\n");
     fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
-    fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
+    fprintf(output, "  -s <snaplen>             packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE);
     fprintf(output, "  -p                       don't capture in promiscuous mode\n");
 #ifdef HAVE_PCAP_CREATE
     fprintf(output, "  -I                       capture in monitor mode, if available\n");

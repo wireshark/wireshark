@@ -48,7 +48,7 @@ Capture interface:
   -i <interface>           name or idx of interface (def: first non-loopback)
   -f <capfilter|predef:>   packet filter in libpcap filter syntax or
                            predef:filtername - predefined filtername from GUI
-  -s <snaplen>             packet snapshot length (def: 65535)
+  -s <snaplen>             packet snapshot length (def: 262144)
   -p                       don't capture in promiscuous mode
   -k                       start capturing immediately (def: do nothing)
   -S                       update packet display when new packets are captured

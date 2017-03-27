@@ -37,7 +37,7 @@ Usage: tshark [options] ...
 Capture interface:
   -i <interface>           name or idx of interface (def: first non-loopback)
   -f <capture filter>      packet filter in libpcap filter syntax
-  -s <snaplen>             packet snapshot length (def: 65535)
+  -s <snaplen>             packet snapshot length (def: 262144)
   -p                       don't capture in promiscuous mode
   -I                       capture in monitor mode, if available
   -B <buffer size>         size of kernel buffer (def: 2MB)
@@ -180,7 +180,7 @@ Capture interface:
                                rpcap://<host>/<interface>
                                TCP@<host>:<port>
   -f <capture filter>      packet filter in libpcap filter syntax
-  -s <snaplen>             packet snapshot length (def: 65535)
+  -s <snaplen>             packet snapshot length (def: 262144)
   -p                       don't capture in promiscuous mode
   -I                       capture in monitor mode, if available
   -B <buffer size>         size of kernel buffer in MiB (def: 2MiB)
@@ -868,7 +868,7 @@ Output:
                          hex dump of an encapsulated packet and you wish to
                          specify the exact type of encapsulation.
                          Example: -l 7 for ARCNet packets.
-  -m <max-packet>        max packet length in output; default is 65535
+  -m <max-packet>        max packet length in output; default is 262144
 
 Prepend dummy header:
   -e <l3pid>             prepend dummy Ethernet II header with specified L3PID

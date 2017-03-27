@@ -199,7 +199,7 @@ Loopback interfaces are not available on Windows platforms.
 * The information whether promicuous mode is enabled or disabled.
 
 * The maximum amount of data that will be captured for each packet. The default
-  value is set to the 65535 bytes.
+  value is set to the 262144 bytes.
 
 * The size of the kernel buffer that is reserved to keep the captured packets.
 

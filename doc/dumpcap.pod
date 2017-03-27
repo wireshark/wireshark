@@ -304,7 +304,7 @@ have to explicitly set it to use it).
 Set the default snapshot length to use when capturing live data.
 No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.  A value of 0 specifies a snapshot length of
-65535, so that the full packet is captured; this is the default.
+262144, so that the full packet is captured; this is the default.
 
 This option can occur multiple times. If used before the first
 occurrence of the B<-i> option, it sets the default snapshot length.
