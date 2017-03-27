@@ -2575,11 +2575,12 @@ capture_loop_dispatch(loop_data *ld,
 {
     int    inpkts;
     gint   packet_count_before;
-    guchar pcap_data[WTAP_MAX_PACKET_SIZE];
+    guchar *pcap_data;
 #ifndef _WIN32
     int    sel_ret;
 #endif
 
+    pcap_data = (guchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
     packet_count_before = ld->packet_count;
     if (pcap_src->from_cap_pipe) {
         /* dispatch from capture pipe */
@@ -2739,6 +2740,7 @@ capture_loop_dispatch(loop_data *ld,
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: %d new packet%s", inpkts, plurality(inpkts, "", "s"));
 #endif
 
+    g_free(pcap_data);
     return ld->packet_count - packet_count_before;
 }
 
