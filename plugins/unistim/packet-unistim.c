@@ -1089,6 +1089,7 @@ dissect_display_switch(proto_tree *msg_tree,
          proto_tree_add_item(address_tree,
                              hf_display_write_address_soft_label,
                              tvb,offset,1,ENC_BIG_ENDIAN);
+         offset+=1; msg_len-=1;
          if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)==
                           DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG){
             proto_tree_add_item(address_tree,hf_display_write_address_softkey_id,
