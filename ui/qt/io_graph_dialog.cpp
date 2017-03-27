@@ -1337,12 +1337,12 @@ void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int 
                                                   sma_combo_box_;
     int cur_col = name_col_;
     QWidget *prev_widget = ui->graphTreeWidget;
-    foreach (QWidget *editor, editors) {
+    foreach (QWidget *editorItem, editors) {
         QFrame *edit_frame = new QFrame();
         QHBoxLayout *hb = new QHBoxLayout();
         QSpacerItem *spacer = new QSpacerItem(5, 10);
 
-        hb->addWidget(editor, 0);
+        hb->addWidget(editorItem, 0);
         hb->addSpacerItem(spacer);
         hb->setStretch(1, 1);
         hb->setContentsMargins(0, 0, 0, 0);
@@ -1351,8 +1351,8 @@ void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int 
         edit_frame->setFrameStyle(QFrame::NoFrame);
         edit_frame->setLayout(hb);
         ui->graphTreeWidget->setItemWidget(item, cur_col, edit_frame);
-        setTabOrder(prev_widget, editor);
-        prev_widget = editor;
+        setTabOrder(prev_widget, editorItem);
+        prev_widget = editorItem;
         cur_col++;
     }
 

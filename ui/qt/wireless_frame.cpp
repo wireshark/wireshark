@@ -209,8 +209,8 @@ void WirelessFrame::getInterfaceInfo()
 
             ws80211_get_iface_info(iface->ifname, &iface_info);
 
-            for (guint i = 0; i < iface->frequencies->len; i++) {
-                guint32 frequency = g_array_index(iface->frequencies, guint32, i);
+            for (guint j = 0; j < iface->frequencies->len; j++) {
+                guint32 frequency = g_array_index(iface->frequencies, guint32, j);
                 double ghz = frequency / 1000.0;
                 QString chan_str = QString("%1 " UTF8_MIDDLE_DOT " %2%3")
                         .arg(ieee80211_mhz_to_chan(frequency))

@@ -256,7 +256,6 @@ void SequenceDiagram::draw(QCPPainter *painter)
     for (it = data_->constBegin(); it != data_->constEnd(); ++it) {
         double cur_key = it.key();
         seq_analysis_item_t *sai = it.value().value;
-        QPen fg_pen(mainPen());
         QColor bg_color;
 
         if (sai->frame_number == selected_packet_) {

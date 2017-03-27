@@ -61,7 +61,6 @@ ExtArgTimestamp::ExtArgTimestamp(extcap_arg * argument) :
 QWidget * ExtArgTimestamp::createEditor(QWidget * parent)
 {
     QDateTimeEdit * tsBox;
-    QString storeValue;
     QString text = defaultValue();
 
     if ( _argument->pref_valptr && *_argument->pref_valptr)
@@ -364,7 +363,6 @@ ExtArgText::ExtArgText(extcap_arg * argument) :
 
 QWidget * ExtArgText::createEditor(QWidget * parent)
 {
-    QString storeValue;
     QString text = defaultValue();
 
     if ( _argument->pref_valptr && *_argument->pref_valptr)
@@ -431,7 +429,6 @@ ExtArgNumber::ExtArgNumber(extcap_arg * argument) :
 
 QWidget * ExtArgNumber::createEditor(QWidget * parent)
 {
-    QString storeValue;
     QString text = defaultValue();
 
     if ( _argument->pref_valptr && *_argument->pref_valptr)
