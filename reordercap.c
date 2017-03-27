@@ -314,11 +314,11 @@ main(int argc, char *argv[])
     /* Open outfile (same filetype/encap as input file) */
     if (strcmp(outfile, "-") == 0) {
       pdh = wtap_dump_open_stdout_ng(wtap_file_type_subtype(wth), wtap_file_encap(wth),
-                                     65535, FALSE, shb_hdrs, idb_inf, nrb_hdrs, &err);
+                                     wtap_snapshot_length(wth), FALSE, shb_hdrs, idb_inf, nrb_hdrs, &err);
       outfile = "standard output";
     } else {
       pdh = wtap_dump_open_ng(outfile, wtap_file_type_subtype(wth), wtap_file_encap(wth),
-                              65535, FALSE, shb_hdrs, idb_inf, nrb_hdrs, &err);
+                              wtap_snapshot_length(wth), FALSE, shb_hdrs, idb_inf, nrb_hdrs, &err);
     }
     g_free(idb_inf);
     idb_inf = NULL;
