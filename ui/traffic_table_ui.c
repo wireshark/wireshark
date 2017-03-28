@@ -72,10 +72,10 @@ const char *endp_column_titles[ENDP_NUM_COLUMNS] = {
     "Port",
     "Packets",
     "Bytes",
-    "Packets A " UTF8_RIGHTWARDS_ARROW " B",
-    "Bytes A " UTF8_RIGHTWARDS_ARROW " B",
-    "Packets B " UTF8_RIGHTWARDS_ARROW " A",
-    "Bytes B " UTF8_RIGHTWARDS_ARROW " A"
+    "Tx Packets",
+    "Tx Bytes",
+    "Rx Packets",
+    "Rx Bytes"
 };
 
 const char *endp_conn_title = "Connection";
