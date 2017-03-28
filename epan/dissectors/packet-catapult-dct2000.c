@@ -282,9 +282,6 @@ static const value_string lte_nas_rrc_opcode_vals[] = {
 
 #define MAX_OUTHDR_VALUES 32
 
-static guint outhdr_values[MAX_OUTHDR_VALUES];
-static guint outhdr_values_found = 0;
-
 extern int proto_fp;
 extern int proto_rlc;
 
@@ -297,16 +294,21 @@ static dissector_handle_t pdcp_lte_handle;
 static dissector_handle_t catapult_dct2000_handle;
 
 static dissector_handle_t look_for_dissector(const char *protocol_name);
-static void parse_outhdr_string(const guchar *outhdr_string, gint outhdr_length);
+static guint parse_outhdr_string(const guchar *outhdr_string, gint outhdr_length, guint *outhdr_values);
 
 static void attach_fp_info(packet_info *pinfo, gboolean received,
-                           const char *protocol_name, int variant);
+                           const char *protocol_name, int variant,
+                           guint *outhdr_values, guint outhdr_values_found);
 static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid,
-                            gboolean is_sent);
+                            gboolean is_sent, guint *outhdr_values,
+                            guint outhdr_values_found);
 
-static void attach_mac_lte_info(packet_info *pinfo);
-static void attach_rlc_lte_info(packet_info *pinfo);
-static void attach_pdcp_lte_info(packet_info *pinfo);
+static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values,
+                                guint outhdr_values_found);
+static void attach_rlc_lte_info(packet_info *pinfo, guint *outhdr_values,
+                                guint outhdr_values_found);
+static void attach_pdcp_lte_info(packet_info *pinfo, guint *outhdr_values,
+                                 guint outhdr_values_found);
 
 
 
@@ -698,7 +700,8 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
    - calling the UMTS RLC dissector */
 static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
                              packet_info *pinfo, proto_tree *tree,
-                             gboolean is_sent)
+                             gboolean is_sent, guint *outhdr_values,
+                             guint outhdr_values_found)
 {
     guint8              tag;
     gboolean            ueid_set        = FALSE, rbid_set=FALSE;
@@ -797,7 +800,8 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
 
     /* Have we got enough info to call dissector */
     if ((tag == 0x41) && ueid_set && rbid_set) {
-        attach_rlc_info(pinfo, ueid, rbid, is_sent);
+        attach_rlc_info(pinfo, ueid, rbid, is_sent, outhdr_values,
+                        outhdr_values_found);
 
         /* Set appropriate RLC dissector handle */
         switch (rbid) {
@@ -1393,9 +1397,10 @@ static dissector_handle_t look_for_dissector(const char *protocol_name)
 
 
 /* Populate outhdr_values array with numbers found in outhdr_string */
-static void parse_outhdr_string(const guchar *outhdr_string, gint outhdr_string_len)
+static guint parse_outhdr_string(const guchar *outhdr_string, gint outhdr_string_len, guint *outhdr_values)
 {
     int   n                 = 0;
+    int   outhdr_values_found;
 
     /* Populate values array */
     for (outhdr_values_found=0; outhdr_values_found < MAX_OUTHDR_VALUES; ) {
@@ -1432,19 +1437,22 @@ static void parse_outhdr_string(const guchar *outhdr_string, gint outhdr_string_
         /* Skip comma */
         n++;
     }
+    return outhdr_values_found;
 }
 
 
 
 /* Fill in an FP packet info struct and attach it to the packet for the FP
    dissector to use */
-static void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_name, int variant)
+static void attach_fp_info(packet_info *pinfo, gboolean received,
+                           const char *protocol_name, int variant,
+                           guint *outhdr_values, guint outhdr_values_found)
 {
-    int  i=0;
-    int  chan;
-    int  tf_start, num_chans_start;
-    gint node_type;
-    int  calculated_variant;
+    guint i = 0;
+    int   chan;
+    guint tf_start, num_chans_start;
+    gint  node_type;
+    int   calculated_variant;
 
     /* Only need to set info once per session. */
     struct fp_info *p_fp_info = (struct fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
@@ -1602,13 +1610,21 @@ static void attach_fp_info(packet_info *pinfo, gboolean received, const char *pr
         /* TF size for each channel */
         tf_start = i;
         for (chan=0; chan < p_fp_info->num_chans; chan++) {
-            p_fp_info->chan_tf_size[chan] = outhdr_values[tf_start+chan];
+            if (outhdr_values_found > tf_start+chan) {
+                p_fp_info->chan_tf_size[chan] = outhdr_values[tf_start+chan];
+            } else {
+                p_fp_info->chan_tf_size[chan] = 0;
+            }
         }
 
         /* Number of TBs for each channel */
         num_chans_start = tf_start + p_fp_info->num_chans;
         for (chan=0; chan < p_fp_info->num_chans; chan++) {
-            p_fp_info->chan_num_tbs[chan] = outhdr_values[num_chans_start+chan];
+            if (outhdr_values_found > num_chans_start+chan) {
+                p_fp_info->chan_num_tbs[chan] = outhdr_values[num_chans_start+chan];
+            } else {
+                p_fp_info->chan_num_tbs[chan] = 0;
+            }
         }
     }
     /* EDCH info */
@@ -1619,16 +1635,28 @@ static void attach_fp_info(packet_info *pinfo, gboolean received, const char *pr
 
         /* DDI values */
         for (n=0; n < p_fp_info->no_ddi_entries; n++) {
-            p_fp_info->edch_ddi[n] = outhdr_values[i++];
+            if (outhdr_values_found > i) {
+                p_fp_info->edch_ddi[n] = outhdr_values[i++];
+            } else {
+                p_fp_info->edch_ddi[n] = 0;
+            }
         }
 
         /* Corresponding MAC-d sizes */
         for (n=0; n < p_fp_info->no_ddi_entries; n++) {
-            p_fp_info->edch_macd_pdu_size[n] = outhdr_values[i++];
+            if (outhdr_values_found > i) {
+                p_fp_info->edch_macd_pdu_size[n] = outhdr_values[i++];
+            } else {
+                p_fp_info->edch_macd_pdu_size[n] = 0;
+            }
         }
 
         if (strcmp(protocol_name, "fp_r8") == 0) {
-            p_fp_info->edch_type = outhdr_values[i];
+            if (outhdr_values_found > i) {
+                p_fp_info->edch_type = outhdr_values[i];
+            } else {
+                p_fp_info->edch_type = 0;
+            }
         }
         else {
             p_fp_info->edch_type = 0;
@@ -1645,7 +1673,9 @@ static void attach_fp_info(packet_info *pinfo, gboolean received, const char *pr
 
 /* Fill in an RLC packet info struct and attach it to the packet for the RLC
    dissector to use */
-static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboolean is_sent)
+static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid,
+                            gboolean is_sent, guint *outhdr_values,
+                            guint outhdr_values_found)
 {
     /* Only need to set info once per session. */
     struct fp_info  *p_fp_info;
@@ -1719,7 +1749,7 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboo
 
 /* Fill in a MAC LTE packet info struct and attach it to the packet for that
    dissector to use */
-static void attach_mac_lte_info(packet_info *pinfo)
+static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint outhdr_values_found)
 {
     struct mac_lte_info *p_mac_lte_info;
     unsigned int         i = 0;
@@ -1841,7 +1871,8 @@ static void attach_mac_lte_info(packet_info *pinfo)
 
 /* Fill in a RLC LTE packet info struct and attach it to the packet for that
    dissector to use */
-static void attach_rlc_lte_info(packet_info *pinfo)
+static void attach_rlc_lte_info(packet_info *pinfo, guint *outhdr_values,
+                                guint outhdr_values_found _U_)
 {
     struct rlc_lte_info *p_rlc_lte_info;
     unsigned int         i = 0;
@@ -1870,7 +1901,8 @@ static void attach_rlc_lte_info(packet_info *pinfo)
 
 /* Fill in a PDCP LTE packet info struct and attach it to the packet for the PDCP LTE
    dissector to use */
-static void attach_pdcp_lte_info(packet_info *pinfo)
+static void attach_pdcp_lte_info(packet_info *pinfo, guint *outhdr_values,
+                                 guint outhdr_values_found _U_)
 {
     struct pdcp_lte_info *p_pdcp_lte_info;
     unsigned int          i = 0;
@@ -2111,6 +2143,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     int                 sub_dissector_result = 0;
     const char         *protocol_name;
     gboolean            is_comment, is_sprint = FALSE;
+    guint               outhdr_values[MAX_OUTHDR_VALUES];
+    guint               outhdr_values_found;
 
     /* Set Protocol */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCT2000");
@@ -2211,14 +2245,19 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                            variant_string);
 
 
+    memset(outhdr_values, 0, sizeof outhdr_values);
+    outhdr_values_found = 0;
+
     /* FP protocols need info from outhdr attached */
     if ((strcmp(protocol_name, "fp") == 0) ||
         (strncmp(protocol_name, "fp_r", 4) == 0) ||
         (strcmp(protocol_name, "fpiur_r5") == 0)) {
 
-        parse_outhdr_string(outhdr_string, outhdr_length);
+        outhdr_values_found = parse_outhdr_string(outhdr_string, outhdr_length,
+                                                  outhdr_values);
         if (ws_strtou32(variant_string, NULL, &variant))
-            attach_fp_info(pinfo, direction, protocol_name, variant);
+            attach_fp_info(pinfo, direction, protocol_name, variant,
+                           outhdr_values, outhdr_values_found);
         else
             expert_add_info(pinfo, ti, &ei_catapult_dct2000_string_invalid);
     }
@@ -2232,7 +2271,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
              (strcmp(protocol_name, "rlc_r8") == 0) ||
              (strcmp(protocol_name, "rlc_r9") == 0)) {
 
-        parse_outhdr_string(outhdr_string, outhdr_length);
+        outhdr_values_found = parse_outhdr_string(outhdr_string, outhdr_length,
+                                                  outhdr_values);
         /* Can't attach info yet.  Need combination of outheader values
            and fields parsed from primitive header... */
     }
@@ -2241,24 +2281,27 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     else if ((strcmp(protocol_name, "mac_r8_lte") == 0) ||
              (strcmp(protocol_name, "mac_r9_lte") == 0) ||
              (strcmp(protocol_name, "mac_r10_lte") == 0)) {
-        parse_outhdr_string(outhdr_string, outhdr_length);
-        attach_mac_lte_info(pinfo);
+        outhdr_values_found = parse_outhdr_string(outhdr_string, outhdr_length,
+                                                  outhdr_values);
+        attach_mac_lte_info(pinfo, outhdr_values, outhdr_values_found);
     }
 
     /* LTE RLC needs info attached */
     else if ((strcmp(protocol_name, "rlc_r8_lte") == 0) ||
              (strcmp(protocol_name, "rlc_r9_lte") == 0) ||
              (strcmp(protocol_name, "rlc_r10_lte") == 0)) {
-        parse_outhdr_string(outhdr_string, outhdr_length);
-        attach_rlc_lte_info(pinfo);
+        outhdr_values_found = parse_outhdr_string(outhdr_string, outhdr_length,
+                                                  outhdr_values);
+        attach_rlc_lte_info(pinfo, outhdr_values, outhdr_values_found);
     }
 
     /* LTE PDCP needs info attached */
     else if ((strcmp(protocol_name, "pdcp_r8_lte") == 0) ||
              (strcmp(protocol_name, "pdcp_r9_lte") == 0) ||
              (strcmp(protocol_name, "pdcp_r10_lte") == 0)) {
-        parse_outhdr_string(outhdr_string, outhdr_length);
-        attach_pdcp_lte_info(pinfo);
+        outhdr_values_found = parse_outhdr_string(outhdr_string, outhdr_length,
+                                                  outhdr_values);
+        attach_pdcp_lte_info(pinfo, outhdr_values, outhdr_values_found);
     }
 
 
@@ -2422,7 +2465,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 (strcmp(protocol_name, "rlc_r8") == 0) ||
                 (strcmp(protocol_name, "rlc_r9") == 0)) {
 
-                dissect_rlc_umts(tvb, offset, pinfo, tree, direction);
+                dissect_rlc_umts(tvb, offset, pinfo, tree, direction,
+                                 outhdr_values, outhdr_values_found);
                 return tvb_captured_length(tvb);
             }
 
