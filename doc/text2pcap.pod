@@ -152,7 +152,7 @@ packets encapsulated BSD-style.
 
 =item -m E<lt>max-packetE<gt>
 
-Set the maximum packet length, default is 65535.
+Set the maximum packet length, default is 262144.
 Useful for testing various packet boundaries when only an application
 level datastream is available.  Example:
 
