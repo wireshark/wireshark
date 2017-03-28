@@ -415,11 +415,13 @@ void IOGraphDialog::syncGraphSettings(QTreeWidgetItem *item)
 
     iog->setName(item->text(name_col_));
 
+    /* dfilter and plot style depend on the value unit, so set it first. */
+    iog->setValueUnits(item->data(yaxis_col_, Qt::UserRole).toInt());
+
     iog->setFilter(item->text(dfilter_col_));
     iog->setColor(colors_[item->data(color_col_, Qt::UserRole).toInt() % colors_.size()]);
     iog->setPlotStyle(item->data(style_col_, Qt::UserRole).toInt());
 
-    iog->setValueUnits(item->data(yaxis_col_, Qt::UserRole).toInt());
     iog->setValueUnitField(item->text(yfield_col_));
 
     iog->moving_avg_period_ = item->data(sma_period_col_, Qt::UserRole).toUInt();
@@ -1650,6 +1652,7 @@ IOGraph::IOGraph(QCustomPlot *parent) :
     visible_(false),
     graph_(NULL),
     bars_(NULL),
+    val_units_(IOG_ITEM_UNIT_FIRST),
     hf_index_(-1),
     cur_idx_(-1)
 {
@@ -1668,10 +1671,9 @@ IOGraph::IOGraph(QCustomPlot *parent) :
     if (error_string) {
 //        QMessageBox::critical(this, tr("%1 failed to register tap listener").arg(name_),
 //                             error_string->str);
+//        config_err_ = error_string->str;
         g_string_free(error_string, TRUE);
     }
-
-    setFilter(QString());
 }
 
 IOGraph::~IOGraph() {
