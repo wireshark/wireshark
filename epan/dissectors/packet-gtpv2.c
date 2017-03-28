@@ -6475,7 +6475,7 @@ dissect_gtpv2_ms_ts(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
      * rounded value of 1000 x the value of the 64-bit timestamp (Seconds  + (Fraction / (1<<32)))
      * defined in section 6 of IETF RFC 5905
      */
-    proto_tree_add_item(tree, hf_gtpv2_ms_ts, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ms_ts, tvb, offset, 6, ENC_TIME_MSEC_NTP | ENC_BIG_ENDIAN);
 }
 
 /*
@@ -9218,7 +9218,7 @@ void proto_register_gtpv2(void)
       },
       { &hf_gtpv2_ms_ts,
       { "Millisecond Time Stamp", "gtpv2.ms_ts",
-          FT_UINT48, BASE_DEC, NULL, 0x0,
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
           NULL, HFILL }
       },
     };

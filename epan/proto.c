@@ -1922,7 +1922,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 
 				msecs = get_uint64_value(tree, tvb, start, length, encoding);
 				time_stamp->secs  = (time_t)(msecs / 1000);
-				time_stamp->nsecs = (int)(msecs % 1000);
+				time_stamp->nsecs = (int)(msecs % 1000)*1000000;
 			} else
 				report_type_length_mismatch(tree, "a time-in-milliseconds time stamp", length, TRUE);
 			break;
@@ -2032,7 +2032,23 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			} else
 				report_type_length_mismatch(tree, "an NTP seconds-only time stamp", length, TRUE);
 			break;
+		case ENC_TIME_MSEC_NTP | ENC_BIG_ENDIAN:
+			/*
+			* Milliseconds, 1 to 8 bytes.
+			* For absolute times, it's milliseconds since the
+			* NTP epoch.
+			*/
+			if (length >= 1 && length <= 8) {
+				guint64 msecs;
 
+				msecs = get_uint64_value(tree, tvb, start, length, encoding);
+				tmpsecs = (guint32)(msecs / 1000);
+				time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME);
+				time_stamp->nsecs = (int)(msecs % 1000)*1000000;
+			}
+			else
+				report_type_length_mismatch(tree, "a time-in-milliseconds NTP time stamp", length, TRUE);
+			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
@@ -2441,7 +2457,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			if (encoding == TRUE)
 				encoding = ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN;
 
-			if (length != 8 && length != 4) {
+			if (length > 8 || length < 4) {
 				length_error = length < 4 ? TRUE : FALSE;
 				report_type_length_mismatch(tree, "an absolute time value", length, length_error);
 			}
@@ -3004,9 +3020,9 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	}
 	else {
 		const gboolean is_relative = (hfinfo->type == FT_RELATIVE_TIME) ? TRUE : FALSE;
+		const gboolean length_error = length < 4 ? TRUE : FALSE;
 
-		if (length != 8 && length != 4) {
-			const gboolean length_error = length < 4 ? TRUE : FALSE;
+		if (length > 8 || length < 4) {
 			if (is_relative)
 			    report_type_length_mismatch(tree, "a relative time value", length, length_error);
 			else

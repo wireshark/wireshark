@@ -1604,7 +1604,7 @@ encodings that are currently supported are:
         timespec with a 4-byte time_t.)
 
     ENC_TIME_NTP - 8 bytes; the first 4 bytes are seconds since the NTP
-        epoch (1901-01-01 00:00:00 GMT) and the next 4 bytes are 1/2^32's of
+        epoch (1900-01-01 00:00:00 GMT) and the next 4 bytes are 1/2^32's of
         a second since that second.  (I.e., a 64-bit count of 1/2^32's of a
         second since the NTP epoch, with the upper 32 bits first and the
         lower 32 bits second, even when little-endian.)
@@ -1634,6 +1634,9 @@ encodings that are currently supported are:
     ENC_TIME_RFC_3971 - 8 bytes, representing a count of 1/64ths of a
         second since the UN*X epoch; see section 5.3.1 "Timestamp Option"
         in RFC 3971.
+
+    ENC_TIME_MSEC_NTP - 4-8 bytes, representing a count of milliseconds since
+        the NTP epoch.  (I.e., milliseconds since the NTP epoch.)
 
 For FT_RELATIVE_TIME fields, the encoding specifies the form in which
 the time stamp is specified, as well as its byte order.  The time stamp

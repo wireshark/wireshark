@@ -408,6 +408,9 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
  *  ENC_TIME_RFC_3971 - 8 bytes, representing a count of 1/64ths of a
  *  second since the UN*X epoch; see section 5.3.1 "Timestamp Option"
  *  in RFC 3971.
+ *
+ *  ENC_TIME_MSEC_NTP - 4-8 bytes, representing a count of milliseconds since
+ *  the NTP epoch.  (I.e., milliseconds since the NTP epoch.)
  */
 #define ENC_TIME_TIMESPEC      0x00000000
 #define ENC_TIME_NTP           0x00000002
@@ -419,6 +422,7 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
 #define ENC_TIME_MSECS         0x00000014
 #define ENC_TIME_SECS_NTP      0x00000018
 #define ENC_TIME_RFC_3971      0x00000020
+#define ENC_TIME_MSEC_NTP      0x00000022
 
 /*
  * Historically, the only place the representation mattered for strings
