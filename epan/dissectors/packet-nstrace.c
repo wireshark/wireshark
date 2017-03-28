@@ -308,7 +308,7 @@ static const value_string ns_errorcode_vals[] = {
   { ERR_DROP_PERX_DUPFREE,  "Dup free" },
   { ERR_PKT_FWD,            "Forwarded packet" },
   { ERR_PKT_FWD6,           "Forwarded ipv6 packet" },
-  { ERR_LAST,               NULL },
+  { 0, NULL },
 };
 
 static const value_string tcp_dbg2_flavour[] = {
@@ -320,7 +320,7 @@ static const value_string tcp_dbg2_flavour[] = {
 	{ NS_TCPCC_NILE,"NILE"},
 	{ NS_TCPCC_CUBIC_HYSTART, "HYSTART"},
 	{ NS_TCPCC_INVALID ,"INVALID"},
-	{ NS_TCPCC_LAST, NULL },
+	{ 0, NULL },
 };
 static const value_string ns_app_vals[] = {
   { APP_NULL,  "NULL"   },
