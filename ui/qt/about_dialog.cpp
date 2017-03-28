@@ -122,7 +122,6 @@ const QString AboutDialog::plugins_scan()
 #ifdef HAVE_EXTCAP
     GHashTable * tools = extcap_loaded_interfaces();
     if (tools && g_hash_table_size(tools) > 0) {
-        QString short_file;
         GList * walker = g_list_first(g_hash_table_get_keys(tools));
         while (walker && walker->data) {
             extcap_info * tool = (extcap_info *)g_hash_table_lookup(tools, walker->data);

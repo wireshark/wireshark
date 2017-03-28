@@ -406,14 +406,14 @@ toolbar_selector_cb(gpointer item, gpointer item_data, gpointer user_data)
         {
             for ( int i = 0; i < sourceModel->rowCount(); i++ )
             {
-                QStandardItem * item = sourceModel->item(i, 0);
-                ext_toolbar_value_t * entry = VariantPointer<ext_toolbar_value_t>::asPtr(item->data(Qt::UserRole));
+                QStandardItem * dataValue = sourceModel->item(i, 0);
+                ext_toolbar_value_t * entry = VariantPointer<ext_toolbar_value_t>::asPtr(dataValue->data(Qt::UserRole));
                 if ( entry && g_strcmp0( entry->value, idx) == 0 )
                 {
                     g_free(entry->display);
                     entry->display = g_strdup(display);
-                    item->setData(VariantPointer<ext_toolbar_value_t>::asQVariant(entry), Qt::UserRole);
-                    item->setText(display);
+                    dataValue->setData(VariantPointer<ext_toolbar_value_t>::asQVariant(entry), Qt::UserRole);
+                    dataValue->setText(display);
                     break;
                 }
             }

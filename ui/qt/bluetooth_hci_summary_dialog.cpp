@@ -493,8 +493,6 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
         }
 
         if (!item) {
-            QString  name;
-
             item = new QTreeWidgetItem();
             if (tap_hci->name)
                 name = tap_hci->name;
