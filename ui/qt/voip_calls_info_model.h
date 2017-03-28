@@ -71,7 +71,7 @@ private:
 
 class VoipCallsInfoSortedModel : public QSortFilterProxyModel
 {
-    Q_OBJECT;
+    Q_OBJECT
 
 public:
     VoipCallsInfoSortedModel(QObject *parent = 0);
