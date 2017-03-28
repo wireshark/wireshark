@@ -860,14 +860,9 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     GtkTreeSelection  *sel;
     static gboolean col_size = FALSE;
 
-    hosttable->default_titles[0]  = "Address";
-    hosttable->default_titles[1]  = "Port";
-    hosttable->default_titles[2]  = "Packets";
-    hosttable->default_titles[3]  = "Bytes";
-    hosttable->default_titles[4]  = "Tx Packets";
-    hosttable->default_titles[5]  = "Tx Bytes";
-    hosttable->default_titles[6]  = "Rx Packets";
-    hosttable->default_titles[7]  = "Rx Bytes";
+    for (i = 0; i < ENDP_NUM_COLUMNS; i++) {
+        hosttable->default_titles[i] = endp_column_titles[i];
+    }
 
 #ifdef HAVE_GEOIP
     for (i = 0; i < ENDP_NUM_GEOIP_COLUMNS; i++) {
