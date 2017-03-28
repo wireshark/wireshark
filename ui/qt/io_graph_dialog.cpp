@@ -1951,7 +1951,13 @@ int IOGraph::packetFromTime(double ts)
 {
     int idx = ts * 1000 / interval_;
     if (idx >= 0 && idx < (int) cur_idx_) {
-        return items_[idx].last_frame_in_invl;
+        switch (val_units_) {
+        case IOG_ITEM_UNIT_CALC_MAX:
+        case IOG_ITEM_UNIT_CALC_MIN:
+            return items_[idx].extreme_frame_in_invl;
+        default:
+            return items_[idx].last_frame_in_invl;
+        }
     }
     return -1;
 }

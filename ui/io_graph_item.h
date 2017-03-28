@@ -65,6 +65,7 @@ typedef struct _io_graph_item_t {
     nstime_t time_min;
     nstime_t time_tot;
     guint32  first_frame_in_invl;
+    guint32  extreme_frame_in_invl; /* frame with min/max value */
     guint32  last_frame_in_invl;
 } io_graph_item_t;
 
@@ -97,6 +98,7 @@ reset_io_graph_items(io_graph_item_t *items, gsize count) {
         nstime_set_zero(&item->time_min);
         nstime_set_zero(&item->time_tot);
         item->first_frame_in_invl = 0;
+        item->extreme_frame_in_invl = 0;
         item->last_frame_in_invl  = 0;
     }
 }
@@ -173,9 +175,15 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
 
                 if ((new_int > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
                 }
                 if ((new_int < item->int_min) || (item->fields == 0)) {
                     item->int_min = new_int;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
                 }
                 item->int_tot += new_int;
                 item->fields++;
@@ -187,9 +195,15 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 new_int = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
                 if ((new_int > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
                 }
                 if ((new_int < item->int_min) || (item->fields == 0)) {
                     item->int_min = new_int;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
                 }
                 item->int_tot += new_int;
                 item->fields++;
@@ -201,9 +215,15 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 new_int64 = fvalue_get_uinteger64(&((field_info *)gp->pdata[i])->value);
                 if ((new_int64 > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int64;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
                 }
                 if ((new_int64 < item->int_min) || (item->fields == 0)) {
                     item->int_min = new_int64;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
                 }
                 item->int_tot += new_int64;
                 item->fields++;
@@ -215,9 +235,15 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 new_int64 = fvalue_get_sinteger64(&((field_info *)gp->pdata[i])->value);
                 if ((new_int64 > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int64;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
                 }
                 if ((new_int64 < item->int_min) || (item->fields == 0)) {
                     item->int_min = new_int64;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
                 }
                 item->int_tot += new_int64;
                 item->fields++;
@@ -226,9 +252,15 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 new_float = (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
                 if ((new_float > item->float_max) || (item->fields == 0)) {
                     item->float_max = new_float;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
                 }
                 if ((new_float < item->float_min) || (item->fields == 0)) {
                     item->float_min = new_float;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
                 }
                 item->float_tot += new_float;
                 item->fields++;
@@ -237,9 +269,15 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 new_double = fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
                 if ((new_double > item->double_max) || (item->fields == 0)) {
                     item->double_max = new_double;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
                 }
                 if ((new_double < item->double_min) || (item->fields == 0)) {
                     item->double_min = new_double;
+                    if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
+                        item->extreme_frame_in_invl = pinfo->num;
+                    }
                 }
                 item->double_tot += new_double;
                 item->fields++;
@@ -296,12 +334,18 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                               && (new_time->nsecs > item->time_max.nsecs))
                          || (item->fields == 0)) {
                         item->time_max = *new_time;
+                        if (item_unit == IOG_ITEM_UNIT_CALC_MAX) {
+                            item->extreme_frame_in_invl = pinfo->num;
+                        }
                     }
                     if ( (new_time->secs<item->time_min.secs)
                          || ( (new_time->secs == item->time_min.secs)
                               && (new_time->nsecs < item->time_min.nsecs))
                          || (item->fields == 0)) {
                         item->time_min = *new_time;
+                        if (item_unit == IOG_ITEM_UNIT_CALC_MIN) {
+                            item->extreme_frame_in_invl = pinfo->num;
+                        }
                     }
                     nstime_add(&item->time_tot, new_time);
                     item->fields++;
