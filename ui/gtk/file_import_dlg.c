@@ -850,6 +850,7 @@ file_import_dlg_new(void)
                *dst_port_te, *tag_te, *ppi_te,
                *framelen_hb, *framelen_lbl, *framelen_te,
                *bbox, *help_bt, *close_bt, *ok_bt;
+    gchar *maxsize_msg;
 
     /* Setup the dialog */
 
@@ -1153,8 +1154,10 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(framelen_hb), framelen_lbl, FALSE, FALSE, 0);
 
     framelen_te = gtk_entry_new();
-    gtk_widget_set_tooltip_text(framelen_te,
-                                "The maximum size of the frames to write to the import capture file (max 262144)");
+    maxsize_msg = g_strdup_printf("The maximum size of the frames to write to the import capture file (max %u)",
+                                  WTAP_MAX_PACKET_SIZE);
+    gtk_widget_set_tooltip_text(framelen_te, maxsize_msg);
+    g_free(maxsize_msg);
     gtk_box_pack_start(GTK_BOX(framelen_hb), framelen_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(import_frm), IMPORT_FRAME_LENGTH_TE_KEY, framelen_te);
