@@ -558,24 +558,21 @@ randpkt_example* randpkt_find_example(int type)
 
 void randpkt_loop(randpkt_example* example, guint64 produce_count)
 {
-	guint i;
-	int j;
+	guint i, j;
 	int err;
-	int len_random;
-	int len_this_pkt;
+	guint len_random;
+	guint len_this_pkt;
 	gchar* err_info;
 	union wtap_pseudo_header* ps_header;
-	guint8 buffer[65536];
+	guint8* buffer;
 	struct wtap_pkthdr* pkthdr;
 
 	pkthdr = g_new0(struct wtap_pkthdr, 1);
+	buffer = (guint8*)g_malloc0(65536);
 
 	pkthdr->rec_type = REC_TYPE_PACKET;
 	pkthdr->presence_flags = WTAP_HAS_TS;
 	pkthdr->pkt_encap = example->sample_wtap_encap;
-
-	memset(pkthdr, 0, sizeof(struct wtap_pkthdr));
-	memset(buffer, 0, sizeof(buffer));
 
 	ps_header = &pkthdr->pseudo_header;
 
@@ -678,6 +675,7 @@ void randpkt_loop(randpkt_example* example, guint64 produce_count)
 	}
 
 	g_free(pkthdr);
+	g_free(buffer);
 }
 
 gboolean randpkt_example_close(randpkt_example* example)
