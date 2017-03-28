@@ -259,6 +259,7 @@ typedef struct _StringInfo {
 #define SSL_CLIENT_EXTENDED_MASTER_SECRET (1<<7)
 #define SSL_SERVER_EXTENDED_MASTER_SECRET (1<<8)
 #define SSL_NEW_SESSION_TICKET  (1<<10)
+#define SSL_ENCRYPT_THEN_MAC    (1<<11)
 
 #define SSL_EXTENDED_MASTER_SECRET_MASK (SSL_CLIENT_EXTENDED_MASTER_SECRET|SSL_SERVER_EXTENDED_MASTER_SECRET)
 
@@ -361,7 +362,7 @@ typedef struct _SslDecoder {
 
 typedef struct {
     const gchar *name;
-    gint len;
+    guint len;
 } SslDigestAlgo;
 
 typedef struct _SslRecordInfo {

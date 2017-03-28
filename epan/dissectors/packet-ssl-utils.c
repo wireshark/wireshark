@@ -3959,8 +3959,8 @@ int
 ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
         const guchar *in, guint16 inl, StringInfo *comp_str, StringInfo *out_str, guint *outl)
 {
-    guint   pad, worklen, uncomplen;
-    guint8 *mac;
+    guint   pad, worklen, uncomplen, maclen, mac_fraglen;
+    guint8 *mac = NULL, *mac_frag;
 
     ssl_debug_printf("ssl_decrypt_record ciphertext len %d\n", inl);
     ssl_print_data("Ciphertext",in, inl);
@@ -4003,9 +4003,11 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
      * RFC 6347 (DTLS 1.2): based on TLS 1.2, includes GenericAEADCipher too.
      */
 
+    maclen = ssl_cipher_suite_dig(decoder->cipher_suite)->len;
+
     /* (TLS 1.1 and later, DTLS) Extract explicit IV for GenericBlockCipher */
     if (decoder->cipher_suite->mode == MODE_CBC) {
-        guint blocksize;
+        guint blocksize = 0;
 
         switch (ssl->session.version) {
         case TLSV1DOT1_VERSION:
@@ -4028,6 +4030,26 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
             inl -= blocksize;
             in += blocksize;
             break;
+        }
+
+        /* Encrypt-then-MAC for (D)TLS (RFC 7366) */
+        if (ssl->state & SSL_ENCRYPT_THEN_MAC) {
+            /*
+             * MAC is calculated over (IV + ) ENCRYPTED contents:
+             *
+             *      MAC(MAC_write_key, ... +
+             *          IV +       // for TLS 1.1 or greater
+             *          TLSCiphertext.enc_content);
+             */
+            if (inl < maclen) {
+                ssl_debug_printf("%s failed: input %d has no space for MAC %d\n",
+                                 G_STRFUNC, inl, maclen);
+                return -1;
+            }
+            inl -= maclen;
+            mac = (guint8 *)in + inl;
+            mac_frag = (guint8 *)in - blocksize;
+            mac_fraglen = blocksize + inl;
         }
     }
 
@@ -4059,13 +4081,23 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
             pad, worklen);
     }
 
-    /* MAC for GenericStreamCipher and GenericBlockCipher */
-    if (ssl_cipher_suite_dig(decoder->cipher_suite)->len > (gint)worklen) {
-        ssl_debug_printf("ssl_decrypt_record wrong record len/padding outlen %d\n work %d\n",*outl, worklen);
-        return -1;
+    /* MAC for GenericStreamCipher and GenericBlockCipher.
+     * (normal case without Encrypt-then-MAC (RFC 7366) extension. */
+    if (!mac) {
+        /*
+         * MAC is calculated over the DECRYPTED contents:
+         *
+         *      MAC(MAC_write_key, ... + TLSCompressed.fragment);
+         */
+        if (worklen < maclen) {
+            ssl_debug_printf("%s wrong record len/padding outlen %d\n work %d\n", G_STRFUNC, *outl, worklen);
+            return -1;
+        }
+        worklen -= maclen;
+        mac = out_str->data + worklen;
+        mac_frag = out_str->data;
+        mac_fraglen = worklen;
     }
-    worklen -= ssl_cipher_suite_dig(decoder->cipher_suite)->len;
-    mac = out_str->data + worklen;
 
     /* If NULL encryption active and no keys are available, do not bother
      * checking the MAC. We do not have keys for that. */
@@ -4080,7 +4112,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
     ssl_debug_printf("checking mac (len %d, version %X, ct %d seq %" G_GUINT64_FORMAT ")\n",
         worklen, ssl->session.version, ct, decoder->seq);
     if(ssl->session.version==SSLV3_VERSION){
-        if(ssl3_check_mac(decoder,ct,out_str->data,worklen,mac) < 0) {
+        if(ssl3_check_mac(decoder,ct,mac_frag,mac_fraglen,mac) < 0) {
             if(ssl_ignore_mac_failed) {
                 ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
             }
@@ -4094,7 +4126,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         }
     }
     else if(ssl->session.version==TLSV1_VERSION || ssl->session.version==TLSV1DOT1_VERSION || ssl->session.version==TLSV1DOT2_VERSION){
-        if(tls_check_mac(decoder,ct,ssl->session.version,out_str->data,worklen,mac)< 0) {
+        if(tls_check_mac(decoder,ct,ssl->session.version,mac_frag,mac_fraglen,mac)< 0) {
             if(ssl_ignore_mac_failed) {
                 ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
             }
@@ -4111,10 +4143,10 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         ssl->session.version==DTLSV1DOT2_VERSION ||
         ssl->session.version==DTLSV1DOT0_OPENSSL_VERSION){
         /* Try rfc-compliant mac first, and if failed, try old openssl's non-rfc-compliant mac */
-        if(dtls_check_mac(decoder,ct,ssl->session.version,out_str->data,worklen,mac)>= 0) {
+        if(dtls_check_mac(decoder,ct,ssl->session.version,mac_frag,mac_fraglen,mac)>= 0) {
             ssl_debug_printf("ssl_decrypt_record: mac ok\n");
         }
-        else if(tls_check_mac(decoder,ct,TLSV1_VERSION,out_str->data,worklen,mac)>= 0) {
+        else if(tls_check_mac(decoder,ct,TLSV1_VERSION,mac_frag,mac_fraglen,mac)>= 0) {
             ssl_debug_printf("ssl_decrypt_record: dtls rfc-compliant mac failed, but old openssl's non-rfc-compliant mac ok\n");
         }
         else if(ssl_ignore_mac_failed) {
@@ -7849,6 +7881,12 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_PADDING:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_padding_data, tvb, offset, ext_len, ENC_NA);
             offset += ext_len;
+            break;
+        case SSL_HND_HELLO_EXT_ENCRYPT_THEN_MAC:
+            if (ssl && hnd_type == SSL_HND_SERVER_HELLO) {
+                ssl_debug_printf("%s enabling Encrypt-then-MAC\n", G_STRFUNC);
+                ssl->state |= SSL_ENCRYPT_THEN_MAC;
+            }
             break;
         case SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET:
             if (ssl) {
