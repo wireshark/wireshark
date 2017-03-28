@@ -708,6 +708,32 @@ void IOGraphDialog::toggleTracerStyle(bool force_default)
     ui->ioPlot->replot();
 }
 
+// Returns the IOGraph which is most likely to be used by the user. This is the
+// currently selected, visible graph or the first visible graph otherwise.
+IOGraph *IOGraphDialog::currentActiveGraph() const
+{
+    QTreeWidgetItem *selectedItem = ui->graphTreeWidget->currentItem();
+    if (selectedItem && selectedItem->checkState(name_col_) != Qt::Checked) {
+        selectedItem = NULL;
+    }
+
+    if (!selectedItem) {
+        for (int i = 0; i < ui->graphTreeWidget->topLevelItemCount(); i++) {
+            QTreeWidgetItem *item = ui->graphTreeWidget->topLevelItem(i);
+            if (item && item->checkState(name_col_) == Qt::Checked) {
+                selectedItem = item;
+                break;
+            }
+        }
+    }
+
+    if (selectedItem) {
+        return VariantPointer<IOGraph>::asPtr(selectedItem->data(name_col_, Qt::UserRole));
+    } else {
+        return NULL;
+    }
+}
+
 // Scan through our graphs and gather information.
 // QCPItemTracers can only be associated with QCPGraphs. Find the first one
 // and associate it with our tracer. Set bar stacking order while we're here.
@@ -718,15 +744,15 @@ void IOGraphDialog::getGraphInfo()
     start_time_ = 0.0;
 
     tracer_->setGraph(NULL);
+    IOGraph *selectedGraph = currentActiveGraph();
     for (int i = 0; i < ui->graphTreeWidget->topLevelItemCount(); i++) {
         QTreeWidgetItem *item = ui->graphTreeWidget->topLevelItem(i);
-        IOGraph *iog = NULL;
-        if (item) {
-            iog = VariantPointer<IOGraph>::asPtr(item->data(name_col_, Qt::UserRole));
+        if (item && item->checkState(name_col_) == Qt::Checked) {
+            IOGraph *iog = VariantPointer<IOGraph>::asPtr(item->data(name_col_, Qt::UserRole));
             QCPGraph *graph = iog->graph();
             QCPBars *bars = iog->bars();
             int style = item->data(style_col_, Qt::UserRole).toInt();
-            if (graph && !base_graph_) {
+            if (graph && (!base_graph_ || iog == selectedGraph)) {
                 base_graph_ = graph;
             } else if (bars && style == IOGraph::psStackedBar && iog->visible()) {
                 bars->moveBelow(NULL); // Remove from existing stack
@@ -885,11 +911,7 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
         if (event && tracer_->graph()) {
             tracer_->setGraphKey(iop->xAxis->pixelToCoord(event->pos().x()));
             ts = tracer_->position->key();
-
-            QTreeWidgetItem *ti = ui->graphTreeWidget->topLevelItem(0);
-            IOGraph *iog = NULL;
-            if (ti) {
-                iog = VariantPointer<IOGraph>::asPtr(ti->data(name_col_, Qt::UserRole));
+            if (IOGraph *iog = currentActiveGraph()) {
                 interval_packet = iog->packetFromTime(ts);
             }
         }
