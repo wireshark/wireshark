@@ -208,6 +208,7 @@ private:
     void loadProfileGraphs();
     void makeCsv(QTextStream &stream) const;
     bool saveCsv(const QString &file_name) const;
+    IOGraph *currentActiveGraph() const;
 
 private slots:
     void updateWidgets();
