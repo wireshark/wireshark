@@ -1680,37 +1680,40 @@ get_stringzpad_value(wmem_allocator_t *scope, tvbuff_t *tvb, gint start,
 	return tvb_get_string_enc(scope, tvb, start, length, encoding);
 }
 
-/* this can be called when there is no tree, so don't add that as a param */
+/*
+ * Epochs for various non-UN*X time stamp formats.
+ */
+#define NTP_BASETIME G_GUINT64_CONSTANT(2208988800)	/* NTP */
+#define TOD_BASETIME G_GUINT64_CONSTANT(2208988800)	/* System/3x0 and z/Architecture TOD clock */
+
+/* this can be called when there is no tree, so tree may be null */
 static void
-get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint encoding,
-	       nstime_t *time_stamp, const gboolean is_relative)
+get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
+	       const gint length, const guint encoding, nstime_t *time_stamp,
+	       const gboolean is_relative)
 {
 	guint32     tmpsecs;
 	guint64     todsecs;
-
-	/* relative timestamps don't do TOD/NTP */
-	if (is_relative &&
-		(encoding != (ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN)) &&
-		(encoding != (ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN)) )
-	{
-		/* XXX: I think this should call REPORT_DISSECTOR_BUG(), but
-		   the existing code didn't do that, so I'm not either */
-		return;
-	}
 
 	switch (encoding) {
 
 		case ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN:
 			/*
-			 * 4-byte UNIX epoch, possibly followed by
-			 * 4-byte fractional time in nanoseconds,
-			 * both big-endian.
+			 * 4-byte seconds, followed by 4-byte fractional
+			 * time in nanoseconds, both big-endian.
+			 * For absolute times, the seconds are seconds
+			 * since the UN*X epoch.
 			 */
 			time_stamp->secs  = (time_t)tvb_get_ntohl(tvb, start);
 			if (length == 8)
 				time_stamp->nsecs = tvb_get_ntohl(tvb, start+4);
-			else
+			else if (length == 4) {
+				/*
+				 * Backwards compatibility.
+				 */
 				time_stamp->nsecs = 0;
+			} else
+				report_type_length_mismatch(tree, "a timespec", length, TRUE);
 			break;
 
 		case ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN:
@@ -1718,21 +1721,27 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 			 * 4-byte UNIX epoch, possibly followed by
 			 * 4-byte fractional time in nanoseconds,
 			 * both little-endian.
+			 * For absolute times, the seconds are seconds
+			 * since the UN*X epoch.
 			 */
 			time_stamp->secs  = (time_t)tvb_get_letohl(tvb, start);
 			if (length == 8)
 				time_stamp->nsecs = tvb_get_letohl(tvb, start+4);
-			else
+			else if (length == 4) {
+				/*
+				 * Backwards compatibility.
+				 */
 				time_stamp->nsecs = 0;
+			} else
+				report_type_length_mismatch(tree, "a timespec", length, TRUE);
 			break;
 
 		case ENC_TIME_NTP|ENC_BIG_ENDIAN:
 			/*
 			 * NTP time stamp, big-endian.
+			 * Only supported for absolute times.
 			 */
-
-/* XXX - where should this go? */
-#define NTP_BASETIME G_GUINT64_CONSTANT(2208988800)
+			DISSECTOR_ASSERT(!is_relative);
 
 			/* We need a temporary variable here so the unsigned math
 			 * works correctly (for years > 2036 according to RFC 2030
@@ -1746,22 +1755,25 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 
 			if (length == 8) {
 				/*
-				 * We're using nanoseconds here (and we will
-				 * display nanoseconds), but NTP's timestamps
-				 * have a precision in microseconds or greater.
-				 * Round to 1 microsecond.
+				 * Convert 1/2^32s of a second to nanoseconds.
 				 */
-				time_stamp->nsecs = (int)(1000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0));
-				time_stamp->nsecs *= 1000;
-			} else {
+				time_stamp->nsecs = (int)(1000000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0));
+			} else if (length == 4) {
+				/*
+				 * Backwards compatibility.
+				 */
 				time_stamp->nsecs = 0;
-			}
+			} else
+				report_type_length_mismatch(tree, "an NTP time stamp", length, TRUE);
 			break;
 
 		case ENC_TIME_NTP|ENC_LITTLE_ENDIAN:
 			/*
-			 * NTP time stamp, big-endian.
+			 * NTP time stamp, little-endian.
+			 * Only supported for absolute times.
 			 */
+			DISSECTOR_ASSERT(!is_relative);
+
 			tmpsecs  = tvb_get_letohl(tvb, start);
 			if (tmpsecs)
 				time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME);
@@ -1770,37 +1782,49 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 
 			if (length == 8) {
 				/*
-				 * We're using nanoseconds here (and we will
-				 * display nanoseconds), but NTP's timestamps
-				 * have a precision in microseconds or greater.
-				 * Round to 1 microsecond.
+				 * Convert 1/2^32s of a second to nanoseconds.
 				 */
-				time_stamp->nsecs = (int)(1000000*(tvb_get_letohl(tvb, start+4)/4294967296.0));
-				time_stamp->nsecs *= 1000;
-			} else {
+				time_stamp->nsecs = (int)(1000000000*(tvb_get_letohl(tvb, start+4)/4294967296.0));
+			} else if (length == 4) {
+				/*
+				 * Backwards compatibility.
+				 */
 				time_stamp->nsecs = 0;
-			}
+			} else
+				report_type_length_mismatch(tree, "an NTP time stamp", length, TRUE);
 			break;
 
 		case ENC_TIME_TOD|ENC_BIG_ENDIAN:
 			/*
-			 * TOD time stamp, big-endian.
+			 * S/3x0 and z/Architecture TOD clock time stamp,
+			 * big-endian.
+			 * Only supported for absolute times.
 			 */
-/* XXX - where should this go? */
-#define TOD_BASETIME G_GUINT64_CONSTANT(2208988800)
+			DISSECTOR_ASSERT(!is_relative);
+			DISSECTOR_ASSERT(length == 8);
 
-			todsecs  = tvb_get_ntoh64(tvb, start) >> 12;
-			time_stamp->secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
-			time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
+			if (length == 8) {
+				todsecs  = tvb_get_ntoh64(tvb, start) >> 12;
+				time_stamp->secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
+				time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
+			} else
+				report_type_length_mismatch(tree, "a TOD clock time stamp", length, TRUE);
 			break;
 
 		case ENC_TIME_TOD|ENC_LITTLE_ENDIAN:
 			/*
-			 * TOD time stamp, big-endian.
+			 * S/3x0 and z/Architecture TOD clock time stamp,
+			 * little-endian.
+			 * Only supported for absolute times.
 			 */
-			todsecs  = tvb_get_letoh64(tvb, start) >> 12 ;
-			time_stamp->secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
-			time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
+			DISSECTOR_ASSERT(!is_relative);
+
+			if (length == 8) {
+				todsecs  = tvb_get_letoh64(tvb, start) >> 12 ;
+				time_stamp->secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
+				time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
+			} else
+				report_type_length_mismatch(tree, "a TOD clock time stamp", length, TRUE);
 			break;
 
 		case ENC_TIME_RTPS|ENC_BIG_ENDIAN:
@@ -1809,20 +1833,19 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 			 * as NTP, but with the origin of the time stamp being
 			 * the UNIX epoch rather than the NTP epoch; big-
 			 * endian.
+			 *
+			 * Only supported for absolute times.
 			 */
-			time_stamp->secs = (time_t)tvb_get_ntohl(tvb, start);
+			DISSECTOR_ASSERT(!is_relative);
+
 			if (length == 8) {
+				time_stamp->secs = (time_t)tvb_get_ntohl(tvb, start);
 				/*
-				 * We're using nanoseconds here (and we will
-				 * display nanoseconds), but NTP's timestamps
-				 * have a precision in microseconds or greater.
-				 * Round to 1 microsecond.
+				 * Convert 1/2^32s of a second to nanoseconds.
 				 */
-				time_stamp->nsecs = (int)(1000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0));
-				time_stamp->nsecs *= 1000;
-			} else {
-				time_stamp->nsecs = 0;
-			}
+				time_stamp->nsecs = (int)(1000000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0));
+			} else
+				report_type_length_mismatch(tree, "an RTPS time stamp", length, TRUE);
 			break;
 
 		case ENC_TIME_RTPS|ENC_LITTLE_ENDIAN:
@@ -1831,38 +1854,183 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 			 * as NTP, but with the origin of the time stamp being
 			 * the UNIX epoch rather than the NTP epoch; little-
 			 * endian.
+			 *
+			 * Only supported for absolute times.
 			 */
-			time_stamp->secs = (time_t)tvb_get_letohl(tvb, start);
+			DISSECTOR_ASSERT(!is_relative);
+
 			if (length == 8) {
+				time_stamp->secs = (time_t)tvb_get_letohl(tvb, start);
 				/*
-				 * We're using nanoseconds here (and we will
-				 * display nanoseconds), but NTP's timestamps
-				 * have a precision in microseconds or greater.
-				 * Round to 1 microsecond.
+				 * Convert 1/2^32s of a second to nanoseconds.
 				 */
-				time_stamp->nsecs = (int)(1000000*(tvb_get_letohl(tvb, start+4)/4294967296.0));
-				time_stamp->nsecs *= 1000;
-			} else {
-				time_stamp->nsecs = 0;
-			}
+				time_stamp->nsecs = (int)(1000000000*(tvb_get_letohl(tvb, start+4)/4294967296.0));
+			} else
+				report_type_length_mismatch(tree, "an RTPS time stamp", length, TRUE);
 			break;
 
 		case ENC_TIME_TIMEVAL|ENC_BIG_ENDIAN:
 			/*
-			 * 4-byte UNIX epoch, followed by 4-byte fractional
+			 * 4-byte seconds, followed by 4-byte fractional
 			 * time in microseconds, both big-endian.
+			 * For absolute times, the seconds are seconds
+			 * since the UN*X epoch.
 			 */
-			time_stamp->secs  = (time_t)tvb_get_ntohl(tvb, start);
-			time_stamp->nsecs = tvb_get_ntohl(tvb, start+4)*1000;
+			if (length == 8) {
+				time_stamp->secs  = (time_t)tvb_get_ntohl(tvb, start);
+				time_stamp->nsecs = tvb_get_ntohl(tvb, start+4)*1000;
+			} else
+				report_type_length_mismatch(tree, "a timeval", length, TRUE);
 			break;
 
 		case ENC_TIME_TIMEVAL|ENC_LITTLE_ENDIAN:
 			/*
-			 * 4-byte UNIX epoch, followed by 4-byte fractional
+			 * 4-byte seconds, followed by 4-byte fractional
 			 * time in microseconds, both little-endian.
+			 * For absolute times, the seconds are seconds
+			 * since the UN*X epoch.
 			 */
-			time_stamp->secs  = (time_t)tvb_get_letohl(tvb, start);
-			time_stamp->nsecs = tvb_get_letohl(tvb, start+4)*1000;
+			if (length == 8) {
+				time_stamp->secs  = (time_t)tvb_get_letohl(tvb, start);
+				time_stamp->nsecs = tvb_get_letohl(tvb, start+4)*1000;
+			} else
+				report_type_length_mismatch(tree, "a timeval", length, TRUE);
+			break;
+
+		case ENC_TIME_SECS|ENC_BIG_ENDIAN:
+		case ENC_TIME_SECS|ENC_LITTLE_ENDIAN:
+			/*
+			 * Seconds, 1 to 8 bytes.
+			 * For absolute times, it's seconds since the
+			 * UN*X epoch.
+			 */
+			if (length >= 1 && length <= 8) {
+				time_stamp->secs  = (time_t)get_uint64_value(tree, tvb, start, length, encoding);
+				time_stamp->nsecs = 0;
+			} else
+				report_type_length_mismatch(tree, "a time-in-seconds time stamp", length, TRUE);
+			break;
+
+		case ENC_TIME_MSECS|ENC_BIG_ENDIAN:
+			/*
+			 * Milliseconds, 1 to 8 bytes.
+			 * For absolute times, it's milliseconds since the
+			 * UN*X epoch.
+			 */
+			if (length >= 1 && length <= 8) {
+				guint64 msecs;
+
+				msecs = get_uint64_value(tree, tvb, start, length, encoding);
+				time_stamp->secs  = (time_t)(msecs / 1000);
+				time_stamp->nsecs = (int)(msecs % 1000);
+			} else
+				report_type_length_mismatch(tree, "a time-in-milliseconds time stamp", length, TRUE);
+			break;
+
+		case ENC_TIME_RFC_3971|ENC_BIG_ENDIAN:
+			/*
+			 * 1/64ths of a second since the UN*X epoch,
+			 * big-endian.
+			 *
+			 * Only supported for absolute times.
+			 */
+			DISSECTOR_ASSERT(!is_relative);
+
+			if (length == 8) {
+				/*
+				 * The upper 48 bits are seconds since the
+				 * UN*X epoch.
+				 */
+				time_stamp->secs  = tvb_get_ntoh48(tvb, start);
+				/*
+				 * The lower 16 bits are 1/2^16s of a second;
+				 * convert them to nanoseconds.
+				 *
+				 * XXX - this may give the impression of higher
+				 * precision than you actually get.
+				 */
+				time_stamp->nsecs = (int)(1000000000*(tvb_get_ntohs(tvb, start+6)/65536.0));
+			} else
+				report_type_length_mismatch(tree, "an RFC 3971-style time stamp", length, TRUE);
+			break;
+
+		case ENC_TIME_RFC_3971|ENC_LITTLE_ENDIAN:
+			/*
+			 * 1/64ths of a second since the UN*X epoch,
+			 * little-endian.
+			 *
+			 * Only supported for absolute times.
+			 */
+			DISSECTOR_ASSERT(!is_relative);
+
+			if (length == 8) {
+				/*
+				 * XXX - this is assuming that, if anybody
+				 * were ever to use this format - RFC 3971
+				 * doesn't, because that's an Internet
+				 * protocol, and those use network byte
+				 * order, i.e. big-endian - they'd treat it
+				 * as a 64-bit count of 1/2^16s of a second,
+				 * putting the upper 48 bits at the end.
+				 *
+				 * The lower 48 bits are seconds since the
+				 * UN*X epoch.
+				 */
+				time_stamp->secs  = tvb_get_letoh48(tvb, start+2);
+				/*
+				 * The upper 16 bits are 1/2^16s of a second;
+				 * convert them to nanoseconds.
+				 *
+				 * XXX - this may give the impression of higher
+				 * precision than you actually get.
+				 */
+				time_stamp->nsecs = (int)(1000000000*(tvb_get_letohs(tvb, start)/65536.0));
+			} else
+				report_type_length_mismatch(tree, "an RFC 3971-style time stamp", length, TRUE);
+			break;
+
+		case ENC_TIME_SECS_NTP|ENC_BIG_ENDIAN:
+			/*
+			 * NTP time stamp, with 1-second resolution (i.e.,
+			 * seconds since the NTP epoch), big-endian.
+			 * Only supported for absolute times.
+			 */
+			DISSECTOR_ASSERT(!is_relative);
+
+			if (length == 4) {
+				/*
+				 * We need a temporary variable here so the
+				 * unsigned math works correctly (for
+				 * years > 2036 according to RFC 2030
+				 * chapter 3).
+				 */
+				tmpsecs  = tvb_get_ntohl(tvb, start);
+				if (tmpsecs)
+					time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME);
+				else
+					time_stamp->secs = tmpsecs; /* 0 */
+				time_stamp->nsecs = 0;
+			} else
+				report_type_length_mismatch(tree, "an NTP seconds-only time stamp", length, TRUE);
+			break;
+
+		case ENC_TIME_SECS_NTP|ENC_LITTLE_ENDIAN:
+			/*
+			 * NTP time stamp, with 1-second resolution (i.e.,
+			 * seconds since the NTP epoch), little-endian.
+			 * Only supported for absolute times.
+			 */
+			DISSECTOR_ASSERT(!is_relative);
+
+			if (length == 4) {
+				tmpsecs  = tvb_get_letohl(tvb, start);
+				if (tmpsecs)
+					time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME);
+				else
+					time_stamp->secs = tmpsecs; /* 0 */
+				time_stamp->nsecs = 0;
+			} else
+				report_type_length_mismatch(tree, "an NTP seconds-only time stamp", length, TRUE);
 			break;
 
 		default:
@@ -2278,7 +2446,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				report_type_length_mismatch(tree, "an absolute time value", length, length_error);
 			}
 
-			get_time_value(tvb, start, length, encoding, &time_stamp, FALSE);
+			get_time_value(tree, tvb, start, length, encoding, &time_stamp, FALSE);
 
 			proto_tree_set_time(new_fi, &time_stamp);
 			break;
@@ -2305,7 +2473,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				report_type_length_mismatch(tree, "a relative time value", length, length_error);
 			}
 
-			get_time_value(tvb, start, length, encoding, &time_stamp, TRUE);
+			get_time_value(tree, tvb, start, length, encoding, &time_stamp, TRUE);
 
 			proto_tree_set_time(new_fi, &time_stamp);
 			break;
@@ -2846,7 +3014,7 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		}
 
 		tvb_ensure_bytes_exist(tvb, start, length);
-		get_time_value(tvb, start, length, encoding, &time_stamp, is_relative);
+		get_time_value(tree, tvb, start, length, encoding, &time_stamp, is_relative);
 		if (endoff) *endoff = length;
 	}
 

@@ -371,32 +371,43 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
  *
  * We now support:
  *
- *  ENC_TIME_TIMESPEC - 4 or 8 bytes; the first 4 bytes are seconds since
- *  the UN*X epoch (1970-01-01 00:00:00 UTC), and, if there are 8 bytes,
- *  the next 4 bytes are nanoseconds since that second.  (I.e., a UN*X
- *  struct timespec with a 4-byte time_t.)
+ *  ENC_TIME_TIMESPEC - 8 bytes; the first 4 bytes are seconds and the
+ *  next 4 bytes are nanoseconds.  If the time is absolute, the seconds
+ *  are seconds since the UN*X epoch (1970-01-01 00:00:00 UTC).  (I.e.,
+ *  a UN*X struct timespec with a 4-byte time_t.)
  *
- *  ENC_TIME_NTP - 4 or 8 bytes; the first 4 bytes are seconds since
- *  the NTP epoch (1901-01-01 00:00:00 GMT), and, if there are 8 bytes,
- *  the next 4 bytes are 1/2^32's of a second since that second.  (I.e.,
- *  a 64-bit count of 1/2^32's of a second since the NTP epoch, with
- *  the upper 32 bits first and the lower 32 bits second, even when
- *  little-endian.)
+ *  ENC_TIME_NTP - 8 bytes; the first 4 bytes are seconds since the NTP
+ *  epoch (1901-01-01 00:00:00 GMT) and the next 4 bytes are 1/2^32's of
+ *  a second since that second.  (I.e., a 64-bit count of 1/2^32's of a
+ *  second since the NTP epoch, with the upper 32 bits first and the
+ *  lower 32 bits second, even when little-endian.)
  *
  *  ENC_TIME_TOD - 8 bytes, as a count of microseconds since the System/3x0
  *  and z/Architecture epoch (1900-01-01 00:00:00 GMT).
  *
- *  ENC_TIME_RTPS - 4 or 8 bytes; the first 4 bytes are seconds since the
- *  UN*X epoch, and, if there are 8 bytes, the next 4 bytes are are
- *  1/2^32's of a second since that second.  (I.e., it's the offspring
- *  of a mating between UN*X time and NTP time.)  It's used by the Object
- *  Management Group's Real-Time Publish-Subscribe Wire Protocol for the
- *  Data Distribution Service.
+ *  ENC_TIME_RTPS - 8 bytes; the first 4 bytes are seconds since the UN*X
+ *  epoch and the next 4 bytes are are 1/2^32's of a second since that
+ *  second.  (I.e., it's the offspring of a mating between UN*X time and
+ *  NTP time.)  It's used by the Object Management Group's Real-Time
+ *  Publish-Subscribe Wire Protocol for the Data Distribution Service.
  *
- *  ENC_TIME_TIMEVAL - 8 bytes; the first 4 bytes are seconds since
- *  the UN*X epoch (1970-01-01 00:00:00 UTC), and, if there are 8 bytes,
- *  the next 4 bytes are microseconds since that second.  (I.e., a UN*X
- *  struct timeval with a 4-byte time_t.)
+ *  ENC_TIME_TIMEVAL - 8 bytes; the first 4 bytes are seconds and the
+ *  next 4 bytes are microseconds.  If the time is absolute, the seconds
+ *  are seconds since the UN*X epoch.  (I.e., a UN*X struct timeval with
+ *  a 4-byte time_t.)
+ *
+ *  ENC_TIME_SECS - 4 to 8 bytes, representing a value in seconds.
+ *  If the time is absolute, it's seconds since the UN*X epoch.
+ *
+ *  ENC_TIME_MSECS - 6 to 8 bytes, representing a value in milliseconds.
+ *  If the time is absolute, it's milliseconds since the UN*X epoch.
+ *
+ *  ENC_TIME_SECS_NTP - 4 bytes, representing a count of seconds since
+ *  the NTP epoch.  (I.e., seconds since the NTP epoch.)
+ *
+ *  ENC_TIME_RFC_3971 - 8 bytes, representing a count of 1/64ths of a
+ *  second since the UN*X epoch; see section 5.3.1 "Timestamp Option"
+ *  in RFC 3971.
  */
 #define ENC_TIME_TIMESPEC      0x00000000
 #define ENC_TIME_NTP           0x00000002
@@ -404,6 +415,10 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
 #define ENC_TIME_RTPS          0x00000008
 #define ENC_TIME_NTP_BASE_ZERO ENC_TIME_RTP /* for backwards source compatibility */
 #define ENC_TIME_TIMEVAL       0x00000010
+#define ENC_TIME_SECS          0x00000012
+#define ENC_TIME_MSECS         0x00000014
+#define ENC_TIME_SECS_NTP      0x00000018
+#define ENC_TIME_RFC_3971      0x00000020
 
 /*
  * Historically, the only place the representation mattered for strings

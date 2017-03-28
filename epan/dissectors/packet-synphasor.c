@@ -635,7 +635,7 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree)
 	offset += 2;
 
 	/* SOC */
-	proto_tree_add_item(tree, hf_soc, tvb, offset, 4, ENC_TIME_TIMESPEC | ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_soc, tvb, offset, 4, ENC_TIME_SECS | ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* FRACSEC */

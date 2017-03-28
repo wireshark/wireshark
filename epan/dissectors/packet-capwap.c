@@ -2260,7 +2260,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
                            "AC Timestamp length %u wrong, must be = 4", optlen);
         break;
         }
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_timestamp, tvb, offset + 4, 4, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_timestamp, tvb, offset + 4, 4, ENC_TIME_SECS_NTP|ENC_BIG_ENDIAN);
         break;
 
     case TYPE_ADD_STATION:{ /* Add Station (8) */

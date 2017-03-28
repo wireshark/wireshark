@@ -5666,6 +5666,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 37013: /* timestamp_interval */
+            /* XXX - what format is this in? */
             ti = proto_tree_add_item(pdutree, hf_cflow_timestamp_interval,
                                      tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
@@ -6183,6 +6184,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case (NTOP_BASE + 151):           /* RTP_FIRST_TS */
         case ((VENDOR_NTOP << 16) | 151): /* RTP_FIRST_TS */
+            /* XXX - is this an NTP timestamp? */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_first_ts,
                                      tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
@@ -6193,6 +6195,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case (NTOP_BASE + 153):           /* RTP_LAST_TS */
         case ((VENDOR_NTOP << 16) | 153): /* RTP_LAST_TS */
+            /* XXX - is this an NTP timestamp? */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_last_ts,
                                      tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
@@ -6367,6 +6370,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_PLIXER << 16) | 111):    /* origination_time */
+            /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_plixer_origination_time,
                                      tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
@@ -6395,6 +6399,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                        tvb, offset, length, gen_str);
             break;
         case ((VENDOR_PLIXER << 16) | 117):    /* date_time */
+            /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_plixer_date_time,
                                      tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
@@ -6840,10 +6845,18 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 223):
+            /*
+             * XXX - this says "sec"; is it just seconds since the UN*X epoch,
+             * i.e. should it be ENC_TIME_SECS?
+             */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionupdatebeginsec,
                                      tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 224):
+            /*
+             * XXX - this says "sec"; is it just seconds since the UN*X epoch,
+             * i.e. should it be ENC_TIME_SECS?
+             */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionupdateendsec,
                                      tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
@@ -6904,6 +6917,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_UTF_8|ENC_NA);
             break;
         case ((VENDOR_NETSCALER << 16) | 239):
+            /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_applicationstartuptime,
                                      tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
@@ -6964,10 +6978,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 254):
+            /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icanetworkupdatestarttime,
                                      tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 255):
+            /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icanetworkupdateendtime,
                                      tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
@@ -7032,7 +7048,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             /* START Barracuda Communications */
         case ((VENDOR_BARRACUDA << 16) | 1):
             ti = proto_tree_add_item(pdutree, hf_pie_barracuda_timestamp,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_BARRACUDA << 16) | 2):
             ti = proto_tree_add_item(pdutree, hf_pie_barracuda_logop,

@@ -22,12 +22,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Please refer to the following specs for protocol detail:
- * - draft-ietf-p2psip-base-18
- * - draft-ietf-p2psip-sip-06
- * - draft-ietf-p2psip-service-discovery-03
- * - draft-ietf-p2psip-self-tuning-04
- * - draft-ietf-p2psip-diagnostics-10
- * - draft-zong-p2psip-drr-01
+ * - RFC 6940
+ * - RFC 7904
+ * - RFC 7374
+ * - RFC 7363
+ * - RFC 7851
+ * - RFC 7263
  */
 
 #include "config.h"
@@ -2967,10 +2967,10 @@ static int dissect_diagnosticrequest(int anchor, tvbuff_t *tvb, packet_info *pin
   ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
   local_tree = proto_item_add_subtree(ti_local, ett_reload_diagnosticrequest);
 
-  proto_tree_add_item(local_tree, hf_reload_diagnostic_expiration, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+  proto_tree_add_item(local_tree, hf_reload_diagnostic_expiration, tvb, offset, 8, ENC_TIME_MSECS|ENC_BIG_ENDIAN);
   local_offset += 8;
   proto_tree_add_item(local_tree, hf_reload_diagnosticrequest_timestampinitiated, tvb,
-                      offset+local_offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+                      offset+local_offset, 8, ENC_TIME_MSECS|ENC_BIG_ENDIAN);
   local_offset += 8;
   local_offset += dissect_dmflag(tvb, local_tree, offset+local_offset);
   local_length = tvb_get_ntohl(tvb, offset+local_offset);
@@ -3202,10 +3202,10 @@ static int dissect_diagnosticresponse(int anchor, tvbuff_t *tvb, packet_info *pi
   ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
   local_tree = proto_item_add_subtree(ti_local, ett_reload_diagnosticresponse);
 
-  proto_tree_add_item(local_tree, hf_reload_diagnostic_expiration, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+  proto_tree_add_item(local_tree, hf_reload_diagnostic_expiration, tvb, offset, 8, ENC_TIME_MSECS|ENC_BIG_ENDIAN);
   local_offset += 8;
   proto_tree_add_item(local_tree, hf_reload_diagnosticresponse_timestampreceived,
-                      tvb, offset+local_offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+                      tvb, offset+local_offset, 8, ENC_TIME_MSECS|ENC_BIG_ENDIAN);
   local_offset += 8;
   proto_tree_add_item(local_tree, hf_reload_diagnosticresponse_hopcounter, tvb, offset+local_offset, 1, ENC_BIG_ENDIAN);
 

@@ -3427,7 +3427,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_string(rr_tree, hf_dns_tsig_algorithm_name, tvb, cur_offset, used_bytes, name_out);
       cur_offset += used_bytes;
 
-      ti = proto_tree_add_item(rr_tree, hf_dns_tsig_time_signed ,tvb, cur_offset, 6, ENC_NA);
+      ti = proto_tree_add_item(rr_tree, hf_dns_tsig_time_signed ,tvb, cur_offset, 6, ENC_TIME_SECS|ENC_BIG_ENDIAN);
       if(tvb_get_ntohs(tvb, cur_offset)) /* Time High */
       {
         proto_item_append_text(ti, " (high bits set)");

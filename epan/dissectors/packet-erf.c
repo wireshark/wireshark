@@ -2442,7 +2442,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
            * little endian.
            */
           /*
-           * FIXME: ENC_TIME_NTP(_BASE_ZERO) | ENC_LITTLE_ENDIAN only swaps the
+           * FIXME: ENC_TIME_NTP | ENC_LITTLE_ENDIAN only swaps the
            * upper and lower 32 bits. Is that a bug or by design? Should add
            * a 'PTP" variant that doesn't round to microseconds and use that
            * here. For now do by hand.

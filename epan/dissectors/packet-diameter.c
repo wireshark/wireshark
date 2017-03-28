@@ -912,7 +912,7 @@ time_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_d
 
 	if (c->tree) {
 		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
-		pi = proto_tree_add_item(c->tree, (a->hf_value), tvb, 0, 4, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+		pi = proto_tree_add_item(c->tree, (a->hf_value), tvb, 0, 4, ENC_TIME_SECS_NTP|ENC_BIG_ENDIAN);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
