@@ -1518,8 +1518,12 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
         nstrace_buf_offset = 0;
         nstrace->xxx_offset += nstrace_buflen;
         nstrace_buflen = NSPR_PAGESIZE_TRACE;
-    } while((nstrace_buflen > 0) && (nstrace_read_buf(wth->fh, nstrace_buf, nstrace_buflen, err, err_info)));
+    } while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) > 0 && (file_eof(wth->fh) || (guint32)bytes_read == nstrace_buflen));
 
+    if (bytes_read < 0)
+        *err = file_error(wth->fh, err_info);
+    else
+        *err = 0;
     g_free(nstrace_tmpbuff);
     return FALSE;
 }
