@@ -7361,13 +7361,14 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 	/* TODO: This check may slow down startup, and output quite a few warnings.
 	   It would be good to be able to enable this (and possibly other checks?)
 	   in non-release builds.   */
-#if 0
+#if ENABLE_CHECK_FILTER
 	/* Check for duplicate value_string values.
 	   There are lots that have the same value *and* string, so for now only
 	   report those that have same value but different string. */
 	if ((hfinfo->strings != NULL) &&
 	    !(hfinfo->display & BASE_RANGE_STRING) &&
-	    !(FIELD_DISPLAY(hfinfo->display) == BASE_CUSTOM) &&
+	    !(hfinfo->display & BASE_UNIT_STRING) &&
+	    !((hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_CUSTOM) &&
 	    (
 		    (hfinfo->type == FT_CHAR)  ||
 		    (hfinfo->type == FT_UINT8)  ||
@@ -7377,8 +7378,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		    (hfinfo->type == FT_INT8)   ||
 		    (hfinfo->type == FT_INT16)  ||
 		    (hfinfo->type == FT_INT24)  ||
-		    (hfinfo->type == FT_INT32)  ||
-		    (hfinfo->type == FT_FRAMENUM) )) {
+		    (hfinfo->type == FT_INT32)  )) {
 
 		int n, m;
 		const value_string *start_values;
