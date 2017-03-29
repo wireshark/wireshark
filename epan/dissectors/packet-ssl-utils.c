@@ -3959,8 +3959,8 @@ int
 ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
         const guchar *in, guint16 inl, StringInfo *comp_str, StringInfo *out_str, guint *outl)
 {
-    guint   pad, worklen, uncomplen, maclen, mac_fraglen;
-    guint8 *mac = NULL, *mac_frag;
+    guint   pad, worklen, uncomplen, maclen, mac_fraglen = 0;
+    guint8 *mac = NULL, *mac_frag = NULL;
 
     ssl_debug_printf("ssl_decrypt_record ciphertext len %d\n", inl);
     ssl_print_data("Ciphertext",in, inl);
