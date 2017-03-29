@@ -3893,7 +3893,7 @@ check_payload_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
 
     return calc_crc == crc;
 }
-/* Generates a unique 32bit identifier based on the frame's meta data */
+/* Generates a unique 32bit identifier based on the frame's metadata */
 /* This ID is used in the RLC dissector for reassembly */
 /* Should only be used in heuristic dissectors! */
 static guint32
@@ -3917,14 +3917,13 @@ generate_ue_id_for_heur(packet_info *pinfo)
     else {
         /* Fallback - When IP and/or UDP are missing for whatever reason */
         /* Using the frame number of the first heuristicly dissected frame as the UE ID should be unique enough */
-        /* The bitwise NOT operator is used to prevent low UE ID values which are likely to collide with legitimate UE IDs derived from C-RNTIs in FACH/RACH */
+        /* The bitwise NOT operator is used to prevent low UE ID values which are likely to collide */
+        /* with legitimate UE IDs derived from C-RNTIs in FACH/RACH */
         return ~(pinfo->num);
     }
 }
-/*
-* Attaches conversation info to both the downlink and uplink 'conversations' (streams)
-* (Required since only one of them is checked in every dissected FP packet)
-*/
+/* Fills common PCH information in a 'fp conversation info' object */
+/* Should only be used in heuristic dissectors! */
 static void
 fill_pch_coversation_info_for_heur(umts_fp_conversation_info_t* umts_fp_conversation_info ,packet_info *pinfo)
 {
@@ -3942,6 +3941,9 @@ fill_pch_coversation_info_for_heur(umts_fp_conversation_info_t* umts_fp_conversa
     umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = 1;
     umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[1] = 1;
 }
+/* Attaches conversation info to both the downlink and uplink 'conversations' (streams) */
+/* (Required since only one of them is checked in every dissected FP packet) */
+/* Should only be used in heuristic dissectors! */
 static void
 set_both_sides_umts_fp_conv_data(packet_info *pinfo, umts_fp_conversation_info_t *umts_fp_conversation_info)
 {
@@ -4084,7 +4086,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     umts_fp_conversation_info->dch_crc_present = 1;
     umts_fp_conversation_info->com_context_id = generate_ue_id_for_heur(pinfo);
     umts_fp_conversation_info->rlc_mode = FP_RLC_AM;
-    if (length == 24 || length == 5) { /* Downlink */
+    if (length == 24) { /* Downlink */
         copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &pinfo->src);
         umts_fp_conversation_info->crnc_port = pinfo->srcport;
     }
@@ -4311,8 +4313,9 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     gboolean pi_length_found;
 
     /* To correctly dissect a PCH stream 2 parameters are required: PI Bitmap length & TB length */
-    /* Unfortunately, both are optional in each packet and in some cases no packet will contain both */
-    /* Hence gathering the info from 2 different frames is sometimes required. */
+    /* Both are optional in each packet and having them both in a packet without knowing any of them */
+    /* is not helpful.*/
+    /* Hence gathering the info from 2 different frames is required. */
 
     length = tvb_reported_length(tvb);
 
