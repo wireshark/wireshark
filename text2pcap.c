@@ -1469,6 +1469,7 @@ parse_options (int argc, char *argv[])
         {"version", no_argument, NULL, 'v'},
         {0, 0, 0, 0 }
     };
+    struct tm *now_tm;
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);
@@ -1833,8 +1834,17 @@ parse_options (int argc, char *argv[])
     }
 
     ts_sec = time(0);               /* initialize to current time */
-    /* We trust the OS to return a time after the Epoch. */
-    timecode_default = *localtime(&ts_sec);
+    now_tm = localtime(&ts_sec);
+    if (now_tm == NULL) {
+        /*
+         * This shouldn't happen - on UN*X, this should Just Work, and
+         * on Windows, it won't work if ts_sec is before the Epoch,
+         * but it's long after 1970, so....
+         */
+        fprintf(stderr, "localtime(right now) failed\n");
+        return EXIT_FAILURE;
+    }
+    timecode_default = *now_tm;
     timecode_default.tm_isdst = -1; /* Unknown for now, depends on time given to the strptime() function */
 
     /* Display summary of our state */
