@@ -1828,7 +1828,7 @@ static const value_string intel_reset_patch_enable_vals[] = {
 
 static const value_string intel_reset_ddc_reload_vals[] = {
     { 0x00,  "Disabled" },
-    { 0x00,  "Reload from OTP" },
+    { 0x01,  "Reload from OTP" },
     { 0, NULL }
 };
 

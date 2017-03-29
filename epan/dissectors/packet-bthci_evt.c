@@ -885,8 +885,8 @@ static const value_string receive_status_vals[] = {
 static const value_string fragment_vals[] = {
     { 0x00,  "Continuation" },
     { 0x01,  "Start" },
-    { 0x01,  "End" },
-    { 0x01,  "No Fragmentation" },
+    { 0x02,  "End" },
+    { 0x03,  "No Fragmentation" },
     { 0, NULL }
 };
 
