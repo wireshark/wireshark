@@ -986,10 +986,10 @@ static const value_string option_vals[] = {
 #define ND_NA_FLAG_RSV  0x1FFFFFFF
 
 static const value_string nd_flag_router_pref[] = {
-    { 1, "High" },
     { 0, "Medium" },
-    { 3, "Low" },
+    { 1, "High" },
     { 2, "Reserved" },
+    { 3, "Low" },
     { 0, NULL}
 };
 
@@ -1284,7 +1284,7 @@ static const value_string mpl_seed_id_lengths[] = {
     { 1, "16 bits" },
     { 2, "64 bits" },
     { 3, "128 bits" },
-    { 4, NULL}
+    { 0, NULL}
 };
 static const guint8 mpl_seed_id_code_to_length[] = { 0, 2, 8, 16 }; /* bytes */
 
