@@ -1476,6 +1476,10 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
         nstrace_buflen = NSPR_PAGESIZE_TRACE;
     } while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) > 0 && (file_eof(wth->fh) || (guint32)bytes_read == nstrace_buflen));
 
+    if (bytes_read < 0)
+        *err = file_error(wth->fh, err_info);
+    else
+        *err = 0;
     return FALSE;
 }
 
