@@ -409,7 +409,7 @@ static const string_string status_code_vals[] = {
     { "502", "Server Failure: Protocol Version not supported" },
     { "503", "Server Failure: Reserved for future assignment" },
     { "504", "Server Failure: Message too large" },
-    { "", NULL }
+    { NULL, NULL }
 };
 
 /* Code to actually dissect the packets */
