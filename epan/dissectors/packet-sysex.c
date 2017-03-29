@@ -620,7 +620,7 @@ static const value_string digitech_parameter_ids_reverb[] = {
     {1927, "Reverb Decay"},
     {1928, "Reverb Balance"},
     {1933, "Reverb Liveliness"},
-    {9, NULL}
+    {0, NULL}
 };
 
 static const value_string digitech_parameter_ids_volume_post_fx[] = {
