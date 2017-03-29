@@ -145,9 +145,9 @@ json_puts_string(const char *str)
 }
 
 static void
-json_print_base64(const guint8 *data, int len)
+json_print_base64(const guint8 *data, size_t len)
 {
-	int i;
+	size_t i;
 	int base64_state1 = 0;
 	int base64_state2 = 0;
 	gsize wrote;
