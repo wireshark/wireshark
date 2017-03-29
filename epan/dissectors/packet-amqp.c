@@ -2628,7 +2628,7 @@ dissect_amqp_0_10_map(tvbuff_t *tvb, proto_item *item)
     map_tree = proto_item_add_subtree(item, ett_amqp_0_10_map);
     field_count = tvb_get_ntohl(tvb, offset);
     offset += 4;
-    proto_item_append_text(item, " (%d entries)", field_count);
+    proto_item_append_text(item, " (%u %s)", field_count, plurality(field_count, "entry", "entries"));
     for (i = 0; ((i < field_count) && (tvb_reported_length_remaining(tvb, offset) > 0)); i++) {
         guint field_length = 0;
         guint field_start = offset;
@@ -2724,7 +2724,7 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
                         int offset,          /* Start of array in tvb */
                         proto_item *item)
 {
-    proto_item *array_item, *type_item, *struct_item;
+    proto_item *type_item, *struct_item;
     proto_tree *array_tree;
     guint16     len16;
     guint32     type, i, element_count;
@@ -2732,8 +2732,8 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
     tvbuff_t    *next_tvb;
 
     element_count = tvb_get_ntohl(tvb, offset+1);
-    array_tree = proto_tree_add_subtree_format(item, tvb, offset, 5, ett_amqp_0_10_array, &array_item, "Array of %d element%s)", element_count, plurality(element_count, "", "s"));
-
+    array_tree = proto_item_add_subtree(item, ett_amqp_0_10_array);
+    proto_item_append_text(item, " (array of %u element%s)", element_count, plurality(element_count, "", "s"));
     type_item = proto_tree_add_item_ret_uint(array_tree, hf_amqp_0_10_array_type, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
     proto_tree_add_item_ret_uint(array_tree, hf_amqp_0_10_array_element_count, tvb, offset, 4, ENC_BIG_ENDIAN, &element_count);
@@ -2751,7 +2751,6 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
             struct_length = amqp_0_10_get_32bit_size_new(array_tree, pinfo, tvb, hf_amqp_0_10_struct32_size, offset);
             offset += 4;
 
-            array_tree = proto_item_add_subtree(array_item, ett_amqp_0_10_array);
             struct_item = proto_tree_add_item(array_tree,
                                      hf_amqp_0_10_struct32,
                                      tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2958,7 +2957,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             /*  locale (str8)  */
             proto_tree_add_item(args_tree,
                                 hf_amqp_method_connection_start_ok_locale,
-                                tvb, offset + 1, 1, ENC_ASCII|ENC_BIG_ENDIAN);
+                                tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
             /* offset += (1 + tvb_get_guint8(tvb, offset)); */
         }
         break;
