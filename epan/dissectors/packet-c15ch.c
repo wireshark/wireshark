@@ -1260,7 +1260,7 @@ static const value_string c15_srcedest_path_types[] = {
     { 8, "1WAY_2_UTR" },
     { 9, "2WAY_LB" },
     {10, "2WAY_LSG" },
-    {11, NULL }
+    { 0, NULL }
 };
 
 /* tcap */
