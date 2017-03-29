@@ -16041,32 +16041,38 @@ ieee80211_tag_supported_operating_classes(tvbuff_t *tvb, packet_info *pinfo, pro
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
-  const guint8 *tag_data_ptr;
-  int           i, n, ret;
-  char          print_buff[SHORT_STR];
+  proto_item* item = NULL;
+  guint8 i;
+  guint8 field_len = 0;
+  guint8 alt_op_class_field[256];
 
   if (tag_len < 2) {
-    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 3", tag_len);
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 2", tag_len);
     return tvb_captured_length(tvb);
-  } else if (tag_len > 32) {
-    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be < 32", tag_len);
+  } else if (tag_len > 255) {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, uint8 <= 255", tag_len);
     return tvb_captured_length(tvb);
   }
 
-  proto_tree_add_item(tree, hf_ieee80211_tag_supported_ope_classes_current, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(tree, hf_ieee80211_tag_supported_ope_classes_current, tvb, offset++, 1, ENC_NA);
 
-  offset += 1;
-  /* Partially taken from the ssid section */
-  tag_data_ptr = tvb_get_ptr(tvb, offset, tag_len);
-  for (i = 0, n = 0; (i < tag_len) && (n < SHORT_STR); i++) {
-    ret = g_snprintf(print_buff + n, SHORT_STR - n, (i == tag_len-1)?"%d":"%d, ", tag_data_ptr[i]);
-    if (ret >= SHORT_STR - n) {
-      /* ret >= <buf_size> means buffer truncated  */
+  for (i = offset; i < tag_len; i++) {
+    guint8 op_class =  tvb_get_guint8(tvb, i);
+    /* Field terminates immediately before OneHundredAndThirty or Zero delimiter */
+    if (op_class == 130 || op_class == 0) {
       break;
     }
-    n += ret;
+    alt_op_class_field[field_len++] = op_class;
   }
-  proto_tree_add_string(tree, hf_ieee80211_tag_supported_ope_classes_alternate, tvb, offset, tag_len, print_buff);
+  if (field_len) {
+    item = proto_tree_add_item(tree, hf_ieee80211_tag_supported_ope_classes_alternate, tvb, offset, field_len, ENC_NA);
+  }
+  for (i = 0; i < field_len; i++) {
+    proto_item_append_text(item, i == 0 ? ": %d":", %d", alt_op_class_field[i]);
+  }
+
+  /* TODO parse optional Current Operating Class Extension Sequence field */
+  /* TODO parse optional Operating Class Duple Sequence field */
   return tvb_captured_length(tvb);
 }
 
@@ -25967,12 +25973,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_supported_ope_classes_current,
      {"Current Operating Class", "wlan.supopeclass.current",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_supported_ope_classes_alternate,
      {"Alternate Operating Classes", "wlan.supopeclass.alt",
-      FT_STRING, BASE_NONE, NULL, 0,
+      FT_NONE, BASE_NONE, 0x0, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_type,
