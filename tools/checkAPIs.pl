@@ -1434,7 +1434,8 @@ sub check_snprintf_plus_strlen($$)
 my $StaticRegex             = qr/ static \s+                                                            /xs;
 my $ConstRegex              = qr/ const  \s+                                                            /xs;
 my $Static_andor_ConstRegex = qr/ (?: $StaticRegex $ConstRegex | $StaticRegex | $ConstRegex)            /xs;
-my $ValueStringRegex        = qr/ ^ \s* $Static_andor_ConstRegex (?:value|string|range)_string \ + [^;*]+ = [^;]+ [{] .+? [}] \s*? ;  /xms;
+my $ValueStringVarnameRegex = qr/ (?:value|val64|string|range|bytes)_string                             /xs;
+my $ValueStringRegex        = qr/ ^ \s* $Static_andor_ConstRegex $ValueStringVarnameRegex \ + [^;*]+ = [^;]+ [{] .+? [}] \s*? ;  /xms;
 my $EnumValRegex            = qr/ $Static_andor_ConstRegex enum_val_t \ + [^;*]+ = [^;]+ [{] .+? [}] \s*? ;  /xs;
 my $NewlineStringRegex      = qr/ ["] [^"]* \\n [^"]* ["] /xs;
 
@@ -1452,26 +1453,23 @@ sub check_value_string_arrays($$$)
                 # XXX_string array definition found; check if NULL terminated
                 my $vs = my $vsx = $1;
                 if ($debug_flag) {
-                        $vsx =~ / ( .+ (?:value|string|range)_string [^=]+ ) = /xo;
+                        $vsx =~ / ( .+ $ValueStringVarnameRegex [^=]+ ) = /xo;
                         printf STDERR "==> %-35.35s: %s\n", $filename, $1;
                         printf STDERR "%s\n", $vs;
                 }
                 $vs =~ s{ \s } {}xg;
-                # README.developer says
-                #  "Don't put a comma after the last tuple of an initializer of an array"
-                # However: since this usage is present in some number of cases, we'll allow for now
-                if ($vs !~ / , NULL [}] ,? [}] ; $/xo) {
-                        $vsx =~ /( (?:value|string|range)_string [^=]+ ) = /xo;
-                        printf STDERR "Error: %-35.35s: {..., NULL} is required as the last XXX_string array entry: %s\n", $filename, $1;
+                if ($vs !~ / (0|NULL), NULL [}] ,? [}] ; $/xo) {
+                        $vsx =~ /( $ValueStringVarnameRegex [^=]+ ) = /xo;
+                        printf STDERR "Error: %-35.35s: {0, NULL} is required as the last XXX_string array entry: %s\n", $filename, $1;
                         $cnt++;
                 }
-                if ($vs !~ / (static)? const (?:value|string|range)_string /xo)  {
-                        $vsx =~ /( (?:value|string|range)_string [^=]+ ) = /xo;
+                if ($vs !~ / (static)? const $ValueStringVarnameRegex /xo)  {
+                        $vsx =~ /( $ValueStringVarnameRegex [^=]+ ) = /xo;
                         printf STDERR "Error: %-35.35s: Missing 'const': %s\n", $filename, $1;
                         $cnt++;
                 }
-                if ($vs =~ / $NewlineStringRegex /xo)  {
-                        $vsx =~ /( (?:value|string|range)_string [^=]+ ) = /xo;
+                if ($vs =~ / $NewlineStringRegex /xo && $vs !~ / bytes_string /xo)  {
+                        $vsx =~ /( $ValueStringVarnameRegex [^=]+ ) = /xo;
                         printf STDERR "Error: %-35.35s: XXX_string contains a newline: %s\n", $filename, $1;
                         $cnt++;
                 }
