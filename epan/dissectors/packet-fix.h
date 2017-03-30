@@ -130,7 +130,7 @@ typedef struct _fix_field {
         { "CE", "StreamAssignmentReportACK" },
         { "CF", "PartyDetailsListRequest" },
         { "CG", "PartyDetailsListReport" },
-        { "", NULL }
+        { 0, NULL }
     };
 
     static const  value_string AdvSide_val[] = {
