@@ -33,6 +33,7 @@
 #include <epan/etypes.h>
 #include <epan/arcnet_pids.h>
 #include <epan/ax25_pids.h>
+#include <epan/osi-utils.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
@@ -552,19 +553,19 @@ dissect_atm_number(tvbuff_t *tvb, packet_info* pinfo, int offset, int tl, int hf
 }
 
 static const value_string atm_nsap_afi_vals[] = {
-    { 0x39,    "DCC ATM format"},
-    { 0xBD,    "DCC ATM group format"},
-    { 0x47,    "ICD ATM format"},
-    { 0xC5,    "ICD ATM group format"},
-    { 0x45,    "E.164 ATM format"},
-    { 0xC3,    "E.164 ATM group format"},
-    { 0,            NULL}
+    { NSAP_IDI_ISO_DCC_BIN,            "DCC ATM format"},
+    { NSAP_IDI_ISO_DCC_DEC_GROUP,      "DCC ATM group format"},
+    { NSAP_IDI_ISO_6523_ICD_BIN,       "ICD ATM format"},
+    { NSAP_IDI_ISO_6523_ICD_BIN_GROUP, "ICD ATM group format"},
+    { NSAP_IDI_E_164_BIN,              "E.164 ATM format"},
+    { NSAP_IDI_E_164_BIN_GROUP,        "E.164 ATM group format"},
+    { 0,                               NULL}
 };
 
 /*
  * XXX - shouldn't there be a centralized routine for dissecting NSAPs?
  * See also "dissect_nsap()" in epan/dissectors/packet-isup.c and
- * "print_nsap_net()" in epan/osi=utils.c.
+ * "print_nsap_net()" in epan/osi-utils.c.
  */
 void
 dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_tree *tree)
@@ -576,27 +577,27 @@ dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
   ti = proto_tree_add_item(tree, hf_atmarp_src_atm_afi, tvb, offset, 1, ENC_BIG_ENDIAN);
   switch (afi) {
 
-    case 0x39:  /* DCC ATM format */
-    case 0xBD:  /* DCC ATM group format */
-      proto_tree_add_item(tree, (afi == 0xBD) ? hf_atmarp_src_atm_data_country_code_group : hf_atmarp_src_atm_data_country_code,
+    case NSAP_IDI_ISO_DCC_BIN:       /* DCC ATM format */
+    case NSAP_IDI_ISO_DCC_DEC_GROUP: /* DCC ATM group format */
+      proto_tree_add_item(tree, (afi == NSAP_IDI_ISO_DCC_DEC_GROUP) ? hf_atmarp_src_atm_data_country_code_group : hf_atmarp_src_atm_data_country_code,
                           tvb, offset + 1, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_atmarp_src_atm_high_order_dsp, tvb, offset + 3, 10, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_end_system_identifier, tvb, offset + 13, 6, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_selector, tvb, offset + 19, 1, ENC_BIG_ENDIAN);
       break;
 
-    case 0x47:  /* ICD ATM format */
-    case 0xC5:  /* ICD ATM group format */
-      proto_tree_add_item(tree, (afi == 0xC5) ? hf_atmarp_src_atm_international_code_designator_group : hf_atmarp_src_atm_international_code_designator,
+    case NSAP_IDI_ISO_6523_ICD_BIN:       /* ICD ATM format */
+    case NSAP_IDI_ISO_6523_ICD_BIN_GROUP: /* ICD ATM group format */
+      proto_tree_add_item(tree, (afi == NSAP_IDI_ISO_6523_ICD_BIN_GROUP) ? hf_atmarp_src_atm_international_code_designator_group : hf_atmarp_src_atm_international_code_designator,
                           tvb, offset + 1, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_atmarp_src_atm_high_order_dsp, tvb, offset + 3, 10, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_end_system_identifier, tvb, offset + 13, 6, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_selector, tvb, offset + 19, 1, ENC_BIG_ENDIAN);
       break;
 
-    case 0x45:  /* E.164 ATM format */
-    case 0xC3:  /* E.164 ATM group format */
-      proto_tree_add_item(tree, (afi == 0xC3) ? hf_atmarp_src_atm_e_164_isdn_group : hf_atmarp_src_atm_e_164_isdn,
+    case NSAP_IDI_E_164_BIN:       /* E.164 ATM format */
+    case NSAP_IDI_E_164_BIN_GROUP: /* E.164 ATM group format */
+      proto_tree_add_item(tree, (afi == NSAP_IDI_E_164_BIN_GROUP) ? hf_atmarp_src_atm_e_164_isdn_group : hf_atmarp_src_atm_e_164_isdn,
                           tvb, offset + 1, 8, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_high_order_dsp, tvb, offset + 9, 4, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_end_system_identifier, tvb, offset + 13, 6, ENC_NA);

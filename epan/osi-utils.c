@@ -167,8 +167,8 @@ print_area_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
   }
 
   cur = buf;
-  if ( (  ( NSAP_IDI_ISODCC          == *ad )
-       || ( NSAP_IDI_GOSIP2          == *ad )
+  if ( (  ( NSAP_IDI_ISO_DCC_BIN      == *ad )
+       || ( NSAP_IDI_ISO_6523_ICD_BIN == *ad )
        )
        &&
        (  ( RFC1237_FULLAREA_LEN     ==  length )
@@ -177,7 +177,7 @@ print_area_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
      ) {    /* AFI is good and length is long enough  */
 
     /* there used to be a check for (length > RFC1237_FULLAREA_LEN + 1) here,
-     * in order to report an invalied length of AREA for DCC / GOSIP AFI,
+     * in order to report an invalied length of AREA for DCC / ISO 6523 AFI,
      * but that can *never* be the case because the if() test above explicitly
      * tests for (length == RFC1237_FULLAREA_LEN) or (length == RFC1237_FULLAREA_LEN + 1)
      */

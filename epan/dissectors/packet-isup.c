@@ -53,6 +53,7 @@
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
+#include <epan/osi-utils.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
 #include <epan/media_params.h>
@@ -4072,73 +4073,73 @@ dissect_isup_access_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 /* dissect x.213 NSAP coded Address */
 
 static const value_string x213_afi_value[] = {
-  { 0x34, "IANA ICP"},
-  { 0x35, "IANA ICP"},
-  { 0x36, "X.121"},
-  { 0x37, "X.121"},
-  { 0x38, "ISO DCC"},
-  { 0x39, "ISO DCC"},
-  { 0x40, "F.69"},
-  { 0x41, "F.69"},
-  { 0x42, "E.163"},
-  { 0x43, "E.163"},
-  { 0x44, "E.164"},
-  { 0x45, "E.164"},
-  { 0x46, "ISO 6523-ICD"},
-  { 0x47, "ISO 6523-ICD"},
-  { 0x48, "Local"},
-  { 0x49, "Local"},
-  { 0x50, "Local ISO/IEC 646 character "},
-  { 0x51, "Local (National character)"},
-  { 0x52, "X.121"},
-  { 0x53, "X.121"},
-  { 0x54, "F.69"},
-  { 0x55, "F.69"},
-  { 0x56, "E.163"},
-  { 0x57, "E.163"},
-  { 0x58, "E.164"},
-  { 0x59, "E.164"},
+  { NSAP_IDI_IANA_ICP_DEC,              "IANA ICP, decimal"},
+  { NSAP_IDI_IANA_ICP_BIN,              "IANA ICP, binary"},
+  { NSAP_IDI_X_121_DEC,                 "X.121, decimal"},
+  { NSAP_IDI_X_121_BIN,                 "X.121, binary"},
+  { NSAP_IDI_ISO_DCC_DEC,               "ISO DCC, decimal"},
+  { NSAP_IDI_ISO_DCC_BIN,               "ISO DCC, binary"},
+  { NSAP_IDI_F_69_DEC,                  "F.69, decimal"},
+  { NSAP_IDI_F_69_BIN,                  "F.69, binary"},
+  { NSAP_IDI_E_163_DEC,                 "E.163, decimal"},
+  { NSAP_IDI_E_163_BIN,                 "E.163, binary"},
+  { NSAP_IDI_E_164_DEC,                 "E.164, decimal"},
+  { NSAP_IDI_E_164_BIN,                 "E.164, binary"},
+  { NSAP_IDI_ISO_6523_ICD_DEC,          "ISO 6523-ICD, decimal"},
+  { NSAP_IDI_ISO_6523_ICD_BIN,          "ISO 6523-ICD, binary"},
+  { NSAP_IDI_LOCAL_DEC,                 "Local, decimal"},
+  { NSAP_IDI_LOCAL_BIN,                 "Local, binary"},
+  { NSAP_IDI_LOCAL_ISO_646_CHAR,        "Local, ISO/IEC 646 character"},
+  { NSAP_IDI_LOCAL_NATIONAL_CHAR,       "Local, National character"},
+  { NSAP_IDI_X_121_DEC_2,               "X.121, decimal"},
+  { NSAP_IDI_X_121_BIN_2,               "X.121, binary"},
+  { NSAP_IDI_F_69_DEC_2,                "F.69, decimal"},
+  { NSAP_IDI_F_69_BIN_2,                "F.69, binary"},
+  { NSAP_IDI_E_163_DEC_2,               "E.163, decimal"},
+  { NSAP_IDI_E_163_BIN_2,               "E.163, binary"},
+  { NSAP_IDI_E_164_DEC_2,               "E.164, decimal"},
+  { NSAP_IDI_E_164_BIN_2,               "E.164, binary"},
 
-  { 0x76, "ITU-T IND"},
-  { 0x77, "ITU-T IND"},
+  { NSAP_IDI_ITU_T_IND_DEC,             "ITU-T IND, decimal"},
+  { NSAP_IDI_ITU_T_IND_BIN,             "ITU-T IND, binary"},
 
-  { 0xb8, "IANA ICP Group no"},
-  { 0xb9, "IANA ICP Group no"},
-  { 0xba, "X.121 Group no"},
-  { 0xbb, "X.121 Group no"},
-  { 0xbc, "ISO DCC Group no"},
-  { 0xbd, "ISO DCC Group no"},
-  { 0xbe, "F.69 Group no"},
-  { 0xbf, "F.69 Group no"},
-  { 0xc0, "E.163 Group no"},
-  { 0xc1, "E.163 Group no"},
-  { 0xc2, "E.164 Group no"},
-  { 0xc3, "E.164 Group no"},
-  { 0xc4, "ISO 6523-ICD Group no"},
-  { 0xc5, "ISO 6523-ICD Group no"},
-  { 0xc6, "Local Group no"},
-  { 0xc7, "Local Group no"},
-  { 0xc8, "Local ISO/IEC 646 character Group no"},
-  { 0xc9, "Local (National character) Group no"},
-  { 0xca, "X.121 Group no"},
-  { 0xcb, "X.121 Group no"},
-  { 0xcd, "F.69 Group no"},
-  { 0xce, "F.69 Group no"},
-  { 0xcf, "E.163 Group no"},
-  { 0xd0, "E.164 Group no"},
-  { 0xd1, "E.164 Group no"},
-  { 0xde, "E.163 Group no"},
+  { NSAP_IDI_IANA_ICP_DEC_GROUP,        "IANA ICP Group no, decimal"},
+  { NSAP_IDI_IANA_ICP_BIN_GROUP,        "IANA ICP Group no, binary"},
+  { NSAP_IDI_X_121_DEC_GROUP,           "X.121 Group no, decimal"},
+  { NSAP_IDI_X_121_BIN_GROUP,           "X.121 Group no, binary"},
+  { NSAP_IDI_ISO_DCC_DEC_GROUP,         "ISO DCC Group no, decimal"},
+  { NSAP_IDI_ISO_DCC_BIN_GROUP,         "ISO DCC Group no, binary"},
+  { NSAP_IDI_F_69_DEC_GROUP,            "F.69 Group no, decimal"},
+  { NSAP_IDI_F_69_BIN_GROUP,            "F.69 Group no, binary"},
+  { NSAP_IDI_E_163_DEC_GROUP,           "E.163 Group no, decimal"},
+  { NSAP_IDI_E_163_BIN_GROUP,           "E.163 Group no, binary"},
+  { NSAP_IDI_E_164_DEC_GROUP,           "E.164 Group no, decimal"},
+  { NSAP_IDI_E_164_BIN_GROUP,           "E.164 Group no, binary"},
+  { NSAP_IDI_ISO_6523_ICD_DEC_GROUP,    "ISO 6523-ICD Group no, decimal"},
+  { NSAP_IDI_ISO_6523_ICD_BIN_GROUP,    "ISO 6523-ICD Group no, binary"},
+  { NSAP_IDI_LOCAL_DEC_GROUP,           "Local Group no, decimal"},
+  { NSAP_IDI_LOCAL_BIN_GROUP,           "Local Group no, binary"},
+  { NSAP_IDI_LOCAL_ISO_646_CHAR_GROUP,  "Local Group no, ISO/IEC 646 character"},
+  { NSAP_IDI_LOCAL_NATIONAL_CHAR_GROUP, "Local Group no, national character"},
+  { NSAP_IDI_X_121_DEC_2_GROUP,         "X.121 Group no, decimal"},
+  { NSAP_IDI_X_121_BIN_2_GROUP,         "X.121 Group no, binary"},
+  { NSAP_IDI_X_121_DEC_2_GROUP,         "F.69 Group no, decimal"},
+  { NSAP_IDI_X_121_BIN_2_GROUP,         "F.69 Group no, binary"},
+  { NSAP_IDI_E_163_DEC_2_GROUP,         "E.163 Group no, decimal"},
+  { NSAP_IDI_E_163_BIN_2_GROUP,         "E.163 Group no, binary"},
+  { NSAP_IDI_E_164_DEC_2_GROUP,         "E.164 Group no, decimal"},
+  { NSAP_IDI_E_164_BIN_2_GROUP,         "E.163 Group no, binary"},
 
-  { 0xe2, "ITU-T IND Group no"},
-  { 0xe3, "ITU-T IND Group no"},
+  { NSAP_IDI_ITU_T_IND_DEC_GROUP,       "ITU-T IND Group no, decimal"},
+  { NSAP_IDI_ITU_T_IND_BIN_GROUP,       "ITU-T IND Group no, binary"},
   { 0,  NULL }
 };
 value_string_ext x213_afi_value_ext = VALUE_STRING_EXT_INIT(x213_afi_value);
 
 
 /* Up-to-date information on the allocated ICP values can be found in   */
-/*draft-gray-rfc1888bis-01 at                                           */
-/*http://www.ietf.org/internet-drafts/draft-gray-rfc1888bis-01.txt      */
+/* RFC 4548 at                                                          */
+/* https://tools.ietf.org/html/rfc4548                                  */
 static const value_string iana_icp_values[] = {
   { 0x0, "IP Version 6 Address"},
   { 0x1, "IP Version 4 Address"},
@@ -4159,7 +4160,7 @@ dissect_nsap(tvbuff_t *parameter_tvb, gint offset, gint len, proto_tree *paramet
   afi = tvb_get_guint8(parameter_tvb, offset);
 
   switch (afi) {
-    case 0x35:  /* IANA ICP Binary fortmat*/
+    case NSAP_IDI_IANA_ICP_BIN:  /* IANA ICP Binary fortmat*/
       proto_tree_add_item(parameter_tree, hf_isup_idp, parameter_tvb, offset, 3, ENC_NA);
 
       proto_tree_add_uint(parameter_tree, hf_afi, parameter_tvb, offset, 1, afi);
@@ -4179,7 +4180,7 @@ dissect_nsap(tvbuff_t *parameter_tvb, gint offset, gint len, proto_tree *paramet
       }
 
       break;
-    case 0x45:  /* E.164 ATM format */
+    case NSAP_IDI_E_164_BIN:  /* E.164 ATM format */
     case 0xC3:  /* E.164 ATM group format */
       proto_tree_add_item(parameter_tree, hf_isup_idp, parameter_tvb, offset, 9, ENC_NA);
 
