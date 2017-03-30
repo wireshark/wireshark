@@ -564,7 +564,7 @@ static const value_string atm_nsap_afi_vals[] = {
 /*
  * XXX - shouldn't there be a centralized routine for dissecting NSAPs?
  * See also "dissect_nsap()" in epan/dissectors/packet-isup.c and
- * "print_nsap_net_buf()" and "print_nsap_net()" in epan/osi=utils.c.
+ * "print_nsap_net()" in epan/osi=utils.c.
  */
 void
 dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_tree *tree)

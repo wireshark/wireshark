@@ -4148,7 +4148,7 @@ static const value_string iana_icp_values[] = {
 /*
  * XXX - shouldn't there be a centralized routine for dissecting NSAPs?
  * See also "dissect_atm_nsap()" in epan/dissectors/packet-arp.c and
- * "print_nsap_net_buf()" and "print_nsap_net()" in epan/osi_utils.c.
+ * "print_nsap_net()" in epan/osi_utils.c.
  */
 void
 dissect_nsap(tvbuff_t *parameter_tvb, gint offset, gint len, proto_tree *parameter_tree)

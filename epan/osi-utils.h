@@ -46,9 +46,7 @@
 #define NSAP_IDI_GOSIP2       0x47
 
 gchar*     print_nsap_net ( tvbuff_t *, const gint, int );
-void       print_nsap_net_buf( const guint8 *, int, gchar *, int);
 gchar*     print_area     ( tvbuff_t *, const gint, int );
-void       print_area_buf ( const guint8 *, int, gchar *, int);
 gchar*     print_system_id(wmem_allocator_t *, const guint8 *, int );
 gchar*     tvb_print_system_id( tvbuff_t *, const gint, int );
 void       print_system_id_buf( const guint8 *, int, gchar *, int);

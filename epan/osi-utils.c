@@ -35,6 +35,9 @@
 #include "address.h"
 #include "address_types.h"
 
+static void print_nsap_net_buf( const guint8 *, int, gchar *, int);
+static void print_area_buf ( const guint8 *, int, gchar *, int);
+
 /*
  * XXX - shouldn't there be a centralized routine for dissecting NSAPs?
  * See also "dissect_atm_nsap()" in epan/dissectors/packet-arp.c and
@@ -50,8 +53,7 @@ print_nsap_net( tvbuff_t *tvb, const gint offset, int length )
   return( cur );
 }
 
-/* XXX - Should these be converted to string buffers? */
-void
+static void
 print_nsap_net_buf( const guint8 *ad, int length, gchar *buf, int buf_len)
 {
   gchar *cur;
@@ -150,7 +152,7 @@ print_area(tvbuff_t *tvb, const gint offset, int length)
   return cur;
 }
 
-void
+static void
 print_area_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
 {
   gchar *cur;
