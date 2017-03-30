@@ -7416,12 +7416,10 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 			/* Check that there is still room in packet */
 			off += len;
 			if (off >= tvb_len) {
-				DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
-				/*
-				 * TODO - Do we need to free g_malloc()ed memory?
-				 */
-				THROW(ReportedBoundsError);
+				DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n",
+							*level, off - offset));
 			}
+
 			proto_tree_add_none_format(tree, hf_wbxml_end_pi, tvb, off-1, 1,
 					     "  %3d | Tag   | T %3d    | END (PI)                        | %s?>",
 					     *level, *codepage_stag, Indent (*level));
@@ -7596,11 +7594,8 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 						if (off >= tvb_len) {
 							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n",
 								  *level, off - offset));
-							/*
-							 * TODO - Do we need to free g_malloc()ed memory?
-							 */
-							THROW(ReportedBoundsError);
 						}
+
 						proto_tree_add_none_format(tree, hf_wbxml_end_attribute_list, tvb, off-1, 1,
 								     "  %3d | Tag   | T %3d    | END (attribute list)            | %s>",
 								     *level, *codepage_stag, Indent (*level));
@@ -7643,11 +7638,8 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 						/* Check that there is still room in packet */
 						off += len;
 						if (off > tvb_len) {
-							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
-							/*
-							 * TODO - Do we need to free g_malloc()ed memory?
-							 */
-							THROW(ReportedBoundsError);
+							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n",
+										level, off - offset));
 						}
 						proto_tree_add_uint_format(tree, hf_wbxml_end_known_tag_uint, tvb, off-1, 1, *codepage_stag,
 								     "  %3d | Tag   | T %3d    | END (Known Tag)                 | %s/>",
@@ -7662,11 +7654,8 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 						/* Check that there is still room in packet */
 						off += len;
 						if (off >= tvb_len) {
-							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
-							/*
-							 * TODO - Do we need to free g_malloc()ed memory?
-							 */
-							THROW(ReportedBoundsError);
+							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n",
+										*level, off - offset));
 						}
 						proto_tree_add_string_format(tree, hf_wbxml_end_literal_tag, tvb, off-1, 1, "",
 								     "  %3d | Tag   | T %3d    | END (Literal Tag)               | %s/>",
