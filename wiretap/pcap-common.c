@@ -437,6 +437,9 @@ static const struct {
 	/* ISO 14443 contactless smartcard standards */
 	{ 264,		WTAP_ENCAP_ISO14443 },
 
+	/* USB packets from Darwin (macOS, iOS) BPF tap */
+	{ 266,          WTAP_ENCAP_USB_DARWIN },
+
 	/* IBM SDLC frames containing SNA PDUs */
 	{ 268,		WTAP_ENCAP_SDLC },
 

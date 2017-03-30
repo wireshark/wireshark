@@ -918,6 +918,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_JUNIPER_VN */
 	{ "Juniper VN", "juniper-vn" },
+
+	/* WTAP_ENCAP_USB_DARWIN */
+	{ "Darwin USB", "darwin-usb" },
 };
 
 WS_DLL_LOCAL
