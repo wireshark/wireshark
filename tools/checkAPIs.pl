@@ -1435,7 +1435,7 @@ my $StaticRegex             = qr/ static \s+                                    
 my $ConstRegex              = qr/ const  \s+                                                            /xs;
 my $Static_andor_ConstRegex = qr/ (?: $StaticRegex $ConstRegex | $StaticRegex | $ConstRegex)            /xs;
 my $ValueStringVarnameRegex = qr/ (?:value|val64|string|range|bytes)_string                             /xs;
-my $ValueStringRegex        = qr/ ^ \s* $Static_andor_ConstRegex $ValueStringVarnameRegex \ + [^;*]+ = [^;]+ [{] .+? [}] \s*? ;  /xms;
+my $ValueStringRegex        = qr/ ^ \s* $Static_andor_ConstRegex ($ValueStringVarnameRegex) \ + [^;*]+ = [^;]+ [{] .+? [}] \s*? ;  /xms;
 my $EnumValRegex            = qr/ $Static_andor_ConstRegex enum_val_t \ + [^;*]+ = [^;]+ [{] .+? [}] \s*? ;  /xs;
 my $NewlineStringRegex      = qr/ ["] [^"]* \\n [^"]* ["] /xs;
 
@@ -1452,23 +1452,44 @@ sub check_value_string_arrays($$$)
         while (${$fileContentsRef} =~ / ( $ValueStringRegex ) /xsog) {
                 # XXX_string array definition found; check if NULL terminated
                 my $vs = my $vsx = $1;
+                my $type = $2;
                 if ($debug_flag) {
                         $vsx =~ / ( .+ $ValueStringVarnameRegex [^=]+ ) = /xo;
                         printf STDERR "==> %-35.35s: %s\n", $filename, $1;
                         printf STDERR "%s\n", $vs;
                 }
                 $vs =~ s{ \s } {}xg;
-                if ($vs !~ / (0|NULL), NULL [}] ,? [}] ; $/xo) {
+
+                # Check for expected trailer
+                my $expectedTrailer;
+                my $trailerHint;
+                if ($type eq "string_string") {
+                        # XXX shouldn't we reject 0 since it is gchar*?
+                        $expectedTrailer = "(NULL|0), NULL";
+                        $trailerHint = "NULL, NULL";
+                } elsif ($type eq "range_string") {
+                        $expectedTrailer = "0(x0+)?, 0(x0+)?, NULL";
+                        $trailerHint = "0, 0, NULL";
+                } elsif ($type eq "bytes_string") {
+                        # XXX shouldn't we reject 0 since it is guint8*?
+                        $expectedTrailer = "(NULL|0), 0, NULL";
+                        $trailerHint = "NULL, NULL";
+                } else {
+                        $expectedTrailer = "0(x?0+)?, NULL";
+                        $trailerHint = "0, NULL";
+                }
+                if ($vs !~ / [{] $expectedTrailer [}] ,? [}] ; $/x) {
                         $vsx =~ /( $ValueStringVarnameRegex [^=]+ ) = /xo;
-                        printf STDERR "Error: %-35.35s: {0, NULL} is required as the last XXX_string array entry: %s\n", $filename, $1;
+                        printf STDERR "Error: %-35.35s: {%s} is required as the last %s array entry: %s\n", $filename, $trailerHint, $type, $1;
                         $cnt++;
                 }
+
                 if ($vs !~ / (static)? const $ValueStringVarnameRegex /xo)  {
                         $vsx =~ /( $ValueStringVarnameRegex [^=]+ ) = /xo;
                         printf STDERR "Error: %-35.35s: Missing 'const': %s\n", $filename, $1;
                         $cnt++;
                 }
-                if ($vs =~ / $NewlineStringRegex /xo && $vs !~ / bytes_string /xo)  {
+                if ($vs =~ / $NewlineStringRegex /xo && $type ne "bytes_string")  {
                         $vsx =~ /( $ValueStringVarnameRegex [^=]+ ) = /xo;
                         printf STDERR "Error: %-35.35s: XXX_string contains a newline: %s\n", $filename, $1;
                         $cnt++;
