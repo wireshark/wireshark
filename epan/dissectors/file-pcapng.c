@@ -468,7 +468,7 @@ static const value_string option_code_interface_statistics_vals[] = {
 
     { 0x0002,  "Start Time" },
     { 0x0003,  "End Time" },
-    { 0x0004,  "Number of Rx Packets" },
+    { 0x0004,  "Number of Received Packets" },
     { 0x0005,  "Number of Dropped Packets" },
     { 0x0006,  "Number of Accepted Packets" },
     { 0x0007,  "Number of Packets Dropped by OS" },
