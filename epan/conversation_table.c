@@ -93,7 +93,7 @@ dissector_hostlist_init(const char *opt_arg, void* userdata)
     GString *cmd_str = g_string_new("");
     const char *filter=NULL;
 
-    g_string_printf(cmd_str, "%s,%s,", HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
+    g_string_printf(cmd_str, "%s,%s", HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
     if(!strncmp(opt_arg, cmd_str->str, cmd_str->len)){
         if (opt_arg[cmd_str->len] == ',') {
             filter = opt_arg + cmd_str->len + 1;
