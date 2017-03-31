@@ -633,8 +633,15 @@ void ProtoTree::restoreSelectedField()
         field_info *fi = VariantPointer<field_info>::asPtr((*iter)->data(0, Qt::UserRole));
         if (last_hf_id == fi->hfinfo->id &&
             serializeAsPath(*iter) == selected_field_path_) {
-            setCurrentItem(*iter);
-            scrollToItem(*iter);
+            // focus the first item, but do not expand collapsed trees.
+            QTreeWidgetItem *item = *iter, *target = item;
+            do {
+                if (!item->isExpanded()) {
+                    target = item;
+                }
+            } while ((item = item->parent()));
+            setCurrentItem(target);
+            scrollToItem(target);
             break;
         }
         ++iter;
