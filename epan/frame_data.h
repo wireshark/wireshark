@@ -69,6 +69,7 @@ typedef struct _frame_data {
   guint32      cum_bytes;    /**< Cumulative bytes into the capture */
   gint64       file_off;     /**< File offset */
   guint16      subnum;       /**< subframe number, for protocols that require this */
+  gint16       tsprec;       /**< Time stamp precision */
   struct {
     unsigned int passed_dfilter : 1; /**< 1 = display, 0 = no display */
     unsigned int dependent_of_displayed : 1; /**< 1 if a displayed frame depends on this frame */
@@ -83,7 +84,6 @@ typedef struct _frame_data {
     unsigned int has_user_comment : 1; /** 1 = user set (also deleted) comment for this packet */
     unsigned int need_colorize  : 1; /**< 1 = need to (re-)calculate packet color */
   } flags;
-  gint16       tsprec;       /**< Time stamp precision */
 
   const struct _color_filter *color_filter;  /**< Per-packet matching color_filter_t object */
 
