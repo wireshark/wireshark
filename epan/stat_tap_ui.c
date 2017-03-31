@@ -40,7 +40,7 @@ typedef struct _stat_cmd_arg {
     void* userdata;
 } stat_cmd_arg;
 
-static wmem_tree_t *stat_cmd_arg_list=NULL;
+static wmem_list_t *stat_cmd_arg_list=NULL;
 
 /* structure to keep track of what stats have been specified on the
    command line.
@@ -55,13 +55,28 @@ static GSList *stats_requested = NULL;
  * Function called from stat to register the stat's command-line argument
  * and initialization routine
  * ********************************************************************** */
+static gint
+search_duplicate(gconstpointer a, gconstpointer b)
+{
+    return strcmp(((const stat_cmd_arg *)a)->cmd, (const char *)b);
+}
+
+static gint
+sort_by_name(gconstpointer a, gconstpointer b)
+{
+    return strcmp(((const stat_cmd_arg *)a)->cmd, ((const stat_cmd_arg *)b)->cmd);
+}
+
 void
 register_stat_tap_ui(stat_tap_ui *ui, void *userdata)
 {
     stat_cmd_arg *newsca;
 
+    if (stat_cmd_arg_list == NULL)
+        stat_cmd_arg_list = wmem_list_new(wmem_epan_scope());
+
     /* Key is already present */
-    if (wmem_tree_lookup_string(stat_cmd_arg_list, ui->cli_string, 0))
+    if (wmem_list_find_custom(stat_cmd_arg_list, ui->cli_string, search_duplicate))
         return;
 
     newsca = wmem_new(wmem_epan_scope(), stat_cmd_arg);
@@ -69,53 +84,48 @@ register_stat_tap_ui(stat_tap_ui *ui, void *userdata)
     newsca->func=ui->tap_init_cb;
     newsca->userdata=userdata;
 
-    if (stat_cmd_arg_list == NULL)
-        stat_cmd_arg_list = wmem_tree_new(wmem_epan_scope());
-
-    wmem_tree_insert_string(stat_cmd_arg_list, newsca->cmd, newsca, 0);
+    wmem_list_insert_sorted(stat_cmd_arg_list, newsca, sort_by_name);
 }
 
 /* **********************************************************************
  * Function called for a stat command-line argument
  * ********************************************************************** */
-static gboolean
-process_stat_cmd_arg_func(const void *key, void *value, void *userdata)
-{
-    char *optstr = (char*)userdata;
-    stat_cmd_arg *sca = (stat_cmd_arg*)value;
-    stat_requested *tr;
-
-    if (!strncmp((const char*)key, (const char*)optstr, strlen((const char*)key)))
-    {
-        tr=(stat_requested *)g_malloc(sizeof (stat_requested));
-        tr->sca = sca;
-        tr->arg=g_strdup(optstr);
-        stats_requested=g_slist_append(stats_requested, tr);
-        return TRUE;
-    }
-    return FALSE;
-}
-
 gboolean
 process_stat_cmd_arg(char *optstr)
 {
-    return wmem_tree_foreach(stat_cmd_arg_list, process_stat_cmd_arg_func, optstr);
+    wmem_list_frame_t *entry;
+    stat_cmd_arg *sca;
+    stat_requested *tr;
+
+    /* The strings "ipx" or "ipv6" must be tested before "ip" to select the
+      right tap so the sorting does matter.  And it's also why the list is
+      walked backwards */
+    for (entry = wmem_list_tail(stat_cmd_arg_list); entry; entry = wmem_list_frame_prev(entry)) {
+        sca = (stat_cmd_arg*)wmem_list_frame_data(entry);
+        if(!strncmp(sca->cmd, optstr, strlen(sca->cmd))) {
+            tr=(stat_requested *)g_malloc(sizeof (stat_requested));
+            tr->sca = sca;
+            tr->arg=g_strdup(optstr);
+            stats_requested = g_slist_append(stats_requested, tr);
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 /* **********************************************************************
  * Function to list all possible tap command-line arguments
  * ********************************************************************** */
-static gboolean
-list_stat_cmd_args_func(const void *key, void *value _U_, void *userdata _U_)
+static void
+list_stat_cmd_args_func(gpointer data, gpointer userdata _U_)
 {
-    fprintf(stderr,"     %s\n", (const char*)key);
-    return FALSE;
+    fprintf(stderr,"     %s\n", ((stat_cmd_arg*)data)->cmd);
 }
 
 void
 list_stat_cmd_args(void)
 {
-    wmem_tree_foreach(stat_cmd_arg_list, list_stat_cmd_args_func, NULL);
+    wmem_list_foreach(stat_cmd_arg_list, list_stat_cmd_args_func, NULL);
 }
 
 /* **********************************************************************
