@@ -554,7 +554,7 @@ dissect_atm_number(tvbuff_t *tvb, packet_info* pinfo, int offset, int tl, int hf
 
 static const value_string atm_nsap_afi_vals[] = {
     { NSAP_IDI_ISO_DCC_BIN,            "DCC ATM format"},
-    { NSAP_IDI_ISO_DCC_DEC_GROUP,      "DCC ATM group format"},
+    { NSAP_IDI_ISO_DCC_BIN_GROUP,      "DCC ATM group format"},
     { NSAP_IDI_ISO_6523_ICD_BIN,       "ICD ATM format"},
     { NSAP_IDI_ISO_6523_ICD_BIN_GROUP, "ICD ATM group format"},
     { NSAP_IDI_E_164_BIN_FSD_NZ,       "E.164 ATM format"},
@@ -578,8 +578,8 @@ dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
   switch (afi) {
 
     case NSAP_IDI_ISO_DCC_BIN:       /* DCC ATM format */
-    case NSAP_IDI_ISO_DCC_DEC_GROUP: /* DCC ATM group format */
-      proto_tree_add_item(tree, (afi == NSAP_IDI_ISO_DCC_DEC_GROUP) ? hf_atmarp_src_atm_data_country_code_group : hf_atmarp_src_atm_data_country_code,
+    case NSAP_IDI_ISO_DCC_BIN_GROUP: /* DCC ATM group format */
+      proto_tree_add_item(tree, (afi == NSAP_IDI_ISO_DCC_BIN_GROUP) ? hf_atmarp_src_atm_data_country_code_group : hf_atmarp_src_atm_data_country_code,
                           tvb, offset + 1, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree, hf_atmarp_src_atm_high_order_dsp, tvb, offset + 3, 10, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_end_system_identifier, tvb, offset + 13, 6, ENC_NA);
