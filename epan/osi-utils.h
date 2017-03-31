@@ -64,7 +64,7 @@
 #define NSAP_IDI_ISO_6523_ICD_BIN    0x47 /* ISO 6523-ICD, binary */
 //#define NSAP_IDI_GOSIP2            0x47
 #define NSAP_IDI_LOCAL_DEC           0x48 /* Local, decimal */
-#define NSAP_IDI_LOCAL_BIN           0x49 /* Local, decimal */
+#define NSAP_IDI_LOCAL_BIN           0x49 /* Local, binary */
 #define NSAP_IDI_LOCAL_ISO_646_CHAR  0x50 /* Local, ISO/IEC 646 character */
 #define NSAP_IDI_LOCAL_NATIONAL_CHAR 0x51 /* Local, national character */
 #define NSAP_IDI_X_121_DEC_FSD_Z     0x52 /* X.121, decimal, IDI first significant digit zero */
@@ -96,7 +96,7 @@
 #define NSAP_IDI_ISO_6523_ICD_DEC_GROUP    0xC4 /* ISO 6523-ICD, decimal */
 #define NSAP_IDI_ISO_6523_ICD_BIN_GROUP    0xC5 /* ISO 6523-ICD, binary */
 #define NSAP_IDI_LOCAL_DEC_GROUP           0xC6 /* Local, decimal */
-#define NSAP_IDI_LOCAL_BIN_GROUP           0xC7 /* Local, decimal */
+#define NSAP_IDI_LOCAL_BIN_GROUP           0xC7 /* Local, binary */
 #define NSAP_IDI_LOCAL_ISO_646_CHAR_GROUP  0xC8 /* Local, ISO/IEC 646 character */
 #define NSAP_IDI_LOCAL_NATIONAL_CHAR_GROUP 0xC9 /* Local, national character */
 #define NSAP_IDI_X_121_DEC_FSD_Z_GROUP     0xCA /* X.121, decimal, IDI first significant digit zero */
