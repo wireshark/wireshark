@@ -617,9 +617,9 @@ dissect_metric(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, 
     int s;
     proto_item *item, *support_item;
 
-    s = ISIS_LSP_CLV_METRIC_SUPPORTED(value);
-    item = proto_tree_add_uint(tree, hf, tvb, offset, 1, value);
-    support_item = proto_tree_add_uint(tree, hf_support, tvb, offset, 1, value);
+    s = ISIS_LSP_CLV_METRIC_SUPPORTED(value) ? TRUE : FALSE;
+    item = proto_tree_add_uint(tree, hf, tvb, offset, 1, ISIS_LSP_CLV_METRIC_VALUE(value));
+    support_item = proto_tree_add_boolean(tree, hf_support, tvb, offset, 1, s);
 
     if (s && force_supported)
         proto_item_append_text(support_item, " (but is required to be)");
@@ -3049,6 +3049,9 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
     offset += 4;
     length -= 4;
     while ( length > 0 ) {
+        /*
+         * This is a length in "semi-octets", i.e., in nibbles.
+         */
         mylen = tvb_get_guint8(tvb, offset);
         length--;
         if (length<=0) {
@@ -3056,9 +3059,9 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
                 "Zero payload space after length in prefix neighbor" );
             return;
         }
-        if ( mylen > length) {
+        if ( mylen > length*2) {
             proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_long_packet, tvb, offset, -1,
-                "Integral length of prefix neighbor too long (%d vs %d)", mylen, length );
+                "Integral length of prefix neighbor too long (%d vs %d)", mylen, length*2 );
             return;
         }
 
@@ -3066,9 +3069,9 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
          * Lets turn the area address into "standard" 0000.0000.etc
          * format string.
          */
-        sbuf =  print_area( tvb, offset+1, mylen );
+        sbuf =  print_address_prefix( tvb, offset+1, mylen );
         /* and spit it out */
-        proto_tree_add_string( tree, hf_isis_lsp_area_address_str, tvb, offset, mylen + 1, sbuf);
+        proto_tree_add_string( tree, hf_isis_lsp_area_address_str, tvb, offset, (mylen+1)/2 + 1, sbuf);
 
         offset += mylen + 1;
         length -= mylen;    /* length already adjusted for len fld*/
