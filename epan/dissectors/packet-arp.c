@@ -557,8 +557,8 @@ static const value_string atm_nsap_afi_vals[] = {
     { NSAP_IDI_ISO_DCC_DEC_GROUP,      "DCC ATM group format"},
     { NSAP_IDI_ISO_6523_ICD_BIN,       "ICD ATM format"},
     { NSAP_IDI_ISO_6523_ICD_BIN_GROUP, "ICD ATM group format"},
-    { NSAP_IDI_E_164_BIN,              "E.164 ATM format"},
-    { NSAP_IDI_E_164_BIN_GROUP,        "E.164 ATM group format"},
+    { NSAP_IDI_E_164_BIN_FSD_NZ,       "E.164 ATM format"},
+    { NSAP_IDI_E_164_BIN_FSD_NZ_GROUP, "E.164 ATM group format"},
     { 0,                               NULL}
 };
 
@@ -595,9 +595,9 @@ dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
       proto_tree_add_item(tree, hf_atmarp_src_atm_selector, tvb, offset + 19, 1, ENC_BIG_ENDIAN);
       break;
 
-    case NSAP_IDI_E_164_BIN:       /* E.164 ATM format */
-    case NSAP_IDI_E_164_BIN_GROUP: /* E.164 ATM group format */
-      proto_tree_add_item(tree, (afi == NSAP_IDI_E_164_BIN_GROUP) ? hf_atmarp_src_atm_e_164_isdn_group : hf_atmarp_src_atm_e_164_isdn,
+    case NSAP_IDI_E_164_BIN_FSD_NZ:       /* E.164 ATM format */
+    case NSAP_IDI_E_164_BIN_FSD_NZ_GROUP: /* E.164 ATM group format */
+      proto_tree_add_item(tree, (afi == NSAP_IDI_E_164_BIN_FSD_NZ_GROUP) ? hf_atmarp_src_atm_e_164_isdn_group : hf_atmarp_src_atm_e_164_isdn,
                           tvb, offset + 1, 8, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_high_order_dsp, tvb, offset + 9, 4, ENC_NA);
       proto_tree_add_item(tree, hf_atmarp_src_atm_end_system_identifier, tvb, offset + 13, 6, ENC_NA);
