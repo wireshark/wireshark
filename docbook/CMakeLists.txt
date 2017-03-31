@@ -23,6 +23,14 @@ find_package( LYNX )
 find_package( XSLTPROC )
 if(ENABLE_CHM_GUIDES)
 	find_package( HTMLHelp )
+	if(HTML_HELP_COMPILER)
+		# We do not need the HTML Help headers and library, just the
+		# compiler. To avoid confusion, report the package as found.
+		# https://gitlab.kitware.com/cmake/cmake/issues/15886
+		set(HTMLHelp_FOUND 1)
+	else()
+		message(FATAL_ERROR "HTML Help Compiler is not installed (required for ENABLE_CHM_GUIDES)")
+	endif()
 endif()
 
 find_package( ASCIIDOC )
