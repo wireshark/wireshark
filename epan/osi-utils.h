@@ -115,6 +115,7 @@ gchar*     print_area     ( tvbuff_t *, const gint, int );
 gchar*     print_system_id(wmem_allocator_t *, const guint8 *, int );
 gchar*     tvb_print_system_id( tvbuff_t *, const gint, int );
 void       print_system_id_buf( const guint8 *, int, gchar *, int);
+gchar*     print_address_prefix( tvbuff_t *, const gint, int );
 
 int        get_osi_address_type(void);
 void       register_osi_address_type(void);
