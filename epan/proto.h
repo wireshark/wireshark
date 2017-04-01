@@ -273,7 +273,7 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
             IS_FT_UINT((hfinfo)->type)) ? (void)0 : \
    REPORT_DISSECTOR_BUG( \
      wmem_strdup_printf(wmem_packet_scope(), \
-         "%s:%u: field %s is not of an FT_{U}INTn type", \
+         "%s:%u: field %s is not of type FT_CHAR or an FT_{U}INTn type", \
          __FILE__, __LINE__, (hfinfo)->abbrev)))) \
    __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(IS_FT_INT((hfinfo)->type) || \
                                            IS_FT_UINT((hfinfo)->type))
