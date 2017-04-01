@@ -1505,12 +1505,9 @@ LIBS="$ac_save_LIBS"
 ])
 if test "$ac_cv_glib_supports_modules" = yes ; then
   have_plugins=yes
-  plugins_dir="plugins"
 else
   have_plugins=no
-  plugins_dir=""
 fi
-AC_SUBST(plugins_dir)
 
 #
 # If we have <dlfcn.h>, check whether we have dladdr.
@@ -2572,8 +2569,12 @@ AC_ARG_WITH(plugins,
 AM_CONDITIONAL(HAVE_PLUGINS, test "x$have_plugins" = "xyes")
 if test x$have_plugins = xyes
 then
+  plugins_dir="plugins"
   AC_DEFINE(HAVE_PLUGINS, 1, [Define if plugins are enabled])
+else
+  plugins_dir=""
 fi
+AC_SUBST(plugins_dir)
 AC_SUBST(plugindir)
 
 #
