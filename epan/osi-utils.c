@@ -35,6 +35,8 @@
 #include "address.h"
 #include "address_types.h"
 
+static void print_address_prefix_buf ( const guint8 *, int, gchar *, int);
+
 /*
  * XXX - shouldn't there be a centralized routine for dissecting NSAPs?
  * See also "dissect_atm_nsap()" in epan/dissectors/packet-arp.c and
