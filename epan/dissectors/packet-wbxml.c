@@ -8062,7 +8062,7 @@ proto_register_wbxml(void)
 		{ &hf_wbxml_invalid_token,
 		  { "Invalid token",
 		    "wbxml.invalid_token",
-		    FT_UINT32, BASE_DEC,
+		    FT_NONE, BASE_NONE,
 		    NULL, 0x00,
 		    NULL, HFILL }
 		},
