@@ -2610,7 +2610,9 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	case FT_UINT32:
 		break;
 	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
+		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+		    "field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
+		    hfinfo->abbrev));
 	}
 
 	/* length validation for native number encoding caught by get_uint_value() */
@@ -2679,7 +2681,9 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
 		value = get_stringzpad_value(scope, tvb, start, length, lenretval, encoding);
 		break;
 	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
+		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+		    "field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, or FT_STRINGZPAD",
+		    hfinfo->abbrev));
 	}
 
 	if (retval)
@@ -4223,7 +4227,9 @@ proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 			break;
 
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+			REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+			    "field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, FT_UINT32, or FT_FRAMENUM",
+			    hfinfo->abbrev));
 	}
 
 	return pi;
@@ -4311,7 +4317,9 @@ proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 			break;
 
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+			REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+			    "field %s is not of type FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64, or FT_FRAMENUM",
+			    hfinfo->abbrev));
 	}
 
 	return pi;
@@ -4398,7 +4406,9 @@ proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 			break;
 
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+			REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+			    "field %s is not of type FT_INT8, FT_INT16, FT_INT24, or FT_INT32",
+			    hfinfo->abbrev));
 	}
 
 	return pi;
@@ -4489,7 +4499,9 @@ proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 			break;
 
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+			REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+			    "field %s is not of type FT_INT40, FT_INT48, FT_INT56, or FT_INT64",
+			    hfinfo->abbrev));
 	}
 
 	return pi;
