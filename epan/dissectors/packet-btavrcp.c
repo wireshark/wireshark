@@ -2468,7 +2468,7 @@ proto_register_btavrcp(void)
         },
         { &hf_btavrcp_folder_name,
             { "Folder Name",                    "btavrcp.folder_name",
-            FT_NONE, BASE_NONE, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_search_length,
