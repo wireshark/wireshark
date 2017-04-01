@@ -5878,18 +5878,14 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                      " (might be NMAP or someone else deliberately sending unusual packets)");
             tcph->th_have_seglen = FALSE;
         } else {
+            proto_item *pi;
+
             /* Compute the length of data in this segment. */
             tcph->th_seglen = reported_len - tcph->th_hlen;
             tcph->th_have_seglen = TRUE;
 
-            if (tree) {
-                proto_item *pi;
-
-                pi = proto_tree_add_uint(ti, hf_tcp_len, tvb, offset+12, 1, tcph->th_seglen);
-                PROTO_ITEM_SET_GENERATED(pi);
-
-            }
-
+            pi = proto_tree_add_uint(ti, hf_tcp_len, tvb, offset+12, 1, tcph->th_seglen);
+            PROTO_ITEM_SET_GENERATED(pi);
 
             /* handle TCP seq# analysis parse all new segments we see */
             if(tcp_analyze_seq) {
@@ -5938,15 +5934,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     tcp_info_append_uint(pinfo, "Win", tcph->th_win);
 
-    if (tree) {
-        if (tcp_summary_in_tree) {
-            proto_item_append_text(ti, ", Seq: %u", tcph->th_seq);
-        }
-        if(tcp_relative_seq) {
-            proto_tree_add_uint_format_value(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq, "%u    (relative sequence number)", tcph->th_seq);
-        } else {
-            proto_tree_add_uint(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq);
-        }
+    if (tcp_summary_in_tree) {
+        proto_item_append_text(ti, ", Seq: %u", tcph->th_seq);
+    }
+    if(tcp_relative_seq) {
+        proto_tree_add_uint_format_value(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq, "%u    (relative sequence number)", tcph->th_seq);
+    } else {
+        proto_tree_add_uint(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq);
     }
 
     if (tcph->th_hlen < TCPH_MIN_LEN) {
@@ -5964,24 +5958,22 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         return offset+12;
     }
 
-    if (tree) {
-        if (tcp_summary_in_tree) {
-            if(tcph->th_flags&TH_ACK) {
-                proto_item_append_text(ti, ", Ack: %u", tcph->th_ack);
-            }
-            if (tcph->th_have_seglen)
-                proto_item_append_text(ti, ", Len: %u", tcph->th_seglen);
+    if (tcp_summary_in_tree) {
+        if(tcph->th_flags&TH_ACK) {
+            proto_item_append_text(ti, ", Ack: %u", tcph->th_ack);
         }
-        proto_item_set_len(ti, tcph->th_hlen);
-        if (tcph->th_have_seglen) {
-            if (nxtseq != tcph->th_seq) {
-                if(tcp_relative_seq) {
-                    tf=proto_tree_add_uint_format_value(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq, "%u    (relative sequence number)", nxtseq);
-                } else {
-                    tf=proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
-                }
-                PROTO_ITEM_SET_GENERATED(tf);
+        if (tcph->th_have_seglen)
+            proto_item_append_text(ti, ", Len: %u", tcph->th_seglen);
+    }
+    proto_item_set_len(ti, tcph->th_hlen);
+    if (tcph->th_have_seglen) {
+        if (nxtseq != tcph->th_seq) {
+            if(tcp_relative_seq) {
+                tf=proto_tree_add_uint_format_value(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq, "%u    (relative sequence number)", nxtseq);
+            } else {
+                tf=proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
             }
+            PROTO_ITEM_SET_GENERATED(tf);
         }
     }
 
