@@ -233,27 +233,27 @@ dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pin
         proto_tree_add_item(tree, hf_pn_rt_frame_info_function_meaning_input_conv, tvb, offset, 1, u8DataStatus);
         if (u8State == 0 && u8Redundancy == 0 && u8DataValid == 1)
         {
-            proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
+            proto_tree_add_boolean(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
         }
         else if (u8State == 0 && u8Redundancy == 0 && u8DataValid == 0)
         {
-            proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
+            proto_tree_add_boolean(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
         }
         else if (u8State == 0 && u8Redundancy == 1 && u8DataValid == 1)
         {
-            proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
+            proto_tree_add_boolean(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
         }
         else if (u8State == 0 && u8Redundancy == 1 && u8DataValid == 0)
         {
-            proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
+            proto_tree_add_boolean(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
         }
         else if (u8State == 1 && u8Redundancy == 0 && u8DataValid == 1)
         {
-            proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_primary, tvb, offset, 1, u8DataStatus);
+            proto_tree_add_boolean(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_primary, tvb, offset, 1, u8DataStatus);
         }
         else if (u8State == 1 && u8Redundancy == 1 && u8DataValid == 1)
         {
-            proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_primary, tvb, offset, 1, u8DataStatus);
+            proto_tree_add_boolean(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_primary, tvb, offset, 1, u8DataStatus);
         }
 
         proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_primary, tvb, offset, 1, u8DataStatus);
@@ -265,7 +265,7 @@ dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pin
         proto_tree_add_item(tree, hf_pn_rt_frame_info_function_meaning_output_conv, tvb, offset, 1, u8DataStatus);
 
         proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_valid, tvb, offset, 1, u8DataStatus);
-        proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy_output_cr, tvb, offset, 1, u8DataStatus);
+        proto_tree_add_boolean(sub_tree, hf_pn_rt_data_status_redundancy_output_cr, tvb, offset, 1, u8DataStatus);
         proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_primary, tvb, offset, 1, u8DataStatus);
 
         return;
@@ -273,7 +273,7 @@ dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pin
 
     // If no conversation is found
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_valid,      tvb, offset, 1, u8DataStatus);
-    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy, tvb, offset, 1, u8DataStatus);
+    proto_tree_add_boolean(sub_tree, hf_pn_rt_data_status_redundancy, tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_primary,    tvb, offset, 1, u8DataStatus);
 }
 
