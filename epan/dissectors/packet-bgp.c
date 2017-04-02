@@ -1356,11 +1356,7 @@ static const value_string route_refresh_subtype_vals[] = {
     { 0,  NULL }
 };
 
-static const true_false_string tfs_optional_wellknown = { "Optional", "Well-known" };
-static const true_false_string tfs_transitive_non_transitive = { "Transitive", "Non-transitive" };
 static const true_false_string tfs_non_transitive_transitive = { "Non-transitive", "Transitive" };
-static const true_false_string tfs_partial_complete = { "Partial", "Complete" };
-static const true_false_string tfs_extended_regular_length = { "Extended length", "Regular length" };
 static const true_false_string tfs_esi_label_flag = { "Single-Active redundancy", "All-Active redundancy" };
 static const true_false_string tfs_ospf_rt_mt = { "Type-2", "Type-1" };
 static const true_false_string tfs_eigrp_rtype = { "Internal" , "External" };
