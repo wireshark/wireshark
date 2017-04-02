@@ -2926,7 +2926,7 @@ again:
 
             if (msp->first_frame == pinfo->num) {
                 str = "";
-                col_set_str(pinfo->cinfo, COL_INFO, "[TCP segment of a reassembled PDU]");
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[TCP segment of a reassembled PDU]");
             } else {
                 str = "Retransmitted ";
                 /* TCP analysis already flags this (in COL_INFO) as a retransmission--if it's enabled */
@@ -3291,7 +3291,7 @@ again:
              * Just mark this as TCP.
              */
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
-            col_set_str(pinfo->cinfo, COL_INFO, "[TCP segment of a reassembled PDU]");
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[TCP segment of a reassembled PDU]");
         }
 
         /*
