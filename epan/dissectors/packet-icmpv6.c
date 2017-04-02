@@ -397,8 +397,6 @@ static int hf_icmpv6_rpl_secure_flag = -1;
 static int hf_icmpv6_rpl_secure_flag_t = -1;
 static int hf_icmpv6_rpl_secure_flag_rsv = -1;
 static int hf_icmpv6_rpl_secure_algorithm = -1;
-static int hf_icmpv6_rpl_secure_algorithm_encryption = -1;
-static int hf_icmpv6_rpl_secure_algorithm_signature = -1;
 static int hf_icmpv6_rpl_secure_kim = -1;
 static int hf_icmpv6_rpl_secure_lvl = -1;
 static int hf_icmpv6_rpl_secure_rsv = -1;
@@ -1211,15 +1209,11 @@ static const value_string rpl_code_val[] = {
     { 0, NULL }
 };
 
-static const value_string rpl_secure_algorithm_encryption_val[] = {
-    { 0, "CCM with AES-128" },
+static const value_string rpl_secure_algorithm_vals[] = {
+    { 0, "Encryption: CCM with AES-128 / Signature: RSA with SHA-256" },
     { 0, NULL }
 };
 
-static const value_string rpl_secure_algorithm_signature_val[] = {
-    { 0, "RSA with SHA-256" },
-    { 0, NULL }
-};
 /* RPL Option Types */
 /* Pending IANA Assignment */
 #define RPL_OPT_PAD1            0   /* 1-byte padding */
@@ -3069,11 +3063,6 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             &hf_icmpv6_rpl_secure_flag_rsv,
             NULL
         };
-        static const int * rpl_algorithm_flags[] = {
-            &hf_icmpv6_rpl_secure_algorithm_encryption,
-            &hf_icmpv6_rpl_secure_algorithm_signature,
-            NULL
-        };
         static const int * rpl_secure_flags2[] = {
             &hf_icmpv6_rpl_secure_kim,
             &hf_icmpv6_rpl_secure_lvl,
@@ -3087,8 +3076,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
         rpl_offset += 1;
 
         /* Algorithm */
-        proto_tree_add_bitmask(icmp6_tree, tvb, rpl_offset, hf_icmpv6_rpl_secure_algorithm,
-                            ett_icmpv6_flag_secure, rpl_algorithm_flags, ENC_BIG_ENDIAN);
+        proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_algorithm, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
         rpl_offset += 1;
 
         /* KIM & LVL */
@@ -5430,14 +5418,8 @@ proto_register_icmpv6(void)
            { "Reserved", "icmpv6.rpl.secure.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_SECURE_FLAG_RSV,
              "Must be zero", HFILL }},
         { &hf_icmpv6_rpl_secure_algorithm,
-           { "Algorithm", "icmpv6.rpl.secure.algorithm", FT_UINT8, BASE_DEC, NULL, 0x0,
+           { "Algorithm", "icmpv6.rpl.secure.algorithm", FT_UINT8, BASE_DEC, VALS(rpl_secure_algorithm_vals), 0x0,
              "The Security Algorithm field specifies the encryption, MAC, and signature scheme the network uses", HFILL }},
-        { &hf_icmpv6_rpl_secure_algorithm_encryption,
-           { "Algorithm (Encryption)", "icmpv6.rpl.secure.algorithm.encryption", FT_UINT8, BASE_DEC, VALS(rpl_secure_algorithm_encryption_val), 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_rpl_secure_algorithm_signature,
-           { "Algorithm (Signature)", "icmpv6.rpl.secure.algorithm.signature", FT_UINT8, BASE_DEC, VALS(rpl_secure_algorithm_signature_val), 0x0,
-             NULL, HFILL }},
         { &hf_icmpv6_rpl_secure_kim,
            { "Key Identifier Mode (KIM)", "icmpv6.rpl.secure.kim", FT_UINT8, BASE_DEC, NULL, RPL_SECURE_KIM,
              "That indicates whether the key used for packet protection is determined implicitly or explicitly and indicates the particular representation of the Key Identifier field", HFILL }},
