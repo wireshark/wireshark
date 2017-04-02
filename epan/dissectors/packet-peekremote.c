@@ -405,7 +405,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   proto_item *ti = NULL;
   proto_item *ti_header_version, *ti_header_size;
   guint8 header_version;
-  guint header_size;
+  gint header_size;
   struct ieee_802_11_phdr phdr;
   guint32 extflags;
   guint16 frequency;
