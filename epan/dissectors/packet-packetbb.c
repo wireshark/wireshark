@@ -1162,7 +1162,7 @@ void proto_register_packetbb(void) {
     },
     { &hf_packetbb_addr_value[3],
       { "Address", "packetbb.msg.addr.valuecustom",
-        FT_UINT_BYTES, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
     { &hf_packetbb_addr_value_mid,
