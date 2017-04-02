@@ -927,7 +927,7 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* da
   proto_tree_add_item (tree, hf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  col_append_fstr (pinfo->cinfo, COL_INFO, "%s",
+  col_append_str (pinfo->cinfo, COL_INFO,
                      val_to_str (msg_type, message_type, "Unknown: %d"));
 
   proto_item_append_text (ti, ", %s", val_to_str (msg_type, message_type, "Unknown: %d"));

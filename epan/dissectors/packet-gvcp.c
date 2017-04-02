@@ -1419,7 +1419,7 @@ static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 	}
 	else
 	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s", address_string);
+		col_append_str(pinfo->cinfo, COL_INFO, address_string);
 	}
 
 	if (!pinfo->fd->flags.visited)
@@ -1951,7 +1951,7 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 			}
 			else
 			{
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s", address_string);
+				col_append_str(pinfo->cinfo, COL_INFO, address_string);
 			}
 		}
 	}
@@ -2053,7 +2053,7 @@ static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 	address_string = get_register_name_from_address(addr, &is_custom_register);
 
 	/* Fill in Wireshark GUI Info column */
-	col_append_fstr(pinfo->cinfo, COL_INFO, "%s", address_string);
+	col_append_str(pinfo->cinfo, COL_INFO, address_string);
 
 	if (gvcp_telegram_tree != NULL)
 	{
@@ -2090,7 +2090,7 @@ static void dissect_writemem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 		{
 			const gchar *address_string = NULL;
 			address_string = get_register_name_from_address((*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0))), NULL);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s", address_string);
+			col_append_str(pinfo->cinfo, COL_INFO, address_string);
 		}
 	}
 

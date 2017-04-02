@@ -133,7 +133,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     op_code = tvb_get_guint8(tvb, offset);
     offset += 1;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(op_code, op_code_vals, "Unknown Op Code"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(op_code, op_code_vals, "Unknown Op Code"));
     if (op_code >= 0x11 && op_code <= 0x20) {
         proto_item_append_text(pitem, " (Clock Sync)");
         col_append_str(pinfo->cinfo, COL_INFO, " (Clock Sync)");
@@ -156,10 +156,10 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - MDL ID: %u", mdl_id);
                 if (mdl_id == 0xFFFF) {
                     proto_item_append_text(pitem, " (Indicates all MDLs)");
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " (Indicates all MDLs)");
+                    col_append_str(pinfo->cinfo, COL_INFO, " (Indicates all MDLs)");
                 } else if (mdl_id >= 0x0001 && mdl_id <= 0xFEFF) {
                     proto_item_append_text(pitem, " (Dynamic Range)");
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " (Dynamic Range)");
+                    col_append_str(pinfo->cinfo, COL_INFO, " (Dynamic Range)");
                 } else if (mdl_id == 0x0000) {
                     proto_item_append_text(pitem, " (Reserved)");
                     col_append_str(pinfo->cinfo, COL_INFO, " (Reserved)");

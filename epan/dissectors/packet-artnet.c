@@ -3189,7 +3189,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
   proto_tree_add_item_ret_string(artnet_header_tree, hf_artnet_header_id,
                         tvb, offset, 8, ENC_ASCII|ENC_NA, wmem_packet_scope(), &header);
-  col_append_fstr(pinfo->cinfo, COL_INFO, "%s", header);
+  col_append_str(pinfo->cinfo, COL_INFO, header);
   offset += 8;
 
   opcode = tvb_get_letohs(tvb, offset);

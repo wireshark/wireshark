@@ -2875,7 +2875,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
                 num_valid = ws_strtoi32(str, NULL, &num);
                 proto_item_append_text(file_tree, " [%s ",
                     val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                col_append_str(pinfo->cinfo, COL_INFO,
                     val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
                 if (num_valid) {
                     proto_item_append_text(file_tree, "%d]", num);
@@ -2883,16 +2883,16 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
                 } else {
                     expert_add_info(pinfo, file_tree, &ei_s7comm_data_blockcontrol_block_num_invalid);
                     proto_item_append_text(file_tree, "NaN]");
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "NaN");
+                    col_append_str(pinfo->cinfo, COL_INFO, "NaN");
                 }
                 if (i+1 < count) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+                    col_append_str(pinfo->cinfo, COL_INFO, ", ");
                 }
                 itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_dest_filesys, tvb, paramoffset, 1, ENC_ASCII|ENC_NA);
                 proto_item_append_text(itemadd, " (%s)", val_to_str(tvb_get_guint8(tvb, paramoffset), blocktype_attribute2_names, "Unknown filesys: %c"));
                 paramoffset += 1;
             }
-            col_append_fstr(pinfo->cinfo, COL_INFO, ")");
+            col_append_str(pinfo->cinfo, COL_INFO, ")");
             break;
         case S7COMM_PIP_PROGRAM:
         case S7COMM_PI_MODU:
@@ -3244,7 +3244,7 @@ s7comm_decode_plc_controls_filename(tvbuff_t *tvb,
             } else {
                 expert_add_info(pinfo, file_tree, &ei_s7comm_data_blockcontrol_block_num_invalid);
                 proto_item_append_text(file_tree, "NaN]");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "NaN]");
+                col_append_str(pinfo->cinfo, COL_INFO, "NaN]");
             }
             itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_dest_filesys, tvb, offset, 1, ENC_ASCII|ENC_NA);
             proto_item_append_text(itemadd, " (%s)", val_to_str(tvb_get_guint8(tvb, offset), blocktype_attribute2_names, "Unknown filesys: %c"));
@@ -3931,7 +3931,7 @@ s7comm_decode_ud_cpu_alarm_main(tvbuff_t *tvb,
                         offset += 1;
                         /* show SIG with True values for a quick overview in info-column */
                         if (signalstate > 0) {
-                            col_append_fstr(pinfo->cinfo, COL_INFO, " On=[");
+                            col_append_str(pinfo->cinfo, COL_INFO, " On=[");
                             for (sig_nr = 0; sig_nr < 8; sig_nr++) {
                                 if (signalstate & 0x01) {
                                     signalstate >>= 1;
@@ -3944,7 +3944,7 @@ s7comm_decode_ud_cpu_alarm_main(tvbuff_t *tvb,
                                     signalstate >>= 1;
                                 }
                             }
-                            col_append_fstr(pinfo->cinfo, COL_INFO, "]");
+                            col_append_str(pinfo->cinfo, COL_INFO, "]");
                         }
                         proto_tree_add_bitmask(msg_obj_item_tree, tvb, offset, hf_s7comm_cpu_alarm_message_state,
                             ett_s7comm_cpu_alarm_message_signal, s7comm_cpu_alarm_message_signal_fields, ENC_BIG_ENDIAN);
@@ -4067,13 +4067,13 @@ s7comm_decode_ud_cpu_alarm_query_response(tvbuff_t *tvb,
         proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_nr_objects, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         if (n_blocks == 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, " [Last]");
+            col_append_str(pinfo->cinfo, COL_INFO, " [Last]");
             proto_item_set_len(msg_item_tree, offset - start_offset);
             return offset;
         }
     }
     if (func > 0) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [Continuation]");
+        col_append_str(pinfo->cinfo, COL_INFO, " [Continuation]");
         complete_length = func;
         remaining_length = (gint32)complete_length;
         returncode = S7COMM_ITEM_RETVAL_DATA_OK;
@@ -4400,7 +4400,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     } else {
                         expert_add_info(pinfo, data_tree, &ei_s7comm_ud_blockinfo_block_num_ascii_invalid);
                         proto_item_append_text(data_tree, "NaN]");
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "NaN]");
+                        col_append_str(pinfo->cinfo, COL_INFO, "NaN]");
                     }
                     offset += 5;
                     itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_filesys, tvb, offset, 1, ENC_ASCII|ENC_NA);

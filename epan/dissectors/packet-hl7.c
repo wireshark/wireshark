@@ -902,7 +902,7 @@ dissect_hl7_message(tvbuff_t *tvb, guint tvb_offset, gint len,
         }
     } else {
         if (offset == 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+            col_append_str(pinfo->cinfo, COL_INFO,
                             msh.message_type);
         } else {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",

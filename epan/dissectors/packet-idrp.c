@@ -1223,7 +1223,7 @@ dissect_idrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             break;
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+    col_append_str(pinfo->cinfo, COL_INFO,
             val_to_str(pdu_type, idrp_pdu_types, "Unknown (%u)"));
 
     return offset;

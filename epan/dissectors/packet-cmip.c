@@ -3577,9 +3577,9 @@ dissect_cmip_T_local(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
                                                 &opcode);
 
   if(opcode_type== OPCODE_RETURN_ERROR){
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s", val_to_str(opcode, cmip_error_code_vals, " Unknown Opcode:%d"));
+	col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(opcode, cmip_error_code_vals, " Unknown Opcode:%d"));
   }else{
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s", val_to_str(opcode, cmip_Opcode_vals, " Unknown Opcode:%d"));
+	col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(opcode, cmip_Opcode_vals, " Unknown Opcode:%d"));
   }
 
 

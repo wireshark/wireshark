@@ -429,7 +429,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         description = val_to_str_const(ocf, broadcom_opcode_ocf_vals, "unknown");
         if (g_strcmp0(description, "unknown") != 0)
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s", description);
+            col_append_str(pinfo->cinfo, COL_INFO, description);
         else
             col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown Command 0x%04X (opcode 0x%04X)", ocf, opcode);
 
@@ -1920,7 +1920,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
         description = val_to_str_const(ocf, intel_opcode_ocf_vals, "unknown");
         if (g_strcmp0(description, "unknown") != 0)
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s", description);
+            col_append_str(pinfo->cinfo, COL_INFO, description);
         else
             col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown Command 0x%04X (opcode 0x%04X)", ocf, opcode);
 

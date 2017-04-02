@@ -1409,7 +1409,7 @@ dissect_u3v_read_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_in
     if (have_address) {
         address_string = get_register_name_from_address(addr, &is_custom_register, u3v_conv_info);
         /* Fill in Wireshark GUI Info column */
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", address_string);
+        col_append_str(pinfo->cinfo, COL_INFO, address_string);
     }
 
 
@@ -1448,7 +1448,7 @@ dissect_u3v_write_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
         address_string = get_register_name_from_address(addr, &is_custom_register, u3v_conv_info);
 
         /* Fill in Wireshark GUI Info column */
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", address_string);
+        col_append_str(pinfo->cinfo, COL_INFO, address_string);
     }
 
     item = proto_tree_add_item(u3v_telegram_tree, hf_u3v_scd_writemem_ack, tvb, startoffset, length, ENC_NA);
@@ -1652,7 +1652,7 @@ dissect_u3v_stream_payload(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_
     proto_tree_add_item(u3v_telegram_tree, hf_u3v_stream_data, tvb, 0, -1, ENC_NA);
 
     /* Add payload type to information string */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Stream Payload");
+    col_append_str(pinfo->cinfo, COL_INFO, "Stream Payload");
 }
 
 /*

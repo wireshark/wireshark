@@ -894,7 +894,7 @@ Figure 18 from [ref:1]
     if (version == 1) {
         subtype_name = val_to_str_ext_const(subtype, &wai_subtype_names_ext, "Unknown type");
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", subtype_name);
+    col_append_str(pinfo->cinfo, COL_INFO, subtype_name);
 
     /* Field lengths and offsets in WAI protocol described above */
     packet_num   = tvb_get_ntohs(tvb, 8);

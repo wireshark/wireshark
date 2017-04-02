@@ -4121,7 +4121,7 @@ static void add_digits_string_info_col(tvbuff_t *tvb,
         }
     }
     ch_buff[ num_digits ] = '\0';
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", ch_buff );
+    col_append_str(pinfo->cinfo, COL_INFO, ch_buff);
 }
 
 /* static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
@@ -4270,7 +4270,7 @@ static int dissect_c15ch_ama(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     call_type_val = tvb_get_guint8(tvb, 40);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Call Type: %s",
-        val_to_str_ext(call_type_val, &ama_call_types_ext, "Unknown %d") );
+        val_to_str_ext(call_type_val, &ama_call_types_ext, "Unknown %d"));
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_c15ch_ama, tvb, 0, 41, ENC_NA);
@@ -4339,7 +4339,7 @@ static int dissect_c15ch_clli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if ( (clli_siz > 1) && (clli_siz <= 25 ) )
     {
         col_clear(pinfo->cinfo, COL_INFO);
-        col_append_fstr( pinfo->cinfo, COL_INFO, "Type: CLLI, %s", clli_string );
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Type: CLLI, %s", clli_string);
     }
     if (tree)
     {
@@ -4422,7 +4422,7 @@ static int dissect_c15ch_cp_state_ch(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: CP_STATE_CH, %s --> ",
         val_to_str_ext(oldpm_value, &c15_cp_state_pm_types_ext, "Unknown") );
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+    col_append_str(pinfo->cinfo, COL_INFO,
         val_to_str_ext(newpm_value, &c15_cp_state_pm_types_ext, "Unknown") );
 
     if (tree)
@@ -4466,7 +4466,7 @@ static int dissect_c15ch_dest_digits(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     guint32 num_digits;
     num_digits = tvb_get_ntohl(tvb, 0);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", " );
+    col_append_str(pinfo->cinfo, COL_INFO, ", ");
     add_digits_string_info_col( tvb, 4, num_digits, pinfo);
     if (tree)
     {
@@ -4646,7 +4646,7 @@ static int dissect_c15ch_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Msg Type: %s",
-        val_to_str_ext(msgtype_value, &c15_isup_types_ext, "Unknown") );
+        val_to_str_ext(msgtype_value, &c15_isup_types_ext, "Unknown"));
 
     if (tree)
     {
@@ -4868,7 +4868,7 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     frame_val, shelf_val, lsg_val, unit_val);
         }
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", concat_string );
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", concat_string);
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_c15ch_nitnxlate, tvb, 0, 190, ENC_NA);
@@ -5139,7 +5139,7 @@ static int dissect_c15ch_orig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     num_dn_digits = tvb_get_guint8(tvb, 12);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", DN: " );
+    col_append_str(pinfo->cinfo, COL_INFO, ", DN: ");
     add_digits_string_info_col( tvb, 13, num_dn_digits, pinfo);
 
     if (tree)
@@ -5494,7 +5494,7 @@ static int dissect_c15ch_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gfloat mos = (gfloat)0.0;
 
     mos = tvb_get_ntohl(tvb, 72) / (gfloat) (100.0);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", MOS: %.2f", mos );
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", MOS: %.2f", mos);
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_c15ch_qos, tvb, 0, 100, ENC_NA);
@@ -5579,8 +5579,7 @@ static int dissect_c15ch_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint32 route_num_val = 0;
 
     route_num_val = tvb_get_ntohl(tvb, 0);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Route Number: %d",
-        route_num_val );
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Route Number: %d", route_num_val);
     if (tree)
     {
         ti = proto_tree_add_item(tree,hf_c15ch_route, tvb, 0, 17, ENC_NA);
@@ -5700,7 +5699,7 @@ static int dissect_c15ch_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     local_ssn_val = tvb_get_guint8(tvb, 4);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Local SSN: %s",
-        val_to_str(local_ssn_val, c15ch_tcap_local_ssn_types, "Unknown %d") );
+        val_to_str(local_ssn_val, c15ch_tcap_local_ssn_types, "Unknown %d"));
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_c15ch_tcap, tvb, 0, 20, ENC_NA);
@@ -5798,14 +5797,14 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     if ( ( pm_value <= MAX_PM_VAL ) && ( pm_value != DIG_CKT_TEST_PM_VALUE ) )
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Sub PM: %s",
-                val_to_str(subpm_value, subpm_name_tables[ pm_value ], "%d") );
+                val_to_str(subpm_value, subpm_name_tables[ pm_value ], "%d"));
     }
     else
     {
         if ( pm_value == DIG_CKT_TEST_PM_VALUE )
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Trk PM: %s",
-                    val_to_str(trkpm_value, trkpm_dig_ckt_test_types, "%d") );
+                    val_to_str(trkpm_value, trkpm_dig_ckt_test_types, "%d"));
             if ( trkpm_value > MAX_DIG_CKT_TEST_TRKPM_VAL  )
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Sub PM: %d", subpm_value);
@@ -5813,7 +5812,7 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Sub PM: %s",
-                    val_to_str(subpm_value, dig_ckt_test_subpm_name_tables[ trkpm_value ], "%d") );
+                    val_to_str(subpm_value, dig_ckt_test_subpm_name_tables[ trkpm_value ], "%d"));
             }
         }
         else    /* (pm_value < MIN_PM_VAL) || (pm_value > MAX_PM_VAL) */
@@ -5823,7 +5822,7 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Event Type: %s, Parm: %d",
-        val_to_str_ext(event_value, &c15_event_types_ext, "Unknown %d"), parm_value );
+        val_to_str_ext(event_value, &c15_event_types_ext, "Unknown %d"), parm_value);
 
 
     if (tree)

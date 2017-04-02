@@ -4094,7 +4094,7 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
             wmem_array_append_one(uuid_array, uuid);
 
         proto_item_append_text(ti, " %s", wmem_strbuf_get_str(str));
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", wmem_strbuf_get_str(str));
+        col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(str));
 
         if (size < 1)
             break;
@@ -4384,7 +4384,7 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
 
         size = dissect_sdp_type(next_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, -1, NULL, &info_buf);
         proto_item_append_text(pitem,"%s", wmem_strbuf_get_str(info_buf));
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", wmem_strbuf_get_str(info_buf));
+        col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(info_buf));
 
         entry_offset = get_type_length(tvb, offset, &entry_size);
         dissect_uuid(NULL, tvb, entry_offset, entry_size, &a_uuid);
@@ -4395,7 +4395,7 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
         bytes_to_go -= size;
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": ");
+    col_append_str(pinfo->cinfo, COL_INFO, ": ");
 
     proto_tree_add_item(tree, hf_maximum_attribute_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;

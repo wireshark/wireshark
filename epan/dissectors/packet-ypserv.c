@@ -183,7 +183,7 @@ dissect_match_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
 
 	/*key*/
 	offset = dissect_rpc_string(tvb, tree, hf_ypserv_key, offset, &str);
-	col_append_fstr(pinfo->cinfo, COL_INFO,"%s", str);
+	col_append_str(pinfo->cinfo, COL_INFO, str);
 	proto_item_append_text(tree, "%s", str);
 
 	return offset;

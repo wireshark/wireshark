@@ -2522,7 +2522,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 /* Show comment string */
                 string_ti = proto_tree_add_item_ret_string(dct2000_tree, hf_catapult_dct2000_comment, tvb,
                                                 offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA, wmem_packet_scope(), &string);
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", string);
+                col_append_str(pinfo->cinfo, COL_INFO, string);
 
                 if (catapult_dct2000_dissect_mac_lte_oob_messages) {
                     /* Look into string for out-of-band MAC events, such as SRReq, SRInd */
@@ -2549,7 +2549,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 /* Show sprint string */
                 proto_tree_add_item_ret_string(dct2000_tree, hf_catapult_dct2000_sprint, tvb,
                                                 offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA, wmem_packet_scope(), &string);
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", string);
+                col_append_str(pinfo->cinfo, COL_INFO, string);
 
                 return tvb_captured_length(tvb);
             }

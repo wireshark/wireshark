@@ -1217,7 +1217,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
                     val_to_str_ext_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex), &opensafety_sod_idx_names_ext, "Unknown"));
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "]" );
+        col_append_str(pinfo->cinfo, COL_INFO, "]");
         payloadOffset += 3;
     }
 
@@ -1483,7 +1483,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
             {
                 proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1, 1,
                         packet->payload.snmt->ext_msg_id, "Additional parameter missing [Response via SN Acknowledge] (0x%02X)", packet->payload.snmt->ext_msg_id);
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", Additional parameter missing");
+                col_append_str(pinfo->cinfo, COL_INFO, ", Additional parameter missing");
             }
 
             errcode = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 2);
