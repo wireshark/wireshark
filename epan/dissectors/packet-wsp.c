@@ -2388,7 +2388,6 @@ wkh_tod_value_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, pa
 {
     wkh_0a_Declarations;
     guint32 val = 0, off = val_start, len;
-    gchar *str; /* may not be freed! */
     proto_item *ti = NULL;
     gchar* header_name = wmem_strdup_printf(wmem_packet_scope(), "Time of Day: %s", name);
 
@@ -2410,14 +2409,16 @@ wkh_tod_value_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, pa
         if (val_id <= 4) { /* Length field already parsed by macro! */
             get_date_value(val, tvb, off, len, ok);
             if (ok) {
+                nstime_t t;
+                t.secs = (time_t)val;
+                t.nsecs = 0;
                 if (val == 0) {
-                    proto_tree_add_string(tree, hf,
-                            tvb, hdr_start, offset - hdr_start,
+                    proto_tree_add_time_format_value(tree, hf,
+                            tvb, hdr_start, offset - hdr_start, &t,
                             "Requesting Time Of Day");
                 } else {
-                    str = abs_time_secs_to_str(wmem_packet_scope(), val, ABSOLUTE_TIME_LOCAL, TRUE);
-                    proto_tree_add_string(tree, hf,
-                            tvb, hdr_start, offset - hdr_start, str);
+                    proto_tree_add_time(tree, hf,
+                            tvb, hdr_start, offset - hdr_start, &t);
                 }
             }
         }
