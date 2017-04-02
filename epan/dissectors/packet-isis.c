@@ -53,6 +53,8 @@ static int hf_isis_max_area_adr     = -1;
 static gint ett_isis                = -1;
 
 static expert_field ei_isis_version = EI_INIT;
+static expert_field ei_isis_version2 = EI_INIT;
+static expert_field ei_isis_reserved = EI_INIT;
 static expert_field ei_isis_type = EI_INIT;
 
 static dissector_handle_t isis_handle;
@@ -73,10 +75,10 @@ static const value_string isis_vals[] = {
 static int
 dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_item *ti, *version_item;
+    proto_item *ti, *version_item, *version2_item, *reserved_item;
     proto_tree *isis_tree = NULL;
     int offset = 0;
-    guint8 isis_version;
+    guint8 isis_version, isis_version2, isis_reserved;
     guint8 isis_type;
     tvbuff_t *next_tvb;
     isis_data_t subdissector_data;
@@ -99,9 +101,6 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     version_item = proto_tree_add_uint(isis_tree, hf_isis_version, tvb,
             offset, 1, isis_version );
     if (isis_version != ISIS_REQUIRED_VERSION){
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                "Unknown ISIS version (%u vs %u)",
-                isis_version, ISIS_REQUIRED_VERSION );
         expert_add_info(pinfo, version_item, &ei_isis_version);
     }
     offset += 1;
@@ -111,18 +110,26 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             offset, 1, subdissector_data.system_id_len );
     offset += 1;
 
+    proto_tree_add_item(isis_tree, hf_isis_type_reserved, tvb, offset, 1, ENC_BIG_ENDIAN );
+
     isis_type = tvb_get_guint8(tvb, offset) & ISIS_TYPE_MASK;
     col_add_str(pinfo->cinfo, COL_INFO,
-            val_to_str ( isis_type, isis_vals, "Unknown (0x%x)" ) );
-
+                val_to_str ( isis_type, isis_vals, "Unknown (0x%x)" ) );
     proto_tree_add_item(isis_tree, hf_isis_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-    proto_tree_add_item(isis_tree, hf_isis_type_reserved, tvb, offset, 1, ENC_BIG_ENDIAN );
     offset += 1;
 
-    proto_tree_add_item(isis_tree, hf_isis_version2, tvb, offset, 1, ENC_BIG_ENDIAN );
+    isis_version2 = tvb_get_guint8(tvb, offset);
+    version2_item = proto_tree_add_item(isis_tree, hf_isis_version2, tvb, offset, 1, ENC_BIG_ENDIAN );
+    if (isis_version2 != 1) {
+        expert_add_info(pinfo, version2_item, &ei_isis_version2);
+    }
     offset += 1;
 
-    proto_tree_add_item(isis_tree, hf_isis_reserved, tvb, offset, 1, ENC_BIG_ENDIAN );
+    isis_reserved = tvb_get_guint8(tvb, offset);
+    reserved_item = proto_tree_add_item(isis_tree, hf_isis_reserved, tvb, offset, 1, ENC_BIG_ENDIAN );
+    if (isis_reserved != 0) {
+        expert_add_info(pinfo, reserved_item, &ei_isis_reserved);
+    }
     offset += 1;
 
     proto_tree_add_item(isis_tree, hf_isis_max_area_adr, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -153,18 +160,18 @@ proto_register_isis(void)
 {
   static hf_register_info hf[] = {
     { &hf_isis_irpd,
-      { "Intra Domain Routing Protocol Discriminator",    "isis.irpd",
+      { "Intradomain Routeing Protocol Discriminator",    "isis.irpd",
         FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, NULL, HFILL }},
 
     { &hf_isis_header_length,
-      { "PDU Header Length", "isis.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "Length Indicator", "isis.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_isis_version,
-      { "Version", "isis.version", FT_UINT8,
+      { "Version/Protocol ID Extension", "isis.version", FT_UINT8,
          BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_isis_system_id_length,
-      { "System ID Length", "isis.sysid_len",
+      { "ID Length", "isis.sysid_len",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_isis_type,
@@ -172,22 +179,22 @@ proto_register_isis(void)
         VALS(isis_vals), ISIS_TYPE_MASK, NULL, HFILL }},
 
     { &hf_isis_type_reserved,
-      { "Reserved", "isis.reserved", FT_UINT8, BASE_HEX,
+      { "Reserved", "isis.type.reserved", FT_UINT8, BASE_HEX,
         NULL, ISIS_TYPE_RESERVED_MASK, NULL, HFILL }},
 
     { &hf_isis_version2,
-      { "Version2 (==1)", "isis.version2", FT_UINT8, BASE_DEC, NULL,
+      { "Version", "isis.version2", FT_UINT8, BASE_DEC, NULL,
         0x0, NULL, HFILL }},
 
     { &hf_isis_reserved,
-      { "Reserved (==0)", "isis.reserved", FT_UINT8, BASE_DEC, NULL,
+      { "Reserved", "isis.reserved", FT_UINT8, BASE_DEC, NULL,
         0x0, NULL, HFILL }},
 
     { &hf_isis_max_area_adr,
-      { "Max.AREAs: (0==3)", "isis.max_area_adr", FT_UINT8, BASE_DEC, NULL,
-      0x0, NULL, HFILL }},
+      { "Maximum Area Addresses", "isis.max_area_adr", FT_UINT8, BASE_DEC, NULL,
+        0x0, "Maximum Area Addresses, 0 means 3", HFILL }},
 
-    };
+  };
     /*
      * Note, we pull in the unknown CLV handler here, since it
      * is used by all ISIS packet types.
@@ -198,6 +205,8 @@ proto_register_isis(void)
 
     static ei_register_info ei[] = {
         { &ei_isis_version, { "isis.version.unknown", PI_PROTOCOL, PI_WARN, "Unknown ISIS version", EXPFILL }},
+        { &ei_isis_version2, { "isis.version2.notone", PI_PROTOCOL, PI_WARN, "Version must be 1", EXPFILL }},
+        { &ei_isis_reserved, { "isis.reserved.notzero", PI_PROTOCOL, PI_WARN, "Reserved must be 0", EXPFILL }},
         { &ei_isis_type, { "isis.type.unknown", PI_PROTOCOL, PI_WARN, "Unknown ISIS packet type", EXPFILL }},
     };
 
