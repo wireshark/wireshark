@@ -927,7 +927,7 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
 
     switch (block_type) {
         case I_BLOCK_TYPE:
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
                     (pcb & 0x10) ? "Chaining" : "No chaining");
             proto_tree_add_item(pcb_tree, hf_iso14443_i_blk_chaining,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -943,8 +943,8 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
         case R_BLOCK_TYPE:
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
-                    "%s", (pcb & 0x10) ?
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+                    (pcb & 0x10) ?
                     tfs_nak_ack.true_string : tfs_nak_ack.false_string);
             proto_tree_add_item(pcb_tree, hf_iso14443_nak,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -960,7 +960,7 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
             s_cmd = (pcb & 0x30) >> 4;
             proto_tree_add_item(pcb_tree, hf_iso14443_s_blk_cmd,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
                     val_to_str(s_cmd, iso14443_s_block_cmd,
                         "Unknown (0x%02x)"));
             proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,

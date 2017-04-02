@@ -771,7 +771,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
 
     /* Add summary to INFO column if it is enabled */
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(JPEG JFIF image)");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "(JPEG JFIF image)");
 
     ti = proto_tree_add_item(tree, proto_jfif,
             tvb, 0, -1, ENC_NA);

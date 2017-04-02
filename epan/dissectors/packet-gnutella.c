@@ -385,7 +385,7 @@ static int dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 			break;
 	}
 
-	col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
 		    payload_descriptor_text);
 
 	if (tree) {

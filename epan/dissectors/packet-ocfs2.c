@@ -1074,13 +1074,13 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	switch(magic){
 	case O2NET_MSG_KEEP_REQ_MAGIC:
-		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "Keepalive Request");
+		col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", "Keepalive Request");
 		break;
 	case O2NET_MSG_KEEP_RESP_MAGIC:
-		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "Keepalive Response");
+		col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", "Keepalive Response");
 		break;
 	default:
-		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s",
+		col_append_sep_str(pinfo->cinfo, COL_INFO, " | ",
 			val_to_str_ext(msg_type, &ext_dlm_magic, "Unknown Type (0x%02x)") );
 		break;
 	}

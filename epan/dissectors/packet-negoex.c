@@ -401,7 +401,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                           tvb, offset, 8, ENC_ASCII | ENC_NA);
       offset += 8;
 
-      col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s",
+      col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
                           val_to_str_const(message_type,
                                            negoex_message_types,
                                            "Unknown NEGOEX message type"));

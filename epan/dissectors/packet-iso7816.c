@@ -312,7 +312,7 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 tvb, 0, -1, "ISO 7816 ATR");
     proto_tr = proto_item_add_subtree(proto_it, ett_iso7816_atr);
 
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "ATR");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "ATR");
 
     /* ISO 7816-4, section 4 indicates that concatenations are big endian */
     proto_tree_add_item(proto_tr, hf_iso7816_atr_init_char,
@@ -598,7 +598,7 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (ret==-1) {
         /* the class byte says that the remaining APDU is not
             in ISO7816 format */
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
                 "Command APDU using proprietary format");
 
         return 1; /* we only dissected the class byte */
@@ -607,7 +607,7 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     ins = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_iso7816_ins, tvb, offset, 1, ENC_BIG_ENDIAN);
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
             val_to_str_ext_const(ins, &iso7816_ins_ext, "Unknown instruction"));
     offset++;
     /* if we just created a new transaction, we can now fill in the cmd id */
@@ -652,7 +652,7 @@ dissect_iso7816_resp_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint                   offset = 0;
     gint                   body_len;
 
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Response APDU");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Response APDU");
 
     if (transactions) {
         /* receive the largest key that is less than or equal to our frame

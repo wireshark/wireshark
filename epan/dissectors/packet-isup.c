@@ -10295,8 +10295,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                         val_to_str_ext_const(message_type, used_value_string_ext, "reserved"),
                         bicc_cic);
   } else {
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
-                        "%s",
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
                         val_to_str_ext_const(message_type, used_value_string_ext, "reserved"));
   }
   /* dissect CIC in main dissector since pass-along message type carrying complete BICC/ISUP message w/o CIC needs

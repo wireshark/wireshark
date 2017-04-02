@@ -236,7 +236,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
              * transmitter; it must be a link verification */
             if (tvb_reported_length_remaining(
                         tvb, ptvcursor_current_offset(cursor)) == 2) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
                         "send link verification Ri'");
                 ptvcursor_add_no_advance(cursor,
                         hf_hdcp_link_vfy, 2, ENC_LITTLE_ENDIAN);

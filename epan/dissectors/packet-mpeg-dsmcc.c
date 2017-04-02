@@ -620,7 +620,7 @@ dissect_dsmcc_un_session(tvbuff_t *tvb, packet_info *pinfo,
     sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
             ett_dsmcc_payload, &pi, "User Network Message (Session) - %s",
             val_to_str(msg_id, dsmcc_un_sess_message_id_vals, "0x%x"));
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
             val_to_str(msg_id, dsmcc_un_sess_message_id_vals, "0x%x"));
 
     switch (msg_id) {

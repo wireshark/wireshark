@@ -2816,7 +2816,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Clear out lower layer info */
   col_clear(pinfo->cinfo, COL_INFO);
-  col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", func_code_str);
+  col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, func_code_str);
   col_set_fence(pinfo->cinfo, COL_INFO);
 
   /* format up the text representation */
@@ -2873,7 +2873,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           default:
             /* For reads for specific object types, bit-mask out the first byte and add the generic obj description to the column info */
             obj_type_str = val_to_str_ext((obj_type & 0xFF00), &dnp3_al_read_obj_vals_ext, "Unknown Object Type");
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", obj_type_str);
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, obj_type_str);
             break;
         }
 
@@ -2881,7 +2881,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Update the col info if there were class reads */
       if (al_class != 0) {
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Class ");
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Class ");
         for (i = 0; i < 4; i++) {
           if (al_class & (1 << i)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "%u", i);
@@ -2902,7 +2902,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* For writes for specific object types, bit-mask out the first byte and add the generic obj description to the column info */
         obj_type_str = val_to_str_ext((obj_type & 0xFF00), &dnp3_al_write_obj_vals_ext, "Unknown Object Type");
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", obj_type_str);
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, obj_type_str);
 
       }
 

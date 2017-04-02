@@ -1732,14 +1732,14 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
         }
 
         if (tp->id>RTMPT_ID_MAX) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, "|", "%s",
+                col_append_sep_str(pinfo->cinfo, COL_INFO, "|",
                                 val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
         } else if (sDesc) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, "|", "%s", sDesc);
+                col_append_sep_str(pinfo->cinfo, COL_INFO, "|", sDesc);
                 col_set_fence(pinfo->cinfo, COL_INFO);
         } else {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, "|", "%s",
+                col_append_sep_str(pinfo->cinfo, COL_INFO, "|",
                                 val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
         }

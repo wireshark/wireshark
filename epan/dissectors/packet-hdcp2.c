@@ -164,7 +164,7 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         case ID_AKE_SEND_CERT:
             repeater = ((tvb_get_guint8(tvb, ptvcursor_current_offset(cursor))
                         & 0x01) == 0x01);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
                     repeater ? "repeater" : "no repeater");
             ptvcursor_add(cursor, hf_hdcp2_repeater, 1, ENC_BIG_ENDIAN);
             cert_tree = ptvcursor_add_text_with_subtree(cursor, CERT_RX_LEN,

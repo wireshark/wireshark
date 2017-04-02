@@ -2176,7 +2176,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     ntlmssph->type = tvb_get_letohl (tvb, offset);
     offset += 4;
 
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s",
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
                     val_to_str_const(ntlmssph->type,
                                      ntlmssp_message_types,
                                      "Unknown NTLMSSP message type"));

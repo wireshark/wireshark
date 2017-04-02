@@ -539,7 +539,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             /* Function code is 7 lower bits of byte , LMB is 8th bit*/
             func = tvb_get_guint8(tvb, offset) & 0x7f;
 
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
                                 val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"));
 
             lg8979_fc_tree = proto_tree_add_subtree_format(
@@ -784,7 +784,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             /* Add Function Code & last Mark Block to Protocol Tree */
             /* Function code is 7 lower bits of byte , LMB is 8th bit*/
             func = tvb_get_guint8(tvb, offset) & 0x7f;
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
                                 val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"));
 
             lg8979_fc_tree = proto_tree_add_subtree_format(
@@ -1226,7 +1226,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         } /* !shr */
 
         if (shr) {
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Short Response");
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Short Response");
         }
 
         /* Add CRC-16 */

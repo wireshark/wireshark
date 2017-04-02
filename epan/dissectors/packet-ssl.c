@@ -831,7 +831,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                  * continuation data
                  */
                 offset = tvb_reported_length(tvb);
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Continuation Data");
+                col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Continuation Data");
             }
             break;
         }
@@ -1544,7 +1544,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
          session->version==TLSV1DOT2_VERSION) &&
         (available_bytes >=1 ) && !ssl_is_valid_content_type(tvb_get_guint8(tvb, offset))) {
         proto_tree_add_expert(tree, pinfo, &ei_ssl_ignored_unknown_record, tvb, offset, available_bytes);
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Ignored Unknown Record");
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ignored Unknown Record");
         return offset + available_bytes;
     }
 
@@ -1618,7 +1618,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         /* if we don't have a valid content_type, there's no sense
          * continuing any further
          */
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Continuation Data");
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Continuation Data");
 
         return offset + 5 + record_length;
     }
@@ -1704,7 +1704,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                                    "Record type is not allowed in TLS 1.3");
             break;
         }
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Change Cipher Spec");
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Change Cipher Spec");
         ssl_dissect_change_cipher_spec(&dissect_ssl3_hf, tvb, pinfo,
                                        ssl_record_tree, offset, session,
                                        is_from_server, ssl);
@@ -1744,7 +1744,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         dissector_handle_t app_handle;
 
         /* show on info column what we are decoding */
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Application Data");
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Application Data");
 
         /* app_handle discovery is done here instead of dissect_ssl_payload()
          * because the protocol name needs to be displayed below. */
@@ -1853,7 +1853,7 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
     }
     else
     {
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Encrypted Alert");
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Alert");
     }
 
     if (tree)
@@ -1969,7 +1969,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         /*
          * Update our info string
          */
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
                             (msg_type_str != NULL) ? msg_type_str : "Encrypted Handshake Message");
 
         /* set the label text on the record layer expanding node */
@@ -2524,12 +2524,12 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             PROTO_ITEM_SET_GENERATED(ti);
         }
 
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Encrypted Data");
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Data");
         return initial_offset + record_length_length + record_length;
     }
     else
     {
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", msg_type_str);
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, msg_type_str);
 
         if (ssl_record_tree)
         {

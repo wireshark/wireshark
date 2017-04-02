@@ -1419,7 +1419,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
     proto_tree_add_item(http2_tree, hf_http2_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     type = tvb_get_guint8(tvb, offset);
-    col_append_sep_fstr( pinfo->cinfo, COL_INFO, ", ", "%s", val_to_str(type, http2_type_vals, "Unknown type (%d)"));
+    col_append_sep_str( pinfo->cinfo, COL_INFO, ", ", val_to_str(type, http2_type_vals, "Unknown type (%d)"));
 
     offset += 1;
 

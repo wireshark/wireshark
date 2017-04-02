@@ -459,7 +459,7 @@ dissect_management_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       else
       {
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII));
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ",", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII));
       }
     }
 

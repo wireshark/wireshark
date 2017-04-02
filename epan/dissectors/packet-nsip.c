@@ -514,7 +514,7 @@ decode_iei_reset_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset _
                            ett_nsip_reset_flag, reset_flags, ENC_NA);
 
   if (flag & NSIP_MASK_RESET_FLAG) {
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP, "Reset");
+    col_append_sep_str(bi->pinfo->cinfo, COL_INFO, NSIP_SEP, "Reset");
   }
   bi->offset += 1;
 }
@@ -950,7 +950,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_set_str(pinfo->cinfo, COL_INFO,
                 val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
   } else {
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NSIP_SEP, "%s",
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NSIP_SEP,
                 val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
   }
   decode_pdu(pdu_type, &bi);
