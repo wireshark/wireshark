@@ -600,6 +600,9 @@ static gint ett_smb2_error_data = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
+static expert_field ei_smb2_invalid_getinfo_offset = EI_INIT;
+static expert_field ei_smb2_invalid_getinfo_size = EI_INIT;
+static expert_field ei_smb2_empty_getinfo_buffer = EI_INIT;
 
 static int smb2_tap = -1;
 static int smb2_eo_tap = -1;
@@ -4386,23 +4389,6 @@ dissect_smb2_getinfo_buffer_quota(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 }
 
 static int
-dissect_smb2_getinfo_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int size, smb2_info_t *si)
-{
-	switch (si->saved->smb2_class) {
-	case SMB2_CLASS_QUOTA_INFO:
-		dissect_smb2_getinfo_buffer_quota(tvb, pinfo, tree, offset, si);
-		break;
-	default:
-		if (size > 0) {
-			proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, size, ENC_NA);
-		}
-	}
-	offset += size;
-
-	return offset;
-}
-
-static int
 dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, smb2_info_t *si)
 {
 	guint8		  cl, il;
@@ -4484,6 +4470,7 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
 	guint32 getinfo_size = 0;
 	guint32 getinfo_offset = 0;
+	proto_item *offset_item;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
@@ -4496,7 +4483,8 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 4;
 
 	/* offset */
-	proto_tree_add_item_ret_uint(tree, hf_smb2_getinfo_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &getinfo_offset);
+	offset_item = proto_tree_add_item_ret_uint(tree, hf_smb2_getinfo_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &getinfo_offset);
+	/* XXX - check that the two reserved bytes are zero? */
 	offset += 4;
 
 	/* size */
@@ -4505,21 +4493,103 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* parameters */
 	if (si->saved) {
-		dissect_smb2_getinfo_parameters(tvb, pinfo, tree, offset, si);
+		offset = dissect_smb2_getinfo_parameters(tvb, pinfo, tree, offset, si);
 	} else {
 		/* some unknown bytes */
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, ENC_NA);
+		offset += 8;
 	}
-	offset += 8;
 
 	/* fid */
-	dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
 	/* buffer */
 	if (si->saved) {
-		dissect_smb2_getinfo_buffer(tvb, pinfo, tree, getinfo_offset, getinfo_size, si);
+		if (getinfo_size != 0) {
+			/*
+			 * 2.2.37 says "For quota requests, this MUST be
+			 * the length of the contained SMB2_QUERY_QUOTA_INFO
+			 * embedded in the request. For FileFullEaInformation
+			 * requests, this MUST be set to the length of the
+			 * user supplied EA list specified in [MS-FSCC]
+			 * section 2.4.15.1. For other information queries,
+			 * this field SHOULD be set to 0 and the server MUST
+			 * ignore it on receipt.
+			 *
+			 * This seems to imply that, for requests other
+			 * than those to types, we should either completely
+			 * ignore a non-zero getinfo_size or should, at
+			 * most, add a warning-level expert info at the
+			 * protocol level saying that it should be zero,
+			 * but not try and interpret it or check its
+			 * validity.
+			 */
+			if (si->saved->smb2_class == SMB2_CLASS_QUOTA_INFO ||
+			    (si->saved->smb2_class == SMB2_CLASS_FILE_INFO &&
+			     si->saved->infolevel == SMB2_FILE_FULL_EA_INFO)) {
+				/*
+				 * According to 2.2.37 SMB2 QUERY_INFO
+				 * Request in the current MS-SMB2 spec,
+				 * these are the only info requests that
+				 * have an input buffer.
+				 */
+
+				/*
+				 * Make sure that the input buffer is after
+				 * the fixed-length part of the message.
+				 */
+				if (getinfo_offset < (guint)offset) {
+					expert_add_info(pinfo, offset_item, &ei_smb2_invalid_getinfo_offset);
+					return offset;
+				}
+
+				/*
+				 * Make sure the input buffer is within the
+				 * message, i.e. that it's within the tvbuff.
+				 *
+				 * We check for offset+length overflowing and
+				 * for offset+length being beyond the reported
+				 * length of the tvbuff.
+				 */
+				if (getinfo_offset + getinfo_size < getinfo_offset ||
+				    getinfo_offset + getinfo_size > tvb_reported_length(tvb)) {
+					expert_add_info(pinfo, offset_item, &ei_smb2_invalid_getinfo_size);
+					return offset;
+				}
+
+				if (si->saved->smb2_class == SMB2_CLASS_QUOTA_INFO) {
+					dissect_smb2_getinfo_buffer_quota(tvb, pinfo, tree, getinfo_offset, si);
+				} else {
+					/*
+					 * XXX - handle user supplied EA info.
+					 */
+					proto_tree_add_item(tree, hf_smb2_unknown, tvb, getinfo_offset, getinfo_size, ENC_NA);
+				}
+				offset = getinfo_offset + getinfo_size;
+			}
+		} else {
+			/*
+			 * The buffer size is 0, meaning it's not present.
+			 *
+			 * 2.2.37 says "For FileFullEaInformation requests,
+			 * the input buffer MUST contain the user supplied
+			 * EA list with zero or more FILE_GET_EA_INFORMATION
+			 * structures, specified in [MS-FSCC] section
+			 * 2.4.15.1.", so it seems that, for a "get full
+			 * EA information" request, the size can be zero -
+			 * there's no other obvious way for the list to
+			 * have zero structures.
+			 *
+			 * 2.2.37 also says "For quota requests, the input
+			 * buffer MUST contain an SMB2_QUERY_QUOTA_INFO,
+			 * as specified in section 2.2.37.1."; that seems
+			 * to imply that the input buffer must not be empty
+			 * in that case.
+			 */
+			if (si->saved->smb2_class == SMB2_CLASS_QUOTA_INFO)
+				expert_add_info(pinfo, offset_item, &ei_smb2_empty_getinfo_buffer);
+		}
 	}
-	offset = getinfo_offset + getinfo_size;
 
 	return offset;
 }
@@ -11444,6 +11514,9 @@ proto_register_smb2(void)
 	static ei_register_info ei[] = {
 		{ &ei_smb2_invalid_length, { "smb2.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
 		{ &ei_smb2_bad_response, { "smb2.bad_response", PI_MALFORMED, PI_ERROR, "Bad response", EXPFILL }},
+		{ &ei_smb2_invalid_getinfo_offset, { "smb2.invalid_getinfo_offset", PI_MALFORMED, PI_ERROR, "Input buffer offset isn't past the fixed data in the message", EXPFILL }},
+		{ &ei_smb2_invalid_getinfo_size, { "smb2.invalid_getinfo_size", PI_MALFORMED, PI_ERROR, "Input buffer length goes past the end of the message", EXPFILL }},
+		{ &ei_smb2_empty_getinfo_buffer, { "smb2.empty_getinfo_buffer", PI_PROTOCOL, PI_WARN, "Input buffer length is empty for a quota request", EXPFILL }},
 	};
 
 	expert_module_t* expert_smb2;
