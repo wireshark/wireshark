@@ -5915,7 +5915,7 @@ dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
      * in octets 's' to 's+3' shall be present
      */
     if (flags & 0x04) {
-        proto_tree_add_item_ret_uint(tree, hf_gtpv2_twan_plmnid, tvb, offset, 3, ENC_BIG_ENDIAN, &civa_len);
+        proto_tree_add_item(tree, hf_gtpv2_twan_plmnid, tvb, offset, 3, ENC_NA);
         offset += 3;
         /* (q+1) to (q+r) Civic Address Information
         * ...it shall be encoded as defined in subclause 3.1 of IETF RFC 4776 [59] excluding the first 3 octets.
