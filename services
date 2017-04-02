@@ -9566,6 +9566,8 @@ microtalon-com   7014/tcp # Microtalon Communications [Jim_Thompson] [Jim_Thomps
 microtalon-com   7014/udp # Microtalon Communications [Jim_Thompson] [Jim_Thompson]
 talon-webserver  7015/tcp # Talon Webserver [Jim_Thompson] [Jim_Thompson]
 talon-webserver  7015/udp # Talon Webserver [Jim_Thompson] [Jim_Thompson]
+spg              7016/tcp # SPG Controls Carrier [SPG_Controls_Ltd] [Steve_Barton_2] 2017-03-27
+spg              7016/udp # SPG Controls Carrier [SPG_Controls_Ltd] [Steve_Barton_2] 2017-03-27
 fisa-svc         7018/tcp # FISA Service [FAUCONNET_Ingenierie] [FAUCONNET_Ingenierie] 2011-05-19
 doceri-ctl       7019/tcp # doceri drawing service control [Paul_Brown] [Paul_Brown] 2011-04-27
 doceri-view      7019/udp # doceri drawing service screen view [Paul_Brown] [Paul_Brown] 2011-04-27
@@ -10107,6 +10109,7 @@ espeech          8416/tcp # eSpeech Session Protocol [Scott_Tarone] [Scott_Taron
 espeech          8416/udp # eSpeech Session Protocol [Scott_Tarone] [Scott_Tarone] 2002-11
 espeech-rtp      8417/tcp # eSpeech RTP Protocol [Scott_Tarone] [Scott_Tarone] 2003-04
 espeech-rtp      8417/udp # eSpeech RTP Protocol [Scott_Tarone] [Scott_Tarone] 2003-04
+aritts           8423/tcp # Aristech text-to-speech server [Aristech_GmbH] [Mirko_Hering] 2017-03-30
 cybro-a-bus      8442/tcp # CyBro A-bus Protocol [Damir_Skrjanec] [Damir_Skrjanec] 2007-05
 cybro-a-bus      8442/udp # CyBro A-bus Protocol [Damir_Skrjanec] [Damir_Skrjanec] 2007-05
 pcsync-https     8443/tcp # PCsync HTTPS
@@ -10589,6 +10592,7 @@ octopus         10008/udp # Octopus Multiplexer [Chris_Koeritz_2] [Chris_Koeritz
 swdtp-sv        10009/tcp # Systemwalker Desktop Patrol [Akira_Ide] [Akira_Ide] 2006-03
 swdtp-sv        10009/udp # Systemwalker Desktop Patrol [Akira_Ide] [Akira_Ide] 2006-03
 rxapi           10010/tcp # ooRexx rxapi services [David_Ashley] [David_Ashley] 2009-07-24
+abb-hw          10020/tcp # Hardware configuration and maintenance [ABB] [Adam_Norén] 2017-03-28
 zabbix-agent    10050/tcp # Zabbix Agent [Alexei_Vladishev] [Alexei_Vladishev] 2006-02
 zabbix-agent    10050/udp # Zabbix Agent [Alexei_Vladishev] [Alexei_Vladishev] 2006-02
 zabbix-trapper  10051/tcp # Zabbix Trapper [Alexei_Vladishev] [Alexei_Vladishev] 2006-02

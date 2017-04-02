@@ -308,7 +308,7 @@
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="206"/>
-        <location filename="bluetooth_device_dialog.cpp" line="633"/>
+        <location filename="bluetooth_device_dialog.cpp" line="632"/>
         <source>%1 changes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -359,27 +359,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="568"/>
+        <location filename="bluetooth_device_dialog.cpp" line="567"/>
         <source>enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="568"/>
+        <location filename="bluetooth_device_dialog.cpp" line="567"/>
         <source>disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="576"/>
+        <location filename="bluetooth_device_dialog.cpp" line="575"/>
         <source>%1 ms (%2 slots)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="668"/>
+        <location filename="bluetooth_device_dialog.cpp" line="667"/>
         <source>Save Table Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="670"/>
+        <location filename="bluetooth_device_dialog.cpp" line="669"/>
         <source>PNG Image (*.png)</source>
         <translation type="unfinished">PNG画像 (*.png)</translation>
     </message>
@@ -740,9 +740,9 @@
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.cpp" line="361"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="518"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="524"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="605"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="516"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="522"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="603"/>
         <source>Unknown</source>
         <translation>不明</translation>
     </message>
@@ -753,28 +753,28 @@
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.cpp" line="467"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="539"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="590"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="610"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="652"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="686"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="723"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="757"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="537"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="588"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="608"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="650"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="684"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="721"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="755"/>
         <source>Frame %1</source>
         <translation>フレーム %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="675"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="673"/>
         <source>Pending</source>
         <translation>保留</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="871"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="869"/>
         <source>Save Table Image</source>
         <translation>表の画像を保存</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="873"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="871"/>
         <source>PNG Image (*.png)</source>
         <translation>PNG画像 (*.png)</translation>
     </message>
@@ -1679,72 +1679,72 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定した数のファイルを作成した後キャプチャを停止します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="186"/>
+        <location filename="capture_interfaces_dialog.cpp" line="190"/>
         <source>Capture Interfaces</source>
         <translation>キャプチャインターフェース</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="191"/>
+        <location filename="capture_interfaces_dialog.cpp" line="195"/>
         <source>Start</source>
         <translation>開始</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="213"/>
+        <location filename="capture_interfaces_dialog.cpp" line="217"/>
         <source>Leave blank to use a temporary file</source>
         <translation>一時ファイルを使うため空白にしておきます</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="354"/>
+        <location filename="capture_interfaces_dialog.cpp" line="390"/>
         <source>Specify a Capture File</source>
         <translation>キャプチャファイルを指定してください</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="652"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="652"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>Addresses</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="652"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>Address</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="662"/>
+        <location filename="capture_interfaces_dialog.cpp" line="698"/>
         <source>no addresses</source>
         <translation>アドレスがありません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="840"/>
-        <location filename="capture_interfaces_dialog.cpp" line="848"/>
-        <location filename="capture_interfaces_dialog.cpp" line="859"/>
-        <location filename="capture_interfaces_dialog.cpp" line="863"/>
-        <location filename="capture_interfaces_dialog.cpp" line="876"/>
-        <location filename="capture_interfaces_dialog.cpp" line="884"/>
+        <location filename="capture_interfaces_dialog.cpp" line="878"/>
+        <location filename="capture_interfaces_dialog.cpp" line="886"/>
+        <location filename="capture_interfaces_dialog.cpp" line="897"/>
+        <location filename="capture_interfaces_dialog.cpp" line="901"/>
+        <location filename="capture_interfaces_dialog.cpp" line="914"/>
+        <location filename="capture_interfaces_dialog.cpp" line="922"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="841"/>
-        <location filename="capture_interfaces_dialog.cpp" line="849"/>
-        <location filename="capture_interfaces_dialog.cpp" line="877"/>
-        <location filename="capture_interfaces_dialog.cpp" line="885"/>
+        <location filename="capture_interfaces_dialog.cpp" line="879"/>
+        <location filename="capture_interfaces_dialog.cpp" line="887"/>
+        <location filename="capture_interfaces_dialog.cpp" line="915"/>
+        <location filename="capture_interfaces_dialog.cpp" line="923"/>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
         <translation type="unfinished">複数ファイル:要求したファイルサイズが大きすぎます! ファイルサイズは2GBより大きくできません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="860"/>
+        <location filename="capture_interfaces_dialog.cpp" line="898"/>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
         <translation type="unfinished">複数ファイル:キャプチャファイル名が指定されていません! 複数ファイルを利用したい場合にはファイル名を指定しなければなりません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="864"/>
+        <location filename="capture_interfaces_dialog.cpp" line="902"/>
         <source>Multiple files: No file limit given. You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <oldsource>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
@@ -3565,7 +3565,7 @@ for filter files: %2.</source>
 <context>
     <name>IOGraph</name>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1858"/>
+        <location filename="io_graph_dialog.cpp" line="1860"/>
         <source>Unknown</source>
         <translation>不明</translation>
     </message>
@@ -4068,72 +4068,72 @@ for filter files: %2.</source>
         <translation>TCPエラー</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="896"/>
+        <location filename="io_graph_dialog.cpp" line="898"/>
         <source>Hover over the graph for details.</source>
         <translation>詳細はグラフの上にマウスをのせてください</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="898"/>
+        <location filename="io_graph_dialog.cpp" line="900"/>
         <source>No packets in interval</source>
         <translation>この間隔にパケットはありません</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="903"/>
+        <location filename="io_graph_dialog.cpp" line="905"/>
         <source>Click to select packet</source>
         <translation>クリックしてパケットを選んでください</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="903"/>
+        <location filename="io_graph_dialog.cpp" line="905"/>
         <source>Packet</source>
         <translation>パケット</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="907"/>
+        <location filename="io_graph_dialog.cpp" line="909"/>
         <source>%1 (%2s%3).</source>
         <translation>%1 (%2s%3).</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="918"/>
+        <location filename="io_graph_dialog.cpp" line="920"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>離してズーム, x = %1 から %2, y = %3 から %4</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="924"/>
+        <location filename="io_graph_dialog.cpp" line="926"/>
         <source>Unable to select range.</source>
         <translation>範囲を選択できません</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="927"/>
+        <location filename="io_graph_dialog.cpp" line="929"/>
         <source>Click to select a portion of the graph.</source>
         <translation>クリックしてグラフの割合を選びます</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1550"/>
+        <location filename="io_graph_dialog.cpp" line="1552"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1551"/>
+        <location filename="io_graph_dialog.cpp" line="1553"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1552"/>
+        <location filename="io_graph_dialog.cpp" line="1554"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1554"/>
+        <location filename="io_graph_dialog.cpp" line="1556"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1555"/>
+        <location filename="io_graph_dialog.cpp" line="1557"/>
         <source>Comma Separated Values (*.csv)</source>
         <translation>カンマ区切りテキスト形式 (*.csv)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1567"/>
+        <location filename="io_graph_dialog.cpp" line="1569"/>
         <source>Save Graph As</source>
         <translation>としてグラフを保存</translation>
     </message>
@@ -6965,13 +6965,15 @@ for filter files: %2.</source>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="427"/>
-        <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
-        <translation type="vanished">パケット数: %1 %4 表示: %2 (%3%)</translation>
+        <translation type="unfinished">パケット数: %1 %4 表示: %2 (%3%)</translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="427"/>
+        <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
+        <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
+        <translation>パケット数: %1 %4 表示: %2 (%3%)</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="433"/>
@@ -7176,17 +7178,17 @@ a:hover {
         <translation>自動アップデートを無効にしました</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="382"/>
+        <location filename="main_welcome.cpp" line="385"/>
         <source>not found</source>
         <translation>見つかりません</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="461"/>
+        <location filename="main_welcome.cpp" line="464"/>
         <source>Copy file path</source>
         <translation>ファイルパスをコピー</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="467"/>
+        <location filename="main_welcome.cpp" line="470"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9734,12 +9736,12 @@ a:hover {
         <translation>キャプチャを再スタートする前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3909"/>
+        <location filename="main_window_slots.cpp" line="3912"/>
         <source>Wiki Page for %1</source>
         <translation>%1 の Wikiページ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3910"/>
+        <location filename="main_window_slots.cpp" line="3913"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;ワイヤーシャークWikiはコミュニティによって運営されています &lt;/p&gt;&lt;p&gt;いま見ているページはすばらしかったり、不完全だったり、間違っていたり、存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
     </message>
@@ -10989,97 +10991,97 @@ a:hover {
         <translation>ウインドウサイズ(バイト)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1952"/>
+        <location filename="io_graph_dialog.cpp" line="1954"/>
         <source>Packets</source>
         <translation>パケット数</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1953"/>
+        <location filename="io_graph_dialog.cpp" line="1955"/>
         <source>Bytes</source>
         <translation>バイト数</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1954"/>
+        <location filename="io_graph_dialog.cpp" line="1956"/>
         <source>Bits</source>
         <translation>ビット数</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1955"/>
+        <location filename="io_graph_dialog.cpp" line="1957"/>
         <source>SUM(Y Field)</source>
         <translation>SUM(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1956"/>
+        <location filename="io_graph_dialog.cpp" line="1958"/>
         <source>COUNT FRAMES(Y Field)</source>
         <translation>COUNT FRAMES(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1957"/>
+        <location filename="io_graph_dialog.cpp" line="1959"/>
         <source>COUNT FIELDS(Y Field)</source>
         <translation>COUNT FIELDS(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1958"/>
+        <location filename="io_graph_dialog.cpp" line="1960"/>
         <source>MAX(Y Field)</source>
         <translation>MAX(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1959"/>
+        <location filename="io_graph_dialog.cpp" line="1961"/>
         <source>MIN(Y Field)</source>
         <translation>MIN(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1960"/>
+        <location filename="io_graph_dialog.cpp" line="1962"/>
         <source>AVG(Y Field)</source>
         <translation>AVG(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1961"/>
+        <location filename="io_graph_dialog.cpp" line="1963"/>
         <source>LOAD(Y Field)</source>
         <translation>LOAD(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1970"/>
+        <location filename="io_graph_dialog.cpp" line="1972"/>
         <source>Line</source>
         <translation>線</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1971"/>
+        <location filename="io_graph_dialog.cpp" line="1973"/>
         <source>Impulse</source>
         <translation>点線</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1972"/>
+        <location filename="io_graph_dialog.cpp" line="1974"/>
         <source>Bar</source>
         <translation>棒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1973"/>
+        <location filename="io_graph_dialog.cpp" line="1975"/>
         <source>Stacked Bar</source>
         <translation>積み棒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1974"/>
+        <location filename="io_graph_dialog.cpp" line="1976"/>
         <source>Dot</source>
         <translation>点</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1975"/>
+        <location filename="io_graph_dialog.cpp" line="1977"/>
         <source>Square</source>
         <translation>四角</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1976"/>
+        <location filename="io_graph_dialog.cpp" line="1978"/>
         <source>Diamond</source>
         <translation>菱形</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1987"/>
+        <location filename="io_graph_dialog.cpp" line="1989"/>
         <source>None</source>
         <translation>なし</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1989"/>
+        <location filename="io_graph_dialog.cpp" line="1991"/>
         <source>%1 interval SMA</source>
         <translation>%1 インターバル SMA</translation>
     </message>
@@ -11519,24 +11521,24 @@ a:hover {
         <translation>自分のフィルタ</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="118"/>
+        <location filename="capture_interfaces_dialog.cpp" line="122"/>
         <location filename="interface_tree_model.cpp" line="48"/>
         <source>default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="120"/>
+        <location filename="capture_interfaces_dialog.cpp" line="124"/>
         <location filename="interface_tree_model.cpp" line="177"/>
         <source>DLT %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="872"/>
+        <location filename="../../wireshark-qt.cpp" line="878"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished">無効な表示フィルタ</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="873"/>
+        <location filename="../../wireshark-qt.cpp" line="879"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>

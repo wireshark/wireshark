@@ -308,7 +308,7 @@
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="206"/>
-        <location filename="bluetooth_device_dialog.cpp" line="633"/>
+        <location filename="bluetooth_device_dialog.cpp" line="632"/>
         <source>%1 changes</source>
         <translation>%1 zmian</translation>
     </message>
@@ -359,27 +359,27 @@
         <translation>Urządzenie Bluetooth - %1%2</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="568"/>
+        <location filename="bluetooth_device_dialog.cpp" line="567"/>
         <source>enabled</source>
         <translation>włączony</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="568"/>
+        <location filename="bluetooth_device_dialog.cpp" line="567"/>
         <source>disabled</source>
         <translation>wyłączony</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="576"/>
+        <location filename="bluetooth_device_dialog.cpp" line="575"/>
         <source>%1 ms (%2 slots)</source>
         <translation>%1 ms (%2 sloty)</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="668"/>
+        <location filename="bluetooth_device_dialog.cpp" line="667"/>
         <source>Save Table Image</source>
         <translation>Zapisz jako obraz</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="670"/>
+        <location filename="bluetooth_device_dialog.cpp" line="669"/>
         <source>PNG Image (*.png)</source>
         <translation>Obraz PNG (*.png)</translation>
     </message>
@@ -740,9 +740,9 @@
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.cpp" line="361"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="518"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="524"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="605"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="516"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="522"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="603"/>
         <source>Unknown</source>
         <translation>Nieznany</translation>
     </message>
@@ -753,28 +753,28 @@
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.cpp" line="467"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="539"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="590"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="610"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="652"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="686"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="723"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="757"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="537"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="588"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="608"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="650"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="684"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="721"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="755"/>
         <source>Frame %1</source>
         <translation>Ramka %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="675"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="673"/>
         <source>Pending</source>
         <translation>Pending</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="871"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="869"/>
         <source>Save Table Image</source>
         <translation>Zapisz obraz tabeli</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="873"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="871"/>
         <source>PNG Image (*.png)</source>
         <translation>Obraz PNG (*.png)</translation>
     </message>
@@ -1686,72 +1686,72 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zatrzymaj przechwytywanie po stworzeniu określonej liczby plików.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="186"/>
+        <location filename="capture_interfaces_dialog.cpp" line="190"/>
         <source>Capture Interfaces</source>
         <translation>Interfejsy przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="191"/>
+        <location filename="capture_interfaces_dialog.cpp" line="195"/>
         <source>Start</source>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="213"/>
+        <location filename="capture_interfaces_dialog.cpp" line="217"/>
         <source>Leave blank to use a temporary file</source>
         <translation>Pozostaw puste by użyć pliku tymczasowego.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="354"/>
+        <location filename="capture_interfaces_dialog.cpp" line="390"/>
         <source>Specify a Capture File</source>
         <translation>Wybierz plik przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="652"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="652"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>Addresses</source>
         <translation>Adresy</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="652"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>Address</source>
         <translation>Adres</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="662"/>
+        <location filename="capture_interfaces_dialog.cpp" line="698"/>
         <source>no addresses</source>
         <translation>brak adresu</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="840"/>
-        <location filename="capture_interfaces_dialog.cpp" line="848"/>
-        <location filename="capture_interfaces_dialog.cpp" line="859"/>
-        <location filename="capture_interfaces_dialog.cpp" line="863"/>
-        <location filename="capture_interfaces_dialog.cpp" line="876"/>
-        <location filename="capture_interfaces_dialog.cpp" line="884"/>
+        <location filename="capture_interfaces_dialog.cpp" line="878"/>
+        <location filename="capture_interfaces_dialog.cpp" line="886"/>
+        <location filename="capture_interfaces_dialog.cpp" line="897"/>
+        <location filename="capture_interfaces_dialog.cpp" line="901"/>
+        <location filename="capture_interfaces_dialog.cpp" line="914"/>
+        <location filename="capture_interfaces_dialog.cpp" line="922"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="841"/>
-        <location filename="capture_interfaces_dialog.cpp" line="849"/>
-        <location filename="capture_interfaces_dialog.cpp" line="877"/>
-        <location filename="capture_interfaces_dialog.cpp" line="885"/>
+        <location filename="capture_interfaces_dialog.cpp" line="879"/>
+        <location filename="capture_interfaces_dialog.cpp" line="887"/>
+        <location filename="capture_interfaces_dialog.cpp" line="915"/>
+        <location filename="capture_interfaces_dialog.cpp" line="923"/>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
         <translation type="unfinished">Wiele plików: Żądane wielkość pliku jest zbyt duża! Wielkość pliku nie może być większa niż 2 GiB.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="860"/>
+        <location filename="capture_interfaces_dialog.cpp" line="898"/>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
         <translation type="unfinished">Wiele plików: Nie wprowadzono nazwy pliku! Musisz wprowadzić nazwę pliku jeśli zamierzasz używać wielu plików.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="864"/>
+        <location filename="capture_interfaces_dialog.cpp" line="902"/>
         <source>Multiple files: No file limit given. You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <oldsource>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
@@ -3592,7 +3592,7 @@ dla plików filtrów: %2.</translation>
 <context>
     <name>IOGraph</name>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1858"/>
+        <location filename="io_graph_dialog.cpp" line="1860"/>
         <source>Unknown</source>
         <translation>Nieznany</translation>
     </message>
@@ -4088,72 +4088,72 @@ dla plików filtrów: %2.</translation>
         <translation>Błędy TCP</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="896"/>
+        <location filename="io_graph_dialog.cpp" line="898"/>
         <source>Hover over the graph for details.</source>
         <translation>Przesuń kursor nad wykresem by zobaczyć szczegóły.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="898"/>
+        <location filename="io_graph_dialog.cpp" line="900"/>
         <source>No packets in interval</source>
         <translation>Brak pakietów w zadanym czasie</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="903"/>
+        <location filename="io_graph_dialog.cpp" line="905"/>
         <source>Click to select packet</source>
         <translation>Kliknij by wybrać pakiet</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="903"/>
+        <location filename="io_graph_dialog.cpp" line="905"/>
         <source>Packet</source>
         <translation>Pakiet</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="907"/>
+        <location filename="io_graph_dialog.cpp" line="909"/>
         <source>%1 (%2s%3).</source>
         <translation>%1 (%2s%3).</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="918"/>
+        <location filename="io_graph_dialog.cpp" line="920"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>Powiększenie, x = %1 do %2, y = %3 do %4</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="924"/>
+        <location filename="io_graph_dialog.cpp" line="926"/>
         <source>Unable to select range.</source>
         <translation>Niemożna wybrać danego zakresu.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="927"/>
+        <location filename="io_graph_dialog.cpp" line="929"/>
         <source>Click to select a portion of the graph.</source>
         <translation>Kliknij by wybrać obszar wykresu.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1550"/>
+        <location filename="io_graph_dialog.cpp" line="1552"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Dokument PDF (*.pdf)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1551"/>
+        <location filename="io_graph_dialog.cpp" line="1553"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Obraz PNG (*.png)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1552"/>
+        <location filename="io_graph_dialog.cpp" line="1554"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1554"/>
+        <location filename="io_graph_dialog.cpp" line="1556"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1555"/>
+        <location filename="io_graph_dialog.cpp" line="1557"/>
         <source>Comma Separated Values (*.csv)</source>
         <translation>Wartości rozdzielane przecinkami (*.csv)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1567"/>
+        <location filename="io_graph_dialog.cpp" line="1569"/>
         <source>Save Graph As</source>
         <translation>Zapisz wykres jako</translation>
     </message>
@@ -6989,13 +6989,15 @@ dla plików filtrów: %2.</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="427"/>
-        <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
-        <translation type="vanished">Pakietów: %1 %4 Wyświetlanych: %2 (%3%)</translation>
+        <translation type="unfinished">Pakietów: %1 %4 Wyświetlanych: %2 (%3%)</translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="427"/>
+        <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
+        <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
+        <translation>Pakietów: %1 %4 Wyświetlanych: %2 (%3%)</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="433"/>
@@ -7232,17 +7234,17 @@ text-decoration: underline;
         <translation>Automatyczne aktualizacje są wyłączone.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="382"/>
+        <location filename="main_welcome.cpp" line="385"/>
         <source>not found</source>
         <translation>nie znaleziono</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="461"/>
+        <location filename="main_welcome.cpp" line="464"/>
         <source>Copy file path</source>
         <translation>Kopiuj ścieżkę</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="467"/>
+        <location filename="main_welcome.cpp" line="470"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9792,12 +9794,12 @@ text-decoration: underline;
         <translation>przed restartem przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3909"/>
+        <location filename="main_window_slots.cpp" line="3912"/>
         <source>Wiki Page for %1</source>
         <translation>Strona Wiki dla %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3910"/>
+        <location filename="main_window_slots.cpp" line="3913"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Strona Wiki Wiresharka jest zarządzania przez społeczność.&lt;/p&gt;&lt;p&gt;Strona którą chcesz wczytać może być wspaniała, niekompletna, błędna lub nie istnieć.&lt;/p&gt;&lt;p&gt;Kontynuować wczytywanie strony Wiki?&lt;/p&gt;</translation>
     </message>
@@ -11046,97 +11048,97 @@ text-decoration: underline;
         <translation>Rozmiar okna (B)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1952"/>
+        <location filename="io_graph_dialog.cpp" line="1954"/>
         <source>Packets</source>
         <translation>Pakietów</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1953"/>
+        <location filename="io_graph_dialog.cpp" line="1955"/>
         <source>Bytes</source>
         <translation>Bajtów</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1954"/>
+        <location filename="io_graph_dialog.cpp" line="1956"/>
         <source>Bits</source>
         <translation>Bitów</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1955"/>
+        <location filename="io_graph_dialog.cpp" line="1957"/>
         <source>SUM(Y Field)</source>
         <translation>SUMA(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1956"/>
+        <location filename="io_graph_dialog.cpp" line="1958"/>
         <source>COUNT FRAMES(Y Field)</source>
         <translation>LICZ RAMKI(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1957"/>
+        <location filename="io_graph_dialog.cpp" line="1959"/>
         <source>COUNT FIELDS(Y Field)</source>
         <translation>LICZ POLA(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1958"/>
+        <location filename="io_graph_dialog.cpp" line="1960"/>
         <source>MAX(Y Field)</source>
         <translation>MAX(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1959"/>
+        <location filename="io_graph_dialog.cpp" line="1961"/>
         <source>MIN(Y Field)</source>
         <translation>MIN(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1960"/>
+        <location filename="io_graph_dialog.cpp" line="1962"/>
         <source>AVG(Y Field)</source>
         <translation>ŚREDNIA(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1961"/>
+        <location filename="io_graph_dialog.cpp" line="1963"/>
         <source>LOAD(Y Field)</source>
         <translation>LOAD(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1970"/>
+        <location filename="io_graph_dialog.cpp" line="1972"/>
         <source>Line</source>
         <translation>Linia</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1971"/>
+        <location filename="io_graph_dialog.cpp" line="1973"/>
         <source>Impulse</source>
         <translation>Impuls</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1972"/>
+        <location filename="io_graph_dialog.cpp" line="1974"/>
         <source>Bar</source>
         <translation>Pasek</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1973"/>
+        <location filename="io_graph_dialog.cpp" line="1975"/>
         <source>Stacked Bar</source>
         <translation>Ułożony pasek</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1974"/>
+        <location filename="io_graph_dialog.cpp" line="1976"/>
         <source>Dot</source>
         <translation>Kropka</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1975"/>
+        <location filename="io_graph_dialog.cpp" line="1977"/>
         <source>Square</source>
         <translation>Kwadrat</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1976"/>
+        <location filename="io_graph_dialog.cpp" line="1978"/>
         <source>Diamond</source>
         <translation>Diament</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1987"/>
+        <location filename="io_graph_dialog.cpp" line="1989"/>
         <source>None</source>
         <translation>Brak</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1989"/>
+        <location filename="io_graph_dialog.cpp" line="1991"/>
         <source>%1 interval SMA</source>
         <translation>%1 interwał SMA</translation>
     </message>
@@ -11576,24 +11578,24 @@ text-decoration: underline;
         <translation>Mój filtr</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="118"/>
+        <location filename="capture_interfaces_dialog.cpp" line="122"/>
         <location filename="interface_tree_model.cpp" line="48"/>
         <source>default</source>
         <translation>domyślny</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="120"/>
+        <location filename="capture_interfaces_dialog.cpp" line="124"/>
         <location filename="interface_tree_model.cpp" line="177"/>
         <source>DLT %1</source>
         <translation>DLT %1</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="872"/>
+        <location filename="../../wireshark-qt.cpp" line="878"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished">Niepoprawny filtr</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="873"/>
+        <location filename="../../wireshark-qt.cpp" line="879"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
