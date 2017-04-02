@@ -59,13 +59,81 @@ static int hf_dpnet_application_offset = -1;
 static int hf_dpnet_application_size = -1;
 static int hf_dpnet_application_data = -1;
 static int hf_dpnet_instance = -1;
+static int hf_dpnet_data_cframe_control = -1;
+static int hf_dpnet_data_cframe_msgid = -1;
+static int hf_dpnet_data_cframe_rspid = -1;
+static int hf_dpnet_data_cframe_protocol = -1;
+static int hf_dpnet_data_cframe_session = -1;
+static int hf_dpnet_data_cframe_timestamp = -1;
+static int hf_dpnet_data_cframe_padding = -1;
+static int hf_dpnet_data_cframe_flags = -1;
+static int hf_dpnet_data_cframe_retry = -1;
+static int hf_dpnet_data_cframe_nseq = -1;
+static int hf_dpnet_data_cframe_nrcv = -1;
+static int hf_dpnet_data_cframe_sack_mask1 = -1;
+static int hf_dpnet_data_cframe_sack_mask2 = -1;
+static int hf_dpnet_data_cframe_send_mask1 = -1;
+static int hf_dpnet_data_cframe_send_mask2 = -1;
+static int hf_dpnet_data_cframe_signature = -1;
+static int hf_dpnet_data_cframe_send_secret = -1;
+static int hf_dpnet_data_cframe_recv_secret = -1;
+static int hf_dpnet_data_cframe_signing_opts = -1;
+static int hf_dpnet_data_cframe_echo_time = -1;
+static int hf_dpnet_data_seq        = -1;
+static int hf_dpnet_data_nseq       = -1;
+static int hf_dpnet_data_command = -1;
+static int hf_dpnet_command_data     = -1;
+static int hf_dpnet_command_reliable = -1;
+static int hf_dpnet_command_seq      = -1;
+static int hf_dpnet_command_poll     = -1;
+static int hf_dpnet_command_new_msg  = -1;
+static int hf_dpnet_command_end_msg  = -1;
+static int hf_dpnet_command_user1    = -1;
+static int hf_dpnet_command_user2    = -1;
 
 static gint ett_dpnet = -1;
+static gint ett_dpnet_command_flags = -1;
 
 #define DPNET_QUERY_GUID     0x01
 
 #define DPNET_ENUM_QUERY     0x02
 #define DPNET_ENUM_RESPONSE  0x03
+
+#define DPNET_COMMAND_DATA                   0x01
+#define DPNET_COMMAND_RELIABLE               0x02
+#define DPNET_COMMAND_SEQUENTIAL             0x04
+#define DPNET_COMMAND_POLL                   0x08
+#define DPNET_COMMAND_NEW_MSG                0x10
+#define DPNET_COMMAND_END_MSG                0x20
+#define DPNET_COMMAND_USER_1                 0x40
+#define DPNET_COMMAND_CFRAME                 0x80
+
+#define DN_MSG_INTERNAL_PLAYER_CONNECT_INFO  0x000000c1
+#define DN_MSG_INTERNAL_SEND_CONNECT_INFO    0x000000c2
+#define DN_MSG_INTERNAL_ACK_CONNECT_INFO     0x000000c3
+
+#define FRAME_EXOPCODE_CONNECT               0x01
+#define FRAME_EXOPCODE_CONNECTED             0x02
+#define FRAME_EXOPCODE_CONNECTED_SIGNED      0x03
+#define FRAME_EXOPCODE_HARD_DISCONNECT       0x04
+#define FRAME_EXOPCODE_SACK                  0x06
+
+#define PROTOCOL_VER_0                       0x00010000
+#define PROTOCOL_VER_1                       0x00010001
+#define PROTOCOL_VER_2                       0x00010002
+#define PROTOCOL_VER_3                       0x00010003
+#define PROTOCOL_VER_4                       0x00010004
+#define PROTOCOL_VER_5                       0x00010005
+#define PROTOCOL_VER_6                       0x00010006
+
+#define SACK_FLAGS_RESPONSE                  0x01
+#define SACK_FLAGS_SACK_MASK1                0x02
+#define SACK_FLAGS_SACK_MASK2                0x04
+#define SACK_FLAGS_SEND_MASK1                0x08
+#define SACK_FLAGS_SEND_MASK2                0x10
+
+#define PACKET_SIGNING_FAST                  0x01
+#define PACKET_SIGNING_FULL                  0x02
 
 static const value_string packetenumttypes[] = {
     { 1, "Application GUID" },
@@ -77,6 +145,53 @@ static const value_string packetquerytype[] = {
     { 2, "Enumeration Query" },
     { 3, "Enumeration Response" },
     { 0, NULL }
+};
+
+static const value_string msg_cframe_control[] = {
+    {FRAME_EXOPCODE_CONNECT,              "FRAME_EXOPCODE_CONNECT"},
+    {FRAME_EXOPCODE_CONNECTED,            "FRAME_EXOPCODE_CONNECTED"},
+    {FRAME_EXOPCODE_CONNECTED_SIGNED,     "FRAME_EXOPCODE_CONNECTED_SIGNED"},
+    {FRAME_EXOPCODE_HARD_DISCONNECT,      "FRAME_EXOPCODE_HARD_DISCONNECT"},
+    {FRAME_EXOPCODE_SACK,                 "FRAME_EXOPCODE_SACK"},
+    {0, NULL }
+};
+
+static const value_string protocol_versions[] = {
+    {PROTOCOL_VER_0,                      "Supports Base Features"},
+    {PROTOCOL_VER_1,                      "Supports Base Features"},
+    {PROTOCOL_VER_2,                      "Supports Base Features"},
+    {PROTOCOL_VER_3,                      "Supports Base Features"},
+    {PROTOCOL_VER_4,                      "Supports Base Features"},
+    {PROTOCOL_VER_5,                      "Supports Coalescence"},
+    {PROTOCOL_VER_6,                      "Supports Coalescence and Signing"},
+    {0, NULL }
+};
+
+static const value_string sack_flags[] = {
+    {SACK_FLAGS_RESPONSE,                  "Retry field is valid"},
+    {SACK_FLAGS_SACK_MASK1,                "Low 32 bits of the SACK mask are present in sack.mask1"},
+    {SACK_FLAGS_SACK_MASK2,                "High 32 bits of the SACK mask are present in sack.mask2"},
+    {SACK_FLAGS_SEND_MASK1,                "Low 32 bits of the Send mask are present in send.mask1"},
+    {SACK_FLAGS_SEND_MASK2,                "High 32 bits of the Send mask are present in send.mask2"},
+    {0, NULL }
+};
+
+static const value_string signing_opts[] = {
+    {PACKET_SIGNING_FAST,                "Fasting signing"},
+    {PACKET_SIGNING_FULL,                "Full signing"},
+    {0, NULL }
+};
+
+static const int * command_flags[] = {
+    &hf_dpnet_command_data,
+    &hf_dpnet_command_reliable,
+    &hf_dpnet_command_seq,
+    &hf_dpnet_command_poll,
+    &hf_dpnet_command_new_msg,
+    &hf_dpnet_command_end_msg,
+    &hf_dpnet_command_user1,
+    &hf_dpnet_command_user2,
+    NULL
 };
 
 static void process_dpnet_query(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *pinfo)
@@ -145,6 +260,133 @@ static void process_dpnet_query(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_in
     }
 }
 
+static void
+dpnet_process_data_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *pinfo)
+{
+    gint offset = 0;
+
+    col_set_str(pinfo->cinfo, COL_INFO, "DPNET DFrame");
+
+    proto_tree_add_bitmask(dpnet_tree, tvb, offset, hf_dpnet_data_command, ett_dpnet_command_flags, command_flags, ENC_BIG_ENDIAN);
+
+    /* TODO */
+}
+
+static void
+dpnet_process_control_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *pinfo)
+{
+    gint offset = 0;
+    gint command;
+    const gchar *command_str;
+    gint flag;
+    guint32 data_tvb_len;
+
+    col_set_str(pinfo->cinfo, COL_INFO, "DPNET CFrame");
+
+    proto_tree_add_bitmask(dpnet_tree, tvb, offset, hf_dpnet_data_command, ett_dpnet_command_flags, command_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    command = tvb_get_guint8(tvb, offset);
+    command_str = val_to_str_const(command, msg_cframe_control, "Unknown Control (obsolete or malformed?)");
+    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", command_str);
+
+    proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_control, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    switch(command)
+    {
+        case FRAME_EXOPCODE_CONNECT:
+        case FRAME_EXOPCODE_CONNECTED:
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_msgid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_rspid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_session, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            break;
+        case FRAME_EXOPCODE_CONNECTED_SIGNED:
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_msgid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_rspid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_session, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_signature, tvb, offset, 8, ENC_NA);
+            offset += 8;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_send_secret, tvb, offset, 8, ENC_NA);
+            offset += 8;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_recv_secret, tvb, offset, 8, ENC_NA);
+            offset += 8;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_signing_opts, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_echo_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            break;
+        case FRAME_EXOPCODE_HARD_DISCONNECT:
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_msgid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_rspid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_session, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            data_tvb_len = tvb_reported_length_remaining(tvb, offset);
+            if(data_tvb_len)
+                proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_signature, tvb, offset, 8, ENC_NA);
+            break;
+        case FRAME_EXOPCODE_SACK:
+            flag = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_retry, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_nseq, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_nrcv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_padding, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            if(flag & SACK_FLAGS_SACK_MASK1)
+            {
+                proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_sack_mask1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+            if(flag & SACK_FLAGS_SACK_MASK2)
+            {
+                proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_sack_mask2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+            if(flag & SACK_FLAGS_SEND_MASK1)
+            {
+                proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_send_mask1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+            if(flag & SACK_FLAGS_SEND_MASK2)
+            {
+                proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_send_mask2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+            break;
+        default:
+            break;
+    }
+}
+
 static int
 dissect_dpnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
@@ -161,6 +403,13 @@ dissect_dpnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
     if(lead == 0)
     {
         process_dpnet_query(dpnet_tree, tvb, pinfo);
+    }
+    else
+    {
+        if(lead & DPNET_COMMAND_DATA)
+            dpnet_process_data_frame(dpnet_tree, tvb, pinfo);
+        else
+            dpnet_process_control_frame(dpnet_tree, tvb, pinfo);
     }
 
     return tvb_captured_length(tvb);
@@ -308,11 +557,198 @@ proto_register_dpnet(void)
             NULL, 0,
             NULL, HFILL }
         },
+        { &hf_dpnet_data_command,
+            { "Command", "dpnet.command",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_control,
+            { "Control", "dpnet.cframe.control",
+            FT_UINT8, BASE_HEX,
+            VALS(msg_cframe_control), 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_msgid,
+            { "Message ID", "dpnet.cframe.msg_id",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_rspid,
+            { "Response ID", "dpnet.cframe.rsp_id",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_protocol,
+            { "Protocol", "dpnet.cframe.protocol",
+            FT_UINT32, BASE_HEX,
+            VALS(protocol_versions), 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_session,
+            { "Session", "dpnet.cframe.session",
+            FT_UINT32, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_timestamp,
+            { "Timestmap", "dpnet.cframe.timestamp",
+            FT_UINT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_padding,
+            { "Padding", "dpnet.cframe.padding",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_flags,
+            { "Flags", "dpnet.cframe.flags",
+            FT_UINT8, BASE_HEX,
+            VALS(sack_flags), 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_retry,
+            { "Retry", "dpnet.cframe.retry",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_nseq,
+            { "Next Sequence", "dpnet.cframe.nseq",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_nrcv,
+            { "Received", "dpnet.cframe.nrcv",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_sack_mask1,
+            { "SACK Mask1", "dpnet.cframe.sack.mask1",
+            FT_UINT32, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_sack_mask2,
+            { "SACK Mask2", "dpnet.cframe.sack.mask2",
+            FT_UINT32, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_send_mask1,
+            { "Send Mask1", "dpnet.cframe.send.mask1",
+            FT_UINT32, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_send_mask2,
+            { "Send Mask2", "dpnet.cframe.send.mask2",
+            FT_UINT32, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_signature,
+            { "Signature", "dpnet.cframe.signature",
+            FT_UINT64, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_send_secret,
+            { "Sender Secret", "dpnet.cframe.sender_secret",
+            FT_UINT64, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_recv_secret,
+            { "Receiver Secret", "dpnet.cframe.receiver_secret",
+            FT_UINT64, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_signing_opts,
+            { "Signing Options", "dpnet.cframe.sign_opt",
+            FT_UINT32, BASE_HEX,
+            VALS(signing_opts), 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_cframe_echo_time,
+            { "Signing Options", "dpnet.cframe.echo_time",
+            FT_UINT32, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_seq,
+            { "Sequence", "dpnet.sequence",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_dpnet_data_nseq,
+            { "Next Sequence", "dpnet.next",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        {&hf_dpnet_command_data,
+            {"Control Data", "dpnet.control.data",
+            FT_BOOLEAN, 8,
+            NULL, DPNET_COMMAND_DATA,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_command_reliable,
+            {"Reliable", "dpnet.control.reliable",
+            FT_BOOLEAN, 8,
+            NULL, DPNET_COMMAND_RELIABLE,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_command_seq,
+            {"Sequential", "dpnet.control.sequential",
+            FT_BOOLEAN, 8,
+            NULL, DPNET_COMMAND_SEQUENTIAL,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_command_poll,
+            {"Poll", "dpnet.control.poll",
+            FT_BOOLEAN, 8,
+            NULL, DPNET_COMMAND_POLL,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_command_new_msg,
+            {"New Message", "dpnet.control.new_msg",
+            FT_BOOLEAN, 8,
+            NULL, DPNET_COMMAND_NEW_MSG,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_command_end_msg,
+            {"End Message", "dpnet.control.end_msg",
+            FT_BOOLEAN, 8,
+            NULL, DPNET_COMMAND_END_MSG,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_command_user1,
+            {"User 1", "dpnet.control.user1",
+            FT_BOOLEAN, 8,
+            NULL, DPNET_COMMAND_USER_1,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_command_user2,
+            {"CFrame", "dpnet.control.cframe",
+            FT_BOOLEAN, 8,
+            NULL, DPNET_COMMAND_CFRAME,
+            NULL, HFILL}
+        },
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-        &ett_dpnet
+        &ett_dpnet,
+        &ett_dpnet_command_flags
     };
 
 
