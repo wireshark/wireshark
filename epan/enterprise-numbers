@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2017-03-23)
+(last updated 2017-03-31)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -5486,9 +5486,9 @@ Decimal
     Eileen Shepard
       eileen&bc.edu
 1368
-  France Telecom
+  Orange (formerly 'France Telecom')
     Olivier Dubuisson
-      Olivier.Dubuisson&francetelecom.com
+      Olivier.Dubuisson&orange.com
 1369
   Stonesoft Corp
     Jukka Maki-Kullas
@@ -21243,7 +21243,7 @@ Decimal
       troypayne&mediaone.net
 5318
   Robert Bosch GmbH
-    Udo Orb
+    Dr. Philipp Schott
       oid&de.bosch.com
 5319
   EarthWatch Inc.
@@ -34787,8 +34787,8 @@ Decimal
       ranko&spidernet.net
 8708
   Lumentis AB
-    Martin Carlsson
-      martin.carlsson&lumentis.se
+    Per Borg
+      per.borg&infinera.com
 8709
   Landesamt für Besoldung und Versorgung NRW
     Guido Sawatzky
@@ -36211,8 +36211,8 @@ Decimal
       tengsiong&ihive.com
 9064
   ATM ComputerSysteme GmbH
-    Peter Ziegelbauer
-      Peter.Ziegelbauer&atm-computer.de
+    Luigi Bove
+      luigi.bove&atm-computer.de
 9065
   Nettasking Technology (Singapore) Pte Ltd.
     Wilfred Wong
@@ -46983,8 +46983,8 @@ Decimal
       noli_tablada&tntlogistics.com
 11857
   Transmode Systems AB
-    Henrik Löfgren
-      henrik.lofgren&transmode.se
+    Per Borg
+      per.borg&infinera.com
 11858
   UANGEL
     Bohun Tak
@@ -104027,9 +104027,9 @@ Auswertungsstelle
     Bernd Keuning
       me&bernd-jan.com
 26114
-  AXIOHM SAS
-    Malek TOUKAL
-      malek.toukal&axiohm.com
+  AXIOHM
+    Frederic Sciortino
+      frederic.sciortino&axiohm.com
 26115
   JSC STC "Rissa"
     Nikolay Sakhno
@@ -145444,9 +145444,9 @@ Decentralization / Helenic Public Administra
     Hari Ramachandran
       hari.ramachandran&intel.com
 36466
-  Ballard Fuel Cell Systems (formerly 'IdaTech, LLC')
+  H2 Power Tech (formerly 'Ballard Fuel Cell Systems' and 'IdaTech LLC')
     Darin Luse
-      darin.luse&ballard.com
+      darin.luse&h2powertech.com
 36467
   adesso AG
     Christoph Stoppe
@@ -168530,7 +168530,7 @@ Decentralization / Helenic Public Administra
 42237
   Texas A&M University-Central Texas
     Steven Blum
-      steven.blum&ct.tamus.edu
+      steven.blum&tamuct.edu
 42238
   Grenville Mutual Insurance Company
     Andrew Asquith
@@ -177957,8 +177957,8 @@ Decentralization / Helenic Public Administra
       jan.betik&svine.us
 44594
   Yokogawa Digital Computer Corporation
-    Yoki Hoyama
-      pqa_admin&yokogawa-digital.com
+    Koichi Ida
+      pqa_admin&dts-insight.co.jp
 44595
   indigo Consulting GmbH
     Sven Schmidtke
@@ -192425,8 +192425,8 @@ Decentralization / Helenic Public Administra
       erik.sundstrom&abkarlhedin.se
 48211
   Derome Skog AB
-    Björn Spets
-      bjorn.spets&derome.se
+    Helena Andersson
+      helena.andersson&derome.se
 48212
   Frödinge Skog AB
     Joakim Rosén
@@ -195613,8 +195613,8 @@ Decentralization / Helenic Public Administra
       yamabun&mxa.mesh.ne.jp
 49008
   Derome Timber AB
-    Björn Spets
-      bjorn.spets&derome.se
+    Helena Andersson
+      helena.andersson&derome.se
 49009
   THE PUBLIC AUTHORITY FOR CIVIL INFORMATION
     Tareq Al-Rashed
@@ -198263,6 +198263,234 @@ Decentralization / Helenic Public Administra
   有时间 (Have time)
     申华林 (Shen Huolin)
       shl_256&163.com
+49671
+  Vnomic, Inc.
+    Derek Palma
+      dpalma&vnomic.com
+49672
+  POWER Engineers, Inc.
+    Russel Riley
+      noc&powereng.com
+49673
+  Capernwray Torchbearers Australia
+    Samuel Weirich
+      it&capernwrayaustralia.org
+49674
+  Marland.IT
+    Chris Marland
+      chris&marland.it
+49675
+  LLC Qualitteq
+    Andrey Karpov
+      info&qualitteq.ru
+49676
+  Agence Nationale de Sécurité des Systèmes d'Information (ANSSI/BF)
+    Georges P. LALLOGO
+      glallogo&cirt.bf
+49677
+  BlackBelt Technology Kft.
+    Robert Csakany
+      robert.csakany&blackbelt.hu
+49678
+  Cogit Studio
+    Yohann Prigent
+      yohann&cogitstudio.com
+49679
+  VLSS
+    Dean Bolton
+      dean.bolton&vlss-llc.com
+49680
+  Binovia Corp.
+    John Pell
+      jpell&binovia.com
+49681
+  Praetorian Group, Inc
+    Richard Penshorn
+      it&praetorian.com
+49682
+  Dittman
+    Eric Dittman
+      dittman&dittman.net
+49683
+  iPhotonix
+    Andrew Fullford
+      net-coord&iphotonix.com
+49684
+  Infinit Group 
+    Glenn Lim
+      glenn&infinit.com.sg
+49685
+  Polovnikov LLC
+    Alexander Polovnikov
+      polovnikov&triadatv.ru
+49686
+  Fundação Universidade Regional de Blumenau
+    Ana Lucia Anacleto Reis
+      anna&furb.br
+49687
+  Cormant Inc.
+    Paul Goodison
+      services&cormant.biz
+49688
+  Blue Danube Systems
+    Dan Kiewlich
+      dan.kiewlich&bluedanube.com
+49689
+  Zener Redes
+    Angel Granado
+      angel.granado&zenerlan.com
+49690
+  Fortanix
+    Jethro Beekman
+      jethro&fortanix.com
+49691
+  kd5ahl.org
+    Kelsey Smith
+      admin&kd5ahl.org
+49692
+  SHENZHEN Maisijie NETWORK CO.,LTD
+    张巍 (Zhang Wei)
+      zhangwei&msjnet.cn
+49693
+  Warner Music Group
+    Stelancy D.Lapointe
+      Phibog59&yahoo.com
+49694
+  IoTium Inc
+    Dhruva Narasimhan
+      dhruva.narasimhan&iotium.io
+49695
+  D & K Co.
+    Kevin Smih
+      kevin&dk.co
+49696
+  WanLiYun Medical Information Technology Co. Ltd.
+    Xiaohui Wang
+      go2hero&gmail.com
+49697
+  Twitch Interactive
+    Kevin Smith
+      kevins&twitch.tv
+49698
+  Sector 7
+    Christian Klein
+      Sector7&gmx.de
+49699
+  Wack.de
+    Franz Wack
+      pen&wack.de
+49700
+  SCHERDEL GmbH
+    Michael Schobert
+      pki-admins&scherdel.de
+49701
+  DofiLoop
+    Mikael Schultz
+      mikael&dofiloop.com
+49702
+  Coc Coc Company Limited
+    Duc Nguyen
+      ducnm&coccoc.com
+49703
+  Nutimaja Ltd.
+    Reijo Sirila
+      reijo&nutimaja.ee
+49704
+  Tieto Sweden Healthcare & Welfare AB
+    Joachim Wallberg
+      joachim.wallberg&tieto.com
+49705
+  Cloudworks AS
+    Ragnar Storstrøm
+      ragnar.storstrom&cloudworks.no
+49706
+  glomex GmbH
+    Andreas Sieferlinger
+      ops&services.glomex.com
+49707
+  Pragmaxus AG
+    Harald Grov
+      harald.grov&pragmaxus.ch
+49708
+  DentalRay
+    Andrea Venanzi
+      a.venanzi&yahoo.it
+49709
+  Universign
+    Julien STERN
+      julien.stern&universign.com
+49710
+  GOMA Elettronica SpA
+    Davide Calza
+      davide.calza&gomaelettronica.it
+49711
+  Polizei Sachsen
+    Marc Warlich
+      pki&polizei.sachsen.de
+49712
+  Ivins, Phillips & Barker Chartered
+    Douglas M. Andre
+      dandre&ipbtax.com
+49713
+  Instituto Nacional de Metrologia, Qualidade e Tecnologia - INMETRO
+    Marcos Trevisan Vasconcellos
+      mtvasconcellos&inmetro.gov.br
+49714
+  Stannum-Man
+    Sean Mullin
+      sean_mullin&charter.net
+49715
+  Epilog Vermögensverwaltungs AG
+    Guido Grygiel
+      it-koordination&mayfair-hamburg.de
+49716
+  Mayfair Vermögensverwaltungs SE
+    Guido Grygiel
+      it-koordination&mayfair-hamburg.de
+49717
+  Complyify LLC
+    Sean Bruton
+      sean&complyify.com
+49718
+  Catalia Health
+    Gary Arnold
+      garnold&cataliahealth.com
+49719
+  PERK Innovation
+    Nicolas Höft
+      nicolas.hoeft&perk-innovation.com
+49720
+  Australian Access Federation
+    Terry Smith
+      t.smith&aaf.edu.au
+49721
+  LinCom
+    Marcin Jabłecki
+      jableckim&lincom.waw.pl
+49722
+  Perspica Networks
+    Jonathan Creasy
+      jonathan.creasy&perspica.io
+49723
+  ELAS Ltd.
+    Sviatoslav Kononenko
+      kononenko&elas.com.ua
+49724
+  PJSC Rostelecom Volga branch
+    Andrey Klimentev
+      a.klimentev&volga.rt.ru
+49725
+  SSIMWave
+    Abdul Rehman
+      info&ssimwave.com
+49726
+  Tata Communications.Limited (TCL)
+    Jacques Sabourin
+      jacques.sabourin&tatacommunications.com
+49727
+  BA
+    Support Team
+      support&ba.be
 
 
 End of Document
