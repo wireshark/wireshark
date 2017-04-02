@@ -88,38 +88,6 @@ static expert_field ei_geneve_opt_len_invalid = EI_INIT;
 
 static dissector_table_t ethertype_dissector_table;
 
-static void
-print_flags(guint8 flags, proto_item *flag_item)
-{
-    static const char flag_names[][5] = {"OAM", "CRIT"};
-    unsigned int i;
-
-    if (!flags) {
-        return;
-    }
-
-    proto_item_append_text(flag_item, " (");
-
-    for (i = 0; i < array_length(flag_names); i++) {
-        guint8 bit = 1 << (7 - i);
-
-        if (flags & bit) {
-            proto_item_append_text(flag_item, "%s", flag_names[i]);
-            flags &= ~bit;
-
-            if (flags) {
-                proto_item_append_text(flag_item, ", ");
-            }
-        }
-    }
-
-    if (flags) {
-        proto_item_append_text(flag_item, "RSVD");
-    }
-
-    proto_item_append_text(flag_item, ")");
-}
-
 static const char *
 format_unknown_option_name(guint16 opt_class, guint8 opt_type)
 {
@@ -225,8 +193,8 @@ dissect_geneve_options(tvbuff_t *tvb, packet_info *pinfo,
 static int
 dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_item *ti, *flag_item, *rsvd_item;
-    proto_tree *geneve_tree, *flag_tree;
+    proto_item *ti, *rsvd_item;
+    proto_tree *geneve_tree;
     tvbuff_t *next_tvb;
     int offset = 0;
     guint8 ver_opt;
@@ -234,6 +202,12 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     guint8 flags;
     guint16 proto_type;
     int opts_len;
+    static const int * flag_fields[] = {
+        &hf_geneve_flag_oam,
+        &hf_geneve_flag_critical,
+        &hf_geneve_flag_reserved,
+        NULL
+    };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Geneve");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -262,20 +236,7 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
     /* Flags. */
     flags = tvb_get_guint8(tvb, offset);
-    if (tree) {
-        flag_item = proto_tree_add_item(geneve_tree, hf_geneve_flags, tvb,
-                                       offset, 1, ENC_BIG_ENDIAN);
-        print_flags(flags, flag_item);
-
-        flag_tree = proto_item_add_subtree(flag_item, ett_geneve_flags);
-
-        proto_tree_add_item(flag_tree, hf_geneve_flag_oam, tvb, offset,
-                            1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flag_tree, hf_geneve_flag_critical, tvb, offset,
-                            1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flag_tree, hf_geneve_flag_reserved, tvb, offset,
-                            1, ENC_BIG_ENDIAN);
-    }
+    proto_tree_add_bitmask(geneve_tree, tvb, offset, hf_geneve_flags, ett_geneve_flags, flag_fields, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Protocol Type. */
