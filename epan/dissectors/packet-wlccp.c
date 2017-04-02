@@ -1976,7 +1976,8 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 
 		default:
 		{
-			_offset = _tlv_end;
+			if (_offset < _tlv_end)
+				_offset = _tlv_end;
 			break;
 		} /* case default for switch _group_id */
 
@@ -2013,7 +2014,7 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 
 	/* done with decoding the contained TLVs */
 
-	return(_tlv_end);
+	return(_tlv_end > _offset ? _tlv_end : _offset);
 
 } /* dissect_wlccp_tlvs */
 
