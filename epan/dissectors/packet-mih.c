@@ -461,6 +461,7 @@ static gint ett_fn_agent = -1;
 static gint ett_access_router = -1;
 static gint ett_link_states_req = -1;
 static gint ett_link_desc_req = -1;
+static gint ett_dev_states_resp = -1;
 
 /*field definitions of evt, cmd, mob mgmt, ip cfg, iq type */
 static const int *event_fields[] = {
@@ -1076,9 +1077,11 @@ static gint16 dissect_qos_list(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tre
 static gint16 dissect_dev_states(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
 {
         guint8 len = 0;
-        proto_tree *sub_tree = NULL;
+        proto_item *item;
+        proto_tree *sub_tree;
 
-        sub_tree = proto_tree_add_item(tlv_tree, hf_dev_states_resp, tvb, offset, 1, ENC_BIG_ENDIAN);
+        item = proto_tree_add_item(tlv_tree, hf_dev_states_resp, tvb, offset, 1, ENC_BIG_ENDIAN);
+        sub_tree = proto_item_add_subtree(item, ett_dev_states_resp);
         if(tvb_get_guint8(tvb, offset))
         {
                 /*BATT_LEVEL*/
@@ -4856,6 +4859,7 @@ void proto_register_mih(void)
                 &ett_access_router,
                 &ett_link_states_req,
                 &ett_link_desc_req,
+                &ett_dev_states_resp
         };
 
         proto_mih = proto_register_protocol("Media-Independent Handover", "MIH", "mih");
