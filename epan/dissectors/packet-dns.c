@@ -416,6 +416,7 @@ static expert_field ei_dns_depr_opc = EI_INIT;
 static expert_field ei_ttl_negative = EI_INIT;
 static expert_field ei_dns_tsig_alg = EI_INIT;
 static expert_field ei_dns_undecoded_option = EI_INIT;
+static expert_field ei_dns_key_id_buffer_too_short = EI_INIT;
 
 static dissector_table_t dns_tsig_dissector_table=NULL;
 
@@ -1706,17 +1707,23 @@ static const value_string dns_cert_type_vals[] = {
 /**
  *   Compute the key id of a KEY RR depending of the algorithm used.
  */
-static guint16
-compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo)
+static gboolean
+compute_key_id(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int size, guint8 algo, guint16 *key_id)
 {
   guint32 ac;
   guint8  c1, c2;
 
-  DISSECTOR_ASSERT(size >= 4);
+  if (size < 4) {
+    proto_item *item;
+    *key_id = 0;
+    item = proto_tree_add_expert(tree, pinfo, &ei_dns_key_id_buffer_too_short, tvb, offset, size);
+    PROTO_ITEM_SET_GENERATED(item);
+    return FALSE;
+  }
 
   switch( algo ) {
      case DNS_ALGO_RSAMD5:
-       return (guint16)(tvb_get_guint8(tvb, offset + size - 3) << 8) + tvb_get_guint8( tvb, offset + size - 2 );
+       *key_id = (guint16)(tvb_get_guint8(tvb, offset + size - 3) << 8) + tvb_get_guint8( tvb, offset + size - 2 );
      default:
        for (ac = 0; size > 1; size -= 2, offset += 2) {
          c1 = tvb_get_guint8( tvb, offset );
@@ -1728,8 +1735,9 @@ compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo)
          ac += c1 << 8;
        }
        ac += (ac >> 16) & 0xffff;
-       return (guint16)(ac & 0xffff);
+       *key_id = (guint16)(ac & 0xffff);
   }
+  return TRUE;
 }
 
 
@@ -2323,9 +2331,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 1;
       rr_len     -= 1;
 
-      key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
-      ti_gen = proto_tree_add_uint(rr_tree, hf_dns_key_key_id, tvb, 0, 0, key_id);
-      PROTO_ITEM_SET_GENERATED(ti_gen);
+      if (compute_key_id(rr_tree, pinfo, tvb, cur_offset-4, rr_len+4, algo, &key_id)) {
+        ti_gen = proto_tree_add_uint(rr_tree, hf_dns_key_key_id, tvb, 0, 0, key_id);
+        PROTO_ITEM_SET_GENERATED(ti_gen);
+      }
 
       if (rr_len != 0) {
         proto_tree_add_item(rr_tree, hf_dns_key_public_key, tvb, cur_offset, rr_len, ENC_NA);
@@ -3058,9 +3067,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 1;
       rr_len     -= 1;
 
-      key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
-      ti_gen = proto_tree_add_uint(rr_tree, hf_dns_dnskey_key_id, tvb, 0, 0, key_id);
-      PROTO_ITEM_SET_GENERATED(ti_gen);
+      if (compute_key_id(rr_tree, pinfo, tvb, cur_offset-4, rr_len+4, algo, &key_id)) {
+        ti_gen = proto_tree_add_uint(rr_tree, hf_dns_dnskey_key_id, tvb, 0, 0, key_id);
+        PROTO_ITEM_SET_GENERATED(ti_gen);
+      }
 
       proto_tree_add_item(rr_tree, hf_dns_dnskey_public_key, tvb, cur_offset, rr_len, ENC_NA);
 
@@ -5535,6 +5545,7 @@ proto_register_dns(void)
      { &ei_dns_depr_opc, { "dns.depr.opc", PI_PROTOCOL, PI_WARN, "Deprecated opcode", EXPFILL }},
      { &ei_ttl_negative, { "dns.ttl.negative", PI_PROTOCOL, PI_WARN, "TTL can't be negative", EXPFILL }},
      { &ei_dns_tsig_alg, { "dns.tsig.noalg", PI_UNDECODED, PI_WARN, "No dissector for algorithm", EXPFILL }},
+     { &ei_dns_key_id_buffer_too_short, { "dns.key_id_buffer_too_short", PI_PROTOCOL, PI_WARN, "Buffer too short to compute a key id", EXPFILL }},
   };
 
   static gint *ett[] = {
