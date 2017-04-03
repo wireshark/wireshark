@@ -961,6 +961,7 @@ set(DISSECTOR_SRC
 	packet-netbios.c
 	packet-netdump.c
 	packet-netflow.c
+	packet-netlink-generic.c
 	packet-netlink-netfilter.c
 	packet-netlink-route.c
 	packet-netlink-sock_diag.c

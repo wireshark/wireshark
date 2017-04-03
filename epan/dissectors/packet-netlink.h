@@ -127,4 +127,17 @@ int dissect_netlink_attributes_array(tvbuff_t *tvb, header_field_info *hfi_type,
 #define NLA_F_NET_BYTEORDER     0x4000
 #define NLA_TYPE_MASK           0x3fff
 
+
+/*
+ * Format of the data that is passed to "genl.family" dissectors.
+ */
+typedef struct {
+	struct packet_netlink_data *data;
+	int             encoding; /* copy of data->encoding */
+
+	/* fields from genlmsghdr */
+	guint8 	        cmd; /* Command number */
+	proto_item     *cmd_pi; /* Field for command, for appending protocol-specific name. */
+} genl_info_t;
+
 #endif /* __PACKET_NETLINK_H__ */

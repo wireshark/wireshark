@@ -62,6 +62,7 @@ CAN FD
 Ericsson A-bis P-GSL
 Ericsson A-bis TFP (Traffic Forwarding Protocol)
 Fc00/cjdns Protocol
+Generic Netlink (genl)
 GSM Osmux
 Health Level 7 (HL7)
 High-speed SECS message service (HSMS)
