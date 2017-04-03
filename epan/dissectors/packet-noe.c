@@ -1,6 +1,7 @@
 /* packet-noe.c
  * Routines for UA/UDP (Universal Alcatel over UDP) and NOE packet dissection.
  * Copyright 2012, Alcatel-Lucent Enterprise <lars.ruoff@alcatel-lucent.com>
+ * Copyright 2017, Alcatel-Lucent Enterprise <nicolas.bertin@al-enterprise.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -37,9 +38,8 @@ void proto_reg_handoff_noe(void);
 #define OPCODE_C_date                7
 #define OPCODE_C_AOMV                8
 #define OPCODE_C_bluetooth           9
+#define OPCODE_C_locappl            10
 #define OPCODE_C_callstate          12
-#define OPCODE_C_resource           13
-#define OPCODE_C_widgets_default    14
 #define OPCODE_C_framebox          128
 #define OPCODE_C_tabbox            129
 #define OPCODE_C_listbox           130
@@ -79,6 +79,7 @@ static const value_string val_str_class[] = {
     {OPCODE_C_date              , "Date"},
     {OPCODE_C_AOMV              , "AOMV"},
     {OPCODE_C_bluetooth         , "Bluetooth"},
+    {OPCODE_C_locappl           , "Locappl"},
     {OPCODE_C_callstate         , "Callstate"},
     {OPCODE_C_framebox          , "FrameBox"},
     {OPCODE_C_tabbox            , "TabBox"},
@@ -133,6 +134,8 @@ static value_string_ext val_str_class_ext = VALUE_STRING_EXT_INIT(val_str_class)
 #define OPCODE_P_B_h                    19
 #define OPCODE_P_B_contrast             20
 #define OPCODE_P_B_clearscreen          21
+#define OPCODE_P_B_system_id            22
+#define OPCODE_P_B_advanced_mode        23
 #define OPCODE_P_B_year                 24
 #define OPCODE_P_B_month                25
 #define OPCODE_P_B_day                  26
@@ -140,11 +143,8 @@ static value_string_ext val_str_class_ext = VALUE_STRING_EXT_INIT(val_str_class)
 #define OPCODE_P_B_s                    28
 #define OPCODE_P_B_enable               29
 #define OPCODE_P_B_address              30
-#define OPCODE_P_B_port                 31
-#define OPCODE_P_B_protocol             32
+#define OPCODE_P_B_disable              31
 #define OPCODE_P_B_name                 33
-#define OPCODE_P_B_checked              34
-#define OPCODE_P_B_unchecked            35
 #define OPCODE_P_B_anchorid             36
 #define OPCODE_P_B_grid                 37
 #define OPCODE_P_B_x                    38
@@ -159,10 +159,6 @@ static value_string_ext val_str_class_ext = VALUE_STRING_EXT_INIT(val_str_class)
 #define OPCODE_P_B_mode                 47
 #define OPCODE_P_B_showevent            48
 #define OPCODE_P_B_showactive           49
-#define OPCODE_P_B_action_active        50
-#define OPCODE_P_B_action_count         51
-#define OPCODE_P_B_foreground           52
-#define OPCODE_P_B_background           53
 #define OPCODE_P_B_icon                 54
 #define OPCODE_P_B_label                55
 #define OPCODE_P_B_value                56
@@ -226,8 +222,6 @@ static value_string_ext val_str_class_ext = VALUE_STRING_EXT_INIT(val_str_class)
 #define OPCODE_P_B_fetch_timeout       115
 #define OPCODE_P_B_mask_subst          116
 #define OPCODE_P_B_use_customisation   117
-#define OPCODE_P_B_ADTTS_request       118
-#define OPCODE_P_B_AP_mac_notify       119
 #define OPCODE_P_B_page_active         120
 #define OPCODE_P_B_overwrite           121
 #define OPCODE_P_B_ime_lock            122
@@ -236,9 +230,6 @@ static value_string_ext val_str_class_ext = VALUE_STRING_EXT_INIT(val_str_class)
 #define OPCODE_P_B_binary_suffix       125
 #define OPCODE_P_B_binary_count        126
 #define OPCODE_P_B_SIPCversion         127
-#define OPCODE_P_A_dflt                128
-#define OPCODE_P_A_shift               129
-#define OPCODE_P_A_alt                 130
 #define OPCODE_P_A_key_ownership       131
 #define OPCODE_P_A_key_eventmode       132
 #define OPCODE_P_A_value               133
@@ -257,7 +248,6 @@ static value_string_ext val_str_class_ext = VALUE_STRING_EXT_INIT(val_str_class)
 #define OPCODE_P_A_action_value        146
 #define OPCODE_P_A_today               147
 #define OPCODE_P_A_tomorrow            148
-#define OPCODE_P_A_action_key          149
 #define OPCODE_P_A_code                150
 #define OPCODE_P_A_data                151
 #define OPCODE_P_A_delay_max_handset   152
@@ -293,6 +283,8 @@ static const value_string val_str_props[] = {
     {OPCODE_P_B_h                   , "h"},
     {OPCODE_P_B_contrast            , "contrast"},
     {OPCODE_P_B_clearscreen         , "clearscreen"},
+    {OPCODE_P_B_system_id           , "system_id"},
+    {OPCODE_P_B_advanced_mode       , "advanced_mode"},
     {OPCODE_P_B_year                , "year"},
     {OPCODE_P_B_month               , "month"},
     {OPCODE_P_B_day                 , "day"},
@@ -300,6 +292,7 @@ static const value_string val_str_props[] = {
     {OPCODE_P_B_s                   , "s"},
     {OPCODE_P_B_enable              , "enable"},
     {OPCODE_P_B_address             , "address"},
+    {OPCODE_P_B_disable             , "disable"},
     {OPCODE_P_B_name                , "name"},
     {OPCODE_P_B_anchorid            , "anchorid"},
     {OPCODE_P_B_grid                , "grid"},
@@ -452,7 +445,6 @@ static value_string_ext val_str_props_ext = VALUE_STRING_EXT_INIT(val_str_props)
 #define OPCODE_EVT_WARNING_SET_PROPERTY  30
 #define OPCODE_EVT_ARP_SPOOFING          31
 #define OPCODE_EVT_CHAR_NOT_FOUND        32
-#define OPCODE_EVT_CHAR_BAD_LENGTH       33
 #define OPCODE_EVT_QOS_TICKET            34
 #define OPCODE_EVT_UA3_ERROR             35
 #define OPCODE_EVT_TABBOX               128
@@ -491,8 +483,6 @@ static value_string_ext val_str_props_ext = VALUE_STRING_EXT_INIT(val_str_props)
 #define OPCODE_EVT_TELEPHONICBOX_EVENT  162
 #define OPCODE_EVT_ACTLISTBOX_TIMEOUT   163
 #define OPCODE_EVT_ACTLISTBOX_DISMISSED 164
-#define OPCODE_EVT_ADTTS_RESPONSE       165
-#define OPCODE_EVT_AP_MAC               166
 
 static const value_string val_str_event[] = {
     {OPCODE_EVT_CONTEXT_SWITCH       , "EVT_CONTEXT_SWITCH"},
@@ -574,13 +564,10 @@ static value_string_ext val_str_event_ext = VALUE_STRING_EXT_INIT(val_str_event)
 #define P_ARRAY         128
 #define P_INVALID       255
 #define P_INVALID_INDEX 255
-
 #define C_STATIC          0
 #define C_DYNAMIC       128
 #define C_INVALID       255
-
 #define E_INVALID       255
-
 
 /*-----------------------------------------------------------------------------
   globals
