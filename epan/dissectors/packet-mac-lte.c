@@ -46,6 +46,7 @@ static int mac_lte_tap = -1;
 
 static dissector_handle_t rlc_lte_handle;
 static dissector_handle_t lte_rrc_bcch_dl_sch_handle;
+static dissector_handle_t lte_rrc_bcch_dl_sch_br_handle;
 static dissector_handle_t lte_rrc_bcch_dl_sch_nb_handle;
 static dissector_handle_t lte_rrc_bcch_bch_handle;
 static dissector_handle_t lte_rrc_bcch_bch_nb_handle;
@@ -489,16 +490,26 @@ static const value_string carrier_id_vals[] =
 
 static const value_string dci_format_vals[] =
 {
-    { 0, "0"},
-    { 1, "1"},
-    { 2, "1A"},
-    { 3, "1B"},
-    { 4, "1C"},
-    { 5, "1D"},
-    { 6, "2"},
-    { 7, "2A"},
-    { 8, "3/3A"},
-    { 0, NULL }
+    {  0, "0"},
+    {  1, "1"},
+    {  2, "1A"},
+    {  3, "1B"},
+    {  4, "1C"},
+    {  5, "1D"},
+    {  6, "2"},
+    {  7, "2A"},
+    {  8, "3/3A"},
+    {  9, "2B"},
+    { 10, "2C"},
+    { 11, "2D"},
+    { 12, "4"},
+    { 13, "6-0A"},
+    { 14, "6-1A"},
+    { 15, "6-2"},
+    { 16, "N0"},
+    { 17, "N1"},
+    { 18, "N2"},
+    {  0, NULL }
 };
 
 static const value_string aggregation_level_vals[] =
@@ -507,6 +518,8 @@ static const value_string aggregation_level_vals[] =
     { 1, "2"},
     { 2, "4"},
     { 3, "8"},
+    { 4, "16"},
+    { 5, "24"},
     { 0, NULL }
 };
 
@@ -2301,12 +2314,14 @@ static void
 call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Call it (catch exceptions so that stats will be updated) */
-    TRY {
-        call_dissector_only(handle, tvb, pinfo, tree, NULL);
+    if (handle) {
+        TRY {
+            call_dissector_only(handle, tvb, pinfo, tree, NULL);
+        }
+        CATCH_ALL {
+        }
+        ENDTRY
     }
-    CATCH_ALL {
-    }
-    ENDTRY
 }
 
 /* Dissect context fields in the format described in packet-mac-lte.h.
@@ -3227,7 +3242,12 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissector_handle_t protocol_handle = 0;
         if (p_mac_lte_info->rntiType == SI_RNTI) {
             if (p_mac_lte_info->nbMode == no_nb_mode) {
-                protocol_handle = lte_rrc_bcch_dl_sch_handle;
+                if (p_mac_lte_info->ceMode == no_ce_mode) {
+                    protocol_handle = lte_rrc_bcch_dl_sch_handle;
+                }
+                else {
+                    protocol_handle = lte_rrc_bcch_dl_sch_br_handle;
+                }
             }
             else {
                 protocol_handle = lte_rrc_bcch_dl_sch_nb_handle;
@@ -9273,6 +9293,7 @@ void proto_reg_handoff_mac_lte(void)
 
     rlc_lte_handle = find_dissector_add_dependency("rlc-lte", proto_mac_lte);
     lte_rrc_bcch_dl_sch_handle = find_dissector_add_dependency("lte_rrc.bcch_dl_sch", proto_mac_lte);
+    lte_rrc_bcch_dl_sch_br_handle = find_dissector_add_dependency("lte_rrc.bcch_dl_sch_br", proto_mac_lte);
     lte_rrc_bcch_dl_sch_nb_handle = find_dissector_add_dependency("lte_rrc.bcch_dl_sch.nb", proto_mac_lte);
     lte_rrc_bcch_bch_handle = find_dissector_add_dependency("lte_rrc.bcch_bch", proto_mac_lte);
     lte_rrc_bcch_bch_nb_handle = find_dissector_add_dependency("lte_rrc.bcch_bch.nb", proto_mac_lte);
