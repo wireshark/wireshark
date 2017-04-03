@@ -49,6 +49,7 @@ enum {
 	PKT_FDDI,
 	PKT_GIOP,
 	PKT_ICMP,
+	PKT_IEEE802154,
 	PKT_IP,
 	PKT_IPv6,
 	PKT_LLC,
@@ -418,6 +419,14 @@ static randpkt_example examples[] = {
 		NULL,		0,
 		NULL,		NULL,
 		1000,
+	},
+
+	{ "ieee802.15.4", "IEEE 802.15.4",
+		PKT_IEEE802154, WTAP_ENCAP_IEEE802_15_4,
+		NULL,		0,
+		NULL,           0,
+		NULL,           NULL,
+		127,
 	},
 
 	{ "ip", "Internet Protocol",
