@@ -1361,6 +1361,7 @@ SET_FEATURE_INFO(LIBSSH "libssh is library for ssh connections and it is needed 
 SET_FEATURE_INFO(LZ4 "LZ4 is lossless compression algorithm used in some protocol (CQL...)" "http://www.lz4.org" )
 SET_FEATURE_INFO(SNAPPY "snappy is a fast compressor/decompressor from Google used in some protocol (CQL, kafka...)" "http://google.github.io/snappy/")
 SET_FEATURE_INFO(NGHTTP2 "nghttp2 is used for header (de)compression (HPACK)" "http://www.nghttp2.org" )
+SET_FEATURE_INFO(YAPP "Yet Another Perl Parser compiler" "http://search.cpan.org/dist/Parse-Yapp/")
 FEATURE_SUMMARY(WHAT ALL)
 
 link_directories(
