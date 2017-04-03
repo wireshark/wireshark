@@ -110,6 +110,7 @@ private slots:
     void interfaceCurrentIndexChanged(int index);
     void adapterCurrentIndexChanged(int index);
     void displayFilterLineEditAccepted();
+    void resultsFilterLineEditChanged(const QString &text);
 };
 
 #endif // BLUETOOTH_HCI_SUMMARY_DIALOG_H

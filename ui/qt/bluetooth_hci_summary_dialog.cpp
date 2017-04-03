@@ -110,6 +110,7 @@ BluetoothHciSummaryDialog::BluetoothHciSummaryDialog(QWidget &parent, CaptureFil
     connect(ui->interfaceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(interfaceCurrentIndexChanged(int)));
     connect(ui->adapterComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(adapterCurrentIndexChanged(int)));
     connect(ui->displayFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(displayFilterLineEditAccepted()));
+    connect(ui->resultsFilterLineEdit, SIGNAL(textChanged(const QString &)), this, SLOT(resultsFilterLineEditChanged(const QString &)));
 
     for (int i = 0; i < ui->tableTreeWidget->columnCount(); i++) {
         ui->tableTreeWidget->resizeColumnToContents(i);
@@ -450,6 +451,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
                 item->setText(column_number_occurrence, "1");
 
             main_item->addChild(item);
+            item->setHidden(!name.contains(dialog->ui->resultsFilterLineEdit->text(), Qt::CaseInsensitive));
             main_item->sortChildren(column_number_opcode, Qt::AscendingOrder);
 
             main_item->setText(column_number_occurrence, QString::number(main_item->text(column_number_occurrence).toInt() + 1));
@@ -502,6 +504,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
             item->setText(column_number_occurrence, QString::number(0));
 
             main_item->addChild(item);
+            item->setHidden(!name.contains(dialog->ui->resultsFilterLineEdit->text(), Qt::CaseInsensitive));
             main_item->sortChildren(column_number_event, Qt::AscendingOrder);
             main_item->setText(column_number_occurrence, QString::number(main_item->text(column_number_occurrence).toInt() + 1));
         }
@@ -640,6 +643,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
             item->setText(column_number_status, QString("").sprintf("0x%02X", tap_hci->status));
 
             main_item->addChild(item);
+            item->setHidden(!name.contains(dialog->ui->resultsFilterLineEdit->text(), Qt::CaseInsensitive));
             main_item->sortChildren(column_number_event, Qt::AscendingOrder);
             main_item->setText(column_number_occurrence, QString::number(main_item->text(column_number_occurrence).toInt() + 1));
         }
@@ -674,6 +678,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
             item->setText(column_number_status, QString("").sprintf("%u", tap_hci->status));
 
             main_item->addChild(item);
+            item->setHidden(!name.contains(dialog->ui->resultsFilterLineEdit->text(), Qt::CaseInsensitive));
             main_item->sortChildren(column_number_event, Qt::AscendingOrder);
             main_item->setText(column_number_occurrence, QString::number(main_item->text(column_number_occurrence).toInt() + 1));
         }
@@ -711,6 +716,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
             item->setText(column_number_reason, QString("").sprintf("0x%02X", tap_hci->reason));
 
             main_item->addChild(item);
+            item->setHidden(!name.contains(dialog->ui->resultsFilterLineEdit->text(), Qt::CaseInsensitive));
             main_item->sortChildren(column_number_event, Qt::AscendingOrder);
             main_item->setText(column_number_occurrence, QString::number(main_item->text(column_number_occurrence).toInt() + 1));
         }
@@ -745,6 +751,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
             item->setText(column_number_hardware_error, QString("").sprintf("0x%02X", tap_hci->hardware_error));
 
             main_item->addChild(item);
+            item->setHidden(!name.contains(dialog->ui->resultsFilterLineEdit->text(), Qt::CaseInsensitive));
             main_item->sortChildren(column_number_event, Qt::AscendingOrder);
             main_item->setText(column_number_occurrence, QString::number(main_item->text(column_number_occurrence).toInt() + 1));
         }
@@ -901,6 +908,19 @@ void BluetoothHciSummaryDialog::displayFilterLineEditAccepted()
     }
 
     cap_file_.retapPackets();
+}
+
+void BluetoothHciSummaryDialog::resultsFilterLineEditChanged(const QString &text)
+{
+    for (int i_item = 0; i_item < ui->tableTreeWidget->topLevelItemCount(); ++i_item) {
+        QTreeWidgetItem *item = ui->tableTreeWidget->topLevelItem(i_item);
+
+        for (int i_child = 0; i_child < item->childCount(); i_child += 1) {
+            QTreeWidgetItem *child_item = item->child(i_child);
+            QString name = child_item->text(column_number_name);
+            child_item->setHidden(!name.contains(text, Qt::CaseInsensitive));
+        }
+    }
 }
 
 /*
