@@ -241,7 +241,7 @@ print_address_prefix_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
       /* Odd half-octet? */
       if (length & 1) {
         /* Yes - print it (it's the upper half-octet) */
-        cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%x", (ad[tmp] & 0xF0)>>4 );
+        g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%x", (ad[tmp] & 0xF0)>>4 );
       }
     }
   }
