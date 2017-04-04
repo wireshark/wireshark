@@ -1,7 +1,5 @@
 /* packet-eapol.c
- * Routines for EAPOL 802.1X authentication header disassembly
- * (From IEEE Draft P802.1X/D11; is there a later draft, or a
- * final standard?  If so, check it.)
+ * Routines for EAPOL and EAPOL-Key IEEE 802.1X-2010 PDU dissection
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -72,12 +70,15 @@ static const value_string eapol_version_vals[] = {
 };
 
 static const value_string eapol_type_vals[] = {
-  { EAPOL_EAP,             "EAP Packet" },
-  { EAPOL_START,           "Start" },
-  { EAPOL_LOGOFF,          "Logoff" },
-  { EAPOL_KEY,             "Key" },
-  { EAPOL_ENCAP_ASF_ALERT, "Encapsulated ASF Alert" },
-  { EAPOL_MKA,             "MKA" },
+  { EAPOL_EAP,                   "EAP Packet" },
+  { EAPOL_START,                 "Start" },
+  { EAPOL_LOGOFF,                "Logoff" },
+  { EAPOL_KEY,                   "Key" },
+  { EAPOL_ENCAP_ASF_ALERT,       "Encapsulated ASF Alert" },
+  { EAPOL_MKA,                   "MKA" },
+  { EAPOL_ANNOUNCEMENT_GENERIC,  "Announcement (Generic)" },
+  { EAPOL_ANNOUNCEMENT_SPECIFIC, "Announcement (Specific)" },
+  { EAPOL_ANNOUNCEMENT_REQUEST,  "Announcement Request" },
   { 0, NULL }
 };
 
