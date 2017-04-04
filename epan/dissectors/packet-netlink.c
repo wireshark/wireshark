@@ -178,6 +178,10 @@ static header_field_info hfi_netlink_attr_type_net_byteorder NETLINK_HFI_INIT =
 	{ "Network byte order", "netlink.attr_type.net_byteorder", FT_UINT16, BASE_DEC,
 		NULL, NLA_F_NET_BYTEORDER, "Payload stored in network byte order", HFILL };
 
+static header_field_info hfi_netlink_attr_index NETLINK_HFI_INIT =
+	{ "Index", "netlink.attr_index", FT_UINT16, BASE_DEC,
+		NULL, 0x0000, "Netlink Attribute type (array index)", HFILL };
+
 static header_field_info hfi_netlink_attr_len NETLINK_HFI_INIT =
 	{ "Len", "netlink.attr_len", FT_UINT16, BASE_DEC,
 		NULL, 0x00, NULL, HFILL };
@@ -236,8 +240,8 @@ static const int *netlink_header_standard_flags[] = {
 };
 
 
-int
-dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
+static int
+dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, int ett_tree, int ett_attrib, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
 {
 	int encoding;
 	int padding = (4 - offset) & 3;
@@ -269,35 +273,49 @@ dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, 
 		/* XXX expert info when rta_len < length? */
 		rta_len = MIN(rta_len, length);
 
-		attr_tree = proto_tree_add_subtree(tree, tvb, offset, rta_len, ett, &ti, "Attribute");
+		attr_tree = proto_tree_add_subtree(tree, tvb, offset, rta_len, ett_tree, &ti, "Attribute");
 
 		proto_tree_add_item(attr_tree, &hfi_netlink_attr_len, tvb, offset, 2, encoding);
 		offset += 2;
 
 		rta_type = tvb_get_guint16(tvb, offset, encoding);
-		type = rta_type & NLA_TYPE_MASK;
-		type_item = proto_tree_add_item(attr_tree, &hfi_netlink_attr_type, tvb, offset, 2, encoding);
-		type_tree = proto_item_add_subtree(type_item, ett_netlink_attr_type);
-		proto_tree_add_item(type_tree, &hfi_netlink_attr_type_nested, tvb, offset, 2, encoding);
-		proto_tree_add_item(type_tree, &hfi_netlink_attr_type_net_byteorder, tvb, offset, 2, encoding);
-		proto_tree_add_item(type_tree, hfi_type, tvb, offset, 2, encoding);
-		offset += 2;
+		if (ett_attrib == -1) {
+			/* List of attributes */
+			type = rta_type & NLA_TYPE_MASK;
+			type_item = proto_tree_add_item(attr_tree, &hfi_netlink_attr_type, tvb, offset, 2, encoding);
+			type_tree = proto_item_add_subtree(type_item, ett_netlink_attr_type);
+			proto_tree_add_item(type_tree, &hfi_netlink_attr_type_nested, tvb, offset, 2, encoding);
+			proto_tree_add_item(type_tree, &hfi_netlink_attr_type_net_byteorder, tvb, offset, 2, encoding);
+			proto_tree_add_item(type_tree, hfi_type, tvb, offset, 2, encoding);
+			offset += 2;
 
-		if (rta_type & NLA_F_NESTED)
-			proto_item_append_text(type_item, ", Nested");
+			if (rta_type & NLA_F_NESTED)
+				proto_item_append_text(type_item, ", Nested");
 
-		if (hfi_type->strings) {
-			/* XXX, export hf_try_val_to_str */
-			const char *rta_str = try_val_to_str(type, (const value_string *) hfi_type->strings);
+			if (hfi_type->strings) {
+				/* XXX, export hf_try_val_to_str */
+				const char *rta_str = try_val_to_str(type, (const value_string *) hfi_type->strings);
 
-			if (rta_str) {
-				proto_item_append_text(type_item, ", %s (%d)", rta_str, type);
-				proto_item_append_text(ti, ": %s", rta_str);
+				if (rta_str) {
+					proto_item_append_text(type_item, ", %s (%d)", rta_str, type);
+					proto_item_append_text(ti, ": %s", rta_str);
+				}
 			}
-		}
 
-		if (!cb(tvb, data, attr_tree, rta_type, offset, rta_len - 4)) {
-			/* not handled */
+			if (!cb(tvb, data, attr_tree, rta_type, offset, rta_len - 4)) {
+				/* not handled */
+			}
+		} else {
+			/*
+			 * Nested attributes, constructing an array (list of
+			 * attributes where its type is the array index and its
+			 * value is the actual list of interesting attributes).
+			 */
+			proto_tree_add_item(attr_tree, &hfi_netlink_attr_index, tvb, offset, 2, encoding);
+			offset += 2;
+			proto_item_append_text(ti, " %u", rta_type);
+
+			dissect_netlink_attributes(tvb, hfi_type, ett_attrib, data, nl_data, attr_tree, offset, rta_len - 4, cb);
 		}
 
 		/* Assume offset already aligned, next offset is rta_len plus alignment. */
@@ -307,6 +325,19 @@ dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, 
 	}
 
 	return offset;
+}
+
+int
+dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
+{
+	return dissect_netlink_attributes_common(tvb, hfi_type, ett, -1, data, nl_data, tree, offset, length, cb);
+}
+
+int
+dissect_netlink_attributes_array(tvbuff_t *tvb, header_field_info *hfi_type, int ett_array, int ett_attrib, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
+{
+	DISSECTOR_ASSERT(ett_attrib != -1);
+	return dissect_netlink_attributes_common(tvb, hfi_type, ett_array, ett_attrib, data, nl_data, tree, offset, length, cb);
 }
 
 static int
@@ -525,6 +556,7 @@ proto_register_netlink(void)
 		&hfi_netlink_attr_type,
 		&hfi_netlink_attr_type_nested,
 		&hfi_netlink_attr_type_net_byteorder,
+		&hfi_netlink_attr_index,
 
 	/* Netlink message payloads */
 		&hfi_netlink_error,
