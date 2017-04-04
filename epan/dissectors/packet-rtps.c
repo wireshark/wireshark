@@ -2179,7 +2179,7 @@ static void rtps_util_add_transport_info(proto_tree *tree,
  * TIME_INVALID, or TIME_INFINITE, and doesn't show the seconds and
  * fraction field separately.
  */
-void rtps_util_add_timestamp(proto_tree *tree,
+static void rtps_util_add_timestamp(proto_tree *tree,
                         tvbuff_t *tvb,
                         gint       offset,
                         const guint encoding,
