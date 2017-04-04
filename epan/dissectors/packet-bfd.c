@@ -310,7 +310,6 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int           offset    = 24;
     guint8        auth_type;
     guint8        auth_len;
-    proto_item   *ti        = NULL;
     proto_item   *auth_item = NULL;
     proto_tree   *auth_tree = NULL;
     const guint8 *password;
@@ -327,8 +326,7 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item(auth_tree, hf_bfd_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        ti = proto_tree_add_item(auth_tree, hf_bfd_auth_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, " bytes");
+        proto_tree_add_item(auth_tree, hf_bfd_auth_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(auth_tree, hf_bfd_auth_key, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
     }
@@ -754,7 +752,7 @@ proto_register_bfd(void)
         },
         { &hf_bfd_auth_len,
           { "Authentication Length", "bfd.auth.len",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
             "The length, in bytes, of the authentication section", HFILL }
         },
         { &hf_bfd_auth_key,

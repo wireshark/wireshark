@@ -674,8 +674,8 @@ proto_register_ancp(void)
         },
         { &hf_ancp_timer,
             { "Timer", "ancp.timer",
-                FT_UINT8, BASE_DEC,
-                NULL, 0x0,
+                FT_UINT8, BASE_DEC|BASE_UNIT_STRING,
+                &units_milliseconds, 0x0,
                 NULL, HFILL }
         },
         { &hf_ancp_adj_code,

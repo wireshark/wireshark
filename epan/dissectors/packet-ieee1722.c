@@ -576,7 +576,6 @@ static int dissect_1722_61883(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset += 4;
 
     ti_datalen = proto_tree_add_item_ret_uint(ti_61883_tree, hf_1722_61883_stream_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &datalen);
-    proto_item_append_text(ti_datalen, " bytes");
     offset += 2;
 
     /* tag field defines if CIP header is included or not */
@@ -837,7 +836,7 @@ void proto_register_1722_61883(void)
         },
         { &hf_1722_61883_stream_data_length,
             { "1394 Stream Data Length", "61883.stream_data_len",
-              FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+              FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x00, NULL, HFILL }
         },
         { &hf_1722_61883_tag,
             { "1394 Packet Format Tag", "61883.tag",
