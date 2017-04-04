@@ -39,6 +39,8 @@ typedef struct {
 	int encoding; /* copy of data->encoding */
 } netlink_sock_diag_info_t;
 
+static int proto_netlink_sock_diag;
+
 static dissector_handle_t netlink_sock_diag_handle;
 
 static header_field_info *hfi_netlink_sock_diag = NULL;
@@ -1103,26 +1105,22 @@ static header_field_info hfi_netlink_sock_diag_nltype NETLINK_SOCK_DIAG_HFI_INIT
 static int
 dissect_netlink_sock_diag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data)
 {
-	struct packet_netlink_data *data = NULL;
+	struct packet_netlink_data *data = (struct packet_netlink_data *)_data;
 	netlink_sock_diag_info_t info;
-	int offset;
+	proto_tree *nlmsg_tree;
+	proto_item *pi;
+	int offset = 0;
 
-	if (_data) {
-		if (((struct packet_netlink_data *) _data)->magic == PACKET_NETLINK_MAGIC)
-			data = (struct packet_netlink_data *) _data;
-	}
-
-	DISSECTOR_ASSERT(data);
+	DISSECTOR_ASSERT(data && data->magic == PACKET_NETLINK_MAGIC);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netlink sock diag");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		proto_item_set_text(tree, "Linux netlink sock diag message");
+	pi = proto_tree_add_item(tree, proto_registrar_get_nth(proto_netlink_sock_diag), tvb, 0, -1, ENC_NA);
+	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_sock_diag);
 
-		/* XXX, from header tvb */
-		proto_tree_add_uint(tree, &hfi_netlink_sock_diag_nltype, NULL, 0, 0, data->type);
-	}
+	/* Netlink message header (nlmsghdr) */
+	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, data->encoding, &hfi_netlink_sock_diag_nltype, NULL);
 
 	info.encoding = data->encoding;
 	info.pinfo = pinfo;
@@ -1137,7 +1135,7 @@ dissect_netlink_sock_diag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 			break;
 
 		case WS_SOCK_DIAG_BY_FAMILY:
-			offset = dissect_sock_diag_by_family(tvb, &info, tree, offset);
+			offset = dissect_sock_diag_by_family(tvb, &info, nlmsg_tree, offset);
 			break;
 	}
 
@@ -1220,8 +1218,6 @@ proto_register_netlink_sock_diag(void)
 		&ett_netlink_sock_diag_show,
 		&ett_netlink_sock_diag_attr
 	};
-
-	int proto_netlink_sock_diag;
 
 	proto_netlink_sock_diag = proto_register_protocol("Linux netlink sock diag protocol", "sock_diag", "netlink-sock_diag" );
 	hfi_netlink_sock_diag = proto_registrar_get_nth(proto_netlink_sock_diag);

@@ -105,6 +105,12 @@ struct packet_netlink_data {
 	guint16 type;
 };
 
+/**
+ * Dissects the Netlink message header (struct nlmsghdr). The "hfi_type" field
+ * is added for the "nlmsg_type" field and returned into pi_type.
+ */
+int dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, header_field_info *hfi_type, proto_item **pi_type);
+
 typedef int netlink_attributes_cb_t(tvbuff_t *, void *data, proto_tree *, int nla_type, int offset, int len);
 
 int dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, struct packet_netlink_data *nl_data,  proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb);

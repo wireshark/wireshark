@@ -239,6 +239,8 @@ enum ws_ipset_ip_attr {
 };
 
 
+static int proto_netlink_netfilter;
+
 static int ett_netlink_netfilter = -1;
 static int ett_nfq_config_attr = -1;
 static int ett_nfq_attr = -1;
@@ -735,11 +737,14 @@ static int
 dissect_netfilter_ulog(tvbuff_t *tvb, netlink_netfilter_info_t *info, proto_tree *tree, int offset)
 {
 	enum ws_nfulnl_msg_types type = (enum ws_nfulnl_msg_types) (info->data->type & 0xff);
+	tvbuff_t *next_tvb;
 
 	switch (type) {
 		case WS_NFULNL_MSG_PACKET:
 			/* Note that NFLOG dissects the nfgenmsg header */
-			call_dissector(nflog_handle, tvb, info->pinfo, tree);
+			next_tvb = tvb_new_subset_remaining(tvb, offset);
+			call_dissector(nflog_handle, next_tvb, info->pinfo, tree);
+			offset = tvb_reported_length(tvb);
 			break;
 
 		default:
@@ -1117,35 +1122,34 @@ static header_field_info hfi_netlink_netfilter_subsys NETLINK_NETFILTER_HFI_INIT
 static int
 dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data)
 {
-	struct packet_netlink_data *data = NULL;
+	struct packet_netlink_data *data = (struct packet_netlink_data *)_data;
 	netlink_netfilter_info_t info;
-	int offset;
+	proto_tree *nlmsg_tree;
+	proto_item *pi;
+	int offset = 0;
 
-	if (_data) {
-		if (((struct packet_netlink_data *) _data)->magic == PACKET_NETLINK_MAGIC)
-			data = (struct packet_netlink_data *) _data;
-	}
-
-	DISSECTOR_ASSERT(data);
+	DISSECTOR_ASSERT(data && data->magic == PACKET_NETLINK_MAGIC);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netlink netfilter");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	proto_item_set_text(tree, "Linux netlink netfilter message");
+	pi = proto_tree_add_item(tree, proto_registrar_get_nth(proto_netlink_netfilter), tvb, 0, -1, ENC_NA);
+	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_netfilter);
 
-	/* XXX, from header tvb */
-	proto_tree_add_uint(tree, &hfi_netlink_netfilter_subsys, NULL, 0, 0, data->type);
+	/* Netlink message header (nlmsghdr) */
+	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, data->encoding, NULL, NULL);
+	proto_tree_add_item(nlmsg_tree, &hfi_netlink_netfilter_subsys, tvb, 4, 2, data->encoding);
 	switch (data->type >> 8) {
 		case WS_NFNL_SUBSYS_QUEUE:
-			proto_tree_add_uint(tree, &hfi_nfq_type, NULL, 0, 0, data->type);
+			proto_tree_add_item(nlmsg_tree, &hfi_nfq_type, tvb, 4, 2, data->encoding);
 			break;
 
 		case WS_NFNL_SUBSYS_ULOG:
-			proto_tree_add_uint(tree, &hfi_netlink_netfilter_ulog_type, NULL, 0, 0, data->type);
+			proto_tree_add_item(nlmsg_tree, &hfi_netlink_netfilter_ulog_type, tvb, 4, 2, data->encoding);
 			break;
 
 		case WS_NFNL_SUBSYS_IPSET:
-			proto_tree_add_uint(tree, &hfi_ipset_command, NULL, 0, 0, data->type);
+			proto_tree_add_item(nlmsg_tree, &hfi_ipset_command, tvb, 4, 2, data->encoding);
 			break;
 	}
 
@@ -1154,19 +1158,22 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	info.data = data;
 	info.hw_protocol = 0;
 
-	offset = 0;
-
 	switch (data->type >> 8) {
 		case WS_NFNL_SUBSYS_QUEUE:
-			offset = dissect_netfilter_queue(tvb, &info, tree, offset);
+			offset = dissect_netfilter_queue(tvb, &info, nlmsg_tree, offset);
 			break;
 
 		case WS_NFNL_SUBSYS_ULOG:
-			offset = dissect_netfilter_ulog(tvb, &info, tree, offset);
+			offset = dissect_netfilter_ulog(tvb, &info, nlmsg_tree, offset);
 			break;
 
 		case WS_NFNL_SUBSYS_IPSET:
-			offset = dissect_netfilter_ipset(tvb, &info, tree, offset);
+			offset = dissect_netfilter_ipset(tvb, &info, nlmsg_tree, offset);
+			break;
+
+		default:
+			call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, nlmsg_tree);
+			offset = tvb_reported_length(tvb);
 			break;
 	}
 
@@ -1241,8 +1248,6 @@ proto_register_netlink_netfilter(void)
 		&ett_ipset_adt_attr,
 		&ett_ipset_ip_attr,
 	};
-
-	int proto_netlink_netfilter;
 
 	proto_netlink_netfilter = proto_register_protocol("Linux netlink netfilter protocol", "netfilter", "netlink-netfilter" );
 	hfi_netlink_netfilter = proto_registrar_get_nth(proto_netlink_netfilter);

@@ -340,27 +340,43 @@ dissect_netlink_attributes_array(tvbuff_t *tvb, header_field_info *hfi_type, int
 	return dissect_netlink_attributes_common(tvb, hfi_type, ett_array, ett_attrib, data, nl_data, tree, offset, length, cb);
 }
 
-static int
-dissect_netlink_hdr(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, guint16 *type, guint32 *port_id)
+int
+dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, header_field_info *hfi_type, proto_item **pi_type)
 {
 	guint16 hdr_flags;
 	guint16 hdr_type;
-
 	proto_tree *fh_hdr;
-	proto_item *pi_type;
+	proto_item *pi;
 
 	fh_hdr = proto_tree_add_subtree(tree, tvb, offset, 16, ett_netlink_msghdr, NULL, "Header");
 
 	proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_len, tvb, offset, 4, encoding);
 	offset += 4;
 
-	pi_type = proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_type, tvb, offset, 2, encoding);
 	hdr_type = tvb_get_guint16(tvb, offset, encoding);
-	if (hdr_type >= WS_NLMSG_MIN_TYPE) {
-		proto_item_set_text(pi_type, "Message type: Protocol-specific (0x%04x)", hdr_type);
+	if (hdr_type < WS_NLMSG_MIN_TYPE) {
+		/* Reserved control messages. */
+		hfi_type = &hfi_netlink_hdr_type;
+		pi = proto_tree_add_item(fh_hdr, hfi_type, tvb, offset, 2, encoding);
+	} else {
+		if (hfi_type) {
+			pi = proto_tree_add_item(fh_hdr, hfi_type, tvb, offset, 2, encoding);
+		} else {
+			hfi_type = &hfi_netlink_hdr_type;
+			pi = proto_tree_add_item(fh_hdr, hfi_type, tvb, offset, 2, encoding);
+			proto_item_set_text(pi, "Message type: Protocol-specific (0x%04x)", hdr_type);
+		}
 	}
-	if (type) {
-		*type = hdr_type;
+	if (pi_type) {
+		*pi_type = pi;
+	}
+	/* TODO export hf_try_val_to_str? */
+	if (hfi_type->strings && hfi_type->display & BASE_EXT_STRING) {
+		proto_item_append_text(fh_hdr, " (type: %s)", val_to_str_ext(hdr_type, (value_string_ext *)hfi_type->strings, "0x%04x"));
+	} else if (hfi_type->strings) {
+		proto_item_append_text(fh_hdr, " (type: %s)", val_to_str(hdr_type, (const value_string *)hfi_type->strings, "0x%04x"));
+	} else {
+		proto_item_append_text(fh_hdr, " (type: 0x%04x)", hdr_type);
 	}
 	offset += 2;
 
@@ -382,7 +398,7 @@ dissect_netlink_hdr(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, g
 	proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_seq, tvb, offset, 4, encoding);
 	offset += 4;
 
-	proto_tree_add_item_ret_uint(fh_hdr, hfi_netlink_hdr_pid.id, tvb, offset, 4, encoding, port_id);
+	proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_pid, tvb, offset, 4, encoding);
 	offset += 4;
 
 	return offset;
@@ -403,7 +419,7 @@ dissect_netlink_error(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding)
 	proto_tree_add_item(tree, &hfi_netlink_error, tvb, offset, 4, encoding);
 	offset += 4;
 
-	dissect_netlink_hdr(tvb, tree, offset, encoding, NULL, NULL);
+	dissect_netlink_header(tvb, tree, offset, encoding, NULL, NULL);
 }
 
 static int
@@ -462,20 +478,16 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 	}
 
 	while (tvb_reported_length_remaining(tvb, offset) >= 16) {
-		struct packet_netlink_data data;
-
 		int pkt_end_offset;
+		guint16 msg_type;
 		guint32 pkt_len;
 		guint32 port_id;
-
 		proto_tree *fh_msg;
-
+		gboolean dissected = FALSE;
 
 		pkt_len = tvb_get_guint32(tvb, offset, encoding);
 
 		pkt_end_offset = offset + pkt_len;
-
-		fh_msg = proto_tree_add_subtree(tree, tvb, offset, pkt_len, ett_netlink_msg, NULL, "Netlink message");
 
 		if (pkt_len < 16) {
 			/*
@@ -492,7 +504,9 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 			break;
 		}
 
-		offset = dissect_netlink_hdr(tvb, fh_msg, offset, encoding, &data.type, &port_id);
+		/* message type field comes after length field. */
+		msg_type = tvb_get_guint16(tvb, offset + 4, encoding);
+		port_id = tvb_get_guint32(tvb, offset + 12, encoding);
 
 		/* XXX */
 		if (port_id == 0x00)
@@ -500,17 +514,37 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 		else
 			pinfo->p2p_dir = P2P_DIR_RECV; /* userspace or kernel -> userspace */
 
-		if (data.type == WS_NLMSG_ERROR) {
-			dissect_netlink_error(tvb, fh_msg, offset, encoding);
-		} else if (pkt_len > 16) {
+		/*
+		 * Try to invoke subdissectors for non-control messages.
+		 */
+		if (msg_type >= WS_NLMSG_MIN_TYPE && pkt_len > 16) {
+			struct packet_netlink_data data;
+
 			data.magic = PACKET_NETLINK_MAGIC;
 			data.encoding = encoding;
+			data.type = msg_type;
 
-			next_tvb = tvb_new_subset_length(tvb, offset, pkt_len-16);
+			next_tvb = tvb_new_subset_length(tvb, offset, pkt_len);
 
-			if (!dissector_try_uint_new(netlink_dissector_table, protocol, next_tvb, pinfo, fh_msg, TRUE, &data))
+			if (dissector_try_uint_new(netlink_dissector_table, protocol, next_tvb, pinfo, tree, TRUE, &data)) {
+				dissected = TRUE;
+			}
+		}
+
+		if (!dissected) {
+			/*
+			 * No subdissector was called, add a new layer with the
+			 * header and the payload. Note that pkt_len>=16.
+			 */
+			fh_msg = proto_tree_add_subtree(tree, tvb, offset, pkt_len, ett_netlink_msg, NULL, "Netlink message");
+			offset = dissect_netlink_header(tvb, fh_msg, offset, encoding, NULL, NULL);
+
+			if (msg_type == WS_NLMSG_ERROR) {
+				dissect_netlink_error(tvb, fh_msg, offset, encoding);
+			} else if (pkt_len > 16) {
+				next_tvb = tvb_new_subset_length(tvb, offset, pkt_len - 16);
 				call_data_dissector(next_tvb, pinfo, fh_msg);
-
+			}
 		}
 
 		offset = pkt_end_offset;

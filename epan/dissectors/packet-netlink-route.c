@@ -287,6 +287,8 @@ enum {
 	WS_NUD_PERMANENT        = 0x80
 };
 
+static int proto_netlink_route;
+
 static dissector_handle_t netlink_route_handle;
 
 static header_field_info *hfi_netlink_route = NULL;
@@ -970,32 +972,24 @@ static header_field_info hfi_netlink_route_nltype NETLINK_ROUTE_HFI_INIT =
 static int
 dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data)
 {
-	int offset;
-
 	struct netlink_route_info info;
-	struct packet_netlink_data *data = NULL;
+	struct packet_netlink_data *data = (struct packet_netlink_data *)_data;
+	proto_tree *nlmsg_tree;
+	proto_item *pi;
+	int offset = 0;
 
-	if (_data) {
-		if (((struct packet_netlink_data *) _data)->magic == PACKET_NETLINK_MAGIC)
-			data = (struct packet_netlink_data *) _data;
-	}
-
-	DISSECTOR_ASSERT(data);
+	DISSECTOR_ASSERT(data && data->magic == PACKET_NETLINK_MAGIC);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netlink route");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	offset = 0;
+	pi = proto_tree_add_item(tree, proto_registrar_get_nth(proto_netlink_route), tvb, 0, -1, ENC_NA);
+	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_route);
 
-	if (tree) {
-		proto_item_set_text(tree, "Linux rtnetlink (route netlink) message");
-
-		/* XXX, from header tvb */
-		proto_tree_add_uint(tree, &hfi_netlink_route_nltype, NULL, 0, 0, data->type);
-	}
+	/* Netlink message header (nlmsghdr) */
+	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, data->encoding, &hfi_netlink_route_nltype, NULL);
 
 	info.encoding = data->encoding;
-
 	info.pinfo = pinfo;
 	info.data = data;
 
@@ -1005,9 +999,9 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		case WS_RTM_GETLINK:
 			/* backward compatibility with legacy tools; 16 is sizeof(struct ifinfomsg) */
 			info.legacy = (data->type == WS_RTM_GETLINK) && (tvb_reported_length_remaining(tvb, offset) < 16);
-			offset = dissect_netlink_route_ifinfomsg(tvb, &info, tree, offset);
+			offset = dissect_netlink_route_ifinfomsg(tvb, &info, nlmsg_tree, offset);
 			/* Optional attributes */
-			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifla_attr_type, &info, tree, offset, dissect_netlink_route_ifla_attrs);
+			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifla_attr_type, &info, nlmsg_tree, offset, dissect_netlink_route_ifla_attrs);
 			break;
 
 		case WS_RTM_NEWADDR:
@@ -1015,9 +1009,9 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		case WS_RTM_GETADDR:
 			/* backward compatibility with legacy tools; 8 is sizeof(struct ifaddrmsg) */
 			info.legacy = (data->type == WS_RTM_GETADDR) && (tvb_reported_length_remaining(tvb, offset) < 8);
-			offset = dissect_netlink_route_ifaddrmsg(tvb, &info, tree, offset);
+			offset = dissect_netlink_route_ifaddrmsg(tvb, &info, nlmsg_tree, offset);
 			/* Optional attributes */
-			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifa_attr_type, &info, tree, offset, dissect_netlink_route_ifa_attrs);
+			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifa_attr_type, &info, nlmsg_tree, offset, dissect_netlink_route_ifa_attrs);
 			break;
 
 		case WS_RTM_NEWROUTE:
@@ -1025,9 +1019,9 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		case WS_RTM_GETROUTE:
 			/* backward compatibility with legacy tools; 12 is sizeof(struct rtmsg) */
 			info.legacy = (data->type == WS_RTM_GETROUTE) && (tvb_reported_length_remaining(tvb, offset) < 12);
-			offset = dissect_netlink_route_rtmsg(tvb, &info, tree, offset);
+			offset = dissect_netlink_route_rtmsg(tvb, &info, nlmsg_tree, offset);
 			/* Optional attributes */
-			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_rta_attr_type, &info, tree, offset, dissect_netlink_route_route_attrs);
+			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_rta_attr_type, &info, nlmsg_tree, offset, dissect_netlink_route_route_attrs);
 			break;
 
 		case WS_RTM_NEWNEIGH:
@@ -1035,7 +1029,7 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		case WS_RTM_GETNEIGH:
 			/* backward compatibility with legacy tools; 12 is sizeof(struct ndmsg) */
 			info.legacy = (data->type == WS_RTM_GETNEIGH) && (tvb_reported_length_remaining(tvb, offset) < 12);
-			offset = dissect_netlink_route_ndmsg(tvb, &info, tree, offset);
+			offset = dissect_netlink_route_ndmsg(tvb, &info, nlmsg_tree, offset);
 			break;
 	}
 
@@ -1102,8 +1096,6 @@ proto_register_netlink_route(void)
 		&ett_netlink_route_attr,
 		&ett_netlink_route_if_flags
 	};
-
-	int proto_netlink_route;
 
 	proto_netlink_route = proto_register_protocol("Linux rtnetlink (route netlink) protocol", "rtnetlink", "netlink-route" );
 	hfi_netlink_route = proto_registrar_get_nth(proto_netlink_route);
