@@ -963,6 +963,7 @@ set(DISSECTOR_SRC
 	packet-netflow.c
 	packet-netlink-generic.c
 	packet-netlink-netfilter.c
+	packet-netlink-nl80211.c
 	packet-netlink-route.c
 	packet-netlink-sock_diag.c
 	packet-netlink.c

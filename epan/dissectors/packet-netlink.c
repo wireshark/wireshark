@@ -294,7 +294,13 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, in
 
 			if (hfi_type->strings) {
 				/* XXX, export hf_try_val_to_str */
-				const char *rta_str = try_val_to_str(type, (const value_string *) hfi_type->strings);
+				const char *rta_str;
+
+				if (hfi_type->display & BASE_EXT_STRING) {
+					rta_str = try_val_to_str_ext(type, (value_string_ext *)hfi_type->strings);
+				} else {
+					rta_str = try_val_to_str(type, (const value_string *) hfi_type->strings);
+				}
 
 				if (rta_str) {
 					proto_item_append_text(type_item, ", %s (%d)", rta_str, type);

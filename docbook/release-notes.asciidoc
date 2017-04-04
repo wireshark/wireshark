@@ -68,6 +68,7 @@ Health Level 7 (HL7)
 High-speed SECS message service (HSMS)
 iPerf2
 ISO 15765
+Linux 802.11 Netlink (nl80211)
 Local Service Discovery (LSD)
 M2 Application Protocol
 Mesh Link Establishment (MLE)
