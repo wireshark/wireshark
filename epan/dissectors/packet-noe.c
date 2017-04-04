@@ -110,6 +110,7 @@ static const value_string val_str_class[] = {
     {OPCODE_C_ime_context       , "ime_context"},
     {0, NULL}
 };
+
 static value_string_ext val_str_class_ext = VALUE_STRING_EXT_INIT(val_str_class);
 
 #define OPCODE_P_B_objectid              0
@@ -410,6 +411,7 @@ static const value_string val_str_props[] = {
     {OPCODE_P_A_end_date            , "end_date"},
     {0, NULL}
 };
+
 static value_string_ext val_str_props_ext = VALUE_STRING_EXT_INIT(val_str_props);
 
 #define OPCODE_EVT_CONTEXT_SWITCH         0
@@ -558,6 +560,7 @@ static const value_string val_str_event[] = {
     {OPCODE_EVT_ACTLISTBOX_DISMISSED , "EVT_ACTLISTBOX_DISMISSED"},
     {0, NULL}
 };
+
 static value_string_ext val_str_event_ext = VALUE_STRING_EXT_INIT(val_str_event);
 
 #define P_BASIC           0
@@ -771,6 +774,12 @@ static const value_string noe_event_str_struct[] = {
     {0x01, "BT Handset Link"},
     {0, NULL}
     };
+
+static const value_string noe_evt_context_switch_str_vals[] = {
+    {1, "Call Server"},
+    {2, "Presentation Server"},
+    {0, NULL}
+};
 
 /*-----------------------------------------------------------------------------
     DECODE UTF8 TO UNICODE
@@ -1582,7 +1591,7 @@ void proto_register_noe(void)
                   "noe.event_context_switch",
                   FT_UINT8,
                   BASE_DEC,
-                  VALS(servers_vals),
+                  VALS(noe_evt_context_switch_str_vals),
                   0x0,
                   NULL,
                   HFILL
