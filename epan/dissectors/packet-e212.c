@@ -1365,7 +1365,7 @@ static const value_string mcc_mnc_2digits_codes[] = {
     { 29001, "Tele Greenland" },
     { 29002, "inu:it a/s" },
     { 29201, "Prima San Marino / San Marino Telecom" },
-    { 23910, "Slovenske zeleznice-Infrastruktura d.o.o." },
+    { 29310, "Slovenske zeleznice-Infrastruktura d.o.o." },
     { 29340, "SI Mobil" },
     { 29341, "Mobitel" },
     { 29364, "T-2 d.o.o." },
