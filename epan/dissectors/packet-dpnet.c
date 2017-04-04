@@ -129,7 +129,7 @@ static void process_dpnet_query(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_in
         proto_tree_add_item_ret_uint(dpnet_tree, hf_dpnet_application_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &application_offset); offset += 4;
         proto_tree_add_item_ret_uint(dpnet_tree, hf_dpnet_application_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &application_size); offset += 4;
         proto_tree_add_item(dpnet_tree, hf_dpnet_instance, tvb, offset, 16, ENC_LITTLE_ENDIAN); offset += 16;
-        proto_tree_add_item(dpnet_tree, hf_dpnet_application, tvb, offset, 16, ENC_LITTLE_ENDIAN); offset += 16;
+        proto_tree_add_item(dpnet_tree, hf_dpnet_application, tvb, offset, 16, ENC_LITTLE_ENDIAN);
 
         if(session_offset)
         {
