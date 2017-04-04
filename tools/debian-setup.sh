@@ -41,7 +41,7 @@ ADDITIONAL_LIST="libnl-3-dev qttools5-dev qttools5-dev-tools libgtk-3-dev \
 		portaudio19-dev asciidoc libgcrypt-dev libsbc-dev libgeoip-dev \
 		qtmultimedia5-dev liblua5.2-dev libnl-cli-3-dev \
 		libparse-yapp-perl qt5-default cmake libcap-dev \
-		liblz4-dev libsnappy-dev libspandsp-dev"
+		liblz4-dev libsnappy-dev libspandsp-dev libxml2-dev"
 
 # Adds package $2 to list variable $1 if the package is found
 add_package() {

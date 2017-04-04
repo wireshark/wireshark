@@ -2552,6 +2552,27 @@ else
 fi
 AM_CONDITIONAL(HAVE_SPANDSP, test "x$have_spandsp" = "xyes")
 
+#`
+# Libxml2 check
+AC_ARG_WITH(libxml2,
+  AC_HELP_STRING([--with-libxml2=@<:@yes/no@:>@],
+		 [Libxml2 is a XML C parser, which can be used for handling XML configuration in dissectors @<:@default=yes, if available@:>@]),
+  with_libxml2="$withval"; want_libxml2="yes", with_libxml2="yes")
+
+PKG_CHECK_MODULES(LIBXML2, libxml-2.0, [have_libxml2=yes], [have_libxml2=no])
+if test "x$with_libxml2" != "xno"; then
+    if (test "${have_libxml2}" = "yes"); then
+        AC_DEFINE(HAVE_LIBXML2, 1, [Define if you have libxml2])
+    elif test "x$want_libxml2" = "xyes"; then
+        # Error out if the user explicitly requested libxml2
+        AC_MSG_ERROR([Libxml2 was requested, but is not available])
+    fi
+else
+    have_libxml2=no
+fi
+AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
+
+
 dnl
 dnl check whether plugins should be enabled and, if they should be,
 dnl check for plugins directory - stolen from Amanda's configure.ac
@@ -3171,6 +3192,7 @@ echo "            Have ssh_userauth_agent : $ssh_userauth_agent_message"
 echo "                     Use nl library : $libnl_message"
 echo "              Use SBC codec library : $have_sbc"
 echo "                Use SpanDSP library : $have_spandsp"
+echo "                Use libxml2 library : $have_libxml2"
 echo "                Use nghttp2 library : $nghttp2_message"
 echo "                    Use LZ4 library : $have_lz4"
 echo "                 Use Snappy library : $have_snappy"

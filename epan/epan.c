@@ -84,6 +84,11 @@
 #include <nghttp2/nghttp2ver.h>
 #endif
 
+#ifdef HAVE_LIBXML2
+#include <libxml/xmlversion.h>
+#include <libxml/parser.h>
+#endif
+
 static wmem_allocator_t *pinfo_pool_cache = NULL;
 
 const gchar*
@@ -166,6 +171,10 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
 #ifdef HAVE_LIBGNUTLS
 	gnutls_global_init();
+#endif
+#ifdef HAVE_LIBXML2
+	xmlInitParser();
+	LIBXML_TEST_VERSION;
 #endif
 	TRY {
 		tap_init();
@@ -253,6 +262,9 @@ epan_cleanup(void)
 #endif
 #ifdef HAVE_LIBGNUTLS
 	gnutls_global_deinit();
+#endif
+#ifdef HAVE_LIBXML2
+	xmlCleanupParser();
 #endif
 	except_deinit();
 	addr_resolv_cleanup();
@@ -676,6 +688,14 @@ epan_get_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without Snappy");
 #endif /* HAVE_SNAPPY */
+
+	/* libxml2 */
+	g_string_append(str, ", ");
+#ifdef HAVE_LIBXML2
+	g_string_append(str, "with libxml2 " LIBXML_DOTTED_VERSION);
+#else
+	g_string_append(str, "without libxml2");
+#endif /* HAVE_LIBXML2 */
 
 }
 

@@ -136,6 +136,7 @@ GNUTLS_VERSION=2.12.19
 LUA_VERSION=5.2.4
 PORTAUDIO_VERSION=pa_stable_v19_20111121
 SNAPPY_VERSION=1.1.3
+LIBXML2_VERSION=2.9.4
 LZ4_VERSION=r131
 SBC_VERSION=1.3
 GEOIP_VERSION=1.6.10
@@ -224,6 +225,41 @@ uninstall_snappy() {
         fi
 
         installed_snappy_version=""
+    fi
+}
+
+install_libxml2() {
+    if [ "$LIBXML2_VERSION" -a ! -f libxml2-$LIBXML2_VERSION-done ] ; then
+        echo "Downloading, building, and installing libxml2:"
+        [ -f libxml2-$LIBXML2_VERSION.tar.gz ] || curl -L -O ftp://xmlsoft.org/libxml2/libxml2-$LIBXML2_VERSION.tar.gz || exit 1
+        gzcat libxml2-$LIBXML2_VERSION.tar.gz | tar xf - || exit 1
+        cd libxml2-$LIBXML2_VERSION
+        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch libxml2-$LIBXML2_VERSION-done
+    fi
+}
+
+uninstall_libxml2() {
+    if [ ! -z "$installed_libxml2_version" ] ; then
+        echo "Uninstalling libxml2:"
+        cd libxml2-$installed_libxml2_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm libxml2-$installed_libxml2_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf libxml2-$installed_libxml2_version
+            rm -rf libxml2-$installed_libxml2_version.tar.gz
+        fi
+
+        installed_libxml2_version=""
     fi
 }
 
@@ -1685,6 +1721,18 @@ install_all() {
         uninstall_snappy -r
     fi
 
+    if [ ! -z "$installed_libxml2_version" -a \
+              "$installed_libxml2_version" != "$LIBXML2_VERSION" ] ; then
+        echo "Installed libxml2 version is $installed_libxml2_version"
+        if [ -z "$LIBXML2_VERSION" ] ; then
+            echo "libxml2 is not requested"
+        else
+            echo "Requested libxml2 version is $LIBXML2_VERSION"
+        fi
+        uninstall_libxml2 -r
+    fi
+
+
     if [ ! -z "$installed_sbc_version" -a \
               "$installed_sbc_version" != "$SBC_VERSION" ] ; then
         echo "Installed SBC version is $installed_sbc_version"
@@ -2060,6 +2108,8 @@ install_all() {
 
     install_snappy
 
+    install_libxml2
+
     install_lz4
 
     install_sbc
@@ -2098,6 +2148,8 @@ uninstall_all() {
         uninstall_portaudio
 
         uninstall_snappy
+
+        uninstall_libxml2
 
         uninstall_lz4
 
@@ -2250,6 +2302,7 @@ then
     installed_lua_version=`ls lua-*-done 2>/dev/null | sed 's/lua-\(.*\)-done/\1/'`
     installed_portaudio_version=`ls portaudio-*-done 2>/dev/null | sed 's/portaudio-\(.*\)-done/\1/'`
     installed_snappy_version=`ls snappy-*-done 2>/dev/null | sed 's/snappy-\(.*\)-done/\1/'`
+    installed_libxml2_version=`ls libxml2-*-done 2>/dev/null | sed 's/libxml2-\(.*\)-done/\1/'`
     installed_lz4_version=`ls lz4-*-done 2>/dev/null | sed 's/lz4-\(.*\)-done/\1/'`
     installed_sbc_version=`ls sbc-*-done 2>/dev/null | sed 's/sbc-\(.*\)-done/\1/'`
     installed_geoip_version=`ls geoip-*-done 2>/dev/null | sed 's/geoip-\(.*\)-done/\1/'`

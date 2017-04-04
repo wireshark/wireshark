@@ -13,6 +13,7 @@
 %global with_c_ares 1
 %global with_portaudio 0
 %global with_spandsp 0
+%global with_libxml2 1
 %global with_nghttp2 1
 %global with_extcap 1
 
@@ -240,6 +241,10 @@ Requires:	portaudio
 BuildRequires:	spandsp-devel
 Requires:	spandsp
 %endif
+%if %{with_libxml2}
+BuildRequires:	libxml2-devel
+Requires:	libxml2
+%endif
 
 # Uncomment these if you want to be sure you get them...
 #BuildRequires:	GeoIP-devel
@@ -276,6 +281,11 @@ This package contains the GTK+ Wireshark GUI and desktop integration files.
 %endif
 %if %{with_spandsp}
   --with-spandsp \
+%endif
+%if %{with_libxml2}
+  --with-libxml2 \
+%else
+  --without-libxml2 \
 %endif
 %if %{with_extcap}
   --with-extcap \
@@ -476,6 +486,9 @@ fi
 %endif
 
 %changelog
+* Tue Apr  4 2017 Ahmad Fatoum
+- Added libxml2 (as an option, defaulting to required).
+
 * Tue Dec 20 2016 Anders Broman
 - Add with extcap (as an option, defaulting to yes).
 
