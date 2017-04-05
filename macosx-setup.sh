@@ -1,5 +1,6 @@
 #!/bin/sh
-# Setup development environment on Mac OS X (tested with 10.6.8 and Xcode 3.2.6)
+# Setup development environment on macOS (tested with 10.6.8 and Xcode
+# 3.2.6 and with 10.12.4 and Xcode 8.3).
 #
 # Copyright 2011 Michael Tuexen, Joerg Mayer, Guy Harris (see AUTHORS file)
 #
@@ -50,7 +51,8 @@ TARGET_PLATFORM=macx-clang
 
 #
 # Some packages need xz to unpack their current source.
-# xz is not yet provided with OS X.
+# While tar, in newer versions of macOS, can uncompress xz'ed tarballs,
+# it can't do so in older versions, and xz isn't provided with macOS.
 #
 XZ_VERSION=5.0.8
 
@@ -633,7 +635,7 @@ install_glib() {
         fi
         cd glib-$GLIB_VERSION
         #
-        # OS X ships with libffi, but doesn't provide its pkg-config file;
+        # macOS ships with libffi, but doesn't provide its pkg-config file;
         # explicitly specify LIBFFI_CFLAGS and LIBFFI_LIBS, so the configure
         # script doesn't try to use pkg-config to get the appropriate
         # C flags and loader flags.
@@ -1256,7 +1258,7 @@ install_libgcrypt() {
         gzcat libgcrypt-$LIBGCRYPT_VERSION.tar.gz | tar xf - || exit 1
         cd libgcrypt-$LIBGCRYPT_VERSION
         #
-        # The assembler language code is not compatible with the OS X
+        # The assembler language code is not compatible with the macOS
         # x86 assembler (or is it an x86-64 vs. x86-32 issue?).
         #
         # libgcrypt expects gnu89, not c99/gnu99, semantics for
@@ -1320,7 +1322,7 @@ install_gnutls() {
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --with-libgcrypt --without-p11-kit || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         #
-        # The pkgconfig file for GnuTLS says "requires zlib", but OS X,
+        # The pkgconfig file for GnuTLS says "requires zlib", but macOS,
         # while it supplies zlib, doesn't supply a pkgconfig file for
         # it.
         #
@@ -1425,7 +1427,7 @@ install_portaudio() {
         # hard to build fat), so there's no advantage to having PortAudio
         # built fat.
         #
-        # Set the minimum OS X version to 10.4, to suppress some
+        # Set the minimum macOS version to 10.4, to suppress some
         # deprecation warnings.  (Good luck trying to make any of
         # this build on an OS+Xcode with a pre-10.4 SDK; we don't
         # worry about the user requesting that.)
@@ -1471,7 +1473,7 @@ install_geoip() {
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
         #
         # Grr.  Their man pages "helpfully" have an ISO 8859-1
-        # copyright symbol in the copyright notice, but OS X's
+        # copyright symbol in the copyright notice, but macOS's
         # default character encoding is UTF-8.  sed on Mountain
         # Lion barfs at the "illegal character sequence" represented
         # by an ISO 8859-1 copyright symbol, as it's not a valid
@@ -1947,7 +1949,7 @@ install_all() {
     install_cmake
 
     #
-    # Start with GNU gettext; GLib requires it, and OS X doesn't have it
+    # Start with GNU gettext; GLib requires it, and macOS doesn't have it
     # or a BSD-licensed replacement.
     #
     # At least on Lion with Xcode 4, _FORTIFY_SOURCE gets defined as 2
@@ -2191,7 +2193,7 @@ done
 #
 # -h - print help.
 # -t <target> - build libraries so that they'll work on the specified
-# version of OS X and later versions.
+# version of macOS and later versions.
 # -u - do an uninstall.
 #
 while getopts ht:u name
@@ -2287,7 +2289,7 @@ CXXFLAGS="-g -O2"
 # fix that file.
 #
 if [[ $DARWIN_MAJOR_VERSION -le 9 ]]; then
-    echo "This script does not support any versions of OS X before Snow Leopard" 1>&2
+    echo "This script does not support any versions of macOS before Snow Leopard" 1>&2
     exit 1
 fi
 
@@ -2310,8 +2312,6 @@ if [ ! -z "$min_osx_target" ]
 then
     #
     # Get the real version - strip off the "10.".
-    # We'll worry about that if, as, and when there's ever
-    # an OS XI.
     #
     deploy_real_version=`echo "$min_osx_target" | sed -n 's/10\.\(.*\)/\1/p'`
 
@@ -2364,7 +2364,7 @@ then
 
     if [ -z "$sdkpath" ]
     then
-        echo "macosx-setup.sh: Couldn't find an SDK for OS X $min_osx_target or later" 1>&2
+        echo "macosx-setup.sh: Couldn't find an SDK for macOS $min_osx_target or later" 1>&2
         exit 1
     fi
 
@@ -2557,9 +2557,9 @@ fi
 if [ "$GTK_VERSION" ]; then
     #
     # If we're building with GTK+, you also need the X11 SDK; with at least
-    # some versions of OS X and Xcode, that is, I think, an optional install.
+    # some versions of macOS and Xcode, that is, I think, an optional install.
     # (Or it might be installed with X11, but I think *that* is an optional
-    # install on at least some versions of OS X.)
+    # install on at least some versions of macOS.)
     #
     if [ ! -d /usr/X11/include ]; then
         echo "Please install X11 and the X11 SDK first."
