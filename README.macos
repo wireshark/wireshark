@@ -114,13 +114,13 @@ pa_stable_v19_20071207 version of PortAudio will cause certain
 platform-dependent build environment #defines to be set in the Makefile
 rules, and to cause a universal build to be done; those #defines will be
 incorrect for all but one of the architectures for which the build is
-being done, and that will cause a compile-time error on Snow Leopard. 
+being done, and that will cause a compile-time error on Snow Leopard.
 Newer versions don't have this problem, but still fail to build on Lion
 if a universal build is attempted.  The macosx-setup.sh script downloads
 a newer version, and also suppresses the universal build.
 
 GeoIP - Their man pages "helpfully" have an ISO 8859-1 copyright symbol
-in the copyright notice, but macOS's default character encoding is UTF-8. 
+in the copyright notice, but macOS's default character encoding is UTF-8.
 sed on Mountain Lion barfs at the "illegal character sequence"
 represented by an ISO 8859-1 copyright symbol, as it's not a valid UTF-8
 sequence.  The macosx-setup.sh script uses iconv to convert the man page
