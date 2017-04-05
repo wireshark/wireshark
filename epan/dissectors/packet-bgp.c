@@ -193,33 +193,47 @@ static dissector_handle_t bgp_handle;
 #define FOURHEXF                     0xFFFF0000
 
 /* attribute types */
-#define BGPTYPE_ORIGIN               1 /* RFC1771           */
-#define BGPTYPE_AS_PATH              2 /* RFC1771           */
-#define BGPTYPE_NEXT_HOP             3 /* RFC1771           */
-#define BGPTYPE_MULTI_EXIT_DISC      4 /* RFC1771           */
-#define BGPTYPE_LOCAL_PREF           5 /* RFC1771           */
-#define BGPTYPE_ATOMIC_AGGREGATE     6 /* RFC1771           */
-#define BGPTYPE_AGGREGATOR           7 /* RFC1771           */
+#define BGPTYPE_ORIGIN               1 /* RFC4271           */
+#define BGPTYPE_AS_PATH              2 /* RFC4271           */
+#define BGPTYPE_NEXT_HOP             3 /* RFC4271           */
+#define BGPTYPE_MULTI_EXIT_DISC      4 /* RFC4271           */
+#define BGPTYPE_LOCAL_PREF           5 /* RFC4271           */
+#define BGPTYPE_ATOMIC_AGGREGATE     6 /* RFC4271           */
+#define BGPTYPE_AGGREGATOR           7 /* RFC4271           */
 #define BGPTYPE_COMMUNITIES          8 /* RFC1997           */
-#define BGPTYPE_ORIGINATOR_ID        9 /* RFC2796           */
-#define BGPTYPE_CLUSTER_LIST        10 /* RFC2796           */
-#define BGPTYPE_DPA                 11 /* work in progress  */
-#define BGPTYPE_ADVERTISER          12 /* RFC1863           */
-#define BGPTYPE_RCID_PATH           13 /* RFC1863           */
-#define BGPTYPE_MP_REACH_NLRI       14 /* RFC2858           */
-#define BGPTYPE_MP_UNREACH_NLRI     15 /* RFC2858           */
-#define BGPTYPE_EXTENDED_COMMUNITY  16 /* Draft Ramachandra */
+#define BGPTYPE_ORIGINATOR_ID        9 /* RFC4456           */
+#define BGPTYPE_CLUSTER_LIST        10 /* RFC4456           */
+#define BGPTYPE_DPA                 11 /* DPA (deprecated) [RFC6938]  */
+#define BGPTYPE_ADVERTISER          12 /* ADVERTISER (historic) (deprecated) [RFC1863][RFC4223][RFC6938] */
+#define BGPTYPE_RCID_PATH           13 /* RCID_PATH / CLUSTER_ID (historic) (deprecated) [RFC1863][RFC4223][RFC6938] */
+#define BGPTYPE_MP_REACH_NLRI       14 /* RFC4760           */
+#define BGPTYPE_MP_UNREACH_NLRI     15 /* RFC4760           */
+#define BGPTYPE_EXTENDED_COMMUNITY  16 /* RFC4360           */
 #define BGPTYPE_AS4_PATH            17 /* RFC 6793          */
 #define BGPTYPE_AS4_AGGREGATOR      18 /* RFC 6793          */
-#define BGPTYPE_SAFI_SPECIFIC_ATTR  19 /* draft-kapoor-nalawade-idr-bgp-ssa-00.txt */
+#define BGPTYPE_SAFI_SPECIFIC_ATTR  19 /* SAFI Specific Attribute (SSA) (deprecated) draft-kapoor-nalawade-idr-bgp-ssa-00.txt */
+#define BGPTYPE_CONNECTOR_ATTRIBUTE 20 /* Connector Attribute (deprecated) [RFC6037] */
+#define BGPTYPE_AS_PATHLIMIT        21 /* AS_PATHLIMIT (deprecated) [draft-ietf-idr-as-pathlimit] */
 #define BGPTYPE_PMSI_TUNNEL_ATTR    22 /* RFC6514 */
 #define BGPTYPE_TUNNEL_ENCAPS_ATTR  23 /* RFC5512 */
+#define BGPTYPE_TRAFFIC_ENGINEERING 24 /* Traffic Engineering [RFC5543] */
+#define BGPTYPE_IPV6_ADDR_SPEC_EC   25 /* IPv6 Address Specific Extended Community [RFC5701] */
 #define BGPTYPE_AIGP                26 /* RFC7311 */
+#define BGPTYPE_PE_DISTING_LABLES   27 /* PE Distinguisher Labels [RFC6514] */
+#define BGPTYPE_BGP_ENTROPY_LABEL   28 /* BGP Entropy Label Capability Attribute (deprecated) [RFC6790][RFC7447] */
 #define BGPTYPE_LINK_STATE_ATTR     29 /* RFC7752 */
+#define BGPTYPE_30                  30 /* Deprecated [RFC8093] */
+#define BGPTYPE_31                  31 /* Deprecated [RFC8093] */
 #define BGPTYPE_LARGE_COMMUNITY     32 /* RFC8092 */
+#define BGPTYPE_BGPSEC_PATH         33 /* BGPsec_Path [RFC-ietf-sidr-bgpsec-protocol-22] */
+#define BGPTYPE_BGP_PREFIX_SID      40 /* BGP Prefix-SID [draft-ietf-idr-bgp-prefix-sid] */
 #define BGPTYPE_LINK_STATE_OLD_ATTR 99 /* squatted value used by at least 2
                                           implementations before IANA assignment */
 #define BGPTYPE_ATTR_SET           128 /* RFC6368           */
+#define BGPTYPE_129                129 /* Deprecated [RFC8093] */
+#define BGPTYPE_241                241 /* Deprecated [RFC8093] */
+#define BGPTYPE_242                242 /* Deprecated [RFC8093] */
+#define BGPTYPE_243                243 /* Deprecated [RFC8093] */
 
 /*EVPN Route Types */
 #define EVPN_AD_ROUTE           1
@@ -879,24 +893,36 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_COMMUNITIES,         "COMMUNITIES" },
     { BGPTYPE_ORIGINATOR_ID,       "ORIGINATOR_ID" },
     { BGPTYPE_CLUSTER_LIST,        "CLUSTER_LIST" },
+    { BGPTYPE_DPA,                 "DPA" },
+    { BGPTYPE_ADVERTISER,          "ADVERTISER" },
+    { BGPTYPE_RCID_PATH,           "RCID_PATH / CLUSTER_ID" },
     { BGPTYPE_MP_REACH_NLRI,       "MP_REACH_NLRI" },
     { BGPTYPE_MP_UNREACH_NLRI,     "MP_UNREACH_NLRI" },
     { BGPTYPE_EXTENDED_COMMUNITY,  "EXTENDED_COMMUNITIES" },
     { BGPTYPE_AS4_PATH,            "AS4_PATH" },
     { BGPTYPE_AS4_AGGREGATOR,      "AS4_AGGREGATOR" },
     { BGPTYPE_SAFI_SPECIFIC_ATTR,  "SAFI_SPECIFIC_ATTRIBUTE" },
+    { BGPTYPE_CONNECTOR_ATTRIBUTE, "Connector Attribute" },
+    { BGPTYPE_AS_PATHLIMIT,        "AS_PATHLIMIT "},
     { BGPTYPE_TUNNEL_ENCAPS_ATTR,  "TUNNEL_ENCAPSULATION_ATTRIBUTE" },
     { BGPTYPE_PMSI_TUNNEL_ATTR,    "PMSI_TUNNEL_ATTRIBUTE" },
-    { BGPTYPE_AIGP,                "AIGP"},
-    { BGPTYPE_LINK_STATE_ATTR,     "LINK_STATE" },
-    { 30,                          "Deprecated" },
-    { 31,                          "Deprecated" },
+    { BGPTYPE_TRAFFIC_ENGINEERING, "Traffic Engineering" },
+    { BGPTYPE_IPV6_ADDR_SPEC_EC,   "IPv6 Address Specific Extended Community" },
+    { BGPTYPE_AIGP,                "AIGP" },
+    { BGPTYPE_PE_DISTING_LABLES,   "PE Distinguisher Labels" },
+    { BGPTYPE_BGP_ENTROPY_LABEL,   "BGP Entropy Label Capability Attribute" },
+    { BGPTYPE_LINK_STATE_ATTR,     "BGP-LS Attribute" },
+    { BGPTYPE_30,                  "Deprecated" },
+    { BGPTYPE_31,                  "Deprecated" },
     { BGPTYPE_LARGE_COMMUNITY,     "LARGE_COMMUNITY" },
+    { BGPTYPE_BGPSEC_PATH,         "BGPsec_Path" },
+    { BGPTYPE_BGP_PREFIX_SID,      "BGP Prefix-SID" },
     { BGPTYPE_LINK_STATE_OLD_ATTR, "LINK_STATE (unofficial code point)" },
     { BGPTYPE_ATTR_SET,            "ATTR_SET" },
-    { 129,                         "Deprecated" },
-    { 242,                         "Deprecated" },
-    { 243,                         "Deprecated" },
+    { BGPTYPE_129,                 "Deprecated" },
+    { BGPTYPE_241,                 "Deprecated" },
+    { BGPTYPE_242,                 "Deprecated" },
+    { BGPTYPE_243,                 "Deprecated" },
     { 0, NULL }
 };
 
