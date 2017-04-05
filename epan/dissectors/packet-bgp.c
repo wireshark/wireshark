@@ -5546,7 +5546,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
     while (i < path_attr_len) {
         proto_item *ti_pa, *ti_flags;
         int     off;
-        guint16 alen, aoff, tlen, aoff_save;
+        gint    alen, aoff, tlen, aoff_save;
         guint16 af;
         guint8  saf, snpa;
         guint8  nexthop_len;
