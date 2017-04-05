@@ -1,10 +1,10 @@
 #! /bin/bash
 
 #
-# Unfortunately, Mac OS X's devfs is based on the old FreeBSD
+# Unfortunately, macOS's devfs is based on the old FreeBSD
 # one, not the current one, so there's no way to configure it
 # to create BPF devices with particular owners or groups. BPF
-# devices on Mac OS X are also non-cloning, that is they can
+# devices on macOS are also non-cloning, that is they can
 # be created on demand at any time. This startup item will
 # pre-create a number of BPF devices, then make them owned by
 # the access_bpf group, with permissions rw-rw----, so that

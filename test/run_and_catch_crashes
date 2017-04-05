@@ -32,7 +32,7 @@
 # It can also be done for other tests, to get more information than
 # "it crashed due to signal XXX" if the tests fail with a crash signal.
 #
-# XXX - on OS X, core dumps are in /cores/core.{PID}; would they appear
+# XXX - on macOS, core dumps are in /cores/core.{PID}; would they appear
 # elsewhere on any other UN*X?
 #
 rm -f core

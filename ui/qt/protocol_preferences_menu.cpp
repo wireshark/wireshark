@@ -98,7 +98,7 @@ public:
         UatDialog uat_dlg(parentWidget(), prefs_get_uat_value(pref_));
         uat_dlg.exec();
         // Emitting PacketDissectionChanged directly from a QDialog can cause
-        // problems on OS X.
+        // problems on macOS.
         wsApp->flushAppSignals();
     }
 

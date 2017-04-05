@@ -621,7 +621,7 @@ void RtpAudioStream::outputStateChanged(QAudio::State new_state)
 {
     if (!audio_output_) return;
 
-    // On some platforms including OS X and Windows, the stateChanged signal
+    // On some platforms including macOS and Windows, the stateChanged signal
     // is emitted while a QMutexLocker is active. As a result we shouldn't
     // delete audio_output_ here.
     switch (new_state) {

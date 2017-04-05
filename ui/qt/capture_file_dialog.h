@@ -58,7 +58,7 @@ class CaptureFileDialog : public QFileDialog
     //
     // On Windows Vista and later we should probably use IFileOpenDialog. On earlier
     // versions of Windows (including XP) we should use GetOpenFileName, which is
-    // what we do in ui/win32/file_dlg_win32.c. On OS X we should use NSOpenPanel. On
+    // what we do in ui/win32/file_dlg_win32.c. macOS we should use NSOpenPanel. On
     // other platforms we should fall back to QFileDialog.
     //
     // Yes, that's four implementations of the same window.

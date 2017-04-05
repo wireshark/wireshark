@@ -36,7 +36,7 @@
 
 // We use a global mutex to protect pcap_compile since it calls gethostbyname.
 // This probably isn't needed on Windows (where pcap_comple calls
-// EnterCriticalSection + LeaveCriticalSection) or *BSD or OS X where
+// EnterCriticalSection + LeaveCriticalSection) or *BSD or macOS where
 // gethostbyname(3) claims that it's thread safe.
 static QMutex pcap_compile_mtx_;
 

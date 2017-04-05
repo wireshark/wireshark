@@ -57,7 +57,7 @@ Note 1:
   # http://public.kitware.com/Bug/view.php?id=13818
   -DPYTHON_EXECUTABLE=c:/Python27/python
 
-  # Disable building an application bundle (Wireshark.app) on OS X
+  # Disable building an application bundle (Wireshark.app) on macOS
   -DENABLE_APPLICATION_BUNDLE=OFF
 
   # Qt Creator expects .cbp files when used with CMake.
@@ -155,13 +155,13 @@ All the executables now build from clean source on:
 * 32 bit Ubuntu 10.04
 * 64 bit Ubuntu 14.04
 * 64 bit Debian Wheezy
-* 32 bit OS X
-* 64 bit OS X
+* 32 bit Mac OS X
+* 64 bit {Mac} OS X/macOS
 * 32 bit Windows using Visual C++ 2013
 * 64 bit Windows using Visual C++ 2013
 * 64 bit Solaris 10
 
-The Buildbot runs CMake steps on Ubuntu, Win32, Win64, OS X, and Solaris.
+The Buildbot runs CMake steps on Ubuntu, Win32, Win64, macOS, and Solaris.
 Windows packages are built using CMake steps.
 
 What needs to be done?
@@ -172,9 +172,9 @@ What needs to be done?
 - Guides are not installed.
 - Build source package (using CPack).
   This is obsolete if we decide to release VCS snapshots instead
-- Build packages using CPack: tarball, Windows installer + PortableApps, OS X
+- Build packages using CPack: tarball, Windows installer + PortableApps, macOS
   installer dmg, RPM, SVR4. This includes setting OS target version stuff
-  appropriately for OS X. We currently use NSIS for the Windows installer but
+  appropriately for macOS. We currently use NSIS for the Windows installer but
   should probably use WiX instead.
 - Add support for cmake configurations.
 - Get cross-compilation working (or ensure it does). It works with autofoo--and

@@ -1658,7 +1658,7 @@ get_conversation_for_call(packet_info *pinfo)
 	 * there's no guarantee that the reply will come from the
 	 * address to which the call was sent.  We also don't
 	 * worry about the port *from* which the call was sent,
-	 * because some clients (*cough* OS X NFS client *cough*)
+	 * because some clients (*cough* macOS NFS client *cough*)
 	 * might send retransmissions from a different port from
 	 * the original request.
 	 */
@@ -1710,7 +1710,7 @@ find_conversation_for_reply(packet_info *pinfo)
 	 * because there's no guarantee that the call was sent
 	 * to the address from which the reply came.  We also
 	 * don't worry about the port *to* which the reply was
-	 * sent, because some clients (*cough* OS X NFS client
+	 * sent, because some clients (*cough* macOS NFS client
 	 * *cough*) might send call retransmissions from a
 	 * different port from the original request, so replies
 	 * to the original call and a retransmission of the call
@@ -2114,7 +2114,7 @@ looks_like_rpc_reply(tvbuff_t *tvb, packet_info *pinfo, int offset)
 	   because there's no guarantee that the call was sent
 	   to the address from which the reply came.  We also
 	   don't worry about the port *to* which the reply was
-	   sent, because some clients (*cough* OS X NFS client
+	   sent, because some clients (*cough* macOS NFS client
 	   *cough*) might send retransmissions from a
 	   different port from the original request, so replies
 	   to the original call and a retransmission of the call

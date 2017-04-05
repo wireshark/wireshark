@@ -5,7 +5,7 @@
 #     -lp /path/to/wireshark/lib -ep /path/to/wireshark/extcap/binaries
 #     -pp /path/to/wireshark/plugins -p /path/to/Info.plist
 #
-# This script attempts to build an Wireshark.app bundle for OS X, resolving
+# This script attempts to build an Wireshark.app bundle for macOS, resolving
 # dynamic libraries, etc.
 # It strips the executable and libraries if '-s' is given.
 # The Info.plist file can be found in the base wireshark directory once
@@ -28,7 +28,7 @@
 # NB:
 # This originally came from Inkscape; Inkscape's configure script has an
 # "--enable-osxapp", which causes some of Inkscape's installation data
-# files to have OS X-ish paths under Contents/Resources of the bundle
+# files to have macOS-ish paths under Contents/Resources of the bundle
 # or under /Library/Application Support.  We don't have such an option;
 # we just put them in "bin", "etc", "lib", and "share" directories
 # under Contents/Resources, rather than in the "bin", "etc", "lib",
@@ -97,7 +97,7 @@ fi
 help()
 {
 echo -e "
-Create an app bundle for OS X
+Create an app bundle for macOS
 
 USAGE
 	$0 [-s] [-l /path/to/libraries] -bp /path/to/wireshark/binaries -p /path/to/Info.plist
@@ -496,11 +496,11 @@ rpathify_file () {
 		fi
 
 		#
-		# Show the minimum supported version of OS X
+		# Show the minimum supported version of macOS
 		# for each executable or library
 		#
 		if [[ "$filetype" = "EXECUTE" || "$filetype" = "DYLIB" ]] && [[ "$VERSION" -ge "7" ]] ; then
-			echo "Minimum OS X version for $1:"
+			echo "Minimum macOS version for $1:"
 			otool -l $1 | grep -A3 LC_VERSION_MIN_MACOSX
 		fi
 

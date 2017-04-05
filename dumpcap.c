@@ -371,7 +371,7 @@ static gboolean need_timeout_workaround;
 /*
  * Timeout, in microseconds, for reads from the stream of captured packets
  * from a pipe.  Pipes don't have the same problem that BPF devices do
- * in OS X 10.6, 10.6.1, 10.6.3, and 10.6.4, so we always use a timeout
+ * in Mac OS X 10.6, 10.6.1, 10.6.3, and 10.6.4, so we always use a timeout
  * of 250ms, i.e. the same value as CAP_READ_TIMEOUT when not on one
  * of the offending versions of Snow Leopard.
  *
@@ -3368,7 +3368,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                (At least you will if g_strerror() doesn't show a local translation
                of the error.)
 
-               On FreeBSD and OS X, if a network adapter disappears while
+               On FreeBSD and macOS, if a network adapter disappears while
                you're capturing on it, you'll get a "read: Device not configured"
                error (ENXIO).  (See previous parenthetical note.)
 
@@ -3877,7 +3877,7 @@ main(int argc, char *argv[])
      */
     if (uname(&osinfo) == 0) {
         /*
-         * Mac OS X 10.x uses Darwin {x+4}.0.0.  Mac OS X 10.x.y uses Darwin
+         * {Mac} OS X/macOS 10.x uses Darwin {x+4}.0.0; 10.x.y uses Darwin
          * {x+4}.y.0 (except that 10.6.1 appears to have a uname version
          * number of 10.0.0, not 10.1.0 - go figure).
          */

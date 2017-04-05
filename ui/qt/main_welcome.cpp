@@ -193,7 +193,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
     updateRecentCaptures();
 
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
-    // This crashes with Qt 4.8.3 on OS X.
+    // This crashes with Qt 4.8.3 on macOS.
     QGraphicsBlurEffect *blur = new QGraphicsBlurEffect(welcome_ui_->childContainer);
     blur->setBlurRadius(2);
     welcome_ui_->childContainer->setGraphicsEffect(blur);

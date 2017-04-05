@@ -674,7 +674,7 @@ int PacketList::sizeHintForColumn(int column) const
     // reimplementing QTreeView::sizeHintForColumn seems like a worse idea.
     if (itemDelegateForColumn(column)) {
         // In my (gcc) testing this results in correct behavior on Windows but adds extra space
-        // on OS X and Linux. We might want to add Q_OS_... #ifdefs accordingly.
+        // on macOS and Linux. We might want to add Q_OS_... #ifdefs accordingly.
         size_hint = itemDelegateForColumn(column)->sizeHint(viewOptions(), QModelIndex()).width();
     }
     size_hint += QTreeView::sizeHintForColumn(column); // Decoration padding
@@ -1441,7 +1441,7 @@ void PacketList::columnVisibilityTriggered()
 void PacketList::sectionResized(int col, int, int new_width)
 {
     if (isVisible() && !columns_changed_ && !set_column_visibility_ && new_width > 0) {
-        // Column 1 gets an invalid value (32 on OS X) when we're not yet
+        // Column 1 gets an invalid value (32 on macOS) when we're not yet
         // visible.
         //
         // Don't set column width when columns changed or setting column

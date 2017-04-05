@@ -720,7 +720,7 @@ main(int argc, char *argv[])
  *
  * Glibc and Solaris libc document that a leading + disables permutation
  * of options, regardless of whether POSIXLY_CORRECT is set or not; *BSD
- * and OS X don't document it, but do so anyway.
+ * and macOS don't document it, but do so anyway.
  *
  * We do *not* use a leading - because the behavior of a leading - is
  * platform-dependent.
@@ -1087,7 +1087,7 @@ main(int argc, char *argv[])
 
   /*
    * To reset the options parser, set optreset to 1 on platforms that
-   * have optreset (documented in *BSD and OS X, apparently present but
+   * have optreset (documented in *BSD and macOS, apparently present but
    * not documented in Solaris - the Illumos repository seems to
    * suggest that the first Solaris getopt_long(), at least as of 2004,
    * was based on the NetBSD one, it had optreset) and set optind to 1,

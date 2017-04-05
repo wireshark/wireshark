@@ -1386,7 +1386,7 @@ sub checkAPIsCalledWithTvbGetPtr($$$)
         }
 }
 
-# List of possible shadow variable (Majority coming from Mac OS X..)
+# List of possible shadow variable (Majority coming from macOS..)
 my @ShadowVariable = (
         'index',
         'time',

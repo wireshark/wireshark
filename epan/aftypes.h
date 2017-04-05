@@ -43,7 +43,7 @@ extern "C" {
 #define BSD_AF_IPX		23
 #define BSD_AF_INET6_BSD	24	/* NetBSD, OpenBSD, BSD/OS */
 #define BSD_AF_INET6_FREEBSD	28	/* FreeBSD, DragonFly BSD */
-#define BSD_AF_INET6_DARWIN	30	/* OS X, iOS, anything else Darwin-based */
+#define BSD_AF_INET6_DARWIN	30	/* macOS, iOS, anything else Darwin-based */
 
 /* Linux AF_ values. */
 #define LINUX_AF_UNSPEC		 0

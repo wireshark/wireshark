@@ -186,7 +186,7 @@ static const value_string corosync_totemsrp_ip_address_family[] = {
   { COMMON_AF_INET,       "AF_INET"  },
   { BSD_AF_INET6_BSD,     "AF_INET6 (most BSD)" },
   { BSD_AF_INET6_FREEBSD, "AF_INET6 (FreeBSD)" },
-  { BSD_AF_INET6_DARWIN,  "AF_INET6 (OS X and iOS)" },
+  { BSD_AF_INET6_DARWIN,  "AF_INET6 (macOS and iOS)" },
   { LINUX_AF_INET6,       "AF_INET6 (Linux)" },
   { SOLARIS_AF_INET6,     "AF_INET6 (Solaris)" },
   { WINSOCK_AF_INET6,     "AF_INET6 (Windows)" },

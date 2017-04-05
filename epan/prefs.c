@@ -3174,8 +3174,8 @@ prefs_register_modules(void)
 
     /* GTK+ only */
     prefs_register_bool_preference(gui_module, "macosx_style",
-                                   "Use OS X style",
-                                   "Use OS X style (OS X with native GTK only)?",
+                                   "Use macOS style",
+                                   "Use macOS style (macOS with native GTK only)?",
                                    &prefs.gui_macosx_style);
 
     prefs_register_obsolete_preference(gui_module, "geometry.main.x");

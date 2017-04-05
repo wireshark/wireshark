@@ -37,7 +37,7 @@ extern "C" {
  *
  * XXX - we really want "gone", not "down", where "gone" may include
  * "down" if the OS requires an interface to be up in order to start
- * a capture on it (as is the case in Linux and in OS X prior to
+ * a capture on it (as is the case in Linux and in macOS prior to
  * Lion), but should also include *gone*, as in "there is no longer
  * an interface with this name, so it's neither down nor up".
  *

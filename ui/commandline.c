@@ -354,7 +354,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
 
     /*
      * To reset the options parser, set optreset to 1 on platforms that
-     * have optreset (documented in *BSD and OS X, apparently present but
+     * have optreset (documented in *BSD and macOS, apparently present but
      * not documented in Solaris - the Illumos repository seems to
      * suggest that the first Solaris getopt_long(), at least as of 2004,
      * was based on the NetBSD one, it had optreset) and set optind to 1,

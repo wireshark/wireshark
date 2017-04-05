@@ -356,14 +356,14 @@ request_high_resolution_timestamp(pcap_t *pcap_h)
 {
 #ifdef __APPLE__
 	/*
-	 * On OS X, if you build with a newer SDK, pcap_set_tstamp_precision()
+	 * On macOS, if you build with a newer SDK, pcap_set_tstamp_precision()
 	 * is available, so the code will be built with it.
 	 *
 	 * However, if you then try to run on an older release that
 	 * doesn't have pcap_set_tstamp_precision(), the dynamic linker
 	 * will fail, as it won't find pcap_set_tstamp_precision().
 	 *
-	 * libpcap doesn't use OS X "weak linking" for new routines,
+	 * libpcap doesn't use macOS "weak linking" for new routines,
 	 * so we can't just check whether a pointer to
 	 * pcap_set_tstamp_precision() is null and, if it is, not
 	 * call it.  We have to, instead, use dlopen() to load

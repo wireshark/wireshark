@@ -323,7 +323,7 @@ static int rint(double );     /* compiler template for Windows */
 static struct irect zoomrect;
 
 
-/* XXX - what about OS X? */
+/* XXX - what about macOS? */
 static char helptext[] =
     "Here's what you can do:\n"
     "\n"

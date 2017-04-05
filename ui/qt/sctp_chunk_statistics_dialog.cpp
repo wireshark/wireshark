@@ -296,7 +296,7 @@ void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
     UatDialog *uatdialog = new UatDialog(this, uat);
     uatdialog->exec();
     // Emitting PacketDissectionChanged directly from a QDialog can cause
-    // problems on OS X.
+    // problems on macOS.
     wsApp->flushAppSignals();
 
     ui->tableWidget->clear();

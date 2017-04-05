@@ -59,7 +59,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     ok_button_ = pd_ui_->buttonBox->button(QDialogButtonBox::Ok);
 
     // XXX - Use NSImageNameAddTemplate and NSImageNameRemoveTemplate to set stock
-    // icons on OS X.
+    // icons on macOS.
     // Are there equivalent stock icons on Windows?
 #ifdef Q_OS_MAC
     pd_ui_->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);

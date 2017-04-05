@@ -84,7 +84,7 @@ public:
     void registerUpdate(register_action_e action, const char *message);
     void emitAppSignal(AppSignal signal);
     // Emitting app signals (PacketDissectionChanged in particular) from
-    // dialogs on OS X can be problematic. Dialogs should call queueAppSignal
+    // dialogs on macOS can be problematic. Dialogs should call queueAppSignal
     // instead.
     void queueAppSignal(AppSignal signal) { app_signals_ << signal; }
     // Flush queued app signals. Should be called from the main window after

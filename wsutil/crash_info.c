@@ -111,7 +111,7 @@ __private_extern__ char *__crashreporter_info__ = NULL;
  *
  * backtrace is reported under "Application Specific Backtrace".
  *
- * Dunno which versions are supported by which versions of OS X.
+ * Dunno which versions are supported by which versions of macOS.
  */
 struct crashreporter_annotations_t {
 	uint64_t version;		/* unsigned long */

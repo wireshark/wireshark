@@ -433,7 +433,7 @@ void IOGraphDialog::syncGraphSettings(QTreeWidgetItem *item)
         hint_err_ = iog->configError();
         visible = false;
         retap = false;
-        // On OS X the "not user checkable" checkbox isn't obviously disabled.
+        // On macOS the "not user checkable" checkbox isn't obviously disabled.
         // For now show it as partially checked.
         item->setCheckState(name_col_, Qt::PartiallyChecked);
         item->setFlags(item->flags() & ~Qt::ItemIsUserCheckable);

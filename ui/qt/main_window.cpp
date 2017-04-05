@@ -1022,7 +1022,7 @@ void MainWindow::saveWindowGeometry()
     }
 
     if (prefs.gui_geometry_save_maximized) {
-        // On OS X this is false when it shouldn't be
+        // On macOS this is false when it shouldn't be
         recent.gui_geometry_main_maximized = isMaximized();
     }
 
@@ -1808,7 +1808,7 @@ void MainWindow::initMainToolbarIcons()
     int icon_size = style()->pixelMetric(QStyle::PM_SmallIconSize);
 #if !defined(Q_OS_WIN)
     // Force icons to 24x24 for now, otherwise actionFileOpen looks wonky.
-    // The OS X HIG specifies 32-pixel icons but they're a little too
+    // The macOS HIG specifies 32-pixel icons but they're a little too
     // large IMHO.
     icon_size = icon_size * 3 / 2;
 #endif
@@ -2063,7 +2063,7 @@ void MainWindow::setTitlebarForCaptureFile()
         } else {
             //
             // For a user file, set the full path; that way,
-            // for OS X, it'll set the "proxy icon".  Qt
+            // for macOS, it'll set the "proxy icon".  Qt
             // handles extracting the last component.
             //
             // Sadly, some UN*Xes don't necessarily use UTF-8
@@ -2115,7 +2115,7 @@ void MainWindow::setWSWindowTitle(QString title)
     if (prefs.gui_window_title && prefs.gui_window_title[0]) {
         QString custom_title = replaceWindowTitleVariables(prefs.gui_window_title);
 #ifdef __APPLE__
-        // On OS X we separate the titles with a unicode em dash
+        // On macOS we separate the titles with a unicode em dash
         title.append(QString(" %1 %2").arg(UTF8_EM_DASH).arg(custom_title));
 #else
         title.append(QString(" [%1]").arg(custom_title));

@@ -72,12 +72,12 @@
  * (Its Windows openURL uses ShellExecute() on non-mailto URLs (it
  * does more exotic stuff for mailto: URLs).
  *
- * Its OS X stuff uses the openURL method of an NSWorkspace (which
+ * Its macOS stuff uses the openURL method of an NSWorkspace (which
  * probably ends up in Launch Services....).)
  *
  * GTK+ has gtk_show_uri(), but that ultimately uses gvfs on UN*X,
  * so it's not appropriate for non-GNOME UN*Xes (including, but not
- * limited to, OS X), and ultimately appears to be a stubbed-out
+ * limited to, macOS), and ultimately appears to be a stubbed-out
  * routine in GLib 2.36.0, so it's not very useful for a cross-
  * platform applicatio n.
  *
@@ -125,7 +125,7 @@
 /* if WIN32_LEAN_AND_MEAN is defined, shellapi.h is needed too */
 #include <shellapi.h>
 #elif defined (HAVE_OS_X_FRAMEWORKS)
-/* Mac OS X - use Launch Services to start a browser */
+/* macOS - use Launch Services to start a browser */
 #include <CoreFoundation/CoreFoundation.h>
 #include <ApplicationServices/ApplicationServices.h>
 #else

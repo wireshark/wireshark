@@ -246,7 +246,7 @@ relinquish_special_privs_perm(void)
 	 * real and effective group and user IDs to the original
 	 * values of the real and effective group and user IDs.
 	 * If we're not, don't bother - doing so seems to mung
-	 * our group set, at least in OS X 10.5.
+	 * our group set, at least in Mac OS X 10.5.
 	 *
 	 * (Set the effective UID last - that takes away our
 	 * rights to set anything else.)

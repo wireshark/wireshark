@@ -54,11 +54,11 @@ MAX_CPU_TIME=600
 # Stop the child process if it's using more than y * 1024 bytes
 MAX_VMEM=1000000
 # Stop the child process if its stack is larger than than z * 1024 bytes
-# Windows XP:   2033
-# Windows 7:    2034
-# OS X 10.6:    8192
-# Linux 2.6.24: 8192
-# Solaris 10:   8192
+# Windows XP:    2033
+# Windows 7:     2034
+# Mac OS X 10.6: 8192
+# Linux 2.6.24:  8192
+# Solaris 10:    8192
 MAX_STACK=2033
 # Insert z times an error into the capture file (0.02 seems to be a good value to find errors)
 ERR_PROB=0.02

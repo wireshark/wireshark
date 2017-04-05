@@ -46,7 +46,7 @@ typedef void (WINAPI *nativesi_func_ptr)(LPSYSTEM_INFO);
 
 /*
  * Handles the rather elaborate process of getting OS version information
- * from OS X (we want the OS X version, not the Darwin version, the latter
+ * from macOS (we want the macOS version, not the Darwin version, the latter
  * being easy to get with uname()).
  */
 #ifdef HAVE_OS_X_FRAMEWORKS
@@ -71,7 +71,7 @@ get_string_from_dictionary(CFPropertyListRef dict, CFStringRef key)
 }
 
 /*
- * Get the OS X version information, and append it to the GString.
+ * Get the macOS version information, and append it to the GString.
  * Return TRUE if we succeed, FALSE if we fail.
  */
 static gboolean
@@ -87,7 +87,7 @@ get_os_x_version_info(GString *str)
 	char *string;
 
 	/*
-	 * On OS X, report the OS X version number as the OS, and put
+	 * On macOS, report the macOS version number as the OS, and put
 	 * the Darwin information in parentheses.
 	 *
 	 * Alas, Gestalt() is deprecated in Mountain Lion, so the build
@@ -431,13 +431,13 @@ get_os_version_info(GString *str)
 		 * On Solaris, it's some kind of build information.
 		 * On HP-UX, it appears to be some sort of subrevision
 		 * thing.
-		 * On *BSD and Darwin/OS X, it's a long string giving
+		 * On *BSD and Darwin/macOS, it's a long string giving
 		 * a build date, config file name, etc., etc., etc..
 		 */
 #ifdef HAVE_OS_X_FRAMEWORKS
 		/*
-		 * On Mac OS X, report the Mac OS X version number as
-		 * the OS version if we can, and put the Darwin information
+		 * On macOS, report the macOS version number as the OS
+		 * version if we can, and put the Darwin information
 		 * in parentheses.
 		 */
 		if (get_os_x_version_info(str)) {

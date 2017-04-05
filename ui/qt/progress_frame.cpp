@@ -35,7 +35,7 @@
 #include "wireshark_application.h"
 
 // To do:
-// - Add an NSProgressIndicator to the dock icon on OS X.
+// - Add an NSProgressIndicator to the dock icon on macOS.
 // - Start adding the progress bar to dialogs.
 // - Don't complain so loudly when the user stops a capture.
 

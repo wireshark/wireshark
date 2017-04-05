@@ -39,7 +39,7 @@
  * are most likely to take a long time, given the way address-to-name
  * lookups are done over NBNS).
  *
- * Mac OS X does have SIGALRM, but if you longjmp() out of a name resolution
+ * macOS does have SIGALRM, but if you longjmp() out of a name resolution
  * call in a signal handler, you might crash, because the state of the
  * resolution code that sends messages to lookupd might be inconsistent
  * if you jump out of it in middle of a call.

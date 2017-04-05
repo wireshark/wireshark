@@ -468,7 +468,7 @@ wireshark_gtk_capture_suite() {
 	# WIRESHARK_QUIT_AFTER_CAPTURE needs to be set.
 
 	#
-	# NOTE: if, on OS X, we start using a native-Quartz toolkit,
+	# NOTE: if, on macOS, we start using a native-Quartz toolkit,
 	# this would need to change to check for WS_SYSTEM being
 	# "Darwin" and, if it is, check whether the standard output
 	# of "launchctl managername" is "Aqua".

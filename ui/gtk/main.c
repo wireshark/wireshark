@@ -3195,7 +3195,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p
     menubar = main_menu_new(&accel);
 
 #if defined(HAVE_IGE_MAC_INTEGRATION) || defined (HAVE_GTKOSXAPPLICATION)
-    /* Mac OS X native menus are created and displayed by main_menu_new() */
+    /* macOS native menus are created and displayed by main_menu_new() */
     if(!prefs_p->gui_macosx_style) {
 #endif
     gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);

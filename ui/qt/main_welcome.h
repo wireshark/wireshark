@@ -64,7 +64,7 @@ private:
     QString show_in_str_;
 
     SplashOverlay *splash_overlay_;
-    // QListWidget doesn't activate items when the return or enter keys are pressed on OS X.
+    // QListWidget doesn't activate items when the return or enter keys are pressed on macOS.
     // We may want to subclass it at some point.
     QListWidget *recent_files_;
 //    MWOverlay *overlay;

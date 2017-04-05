@@ -729,13 +729,13 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     //
     // QFileSystemWatcher should allow us to watch for files being
     // removed or renamed.  It uses kqueues and EVFILT_VNODE on FreeBSD,
-    // NetBSD, FSEvents on OS X, inotify on Linux if available, and
+    // NetBSD, FSEvents on macOS, inotify on Linux if available, and
     // FindFirstChagneNotification() on Windows.  On all other platforms,
     // it just periodically polls, as we're doing now.
     //
     // For unmounts:
     //
-    // OS X and FreeBSD deliver NOTE_REVOKE notes for EVFILT_VNODE, and
+    // macOS and FreeBSD deliver NOTE_REVOKE notes for EVFILT_VNODE, and
     // QFileSystemWatcher delivers signals for them, just as it does for
     // NOTE_DELETE and NOTE_RENAME.
     //
@@ -762,7 +762,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     //
     // Note also that remote file systems might not report file
     // removal or renames if they're done on the server or done by
-    // another client.  At least on OS X, they *will* get reported
+    // another client.  At least on macOS, they *will* get reported
     // if they're done on the machine running the program doing the
     // kqueue stuff, and, at least in newer versions, should get
     // reported on SMB-mounted (and AFP-mounted?) file systems
@@ -778,7 +778,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     // catch *that* would be to watch for mounts and re-check all
     // marked-as-inaccessible files.
     //
-    // OS X and FreeBSD also support EVFILT_FS events, which notify you
+    // macOS and FreeBSD also support EVFILT_FS events, which notify you
     // of file system mounts and unmounts.  We'd need to add our own
     // kqueue for that, if we can check those with QSocketNotifier.
     //
@@ -800,7 +800,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     // (Speaking of automounters, repeatedly polling recent files will
     // keep the file system from being unmounted, for what that's worth.)
     //
-    // At least on OS X, you can determine whether a file is on an
+    // At least on macOS, you can determine whether a file is on an
     // automounted file system by calling statfs() on its path and
     // checking whether MNT_AUTOMOUNTED is set in f_flags.  FreeBSD
     // appears to support that flag as well, but no other *BSD appears
@@ -824,7 +824,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     // Application-wide style sheet
     QString app_style_sheet = qApp->styleSheet();
 #if defined(Q_OS_MAC) && QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-    // Qt uses the HITheme API to draw splitters. In recent versions of OS X
+    // Qt uses the HITheme API to draw splitters. In recent versions of macOS
     // this looks particularly bad: https://bugreports.qt.io/browse/QTBUG-43425
     // This doesn't look native but it looks better than Yosemite's bit-rotten
     // rendering of HIThemeSplitterDrawInfo.
@@ -898,7 +898,7 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
 
 // Flush any collected app signals.
 //
-// On OS X emitting PacketDissectionChanged from a dialog can
+// On macOS emitting PacketDissectionChanged from a dialog can
 // render the application unusable:
 // https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=11361
 // https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=11448

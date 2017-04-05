@@ -421,7 +421,7 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
     if ( !stat_cache_ )
     {
         // Start gathering statistics using dumpcap
-        // We crash (on OS X at least) if we try to do this from ::showEvent.
+        // We crash (on macOS at least) if we try to do this from ::showEvent.
         stat_cache_ = capture_stat_start(&global_capture_opts);
     }
     if ( !stat_cache_ )

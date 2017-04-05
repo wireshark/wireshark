@@ -1070,7 +1070,7 @@ void MainWindow::stopCapture() {
 }
 
 // Keep focus rects from showing through the welcome screen. Primarily for
-// OS X.
+// macOS.
 void MainWindow::mainStackChanged(int)
 {
     for (int i = 0; i < main_ui_->mainStack->count(); i++) {
@@ -1673,7 +1673,7 @@ void MainWindow::on_actionNewDisplayFilterExpression_triggered()
     showAccordionFrame(main_ui_->filterExpressionFrame);
 }
 
-// On Qt4 + OS X with unifiedTitleAndToolBarOnMac set it's possible to make
+// On Qt4 + macOS with unifiedTitleAndToolBarOnMac set it's possible to make
 // the main window obnoxiously wide.
 
 void MainWindow::displayFilterButtonClicked()
@@ -2201,7 +2201,7 @@ void MainWindow::showPreferencesDialog(PreferencesDialog::PreferencesPane start_
     pref_dialog.exec();
 
     // Emitting PacketDissectionChanged directly from a QDialog can cause
-    // problems on OS X.
+    // problems on macOS.
     wsApp->flushAppSignals();
 }
 
@@ -2215,7 +2215,7 @@ void MainWindow::showPreferencesDialog(QString module_name)
     pref_dialog.exec();
 
     // Emitting PacketDissectionChanged directly from a QDialog can cause
-    // problems on OS X.
+    // problems on macOS.
     wsApp->flushAppSignals();
 }
 
@@ -2696,7 +2696,7 @@ void MainWindow::on_actionAnalyzeDisplayFilterMacros_triggered()
 
     uat_dlg.exec();
     // Emitting PacketDissectionChanged directly from a QDialog can cause
-    // problems on OS X.
+    // problems on macOS.
     wsApp->flushAppSignals();
 }
 
@@ -2811,7 +2811,7 @@ void MainWindow::on_actionAnalyzeEnabledProtocols_triggered()
     enable_proto_dialog.exec();
 
     // Emitting PacketDissectionChanged directly from a QDialog can cause
-    // problems on OS X.
+    // problems on macOS.
     wsApp->flushAppSignals();
 }
 
@@ -2829,7 +2829,7 @@ void MainWindow::on_actionAnalyzeDecodeAs_triggered()
     da_dialog.exec();
 
     // Emitting PacketDissectionChanged directly from a QDialog can cause
-    // problems on OS X.
+    // problems on macOS.
     wsApp->flushAppSignals();
 }
 

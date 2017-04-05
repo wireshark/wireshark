@@ -323,11 +323,11 @@ else()
 	if(CMAKE_OSX_DEPLOYMENT_TARGET)
 		if(APPLE)
 			if(${CMAKE_OSX_DEPLOYMENT_TARGET} STREQUAL "10.0")
-				message(FATAL_ERROR "We don't support building for OS X 10.0")
+				message(FATAL_ERROR "We don't support building for Mac OS X 10.0")
 			elseif(${CMAKE_OSX_DEPLOYMENT_TARGET} STREQUAL "10.1")
-				message(FATAL_ERROR "We don't support building for OS X 10.1")
+				message(FATAL_ERROR "We don't support building for Mac OS X 10.1")
 			elseif(${CMAKE_OSX_DEPLOYMENT_TARGET} STREQUAL "10.2")
-				message(FATAL_ERROR "We don't support building for OS X 10.2")
+				message(FATAL_ERROR "We don't support building for Mac OS X 10.2")
 			elseif(${CMAKE_OSX_DEPLOYMENT_TARGET} STREQUAL "10.4" OR ${CMAKE_OSX_DEPLOYMENT_TARGET} STREQUAL "10.5")
 				#
 				# Only 32-bit builds are supported.  10.5
@@ -339,9 +339,9 @@ else()
 				set(CMAKE_CXX_FLAGS "-m32 ${CMAKE_CXX_FLAGS}")
 				set(WS_LINK_FLAGS "-m32 ${WS_LINK_FLAGS}")
 			endif()
-			message(STATUS "Building for OS X ${CMAKE_OSX_DEPLOYMENT_TARGET}")
+			message(STATUS "Building for Mac OS X/OS X/macOS ${CMAKE_OSX_DEPLOYMENT_TARGET}")
 		else()
-			message(FATAL_ERROR "CMAKE_OSX_DEPLOYMENT_TARGET only applies when building for OS X")
+			message(FATAL_ERROR "CMAKE_OSX_DEPLOYMENT_TARGET only applies when building for macOS")
 		endif()
 	endif()
 
@@ -702,7 +702,7 @@ foreach(THIS_FLAG ${WIRESHARK_LD_FLAGS})
 endforeach()
 
 if(APPLE AND EXISTS /usr/local/opt/gettext)
-	# GLib on OS X requires libintl. Homebrew installs gettext (and
+	# GLib on macOS requires libintl. Homebrew installs gettext (and
 	# libintl) in /usr/local/opt/gettext
 	include_directories(/usr/local/opt/gettext/include)
 	link_directories(/usr/local/opt/gettext/lib)
@@ -1104,7 +1104,7 @@ message(STATUS "Warnings as errors: ${WERROR_COMMON_FLAGS}")
 
 if(APPLE)
 	#
-	# We assume that APPLE means OS X so that we have the OS X
+	# We assume that APPLE means macOS so that we have the macOS
 	# frameworks.
 	#
 	set(HAVE_OS_X_FRAMEWORKS 1)
@@ -1153,9 +1153,9 @@ add_subdirectory( wiretap )
 add_subdirectory( writecap )
 
 # Location of our data files. This should be set to a value that allows
-# running from the build directory on Windows, on OS X when building an
-# application bundle, and on UNIX if WIRESHARK_RUN_FROM_BUILD_DIRECTORY
-# is set.
+# running from the build directory on Windows, on macOS when building an
+# application bundle, and on UNIX in general if
+# WIRESHARK_RUN_FROM_BUILD_DIRECTORY is set.
 if(ENABLE_APPLICATION_BUNDLE)
 	set(_datafile_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Resources/share/wireshark")
 else()
@@ -1183,9 +1183,10 @@ endif()
 
 if(ENABLE_EXTCAP)
 	# Target platform locations
-	# UNIX, Linux, non-bundled OS X: $DESTDIR/lib/wireshark/extcap
+	# UN*X in general, including macOS if not building an app bundle:
+	# $DESTDIR/lib/wireshark/extcap
 	# Windows: $DESTDIR/extcap
-	# OS X app bundle: Wireshark.app/Contents/Resources/share/wireshark/extcap
+	# macOS app bundle: Wireshark.app/Contents/Resources/share/wireshark/extcap
 	set(HAVE_EXTCAP 1)
 	if (WIN32)
 		set(EXTCAP_DIR "extcap")
@@ -1213,9 +1214,10 @@ endif()
 # from the build directory similar to DATAFILE_DIR above.
 if(ENABLE_PLUGINS)
 	# Target platform locations
-	# UNIX, Linux, non-bundled OS X: $DESTDIR/lib/wireshark/plugins/$VERSION
+	# UN*X in general, including macOS if not building an app bundle:
+	# $DESTDIR/lib/wireshark/plugins/$VERSION
 	# Windows: $DESTDIR/wireshark/plubins/$VERSION
-	# OS X app bundle: Wireshark.app/Contents/PlugIns/wireshark
+	# macOS app bundle: Wireshark.app/Contents/PlugIns/wireshark
 	set(HAVE_PLUGINS 1)
 	add_custom_target(plugins)
 	set_target_properties(plugins PROPERTIES FOLDER "Plugins")

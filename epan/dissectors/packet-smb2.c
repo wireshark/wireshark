@@ -11175,7 +11175,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_aapl_server_query_caps_supports_osx_copyfile,
-			{ "Supports OS X copyfile", "smb2.aapl.caps.supports_osx_copyfile", FT_BOOLEAN, 64,
+			{ "Supports macOS copyfile", "smb2.aapl.caps.supports_osx_copyfile", FT_BOOLEAN, 64,
 			NULL, SMB2_AAPL_SUPPORTS_OSX_COPYFILE, NULL, HFILL }
 		},
 

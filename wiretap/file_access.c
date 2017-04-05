@@ -143,7 +143,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "TamoSoft CommView", TRUE, "ncf" },
 	{ "Symbian OS btsnoop", TRUE, "log" },
 	{ "XML files (including Gammu DCT3 traces)", TRUE, "xml" },
-	{ "OS X PacketLogger", TRUE, "pklg" },
+	{ "macOS PacketLogger", TRUE, "pklg" },
 	{ "Daintree SNA", TRUE, "dcf" },
 	{ "IPFIX File Format", TRUE, "pfx;ipfix" },
 	{ "Aethra .aps file", TRUE, "aps" },
@@ -328,7 +328,7 @@ wtap_get_all_capture_file_extensions_list(void)
  * to the following files so that the various desktop environments will
  * know that Wireshark can open the file:
  *	1) wireshark-mime-package.xml (for freedesktop.org environments)
- *	2) packaging/macosx/Info.plist.in (for OS X)
+ *	2) packaging/macosx/Info.plist.in (for macOS)
  *	3) packaging/nsis/AdditionalTasksPage.ini, packaging/nsis/common.nsh,
  *	   and packaging/wix/ComponentGroups.wxi (for Windows)
  *
@@ -368,7 +368,7 @@ static struct open_info open_info_base[] = {
 	 * PacketLogger must come before MPEG, because its files
 	 * are sometimes grabbed by mpeg_open.
 	 */
-	{ "OS X PacketLogger",                      OPEN_INFO_HEURISTIC, packetlogger_open,        "pklg",     NULL, NULL },
+	{ "macOS PacketLogger",                     OPEN_INFO_HEURISTIC, packetlogger_open,        "pklg",     NULL, NULL },
 	/* Some MPEG files have magic numbers, others just have heuristics. */
 	{ "MPEG",                                   OPEN_INFO_HEURISTIC, mpeg_open,                "mpg;mp3",  NULL, NULL },
 	{ "Daintree SNA",                           OPEN_INFO_HEURISTIC, daintree_sna_open,        "dcf",      NULL, NULL },
@@ -1477,7 +1477,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PACKETLOGGER */
-	{ "OS X PacketLogger", "pklg", "pklg", NULL,
+	{ "macOS PacketLogger", "pklg", "pklg", NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
@@ -2651,7 +2651,7 @@ wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize, int *err
 		errno = WTAP_ERR_CANT_WRITE;
 		nwritten = fwrite(buf, 1, bufsize, (FILE *)wdh->fh);
 		/*
-		 * At least according to the Mac OS X man page,
+		 * At least according to the macOS man page,
 		 * this can return a short count on an error.
 		 */
 		if (nwritten != bufsize) {

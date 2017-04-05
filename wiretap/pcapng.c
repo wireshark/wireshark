@@ -3231,7 +3231,7 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh,
 /*
  * libpcap's maximum pcapng block size is currently 16MB.
  *
- * The maximum pcapng block size in OS X's private pcapng reading code
+ * The maximum pcapng block size in macOS's private pcapng reading code
  * is 1MB.  (Yes, this means that a program using the standard pcap
  * code to read pcapng files can handle bigger blocks than can programs
  * using the private code, such as Apple's tcpdump, can handle.)

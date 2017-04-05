@@ -292,7 +292,7 @@ file_target_unwritable_ui(GtkWidget *chooser_w, char *cf_name)
      ioctls (FS_IOC_GETFLAGS/FS_IOC_SETFLAGS in newer kernels,
      EXT2_IOC_GETFLAGS/EXT2_IOC_SETFLAGS in older kernels - non-ext2
      file systems that support those ioctls use the same values as ext2
-     does), appears to be more like the *BSD/OS X "system immutable"
+     does), appears to be more like the *BSD/macOS "system immutable"
      flag, as it can be set only by the superuser or by processes with
      CAP_LINUX_IMMUTABLE, so it sounds as if it's not intended for
      arbitrary users to set or clear. */
@@ -314,8 +314,8 @@ file_target_unwritable_ui(GtkWidget *chooser_w, char *cf_name)
                                         GTK_MESSAGE_QUESTION,
                                         GTK_BUTTONS_NONE,
 #ifdef __APPLE__
-    /* Stuff in the OS X UI calls files with the "user immutable" bit
-       "locked"; pre-OS X Mac software might have had that notion and
+    /* Stuff in the macOS UI calls files with the "user immutable" bit
+       "locked"; the classic Mac OS might have had that notion and
        called it "locked". */
                                         "The file \"%s\" is locked.",
 #else /* __APPLE__ */

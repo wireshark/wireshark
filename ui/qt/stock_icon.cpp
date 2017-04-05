@@ -24,7 +24,7 @@
 // Stock icons. Based on gtk/stock_icons.h
 
 // Toolbar icon sizes:
-// OS X freestanding: 32x32, 32x32@2x, segmented (inside a button): <= 19x19
+// macOS freestanding: 32x32, 32x32@2x, segmented (inside a button): <= 19x19
 // Windows: 16x16, 24x24, 32x32
 // GNOME: 24x24 (default), 48x48
 

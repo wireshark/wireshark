@@ -1,16 +1,16 @@
 #
-# - Find OS X frameworks
-# Find various OS X frameworks if we're on OS X
+# - Find macOS frameworks
+# Find various macOS frameworks if we're on macOS
 #
 #  APPLE_APPLICATION_SERVICES_LIBRARY - ApplicationServices framework
 #  APPLE_CORE_FOUNDATION_LIBRARY      - CoreFoundation frameowkr
 #  APPLE_SYSTEM_CONFIGURATION_LIBRARY - SystemConfiguration framework
-#  HAVE_OS_X_FRAMEWORKS               - True if we're on OS X
+#  HAVE_OS_X_FRAMEWORKS               - True if we're on macOS
 
 
 if(APPLE)
 	#
-	# We assume that APPLE means OS X so that we have the OS X
+	# We assume that APPLE means macOS so that we have the macOS
 	# frameworks.
 	#
 	set(HAVE_OS_X_FRAMEWORKS 1)

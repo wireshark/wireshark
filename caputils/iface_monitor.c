@@ -177,7 +177,7 @@ iface_mon_stop(void)
 #elif defined(__APPLE__)
 
 /*
- * OS X.
+ * macOS.
  */
 
 #include <stddef.h>

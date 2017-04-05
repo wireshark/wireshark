@@ -1955,7 +1955,7 @@ file_open_error_message(int err, gboolean for_writing)
          * Either you have a fixed swap partition or a fixed swap file,
          * and it needs to be made bigger.
          *
-         * This is UN*X, but it's not OS X, so we assume the user is
+         * This is UN*X, but it's not macOS, so we assume the user is
          * *somewhat* nerdy.
          */
 #define ENOMEM_REASON "your system is out of swap space"

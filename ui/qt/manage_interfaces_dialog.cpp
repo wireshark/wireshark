@@ -445,7 +445,7 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
 }
 
 // We don't actually store these. When we do we should make sure they're stored
-// securely using CryptProtectData, the OS X Keychain, GNOME Keyring, KWallet, etc.
+// securely using CryptProtectData, the macOS Keychain, GNOME Keyring, KWallet, etc.
 void ManageInterfacesDialog::remoteAccepted()
 {
     QTreeWidgetItemIterator it(ui->remoteList);

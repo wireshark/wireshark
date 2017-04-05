@@ -214,10 +214,10 @@
 /* Define to 1 if you have the <Ntddndis.h> header file. */
 #cmakedefine HAVE_NTDDNDIS_H 1
 
-/* Define to 1 if you have OS X frameworks */
+/* Define to 1 if you have macOS frameworks */
 #cmakedefine HAVE_OS_X_FRAMEWORKS 1
 
-/* Define to 1 if you have the OS X CFPropertyListCreateWithStream function */
+/* Define to 1 if you have the macOS CFPropertyListCreateWithStream function */
 #cmakedefine HAVE_CFPROPERTYLISTCREATEWITHSTREAM 1
 
 /* Define if pcap_breakloop is known */

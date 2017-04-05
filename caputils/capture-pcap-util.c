@@ -109,7 +109,7 @@ static const char please_report[] =
 #include <wsutil/cfutils.h>
 
 /*
- * On OS X, we get the "friendly name" and interface type for the interface
+ * On macOS, we get the "friendly name" and interface type for the interface
  * from the System Configuration framework.
  *
  * To find the System Configuration framework information for the
@@ -127,7 +127,7 @@ static const char please_report[] =
  * an SNMP MIB-II ifType value.
  *
  * However, it's IFT_ETHER, i.e. Ethernet, for AirPort interfaces,
- * not IFT_IEEE80211 (which isn't defined in OS X in any case).
+ * not IFT_IEEE80211 (which isn't defined in macOS in any case).
  *
  * Perhaps some other BSD-flavored OSes won't make this mistake;
  * however, FreeBSD 7.0 and OpenBSD 4.2, at least, appear to have

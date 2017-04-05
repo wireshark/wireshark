@@ -968,7 +968,7 @@ libtool: $(LIBTOOL_DEPS)
 # FreeBSD install command has a -T flag that takes an argument and
 # that has completely different semantics.
 #
-# We neither need nor want any of this on OS X, nor do we want it if
+# We neither need nor want any of this on macOS, nor do we want it if
 # we're not building Wireshark (that being the only desktop app).
 #
 install-data-local:
@@ -1039,7 +1039,7 @@ uninstall-hook: update-databases-and-caches-uninstall
 # We only need to run gtk-update-icon-cache if we're installing a GTK+
 # version of Wireshark.
 #
-# We neither need nor want any of this on OS X, nor do we want it if
+# We neither need nor want any of this on macOS, nor do we want it if
 # we're not building Wireshark (that being the only desktop app).
 #
 update-databases-and-caches-common:
@@ -1112,7 +1112,7 @@ osx-app: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) packaging/macosx/Info.plist
 			--extcap-path ../staging/$(PACKAGE).inst$(extcapdir) \
 			--library-path ../staging/$(PACKAGE).inst$(libdir) ; \
 	else \
-		echo "Error: OS X packaging tools not found." ; \
+		echo "Error: macOS packaging tools not found." ; \
 		echo "Package build abandoned." ; \
 	fi
 

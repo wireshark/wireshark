@@ -177,7 +177,7 @@
   </mime-type>
 
   <mime-type type="application/x-apple-packetlogger">
-    <comment>Packet Capture (OS X PacketLogger)</comment>
+    <comment>Packet Capture (macOS PacketLogger)</comment>
     <generic-icon name="application-wireshark-doc"/>
     <glob pattern="*.pklg"/>
     <glob pattern="*.pklg.gz"/>

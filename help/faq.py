@@ -261,7 +261,7 @@ answer("""
 Wireshark&#174; is a network protocol analyzer. It lets you capture and
 interactively browse the traffic running on a computer network.  It has
 a rich and powerful feature set and is world's most popular tool of its
-kind. It runs on most computing platforms including Windows, OS X,
+kind. It runs on most computing platforms including Windows, macOS,
 Linux, and UNIX. Network professionals, security experts, developers,
 and educators around the world use it regularly. It is freely available
 as open source, and is released under the GNU General Public License
@@ -729,12 +729,12 @@ with version 4.2.2 or a later version.
 """)
 
 question("""
-I've installed Wireshark from Fink on OS X; why is it very slow to
+I've installed Wireshark from Fink on macOS; why is it very slow to
 start up?
 """)
 
 answer("""
-When an application is installed on OS X, prior to 10.4, it is usually
+When an application is installed on macOS, prior to 10.4, it is usually
 "prebound" to speed up launching the application.  (That's what the
 "Optimizing" phase of installation is.)
 
@@ -1204,7 +1204,7 @@ Most OSes do <strong>not</strong> support capturing the FCS of a frame
 on Ethernet, and probably do not support it on most other link-layer
 types.  Some drivres on some OSes do support it, such as some (all?)
 Ethernet drivers on NetBSD and possibly the driver for Apple's gigabit
-Ethernet interface in OS X; in those OSes, you might always get the
+Ethernet interface in macOS; in those OSes, you might always get the
 FCS, or you might only get the FCS if you capture in promiscuous mode
 (you'd have to determine which is the case).
 

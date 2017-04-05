@@ -84,13 +84,13 @@ extern "C" {
 #endif
 
 /*
- *	For dealing with APIs which are only deprecated in OS X (like the
+ *	For dealing with APIs which are only deprecated in macOS (like the
  *	OpenSSL and MIT/Heimdal Kerberos APIs).
  *
  *	Dear Apple: this is a cross-platform program, and we're not
- *	going to use your Shiny New Frameworks on OS X unless there's
+ *	going to use your Shiny New Frameworks on macOS unless there's
  *	a sufficiently clear benefit to make it worth our while to have
- *	both OS X and non-OS X versions of the code.
+ *	both macOS and non-macOS versions of the code.
  */
 #ifdef __APPLE__
 #  define USES_APPLE_DEPRECATED_API DIAG_OFF(deprecated-declarations)

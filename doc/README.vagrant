@@ -68,8 +68,8 @@ The various Wireshark applications can be run from the ~/build folder of the
 Ubuntu VM with commands such as `./run/wireshark`, `./run/tshark`, etc.
 
 To run the Wireshark GUI you will typically need an X server. If you are using
-macOS (OS X) as the host system then you would likely use XQuartz as your X
-server. XQuartz can be downloaded from https://www.xquartz.org/.
+macOS ({Mac} OS X) as the host system then you would likely use XQuartz as
+your X server. XQuartz can be downloaded from https://www.xquartz.org/.
 
 The Ubuntu VM can be shutdown or suspended from the host system with the
 commands `vagrant halt` and `vagrant suspend` repectively. In either case the

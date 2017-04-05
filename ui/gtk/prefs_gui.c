@@ -205,8 +205,8 @@ gui_prefs_show(void)
 
 #if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
 	macosx_style_cb = create_preference_check_button(main_grid, pos++,
-	    "OS X style",
-	    "Create an OS X look and feel. Checking this box will move the "
+	    "macOS style",
+	    "Create a macOS look and feel. Checking this box will move the "
 	    "menu bar to the top of the screen instead of the top of the Wireshark window. "
 	    "Requires a restart of Wireshark to take effect.",
 	    prefs.gui_macosx_style);

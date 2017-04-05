@@ -111,7 +111,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
     } else {
         /* XXX - on UN*X, should we just use g_log_default_handler()?
            We want the error messages to go to the standard output;
-           on Mac OS X, that will cause them to show up in various
+           on macOS, that will cause them to show up in various
            per-user logs accessible through Console (details depend
            on whether you're running 10.0 through 10.4 or running
            10.5 and later), and, on other UN*X desktop environments,

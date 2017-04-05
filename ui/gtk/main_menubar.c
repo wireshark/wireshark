@@ -2501,7 +2501,7 @@ main_menu_new(GtkAccelGroup ** table)
     }
 
     /* The quit item in the application menu shows up whenever ige mac
-     * integration is enabled, even if the OS X UI style in Wireshark isn't
+     * integration is enabled, even if the macOS UI style in Wireshark isn't
      * turned on. */
     quit_item = gtk_menu_item_new_with_label("Quit");
     g_signal_connect(quit_item, "activate", G_CALLBACK(file_quit_cmd_cb), NULL);

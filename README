@@ -29,7 +29,7 @@ The Wireshark project builds and tests regularly on the following platforms:
 
   - Linux (Ubuntu)
   - Microsoft Windows
-  - macOS / OS X
+  - macOS / {Mac} OS X
 
 Official installation packages are available for Microsoft Windows and
 macOS.

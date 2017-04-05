@@ -31,7 +31,7 @@
 // We want nice icons that render correctly, and that are responsive
 // when the user hovers and clicks them.
 // Using setIcon renders correctly on normal and retina displays. It is
-// not completely responsive, particularly on OS X.
+// not completely responsive, particularly on macOS.
 // Calling setStyleSheet is responsive, but does not render correctly on
 // retina displays: https://bugreports.qt.io/browse/QTBUG-36825
 // Subclass QToolButton, which lets us catch events and set icons as needed.
@@ -88,7 +88,7 @@ bool StockIconToolButton::event(QEvent *event)
     case QEvent::Timer:
     {
         // We can lose QEvent::Leave, QEvent::HoverLeave and underMouse()
-        // on OS X if a tooltip appears:
+        // on macOS if a tooltip appears:
         // https://bugreports.qt.io/browse/QTBUG-46379
         // Work around the issue by periodically checking the mouse
         // position and scheduling a fake leave event when the mouse

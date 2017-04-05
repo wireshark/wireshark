@@ -13,7 +13,7 @@ IF (M_INCLUDE_DIRS)
 ENDIF (M_INCLUDE_DIRS)
 
 #
-# On OS X, make sure we do *NOT* find math.h in the Kernel framework,
+# On macOS, make sure we do *NOT* find math.h in the Kernel framework,
 # as that will convince CMake to cause the build to look there for
 # headers.
 #

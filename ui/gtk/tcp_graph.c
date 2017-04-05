@@ -480,7 +480,7 @@ static struct irect zoomrect;
 
 /* #define ORIGINAL_WIN32_BUTTONS 1 */
 
-/* XXX - what about OS X? */
+/* XXX - what about macOS? */
 /* XXX: Needs work to ensire that the columns line up properly in both Gtk2 & Gtk3  */
 /*      What is the proper way to do this ??                                        */
 static char helptext[] =

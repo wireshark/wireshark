@@ -156,8 +156,6 @@ then
 
 		#
 		# Get the real version - strip off the "10.".
-		# We'll worry about that if, as, and when there's ever
-		# an OS XI.
 		#
 		deploy_real_version=`echo "$deploy_target" | sed -n 's/10\.\(.*\)/\1/p'`
 
@@ -294,7 +292,7 @@ AC_SUBST(OSX_MIN_VERSION)
 # Checks for the presence of macOS integration functions in the GTK+ framework
 # or as a separate library.
 #
-# GTK+ for MAC OS X now lives on www.gtk.org at:
+# GTK+ for macOS now lives on www.gtk.org at:
 #
 #   http://www.gtk.org/download/macos.php
 #
