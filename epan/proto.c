@@ -5384,7 +5384,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 								number_out = hf_str_val = hf_try_val_to_str(number, hfinfo);
 
 								if (!number_out)
-									number_out = hfinfo_number_value_format_display(hfinfo, BASE_DEC, number_buf, number);
+									number_out = hfinfo_number_value_format_display(hfinfo, hfinfo->display, number_buf, number);
 
 								offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
 							}
@@ -5429,7 +5429,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							number_out = hf_str_val = hf_try_val64_to_str(number64, hfinfo);
 
 							if (!number_out)
-								number_out = hfinfo_number_value_format_display64(hfinfo, BASE_DEC, number_buf, number64);
+								number_out = hfinfo_number_value_format_display64(hfinfo, hfinfo->display, number_buf, number64);
 
 							offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
 
