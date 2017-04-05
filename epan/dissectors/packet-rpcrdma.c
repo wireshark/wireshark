@@ -168,7 +168,7 @@ static guint get_write_chunk_size(tvbuff_t *tvb, guint offset)
 static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
 {
     guint32 value_follows;
-    guint start = offset;
+    guint chunk_size, start = offset;
 
     while (1) {
         value_follows = tvb_get_ntohl(tvb, offset);
@@ -178,9 +178,11 @@ static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
         if (!value_follows)
             break;
 
-        offset += get_write_chunk_size(tvb, offset);
-        if (offset > max_offset)
+        chunk_size = get_write_chunk_size(tvb, offset);
+        if ((offset + chunk_size) < offset ||
+            (offset + chunk_size) > max_offset)
             return 0;
+        offset += chunk_size;
     }
 
     return offset - start;
@@ -189,7 +191,7 @@ static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
 static guint get_write_list_chunk_count(tvbuff_t *tvb, guint offset)
 {
     guint32 value_follows;
-    guint num_chunks;
+    guint num_chunks, chunk_size;
 
     num_chunks = 0;
     while (1) {
@@ -199,7 +201,9 @@ static guint get_write_list_chunk_count(tvbuff_t *tvb, guint offset)
             break;
 
         num_chunks++;
-        offset += get_write_chunk_size(tvb, offset);
+        chunk_size = get_write_chunk_size(tvb, offset);
+        if ((offset + chunk_size) < offset)
+            break;
     }
 
    return num_chunks;
