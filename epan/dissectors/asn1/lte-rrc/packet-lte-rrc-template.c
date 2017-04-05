@@ -517,8 +517,8 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_41_val = {
   "Measurement reporting event: Event B1 - Neighbour > threshold for UTRAN FDD - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_42_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "DCI format 3a - Supported",
+  "DCI format 3a - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_43_val = {
   "Undefined - Supported",
