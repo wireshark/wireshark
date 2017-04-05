@@ -604,6 +604,9 @@ static int  hf_noe_property_item_u32    = -1;
 static int  hf_noe_property_item_bytes  = -1;
 static int  hf_event_value_u8           = -1;
 static int  hf_event_context_switch     = -1;
+static int  hf_evt_locappl_enable       = -1;
+static int  hf_evt_locappl_interruptible= -1;
+static int  hf_evt_locappl_identifier   = -1;
 static int  hf_event_widget_gc          = -1;
 
 static const value_string servers_vals[] = {
@@ -1138,6 +1141,16 @@ static void decode_evt(proto_tree  *tree,
     case OPCODE_EVT_CONTEXT_SWITCH:
         proto_tree_add_item(tree, hf_event_context_switch, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
+    case OPCODE_EVT_LOCAL_APPLICATION:
+        {
+            proto_tree_add_item(tree, hf_evt_locappl_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(tree, hf_evt_locappl_interruptible, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(tree, hf_evt_locappl_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            break;
+        }
     case OPCODE_EVT_SUCCESS_CREATE:
     case OPCODE_EVT_SUCCESS_DELETE:
     case OPCODE_EVT_SUCCESS_SET_PROPERTY:
@@ -1592,6 +1605,42 @@ void proto_register_noe(void)
                   FT_UINT8,
                   BASE_DEC,
                   VALS(noe_evt_context_switch_str_vals),
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_evt_locappl_enable,
+              {
+                  "Enable",
+                  "noe.event_locappl.enable",
+                  FT_BOOLEAN,
+                  BASE_NONE,
+                  NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_evt_locappl_interruptible,
+              {
+                  "Interruptible",
+                  "noe.event_locappl.interruptible",
+                  FT_BOOLEAN,
+                  BASE_NONE,
+                  NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_evt_locappl_identifier,
+              {
+                  "Identifier",
+                  "noe.event_locappl.identifier",
+                  FT_UINT8,
+                  BASE_DEC,
+                  NULL,
                   0x0,
                   NULL,
                   HFILL
