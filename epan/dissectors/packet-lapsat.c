@@ -505,8 +505,6 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!plen)
 		return;	/* No point in doing more if there is no payload */
 
-	DISSECTOR_ASSERT((plen + hlen) <= tvb_captured_length(tvb));
-
 	if ((plen + hlen) == tvb_captured_length(tvb)) {
 		/* Need to integrate the last nibble */
 		guint8 *data = (guint8 *)tvb_memdup(NULL, tvb, hlen, plen);
