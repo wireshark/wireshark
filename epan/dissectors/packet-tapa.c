@@ -35,6 +35,7 @@ Specs:
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/ipproto.h>
+#include <epan/expert.h>
 #include "packet-ip.h"
 
 void proto_reg_handoff_tapa(void);
@@ -82,6 +83,8 @@ static int hf_tapa_tunnel_0804 = -1;
 static int hf_tapa_tunnel_tagsetc = -1;
 
 static int hf_tapa_tunnel_remaining = -1;
+
+static expert_field ei_tapa_length_too_short = EI_INIT;
 
 static dissector_handle_t tapa_handle;
 
@@ -225,6 +228,7 @@ static int
 dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_discover_tree, guint32 offset, gint remaining)
 {
 	proto_tree	*tapa_discover_item_tree;
+	proto_item	*item, *discover_item;
 	guint8		 item_type;
 	gint		 item_length;
 	const gchar	*item_text;
@@ -236,20 +240,8 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		/*item_type_text = val_to_str(item_type, tapa_discover_unknown_vals, "%d");*/
 		item_length = tvb_get_ntohs(tvb, offset + 2) - 4;
 
-		DISSECTOR_ASSERT(item_length > 0);
-
-		is_ascii = check_ascii(tvb, offset + 4, item_length);
-		if (is_ascii)
-			item_text = tvb_format_text(tvb, offset + 4, item_length);
-		else
-			item_text = "BINARY-DATA";
-
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", T=%d L=%d",
-				item_type, item_length);
-
 		tapa_discover_item_tree = proto_tree_add_subtree_format(tapa_discover_tree, tvb, offset, 4 + item_length,
-			ett_tapa_discover_req, NULL, "Type %d, length %d, value %s",
-			item_type, item_length, item_text);
+			ett_tapa_discover_req, &discover_item, "Type %d, length %d", item_type, item_length);
 
 		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_type, tvb, offset, 1,
 			ENC_BIG_ENDIAN);
@@ -259,9 +251,24 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			ENC_BIG_ENDIAN);
 		offset += 1;
 
-		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_length, tvb, offset, 2,
+		item = proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_length, tvb, offset, 2,
 			ENC_BIG_ENDIAN);
 		offset += 2;
+
+		if (item_length <= 0) {
+			expert_add_info(pinfo, item, &ei_tapa_length_too_short);
+			return offset;
+		}
+
+		is_ascii = check_ascii(tvb, offset + 4, item_length);
+		if (is_ascii)
+			item_text = tvb_format_text(tvb, offset + 4, item_length);
+		else
+			item_text = "BINARY-DATA";
+
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", T=%d L=%d",
+				item_type, item_length);
+		proto_item_append_text(discover_item, ", value %s", item_text);
 
 		if (is_ascii)
 			proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_valuetext,
@@ -281,14 +288,12 @@ dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *tapa_discover_tree = NULL;
-	guint32 offset = 0;
+	gint offset = 0;
 	guint8 packet_type;
-	guint remaining;
+	gint remaining;
 
 	packet_type = tvb_get_guint8(tvb, 0);
 	remaining = tvb_get_ntohs(tvb, 2) - 4;
-
-	DISSECTOR_ASSERT(remaining > 4);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Discover - %s",
@@ -307,9 +312,14 @@ dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ENC_BIG_ENDIAN);
 		offset += 1;
 
-		proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_length, tvb, offset, 2,
+		ti = proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_length, tvb, offset, 2,
 			ENC_BIG_ENDIAN);
 		offset += 2;
+
+		if (remaining <= 0) {
+			expert_add_info(pinfo, ti, &ei_tapa_length_too_short);
+			return offset;
+		}
 
 		switch (packet_type) {
 		case TAPA_TYPE_REQUEST:
@@ -483,6 +493,8 @@ dissect_tapa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 void
 proto_register_tapa(void)
 {
+	expert_module_t* expert_tapa;
+
 	static hf_register_info hf[] = {
 
 		/* TAPA discover header */
@@ -614,9 +626,17 @@ proto_register_tapa(void)
 		&ett_tapa_tunnel,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_tapa_length_too_short,
+		  { "tapa.length_too_short", PI_MALFORMED, PI_ERROR,
+	            "Length is too short (<= 4)", EXPFILL }}
+	};
+
 	proto_tapa = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "tapa");
 	proto_register_field_array(proto_tapa, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_tapa = expert_register_protocol(proto_tapa);
+	expert_register_field_array(expert_tapa, ei, array_length(ei));
 
 	tapa_handle = register_dissector("tapa", dissect_tapa_static, proto_tapa);
 
