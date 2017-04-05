@@ -170,9 +170,10 @@ static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
         offset += 4;
         if (offset > max_offset)
             return 0;
-        offset += (segment_count * 16);
-        if (offset > max_offset)
+        if ((offset + (segment_count * 16)) < offset ||
+            (offset + (segment_count * 16)) > max_offset)
             return 0;
+        offset += (segment_count * 16);
     }
 
     return offset - start;
