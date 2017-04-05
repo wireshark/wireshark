@@ -163,7 +163,7 @@ LIBTOOL_VERSION=2.4.6
 install_xz() {
     if [ "$XZ_VERSION" -a ! -f xz-$XZ_VERSION-done ] ; then
         echo "Downloading, building, and installing xz:"
-        [ -f xz-$XZ_VERSION.tar.bz2 ] || curl -O http://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2 || exit 1
+        [ -f xz-$XZ_VERSION.tar.bz2 ] || curl -L -O http://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2 || exit 1
         bzcat xz-$XZ_VERSION.tar.bz2 | tar xf - || exit 1
         cd xz-$XZ_VERSION
         CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
@@ -268,7 +268,7 @@ uninstall_lz4() {
 install_sbc() {
     if [ "$SBC_VERSION" -a ! -f sbc-$SBC_VERSION-done ] ; then
         echo "Downloading, building, and installing sbc:"
-        [ -f sbc-$SBC_VERSION.tar.gz ] || curl -O https://www.kernel.org/pub/linux/bluetooth/sbc-$SBC_VERSION.tar.gz || exit 1
+        [ -f sbc-$SBC_VERSION.tar.gz ] || curl -L -O https://www.kernel.org/pub/linux/bluetooth/sbc-$SBC_VERSION.tar.gz || exit 1
         gzcat sbc-$SBC_VERSION.tar.gz | tar xf - || exit 1
         cd sbc-$SBC_VERSION
         CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure --disable-tools --disable-tester --disable-shared || exit 1
@@ -303,7 +303,7 @@ uninstall_sbc() {
 install_autoconf() {
     if [ "$AUTOCONF_VERSION" -a ! -f autoconf-$AUTOCONF_VERSION-done ] ; then
         echo "Downloading, building and installing GNU autoconf..."
-        [ -f autoconf-$AUTOCONF_VERSION.tar.xz ] || curl -O ftp://ftp.gnu.org/gnu/autoconf/autoconf-$AUTOCONF_VERSION.tar.xz || exit 1
+        [ -f autoconf-$AUTOCONF_VERSION.tar.xz ] || curl -L -O ftp://ftp.gnu.org/gnu/autoconf/autoconf-$AUTOCONF_VERSION.tar.xz || exit 1
         xzcat autoconf-$AUTOCONF_VERSION.tar.xz | tar xf - || exit 1
         cd autoconf-$AUTOCONF_VERSION
         ./configure || exit 1
@@ -344,7 +344,7 @@ uninstall_autoconf() {
 install_automake() {
     if [ "$AUTOMAKE_VERSION" -a ! -f automake-$AUTOMAKE_VERSION-done ] ; then
         echo "Downloading, building and installing GNU automake..."
-        [ -f automake-$AUTOMAKE_VERSION.tar.xz ] || curl -O ftp://ftp.gnu.org/gnu/automake/automake-$AUTOMAKE_VERSION.tar.xz || exit 1
+        [ -f automake-$AUTOMAKE_VERSION.tar.xz ] || curl -L -O ftp://ftp.gnu.org/gnu/automake/automake-$AUTOMAKE_VERSION.tar.xz || exit 1
         xzcat automake-$AUTOMAKE_VERSION.tar.xz | tar xf - || exit 1
         cd automake-$AUTOMAKE_VERSION
         ./configure || exit 1
@@ -384,7 +384,7 @@ uninstall_automake() {
 install_libtool() {
     if [ "$LIBTOOL_VERSION" -a ! -f libtool-$LIBTOOL_VERSION-done ] ; then
         echo "Downloading, building and installing GNU libtool..."
-        [ -f libtool-$LIBTOOL_VERSION.tar.xz ] || curl -O ftp://ftp.gnu.org/gnu/libtool/libtool-$LIBTOOL_VERSION.tar.xz || exit 1
+        [ -f libtool-$LIBTOOL_VERSION.tar.xz ] || curl -L -O ftp://ftp.gnu.org/gnu/libtool/libtool-$LIBTOOL_VERSION.tar.xz || exit 1
         xzcat libtool-$LIBTOOL_VERSION.tar.xz | tar xf - || exit 1
         cd libtool-$LIBTOOL_VERSION
         ./configure || exit 1
@@ -442,7 +442,7 @@ install_cmake() {
             #
             # Download the DMG, run the installer.
             #
-            [ -f cmake-$CMAKE_VERSION-Darwin64-universal.dmg ] || curl -O https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
+            [ -f cmake-$CMAKE_VERSION-Darwin64-universal.dmg ] || curl -L -O https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
             sudo hdiutil attach cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
             sudo installer -target / -pkg /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal/cmake-$CMAKE_VERSION-Darwin64-universal.pkg || exit 1
             sudo hdiutil detach /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal
@@ -464,7 +464,7 @@ install_cmake() {
             else
                 type="Darwin-x86_64"
             fi
-            [ -f cmake-$CMAKE_VERSION-$type.dmg ] || curl -O https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-$type.dmg || exit 1
+            [ -f cmake-$CMAKE_VERSION-$type.dmg ] || curl -L -O https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-$type.dmg || exit 1
             sudo hdiutil attach cmake-$CMAKE_VERSION-$type.dmg || exit 1
             sudo ditto /Volumes/cmake-$CMAKE_VERSION-$type/CMake.app /Applications/CMake.app || exit 1
 
@@ -539,7 +539,7 @@ uninstall_cmake() {
 install_gettext() {
     if [ ! -f gettext-$GETTEXT_VERSION-done ] ; then
         echo "Downloading, building, and installing GNU gettext:"
-        [ -f gettext-$GETTEXT_VERSION.tar.gz ] || curl -O http://ftp.gnu.org/pub/gnu/gettext/gettext-$GETTEXT_VERSION.tar.gz || exit 1
+        [ -f gettext-$GETTEXT_VERSION.tar.gz ] || curl -L -O http://ftp.gnu.org/pub/gnu/gettext/gettext-$GETTEXT_VERSION.tar.gz || exit 1
         gzcat gettext-$GETTEXT_VERSION.tar.gz | tar xf - || exit 1
         cd gettext-$GETTEXT_VERSION
         CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -579,7 +579,7 @@ uninstall_gettext() {
 install_pkg_config() {
     if [ ! -f pkg-config-$PKG_CONFIG_VERSION-done ] ; then
         echo "Downloading, building, and installing pkg-config:"
-        [ -f pkg-config-$PKG_CONFIG_VERSION.tar.gz ] || curl -O https://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz || exit 1
+        [ -f pkg-config-$PKG_CONFIG_VERSION.tar.gz ] || curl -L -O https://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz || exit 1
         gzcat pkg-config-$PKG_CONFIG_VERSION.tar.gz | tar xf - || exit 1
         cd pkg-config-$PKG_CONFIG_VERSION
         ./configure --with-internal-glib || exit 1
@@ -792,7 +792,7 @@ install_libpng() {
         # The FTP site puts libpng x.y.* into a libpngxy directory.
         #
         subdir=`echo $PNG_VERSION | sed 's/\([1-9][0-9]*\)\.\([1-9][0-9]*\).*/libpng\1\2'/`
-        [ -f libpng-$PNG_VERSION.tar.xz ] || curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/$subdir/libpng-$PNG_VERSION.tar.xz
+        [ -f libpng-$PNG_VERSION.tar.xz ] || curl -L -O ftp://ftp.simplesystems.org/pub/libpng/png/src/$subdir/libpng-$PNG_VERSION.tar.xz
         xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
         cd libpng-$PNG_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -832,7 +832,7 @@ uninstall_libpng() {
 install_pixman() {
     if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
         echo "Downloading, building, and installing pixman:"
-        [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
+        [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -L -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
         gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
         cd pixman-$PIXMAN_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -883,10 +883,10 @@ install_cairo() {
             # Starting with Cairo 1.12.2, the tarballs are compressed with
             # xz rather than gzip.
             #
-            [ -f cairo-$CAIRO_VERSION.tar.xz ] || curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
+            [ -f cairo-$CAIRO_VERSION.tar.xz ] || curl -L -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
             xzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
         else
-            [ -f cairo-$CAIRO_VERSION.tar.gz ] || curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.gz || exit 1
+            [ -f cairo-$CAIRO_VERSION.tar.gz ] || curl -L -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.gz || exit 1
             gzcat cairo-$CAIRO_VERSION.tar.gz | tar xf - || exit 1
         fi
         cd cairo-$CAIRO_VERSION
@@ -947,10 +947,10 @@ install_atk() {
             #
             # Starting with ATK 2.0.1, xz-compressed tarballs are available.
             #
-            [ -f atk-$ATK_VERSION.tar.xz ] || curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.xz || exit 1
+            [ -f atk-$ATK_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.xz || exit 1
             xzcat atk-$ATK_VERSION.tar.xz | tar xf - || exit 1
         else
-            [ -f atk-$ATK_VERSION.tar.bz2 ] || curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.bz2 || exit 1
+            [ -f atk-$ATK_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.bz2 || exit 1
             bzcat atk-$ATK_VERSION.tar.bz2 | tar xf - || exit 1
         fi
         cd atk-$ATK_VERSION
