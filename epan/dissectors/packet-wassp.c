@@ -45,6 +45,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/expert.h>
 
 void proto_register_wassp(void);
 void proto_reg_handoff_wassp(void);
@@ -337,6 +338,8 @@ static int hf_config_radio_a_support_802_11_j = -1;
 static int hf_config_radio_atpc_en_interval = -1;
 static int hf_config_radio_acs_ch_list = -1;
 static int hf_config_radio_tx_power_adj = -1;
+
+static expert_field ei_wassp_length_too_short = EI_INIT;
 
 #define PROTO_SHORT_NAME "WASSP"
 #define PROTO_LONG_NAME "Wireless Access Station Session Protocol"
@@ -820,34 +823,36 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	guint32 offset, guint32 length _U_, const ext_value_string *value_array)
 {
 	guint32 tlv_type;
-	guint32 tlv_length;
+	gint tlv_length;
 	proto_item *tlv_tree;
-	proto_item *type_item;
+	proto_item *item;
 	int type_index;
 	guint32 tlv_end;
 
 	tlv_type = tvb_get_ntohs(tvb, offset);
 	tlv_length = tvb_get_ntohs(tvb, offset + 2);
-	DISSECTOR_ASSERT(tlv_length >= 4);
 	tlv_tree = proto_tree_add_subtree_format(wassp_tree, tvb,
 		offset, tlv_length, ett_wassp_tlv_header, NULL,
 		"T %d, L %d: %s",
 		tlv_type,
 		tlv_length,
 		extval_to_str_idx(tlv_type, value_array, NULL, "Unknown"));
-	type_item = proto_tree_add_item(tlv_tree, hf_wassp_tlv_type,
+	item = proto_tree_add_item(tlv_tree, hf_wassp_tlv_type,
 		tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_item_append_text(type_item, " = %s",
+	proto_item_append_text(item, " = %s",
 		extval_to_str_idx(tlv_type, value_array,
 			&type_index, "Unknown"));
 	offset += 2;
-	proto_tree_add_item(tlv_tree, hf_wassp_tlv_length,
+	item = proto_tree_add_item(tlv_tree, hf_wassp_tlv_length,
 		tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	tlv_length -= 4;
 
-	if (tlv_length == 0)
+	if (tlv_length < 0) {
+		expert_add_info(pinfo, item, &ei_wassp_length_too_short);
+		return offset;
+	} else if (tlv_length == 0)
 		return offset;
 
 	tlv_end = offset + tlv_length;
@@ -1005,6 +1010,8 @@ dissect_wassp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 void
 proto_register_wassp(void)
 {
+	expert_module_t* expert_wassp;
+
 	static hf_register_info hf[] = {
 
 	/* TLV fields */
@@ -2083,10 +2090,17 @@ proto_register_wassp(void)
 		&ett_wassp,
 		&ett_wassp_tlv_header,
 	};
+	static ei_register_info ei[] = {
+		{ &ei_wassp_length_too_short,
+		  { "wassp.length_too_short", PI_MALFORMED, PI_ERROR,
+		    "Length is too short (< 4)", EXPFILL }}
+	};
 
 	proto_wassp = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "wassp");
 	proto_register_field_array(proto_wassp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_wassp = expert_register_protocol(proto_wassp);
+	expert_register_field_array(expert_wassp, ei, array_length(ei));
 }
 
 void
