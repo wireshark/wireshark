@@ -2401,6 +2401,10 @@ dissect_pcep_record_route_obj(proto_tree *pcep_object_tree, packet_info *pinfo, 
             case PCEP_SUB_UNNUMB_INTERFACE_ID:
                 dissect_subobj_unnumb_interfaceID(pcep_object_tree, pinfo, tvb, offset2, obj_class, ett_pcep_obj_record_route, length);
                 break;
+            case PCEP_SUB_SR_PRE_IANA:
+            case PCEP_SUB_SR:   /* draft-ietf-pce-segment-routing-08 section 5.4 */
+                dissect_subobj_sr(pcep_object_tree, pinfo, tvb, offset2, obj_class, ett_pcep_obj_record_route, length);
+                break;
             default:
                 proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_non_defined_subobject,
                                              tvb, offset2, length,
