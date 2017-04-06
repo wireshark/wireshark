@@ -1101,17 +1101,12 @@ dissect_adwin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ADwin");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_adwin, tvb, 0, -1, ENC_NA);
-		adwin_tree = proto_item_add_subtree(ti, ett_adwin);
+	ti = proto_tree_add_item(tree, proto_adwin, tvb, 0, -1, ENC_NA);
+	adwin_tree = proto_item_add_subtree(ti, ett_adwin);
 
-		ti2 = proto_tree_add_item(adwin_tree, proto_adwin, tvb, 0, -1, ENC_NA);
-		adwin_debug_tree = proto_item_add_subtree(ti2, ett_adwin_debug);
-		proto_item_set_text(ti2, "ADwin Debug information");
-	} else {
-		adwin_tree = NULL;
-		adwin_debug_tree = NULL;
-	}
+	ti2 = proto_tree_add_item(adwin_tree, proto_adwin, tvb, 0, -1, ENC_NA);
+	adwin_debug_tree = proto_item_add_subtree(ti2, ett_adwin_debug);
+	proto_item_set_text(ti2, "ADwin Debug information");
 
 	switch (length) {
 	case UDPH1_OLD_LENGTH:
