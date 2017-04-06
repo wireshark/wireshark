@@ -69,11 +69,11 @@ void proto_reg_handoff_acn(void);
 #define ACN_DMP_ADT_FLAG_A 0x03 /* A1, A0 = Size of Address elements */
 #define ACN_DMP_ADT_EXTRACT_A(f)        ((f) & ACN_DMP_ADT_FLAG_A)
 
-#define ACN_DMP_ADT_V_VIRTUAL   0
-#define ACN_DMP_ADT_V_ACTUAL    1
+#define ACN_DMP_ADT_V_ACTUAL    0
+#define ACN_DMP_ADT_V_VIRTUAL   1
 
-#define ACN_DMP_ADT_R_RELATIVE  0
-#define ACN_DMP_ADT_R_ABSOLUTE  1
+#define ACN_DMP_ADT_R_ABSOLUTE  0
+#define ACN_DMP_ADT_R_RELATIVE  1
 
 #define ACN_DMP_ADT_D_NS        0
 #define ACN_DMP_ADT_D_RS        1
@@ -316,6 +316,7 @@ static int hf_acn_blob = -1;
 static int hf_acn_blob_field_length = -1;
 static int hf_acn_blob_field_type = -1;
 static int hf_acn_blob_field_value_number = -1;
+static int hf_acn_blob_field_value_number64 = -1;
 static int hf_acn_blob_field_value_ipv4 = -1;
 static int hf_acn_blob_field_value_ipv6 = -1;
 static int hf_acn_blob_field_value_float = -1;
@@ -356,12 +357,12 @@ static int hf_acn_dmp_virtual_address = -1;
 static int hf_acn_dmp_actual_address_first = -1;
 static int hf_acn_dmp_virtual_address_first = -1;
 static int hf_acn_expiry = -1;
-static int hf_acn_first_memeber_to_ack = -1;
+static int hf_acn_first_member_to_ack = -1;
 static int hf_acn_first_missed_sequence = -1;
 static int hf_acn_ip_address_type = -1;
 static int hf_acn_ipv4 = -1;
 static int hf_acn_ipv6 = -1;
-static int hf_acn_last_memeber_to_ack = -1;
+static int hf_acn_last_member_to_ack = -1;
 static int hf_acn_last_missed_sequence = -1;
 static int hf_acn_mak_threshold = -1;
 static int hf_acn_member_id = -1;
@@ -844,7 +845,7 @@ static const value_string acn_blob_dimmer_status_properties2_field_name[] = {
   { 16, "Winning DMX B Level" },
   { 17, "Winning sACN Level" },
   { 18, "Source Winning Control DD" },
-  { 19, "Priority of Winning Soruce DD" },
+  { 19, "Priority of Winning Source DD" },
   { 20, "Winning Level DD" },
   { 21, "Winning DMX A Level DD" },
   { 22, "Winning DMX B Level DD" },
@@ -886,13 +887,13 @@ static const value_string acn_blob_error3_field_name[] = {
 
 static const value_string acn_blob_field_type_vals[] = {
   { ACN_BLOB_FIELD_TYPE1, "1 Byte Signed Integer" },
-  { ACN_BLOB_FIELD_TYPE2, "2 Bits Signed Integer" },
-  { ACN_BLOB_FIELD_TYPE3, "4 Bits Signed Integer" },
-  { ACN_BLOB_FIELD_TYPE4, "8 Bits Signed Integer" },
+  { ACN_BLOB_FIELD_TYPE2, "2 Bytes Signed Integer" },
+  { ACN_BLOB_FIELD_TYPE3, "4 Bytes Signed Integer" },
+  { ACN_BLOB_FIELD_TYPE4, "8 Bytes Signed Integer" },
   { ACN_BLOB_FIELD_TYPE5, "1 Byte Unsigned Integer" },
-  { ACN_BLOB_FIELD_TYPE6, "2 Bits Unsigned Integer" },
-  { ACN_BLOB_FIELD_TYPE7, "4 Bits Unsigned Integer" },
-  { ACN_BLOB_FIELD_TYPE8, "8 Bits Unsigned Integer" },
+  { ACN_BLOB_FIELD_TYPE6, "2 Bytes Unsigned Integer" },
+  { ACN_BLOB_FIELD_TYPE7, "4 Bytes Unsigned Integer" },
+  { ACN_BLOB_FIELD_TYPE8, "8 Bytes Unsigned Integer" },
   { ACN_BLOB_FIELD_TYPE9, "Float" },
   { ACN_BLOB_FIELD_TYPE10, "Double" },
   { ACN_BLOB_FIELD_TYPE11, "Variblob" },
@@ -1254,7 +1255,7 @@ static const value_string acn_blob_dimmer_status_properties1_field_name[] = {
   { 16, "Winning DMX B Level" },
   { 17, "Winning sACN Level" },
   { 18, "Source Winning Control DD" },
-  { 19, "Priority of Winning Soruce DD" },
+  { 19, "Priority of Winning Source DD" },
   { 20, "Winning Level DD" },
   { 21, "Winning DMX A Level DD" },
   { 22, "Winning DMX B Level DD" },
@@ -2164,24 +2165,24 @@ static const value_string acn_blob_type_vals[] = {
 };
 
 static const value_string acn_dmp_vector_vals[] = {
-  {ACN_DMP_VECTOR_UNKNOWN,            "Unknown"},
-  {ACN_DMP_VECTOR_GET_PROPERTY,       "Get Property"},
-  {ACN_DMP_VECTOR_SET_PROPERTY,       "Set Property"},
-  {ACN_DMP_VECTOR_GET_PROPERTY_REPLY, "Get property reply"},
-  {ACN_DMP_VECTOR_EVENT,              "Event"},
-  {ACN_DMP_VECTOR_MAP_PROPERTY,       "Map Property"},
-  {ACN_DMP_VECTOR_UNMAP_PROPERTY,     "Unmap Property"},
-  {ACN_DMP_VECTOR_SUBSCRIBE,          "Subscribe"},
-  {ACN_DMP_VECTOR_UNSUBSCRIBE,        "Unsubscribe"},
-  {ACN_DMP_VECTOR_GET_PROPERTY_FAIL,  "Get Property Fail"},
-  {ACN_DMP_VECTOR_SET_PROPERTY_FAIL,  "Set Property Fail"},
-  {ACN_DMP_VECTOR_MAP_PROPERTY_FAIL,  "Map Property Fail"},
-  {ACN_DMP_VECTOR_SUBSCRIBE_ACCEPT,   "Subscribe Accept"},
-  {ACN_DMP_VECTOR_SUBSCRIBE_REJECT,   "Subscribe Reject"},
-  {ACN_DMP_VECTOR_ALLOCATE_MAP,       "Allocate Map"},
-  {ACN_DMP_VECTOR_ALLOCATE_MAP_REPLY, "Allocate Map Reply"},
-  { ACN_DMP_VECTOR_DEALLOCATE_MAP,    "Deallocate Map" },
-  { ACN_DMP_VECTOR_SYNC_EVENT,        "Sync Event" },
+  { ACN_DMP_VECTOR_UNKNOWN,            "Unknown"},
+  { ACN_DMP_VECTOR_GET_PROPERTY,       "Get Property"},
+  { ACN_DMP_VECTOR_SET_PROPERTY,       "Set Property"},
+  { ACN_DMP_VECTOR_GET_PROPERTY_REPLY, "Get property reply"},
+  { ACN_DMP_VECTOR_EVENT,              "Event"},
+  { ACN_DMP_VECTOR_MAP_PROPERTY,       "Map Property"},
+  { ACN_DMP_VECTOR_UNMAP_PROPERTY,     "Unmap Property"},
+  { ACN_DMP_VECTOR_SUBSCRIBE,          "Subscribe"},
+  { ACN_DMP_VECTOR_UNSUBSCRIBE,        "Unsubscribe"},
+  { ACN_DMP_VECTOR_GET_PROPERTY_FAIL,  "Get Property Fail"},
+  { ACN_DMP_VECTOR_SET_PROPERTY_FAIL,  "Set Property Fail"},
+  { ACN_DMP_VECTOR_MAP_PROPERTY_FAIL,  "Map Property Fail"},
+  { ACN_DMP_VECTOR_SUBSCRIBE_ACCEPT,   "Subscribe Accept"},
+  { ACN_DMP_VECTOR_SUBSCRIBE_REJECT,   "Subscribe Reject"},
+  { ACN_DMP_VECTOR_ALLOCATE_MAP,       "Allocate Map"},
+  { ACN_DMP_VECTOR_ALLOCATE_MAP_REPLY, "Allocate Map Reply"},
+  { ACN_DMP_VECTOR_DEALLOCATE_MAP,     "Deallocate Map" },
+  { ACN_DMP_VECTOR_SYNC_EVENT,         "Sync Event" },
   { 0,       NULL },
 };
 
@@ -2556,8 +2557,8 @@ acn_add_channel_owner_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   offset += 2;
   proto_tree_add_item(this_tree, hf_acn_channel_number, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  offset += acn_add_address(tvb, pinfo, this_tree, offset, "Destination Address:");
-  offset += acn_add_address(tvb, pinfo, this_tree, offset, "Source Address:");
+  offset = acn_add_address(tvb, pinfo, this_tree, offset, "Destination Address:");
+  offset = acn_add_address(tvb, pinfo, this_tree, offset, "Source Address:");
 
   session_count = tvb_get_ntohs(tvb, offset);
   for (x=0; x<session_count; x++) {
@@ -2587,8 +2588,8 @@ acn_add_channel_member_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   offset += 16;
   proto_tree_add_item(this_tree, hf_acn_channel_number, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  offset += acn_add_address(tvb, pinfo, this_tree, offset, "Destination Address:");
-  offset += acn_add_address(tvb, pinfo, this_tree, offset, "Source Address:");
+  offset = acn_add_address(tvb, pinfo, this_tree, offset, "Destination Address:");
+  offset = acn_add_address(tvb, pinfo, this_tree, offset, "Source Address:");
   proto_tree_add_item(this_tree, hf_acn_reciprocal_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
@@ -2622,7 +2623,6 @@ acn_add_channel_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
   param_tree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_acn_channel_parameter,
                             NULL, "Channel Parameter Block");
-
   proto_tree_add_item(param_tree, hf_acn_expiry, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
   proto_tree_add_item(param_tree, hf_acn_nak_outbound_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2733,9 +2733,9 @@ acn_add_dmp_address_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static guint32
 acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, acn_dmp_adt_type *adt)
 {
-  guint32 start_offset;
-  guint32 bytes_used;
-  guint8  D, A;
+  gint32 start_offset;
+  gint32 bytes_used;
+  guint8 D, A;
 
   start_offset = offset;
 
@@ -3456,10 +3456,10 @@ display_blob_field_value(tvbuff_t *tvb, proto_tree *field_tree, guint16 field_nu
     proto_tree_add_string(field_tree, hf_acn_blob_field_value_string, tvb, blob_offset, field_length, "Ignore");
   }
   else if (blob_type == ACN_BLOB_IPV4) {
-    proto_tree_add_item(field_tree, hf_acn_blob_field_value_ipv4, tvb, blob_offset, field_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_acn_blob_field_value_ipv4, tvb, blob_offset, field_length-2, ENC_BIG_ENDIAN);
   }
   else if (blob_type == ACN_BLOB_IPV6) {
-    proto_tree_add_item(field_tree, hf_acn_blob_field_value_ipv6, tvb, blob_offset, field_length, ENC_NA);
+    proto_tree_add_item(field_tree, hf_acn_blob_field_value_ipv6, tvb, blob_offset, field_length-2, ENC_NA);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 2)) {
     /* time zone index */
@@ -3545,7 +3545,7 @@ display_blob_field_value(tvbuff_t *tvb, proto_tree *field_tree, guint16 field_nu
         break;
       case ACN_BLOB_FIELD_TYPE4:
         /* Need special code to display signed data */
-        ti = proto_tree_add_item(field_tree, hf_acn_blob_field_value_number, tvb, blob_offset, 4, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(field_tree, hf_acn_blob_field_value_number64, tvb, blob_offset, 8, ENC_BIG_ENDIAN);
         proto_item_set_len(ti, blob_offset3);
         break;
       case ACN_BLOB_FIELD_TYPE9:
@@ -4059,7 +4059,8 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
   /* Check if blob exists, find beginning offset */
   blob_offset = data_offset;
-  while (blob_offset < end_offset - 3 && blob_exists != 1) {
+  blob_exists = 0;
+  while ((blob_offset < (end_offset - 4)) && (blob_exists != 1)) {
     if (tvb_get_ntohl(tvb, blob_offset) == 0x426c6f62) {
       /* 0x426c6f62 == "Blob" */
       blob_exists = 1;
@@ -5165,9 +5166,9 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       data_offset += 4;
       proto_tree_add_item(pdu_tree, hf_acn_oldest_available_wrapper, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
-      proto_tree_add_item(pdu_tree, hf_acn_first_memeber_to_ack,     tvb, data_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(pdu_tree, hf_acn_first_member_to_ack,      tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_last_memeber_to_ack,      tvb, data_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(pdu_tree, hf_acn_last_member_to_ack,       tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
       proto_tree_add_item(pdu_tree, hf_acn_mak_threshold,            tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
@@ -5561,20 +5562,15 @@ proto_register_acn(void)
         FT_UINT8, BASE_DEC, VALS(acn_blob_field_type_vals), 0x0,
         NULL, HFILL }
     },
-    /* Blob Field Value Number*/
+    /* Blob Field Value Number */
     { &hf_acn_blob_field_value_number,
       { "Field Value", "acn.blob_field_value_number",
         FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_acn_blob_field_value_ipv4,
-      { "Field Value", "acn.blob_field_value_ipv4",
-        FT_IPv4, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }
-    },
-    { &hf_acn_blob_field_value_ipv6,
-      { "Field Value", "acn.blob_field_value_ipv6",
-        FT_IPv6, BASE_NONE, NULL, 0x0,
+    { &hf_acn_blob_field_value_number64,
+      { "Field Value", "acn.blob_field_value_number64",
+        FT_UINT64, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_acn_blob_field_value_float,
@@ -5597,6 +5593,18 @@ proto_register_acn(void)
     { &hf_acn_blob_field_value_string,
       { "Field Value", "acn.blob_field_value_string",
         FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    /* Blob Field Value IPV4 */
+    { &hf_acn_blob_field_value_ipv4,
+      { "Field Value", "acn.blob_field_value_ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    /* Blob Field Value IPV6 */
+    { &hf_acn_blob_field_value_ipv6,
+      { "Field Value", "acn.blob_field_value_ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     /* Blob Metadata Device Type */
@@ -5801,7 +5809,7 @@ proto_register_acn(void)
         NULL, HFILL }
     },
     /* First Member to ACK */
-    { &hf_acn_first_memeber_to_ack,
+    { &hf_acn_first_member_to_ack,
       { "First Member to ACK", "acn.first_member_to_ack",
         FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }
@@ -5825,7 +5833,7 @@ proto_register_acn(void)
         NULL, HFILL }
     },
     /* Last Member to ACK */
-    { &hf_acn_last_memeber_to_ack,
+    { &hf_acn_last_member_to_ack,
       { "Last Member to ACK", "acn.last_member_to_ack",
         FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }
