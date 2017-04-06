@@ -2145,8 +2145,9 @@ tvb_strncaseeql(tvbuff_t *tvb, const gint offset, const gchar *str, const size_t
 }
 
 /*
- * Call memcmp after checking if enough chars left, returning 0 if
- * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
+ * Check that the tvbuff contains at least size bytes, starting at
+ * offset, and that those bytes are equal to str. Return 0 for success
+ * and -1 for error. This function does not throw an exception.
  */
 gint
 tvb_memeql(tvbuff_t *tvb, const gint offset, const guint8 *str, size_t size)
