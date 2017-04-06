@@ -1,0 +1,643 @@
+/* wireless_timeline.cpp
+ * GUI to show an 802.11 wireless timeline of packets
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * Copyright 2012 Parc Inc and Samsung Electronics
+ * Copyright 2015, 2016 & 2017 Cisco Inc
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#include "wireless_timeline.h"
+
+#include <epan/packet.h>
+#include <epan/prefs.h>
+#include <epan/proto_data.h>
+#include <epan/packet_info.h>
+#include <epan/column-utils.h>
+#include <epan/tap.h>
+
+#include <cmath>
+
+#include "globals.h"
+#include "color_utils.h"
+#include "../../log.h"
+#include <epan/dissectors/packet-ieee80211-radio.h>
+
+#include <epan/color_filters.h>
+#include "frame_tvbuff.h"
+
+#include "color_utils.h"
+#include "qt_ui_utils.h"
+#include "wireshark_application.h"
+
+#ifdef Q_OS_WIN
+#include "wsutil/file_util.h"
+#include <QSysInfo>
+#endif
+
+#include <QPaintEvent>
+#include <QPainter>
+#include <QGraphicsScene>
+#include <QToolTip>
+
+#include "packet_list.h"
+#include "packet_list_model.h"
+
+#include "ui/main_statusbar.h"
+
+const float fraction = 0.8F;
+const float base = 0.1F;
+
+class pcolor : public QColor
+{
+public:
+    inline pcolor(float red, float green, float blue) : QColor(
+            (int) (255*(red * fraction + base)),
+            (int) (255*(green * fraction + base)),
+            (int) (255*(blue * fraction + base)) ) { }
+};
+
+static void reset_rgb(float rgb[TIMELINE_HEIGHT][3])
+{
+    int i;
+    for(i = 0; i < TIMELINE_HEIGHT; i++)
+        rgb[i][0] = rgb[i][1] = rgb[i][2] = 1.0;
+}
+
+static void render_pixels(QPainter &p, gint x, gint width, float rgb[TIMELINE_HEIGHT][3], float ratio)
+{
+    int previous = 0, i;
+    for(i = 1; i <= TIMELINE_HEIGHT; i++) {
+        if (i != TIMELINE_HEIGHT &&
+                rgb[previous][0] == rgb[i][0] &&
+                rgb[previous][1] == rgb[i][1] &&
+                rgb[previous][2] == rgb[i][2])
+            continue;
+        if (rgb[previous][0] != 1.0 || rgb[previous][1] != 1.0 || rgb[previous][2] != 1.0) {
+          p.fillRect(QRectF(x/ratio, previous, width/ratio, i-previous), pcolor(rgb[previous][0],rgb[previous][1],rgb[previous][2]));
+        }
+        previous = i;
+    }
+    reset_rgb(rgb);
+}
+
+static void render_rectangle(QPainter &p, gint x, gint width, guint height, int dfilter, float r, float g, float b, float ratio)
+{
+    p.fillRect(QRectF(x/ratio, TIMELINE_HEIGHT/2-height, width/ratio, dfilter ? height * 2 : height), pcolor(r,g,b));
+}
+
+static void accumulate_rgb(float rgb[TIMELINE_HEIGHT][3], int height, int dfilter, float width, float red, float green, float blue)
+{
+    int i;
+    for(i = TIMELINE_HEIGHT/2-height; i < (TIMELINE_HEIGHT/2 + (dfilter ? height : 0)); i++) {
+        rgb[i][0] = rgb[i][0] - width + width * red;
+        rgb[i][1] = rgb[i][1] - width + width * green;
+        rgb[i][2] = rgb[i][2] - width + width * blue;
+    }
+}
+
+
+void WirelessTimeline::mousePressEvent(QMouseEvent *event)
+{
+    start_x = last_x = event->localPos().x();
+}
+
+
+void WirelessTimeline::mouseMoveEvent(QMouseEvent *event)
+{
+    if (event->buttons() == Qt::NoButton)
+        return;
+
+    qreal offset = event->localPos().x() - last_x;
+    last_x = event->localPos().x();
+
+    qreal shift = ((qreal) (end_tsf - start_tsf))/width() * offset;
+    start_tsf -= shift;
+    end_tsf -= shift;
+    clip_tsf();
+
+    // TODO: scroll by moving pixels and redraw only exposed area
+    // render(p, ...)
+    // then update full widget only on release.
+    update();
+}
+
+
+void WirelessTimeline::mouseReleaseEvent(QMouseEvent *event)
+{
+    qreal offset = event->localPos().x() - start_x;
+
+    /* if this was a drag, ignore it */
+    if (std::abs(offset) > 3)
+        return;
+
+    /* this was a click */
+    guint num = find_packet(event->localPos().x());
+    if (num == 0)
+        return;
+
+    frame_data *fdata = frame_data_sequence_find(cfile.frames, num);
+    if (!fdata->flags.passed_dfilter && fdata->prev_dis_num > 0)
+        num = fdata->prev_dis_num;
+
+    cf_goto_frame(&cfile, num);
+}
+
+
+void WirelessTimeline::clip_tsf()
+{
+    // did we go past the start of the file?
+    if (start_tsf < first->start_tsf) {
+        // align the start of the file at the left edge
+        guint64 shift = first->start_tsf - start_tsf;
+        start_tsf += shift;
+        end_tsf += shift;
+    }
+    if (end_tsf > last->end_tsf) {
+        guint64 shift = end_tsf - last->end_tsf;
+        start_tsf -= shift;
+        end_tsf -= shift;
+    }
+}
+
+
+void WirelessTimeline::packetSelectionChanged()
+{
+    if (isHidden())
+        return;
+
+    if (cfile.current_frame) {
+        struct wlan_radio *wr = get_wlan_radio(cfile.current_frame->num);
+
+        guint left_margin = 0.9 * start_tsf + 0.1 * end_tsf;
+        guint right_margin = 0.1 * start_tsf + 0.9 * end_tsf;
+        guint half_window = (end_tsf - start_tsf)/2;
+
+        if (wr) {
+            // are we to the left of the left margin?
+            if (wr->start_tsf < left_margin) {
+                // scroll the left edge back to the left margin
+                guint64 offset = left_margin - wr->start_tsf;
+                if (offset < half_window) {
+                    // small movement; keep packet to margin
+                    start_tsf -= offset;
+                    end_tsf -= offset;
+                } else {
+                    // large movement; move packet to center of window
+                    guint64 center = (wr->start_tsf + wr->end_tsf)/2;
+                    start_tsf = center - half_window;
+                    end_tsf = center + half_window;
+                }
+            } else if (wr->end_tsf > right_margin) {
+                guint64 offset = wr->end_tsf - right_margin;
+                if (offset < half_window) {
+                    start_tsf += offset;
+                    end_tsf += offset;
+                } else {
+                    guint64 center = (wr->start_tsf + wr->end_tsf)/2;
+                    start_tsf = center - half_window;
+                    end_tsf = center + half_window;
+                }
+            }
+            clip_tsf();
+
+            update();
+        }
+    }
+}
+
+
+/* given an x position find which packet that corresponds to.
+ * if it's inter frame space the subsequent packet is returned */
+guint
+WirelessTimeline::find_packet(qreal x_position)
+{
+    guint64 x_time = start_tsf + (x_position/width() * (end_tsf - start_tsf));
+
+    return find_packet_tsf(x_time);
+}
+
+void WirelessTimeline::captureFileReadStarted(capture_file *cf)
+{
+    capfile = cf;
+    hide();
+    // TODO: hide or grey the toolbar controls
+}
+
+void WirelessTimeline::captureFileReadFinished()
+{
+    /* All frames must be included in packet list */
+    if (cfile.count == 0 || g_hash_table_size(radio_packet_list) != cfile.count)
+        return;
+
+    /* check that all frames have start and end tsf time and are reasonable time order.
+     * packet timing reference seems to be off a little on some generators, which
+     * causes frequent IFS values in the range 0 to -30. Some generators emit excessive
+     * data when an FCS error happens, and this results in the duration calculation for
+     * the error frame being excessively long. This can cause larger negative IFS values
+     * (-30 to -1000) for the subsequent frame. Ignore these cases, as they don't seem
+     * to impact the GUI too badly. If the TSF reference point is set wrong (TSF at
+     * start of frame when it is at the end) then larger negative offsets are often
+     * seen. Don't display the timeline in these cases.
+     */
+    /* TODO: update GUI to handle captures with occasional frames missing TSF data */
+    /* TODO: indicate error message to the user */
+    for (guint32 n = 1; n < cfile.count; n++) {
+        struct wlan_radio *w = get_wlan_radio(n);
+        if (w->start_tsf == 0 || w->end_tsf == 0) {
+            statusbar_push_temporary_msg("Packet number %u does not include TSF timestamp, not showing timeline.", n);
+            return;
+        }
+        if (w->ifs < -15000) {
+            statusbar_push_temporary_msg("Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?", n);
+            return;
+        }
+    }
+
+    first = get_wlan_radio(1);
+    last = get_wlan_radio(cfile.count);
+
+    start_tsf = first->start_tsf;
+    end_tsf = last->end_tsf;
+
+    /* TODO: only reset the zoom level if the file is changed, not on redissection */
+    zoom_level = 0;
+
+    show();
+    packetSelectionChanged();
+    // TODO: show or ungrey the toolbar controls
+    update();
+}
+
+void WirelessTimeline::appInitialized()
+{
+    register_tap_listener("wlan_radio_timeline", this, NULL, TL_REQUIRES_NOTHING, tap_timeline_reset, tap_timeline_packet, NULL/*tap_draw_cb tap_draw*/);
+}
+
+void WirelessTimeline::resizeEvent(QResizeEvent*)
+{
+    // TODO adjust scrollbar
+}
+
+
+// Calculate the x position on the GUI from the timestamp
+int WirelessTimeline::position(guint64 tsf, float ratio)
+{
+    int position = -100;
+
+    if (tsf != 0xffffffffffffffff) {
+        position = ((double) tsf - start_tsf)*width()*ratio/(end_tsf-start_tsf);
+    }
+    return position;
+}
+
+
+WirelessTimeline::WirelessTimeline(QWidget *parent, PacketList *packet_list) : QWidget(parent)
+{
+    setHidden(true);
+    this->packet_list = packet_list;
+    connect(packet_list->packetListModel(), SIGNAL(bgColorizationProgress(int,int)),
+            this, SLOT(bgColorizationProgress(int,int)));
+    connect(packet_list, SIGNAL(packetSelectionChanged()),
+            this, SLOT(packetSelectionChanged()));
+    connect(wsApp, SIGNAL(appInitialized()),
+        this, SLOT(appInitialized()));
+    zoom_level = 1.0;
+    setFixedHeight(TIMELINE_HEIGHT);
+    first_packet = 1;
+    setMouseTracking(true);
+
+    radio_packet_list = NULL;
+}
+
+void WirelessTimeline::tap_timeline_reset(void* tapdata)
+{
+    WirelessTimeline* timeline = (WirelessTimeline*)tapdata;
+
+    if (timeline->radio_packet_list != NULL)
+    {
+        g_hash_table_destroy(timeline->radio_packet_list);
+    }
+    timeline->hide();
+
+    timeline->radio_packet_list = g_hash_table_new(g_direct_hash, g_direct_equal);
+}
+
+gboolean WirelessTimeline::tap_timeline_packet(void *tapdata, packet_info* pinfo, epan_dissect_t* edt _U_, const void *data)
+{
+    WirelessTimeline* timeline = (WirelessTimeline*)tapdata;
+    struct wlan_radio *wlan_radio_info = (struct wlan_radio *)data;
+
+    /* Save the radio information in our own (GUI) hashtable */
+    g_hash_table_insert(timeline->radio_packet_list, GUINT_TO_POINTER(pinfo->num), wlan_radio_info);
+    return FALSE;
+}
+
+struct wlan_radio* WirelessTimeline::get_wlan_radio(guint32 packet_num)
+{
+    return (struct wlan_radio*)g_hash_table_lookup(radio_packet_list, GUINT_TO_POINTER(packet_num));
+}
+
+void WirelessTimeline::doToolTip(struct wlan_radio *wr, QPoint pos, int x)
+{
+    if (x < position(wr->start_tsf, 1.0)) {
+        QToolTip::showText(pos, QString("inter frame space %1 us").arg(wr->ifs));
+    } else {
+        QToolTip::showText(pos, QString("total duration %1 us\nNAV %2 us").arg(wr->end_tsf-wr->start_tsf)
+                                                                          .arg(wr->nav));
+    }
+}
+
+
+bool WirelessTimeline::event(QEvent *event)
+{
+    if (event->type() == QEvent::ToolTip) {
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        guint packet = find_packet(helpEvent->pos().x());
+        if (packet) {
+            doToolTip(get_wlan_radio(packet), helpEvent->globalPos(), helpEvent->x());
+        } else {
+            QToolTip::hideText();
+            event->ignore();
+        }
+        return true;
+    }
+    return QWidget::event(event);
+}
+
+
+void WirelessTimeline::bgColorizationProgress(int first, int last)
+{
+    if (isHidden()) return;
+
+    struct wlan_radio *first_wr = get_wlan_radio(first);
+
+    struct wlan_radio *last_wr = get_wlan_radio(last-1);
+
+    int x = position(first_wr->start_tsf, 1);
+    int x_end = position(last_wr->end_tsf, 1);
+
+    update(x, 0, x_end-x+1, height());
+}
+
+
+guint64 WirelessTimeline::current_frame_center()
+{
+    if (cfile.current_frame == NULL)
+        return 0;
+
+    struct wlan_radio *wr = get_wlan_radio(cfile.current_frame->num);
+    return (wr->start_tsf + wr->end_tsf) /2;
+}
+
+
+void WirelessTimeline::zoom()
+{
+    guint64 center = current_frame_center();
+    int x_position = position(center, 1.0);
+
+    /* adjust the zoom around the selected packet */
+    float fraction = ((float) x_position)/width();
+    guint64 file_range = last->end_tsf - first->start_tsf;
+    guint64 span = pow(file_range, 1.0-zoom_level/25.0);
+    start_tsf = center - span*fraction;
+    end_tsf = center + span*(1.0-fraction);
+
+    /* if we go out of range for the whole file, clamp it */
+    if (start_tsf < first->start_tsf) {
+        end_tsf += first->start_tsf - start_tsf;
+        start_tsf = first->start_tsf;
+    } else if (end_tsf > last->end_tsf) {
+        start_tsf -= end_tsf - last->end_tsf;
+        end_tsf = last->end_tsf;
+    }
+
+    update();
+}
+
+void WirelessTimeline::zoomIn()
+{
+    zoom_level++;
+    zoom();
+}
+
+void WirelessTimeline::zoomOut()
+{
+    zoom_level--;
+    if (zoom_level < 0) zoom_level = 0;
+    zoom();
+}
+
+void WirelessTimeline::zoomFullOut()
+{
+    zoom_level = 0;
+    zoom();
+}
+
+int WirelessTimeline::find_packet_tsf(guint64 tsf)
+{
+    if (cfile.count < 1)
+        return 0;
+
+    if (cfile.count < 2)
+        return 1;
+
+    guint32 min_count = 1;
+    guint32 max_count = cfile.count-1;
+
+    guint64 min_tsf = get_wlan_radio(min_count)->end_tsf;
+    guint64 max_tsf = get_wlan_radio(max_count)->end_tsf;
+
+    for(;;) {
+        if (tsf >= max_tsf)
+            return max_count+1;
+
+        if (tsf < min_tsf)
+            return min_count;
+
+        guint32 middle = (min_count + max_count)/2;
+        if (middle == min_count)
+            return middle+1;
+
+        guint64 middle_tsf = get_wlan_radio(middle)->end_tsf;
+
+        if (tsf >= middle_tsf) {
+            min_count = middle;
+            min_tsf = middle_tsf;
+        } else {
+            max_count = middle;
+            max_tsf = middle_tsf;
+        }
+    };
+}
+
+void
+WirelessTimeline::paintEvent(QPaintEvent *qpe)
+{
+    QPainter p(this);
+
+    // painting is done in device pixels in the x axis, get the ratio here
+    float ratio = p.device()->devicePixelRatio();
+
+    unsigned int packet;
+    double zoom;
+    int last_x=-1;
+    int left = qpe->rect().left()*ratio;
+    int right = qpe->rect().right()*ratio;
+    float rgb[TIMELINE_HEIGHT][3];
+    reset_rgb(rgb);
+
+    zoom = ((double) width())/(end_tsf - start_tsf) * ratio;
+
+    /* background is light grey */
+    p.fillRect(0, 0, width(), TIMELINE_HEIGHT, QColor(240,240,240));
+
+    /* background of packets visible in packet_list is white */
+    int top = packet_list->indexAt(QPoint(0,0)).row();
+    int bottom = packet_list->indexAt(QPoint(0,packet_list->viewport()->height())).row();
+    PacketListModel *model = packet_list->packetListModel();
+    int x1 = top == -1 ? 0 : position(get_wlan_radio(model->getRowFdata(top)->num)->start_tsf, ratio);
+    int x2 = bottom == -1 ? width() : position(get_wlan_radio(model->getRowFdata(bottom)->num)->end_tsf, ratio);
+    p.fillRect(QRectF(x1/ratio, 0, (x2-x1+1)/ratio, TIMELINE_HEIGHT), Qt::white);
+
+    /* background of current packet is blue */
+    if (cfile.current_frame) {
+        struct wlan_radio *wr = get_wlan_radio(cfile.current_frame->num);
+        if (wr) {
+            x1 = position(wr->start_tsf, ratio);
+            x2 = position(wr->end_tsf, ratio);
+            p.fillRect(QRectF(x1/ratio, 0, (x2-x1+1)/ratio, TIMELINE_HEIGHT), Qt::blue);
+        }
+    }
+
+    QGraphicsScene qs;
+    for(packet = find_packet_tsf(start_tsf + left/zoom - 40000); packet <= cfile.count; packet++) {
+        frame_data *fdata = frame_data_sequence_find(cfile.frames, packet);
+        struct wlan_radio *ri = get_wlan_radio(fdata->num);
+        float x, width, red,green,blue;
+        gint8 rssi = ri->aggregate ? ri->aggregate->rssi : ri->rssi;
+        guint height = (rssi+100)/2;
+        gint end_nav;
+
+        if (ri == NULL) continue;
+
+        /* leave a margin above the packets so the selected packet can be seen */
+        if (height > TIMELINE_HEIGHT/2-6)
+            height = TIMELINE_HEIGHT/2-6;
+
+        /* ensure shortest packets are clearly visible */
+        if (height < 2)
+            height = 2;
+
+        /* skip frames we don't have start and end data for */
+        /* TODO: show something, so it's clear a frame is missing */
+        if (ri->start_tsf == 0 || ri->end_tsf == 0)
+            continue;
+
+        x = ((gint64) (ri->start_tsf - start_tsf))*zoom;
+        /* is there a previous anti-aliased pixel to output */
+        if (last_x >= 0 && ((int) x) != last_x) {
+            /* write it out now */
+            render_pixels(p, last_x, 1, rgb, ratio);
+            last_x = -1;
+        }
+
+        /* does this packet start past the right edge of the window? */
+        if (x >= right) {
+            break;
+        }
+
+        width = (ri->end_tsf - ri->start_tsf)*zoom;
+        if (width < 0) {
+            continue;
+        }
+
+        /* is this packet completely to the left of the displayed area? */
+        // TODO clip NAV line properly if we are displaying it
+        if ((x + width) < left)
+            continue;
+
+        /* remember the first displayed packet */
+        if (first_packet < 0)
+            first_packet = packet;
+
+        if (fdata->color_filter) {
+            const color_t *c = &((color_filter_t *) fdata->color_filter)->fg_color;
+            red = c->red / 65535.0;
+            green = c->green / 65535.0;
+            blue = c->blue / 65535.0;
+        } else {
+            red = green = blue = 0.0;
+        }
+
+        /* record NAV field at higher magnifications */
+        end_nav = x + width + ri->nav*zoom;
+        if (zoom >= 0.01 && ri->nav && end_nav > 0) {
+            gint y = 2*(packet % (TIMELINE_HEIGHT/2));
+            qs.addLine(QLineF((x+width)/ratio, y, end_nav/ratio, y), QPen(pcolor(red,green,blue)));
+        }
+
+        /* does this rectangle fit within one pixel? */
+        if (((int) x) == ((int) (x+width))) {
+            /* accumulate it for later rendering together
+             * with all other sub pixels that fall within this
+             * pixel */
+            last_x = x;
+            accumulate_rgb(rgb, height, fdata->flags.passed_dfilter, width, red, green, blue);
+        } else {
+            /* it spans more than 1 pixel.
+             * first accumulate the part that does fit */
+            float partial = ((int) x) + 1 - x;
+            accumulate_rgb(rgb, height, fdata->flags.passed_dfilter, partial, red, green, blue);
+            /* and render it */
+            render_pixels(p, (int) x, 1, rgb, ratio);
+            last_x = -1;
+            x += partial;
+            width -= partial;
+            /* are there any whole pixels of width left to draw? */
+            if (width > 1.0) {
+                render_rectangle(p, x, width, height, fdata->flags.passed_dfilter, red, green, blue, ratio);
+                x += (int) width;
+                width -= (int) width;
+            }
+            /* is there a partial pixel left */
+            if (width > 0.0) {
+                last_x = x;
+                accumulate_rgb(rgb, height, fdata->flags.passed_dfilter, width, red, green, blue);
+            }
+        }
+    }
+
+    // draw the NAV lines last, so they appear on top of the packets
+    qs.render(&p, rect(), rect());
+}
+
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

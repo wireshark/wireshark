@@ -615,6 +615,7 @@ void PacketListModel::dissectIdle(bool reset)
 
     idle_dissection_timer_->restart();
 
+    int first = idle_dissection_row_;
     while (idle_dissection_timer_->elapsed() < idle_dissection_interval_
            && idle_dissection_row_ < physical_rows_.count()) {
         ensureRowColorized(idle_dissection_row_);
@@ -627,6 +628,9 @@ void PacketListModel::dissectIdle(bool reset)
     } else {
         idle_dissection_timer_->invalidate();
     }
+
+    // report colorization progress
+    bgColorizationProgress(first+1, idle_dissection_row_+1);
 }
 
 // XXX Pass in cinfo from packet_list_append so that we can fill in
