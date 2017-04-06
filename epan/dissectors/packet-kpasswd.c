@@ -69,12 +69,10 @@ static void
 dissect_kpasswd_ap_req_data(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *parent_tree)
 {
     proto_item *it;
-    proto_tree *tree=NULL;
+    proto_tree *tree;
 
-    if(parent_tree){
-        it=proto_tree_add_item(parent_tree, hf_kpasswd_ap_req_data, tvb, 0, -1, ENC_NA);
-        tree=proto_item_add_subtree(it, ett_ap_req_data);
-    }
+    it=proto_tree_add_item(parent_tree, hf_kpasswd_ap_req_data, tvb, 0, -1, ENC_NA);
+    tree=proto_item_add_subtree(it, ett_ap_req_data);
     dissect_kerberos_main(tvb, pinfo, tree, FALSE, NULL);
 }
 
