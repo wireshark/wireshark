@@ -1599,6 +1599,7 @@ DISSECTOR_INCLUDES = \
 	packet-idmp.h		\
 	packet-idp.h		\
 	packet-ieee80211.h	\
+	packet-ieee80211-radio.h	\
 	packet-ieee80211-radiotap-iter.h	\
 	packet-ieee80211-radiotap-defs.h	\
 	packet-ieee802154.h	\

@@ -165,6 +165,7 @@ DIAG_ON(frame-larger-than=)
 #include "voip_calls_dialog.h"
 #include "wireshark_application.h"
 #include "wlan_statistics_dialog.h"
+#include "wireless_timeline.h"
 
 #include <QClipboard>
 #include <QFileInfo>
@@ -786,6 +787,7 @@ void MainWindow::captureFileReadStarted(const QString &action) {
     main_ui_->statusBar->pushFileStatus(msg, msgtip);
     main_ui_->mainStack->setCurrentWidget(&master_split_);
     main_ui_->actionAnalyzeReloadLuaPlugins->setEnabled(false);
+    wireless_timeline_->captureFileReadStarted(capture_file_.capFile());
 
     WiresharkApplication::processEvents();
 }
@@ -805,6 +807,9 @@ void MainWindow::captureFileReadFinished() {
 
     /* Update the appropriate parts of the main window. */
     updateForUnsavedChanges();
+
+    /* enable wireless timeline if capture allows it */
+    wireless_timeline_->captureFileReadFinished();
 
     /* Enable menu items that make sense if you have some captured packets. */
     setForCapturedPackets(true);
@@ -2460,6 +2465,21 @@ void MainWindow::on_actionViewNormalSize_triggered()
 {
     recent.gui_zoom_level = 0;
     zoomText();
+}
+
+void MainWindow::on_actionWirelessTimelineZoomIn_triggered()
+{
+    wireless_timeline_->zoomIn();
+}
+
+void MainWindow::on_actionWirelessTimelineZoomOut_triggered()
+{
+    wireless_timeline_->zoomOut();
+}
+
+void MainWindow::on_actionWirelessTimelineZoomFullOut_triggered()
+{
+    wireless_timeline_->zoomFullOut();
 }
 
 void MainWindow::on_actionViewColorizePacketList_triggered(bool checked) {

@@ -66,6 +66,7 @@ class FileSetDialog;
 class FunnelStatistics;
 class MainWelcome;
 class PacketList;
+class WirelessTimeline;
 class ProtoTree;
 class WirelessFrame;
 
@@ -152,6 +153,7 @@ private:
     // XXX - packet_list_, proto_tree_, and byte_view_tab_ should
     // probably be full-on values instead of pointers.
     PacketList *packet_list_;
+    WirelessTimeline *wireless_timeline_;
     ProtoTree *proto_tree_;
     QWidget *previous_focus_;
     FileSetDialog *file_set_dialog_;
@@ -456,6 +458,9 @@ private slots:
     void on_actionViewZoomIn_triggered();
     void on_actionViewZoomOut_triggered();
     void on_actionViewNormalSize_triggered();
+    void on_actionWirelessTimelineZoomIn_triggered();
+    void on_actionWirelessTimelineZoomOut_triggered();
+    void on_actionWirelessTimelineZoomFullOut_triggered();
     void on_actionViewColorizePacketList_triggered(bool checked);
     void on_actionViewColoringRules_triggered();
     void colorizeConversation(bool create_rule = false);

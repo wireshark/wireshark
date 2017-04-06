@@ -87,6 +87,8 @@ signals:
     void updateProgressStatus(int value);
     void popProgressStatus();
 
+    void bgColorizationProgress(int first, int last);
+
 public slots:
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     void flushVisibleRows();
