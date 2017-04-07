@@ -90,9 +90,17 @@ static int hf_dpnet_command_new_msg  = -1;
 static int hf_dpnet_command_end_msg  = -1;
 static int hf_dpnet_command_user1    = -1;
 static int hf_dpnet_command_user2    = -1;
+static int hf_dpnet_desc_client_server = -1;
+static int hf_dpnet_desc_migrate_host  = -1;
+static int hf_dpnet_desc_nodpnsvr      = -1;
+static int hf_dpnet_desc_req_password  = -1;
+static int hf_dpnet_desc_no_enums      = -1;
+static int hf_dpnet_desc_fast_signed   = -1;
+static int hf_dpnet_desc_full_signed   = -1;
 
 static gint ett_dpnet = -1;
 static gint ett_dpnet_command_flags = -1;
+static gint ett_dpnet_desc_flags = -1;
 
 #define DPNET_QUERY_GUID     0x01
 
@@ -134,6 +142,14 @@ static gint ett_dpnet_command_flags = -1;
 
 #define PACKET_SIGNING_FAST                  0x01
 #define PACKET_SIGNING_FULL                  0x02
+
+#define SESSION_CLIENT_SERVER                0x00000001
+#define SESSION_MIGRATE_HOST                 0x00000004
+#define SESSION_NODPNSVR                     0x00000040
+#define SESSION_REQUIREPASSWORD              0x00000080
+#define SESSION_NOENUMS                      0x00000100
+#define SESSION_FAST_SIGNED                  0x00000200
+#define SESSION_FULL_SIGNED                  0x00000400
 
 static const value_string packetenumttypes[] = {
     { 1, "Application GUID" },
@@ -180,6 +196,53 @@ static const value_string signing_opts[] = {
     {PACKET_SIGNING_FAST,                "Fasting signing"},
     {PACKET_SIGNING_FULL,                "Full signing"},
     {0, NULL }
+};
+
+static const true_false_string tfs_flags_game_client = {
+    "Client/Server session",
+    "Peer session"
+};
+
+static const true_false_string tfs_flags_migrate = {
+    "Host Migrating allowed",
+    "Host Migrating NOT allowed"
+};
+
+static const true_false_string tfs_flags_dpnsvr = {
+    "NOT using dpnsvr.exe",
+    "Using dpnsvr.exe"
+};
+
+static const true_false_string tfs_flags_password_required = {
+    "Password required",
+    "NO password required"
+};
+
+static const true_false_string tfs_flags_enumeration = {
+    "Enumeration NOT allowed",
+    "Enumeration allowed"
+};
+
+static const true_false_string tfs_flags_fast = {
+    "Using Fast signing",
+    "NOT using Fast signing"
+};
+
+static const true_false_string tfs_flags_full = {
+    "Using Full signing",
+    "NOT using Full signing"
+};
+
+
+static const int * desc_flags[] = {
+    &hf_dpnet_desc_client_server,
+    &hf_dpnet_desc_migrate_host,
+    &hf_dpnet_desc_nodpnsvr,
+    &hf_dpnet_desc_req_password,
+    &hf_dpnet_desc_no_enums,
+    &hf_dpnet_desc_fast_signed,
+    &hf_dpnet_desc_full_signed,
+    NULL
 };
 
 static const int * command_flags[] = {
@@ -232,7 +295,8 @@ static void process_dpnet_query(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_in
         proto_tree_add_item(dpnet_tree, hf_dpnet_reply_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
         proto_tree_add_item(dpnet_tree, hf_dpnet_response_size, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
         proto_tree_add_item(dpnet_tree, hf_dpnet_desc_size, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
-        proto_tree_add_item(dpnet_tree, hf_dpnet_desc_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
+        proto_tree_add_bitmask(dpnet_tree, tvb, offset, hf_dpnet_desc_flags, ett_dpnet_desc_flags, desc_flags, ENC_LITTLE_ENDIAN);
+        offset += 4;
         proto_tree_add_item(dpnet_tree, hf_dpnet_max_players, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
         proto_tree_add_item(dpnet_tree, hf_dpnet_current_players, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
         proto_tree_add_item_ret_uint(dpnet_tree, hf_dpnet_session_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &session_offset); offset += 4;
@@ -743,12 +807,55 @@ proto_register_dpnet(void)
             NULL, DPNET_COMMAND_CFRAME,
             NULL, HFILL}
         },
+        {&hf_dpnet_desc_client_server,
+            {"Client", "dpnet.session.client",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_flags_game_client), SESSION_CLIENT_SERVER,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_desc_migrate_host,
+            {"Migrate", "dpnet.session.migrate",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_flags_migrate), SESSION_MIGRATE_HOST,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_desc_nodpnsvr,
+            {"dpnsvr", "dpnet.session.dpnsvr",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_flags_dpnsvr), SESSION_NODPNSVR,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_desc_req_password,
+            {"Password", "dpnet.session.password",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_flags_password_required), SESSION_REQUIREPASSWORD,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_desc_no_enums,
+            {"Enumeration", "dpnet.session.enumeration",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_flags_enumeration), SESSION_NOENUMS,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_desc_fast_signed,
+            {"Fast signing", "dpnet.session.fast_sign",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_flags_fast), SESSION_FAST_SIGNED,
+            NULL, HFILL}
+        },
+        {&hf_dpnet_desc_full_signed,
+            {"Full signing", "dpnet.session.full_sign",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_flags_full), SESSION_FULL_SIGNED,
+            NULL, HFILL}
+        },
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_dpnet,
-        &ett_dpnet_command_flags
+        &ett_dpnet_command_flags,
+        &ett_dpnet_desc_flags
     };
 
 
