@@ -163,7 +163,7 @@ static int hf_nr_sack_chunk_nr_gap_block_end = -1;
 static int hf_nr_sack_chunk_nr_gap_block_start_tsn = -1;
 static int hf_nr_sack_chunk_nr_gap_block_end_tsn = -1;
 static int hf_nr_sack_chunk_number_tsns_nr_gap_acked = -1;
-/* static int hf_nr_sack_chunk_duplicate_tsn = -1; */
+static int hf_nr_sack_chunk_duplicate_tsn = -1;
 
 static int hf_shutdown_chunk_cumulative_tsn_ack = -1;
 static int hf_cookie = -1;
@@ -3918,7 +3918,7 @@ dissect_nr_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
 
 
   for(dup_tsn_number = 0; dup_tsn_number < number_of_dup_tsns; dup_tsn_number++) {
-    proto_tree_add_item(chunk_tree, hf_sack_chunk_duplicate_tsn, chunk_tvb, dup_tsn_offset, NR_SACK_CHUNK_DUP_TSN_LENGTH, ENC_BIG_ENDIAN);
+    proto_tree_add_item(chunk_tree, hf_nr_sack_chunk_duplicate_tsn, chunk_tvb, dup_tsn_offset, NR_SACK_CHUNK_DUP_TSN_LENGTH, ENC_BIG_ENDIAN);
     dup_tsn_offset += NR_SACK_CHUNK_DUP_TSN_LENGTH;
   }
 
@@ -4870,9 +4870,7 @@ proto_register_sctp(void)
     { &hf_nr_sack_chunk_nr_gap_block_end,           { "End",                                            "sctp.nr_sack_nr_gap_block_end",                        FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_nr_sack_chunk_nr_gap_block_end_tsn,       { "End TSN",                                        "sctp.nr_sack_nr_gap_block_end_tsn",                    FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_nr_sack_chunk_number_tsns_nr_gap_acked,   { "Number of TSNs in nr-gap acknowledgement blocks","sctp.nr_sack_number_of_tsns_nr_gap_acked",             FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
-#if 0
-    { &hf_nr_sack_chunk_duplicate_tsn,              { "Duplicate TSN",                                  "sctp.nr_sack_duplicate_tsn",                           FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
-#endif
+    { &hf_nr_sack_chunk_duplicate_tsn,              { "Duplicate TSN",                                  "sctp.nr_sack_duplicate_tsn",                           FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_shutdown_chunk_cumulative_tsn_ack,        { "Cumulative TSN Ack",                             "sctp.shutdown_cumulative_tsn_ack",                     FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_ecne_chunk_lowest_tsn,                    { "Lowest TSN",                                     "sctp.ecne_lowest_tsn",                                 FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_cwr_chunk_lowest_tsn,                     { "Lowest TSN",                                     "sctp.cwr_lowest_tsn",                                  FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
