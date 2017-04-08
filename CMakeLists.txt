@@ -2280,6 +2280,7 @@ endif()
 if(BUILD_rawshark AND PCAP_FOUND)
 	set(rawshark_LIBS
 		caputils
+		ui
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
@@ -2287,7 +2288,6 @@ if(BUILD_rawshark AND PCAP_FOUND)
 	set(rawshark_FILES
 		${SHARK_COMMON_SRC}
 		rawshark.c
-		ui/util.c
 		${CMAKE_BINARY_DIR}/image/rawshark.rc
 	)
 	add_executable(rawshark ${rawshark_FILES})
