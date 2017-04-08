@@ -24,10 +24,6 @@
 
 #include <glib.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #ifndef SNORT_CONFIG_H
 #define SNORT_CONFIG_H
 
@@ -162,9 +158,6 @@ void delete_config(SnortConfig_t **snort_config);
 /* Look up rule by SID */
 Rule_t *get_rule(SnortConfig_t *snort_config, guint32 sid);
 void rule_set_alert(SnortConfig_t *snort_config, Rule_t *rule, guint *global_match_number, guint *rule_match_number);
-
-/* Debug only */
-void rule_print(Rule_t *rule);
 
 /* IP and port vars */
 void rule_set_relevant_vars(SnortConfig_t *snort_config, Rule_t *rule);

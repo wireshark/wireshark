@@ -258,7 +258,7 @@ static void rule_check_ip_vars(SnortConfig_t *snort_config, Rule_t *rule, char *
 
 /* Check to see if the port 'field' corresponds to an entry in the portvar dictionary.
  * If it is add entry to rule */
-static void rule_check_port_vars(SnortConfig_t *snort_config _U_, Rule_t *rule, char *field)
+static void rule_check_port_vars(SnortConfig_t *snort_config, Rule_t *rule, char *field)
 {
     gpointer original_key = NULL;
     gpointer value = NULL;
@@ -496,9 +496,9 @@ void rule_set_alert(SnortConfig_t *snort_config, Rule_t *rule,
 
 
 /* Delete an individual entry from a string table. */
-static gboolean  delete_string_entry(gpointer  key,
-                      gpointer  value,
-                      gpointer  user_data _U_)
+static gboolean delete_string_entry(gpointer key,
+                                    gpointer value,
+                                    gpointer user_data _U_)
 {
     char *key_string = (char*)key;
     char *value_string = (char*)value;
@@ -602,6 +602,11 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
     /* Do this extraction in one place (may not be number but should be OK) */
     ws_strtoi32(value, (const gchar**)&value[value_length], &value32);
 
+    /* Think this is space at end of all options - don't compare with option names */
+    if (name[0] == '\0') {
+        return;
+    }
+
     /* Process the rule options that we are interested in */
     if (strcmp(name, "msg") == 0) {
         rule->msg = g_strdup(value);
@@ -623,6 +628,7 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
         if (value[0] == '!') {
             value_start = 1;
             if (value_length < 4) {
+                /* i.e. also need quotes + at least one character */
                 return;
             }
         }
@@ -691,7 +697,6 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
     else if (strcmp(name, "http_cookie") == 0) {
         rule_set_content_http_cookie(rule);
     }
-
     else if (strcmp(name, "classtype") == 0) {
         rule_set_classtype(rule, value);
     }
@@ -749,15 +754,19 @@ static gboolean parse_rule(SnortConfig_t *snort_config, char *line, const char *
         line[line_length-1] = ';';
     }
 
+    /* Skip any spaces before next option */
+    while (line[options_index] == ' ') options_index++;
+
     /* Now look for next ';', process one option at a time */
     options = &line[options_index];
     options_index = 0;
 
     while ((c = options[options_index++])) {
+        /* Keep track of whether inside quotes */
         if (c == '"') {
             in_quotes = !in_quotes;
         }
-        /* Ignore ; or ; if inside quotes */
+        /* Ignore ';' while inside quotes */
         if (!in_quotes) {
             if (c == ':') {
                 colon_offset = options_index;
@@ -815,8 +824,9 @@ static gboolean delete_rule(gpointer  key _U_,
 }
 
 
-/* Create a new config, starting with the given snort config file. */
+/* Parse this file, adding details to snort_config. */
 /* N.B. using recursion_level to limit stack depth. */
+#define MAX_CONFIG_FILE_RECURSE_DEPTH 8
 static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd,
                               const char *filename, const char *dirname, int recursion_level)
 {
@@ -826,7 +836,7 @@ static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd,
 
     snort_debug_printf("parse_config_file(filename=%s, recursion_level=%d)\n", filename, recursion_level);
 
-    if (recursion_level > 8) {
+    if (recursion_level > MAX_CONFIG_FILE_RECURSE_DEPTH) {
         return;
     }
 
@@ -905,7 +915,7 @@ void create_config(SnortConfig_t **snort_config, const char *snort_config_file)
     }
 
     /* Start parsing from the top-level config file. */
-    parse_config_file(*snort_config, config_file_fd, snort_config_file, dirname, 0);
+    parse_config_file(*snort_config, config_file_fd, snort_config_file, dirname, 1 /* recursion level */);
 
     g_free(dirname);
     g_free(basename);
@@ -980,6 +990,7 @@ static void reset_rule_stats(gpointer  key _U_,
     rule->matches_seen = 0;
 }
 
+/* Reset stats on all rules */
 void reset_global_rule_stats(SnortConfig_t *snort_config)
 {
     /* Reset global stats */

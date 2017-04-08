@@ -32,11 +32,9 @@
  * - sort out threading/channel-sync so works reliably in tshark
  *    - postponed for now, as Qt crashes if call g_main_context_iteration()
  *      at an inopportune time
- * - would be good if could set [Snort Running] in the title bar while Snort is running,
- *   but don't see how a dissector could do that.
- * - looked into writing a tap that could provide an interface for error messages/events and snort stats,
+ * - have looked into writing a tap that could provide an interface for error messages/events and snort stats,
  *   but not easy as taps are not usually listening when alerts are detected
- * - for a content match, find all protocol fields that cover same bytes and show in tree
+ * - for a content/pcre match, find all protocol fields that cover same bytes and show in tree
  * - other use-cases as suggested in https://sharkfesteurope.wireshark.org/assets/presentations16eu/14.pptx
  */
 
@@ -292,7 +290,7 @@ static gboolean content_compare_case_insensitive(const guint8* memory, const cha
 /* Move through the bytes of the tvbuff, looking for a match against the
  * regexp from the given content.
  */
-static gboolean look_for_pcre(content_t *content, tvbuff_t *tvb _U_, guint start_offset _U_, guint *match_offset _U_, guint *match_length _U_)
+static gboolean look_for_pcre(content_t *content, tvbuff_t *tvb, guint start_offset, guint *match_offset, guint *match_length)
 {
     /* Create a regex object for the pcre in the content. */
     GRegex *regex;
@@ -405,7 +403,7 @@ static gboolean get_content_match(Alert_t *alert, guint content_idx,
 /* Gets called when snort process has died */
 static void snort_reaper(GPid pid, gint status _U_, gpointer data)
 {
-    snort_session_t *session = (snort_session_t *) data;
+    snort_session_t *session = (snort_session_t *)data;
     if (session->running && session->pid == pid) {
         session->working = session->running = FALSE;
         /* XXX, cleanup */
@@ -418,7 +416,7 @@ static void snort_reaper(GPid pid, gint status _U_, gpointer data)
 }
 
 /* Parse timestamp line of output.  This is done in part to get the packet_number back out of usec field...
- *  Return valuee is the input stream moved onto the next field following the timestamp */
+ * Return value is the input stream moved onto the next field following the timestamp */
 static const char* snort_parse_ts(const char *ts, struct timeval *tv)
 {
     struct tm tm;
