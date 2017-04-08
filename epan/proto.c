@@ -6548,7 +6548,7 @@ proto_set_decoding(const int proto_id, const gboolean enabled)
 }
 
 void
-proto_enable_all(void)
+proto_reenable_all(void)
 {
 	protocol_t *protocol;
 	GList      *list_item = protocols;

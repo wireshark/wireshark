@@ -26,7 +26,7 @@
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-smb.h"

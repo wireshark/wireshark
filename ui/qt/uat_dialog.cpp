@@ -26,7 +26,7 @@
 #include "epan/strutil.h"
 #include "epan/uat-int.h"
 #include "ui/help_url.h"
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include "qt_ui_utils.h"
 

@@ -326,7 +326,6 @@ int WiresharkApplication::monospaceTextSize(const char *str)
 
 void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bool write_recent)
 {
-    char  *gdp_path, *dp_path;
     char  *rf_path;
     int    rf_open_errno;
     gchar *err_msg = NULL;
@@ -379,7 +378,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bo
     emit profileNameChanged(profile_name);
 
     /* Apply new preferences */
-    readConfigurationFiles (&gdp_path, &dp_path, true);
+    readConfigurationFiles(true);
 
     if (!recent_read_profile_static(&rf_path, &rf_open_errno)) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
@@ -412,14 +411,6 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bo
     emit checkDisplayFilter();
     emit captureFilterListChanged();
     emit displayFilterListChanged();
-
-    /* Enable all protocols and disable from the disabled list */
-    proto_enable_all();
-    if (gdp_path == NULL && dp_path == NULL) {
-        set_disabled_protos_list();
-        set_enabled_protos_list();
-        set_disabled_heur_dissector_list();
-    }
 
     /* Reload color filters */
     if (!color_filters_reload(&err_msg, color_filter_add_cb)) {
@@ -1102,20 +1093,23 @@ void WiresharkApplication::allSystemsGo()
 #endif
 }
 
-_e_prefs *WiresharkApplication::readConfigurationFiles(char **gdp_path, char **dp_path, bool reset)
+_e_prefs *WiresharkApplication::readConfigurationFiles(bool reset)
 {
     int                  gpf_open_errno, gpf_read_errno;
     int                  cf_open_errno, df_open_errno;
-    int                  gdp_open_errno, gdp_read_errno;
-    int                  dp_open_errno, dp_read_errno;
     char                *gpf_path, *pf_path;
     char                *cf_path, *df_path;
     int                  pf_open_errno, pf_read_errno;
     e_prefs             *prefs_p;
 
     if (reset) {
-        // reset preferences before reading
+        //
+        // Reset current preferences and enabled/disabled protocols and
+        // heuristic dissectors before reading.
+        // (Needed except when this is called at startup.)
+        //
         prefs_reset();
+        proto_reenable_all();
     }
 
     /* load the decode as entries of this profile */
@@ -1177,41 +1171,11 @@ _e_prefs *WiresharkApplication::readConfigurationFiles(char **gdp_path, char **d
         g_free(df_path);
     }
 
-    /* Read the disabled protocols file. */
-    read_disabled_protos_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
-                              dp_path, &dp_open_errno, &dp_read_errno);
-    read_enabled_protos_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
-                              dp_path, &dp_open_errno, &dp_read_errno);
-    read_disabled_heur_dissector_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
-                              dp_path, &dp_open_errno, &dp_read_errno);
-    if (*gdp_path != NULL) {
-        if (gdp_open_errno != 0) {
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                          "Could not open global disabled protocols file\n\"%s\": %s.",
-                          *gdp_path, g_strerror(gdp_open_errno));
-        }
-        if (gdp_read_errno != 0) {
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                          "I/O error reading global disabled protocols file\n\"%s\": %s.",
-                          *gdp_path, g_strerror(gdp_read_errno));
-        }
-        g_free(*gdp_path);
-        *gdp_path = NULL;
-    }
-    if (*dp_path != NULL) {
-        if (dp_open_errno != 0) {
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                          "Could not open your disabled protocols file\n\"%s\": %s.", *dp_path,
-                          g_strerror(dp_open_errno));
-        }
-        if (dp_read_errno != 0) {
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                          "I/O error reading your disabled protocols file\n\"%s\": %s.", *dp_path,
-                          g_strerror(dp_read_errno));
-        }
-        g_free(*dp_path);
-        *dp_path = NULL;
-    }
+    /*
+     * Read the files that enable and disable protocols and heuristic
+     * dissectors.
+     */
+    read_enabled_and_disabled_protos();
 
     return prefs_p;
 }

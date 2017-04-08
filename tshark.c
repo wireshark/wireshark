@@ -60,7 +60,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <ws_version_info.h>
 #include <wiretap/wtap_opttypes.h>
 #include <wiretap/pcapng.h>
@@ -239,9 +239,9 @@ static gboolean write_finale(void);
 static const char *cf_open_error_message(int err, gchar *err_info,
     gboolean for_writing, int file_type);
 
+static void failure_warning_message(const char *msg_format, va_list ap);
 static void open_failure_message(const char *filename, int err,
     gboolean for_writing);
-static void failure_message(const char *msg_format, va_list ap);
 static void read_failure_message(const char *filename, int err);
 static void write_failure_message(const char *filename, int err);
 static void failure_message_cont(const char *msg_format, va_list ap);
@@ -666,12 +666,9 @@ main(int argc, char *argv[])
 #endif  /* _WIN32 */
 
   char                *gpf_path, *pf_path;
-  char                *gdp_path, *dp_path;
   char                *cf_path;
   int                  gpf_open_errno, gpf_read_errno;
   int                  pf_open_errno, pf_read_errno;
-  int                  gdp_open_errno, gdp_read_errno;
-  int                  dp_open_errno, dp_read_errno;
   int                  cf_open_errno;
   int                  err;
   volatile int         exit_status = EXIT_SUCCESS;
@@ -734,7 +731,7 @@ main(int argc, char *argv[])
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
 
-  cmdarg_err_init(failure_message, failure_message_cont);
+  cmdarg_err_init(failure_warning_message, failure_message_cont);
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
@@ -888,8 +885,9 @@ main(int argc, char *argv[])
                     tshark_log_handler, NULL /* user_data */);
 #endif
 
-  init_report_err(failure_message, open_failure_message, read_failure_message,
-                  write_failure_message);
+  init_report_message(failure_warning_message, failure_warning_message,
+                      open_failure_message, read_failure_message,
+                      write_failure_message);
 
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&global_capture_opts);
@@ -1045,37 +1043,11 @@ main(int argc, char *argv[])
       g_free(cf_path);
   }
 
-  /* Read the disabled protocols file. */
-  read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-                            &dp_path, &dp_open_errno, &dp_read_errno);
-  read_enabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-                            &dp_path, &dp_open_errno, &dp_read_errno);
-  read_disabled_heur_dissector_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-                            &dp_path, &dp_open_errno, &dp_read_errno);
-  if (gdp_path != NULL) {
-    if (gdp_open_errno != 0) {
-      cmdarg_err("Could not open global disabled protocols file\n\"%s\": %s.",
-                 gdp_path, g_strerror(gdp_open_errno));
-    }
-    if (gdp_read_errno != 0) {
-      cmdarg_err("I/O error reading global disabled protocols file\n\"%s\": %s.",
-                 gdp_path, g_strerror(gdp_read_errno));
-    }
-    g_free(gdp_path);
-  }
-  if (dp_path != NULL) {
-    if (dp_open_errno != 0) {
-      cmdarg_err(
-        "Could not open your disabled protocols file\n\"%s\": %s.", dp_path,
-        g_strerror(dp_open_errno));
-    }
-    if (dp_read_errno != 0) {
-      cmdarg_err(
-        "I/O error reading your disabled protocols file\n\"%s\": %s.", dp_path,
-        g_strerror(dp_read_errno));
-    }
-    g_free(dp_path);
-  }
+  /*
+   * Read the files that enable and disable protocols and heuristic
+   * dissectors.
+   */
+  read_enabled_and_disabled_protos();
 
   cap_file_init(&cfile);
 
@@ -1839,43 +1811,13 @@ main(int argc, char *argv[])
 
   timestamp_set_type(global_dissect_options.time_format);
 
-  /* disabled protocols as per configuration file */
-  if (gdp_path == NULL && dp_path == NULL) {
-    set_disabled_protos_list();
-    set_enabled_protos_list();
-    set_disabled_heur_dissector_list();
-  }
-
-  if(global_dissect_options.disable_protocol_slist) {
-    GSList *proto_disable;
-    for (proto_disable = global_dissect_options.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
-    {
-      proto_disable_proto_by_name((char*)proto_disable->data);
-    }
-  }
-
-  if(global_dissect_options.enable_protocol_slist) {
-    GSList *proto_enable;
-    for (proto_enable = global_dissect_options.enable_protocol_slist; proto_enable != NULL; proto_enable = g_slist_next(proto_enable))
-    {
-      proto_enable_proto_by_name((char*)proto_enable->data);
-    }
-  }
-
-  if(global_dissect_options.enable_heur_slist) {
-    GSList *heur_enable;
-    for (heur_enable = global_dissect_options.enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
-    {
-      proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE);
-    }
-  }
-
-  if(global_dissect_options.disable_heur_slist) {
-    GSList *heur_disable;
-    for (heur_disable = global_dissect_options.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
-    {
-      proto_enable_heuristic_by_name((char*)heur_disable->data, FALSE);
-    }
+  /*
+   * Enabled and disabled protocols and heuristic dissectors as per
+   * command-line options.
+   */
+  if (!setup_enabled_and_disabled_protocols()) {
+    exit_status = INVALID_OPTION;
+    goto clean_exit;
   }
 
   /* Build the column format array */
@@ -4383,6 +4325,18 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 }
 
 /*
+ * General errors and warnings are reported with an console message
+ * in TShark.
+ */
+static void
+failure_warning_message(const char *msg_format, va_list ap)
+{
+  fprintf(stderr, "tshark: ");
+  vfprintf(stderr, msg_format, ap);
+  fprintf(stderr, "\n");
+}
+
+/*
  * Open/create errors are reported with an console message in TShark.
  */
 static void
@@ -4390,17 +4344,6 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
 {
   fprintf(stderr, "tshark: ");
   fprintf(stderr, file_open_error_message(err, for_writing), filename);
-  fprintf(stderr, "\n");
-}
-
-/*
- * General errors are reported with an console message in TShark.
- */
-static void
-failure_message(const char *msg_format, va_list ap)
-{
-  fprintf(stderr, "tshark: ");
-  vfprintf(stderr, msg_format, ap);
   fprintf(stderr, "\n");
 }
 

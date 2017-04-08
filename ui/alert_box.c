@@ -52,6 +52,12 @@ vfailure_alert_box(const char *msg_format, va_list ap)
     vsimple_error_message_box(msg_format, ap);
 }
 
+void
+vwarning_alert_box(const char *msg_format, va_list ap)
+{
+    vsimple_error_message_box(msg_format, ap);
+}
+
 /*
  * Alert box for a failed attempt to open or create a file.
  * "err" is assumed to be a UNIX-style errno; "for_writing" is TRUE if

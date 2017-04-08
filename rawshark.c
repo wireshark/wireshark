@@ -65,7 +65,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include "globals.h"
 #include <epan/packet.h>
@@ -81,6 +81,7 @@
 #include "ui/capture_ui_utils.h"
 #endif
 #include "ui/util.h"
+#include "ui/dissect_opts.h"
 #include "register.h"
 #include "conditions.h"
 #include "capture_stop_conditions.h"
@@ -155,9 +156,9 @@ static gboolean process_packet(capture_file *cf, epan_dissect_t *edt, gint64 off
                                struct wtap_pkthdr *whdr, const guchar *pd);
 static void show_print_file_io_error(int err);
 
+static void failure_warning_message(const char *msg_format, va_list ap);
 static void open_failure_message(const char *filename, int err,
                                  gboolean for_writing);
-static void failure_message(const char *msg_format, va_list ap);
 static void read_failure_message(const char *filename, int err);
 static void write_failure_message(const char *filename, int err);
 static void rawshark_cmdarg_err(const char *fmt, va_list ap);
@@ -436,11 +437,8 @@ main(int argc, char *argv[])
 #endif  /* _WIN32 */
 
     char                *gpf_path, *pf_path;
-    char                *gdp_path, *dp_path;
     int                  gpf_open_errno, gpf_read_errno;
     int                  pf_open_errno, pf_read_errno;
-    int                  gdp_open_errno, gdp_read_errno;
-    int                  dp_open_errno, dp_read_errno;
     gchar               *pipe_name = NULL;
     gchar               *rfilters[64];
     e_prefs             *prefs_p;
@@ -526,8 +524,9 @@ main(int argc, char *argv[])
                       (GLogLevelFlags)log_flags,
                       log_func_ignore, NULL /* user_data */);
 
-    init_report_err(failure_message, open_failure_message, read_failure_message,
-                    write_failure_message);
+    init_report_message(failure_warning_message, failure_warning_message,
+                        open_failure_message, read_failure_message,
+                        write_failure_message);
 
     timestamp_set_type(TS_RELATIVE);
     timestamp_set_precision(TS_PREC_AUTO);
@@ -570,37 +569,11 @@ main(int argc, char *argv[])
         pf_path = NULL;
     }
 
-    /* Read the disabled protocols file. */
-    read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-                              &dp_path, &dp_open_errno, &dp_read_errno);
-    read_enabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-                              &dp_path, &dp_open_errno, &dp_read_errno);
-    read_disabled_heur_dissector_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-                              &dp_path, &dp_open_errno, &dp_read_errno);
-    if (gdp_path != NULL) {
-        if (gdp_open_errno != 0) {
-            cmdarg_err("Could not open global disabled protocols file\n\"%s\": %s.",
-                       gdp_path, g_strerror(gdp_open_errno));
-        }
-        if (gdp_read_errno != 0) {
-            cmdarg_err("I/O error reading global disabled protocols file\n\"%s\": %s.",
-                       gdp_path, g_strerror(gdp_read_errno));
-        }
-        g_free(gdp_path);
-    }
-    if (dp_path != NULL) {
-        if (dp_open_errno != 0) {
-            cmdarg_err(
-                "Could not open your disabled protocols file\n\"%s\": %s.", dp_path,
-                g_strerror(dp_open_errno));
-        }
-        if (dp_read_errno != 0) {
-            cmdarg_err(
-                "I/O error reading your disabled protocols file\n\"%s\": %s.", dp_path,
-                g_strerror(dp_read_errno));
-        }
-        g_free(dp_path);
-    }
+    /*
+     * Read the files that enable and disable protocols and heuristic
+     * dissectors.
+     */
+    read_enabled_and_disabled_protos();
 
 #ifdef _WIN32
     ws_init_dll_search_path();
@@ -838,12 +811,11 @@ main(int argc, char *argv[])
        of the filter.  We can now process all the "-z" arguments. */
     start_requested_stats();
 
-    /* disabled protocols as per configuration file */
-    if (gdp_path == NULL && dp_path == NULL) {
-        set_disabled_protos_list();
-        set_enabled_protos_list();
-        set_disabled_heur_dissector_list();
-    }
+    /*
+     * Enabled and disabled protocols and heuristic dissectors as per
+     * command-line options.
+     */
+    setup_enabled_and_disabled_protocols();
 
     /* Build the column format array */
     build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);
@@ -1545,6 +1517,18 @@ show_print_file_io_error(int err)
 }
 
 /*
+ * General errors and warnings are reported with an console message
+ * in Rawshark.
+ */
+static void
+failure_warning_message(const char *msg_format, va_list ap)
+{
+    fprintf(stderr, "rawshark: ");
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
+}
+
+/*
  * Open/create errors are reported with an console message in Rawshark.
  */
 static void
@@ -1623,18 +1607,6 @@ raw_cf_open(capture_file *cf, const char *fname)
     prev_cap = NULL;
 
     return CF_OK;
-}
-
-
-/*
- * General errors are reported with an console message in Rawshark.
- */
-static void
-failure_message(const char *msg_format, va_list ap)
-{
-    fprintf(stderr, "rawshark: ");
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
 }
 
 /*

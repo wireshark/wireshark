@@ -45,7 +45,7 @@
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <wsutil/unicode-utils.h>
 #include <ws_version_info.h>
 
@@ -124,6 +124,7 @@
 #include <QTextCodec>
 #endif
 
+#define INVALID_OPTION 1
 #define INIT_FAILED 2
 #define INVALID_CAPABILITY 2
 #define INVALID_LINK_TYPE 2
@@ -345,7 +346,6 @@ int main(int argc, char *qt_argv[])
 
     char                *rf_path;
     int                  rf_open_errno;
-    char                *gdp_path, *dp_path;
 #ifdef HAVE_LIBPCAP
     gchar               *err_str;
 #else
@@ -571,8 +571,9 @@ int main(int argc, char *qt_argv[])
     capture_opts_init(&global_capture_opts);
 #endif
 
-    init_report_err(vfailure_alert_box, open_failure_alert_box,
-                    read_failure_alert_box, write_failure_alert_box);
+    init_report_message(vfailure_alert_box, vwarning_alert_box,
+                        open_failure_alert_box, read_failure_alert_box,
+                        write_failure_alert_box);
 
     wtap_init();
 
@@ -658,7 +659,7 @@ int main(int argc, char *qt_argv[])
     splash_update(RA_PREFERENCES, NULL, NULL);
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling module preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 
-    global_commandline_info.prefs_p = ws_app.readConfigurationFiles(&gdp_path, &dp_path, false);
+    global_commandline_info.prefs_p = ws_app.readConfigurationFiles(false);
 
     /* Now get our args */
     commandline_other_options(argc, argv, TRUE);
@@ -773,43 +774,13 @@ int main(int argc, char *qt_argv[])
     }
 #endif
 
-    /* disabled protocols as per configuration file */
-    if (gdp_path == NULL && dp_path == NULL) {
-        set_disabled_protos_list();
-        set_enabled_protos_list();
-        set_disabled_heur_dissector_list();
-    }
-
-    if(global_dissect_options.disable_protocol_slist) {
-        GSList *proto_disable;
-        for (proto_disable = global_dissect_options.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
-        {
-            proto_disable_proto_by_name((char*)proto_disable->data);
-        }
-    }
-
-    if(global_dissect_options.enable_protocol_slist) {
-        GSList *proto_enable;
-        for (proto_enable = global_dissect_options.enable_protocol_slist; proto_enable != NULL; proto_enable = g_slist_next(proto_enable))
-        {
-            proto_enable_proto_by_name((char*)proto_enable->data);
-        }
-    }
-
-    if(global_dissect_options.enable_heur_slist) {
-        GSList *heur_enable;
-        for (heur_enable = global_dissect_options.enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
-        {
-            proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE);
-        }
-    }
-
-    if(global_dissect_options.disable_heur_slist) {
-        GSList *heur_disable;
-        for (heur_disable = global_dissect_options.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
-        {
-            proto_enable_heuristic_by_name((char*)heur_disable->data, FALSE);
-        }
+    /*
+     * Enabled and disabled protocols and heuristic dissectors as per
+     * command-line options.
+     */
+    if (!setup_enabled_and_disabled_protocols()) {
+        ret_val = INVALID_OPTION;
+        goto clean_exit;
     }
 
     build_column_format_array(&CaptureFile::globalCapFile()->cinfo, global_commandline_info.prefs_p->num_cols, TRUE);

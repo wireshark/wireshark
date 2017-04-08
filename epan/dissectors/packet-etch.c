@@ -33,7 +33,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <wsutil/file_util.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include "packet-tcp.h"
 
 void proto_register_etch(void);

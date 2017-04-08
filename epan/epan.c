@@ -32,7 +32,7 @@
 
 #include <glib.h>
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include <epan/exceptions.h>
 
@@ -223,7 +223,7 @@ epan_cleanup(void)
 	expert_cleanup();
 	capture_dissector_cleanup();
 	export_pdu_cleanup();
-	disabled_protos_cleanup();
+	enabled_and_disabled_protos_cleanup();
 	stats_tree_cleanup();
 	dtd_location(NULL);
 #ifdef HAVE_LUA

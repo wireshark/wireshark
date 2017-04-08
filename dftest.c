@@ -40,14 +40,14 @@
 #endif
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include <wiretap/wtap.h>
 
 #include "ui/util.h"
 #include "register.h"
 
-static void failure_message(const char *msg_format, va_list ap);
+static void failure_warning_message(const char *msg_format, va_list ap);
 static void open_failure_message(const char *filename, int err,
 	gboolean for_writing);
 static void read_failure_message(const char *filename, int err);
@@ -80,8 +80,9 @@ main(int argc, char **argv)
 		g_free(init_progfile_dir_error);
 	}
 
-	init_report_err(failure_message, open_failure_message,
-			read_failure_message, write_failure_message);
+	init_report_message(failure_warning_message, failure_warning_message,
+			    open_failure_message, read_failure_message,
+			    write_failure_message);
 
 	timestamp_set_type(TS_RELATIVE);
 	timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
@@ -172,10 +173,11 @@ main(int argc, char **argv)
 }
 
 /*
- * General errors are reported with an console message in "dftest".
+ * General errors and warnings are reported with an console message
+ * in "dftest".
  */
 static void
-failure_message(const char *msg_format, va_list ap)
+failure_warning_message(const char *msg_format, va_list ap)
 {
 	fprintf(stderr, "dftest: ");
 	vfprintf(stderr, msg_format, ap);

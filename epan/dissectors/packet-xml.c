@@ -39,7 +39,7 @@
 #include <epan/expert.h>
 #include <epan/garrayfix.h>
 #include <wsutil/str_util.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include "packet-xml.h"
 

@@ -44,7 +44,7 @@
 # include <gdk/gdkkeysyms-compat.h>
 #endif
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include <epan/dfilter/dfilter-macro.h>
 #include <epan/proto.h>

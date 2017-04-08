@@ -35,6 +35,11 @@ extern void failure_alert_box(const char *msg_format, ...) G_GNUC_PRINTF(1, 2);
 extern void vfailure_alert_box(const char *msg_format, va_list ap);
 
 /*
+ * Alert box for general warnings.
+ */
+extern void vwarning_alert_box(const char *msg_format, va_list ap);
+
+/*
  * Alert box for a failed attempt to open or create a file.
  * "err" is assumed to be a UNIX-style errno; "for_writing" is TRUE if
  * the file is being opened for writing and FALSE if it's being opened

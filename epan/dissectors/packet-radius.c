@@ -67,7 +67,7 @@
 #include <epan/rtd_table.h>
 #include <epan/addr_resolv.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <wsutil/wsgcrypt.h>
 
 

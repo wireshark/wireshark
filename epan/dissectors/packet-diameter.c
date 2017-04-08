@@ -55,7 +55,7 @@
 #include <epan/show_exception.h>
 #include <epan/to_str.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include "packet-tcp.h"
 #include "packet-diameter.h"
 #include "packet-e212.h"

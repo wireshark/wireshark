@@ -42,7 +42,7 @@
 #include <epan/prefs.h>
 #include <epan/value_string.h>
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <wsutil/file_util.h>
 
 /* This needs to match NUM_GEOIP_COLS in hostlist_table.h */

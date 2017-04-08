@@ -1,9 +1,10 @@
-/* report_err.h
+/* report_message.h
  * Declarations of routines for code that can run in GUI and command-line
- * environments to use to report errors to the user (e.g., I/O errors, or
- * problems with preference settings).
+ * environments to use to report errors and warnings to the user (e.g.,
+ * I/O errors, or problems with preference settings) if the message should
+ * be shown as a GUI error in a GUI environment.
  *
- * The application using libwireshark will register error-reporting
+ * The application using libwsutil will register message-reporting
  * routines, and the routines declared here will call the registered
  * routines.  That way, these routines can be called by code that
  * doesn't itself know whether to pop up a dialog or print something
@@ -28,8 +29,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __REPORT_ERR_H__
-#define __REPORT_ERR_H__
+#ifndef __REPORT_MESSAGE_H__
+#define __REPORT_MESSAGE_H__
 
 #include "ws_symbol_export.h"
 
@@ -38,10 +39,11 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
- *  Initialize the report err routines
+ *  Initialize the report message routines
  */
-WS_DLL_PUBLIC void init_report_err(
+WS_DLL_PUBLIC void init_report_message(
 	void (*vreport_failure)(const char *, va_list),
+	void (*vreport_warning)(const char *, va_list),
 	void (*report_open_failure)(const char *, int, gboolean),
 	void (*report_read_failure)(const char *, int),
 	void (*report_write_failure)(const char *, int));
@@ -50,6 +52,11 @@ WS_DLL_PUBLIC void init_report_err(
  * Report a general error.
  */
 WS_DLL_PUBLIC void report_failure(const char *msg_format, ...) G_GNUC_PRINTF(1, 2);
+
+/*
+ * Report a general warning.
+ */
+WS_DLL_PUBLIC void report_warning(const char *msg_format, ...) G_GNUC_PRINTF(1, 2);
 
 /*
  * Report an error when trying to open a file.
@@ -76,4 +83,4 @@ WS_DLL_PUBLIC void report_write_failure(const char *filename, int err);
 }
 #endif /* __cplusplus */
 
-#endif /* __REPORT_ERR_H__ */
+#endif /* __REPORT_MESSAGE_H__ */

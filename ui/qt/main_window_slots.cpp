@@ -1527,8 +1527,7 @@ void MainWindow::reloadLuaPlugins()
     proto_tree_->closeContextMenu();
     main_ui_->preferenceEditorFrame->animatedHide();
 
-    char *gdp_path, *dp_path;
-    wsApp->readConfigurationFiles(&gdp_path, &dp_path, true);
+    wsApp->readConfigurationFiles(true);
 
     prefs_apply_all();
     fieldsChanged();

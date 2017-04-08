@@ -545,6 +545,15 @@ simple_error_message_box(const char *msg_format, ...)
 }
 
 /*
+ * Warning alert box, taking a format and a va_list argument.
+ */
+void
+vsimple_warning_message_box(const char *msg_format, va_list ap)
+{
+  do_simple_message_box(ESD_TYPE_WARN, NULL, NULL, msg_format, ap);
+}
+
+/*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:

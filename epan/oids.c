@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include "wmem/wmem.h"
 #include "uat.h"

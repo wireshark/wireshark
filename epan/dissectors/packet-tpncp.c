@@ -32,7 +32,7 @@
 #include <epan/to_str.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <wsutil/strtoi.h>
 #include "packet-tcp.h"
 

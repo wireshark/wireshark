@@ -40,7 +40,7 @@
 
 #include <wiretap/wtap.h>
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <wsutil/nstime.h>
 
 #include <epan/packet.h>

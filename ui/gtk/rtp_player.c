@@ -64,7 +64,7 @@
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/rtp_pt.h>
 #include <epan/prefs.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include "globals.h"
 

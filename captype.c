@@ -50,7 +50,7 @@
 #include <wsutil/plugins.h>
 #endif
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <wsutil/str_util.h>
 
 #ifdef _WIN32
@@ -70,10 +70,11 @@ print_usage(FILE *output)
 
 #ifdef HAVE_PLUGINS
 /*
- * General errors are reported with an console message in captype.
+ * General errors and warnings are reported with an console message
+ * in captype.
  */
 static void
-failure_message(const char *msg_format, va_list ap)
+failure_warning_message(const char *msg_format, va_list ap)
 {
   fprintf(stderr, "captype: ");
   vfprintf(stderr, msg_format, ap);
@@ -143,7 +144,8 @@ main(int argc, char *argv[])
   wtap_init();
 
 #ifdef HAVE_PLUGINS
-  init_report_err(failure_message,NULL,NULL,NULL);
+  init_report_message(failure_warning_message, failure_warning_message,
+                      NULL, NULL, NULL);
 
   /* Scan for plugins.  This does *not* call their registration routines;
      that's done later.

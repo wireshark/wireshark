@@ -29,7 +29,7 @@
 #include <epan/tap.h>
 #endif
 #include <epan/addr_resolv.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include "packet-uaudp.h"
 

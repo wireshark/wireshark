@@ -39,7 +39,7 @@
 #include <epan/expert.h>
 #include <epan/eap.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 #include "wimaxasncp_dict.h"

@@ -74,7 +74,7 @@ libwsutil_nonrepl_INCLUDES = \
 	plugins.h		\
 	privileges.h		\
 	processes.h		\
-	report_err.h		\
+	report_message.h	\
 	sign_ext.h		\
 	sober128.h		\
 	socket.h		\
@@ -143,7 +143,7 @@ libwsutil_la_SOURCES = \
 	os_version_info.c	\
 	plugins.c		\
 	privileges.c		\
-	report_err.c		\
+	report_message.c	\
 	sober128.c		\
 	str_util.c		\
 	strtoi.c		\

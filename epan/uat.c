@@ -36,7 +36,7 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include <wsutil/filesystem.h>
 #include <epan/packet.h>

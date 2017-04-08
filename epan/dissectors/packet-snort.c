@@ -49,7 +49,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <epan/wmem/wmem.h>
 #include <wiretap/wtap-int.h>
 

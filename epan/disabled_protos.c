@@ -36,6 +36,7 @@
 #include "disabled_protos.h"
 #include <wsutil/file_util.h>
 #include <wsutil/ws_printf.h> /* ws_g_warning */
+#include <wsutil/report_message.h>
 
 #define ENABLED_PROTOCOLS_FILE_NAME     "enabled_protos"
 #define DISABLED_PROTOCOLS_FILE_NAME    "disabled_protos"
@@ -268,8 +269,7 @@ save_protos_list(char **pref_path_return, int *errno_return, const char* filenam
 }
 
 static int
-read_protos_list_file(const char *ff_path, FILE *ff,
-                               GList **flp)
+read_protos_list_file(const char *ff_path, FILE *ff, GList **flp)
 {
   protocol_def *prot;
   int         c;
@@ -285,8 +285,8 @@ read_protos_list_file(const char *ff_path, FILE *ff,
   prot_name = (char *)g_malloc(prot_name_len + 1);
 
   for (line = 1; ; line++) {
-    /* Lines in a disabled protocol file contain the "filter name" of
-       a protocol to be disabled. */
+    /* Lines in a protocol file contain the "filter name" of a protocol
+       to be enabled or disabled. */
 
     /* Skip over leading white space, if any. */
     while ((c = ws_getc_unlocked(ff)) != EOF && g_ascii_isspace(c)) {
@@ -381,20 +381,27 @@ error:
 }
 
 /*
- * Read in a list of protocols.
+ * Read in global and personal versions of a list of protocols.
  *
- * On success, "*pref_path_return" is set to NULL.
- * On error, "*pref_path_return" is set to point to the pathname of
- * the file we tried to read - it should be freed by our caller -
- * and "*open_errno_return" is set to the error if an open failed
- * or "*read_errno_return" is set to the error if a read failed.
+ * If we can open and read the global version, *gpath_return is set to
+ * NULL.  Otherwise, *gpath_return is set to point to the pathname of
+ * the file we tried to read - it should be freed by our caller - and
+ * *gopen_errno_return is set to the error if an open failed or
+ * *gread_errno_return is set to the error if a read failed.
+ *
+ * If we can open and read the personal version, *path_return is set to
+ * NULL.  Otherwise, *path_return is set to point to the pathname of
+ * the file we tried to read - it should be freed by our caller - and
+ * *open_errno_return is set to the error if an open failed or
+ * *read_errno_return is set to the error if a read failed.
  */
 static void
 read_protos_list(char **gpath_return, int *gopen_errno_return,
-                          int *gread_errno_return,
-                          char **path_return, int *open_errno_return,
-                          int *read_errno_return, const char* filename,
-                          GList **protos_list, GList **global_protos_list)
+                 int *gread_errno_return,
+                 char **path_return, int *open_errno_return,
+                 int *read_errno_return,
+                 const char* filename,
+                 GList **global_protos_list, GList **protos_list)
 {
   int         err;
   char       *gff_path, *ff_path;
@@ -410,8 +417,7 @@ read_protos_list(char **gpath_return, int *gopen_errno_return,
   *gpath_return = NULL;
   if ((ff = ws_fopen(gff_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
-    err = read_protos_list_file(gff_path, ff,
-                                         global_protos_list);
+    err = read_protos_list_file(gff_path, ff, global_protos_list);
     if (err != 0) {
       /* We had an error reading the file; return the errno and the
          pathname, so our caller can report the error. */
@@ -471,29 +477,6 @@ read_protos_list(char **gpath_return, int *gopen_errno_return,
  ************************************************************************/
 
 /*
- * Read in a list of disabled protocols.
- */
-void
-read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
-                          int *gread_errno_return,
-                          char **path_return, int *open_errno_return,
-                          int *read_errno_return)
-{
-  read_protos_list(gpath_return, gopen_errno_return, gread_errno_return,
-                   path_return, open_errno_return, read_errno_return,
-                   DISABLED_PROTOCOLS_FILE_NAME, &disabled_protos, &global_disabled_protos);
-}
-
-/*
- * Disable protocols as per the stored configuration
- */
-void
-set_disabled_protos_list(void)
-{
-  set_protos_list(disabled_protos, global_disabled_protos, FALSE);
-}
-
-/*
  * Disable a particular protocol by name
  */
 void
@@ -531,12 +514,6 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
 /************************************************************************
  * Enabling dissectors (that are disabled by default)
  ************************************************************************/
-void
-set_enabled_protos_list(void)
-{
-  set_protos_list(enabled_protos, global_enabled_protos, TRUE);
-}
-
 
 WS_DLL_PUBLIC void
 proto_enable_proto_by_name(const char *name)
@@ -573,27 +550,13 @@ save_enabled_protos_list(char **pref_path_return, int *errno_return)
      enable_proto_list_check);
 }
 
-/*
- * Read in a list of enabled protocols (that are disabled by default).
- */
-void
-read_enabled_protos_list(char **gpath_return, int *gopen_errno_return,
-                          int *gread_errno_return,
-                          char **path_return, int *open_errno_return,
-                          int *read_errno_return)
-{
-  read_protos_list(gpath_return, gopen_errno_return, gread_errno_return,
-                   path_return, open_errno_return, read_errno_return,
-                   ENABLED_PROTOCOLS_FILE_NAME, &enabled_protos, &global_enabled_protos);
-}
-
 
 /************************************************************************
  * Heuristic dissectors
  ************************************************************************/
 
 
-void
+static void
 set_disabled_heur_dissector_list(void)
 {
   GList *fl_ent;
@@ -634,8 +597,7 @@ skip:
 }
 
 static int
-read_disabled_heur_dissector_list_file(const char *ff_path, FILE *ff,
-                               GList **flp)
+read_heur_dissector_list_file(const char *ff_path, FILE *ff, GList **flp)
 {
   heur_protocol_def *heur;
   int         c;
@@ -737,7 +699,7 @@ read_disabled_heur_dissector_list_file(const char *ff_path, FILE *ff,
     }
     heuristic_name[name_index] = '\0';
 
-    /* Add the new protocol to the list of disabled protocols */
+    /* Add the new protocol to the list of protocols */
     heur         = (heur_protocol_def *) g_malloc(sizeof(heur_protocol_def));
     heur->name   = g_strdup(heuristic_name);
     heur->enabled = enabled;
@@ -751,28 +713,28 @@ error:
   return errno;
 }
 
-void
-read_disabled_heur_dissector_list(char **gpath_return, int *gopen_errno_return,
-			  int *gread_errno_return,
-			  char **path_return, int *open_errno_return,
-			  int *read_errno_return)
+static void
+read_heur_dissector_list(char **gpath_return, int *gopen_errno_return,
+			 int *gread_errno_return,
+			 char **path_return, int *open_errno_return,
+			 int *read_errno_return)
 {
   int         err;
   char       *gff_path, *ff_path;
   FILE       *ff;
 
-  /* Construct the pathname of the global disabled heuristic dissectors file. */
-  gff_path = get_datafile_path(HEURISTICS_FILE_NAME);
-
   /* If we already have a list of protocols, discard it. */
   heur_discard_existing_list(&global_disabled_heuristics);
+
+  /* Construct the pathname of the global disabled heuristic dissectors file. */
+  gff_path = get_datafile_path(HEURISTICS_FILE_NAME);
 
   /* Read the global disabled protocols file, if it exists. */
   *gpath_return = NULL;
   if ((ff = ws_fopen(gff_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
-    err = read_disabled_heur_dissector_list_file(gff_path, ff,
-                                         &global_disabled_heuristics);
+    err = read_heur_dissector_list_file(gff_path, ff,
+                                        &global_disabled_heuristics);
     if (err != 0) {
       /* We had an error reading the file; return the errno and the
          pathname, so our caller can report the error. */
@@ -804,7 +766,7 @@ read_disabled_heur_dissector_list(char **gpath_return, int *gopen_errno_return,
   *path_return = NULL;
   if ((ff = ws_fopen(ff_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
-    err = read_disabled_heur_dissector_list_file(ff_path, ff, &disabled_heuristics);
+    err = read_heur_dissector_list_file(ff_path, ff, &disabled_heuristics);
     if (err != 0) {
       /* We had an error reading the file; return the errno and the
          pathname, so our caller can report the error. */
@@ -933,12 +895,15 @@ save_disabled_heur_dissector_list(char **pref_path_return, int *errno_return)
   g_free(ff_path);
 }
 
-void
+gboolean
 proto_enable_heuristic_by_name(const char *name, gboolean enable)
 {
   heur_dtbl_entry_t* heur = find_heur_dissector_by_unique_short_name(name);
   if (heur != NULL) {
       heur->enabled = enable;
+      return TRUE;
+  } else {
+      return FALSE;
   }
 }
 
@@ -950,8 +915,122 @@ disabled_protos_free(gpointer p, gpointer user_data _U_)
   g_free(p);
 }
 
+/*
+ * Read the files that enable and disable protocols and heuristic
+ * dissectors.  Report errors through the UI.
+ */
 void
-disabled_protos_cleanup(void)
+read_enabled_and_disabled_protos(void)
+{
+  char *gpath, *path;
+  int gopen_errno, gread_errno;
+  int open_errno, read_errno;
+
+  /*
+   * Read the global and personal disabled protocols files.
+   */
+  read_protos_list(&gpath, &gopen_errno, &gread_errno,
+                   &path, &open_errno, &read_errno,
+                   DISABLED_PROTOCOLS_FILE_NAME,
+                   &global_disabled_protos, &disabled_protos);
+  if (gpath != NULL) {
+    if (gopen_errno != 0) {
+      report_warning("Could not open global disabled protocols file\n\"%s\": %s.",
+                     gpath, g_strerror(gopen_errno));
+    }
+    if (gread_errno != 0) {
+      report_warning("I/O error reading global disabled protocols file\n\"%s\": %s.",
+                     gpath, g_strerror(gread_errno));
+    }
+    g_free(gpath);
+    gpath = NULL;
+  }
+  if (path != NULL) {
+    if (open_errno != 0) {
+      report_warning("Could not open your disabled protocols file\n\"%s\": %s.",
+                     path, g_strerror(open_errno));
+    }
+    if (read_errno != 0) {
+      report_warning("I/O error reading your disabled protocols file\n\"%s\": %s.",
+                     path, g_strerror(read_errno));
+    }
+    g_free(path);
+    path = NULL;
+  }
+
+  /*
+   * Read the global and personal enabled protocols files.
+   */
+  read_protos_list(&gpath, &gopen_errno, &gread_errno,
+                   &path, &open_errno, &read_errno,
+                   ENABLED_PROTOCOLS_FILE_NAME,
+                   &global_enabled_protos, &enabled_protos);
+  if (gpath != NULL) {
+    if (gopen_errno != 0) {
+      report_warning("Could not open global enabled protocols file\n\"%s\": %s.",
+                     gpath, g_strerror(gopen_errno));
+    }
+    if (gread_errno != 0) {
+      report_warning("I/O error reading global enabled protocols file\n\"%s\": %s.",
+                     gpath, g_strerror(gread_errno));
+    }
+    g_free(gpath);
+    gpath = NULL;
+  }
+  if (path != NULL) {
+    if (open_errno != 0) {
+      report_warning("Could not open your enabled protocols file\n\"%s\": %s.",
+                     path, g_strerror(open_errno));
+    }
+    if (read_errno != 0) {
+      report_warning("I/O error reading your enabled protocols file\n\"%s\": %s.",
+                     path, g_strerror(read_errno));
+    }
+    g_free(path);
+    path = NULL;
+  }
+
+  /*
+   * Read the global and personal heuristic dissector list files.
+   */
+  read_heur_dissector_list(&gpath, &gopen_errno, &gread_errno,
+                           &path, &open_errno, &read_errno);
+  if (gpath != NULL) {
+    if (gopen_errno != 0) {
+      report_warning("Could not open global heuristic dissectors file\n\"%s\": %s.",
+                     gpath, g_strerror(gopen_errno));
+    }
+    if (gread_errno != 0) {
+      report_warning("I/O error reading global heuristic dissectors file\n\"%s\": %s.",
+                     gpath, g_strerror(gread_errno));
+    }
+    g_free(gpath);
+    gpath = NULL;
+  }
+  if (path != NULL) {
+    if (open_errno != 0) {
+      report_warning("Could not open your heuristic dissectors file\n\"%s\": %s.",
+                     path, g_strerror(open_errno));
+    }
+    if (read_errno != 0) {
+      report_warning("I/O error reading your heuristic dissectors file\n\"%s\": %s.",
+                     path, g_strerror(read_errno));
+    }
+    g_free(path);
+    path = NULL;
+  }
+
+  /*
+   * Enable/disable protocols and heuristic dissectors as per the
+   * contents of the files we just read.
+   */
+  set_protos_list(disabled_protos, global_disabled_protos, FALSE);
+  set_protos_list(enabled_protos, global_enabled_protos, TRUE);
+  set_disabled_heur_dissector_list();
+}
+
+void
+enabled_and_disabled_protos_cleanup(void)
 {
   g_list_foreach(global_disabled_heuristics, disabled_protos_free, NULL);
   g_list_free(global_disabled_heuristics);

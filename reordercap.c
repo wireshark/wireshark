@@ -49,7 +49,7 @@
 #include <wsutil/plugins.h>
 #endif
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #define INVALID_OPTION 1
 #define OPEN_ERROR 2
@@ -152,10 +152,11 @@ frames_compare(gconstpointer a, gconstpointer b)
 
 #ifdef HAVE_PLUGINS
 /*
- * General errors are reported with an console message in reordercap.
+ * General errors and warnings are reported with an console message
+ * in reordercap.
  */
 static void
-failure_message(const char *msg_format, va_list ap)
+failure_warning_message(const char *msg_format, va_list ap)
 {
     fprintf(stderr, "reordercap: ");
     vfprintf(stderr, msg_format, ap);
@@ -238,7 +239,8 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_PLUGINS
     /* Register wiretap plugins */
-    init_report_err(failure_message,NULL,NULL,NULL);
+    init_report_message(failure_warning_message, failure_warning_message,
+                        NULL, NULL, NULL);
 
     /* Scan for plugins.  This does *not* call their registration routines;
        that's done later.

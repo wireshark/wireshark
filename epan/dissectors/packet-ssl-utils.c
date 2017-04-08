@@ -46,7 +46,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
 #include <ws_version_info.h>

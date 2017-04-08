@@ -2368,9 +2368,10 @@ WS_DLL_PUBLIC void proto_get_frame_protocols(const wmem_list_t *layers,
       gboolean *is_ip, gboolean *is_tcp, gboolean *is_udp, gboolean *is_sctp,
       gboolean *is_ssl, gboolean *is_rtp, gboolean *is_lte_rlc);
 
-/** Find a protocol by name in a layer list.
+/** Check whether a protocol, specified by name, is in a layer list.
  * @param layers Protocol layer list
  * @param proto_name Name of protocol to find
+ * @return TRUE if the protocol is found, FALSE if it isn't
  */
 WS_DLL_PUBLIC gboolean proto_is_frame_protocol(const wmem_list_t *layers, const char* proto_name);
 
@@ -2383,8 +2384,8 @@ WS_DLL_PUBLIC void proto_disable_by_default(const int proto_id);
  @param enabled enable / disable the protocol */
 WS_DLL_PUBLIC void proto_set_decoding(const int proto_id, const gboolean enabled);
 
-/** Enable all protocols */
-WS_DLL_PUBLIC void proto_enable_all(void);
+/** Re-enable all protocols that are not marked as disabled by default. */
+WS_DLL_PUBLIC void proto_reenable_all(void);
 
 /** Disable disabling/enabling of protocol of the given item number.
  @param proto_id protocol id (0-indexed) */
@@ -2401,7 +2402,7 @@ extern gboolean proto_check_for_protocol_or_field(const proto_tree* tree, const 
     tree. Only works with primed trees, and is fast.
  @param tree tree of interest
  @param hfindex primed hfindex
- @return GPtrArry pointer */
+ @return GPtrArray pointer */
 WS_DLL_PUBLIC GPtrArray* proto_get_finfo_ptr_array(const proto_tree *tree, const int hfindex);
 
 /** Return whether we're tracking any interesting fields.

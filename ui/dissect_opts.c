@@ -34,6 +34,7 @@
 #include <epan/prefs.h>
 #include <epan/timestamp.h>
 #include <epan/addr_resolv.h>
+#include <epan/disabled_protos.h>
 
 #include "ui/decode_as_utils.h"
 
@@ -159,6 +160,49 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
         g_assert_not_reached();
     }
     return TRUE;
+}
+
+gboolean
+setup_enabled_and_disabled_protocols(void)
+{
+    gboolean success = TRUE;
+
+    if (global_dissect_options.disable_protocol_slist) {
+        GSList *proto_disable;
+
+        for (proto_disable = global_dissect_options.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
+            proto_disable_proto_by_name((char*)proto_disable->data);
+    }
+
+    if (global_dissect_options.enable_protocol_slist) {
+        GSList *proto_enable;
+
+        for (proto_enable = global_dissect_options.enable_protocol_slist; proto_enable != NULL; proto_enable = g_slist_next(proto_enable))
+            proto_enable_proto_by_name((char*)proto_enable->data);
+    }
+
+    if (global_dissect_options.enable_heur_slist) {
+        GSList *heur_enable;
+
+        for (heur_enable = global_dissect_options.enable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable)) {
+            if (!proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE)) {
+                cmdarg_err("No such protocol %s, can't enable", (char*)heur_enable->data);
+                success = FALSE;
+            }
+        }
+    }
+
+    if (global_dissect_options.disable_heur_slist) {
+        GSList *heur_disable;
+
+        for (heur_disable = global_dissect_options.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable)) {
+            if (!proto_enable_heuristic_by_name((char*)heur_disable->data, FALSE)) {
+                cmdarg_err("No such protocol %s, can't disable", (char*)heur_disable->data);
+                success = FALSE;
+            }
+        }
+    }
+    return success;
 }
 
 /*

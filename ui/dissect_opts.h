@@ -93,6 +93,16 @@ dissect_opts_init(void);
 extern gboolean
 dissect_opts_handle_opt(int opt, char *optarg_str_p);
 
+/*
+ * Set up disabled protocols and enabled/disabled heuristic protocols
+ * as per specified command-line options.
+ *
+ * Returns TRUE if all specified heuristic protocols exist, FALSE
+ * otherwise.
+ */
+extern gboolean
+setup_enabled_and_disabled_protocols(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

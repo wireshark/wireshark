@@ -37,7 +37,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include <wsutil/plugins.h>
 #include <wsutil/ws_printf.h> /* ws_debug_printf */

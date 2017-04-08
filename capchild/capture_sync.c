@@ -91,7 +91,7 @@
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #ifdef HAVE_EXTCAP
 #include "extcap.h"
 #endif

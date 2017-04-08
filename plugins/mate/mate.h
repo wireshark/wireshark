@@ -39,7 +39,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>

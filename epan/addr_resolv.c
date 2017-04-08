@@ -100,7 +100,7 @@
 #include "addr_resolv.h"
 #include "wsutil/filesystem.h"
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <wsutil/file_util.h>
 #include <wsutil/pint.h>
 #include "wsutil/inet_aton.h"

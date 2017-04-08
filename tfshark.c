@@ -51,7 +51,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <ws_version_info.h>
 
 #include "globals.h"
@@ -146,9 +146,9 @@ static gboolean write_finale(void);
 static const char *cf_open_error_message(int err, gchar *err_info,
     gboolean for_writing, int file_type);
 
+static void failure_warning_message(const char *msg_format, va_list ap);
 static void open_failure_message(const char *filename, int err,
     gboolean for_writing);
-static void failure_message(const char *msg_format, va_list ap);
 static void read_failure_message(const char *filename, int err);
 static void write_failure_message(const char *filename, int err);
 static void failure_message_cont(const char *msg_format, va_list ap);
@@ -335,11 +335,8 @@ main(int argc, char *argv[])
   gboolean             arg_error = FALSE;
 
   char                *gpf_path, *pf_path;
-  char                *gdp_path, *dp_path;
   int                  gpf_open_errno, gpf_read_errno;
   int                  pf_open_errno, pf_read_errno;
-  int                  gdp_open_errno, gdp_read_errno;
-  int                  dp_open_errno, dp_read_errno;
   int                  err;
   volatile int         exit_status = 0;
   gboolean             quiet = FALSE;
@@ -379,7 +376,7 @@ main(int argc, char *argv[])
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
 
-  cmdarg_err_init(failure_message, failure_message_cont);
+  cmdarg_err_init(failure_warning_message, failure_message_cont);
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
@@ -501,8 +498,9 @@ main(int argc, char *argv[])
                     (GLogLevelFlags)log_flags,
                     tfshark_log_handler, NULL /* user_data */);
 
-  init_report_err(failure_message, open_failure_message, read_failure_message,
-                  write_failure_message);
+  init_report_message(failure_warning_message, failure_warning_message,
+                      open_failure_message, read_failure_message,
+                      write_failure_message);
 
   timestamp_set_type(TS_RELATIVE);
   timestamp_set_precision(TS_PREC_AUTO);
@@ -628,37 +626,11 @@ main(int argc, char *argv[])
     pf_path = NULL;
   }
 
-  /* Read the disabled protocols file. */
-  read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-                            &dp_path, &dp_open_errno, &dp_read_errno);
-  read_enabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-                            &dp_path, &dp_open_errno, &dp_read_errno);
-  read_disabled_heur_dissector_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-                            &dp_path, &dp_open_errno, &dp_read_errno);
-  if (gdp_path != NULL) {
-    if (gdp_open_errno != 0) {
-      cmdarg_err("Could not open global disabled protocols file\n\"%s\": %s.",
-                 gdp_path, g_strerror(gdp_open_errno));
-    }
-    if (gdp_read_errno != 0) {
-      cmdarg_err("I/O error reading global disabled protocols file\n\"%s\": %s.",
-                 gdp_path, g_strerror(gdp_read_errno));
-    }
-    g_free(gdp_path);
-  }
-  if (dp_path != NULL) {
-    if (dp_open_errno != 0) {
-      cmdarg_err(
-        "Could not open your disabled protocols file\n\"%s\": %s.", dp_path,
-        g_strerror(dp_open_errno));
-    }
-    if (dp_read_errno != 0) {
-      cmdarg_err(
-        "I/O error reading your disabled protocols file\n\"%s\": %s.", dp_path,
-        g_strerror(dp_read_errno));
-    }
-    g_free(dp_path);
-  }
+  /*
+   * Read the files that enable and disable protocols and heuristic
+   * dissectors.
+   */
+  read_enabled_and_disabled_protos();
 
   cap_file_init(&cfile);
 
@@ -855,6 +827,10 @@ main(int argc, char *argv[])
     case 'K':        /* Kerberos keytab file */
     case 't':        /* Time stamp type */
     case 'u':        /* Seconds type */
+    case LONGOPT_DISABLE_PROTOCOL: /* disable dissection of protocol */
+    case LONGOPT_ENABLE_HEURISTIC: /* enable heuristic dissection of protocol */
+    case LONGOPT_DISABLE_HEURISTIC: /* disable heuristic dissection of protocol */
+    case LONGOPT_ENABLE_PROTOCOL: /* enable dissection of protocol (that is disabled by default) */
       if (!dissect_opts_handle_opt(opt, optarg)) {
         exit_status = INVALID_OPTION;
         goto clean_exit;
@@ -946,12 +922,14 @@ main(int argc, char *argv[])
      have a tap filter with one of MATE's late-registered fields as part
      of the filter.  We can now process all the "-z" arguments. */
   start_requested_stats();
-
-  /* disabled protocols as per configuration file */
-  if (gdp_path == NULL && dp_path == NULL) {
-    set_disabled_protos_list();
-    set_enabled_protos_list();
-    set_disabled_heur_dissector_list();
+  
+  /*
+   * Enabled and disabled protocols and heuristic dissectors as per
+   * command-line options.
+   */
+  if (!setup_enabled_and_disabled_protocols()) {
+    exit_status = INVALID_OPTION;
+    goto clean_exit;
   }
 
   /* Build the column format array */
@@ -2306,6 +2284,18 @@ cf_open_error_message(int err, gchar *err_info _U_, gboolean for_writing,
 }
 
 /*
+ * General errors and warnings are reported with an console message
+ * in TFShark.
+ */
+static void
+failure_warning_message(const char *msg_format, va_list ap)
+{
+  fprintf(stderr, "tfshark: ");
+  vfprintf(stderr, msg_format, ap);
+  fprintf(stderr, "\n");
+}
+
+/*
  * Open/create errors are reported with an console message in TFShark.
  */
 static void
@@ -2313,18 +2303,6 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
 {
   fprintf(stderr, "tfshark: ");
   fprintf(stderr, file_open_error_message(err, for_writing), filename);
-  fprintf(stderr, "\n");
-}
-
-
-/*
- * General errors are reported with an console message in TFShark.
- */
-static void
-failure_message(const char *msg_format, va_list ap)
-{
-  fprintf(stderr, "tfshark: ");
-  vfprintf(stderr, msg_format, ap);
   fprintf(stderr, "\n");
 }
 

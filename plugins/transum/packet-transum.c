@@ -32,7 +32,7 @@
 #include <epan/prefs.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/tap.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include "packet-transum.h"
 #include "preferences.h"
 #include "extractors.h"

@@ -83,7 +83,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/str_util.h>
 #include <ws_version_info.h>
@@ -910,10 +910,11 @@ framenum_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 }
 
 /*
- * General errors are reported with an console message in editcap.
+ * General errors and warnings are reported with an console message
+ * in editcap.
  */
 static void
-failure_message(const char *msg_format, va_list ap)
+failure_warning_message(const char *msg_format, va_list ap)
 {
   fprintf(stderr, "editcap: ");
   vfprintf(stderr, msg_format, ap);
@@ -998,7 +999,7 @@ main(int argc, char *argv[])
     char                        *shb_user_appl;
     int                          ret = EXIT_SUCCESS;
 
-    cmdarg_err_init(failure_message, failure_message_cont);
+    cmdarg_err_init(failure_warning_message, failure_message_cont);
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);
@@ -1042,7 +1043,8 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_PLUGINS
     /* Register wiretap plugins */
-    init_report_err(failure_message,NULL,NULL,NULL);
+    init_report_message(failure_warning_message, failure_warning_message,
+                        NULL, NULL, NULL);
 
     /* Scan for plugins.  This does *not* call their registration routines;
        that's done later.

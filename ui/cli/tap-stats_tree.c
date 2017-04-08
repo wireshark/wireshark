@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <glib.h>
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include <epan/stats_tree_priv.h>
 #include <epan/stat_tap_ui.h>

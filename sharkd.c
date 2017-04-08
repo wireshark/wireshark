@@ -42,7 +42,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <ws_version_info.h>
 #include <wiretap/wtap_opttypes.h>
 #include <wiretap/pcapng.h>
@@ -88,9 +88,9 @@ static frame_data *prev_cap;
 static const char *cf_open_error_message(int err, gchar *err_info,
     gboolean for_writing, int file_type);
 
+static void failure_warning_message(const char *msg_format, va_list ap);
 static void open_failure_message(const char *filename, int err,
     gboolean for_writing);
-static void failure_message(const char *msg_format, va_list ap);
 static void read_failure_message(const char *filename, int err);
 static void write_failure_message(const char *filename, int err);
 static void failure_message_cont(const char *msg_format, va_list ap);
@@ -123,18 +123,15 @@ main(int argc, char *argv[])
   char                *init_progfile_dir_error;
 
   char                *gpf_path, *pf_path;
-  char                *gdp_path, *dp_path;
   char                *cf_path;
   char                *err_msg = NULL;
   int                  gpf_open_errno, gpf_read_errno;
   int                  pf_open_errno, pf_read_errno;
-  int                  gdp_open_errno, gdp_read_errno;
-  int                  dp_open_errno, dp_read_errno;
   int                  cf_open_errno;
   e_prefs             *prefs_p;
   int                  ret = EXIT_SUCCESS;
 
-  cmdarg_err_init(failure_message, failure_message_cont);
+  cmdarg_err_init(failure_warning_message, failure_message_cont);
 
   /*
    * Get credential information for later use, and drop privileges
@@ -177,8 +174,9 @@ main(int argc, char *argv[])
     goto clean_exit;
   }
 
-  init_report_err(failure_message, open_failure_message, read_failure_message,
-                  write_failure_message);
+  init_report_message(failure_warning_message, failure_warning_message,
+                      open_failure_message, read_failure_message,
+                      write_failure_message);
 
   timestamp_set_type(TS_RELATIVE);
   timestamp_set_precision(TS_PREC_AUTO);
@@ -248,35 +246,11 @@ main(int argc, char *argv[])
      g_free(err_msg);
   }
 
-  /* Read the disabled protocols file. */
-  read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-                            &dp_path, &dp_open_errno, &dp_read_errno);
-  read_disabled_heur_dissector_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-                            &dp_path, &dp_open_errno, &dp_read_errno);
-  if (gdp_path != NULL) {
-    if (gdp_open_errno != 0) {
-      cmdarg_err("Could not open global disabled protocols file\n\"%s\": %s.",
-                 gdp_path, g_strerror(gdp_open_errno));
-    }
-    if (gdp_read_errno != 0) {
-      cmdarg_err("I/O error reading global disabled protocols file\n\"%s\": %s.",
-                 gdp_path, g_strerror(gdp_read_errno));
-    }
-    g_free(gdp_path);
-  }
-  if (dp_path != NULL) {
-    if (dp_open_errno != 0) {
-      cmdarg_err(
-        "Could not open your disabled protocols file\n\"%s\": %s.", dp_path,
-        g_strerror(dp_open_errno));
-    }
-    if (dp_read_errno != 0) {
-      cmdarg_err(
-        "I/O error reading your disabled protocols file\n\"%s\": %s.", dp_path,
-        g_strerror(dp_read_errno));
-    }
-    g_free(dp_path);
-  }
+  /*
+   * Read the files that enable and disable protocols and heuristic
+   * dissectors.
+   */
+  read_enabled_and_disabled_protos();
 
   cap_file_init(&cfile);
 
@@ -284,12 +258,6 @@ main(int argc, char *argv[])
      changed either from one of the preferences file or from the command
      line that their preferences have changed. */
   prefs_apply_all();
-
-  /* disabled protocols as per configuration file */
-  if (gdp_path == NULL && dp_path == NULL) {
-    set_disabled_protos_list();
-    set_disabled_heur_dissector_list();
-  }
 
   /* Build the column format array */
   build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);
@@ -484,7 +452,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED:
-      cmdarg_err("The file \"%s\" contains record data that TShark doesn't support.\n(%s)",
+      cmdarg_err("The file \"%s\" contains record data that sharkd doesn't support.\n(%s)",
                  cf->filename,
                  err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
@@ -598,18 +566,18 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     case WTAP_ERR_RANDOM_OPEN_PIPE:
       /* Seen only when opening a capture file for reading. */
-      errmsg = "The file \"%s\" is a pipe or FIFO; TShark can't read pipe or FIFO files in two-pass mode.";
+      errmsg = "The file \"%s\" is a pipe or FIFO; sharkd can't read pipe or FIFO files in two-pass mode.";
       break;
 
     case WTAP_ERR_FILE_UNKNOWN_FORMAT:
       /* Seen only when opening a capture file for reading. */
-      errmsg = "The file \"%s\" isn't a capture file in a format TShark understands.";
+      errmsg = "The file \"%s\" isn't a capture file in a format sharkd understands.";
       break;
 
     case WTAP_ERR_UNSUPPORTED:
       /* Seen only when opening a capture file for reading. */
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The file \"%%s\" contains record data that TShark doesn't support.\n"
+                 "The file \"%%s\" contains record data that sharkd doesn't support.\n"
                  "(%s)",
                  err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
@@ -626,13 +594,13 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     case WTAP_ERR_UNWRITABLE_FILE_TYPE:
       /* Seen only when opening a capture file for writing. */
-      errmsg = "TShark doesn't support writing capture files in that format.";
+      errmsg = "sharkd doesn't support writing capture files in that format.";
       break;
 
     case WTAP_ERR_UNWRITABLE_ENCAP:
       /* Seen only when opening a capture file for writing. */
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "TShark can't save this capture as a \"%s\" file.",
+                 "sharkd can't save this capture as a \"%s\" file.",
                  wtap_file_type_subtype_short_string(file_type));
       errmsg = errmsg_errno;
       break;
@@ -640,11 +608,11 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
       if (for_writing) {
         g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                   "TShark can't save this capture as a \"%s\" file.",
+                   "sharkd can't save this capture as a \"%s\" file.",
                    wtap_file_type_subtype_short_string(file_type));
         errmsg = errmsg_errno;
       } else
-        errmsg = "The file \"%s\" is a capture for a network type that TShark doesn't support.";
+        errmsg = "The file \"%s\" is a capture for a network type that sharkd doesn't support.";
       break;
 
     case WTAP_ERR_BAD_FILE:
@@ -701,7 +669,19 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 }
 
 /*
- * Open/create errors are reported with an console message in TShark.
+ * General errors and warnings are reported with an console message
+ * in sharkd.
+ */
+static void
+failure_warning_message(const char *msg_format, va_list ap)
+{
+  fprintf(stderr, "sharkd: ");
+  vfprintf(stderr, msg_format, ap);
+  fprintf(stderr, "\n");
+}
+
+/*
+ * Open/create errors are reported with an console message in sharkd.
  */
 static void
 open_failure_message(const char *filename, int err, gboolean for_writing)
@@ -712,18 +692,7 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
 }
 
 /*
- * General errors are reported with an console message in TShark.
- */
-static void
-failure_message(const char *msg_format, va_list ap)
-{
-  fprintf(stderr, "sharkd: ");
-  vfprintf(stderr, msg_format, ap);
-  fprintf(stderr, "\n");
-}
-
-/*
- * Read errors are reported with an console message in TShark.
+ * Read errors are reported with an console message in sharkd.
  */
 static void
 read_failure_message(const char *filename, int err)
@@ -733,7 +702,7 @@ read_failure_message(const char *filename, int err)
 }
 
 /*
- * Write errors are reported with an console message in TShark.
+ * Write errors are reported with an console message in sharkd.
  */
 static void
 write_failure_message(const char *filename, int err)

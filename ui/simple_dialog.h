@@ -148,6 +148,11 @@ extern void vsimple_error_message_box(const char *msg_format, va_list ap);
  */
 extern void simple_error_message_box(const char *msg_format, ...) G_GNUC_PRINTF(1, 2);
 
+/*
+ * Warning alert box, taking a format and a va_list argument.
+ */
+extern void vsimple_warning_message_box(const char *msg_format, va_list ap);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

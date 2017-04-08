@@ -38,7 +38,7 @@
 #include <wsutil/plugins.h>
 #endif
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
@@ -54,10 +54,11 @@
 #define CLOSE_ERROR 2
 
 /*
- * General errors are reported with an console message in randpkt.
+ * General errors and warnings are reported with an console message
+ * in randpkt.
  */
 static void
-failure_message(const char *msg_format, va_list ap)
+failure_warning_message(const char *msg_format, va_list ap)
 {
 	fprintf(stderr, "randpkt: ");
 	vfprintf(stderr, msg_format, ap);
@@ -148,7 +149,7 @@ main(int argc, char **argv)
 
 	wtap_init();
 
-	cmdarg_err_init(failure_message, failure_message_cont);
+	cmdarg_err_init(failure_warning_message, failure_message_cont);
 
 #ifdef _WIN32
 	arg_list_utf_16to8(argc, argv);
@@ -157,7 +158,8 @@ main(int argc, char **argv)
 
 #ifdef HAVE_PLUGINS
 	/* Register wiretap plugins */
-	init_report_err(failure_message,NULL,NULL,NULL);
+	init_report_message(failure_warning_message, failure_warning_message,
+	    NULL, NULL, NULL);
 
 	/* Scan for plugins.  This does *not* call their registration routines;
 	   that's done later.

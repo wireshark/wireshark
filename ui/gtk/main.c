@@ -53,7 +53,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <ws_version_info.h>
 
 #include <wiretap/merge.h>
@@ -208,6 +208,7 @@
 #include <gtkmacintegration/gtkosxapplication.h>
 #endif
 
+#define INVALID_OPTION 1
 #define INIT_FAILED 2
 #define INVALID_CAPABILITY 2
 #define INVALID_LINK_TYPE 2
@@ -1902,12 +1903,10 @@ get_wireshark_runtime_info(GString *str)
 }
 
 static e_prefs *
-read_configuration_files(char **gdp_path, char **dp_path)
+read_configuration_files(void)
 {
     int                  gpf_open_errno, gpf_read_errno;
     int                  cf_open_errno, df_open_errno;
-    int                  gdp_open_errno, gdp_read_errno;
-    int                  dp_open_errno, dp_read_errno;
     char                *gpf_path, *pf_path;
     char                *cf_path, *df_path;
     int                  pf_open_errno, pf_read_errno;
@@ -1972,41 +1971,11 @@ read_configuration_files(char **gdp_path, char **dp_path)
         g_free(df_path);
     }
 
-    /* Read the disabled protocols file. */
-    read_disabled_protos_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
-                              dp_path, &dp_open_errno, &dp_read_errno);
-    read_enabled_protos_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
-                              dp_path, &dp_open_errno, &dp_read_errno);
-    read_disabled_heur_dissector_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
-                              dp_path, &dp_open_errno, &dp_read_errno);
-    if (*gdp_path != NULL) {
-        if (gdp_open_errno != 0) {
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                          "Could not open global disabled protocols file\n\"%s\": %s.",
-                          *gdp_path, g_strerror(gdp_open_errno));
-        }
-        if (gdp_read_errno != 0) {
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                          "I/O error reading global disabled protocols file\n\"%s\": %s.",
-                          *gdp_path, g_strerror(gdp_read_errno));
-        }
-        g_free(*gdp_path);
-        *gdp_path = NULL;
-    }
-    if (*dp_path != NULL) {
-        if (dp_open_errno != 0) {
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                          "Could not open your disabled protocols file\n\"%s\": %s.",
-                          *dp_path, g_strerror(dp_open_errno));
-        }
-        if (dp_read_errno != 0) {
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                          "I/O error reading your disabled protocols file\n\"%s\": %s.",
-                          *dp_path, g_strerror(dp_read_errno));
-        }
-        g_free(*dp_path);
-        *dp_path = NULL;
-    }
+    /*
+     * Read the files that enable and disable protocols and heuristic
+     * dissectors.
+     */
+    read_enabled_and_disabled_protos();
 
     return prefs_p;
 }
@@ -2071,7 +2040,6 @@ main(int argc, char *argv[])
 
     char                *rf_path;
     int                  rf_open_errno;
-    char                *gdp_path, *dp_path;
     int                  err;
 #ifdef HAVE_LIBPCAP
     gchar               *err_str;
@@ -2280,8 +2248,9 @@ main(int argc, char *argv[])
     capture_session_init(&global_capture_session, &cfile);
 #endif
 
-    init_report_err(vfailure_alert_box, open_failure_alert_box,
-                    read_failure_alert_box, write_failure_alert_box);
+    init_report_message(vfailure_alert_box, vwarning_alert_box,
+                        open_failure_alert_box, read_failure_alert_box,
+                        write_failure_alert_box);
 
     /* Non-blank filter means we're remote. Throttle splash screen and resolution updates. */
     filter = get_conn_cfilter();
@@ -2357,7 +2326,7 @@ main(int argc, char *argv[])
 
     splash_update(RA_PREFERENCES, NULL, (gpointer)splash_win);
 
-    global_commandline_info.prefs_p = read_configuration_files (&gdp_path, &dp_path);
+    global_commandline_info.prefs_p = read_configuration_files();
     /* Removed thread code:
      * https://code.wireshark.org/review/gitweb?p=wireshark.git;a=commit;h=9e277ae6154fd04bf6a0a34ec5655a73e5a736a3
      */
@@ -2476,43 +2445,13 @@ main(int argc, char *argv[])
     }
 #endif
 
-    /* disabled protocols as per configuration file */
-    if (gdp_path == NULL && dp_path == NULL) {
-        set_disabled_protos_list();
-        set_enabled_protos_list();
-        set_disabled_heur_dissector_list();
-    }
-
-    if(global_dissect_options.disable_protocol_slist) {
-        GSList *proto_disable;
-        for (proto_disable = global_dissect_options.disable_protocol_slist; proto_disable != NULL; proto_disable = g_slist_next(proto_disable))
-        {
-            proto_disable_proto_by_name((char*)proto_disable->data);
-        }
-    }
-
-    if(global_dissect_options.enable_protocol_slist) {
-        GSList *proto_enable;
-        for (proto_enable = global_dissect_options.enable_protocol_slist; proto_enable != NULL; proto_enable = g_slist_next(proto_enable))
-        {
-            proto_enable_proto_by_name((char*)proto_enable->data);
-        }
-    }
-
-    if(global_dissect_options.disable_heur_slist) {
-        GSList *heur_enable;
-        for (heur_enable = global_dissect_options.disable_heur_slist; heur_enable != NULL; heur_enable = g_slist_next(heur_enable))
-        {
-            proto_enable_heuristic_by_name((char*)heur_enable->data, TRUE);
-        }
-    }
-
-    if(global_dissect_options.disable_heur_slist) {
-        GSList *heur_disable;
-        for (heur_disable = global_dissect_options.disable_heur_slist; heur_disable != NULL; heur_disable = g_slist_next(heur_disable))
-        {
-            proto_enable_heuristic_by_name((char*)heur_disable->data, FALSE);
-        }
+    /*
+     * Enabled and disabled protocols and heuristic dissectors as per
+     * command-line options.
+     */
+    if (!setup_enabled_and_disabled_protocols()) {
+       ret = INVALID_OPTION;
+       goto clean_exit;
     }
 
     build_column_format_array(&cfile.cinfo, global_commandline_info.prefs_p->num_cols, TRUE);
@@ -3314,7 +3253,6 @@ static void copy_global_profile (const gchar *profile_name)
 /* Change configuration profile */
 void change_configuration_profile (const gchar *profile_name)
 {
-    char  *gdp_path, *dp_path;
     char  *rf_path;
     int    rf_open_errno;
     gchar* err_msg = NULL;
@@ -3347,11 +3285,18 @@ void change_configuration_profile (const gchar *profile_name)
     set_profile_name (profile_name);
     profile_bar_update ();
 
-    /* Reset current preferences and apply the new */
+    /*
+     * Reset current preferences and enabled/disabled protocols and
+     * heuristic dissectors.
+     */
     prefs_reset();
     menu_prefs_reset();
+    proto_reenable_all();
 
-    (void) read_configuration_files (&gdp_path, &dp_path);
+    /*
+     * Read the configuration files for the new profile.
+     */
+    (void) read_configuration_files();
 
     if (!recent_read_profile_static(&rf_path, &rf_open_errno)) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
@@ -3378,14 +3323,6 @@ void change_configuration_profile (const gchar *profile_name)
     main_titlebar_update();
     filter_expression_reinit(FILTER_EXPRESSION_REINIT_CREATE);
     toolbar_redraw_all();
-
-    /* Enable all protocols and disable from the disabled list */
-    proto_enable_all();
-    if (gdp_path == NULL && dp_path == NULL) {
-        set_disabled_protos_list();
-        set_enabled_protos_list();
-        set_disabled_heur_dissector_list();
-    }
 
     /* Reload color filters */
     if (!color_filters_reload(&err_msg, color_filter_add_cb)) {

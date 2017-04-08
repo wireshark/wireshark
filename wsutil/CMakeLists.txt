@@ -58,7 +58,7 @@ set(WSUTIL_COMMON_FILES
 	strnatcmp.c
 	str_util.c
 	strtoi.c
-	report_err.c
+	report_message.c
 	tempfile.c
 	time_util.c
 	type_util.c

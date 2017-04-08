@@ -6,7 +6,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -30,28 +29,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
- * Read in a list of disabled protocols.
- *
- * On success, "*pref_path_return" is set to NULL.
- * On error, "*pref_path_return" is set to point to the pathname of
- * the file we tried to read - it should be freed by our caller -
- * and "*open_errno_return" is set to the error if we couldn't open the file
- * or "*read_errno_return" is set to the error if we got an error reading
- * the file.
- */
-WS_DLL_PUBLIC void
-read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
-			  int *gread_errno_return,
-			  char **path_return, int *open_errno_return,
-			  int *read_errno_return);
-
-/*
- * Disable protocols as per the stored configuration
- */
-WS_DLL_PUBLIC void
-set_disabled_protos_list(void);
-
-/*
  * Write out a list of disabled protocols.
  *
  * On success, "*pref_path_return" is set to NULL.
@@ -68,29 +45,6 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return);
 
 WS_DLL_PUBLIC void
 proto_disable_proto_by_name(const char *name);
-
-
-/*
- * Read in a list of enabled protocols (who are disabled by default)
- *
- * On success, "*pref_path_return" is set to NULL.
- * On error, "*pref_path_return" is set to point to the pathname of
- * the file we tried to read - it should be freed by our caller -
- * and "*open_errno_return" is set to the error if we couldn't open the file
- * or "*read_errno_return" is set to the error if we got an error reading
- * the file.
- */
-WS_DLL_PUBLIC void
-read_enabled_protos_list(char **gpath_return, int *gopen_errno_return,
-			  int *gread_errno_return,
-			  char **path_return, int *open_errno_return,
-			  int *read_errno_return);
-
-/*
- * Enable protocols (that default to disabled) as per the stored configuration
- */
-WS_DLL_PUBLIC void
-set_enabled_protos_list(void);
 
 /*
  * Write out a list of enabled protocols (that default to being disabled)
@@ -112,28 +66,6 @@ WS_DLL_PUBLIC void
 proto_enable_proto_by_name(const char *name);
 
 /*
- * Read in a list of disabled protocols.
- *
- * On success, "*pref_path_return" is set to NULL.
- * On error, "*pref_path_return" is set to point to the pathname of
- * the file we tried to read - it should be freed by our caller -
- * and "*open_errno_return" is set to the error if we couldn't open the file
- * or "*read_errno_return" is set to the error if we got an error reading
- * the file.
- */
-WS_DLL_PUBLIC void
-read_disabled_heur_dissector_list(char **gpath_return, int *gopen_errno_return,
-			  int *gread_errno_return,
-			  char **path_return, int *open_errno_return,
-			  int *read_errno_return);
-
-/*
- * Disable protocols as per the stored configuration
- */
-WS_DLL_PUBLIC void
-set_disabled_heur_dissector_list(void);
-
-/*
  * Write out a list of disabled heuristic dissectors.
  *
  * On success, "*pref_path_return" is set to NULL.
@@ -146,15 +78,24 @@ save_disabled_heur_dissector_list(char **pref_path_return, int *errno_return);
 
 /*
  * Enable/disable a particular heuristic dissector by name
+ * On success (found the protocol), return TRUE.
+ * On failure (didn't find the protocol), return FALSE.
+ */
+WS_DLL_PUBLIC gboolean
+proto_enable_heuristic_by_name(const char *name, gboolean enable);
+
+/*
+ * Read the files that enable and disable protocols and heuristic
+ * dissectors.  Report errors through the UI.
  */
 WS_DLL_PUBLIC void
-proto_enable_heuristic_by_name(const char *name, gboolean enable);
+read_enabled_and_disabled_protos(void);
 
 /*
  * Free the internal structures
  */
 extern void
-disabled_protos_cleanup(void);
+enabled_and_disabled_protos_cleanup(void);
 
 #ifdef __cplusplus
 }

@@ -277,6 +277,22 @@ vsimple_error_message_box(const char *msg_format, va_list ap)
     sd.exec();
 }
 
+/*
+ * Warning alert box, taking a format and a va_list argument.
+ */
+void
+vsimple_warning_message_box(const char *msg_format, va_list ap)
+{
+#ifdef HAVE_LIBPCAP
+    // We want to quit after reading the capture file, hence
+    // we don't actually open the error dialog.
+    if (global_commandline_info.quit_after_cap)
+        exit(0);
+#endif
+
+    SimpleDialog sd(gbl_cur_main_window_, ESD_TYPE_WARN, ESD_BTN_OK, msg_format, ap);
+    sd.exec();
+}
 
 QMenu* MainWindow::findOrAddMenu(QMenu *parent_menu, QString& menu_text) {
     QList<QAction *> actions = parent_menu->actions();

@@ -38,7 +38,7 @@
 
 #include <gtk/gtk.h>
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 
 #include <epan/stat_tap_ui.h>
 #include <epan/to_str.h>

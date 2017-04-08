@@ -34,7 +34,7 @@
 
 #include <gtk/gtk.h>
 
-#include <wsutil/report_err.h>
+#include <wsutil/report_message.h>
 #include <wsutil/file_util.h>
 
 #include <epan/stats_tree_priv.h>
