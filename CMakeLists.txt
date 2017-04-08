@@ -2309,6 +2309,7 @@ endif()
 if(BUILD_sharkd)
 	set(sharkd_LIBS
 		ui
+		wscodecs
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}

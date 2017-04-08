@@ -591,6 +591,7 @@ sharkd_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS)
 sharkd_LDADD = \
 	ui/cli/libcliui.a		\
 	ui/libui.a			\
+	codecs/libwscodecs.la		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
@@ -906,6 +907,7 @@ SUBDIRS = \
 	packaging		\
 	help			\
 	ui			\
+	codecs			\
 	@wireshark_SUBDIRS@	\
 	ui/cli			\
 	randpkt_core		\

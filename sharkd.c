@@ -65,6 +65,8 @@
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 
+#include <codecs/codecs.h>
+
 #include "log.h"
 
 #include <wsutil/str_util.h>
@@ -190,6 +192,8 @@ main(int argc, char *argv[])
   /* Register all libwiretap plugin modules. */
   register_all_wiretap_modules();
 #endif
+
+  register_all_codecs();
 
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps information registered by the

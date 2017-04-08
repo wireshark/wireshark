@@ -63,6 +63,8 @@
 
 #include <epan/addr_resolv.h>
 #include <epan/dissectors/packet-rtp.h>
+#include <ui/rtp_media.h>
+#include <codecs/speex/speex_resampler.h>
 
 #ifdef HAVE_GEOIP
 # include <GeoIP.h>
@@ -148,32 +150,36 @@ json_puts_string(const char *str)
 }
 
 static void
-json_print_base64(const guint8 *data, size_t len)
+json_print_base64_step(const guint8 *data, int *state1, int *state2)
 {
-	size_t i;
-	int base64_state1 = 0;
-	int base64_state2 = 0;
-	gsize wrote;
 	gchar buf[(1 / 3 + 1) * 4 + 4 + 1];
+	gsize wrote;
 
-	putchar('"');
+	if (data)
+		wrote = g_base64_encode_step(data, 1, FALSE, buf, state1, state2);
+	else
+		wrote = g_base64_encode_close(FALSE, buf, state1, state2);
 
-	for (i = 0; i < len; i++)
-	{
-		wrote = g_base64_encode_step(&data[i], 1, FALSE, buf, &base64_state1, &base64_state2);
-		if (wrote > 0)
-		{
-			buf[wrote] = '\0';
-			printf("%s", buf);
-		}
-	}
-
-	wrote = g_base64_encode_close(FALSE, buf, &base64_state1, &base64_state2);
 	if (wrote > 0)
 	{
 		buf[wrote] = '\0';
 		printf("%s", buf);
 	}
+}
+
+static void
+json_print_base64(const guint8 *data, size_t len)
+{
+	size_t i;
+	int base64_state1 = 0;
+	int base64_state2 = 0;
+
+	putchar('"');
+
+	for (i = 0; i < len; i++)
+		json_print_base64_step(&data[i], &base64_state1, &base64_state2);
+
+	json_print_base64_step(NULL, &base64_state1, &base64_state2);
 
 	putchar('"');
 }
@@ -3072,6 +3078,193 @@ sharkd_session_process_dumpconf(char *buf, const jsmntok_t *tokens, int count)
     }
 }
 
+struct sharkd_download_rtp
+{
+	struct sharkd_rtp_match rtp;
+	GSList *packets;
+	double start_time;
+};
+
+static void
+sharkd_rtp_download_free_items(void *ptr)
+{
+	rtp_packet_t *rtp_packet = (rtp_packet_t *) ptr;
+
+	g_free(rtp_packet->info);
+	g_free(rtp_packet->payload_data);
+	g_free(rtp_packet);
+}
+
+static void
+sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
+{
+	/* based on RtpAudioStream::decode() 6e29d874f8b5e6ebc59f661a0bb0dab8e56f122a */
+	/* TODO, for now only without silence (timing_mode_ = Uninterrupted) */
+
+	static const int sample_bytes_ = sizeof(SAMPLE) / sizeof(char);
+
+	guint32 audio_out_rate_ = 0;
+	struct _GHashTable *decoders_hash_ = rtp_decoder_hash_table_new();
+	struct SpeexResamplerState_ *audio_resampler_ = NULL;
+
+	gsize resample_buff_len = 0x1000;
+	SAMPLE *resample_buff = (SAMPLE *) g_malloc(resample_buff_len);
+	spx_uint32_t cur_in_rate = 0;
+	char *write_buff = NULL;
+	gint64 write_bytes = 0;
+	unsigned channels = 0;
+	unsigned sample_rate = 0;
+
+	int i;
+	int base64_state1 = 0;
+	int base64_state2 = 0;
+
+	GSList *l;
+
+	for (l = req->packets; l; l = l->next)
+	{
+		rtp_packet_t *rtp_packet = (rtp_packet_t *) l->data;
+
+		SAMPLE *decode_buff = NULL;
+		size_t decoded_bytes;
+
+		decoded_bytes = decode_rtp_packet(rtp_packet, &decode_buff, decoders_hash_, &channels, &sample_rate);
+		if (decoded_bytes == 0 || sample_rate == 0)
+		{
+			/* We didn't decode anything. Clean up and prep for the next packet. */
+			g_free(decode_buff);
+			continue;
+		}
+
+		if (audio_out_rate_ == 0)
+		{
+			guint32 tmp32;
+			guint16 tmp16;
+			char wav_hdr[44];
+
+			/* First non-zero wins */
+			audio_out_rate_ = sample_rate;
+
+			RTP_STREAM_DEBUG("Audio sample rate is %u", audio_out_rate_);
+
+			/* write WAVE header */
+			memset(&wav_hdr, 0, sizeof(wav_hdr));
+			memcpy(&wav_hdr[0], "RIFF", 4);
+			memcpy(&wav_hdr[4], "\xFF\xFF\xFF\xFF", 4); /* XXX, unknown */
+			memcpy(&wav_hdr[8], "WAVE", 4);
+
+			memcpy(&wav_hdr[12], "fmt ", 4);
+			memcpy(&wav_hdr[16], "\x10\x00\x00\x00", 4); /* PCM */
+			memcpy(&wav_hdr[20], "\x01\x00", 2);         /* PCM */
+			/* # channels */
+			tmp16 = channels;
+			memcpy(&wav_hdr[22], &tmp16, 2);
+			/* sample rate */
+			tmp32 = sample_rate;
+			memcpy(&wav_hdr[24], &tmp32, 4);
+			/* byte rate */
+			tmp32 = sample_rate * channels * sample_bytes_;
+			memcpy(&wav_hdr[28], &tmp32, 4);
+			/* block align */
+			tmp16 = channels * sample_bytes_;
+			memcpy(&wav_hdr[32], &tmp16, 2);
+			/* bits per sample */
+			tmp16 = 8 * sample_bytes_;
+			memcpy(&wav_hdr[34], &tmp16, 2);
+
+			memcpy(&wav_hdr[36], "data", 4);
+			memcpy(&wav_hdr[40], "\xFF\xFF\xFF\xFF", 4); /* XXX, unknown */
+
+			for (i = 0; i < (int) sizeof(wav_hdr); i++)
+				json_print_base64_step(&wav_hdr[i], &base64_state1, &base64_state2);
+		}
+
+		// Write samples to our file.
+		write_buff = (char *) decode_buff;
+		write_bytes = decoded_bytes;
+
+		if (audio_out_rate_ != sample_rate)
+		{
+			spx_uint32_t in_len, out_len;
+
+			/* Resample the audio to match our previous output rate. */
+			if (!audio_resampler_)
+			{
+				audio_resampler_ = speex_resampler_init(1, sample_rate, audio_out_rate_, 10, NULL);
+				speex_resampler_skip_zeros(audio_resampler_);
+				RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, audio_out_rate_);
+			}
+			else
+			{
+				spx_uint32_t audio_out_rate;
+				speex_resampler_get_rate(audio_resampler_, &cur_in_rate, &audio_out_rate);
+
+				if (sample_rate != cur_in_rate)
+				{
+					speex_resampler_set_rate(audio_resampler_, sample_rate, audio_out_rate);
+					RTP_STREAM_DEBUG("Changed input rate from %u to %u Hz. Out is %u.", cur_in_rate, sample_rate, audio_out_rate_);
+				}
+			}
+			in_len = (spx_uint32_t)rtp_packet->info->info_payload_len;
+			out_len = (audio_out_rate_ * (spx_uint32_t)rtp_packet->info->info_payload_len / sample_rate) + (audio_out_rate_ % sample_rate != 0);
+			if (out_len * sample_bytes_ > resample_buff_len)
+			{
+				while ((out_len * sample_bytes_ > resample_buff_len))
+					resample_buff_len *= 2;
+				resample_buff = (SAMPLE *) g_realloc(resample_buff, resample_buff_len);
+			}
+
+			speex_resampler_process_int(audio_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
+			write_buff = (char *) resample_buff;
+			write_bytes = out_len * sample_bytes_;
+		}
+
+		/* Write the decoded, possibly-resampled audio */
+		for (i = 0; i < write_bytes; i++)
+			json_print_base64_step(&write_buff[i], &base64_state1, &base64_state2);
+
+		g_free(decode_buff);
+	}
+
+	json_print_base64_step(NULL, &base64_state1, &base64_state2);
+
+	g_free(resample_buff);
+	g_hash_table_destroy(decoders_hash_);
+}
+
+static gboolean
+sharkd_session_packet_download_tap_rtp_cb(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+{
+	const struct _rtp_info *rtp_info = (const struct _rtp_info *) data;
+	struct sharkd_download_rtp *req_rtp = (struct sharkd_download_rtp *) tapdata;
+
+	/* do not consider RTP packets without a setup frame */
+	if (rtp_info->info_setup_frame_num == 0)
+		return FALSE;
+
+	if (sharkd_rtp_match_check(&req_rtp->rtp, pinfo, rtp_info))
+	{
+		rtp_packet_t *rtp_packet;
+
+		rtp_packet = g_new0(rtp_packet_t, 1);
+		rtp_packet->info = (struct _rtp_info *) g_memdup(rtp_info, sizeof(struct _rtp_info));
+
+		if (rtp_info->info_all_data_present && rtp_info->info_payload_len != 0)
+			rtp_packet->payload_data = (guint8 *) g_memdup(&(rtp_info->info_data[rtp_info->info_payload_offset]), rtp_info->info_payload_len);
+
+		if (!req_rtp->packets)
+			req_rtp->start_time = nstime_to_sec(&pinfo->abs_ts);
+
+		rtp_packet->frame_num = pinfo->num;
+		rtp_packet->arrive_offset = nstime_to_sec(&pinfo->abs_ts) - req_rtp->start_time;
+
+		/* XXX, O(n) optimize */
+		req_rtp->packets = g_slist_append(req_rtp->packets, rtp_packet);
+	}
+
+	return FALSE;
+}
+
 /**
  * sharkd_session_process_download()
  *
@@ -3146,6 +3339,49 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
 			printf("}\n");
 		}
 		g_free(str);
+	}
+	else if (!strncmp(tok_token, "rtp:", 4))
+	{
+		struct sharkd_download_rtp rtp_req;
+		GString *tap_error;
+
+		memset(&rtp_req, 0, sizeof(rtp_req));
+		if (!sharkd_rtp_match_init(&rtp_req.rtp, tok_token + 4))
+		{
+			fprintf(stderr, "sharkd_session_process_download() rtp tokenizing error %s\n", tok_token);
+			return;
+		}
+
+		tap_error = register_tap_listener("rtp", &rtp_req, NULL, 0, NULL, sharkd_session_packet_download_tap_rtp_cb, NULL);
+		if (tap_error)
+		{
+			fprintf(stderr, "sharkd_session_process_download() rtp error=%s", tap_error->str);
+			g_string_free(tap_error, TRUE);
+			return;
+		}
+
+		sharkd_retap();
+		remove_tap_listener(&rtp_req);
+
+		if (rtp_req.packets)
+		{
+			const char *mime     = "audio/x-wav";
+			const char *filename = tok_token;
+
+			printf("{\"file\":");
+			json_puts_string(filename);
+			printf(",\"mime\":");
+			json_puts_string(mime);
+
+			printf(",\"data\":");
+			putchar('"');
+			sharkd_rtp_download_decode(&rtp_req);
+			putchar('"');
+
+			printf("}\n");
+
+			g_slist_free_full(rtp_req.packets, sharkd_rtp_download_free_items);
+		}
 	}
 }
 

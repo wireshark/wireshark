@@ -1436,19 +1436,19 @@ if test "$have_gtk" = "yes" -a "$have_qt" = "yes" ; then
 
 	wireshark_bin="wireshark\$(EXEEXT) wireshark-gtk\$(EXEEXT)"
 	wireshark_man="wireshark.1"
-	wireshark_SUBDIRS="codecs ui/qt ui/gtk"
+	wireshark_SUBDIRS="ui/qt ui/gtk"
 elif test "$have_gtk" = "no" -a "$have_qt" = "yes" ; then
 	# We don't have GTK+ but we have Qt.
 
 	wireshark_bin="wireshark\$(EXEEXT)"
 	wireshark_man="wireshark.1"
-	wireshark_SUBDIRS="codecs ui/qt"
+	wireshark_SUBDIRS="ui/qt"
 elif test "$have_gtk" = "yes" -a "$have_qt" = "no" ; then
 	# We have GTK+ but not Qt.
 
 	wireshark_bin="wireshark-gtk\$(EXEEXT)"
 	wireshark_man="wireshark.1"
-	wireshark_SUBDIRS="codecs ui/gtk"
+	wireshark_SUBDIRS="ui/gtk"
 	OSX_APP_FLAGS="$OSX_APP_FLAGS -gtk"
 	OSX_DMG_FLAGS="-gtk"
 elif test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
