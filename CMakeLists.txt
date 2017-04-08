@@ -2320,11 +2320,11 @@ endif()
 
 if(BUILD_dftest)
 	set(dftest_LIBS
+		ui
 		${LIBEPAN_LIBS}
 	)
 	set(dftest_FILES
 		dftest.c
-		ui/util.c
 	)
 	add_executable(dftest ${dftest_FILES})
 	add_dependencies(dftest version)
