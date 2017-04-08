@@ -235,6 +235,18 @@ sub remove_blank_lines {
     return;
 }
 
+sub get_quoted_str_regex {
+    # A regex which matches double-quoted strings.
+    #    's' modifier added so that strings containing a 'line continuation'
+    #    ( \ followed by a new-line) will match.
+    my $double_quoted_str = qr{ (?: ["] (?: \\. | [^\"\\\n])* ["]) }xmso;
+
+    # A regex which matches single-quoted strings.
+    my $single_quoted_str = qr{ (?: ['] (?: \\. | [^\'\\\n])* [']) }xmso;
+
+    return qr{ $double_quoted_str | $single_quoted_str }xmso;
+}
+
 # ------------
 # action:  remove comments from input string
 # arg:     code_ref, filename
@@ -250,6 +262,13 @@ sub remove_comments {
 
     ${$code_ref} =~ s{ $c_comment_regex } {}xmsog;
 
+    # Remove single-line C++-style comments. Be careful not to break up strings
+    # like "coap://", so match double quoted strings, single quoted characters,
+    # division operator and other characters before the actual "//" comment.
+    my $quoted_str = get_quoted_str_regex();
+    my $cpp_comment_regex = qr{ ^((?: $quoted_str | /(?!/) | [^'"/\n] )*) // .*$ }xm;
+    ${$code_ref} =~ s{ $cpp_comment_regex } { $1 }xmg;
+
     ($debug == 1) && print "==> After Remove Comments: code: [$filename]\n${$code_ref}\n===<\n";
 
     return;
@@ -262,15 +281,8 @@ sub remove_comments {
 sub remove_quoted_strings {
     my ($code_ref, $filename) = @_;
 
-    # A regex which matches double-quoted strings.
-    #    's' modifier added so that strings containing a 'line continuation'
-    #    ( \ followed by a new-line) will match.
-    my $double_quoted_str = qr{ (?: ["] (?: \\. | [^\"\\])* ["]) }xmso;
-
-    # A regex which matches single-quoted strings.
-    my $single_quoted_str = qr{ (?: ['] (?: \\. | [^\'\\])* [']) }xmso;
-
-    ${$code_ref} =~ s{ $double_quoted_str | $single_quoted_str } {}xmsog;
+    my $quoted_str = get_quoted_str_regex();
+    ${$code_ref} =~ s{ $quoted_str } {}xmsog;
 
     ($debug == 1) && print "==> After Remove quoted strings: code: [$filename]\n${$code_ref}\n===<\n";
 
