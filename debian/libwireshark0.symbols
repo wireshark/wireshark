@@ -493,6 +493,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  epan_dissect_run_with_taps@Base 1.9.1
  epan_free@Base 1.12.0~rc1
  epan_get_compiled_version_info@Base 1.9.1
+ epan_get_interface_description@Base 2.3.0
  epan_get_interface_name@Base 1.99.2
  epan_get_runtime_version_info@Base 1.9.1
  epan_get_user_comment@Base 1.99.2
@@ -551,6 +552,20 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ext_menubar_get_entries@Base 1.99.8
  ext_menubar_register_menu@Base 1.99.8
  ext_menubar_set_parentmenu@Base 2.0.0
+ ext_toolbar_add_entry@Base 2.3.0
+ ext_toolbar_add_val@Base 2.3.0
+ ext_toolbar_entry_by_label@Base 2.3.0
+ ext_toolbar_get_entries@Base 2.3.0
+ ext_toolbar_register_toolbar@Base 2.3.0
+ ext_toolbar_register_update_cb@Base 2.3.0
+ ext_toolbar_unregister_toolbar@Base 2.3.0
+ ext_toolbar_unregister_toolbar_by_name@Base 2.3.0
+ ext_toolbar_update_data@Base 2.3.0
+ ext_toolbar_update_data_add_entry@Base 2.3.0
+ ext_toolbar_update_data_by_index@Base 2.3.0
+ ext_toolbar_update_data_remove_entry@Base 2.3.0
+ ext_toolbar_update_data_set_active@Base 2.3.0
+ ext_toolbar_update_value@Base 2.3.0
  fc_fc4_val@Base 1.9.1
  fetch_tapped_data@Base 1.9.1
  filter_expression_new@Base 1.9.1
@@ -1024,7 +1039,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_deregister_field@Base 1.99.9
  proto_disable_by_default@Base 2.1.2
  proto_disable_proto_by_name@Base 1.99.8
- proto_enable_all@Base 1.9.1
  proto_enable_heuristic_by_name@Base 1.99.8
  proto_enable_proto_by_name@Base 2.3.0
  proto_expert@Base 1.9.1
@@ -1067,6 +1081,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_item_set_len@Base 1.9.1
  proto_item_set_text@Base 1.9.1
  proto_name_already_registered@Base 2.0.1
+ proto_reenable_all@Base 2.3.0
  proto_register_field_array@Base 1.9.1
  proto_register_fields_manual@Base 1.12.0~rc1
  proto_register_fields_section@Base 1.12.0~rc1
@@ -1156,6 +1171,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_item_ret_uint@Base 1.99.6
  proto_tree_add_none_format@Base 1.9.1
  proto_tree_add_protocol_format@Base 1.9.1
+ proto_tree_add_split_bits_item_ret_val@Base 2.3.0
  proto_tree_add_string@Base 1.9.1
  proto_tree_add_string_format@Base 1.9.1
  proto_tree_add_string_format_value@Base 1.9.1
@@ -1219,8 +1235,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  range_add_value@Base 2.3.0
  range_remove_value@Base 2.3.0
  ranges_are_equal@Base 1.9.1
- read_disabled_heur_dissector_list@Base 1.99.8
- read_disabled_protos_list@Base 1.12.0~rc1
+ read_enabled_and_disabled_protos@Base 2.3.0
  read_enabled_protos_list@Base 2.3.0
  read_keytab_file@Base 1.9.1
  read_keytab_file_from_preferences@Base 1.9.1
@@ -1340,8 +1355,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  set_column_resolved@Base 1.9.1
  set_column_title@Base 1.9.1
  set_column_visible@Base 1.9.1
- set_disabled_heur_dissector_list@Base 1.99.8
- set_disabled_protos_list@Base 1.12.0~rc1
  set_enabled_protos_list@Base 2.3.0
  set_fd_time@Base 1.9.1
  set_mac_lte_proto_data@Base 1.9.1
@@ -1786,6 +1799,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_list_frame_next@Base 1.12.0~rc1
  wmem_list_frame_prev@Base 1.12.0~rc1
  wmem_list_head@Base 1.12.0~rc1
+ wmem_list_insert_sorted@Base 2.3.0
  wmem_list_new@Base 1.12.0~rc1
  wmem_list_prepend@Base 1.12.0~rc1
  wmem_list_remove@Base 1.12.0~rc1
@@ -1825,6 +1839,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_strong_hash@Base 1.12.0~rc1
  wmem_strsplit@Base 1.12.0~rc1
  wmem_tree_count@Base 2.3.0
+ wmem_tree_destroy@Base 2.3.0
  wmem_tree_foreach@Base 1.12.0~rc1
  wmem_tree_insert32@Base 1.12.0~rc1
  wmem_tree_insert32_array@Base 1.12.0~rc1

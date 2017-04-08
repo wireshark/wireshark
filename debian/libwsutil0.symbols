@@ -53,6 +53,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  filetime_to_nstime@Base 2.0.0
  find_last_pathname_separator@Base 1.12.0~rc1
  format_size@Base 1.10.0
+ free_progdirs@Base 2.3.0
  get_basename@Base 1.12.0~rc1
  get_copyright_info@Base 1.99.0
  get_cur_groupname@Base 1.10.0
@@ -84,7 +85,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ieee80211_mhz_to_str@Base 1.99.7
  init_process_policies@Base 1.10.0
  init_progfile_dir@Base 1.12.0~rc1
- init_report_err@Base 1.12.0~rc1
+ init_report_message@Base 2.3.0
  is_default_profile@Base 1.12.0~rc1
  isdigit_string@Base 1.10.0
  isprint_string@Base 1.10.0
@@ -111,6 +112,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  nstime_sum@Base 1.12.0~rc1
  nstime_to_msec@Base 1.12.0~rc1
  nstime_to_sec@Base 1.12.0~rc1
+ plugins_cleanup@Base 2.3.0
  plugins_dump_all@Base 1.12.0~rc1
  plugins_get_descriptions@Base 1.12.0~rc1
  popcount@Base 1.99.2
@@ -122,6 +124,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  report_failure@Base 1.12.0~rc1
  report_open_failure@Base 1.12.0~rc1
  report_read_failure@Base 1.12.0~rc1
+ report_warning@Base 2.3.0
  report_write_failure@Base 1.12.0~rc1
  running_in_build_directory@Base 1.12.0~rc1
  running_with_special_privs@Base 1.10.0
