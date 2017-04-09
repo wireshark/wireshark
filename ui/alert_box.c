@@ -55,7 +55,7 @@ vfailure_alert_box(const char *msg_format, va_list ap)
 void
 vwarning_alert_box(const char *msg_format, va_list ap)
 {
-    vsimple_error_message_box(msg_format, ap);
+    vsimple_warning_message_box(msg_format, ap);
 }
 
 /*
