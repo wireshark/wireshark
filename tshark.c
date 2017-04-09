@@ -84,6 +84,7 @@
 #include "ui/util.h"
 #include "ui/ui_util.h"
 #include "ui/decode_as_utils.h"
+#include "ui/filter_files.h"
 #include "ui/cli/tshark-tap.h"
 #include "ui/cli/tap-exportobject.h"
 #include "ui/tap_export_pdu.h"
@@ -95,7 +96,6 @@
 #include "epan/geoip_db.h"
 #endif
 #include "register.h"
-#include "filter_files.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>

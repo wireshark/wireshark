@@ -43,7 +43,7 @@
 #include "caputils/capture_ifinfo.h"
 #include "caputils/capture-pcap-util.h"
 
-#include "filter_files.h"
+#include "ui/filter_files.h"
 
 static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe);
 

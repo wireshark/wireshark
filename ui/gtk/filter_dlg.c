@@ -30,7 +30,7 @@
 #include <epan/prefs.h>
 #include <epan/column-info.h>
 
-#include "filter_files.h"
+#include "ui/filter_files.h"
 #include "ui/simple_dialog.h"
 #include "ui/main_statusbar.h"
 

@@ -25,7 +25,7 @@
 
 #include <glib.h>
 
-#include <filter_files.h>
+#include <ui/filter_files.h>
 
 #include <wsutil/filesystem.h>
 

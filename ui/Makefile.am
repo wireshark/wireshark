@@ -57,6 +57,7 @@ WIRESHARK_UI_SRC = \
 	dissect_opts.c		\
 	export_object_ui.c	\
 	export_pdu_ui_utils.c	\
+	filter_files.c		\
 	firewall_rules.c	\
 	iface_lists.c		\
 	io_graph_item.c		\
@@ -101,6 +102,7 @@ WIRESHARK_UI_INCLUDES = \
 	export_pdu_ui_utils.h	\
 	last_open_dir.h		\
 	file_dialog.h		\
+	filter_files.h		\
 	help_url.h		\
 	packet_list_utils.h	\
 	firewall_rules.h	\

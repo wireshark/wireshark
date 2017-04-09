@@ -25,7 +25,7 @@
 
 #include <epan/dfilter/dfilter.h>
 
-#include <filter_files.h>
+#include <ui/filter_files.h>
 
 #include <wsutil/utf8_entities.h>
 

@@ -59,9 +59,9 @@
 #include "ui/util.h"
 #include "ui/ui_util.h"
 #include "ui/decode_as_utils.h"
+#include "ui/filter_files.h"
 #include "ui/tap_export_pdu.h"
 #include "register.h"
-#include "filter_files.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 

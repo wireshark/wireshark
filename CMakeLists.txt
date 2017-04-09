@@ -1875,7 +1875,6 @@ if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 		capture_opts.c
 		file.c
 		fileset.c
-		filter_files.c
 		summary.c
 		${SHARK_COMMON_SRC}
 		${PLATFORM_UI_SRC}
@@ -2243,7 +2242,6 @@ if(BUILD_tshark)
 	)
 	set(tshark_FILES
 		capture_opts.c
-		filter_files.c
 		tshark-tap-register.c
 		tshark.c
 		${TSHARK_TAP_SRC}
@@ -2305,7 +2303,6 @@ if(BUILD_sharkd)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(sharkd_FILES
-		filter_files.c
 		sharkd.c
 		sharkd_daemon.c
 		sharkd_session.c
@@ -2478,6 +2475,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		writecap
 		wsutil
 		caputils
+		ui
 		${PCAP_LIBRARIES}
 		${CAP_LIBRARIES}
 		${GLIB2_LIBRARIES}
@@ -2492,7 +2490,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		capture_stop_conditions.c
 		conditions.c
 		dumpcap.c
-		filter_files.c
 		ringbuffer.c
 		sync_pipe_write.c
 		ws_version_info.c

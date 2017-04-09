@@ -1,4 +1,4 @@
-/* filters.c
+/* filter_files.c
  * Code for reading and writing the filters file.
  *
  * Wireshark - Network traffic analyzer
@@ -32,7 +32,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/glib-compat.h>
 
-#include "filter_files.h"
+#include "ui/filter_files.h"
 
 /*
  * Old filter file name.

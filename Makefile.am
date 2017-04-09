@@ -419,7 +419,6 @@ WIRESHARK_COMMON_SRC = \
 	capture_opts.c		\
 	file.c			\
 	fileset.c		\
-	filter_files.c		\
 	summary.c		\
 	ws_version_info.c
 
@@ -427,7 +426,6 @@ WIRESHARK_COMMON_SRC = \
 WIRESHARK_COMMON_INCLUDES = \
 	capture_info.h		\
 	capture_opts.h		\
-	filter_files.h		\
 	globals.h		\
 	log.h			\
 	summary.h		\
@@ -508,7 +506,6 @@ endif
 tshark_SOURCES = \
 	$(SHARK_COMMON_SRC)	\
 	capture_opts.c		\
-	filter_files.c		\
 	tshark.c		\
 	ws_version_info.c
 
@@ -580,7 +577,6 @@ rawshark_LDADD = \
 
 sharkd_SOURCES = \
 	$(SHARK_COMMON_SRC)	\
-	filter_files.c		\
 	sharkd.c		\
 	sharkd.h		\
 	sharkd_daemon.c		\
@@ -722,7 +718,6 @@ dumpcap_SOURCES = \
 	capture_stop_conditions.c	\
 	conditions.c			\
 	dumpcap.c			\
-	filter_files.c			\
 	ringbuffer.c			\
 	sync_pipe_write.c		\
 	ws_version_info.c
@@ -736,6 +731,7 @@ dumpcap_LDFLAGS = $(AM_LDFLAGS) $(PIE_LDFLAGS)
 # Libraries with which to link dumpcap.
 dumpcap_LDADD = \
 	caputils/libcaputils.a		\
+	ui/libui.a			\
 	writecap/libwritecap.a		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
