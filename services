@@ -1370,6 +1370,8 @@ gdoi              848/tcp # GDOI [RFC3547]
 gdoi              848/udp # GDOI [RFC3547]
 domain-s          853/tcp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2017-01-23 [RFC7858][RFC8094]
 domain-s          853/udp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2017-01-23 [RFC7858][RFC8094]
+dlep              854/tcp # Dynamic Link Exchange Protocol (DLEP) [IESG] [IETF_Chair] 2017-04-03 [RFC-ietf-manet-dlep-29]
+dlep              854/udp # Dynamic Link Exchange Protocol (DLEP) [IESG] [IETF_Chair] 2017-04-03 [RFC-ietf-manet-dlep-29]
 iscsi             860/tcp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 iscsi             860/udp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 owamp-control     861/tcp # OWAMP-Control [RFC4656]
@@ -9917,6 +9919,8 @@ mcreport         8003/tcp # Mulberry Connect Reporting Service [Dave_Stoneham] [
 mcreport         8003/udp # Mulberry Connect Reporting Service [Dave_Stoneham] [Dave_Stoneham] 2008-03-10
 mxi              8005/tcp # MXI Generation II for z/OS [Rob_Scott] [Rob_Scott] 2007-05
 mxi              8005/udp # MXI Generation II for z/OS [Rob_Scott] [Rob_Scott] 2007-05
+wpl-analytics    8006/tcp # World Programming analytics [World_Programming_Limited] [Thomas_Quarendon] 2017-04-04
+wpl-disc         8006/udp # World Programming analytics discovery [World_Programming_Limited] [Thomas_Quarendon] 2017-04-04
 http-alt         8008/tcp # HTTP Alternate [James_Gettys] [James_Gettys]
 http-alt         8008/udp # HTTP Alternate [James_Gettys] [James_Gettys]
 qbdb             8019/tcp # QB DB Dynamic Port [Sridhar_Krishnamurth] [Sridhar_Krishnamurth] 2008-02-15
