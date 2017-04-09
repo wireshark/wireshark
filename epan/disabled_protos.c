@@ -1059,7 +1059,7 @@ save_enabled_and_disabled_lists(void)
 }
 
 void
-enabled_and_disabled_lists_cleanup(void)
+cleanup_enabled_and_disabled_lists(void)
 {
   g_list_foreach(global_disabled_heuristics, disabled_protos_free, NULL);
   g_list_free(global_disabled_heuristics);
