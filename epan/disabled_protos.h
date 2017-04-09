@@ -52,8 +52,11 @@ proto_enable_heuristic_by_name(const char *name, gboolean enable);
 /*
  * Read the files that enable and disable protocols and heuristic
  * dissectors.  Report errors through the UI.
+ *
+ * This is called by epan_load_settings(); programs should call that
+ * rather than individually calling the routines it calls.
  */
-WS_DLL_PUBLIC void
+extern void
 read_enabled_and_disabled_lists(void);
 
 /*

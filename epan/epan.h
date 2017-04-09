@@ -28,6 +28,7 @@ extern "C" {
 
 #include <glib.h>
 #include <epan/tvbuff.h>
+#include <epan/prefs.h>
 #include <epan/frame_data.h>
 #include "register.h"
 #include "ws_symbol_export.h"
@@ -101,6 +102,12 @@ WS_DLL_PUBLIC
 gboolean epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
 	           void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),
 	           register_cb cb, void *client_data);
+
+/**
+ * Load all settings, from the current profile, that affect epan.
+ */
+WS_DLL_PUBLIC
+e_prefs *epan_load_settings(void);
 
 /** cleanup the whole epan module, this is used to be called only once in a program */
 WS_DLL_PUBLIC

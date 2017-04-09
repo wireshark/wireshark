@@ -100,8 +100,10 @@ WS_DLL_PUBLIC GList *decode_as_list;
 /* Some useful utilities for Decode As */
 
 /** Reset the "decode as" entries and reload ones of the current profile.
+ * This is called by epan_load_settings(); programs should call that
+ * rather than individually calling the routines it calls.
  */
-WS_DLL_PUBLIC void load_decode_as_entries(void);
+extern void load_decode_as_entries(void);
 
 /** Write out the "decode as" entries of the current profile.
  */

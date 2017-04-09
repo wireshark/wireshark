@@ -557,7 +557,7 @@ main(int argc, char *argv[])
       if (strcmp(argv[2], "column-formats") == 0)
         column_dump_column_formats();
       else if (strcmp(argv[2], "currentprefs") == 0) {
-        read_prefs();
+        epan_load_settings();
         write_prefs(NULL);
       }
       else if (strcmp(argv[2], "decodes") == 0)
@@ -597,13 +597,8 @@ main(int argc, char *argv[])
     goto clean_exit;
   }
 
-  prefs_p = read_prefs();
-
-  /*
-   * Read the files that enable and disable protocols and heuristic
-   * dissectors.
-   */
-  read_enabled_and_disabled_lists();
+  /* Load libwireshark settings from the current profile. */
+  prefs_p = epan_load_settings();
 
   cap_file_init(&cfile);
 

@@ -590,8 +590,11 @@ char *prefs_pref_to_str(pref_t *pref, pref_source_t source);
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
    If we got an error (other than "it doesn't exist") we report it through
-   the UI. */
-WS_DLL_PUBLIC e_prefs *read_prefs(void);
+   the UI.
+
+   This is called by epan_load_settings(); programs should call that
+   rather than individually calling the routines it calls. */
+extern e_prefs *read_prefs(void);
 
 /* Write out "prefs" to the user's preferences file, and return 0.
 

@@ -106,7 +106,8 @@ main(int argc, char **argv)
 	/* set the c-language locale to the native environment. */
 	setlocale(LC_ALL, "");
 
-	read_prefs();
+	/* Load libwireshark settings from the current profile. */
+	epan_load_settings();
 
 	/* notify all registered modules that have had any of their preferences
 	changed either from one of the preferences file or from the command

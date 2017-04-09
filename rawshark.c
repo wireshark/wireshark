@@ -541,13 +541,8 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
-    prefs_p = read_prefs();
-
-    /*
-     * Read the files that enable and disable protocols and heuristic
-     * dissectors.
-     */
-    read_enabled_and_disabled_lists();
+    /* Load libwireshark settings from the current profile. */
+    prefs_p = epan_load_settings();
 
 #ifdef _WIN32
     ws_init_dll_search_path();

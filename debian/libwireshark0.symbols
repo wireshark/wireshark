@@ -499,6 +499,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  epan_get_user_comment@Base 1.99.2
  epan_get_version@Base 1.9.1
  epan_init@Base 1.9.1
+ epan_load_settings@Base 2.3.0
  epan_memmem@Base 1.9.1
  epan_new@Base 1.12.0~rc1
  epan_register_plugin_types@Base 1.12.0~rc1
@@ -857,7 +858,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  link_type_vals@Base 2.1.0
  list_stat_cmd_args@Base 1.9.1
  llc_add_oui@Base 1.9.1
- load_decode_as_entries@Base 2.3.0
  make_printable_string@Base 1.9.1
  manually_resolve_cleanup@Base 1.12.0~rc1
  mark_frame_as_depended_upon@Base 1.9.1
@@ -1235,11 +1235,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  range_add_value@Base 2.3.0
  range_remove_value@Base 2.3.0
  ranges_are_equal@Base 1.9.1
- read_enabled_and_disabled_lists@Base 2.3.0
- read_enabled_protos_list@Base 2.3.0
  read_keytab_file@Base 1.9.1
  read_keytab_file_from_preferences@Base 1.9.1
- read_prefs@Base 1.9.1
  read_prefs_file@Base 1.9.1
  reassembly_table_register@Base 2.3.0
  reassembly_table_destroy@Base 1.9.1

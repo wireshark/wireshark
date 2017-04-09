@@ -201,10 +201,8 @@ main(int argc, char *argv[])
     goto clean_exit;
   }
 
-  /* load the decode as entries of this profile */
-  load_decode_as_entries();
-
-  prefs_p = read_prefs();
+  /* Load libwireshark settings from the current profile. */
+  prefs_p = epan_load_settings();
 
   read_filter_list(CFILTER_LIST);
 
@@ -212,12 +210,6 @@ main(int argc, char *argv[])
      fprintf(stderr, "color_filters_init() failed %s\n", err_msg);
      g_free(err_msg);
   }
-
-  /*
-   * Read the files that enable and disable protocols and heuristic
-   * dissectors.
-   */
-  read_enabled_and_disabled_lists();
 
   cap_file_init(&cfile);
 

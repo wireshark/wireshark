@@ -1907,11 +1907,8 @@ read_configuration_files(void)
 {
     e_prefs             *prefs_p;
 
-    /* load the decode as entries of this profile */
-    load_decode_as_entries();
-
-    /* Read the preference files. */
-    prefs_p = read_prefs();
+    /* Load libwireshark settings from the current profile. */
+    prefs_p = epan_load_settings();
 
 #ifdef _WIN32
     /* if the user wants a console to be always there, well, we should open one for him */
@@ -1925,12 +1922,6 @@ read_configuration_files(void)
 
     /* Read the display filter file. */
     read_filter_list(DFILTER_LIST);
-
-    /*
-     * Read the files that enable and disable protocols and heuristic
-     * dissectors.
-     */
-    read_enabled_and_disabled_lists();
 
     return prefs_p;
 }

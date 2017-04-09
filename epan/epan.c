@@ -209,6 +209,28 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	return status;
 }
 
+/*
+ * Load all settings, from the current profile, that affect libwireshark.
+ */
+e_prefs *
+epan_load_settings(void)
+{
+	e_prefs *prefs_p;
+
+	/* load the decode as entries of the current profile */
+	load_decode_as_entries();
+
+	prefs_p = read_prefs();
+
+	/*
+	 * Read the files that enable and disable protocols and heuristic
+	 * dissectors.
+	 */
+	read_enabled_and_disabled_lists();
+
+	return prefs_p;
+}
+
 void
 epan_cleanup(void)
 {
