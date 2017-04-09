@@ -1050,7 +1050,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
             tvb_format_text(tvb, offset, protolen));
 
     proto_tree_add_item(tree, hf_ssh_protocol,
-                    tvb, offset, linelen, ENC_ASCII|ENC_NA);
+                    tvb, offset, protolen, ENC_ASCII|ENC_NA);
     offset+=linelen;
     return offset;
 }
