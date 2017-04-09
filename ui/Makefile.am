@@ -161,6 +161,14 @@ EXTRA_DIST = \
 
 BUILT_SOURCES = $(GENERATED_HEADER_FILES)
 
+#
+# This is used to build dumpcap, and dumpcap is, if possible, built as
+# a position-independent executable (for address space layout randomization,
+# as it might be running with extra privileges), so this library needs
+# to be built that way as well.
+#
+libui_a_CFLAGS = $(AM_CFLAGS) $(PIE_CFLAGS)
+
 CLEANFILES = \
 	doxygen-ui.tag	\
 	libui.a		\
