@@ -665,10 +665,7 @@ main(int argc, char *argv[])
   WSADATA              wsaData;
 #endif  /* _WIN32 */
 
-  char                *gpf_path, *pf_path;
   char                *cf_path;
-  int                  gpf_open_errno, gpf_read_errno;
-  int                  pf_open_errno, pf_read_errno;
   int                  cf_open_errno;
   int                  err;
   volatile int         exit_status = EXIT_SUCCESS;
@@ -958,8 +955,7 @@ main(int argc, char *argv[])
       if (strcmp(argv[2], "column-formats") == 0)
         column_dump_column_formats();
       else if (strcmp(argv[2], "currentprefs") == 0) {
-        read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
-            &pf_open_errno, &pf_read_errno, &pf_path);
+        read_prefs();
         write_prefs(NULL);
       }
       else if (strcmp(argv[2], "decodes") == 0)
@@ -1011,30 +1007,7 @@ main(int argc, char *argv[])
 
   tshark_debug("tshark reading preferences");
 
-  prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
-                     &pf_open_errno, &pf_read_errno, &pf_path);
-  if (gpf_path != NULL) {
-    if (gpf_open_errno != 0) {
-      cmdarg_err("Can't open global preferences file \"%s\": %s.",
-              pf_path, g_strerror(gpf_open_errno));
-    }
-    if (gpf_read_errno != 0) {
-      cmdarg_err("I/O error reading global preferences file \"%s\": %s.",
-              pf_path, g_strerror(gpf_read_errno));
-    }
-  }
-  if (pf_path != NULL) {
-    if (pf_open_errno != 0) {
-      cmdarg_err("Can't open your preferences file \"%s\": %s.", pf_path,
-              g_strerror(pf_open_errno));
-    }
-    if (pf_read_errno != 0) {
-      cmdarg_err("I/O error reading your preferences file \"%s\": %s.",
-              pf_path, g_strerror(pf_read_errno));
-    }
-    g_free(pf_path);
-    pf_path = NULL;
-  }
+  prefs_p = read_prefs();
 
   read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
   if (cf_path != NULL) {

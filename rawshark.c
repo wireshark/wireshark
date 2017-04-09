@@ -436,9 +436,6 @@ main(int argc, char *argv[])
     struct rlimit limit;
 #endif  /* _WIN32 */
 
-    char                *gpf_path, *pf_path;
-    int                  gpf_open_errno, gpf_read_errno;
-    int                  pf_open_errno, pf_read_errno;
     gchar               *pipe_name = NULL;
     gchar               *rfilters[64];
     e_prefs             *prefs_p;
@@ -544,30 +541,7 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
-    prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
-                         &pf_open_errno, &pf_read_errno, &pf_path);
-    if (gpf_path != NULL) {
-        if (gpf_open_errno != 0) {
-            cmdarg_err("Can't open global preferences file \"%s\": %s.",
-                       pf_path, g_strerror(gpf_open_errno));
-        }
-        if (gpf_read_errno != 0) {
-            cmdarg_err("I/O error reading global preferences file \"%s\": %s.",
-                       pf_path, g_strerror(gpf_read_errno));
-        }
-    }
-    if (pf_path != NULL) {
-        if (pf_open_errno != 0) {
-            cmdarg_err("Can't open your preferences file \"%s\": %s.", pf_path,
-                       g_strerror(pf_open_errno));
-        }
-        if (pf_read_errno != 0) {
-            cmdarg_err("I/O error reading your preferences file \"%s\": %s.",
-                       pf_path, g_strerror(pf_read_errno));
-        }
-        g_free(pf_path);
-        pf_path = NULL;
-    }
+    prefs_p = read_prefs();
 
     /*
      * Read the files that enable and disable protocols and heuristic

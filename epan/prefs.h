@@ -589,18 +589,9 @@ char *prefs_pref_to_str(pref_t *pref, pref_source_t source);
 
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
-   If we got an error (other than "it doesn't exist") trying to read
-   the global preferences file, stuff the errno into "*gpf_errno_return"
-   on an open error and into "*gpf_read_errno_return" on a read error,
-   stuff a pointer to the path of the file into "*gpf_path_return", and
-   return NULL.
-
-   If we got an error (other than "it doesn't exist") trying to read
-   the user's preferences file, stuff the errno into "*pf_errno_return"
-   on an open error and into "*pf_read_errno_return" on a read error,
-   stuff a pointer to the path of the file into "*pf_path_return", and
-   return NULL. */
-WS_DLL_PUBLIC e_prefs *read_prefs(int *, int *, char **, int *, int *, char **);
+   If we got an error (other than "it doesn't exist") we report it through
+   the UI. */
+WS_DLL_PUBLIC e_prefs *read_prefs(void);
 
 /* Write out "prefs" to the user's preferences file, and return 0.
 

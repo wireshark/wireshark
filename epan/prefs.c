@@ -45,6 +45,7 @@
 #include "print.h"
 #include <wsutil/file_util.h>
 #include <wsutil/ws_printf.h> /* ws_g_warning */
+#include <wsutil/report_message.h>
 
 #include <epan/prefs-int.h>
 #include <epan/uat-int.h>
@@ -4184,19 +4185,10 @@ prefs_reset(void)
 
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
-   If we got an error (other than "it doesn't exist") trying to read
-   the global preferences file, stuff the errno into "*gpf_errno_return"
-   and a pointer to the path of the file into "*gpf_path_return", and
-   return NULL.
-
-   If we got an error (other than "it doesn't exist") trying to read
-   the user's preferences file, stuff the errno into "*pf_errno_return"
-   and a pointer to the path of the file into "*pf_path_return", and
-   return NULL. */
+   If we got an error (other than "it doesn't exist") we report it through
+   the UI. */
 e_prefs *
-read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
-           char **gpf_path_return, int *pf_errno_return,
-           int *pf_read_errno_return, char **pf_path_return)
+read_prefs(void)
 {
     int         err;
     char        *pf_path;
@@ -4237,7 +4229,6 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
      * XXX - if it failed for a reason other than "it doesn't exist",
      * report the error.
      */
-    *gpf_path_return = NULL;
     if (pf != NULL) {
         /*
          * Start out the counters of "mgcp.{tcp,udp}.port" entries we've
@@ -4249,21 +4240,19 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
         /* We succeeded in opening it; read it. */
         err = read_prefs_file(gpf_path, pf, set_pref, NULL);
         if (err != 0) {
-            /* We had an error reading the file; return the errno and the
-               pathname, so our caller can report the error. */
-            *gpf_errno_return = 0;
-            *gpf_read_errno_return = err;
-            *gpf_path_return = gpf_path;
+            /* We had an error reading the file; report it. */
+            report_warning("Error reading global preferences file \"%s\": %s.",
+                           gpf_path, g_strerror(err));
         }
         fclose(pf);
     } else {
         /* We failed to open it.  If we failed for some reason other than
-           "it doesn't exist", return the errno and the pathname, so our
-           caller can report the error. */
+           "it doesn't exist", report the error. */
         if (errno != ENOENT) {
-            *gpf_errno_return = errno;
-            *gpf_read_errno_return = 0;
-            *gpf_path_return = gpf_path;
+            if (errno != 0) {
+                report_warning("Can't open global preferences file \"%s\": %s.",
+                               gpf_path, g_strerror(errno));
+            }
         }
     }
 
@@ -4271,7 +4260,6 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     pf_path = get_persconffile_path(PF_NAME, TRUE);
 
     /* Read the user's preferences file, if it exists. */
-    *pf_path_return = NULL;
     if ((pf = ws_fopen(pf_path, "r")) != NULL) {
         /*
          * Start out the counters of "mgcp.{tcp,udp}.port" entries we've
@@ -4283,11 +4271,9 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
         /* We succeeded in opening it; read it. */
         err = read_prefs_file(pf_path, pf, set_pref, NULL);
         if (err != 0) {
-            /* We had an error reading the file; return the errno and the
-               pathname, so our caller can report the error. */
-            *pf_errno_return = 0;
-            *pf_read_errno_return = err;
-            *pf_path_return = pf_path;
+            /* We had an error reading the file; report it. */
+            report_warning("Error reading your preferences file \"%s\": %s.",
+                           pf_path, g_strerror(err));
         } else
             g_free(pf_path);
         fclose(pf);
@@ -4296,9 +4282,8 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
            "it doesn't exist", return the errno and the pathname, so our
            caller can report the error. */
         if (errno != ENOENT) {
-            *pf_errno_return = errno;
-            *pf_read_errno_return = 0;
-            *pf_path_return = pf_path;
+            report_warning("Can't open your preferences file \"%s\": %s.",
+                           pf_path, g_strerror(errno));
         } else
             g_free(pf_path);
     }

@@ -122,11 +122,8 @@ main(int argc, char *argv[])
   GString             *runtime_info_str;
   char                *init_progfile_dir_error;
 
-  char                *gpf_path, *pf_path;
   char                *cf_path;
   char                *err_msg = NULL;
-  int                  gpf_open_errno, gpf_read_errno;
-  int                  pf_open_errno, pf_read_errno;
   int                  cf_open_errno;
   e_prefs             *prefs_p;
   int                  ret = EXIT_SUCCESS;
@@ -209,30 +206,7 @@ main(int argc, char *argv[])
   /* load the decode as entries of this profile */
   load_decode_as_entries();
 
-  prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
-                     &pf_open_errno, &pf_read_errno, &pf_path);
-  if (gpf_path != NULL) {
-    if (gpf_open_errno != 0) {
-      cmdarg_err("Can't open global preferences file \"%s\": %s.",
-              pf_path, g_strerror(gpf_open_errno));
-    }
-    if (gpf_read_errno != 0) {
-      cmdarg_err("I/O error reading global preferences file \"%s\": %s.",
-              pf_path, g_strerror(gpf_read_errno));
-    }
-  }
-  if (pf_path != NULL) {
-    if (pf_open_errno != 0) {
-      cmdarg_err("Can't open your preferences file \"%s\": %s.", pf_path,
-              g_strerror(pf_open_errno));
-    }
-    if (pf_read_errno != 0) {
-      cmdarg_err("I/O error reading your preferences file \"%s\": %s.",
-              pf_path, g_strerror(pf_read_errno));
-    }
-    g_free(pf_path);
-    pf_path = NULL;
-  }
+  prefs_p = read_prefs();
 
   read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
   if (cf_path != NULL) {

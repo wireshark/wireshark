@@ -1095,11 +1095,8 @@ void WiresharkApplication::allSystemsGo()
 
 _e_prefs *WiresharkApplication::readConfigurationFiles(bool reset)
 {
-    int                  gpf_open_errno, gpf_read_errno;
     int                  cf_open_errno, df_open_errno;
-    char                *gpf_path, *pf_path;
     char                *cf_path, *df_path;
-    int                  pf_open_errno, pf_read_errno;
     e_prefs             *prefs_p;
 
     if (reset) {
@@ -1116,35 +1113,7 @@ _e_prefs *WiresharkApplication::readConfigurationFiles(bool reset)
     load_decode_as_entries();
 
     /* Read the preference files. */
-    prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
-                         &pf_open_errno, &pf_read_errno, &pf_path);
-
-    if (gpf_path != NULL) {
-        if (gpf_open_errno != 0) {
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                          "Could not open global preferences file\n\"%s\": %s.", gpf_path,
-                          g_strerror(gpf_open_errno));
-        }
-        if (gpf_read_errno != 0) {
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                          "I/O error reading global preferences file\n\"%s\": %s.", gpf_path,
-                          g_strerror(gpf_read_errno));
-        }
-    }
-    if (pf_path != NULL) {
-        if (pf_open_errno != 0) {
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                          "Could not open your preferences file\n\"%s\": %s.", pf_path,
-                          g_strerror(pf_open_errno));
-        }
-        if (pf_read_errno != 0) {
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                          "I/O error reading your preferences file\n\"%s\": %s.", pf_path,
-                          g_strerror(pf_read_errno));
-        }
-        g_free(pf_path);
-        pf_path = NULL;
-    }
+    prefs_p = read_prefs();
 
 #ifdef _WIN32
     /* if the user wants a console to be always there, well, we should open one for him */

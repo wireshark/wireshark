@@ -58,9 +58,6 @@ main(int argc, char **argv)
 {
 	char		*init_progfile_dir_error;
 	char		*text;
-	char		*gpf_path, *pf_path;
-	int		gpf_open_errno, gpf_read_errno;
-	int		pf_open_errno, pf_read_errno;
 	dfilter_t	*df;
 	gchar		*err_msg;
 
@@ -109,32 +106,7 @@ main(int argc, char **argv)
 	/* set the c-language locale to the native environment. */
 	setlocale(LC_ALL, "");
 
-	read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
-		&pf_open_errno, &pf_read_errno, &pf_path);
-	if (gpf_path != NULL) {
-		if (gpf_open_errno != 0) {
-			fprintf(stderr,
-				"can't open global preferences file \"%s\": %s.\n",
-				pf_path, g_strerror(gpf_open_errno));
-		}
-		if (gpf_read_errno != 0) {
-			fprintf(stderr,
-				"I/O error reading global preferences file \"%s\": %s.\n",
-				pf_path, g_strerror(gpf_read_errno));
-		}
-	}
-	if (pf_path != NULL) {
-		if (pf_open_errno != 0) {
-			fprintf(stderr,
-				"can't open your preferences file \"%s\": %s.\n",
-				pf_path, g_strerror(pf_open_errno));
-		}
-		if (pf_read_errno != 0) {
-			fprintf(stderr,
-				"I/O error reading your preferences file \"%s\": %s.\n",
-				pf_path, g_strerror(pf_read_errno));
-		}
-	}
+	read_prefs();
 
 	/* notify all registered modules that have had any of their preferences
 	changed either from one of the preferences file or from the command
