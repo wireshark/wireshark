@@ -122,9 +122,7 @@ main(int argc, char *argv[])
   GString             *runtime_info_str;
   char                *init_progfile_dir_error;
 
-  char                *cf_path;
   char                *err_msg = NULL;
-  int                  cf_open_errno;
   e_prefs             *prefs_p;
   int                  ret = EXIT_SUCCESS;
 
@@ -208,12 +206,7 @@ main(int argc, char *argv[])
 
   prefs_p = read_prefs();
 
-  read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
-  if (cf_path != NULL) {
-      cmdarg_err("Could not open your capture filter file\n\"%s\": %s.",
-          cf_path, g_strerror(cf_open_errno));
-      g_free(cf_path);
-  }
+  read_filter_list(CFILTER_LIST);
 
   if (!color_filters_init(&err_msg, NULL)) {
      fprintf(stderr, "color_filters_init() failed %s\n", err_msg);

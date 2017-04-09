@@ -665,8 +665,6 @@ main(int argc, char *argv[])
   WSADATA              wsaData;
 #endif  /* _WIN32 */
 
-  char                *cf_path;
-  int                  cf_open_errno;
   int                  err;
   volatile int         exit_status = EXIT_SUCCESS;
 #ifdef HAVE_LIBPCAP
@@ -1009,12 +1007,7 @@ main(int argc, char *argv[])
 
   prefs_p = read_prefs();
 
-  read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
-  if (cf_path != NULL) {
-      cmdarg_err("Could not open your capture filter file\n\"%s\": %s.",
-          cf_path, g_strerror(cf_open_errno));
-      g_free(cf_path);
-  }
+  read_filter_list(CFILTER_LIST);
 
   /*
    * Read the files that enable and disable protocols and heuristic

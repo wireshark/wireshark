@@ -48,13 +48,9 @@ typedef struct {
 /*
  * Read in a list of filters.
  *
- * On success, "*pref_path_return" is set to NULL.
- * On error, "*pref_path_return" is set to point to the pathname of
- * the file we tried to read - it should be freed by our caller -
- * and "*errno_return" is set to the error.
+ * On error, report the error via the UI.
  */
-void read_filter_list(filter_list_type_t list_type, char **pref_path_return,
-                      int *errno_return);
+void read_filter_list(filter_list_type_t list_type);
 
 /*
  * Get a pointer to the first entry in a filter list.
@@ -76,13 +72,9 @@ void remove_from_filter_list(filter_list_type_t list, GList *fl_entry);
 /*
  * Write out a list of filters.
  *
- * On success, "*pref_path_return" is set to NULL.
- * On error, "*pref_path_return" is set to point to the pathname of
- * the file we tried to read - it should be freed by our caller -
- * and "*errno_return" is set to the error.
+ * On error, report the error via the UI.
  */
-void save_filter_list(filter_list_type_t list_type, char **pref_path_return,
-                      int *errno_return);
+void save_filter_list(filter_list_type_t list_type);
 
 /*
  * Clone the filter list so it can be edited. GTK+ only.

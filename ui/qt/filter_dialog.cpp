@@ -203,39 +203,7 @@ void FilterDialog::on_buttonBox_accepted()
         ++it;
     }
 
-    char *pf_dir_path;
-    char *f_path;
-    int f_save_errno;
-
-    /* Create the directory that holds personal configuration files,
-       if necessary.  */
-    if (create_persconffile_dir(&pf_dir_path) == -1) {
-        QMessageBox::warning(this, tr("Unable to create profile directory."),
-                tr("Unable to create directory\n\"%1\"\nfor filter files: %2.")
-                             .arg(pf_dir_path)
-                             .arg(g_strerror(errno)),
-                QMessageBox::Ok);
-        g_free(pf_dir_path);
-        return;
-    }
-
-    save_filter_list(fl_type, &f_path, &f_save_errno);
-    if (f_path != NULL) {
-        /* We had an error saving the filter. */
-        QString warning_title;
-        QString warning_msg;
-        if (fl_type == CFILTER_LIST) {
-            warning_title = tr("Unable to save capture filter settings.");
-            warning_msg = tr("Could not save to your capture filter file\n\"%1\": %2.")
-              .arg(f_path).arg(g_strerror(f_save_errno));
-        } else {
-            warning_title = tr("Unable to save display filter settings.");
-            warning_msg = tr("Could not save to your display filter file\n\"%1\": %2.")
-              .arg(f_path).arg(g_strerror(f_save_errno));
-        }
-        QMessageBox::warning(this, warning_title, warning_msg, QMessageBox::Ok);
-        g_free(f_path);
-    }
+    save_filter_list(fl_type);
 
     if (filter_type_ == CaptureFilter) {
         wsApp->emitAppSignal(WiresharkApplication::CaptureFilterListChanged);

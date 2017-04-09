@@ -537,18 +537,7 @@ void DisplayFilterEdit::removeFilter()
         }
     }
 
-    char *f_path;
-    int f_save_errno;
-
-    save_filter_list(DFILTER_LIST, &f_path, &f_save_errno);
-    if (f_path != NULL) {
-        // We had an error saving the filter.
-        QString warning_title = tr("Unable to save display filter settings.");
-        QString warning_msg = tr("Could not save to your display filter file\n\"%1\": %2.").arg(f_path).arg(g_strerror(f_save_errno));
-
-        QMessageBox::warning(this, warning_title, warning_msg, QMessageBox::Ok);
-        g_free(f_path);
-    }
+    save_filter_list(DFILTER_LIST);
 
     updateBookmarkMenu();
 }

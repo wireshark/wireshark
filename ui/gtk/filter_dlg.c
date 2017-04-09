@@ -798,49 +798,24 @@ filter_apply(GtkWidget *main_w, gboolean destroy)
 static void
 filter_dlg_save(filter_list_type_t list_type)
 {
-    char *pf_dir_path;
-    char *f_path;
-    int f_save_errno;
-    const char *filter_type;
-
     switch (list_type) {
 
     case CFILTER_EDITED_LIST:
-        filter_type = "capture";
-                list_type = CFILTER_LIST;
-                copy_filter_list(CFILTER_LIST, CFILTER_EDITED_LIST);
+        list_type = CFILTER_LIST;
+        copy_filter_list(CFILTER_LIST, CFILTER_EDITED_LIST);
         break;
 
     case DFILTER_EDITED_LIST:
-        filter_type = "display";
-                list_type = DFILTER_LIST;
-                copy_filter_list(DFILTER_LIST, DFILTER_EDITED_LIST);
+        list_type = DFILTER_LIST;
+        copy_filter_list(DFILTER_LIST, DFILTER_EDITED_LIST);
         break;
 
     default:
         g_assert_not_reached();
-        filter_type = NULL;
         break;
     }
 
-    /* Create the directory that holds personal configuration files,
-       if necessary.  */
-    if (create_persconffile_dir(&pf_dir_path) == -1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Can't create directory\n\"%s\"\nfor filter files: %s.",
-            pf_dir_path, g_strerror(errno));
-        g_free(pf_dir_path);
-        return;
-    }
-
-    save_filter_list(list_type, &f_path, &f_save_errno);
-    if (f_path != NULL) {
-        /* We had an error saving the filter. */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Could not save to your %s filter file\n\"%s\": %s.",
-            filter_type, f_path, g_strerror(f_save_errno));
-        g_free(f_path);
-    }
+    save_filter_list(list_type);
 }
 
 

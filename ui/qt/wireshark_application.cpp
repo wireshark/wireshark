@@ -1095,8 +1095,6 @@ void WiresharkApplication::allSystemsGo()
 
 _e_prefs *WiresharkApplication::readConfigurationFiles(bool reset)
 {
-    int                  cf_open_errno, df_open_errno;
-    char                *cf_path, *df_path;
     e_prefs             *prefs_p;
 
     if (reset) {
@@ -1123,22 +1121,10 @@ _e_prefs *WiresharkApplication::readConfigurationFiles(bool reset)
 #endif
 
     /* Read the capture filter file. */
-    read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
-    if (cf_path != NULL) {
-        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                      "Could not open your capture filter file\n\"%s\": %s.", cf_path,
-                      g_strerror(cf_open_errno));
-        g_free(cf_path);
-    }
+    read_filter_list(CFILTER_LIST);
 
     /* Read the display filter file. */
-    read_filter_list(DFILTER_LIST, &df_path, &df_open_errno);
-    if (df_path != NULL) {
-        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                      "Could not open your display filter file\n\"%s\": %s.", df_path,
-                      g_strerror(df_open_errno));
-        g_free(df_path);
-    }
+    read_filter_list(DFILTER_LIST);
 
     /*
      * Read the files that enable and disable protocols and heuristic

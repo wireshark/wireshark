@@ -31,6 +31,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/glib-compat.h>
+#include <wsutil/report_message.h>
 
 #include "ui/filter_files.h"
 
@@ -72,10 +73,7 @@ static GList *display_edited_filters = NULL;
 /*
  * Read in a list of filters.
  *
- * On success, "*pref_path_return" is set to NULL.
- * On error, "*pref_path_return" is set to point to the pathname of
- * the file we tried to read - it should be freed by our caller -
- * and "*errno_return" is set to the error.
+ * On error, report the error via the UI.
  */
 
 #define INIT_BUF_SIZE  128
@@ -163,10 +161,9 @@ getc_crlf(FILE *ff)
 }
 
 void
-read_filter_list(filter_list_type_t list_type, char **pref_path_return,
-    int *errno_return)
+read_filter_list(filter_list_type_t list_type)
 {
-  const char *ff_name;
+  const char *ff_name, *ff_description;
   char       *ff_path;
   FILE       *ff;
   GList      **flpp;
@@ -176,17 +173,17 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
   int         filt_name_index, filt_expr_index;
   int         line = 1;
 
-  *pref_path_return = NULL;   /* assume no error */
-
   switch (list_type) {
 
   case CFILTER_LIST:
     ff_name = CFILTER_FILE_NAME;
+    ff_description = "capture";
     flpp = &capture_filters;
     break;
 
   case DFILTER_LIST:
     ff_name = DFILTER_FILE_NAME;
+    ff_description = "display";
     flpp = &display_filters;
     break;
 
@@ -205,8 +202,9 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
       /*
        * No.  Just give up.
        */
-      *pref_path_return = ff_path;
-      *errno_return = errno;
+      report_warning("Could not open your %s filter file\n\"%s\": %s.",
+                     ff_description, ff_path, g_strerror(errno));
+      g_free(ff_path);
       return;
     }
 
@@ -224,31 +222,30 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
       /*
        * Did that fail because the file didn't exist?
        */
-        if (errno != ENOENT) {
+      if (errno != ENOENT) {
         /*
          * No.  Just give up.
          */
-          *pref_path_return = ff_path;
-          *errno_return = errno;
-          return;
-        }
+        report_warning("Could not open your %s filter file\n\"%s\": %s.",
+                       ff_description, ff_path, g_strerror(errno));
+        g_free(ff_path);
+        return;
+      }
 
       /*
        * Try to open the global "cfilters/dfilters" file */
       g_free(ff_path);
       ff_path = get_datafile_path(ff_name);
       if ((ff = ws_fopen(ff_path, "r")) == NULL) {
-
         /*
          * Well, that didn't work, either.  Just give up.
-         * Return an error if the file existed but we couldn't open it.
+         * Report an error if the file existed but we couldn't open it.
          */
         if (errno != ENOENT) {
-          *pref_path_return = ff_path;
-          *errno_return = errno;
-        } else {
-          g_free(ff_path);
+          report_warning("Could not open your %s filter file\n\"%s\": %s.",
+                         ff_description, ff_path, g_strerror(errno));
         }
+        g_free(ff_path);
         return;
       }
     }
@@ -401,10 +398,10 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
     *flpp = add_filter_entry(*flpp, filt_name, filt_expr);
   }
   if (ferror(ff)) {
-    *pref_path_return = ff_path;
-    *errno_return = errno;
-  } else
-    g_free(ff_path);
+    report_warning("Error reading your %s filter file\n\"%s\": %s.",
+                   ff_description, ff_path, g_strerror(errno));
+  }
+  g_free(ff_path);
   fclose(ff);
   g_free(filt_name);
   g_free(filt_expr);
@@ -499,16 +496,13 @@ remove_from_filter_list(filter_list_type_t list_type, GList *fl_entry)
 /*
  * Write out a list of filters.
  *
- * On success, "*pref_path_return" is set to NULL.
- * On error, "*pref_path_return" is set to point to the pathname of
- * the file we tried to read - it should be freed by our caller -
- * and "*errno_return" is set to the error.
+ * On error, report the error via the UI.
  */
 void
-save_filter_list(filter_list_type_t list_type, char **pref_path_return,
-    int *errno_return)
+save_filter_list(filter_list_type_t list_type)
 {
-  const gchar *ff_name;
+  char        *pf_dir_path;
+  const gchar *ff_name, *ff_description;
   gchar       *ff_path, *ff_path_new;
   GList       *fl;
   GList       *flpp;
@@ -516,22 +510,31 @@ save_filter_list(filter_list_type_t list_type, char **pref_path_return,
   FILE        *ff;
   guchar      *p, c;
 
-  *pref_path_return = NULL;   /* assume no error */
-
   switch (list_type) {
 
   case CFILTER_LIST:
     ff_name = CFILTER_FILE_NAME;
+    ff_description = "capture";
     fl = capture_filters;
     break;
 
   case DFILTER_LIST:
     ff_name = DFILTER_FILE_NAME;
+    ff_description = "display";
     fl = display_filters;
     break;
 
   default:
     g_assert_not_reached();
+    return;
+  }
+
+  /* Create the directory that holds personal configuration files,
+     if necessary.  */
+  if (create_persconffile_dir(&pf_dir_path) == -1) {
+    report_failure("Can't create directory\n\"%s\"\nfor filter files: %s.",
+                   pf_dir_path, g_strerror(errno));
+    g_free(pf_dir_path);
     return;
   }
 
@@ -543,9 +546,11 @@ save_filter_list(filter_list_type_t list_type, char **pref_path_return,
   ff_path_new = g_strdup_printf("%s.new", ff_path);
 
   if ((ff = ws_fopen(ff_path_new, "w")) == NULL) {
-    *pref_path_return = ff_path;
-    *errno_return = errno;
+    /* We had an error saving the filter. */
+    report_failure("Error saving your %s filter file\nCouldn't open \"%s\": %s.",
+                   ff_description, ff_path_new, g_strerror(errno));
     g_free(ff_path_new);
+    g_free(ff_path);
     return;
   }
   flpp = g_list_first(fl);
@@ -568,20 +573,22 @@ save_filter_list(filter_list_type_t list_type, char **pref_path_return,
     /* Write out the filter expression and a newline. */
     fprintf(ff, "%s\n", filt->strval);
     if (ferror(ff)) {
-      *pref_path_return = ff_path;
-      *errno_return = errno;
+      report_failure("Error saving your %s filter file\nWrite to \"%s\" failed: %s.",
+                     ff_description, ff_path_new, g_strerror(errno));
       fclose(ff);
       ws_unlink(ff_path_new);
       g_free(ff_path_new);
+      g_free(ff_path);
       return;
     }
     flpp = flpp->next;
   }
   if (fclose(ff) == EOF) {
-    *pref_path_return = ff_path;
-    *errno_return = errno;
+    report_failure("Error saving your %s filter file\nWrite to \"%s\" failed: %s.",
+                   ff_description, ff_path_new, g_strerror(errno));
     ws_unlink(ff_path_new);
     g_free(ff_path_new);
+    g_free(ff_path);
     return;
   }
 
@@ -601,19 +608,21 @@ save_filter_list(filter_list_type_t list_type, char **pref_path_return,
     /* It failed for some reason other than "it's not there"; if
        it's not there, we don't need to remove it, so we just
        drive on. */
-    *pref_path_return = ff_path;
-    *errno_return = errno;
+    report_failure("Error saving your %s filter file\nCouldn't remove \"%s\": %s.",
+                   ff_description, ff_path, g_strerror(errno));
     ws_unlink(ff_path_new);
     g_free(ff_path_new);
+    g_free(ff_path);
     return;
   }
 #endif
 
   if (ws_rename(ff_path_new, ff_path) < 0) {
-    *pref_path_return = ff_path;
-    *errno_return = errno;
+    report_failure("Error saving your %s filter file\nCouldn't rename \"%s\" to \"%s\": %s.",
+                   ff_description, ff_path_new, ff_path, g_strerror(errno));
     ws_unlink(ff_path_new);
     g_free(ff_path_new);
+    g_free(ff_path);
     return;
   }
   g_free(ff_path_new);
