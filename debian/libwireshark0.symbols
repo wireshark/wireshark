@@ -1235,7 +1235,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  range_add_value@Base 2.3.0
  range_remove_value@Base 2.3.0
  ranges_are_equal@Base 1.9.1
- read_enabled_and_disabled_protos@Base 2.3.0
+ read_enabled_and_disabled_lists@Base 2.3.0
  read_enabled_protos_list@Base 2.3.0
  read_keytab_file@Base 1.9.1
  read_keytab_file_from_preferences@Base 1.9.1
@@ -1331,9 +1331,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  s1ap_CauseTransport_vals@Base 1.9.1
  s1ap_Cause_vals@Base 2.3.0
  save_decode_as_entries@Base 2.3.0
- save_disabled_heur_dissector_list@Base 1.99.8
- save_disabled_protos_list@Base 1.12.0~rc1
- save_enabled_protos_list@Base 2.3.0
+ save_enabled_and_disabled_lists@Base 2.3.0
  sccp_address_signal_values@Base 1.9.1
  sccp_error_cause_values@Base 1.9.1
  sccp_message_type_acro_values@Base 1.9.1

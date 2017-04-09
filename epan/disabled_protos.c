@@ -504,13 +504,6 @@ static gboolean disable_proto_list_check(protocol_t  *protocol)
     return FALSE;
 }
 
-void
-save_disabled_protos_list(char **pref_path_return, int *errno_return)
-{
- save_protos_list(pref_path_return, errno_return, DISABLED_PROTOCOLS_FILE_NAME,
-     NULL, disable_proto_list_check);
-}
-
 /************************************************************************
  * Enabling dissectors (that are disabled by default)
  ************************************************************************/
@@ -518,38 +511,29 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
 WS_DLL_PUBLIC void
 proto_enable_proto_by_name(const char *name)
 {
-    protocol_t *protocol;
-    int proto_id;
+  protocol_t *protocol;
+  int proto_id;
 
-    proto_id = proto_get_id_by_filter_name(name);
-    if (proto_id >= 0 ) {
-        protocol = find_protocol_by_id(proto_id);
-        if ((proto_is_protocol_enabled_by_default(protocol) == FALSE) &&
-            (proto_is_protocol_enabled(protocol) == FALSE)) {
-            if (proto_can_toggle_protocol(proto_id) == TRUE) {
-                proto_set_decoding(proto_id, TRUE);
-            }
-        }
+  proto_id = proto_get_id_by_filter_name(name);
+  if (proto_id >= 0 ) {
+    protocol = find_protocol_by_id(proto_id);
+    if ((proto_is_protocol_enabled_by_default(protocol) == FALSE) &&
+        (proto_is_protocol_enabled(protocol) == FALSE)) {
+      if (proto_can_toggle_protocol(proto_id) == TRUE) {
+        proto_set_decoding(proto_id, TRUE);
+      }
     }
+  }
 }
 
 static gboolean enable_proto_list_check(protocol_t  *protocol)
 {
-    if ((proto_is_protocol_enabled_by_default(protocol) == FALSE) &&
-        (proto_is_protocol_enabled(protocol) == TRUE))
-      return TRUE;
+  if ((proto_is_protocol_enabled_by_default(protocol) == FALSE) &&
+      (proto_is_protocol_enabled(protocol) == TRUE))
+    return TRUE;
 
-    return FALSE;
+  return FALSE;
 }
-
-void
-save_enabled_protos_list(char **pref_path_return, int *errno_return)
-{
- save_protos_list(pref_path_return, errno_return, ENABLED_PROTOCOLS_FILE_NAME,
-     "#This file is for enabling protocols that are disabled by default",
-     enable_proto_list_check);
-}
-
 
 /************************************************************************
  * Heuristic dissectors
@@ -822,7 +806,7 @@ sort_heur_dissector_tables(const char *table_name, struct heur_dissector_list *l
   }
 }
 
-WS_DLL_PUBLIC void
+static void
 save_disabled_heur_dissector_list(char **pref_path_return, int *errno_return)
 {
   gchar       *ff_path, *ff_path_new;
@@ -920,7 +904,7 @@ disabled_protos_free(gpointer p, gpointer user_data _U_)
  * dissectors.  Report errors through the UI.
  */
 void
-read_enabled_and_disabled_protos(void)
+read_enabled_and_disabled_lists(void)
 {
   char *gpath, *path;
   int gopen_errno, gread_errno;
@@ -1029,8 +1013,53 @@ read_enabled_and_disabled_protos(void)
   set_disabled_heur_dissector_list();
 }
 
+/*
+ * Write out the lists of enabled and disabled protocols and heuristic
+ * dissectors to the corresponding files.  Report errors through the UI.
+ */
 void
-enabled_and_disabled_protos_cleanup(void)
+save_enabled_and_disabled_lists(void)
+{
+  char *pf_dir_path;
+  char *pf_path;
+  int pf_save_errno;
+
+  /* Create the directory that holds personal configuration files, if
+     necessary.  */
+  if (create_persconffile_dir(&pf_dir_path) == -1) {
+    report_failure("Can't create directory\n\"%s\"\nfor disabled protocols file: %s.",
+                   pf_dir_path, g_strerror(errno));
+    g_free(pf_dir_path);
+    return;
+  }
+
+  save_protos_list(&pf_path, &pf_save_errno, DISABLED_PROTOCOLS_FILE_NAME,
+                   NULL, disable_proto_list_check);
+  if (pf_path != NULL) {
+    report_failure("Could not save to your disabled protocols file\n\"%s\": %s.",
+                   pf_path, g_strerror(pf_save_errno));
+    g_free(pf_path);
+  }
+
+  save_protos_list(&pf_path, &pf_save_errno, ENABLED_PROTOCOLS_FILE_NAME,
+                   "#This file is for enabling protocols that are disabled by default",
+                   enable_proto_list_check);
+  if (pf_path != NULL) {
+    report_failure("Could not save to your enabled protocols file\n\"%s\": %s.",
+                   pf_path, g_strerror(pf_save_errno));
+    g_free(pf_path);
+  }
+
+  save_disabled_heur_dissector_list(&pf_path, &pf_save_errno);
+  if (pf_path != NULL) {
+    report_failure("Could not save to your disabled heuristic protocol file\n\"%s\": %s.",
+                   pf_path, g_strerror(pf_save_errno));
+    g_free(pf_path);
+  }
+}
+
+void
+enabled_and_disabled_lists_cleanup(void)
 {
   g_list_foreach(global_disabled_heuristics, disabled_protos_free, NULL);
   g_list_free(global_disabled_heuristics);

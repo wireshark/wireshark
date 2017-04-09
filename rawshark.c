@@ -573,7 +573,7 @@ main(int argc, char *argv[])
      * Read the files that enable and disable protocols and heuristic
      * dissectors.
      */
-    read_enabled_and_disabled_protos();
+    read_enabled_and_disabled_lists();
 
 #ifdef _WIN32
     ws_init_dll_search_path();

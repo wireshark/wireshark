@@ -274,42 +274,8 @@ update_was_enabled(void)
 static void
 proto_write(gpointer parent_w _U_)
 {
-  char *pf_dir_path;
-  char *pf_path;
-  int pf_save_errno;
-
-  /* Create the directory that holds personal configuration files, if
-     necessary.  */
-  if (create_persconffile_dir(&pf_dir_path) == -1) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                  "Can't create directory\n\"%s\"\nfor disabled protocols file: %s.", pf_dir_path,
-                  g_strerror(errno));
-    g_free(pf_dir_path);
-  } else {
-    save_disabled_protos_list(&pf_path, &pf_save_errno);
-    if (pf_path != NULL) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "Could not save to your disabled protocols file\n\"%s\": %s.",
-                    pf_path, g_strerror(pf_save_errno));
-      g_free(pf_path);
-    }
-
-    save_enabled_protos_list(&pf_path, &pf_save_errno);
-    if (pf_path != NULL) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "Could not save to your enabled protocols file\n\"%s\": %s.",
-                    pf_path, g_strerror(pf_save_errno));
-      g_free(pf_path);
-    }
-
-    save_disabled_heur_dissector_list(&pf_path, &pf_save_errno);
-    if (pf_path != NULL) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "Could not save to your disabled heuristic protocol file\n\"%s\": %s.",
-                    pf_path, g_strerror(pf_save_errno));
-      g_free(pf_path);
-    }
-  }
+  /* Save the current state of the enabled/disabled lists. */
+  save_enabled_and_disabled_lists();
 }
 
 static void

@@ -630,7 +630,7 @@ main(int argc, char *argv[])
    * Read the files that enable and disable protocols and heuristic
    * dissectors.
    */
-  read_enabled_and_disabled_protos();
+  read_enabled_and_disabled_lists();
 
   cap_file_init(&cfile);
 

@@ -29,34 +29,10 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
- * Write out a list of disabled protocols.
- *
- * On success, "*pref_path_return" is set to NULL.
- * On error, "*pref_path_return" is set to point to the pathname of
- * the file we tried to read - it should be freed by our caller -
- * and "*errno_return" is set to the error.
- */
-WS_DLL_PUBLIC void
-save_disabled_protos_list(char **pref_path_return, int *errno_return);
-
-/*
  * Disable a particular protocol by name
  */
-
 WS_DLL_PUBLIC void
 proto_disable_proto_by_name(const char *name);
-
-/*
- * Write out a list of enabled protocols (that default to being disabled)
- *
- * On success, "*pref_path_return" is set to NULL.
- * On error, "*pref_path_return" is set to point to the pathname of
- * the file we tried to read - it should be freed by our caller -
- * and "*errno_return" is set to the error.
- */
-WS_DLL_PUBLIC void
-save_enabled_protos_list(char **pref_path_return, int *errno_return);
-
 
 /*
  * Enable a particular protocol by name.  This will only enable
@@ -64,17 +40,6 @@ save_enabled_protos_list(char **pref_path_return, int *errno_return);
  */
 WS_DLL_PUBLIC void
 proto_enable_proto_by_name(const char *name);
-
-/*
- * Write out a list of disabled heuristic dissectors.
- *
- * On success, "*pref_path_return" is set to NULL.
- * On error, "*pref_path_return" is set to point to the pathname of
- * the file we tried to read - it should be freed by our caller -
- * and "*errno_return" is set to the error.
- */
-WS_DLL_PUBLIC void
-save_disabled_heur_dissector_list(char **pref_path_return, int *errno_return);
 
 /*
  * Enable/disable a particular heuristic dissector by name
@@ -89,13 +54,20 @@ proto_enable_heuristic_by_name(const char *name, gboolean enable);
  * dissectors.  Report errors through the UI.
  */
 WS_DLL_PUBLIC void
-read_enabled_and_disabled_protos(void);
+read_enabled_and_disabled_lists(void);
+
+/*
+ * Write out the lists of enabled and disabled protocols and heuristic
+ * dissectors to the corresponding files.  Report errors through the UI.
+ */
+WS_DLL_PUBLIC void
+save_enabled_and_disabled_lists(void);
 
 /*
  * Free the internal structures
  */
 extern void
-enabled_and_disabled_protos_cleanup(void);
+cleanup_enabled_and_disabled_lists(void);
 
 #ifdef __cplusplus
 }
