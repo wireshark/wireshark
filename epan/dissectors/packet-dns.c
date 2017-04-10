@@ -1717,6 +1717,7 @@ compute_key_id(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, 
   switch( algo ) {
      case DNS_ALGO_RSAMD5:
        *key_id = (guint16)(tvb_get_guint8(tvb, offset + size - 3) << 8) + tvb_get_guint8( tvb, offset + size - 2 );
+       break;
      default:
        for (ac = 0; size > 1; size -= 2, offset += 2) {
          c1 = tvb_get_guint8( tvb, offset );
@@ -1729,6 +1730,7 @@ compute_key_id(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, 
        }
        ac += (ac >> 16) & 0xffff;
        *key_id = (guint16)(ac & 0xffff);
+       break;
   }
   return TRUE;
 }
