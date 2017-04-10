@@ -2390,11 +2390,14 @@ wkh_tod_value_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, pa
     guint32 val = 0, off = val_start, len;
     proto_item *ti = NULL;
     gchar* header_name = wmem_strdup_printf(wmem_packet_scope(), "Time of Day: %s", name);
+    nstime_t t;
 
     wkh_1_WellKnownValue(hf_hdr_name_value, ett_tod_value, header_name);
         if (val_id == 0x80) { /* Openwave TOD header uses this format */
-            ti = proto_tree_add_string(tree, hf,
-                    tvb, hdr_start, offset - hdr_start,
+            t.secs = 0;
+            t.nsecs = 0;
+            ti = proto_tree_add_time_format_value(tree, hf,
+                    tvb, hdr_start, offset - hdr_start, &t,
                     "Requesting Time Of Day");
             proto_item_append_text(ti,
                     " <Warning: should be encoded as long-integer>");
@@ -2409,7 +2412,6 @@ wkh_tod_value_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, pa
         if (val_id <= 4) { /* Length field already parsed by macro! */
             get_date_value(val, tvb, off, len, ok);
             if (ok) {
-                nstime_t t;
                 t.secs = (time_t)val;
                 t.nsecs = 0;
                 if (val == 0) {
@@ -6944,7 +6946,7 @@ proto_register_wsp(void)
         { &hf_hdr_openwave_x_up_proxy_tod,
           { "x-up-proxy-tod",
             "wsp.header.x_up_1.x_up_proxy_tod",
-            FT_STRING, BASE_NONE, NULL, 0x00,
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
             "WSP Openwave header x-up-proxy-tod", HFILL
           }
         },
