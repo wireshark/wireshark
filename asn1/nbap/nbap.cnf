@@ -715,14 +715,14 @@ hsdsch_macdflow_ids[num_items-1] = hsdsch_macdflow_id;
 
   if (!parameter_tvb)
     return offset;
+
 # BindingID ::= OCTET STRING (SIZE (1..4, ...))
 # -- If the Binding ID includes a UDP port, the UDP port is included in octet 1 and 2.The first octet of
 # -- the UDP port field is included in the first octet of the Binding ID.
- BindingID_port = tvb_get_ntohs(parameter_tvb,0);
-
- if(tvb_reported_length(parameter_tvb)==2){
+  if(tvb_reported_length(parameter_tvb)>=2){
+    BindingID_port = tvb_get_ntohs(parameter_tvb,0);
     proto_item_append_text(actx->created_item, " (%%u)",BindingID_port);
- }
+  }
 
 #.FN_BODY RACH-ParametersItem-CTCH-SetupRqstFDD
 address     dst_addr, null_addr;
