@@ -5101,6 +5101,7 @@ static const enum_val_t wlan_ignore_prot_options[] = {
 static int wlan_address_type = -1;
 static int wlan_bssid_address_type = -1;
 
+static const unsigned char bssid_broadcast_data[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 static address bssid_broadcast;
 gboolean
 is_broadcast_bssid(const address *bssid) {
@@ -28020,8 +28021,6 @@ proto_register_ieee80211(void)
   expert_module_t *expert_ieee80211;
 
   module_t *wlan_module;
-
-  const unsigned char bssid_broadcast_data[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
   memset(&wlan_stats, 0, sizeof wlan_stats);
 
