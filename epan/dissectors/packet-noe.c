@@ -1148,7 +1148,6 @@ static void decode_evt(proto_tree  *tree,
             proto_tree_add_item(tree, hf_evt_locappl_interruptible, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             proto_tree_add_item(tree, hf_evt_locappl_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
             break;
         }
     case OPCODE_EVT_SUCCESS_CREATE:
