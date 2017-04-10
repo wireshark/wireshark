@@ -296,7 +296,7 @@ dissect_sak_use(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
   offset += 4;
 
   proto_tree_add_item(sak_use_set_tree, hf_mka_old_lowest_acceptable_pn,
-                      tvb, offset, 4, sak_use_len);
+                      tvb, offset, 4, ENC_NA);
   offset += 4;
 
   *offset_ptr = offset;
@@ -437,15 +437,14 @@ dissect_kmd(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
 }
 
 static void
-dissect_icv(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
+dissect_icv(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr, guint16 *icv_len)
 {
   int offset = *offset_ptr;
-  guint16 icv_len;
   proto_tree *icv_set_tree;
   proto_tree *ti;
 
-  icv_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
-  ti = proto_tree_add_item(mka_tree, hf_mka_icv_set, tvb, offset, icv_len + 4, ENC_NA);
+  *icv_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
+  ti = proto_tree_add_item(mka_tree, hf_mka_icv_set, tvb, offset, 4, ENC_NA);
   icv_set_tree = proto_item_add_subtree(ti, ett_mka_icv_set);
 
   proto_tree_add_item(icv_set_tree, hf_mka_param_set_type,
@@ -453,12 +452,8 @@ dissect_icv(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
   offset += 2;
 
   proto_tree_add_uint(icv_set_tree, hf_mka_param_body_length,
-                      tvb, offset, 2, icv_len);
+                      tvb, offset, 2, *icv_len);
   offset += 2;
-
-  proto_tree_add_item(icv_set_tree, hf_mka_icv,
-                      tvb, offset, icv_len, ENC_NA);
-  offset += icv_len;
 
   *offset_ptr = offset;
 }
@@ -467,7 +462,8 @@ static int
 dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int         offset = 0;
-  guint8      mka_version_type = 0;
+  guint8      mka_version_type;
+  guint16     icv_len = 16; /* Default ICV length, see IEEE 802.1X-2010, Section 11.11 */
   proto_tree *ti;
   proto_tree *mka_tree;
 
@@ -490,7 +486,7 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
    */
   dissect_basic_paramset(mka_tree, tvb, &offset);
 
-  while(tvb_reported_length_remaining(tvb, offset) > 0) {
+  while(tvb_reported_length_remaining(tvb, offset) > icv_len) {
     switch (tvb_get_guint8(tvb, offset)) {
     case LIVE_PEER_LIST_TYPE:
     case POTENTIAL_PEER_LIST_TYPE:
@@ -514,7 +510,8 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       break;
 
     case ICV_TYPE:
-      dissect_icv(mka_tree, tvb, &offset);
+      /* This ICV indicator does not include the ICV itself, see IEEE 802.1X-2010, Section 11.11.1 */
+      dissect_icv(mka_tree, tvb, &offset, &icv_len);
       break;
 
     default:
@@ -522,6 +519,9 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         offset += tvb_reported_length_remaining(tvb, offset);
     }
   }
+
+  proto_tree_add_item(mka_tree, hf_mka_icv, tvb, offset, icv_len, ENC_NA);
+
   return tvb_captured_length(tvb);
 }
 
@@ -684,7 +684,7 @@ proto_register_mka(void)
         NULL, HFILL }},
 
     { &hf_mka_latest_key_server_mi, {
-        "Latest Key: Key Sever Member Identifier", "mka.latest_key_server_mi",
+        "Latest Key: Key Server Member Identifier", "mka.latest_key_server_mi",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
@@ -699,7 +699,7 @@ proto_register_mka(void)
         NULL, HFILL }},
 
     { &hf_mka_old_key_server_mi, {
-        "Old Key: Key Sever Member Identifier", "mka.old_key_server_mi",
+        "Old Key: Key Server Member Identifier", "mka.old_key_server_mi",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
