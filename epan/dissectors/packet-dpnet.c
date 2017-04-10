@@ -370,7 +370,6 @@ dpnet_process_control_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *
             proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_session, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            offset += 4;
             break;
         case FRAME_EXOPCODE_CONNECTED_SIGNED:
             proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_msgid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -392,7 +391,6 @@ dpnet_process_control_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *
             proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_signing_opts, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_echo_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            offset += 4;
             break;
         case FRAME_EXOPCODE_HARD_DISCONNECT:
             proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_msgid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -443,7 +441,6 @@ dpnet_process_control_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *
             if(flag & SACK_FLAGS_SEND_MASK2)
             {
                 proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_send_mask2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                offset += 4;
             }
             break;
         default:
