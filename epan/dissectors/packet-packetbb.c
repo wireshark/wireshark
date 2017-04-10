@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/to_str.h>
 
 void proto_reg_handoff_packetbb(void);
 void proto_register_packetbb(void);
@@ -532,8 +533,9 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             tvb, mid_index, block_index + block_length - mid_index, addr);
         break;
       case 3:
-        addrValue_item = proto_tree_add_bytes(addr_tree, hf_packetbb_addr_value[addressType],
-            tvb, mid_index, block_index + block_length - mid_index, addr);
+        addrValue_item = proto_tree_add_bytes_format_value(addr_tree, hf_packetbb_addr_value[addressType],
+            tvb, mid_index, block_index + block_length - mid_index, NULL,
+            "%s", bytes_to_str(wmem_packet_scope(), addr, head_length + midSize));
         break;
       default:
         break;
