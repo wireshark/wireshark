@@ -829,7 +829,11 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
             }
 
             p_pdcp_lte_info->ueid = rlc_info->ueid;
-            p_pdcp_lte_info->channelType = Channel_DCCH;
+            if (rlc_info->nbMode == rlc_nb_mode) {
+                p_pdcp_lte_info->channelType = Channel_DCCH_NB;
+            } else {
+                p_pdcp_lte_info->channelType = Channel_DCCH;
+            }
             p_pdcp_lte_info->channelId = rlc_info->channelId;
             p_pdcp_lte_info->direction = rlc_info->direction;
             p_pdcp_lte_info->is_retx = (state != SN_OK);
@@ -838,7 +842,12 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
             p_pdcp_lte_info->no_header_pdu = FALSE;
             if (rlc_info->channelType == CHANNEL_TYPE_SRB) {
                 p_pdcp_lte_info->plane = SIGNALING_PLANE;
-                p_pdcp_lte_info->seqnum_length = 5;
+                if ((rlc_info->nbMode == rlc_nb_mode) && (rlc_info->channelId == 3)) {
+                    p_pdcp_lte_info->no_header_pdu = TRUE;
+                    p_pdcp_lte_info->seqnum_length = 0;
+                } else {
+                    p_pdcp_lte_info->seqnum_length = 5;
+                }
             }
             else {
                 p_pdcp_lte_info->plane = USER_PLANE;
@@ -2830,6 +2839,11 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             case RLC_LTE_EXT_LI_FIELD_TAG:
                 p_rlc_lte_info->extendedLiField = TRUE;
+                break;
+            case RLC_LTE_NB_MODE_TAG:
+                p_rlc_lte_info->nbMode =
+                    (rlc_lte_nb_mode)tvb_get_guint8(tvb, offset);
+                offset++;
                 break;
 
             case RLC_LTE_PAYLOAD_TAG:

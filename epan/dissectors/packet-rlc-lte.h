@@ -51,6 +51,13 @@
 #define AM_SN_LENGTH_10_BITS 10
 #define AM_SN_LENGTH_16_BITS 16
 
+
+typedef enum rlc_lte_nb_mode {
+    rlc_no_nb_mode = 0,
+    rlc_nb_mode = 1
+} rlc_lte_nb_mode;
+
+
 /* Info attached to each LTE RLC frame */
 typedef struct rlc_lte_info
 {
@@ -63,6 +70,7 @@ typedef struct rlc_lte_info
     guint16         channelId;
     guint16         pduLength;
     gboolean        extendedLiField;
+    rlc_lte_nb_mode nbMode;
 } rlc_lte_info;
 
 
@@ -154,6 +162,9 @@ void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid, gb
 
 #define RLC_LTE_EXT_LI_FIELD_TAG    0x08
 /* 0 byte, tag presence indicates that AM DRB PDU is using an extended LI field of 15 bits */
+
+#define RLC_LTE_NB_MODE_TAG         0x09
+/* 1 byte containing rlc_lte_nb_mode enum value */
 
 /* RLC PDU. Following this tag comes the actual RLC PDU (there is no length, the PDU
    continues until the end of the frame) */

@@ -3371,7 +3371,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                guint8 mode, guint8 direction, guint16 ueid,
                                guint16 channelType, guint16 channelId,
                                guint8 sequenceNumberLength,
-                               guint8 priority, gboolean rlcExtLiField)
+                               guint8 priority, gboolean rlcExtLiField, mac_lte_nb_mode nbMode)
 {
     tvbuff_t            *rb_tvb = tvb_new_subset_length(tvb, offset, data_length);
     struct rlc_lte_info *p_rlc_lte_info;
@@ -3392,6 +3392,11 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     p_rlc_lte_info->pduLength = data_length;
     p_rlc_lte_info->sequenceNumberLength = sequenceNumberLength;
     p_rlc_lte_info->extendedLiField = rlcExtLiField;
+    if (nbMode == nb_mode) {
+        p_rlc_lte_info->nbMode = rlc_nb_mode;
+    } else {
+        p_rlc_lte_info->nbMode = rlc_no_nb_mode;
+    }
 
     /* Store info in packet */
     p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0, p_rlc_lte_info);
@@ -5694,7 +5699,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
 
         /* LCID 1 and 2 can be assumed to be srb1&2, so can dissect as RLC AM */
-        else if ((lcids[n] == 1) || (lcids[n] == 2)) {
+        /* LCID 3 in NB mode can be assumed to be srb1bis, so can dissect as RLC AM */
+        else if ((lcids[n] == 1) || (lcids[n] == 2) ||
+                 (p_mac_lte_info->nbMode == nb_mode && lcids[n] == 3)) {
             if (global_mac_lte_attempt_srb_decode) {
                 /* Call RLC dissector */
                 call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
@@ -5702,7 +5709,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    CHANNEL_TYPE_SRB, lcids[n], 0,
                                    get_mac_lte_channel_priority(p_mac_lte_info->ueid,
                                                                 lcids[n], p_mac_lte_info->direction),
-                                   FALSE);
+                                   FALSE, p_mac_lte_info->nbMode);
 
                 /* Hide raw view of bytes */
                 PROTO_ITEM_SET_HIDDEN(sdu_ti);
@@ -5735,7 +5742,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_UM_MODE, p_mac_lte_info->direction, p_mac_lte_info->ueid,
                                        CHANNEL_TYPE_DRB, (guint16)drb_id, seqnum_length,
-                                       priority, FALSE);
+                                       priority, FALSE, p_mac_lte_info->nbMode);
                     break;
                 case rlcAM:
                 case rlcAMulExtLiField:
@@ -5756,13 +5763,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_AM_MODE, p_mac_lte_info->direction, p_mac_lte_info->ueid,
                                        CHANNEL_TYPE_DRB, (guint16)drb_id, seqnum_length,
-                                       priority, rlc_ext_li_field);
+                                       priority, rlc_ext_li_field, p_mac_lte_info->nbMode);
                     break;
                 case rlcTM:
                     call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_TM_MODE, p_mac_lte_info->direction, p_mac_lte_info->ueid,
                                        CHANNEL_TYPE_DRB, (guint16)drb_id, 0,
-                                       priority, FALSE);
+                                       priority, FALSE, p_mac_lte_info->nbMode);
                     break;
                 case rlcRaw:
                     /* Nothing to do! */
@@ -6219,12 +6226,12 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             /* Call RLC dissector */
             call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                RLC_UM_MODE, DIRECTION_DOWNLINK, 0,
-                               CHANNEL_TYPE_MCCH, 0, 5, 0, FALSE);
+                               CHANNEL_TYPE_MCCH, 0, 5, 0, FALSE, p_mac_lte_info->nbMode);
         } else if ((lcids[n] <= 28) && global_mac_lte_call_rlc_for_mtch) {
             /* Call RLC dissector */
             call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                RLC_UM_MODE, DIRECTION_DOWNLINK, 0,
-                               CHANNEL_TYPE_MTCH, 0, 5, 0, FALSE);
+                               CHANNEL_TYPE_MTCH, 0, 5, 0, FALSE, p_mac_lte_info->nbMode);
         } else {
             /* Dissect SDU as raw bytes */
             sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_mch_sdu, tvb, offset, pdu_lengths[n],
