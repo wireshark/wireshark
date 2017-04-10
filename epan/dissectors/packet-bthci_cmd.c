@@ -3864,6 +3864,7 @@ dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             proto_tree_add_item(tree, hf_bthci_cmd_number_of_clock_captures_to_filter, tvb, offset, 1, ENC_NA);
             offset += 1;
+            break;
 
         default:
             proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
