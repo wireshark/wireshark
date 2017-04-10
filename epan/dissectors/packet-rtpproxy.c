@@ -595,7 +595,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     }
 
     /* Get payload string */
-    rawstr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, realsize - offset, ENC_ASCII);
+    rawstr = tvb_format_text(tvb, offset, realsize - offset);
 
     /* Extract command */
     tmp = g_ascii_tolower(tvb_get_guint8(tvb, offset));
