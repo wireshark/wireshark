@@ -288,7 +288,7 @@ dissect_sak_use(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
   offset += 4;
 
   proto_tree_add_item(sak_use_set_tree, hf_mka_old_lowest_acceptable_pn,
-                      tvb, offset, 4, sak_use_len);
+                      tvb, offset, 4, ENC_NA);
   offset += 4;
 
   *offset_ptr = offset;
@@ -308,12 +308,13 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
 
   proto_tree_add_item(distributed_sak_tree, hf_mka_param_set_type,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
 
   proto_tree_add_item(distributed_sak_tree, hf_mka_distributed_an,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(distributed_sak_tree, hf_mka_confidentiality_offset,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
-  offset += 2;
+  offset += 1;
 
   distributed_sak_len = (tvb_get_ntohs(tvb, offset)) & 0x0fff;
   proto_tree_add_uint(distributed_sak_tree, hf_mka_param_body_length,
@@ -345,7 +346,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     offset += 24;
     break;
 
-  case 50:
+  case 52:
     proto_tree_add_item(distributed_sak_tree, hf_mka_key_number,
                         tvb, offset, 4, ENC_NA);
     offset += 4;
@@ -355,8 +356,8 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     offset += 8;
 
     proto_tree_add_item(distributed_sak_tree, hf_mka_aes_key_wrap_sak,
-                        tvb, offset, 38, ENC_NA);
-    offset += 38;
+                        tvb, offset, 40, ENC_NA);
+    offset += 40;
     break;
 
   default:
@@ -428,10 +429,9 @@ dissect_kmd(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
 }
 
 static void
-dissect_icv(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
+dissect_icv(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr, guint16 *icv_len)
 {
   int offset = *offset_ptr;
-  guint16 icv_len;
   proto_tree *icv_set_tree;
   proto_tree *ti;
 
@@ -442,14 +442,10 @@ dissect_icv(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
                       tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 2;
 
-  icv_len = (tvb_get_ntohs(tvb, offset)) & 0x0fff;
+  *icv_len = (tvb_get_ntohs(tvb, offset)) & 0x0fff;
   proto_tree_add_uint(icv_set_tree, hf_mka_param_body_length,
-                      tvb, offset, 2, icv_len);
+                      tvb, offset, 2, *icv_len);
   offset += 2;
-
-  proto_tree_add_item(icv_set_tree, hf_mka_icv,
-                      tvb, offset, icv_len, ENC_NA);
-  offset += icv_len;
 
   *offset_ptr = offset;
 }
@@ -458,7 +454,8 @@ static void
 dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int         offset = 0;
-  guint8      mka_version_type = 0;
+  guint8      mka_version_type;
+  guint16     icv_len = 16; /* Default ICV length, see IEEE 802.1X-2010, Section 11.11 */
   proto_tree *ti;
   proto_tree *mka_tree;
 
@@ -483,7 +480,7 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   dissect_basic_paramset(mka_tree, tvb, &offset);
 
-  while(tvb_reported_length_remaining(tvb, offset) > 0) {
+  while(tvb_reported_length_remaining(tvb, offset) > icv_len) {
     switch (tvb_get_guint8(tvb, offset)) {
     case LIVE_PEER_LIST_TYPE:
     case POTENTIAL_PEER_LIST_TYPE:
@@ -507,7 +504,8 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case ICV_TYPE:
-      dissect_icv(mka_tree, tvb, &offset);
+      /* This ICV indicator does not include the ICV itself, see IEEE 802.1X-2010, Section 11.11.1 */
+      dissect_icv(mka_tree, tvb, &offset, &icv_len);
       break;
 
     default:
@@ -515,6 +513,8 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += tvb_reported_length_remaining(tvb, offset);
     }
   }
+
+  proto_tree_add_item(mka_tree, hf_mka_icv, tvb, offset, icv_len, ENC_NA);
 }
 
 void
@@ -676,7 +676,7 @@ proto_register_mka(void)
         NULL, HFILL }},
 
     { &hf_mka_latest_key_server_mi, {
-        "Latest Key: Key Sever Member Identifier", "mka.latest_key_server_mi",
+        "Latest Key: Key Server Member Identifier", "mka.latest_key_server_mi",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
@@ -691,7 +691,7 @@ proto_register_mka(void)
         NULL, HFILL }},
 
     { &hf_mka_old_key_server_mi, {
-        "Old Key: Key Sever Member Identifier", "mka.old_key_server_mi",
+        "Old Key: Key Server Member Identifier", "mka.old_key_server_mi",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
