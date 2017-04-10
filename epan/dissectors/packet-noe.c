@@ -607,6 +607,8 @@ static int  hf_event_context_switch     = -1;
 static int  hf_evt_locappl_enable       = -1;
 static int  hf_evt_locappl_interruptible= -1;
 static int  hf_evt_locappl_identifier   = -1;
+static int  hf_evt_dev_presence_value   = -1;
+static int  hf_evt_dev_presence_state   = -1;
 static int  hf_event_widget_gc          = -1;
 
 static const value_string servers_vals[] = {
@@ -781,6 +783,20 @@ static const value_string noe_event_str_struct[] = {
 static const value_string noe_evt_context_switch_str_vals[] = {
     {1, "Call Server"},
     {2, "Presentation Server"},
+    {0, NULL}
+};
+
+static const value_string noe_evt_devices_str_vals[] = {
+    {0, "RJ9 Plug"},
+    {1, "BT Handset Link"},
+    {2, "BT Headset Link"},
+    {3, "Jack Plug"},
+    {0, NULL}
+};
+
+static const value_string noe_true_false_str_vals[] = {
+    {0, "False"},
+    {1, "True"},
     {0, NULL}
 };
 
@@ -1148,6 +1164,13 @@ static void decode_evt(proto_tree  *tree,
             proto_tree_add_item(tree, hf_evt_locappl_interruptible, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             proto_tree_add_item(tree, hf_evt_locappl_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
+        }
+    case OPCODE_EVT_DEVICE_PRESENCE:
+        {
+            proto_tree_add_item(tree, hf_evt_dev_presence_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(tree, hf_evt_dev_presence_state, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         }
     case OPCODE_EVT_SUCCESS_CREATE:
@@ -1640,6 +1663,30 @@ void proto_register_noe(void)
                   FT_UINT8,
                   BASE_DEC,
                   NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_evt_dev_presence_value,
+              {
+                  "Value",
+                  "noe.event_device_presence.value",
+                  FT_UINT8,
+                  BASE_DEC,
+                  VALS(noe_evt_devices_str_vals),
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_evt_dev_presence_state,
+              {
+                  "State",
+                  "noe.event_device_presence.state",
+                  FT_UINT8,
+                  BASE_DEC,
+                  VALS(noe_true_false_str_vals),
                   0x0,
                   NULL,
                   HFILL
