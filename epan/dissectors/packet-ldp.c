@@ -358,6 +358,7 @@ static gboolean ldp_desegment = TRUE;
 #define TLV_ATM_LABEL                 0x0201
 #define TLV_FRAME_LABEL               0x0202
 #define TLV_FT_PROTECTION             0x0203
+#define TLV_ENTROPY_LABEL             0x0206
 #define TLV_STATUS                    0x0300
 #define TLV_EXTENDED_STATUS           0x0301
 #define TLV_RETURNED_PDU              0x0302
@@ -434,6 +435,7 @@ static const value_string tlv_type_names[] = {
     { TLV_ATM_LABEL,                 "ATM Label TLV"},
     { TLV_FRAME_LABEL,               "Frame Label TLV"},
     { TLV_FT_PROTECTION,             "FT Protection TLV"},
+    { TLV_ENTROPY_LABEL,             "Entropy Label Capability TLV"},
     { TLV_STATUS,                    "Status TLV"},
     { TLV_EXTENDED_STATUS,           "Extended Status TLV"},
     { TLV_RETURNED_PDU,              "Returned PDU TLV"},
@@ -2423,6 +2425,13 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             else
                 proto_tree_add_item(tlv_tree, hf_ldp_tlv_ft_protect_sequence_num, tvb,
                                     offset + 4,length, ENC_BIG_ENDIAN);
+            break;
+
+        case TLV_ENTROPY_LABEL:
+            if( length != 0 ) /* Length must be 0 bytes */
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
+                                    "Error processing Entropy Label Capability TLV: length is %d, should be 0",
+                                    length);
             break;
 
         case TLV_STATUS:
