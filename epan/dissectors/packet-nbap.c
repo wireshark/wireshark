@@ -8727,11 +8727,11 @@ dissect_nbap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
   if (!parameter_tvb)
     return offset;
- BindingID_port = tvb_get_ntohs(parameter_tvb,0);
 
- if(tvb_reported_length(parameter_tvb)==2){
+  if(tvb_reported_length(parameter_tvb)>=2){
+    BindingID_port = tvb_get_ntohs(parameter_tvb,0);
     proto_item_append_text(actx->created_item, " (%u)",BindingID_port);
- }
+  }
 
 
 
