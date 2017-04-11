@@ -5198,6 +5198,8 @@ add_capabilities (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint8 pd
         capaLen = capaValueLen + len;
 
         cap_subtree = proto_tree_add_subtree(wsp_capabilities, tvb, offset, capaLen, ett_capabilities_entry, &cap_item, "Capability");
+        if (capaValueLen > tvb_len)
+            return;
         offset += len;
         /*
          * Now offset points to the 1st byte of the capability type.
@@ -5251,7 +5253,7 @@ add_capabilities (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint8 pd
             /* Now offset points to the 1st value byte of the capability. */
         }
 
-        proto_item_append_text(cap_item, ": %s", val_to_str_const(peek, wsp_capability_vals, "Invalid capabiliity"));
+        proto_item_append_text(cap_item, ": %s", val_to_str_const(peek, wsp_capability_vals, "Invalid capability"));
         /* Now the capability type is known */
         switch (peek) {
             case WSP_CAPA_CLIENT_SDU_SIZE:
