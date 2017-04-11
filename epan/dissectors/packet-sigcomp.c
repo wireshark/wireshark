@@ -2497,7 +2497,8 @@ execute_next_instruction:
                 handle_now = byte_copy_right - position;
             }
 
-            if (k + handle_now >= UDVM_MEMORY_SIZE) {
+            if ((k + handle_now >= UDVM_MEMORY_SIZE) ||
+                (n + handle_now >= UDVM_MEMORY_SIZE)) {
                 gcry_md_close(sha1_handle);
                 goto decompression_failure;
             }
