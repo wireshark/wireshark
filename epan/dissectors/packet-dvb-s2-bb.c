@@ -68,6 +68,7 @@ static guint8 crc8_table[256] = {
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t dvb_s2_table_handle;
 static dissector_handle_t data_handle;
 
@@ -814,6 +815,7 @@ static const range_string gse_proto_str[] = {
     {ETHERTYPE_IP         , ETHERTYPE_IP         , "IPv4 Payload"   },
     {0x0801               , 0x86DC               , "not implemented"},
     {ETHERTYPE_IPv6       , ETHERTYPE_IPv6       , "IPv6 Payload"   },
+    {ETHERTYPE_VLAN       , ETHERTYPE_VLAN       , "VLAN"           },
     {0x86DE               , 0xFFFF               , "not implemented"},
     {0                    , 0                    , NULL             }
 };
@@ -963,6 +965,14 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
                 if (dvb_s2_full_dissection)
                 {
                     new_off += call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+                    dissected = TRUE;
+                }
+                break;
+
+            case ETHERTYPE_VLAN:
+                if (dvb_s2_full_dissection)
+                {
+                    new_off += call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
                     dissected = TRUE;
                 }
                 break;
@@ -1585,6 +1595,7 @@ void proto_reg_handoff_dvb_s2_modeadapt(void)
         ip_handle   = find_dissector_add_dependency("ip", proto_dvb_s2_bb);
         ipv6_handle = find_dissector_add_dependency("ipv6", proto_dvb_s2_bb);
         dvb_s2_table_handle = find_dissector("dvb-s2_table");
+        eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
         data_handle = find_dissector("data");
         prefs_initialized = TRUE;
     }
