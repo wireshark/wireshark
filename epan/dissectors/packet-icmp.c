@@ -785,10 +785,6 @@ dissect_extensions(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree *
 	gboolean unknown_object;
 	guint8 int_info_obj_count;
 
-	if (!tree)
-		return;
-
-	ext_tree = NULL;
 	int_info_obj_count = 0;
 
 	reported_length = tvb_reported_length_remaining(tvb, offset);
