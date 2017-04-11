@@ -41,6 +41,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/charsets.h>
+#include <epan/proto_data.h>
 #include "packet-gsm_sms.h"
 
 void proto_register_gsm_sms(void);
@@ -335,12 +336,126 @@ typedef struct {
     guint8  fill_bits;
 } sm_fragment_params;
 
+typedef struct {
+    const gchar *address;
+    int p2p_dir;
+    guint32 id;
+} sm_fragment_params_key;
+
+static guint
+sm_fragment_params_hash(gconstpointer k)
+{
+    const sm_fragment_params_key* key = (const sm_fragment_params_key*) k;
+    guint hash_val;
+
+    hash_val = (wmem_str_hash(key->address) ^ key->id) + key->p2p_dir;
+
+    return hash_val;
+}
+
+static gboolean
+sm_fragment_params_equal(gconstpointer v1, gconstpointer v2)
+{
+    const sm_fragment_params_key *key1 = (const sm_fragment_params_key*)v1;
+    const sm_fragment_params_key *key2 = (const sm_fragment_params_key*)v2;
+
+    return (key1->id == key2->id) &&
+           (key1->p2p_dir == key2->p2p_dir) &&
+           !g_strcmp0(key1->address, key2->address);
+}
+
+typedef struct {
+    const gchar *address;
+    int p2p_dir;
+    guint32 id;
+} sm_fragment_key;
+
+static guint
+sm_fragment_hash(gconstpointer k)
+{
+    const sm_fragment_key* key = (const sm_fragment_key*) k;
+    guint hash_val;
+
+    hash_val = (wmem_str_hash(key->address) ^ key->id) + key->p2p_dir;
+
+    return hash_val;
+}
+
+static gint
+sm_fragment_equal(gconstpointer k1, gconstpointer k2)
+{
+    const sm_fragment_key* key1 = (const sm_fragment_key*) k1;
+    const sm_fragment_key* key2 = (const sm_fragment_key*) k2;
+
+    return (key1->id == key2->id) &&
+           (key1->p2p_dir == key2->p2p_dir) &&
+           !g_strcmp0(key1->address, key2->address);
+}
+
+static gpointer
+sm_fragment_temporary_key(const packet_info *pinfo,
+                          const guint32 id, const void *data)
+{
+    const gchar* addr = (const char*)data;
+    sm_fragment_key *key = g_slice_new(sm_fragment_key);
+
+    key->address = addr;
+    key->p2p_dir = pinfo->p2p_dir;
+    key->id = id;
+
+    return (gpointer)key;
+}
+
+static gpointer
+sm_fragment_persistent_key(const packet_info *pinfo,
+                           const guint32 id, const void *data)
+{
+    const gchar* addr = (const char*)data;
+    sm_fragment_key *key = g_slice_new(sm_fragment_key);
+
+    key->address = wmem_strdup(NULL, addr);
+    key->p2p_dir = pinfo->p2p_dir;
+    key->id = id;
+
+    return (gpointer)key;
+}
+
+static void
+sm_fragment_free_temporary_key(gpointer ptr)
+{
+    sm_fragment_key *key = (sm_fragment_key *)ptr;
+
+    if(key)
+        g_slice_free(sm_fragment_key, key);
+}
+
+static void
+sm_fragment_free_persistent_key(gpointer ptr)
+{
+    sm_fragment_key *key = (sm_fragment_key *)ptr;
+
+    if(key) {
+        wmem_free(NULL, (void*)key->address);
+        g_slice_free(sm_fragment_key, key);
+    }
+}
+
+const reassembly_table_functions
+sm_reassembly_table_functions = {
+    sm_fragment_hash,
+    sm_fragment_equal,
+    sm_fragment_temporary_key,
+    sm_fragment_persistent_key,
+    sm_fragment_free_temporary_key,
+    sm_fragment_free_persistent_key
+};
+
 static void
 gsm_sms_defragment_init (void)
 {
     reassembly_table_init(&g_sm_reassembly_table,
-                          &addresses_reassembly_table_functions);
-    g_sm_fragment_params_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+                          &sm_reassembly_table_functions);
+    g_sm_fragment_params_table = g_hash_table_new(sm_fragment_params_hash, sm_fragment_params_equal);
 }
 
 static void
@@ -541,9 +656,13 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *off
     if (g_ascii_strncasecmp(title, "TP-O", 4) == 0) {
         proto_tree_add_string(subtree, hf_gsm_sms_tp_oa, tvb,
                 offset, numdigocts, addrstr);
+        p_add_proto_data(pinfo->pool, pinfo, proto_gsm_sms, 0,
+                         wmem_strdup(pinfo->pool, addrstr));
     } else if (g_ascii_strncasecmp(title, "TP-D", 4) == 0) {
         proto_tree_add_string(subtree, hf_gsm_sms_tp_da, tvb,
                 offset, numdigocts, addrstr);
+        p_add_proto_data(pinfo->pool, pinfo, proto_gsm_sms, 0,
+                         wmem_strdup(pinfo->pool, addrstr));
     } else if (g_ascii_strncasecmp(title, "TP-R", 4) == 0) {
         proto_tree_add_string(subtree, hf_gsm_sms_tp_ra, tvb,
                 offset, numdigocts, addrstr);
@@ -1839,11 +1958,16 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     gboolean    is_fragmented   = FALSE;
     gboolean    save_fragmented = FALSE, try_gsm_sms_ud_reassemble = FALSE;
 
-    sm_fragment_params *p_frag_params;
-    gsm_sms_udh_fields_t        udh_fields;
+    sm_fragment_params     *p_frag_params;
+    sm_fragment_params_key *p_frag_params_key, frag_params_key;
+    const gchar            *addr;
+    gsm_sms_udh_fields_t    udh_fields;
 
     memset(&udh_fields, 0, sizeof(udh_fields));
     fill_bits = 0;
+    addr = (gchar*)p_get_proto_data(pinfo->pool, pinfo, proto_gsm_sms, 0);
+    if (addr == NULL)
+        addr = "";
 
     subtree =
         proto_tree_add_subtree(tree, tvb,
@@ -1877,7 +2001,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         fd_sm = fragment_add_seq_check (&g_sm_reassembly_table, tvb, offset,
                                         pinfo,
                                         udh_fields.sm_id, /* guint32 ID for fragments belonging together */
-                                        NULL,
+                                        addr,
                                         udh_fields.frag-1, /* guint32 fragment sequence number */
                                         length, /* guint32 fragment length */
                                         (udh_fields.frag != udh_fields.frags)); /* More fragments? */
@@ -1904,14 +2028,18 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                              " (Short Message fragment %u of %u)", udh_fields.frag, udh_fields.frags);
         }
 
-        /* Store udl and length for later decoding of reassembled SMS */
-        p_frag_params = wmem_new0(wmem_file_scope(), sm_fragment_params);
-        p_frag_params->udl = udl;
-        p_frag_params->fill_bits =  fill_bits;
-        p_frag_params->length = length;
-        g_hash_table_insert(g_sm_fragment_params_table,
-                            GUINT_TO_POINTER((guint)((udh_fields.sm_id<<16)|(udh_fields.frag-1))),
-                            p_frag_params);
+        if (!PINFO_FD_VISITED(pinfo)) {
+            /* Store udl and length for later decoding of reassembled SMS */
+            p_frag_params_key = wmem_new(wmem_file_scope(), sm_fragment_params_key);
+            p_frag_params_key->address = wmem_strdup(wmem_file_scope(), addr);
+            p_frag_params_key->p2p_dir = pinfo->p2p_dir;
+            p_frag_params_key->id = (udh_fields.sm_id<<16)|(udh_fields.frag-1);
+            p_frag_params = wmem_new0(wmem_file_scope(), sm_fragment_params);
+            p_frag_params->udl = udl;
+            p_frag_params->fill_bits =  fill_bits;
+            p_frag_params->length = length;
+            g_hash_table_insert(g_sm_fragment_params_table, p_frag_params_key, p_frag_params);
+        }
     } /* Else: not fragmented */
     if (! sm_tvb) /* One single Short Message, or not reassembled */
         sm_tvb = tvb_new_subset_remaining (tvb, offset);
@@ -1953,8 +2081,11 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 total_sms_len = 0;
                 for(i = 0 ; i < udh_fields.frags; i++)
                 {
+                    frag_params_key.address = addr;
+                    frag_params_key.p2p_dir = pinfo->p2p_dir;
+                    frag_params_key.id = (udh_fields.sm_id<<16)|i;
                     p_frag_params = (sm_fragment_params*)g_hash_table_lookup(g_sm_fragment_params_table,
-                                                            GUINT_TO_POINTER((guint)((udh_fields.sm_id<<16)|i)));
+                                                                             &frag_params_key);
 
                     if (p_frag_params) {
                         proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb, total_sms_len,
@@ -1981,8 +2112,11 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 total_sms_len = 0;
                 for(i = 0 ; i < udh_fields.frags; i++)
                 {
+                    frag_params_key.address = addr;
+                    frag_params_key.p2p_dir = pinfo->p2p_dir;
+                    frag_params_key.id = (udh_fields.sm_id<<16)|i;
                     p_frag_params = (sm_fragment_params*)g_hash_table_lookup(g_sm_fragment_params_table,
-                                                            GUINT_TO_POINTER((guint)((udh_fields.sm_id<<16)|i)));
+                                                                             &frag_params_key);
 
                     if (p_frag_params) {
                         proto_tree_add_ts_23_038_7bits_item(subtree, hf_gsm_sms_text, sm_tvb,
@@ -2026,8 +2160,11 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                     total_sms_len = 0;
                     for(i = 0 ; i < udh_fields.frags; i++)
                     {
+                        frag_params_key.address = addr;
+                        frag_params_key.p2p_dir = pinfo->p2p_dir;
+                        frag_params_key.id = (udh_fields.sm_id<<16)|i;
                         p_frag_params = (sm_fragment_params*)g_hash_table_lookup(g_sm_fragment_params_table,
-                                                                GUINT_TO_POINTER((guint)((udh_fields.sm_id<<16)|i)));
+                                                                                 &frag_params_key);
 
                         if (p_frag_params) {
                             proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb, total_sms_len,
