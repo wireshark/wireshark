@@ -790,6 +790,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           i=0; j = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
+          if (j > tvb_reported_length_remaining(tvb, offset))
+            break;
           while (i<j){
             if (check_slsk_format(tvb, offset, "s*")) {
               guint32 len;
@@ -807,6 +809,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             i=0; j = tvb_get_letohl(tvb, offset);
             proto_tree_add_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, tvb_get_letohl(tvb, offset));
             offset += 4;
+            if (j > tvb_reported_length_remaining(tvb, offset))
+              break;
             while (i<j){
               if (check_slsk_format(tvb, offset, "i*")) {
                 proto_tree_add_uint_format(slsk_tree, hf_slsk_status_code, tvb, offset, 4, tvb_get_letohl(tvb, offset),
@@ -820,6 +824,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             i=0; j = tvb_get_letohl(tvb, offset);
             proto_tree_add_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, tvb_get_letohl(tvb, offset));
             offset += 4;
+            if (j > tvb_reported_length_remaining(tvb, offset))
+              break;
             while (i<j){
               if (check_slsk_format(tvb, offset, "iiiii*")) {
                 proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
@@ -846,6 +852,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
               "Number of Slotsfull Records: %d", tvb_get_letohl(tvb, offset));
             offset += 4;
+            if (j > tvb_reported_length_remaining(tvb, offset))
+              break;
             while (i<j){
               if (check_slsk_format(tvb, offset, "i*")) {
                 proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
@@ -1498,6 +1506,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
             "Number of Recommendations: %d", tvb_get_letohl(tvb, offset));
           offset += 4;
+          if (j > tvb_reported_length_remaining(tvb, offset))
+            break;
           while (i<j){
             if (check_slsk_format(tvb, offset, "si*")) {
               guint32 len;
@@ -1546,6 +1556,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
             "Number of Recommendations: %d", tvb_get_letohl(tvb, offset));
           offset += 4;
+          if (j > tvb_reported_length_remaining(tvb, offset))
+            break;
           while (i<j){
             if (check_slsk_format(tvb, offset, "si*")) {
               guint32 len;
@@ -1590,6 +1602,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
             "Number of Recommendations: %d", tvb_get_letohl(tvb, offset));
           offset += 4;
+          if (j > tvb_reported_length_remaining(tvb, offset))
+            break;
           while (i<j){
             if (check_slsk_format(tvb, offset, "s*")) {
               guint32 len;
@@ -1621,6 +1635,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format(slsk_tree, hf_slsk_number_of_users, tvb, offset, 4, tvb_get_letohl(tvb, offset),
             "Number of Strings: %d", tvb_get_letohl(tvb, offset));
           offset += 4;
+          if (j > tvb_reported_length_remaining(tvb, offset))
+            break;
           while (i<j){
             if (check_slsk_format(tvb, offset, "s*")) {
               guint32 len;
@@ -1698,6 +1714,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           i=0; j = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_number_of_rooms, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
+          if (j > tvb_reported_length_remaining(tvb, offset))
+            break;
           while (i<j){
             if (check_slsk_format(tvb, offset, "s*")) {
               guint32 len;
@@ -1803,6 +1821,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           i=0; j = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
+          if (j > tvb_reported_length_remaining(tvb, offset))
+            break;
           while (i<j){
             if (check_slsk_format(tvb, offset, "s*")) {
               guint32 len;
@@ -1833,6 +1853,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             i=0; j = tvb_get_letohl(tvb, offset);
             proto_tree_add_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, tvb_get_letohl(tvb, offset));
             offset += 4;
+            if (j > tvb_reported_length_remaining(tvb, offset))
+              break;
             while (i<j){
               if (check_slsk_format(tvb, offset, "iiiii*")) {
                 proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
@@ -1859,6 +1881,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
               "Number of Slotsfull Records: %d", tvb_get_letohl(tvb, offset));
             offset += 4;
+            if (j > tvb_reported_length_remaining(tvb, offset))
+              break;
             while (i<j){
               if (check_slsk_format(tvb, offset, "i*")) {
                 proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
@@ -1912,6 +1936,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format(slsk_tree, hf_slsk_number_of_users, tvb, offset, 4, tvb_get_letohl(tvb, offset),
             "Number of Privileged Users: %d", tvb_get_letohl(tvb, offset));
           offset += 4;
+          if (j > tvb_reported_length_remaining(tvb, offset))
+            break;
           while (i<j){
             if (check_slsk_format(tvb, offset, "s*")) {
               guint32 len;
@@ -2107,6 +2133,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format(slsk_tree, hf_slsk_number_of_users, tvb, offset, 4, tvb_get_letohl(tvb, offset),
             "Number of Parent Addresses: %d", tvb_get_letohl(tvb, offset));
           offset += 4;
+          if (j > tvb_reported_length_remaining(tvb, offset))
+            break;
           while (i<j){
             if (check_slsk_format(tvb, offset, "sii*")) {
               guint32 len;
@@ -2173,6 +2201,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           i=0; j = tvb_get_letohl(tvb, offset);
           proto_tree_add_item(slsk_tree, hf_slsk_number_of_users, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
+          if (j > tvb_reported_length_remaining(tvb, offset))
+            break;
           while (i<j){
             if (check_slsk_format(tvb, offset, "si*")) {
               guint32 len;
@@ -2217,6 +2247,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
             "Number of Recommendations: %d", tvb_get_letohl(tvb, offset));
           offset += 4;
+          if (j > tvb_reported_length_remaining(tvb, offset))
+            break;
           while (i<j){
             if (check_slsk_format(tvb, offset, "si*")) {
               guint32 len;
@@ -2261,6 +2293,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
             "Number of Recommendations: %d", tvb_get_letohl(tvb, offset));
           offset += 4;
+          if (j > tvb_reported_length_remaining(tvb, offset))
+            break;
           while (i<j){
             if (check_slsk_format(tvb, offset, "s*")) {
               guint32 len;
