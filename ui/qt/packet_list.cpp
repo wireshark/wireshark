@@ -1378,10 +1378,26 @@ void PacketList::sectionResized(int col, int, int new_width)
 // The user moved a column. Make sure prefs.col_list, the column format
 // array, and the header's visual and logical indices all agree.
 // gtk/packet_list.c:column_dnd_changed_cb
-void PacketList::sectionMoved(int, int, int)
+void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex)
 {
     GList *new_col_list = NULL;
     QList<int> saved_sizes;
+    int sort_idx;
+
+    // Since we undo the move below, these should always stay in sync.
+    // Otherwise the order of columns can be unexpected after drag and drop.
+    if (logicalIndex != oldVisualIndex) {
+        g_warning("Column moved from an unexpected state (%d, %d, %d)",
+                logicalIndex, oldVisualIndex, newVisualIndex);
+    }
+
+    // Remember which column should be sorted. Use the visual index since this
+    // points to the current GUI state rather than the outdated column order
+    // (indicated by the logical index).
+    sort_idx = header()->sortIndicatorSection();
+    if (sort_idx != -1) {
+        sort_idx = header()->visualIndex(sort_idx);
+    }
 
     // Build a new column list based on the header's logical order.
     for (int vis_idx = 0; vis_idx < header()->count(); vis_idx++) {
@@ -1393,6 +1409,15 @@ void PacketList::sectionMoved(int, int, int)
 
         new_col_list = g_list_append(new_col_list, pref_data);
     }
+
+    // Undo move to ensure that the logical indices map to the visual indices,
+    // otherwise the column order is changed twice (once via the modified
+    // col_list, once because of the visual/logical index mismatch).
+    disconnect(header(), SIGNAL(sectionMoved(int,int,int)),
+               this, SLOT(sectionMoved(int,int,int)));
+    header()->moveSection(newVisualIndex, oldVisualIndex);
+    connect(header(), SIGNAL(sectionMoved(int,int,int)),
+            this, SLOT(sectionMoved(int,int,int)));
 
     // Clear and rebuild our (and the header's) model. There doesn't appear
     // to be another way to reset the logical index.
@@ -1413,6 +1438,15 @@ void PacketList::sectionMoved(int, int, int)
     }
 
     wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged);
+
+    // If the column with the sort indicator got shifted, mark the new column
+    // after updating the columns contents (via ColumnsChanged) to ensure that
+    // the columns are sorted using the intended column contents.
+    int left_col = MIN(oldVisualIndex, newVisualIndex);
+    int right_col = MAX(oldVisualIndex, newVisualIndex);
+    if (left_col <= sort_idx && sort_idx <= right_col) {
+        header()->setSortIndicator(sort_idx, header()->sortIndicatorOrder());
+    }
 }
 
 void PacketList::updateRowHeights(const QModelIndex &ih_index)
