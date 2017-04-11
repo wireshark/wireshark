@@ -9188,7 +9188,7 @@ void proto_register_asterix (void)
         { &hf_021_220_04, { "#04: Turbulence", "asterix.021_220_04", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_220_04_TURB, { "TURB", "asterix.021_220_04_TURB", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_021_230, { "230, Roll Angle", "asterix.021_230", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_021_230_RA, { "RA [deg]", "asterix.021_230_RA", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_021_230_RA, { "RA [deg]", "asterix.021_230_RA", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_250, { "250, Mode S MB Data", "asterix.021_250", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_260, { "260, ACAS Resolution Advisory Report", "asterix.021_260", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_260_TYP, { "TYP", "asterix.021_260_TYP", FT_UINT8, BASE_DEC, NULL, 0xf8, NULL, HFILL } },
