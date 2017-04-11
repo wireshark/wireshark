@@ -5258,13 +5258,13 @@ static const value_string ff_psmp_sta_info_flags[] = {
 
 static const char* wlan_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
-    if ((filter == CONV_FT_SRC_ADDRESS) && ((conv->src_address.type == AT_ETHER) || (conv->src_address.type == wlan_address_type)))
+    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == wlan_address_type))
         return "wlan.sa";
 
-    if ((filter == CONV_FT_DST_ADDRESS) && ((conv->dst_address.type == AT_ETHER) || (conv->dst_address.type == wlan_address_type)))
+    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == wlan_address_type))
         return "wlan.da";
 
-    if ((filter == CONV_FT_ANY_ADDRESS) && ((conv->src_address.type == AT_ETHER) || (conv->src_address.type == wlan_address_type)))
+    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == wlan_address_type))
         return "wlan.addr";
 
     return CONV_FILTER_INVALID;
@@ -5285,7 +5285,7 @@ wlan_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 static const char* wlan_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
 {
-  if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_ETHER))
+  if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == wlan_address_type))
     return "wlan.addr";
 
   return CONV_FILTER_INVALID;
