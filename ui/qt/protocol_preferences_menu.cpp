@@ -316,6 +316,7 @@ void ProtocolPreferencesMenu::boolPreferenceTriggered()
     if (!bpa) return;
 
     bpa->setBoolValue();
+    module_->prefs_changed = TRUE;
 
     prefs_apply(module_);
     if (!prefs.gui_use_pref_save) {
@@ -331,6 +332,7 @@ void ProtocolPreferencesMenu::enumPreferenceTriggered()
     if (!epa) return;
 
     if (epa->setEnumValue()) { // Changed
+        module_->prefs_changed = TRUE;
         prefs_apply(module_);
         if (!prefs.gui_use_pref_save) {
             prefs_main_write();
