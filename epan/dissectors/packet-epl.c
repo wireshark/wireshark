@@ -2442,7 +2442,7 @@ dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 		case EPL_ASND_NMTCOMMAND_NMTDNA:
 			/* This byte is reserved for the other NMT commands but some flags are placed in it for DNA */
 			offset -= 1;
-			offset += dissect_epl_asnd_nmtdna(epl_tree, tvb, pinfo, offset);
+			offset = dissect_epl_asnd_nmtdna(epl_tree, tvb, pinfo, offset);
 			break;
 
 		case EPL_ASND_NMTCOMMAND_NMTRESETNODE:
