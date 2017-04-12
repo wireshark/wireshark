@@ -108,8 +108,6 @@ static int hf_mle_tlv_network_data = -1;
 #endif
 static int hf_mle_tlv_scan_mask_r = -1;
 static int hf_mle_tlv_scan_mask_e = -1;
-static int hf_mle_tlv_conn_max_child_cnt = -1;
-static int hf_mle_tlv_conn_child_cnt = -1;
 static int hf_mle_tlv_conn_flags = -1;
 static int hf_mle_tlv_conn_flags_pp = -1;
 static int hf_mle_tlv_conn_lq3 = -1;
@@ -623,7 +621,6 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             expert_add_info(pinfo, proto_root, &ei_mle_cbc_mac_failed);
 
         /* MIC */
-        mic_item = NULL;
         if (rx_mic_len) {
             mic_item = proto_tree_add_bytes(header_tree, hf_mle_mic, tvb, 0, rx_mic_len, rx_mic);
             PROTO_ITEM_SET_GENERATED(mic_item);
@@ -792,13 +789,13 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case MLE_TLV_CHALLENGE:
                 proto_tree_add_item(tlv_tree, hf_mle_tlv_challenge, payload_tvb, offset, tlv_len, ENC_NA);
-                proto_item_append_text(ti, " = %s)", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, tlv_len));
+                proto_item_append_text(ti, " = %s)", tvb_bytes_to_str(wmem_packet_scope(), payload_tvb, offset, tlv_len));
                 offset += tlv_len;
                 break;
 
             case MLE_TLV_RESPONSE:
                 proto_tree_add_item(tlv_tree, hf_mle_tlv_response, payload_tvb, offset, tlv_len, ENC_NA);
-                proto_item_append_text(ti, " = %s)", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, tlv_len));
+                proto_item_append_text(ti, " = %s)", tvb_bytes_to_str(wmem_packet_scope(), payload_tvb, offset, tlv_len));
                 offset += tlv_len;
                 break;
 
@@ -1080,24 +1077,8 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 break;
 
             case MLE_TLV_CONNECTIVITY:
-                if (tlv_len == 7) {
-                    /* 1.0 style - keep in for now */
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_max_child_cnt, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset++;
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_child_cnt, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset++;
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_lq3, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset++;
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_lq2, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset++;
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_lq1, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset++;
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_leader_cost, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset++;
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_id_seq, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset++;
-                } else if (tlv_len == 10) {
-                    /* 1.1 style */
+                proto_item_append_text(ti, ")");
+                if ((tlv_len == 7) || (tlv_len == 10)) {
                     proto_tree *fl_tree;
 
                     ti = proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_flags, payload_tvb, offset, 1, ENC_NA);
@@ -1116,17 +1097,18 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     offset++;
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_active_rtrs, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_sed_buf_size, payload_tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                    proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_sed_dgram_cnt, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset++;
+                    if (tlv_len == 10) {
+                        proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_sed_buf_size, payload_tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        proto_tree_add_item(tlv_tree, hf_mle_tlv_conn_sed_dgram_cnt, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                    }
                 } else {
                     /* TLV Length must be 7 (old style) or 10 */
                     expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
                     offset += tlv_len;
                 }
-                proto_item_append_text(ti, ")");
                 break;
 
             case MLE_TLV_LINK_MARGIN:
@@ -1726,24 +1708,6 @@ proto_register_mle(void)
       { "End Device",
         "mle.tlv.scan_mask.e",
         FT_BOOLEAN, 8, NULL, SCAN_MASK_D_MASK,
-        NULL,
-        HFILL
-      }
-    },
-
-    { &hf_mle_tlv_conn_max_child_cnt,
-      { "Max Child Count",
-        "mle.tlv.conn.max_child_cnt",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL,
-        HFILL
-      }
-    },
-
-    { &hf_mle_tlv_conn_child_cnt,
-      { "Child Count",
-        "mle.tlv.conn.child_cnt",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL,
         HFILL
       }
