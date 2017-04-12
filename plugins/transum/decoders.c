@@ -215,12 +215,12 @@ int decode_gtcp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
     pkt_info->dstport = pinfo->destport;
 
     if (!extract_uint(tree, hf_of_interest[HF_INTEREST_TCP_LEN].hf, field_uint, &field_value_count)) {
-    	if (field_value_count)
+        if (field_value_count)
             pkt_info->len = field_uint[0];
     }
 
     if (!extract_bool(tree, hf_of_interest[HF_INTEREST_TCP_FLAGS_SYN].hf, field_bool, &field_value_count)) {
-    	if (field_value_count)
+        if (field_value_count)
             pkt_info->tcp_flags_syn = field_bool[0];
     }
 
