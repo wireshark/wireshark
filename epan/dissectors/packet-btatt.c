@@ -11983,12 +11983,12 @@ proto_register_btatt(void)
         },
         {&hf_btatt_glucose_measurement_type_and_sample_location_type,
             {"Type", "btatt.glucose_measurement.type_and_sample_location.type",
-            FT_UINT8, BASE_HEX, VALS(glucose_measurement_type_and_sample_location_type_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(glucose_measurement_type_and_sample_location_type_vals), 0x0F,
             NULL, HFILL}
         },
         {&hf_btatt_glucose_measurement_type_and_sample_location_sample_location,
             {"Sample Location", "btatt.glucose_measurement.type_and_sample_location.sample_location",
-            FT_UINT8, BASE_HEX, VALS(glucose_measurement_type_and_sample_location_sample_location_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(glucose_measurement_type_and_sample_location_sample_location_vals), 0xF0,
             NULL, HFILL}
         },
         {&hf_btatt_glucose_measurement_sensor_status_annunciation,
