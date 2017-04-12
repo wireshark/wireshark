@@ -12,94 +12,14 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2017-04[]
-RTMTP dissector infinite loop
-(ws-buglink:13347[])
-cve-idlink:2017-6472[]
-// Fixed in master: ee185445f4
-// Fixed in master-2.2: 2b3a0909be
-// Fixed in master-2.0: 06059eb
-
-* ws-salink:2017-12[]
+* ws-salink:2017-22[]
 +
-IMAP dissector crash
-(ws-buglink:13466[])
-cve-idlink:2017-7703[]
-// Fixed in master: eb04606
-// Fixed in master-2.2: 173be1a
-// Fixed in master-2.0: 671e328
-
-* ws-salink:2017-13[]
-+
-WBMXL dissector infinite loop
-(ws-buglink:13477[])
-cve-idlink:2017-7702[]
-// Fixed in master: 8e1befc
-// Fixed in master-2.2: bb67dbf
-// Fixed in master-2.0: 2f322f6
-
-* ws-salink:2017-14[]
-+
-NetScaler file parser infinite loop
-(ws-buglink:13478[])
-cve-idlink:2017-7700[]
-// Fixed in master: 845f82e
-// Fixed in master-2.2: 8fc0af8
-// Fixed in master-2.0: f744e16
-
-* ws-salink:2017-15[]
-+
-RPCoRDMA dissector infinite loop
-(ws-buglink:13558[])
-cve-idlink:2017-7705[]
-// Fixed in master: 280f2fe
-// Fixed in master-2.2: d686f6e
-// Fixed in master-2.0: 08d392b
-
-* ws-salink:2017-16[]
-+
-BGP dissector infinite loop
-(ws-buglink:13557[])
-cve-idlink:2017-7701[]
-// Fixed in master: 0bd1190
-// Fixed in master-2.2: 69263cf
-// Fixed in master-2.0: fa31f69
-
-* ws-salink:2017-18[]
-+
-PacketBB dissector crash
-(ws-buglink:13559[])
+A dissector went awry
+(ws-buglink:xxxx[])
 // cve-idlink:2017-xxxx[]
-// Fixed in master: 2321a92
-// Fixed in master-2.2: 5cfd52d
-// Fixed in master-2.0: ac5d73f
-
-* ws-salink:2017-19[]
-+
-SLSK dissector long loop
-(ws-buglink:13576[])
-// cve-idlink:2017-xxxx[]
-// Fixed in master: 9830ead
-// Fixed in master-2.2: 30bb914
-// Fixed in master-2.0: 58e69cc
-
-* ws-salink:2017-20[]
-+
-SIGCOMP dissector infinite loop
-(ws-buglink:13578[])
-// cve-idlink:2017-xxxx[]
-// Fixed in master: a445efd
-// Fixed in master-2.2: b8c0ef4
-// Fixed in master-2.0: acd8e1a
-
-* ws-salink:2017-21[]
-+
-WSP dissector infinite loop
-(ws-buglink:13581[])
-// cve-idlink:2017-xxxx[]
-// Fixed in master: a71811a
-// Fixed in master-2.2: 78e1558
-// Fixed in master-2.0: f55cbcd
+// Fixed in master: xxxx
+// Fixed in master-2.2: xxxx
+// Fixed in master-2.0: xxxx
 
 The following bugs have been fixed:
 
@@ -108,62 +28,6 @@ The following bugs have been fixed:
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.12rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* T30 FCF byte decoding masks DTC, CIG and NCS. (ws-buglink:1918[])
-
-* Wireshark gives decoding error during rnsap message dissection(SCCP reassembly). (ws-buglink:3360[])
-
-* Payload in 2 SCCP DT1 messages in the same frame isn't (sub)dissected. (ws-buglink:11130[])
-
-* Qt UI: Wireshark crash when deleting IO graph string while it's in editing mode. (ws-buglink:13234[])
-
-* Crash on exit due to an invalid frame data sequence state. (ws-buglink:13433[])
-
-* Some bytes ignored in every packet in NetScaler packet trace when vmnames are included in packet headers. (ws-buglink:13459[])
-
-* Lua dissector: ProtoField int&42; do not allow FT_HEX or FT_OCT, crash when set to FT_HEX_DEC or FT_DEC_HEX. (ws-buglink:13484[])
-
-* GIOP LocateRequest v1.0 is improperly indicated as "malformed". (ws-buglink:13488[])
-
-* Bug in ZigBee - Zone Status Change Notification. (ws-buglink:13493[])
-
-* Packet exception in packet-ua3g and incomplete strings in packet-noe. (ws-buglink:13502[])
-
-* Wrong BGP capability dissect. (ws-buglink:13521[])
-
-* Endpoint statistics column labels seem incorrect. (ws-buglink:13526[])
-
-* When a Lua enum or bool preference is changed via context menu, prefs_changed isn't called with Qt Wireshark. (ws-buglink:13536[])
-
-* tshark's -z endpoints,ip ignores optional filter. (ws-buglink:13538[])
-
-* libfuzzer: PEEKREMOTE dissector bug. (ws-buglink:13544[])
-
-* libfuzzer: packetBB dissector bug (packetbb.msg.addr.valuecustom). (ws-buglink:13545[])
-
-* libfuzzer: WSP dissector bug (wsp.header.x_wap_tod). (ws-buglink:13546[])
-
-* libfuzzer: MIH dissector bug. (ws-buglink:13547[])
-
-* libfuzzer: DNS dissector bug. (ws-buglink:13548[])
-
-* libfuzzer: WLCCP dissector bug. (ws-buglink:13549[])
-
-* libfuzzer: TAPA dissector bug. (ws-buglink:13553[])
-
-* libfuzzer: lapsat dissector bug. (ws-buglink:13554[])
-
-* libfuzzer: wassp dissector bug. (ws-buglink:13555[])
-
-* SSH Dissector uses incorrect length for protocol field (ssh.protocol). (ws-buglink:13574[])
-
-* NBAP malformed packet for short 'Binding ID'. (ws-buglink:13577[])
-
-* libfuzzer: WSP dissector bug (wsp.header.x_up_1.x_up_proxy_tod). (ws-buglink:13579[])
-
-* RTPproxy dissector adds multi lines to info column. (ws-buglink:13582[])
-
-* libfuzzer: asterix dissector bug (asterix.021_230_RA). (ws-buglink:13580[])
 
 === New and Updated Features
 
@@ -182,45 +46,12 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-ASTERIX
-BGP
-BT AVRCP
-DNS
-EAPOL-MKA
-GIOP
-ICMP
-IEEE 802.15.4
-IMAP
-ISIS LSP
-iSNS
-LAPSat
-MIH
-MySQL
-NBAP
-PacketBB
-PEEKREMOTE
-RPCoRDMA
-RTMTP
-RTPproxy
-SCCP
-SIGCOMP
-SLSK
-SSH
-T.30
-TAPA
-UA3G
-WASSP
-WBXML
-WLCCP
-WSP
-ZigBee ZCL IAS
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 There is no new or updated capture file support in this release.
 --sort-and-group--
-NetScaler
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
