@@ -1,0 +1,1108 @@
+commit 8db33f9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Apr 12 11:47:24 2017 -0700
+
+    Build 2.0.12.
+    
+    Change-Id: Iae99d45fa1fb51d6273a33aebd96f3cefe46110d
+
+commit 79a7ef0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Apr 12 08:58:08 2017 -0700
+
+    More release note updates.
+    
+    Change-Id: I7be7974120b2e44f8c7f2a36d3020d5141f5ba04
+
+commit acd8e1a
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue Apr 11 16:14:20 2017 -0400
+
+    packet-sigcomp.c: Fix sigcomp dissector loop
+    
+     Conflicts:
+            epan/dissectors/packet-sigcomp.c
+    
+    Bug: 13578
+    Change-Id: I92892a74adea49b71670b4dca57dd52e13537bd5
+    Reviewed-on: https://code.wireshark.org/review/21019
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit a445efdd03afd90ec0e849be4f7e46f28d2dedb7)
+    Reviewed-on: https://code.wireshark.org/review/21055
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit bcf1015
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Tue Apr 11 16:21:55 2017 +0200
+
+    ieee80211: fix "INVALID" label in Endpoints dialog
+    
+    Problem: the "Apply as filter" option in the Endpoints dialog creates
+    the "INVALID==11:22:33:44:55:66" filter for IEEE 802.11 packets.
+    
+    Since dissect_ieee80211_common initialises the address "whdr->src" and
+    "whdr->dst" fields using the "wlan_address_type" type, we have to do the
+    same in "wlan_host_get_filter_type". While at it, remove the check for
+    AT_ETHER since these will never match.
+    
+    Change-Id: I43f9298adfa406ea37a383187137e3e0c1f8733d
+    Reviewed-on: https://code.wireshark.org/review/21015
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit ccdb9073cdf1eee198e383ac202cb370bb0af6ce)
+    Reviewed-on: https://code.wireshark.org/review/21044
+
+commit 604d1b6
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Tue Apr 11 18:13:48 2017 +0200
+
+    Qt: mark bool and enum prefs as changed when modified via the menu
+    
+    When preferences are modified, these must be marked to ensure that the
+    "prefs_changed" callback for Lua dissectors is invoked.
+    
+    Bug: 13536
+    Change-Id: Ib93b2920ebefbc1532d3c6cd097f802a45ec6f35
+    Reviewed-on: https://code.wireshark.org/review/21016
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 73e24b31de073dfbc7a3e89a811e99b104f1b5df)
+    Reviewed-on: https://code.wireshark.org/review/21036
+
+commit 58e69cc
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue Apr 11 16:38:35 2017 -0400
+
+    packet-slsk.c: Fix (many potential) SLSK long dissector loops
+    
+    Bug: 13576
+    Change-Id: I9a0f6c6b682877ed7b5ce4b6b249d4aa4034096a
+    Reviewed-on: https://code.wireshark.org/review/21020
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 9830eadad0d850aa3318120120f5ef5b2d66337b)
+    Reviewed-on: https://code.wireshark.org/review/21026
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+
+commit f55cbcd
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue Apr 11 15:31:15 2017 -0400
+
+    packet-wsp.c: Fix WSP dissector loop (add_capabilities)
+    
+    Bug: 13581
+    Change-Id: I8b9f2df47fabb25d8851debc616fee1091d49f31
+    Reviewed-on: https://code.wireshark.org/review/21018
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit a71811af0de3ca9e7b5569f6e0f43dc7d4052d02)
+    Reviewed-on: https://code.wireshark.org/review/21028
+
+commit a62a282
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue Apr 11 16:57:30 2017 -0400
+
+    packet-asterix.c: Make hf_021_230_RA FT_DOUBLE type
+    
+    Bug: 13580
+    Change-Id: I4861c9b69bafe72ecb44e57c9be393506fb9715b
+    Reviewed-on: https://code.wireshark.org/review/21021
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 0d040f699cb62e621709ede912ae0bf939e2daaf)
+    Reviewed-on: https://code.wireshark.org/review/21024
+
+commit 34bd91a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Apr 10 14:27:40 2017 -0700
+
+    Update the release notes for 2.0.12.
+    
+    Change-Id: I4972458a051d23856a13e30399f9b1d7eb58da20
+    Reviewed-on: https://code.wireshark.org/review/21011
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit ac5d73f
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Apr 10 11:44:17 2017 +0200
+
+    PacketBB: do not add more bytes to the protocol tree than the real addr array length
+    
+    Bug: 13559
+    Change-Id: I612a7e2c104603a0aa14a0775bf9b8d247069398
+    Reviewed-on: https://code.wireshark.org/review/20992
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 2321a92ccc339cd2103f75f190df045d7c631051)
+    Reviewed-on: https://code.wireshark.org/review/21009
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+
+commit e424685
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Apr 10 10:13:33 2017 +0200
+
+    NBAP: fix malformed packet error when having a single byte BindingID
+    
+    The tvb length must be checked before trying to read 2 bytes
+    
+    Bug: 13577
+    Change-Id: I8ba8320b3a0a96239e52a36bc09bb6b41e65a657
+    Reviewed-on: https://code.wireshark.org/review/20991
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 2861b38153b9d78f6129081bc7dd50e853ca1a0e)
+    Conflicts:
+            epan/dissectors/asn1/nbap/nbap.cnf
+    Reviewed-on: https://code.wireshark.org/review/21006
+
+commit 758749f
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Apr 10 14:26:00 2017 +0200
+
+    RTPproxy: use tvb_format_text() to add text to info column
+    
+    Otherwise you can have put multiple lines in the info column when a
+    packet is wrongly identified as RTPproxy (TCP connection using the
+    default RTPproxy port for example)
+    
+    Bug: 13582
+    Change-Id: I817f67d5fc8c0d5f9d252f0f949af715bfc0ef56
+    Reviewed-on: https://code.wireshark.org/review/21000
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Lemenkov <lemenkov@gmail.com>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit fa97a31dd4754724a53658cd26adeefb29c2b246)
+    Reviewed-on: https://code.wireshark.org/review/21005
+
+commit 6ca0354
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Apr 10 16:43:07 2017 +0200
+
+    EAPOL-MKA: Split ICV from ICV Indicator
+    
+    The ICV is not part of the ICV indicator, and always at the end.
+    Split these and make a few minor fixes.
+    
+    Change-Id: I908289e322bb17c859996b963d19339197b41061
+    Reviewed-on: https://code.wireshark.org/review/21003
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 60ebf86
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Apr 10 09:41:08 2017 +0200
+
+    WSP: fix addition of x-up-proxy-tod in tree
+    
+    Regression introduced in gcf7979c
+    
+    Bug: 13579
+    Change-Id: Ia2c0d95eec45937ffcdbee52022466a30ebab1f8
+    Reviewed-on: https://code.wireshark.org/review/20988
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit d10421a39a1a3a7c05ac4814ca08a70830e18f11)
+    Reviewed-on: https://code.wireshark.org/review/20999
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+
+commit a111aad
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Mon Apr 10 11:47:39 2017 +0200
+
+    dns: fix this statement may fall through [-Werror=implicit-fallthrough] found by gcc7
+    
+    and add also a missing (optional) break after default
+    
+    Change-Id: I03d594db4702ccb4ebab3fca6b071d323e7f8d39
+    Reviewed-on: https://code.wireshark.org/review/20994
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 8344f5a6919d04376fe06db8db36fe430e327371)
+    Reviewed-on: https://code.wireshark.org/review/20997
+
+commit 805c02b
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Sun Apr 9 19:47:22 2017 +0200
+
+    SSH: display protocol without carriage return / newline
+    
+    Add protocol to tree without carriage return / newline bytes
+    
+    Bug: 13574
+    Change-Id: I757a0a3b034943da7f42557a96cdb10a45627dc7
+    Reviewed-on: https://code.wireshark.org/review/20981
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 58406cf936b8c0dc7d6e4c908440fedbac259e90)
+    Reviewed-on: https://code.wireshark.org/review/20984
+    (cherry picked from commit ac568331336c547debeda66549b24a98abae8faa)
+    Reviewed-on: https://code.wireshark.org/review/20985
+
+commit dc48542
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 9 10:21:47 2017 -0700
+
+    [Automatic update for 2017-04-09]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I6ba503936e169c174f5809c1bac9933f6ecf8ed0
+    Reviewed-on: https://code.wireshark.org/review/20980
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 8017850
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Apr 5 22:01:35 2017 +0200
+
+    WASSP: replace a DISSECTOR_ASSERT() by an expert info
+    
+    Bug: 13555
+    Change-Id: I052600eee1e0bf0f036e419bc9df7ff228941883
+    Reviewed-on: https://code.wireshark.org/review/20937
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 899f98911365c22434c61df91fd0a6df576be276)
+    Reviewed-on: https://code.wireshark.org/review/20947
+
+commit 08d392b
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Apr 5 22:58:18 2017 +0200
+
+    RPC-over-RDMA: protect against a variable overflow
+    
+    Bug: 13558
+    Change-Id: I0cb379df1a6c40a3c4a84f18c631d9239550c3ab
+    Reviewed-on: https://code.wireshark.org/review/20941
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 280f2feeaf95fcf50f028162b49be1bf6866c918)
+    Conflicts:
+            epan/dissectors/packet-rpcrdma.c
+    Reviewed-on: https://code.wireshark.org/review/20951
+
+commit fa31f69
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Apr 5 22:29:01 2017 +0200
+
+    BGP: fix a variable underflow
+    
+    Bug: 13557
+    Change-Id: I882c8a7161ff233e289a413579ed51c3b8f43c36
+    Reviewed-on: https://code.wireshark.org/review/20940
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 0bd11903938e7fbcc876888178ed9c1f085fdffc)
+    Reviewed-on: https://code.wireshark.org/review/20949
+
+commit bb83a5a
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Apr 5 21:33:15 2017 +0200
+
+    LAPSat: remove a useless assert
+    
+    If the length is bigger than the captured length, an excpetion will be thrown anyway
+    
+    Bug: 13554
+    Change-Id: Icf0f2b049847ec945efdf42815b49c4e6040e19d
+    Reviewed-on: https://code.wireshark.org/review/20936
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 462fba965a2ba5e15add24ef02bc4b9b95567ba5)
+    Reviewed-on: https://code.wireshark.org/review/20945
+
+commit 2edee29
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Apr 5 20:53:34 2017 +0200
+
+    TAPA: replace DISSECTOR_ASSERT() calls by expert info
+    
+    Bug: 13553
+    Change-Id: I01d35c7e68bfee6d30da63cb804dd9913bb5a7a2
+    Reviewed-on: https://code.wireshark.org/review/20932
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit a00b971b0712cb8a68d2d0cf3f2b9a4edafe62c0)
+    Reviewed-on: https://code.wireshark.org/review/20939
+
+commit 0096f90
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Apr 4 11:05:24 2017 -0700
+
+    White space and style cleanups.
+    
+    Get rid of extra blank lines.
+    
+    Clean up indentation.
+    
+    Use the same style for switch statements inside cases for the main
+    switch statement in dissect_dns_answer() that's used for the main switch
+    statement.
+    
+    Change-Id: If95d04f8e00fb58f8db0b55f994d843b009538fe
+    Reviewed-on: https://code.wireshark.org/review/20911
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 88167e0
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Apr 2 21:34:51 2017 +0200
+
+    WLCCP: ensure that offset is always incremented in dissect_wlccp_tlvs()
+    
+    Bug: 13549
+    Change-Id: I4613d1e2708a65b6e9968a5a920bd1b15366ffe0
+    Reviewed-on: https://code.wireshark.org/review/20871
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit bc40ae80759e57d2178b8fde6d25ced5fa5bbf50)
+    Reviewed-on: https://code.wireshark.org/review/20888
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 6e2f902
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Apr 3 21:38:45 2017 +0200
+
+    ieee802154: Add missing parenthesis in incorrect FCS
+    
+    Change-Id: Iea1855c00dbceac340bc0f65f23fdb1cb74250ec
+    Reviewed-on: https://code.wireshark.org/review/20883
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 9d7ce7aa8fea5242606e78ea25fb604362a1243e)
+    Reviewed-on: https://code.wireshark.org/review/20885
+
+commit e540392
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Apr 2 18:42:05 2017 +0200
+
+    DNS: add an expert info if buffer is too short to compute a key id
+    
+    Bug: 13548
+    Change-Id: I4c018ae7a46ebb3e667004293b3f6e180f9d693f
+    Reviewed-on: https://code.wireshark.org/review/20855
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit bc48169614d33ccaf056ace1ea1cd2c7bfceaea5)
+    Reviewed-on: https://code.wireshark.org/review/20870
+
+commit bb9bb09
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Apr 2 18:08:32 2017 +0200
+
+    MIH: fix subtree addition in dissect_dev_states()
+    
+    Bug: 13547
+    Change-Id: Ib3eed331178284758953db5300ce6ea651d7dddd
+    Reviewed-on: https://code.wireshark.org/review/20854
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit f564e2d7357979ccf3140251e9e0d0067dfcfb8f)
+    Reviewed-on: https://code.wireshark.org/review/20868
+
+commit a16471e
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Apr 2 17:12:43 2017 +0200
+
+    WSP: fix addition of X-Wap-Tod header in tree
+    
+    Bug: 13546
+    Change-Id: Ie1e78cc7ada338b17a21a32714fed4816724a4f8
+    Reviewed-on: https://code.wireshark.org/review/20850
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit cf7979c657e728f01b26b635939013ed290e74ba)
+    Reviewed-on: https://code.wireshark.org/review/20866
+
+commit eeba558
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Apr 2 17:31:47 2017 +0200
+
+    PacketBB: fix hf_packetbb_addr_value[3] field type
+    
+    Bug: 13545
+    Change-Id: Ic2dff0eeb2d312f573696cba9376cc004be17af9
+    Reviewed-on: https://code.wireshark.org/review/20852
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit a68cb9e90f23d88c6c200d6a9f45f66429fe1a5b)
+    Reviewed-on: https://code.wireshark.org/review/20864
+
+commit bdbed6a
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Apr 2 17:50:15 2017 +0200
+
+    PEEKREMOTE: treat header size as a signed integer
+    
+    Bug: 13544
+    Change-Id: If04ad8e71f06c289673492db3ed916e85cfc55e5
+    Reviewed-on: https://code.wireshark.org/review/20853
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit b0b39a737a8295ec68860651f193f8547d6e8ae1)
+    Reviewed-on: https://code.wireshark.org/review/20862
+
+commit a428d37
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 2 08:30:56 2017 -0700
+
+    [Automatic update for 2017-04-02]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I74c8ded58bc2a6fbafefeb74d8f4787963b01c26
+    Reviewed-on: https://code.wireshark.org/review/20851
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit b449a6b
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Apr 1 12:28:05 2017 -0700
+
+    Check before setting the length of a protocol item.
+    
+    Don't assume that 8 + {32-bit unsigned integer} won't overflow.  Use
+    tvb_ensure_bytes_exist() to ensure that the data in question is present;
+    it also checks for overflows.
+    
+    Also, set the length after we've succeeded in dissecting the item - if
+    we throw an exception, it's because we don't have all the data, so the
+    tvb_ensure_bytes_exist() would have failed, but this way we at least get
+    to dissect what data we *do* have.
+    
+    Change-Id: If27a2e3ed7978c2051ccb2ddba0d498255d0e350
+    Reviewed-on: https://code.wireshark.org/review/20840
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit de032c63e067197cbd9155082d12ffea5aed4c76)
+    Reviewed-on: https://code.wireshark.org/review/20843
+
+commit c4070d1
+Author: Martin Kaiser <wireshark@kaiser.cx>
+Date:   Mon Jun 13 09:30:30 2016 -0700
+
+    isns: fix dead code
+    
+    do the special handling for len==0 and tag==ISNS_ATTR_TAG_PORTAL_GROUP_TAG
+    before going into the different attributes
+    
+    Bug: 12503
+    Change-Id: I4dd6dcea25aba2e4963811a7a85f1eed1b906bcd
+    Reviewed-on: https://code.wireshark.org/review/15875
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 3fe879b88e53f3388653dde9a4631b45ca7290c7)
+    Reviewed-on: https://code.wireshark.org/review/20842
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 6a0164d
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 31 23:32:50 2017 -0700
+
+    Improve the display of metrics.
+    
+    Give the value and the "supported" bit names that reflect what they are.
+    
+    Show both the "supported" bit and the value as bitfields, because that's
+    what they are.
+    
+    Show the "supported" bit before the value.
+    
+    Show the metric value as decimal; there's nothing particularly
+    hexadecimal about it.
+    
+    The "supported" bit is 1 if it's *not* supported and 0 if it *is*
+    supported.
+    
+    Fetch the byte for the metric within dissect_metric(), rather than in
+    the call to dissect_metric().
+    
+    Change-Id: Ief3bb74b273df06e07066ccdede38a2eeedc6db2
+    Reviewed-on: https://code.wireshark.org/review/20836
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit ebcfc1ba8e85bd37b03f8ae5fd2f48ce07239bca)
+    Reviewed-on: https://code.wireshark.org/review/20838
+
+commit 0d28bc3
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 31 18:52:31 2017 -0700
+
+    Don't add an FT_UINT32 with proto_tree_add_none_format().
+    
+    Make it an FT_NONE.
+    
+    Change-Id: I83339d84b88c7decffa6e6a48d12acc4b063a4ad
+    Reviewed-on: https://code.wireshark.org/review/20822
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 7aed334856820b1a1676b81313076e086a893587)
+    Reviewed-on: https://code.wireshark.org/review/20835
+
+commit 5b9790d
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 31 22:56:09 2017 -0700
+
+    One of the new routines is static; declare it.
+    
+    Change-Id: I0737a342652ebf0f64071d8e485910a843ed8a44
+    Reviewed-on: https://code.wireshark.org/review/20832
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 5057c8f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 31 14:47:49 2017 -0700
+
+    Fix some dissection errors.
+    
+    "XXX supported" for a metric type is a Boolean, not an int; add it as
+    such.
+    
+    Add the value of the item without the extra bits.
+    
+    The length of an address prefix is in semi-octets (nibbles/hex digits),
+    not in octets.
+    
+    Change-Id: I642f0dab5030f7609e89f45cf2cff15cd74dfbda
+    Reviewed-on: https://code.wireshark.org/review/20819
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 02f74e47ed3e542f4aff9fc6a7a9c44e29be5c7b)
+    Reviewed-on: https://code.wireshark.org/review/20831
+
+commit b4feea7
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 31 20:39:20 2017 -0700
+
+    This is now an FT_STRING elsewhere, so make it one here.
+    
+    FT_NONE is wrong for string-valued fields.
+    
+    Change-Id: I2a44c4542c79daa486382bd5b28f6c37c9c46111
+    Reviewed-on: https://code.wireshark.org/review/20827
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit aa82f522c28134463b223bc1eaa5d1fd6cd9d9cd)
+    Reviewed-on: https://code.wireshark.org/review/20829
+
+commit 0a30922
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 31 19:41:47 2017 -0700
+
+    Provide better error messages for field type mismatches.
+    
+    Don't just report an assertion failure with a line in proto.c; give the
+    name of the field with the wrong type, and a list of the types that are
+    valid for the routine in question.
+    
+    Change-Id: Id3ed7c376fdc72bf6cff69c647833946cfa99ee6
+    Reviewed-on: https://code.wireshark.org/review/20824
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 19bb1b128b0e8fdbff0959a00ea062a34fbadfb4)
+    Reviewed-on: https://code.wireshark.org/review/20826
+
+commit 4732ebb
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Fri Mar 31 18:31:14 2017 +0200
+
+    Fix endpoints statistics optional filter parsing
+    
+    Bug: 13538
+    Change-Id: I4cd66d2dffc976610d41126c50b5722bc06a72f8
+    Reviewed-on: https://code.wireshark.org/review/20818
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 654be43
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Mar 28 21:16:19 2017 -0700
+
+    Print signed values with %d, not %u.
+    
+    Change-Id: I1ad46df006976c052ff42baf6415e18b488b215f
+    Reviewed-on: https://code.wireshark.org/review/20780
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 79ba8c397653d99b4c52a5bbfa2f4d554067c6a4)
+    Reviewed-on: https://code.wireshark.org/review/20782
+
+commit 3d4e738
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Mar 28 19:29:44 2017 -0700
+
+    Pick up error checks from the master branch.
+    
+    Change-Id: Ib91dca127ff9d6eb9eb1c8d4cfa88332dd406871
+    Reviewed-on: https://code.wireshark.org/review/20778
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit c52fcab65186101c440272145a47ebc56ad2de04)
+    Reviewed-on: https://code.wireshark.org/review/20779
+
+commit 21b03d7
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Mar 28 13:42:54 2017 +0200
+
+    Qt: update endpoint statistics column labels to match GTK ones
+    
+    Bug: 13526
+    Change-Id: I40485c6f9b54ff0bf07f955c1dde8cd5ac05ef9b
+    Reviewed-on: https://code.wireshark.org/review/20762
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit aa998d75732759abf8a5727c2977897c7425afe6)
+    Reviewed-on: https://code.wireshark.org/review/20765
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+
+commit eb4f01d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 26 08:39:28 2017 -0700
+
+    [Automatic update for 2017-03-26]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I7192eabd38b274bc1d4319f5dff114f1f6e3ab8f
+    Reviewed-on: https://code.wireshark.org/review/20718
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 8ac422b
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sat Mar 25 15:36:41 2017 +0100
+
+    BGP: Fix dissection of BGP ADD-PATH capability
+    
+    not limited to len = 4 (can be a multiple of 4)
+    
+    Bug: 13521
+    Change-Id: I668dbff6d8a7b0a4260da31393bb70d2c5431455
+    Reviewed-on: https://code.wireshark.org/review/20705
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit a5b61039424788dfb7c0e9fc1b8b89bf5863a2d0)
+    Reviewed-on: https://code.wireshark.org/review/20713
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 71b96ef
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Wed Mar 22 10:52:16 2017 +0100
+
+    Qt: Register Qt dialog UAT files during startup
+    
+    All files which belongs in a configuration profile are registered
+    during startup because they affect copy existing profiles.
+    
+    UAT files used in Qt dialogs are not loaded during startup because
+    they only get loaded when the dialog is shown.  This files must be
+    manually registered.
+    
+    Change-Id: Ib43f5c46b0dbde6994d90512708488cc2bd92f04
+    Reviewed-on: https://code.wireshark.org/review/20665
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 12241beea2ffa2fda901c17d9f114e3ed3b3f9c3)
+    Reviewed-on: https://code.wireshark.org/review/20682
+
+commit e459397
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Mar 23 08:48:39 2017 +0100
+
+    icmp: Fix name for addr_entry_size
+    
+    Use "Address entry size" as name for icmp.addr_entry_size
+    
+    Change-Id: Ibf118ef4e05e9bda4d90a4576dd844204c3ca5ed
+    Ping-Bug: 13515
+    Reviewed-on: https://code.wireshark.org/review/20678
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit d49e7d98ecaec690a933def015df8502f87fe322)
+    Reviewed-on: https://code.wireshark.org/review/20681
+
+commit d6193e9
+Author: erikdejong <erikdejong@gmail.com>
+Date:   Sun Mar 19 19:19:11 2017 +0100
+
+    Fix: UA3G read past end of tvb + NOE key descriptions
+    
+    packet-ua3g.c:
+    Start tone device routing packet causes exception because it adds a subtree with
+    length 6 where it should be 3. Changed 6 to 3.
+    
+    packet-noe.c:
+    Key description is incomplete because buffer reserved is only 10 bytes long and
+    key descriptions are up to 23 bytes long. Changed buffer length to 24.
+    
+    Bug: 13502
+    Change-Id: I8212d23c650efd341e87f766a80a887ef82f4b0b
+    Reviewed-on: https://code.wireshark.org/review/20633
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 9a81d2ec3764f33a2525c66d784e24f00a852916)
+    Reviewed-on: https://code.wireshark.org/review/20642
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+
+commit 3b4ed55
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Fri Mar 17 14:37:25 2017 -0400
+
+    MySQL: Bugfix state handling
+    
+    A "conversation" is created for MySQL to store "conversation data" including
+    current state.  The problem is that it's updated every time a packet is dissected
+    so depending on how packets are viewed, dissection may change.
+    Fix that by only allowing conversation state to be set on first pass and have
+    the state cached with each individual pdu, keyed by tvb_raw_offset() (the key
+    when you have multiple pdus in a TCP packet).
+    
+    Change-Id: I2c7e38be63501360d709210a509aa0dfa482bfd4
+    Reviewed-on: https://code.wireshark.org/review/20600
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit a65c0c457668d7524dffefb17cc4e69a77a29f3c)
+    Reviewed-on: https://code.wireshark.org/review/20636
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit e8cdf24
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 19 08:40:19 2017 -0700
+
+    [Automatic update for 2017-03-19]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I7bc3d390ef0cee2af31eb5fab06d42490f49d806
+    Reviewed-on: https://code.wireshark.org/review/20625
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 38c4679
+Author: Éric Piel <piel@delmic.com>
+Date:   Thu Mar 16 21:00:40 2017 -0400
+
+    Bugfix GIOP LocateRequest v1.0
+    
+    Bug: 13488
+    Change-Id: If4717dee805fdb3e910e2ea8ef16352294b305c6
+    Reviewed-on: https://code.wireshark.org/review/20575
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 144a4acb29660b51b01ae3f99bb7d2499a395a56)
+    Reviewed-on: https://code.wireshark.org/review/20577
+
+commit 5f48356
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Thu Mar 16 21:24:27 2017 +0100
+
+    ZigBee ZCL IAS: fix dissection of ZoneStatus bitmask
+    
+    Bug: 13493
+    Change-Id: Ide076bce8032767477df804a97981009a0f64828
+    Reviewed-on: https://code.wireshark.org/review/20569
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 3eb71158e6e37d1835fc578fb8cf4cf35ea62463)
+    Reviewed-on: https://code.wireshark.org/review/20572
+
+commit 8f86d6f
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Mar 13 19:10:51 2017 +0100
+
+    Lua: Base must be base.DEC for signed integer
+    
+    Reject ProtoField signed integer types with base other than base.DEC.
+    Update documentation for this.
+    
+    Bug: 13484
+    Change-Id: I55a636c89704e96a598f1f185faabd8ad13d96f1
+    Reviewed-on: https://code.wireshark.org/review/20533
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit f1d0533ee1f051aabbc1ba8e3e6a9b51dbb2c228)
+    Reviewed-on: https://code.wireshark.org/review/20536
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+
+commit 2f322f6
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sun Mar 12 11:26:54 2017 -0400
+
+    packet-wbxml.c: Fix potential infinite loops
+    
+    Bug: 13477
+    Change-Id: Ib6c440bbcbb5011e8f23fb87418acd87bb38c272
+    Reviewed-on: https://code.wireshark.org/review/20513
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 8e1befc4777431851f7026b059ecf6ce9a518781)
+    Reviewed-on: https://code.wireshark.org/review/20519
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+
+commit f744e16
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sun Mar 12 11:58:54 2017 -0400
+
+    netscaler: Sanity check record size
+    
+    Bug: 13478
+    Change-Id: I6be2972979ff7cabf27e70d236c581d539d6ddac
+    Reviewed-on: https://code.wireshark.org/review/20515
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 845f82e5cdadc76f39ecd350793cd1d09184b183)
+    Reviewed-on: https://code.wireshark.org/review/20518
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit af23558
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 12 08:29:22 2017 -0700
+
+    [Automatic update for 2017-03-12]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Ic6ec5bb93fbe79f60d8cd16aca19de6eb11266c5
+    Reviewed-on: https://code.wireshark.org/review/20514
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 2e1b894
+Author: Martin Vit <martin@voipmonitor.org>
+Date:   Mon Mar 6 17:14:18 2017 +0100
+
+    T30: fix parsing broken since ge063924
+    
+    Bug: 1918
+    Change-Id: I276e5ad74caaf509d220f97e111d2aedc7caef17
+    Reviewed-on: https://code.wireshark.org/review/20423
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit ef05fa513448c82dcdf2b95fdf7534966c925b4d)
+    Reviewed-on: https://code.wireshark.org/review/20498
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+
+commit 06059eb
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue Jan 24 23:06:04 2017 -0500
+
+    rtmpt: Ensure sequence count is incremented for stored fragments
+    
+    Bug: 13347
+    Change-Id: I351c80dea8ac7a9f2540b40782b1cc5c0b8fdaed
+    Reviewed-on: https://code.wireshark.org/review/19777
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit ee185445f410b6bc54831ea0923af08cbcd75d00)
+    Reviewed-on: https://code.wireshark.org/review/19837
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    (cherry picked from commit 2b3a0909beff8963b390034c594e0b6be6a4e531)
+    Reviewed-on: https://code.wireshark.org/review/20490
+    Reviewed-by: Balint Reczey <balint@balintreczey.hu>
+
+commit 6e4e5c0
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Mar 9 20:20:20 2017 -0800
+
+    Don't cast to a too-large size.
+    
+    The maximum record length is 255*128 + 127 = 32767; that fits in a
+    guint32, which is large enough to support the biggest packet we'd ever
+    support without stretching several size values to 64 bits.
+    
+    It's not a size of an object in memory, so it doesn't have to be a
+    size_t, and a size_t could be too large to fit in the record sizes we're
+    using.
+    
+    Just cast to guint32.
+    
+    Change-Id: Ie664fda3ce9945893fd992bbb9a81a5d632a3fcb
+    Reviewed-on: https://code.wireshark.org/review/20479
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit c2e74c5fc2cf9c0f6d85c2e6ce5bcb0cfb777b26)
+    Reviewed-on: https://code.wireshark.org/review/20483
+
+commit e5d0bde
+Author: Anil Kumar <anilkumar911@gmail.com>
+Date:   Wed Mar 8 12:15:22 2017 +0530
+
+    nstrace: fix size of vmnames
+    
+    When vmnames are included in the header of a netscaler packet trace,
+    number of bytes equal to the size of vmnames is omitted from the packet,
+    by the dissector.
+    
+    
+    Bug: 13459
+    Change-Id: I0f907e9c2e08c1cbebd47f7e50d8284a6aaade59
+    Reviewed-on: https://code.wireshark.org/review/20446
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 3a63f8dc61b103c4716e49a914868a2ca327f4de)
+    Reviewed-on: https://code.wireshark.org/review/20481
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit bdc2873
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Mar 9 09:46:08 2017 +0100
+
+    Qt: Fix heap-use-after-free when deleting IO graph
+    
+    Deleting a IO graph item while editing a field will use the IOGraph
+    object so ensure we delete in correct order to avoid heap-use-after-free.
+    
+    Bug: 13234
+    Change-Id: I6d0de21684f842fbd67c9b38fc6b75b81aec5518
+    Reviewed-on: https://code.wireshark.org/review/20456
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit e781fdd18010c6c70d08b1bd89cd3449d4a5b14d)
+    Reviewed-on: https://code.wireshark.org/review/20458
+    (cherry picked from commit ef332b8bfacf97364ba40ab9bb07be30dc67e916)
+    Reviewed-on: https://code.wireshark.org/review/20460
+
+commit 671e328
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Wed Mar 8 21:01:12 2017 +0100
+
+    imap: Give correct lineend to get_token_len()
+    
+    The return value from get_token_len() is the token length, but the
+    returned next_token can have a offset more than token length because
+    it also skip trailing blanks.  Ensure we always give correct lineend.
+    
+    Bug: 13466
+    Change-Id: I88a11b9bce02999fcf87c0d7542e56fa90aae5a0
+    Reviewed-on: https://code.wireshark.org/review/20451
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit eb046064ff0f064896ad60508876b8a764fbbca9)
+    Reviewed-on: https://code.wireshark.org/review/20459
+
+commit 8a3a6b0
+Author: Rustam Safargalin <rustam.safargalin@sifox.ru>
+Date:   Wed Nov 2 11:36:09 2016 +0300
+
+    Fix issue with dissecting multiple DT1 packets in the frame
+    
+    When parameter 'Reassemble SCCP messages' enabled in case there
+    are more than one complete DT1 in the frame they had not been
+    dissected.
+    
+    Bug: 11130
+    Bug: 3360
+    Change-Id: Iba9093105fcd95dc398607c950129ed1db866c85
+    Reviewed-on: https://code.wireshark.org/review/18615
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit daefa86695ecb6f859615ccd1bee6269e2c568a5)
+    Reviewed-on: https://code.wireshark.org/review/20432
+
+commit 5a62b8b
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Mar 5 18:30:43 2017 -0800
+
+    Clean up indentation.
+    
+    Consistently use 4-space indentation.
+    
+    Change-Id: I05e668c22c040c663fd72631d28e4977a627b94b
+    Reviewed-on: https://code.wireshark.org/review/20421
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 2b60d68
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Mar 5 18:11:22 2017 -0800
+
+    Rename a data structure to reflect what it represents.
+    
+    The structure called a pcap_options structure doesn't (only) hold
+    options for a packet capture; it holds all information about a
+    particular device, pipe, or socket from which we're capturing.  Rename
+    it capture_src - and rename all the pointer variables that point to
+    something of that type to pcap_src from pcap_opts.
+    
+    Change-Id: I6f54b3a6d387551d071f02522219948398e5286b
+    Reviewed-on: https://code.wireshark.org/review/20418
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 7830ce8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 5 09:20:53 2017 -0800
+
+    [Automatic update for 2017-03-05]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I671109020f5e8fb7357ab700a29ce3a214996e7b
+    Reviewed-on: https://code.wireshark.org/review/20397
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 917ecb2
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Mar 3 20:34:59 2017 -0800
+
+    Fix the calculation of the number of levels in the radix tree.
+    
+    The algorithm being used calculated the number of levels in a
+    1024-leaf-node tree as being 2, but it's 1 - 0 elements means 0 levels,
+    1 through 1024 elements means 1 level, 1025 through 1024^2 elements
+    means 2 levels, etc..  With a count of 1024, the loop would bump the
+    level count from 0 to 1, and divide the element count by 1024, yielding
+    1, so the loop would not terminate, and the level count would them go
+    from 1 to 2 and the element count would go to 0.
+    
+    This could cause problems if exactly 1024 packets were seen.
+    
+    Just use an if chain, similar to the one used when adding elements to
+    the tree.
+    
+    Bug: 13433
+    Change-Id: I3eaeaf374bb65b37b38a59e95f77cac6690614ed
+    Reviewed-on: https://code.wireshark.org/review/20379
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit b7e9582fd72d85373d5223394d55f405edd0eca8)
+    Reviewed-on: https://code.wireshark.org/review/20381
+
+commit fe0c9bd
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Mar 3 15:21:42 2017 -0800
+
+    2.0.11 → 2.0.12.
+    
+    Change-Id: Ia87e1af35ab43a6fc7eb479fa18af331626afed9
+    Reviewed-on: https://code.wireshark.org/review/20378
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
