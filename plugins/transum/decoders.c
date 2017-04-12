@@ -157,45 +157,43 @@ int decode_smb(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info, PKT
     else
         pkt_info->rrpd.c2s = FALSE;
 
-    extract_uint(tree, hf_of_interest[HF_INTEREST_SMB_MID].hf, field_uint, &field_value_count);
-
-    if (field_value_count)
+    if (!extract_uint(tree, hf_of_interest[HF_INTEREST_SMB_MID].hf, field_uint, &field_value_count))
     {
-        pkt_info->rrpd.calculation = RTE_CALC_SMB1;
-        pkt_info->pkt_of_interest = FALSE; /* can't process SMB1 at the moment */
-        return 0;
-    }
-    else
-    {
-        /* Default in case we don't have header information */
-        pkt_info->rrpd.session_id = 0;
-        pkt_info->rrpd.msg_id = 0;
-        pkt_info->rrpd.suffix = 1;
-        pkt_info->rrpd.decode_based = TRUE;
-        pkt_info->rrpd.calculation = RTE_CALC_SMB2;
-        pkt_info->pkt_of_interest = TRUE;
-
-        extract_ui64(tree, hf_of_interest[HF_INTEREST_SMB2_MSG_ID].hf, msg_id, &msg_id_count);
-        if (msg_id_count)  /* test for header information */
+        if (field_value_count)
         {
-            extract_ui64(tree, hf_of_interest[HF_INTEREST_SMB2_SES_ID].hf, ses_id, &ses_id_count);
-
-            for (size_t i = 0; (i < msg_id_count) && (i < MAX_SUBPKTS_PER_PACKET); i++)
-            {
-                subpackets[i].rrpd.c2s = pkt_info->rrpd.c2s;
-                subpackets[i].rrpd.ip_proto = pkt_info->rrpd.ip_proto;
-                subpackets[i].rrpd.stream_no = pkt_info->rrpd.stream_no;
-
-                subpackets[i].rrpd.session_id = ses_id[i];
-                subpackets[i].rrpd.msg_id = msg_id[i];
-                subpackets[i].rrpd.suffix = 1;
-
-                subpackets[i].rrpd.decode_based = TRUE;
-                subpackets[i].rrpd.calculation = RTE_CALC_SMB2;
-                subpackets[i].pkt_of_interest = TRUE;
-            }
-            return (int)msg_id_count;
+            pkt_info->rrpd.calculation = RTE_CALC_SMB1;
+            pkt_info->pkt_of_interest = FALSE; /* can't process SMB1 at the moment */
+            return 0;
         }
+    }
+    /* Default in case we don't have header information */
+    pkt_info->rrpd.session_id = 0;
+    pkt_info->rrpd.msg_id = 0;
+    pkt_info->rrpd.suffix = 1;
+    pkt_info->rrpd.decode_based = TRUE;
+    pkt_info->rrpd.calculation = RTE_CALC_SMB2;
+    pkt_info->pkt_of_interest = TRUE;
+
+    extract_ui64(tree, hf_of_interest[HF_INTEREST_SMB2_MSG_ID].hf, msg_id, &msg_id_count);
+    if (msg_id_count)  /* test for header information */
+    {
+        extract_ui64(tree, hf_of_interest[HF_INTEREST_SMB2_SES_ID].hf, ses_id, &ses_id_count);
+
+        for (size_t i = 0; (i < msg_id_count) && (i < MAX_SUBPKTS_PER_PACKET); i++)
+        {
+            subpackets[i].rrpd.c2s = pkt_info->rrpd.c2s;
+            subpackets[i].rrpd.ip_proto = pkt_info->rrpd.ip_proto;
+            subpackets[i].rrpd.stream_no = pkt_info->rrpd.stream_no;
+
+            subpackets[i].rrpd.session_id = ses_id[i];
+            subpackets[i].rrpd.msg_id = msg_id[i];
+            subpackets[i].rrpd.suffix = 1;
+
+            subpackets[i].rrpd.decode_based = TRUE;
+            subpackets[i].rrpd.calculation = RTE_CALC_SMB2;
+            subpackets[i].pkt_of_interest = TRUE;
+        }
+        return (int)msg_id_count;
     }
 
     return 1;
@@ -208,29 +206,43 @@ int decode_gtcp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
     gboolean field_bool[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */
 
-    if (!extract_uint(tree, hf_of_interest[HF_INTEREST_TCP_STREAM].hf, field_uint, &field_value_count))
-        pkt_info->rrpd.stream_no = field_uint[0];
+    if (!extract_uint(tree, hf_of_interest[HF_INTEREST_TCP_STREAM].hf, field_uint, &field_value_count)) {
+        if (field_value_count)
+            pkt_info->rrpd.stream_no = field_uint[0];
+    }
 
     pkt_info->srcport = pinfo->srcport;
     pkt_info->dstport = pinfo->destport;
 
-    if (!extract_uint(tree, hf_of_interest[HF_INTEREST_TCP_LEN].hf, field_uint, &field_value_count))
-        pkt_info->len = field_uint[0];
+    if (!extract_uint(tree, hf_of_interest[HF_INTEREST_TCP_LEN].hf, field_uint, &field_value_count)) {
+    	if (field_value_count)
+            pkt_info->len = field_uint[0];
+    }
 
-    if (!extract_bool(tree, hf_of_interest[HF_INTEREST_TCP_FLAGS_SYN].hf, field_bool, &field_value_count))
-        pkt_info->tcp_flags_syn = field_bool[0];
+    if (!extract_bool(tree, hf_of_interest[HF_INTEREST_TCP_FLAGS_SYN].hf, field_bool, &field_value_count)) {
+    	if (field_value_count)
+            pkt_info->tcp_flags_syn = field_bool[0];
+    }
 
-    if (!extract_bool(tree, hf_of_interest[HF_INTEREST_TCP_FLAGS_ACK].hf, field_bool, &field_value_count))
-        pkt_info->tcp_flags_ack = field_bool[0];
+    if (!extract_bool(tree, hf_of_interest[HF_INTEREST_TCP_FLAGS_ACK].hf, field_bool, &field_value_count)) {
+        if (field_value_count)
+            pkt_info->tcp_flags_ack = field_bool[0];
+    }
 
-    if (!extract_bool(tree, hf_of_interest[HF_INTEREST_TCP_FLAGS_RESET].hf, field_bool, &field_value_count))
-        pkt_info->tcp_flags_reset = field_bool[0];
+    if (!extract_bool(tree, hf_of_interest[HF_INTEREST_TCP_FLAGS_RESET].hf, field_bool, &field_value_count)) {
+        if (field_value_count)
+            pkt_info->tcp_flags_reset = field_bool[0];
+    }
 
-    if (!extract_bool(tree, hf_of_interest[HF_INTEREST_TCP_RETRAN].hf, field_bool, &field_value_count))
-        pkt_info->tcp_retran = field_bool[0];
+    if (!extract_bool(tree, hf_of_interest[HF_INTEREST_TCP_RETRAN].hf, field_bool, &field_value_count)) {
+        if (field_value_count)
+            pkt_info->tcp_retran = field_bool[0];
+    }
 
-    if (!extract_bool(tree, hf_of_interest[HF_INTEREST_TCP_KEEP_ALIVE].hf, field_bool, &field_value_count))
-        pkt_info->tcp_keep_alive = field_bool[0];
+    if (!extract_bool(tree, hf_of_interest[HF_INTEREST_TCP_KEEP_ALIVE].hf, field_bool, &field_value_count)) {
+        if (field_value_count)
+            pkt_info->tcp_keep_alive = field_bool[0];
+    }
 
     if (((wmem_map_lookup(preferences.tcp_svc_ports, GUINT_TO_POINTER(pkt_info->dstport)) != NULL) ||
          (wmem_map_lookup(preferences.tcp_svc_ports, GUINT_TO_POINTER(pkt_info->srcport)) != NULL)) &&
@@ -257,8 +269,10 @@ int decode_dns(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info)
     guint32 field_uint[MAX_RETURNED_ELEMENTS];  /* An extracted field array for unsigned integers */
     size_t field_value_count;  /* How many entries are there in the extracted field array */
 
-    if (!extract_uint(tree, hf_of_interest[HF_INTEREST_DNS_ID].hf, field_uint, &field_value_count))
-        pkt_info->rrpd.msg_id = field_uint[0];
+    if (!extract_uint(tree, hf_of_interest[HF_INTEREST_DNS_ID].hf, field_uint, &field_value_count)) {
+        if (field_value_count)
+            pkt_info->rrpd.msg_id = field_uint[0];
+    }
 
     pkt_info->rrpd.session_id = 1;
     pkt_info->rrpd.suffix = 1;  /* need to do something tricky here as dns.id gets reused */
@@ -278,11 +292,15 @@ int decode_gudp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
     pkt_info->srcport = pinfo->srcport;
     pkt_info->dstport = pinfo->destport;
 
-    if (!extract_uint(tree, hf_of_interest[HF_INTEREST_UDP_STREAM].hf, field_uint, &field_value_count))
-        pkt_info->rrpd.stream_no = field_uint[0];
+    if (!extract_uint(tree, hf_of_interest[HF_INTEREST_UDP_STREAM].hf, field_uint, &field_value_count)) {
+        if (field_value_count)
+            pkt_info->rrpd.stream_no = field_uint[0];
+    }
 
-    if (!extract_uint(tree, hf_of_interest[HF_INTEREST_UDP_LENGTH].hf, field_uint, &field_value_count))
-        pkt_info->len = field_uint[0];
+    if (!extract_uint(tree, hf_of_interest[HF_INTEREST_UDP_LENGTH].hf, field_uint, &field_value_count)) {
+        if (field_value_count)
+            pkt_info->len = field_uint[0];
+    }
 
     if ((wmem_map_lookup(preferences.udp_svc_ports, GUINT_TO_POINTER(pkt_info->dstport)) != NULL) ||
         (wmem_map_lookup(preferences.udp_svc_ports, GUINT_TO_POINTER(pkt_info->srcport)) != NULL))

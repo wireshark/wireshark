@@ -541,6 +541,17 @@ epan_dissect_prime_with_hfid(epan_dissect_t *edt, int hfid)
 	proto_tree_prime_with_hfid(edt->tree, hfid);
 }
 
+void
+epan_dissect_prime_with_hfid_array(epan_dissect_t *edt, GArray *hfids)
+{
+	guint i;
+
+	for (i = 0; i < hfids->len; i++) {
+		proto_tree_prime_with_hfid(edt->tree,
+		    g_array_index(hfids, int, i));
+	}
+}
+
 /* ----------------------- */
 const gchar *
 epan_custom_set(epan_dissect_t *edt, GSList *field_ids,

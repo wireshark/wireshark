@@ -225,6 +225,11 @@ WS_DLL_PUBLIC
 void
 epan_dissect_prime_with_hfid(epan_dissect_t *edt, int hfid);
 
+/** Prime an epan_dissect_t's proto_tree with a set of fields/protocols specified by their hfids in a GArray */
+WS_DLL_PUBLIC
+void
+epan_dissect_prime_with_hfid_array(epan_dissect_t *edt, GArray *hfids);
+
 /** fill the dissect run output into the packet list columns */
 WS_DLL_PUBLIC
 void

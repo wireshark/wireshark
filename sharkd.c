@@ -271,7 +271,7 @@ sharkd_epan_new(capture_file *cf)
 }
 
 static gboolean
-process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
+process_packet(capture_file *cf, epan_dissect_t *edt,
                gint64 offset, struct wtap_pkthdr *whdr,
                const guchar *pd)
 {
@@ -306,6 +306,10 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
 
     if (cf->dfcode)
       epan_dissect_prime_with_dfilter(edt, cf->dfcode);
+
+    /* This is the first and only pass, so prime the epan_dissect_t
+       with the fields postdissectors want on the first pass. */
+    prime_epan_dissect_with_postdissector_wanted_fields(edt);
 
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
                                   &ref, prev_dis);
@@ -385,7 +389,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     }
 
     while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
-      if (process_packet_first_pass(cf, edt, data_offset, wtap_phdr(cf->wth),
+      if (process_packet(cf, edt, data_offset, wtap_phdr(cf->wth),
                          wtap_buf_ptr(cf->wth))) {
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count

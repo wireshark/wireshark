@@ -137,8 +137,9 @@ static output_fields_t* output_fields  = NULL;
 static const char *separator = "";
 
 static int load_cap_file(capture_file *, int, gint64);
-static gboolean process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
-    struct wtap_pkthdr *whdr, const guchar *pd, guint tap_flags);
+static gboolean process_packet_single_pass(capture_file *cf,
+    epan_dissect_t *edt, gint64 offset, struct wtap_pkthdr *whdr,
+    const guchar *pd, guint tap_flags);
 static void show_print_file_io_error(int err);
 static gboolean write_preamble(capture_file *cf);
 static gboolean print_packet(capture_file *cf, epan_dissect_t *edt);
@@ -661,18 +662,29 @@ main(int argc, char *argv[])
       goto clean_exit;
       break;
     case 'l':        /* "Line-buffer" standard output */
-      /* This isn't line-buffering, strictly speaking, it's just
-         flushing the standard output after the information for
-         each packet is printed; however, that should be good
-         enough for all the purposes to which "-l" is put (and
-         is probably actually better for "-V", as it does fewer
-         writes).
+      /* The ANSI C standard does not appear to *require* that a line-buffered
+         stream be flushed to the host environment whenever a newline is
+         written, it just says that, on such a stream, characters "are
+         intended to be transmitted to or from the host environment as a
+         block when a new-line character is encountered".
 
-         See the comment in "process_packet()" for an explanation of
-         why we do that, and why we don't just use "setvbuf()" to
-         make the standard output line-buffered (short version: in
-         Windows, "line-buffered" is the same as "fully-buffered",
-         and the output buffer is only flushed when it fills up). */
+         The Visual C++ 6.0 C implementation doesn't do what is intended;
+         even if you set a stream to be line-buffered, it still doesn't
+         flush the buffer at the end of every line.
+
+         The whole reason for the "-l" flag in either tcpdump or TShark
+         is to allow the output of a live capture to be piped to a program
+         or script and to have that script see the information for the
+         packet as soon as it's printed, rather than having to wait until
+         a standard I/O buffer fills up.
+
+         So, if the "-l" flag is specified, we flush the standard output
+         at the end of a packet.  This will do the right thing if we're
+         printing packet summary lines, and, as we print the entire protocol
+         tree for a single packet without waiting for anything to happen,
+         it should be as good as line-buffered mode if we're printing
+         protocol trees - arguably even better, as it may do fewer
+         writes. */
       line_buffered = TRUE;
       break;
     case 'o':        /* Override preference from command line */
@@ -1060,8 +1072,8 @@ tfshark_epan_new(capture_file *cf)
 
 static gboolean
 process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
-               gint64 offset, struct wtap_pkthdr *whdr,
-               const guchar *pd)
+                          gint64 offset, struct wtap_pkthdr *whdr,
+                          const guchar *pd)
 {
   frame_data     fdlocal;
   guint32        framenum;
@@ -1086,6 +1098,10 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
        filter. */
     if (cf->rfcode)
       epan_dissect_prime_with_dfilter(edt, cf->rfcode);
+
+    /* This is the first pass, so prime the epan_dissect_t with the
+       fields postdissectors want on the first pass. */
+    prime_epan_dissect_with_postdissector_wanted_fields(edt);
 
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
                                   &ref, prev_dis);
@@ -1127,9 +1143,9 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
 }
 
 static gboolean
-process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fdata,
-               struct wtap_pkthdr *phdr, Buffer *buf,
-               guint tap_flags)
+process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
+                           frame_data *fdata, struct wtap_pkthdr *phdr,
+                           Buffer *buf, guint tap_flags)
 {
   column_info    *cinfo;
   gboolean        passed;
@@ -1148,6 +1164,10 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
        filter. */
     if (cf->dfcode)
       epan_dissect_prime_with_dfilter(edt, cf->dfcode);
+
+    /* This is the first and only pass, so prime the epan_dissect_t
+       with the fields postdissectors want on the first pass. */
+    prime_epan_dissect_with_postdissector_wanted_fields(edt);
 
     col_custom_prime_edt(edt, &cf->cinfo);
 
@@ -1184,26 +1204,9 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
          this packet. */
       print_packet(cf, edt);
 
-      /* The ANSI C standard does not appear to *require* that a line-buffered
-         stream be flushed to the host environment whenever a newline is
-         written, it just says that, on such a stream, characters "are
-         intended to be transmitted to or from the host environment as a
-         block when a new-line character is encountered".
-
-         The Visual C++ 6.0 C implementation doesn't do what is intended;
-         even if you set a stream to be line-buffered, it still doesn't
-         flush the buffer at the end of every line.
-
-         So, if the "-l" flag was specified, we flush the standard output
-         at the end of a packet.  This will do the right thing if we're
-         printing packet summary lines, and, as we print the entire protocol
-         tree for a single packet without waiting for anything to happen,
-         it should be as good as line-buffered mode if we're printing
-         protocol trees.  (The whole reason for the "-l" flag in either
-         tcpdump or TShark is to allow the output of a live capture to
-         be piped to a program or script and to have that script see the
-         information for the packet as soon as it's printed, rather than
-         having to wait until a standard I/O buffer fills up. */
+      /* If we're doing "line-buffering", flush the standard output
+         after every packet.  See the comment above, for the "-l"
+         option, for an explanation of why we do that. */
       if (line_buffered)
         fflush(stdout);
 
@@ -1350,7 +1353,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     }
     while (local_wtap_read(cf, &file_phdr, &err, &err_info, &data_offset, &raw_data)) {
       if (process_packet_first_pass(cf, edt, data_offset, &file_phdr/*wtap_phdr(cf->wth)*/,
-                         wtap_buf_ptr(cf->wth))) {
+                                    wtap_buf_ptr(cf->wth))) {
 
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
@@ -1417,8 +1420,9 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
         process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf, tap_flags);
       }
 #else
-        if (!process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf, tap_flags))
-          return 2;
+      if (!process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf,
+                                       tap_flags))
+        return 2;
 #endif
     }
 
@@ -1470,8 +1474,9 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 
       framenum++;
 
-      if (!process_packet(cf, edt, data_offset, &file_phdr/*wtap_phdr(cf->wth)*/,
-                             raw_data, tap_flags))
+      if (!process_packet_single_pass(cf, edt, data_offset,
+                                      &file_phdr/*wtap_phdr(cf->wth)*/,
+                                      raw_data, tap_flags))
         return 2;
 
       /* Stop reading if we have the maximum number of packets;
@@ -1577,8 +1582,9 @@ out:
 }
 
 static gboolean
-process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
-               struct wtap_pkthdr *whdr, const guchar *pd, guint tap_flags)
+process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
+                           struct wtap_pkthdr *whdr, const guchar *pd,
+                           guint tap_flags)
 {
   frame_data      fdata;
   column_info    *cinfo;
@@ -1640,26 +1646,9 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
          this packet. */
       print_packet(cf, edt);
 
-      /* The ANSI C standard does not appear to *require* that a line-buffered
-         stream be flushed to the host environment whenever a newline is
-         written, it just says that, on such a stream, characters "are
-         intended to be transmitted to or from the host environment as a
-         block when a new-line character is encountered".
-
-         The Visual C++ 6.0 C implementation doesn't do what is intended;
-         even if you set a stream to be line-buffered, it still doesn't
-         flush the buffer at the end of every line.
-
-         So, if the "-l" flag was specified, we flush the standard output
-         at the end of a packet.  This will do the right thing if we're
-         printing packet summary lines, and, as we print the entire protocol
-         tree for a single packet without waiting for anything to happen,
-         it should be as good as line-buffered mode if we're printing
-         protocol trees.  (The whole reason for the "-l" flag in either
-         tcpdump or TShark is to allow the output of a live capture to
-         be piped to a program or script and to have that script see the
-         information for the packet as soon as it's printed, rather than
-         having to wait until a standard I/O buffer fills up. */
+      /* If we're doing "line-buffering", flush the standard output
+         after every packet.  See the comment above, for the "-l"
+         option, for an explanation of why we do that. */
       if (line_buffered)
         fflush(stdout);
 

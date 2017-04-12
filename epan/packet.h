@@ -25,6 +25,7 @@
 
 #include "proto.h"
 #include "tvbuff.h"
+#include "epan.h"
 #include "value_string.h"
 #include "frame_data.h"
 #include "packet_info.h"
@@ -803,11 +804,14 @@ extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 /*
  * Return TRUE if at least one postdissector wants fields, FALSE otherwise.
- * XXX - at some point this should return a bag of all fields requested by
- * all postdissectors, so we can prime the epan_dissect_t with them rather
- * than constructing a bogus tap with a bogus filter.
  */
 WS_DLL_PUBLIC gboolean postdissectors_want_fields(void);
+
+/*
+ * Prime an epan_dissect_t with all the fields wanted by postdissectors.
+ */
+WS_DLL_PUBLIC void
+prime_epan_dissect_with_postdissector_wanted_fields(epan_dissect_t *edt);
 
 /** @} */
 

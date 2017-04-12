@@ -3350,6 +3350,25 @@ postdissectors_want_fields(void)
 	return FALSE;
 }
 
+void
+prime_epan_dissect_with_postdissector_wanted_fields(epan_dissect_t *edt)
+{
+	guint i;
+
+	if (postdissectors == NULL) {
+		/*
+		 * No postdissector expressed an interest in any fields.
+		 */
+		return;
+	}
+	for (i = 0; i < postdissectors->len; i++) {
+		if (POSTDISSECTORS(i).wanted_fields != NULL &&
+		    POSTDISSECTORS(i).wanted_fields->len != 0)
+			epan_dissect_prime_with_hfid_array(edt,
+			    POSTDISSECTORS(i).wanted_fields);
+	}
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
