@@ -1975,14 +1975,14 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
                     if (tlv_offset < tlv_len) {
                         proto_tree *sub_tlv_tree;
-                        guint remainder = tlv_len - tlv_offset;
+                        guint remaining = tlv_len - tlv_offset;
 
                         ti = proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_sub_tlvs, tvb, offset, 1, ENC_NA);
                         sub_tlv_tree = proto_item_add_subtree(ti, ett_thread_nwd_prefix_sub_tlvs);
                         /* Call this dissector for sub-TLVs */
-                        sub_tvb = tvb_new_subset_length(tvb, offset, remainder); /* remove prefix length (1) and prefix (prefix_byte_len) */
+                        sub_tvb = tvb_new_subset_length(tvb, offset, remaining); /* remove prefix length (1) and prefix (prefix_byte_len) */
                         dissect_thread_nwd(sub_tvb, pinfo, sub_tlv_tree, data);
-                        offset += remainder;
+                        offset += remaining;
                     }
                 }
                 break;
@@ -2084,14 +2084,14 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                     /* Server sub-TLVs */
                     if (tlv_offset < tlv_len) {
                         proto_tree *sub_tlv_tree;
-                        guint remainder = tlv_len - tlv_offset;
+                        guint remaining = tlv_len - tlv_offset;
 
                         ti = proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_sub_tlvs, tvb, offset, 1, ENC_NA);
                         sub_tlv_tree = proto_item_add_subtree(ti, ett_thread_nwd_prefix_sub_tlvs);
                         /* Call this dissector for sub-TLVs. Should only be server TLVs */
-                        sub_tvb = tvb_new_subset_length(tvb, offset, remainder); /* remove prefix length (1) and prefix (prefix_byte_len) */
+                        sub_tvb = tvb_new_subset_length(tvb, offset, remaining); /* remove prefix length (1) and prefix (prefix_byte_len) */
                         dissect_thread_nwd(sub_tvb, pinfo, sub_tlv_tree, data);
-                        offset += remainder;
+                        offset += remaining;
                     }
                 }
                 break;
