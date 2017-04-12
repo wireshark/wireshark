@@ -1126,8 +1126,6 @@ dissect_netlink_sock_diag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	info.pinfo = pinfo;
 	info.data = data;
 
-	offset = 0;
-
 	switch (data->type) {
 		case WS_TCPDIAG_GETSOCK:
 		case WS_DCCPDIAG_GETSOCK:
