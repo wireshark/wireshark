@@ -471,7 +471,7 @@ static const value_string stream_based_tone_vals[]={
  {0,NULL}
 };
 static const value_string stream_base_vol_level[]={
- {0x6F,"C1=0xFF00 C2=0x00 C3=0x00 c4=0x00 Steady on.  -13 dBmO per frequency."},
+ /*{0x6F,"C1=0xFF00 C2=0x00 C3=0x00 c4=0x00 Steady on.  -13 dBmO per frequency."},*/
  {0x6F,"C1=0x0505 C2=0x0505 C3=0x0505 c4=0xFF00 3 burst(0.1 sec on,0.1 sec off),Then steady on.-13 dBmO per frequency."},
  {0x60,"C1=0x1919 C2=0x00 C3=0x00 c4=0x00 0.5 sec on, 0.5 sec off, repeating.  -24 dBmO per frequency."},
  {0x67,"C1=0x64C8 C2=0x00 C3=0x00 c4=0x00 2 sec on, 4 sec off, repeating.  -19 dBmO per frequency."},
