@@ -383,7 +383,7 @@ proto_reg_handoff_zbee_zcl_appl_idt(void)
 /* Meter Type IDs */
 #define ZBEE_ZCL_MET_IDT_MET_TYPE_UTILITY_1_METER               0x0000 /* Utility Primary Meter */
 #define ZBEE_ZCL_MET_IDT_MET_TYPE_UTILITY_P_METER               0x0001 /* Utility Production Meter */
-#define ZBEE_ZCL_MET_IDT_MET_TYPE_UTILITY_2_METER               0x0000 /* Utility Secondary Meter */
+#define ZBEE_ZCL_MET_IDT_MET_TYPE_UTILITY_2_METER               0x0002 /* Utility Secondary Meter */
 #define ZBEE_ZCL_MET_IDT_MET_TYPE_PRIVATE_1_METER               0x0100 /* Private Primary Meter */
 #define ZBEE_ZCL_MET_IDT_MET_TYPE_PRIVATE_P_METER               0x0101 /* Private Primary Meter */
 #define ZBEE_ZCL_MET_IDT_MET_TYPE_PRIVATE_2_METER               0x0102 /* Private Primary Meter */

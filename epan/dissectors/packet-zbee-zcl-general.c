@@ -11559,7 +11559,7 @@ static const value_string zbee_zcl_appl_ctrl_exec_cmd_names[] = {
     { ZBEE_ZCL_APPL_CTRL_EXEC_CMD_ID_STOP,                      "Stop" },
     { ZBEE_ZCL_APPL_CTRL_EXEC_CMD_ID_PAUSE,                     "Pause" },
     { ZBEE_ZCL_APPL_CTRL_EXEC_CMD_ID_START_SUPERFREEZING,       "Start Superfreezing" },
-    { ZBEE_ZCL_APPL_CTRL_EXEC_CMD_ID_START_SUPERFREEZING,       "Stop Superfreezing" },
+    { ZBEE_ZCL_APPL_CTRL_EXEC_CMD_ID_STOP_SUPERFREEZING,        "Stop Superfreezing" },
     { ZBEE_ZCL_APPL_CTRL_EXEC_CMD_ID_START_SUPERCOOLING,        "Start Supercooling" },
     { ZBEE_ZCL_APPL_CTRL_EXEC_CMD_ID_STOP_SUPERCOOLING,         "Stop Supercooling" },
     { ZBEE_ZCL_APPL_CTRL_EXEC_CMD_ID_DISABLE_GAS,               "Disable Gas" },
