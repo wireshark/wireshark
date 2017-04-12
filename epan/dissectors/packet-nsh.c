@@ -49,14 +49,20 @@ enum {
 	NSH_IPV4 = 1,
 	NSH_IPV6,
 	NSH_ETHERNET,
-	NSH_EXPERIMENTAL
+	NSH_NSH,
+	NSH_MPLS,
+	NSH_EXPERIMENT_1 = 254,
+	NSH_EXPERIMENT_2,
 };
 
 static const value_string nsh_next_protocols[] = {
 	{ NSH_IPV4, "IPv4" },
 	{ NSH_IPV6, "IPv6" },
 	{ NSH_ETHERNET, "Ethernet" },
-	{ NSH_EXPERIMENTAL, "Experimental" },
+	{ NSH_NSH, "NSH" },
+	{ NSH_MPLS, "MPLS" },
+	{ NSH_EXPERIMENT_1, "Experiment 1" },
+	{ NSH_EXPERIMENT_2, "Experiment 2" },
 	{ 0, NULL }
 };
 
@@ -79,9 +85,12 @@ static int hf_nsh_metadata_length = -1;
 static int hf_nsh_metadata = -1;
 
 static gint ett_nsh = -1;
+
+static dissector_handle_t nsh_handle;
 static dissector_handle_t dissector_ipv6;
 static dissector_handle_t dissector_ip;
 static dissector_handle_t dissector_eth;
+static dissector_handle_t dissector_mpls;
 
 /*
  *Dissect Fixed Length Context headers
@@ -224,6 +233,14 @@ dissect_nsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 				call_dissector(dissector_eth, next_tvb, pinfo, tree);
 				break;
 
+			case NSH_NSH:
+				call_dissector(nsh_handle, next_tvb, pinfo, tree);
+				break;
+
+			case NSH_MPLS:
+				call_dissector(dissector_mpls, next_tvb, pinfo, tree);
+				break;
+
 			}
 		}
 	}
@@ -349,8 +366,7 @@ proto_register_nsh(void)
 		&ett_nsh,
 	};
 
-	proto_nsh = proto_register_protocol("Network Service Header",
-		"NSH", "nsh");
+	proto_nsh = proto_register_protocol("Network Service Header", "NSH", "nsh");
 	proto_register_field_array(proto_nsh, nsh_info, array_length(nsh_info));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -360,8 +376,6 @@ void
 proto_reg_handoff_nsh(void)
 {
 
-	dissector_handle_t nsh_handle;
-
 	nsh_handle = create_dissector_handle(dissect_nsh, proto_nsh);
 	dissector_add_uint("ethertype", ETHERTYPE_NSH, nsh_handle);
 	dissector_add_uint("gre.proto", ETHERTYPE_NSH, nsh_handle);
@@ -370,6 +384,7 @@ proto_reg_handoff_nsh(void)
 	dissector_ip = find_dissector_add_dependency("ip", proto_nsh);
 	dissector_ipv6 = find_dissector_add_dependency("ipv6", proto_nsh);
 	dissector_eth = find_dissector_add_dependency("eth_maybefcs", proto_nsh);
+	dissector_mpls = find_dissector_add_dependency("mpls", proto_nsh);
 
 
 }
