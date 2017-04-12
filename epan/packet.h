@@ -765,14 +765,49 @@ WS_DLL_PUBLIC void dissector_dump_decodes(void);
 WS_DLL_PUBLIC void dissector_dump_heur_decodes(void);
 
 /*
- * post dissectors are to be called by packet-frame.c after every other
+ * postdissectors are to be called by packet-frame.c after every other
  * dissector has been called.
  */
-WS_DLL_PUBLIC void register_postdissector(dissector_handle_t);
+
+/*
+ * Register a postdissector; the argument is the dissector handle for it.
+ */
+WS_DLL_PUBLIC void register_postdissector(dissector_handle_t handle);
+
+/*
+ * Specify a set of fields that the postdissector will need.
+ * The GArray is an array of hfids.
+ */
+WS_DLL_PUBLIC void set_postdissector_wanted_fields(dissector_handle_t handle,
+    GArray *wanted_fields);
+
+/*
+ * Deregister a postdissector.  Not for use in (post)dissectors or
+ * applications; only to be used by libwireshark itself.
+ */
 void deregister_postdissector(dissector_handle_t handle);
 
+/*
+ * Return TRUE if we have at least one postdissector, FALSE if not.
+ * Not for use in (post)dissectors or applications; only to be used
+ * by libwireshark itself.
+ */
 extern gboolean have_postdissector(void);
+
+/*
+ * Call all postdissectors, handing them the supplied arguments.
+ * Not for use in (post)dissectors or applications; only to be used
+ * by libwireshark itself.
+ */
 extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/*
+ * Return TRUE if at least one postdissector wants fields, FALSE otherwise.
+ * XXX - at some point this should return a bag of all fields requested by
+ * all postdissectors, so we can prime the epan_dissect_t with them rather
+ * than constructing a bogus tap with a bogus filter.
+ */
+WS_DLL_PUBLIC gboolean postdissectors_want_fields(void);
 
 /** @} */
 

@@ -364,12 +364,20 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     cf->frames = new_frame_data_sequence();
 
     {
-       gboolean create_proto_tree = FALSE;
+      gboolean create_proto_tree;
 
-      /* If we're going to be applying a filter, we'll need to
-         create a protocol tree against which to apply the filter. */
-      if (cf->rfcode || cf->dfcode)
-        create_proto_tree = TRUE;
+      /*
+       * Determine whether we need to create a protocol tree.
+       * We do if:
+       *
+       *    we're going to apply a read filter;
+       *
+       *    we're going to apply a display filter;
+       *
+       *    a postdissector wants field values on the first pass.
+       */
+      create_proto_tree =
+        (cf->rfcode != NULL || cf->dfcode != NULL || postdissectors_want_fields());
 
       /* We're not going to display the protocol tree on this pass,
          so it's not going to be "visible". */
@@ -809,21 +817,31 @@ sharkd_retap(void)
   int err;
   char *err_info = NULL;
 
-  gboolean      filtering_tap_listeners;
   guint         tap_flags;
-  gboolean      construct_protocol_tree;
+  gboolean      create_proto_tree;
   epan_dissect_t edt;
   column_info   *cinfo;
 
-  filtering_tap_listeners = have_filtering_tap_listeners();
+  /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
 
-  construct_protocol_tree = filtering_tap_listeners || (tap_flags & TL_REQUIRES_PROTO_TREE);
+  /* If any tap listeners require the columns, construct them. */
   cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cfile.cinfo : NULL;
+
+  /*
+   * Determine whether we need to create a protocol tree.
+   * We do if:
+   *
+   *    one of the tap listeners is going to apply a filter;
+   *
+   *    one of the tap listeners requires a protocol tree.
+   */
+  create_proto_tree =
+    (have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
 
   wtap_phdr_init(&phdr);
   ws_buffer_init(&buf, 1500);
-  epan_dissect_init(&edt, cfile.epan, construct_protocol_tree, FALSE);
+  epan_dissect_init(&edt, cfile.epan, create_proto_tree, FALSE);
 
   reset_tap_listeners();
 

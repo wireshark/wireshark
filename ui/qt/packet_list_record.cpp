@@ -153,6 +153,18 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
         return;    /* error reading the record */
     }
 
+    /*
+     * Determine whether we need to create a protocol tree.
+     * We do if:
+     *
+     *    we're going to apply a color filter to this packet;
+     *
+     *    we're need to fill in the columns and we have custom columns
+     *    (which require field values, which currently requires that
+     *    we build a protocol tree).
+     *
+     *    XXX - field extractors?  (Not done for GTK+....)
+     */
     create_proto_tree = ((dissect_color && color_filters_used()) ||
                          (dissect_columns && (have_custom_cols(cinfo) ||
                                               have_field_extractors())));

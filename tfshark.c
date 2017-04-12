@@ -1331,12 +1331,18 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     cf->frames = new_frame_data_sequence();
 
     if (do_dissection) {
-       gboolean create_proto_tree = FALSE;
+      gboolean create_proto_tree;
 
-      /* If we're going to be applying a filter, we'll need to
-         create a protocol tree against which to apply the filter. */
-      if (cf->rfcode)
-        create_proto_tree = TRUE;
+      /*
+       * Determine whether we need to create a protocol tree.
+       * We do if:
+       *
+       *    we're going to apply a read filter;
+       *
+       *    a postdissector wants field values on the first pass.
+       */
+      create_proto_tree =
+        (cf->rfcode != NULL || postdissectors_want_fields());
 
       /* We're not going to display the protocol tree on this pass,
          so it's not going to be "visible". */
@@ -1379,11 +1385,22 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     if (do_dissection) {
       gboolean create_proto_tree;
 
-      if (cf->dfcode || print_details || filtering_tap_listeners ||
-         (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
-           create_proto_tree = TRUE;
-      else
-           create_proto_tree = FALSE;
+      /*
+       * Determine whether we need to create a protocol tree.
+       * We do if:
+       *
+       *    we're going to apply a display filter;
+       *
+       *    we're going to print the protocol tree;
+       *
+       *    one of the tap listeners requires a protocol tree;
+       *
+       *    we have custom columns (which require field values, which
+       *    currently requires that we build a protocol tree).
+       */
+      create_proto_tree =
+        (cf->dfcode || print_details || filtering_tap_listeners ||
+         (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo));
 
       /* The protocol tree will be "visible", i.e., printed, only if we're
          printing packet details, which is true if we're printing stuff
@@ -1418,11 +1435,29 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     if (do_dissection) {
       gboolean create_proto_tree;
 
-      if (cf->rfcode || cf->dfcode || print_details || filtering_tap_listeners ||
-          (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
-        create_proto_tree = TRUE;
-      else
-        create_proto_tree = FALSE;
+      /*
+       * Determine whether we need to create a protocol tree.
+       * We do if:
+       *
+       *    we're going to apply a read filter;
+       *
+       *    we're going to apply a display filter;
+       *
+       *    we're going to print the protocol tree;
+       *
+       *    one of the tap listeners is going to apply a filter;
+       *
+       *    one of the tap listeners requires a protocol tree;
+       *
+       *    a postdissector wants field values on the first pass;
+       *
+       *    we have custom columns (which require field values, which
+       *    currently requires that we build a protocol tree).
+       */
+      create_proto_tree =
+        (cf->rfcode || cf->dfcode || print_details || filtering_tap_listeners ||
+          (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_fields() ||
+          have_custom_cols(&cf->cinfo));
 
       /* The protocol tree will be "visible", i.e., printed, only if we're
          printing packet details, which is true if we're printing stuff

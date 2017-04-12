@@ -561,8 +561,22 @@ cf_read(capture_file *cf, gboolean reloading)
 
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
+
+  /*
+   * Determine whether we need to create a protocol tree.
+   * We do if:
+   *
+   *    we're going to apply a display filter;
+   *
+   *    one of the tap listeners is going to apply a filter;
+   *
+   *    one of the tap listeners requires a protocol tree;
+   *
+   *    a postdissector wants field values on the first pass.
+   */
   create_proto_tree =
-    (dfcode != NULL || have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
+    (dfcode != NULL || have_filtering_tap_listeners() ||
+     (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_fields());
 
   reset_tap_listeners();
 
@@ -597,6 +611,7 @@ cf_read(capture_file *cf, gboolean reloading)
 
     column_info *cinfo;
 
+    /* If any tap listeners require the columns, construct them. */
     cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
     /* Find the size of the file. */
@@ -786,8 +801,22 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
+
+  /*
+   * Determine whether we need to create a protocol tree.
+   * We do if:
+   *
+   *    we're going to apply a display filter;
+   *
+   *    one of the tap listeners is going to apply a filter;
+   *
+   *    one of the tap listeners requires a protocol tree;
+   *
+   *    a postdissector wants field values on the first pass.
+   */
   create_proto_tree =
-    (dfcode != NULL || have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
+    (dfcode != NULL || have_filtering_tap_listeners() ||
+     (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_fields());
 
   *err = 0;
 
@@ -803,6 +832,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
     gint64 data_offset = 0;
     column_info *cinfo;
 
+    /* If any tap listeners require the columns, construct them. */
     cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
     while (to_read != 0) {
@@ -913,9 +943,25 @@ cf_finish_tail(capture_file *cf, int *err)
 
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
+
+  /* If any tap listeners require the columns, construct them. */
   cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
+
+  /*
+   * Determine whether we need to create a protocol tree.
+   * We do if:
+   *
+   *    we're going to apply a display filter;
+   *
+   *    one of the tap listeners is going to apply a filter;
+   *
+   *    one of the tap listeners requires a protocol tree;
+   *
+   *    a postdissector wants field values on the first pass.
+   */
   create_proto_tree =
-    (dfcode != NULL || have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
+    (dfcode != NULL || have_filtering_tap_listeners() ||
+     (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_fields());
 
   if (cf->wth == NULL) {
     cf_close(cf);
@@ -1573,9 +1619,27 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
+
+  /* If any tap listeners require the columns, construct them. */
   cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
+
+  /*
+   * Determine whether we need to create a protocol tree.
+   * We do if:
+   *
+   *    we're going to apply a display filter;
+   *
+   *    one of the tap listeners is going to apply a filter;
+   *
+   *    one of the tap listeners requires a protocol tree;
+   *
+   *    we're redissecting and a postdissector wants field
+   *    values on the first pass.
+   */
   create_proto_tree =
-    (dfcode != NULL || have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
+    (dfcode != NULL || have_filtering_tap_listeners() ||
+     (tap_flags & TL_REQUIRES_PROTO_TREE) ||
+     (redissect && postdissectors_want_fields()));
 
   reset_tap_listeners();
   /* Which frame, if any, is the currently selected frame?
@@ -2103,8 +2167,7 @@ cf_retap_packets(capture_file *cf)
 {
   packet_range_t        range;
   retap_callback_args_t callback_args;
-  gboolean              construct_protocol_tree;
-  gboolean              filtering_tap_listeners;
+  gboolean              create_proto_tree;
   guint                 tap_flags;
   psp_return_t          ret;
 
@@ -2115,23 +2178,27 @@ cf_retap_packets(capture_file *cf)
 
   cf_callback_invoke(cf_cb_file_retap_started, cf);
 
-  /* Do we have any tap listeners with filters? */
-  filtering_tap_listeners = have_filtering_tap_listeners();
-
+  /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
-
-  /* If any tap listeners have filters, or require the protocol tree,
-     construct the protocol tree. */
-  construct_protocol_tree = filtering_tap_listeners ||
-                            (tap_flags & TL_REQUIRES_PROTO_TREE);
 
   /* If any tap listeners require the columns, construct them. */
   callback_args.cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
+  /*
+   * Determine whether we need to create a protocol tree.
+   * We do if:
+   *
+   *    one of the tap listeners is going to apply a filter;
+   *
+   *    one of the tap listeners requires a protocol tree.
+   */
+  create_proto_tree =
+    (have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
+
   /* Reset the tap listeners. */
   reset_tap_listeners();
 
-  epan_dissect_init(&callback_args.edt, cf->epan, construct_protocol_tree, FALSE);
+  epan_dissect_init(&callback_args.edt, cf->epan, create_proto_tree, FALSE);
 
   /* Iterate through the list of packets, dissecting all packets and
      re-running the taps. */

@@ -53,6 +53,8 @@ static const gchar* current_mate_config_filename = NULL;
 
 static proto_item *mate_i = NULL;
 
+static dissector_handle_t mate_handle;
+
 static void
 pdu_attrs_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_pdu* pdu)
 {
@@ -352,6 +354,12 @@ proto_reg_handoff_mate(void)
 				proto_register_subtree_array((gint**)(void*)mc->ett->data, mc->ett->len);
 				register_init_routine(initialize_mate_runtime);
 
+				/*
+				 * Set the list of fields we want.
+				 */
+				set_postdissector_wanted_fields(mate_handle,
+				    mc->wanted_fields);
+
 				tap_error = register_tap_listener("frame", &mate_tap_data,
 				    (char*) mc->tap_filter,
 				    0,
@@ -393,7 +401,6 @@ proto_register_mate(void)
 
 	expert_module_t* expert_mate;
 	module_t *mate_module;
-	dissector_handle_t mate_handle;
 
 	proto_mate = proto_register_protocol("Meta Analysis Tracing Engine", "MATE", "mate");
 	proto_register_field_array(proto_mate, hf, array_length(hf));

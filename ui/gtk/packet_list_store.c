@@ -1148,6 +1148,16 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 		return;	/* error reading the record */
 	}
 
+	/*
+	 * Determine whether we need to create a protocol tree.
+	 * We do if:
+	 *
+	 *    we're going to apply a color filter to this packet;
+	 *
+	 *    we're need to fill in the columns and we have custom columns
+	 *    (which require field values, which currently requires that
+	 *    we build a protocol tree).
+	 */
 	create_proto_tree = (dissect_color && color_filters_used()) ||
 						(dissect_columns && have_custom_cols(cinfo));
 

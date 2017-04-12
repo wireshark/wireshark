@@ -203,6 +203,16 @@ WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
     }
 
     if (all_fields) {
+        /*
+         * XXX - are there any Lua postdissectors that need "all fields",
+         * i.e. the entire protocol tree, or do they just look for
+         * *particular* fields, with field extractors?
+         *
+         * And do all of them require the actual *displayed* format of
+         * the fields they need?
+         *
+         * If not, this is overkill.
+         */
         epan_set_always_visible(TRUE);
     }
 

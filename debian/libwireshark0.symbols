@@ -939,6 +939,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  port_type_to_str@Base 1.12.0~rc1
  port_with_resolution_to_str@Base 2.1.0
  port_with_resolution_to_str_buf@Base 2.0.0
+ postdissectors_want_fields@Base 2.3.0
  postseq_cleanup_all_protocols@Base 1.9.1
  pref_clean_stash@Base 2.3.0
  pref_stash@Base 2.3.0
@@ -1353,6 +1354,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  set_enabled_protos_list@Base 2.3.0
  set_fd_time@Base 1.9.1
  set_mac_lte_proto_data@Base 1.9.1
+ set_postdissector_wanted_fields@Base 2.3.0
  set_srt_table_param_data@Base 1.99.8
  set_tap_dfilter@Base 1.9.1
  show_exception@Base 1.9.1

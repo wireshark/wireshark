@@ -187,6 +187,10 @@ extern gboolean add_hfid(header_field_info*  hfi, gchar* how, GHashTable* where)
 	return exists;
 }
 
+#if 0
+/*
+ * XXX - where is this suposed to be used?
+ */
 extern gchar* add_ranges(gchar* range,GPtrArray* range_ptr_arr) {
 	gchar**  ranges;
 	guint i;
@@ -214,6 +218,7 @@ extern gchar* add_ranges(gchar* range,GPtrArray* range_ptr_arr) {
 
 	return NULL;
 }
+#endif
 
 static void new_attr_hfri(gchar* item_name, GHashTable* hfids, gchar* name) {
 	int* p_id = (int *)g_malloc(sizeof(int));
@@ -247,6 +252,11 @@ static const gchar* my_protoname(int proto_id) {
 static void analyze_pdu_hfids(gpointer k, gpointer v, gpointer p) {
 	mate_cfg_pdu* cfg = (mate_cfg_pdu *)p;
 	new_attr_hfri(cfg->name,cfg->my_hfids,(gchar*) v);
+
+	/*
+	 * Add this hfid to our table of hfids.
+	 */
+	matecfg->wanted_fields = g_array_append_val(matecfg->wanted_fields, *(int *)k);
 
 	g_string_append_printf(matecfg->fields_filter,"||%s",my_protoname(*(int*)k));
 }
@@ -576,6 +586,8 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 	matecfg = (mate_config *)g_malloc(sizeof(mate_config));
 
 	matecfg->hfid_mate = mate_hfid;
+
+	matecfg->wanted_fields = g_array_new(FALSE, FALSE, (guint)sizeof(int));
 
 	matecfg->fields_filter = g_string_new("");
 	matecfg->protos_filter = g_string_new("");

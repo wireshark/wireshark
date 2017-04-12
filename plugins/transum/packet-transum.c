@@ -41,6 +41,8 @@
 void proto_register_transum(void);
 void proto_reg_handoff_transum(void);
 
+static dissector_handle_t transum_handle;
+
 #define CAPTURE_CLIENT 0
 #define CAPTURE_INTERMEDIATE 1
 #define CAPTURE_SERVICE 2
@@ -142,6 +144,10 @@ static wmem_map_t *output_rrpd;
  */
 static wmem_list_t *temp_rsp_rrpd_list = NULL;  /* Reuse these for speed and efficient memory use - issue a warning if we run out */
 
+/*
+ * GArray of the hfids of all fields we're interested in.
+ */
+GArray *wanted_fields;
 
 static gint ett_transum = -1;
 static gint ett_transum_header = -1;
@@ -715,6 +721,14 @@ static void init_globals(void)
     rrpd_list = wmem_list_new(wmem_file_scope());
     temp_rsp_rrpd_list = wmem_list_new(wmem_file_scope());
 
+    /* Indicate what fields we're interested in. */
+    wanted_fields = g_array_new(FALSE, FALSE, (guint)sizeof(int));
+    for (int i = 0; i < HF_INTEREST_END_OF_LIST; i++)
+    {
+        g_array_append_val(wanted_fields, hf_of_interest[i].hf);
+    }
+    set_postdissector_wanted_fields(transum_handle, wanted_fields);
+
     GString* fake_tap_filter = g_string_new("frame || eth.type");
 
     for (int i = 0; i < HF_INTEREST_END_OF_LIST; i++)
@@ -1001,8 +1015,13 @@ static int dissect_transum(tvbuff_t *buffer, packet_info *pinfo, proto_tree *tre
         RRPD *rrpd = (RRPD*)wmem_map_lookup(output_rrpd, GUINT_TO_POINTER(pinfo->num));
 
         if (rrpd)
-            /* Add the RTE data to the protocol decode tree if we output_flag is set */
-            write_rte(rrpd, buffer, tree, NULL);
+        {
+            if (tree)
+            {
+                /* Add the RTE data to the protocol decode tree if we output_flag is set */
+                write_rte(rrpd, buffer, tree, NULL);
+            }
+        }
     }
     else
     {
@@ -1030,7 +1049,6 @@ void
 proto_register_transum(void)
 {
     module_t *transum_module;
-    dissector_handle_t transum_handle;
 
     static hf_register_info hf[] = {
         { &hf_tsum_status,
