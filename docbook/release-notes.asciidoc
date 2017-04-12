@@ -16,7 +16,7 @@ The following vulnerabilities have been fixed:
 +
 IMAP dissector crash
 (ws-buglink:13466[])
-//cve-idlink:2017-XXXX[]
+cve-idlink:2017-7703[]
 // Fixed in master: eb04606
 // Fixed in master-2.2: 173be1a
 // Fixed in master-2.0: 671e328
@@ -25,7 +25,7 @@ IMAP dissector crash
 +
 WBMXL dissector infinite loop
 (ws-buglink:13477[])
-//cve-idlink:2017-XXXX[]
+cve-idlink:2017-7702[]
 // Fixed in master: 8e1befc
 // Fixed in master-2.2: bb67dbf
 // Fixed in master-2.0: 2f322f6
@@ -34,7 +34,7 @@ WBMXL dissector infinite loop
 +
 NetScaler file parser infinite loop
 (ws-buglink:13478[])
-//cve-idlink:2017-XXXX[]
+cve-idlink:2017-7700[]
 // Fixed in master: 845f82e
 // Fixed in master-2.2: 8fc0af8
 // Fixed in master-2.0: f744e16
@@ -43,7 +43,7 @@ NetScaler file parser infinite loop
 +
 RPCoRDMA dissector infinite loop
 (ws-buglink:13558[])
-//cve-idlink:2017-XXXX[]
+cve-idlink:2017-7705[]
 // Fixed in master: 280f2fe
 // Fixed in master-2.2: d686f6e
 // Fixed in master-2.0: 08d392b
@@ -52,7 +52,7 @@ RPCoRDMA dissector infinite loop
 +
 BGP dissector infinite loop
 (ws-buglink:13557[])
-//cve-idlink:2017-XXXX[]
+cve-idlink:2017-7701[]
 // Fixed in master: 0bd1190
 // Fixed in master-2.2: 69263cf
 // Fixed in master-2.0: fa31f69
@@ -61,11 +61,46 @@ BGP dissector infinite loop
 +
 DOF dissector infinite loop
 (ws-buglink:13453[])
-//cve-idlink:2017-XXXX[]
+cve-idlink:2017-7704[]
 // Fixed in master: c3dde59, 78d168f
 // Fixed in master-2.2: da53a90, 6032b0f
 // Fixed in master-2.0: N/A
-* Buildbot crash output: fuzz-2017-03-04-4648.pcap. (ws-buglink:13453[])
+
+* ws-salink:2017-18[]
++
+PacketBB dissector crash
+(ws-buglink:13559[])
+// cve-idlink:2017-xxxx[]
+// Fixed in master: 2321a92
+// Fixed in master-2.2: 5cfd52d
+// Fixed in master-2.0: ac5d73f
+
+* ws-salink:2017-19[]
++
+SLSK dissector long loop
+(ws-buglink:13576[])
+// cve-idlink:2017-xxxx[]
+// Fixed in master: 9830ead
+// Fixed in master-2.2: 30bb914
+// Fixed in master-2.0: 58e69cc
+
+* ws-salink:2017-20[]
++
+SIGCOMP dissector infinite loop
+(ws-buglink:13578[])
+// cve-idlink:2017-xxxx[]
+// Fixed in master: a445efd
+// Fixed in master-2.2: b8c0ef4
+// Fixed in master-2.0: acd8e1a
+
+* ws-salink:2017-21[]
++
+WSP dissector infinite loop
+(ws-buglink:13581[])
+// cve-idlink:2017-xxxx[]
+// Fixed in master: a71811a
+// Fixed in master-2.2: 78e1558
+// Fixed in master-2.0: f55cbcd
 
 The following bugs have been fixed:
 
@@ -109,6 +144,8 @@ The following bugs have been fixed:
 
 * Strange automatic jump in packet details for a certain DNS response packet. (ws-buglink:13533[])
 
+* When a Lua enum or bool preference is changed via context menu, prefs_changed isn't called with Qt Wireshark. (ws-buglink:13536[])
+
 * IO Graph selects wrong packet or displays "Packet number x isn't displayed". (ws-buglink:13537[])
 
 * tshark's -z endpoints,ip ignores optional filter. (ws-buglink:13538[])
@@ -133,11 +170,17 @@ The following bugs have been fixed:
 
 * libfuzzer: wassp dissector bug. (ws-buglink:13555[])
 
+* Illegal reassembly of GSM SMS packets. (ws-buglink:13572[])
+
 * SSH Dissector uses incorrect length for protocol field (ssh.protocol). (ws-buglink:13574[])
 
 * NBAP malformed packet for short 'Binding ID'. (ws-buglink:13577[])
 
 * libfuzzer: WSP dissector bug (wsp.header.x_up_1.x_up_proxy_tod). (ws-buglink:13579[])
+
+* libfuzzer: asterix dissector bug (asterix.021_230_RA). (ws-buglink:13580[])
+
+* RTPproxy dissector adds multi lines to info column. (ws-buglink:13582[])
 
 === New and Updated Features
 
@@ -156,6 +199,7 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+ASTERIX
 BGP
 BSSGP
 BT AVRCP
@@ -166,8 +210,10 @@ DNS
 DOF
 EAPOL-MKA
 GIOP
+GSM SMS
 HTTP
 ICMP
+IEEE 802.11
 IEEE 802.15.4
 IMAP
 ISIS LSP
@@ -180,7 +226,10 @@ NBIFOM
 PacketBB
 PEEKREMOTE
 RPCoRDMA
+RTPproxy
 SCCP
+SIGCOMP
+SLSK
 SSH
 SSL
 T.30
