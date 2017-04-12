@@ -552,7 +552,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree              *header_tree = NULL;
     guint8                  security_suite;
     guint                   aux_length = 0;
-    ieee802154_packet       *packet = (ieee802154_packet *)wmem_alloc(wmem_packet_scope(), sizeof(ieee802154_packet));
+    ieee802154_packet       *packet;
     ieee802154_packet       *original_packet;
     ieee802154_payload_info_t payload_info;
     ieee802154_hints_t      *ieee_hints;
@@ -565,11 +565,14 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     guint8                  tlv_type, tlv_len;
     proto_tree              *tlv_tree;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MLE");
-    col_clear(pinfo->cinfo,   COL_INFO);
-
     ieee_hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
+    if (ieee_hints == NULL) {
+        /* For now, MLE only supported with IEEE802.15.4 as an underlying layer */
+        return 0;
+    }
     original_packet = (ieee802154_packet *)ieee_hints->packet;
+
+    packet = wmem_new0(wmem_packet_scope(), ieee802154_packet);
 
     /* Copy IEEE 802.15.4 Source Address */
     packet->src_addr_mode = original_packet->src_addr_mode;
@@ -581,6 +584,9 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* Copy IEEE 802.15.4 Source PAN ID */
     packet->src_pan = original_packet->src_pan;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MLE");
+    col_clear(pinfo->cinfo,   COL_INFO);
 
     /* Create the protocol tree. */
     proto_root = proto_tree_add_item(tree, proto_mle, tvb, 0, tvb_reported_length(tvb), ENC_NA);
