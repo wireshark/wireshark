@@ -479,7 +479,7 @@ prime_edt(gpointer data, gpointer user_data)
     epan_dissect_t *edt    = (epan_dissect_t *)user_data;
 
     if (colorf->c_colorfilter != NULL)
-        epan_dissect_prime_dfilter(edt, colorf->c_colorfilter);
+        epan_dissect_prime_with_dfilter(edt, colorf->c_colorfilter);
 }
 
 /* Prime the epan_dissect_t with all the compiler

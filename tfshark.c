@@ -1085,7 +1085,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
     /* If we're running a read filter, prime the epan_dissect_t with that
        filter. */
     if (cf->rfcode)
-      epan_dissect_prime_dfilter(edt, cf->rfcode);
+      epan_dissect_prime_with_dfilter(edt, cf->rfcode);
 
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
                                   &ref, prev_dis);
@@ -1147,7 +1147,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
     /* If we're running a display filter, prime the epan_dissect_t with that
        filter. */
     if (cf->dfcode)
-      epan_dissect_prime_dfilter(edt, cf->dfcode);
+      epan_dissect_prime_with_dfilter(edt, cf->dfcode);
 
     col_custom_prime_edt(edt, &cf->cinfo);
 
@@ -1601,7 +1601,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     /* If we're running a filter, prime the epan_dissect_t with that
        filter. */
     if (cf->dfcode)
-      epan_dissect_prime_dfilter(edt, cf->dfcode);
+      epan_dissect_prime_with_dfilter(edt, cf->dfcode);
 
     col_custom_prime_edt(edt, &cf->cinfo);
 

@@ -388,7 +388,7 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 
     if (col_item->fmt_matx[COL_CUSTOM] &&
         col_item->col_custom_dfilter) {
-      epan_dissect_prime_dfilter(edt, col_item->col_custom_dfilter);
+      epan_dissect_prime_with_dfilter(edt, col_item->col_custom_dfilter);
     }
   }
 }

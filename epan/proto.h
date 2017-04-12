@@ -1020,7 +1020,7 @@ proto_tree_set_fake_protocols(proto_tree *tree, gboolean fake_protocols);
  @param hfid the interesting field id
  @todo what *does* interesting mean? */
 extern void
-proto_tree_prime_hfid(proto_tree *tree, const int hfid);
+proto_tree_prime_with_hfid(proto_tree *tree, const int hfid);
 
 /** Get a parent item of a subtree.
  @param tree the tree to get the parent from

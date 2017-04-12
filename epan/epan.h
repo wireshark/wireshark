@@ -218,12 +218,12 @@ epan_dissect_file_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 /** Prime an epan_dissect_t's proto_tree using the fields/protocols used in a dfilter. */
 WS_DLL_PUBLIC
 void
-epan_dissect_prime_dfilter(epan_dissect_t *edt, const struct epan_dfilter *dfcode);
+epan_dissect_prime_with_dfilter(epan_dissect_t *edt, const struct epan_dfilter *dfcode);
 
 /** Prime an epan_dissect_t's proto_tree with a field/protocol specified by its hfid */
 WS_DLL_PUBLIC
 void
-epan_dissect_prime_hfid(epan_dissect_t *edt, int hfid);
+epan_dissect_prime_with_hfid(epan_dissect_t *edt, int hfid);
 
 /** fill the dissect run output into the packet list columns */
 WS_DLL_PUBLIC

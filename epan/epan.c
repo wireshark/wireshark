@@ -530,15 +530,15 @@ epan_dissect_free(epan_dissect_t* edt)
 }
 
 void
-epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t* dfcode)
+epan_dissect_prime_with_dfilter(epan_dissect_t *edt, const dfilter_t* dfcode)
 {
 	dfilter_prime_proto_tree(dfcode, edt->tree);
 }
 
 void
-epan_dissect_prime_hfid(epan_dissect_t *edt, int hfid)
+epan_dissect_prime_with_hfid(epan_dissect_t *edt, int hfid)
 {
-	proto_tree_prime_hfid(edt->tree, hfid);
+	proto_tree_prime_with_hfid(edt->tree, hfid);
 }
 
 /* ----------------------- */

@@ -486,8 +486,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  epan_dissect_init@Base 1.9.1
  epan_dissect_new@Base 1.9.1
  epan_dissect_packet_contains_field@Base 1.12.0~rc1
- epan_dissect_prime_dfilter@Base 1.9.1
- epan_dissect_prime_hfid@Base 2.1.0
+ epan_dissect_prime_with_dfilter@Base 2.3.0
+ epan_dissect_prime_with_hfid@Base 2.3.0
  epan_dissect_reset@Base 1.12.0~rc1
  epan_dissect_run@Base 1.9.1
  epan_dissect_run_with_taps@Base 1.9.1

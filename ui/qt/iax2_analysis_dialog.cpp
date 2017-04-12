@@ -333,7 +333,7 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     epan_dissect_t edt;
 
     epan_dissect_init(&edt, cap_file_.capFile()->epan, TRUE, FALSE);
-    epan_dissect_prime_dfilter(&edt, sfcode);
+    epan_dissect_prime_with_dfilter(&edt, sfcode);
     epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &cap_file_.capFile()->phdr,
                      frame_tvbuff_new_buffer(fdata, &cap_file_.capFile()->buf), fdata, NULL);
 

@@ -319,7 +319,7 @@ void tap_build_interesting (epan_dissect_t *edt)
 	   interesting hf_fields */
 	for(tl=tap_listener_queue;tl;tl=tl->next){
 		if(tl->code){
-			epan_dissect_prime_dfilter(edt, tl->code);
+			epan_dissect_prime_with_dfilter(edt, tl->code);
 		}
 	}
 }

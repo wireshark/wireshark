@@ -302,10 +302,10 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
     /* If we're running a read filter, prime the epan_dissect_t with that
        filter. */
     if (cf->rfcode)
-      epan_dissect_prime_dfilter(edt, cf->rfcode);
+      epan_dissect_prime_with_dfilter(edt, cf->rfcode);
 
     if (cf->dfcode)
-      epan_dissect_prime_dfilter(edt, cf->dfcode);
+      epan_dissect_prime_with_dfilter(edt, cf->dfcode);
 
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
                                   &ref, prev_dis);
@@ -907,7 +907,7 @@ sharkd_filter(const char *dftext, guint8 **result)
       break;
 
     /* frame_data_set_before_dissect */
-    epan_dissect_prime_dfilter(&edt, dfcode);
+    epan_dissect_prime_with_dfilter(&edt, dfcode);
 
     epan_dissect_run(&edt, cfile.cd_t, &phdr, frame_tvbuff_new_buffer(fdata, &buf), fdata, NULL);
 

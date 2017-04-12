@@ -1066,7 +1066,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
        filter. */
     if (n_rfilters > 0) {
         for(i = 0; i < n_rfcodes; i++) {
-            epan_dissect_prime_dfilter(edt, rfcodes[i]);
+            epan_dissect_prime_with_dfilter(edt, rfcodes[i]);
         }
     }
 

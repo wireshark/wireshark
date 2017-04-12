@@ -318,7 +318,7 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     }
 
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
-    epan_dissect_prime_dfilter(&edt, sfcode);
+    epan_dissect_prime_with_dfilter(&edt, sfcode);
     epan_dissect_run_with_taps(&edt, cf->cd_t, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
     rel_ts = edt.pi.rel_ts;
     epan_dissect_cleanup(&edt);

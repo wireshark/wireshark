@@ -1000,7 +1000,7 @@ sctp_analyse_cb(struct sctp_analyse *u_data, gboolean ext)
 		return;	/* error reading the record */
 
 	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
-	epan_dissect_prime_dfilter(&edt, sfcode);
+	epan_dissect_prime_with_dfilter(&edt, sfcode);
 	epan_dissect_run(&edt, cf->cd_t, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
 
 	/* if it is not an sctp packet, show the dialog */

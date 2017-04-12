@@ -5828,7 +5828,7 @@ proto_tree_create_root(packet_info *pinfo)
 /* "prime" a proto_tree with a single hfid that a dfilter
  * is interested in. */
 void
-proto_tree_prime_hfid(proto_tree *tree _U_, const gint hfid)
+proto_tree_prime_with_hfid(proto_tree *tree _U_, const gint hfid)
 {
 	header_field_info *hfinfo;
 

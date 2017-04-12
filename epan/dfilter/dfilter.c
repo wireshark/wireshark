@@ -426,7 +426,7 @@ dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree)
 	int i;
 
 	for (i = 0; i < df->num_interesting_fields; i++) {
-		proto_tree_prime_hfid(tree, df->interesting_fields[i]);
+		proto_tree_prime_with_hfid(tree, df->interesting_fields[i]);
 	}
 }
 

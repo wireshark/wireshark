@@ -1151,7 +1151,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   cf->prev_cap = fdata;
 
   if (dfcode != NULL) {
-      epan_dissect_prime_dfilter(edt, dfcode);
+      epan_dissect_prime_with_dfilter(edt, dfcode);
   }
 #if 0
   /* Prepare coloring rules, this ensures that display filter rules containing
@@ -1238,7 +1238,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
     epan_dissect_t rf_edt;
 
     epan_dissect_init(&rf_edt, cf->epan, TRUE, FALSE);
-    epan_dissect_prime_dfilter(&rf_edt, cf->rfcode);
+    epan_dissect_prime_with_dfilter(&rf_edt, cf->rfcode);
     epan_dissect_run(&rf_edt, cf->cd_t, phdr, frame_tvbuff_new(&fdlocal, buf), &fdlocal, NULL);
     passed = dfilter_apply_edt(cf->rfcode, &rf_edt);
     epan_dissect_cleanup(&rf_edt);
@@ -3439,7 +3439,7 @@ match_dfilter(capture_file *cf, frame_data *fdata, void *criterion)
   }
 
   epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
-  epan_dissect_prime_dfilter(&edt, sfcode);
+  epan_dissect_prime_with_dfilter(&edt, sfcode);
   epan_dissect_run(&edt, cf->cd_t, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
   result = dfilter_apply_edt(sfcode, &edt) ? MR_MATCHED : MR_NOTMATCHED;
   epan_dissect_cleanup(&edt);
