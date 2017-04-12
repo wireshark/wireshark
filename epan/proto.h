@@ -46,6 +46,7 @@
 #include "time_fmt.h"
 #include "tvbuff.h"
 #include "value_string.h"
+#include "tfs.h"
 #include "packet_info.h"
 #include "ftypes/ftypes.h"
 #include "register.h"
@@ -69,7 +70,6 @@ WS_DLL_PUBLIC int hf_text_only;
 /** the maximum length of a protocol field string representation */
 #define ITEM_LABEL_LENGTH	240
 
-struct _value_string;
 struct expert_field;
 
 /** Make a const value_string[] look like a _value_string pointer, used to set header_field_info.strings */

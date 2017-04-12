@@ -21,7 +21,7 @@
 #ifndef FTYPES_INT_H
 #define FTYPES_INT_H
 
-#include <epan/packet.h>
+#include <epan/proto.h>
 #include "ftypes.h"
 
 
