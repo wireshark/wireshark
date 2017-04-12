@@ -337,8 +337,10 @@ typedef struct {
 } sm_fragment_params;
 
 typedef struct {
-    const gchar *address;
+    const gchar *tp_oa_or_tp_da;
     int p2p_dir;
+    address src;
+    address dst;
     guint32 id;
 } sm_fragment_params_key;
 
@@ -348,7 +350,7 @@ sm_fragment_params_hash(gconstpointer k)
     const sm_fragment_params_key* key = (const sm_fragment_params_key*) k;
     guint hash_val;
 
-    hash_val = (wmem_str_hash(key->address) ^ key->id) + key->p2p_dir;
+    hash_val = (wmem_str_hash(key->tp_oa_or_tp_da) ^ key->id) + key->p2p_dir;
 
     return hash_val;
 }
@@ -361,12 +363,16 @@ sm_fragment_params_equal(gconstpointer v1, gconstpointer v2)
 
     return (key1->id == key2->id) &&
            (key1->p2p_dir == key2->p2p_dir) &&
-           !g_strcmp0(key1->address, key2->address);
+           !g_strcmp0(key1->tp_oa_or_tp_da, key2->tp_oa_or_tp_da) &&
+           addresses_equal(&key1->src, &key2->src) &&
+           addresses_equal(&key1->dst, &key2->dst);
 }
 
 typedef struct {
-    const gchar *address;
+    const gchar *tp_oa_or_tp_da;
     int p2p_dir;
+    address src;
+    address dst;
     guint32 id;
 } sm_fragment_key;
 
@@ -376,7 +382,7 @@ sm_fragment_hash(gconstpointer k)
     const sm_fragment_key* key = (const sm_fragment_key*) k;
     guint hash_val;
 
-    hash_val = (wmem_str_hash(key->address) ^ key->id) + key->p2p_dir;
+    hash_val = (wmem_str_hash(key->tp_oa_or_tp_da) ^ key->id) + key->p2p_dir;
 
     return hash_val;
 }
@@ -389,7 +395,9 @@ sm_fragment_equal(gconstpointer k1, gconstpointer k2)
 
     return (key1->id == key2->id) &&
            (key1->p2p_dir == key2->p2p_dir) &&
-           !g_strcmp0(key1->address, key2->address);
+           !g_strcmp0(key1->tp_oa_or_tp_da, key2->tp_oa_or_tp_da) &&
+           addresses_equal(&key1->src, &key2->src) &&
+           addresses_equal(&key1->dst, &key2->dst);
 }
 
 static gpointer
@@ -399,8 +407,10 @@ sm_fragment_temporary_key(const packet_info *pinfo,
     const gchar* addr = (const char*)data;
     sm_fragment_key *key = g_slice_new(sm_fragment_key);
 
-    key->address = addr;
+    key->tp_oa_or_tp_da = addr;
     key->p2p_dir = pinfo->p2p_dir;
+    copy_address_shallow(&key->src, &pinfo->src);
+    copy_address_shallow(&key->dst, &pinfo->dst);
     key->id = id;
 
     return (gpointer)key;
@@ -413,8 +423,10 @@ sm_fragment_persistent_key(const packet_info *pinfo,
     const gchar* addr = (const char*)data;
     sm_fragment_key *key = g_slice_new(sm_fragment_key);
 
-    key->address = wmem_strdup(NULL, addr);
+    key->tp_oa_or_tp_da = wmem_strdup(NULL, addr);
     key->p2p_dir = pinfo->p2p_dir;
+    copy_address(&key->src, &pinfo->src);
+    copy_address(&key->dst, &pinfo->dst);
     key->id = id;
 
     return (gpointer)key;
@@ -435,7 +447,9 @@ sm_fragment_free_persistent_key(gpointer ptr)
     sm_fragment_key *key = (sm_fragment_key *)ptr;
 
     if(key) {
-        wmem_free(NULL, (void*)key->address);
+        wmem_free(NULL, (void*)key->tp_oa_or_tp_da);
+        free_address(&key->src);
+        free_address(&key->dst);
         g_slice_free(sm_fragment_key, key);
     }
 }
@@ -2031,8 +2045,10 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         if (!PINFO_FD_VISITED(pinfo)) {
             /* Store udl and length for later decoding of reassembled SMS */
             p_frag_params_key = wmem_new(wmem_file_scope(), sm_fragment_params_key);
-            p_frag_params_key->address = wmem_strdup(wmem_file_scope(), addr);
+            p_frag_params_key->tp_oa_or_tp_da = wmem_strdup(wmem_file_scope(), addr);
             p_frag_params_key->p2p_dir = pinfo->p2p_dir;
+            copy_address_wmem(wmem_file_scope(), &p_frag_params_key->src, &pinfo->src);
+            copy_address_wmem(wmem_file_scope(), &p_frag_params_key->dst, &pinfo->dst);
             p_frag_params_key->id = (udh_fields.sm_id<<16)|(udh_fields.frag-1);
             p_frag_params = wmem_new0(wmem_file_scope(), sm_fragment_params);
             p_frag_params->udl = udl;
@@ -2081,8 +2097,10 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 total_sms_len = 0;
                 for(i = 0 ; i < udh_fields.frags; i++)
                 {
-                    frag_params_key.address = addr;
+                    frag_params_key.tp_oa_or_tp_da = addr;
                     frag_params_key.p2p_dir = pinfo->p2p_dir;
+                    copy_address_shallow(&frag_params_key.src, &pinfo->src);
+                    copy_address_shallow(&frag_params_key.dst, &pinfo->dst);
                     frag_params_key.id = (udh_fields.sm_id<<16)|i;
                     p_frag_params = (sm_fragment_params*)g_hash_table_lookup(g_sm_fragment_params_table,
                                                                              &frag_params_key);
@@ -2112,8 +2130,10 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 total_sms_len = 0;
                 for(i = 0 ; i < udh_fields.frags; i++)
                 {
-                    frag_params_key.address = addr;
+                    frag_params_key.tp_oa_or_tp_da = addr;
                     frag_params_key.p2p_dir = pinfo->p2p_dir;
+                    copy_address_shallow(&frag_params_key.src, &pinfo->src);
+                    copy_address_shallow(&frag_params_key.dst, &pinfo->dst);
                     frag_params_key.id = (udh_fields.sm_id<<16)|i;
                     p_frag_params = (sm_fragment_params*)g_hash_table_lookup(g_sm_fragment_params_table,
                                                                              &frag_params_key);
@@ -2160,8 +2180,10 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                     total_sms_len = 0;
                     for(i = 0 ; i < udh_fields.frags; i++)
                     {
-                        frag_params_key.address = addr;
+                        frag_params_key.tp_oa_or_tp_da = addr;
                         frag_params_key.p2p_dir = pinfo->p2p_dir;
+                        copy_address_shallow(&frag_params_key.src, &pinfo->src);
+                        copy_address_shallow(&frag_params_key.dst, &pinfo->dst);
                         frag_params_key.id = (udh_fields.sm_id<<16)|i;
                         p_frag_params = (sm_fragment_params*)g_hash_table_lookup(g_sm_fragment_params_table,
                                                                                  &frag_params_key);
