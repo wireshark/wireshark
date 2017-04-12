@@ -86,6 +86,7 @@ public:
     int packetFromTime(double ts);
     double getItemValue(int idx, const capture_file *cap_file) const;
     int maxInterval () const { return cur_idx_; }
+    QString scaledValueUnit() const { return scaled_value_unit_; }
 
     void clearAllData();
 
@@ -96,7 +97,7 @@ public:
     unsigned int moving_avg_period_;
 
 public slots:
-    void recalcGraphData(capture_file *cap_file);
+    void recalcGraphData(capture_file *cap_file, bool enable_scaling);
     void captureFileClosing();
     void reloadValueUnitField();
 
@@ -111,6 +112,10 @@ private:
     static gboolean tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *data);
     static void tapDraw(void *iog_ptr);
 
+    void calculateScaledValueUnit();
+    template<class DataMap> double maxValueFromGraphData(const DataMap &map);
+    template<class DataMap> void scaleGraphData(DataMap &map, int scalar);
+
     QCustomPlot *parent_;
     QString config_err_;
     QString name_;
@@ -124,6 +129,7 @@ private:
     int hf_index_;
     int interval_;
     double start_time_;
+    QString scaled_value_unit_;
 
     // Cached data. We should be able to change the Y axis without retapping as
     // much as is feasible.
@@ -161,7 +167,7 @@ protected:
 
 signals:
     void goToPacket(int packet_num);
-    void recalcGraphData(capture_file *);
+    void recalcGraphData(capture_file *cap_file, bool enable_scaling);
     void intervalChanged(int interval);
     void reloadValueUnitFields();
 

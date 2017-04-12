@@ -353,7 +353,7 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, int co
     ti->setText(sma_period_col_, moving_average_to_name_[moving_average]);
     ti->setData(sma_period_col_, Qt::UserRole, moving_average);
 
-    connect(this, SIGNAL(recalcGraphData(capture_file *)), iog, SLOT(recalcGraphData(capture_file *)));
+    connect(this, SIGNAL(recalcGraphData(capture_file *, bool)), iog, SLOT(recalcGraphData(capture_file *, bool)));
     connect(this, SIGNAL(reloadValueUnitFields()), iog, SLOT(reloadValueUnitField()));
     connect(&cap_file_, SIGNAL(captureFileClosing()), iog, SLOT(captureFileClosing()));
     connect(iog, SIGNAL(requestRetap()), this, SLOT(scheduleRetap()));
@@ -466,6 +466,9 @@ void IOGraphDialog::scheduleReplot(bool now)
 {
     need_replot_ = true;
     if (now) updateStatistics();
+    // A plot finished, force an update of the legend now in case a time unit
+    // was involved (which might append "(ms)" to the label).
+    updateLegend();
 }
 
 void IOGraphDialog::scheduleRecalc(bool now)
@@ -788,7 +791,11 @@ void IOGraphDialog::updateLegend()
         IOGraph *iog = NULL;
         if (ti && ti->checkState(name_col_) == Qt::Checked) {
             iog = VariantPointer<IOGraph>::asPtr(ti->data(name_col_, Qt::UserRole));
-            vu_label_set.insert(iog->valueUnitLabel());
+            QString label(iog->valueUnitLabel());
+            if (!iog->scaledValueUnit().isEmpty()) {
+                label += " (" + iog->scaledValueUnit() + ")";
+            }
+            vu_label_set.insert(label);
         }
     }
 
@@ -1054,7 +1061,16 @@ void IOGraphDialog::updateStatistics()
         if (need_recalc_ && !file_closed_) {
             need_recalc_ = false;
             need_replot_ = true;
-            emit recalcGraphData(cap_file_.capFile());
+            int enabled_graphs = 0;
+            for (int i = 0; i < ui->graphTreeWidget->topLevelItemCount(); i++) {
+                QTreeWidgetItem *item = ui->graphTreeWidget->topLevelItem(i);
+                if (item && item->checkState(name_col_) == Qt::Checked) {
+                    ++enabled_graphs;
+                }
+            }
+            // With multiple visible graphs, disable Y scaling to avoid
+            // multiple, distinct units.
+            emit recalcGraphData(cap_file_.capFile(), enabled_graphs == 1);
             if (!tracer_->graph()) {
                 if (base_graph_ && base_graph_->data()->size() > 0) {
                     tracer_->setGraph(base_graph_);
@@ -2022,7 +2038,7 @@ QMap<int, QString> IOGraph::movingAveragesToNames()
     return maton;
 }
 
-void IOGraph::recalcGraphData(capture_file *cap_file)
+void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
 {
     /* Moving average variables */
     unsigned int mavg_in_average_count = 0, mavg_left = 0, mavg_right = 0;
@@ -2102,7 +2118,96 @@ void IOGraph::recalcGraphData(capture_file *cap_file)
         }
 //        qDebug() << "=rgd i" << i << ts << val;
     }
+
+    // attempt to rescale time values to specific units
+    if (enable_scaling) {
+        calculateScaledValueUnit();
+    } else {
+        scaled_value_unit_.clear();
+    }
+
     emit requestReplot();
+}
+
+void IOGraph::calculateScaledValueUnit()
+{
+    // Reset unit and recalculate if needed.
+    scaled_value_unit_.clear();
+
+    // If there is no field, scaling is not possible.
+    if (hf_index_ < 0) {
+        return;
+    }
+
+    switch (val_units_) {
+    case IOG_ITEM_UNIT_CALC_SUM:
+    case IOG_ITEM_UNIT_CALC_MAX:
+    case IOG_ITEM_UNIT_CALC_MIN:
+    case IOG_ITEM_UNIT_CALC_AVERAGE:
+        // Unit is not yet known, continue detecting it.
+        break;
+    default:
+        // Unit is Packets, Bytes, Bits, etc.
+        return;
+    }
+
+    if (proto_registrar_get_ftype(hf_index_) == FT_RELATIVE_TIME) {
+        // find maximum absolute value and scale accordingly
+        double maxValue = 0;
+        if (graph_) {
+            maxValue = maxValueFromGraphData(*graph_->data());
+        } else if (bars_) {
+            maxValue = maxValueFromGraphData(*bars_->data());
+        }
+        // If the maximum value is zero, then either we have no data or
+        // everything is zero, do not scale the unit in this case.
+        if (maxValue == 0) {
+            return;
+        }
+
+        // XXX GTK+ always uses "ms" for log scale, should we do that too?
+        int value_multiplier;
+        if (maxValue >= 1.0) {
+            scaled_value_unit_ = "s";
+            value_multiplier = 1;
+        } else if (maxValue >= 0.001) {
+            scaled_value_unit_ = "ms";
+            value_multiplier = 1000;
+        } else {
+            scaled_value_unit_ = "us";
+            value_multiplier = 1000000;
+        }
+
+        if (graph_) {
+            scaleGraphData(*graph_->data(), value_multiplier);
+        } else if (bars_) {
+            scaleGraphData(*bars_->data(), value_multiplier);
+        }
+    }
+}
+
+template<class DataMap>
+double IOGraph::maxValueFromGraphData(const DataMap &map)
+{
+    double maxValue = 0;
+    typename DataMap::const_iterator it = map.constBegin();
+    while (it != map.constEnd()) {
+        maxValue = MAX(fabs((*it).value), maxValue);
+        ++it;
+    }
+    return maxValue;
+}
+
+template<class DataMap>
+void IOGraph::scaleGraphData(DataMap &map, int scalar)
+{
+    if (scalar != 1) {
+        typename DataMap::iterator it = map.begin();
+        while (it != map.end()) {
+            (*it).value *= scalar;
+            ++it;
+        }
+    }
 }
 
 void IOGraph::captureFileClosing()
@@ -2238,34 +2343,32 @@ double IOGraph::getItemValue(int idx, const capture_file *cap_file) const
     case FT_RELATIVE_TIME:
         switch (val_units_) {
         case IOG_ITEM_UNIT_CALC_MAX:
-            value = (guint64) (item->time_max.secs*1000000 + item->time_max.nsecs/1000);
+            value = nstime_to_sec(&item->time_max);
             break;
         case IOG_ITEM_UNIT_CALC_MIN:
-            value = (guint64) (item->time_min.secs*1000000 + item->time_min.nsecs/1000);
+            value = nstime_to_sec(&item->time_min);
             break;
         case IOG_ITEM_UNIT_CALC_SUM:
-            value = (guint64) (item->time_tot.secs*1000000 + item->time_tot.nsecs/1000);
+            value = nstime_to_sec(&item->time_tot);
             break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {
-                guint64 t; /* time in us */
-
-                t = item->time_tot.secs;
-                t = t*1000000+item->time_tot.nsecs/1000;
-                value = (guint64) (t/item->fields);
+                value = nstime_to_sec(&item->time_tot) / item->fields;
             } else {
                 value = 0;
             }
             break;
         case IOG_ITEM_UNIT_CALC_LOAD:
-            if (idx == (int)cur_idx_ && cap_file) {
-                interval = (guint32)((cap_file->elapsed_time.secs*1000) +
-                       ((cap_file->elapsed_time.nsecs+500000)/1000000));
+            // "LOAD graphs plot the QUEUE-depth of the connection over time"
+            // (for response time fields such as smb.time, rpc.time, etc.)
+            // This interval is expressed in milliseconds.
+            if (idx == cur_idx_ && cap_file) {
+                interval = (guint32)(nstime_to_msec(&cap_file->elapsed_time) + 0.5);
                 interval -= (interval_ * idx);
             } else {
                 interval = interval_;
             }
-            value = (guint64) ((item->time_tot.secs*1000000 + item->time_tot.nsecs/1000) / interval);
+            value = nstime_to_msec(&item->time_tot) / interval;
             break;
         default:
             break;
