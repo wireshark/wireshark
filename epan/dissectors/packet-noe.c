@@ -800,6 +800,13 @@ static const value_string noe_true_false_str_vals[] = {
     {0, NULL}
 };
 
+static const value_string noe_evt_locappl_identifier_str_vals[] = {
+    {1, "UserMenu"},
+    {2, "BTConfig"},
+    {3, "AudioCfg"},
+    {0, NULL}
+};
+
 /*-----------------------------------------------------------------------------
     DECODE UTF8 TO UNICODE
     This function translates an UTF8 vale to an UNICODE one.
@@ -1636,9 +1643,9 @@ void proto_register_noe(void)
               {
                   "Enable",
                   "noe.event_locappl.enable",
-                  FT_BOOLEAN,
-                  BASE_NONE,
-                  NULL,
+                  FT_UINT8,
+                  BASE_DEC,
+                  VALS(noe_true_false_str_vals),
                   0x0,
                   NULL,
                   HFILL
@@ -1648,9 +1655,9 @@ void proto_register_noe(void)
               {
                   "Interruptible",
                   "noe.event_locappl.interruptible",
-                  FT_BOOLEAN,
-                  BASE_NONE,
-                  NULL,
+                  FT_UINT8,
+                  BASE_DEC,
+                  VALS(noe_true_false_str_vals),
                   0x0,
                   NULL,
                   HFILL
@@ -1662,7 +1669,7 @@ void proto_register_noe(void)
                   "noe.event_locappl.identifier",
                   FT_UINT8,
                   BASE_DEC,
-                  NULL,
+                  VALS(noe_evt_locappl_identifier_str_vals),
                   0x0,
                   NULL,
                   HFILL
