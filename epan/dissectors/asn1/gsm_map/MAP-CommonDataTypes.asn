@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V13.2.0 (2015-12)
+-- 3GPP TS 29.002 V14.3.0 (2017-03)
 -- 17.7.8	Common data types
 
 MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version16 (16)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version17 (17)}
 
 DEFINITIONS
 
@@ -75,6 +75,7 @@ AccessNetworkSignalInfo,
 	LCSServiceTypeID,
 -- WS added exports needed by gsm_map.asn (extra asn1 file to handle older protocol versions)
 	ProtocolId,
+
 	-- gprs location registration types
 	GSN-Address
 
@@ -85,23 +86,23 @@ IMPORTS
 	Ext-TeleserviceCode
 FROM MAP-TS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-TS-Code (19) version16 (16)}
+   gsm-Network (1) modules (3) map-TS-Code (19) version17 (17)}
 
 	BearerServiceCode,
 	Ext-BearerServiceCode
 FROM MAP-BS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-BS-Code (20) version16 (16)}
+   gsm-Network (1) modules (3) map-BS-Code (20) version17 (17)}
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version16 (16)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version17 (17)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version16 (16)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version17 (17)}
 ;
 
 
@@ -663,4 +664,3 @@ AgeOfLocationInformation ::= INTEGER (0..32767)
 --               32767 minutes old
 
 END
-

@@ -1,8 +1,8 @@
--- 3GPP TS 24.080 V9.1.0 (2010-03)
+-- 3GPP TS 24.080 V14.0.0 (2017-03)
 -- 4.4.2	ASN.1 data types
 SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
-   ss-DataTypes (2) version10 (10)}
+   ss-DataTypes (2) version12 (12)}
 
 DEFINITIONS
 
@@ -17,21 +17,20 @@ IMPORTS
 SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-SS-Code (15) version10 (10)}
+   map-SS-Code (15) version12 (12)}
 
 -- imports MAP-SS-DataTypes
 SS-Status, USSD-DataCodingScheme, USSD-String, CCBS-Feature
 -- USSD-DataCodingScheme, USSD-String were introduced because of CNAP.
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-SS-DataTypes (14) version10 (10)}
+   map-SS-DataTypes (14) version12 (12)}
 
---- GSN-Address, WS fix, fault in spec this is now in CommonDataTypes
 CUG-Index,
 NotificationToMSUser
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-MS-DataTypes (11) version10 (10)}
+   map-MS-DataTypes (11) version12 (12)}
 
 maxSignalInfoLength,
 ISDN-AddressString,
@@ -40,11 +39,11 @@ AlertingPattern,
 LCSClientExternalID,
 AddressString,
 LCSServiceTypeID,
-GSN-Address, -- WS fix
-AgeOfLocationInformation
+AgeOfLocationInformation,
+GSN-Address
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-CommonDataTypes (18) version10 (10)}
+   map-CommonDataTypes (18) version12 (12)}
 
 LocationType,
 DeferredLocationEventType,
@@ -66,7 +65,7 @@ SequenceNumber
 
 FROM MAP-LCS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version10 (10)}
+   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version12 (12)}
 
 ;
 

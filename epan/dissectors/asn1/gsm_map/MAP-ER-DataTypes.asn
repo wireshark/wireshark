@@ -1,9 +1,9 @@
--- 3GPP TS V13.2.0 (2015-12)
+-- 3GPP TS 29.002 V14.3.0 (2017-03)
 -- 17.7.7	Error data types
 
 MAP-ER-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ER-DataTypes (17) version16 (16)}
+   gsm-Network (1) modules (3) map-ER-DataTypes (17) version17 (17)}
 
 DEFINITIONS
 
@@ -71,27 +71,28 @@ IMPORTS
 	SS-Status
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version16 (16)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version17 (17)}
 
 	SignalInfo,
 	BasicServiceCode,
 	NetworkResource,
 	AdditionalNetworkResource,
-	IMSI
+	IMSI,
+	Time
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version16 (16)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version17 (17)}
 
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version16 (16)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version17 (17)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version16 (16)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version17 (17)}
 ;
 
 RoamingNotAllowedParam ::= SEQUENCE {
@@ -179,9 +180,11 @@ AbsentSubscriberSM-Param ::= SEQUENCE {
 	-- if received, additionalAbsentSubscriberDiagnosticSM 
 	-- is for GPRS and absentSubscriberDiagnosticSM is 
 	-- for non-GPRS
-	imsi			[1] IMSI		OPTIONAL}
+	imsi			[1] IMSI		OPTIONAL,
 	-- when sent from HLR to IP-SM-GW, IMSI shall be present if UNRI is not set 
 	-- to indicate that the absent condition is met for CS and PS but not for IMS.
+	requestedRetransmissionTime	[2] Time		OPTIONAL,
+	userIdentifierAlert	[3] IMSI		OPTIONAL }
 
 AbsentSubscriberDiagnosticSM ::= INTEGER (0..255)
 	-- AbsentSubscriberDiagnosticSM values are defined in 3GPP TS 23.040

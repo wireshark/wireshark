@@ -1,8 +1,8 @@
--- 3GPP TS 24.080 V9.1.0 (2010-03)
+-- 3GPP TS 24.080 V14.0.0 (2017-03)
 -- 4.2	Operation types
 SS-Operations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
-   ss-Operations (0) version10 (10)}
+   ss-Operations (0) version12 (12)}
 
 DEFINITIONS ::=
 
@@ -53,26 +53,26 @@ LCS-PeriodicLocationCancellationArg
 
 FROM SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
-   ss-DataTypes (2) version10 (10)}
+   ss-DataTypes (2) version12 (12)}
 
 -- imports MAP-SS-data types 
 RegisterCC-EntryRes
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version10 (10)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version12 (12)}
 
 -- imports MAP-errors
 illegalSS-Operation, ss-ErrorStatus, ss-NotAvailable, ss-SubscriptionViolation,
 ss-Incompatibility, systemFailure, facilityNotSupported, callBarred, unexpectedDataValue, shortTermDenial, longTermDenial, dataMissing, forwardingViolation, forwardingFailed, positionMethodFailure
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-Errors (10) version10 (10)}
+   map-Errors (10) version12 (12)}
 
 -- imports SS-Errors
 resourcesNotAvailable, maxNumberOfMPTY-ParticipantsExceeded, deflectionToServedSubscriber, invalidDeflectedToNumber, specialServiceCode, rejectedByUser, rejectedByNetwork
 FROM SS-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
-   ss-Errors (1) version10 (10)}
+   ss-Errors (1) version12 (12)}
 ;
 
 -- operations definition

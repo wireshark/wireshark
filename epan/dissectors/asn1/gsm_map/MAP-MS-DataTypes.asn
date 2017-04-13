@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V13.2.0 (2015-12)
+-- 3GPP TS 29.002 V14.3.0 (2017-03)
 -- 17.7.1	Mobile Service data types
 
 MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-MS-DataTypes (11) version16 (16)}
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version17 (17)}
 
 DEFINITIONS
 
@@ -14,6 +14,7 @@ IMPLICIT TAGS
 BEGIN
 
 EXPORTS
+
 -- WS modification: for Ericsson proprietary extensions
 	RequestedEquipmentInfo,
 -- End WS modification
@@ -175,22 +176,22 @@ IMPORTS
 	CliRestrictionOption
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version16 (16)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version17 (17)}
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version16 (16)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version17 (17)}
 
 	Ext-BearerServiceCode
 FROM MAP-BS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-BS-Code (20) version16 (16)}
+   gsm-Network (1) modules (3) map-BS-Code (20) version17 (17)}
 
 	Ext-TeleserviceCode
 FROM MAP-TS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-TS-Code (19) version16 (16)}
+   gsm-Network (1) modules (3) map-TS-Code (19) version17 (17)}
 
 	AddressString,
 ISDN-AddressString, 
@@ -229,22 +230,22 @@ RAIdentity,
 NetworkNodeDiameterAddress
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version16 (16)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version17 (17)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version16 (16)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version17 (17)}
 
 	AbsentSubscriberDiagnosticSM
 FROM MAP-ER-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ER-DataTypes (17) version16 (16)}
+   gsm-Network (1) modules (3) map-ER-DataTypes (17) version17 (17)}
 
 	TracePropagationList
 FROM MAP-OM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-OM-DataTypes (12) version16 (16)}
+   gsm-Network (1) modules (3) map-OM-DataTypes (12) version17 (17)}
 
 ;
 
@@ -284,15 +285,17 @@ VLR-Capability ::= SEQUENCE{
 	supportedRAT-TypesIndicator	[7]	SupportedRAT-Types	OPTIONAL,
 	longGroupID-Supported	[8]	NULL		OPTIONAL,
 	mtRoamingForwardingSupported	[9]	NULL		OPTIONAL,
-	msisdn-lessOperation-Supported	[10]	NULL		OPTIONAL }
+	msisdn-lessOperation-Supported	[10]	NULL		OPTIONAL,
+	reset-ids-Supported	[11]	NULL		OPTIONAL }
 
 SupportedRAT-Types::= BIT STRING {
 	utran  (0),
 	geran  (1),
 	gan    (2),
 	i-hspa-evolution (3),
-	e-utran	(4)} (SIZE (2..8))
-	-- exception handling: bits 5 to 7 shall be ignored if received and not understood
+	e-utran	(4),
+	nb-iot	(5)} (SIZE (2..8))
+	-- exception handling: bits 6 to 7 shall be ignored if received and not understood
 	 
 
 
@@ -580,7 +583,9 @@ Used-RAT-Type::= ENUMERATED {
 	gan    (2),
 	i-hspa-evolution (3),
 	e-utran	(4),
-	...}
+	...,
+	nb-iot	(5)}
+	-- The value e-utran indicates wide-band e-utran
 
 EPS-Info ::= CHOICE{
 	pdn-gw-update	[0] PDN-GW-Update,
@@ -623,7 +628,8 @@ SGSN-Capability ::= SEQUENCE{
 	--	in the complete SGSN or MME area
  	cancellationTypeInitialAttach	[12]	NULL		OPTIONAL,
 	msisdn-lessOperation-Supported	[14]	NULL		OPTIONAL,
-	updateofHomogeneousSupportOfIMSVoiceOverPSSessions [15] NULL	OPTIONAL
+	updateofHomogeneousSupportOfIMSVoiceOverPSSessions [15] NULL	OPTIONAL,
+	reset-ids-Supported	[16]	NULL		OPTIONAL
 	}
 		  --	the supportedFeatures , t-adsDataRetrieval and 
 	  --	homogeneousSupportOfIMSVoiceOverPSSessions
@@ -666,8 +672,10 @@ SupportedFeatures::= BIT STRING {
 	gddInSGSN (33),
 	sgsnCAMELCapability (34),
 	pcscf-Restoration (35),
-	dedicatedCoreNetworks (36)} (SIZE (26..40))
-	--	the definition and usage of the above features see the 3GPP TS 29.272 [144].
+	dedicatedCoreNetworks (36),
+	non-IP-PDN-Type-APNs (37),
+	non-IP-PDP-Type-APNs (38)} (SIZE (26..40))
+	--	for the definition and usage of the above features see the 3GPP TS 29.272 [144].
 
 
 UE-SRVCC-Capability::= ENUMERATED {
@@ -1177,14 +1185,25 @@ InsertSubscriberDataArg ::= SEQUENCE {
  	pcscf-Restoration-Request	[45]	NULL		OPTIONAL,
 	adjacentAccessRestrictionDataList	[46] AdjacentAccessRestrictionDataList	OPTIONAL,
 	imsi-Group-Id-List	[47] IMSI-GroupIdList 	OPTIONAL,
-	ueUsageType	[48] UE-UsageType	OPTIONAL }
+	ueUsageType	[48] UE-UsageType	OPTIONAL,
+	userPlaneIntegrityProtectionIndicator	[49] NULL		OPTIONAL,
+	dl-Buffering-Suggested-Packet-Count	[50]	DL-Buffering-Suggested-Packet-Count	OPTIONAL,
+	reset-Id-List	[51]	Reset-Id-List	OPTIONAL }
 	-- If the Network Access Mode parameter is sent, it shall be present only in 
 	-- the first sequence if seqmentation is used
 
-Group-Service-ID ::= BIT STRING {
-	groupSpecificNASlevelCongestionControl (0)} (SIZE (1..32))
-	-- exception handling: 
-	-- bits 1 to 31 shall be ignored if received and not understood
+Reset-Id-List ::= SEQUENCE SIZE (1..50) OF
+			Reset-Id
+
+Reset-Id ::= OCTET STRING (SIZE (1..4))
+	-- Reset-Ids shall be unique within the HPLMN.
+
+
+DL-Buffering-Suggested-Packet-Count ::= INTEGER (-1..2147483647)
+	-- values are defined in 3GPP TS 29.272 [144]
+
+Group-Service-ID ::= INTEGER (0..4294967295)
+	-- values are defined in 3GPP TS 29.272 [144]
 	
 
 Local-GroupID ::= OCTET STRING (SIZE (1..10)) 
@@ -1263,8 +1282,11 @@ APN-ConfigurationProfile ::= SEQUENCE {
 		-- If segmentation is used, completeDataListIncluded may only be present in the
 		-- first segment of APN-ConfigurationProfile.
 	epsDataList	[1]	EPS-DataList,
-	extensionContainer	[2] ExtensionContainer	OPTIONAL,
-	... }
+	extensionContainer	[2]	ExtensionContainer	OPTIONAL,
+	... ,
+	additionalDefaultContext	[3]	ContextId		OPTIONAL
+	--	for details see the 3GPP TS 29.272 [144].
+ }
 
 EPS-DataList ::= SEQUENCE SIZE (1..maxNumOfAPN-Configurations) OF
 				APN-Configuration
@@ -1293,7 +1315,26 @@ APN-Configuration ::= SEQUENCE {
 	lipa-Permission	[15] LIPA-Permission	OPTIONAL,
 	restoration-Priority	[16] Restoration-Priority	OPTIONAL,
 	sipto-local-network-Permission	[17] SIPTO-Local-Network-Permission	OPTIONAL,
-	wlan-offloadability	[18] WLAN-Offloadability	OPTIONAL
+	wlan-offloadability	[18] WLAN-Offloadability	OPTIONAL,
+	non-IP-PDN-Type-Indicator	[19]	NULL		OPTIONAL,
+	nIDD-Mechanism	[20]	NIDD-Mechanism	OPTIONAL,
+	sCEF-ID		[21]	FQDN		OPTIONAL,
+	pdn-ConnectionContinuity	[22]	PDN-ConnectionContinuity	OPTIONAL
+	-- absence of pdn-ConnectionContinuity indicates that the handling is left to
+	-- local VPLMN policy
+ }
+
+PDN-ConnectionContinuity ::= ENUMERATED {
+	maintainPDN-Connection				(0),
+	disconnectPDN-ConnectionWithReactivationRequest		(1),
+	disconnectPDN-ConnectionWithoutReactivationRequest 	(2)
+ }
+
+NIDD-Mechanism ::= ENUMERATED {
+	sGi-based-data-delivery	(0),
+	sCEF-based-data-delivery	(1)
+	-- The default value, when this information element is not present, is
+	-- sGi-based-data-delivery (0)
  }
 
 PDN-Type ::= OCTET STRING (SIZE (1))
@@ -1378,14 +1419,15 @@ AccessRestrictionData ::= BIT STRING {
 	geranNotAllowed (1),
 	ganNotAllowed   (2),
 	i-hspa-evolutionNotAllowed (3),
-	e-utranNotAllowed (4),
-	ho-toNon3GPP-AccessNotAllowed (5) } (SIZE (2..8))
+	wb-e-utranNotAllowed (4),
+	ho-toNon3GPP-AccessNotAllowed (5),
+	nb-iotNotAllowed (6),
+	enhancedCoverageNotAllowed (7) } (SIZE (2..8))
 	-- exception handling: 
 	-- The VLR shall ignore the access restriction data related to an access type not 
 	-- supported by the node.
 	-- The handling of the access restriction data by the SGSN is described in subclause 
 	-- 5.3.19 of TS 23.060, in subclause 7.5.3 of TS 29.060 and subclause 7.3.6 of TS 29.274.
-	-- bits 6 to 7 shall be ignored if received and not understood
 	
 
 AdjacentAccessRestrictionDataList ::= SEQUENCE SIZE (1..50) OF
@@ -1469,7 +1511,9 @@ PDP-Context ::= SEQUENCE {
 	sipto-Permission	[8] SIPTO-Permission	OPTIONAL,
 	lipa-Permission	[9] LIPA-Permission	OPTIONAL,
 	restoration-Priority	[11] Restoration-Priority	OPTIONAL,
-	sipto-local-network-Permission	[12] SIPTO-Local-Network-Permission	OPTIONAL
+	sipto-local-network-Permission	[12] SIPTO-Local-Network-Permission	OPTIONAL,
+	nIDD-Mechanism	[13]	NIDD-Mechanism	OPTIONAL,
+	sCEF-ID		[14]	FQDN		OPTIONAL
 	 }
 
 Restoration-Priority ::= OCTET STRING (SIZE (1))
@@ -1569,7 +1613,7 @@ APN ::=  OCTET STRING (SIZE (2..63))
 
 PDP-Type ::= OCTET STRING (SIZE (2))
 	-- Octets are coded according to TS 3GPP TS 29.060 [105]
-	-- Only the values PPP, IPv4 and IPv6 are allowed for this parameter.
+	-- Only the values PPP, IPv4, IPv6 and Non-IP are allowed for this parameter.
 
 Ext-PDP-Type ::= OCTET STRING (SIZE (2))
 	-- Octets are coded, similarly to PDP-Type, according to TS 3GPP TS 29.060 [105].
@@ -2035,7 +2079,11 @@ DeleteSubscriberDataArg ::= SEQUENCE {
 	vplmn-Csg-SubscriptionDeleted	[24]	NULL		OPTIONAL,
 	additionalMSISDN-Withdraw	[25]	NULL		OPTIONAL,
 	cs-to-ps-SRVCC-Withdraw	[26]	NULL		OPTIONAL,
-	imsiGroupIdList-Withdraw	[27]	NULL		OPTIONAL }
+	imsiGroupIdList-Withdraw	[27]	NULL		OPTIONAL,
+	userPlaneIntegrityProtectionWithdraw	[28] NULL		OPTIONAL,
+	dl-Buffering-Suggested-Packet-Count-Withdraw	[29] NULL	OPTIONAL,
+	ue-UsageTypeWithdraw	[30] NULL		OPTIONAL,
+	reset-idsWithdraw	[31]	NULL		OPTIONAL }
 
 SpecificCSI-Withdraw ::= BIT STRING {
 	o-csi (0),
@@ -2563,7 +2611,10 @@ ResetArg ::= SEQUENCE {
 	hlr-List		HLR-List		OPTIONAL,
 	-- The hlr-List parameter shall only be applicable for a restart of the HSS/HLR.
 	extensionContainer	[0] ExtensionContainer	OPTIONAL,
-	...}
+	...,
+	reset-Id-List	[1]	Reset-Id-List 	OPTIONAL,
+	subscriptionData	[2]	InsertSubscriberDataArg	OPTIONAL,
+	subscriptionDataDeletion	[3]	DeleteSubscriberDataArg	OPTIONAL}
 
 SendingNode-Number ::= CHOICE {
 	hlr-Number	ISDN-AddressString,

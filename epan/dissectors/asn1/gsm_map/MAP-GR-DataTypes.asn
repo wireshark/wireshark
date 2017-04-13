@@ -1,10 +1,10 @@
--- Taken from 3GPP TS 29.002 V13.2.0 (2015-12)
+-- Taken from 3GPP TS 29.002 V14.3.0 (2017-03)
 --
 --17.7.12	Group Call data types
  
 MAP-GR-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-GR-DataTypes (23) version16 (16)}
+   gsm-Network (1) modules (3) map-GR-DataTypes (23) version17 (17)}
 
 DEFINITIONS
 
@@ -36,12 +36,12 @@ IMPORTS
 	AccessNetworkSignalInfo
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version16 (16)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version17 (17)}
 
 	Ext-TeleserviceCode
 FROM MAP-TS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-TS-Code (19) version16 (16)}
+   gsm-Network (1) modules (3) map-TS-Code (19) version17 (17)}
 
 	Kc,
 	AdditionalInfo,
@@ -51,12 +51,12 @@ Long-GroupId,
 	Cksn
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-MS-DataTypes (11) version16 (16)}
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version17 (17)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version16 (16)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version17 (17)}
 ;
 
 

@@ -1,10 +1,10 @@
--- 3GPP TS 24.080 V9.1.0 (2010-03)
+-- 3GPP TS 24.080 V14.0.0 (2017-03)
 -- 4.3.1	Errors ASN.1 specification
 -- The following ASN.1 module provides an ASN.1 specification of errors. Errors from MAP are imported in the SS Protocol module in subclause 4.5. The module defines errors by allocating them a local value. For the involved errors the same local values as in MAP are allocated.
 
 SS-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
-   ss-Errors (1) version10 (10)}
+   ss-Errors (1) version12 (12)}
 
 DEFINITIONS ::=
 
@@ -42,4 +42,3 @@ rejectedByUser  ERROR ::= {
 	CODE	local:121 }
 
 END
-

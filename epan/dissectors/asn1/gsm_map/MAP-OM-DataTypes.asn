@@ -1,9 +1,9 @@
 -- 17.7.2	Operation and maintenance data types
--- 3GPP TS 29.002 V13.2.0 (2015-12)
+-- 3GPP TS 29.002 V14.3.0 (2017-03)
  
 MAP-OM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-OM-DataTypes (12) version16 (16)}
+   gsm-Network (1) modules (3) map-OM-DataTypes (12) version17 (17)}
 
 DEFINITIONS
 
@@ -33,12 +33,12 @@ IMPORTS
 	PLMN-Id
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version16 (16)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version17 (17)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version16 (16)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version17 (17)}
 
 ;
 

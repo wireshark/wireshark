@@ -1,9 +1,9 @@
--- 3GPP TS 29.002  V13.2.0 (2015-12)
+-- 3GPP TS 29.002  V14.3.0 (2017-03)
 -- 17.7.6	Short message data types
 
 MAP-SM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SM-DataTypes (16) version16 (16)}
+   gsm-Network (1) modules (3) map-SM-DataTypes (16) version17 (17)}
 
 DEFINITIONS
 
@@ -46,17 +46,17 @@ IMPORTS
 
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version16 (16)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version17 (17)}
 
 	AbsentSubscriberDiagnosticSM
 FROM MAP-ER-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ER-DataTypes (17) version16 (16)}
+   gsm-Network (1) modules (3) map-ER-DataTypes (17) version17 (17)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version16 (16)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version17 (17)}
 ;
 
 
@@ -161,7 +161,9 @@ MT-ForwardSM-Arg ::= SEQUENCE {
 	smDeliveryStartTime	Time			OPTIONAL,
 	smsOverIP-OnlyIndicator	[0] NULL		OPTIONAL,
 	correlationID	[1] CorrelationID	OPTIONAL,
-	maximumRetransmissionTime	[2] Time		OPTIONAL }
+	maximumRetransmissionTime	[2] Time		OPTIONAL,
+	smsGmscAddress	[3] ISDN-AddressString	OPTIONAL,
+	smsGmscDiameterAddress	[4] NetworkNodeDiameterAddress	OPTIONAL }
 	-- SM-DeliveryTimerValue contains the value used by the SMS-GMSC
 
 CorrelationID ::= SEQUENCE {
@@ -175,8 +177,7 @@ SIP-URI ::= OCTET STRING
 MT-ForwardSM-Res ::= SEQUENCE {
 	sm-RP-UI		SignalInfo	OPTIONAL,
 	extensionContainer	ExtensionContainer	OPTIONAL,
-	...,
-	requestedRetransmissionTime	[0] Time		OPTIONAL }
+	... }
 
 SM-RP-DA ::= CHOICE {
 	imsi			[0] IMSI,
@@ -244,7 +245,18 @@ AlertServiceCentreArg ::= SEQUENCE {
 	...,
 	imsi			IMSI			OPTIONAL,
 	correlationID	CorrelationID	OPTIONAL,
-	maximumUeAvailabilityTime	[0] Time			OPTIONAL }
+	maximumUeAvailabilityTime	[0] Time			OPTIONAL,
+	smsGmscAlertEvent	[1] SmsGmsc-Alert-Event	OPTIONAL,
+	smsGmscDiameterAddress	[2] NetworkNodeDiameterAddress	OPTIONAL,
+	newSGSNNumber	[3] ISDN-AddressString	OPTIONAL,
+	newSGSNDiameterAddress	[4] NetworkNodeDiameterAddress	OPTIONAL,
+	newMMENumber	[5] ISDN-AddressString	OPTIONAL,
+	newMMEDiameterAddress	[6] NetworkNodeDiameterAddress	OPTIONAL,
+	newMSCNumber	[7] ISDN-AddressString	OPTIONAL }
+
+SmsGmsc-Alert-Event ::= ENUMERATED {
+	msAvailableForMtSms  (0),
+	msUnderNewServingNode  (1)  }
 
 InformServiceCentreArg ::= SEQUENCE {
 	storedMSISDN	ISDN-AddressString	OPTIONAL,
