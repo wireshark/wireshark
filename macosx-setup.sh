@@ -138,12 +138,7 @@ PORTAUDIO_VERSION=pa_stable_v19_20111121
 SNAPPY_VERSION=1.1.3
 LZ4_VERSION=r131
 SBC_VERSION=1.3
-#
-# XXX - they appear to have an unversioned gzipped tarball for the
-# current version; should we just download that, with some other
-# way of specifying whether to download the GeoIP API?
-#
-GEOIP_VERSION=1.4.8
+GEOIP_VERSION=1.6.10
 
 CARES_VERSION=1.12.0
 
@@ -1467,7 +1462,20 @@ uninstall_portaudio() {
 install_geoip() {
     if [ "$GEOIP_VERSION" -a ! -f geoip-$GEOIP_VERSION-done ] ; then
         echo "Downloading, building, and installing GeoIP API:"
-        [ -f GeoIP-$GEOIP_VERSION.tar.gz ] || curl -L -O http://geolite.maxmind.com/download/geoip/api/c/GeoIP-$GEOIP_VERSION.tar.gz || exit 1
+        GEOIP_MAJOR_VERSION="`expr $GEOIP_VERSION : '\([0-9][0-9]*\).*'`"
+        GEOIP_MINOR_VERSION="`expr $GEOIP_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        GEOIP_DOTDOT_VERSION="`expr $GEOIP_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        if [[ $GEOIP_MAJOR_VERSION -gt 1 ||
+              $GEOIP_MINOR_VERSION -gt 6 ||
+              ($GEOIP_MINOR_VERSION -eq 6 && $GEOIP_DOTDOT_VERSION -ge 1) ]]
+        then
+            #
+            # Starting with GeoIP 1.6.1, the tarballs are on GitHub.
+            #
+            [ -f GeoIP-$GEOIP_VERSION.tar.gz ] || curl -L -O https://github.com/maxmind/geoip-api-c/releases/download/v$GEOIP_VERSION/GeoIP-$GEOIP_VERSION.tar.gz || exit 1
+        else
+            [ -f GeoIP-$GEOIP_VERSION.tar.gz ] || curl -L -O http://geolite.maxmind.com/download/geoip/api/c/GeoIP-$GEOIP_VERSION.tar.gz || exit 1
+        fi
         gzcat GeoIP-$GEOIP_VERSION.tar.gz | tar xf - || exit 1
         cd GeoIP-$GEOIP_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
