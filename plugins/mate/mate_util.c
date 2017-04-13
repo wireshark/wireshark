@@ -1495,11 +1495,11 @@ extern LoAL* loal_from_file(gchar* filename) {
 	gchar c;
 	int i = 0;
 	guint32 linenum = 1;
-	gchar linenum_buf[MAX_ITEM_LEN];
-	gchar name[MAX_ITEM_LEN];
-	gchar value[MAX_ITEM_LEN];
+	gchar *linenum_buf;
+	gchar *name;
+	gchar *value;
 	gchar op = '?';
-	LoAL *loal = new_loal(filename);
+	LoAL *loal_error, *loal = new_loal(filename);
 	AVPL* curr = NULL;
 	AVP* avp;
 
@@ -1511,9 +1511,13 @@ extern LoAL* loal_from_file(gchar* filename) {
 		MY_IGNORE
 	} state;
 
+	linenum_buf = (gchar*)g_malloc(MAX_ITEM_LEN);
+	name = (gchar*)g_malloc(MAX_ITEM_LEN);
+	value = (gchar*)g_malloc(MAX_ITEM_LEN);
 #ifndef _WIN32
 	if (! getuid()) {
-		return load_loal_error(fp,loal,curr,linenum,"MATE Will not run as root");
+		loal_error = load_loal_error(fp,loal,curr,linenum,"MATE Will not run as root");
+		goto error;
 	}
 #endif
 
@@ -1525,7 +1529,8 @@ extern LoAL* loal_from_file(gchar* filename) {
 			if ( feof(fp) ) {
 				if ( ferror(fp) ) {
 					report_read_failure(filename,errno);
-					return load_loal_error(fp,loal,curr,linenum,"Error while reading '%f'",filename);
+					loal_error = load_loal_error(fp,loal,curr,linenum,"Error while reading '%f'",filename);
+					goto error;
 				}
 				break;
 			}
@@ -1535,7 +1540,8 @@ extern LoAL* loal_from_file(gchar* filename) {
 			}
 
 			if ( i >= MAX_ITEM_LEN - 1  ) {
-				return load_loal_error(fp,loal,curr,linenum,"Maximum item length exceeded");
+				loal_error = load_loal_error(fp,loal,curr,linenum,"Maximum item length exceeded");
+				goto error;
 			}
 
 			switch(state) {
@@ -1562,14 +1568,15 @@ extern LoAL* loal_from_file(gchar* filename) {
 							i = 0;
 							name[i++] = c;
 							name[i] = '\0';
-							g_snprintf(linenum_buf,sizeof(linenum_buf),"%s:%u",filename,linenum);
+							g_snprintf(linenum_buf,MAX_ITEM_LEN,"%s:%u",filename,linenum);
 							curr = new_avpl(linenum_buf);
 							continue;
 						case '#':
 							state = MY_IGNORE;
 							continue;
 						default:
-							return load_loal_error(fp,loal,curr,linenum,"expecting name got: '%c'",c);
+							loal_error = load_loal_error(fp,loal,curr,linenum,"expecting name got: '%c'",c);
+							goto error;
 					}
 				case BEFORE_NAME:
 					i = 0;
@@ -1593,7 +1600,8 @@ extern LoAL* loal_from_file(gchar* filename) {
 							state = START;
 							continue;
 						default:
-							return load_loal_error(fp,loal,curr,linenum,"expecting name got: '%c'",c);
+							loal_error = load_loal_error(fp,loal,curr,linenum,"expecting name got: '%c'",c);
+							goto error;
 					}
 					case IN_NAME:
 						switch (c) {
@@ -1622,9 +1630,11 @@ extern LoAL* loal_from_file(gchar* filename) {
 								name[i++] = c;
 								continue;
 							case '\n':
-								return load_loal_error(fp,loal,curr,linenum,"operator expected found new line");
+								loal_error = load_loal_error(fp,loal,curr,linenum,"operator expected found new line");
+								goto error;
 							default:
-								return load_loal_error(fp,loal,curr,linenum,"name or match operator expected found '%c'",c);
+								loal_error = load_loal_error(fp,loal,curr,linenum,"name or match operator expected found '%c'",c);
+								goto error;
 						}
 					case IN_VALUE:
 						switch (c) {
@@ -1644,7 +1654,8 @@ extern LoAL* loal_from_file(gchar* filename) {
 								}
 								continue;
 							case '\n':
-								return load_loal_error(fp,loal,curr,linenum,"';' expected found new line");
+								loal_error = load_loal_error(fp,loal,curr,linenum,"';' expected found new line");
+								goto error;
 							default:
 								value[i++] = c;
 								continue;
@@ -1653,12 +1664,23 @@ extern LoAL* loal_from_file(gchar* filename) {
 		}
 		fclose (fp);
 
+		g_free(linenum_buf);
+		g_free(name);
+		g_free(value);
+
 		return loal;
 
 	} else {
 		report_open_failure(filename,errno,FALSE);
-		return load_loal_error(NULL,loal,NULL,0,"Cannot Open file '%s'",filename);
+		loal_error = load_loal_error(NULL,loal,NULL,0,"Cannot Open file '%s'",filename);
 	}
+
+error:
+	g_free(linenum_buf);
+	g_free(name);
+	g_free(value);
+
+	return loal_error;
 }
 
 /*
