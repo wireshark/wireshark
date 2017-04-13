@@ -2236,9 +2236,6 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 #.FN_HDR RRCConnectionReestablishment-NB
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishment-NB");
 
-#.FN_HDR RRCConnectionReestablishmentReject
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentReject");
-
 #.FN_HDR RRCConnectionReject-NB
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReject-NB");
 
