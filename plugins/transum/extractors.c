@@ -43,7 +43,7 @@ int extract_uint(proto_tree *tree, int field_id, guint32 *result_array, size_t *
         return -1;
     }
 
-    finfo_array = proto_find_finfo(tree, field_id);
+    finfo_array = proto_get_finfo_ptr_array(tree, field_id);
 
     if (finfo_array == NULL) {
         return -1;
@@ -55,8 +55,6 @@ int extract_uint(proto_tree *tree, int field_id, guint32 *result_array, size_t *
     {
         result_array[i] = fvalue_get_uinteger(&((field_info*)finfo_array->pdata[i])->value);
     }
-
-    g_ptr_array_free(finfo_array, TRUE);
 
     return 0;
 }
@@ -70,7 +68,7 @@ int extract_ui64(proto_tree *tree, int field_id, guint64 *result_array, size_t *
         return -1;
     }
 
-    finfo_array = proto_find_finfo(tree, field_id);
+    finfo_array = proto_get_finfo_ptr_array(tree, field_id);
 
     if (finfo_array == NULL) {
         return -1;
@@ -82,8 +80,6 @@ int extract_ui64(proto_tree *tree, int field_id, guint64 *result_array, size_t *
     {
         result_array[i] = fvalue_get_uinteger64(&((field_info*)finfo_array->pdata[i])->value);
     }
-
-    g_ptr_array_free(finfo_array, TRUE);
 
     return 0;
 }
@@ -97,7 +93,7 @@ int extract_si64(proto_tree *tree, int field_id, guint64 *result_array, size_t *
         return -1;
     }
 
-    finfo_array = proto_find_finfo(tree, field_id);
+    finfo_array = proto_get_finfo_ptr_array(tree, field_id);
 
     if (finfo_array == NULL) {
         return -1;
@@ -109,8 +105,6 @@ int extract_si64(proto_tree *tree, int field_id, guint64 *result_array, size_t *
     {
         result_array[i] = fvalue_get_sinteger64(&((field_info*)finfo_array->pdata[i])->value);
     }
-
-    g_ptr_array_free(finfo_array, TRUE);
 
     return 0;
 }
@@ -124,7 +118,7 @@ int extract_bool(proto_tree *tree, int field_id, gboolean *result_array, size_t 
         return -1;
     }
 
-    finfo_array = proto_find_finfo(tree, field_id);
+    finfo_array = proto_get_finfo_ptr_array(tree, field_id);
 
     if (finfo_array == NULL) {
         return -1;
@@ -141,8 +135,6 @@ int extract_bool(proto_tree *tree, int field_id, gboolean *result_array, size_t 
         else
             result_array[i] = FALSE;
     }
-
-    g_ptr_array_free(finfo_array, TRUE);
 
     return 0;
 }
