@@ -761,7 +761,7 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 	guint8 version;
 	guint8 class_num;
 	guint8 c_type;
-	guint16 obj_length, obj_trunc_length;
+	guint16 obj_length, obj_trunc_length, checksum;
 	proto_item *ti, *tf_object;
 	proto_tree *ext_tree, *ext_object_tree;
 	gint obj_end_offset;
@@ -794,8 +794,13 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 				   tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* Checksum */
-	proto_tree_add_checksum(ext_tree, tvb, offset + 2, hf_icmp_ext_checksum, hf_icmp_ext_checksum_status, NULL, NULL, ip_checksum_tvb(tvb, 0, reported_length),
-								ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+	checksum = tvb_get_ntohs(tvb, offset + 2);
+	if (checksum == 0) {
+		proto_tree_add_checksum(ext_tree, tvb, offset + 2, hf_icmp_ext_checksum, hf_icmp_ext_checksum_status, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+
+	} else {
+		proto_tree_add_checksum(ext_tree, tvb, offset + 2, hf_icmp_ext_checksum, hf_icmp_ext_checksum_status, NULL, NULL, ip_checksum_tvb(tvb, offset, reported_length), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+	}
 
 	if (version != 1 && version != 2) {
 		/* Unsupported version */
