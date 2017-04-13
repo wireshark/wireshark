@@ -414,6 +414,10 @@ else()
 		-Wno-overlength-strings
 		-Wno-long-long
 		-Wheader-guard
+		#
+		# Code that may be worth looking into (coding practices)
+		#
+		-Wframe-larger-than=16384
 	)
 
 	set(C_WARN_FLAGS
