@@ -2291,9 +2291,6 @@ SL-DiscSysInfoReport-r13/cellSelectionInfo-r13/q-RxLevMinOffset-r13 STRINGS=VALS
 #.FN_HDR RRCConnectionReestablishment-NB
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishment-NB");
 
-#.FN_HDR RRCConnectionReestablishmentReject
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentReject");
-
 #.FN_HDR RRCConnectionReject-NB
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReject-NB");
 
