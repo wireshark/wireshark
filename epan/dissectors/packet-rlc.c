@@ -366,7 +366,7 @@ rlc_channel_assign(struct rlc_channel *ch, enum rlc_mode mode, packet_info *pinf
         ch->link = pinfo->link_number;
     }
     ch->rbid = rlcinf->rbid[fpinf->cur_tb];
-    ch->dir = pinfo->p2p_dir;
+    ch->dir = pinfo->link_dir;
     ch->mode = mode;
     ch->li_size = rlcinf->li_size[fpinf->cur_tb];
 
@@ -1352,11 +1352,11 @@ add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * fpinf, rlc_in
     item = proto_tree_add_item(tree, hf_rlc_channel, NULL, 0, 0, ENC_NA);
     channel_tree = proto_item_add_subtree(item, ett_rlc_channel);
     proto_item_append_text(item, " (rbid: %u, dir: %s, uid: %u)", rlcinf->rbid[fpinf->cur_tb],
-                           val_to_str_const(pinfo->p2p_dir, rlc_dir_vals, "Unknown"), rlcinf->urnti[fpinf->cur_tb]);
+                           val_to_str_const(pinfo->link_dir, rlc_dir_vals, "Unknown"), rlcinf->urnti[fpinf->cur_tb]);
     PROTO_ITEM_SET_GENERATED(item);
     item = proto_tree_add_uint(channel_tree, hf_rlc_channel_rbid, NULL, 0, 0, rlcinf->rbid[fpinf->cur_tb]);
     PROTO_ITEM_SET_GENERATED(item);
-    item = proto_tree_add_uint(channel_tree, hf_rlc_channel_dir, NULL, 0, 0, pinfo->p2p_dir);
+    item = proto_tree_add_uint(channel_tree, hf_rlc_channel_dir, NULL, 0, 0, pinfo->link_dir);
     PROTO_ITEM_SET_GENERATED(item);
     item = proto_tree_add_uint(channel_tree, hf_rlc_channel_ueid, NULL, 0, 0, rlcinf->urnti[fpinf->cur_tb]);
     PROTO_ITEM_SET_GENERATED(item);
@@ -2634,10 +2634,10 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             case RLC_DIRECTION_TAG:
                 if (tvb_get_guint8(tvb, offset) == DIRECTION_UPLINK) {
                     fpi->is_uplink = TRUE;
-                    pinfo->p2p_dir = P2P_DIR_UL;
+                    pinfo->link_dir = P2P_DIR_UL;
                 } else {
                     fpi->is_uplink = FALSE;
-                    pinfo->p2p_dir = P2P_DIR_DL;
+                    pinfo->link_dir = P2P_DIR_DL;
                 }
                 offset++;
                 break;
