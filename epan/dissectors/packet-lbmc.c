@@ -10635,7 +10635,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     int lbmc_hdr_len;
     guint32 msgprop_len = 0;
     lbmc_fragment_info_t frag_info;
-    lbmc_extopt_reassembled_data_t reassembly;
+    lbmc_extopt_reassembled_data_t *reassembly;
     gboolean data_is_umq_cmd_resp;
     gboolean packet_is_data;
     lbmc_stream_info_t stream_info;
@@ -10760,7 +10760,8 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         frag_info.offset = 0;
         frag_info.len = 0;
         msgprop_len = 0;
-        lbmc_init_extopt_reassembled_data(&reassembly);
+        reassembly = wmem_new(wmem_packet_scope(), lbmc_extopt_reassembled_data_t);
+        lbmc_init_extopt_reassembled_data(reassembly);
         data_is_umq_cmd_resp = FALSE;
         stream_info.set = FALSE;
         ctxinstd_info.set = FALSE;
@@ -11060,7 +11061,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                     dissected_hdr_len = dissect_nhdr_tcp_sid(hdr_tvb, 0, pinfo, subtree, &tcp_sid_info);
                     break;
                 case LBMC_NHDR_EXTOPT:
-                    dissected_hdr_len = dissect_nhdr_extopt(hdr_tvb, 0, pinfo, subtree, &reassembly);
+                    dissected_hdr_len = dissect_nhdr_extopt(hdr_tvb, 0, pinfo, subtree, reassembly);
                     break;
                     /* Headers that are not implemented. */
                 case LBMC_NHDR_NONE:
