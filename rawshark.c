@@ -427,7 +427,6 @@ main(int argc, char *argv[])
     GString             *runtime_info_str;
     char                *init_progfile_dir_error;
     int                  opt, i;
-    gboolean             arg_error = FALSE;
 
 #ifdef _WIN32
     int                  result;
@@ -714,9 +713,9 @@ main(int argc, char *argv[])
             default:
             case '?':        /* Bad flag - print usage message */
                 print_usage(stderr);
-            ret = INVALID_OPTION;
-            goto clean_exit;
-            break;
+                ret = INVALID_OPTION;
+                goto clean_exit;
+                break;
         }
     }
 
@@ -757,13 +756,6 @@ main(int argc, char *argv[])
         ret = INVALID_OPTION;
         goto clean_exit;
     }
-
-    if (arg_error) {
-        print_usage(stderr);
-        ret = INVALID_OPTION;
-        goto clean_exit;
-    }
-
 
 #ifdef _WIN32
     /* Start windows sockets */
