@@ -4838,6 +4838,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
     rlc_info *rlcinf;
     guint8 fake_lchid=0;
     gint *cur_val=NULL;
+    guint32 user_identity;
 
     fpi = wmem_new0(wmem_file_scope(), fp_info);
     p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, fpi);
@@ -5060,7 +5061,16 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                         }
 
                         /*** Set rlc info ***/
-                        rlcinf->urnti[j+chan] = p_conv_data->com_context_id;
+                        /* Trying to resolve the U-RNTI of the user to be used as RLC 'UE-ID' */
+                        /* Fallback - The RNC's 'Communication Context' for the user as seen in NBAP messages */
+                        user_identity = p_conv_data->com_context_id;
+                        if (p_conv_data->scrambling_code != 0) {
+                            guint32 * mapped_urnti = (guint32 *)g_tree_lookup(rrc_scrambling_code_urnti, GUINT_TO_POINTER(p_conv_data->scrambling_code));
+                            if (mapped_urnti != 0) {
+                                user_identity = GPOINTER_TO_UINT(mapped_urnti);
+                            }
+                        }
+                        rlcinf->urnti[j + chan] = user_identity;
                         rlcinf->li_size[j+chan] = RLC_LI_7BITS;
 #if 0
                         /*If this entry exists, SECRUITY_MODE is completed (signled by RRC)*/

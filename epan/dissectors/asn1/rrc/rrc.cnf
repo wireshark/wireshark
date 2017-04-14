@@ -393,8 +393,18 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 %(DEFAULT_BODY)s
 
 #.FN_BODY RRCConnectionSetup
+  guint32 scrambling_code, new_u_rnti;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
 %(DEFAULT_BODY)s
+  /* Mapping the U-RNTI assigned to the user to its Uplink Scrambling Code*/
+  scrambling_code = private_data_get_scrambling_code(actx);
+  new_u_rnti = private_data_get_new_u_rnti(actx);
+  if (new_u_rnti != 0 && scrambling_code != 0 && !actx->pinfo->fd->flags.visited) {
+    /* Check if a U-RNTI is already mapped to this scrambling code */
+    if ((guint32 *)g_tree_lookup(rrc_scrambling_code_urnti, GUINT_TO_POINTER(scrambling_code)) == NULL) {
+        g_tree_insert(rrc_scrambling_code_urnti, GUINT_TO_POINTER(scrambling_code), GUINT_TO_POINTER(new_u_rnti));
+    }
+  }
 
 #.FN_BODY RRCConnectionSetupComplete
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetupComplete");
@@ -694,59 +704,101 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
 %(DEFAULT_BODY)s
   actx->created_item = proto_tree_add_item(tree, hf_index, hnbname_tvb, 0, -1, ENC_UTF_8|ENC_NA);
 
-#.FN_BODY CN-DomainIdentity VAL_PTR = &nas_sys_info_gsm_map
-  guint32 nas_sys_info_gsm_map;
+#.FN_BODY CN-DomainIdentity VAL_PTR = &nas_sys_info
+  guint32 nas_sys_info;
 %(DEFAULT_BODY)s
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "(%%s)", val_to_str_const(nas_sys_info_gsm_map,rrc_CN_DomainIdentity_vals,"Unknown"));
-  actx->private_data = GUINT_TO_POINTER(nas_sys_info_gsm_map+1);
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "(%%s)", val_to_str_const(nas_sys_info,rrc_CN_DomainIdentity_vals,"Unknown"));
+  nas_sys_info++; /* CS = 0, PS = 1 but the enum defines 0 as Unknown and CS = 1, PS = 2 */
+  private_data_set_cn_domain(actx, (enum nas_sys_info_gsm_map) nas_sys_info);
 
 #.FN_BODY CN-InformationInfo/cn-CommonGSM-MAP-NAS-SysInfo
-  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON+1);
+  private_data_set_cn_domain(actx, RRC_NAS_SYS_INFO_CN_COMMON);
 %(DEFAULT_BODY)s
 
 #.FN_BODY CN-InformationInfo-r6/cn-CommonGSM-MAP-NAS-SysInfo
-  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON+1);
+  private_data_set_cn_domain(actx, RRC_NAS_SYS_INFO_CN_COMMON);
 %(DEFAULT_BODY)s
 
 #.FN_BODY CN-InformationInfoFull/cn-CommonGSM-MAP-NAS-SysInfo
-  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON+1);
+  private_data_set_cn_domain(actx, RRC_NAS_SYS_INFO_CN_COMMON);
 %(DEFAULT_BODY)s
 
 #.FN_BODY SysInfoType1/cn-CommonGSM-MAP-NAS-SysInfo
-  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON+1);
+  private_data_set_cn_domain(actx, RRC_NAS_SYS_INFO_CN_COMMON);
 %(DEFAULT_BODY)s
 
 #.FN_BODY NAS-SystemInformationGSM-MAP VAL_PTR = &nas_sys_info_gsm_map_tvb
   tvbuff_t *nas_sys_info_gsm_map_tvb = NULL;
   guint32 length;
+  enum nas_sys_info_gsm_map cn_domain;
   proto_tree *subtree;
 
 %(DEFAULT_BODY)s
   length = tvb_reported_length(nas_sys_info_gsm_map_tvb);
   if (length) {
-    if (actx->private_data) {
-      switch (GPOINTER_TO_UINT(actx->private_data)-1) {
-        case RRC_NAS_SYS_INFO_CN_COMMON:
-          subtree = proto_tree_add_subtree(tree, nas_sys_info_gsm_map_tvb, 0, length,
-                    ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "CN Common GSM-MAP NAS system information");
-          de_cn_common_gsm_map_nas_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
-          break;
-        case RRC_NAS_SYS_INFO_CS:
-          subtree = proto_tree_add_subtree(tree, nas_sys_info_gsm_map_tvb, 0, length,
-                    ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "CS domain specific system information");
-          de_cs_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
-          break;
-        case RRC_NAS_SYS_INFO_PS:
-          subtree = proto_tree_add_subtree(tree, nas_sys_info_gsm_map_tvb, 0, length,
-                    ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "PS domain specific system information");
-          de_ps_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
-          break;
-        default:
-          break;
-      }
-      actx->private_data = NULL;
+    cn_domain = private_data_get_cn_domain(actx);
+    switch (cn_domain) {
+      case RRC_NAS_SYS_INFO_CN_COMMON:
+        subtree = proto_tree_add_subtree(tree, nas_sys_info_gsm_map_tvb, 0, length,
+                  ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "CN Common GSM-MAP NAS system information");
+        de_cn_common_gsm_map_nas_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+        break;
+      case RRC_NAS_SYS_INFO_CS:
+        subtree = proto_tree_add_subtree(tree, nas_sys_info_gsm_map_tvb, 0, length,
+                  ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "CS domain specific system information");
+        de_cs_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+        break;
+      case RRC_NAS_SYS_INFO_PS:
+        subtree = proto_tree_add_subtree(tree, nas_sys_info_gsm_map_tvb, 0, length,
+                  ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo, NULL, "PS domain specific system information");
+        de_ps_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+        break;
+      default:
+        break;
     }
+    private_data_set_cn_domain(actx, RRC_NAS_SYS_UNKNOWN);
   }
+
+#.FN_BODY SRNC-Identity VAL_PTR = &s_rnc_id_tvb
+  tvbuff_t * s_rnc_id_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (s_rnc_id_tvb) {
+      private_data_set_s_rnc_id(actx, tvb_get_ntohs(s_rnc_id_tvb, 0) >> 4);
+  }
+
+#.FN_BODY S-RNTI VAL_PTR = &s_rnti_tvb
+  tvbuff_t * s_rnti_tvb  = NULL;
+%(DEFAULT_BODY)s
+  if (s_rnti_tvb) {
+      private_data_set_s_rnti(actx, tvb_get_ntoh24(s_rnti_tvb, 0) >> 4);
+  }
+
+#.FN_BODY U-RNTI
+  private_data_set_s_rnc_id(actx, 0);
+  private_data_set_s_rnti(actx, 0);
+  guint32 s_rnc_id;
+  guint32 s_rnti;
+  guint32 u_rnti_value;
+%(DEFAULT_BODY)s
+  gboolean is_new_urnti = hf_index != hf_rrc_u_RNTI; /* hf_rrc_u_RNTI is for current U-RNTI, any other hf is for new U-RNTI */
+  s_rnc_id = private_data_get_s_rnc_id(actx);
+  s_rnti = private_data_get_s_rnti(actx);
+  if(s_rnc_id != 0 && s_rnti != 0) {
+      u_rnti_value = (s_rnc_id << 20) | s_rnti;
+      /* We are looking for new allocated U-RNTIs, not previously used ones */
+      if (is_new_urnti) {
+          private_data_set_new_u_rnti(actx, u_rnti_value);
+      }
+      /* Adding U-RNTI value to it's tree item */
+      proto_item_append_text(actx->created_item,": %%08x", u_rnti_value);
+  }
+  private_data_set_s_rnc_id(actx, 0);
+  private_data_set_s_rnti(actx, 0);
+
+#.FN_BODY UL-ScramblingCode VAL_PTR = &scrambling_code
+guint32 scrambling_code;
+%(DEFAULT_BODY)s
+private_data_set_scrambling_code(actx,scrambling_code);
 
 #.FN_BODY CellIdentity VAL_PTR = &cell_id_tvb
   tvbuff_t * cell_id_tvb = NULL;
@@ -855,6 +907,7 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
   rrc_ciphering_info * c_inf;
   int i;
   guint32 * start;
+  enum nas_sys_info_gsm_map cn_domain;
 
 %(DEFAULT_BODY)s
 
@@ -866,45 +919,44 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
       return offset;
   }
   /*Retrieve the start value for the two ciphering domains*/
-  if (actx->private_data) {
-    switch(GPOINTER_TO_UINT(actx->private_data)-1){
-      case RRC_NAS_SYS_INFO_CS:
-        /*
-        g_warning("Not implemented");
-        */
-        break;
-      case RRC_NAS_SYS_INFO_PS:
+  cn_domain = private_data_get_cn_domain(actx);
+  switch(cn_domain){
+    case RRC_NAS_SYS_INFO_CS:
+      /*
+      g_warning("Not implemented");
+      */
+      break;
+    case RRC_NAS_SYS_INFO_PS:
 
-        /*Find the entry for the communication context (taken from FP)*/
-        if( (c_inf =(rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) == NULL ){
-          c_inf = g_new0(rrc_ciphering_info,1);
+      /*Find the entry for the communication context (taken from FP)*/
+      if( (c_inf =(rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) == NULL ){
+        c_inf = g_new0(rrc_ciphering_info,1);
 
-          /*Initiate tree with START_PS values.*/
-          if(!c_inf->start_ps)
-            c_inf->start_ps = g_tree_new_full(rrc_key_cmp,
-                                              NULL,rrc_free_key,rrc_free_value);
+        /*Initiate tree with START_PS values.*/
+        if(!c_inf->start_ps)
+          c_inf->start_ps = g_tree_new_full(rrc_key_cmp,
+                                            NULL,rrc_free_key,rrc_free_value);
 
-          /*Clear and initialize seq_no matrix*/
-          for(i = 0; i< 31; i++){
-            c_inf->seq_no[i][0] = -1;
-            c_inf->seq_no[i][1] = -1;
-          }
-          g_tree_insert(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id), c_inf);
+        /*Clear and initialize seq_no matrix*/
+        for(i = 0; i< 31; i++){
+          c_inf->seq_no[i][0] = -1;
+          c_inf->seq_no[i][1] = -1;
         }
+        g_tree_insert(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id), c_inf);
+      }
 
-        /*Retrieve and store the value*/
-        start = g_new(guint32,1);
-        *start = tvb_get_bits32(start_val,0,20,ENC_BIG_ENDIAN);
-        if(c_inf && c_inf->start_ps)
-          /*Insert the value based on current frame num since this might vary over time*/
-          g_tree_insert(c_inf->start_ps, GUINT_TO_POINTER(actx->pinfo->num), start);
+      /*Retrieve and store the value*/
+      start = g_new(guint32,1);
+      *start = tvb_get_bits32(start_val,0,20,ENC_BIG_ENDIAN);
+      if(c_inf && c_inf->start_ps)
+        /*Insert the value based on current frame num since this might vary over time*/
+        g_tree_insert(c_inf->start_ps, GUINT_TO_POINTER(actx->pinfo->num), start);
 
-        break;
-      default:
-        break;
-    }
-    actx->private_data = NULL;
+      break;
+    default:
+      break;
   }
+  private_data_set_cn_domain(actx, RRC_NAS_SYS_UNKNOWN);
 
 #.FN_BODY RB-ActivationTimeInfo
   fp_info       *fpinf;
@@ -948,11 +1000,11 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
 %(DEFAULT_BODY)s
 
 #.FN_BODY UE-SecurityInformation
-  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CS+1);
+  private_data_set_cn_domain(actx, RRC_NAS_SYS_INFO_CS);
 %(DEFAULT_BODY)s
 
 #.FN_BODY UE-SecurityInformation2
-  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_PS+1);
+  private_data_set_cn_domain(actx, RRC_NAS_SYS_INFO_PS);
 %(DEFAULT_BODY)s
 
 #.FN_BODY ReleaseCause VAL_PTR=&value

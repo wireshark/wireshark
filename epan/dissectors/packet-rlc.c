@@ -1351,7 +1351,7 @@ add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * fpinf, rlc_in
 
     item = proto_tree_add_item(tree, hf_rlc_channel, NULL, 0, 0, ENC_NA);
     channel_tree = proto_item_add_subtree(item, ett_rlc_channel);
-    proto_item_append_text(item, " (rbid: %u, dir: %s, uid: %u)", rlcinf->rbid[fpinf->cur_tb],
+    proto_item_append_text(item, " (rbid: %u, dir: %s, uid: 0x%08x)", rlcinf->rbid[fpinf->cur_tb],
                            val_to_str_const(pinfo->link_dir, rlc_dir_vals, "Unknown"), rlcinf->urnti[fpinf->cur_tb]);
     PROTO_ITEM_SET_GENERATED(item);
     item = proto_tree_add_uint(channel_tree, hf_rlc_channel_rbid, NULL, 0, 0, rlcinf->rbid[fpinf->cur_tb]);
@@ -2903,7 +2903,7 @@ proto_register_rlc(void)
         },
         { &hf_rlc_channel_ueid,
           { "User Equipment ID", "rlc.channel.ueid",
-            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+            FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_rlc_sequence_number,
           { "Sequence Number", "rlc.sequence_number",

@@ -60,7 +60,106 @@ extern int proto_fp;    /*Handler to FP*/
 
 GTree * hsdsch_muxed_flows = NULL;
 GTree * rrc_ciph_inf = NULL;
+GTree * rrc_scrambling_code_urnti = NULL;
 static int msg_type _U_;
+
+/*****************************************************************************/
+/* Packet private data                                                       */
+/* For this dissector, all access to actx->private_data should be made       */
+/* through this API, which ensures that they will not overwrite each other!! */
+/*****************************************************************************/
+
+enum nas_sys_info_gsm_map {
+  RRC_NAS_SYS_UNKNOWN,
+  RRC_NAS_SYS_INFO_CS,
+  RRC_NAS_SYS_INFO_PS,
+  RRC_NAS_SYS_INFO_CN_COMMON
+};
+
+typedef struct umts_rrc_private_data_t
+{
+  guint32 s_rnc_id; /* The S-RNC ID part of a U-RNTI */
+  guint32 s_rnti; /* The S-RNTI part of a U-RNTI */
+  guint32 new_u_rnti;
+  guint32 scrambling_code;
+  enum nas_sys_info_gsm_map cn_domain;
+} umts_rrc_private_data_t;
+
+
+/* Helper function to get or create a struct that will be actx->private_data */
+static umts_rrc_private_data_t* umts_rrc_get_private_data(asn1_ctx_t *actx)
+{
+  if (actx->private_data != NULL) {
+    return (umts_rrc_private_data_t*)actx->private_data;
+  }
+  else {
+    umts_rrc_private_data_t* new_struct = wmem_new0(wmem_packet_scope(), umts_rrc_private_data_t);
+    actx->private_data = new_struct;
+    return new_struct;
+  }
+}
+
+static guint32 private_data_get_s_rnc_id(asn1_ctx_t *actx)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  return private_data->s_rnc_id;
+}
+
+static void private_data_set_s_rnc_id(asn1_ctx_t *actx, guint32 s_rnc_id)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  private_data->s_rnc_id = s_rnc_id;
+}
+
+static guint32 private_data_get_s_rnti(asn1_ctx_t *actx)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  return private_data->s_rnti;
+}
+
+static void private_data_set_s_rnti(asn1_ctx_t *actx, guint32 s_rnti)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  private_data->s_rnti = s_rnti;
+}
+
+static guint32 private_data_get_new_u_rnti(asn1_ctx_t *actx)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  return private_data->new_u_rnti;
+}
+
+static void private_data_set_new_u_rnti(asn1_ctx_t *actx, guint32 new_u_rnti)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  private_data->new_u_rnti = new_u_rnti;
+}
+
+static guint32 private_data_get_scrambling_code(asn1_ctx_t *actx)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  return private_data->scrambling_code;
+}
+
+static void private_data_set_scrambling_code(asn1_ctx_t *actx, guint32 scrambling_code)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  private_data->scrambling_code = scrambling_code;
+}
+
+static enum nas_sys_info_gsm_map private_data_get_cn_domain(asn1_ctx_t *actx)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  return private_data->cn_domain;
+}
+
+static void private_data_set_cn_domain(asn1_ctx_t *actx, enum nas_sys_info_gsm_map cn_domain)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  private_data->cn_domain = cn_domain;
+}
+
+/*****************************************************************************/
 
 static dissector_handle_t gsm_a_dtap_handle;
 static dissector_handle_t rrc_ue_radio_access_cap_info_handle=NULL;
@@ -73,12 +172,6 @@ static dissector_handle_t rrc_bcch_fach_handle=NULL;
 static dissector_handle_t lte_rrc_ue_eutra_cap_handle=NULL;
 static dissector_handle_t lte_rrc_dl_dcch_handle=NULL;
 static dissector_handle_t gsm_rlcmac_dl_handle=NULL;
-
-enum nas_sys_info_gsm_map {
-  RRC_NAS_SYS_INFO_CS,
-  RRC_NAS_SYS_INFO_PS,
-  RRC_NAS_SYS_INFO_CN_COMMON
-};
 
 /* Forward declarations */
 void proto_register_rrc(void);
@@ -143,14 +236,12 @@ static const true_false_string rrc_eutra_feat_group_ind_4_val = {
   "UTRA CELL_FACH absolute priority cell reselection for all layers - Not supported"
 };
 static const value_string rrc_ims_info_atgw_trans_det_cont_type[] = {
-    {0, "ATGW-IPv4-address-and-port"},
-    {1, "ATGW-IPv6-address-and-port"},
-    {2, "ATGW-not-available"},
-    {0, NULL}
+  {0, "ATGW-IPv4-address-and-port"},
+  {1, "ATGW-IPv6-address-and-port"},
+  {2, "ATGW-not-available"},
+  {0, NULL}
 };
 static int flowd,type;
-
-static int cipher_start_val[2] _U_;
 
 /*Stores how many channels we have detected for a HS-DSCH MAC-flow*/
 #define    RRC_MAX_NUM_HSDHSCH_MACDFLOW 8
@@ -256,11 +347,16 @@ rrc_init(void) {
                        rrc_free_key,
                        rrc_free_value);
 
-    /*Initialize structure for muxed flow indication*/
     rrc_ciph_inf = g_tree_new_full(rrc_key_cmp,
                        NULL,      /* data pointer, optional */
                        NULL,
                        rrc_free_value);
+
+    /*Initialize Scrambling code to U-RNTI dictionary*/
+    rrc_scrambling_code_urnti = g_tree_new_full(rrc_key_cmp,
+                       NULL,
+                       NULL,
+                       NULL);
 }
 
 static void
@@ -268,6 +364,7 @@ rrc_cleanup(void) {
     /*Cleanup*/
     g_tree_destroy(hsdsch_muxed_flows);
     g_tree_destroy(rrc_ciph_inf);
+    g_tree_destroy(rrc_scrambling_code_urnti);
 }
 
 /*--- proto_register_rrc -------------------------------------------*/

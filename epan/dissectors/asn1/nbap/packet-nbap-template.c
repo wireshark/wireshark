@@ -67,6 +67,7 @@ void proto_reg_handoff_nbap(void);
 static dissector_handle_t fp_handle;
 static guint32	transportLayerAddress_ipv4;
 static guint16	BindingID_port;
+static guint32	ul_scrambling_code;
 static guint32	com_context_id;
 static int cfn;
 
@@ -452,6 +453,7 @@ dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	for (i = 0; i < maxNrOfMACdFlows; i++) {
 		nbap_hsdsch_channel_info[i].entity = hs;
 	}
+	ul_scrambling_code = 0;
 
 	return dissect_NBAP_PDU_PDU(tvb, pinfo, nbap_tree, data);
 }

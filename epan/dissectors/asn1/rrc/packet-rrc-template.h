@@ -60,5 +60,6 @@ typedef struct rrc_ciph_info_
 
 extern GTree * hsdsch_muxed_flows;
 extern GTree * rrc_ciph_inf;
+extern GTree * rrc_scrambling_code_urnti;
 
 #endif  /* PACKET_RRC_H */

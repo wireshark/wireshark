@@ -739,6 +739,9 @@ hsdsch_macdflow_ids[num_items-1] = hsdsch_macdflow_id;
     proto_item_append_text(actx->created_item, " (%%u)",BindingID_port);
   }
 
+#.FN_BODY UL-ScramblingCodeNumber VAL_PTR = &ul_scrambling_code
+%(DEFAULT_BODY)s
+
 #.FN_BODY RACH-ParametersItem-CTCH-SetupRqstFDD
 address     dst_addr, null_addr;
 conversation_t *conversation;
@@ -1190,6 +1193,7 @@ dch_id = 0xFFFFFFFF;
                 umts_fp_conversation_info->ul_frame_number   = actx->pinfo->num;
                 copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
                 umts_fp_conversation_info->crnc_port         = BindingID_port;
+                umts_fp_conversation_info->scrambling_code   = ul_scrambling_code;
                 umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
                 /* DCH's in this flow */
