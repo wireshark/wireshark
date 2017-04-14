@@ -394,9 +394,11 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
          * on the command line, and shouldn't require quoting,
          * shifting, etc.
          */
-        for (p = name; (c = *p) != '\0'; p++)
-            g_assert(g_ascii_islower(c) || g_ascii_isdigit(c) || c == '_' ||
-                 c == '-' || c == '.');
+        for (p = name; (c = *p) != '\0'; p++) {
+            if (!(g_ascii_islower(c) || g_ascii_isdigit(c) || c == '_' ||
+                  c == '-' || c == '.'))
+                g_error("Preference module \"%s\" contains invalid characters", name);
+        }
 
         /*
          * Make sure there's not already a module with that
@@ -790,7 +792,7 @@ register_preference(module_t *module, const char *name, const char *title,
      */
     for (p = name; *p != '\0'; p++)
         if (!(g_ascii_islower(*p) || g_ascii_isdigit(*p) || *p == '_' || *p == '.'))
-            g_error("Preference %s.%s contains invalid characters", module->name, name);
+            g_error("Preference \"%s.%s\" contains invalid characters", module->name, name);
 
     /*
      * Make sure there's not already a preference with that
