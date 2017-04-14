@@ -993,7 +993,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_register_directory_preference@Base 1.9.1
  prefs_register_enum_preference@Base 1.9.1
  prefs_register_filename_preference@Base 1.9.1
- prefs_register_module@Base 2.1.0
  prefs_register_obsolete_preference@Base 1.9.1
  prefs_register_protocol@Base 1.9.1
  prefs_register_protocol_subtree@Base 1.9.1

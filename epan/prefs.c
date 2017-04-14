@@ -419,7 +419,7 @@ prefs_cleanup(void)
  * the title used in the tab for it in a preferences dialog box, and a
  * routine to call back when we apply the preferences.
  */
-module_t *
+static module_t *
 prefs_register_module(module_t *parent, const char *name, const char *title,
                       const char *description, void (*apply_cb)(void),
                       const gboolean use_gui)

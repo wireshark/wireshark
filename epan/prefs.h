@@ -270,24 +270,6 @@ WS_DLL_PUBLIC void prefs_reset(void);
 void prefs_cleanup(void);
 
 /*
- * Register a module that will have preferences.
- * Specify the module under which to register it or NULL to register it
- * at the top level, the name used for the module in the preferences file,
- * the title used in the tab for it in a preferences dialog box, a
- * routine to call back when we apply the preferences, and if it should
- * use the GUI controls provided by the preferences or it has its own.
- *
- * This should not be used for dissector preferences;
- * "prefs_register_protocol()" should be used for that, so that the
- * preferences go under the "Protocols" subtree, and so that the
- * name is the protocol name specified at the "proto_register_protocol()"
- * call so that the "Protocol Properties..." menu item works.
- */
-WS_DLL_PUBLIC module_t *prefs_register_module(module_t *parent, const char *name,
-    const char *title, const char *description, void (*apply_cb)(void),
-    const gboolean use_gui);
-
-/*
  * Register a subtree that will have modules under it.
  * Specify the module under which to register it or NULL to register it
  * at the top level and the title used in the tab for it in a preferences
