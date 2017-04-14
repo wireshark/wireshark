@@ -55,6 +55,7 @@ static gint hf_vrrp_short_adver_int = -1;
 static gint hf_vrrp_ip = -1;
 static gint hf_vrrp_ip6 = -1;
 static gint hf_vrrp_auth_string = -1;
+static gint hf_vrrp_md5_auth_data = -1;
 
 static gboolean g_vrrp_v3_checksum_as_in_v2 = FALSE;
 
@@ -73,10 +74,12 @@ static const value_string vrrp_type_vals[] = {
 #define VRRP_AUTH_TYPE_NONE        0
 #define VRRP_AUTH_TYPE_SIMPLE_TEXT 1
 #define VRRP_AUTH_TYPE_IP_AUTH_HDR 2
+#define VRRP_AUTH_TYPE_IP_MD5      254
 static const value_string vrrp_auth_vals[] = {
     {VRRP_AUTH_TYPE_NONE,        "No Authentication"},
     {VRRP_AUTH_TYPE_SIMPLE_TEXT, "Simple Text Authentication [RFC 2338] / Reserved [RFC 3768]"},
     {VRRP_AUTH_TYPE_IP_AUTH_HDR, "IP Authentication Header [RFC 2338] / Reserved [RFC 3768]"},
+    {VRRP_AUTH_TYPE_IP_MD5,      "Cisco VRRP MD5 authentication"},
     {0, NULL}
 };
 
@@ -215,6 +218,10 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if (auth_type == VRRP_AUTH_TYPE_SIMPLE_TEXT) {
         proto_tree_add_item(vrrp_tree, hf_vrrp_auth_string, tvb, offset, VRRP_AUTH_DATA_LEN, ENC_ASCII|ENC_NA);
         offset += VRRP_AUTH_DATA_LEN;
+    } else if (auth_type == VRRP_AUTH_TYPE_IP_MD5) {
+        if (vrrp_len - offset >= 16) {
+            proto_tree_add_item(vrrp_tree, hf_vrrp_md5_auth_data, tvb, vrrp_len - 16, 16, ENC_NA);
+        }
     }
 
     return offset;
@@ -298,6 +305,11 @@ void proto_register_vrrp(void)
             {"Authentication String", "vrrp.auth_string",
                 FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
+
+        { &hf_vrrp_md5_auth_data,
+            {"MD5 Authentication Data", "vrrp.md5_auth_data",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "MD5 digest string is contained.", HFILL }},
     };
 
     static gint *ett[] = {
