@@ -224,6 +224,14 @@
 		<enum name="PRIORITY-FIVE" code="5"/>
 		<enum name="PRIORITY-SIX" code="6"/>
 		<enum name="PRIORITY-SEVEN" code="7"/>
+		<enum name="PRIORITY-EIGHT" code="8"/>
+		<enum name="PRIORITY-NINE" code="9"/>
+		<enum name="PRIORITY-TEN" code="10"/>
+		<enum name="PRIORITY-ELEVEN" code="11"/>
+		<enum name="PRIORITY-TWELVE" code="12"/>
+		<enum name="PRIORITY-THIRTEEN" code="13"/>
+		<enum name="PRIORITY-FOURTEEN" code="14"/>
+		<enum name="PRIORITY-FIFTEEN" code="15"/>
 	</avp>
 	<avp name="ETSI-Service-Class" code="459" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 		<type type-name="UTF8String"/>
