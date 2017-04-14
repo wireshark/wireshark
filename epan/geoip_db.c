@@ -48,7 +48,7 @@
 /* This needs to match NUM_GEOIP_COLS in hostlist_table.h */
 #define MAX_GEOIP_DBS 13
 
-#ifndef GeoIP_free
+#ifndef HAVE_GEOIP_FREE
 #define GeoIP_free  free
 #endif
 

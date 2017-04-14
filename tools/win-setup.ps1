@@ -99,14 +99,14 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2017-02-15"
-$Win32CurrentTag = "2017-02-15"
+$Win64CurrentTag = "2017-04-14"
+$Win32CurrentTag = "2017-04-14"
 
 # Archive file / subdir.
 $Win64Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
     "c-ares-1.12.0-1-win64ws.zip" = "";
-    "GeoIP-1.6.6-win64ws.zip" = "GeoIP-1.6.6-win64ws";
+    "GeoIP-1.6.10-win64ws.zip" = "";
     "gnutls-3.4.11-1.35-win64ws.zip" = "";
     "gtk+-bundle_2.24.23-3.39-2_win64ws.zip" = "gtk2";
     "kfw-3-2-2-x64-ws.zip" = "";
@@ -130,7 +130,7 @@ $Win64Archives = @{
 $Win32Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
     "c-ares-1.12.0-1-win32ws.zip" = "";
-    "GeoIP-1.6.6-win32ws.zip" = "GeoIP-1.6.6-win32ws";
+    "GeoIP-1.6.10-win32ws.zip" = "";
     "gnutls-3.4.11-1.36-win32ws.zip" = "";
     "gtk+-bundle_2.24.23-1.1-1_win32ws.zip" = "gtk2";
     "kfw-3-2-2-i386-ws-vc6.zip" = "";

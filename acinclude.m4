@@ -1122,6 +1122,11 @@ AC_DEFUN([AC_WIRESHARK_GEOIP_CHECK],
 				AC_DEFINE(HAVE_GEOIP_V6, 1, [Define if GeoIP supports IPv6 (GeoIP 1.4.5 and later)])
 			  ],,
 			)
+			AC_CHECK_LIB(GeoIP, GeoIP_free,
+			  [
+				AC_DEFINE(HAVE_GEOIP_FREE, 1, [Define if GeoIP has GeoIP_free (not available upstream with 1.6.10 or earlier)])
+			  ],,
+			)
 		fi
 	else
 		AC_MSG_RESULT(not required)
