@@ -74,6 +74,7 @@ const unit_name_string units_degree_degrees = { " degree", " degrees" };
 const unit_name_string units_decibels = { "dB", NULL };
 const unit_name_string units_dbm = { "dBm", NULL };
 const unit_name_string units_dbi = { "dBi", NULL };
+const unit_name_string units_mbm = { "mBm", NULL };
 const unit_name_string units_percent = { "%", NULL };
 const unit_name_string units_khz = { "kHz", NULL };
 const unit_name_string units_mhz = { "MHz", NULL };

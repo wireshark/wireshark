@@ -73,6 +73,7 @@ WS_DLL_PUBLIC const unit_name_string units_degree_degrees;
 WS_DLL_PUBLIC const unit_name_string units_decibels;
 WS_DLL_PUBLIC const unit_name_string units_dbm;
 WS_DLL_PUBLIC const unit_name_string units_dbi;
+WS_DLL_PUBLIC const unit_name_string units_mbm;
 WS_DLL_PUBLIC const unit_name_string units_percent;
 WS_DLL_PUBLIC const unit_name_string units_khz;
 WS_DLL_PUBLIC const unit_name_string units_ghz;
