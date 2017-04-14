@@ -2117,7 +2117,6 @@ static gint dissect_coding_format(proto_tree *tree, int hf_x, tvbuff_t *tvb, gin
 
     sub_item = proto_tree_add_item(tree, hf_x, tvb, offset, 5, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_x);
-    offset += 5;
 
     proto_tree_add_item(sub_tree, hf_bthci_cmd_codec_id, tvb, offset, 1, ENC_NA);
     offset += 1;
