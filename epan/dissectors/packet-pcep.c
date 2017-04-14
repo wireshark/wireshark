@@ -5812,8 +5812,6 @@ proto_register_pcep(void)
         &ett_pcep_obj_metric,
         &ett_pcep_obj_explicit_route,
         &ett_pcep_obj_record_route,
-        &ett_pcep_obj_sero,
-        &ett_pcep_obj_srro,
         &ett_pcep_obj_lspa,
         &ett_pcep_obj_iro,
         &ett_pcep_obj_svec,
@@ -5829,12 +5827,16 @@ proto_register_pcep(void)
         &ett_pcep_obj_pce_id,
         &ett_pcep_obj_proc_time,
         &ett_pcep_obj_overload,
+        &ett_pcep_obj_unreach_destination,
+        &ett_pcep_obj_branch_node_capability,
         &ett_pcep_obj_lsp,
         &ett_pcep_obj_srp,
         &ett_pcep_obj_vendor_information,
         &ett_pcep_obj_bu,
-        &ett_pcep_obj_association,
-        &ett_pcep_obj_unknown
+        &ett_pcep_obj_unknown,
+        &ett_pcep_obj_sero,
+        &ett_pcep_obj_srro,
+        &ett_pcep_obj_association
     };
 
     static ei_register_info ei[] = {
