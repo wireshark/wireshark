@@ -723,7 +723,7 @@ sub register_element($$$$;$)
     }
 
     print $decl "static int $regname = -1;\n";
-    if ($e->name() eq 'list' and $info->{'size'} > 1) {
+    if ($e->name() eq 'list' and defined $info->{'size'} and $info->{'size'} > 1) {
         print $reg "{ &$regname, { \"$fieldname\", \"$humanname\", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},\n";
         $regname .= '_item';
         print $decl "static int $regname = -1;\n";
@@ -841,8 +841,13 @@ sub dissect_element($$$$$;$$)
             my $type = $e->att('type');
 
             my $info = getinfo($type);
-            my $lencalc = "(length - $length) / $info->{'size'}";
+            my $lencalc;
             my $lentype = $e->first_child();
+            if (defined $info->{'size'}) {
+                $lencalc = "(length - $length) / $info->{'size'}";
+            } else {
+                $lencalc = "(length - $length)";
+            }
             if (defined $lentype) {
                 given ($lentype->name()) {
                     when ('value') { $lencalc = $lentype->text(); }
@@ -879,13 +884,18 @@ sub dissect_element($$$$$;$$)
 
                 print $impl $indent."struct_$info->{'name'}(tvb, offsetp, t, byte_order, $lencalc$prefs);\n";
             } else {
-                die ("Unrecognized type: $type\n");
+                # TODO: Fix unrecognized type. Comment out for now to generate dissector
+                # die ("Unrecognized type: $type\n");
             }
 
             if ($adjustlength && defined($lentype)) {
               # Some requests end with a list of unspecified length
               # Adjust the length field here so that the next $lencalc will be accurate
-              say $impl $indent."length -= $lencalc * $info->{'size'};";
+              if (defined $info->{'size'}) {
+                  say $impl $indent."length -= $lencalc * $info->{'size'};";
+              } else {
+                  say $impl $indent."length -= $lencalc * 1;";
+              }
             }
         }
         when ('switch') {
@@ -1418,8 +1428,8 @@ eot
             if ($first) {
                 $first = 0;
                 say $impl '    sequence_number = VALUE16(tvb, *offsetp);';
-                say $impl '    proto_tree_add_uint_format(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,';
-                say $impl '            "sequencenumber: %d ('.$header.'-'.$name.')", sequence_number);';
+                say $impl '    proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,';
+                say $impl '            "%d ('.$header.'-'.$name.')", sequence_number);';
                 say $impl '    *offsetp += 2;';
 
                 if ($refs->{field}{length}) {
@@ -1554,8 +1564,8 @@ eot
     }
 
     if ($xge) {
-        say $impl "    proto_tree_add_uint_format(t, hf_x11_minor_opcode, tvb, *offsetp, 2, $number,";
-        say $impl "                               \"opcode: $name ($number)\");";
+        say $impl "    proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, $number,";
+        say $impl "                               \"$name ($number)\");";
         foreach my $e (@elements) {
             $length = dissect_element($e, $varpat, $humanpat, $length, $refs);
         }

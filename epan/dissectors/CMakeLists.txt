@@ -42,10 +42,10 @@ add_custom_command(
 
 add_custom_target(x11-dissector
 	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl ${CMAKE_CURRENT_SOURCE_DIR}/dissectors
+		${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl ${CMAKE_CURRENT_SOURCE_DIR}
 		< ${CMAKE_CURRENT_SOURCE_DIR}/x11-fields
 	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl ${CMAKE_CURRENT_SOURCE_DIR}/dissectors
+		${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl ${CMAKE_CURRENT_SOURCE_DIR}
 	DEPENDS
 		x11-fields
 		${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
