@@ -6570,7 +6570,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 pdv_body_len,
                                 !(pdv->is_last_fragment));
 
-        if ((head && (head->next == NULL)) || pdv->is_last_fragment) {
+        if (head && (head->next == NULL)) {
             /* Was not really fragmented, therefore use 'conventional' decoding
                fragment_add_seq_next() won't add any items to the list, when last fragment only
             */
