@@ -1921,7 +1921,7 @@ proto_register_dtls(void)
     prefs_register_filename_preference(dtls_module, "debug_file", "DTLS debug file",
                                        "redirect dtls debug to file name; leave empty to disable debug, "
                                        "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
-                                       &dtls_debug_file_name);
+                                       &dtls_debug_file_name, TRUE);
 
     prefs_register_string_preference(dtls_module, "keys_list", "RSA keys list (deprecated)",
                                      "Semicolon-separated list of private RSA keys used for DTLS decryption. "

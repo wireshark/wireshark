@@ -95,20 +95,21 @@ struct pref_custom_cbs {
  * PREF_OBSOLETE is used for preferences that a module used to support
  * but no longer supports; we give different error messages for them.
  */
-#define PREF_UINT        (1u << 0)
-#define PREF_BOOL        (1u << 1)
-#define PREF_ENUM        (1u << 2)
-#define PREF_STRING      (1u << 3)
-#define PREF_RANGE       (1u << 4)
-#define PREF_STATIC_TEXT (1u << 5)
-#define PREF_UAT         (1u << 6)
-#define PREF_FILENAME    (1u << 7)
-#define PREF_COLOR       (1u << 8) /* XXX - These are only supported for "internal" (non-protocol) */
-#define PREF_CUSTOM      (1u << 9) /* use and not as a generic protocol preference */
-#define PREF_OBSOLETE    (1u << 10)
-#define PREF_DIRNAME     (1u << 11)
-#define PREF_DECODE_AS_UINT  (1u << 12)     /* XXX - These are only supported for "internal" (non-protocol) */
-#define PREF_DECODE_AS_RANGE (1u << 13) /* use and not as a generic protocol preference */
+#define PREF_UINT             (1u << 0)
+#define PREF_BOOL             (1u << 1)
+#define PREF_ENUM             (1u << 2)
+#define PREF_STRING           (1u << 3)
+#define PREF_RANGE            (1u << 4)
+#define PREF_STATIC_TEXT      (1u << 5)
+#define PREF_UAT              (1u << 6)
+#define PREF_SAVE_FILENAME    (1u << 7)
+#define PREF_COLOR            (1u << 8) /* XXX - These are only supported for "internal" (non-protocol) */
+#define PREF_CUSTOM           (1u << 9) /* use and not as a generic protocol preference */
+#define PREF_OBSOLETE         (1u << 10)
+#define PREF_DIRNAME          (1u << 11)
+#define PREF_DECODE_AS_UINT   (1u << 12)     /* XXX - These are only supported for "internal" (non-protocol) */
+#define PREF_DECODE_AS_RANGE  (1u << 13) /* use and not as a generic protocol preference */
+#define PREF_OPEN_FILENAME    (1u << 14)
 
 typedef enum {
 	GUI_ALL,

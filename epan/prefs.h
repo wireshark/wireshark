@@ -431,7 +431,7 @@ WS_DLL_PUBLIC void prefs_register_string_preference(module_t *module, const char
  * file.
  */
 WS_DLL_PUBLIC void prefs_register_filename_preference(module_t *module, const char *name,
-    const char *title, const char *description, const char **var);
+    const char *title, const char *description, const char **var, gboolean for_writing);
 
 /*
  * Register a preference with a directory name (string) value.

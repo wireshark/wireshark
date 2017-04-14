@@ -189,7 +189,8 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         vb->addLayout(hb);
         break;
     }
-    case PREF_FILENAME:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
     {
         QLabel *label = new QLabel(prefs_get_title(pref));
@@ -260,7 +261,8 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
             connect(le, SIGNAL(textEdited(QString)), this, SLOT(uintLineEditTextEdited(QString)));
             break;
         case PREF_STRING:
-        case PREF_FILENAME:
+        case PREF_SAVE_FILENAME:
+        case PREF_OPEN_FILENAME:
         case PREF_DIRNAME:
             connect(le, SIGNAL(textEdited(QString)), this, SLOT(stringLineEditTextEdited(QString)));
             break;
@@ -308,8 +310,11 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
         case PREF_UAT:
             connect(pb, SIGNAL(pressed()), this, SLOT(uatPushButtonPressed()));
             break;
-        case PREF_FILENAME:
-            connect(pb, SIGNAL(pressed()), this, SLOT(filenamePushButtonPressed()));
+        case PREF_SAVE_FILENAME:
+            connect(pb, SIGNAL(pressed()), this, SLOT(saveFilenamePushButtonPressed()));
+            break;
+        case PREF_OPEN_FILENAME:
+            connect(pb, SIGNAL(pressed()), this, SLOT(openFilenamePushButtonPressed()));
             break;
         case PREF_DIRNAME:
             connect(pb, SIGNAL(pressed()), this, SLOT(dirnamePushButtonPressed()));
@@ -483,7 +488,7 @@ void ModulePreferencesScrollArea::uatPushButtonPressed()
     uat_dlg.exec();
 }
 
-void ModulePreferencesScrollArea::filenamePushButtonPressed()
+void ModulePreferencesScrollArea::saveFilenamePushButtonPressed()
 {
     QPushButton *filename_pb = qobject_cast<QPushButton*>(sender());
     if (!filename_pb) return;
@@ -492,9 +497,24 @@ void ModulePreferencesScrollArea::filenamePushButtonPressed()
     if (!pref) return;
 
     QString filename = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(prefs_get_title(pref)),
-                                                    prefs_get_string_value(pref, pref_stashed), QString(), NULL,
-                                                    QFileDialog::DontConfirmOverwrite);
+                                                    prefs_get_string_value(pref, pref_stashed));
 
+    if (!filename.isEmpty()) {
+        prefs_set_string_value(pref, QDir::toNativeSeparators(filename).toStdString().c_str(), pref_stashed);
+        updateWidgets();
+    }
+}
+
+void ModulePreferencesScrollArea::openFilenamePushButtonPressed()
+{
+    QPushButton *filename_pb = qobject_cast<QPushButton*>(sender());
+    if (!filename_pb) return;
+
+    pref_t *pref = VariantPointer<pref_t>::asPtr(filename_pb->property(pref_prop_));
+    if (!pref) return;
+
+    QString filename = QFileDialog::getOpenFileName(this, wsApp->windowTitleString(prefs_get_title(pref)),
+                                                    prefs_get_string_value(pref, pref_stashed));
     if (!filename.isEmpty()) {
         prefs_set_string_value(pref, QDir::toNativeSeparators(filename).toStdString().c_str(), pref_stashed);
         updateWidgets();

@@ -1471,11 +1471,11 @@ proto_register_snort(void)
     prefs_register_filename_preference(snort_module, "binary",
                                        "Snort binary",
                                        "The name of the snort binary file to run",
-                                       &pref_snort_binary_filename);
+                                       &pref_snort_binary_filename, FALSE);
     prefs_register_filename_preference(snort_module, "config",
                                        "Configuration filename",
                                        "The name of the file containing the snort IDS configuration.  Typically snort.conf",
-                                       &pref_snort_config_filename);
+                                       &pref_snort_config_filename, FALSE);
 
     prefs_register_bool_preference(snort_module, "show_rule_set_stats",
                                    "Show rule stats in protocol tree",

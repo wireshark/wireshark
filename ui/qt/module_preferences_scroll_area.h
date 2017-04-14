@@ -62,7 +62,8 @@ private slots:
     void stringLineEditTextEdited(const QString &new_str);
     void rangeSyntaxLineEditTextEdited(const QString &new_str);
     void uatPushButtonPressed();
-    void filenamePushButtonPressed();
+    void saveFilenamePushButtonPressed();
+    void openFilenamePushButtonPressed();
     void dirnamePushButtonPressed();
 };
 

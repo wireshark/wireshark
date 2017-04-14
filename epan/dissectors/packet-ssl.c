@@ -4238,7 +4238,7 @@ proto_register_ssl(void)
         prefs_register_filename_preference(ssl_module, "debug_file", "SSL debug file",
             "Redirect SSL debug to the file specified. Leave empty to disable debugging "
             "or use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr.",
-            &ssl_debug_file_name);
+            &ssl_debug_file_name, TRUE);
 
         prefs_register_string_preference(ssl_module, "keys_list", "RSA keys list (deprecated)",
              "Semicolon-separated list of private RSA keys used for SSL decryption. "

@@ -684,18 +684,25 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
             editor = cur_line_edit_;
             break;
         }
-        case PREF_FILENAME:
+        case PREF_SAVE_FILENAME:
+        case PREF_OPEN_FILENAME:
         case PREF_DIRNAME:
         {
             QString filename;
 
-            if (prefs_get_type(pref) == PREF_FILENAME) {
+            if (prefs_get_type(pref) == PREF_SAVE_FILENAME) {
                 filename = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(prefs_get_title(pref)),
                                                         prefs_get_string_value(pref, pref_stashed));
+
+            } else if (prefs_get_type(pref) == PREF_OPEN_FILENAME) {
+                filename = QFileDialog::getOpenFileName(this, wsApp->windowTitleString(prefs_get_title(pref)),
+                                                        prefs_get_string_value(pref, pref_stashed));
+
             } else {
                 filename = QFileDialog::getExistingDirectory(this, wsApp->windowTitleString(prefs_get_title(pref)),
-                                                             prefs_get_string_value(pref, pref_stashed));
+                                                        prefs_get_string_value(pref, pref_stashed));
             }
+
             if (!filename.isEmpty()) {
                 prefs_set_string_value(pref, QDir::toNativeSeparators(filename).toStdString().c_str(), pref_stashed);
                 adv_ti->updatePref();

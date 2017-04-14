@@ -8463,7 +8463,7 @@ ssl_common_register_options(module_t *module, ssl_common_options_t *options)
              "<CRAND> = The Client's random number from the ClientHello message\n"
              "\n"
              "(All fields are in hex notation)",
-             &(options->keylog_filename));
+             &(options->keylog_filename), FALSE);
 }
 
 void

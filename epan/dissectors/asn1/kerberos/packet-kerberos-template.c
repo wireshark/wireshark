@@ -2284,7 +2284,7 @@ void proto_register_kerberos(void) {
 	prefs_register_filename_preference(krb_module, "file",
 				   "Kerberos keytab file",
 				   "The keytab file containing all the secrets",
-				   &keytab_filename);
+				   &keytab_filename, FALSE);
 #endif
 
 }

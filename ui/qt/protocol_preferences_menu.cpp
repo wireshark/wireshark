@@ -39,7 +39,7 @@
 
 // To do:
 // - Elide really long items?
-// - Handle PREF_FILENAME and PREF_DIRNAME.
+// - Handle PREF_SAVE_FILENAME, PREF_OPEN_FILENAME and PREF_DIRNAME.
 // - Handle color prefs.
 
 class BoolPreferenceAction : public QAction
@@ -244,7 +244,7 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     case PREF_OBSOLETE:
         break;
     default:
-        // A type we currently don't handle (e.g. PREF_FILENAME). Just open
+        // A type we currently don't handle (e.g. PREF_SAVE_FILENAME). Just open
         // the prefs dialog.
         QString title = QString("%1" UTF8_HORIZONTAL_ELLIPSIS).arg(prefs_get_title(pref));
         QAction *mpa = addAction(title);

@@ -199,7 +199,8 @@ pref_show(pref_t *pref, gpointer user_data)
                                             prefs_get_string_value(pref, pref_stashed)));
     break;
 
-  case PREF_FILENAME:
+  case PREF_SAVE_FILENAME:
+  case PREF_OPEN_FILENAME:
     prefs_set_control(pref, create_preference_path_entry(main_grid, prefs_get_ordinal(pref),
                                                      label_string,
                                                      tooltip_txt,
@@ -978,7 +979,8 @@ pref_check(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_STRING:
-  case PREF_FILENAME:
+  case PREF_SAVE_FILENAME:
+  case PREF_OPEN_FILENAME:
   case PREF_DIRNAME:
     /* Value can't be bad. */
     break;
@@ -1090,7 +1092,8 @@ pref_fetch(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_STRING:
-  case PREF_FILENAME:
+  case PREF_SAVE_FILENAME:
+  case PREF_OPEN_FILENAME:
   case PREF_DIRNAME:
     str_val = gtk_entry_get_text(GTK_ENTRY(prefs_get_control(pref)));
     module->prefs_changed |= prefs_set_string_value(pref, str_val, pref_current);

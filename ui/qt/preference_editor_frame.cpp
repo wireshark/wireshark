@@ -41,7 +41,7 @@
 #include <QPushButton>
 
 // To do:
-// - Handle PREF_FILENAME and PREF_DIRNAME.
+// - Handle PREF_SAVE_FILENAME, PREF_OPEN_FILENAME and PREF_DIRNAME.
 
 PreferenceEditorFrame::PreferenceEditorFrame(QWidget *parent) :
     AccordionFrame(parent),

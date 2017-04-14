@@ -352,7 +352,8 @@ free_pref(gpointer data, gpointer user_data _U_)
     case PREF_COLOR:
         break;
     case PREF_STRING:
-    case PREF_FILENAME:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
         g_free(*pref->varp.string);
         *pref->varp.string = NULL;
@@ -1443,11 +1444,11 @@ DIAG_ON(cast-qual)
 void
 prefs_register_filename_preference(module_t *module, const char *name,
                                    const char *title, const char *description,
-                                   const char **var)
+                                   const char **var, gboolean for_writing)
 {
 DIAG_OFF(cast-qual)
-    register_string_like_preference(module, name, title, description,
-                                    (char **)var, PREF_FILENAME, NULL, FALSE);
+    register_string_like_preference(module, name, title, description, (char **)var,
+                                    for_writing ? PREF_SAVE_FILENAME : PREF_OPEN_FILENAME, NULL, FALSE);
 DIAG_ON(cast-qual)
 }
 
@@ -1914,7 +1915,8 @@ pref_stash(pref_t *pref, gpointer unused _U_)
         break;
 
     case PREF_STRING:
-    case PREF_FILENAME:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
         g_free(pref->stashed_val.string);
         pref->stashed_val.string = g_strdup(*pref->varp.string);
@@ -1998,7 +2000,8 @@ pref_unstash(pref_t *pref, gpointer unstash_data_p)
         break;
 
     case PREF_STRING:
-    case PREF_FILENAME:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
         if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0) {
             unstash_data->module->prefs_changed = TRUE;
@@ -2098,7 +2101,8 @@ reset_stashed_pref(pref_t *pref) {
         break;
 
     case PREF_STRING:
-    case PREF_FILENAME:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
         g_free(pref->stashed_val.string);
         pref->stashed_val.string = g_strdup(pref->default_val.string);
@@ -2141,7 +2145,8 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
         break;
 
     case PREF_STRING:
-    case PREF_FILENAME:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
         if (pref->stashed_val.string != NULL) {
             g_free(pref->stashed_val.string);
@@ -3450,7 +3455,7 @@ prefs_register_modules(void)
 
     register_string_like_preference(printing, "file", "File",
         "This is the file that gets written to when the destination is set to \"file\"",
-        &prefs.pr_file, PREF_FILENAME, NULL, TRUE);
+        &prefs.pr_file, PREF_SAVE_FILENAME, NULL, TRUE);
 
     /* Statistics */
     stats_module = prefs_register_module(NULL, "statistics", "Statistics",
@@ -4108,7 +4113,8 @@ reset_pref(pref_t *pref)
         break;
 
     case PREF_STRING:
-    case PREF_FILENAME:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
         reset_string_like_preference(pref);
         break;
@@ -5751,7 +5757,8 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             break;
 
         case PREF_STRING:
-        case PREF_FILENAME:
+        case PREF_SAVE_FILENAME:
+        case PREF_OPEN_FILENAME:
         case PREF_DIRNAME:
             containing_module->prefs_changed |= prefs_set_string_value(pref, value, pref_current);
             break;
@@ -5901,7 +5908,8 @@ prefs_pref_type_name(pref_t *pref)
         type_name = "String";
         break;
 
-    case PREF_FILENAME:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
         type_name = "Filename";
         break;
 
@@ -6002,7 +6010,8 @@ prefs_pref_type_description(pref_t *pref)
         type_desc = "A string";
         break;
 
-    case PREF_FILENAME:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
         type_desc = "A path to a file";
         break;
 
@@ -6086,7 +6095,8 @@ prefs_pref_is_default(pref_t *pref)
         break;
 
     case PREF_STRING:
-    case PREF_FILENAME:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
         if (!(g_strcmp0(pref->default_val.string, *pref->varp.string)))
             return TRUE;
@@ -6203,7 +6213,8 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     }
 
     case PREF_STRING:
-    case PREF_FILENAME:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
         return g_strdup(*(const char **) valp);
 

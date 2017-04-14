@@ -3063,10 +3063,11 @@ routines -
     /* Register a preference with a file name (string) value.
     * File name preferences are basically like string preferences
     * except that the GUI gives the user the ability to browse for the
-    * file.
+    * file. Set for_writing TRUE to show a Save dialog instead of normal Open.
     */
     void prefs_register_filename_preference(module_t *module, const char *name,
-        const char *title, const char *description, char **var)
+        const char *title, const char *description, char **var,
+        gboolean for_writing)
 
     /* Register a preference with a range of unsigned integers (e.g.,
      * "1-20,30-40").

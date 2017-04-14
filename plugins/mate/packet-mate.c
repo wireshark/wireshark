@@ -393,7 +393,7 @@ proto_register_mate(void)
 	prefs_register_filename_preference(mate_module, "config",
 					   "Configuration Filename",
 					   "The name of the file containing the mate module's configuration",
-					   &pref_mate_config_filename);
+					   &pref_mate_config_filename, FALSE);
 
 	register_postdissector(mate_handle);
 }
