@@ -69,6 +69,9 @@ typedef struct content_t {
     guint    translated_length;
 
     gboolean pcre_case_insensitive;
+    gboolean pcre_dot_includes_newline;
+    gboolean pcre_raw;
+    gboolean pcre_multiline;
 } content_t;
 
 /* This is to keep track of a variable referenced by a rule */

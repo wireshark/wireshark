@@ -1141,12 +1141,28 @@ gboolean content_convert_pcre_for_regex(content_t *content)
             break;
         }
         else {
-            if (content->str[i] == 'i') {
-                content->pcre_case_insensitive = TRUE;
-            }
-            /* TODO: note/handle other common modifiers (s/m/?) */
-        }
+            switch (content->str[i]) {
+                case 'i':
+                    content->pcre_case_insensitive = TRUE;
+                    break;
+                case 's':
+                    content->pcre_dot_includes_newline = TRUE;
+                    break;
+                case 'B':
+                    content->pcre_raw = TRUE;
+                    break;
+                case 'm':
+                    content->pcre_multiline = TRUE;
+                    break;
 
+                default:
+                    /* TODO: handle other modifiers that will get seen? */
+                    /* N.B. 'U' (match in decoded URI buffers) can't be handled, so don't store in flag. */
+                    /* N.B. not sure if/how to handle 'R' (effectively distance:0) */
+                    snort_debug_printf("Unhandled pcre modifier '%c'\n", content->str[i]);
+                    break;
+            }
+        }
     }
     if (end_delimiter_offset == 0) {
         /* Didn't find it */

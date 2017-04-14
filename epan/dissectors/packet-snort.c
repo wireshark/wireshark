@@ -49,7 +49,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <wsutil/report_message.h>
 #include <epan/wmem/wmem.h>
 #include <wiretap/wtap-int.h>
 
@@ -296,6 +295,7 @@ static gboolean look_for_pcre(content_t *content, tvbuff_t *tvb, guint start_off
     GRegex *regex;
     GMatchInfo *match_info;
     gboolean match_found = FALSE;
+    GRegexCompileFlags regex_compile_flags = (GRegexCompileFlags)0;
 
     /* Make sure pcre string is ready for regex library. */
     if (!content_convert_pcre_for_regex(content)) {
@@ -308,10 +308,25 @@ static gboolean look_for_pcre(content_t *content, tvbuff_t *tvb, guint start_off
     tvb_memcpy(tvb, (void*)string, start_offset, length_remaining);
     string[length_remaining] = '\0';
 
-    /* Create regex */
     /* For pcre, translated_str already has / /[modifiers] removed.. */
+
+    /* Apply any set modifier flags */
+    if (content->pcre_case_insensitive) {
+        regex_compile_flags = (GRegexCompileFlags)(regex_compile_flags | G_REGEX_CASELESS);
+    }
+    if (content->pcre_dot_includes_newline) {
+        regex_compile_flags = (GRegexCompileFlags)(regex_compile_flags | G_REGEX_DOTALL);
+    }
+    if (content->pcre_raw) {
+        regex_compile_flags = (GRegexCompileFlags)(regex_compile_flags | G_REGEX_RAW);
+    }
+    if (content->pcre_multiline) {
+        regex_compile_flags = (GRegexCompileFlags)(regex_compile_flags | G_REGEX_MULTILINE);
+    }
+
+    /* Create regex */
     regex = g_regex_new(content->translated_str,
-                        content->pcre_case_insensitive ? G_REGEX_CASELESS : (GRegexCompileFlags)0,
+                        regex_compile_flags,
                         (GRegexMatchFlags)0, NULL);
 
     /* Lookup PCRE match */
@@ -982,7 +997,8 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                 /* Useful for debugging, may also happen when Snort is reassembling.. */
                 proto_item_append_text(ti, " - not located");
                 expert_add_info_format(pinfo, ti, &ei_snort_content_not_matched,
-                                       "Content   \"%s\"   not found in frame",
+                                       "%s   \"%s\"   not found in frame",
+                                       rule->contents[n].content_type==Pcre ? "PCRE" : "Content",
                                        rule->contents[n].str);
             }
         }
