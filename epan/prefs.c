@@ -455,7 +455,7 @@ prefs_deregister_module(module_t *parent, const char *name, const char *title)
  * at the top level and the title used in the tab for it in a preferences
  * dialog box.
  */
-module_t *
+static module_t *
 prefs_register_subtree(module_t *parent, const char *title, const char *description,
                        void (*apply_cb)(void))
 {

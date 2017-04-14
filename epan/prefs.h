@@ -270,15 +270,6 @@ WS_DLL_PUBLIC void prefs_reset(void);
 void prefs_cleanup(void);
 
 /*
- * Register a subtree that will have modules under it.
- * Specify the module under which to register it or NULL to register it
- * at the top level and the title used in the tab for it in a preferences
- * dialog box.
- */
-WS_DLL_PUBLIC module_t *prefs_register_subtree(module_t *parent, const char *title,
-    const char *description, void (*apply_cb)(void));
-
-/*
  * Register that a protocol has preferences.
  */
 WS_DLL_PUBLIC module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
