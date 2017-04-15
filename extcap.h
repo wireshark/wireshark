@@ -43,13 +43,15 @@
 #define EXTCAP_PIPE_PREFIX "wireshark_extcap"
 
 #define EXTCAP_ARGUMENT_CONFIG                  "--extcap-config"
-#define EXTCAP_ARGUMENT_LIST_INTERFACES "--extcap-interfaces"
+#define EXTCAP_ARGUMENT_LIST_INTERFACES         "--extcap-interfaces"
 #define EXTCAP_ARGUMENT_INTERFACE               "--extcap-interface"
 #define EXTCAP_ARGUMENT_LIST_DLTS               "--extcap-dlts"
 
 #define EXTCAP_ARGUMENT_RUN_CAPTURE             "--capture"
 #define EXTCAP_ARGUMENT_CAPTURE_FILTER          "--extcap-capture-filter"
 #define EXTCAP_ARGUMENT_RUN_PIPE                "--fifo"
+#define EXTCAP_ARGUMENT_CONTROL_IN              "--extcap-control-in"
+#define EXTCAP_ARGUMENT_CONTROL_OUT             "--extcap-control-out"
 
 typedef struct _extcap_info {
     gchar * basename;
@@ -116,6 +118,9 @@ extcap_free_if_configuration(GList *list, gboolean free_args);
 
 gboolean
 extcap_has_configuration(const char * ifname, gboolean is_required);
+
+gboolean
+extcap_has_toolbar(const char *ifname);
 
 #ifdef WIN32
 HANDLE

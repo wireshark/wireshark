@@ -49,6 +49,8 @@
 
 #include <epan/prefs.h>
 
+#include "ui/iface_toolbar.h"
+
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/tempfile.h>
@@ -76,6 +78,11 @@ static GHashTable * _loaded_interfaces = NULL;
  * lookup.
  */
 static GHashTable * _tool_for_ifname = NULL;
+
+/* internal container, for all the extcap executables that have been found
+ * and that provides a toolbar with controls to be added to a Interface Toolbar
+ */
+static GHashTable *_toolbars = NULL;
 
 /* internal container, to map preference names to pointers that hold preference
  * values. These ensure that preferences can survive extcap if garbage
@@ -198,6 +205,56 @@ extcap_find_interface_for_ifname(const gchar *ifname)
     return result;
 }
 
+static void
+extcap_free_toolbar_value(iface_toolbar_value *value)
+{
+    if (!value)
+    {
+        return;
+    }
+
+    g_free(value->value);
+    g_free(value->display);
+    g_free(value);
+}
+
+static void
+extcap_free_toolbar_control(iface_toolbar_control *control)
+{
+    if (!control)
+    {
+        return;
+    }
+
+    g_free(control->display);
+    g_free(control->validation);
+    g_free(control->tooltip);
+    if (control->ctrl_type == INTERFACE_TYPE_STRING) {
+        g_free(control->default_value.string);
+    }
+    g_list_foreach(control->values, (GFunc)extcap_free_toolbar_value, NULL);
+    g_list_free(control->values);
+    g_free(control);
+}
+
+static void
+extcap_free_toolbar(gpointer data)
+{
+    if (!data)
+    {
+        return;
+    }
+
+    iface_toolbar *toolbar = (iface_toolbar *)data;
+
+    g_free(toolbar->menu_title);
+    g_free(toolbar->help);
+    g_list_free_full(toolbar->ifnames, g_free);
+    g_list_foreach(toolbar->controls, (GFunc)extcap_free_toolbar_control, NULL);
+    g_list_free(toolbar->controls);
+    g_free(toolbar);
+}
+
 static gboolean
 extcap_if_exists_for_extcap(const gchar *ifname, const gchar *extcap)
 {
@@ -216,6 +273,26 @@ extcap_if_executable(const gchar *ifname)
 {
     extcap_interface *interface = extcap_find_interface_for_ifname(ifname);
     return interface != NULL ? interface->extcap_path : NULL;
+}
+
+static void
+extcap_iface_toolbar_add(const gchar *extcap, iface_toolbar *toolbar_entry)
+{
+    char *toolname;
+
+    if (!extcap || !toolbar_entry)
+    {
+        return;
+    }
+
+    toolname = g_path_get_basename(extcap);
+
+    if (!g_hash_table_lookup(_toolbars, toolname))
+    {
+        g_hash_table_insert(_toolbars, g_strdup(toolname), toolbar_entry);
+    }
+
+    g_free(toolname);
 }
 
 /* Note: args does not need to be NULL-terminated. */
@@ -815,6 +892,27 @@ extcap_has_configuration(const char *ifname, gboolean is_required)
     return found;
 }
 
+gboolean
+extcap_has_toolbar(const char *ifname)
+{
+    if (!iface_toolbar_use())
+    {
+        return FALSE;
+    }
+
+    GList *toolbar_list = g_hash_table_get_values (_toolbars);
+    for (GList *walker = toolbar_list; walker; walker = walker->next)
+    {
+        iface_toolbar *toolbar = (iface_toolbar *) walker->data;
+        if (g_list_find_custom(toolbar->ifnames, ifname, (GCompareFunc) strcmp))
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 /* taken from capchild/capture_sync.c */
 static gboolean pipe_data_available(int pipe_fd)
 {
@@ -895,6 +993,16 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
             /* the fifo will not be freed here, but with the other capture_opts in capture_sync */
             ws_unlink(interface_opts.extcap_fifo);
             interface_opts.extcap_fifo = NULL;
+        }
+        if (interface_opts.extcap_control_in && file_exists(interface_opts.extcap_control_in))
+        {
+            ws_unlink(interface_opts.extcap_control_in);
+            interface_opts.extcap_control_in = NULL;
+        }
+        if (interface_opts.extcap_control_out && file_exists(interface_opts.extcap_control_out))
+        {
+            ws_unlink(interface_opts.extcap_control_out);
+            interface_opts.extcap_control_out = NULL;
         }
 #endif
         /* Maybe the client closed and removed fifo, but ws should check if
@@ -1088,6 +1196,16 @@ GPtrArray *extcap_prepare_arguments(interface_options interface_opts)
         }
         add_arg(EXTCAP_ARGUMENT_RUN_PIPE);
         add_arg(interface_opts.extcap_fifo);
+        if (interface_opts.extcap_control_in)
+        {
+            add_arg(EXTCAP_ARGUMENT_CONTROL_OUT);
+            add_arg(interface_opts.extcap_control_in);
+        }
+        if (interface_opts.extcap_control_out)
+        {
+            add_arg(EXTCAP_ARGUMENT_CONTROL_IN);
+            add_arg(interface_opts.extcap_control_out);
+        }
         if (interface_opts.extcap_args == NULL || g_hash_table_size(interface_opts.extcap_args) == 0)
         {
             /* User did not perform interface configuration.
@@ -1187,6 +1305,13 @@ extcap_init_interfaces(capture_options *capture_opts)
         if (interface_opts.if_type != IF_EXTCAP)
         {
             continue;
+        }
+
+        /* create control pipes if having toolbar */
+        if (extcap_has_toolbar(interface_opts.name))
+        {
+            extcap_create_pipe(&interface_opts.extcap_control_in);
+            extcap_create_pipe(&interface_opts.extcap_control_out);
         }
 
         /* create pipe for fifo */
@@ -1393,15 +1518,22 @@ static void remove_extcap_entry(gpointer entry, gpointer data _U_)
 
 static gboolean cb_load_interfaces(extcap_callback_info_t cb_info)
 {
-    GList * interfaces = NULL, * walker = NULL;
+    GList * interfaces = NULL, * control_items = NULL, * walker = NULL;
     extcap_interface * int_iter = NULL;
     extcap_info * element = NULL;
+    iface_toolbar * toolbar_entry = NULL;
     gchar * toolname = g_path_get_basename(cb_info.extcap);
 
     GList * interface_keys = g_hash_table_get_keys(_loaded_interfaces);
 
     /* Load interfaces from utility */
-    interfaces = extcap_parse_interfaces(cb_info.output);
+    interfaces = extcap_parse_interfaces(cb_info.output, &control_items);
+
+    if (control_items)
+    {
+        toolbar_entry = g_new0(iface_toolbar, 1);
+        toolbar_entry->controls = control_items;
+    }
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Loading interface list for %s ", cb_info.extcap);
 
@@ -1447,6 +1579,11 @@ static gboolean cb_load_interfaces(extcap_callback_info_t cb_info)
             }
 
             help = int_iter->help;
+            if (toolbar_entry)
+            {
+                toolbar_entry->menu_title = g_strdup(int_iter->display);
+                toolbar_entry->help = g_strdup(int_iter->help);
+            }
 
             walker = g_list_next(walker);
             continue;
@@ -1476,9 +1613,24 @@ static gboolean cb_load_interfaces(extcap_callback_info_t cb_info)
 
             element->interfaces = g_list_append(element->interfaces, int_iter);
             g_hash_table_insert(_tool_for_ifname, g_strdup(int_iter->call), g_strdup(toolname));
+
+            if (toolbar_entry)
+            {
+                if (!toolbar_entry->menu_title)
+                {
+                    toolbar_entry->menu_title = g_strdup(int_iter->display);
+                }
+                toolbar_entry->ifnames = g_list_append(toolbar_entry->ifnames, g_strdup(int_iter->call));
+            }
         }
 
         walker = g_list_next(walker);
+    }
+
+    if (toolbar_entry && toolbar_entry->menu_title)
+    {
+        iface_toolbar_add(toolbar_entry);
+        extcap_iface_toolbar_add(cb_info.extcap, toolbar_entry);
     }
 
     g_list_foreach(interfaces, remove_extcap_entry, NULL);
@@ -1498,6 +1650,21 @@ extcap_load_interface_list(void)
 {
     gchar *argv;
     gchar *error;
+
+    if (_toolbars)
+    {
+        // Remove existing interface toolbars here instead of in extcap_clear_interfaces()
+        // to avoid flicker in shown toolbars when refreshing interfaces.
+        GList *toolbar_list = g_hash_table_get_values (_toolbars);
+        for (GList *walker = toolbar_list; walker; walker = walker->next)
+        {
+            iface_toolbar *toolbar = (iface_toolbar *) walker->data;
+            iface_toolbar_remove(toolbar->menu_title);
+        }
+        g_hash_table_remove_all(_toolbars);
+    } else {
+        _toolbars = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, extcap_free_toolbar);
+    }
 
     if (_loaded_interfaces == NULL)
     {

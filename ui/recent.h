@@ -111,6 +111,7 @@ typedef struct recent_settings_tag {
     gboolean    gui_rlc_use_pdus_from_mac;
     GList      *custom_colors;
     GList      *gui_additional_toolbars;
+    GList      *interface_toolbars;
 } recent_settings_t;
 
 /** Global recent settings. */

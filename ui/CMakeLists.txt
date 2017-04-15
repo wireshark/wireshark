@@ -34,6 +34,7 @@ set(COMMON_UI_SRC
 	failure_message.c
 	filter_files.c
 	firewall_rules.c
+	iface_toolbar.c
 	iface_lists.c
 	io_graph_item.c
 	language.c

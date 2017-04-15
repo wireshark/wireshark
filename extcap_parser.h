@@ -34,7 +34,8 @@ typedef enum {
     EXTCAP_SENTENCE_VALUE,
     EXTCAP_SENTENCE_EXTCAP,
     EXTCAP_SENTENCE_INTERFACE,
-    EXTCAP_SENTENCE_DLT
+    EXTCAP_SENTENCE_DLT,
+    EXTCAP_SENTENCE_CONTROL
 } extcap_sentence_type;
 
 typedef enum {
@@ -78,7 +79,9 @@ typedef enum {
     EXTCAP_PARAM_SAVE,
     EXTCAP_PARAM_VALIDATION,
     EXTCAP_PARAM_VERSION,
-    EXTCAP_PARAM_HELP
+    EXTCAP_PARAM_HELP,
+    EXTCAP_PARAM_CONTROL,
+    EXTCAP_PARAM_ROLE
 } extcap_param_type;
 
 #define ENUM_KEY(s) GUINT_TO_POINTER((guint)s)
@@ -197,7 +200,7 @@ void extcap_free_arg_list(GList *a);
 GList * extcap_parse_args(gchar *output);
 
 /* Parse all sentences for interfaces */
-GList * extcap_parse_interfaces(gchar *output);
+GList * extcap_parse_interfaces(gchar *output, GList **control_items);
 
 /* Parse all sentences for DLTs */
 GList * extcap_parse_dlts(gchar *output);

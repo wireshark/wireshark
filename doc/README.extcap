@@ -196,6 +196,195 @@ such a check is the same as for Qt RegExp classes. This feature is only active i
 Qt version of Wireshark.
 
 
+TOOLBAR CONTROLS
+================
+An extcap utility can provide configuration for controls to use in an interface toolbar.
+This controls are bidirectional and can be used to control the extcap utility while
+capturing.
+
+This is useful in scenarios where configuration can be done based on findings in the
+capture process, setting temporary values or give other inputs without restarting the
+current capture.
+
+Example:
+
+$ extcapbin --extcap-interfaces
+extcap {version=1.0}{display=Example extcap interface}
+interface {value=example1}{display=Example interface 1 for extcap}
+interface {value=example2}{display=Example interface 2 for extcap}
+control {number=0}{type=string}{display=Message}{tooltip=Package message content. Must start with a capital letter.}{validation=[A-Z]+}{required=true}
+control {number=1}{type=selector}{display=Time delay}{tooltip=Time delay between packages}
+control {number=2}{type=boolean}{display=Verify}{default=true}{tooltip=Verify package content}
+control {number=3}{type=button}{display=Turn on}{tooltip=Turn on or off}
+control {number=4}{type=button}{role=logger}{display=Log}{tooltip=Show capture log}
+value {control=1}{value=1}{display=1 sec}
+value {control=1}{value=2}{display=2 sec}{default=true}
+
+All controls will be presented as GUI elements in a toolbar specific to the extcap
+utility.  The extcap must not rely on using those controls (they are optional) because
+of other capturing tools not using GUI (e.g. tshark, tfshark).
+
+
+CONTROLS
+========
+The controls are similar to the ARGUMENTS, but without the CALL element.  All controls
+may be given a default value at startup and most can be changed during capture, both
+by the extcap and the user (depending on the type of control).
+
+All controls must provide a NUMBER, by which they are identified. No NUMBER may be
+provided twice. Also all options must present the elements TYPE and DISPLAY, where
+TYPE provides the type of control to add to the toolbar and DISPLAY the name in the GUI.
+
+Additionally TOOLTIP and PLACEHOLDER may be provided, which will give the user an
+explanation within the GUI.
+
+All controls, except from the logger, help and reset buttons, may be disabled
+(and enabled) in GUI by the extcap during capture. This can be because of set-once
+operations, or operations which takes some time to complete.
+
+All control values which are changed by the user (not equal to the default value) will
+be sent to the extcap utility when starting a capture.  The extcap utility may choose
+to discard initial values and set new values, depending on implementation.
+
+This TYPEs are defined as controls:
+
+ * BOOLEAN - This provides a checkbox with the possibility to set a true/false value.
+
+   The extcap utility can set a default value at startup, and can change (set) and receive
+   value changes while capturing. When starting a capture the GUI will send the value if
+   different from the default value.
+
+   The payload is one byte with binary value 0 or 1.
+
+   Valid Commands: Set value, Enable, Disable.
+
+ * BUTTON - This provides a button with different ROLEs:
+
+  ** CONTROL - This button will send a signal.
+     This is the default role if nothing is configured.
+
+     The extcap utility can set the button text at startup, and can change (set) the
+     button text and receive button press signals while capturing.  The button is
+     disabled and the button text is restored to the default text when not capturing.
+
+     The payload is either the button text or empty (signal).
+
+     Valid Commands: Set value, Enable, Disable.
+
+  ** LOGGER - This provides a logger mechanism where the extcap utility can send log
+     entries to be presented in a log window. This communication is unidirectional.
+
+     The payload is the log entry, and should be ended with a newline.
+     Maximum length is 65535 bytes.
+
+     Valid Commands: Set log entry, Add log entry.
+
+     The Set command will clear the log before adding the entry.
+
+  ** HELP - This button opens the help page, if configured.
+     This type has no controls and will not be used in communication.
+
+     Valid Commands: NONE.
+
+  ** RESET - This button will restore all control values to default.
+     This type has no controls and will not be used in communication.
+
+     Valid Commands: NONE.
+
+ * SELECTOR - This provides a combo box with fixed values which can be selected.
+
+   The extcap utility can set default values at startup, and add and remove values and
+   receive change in value selection while capturing. When starting a capture the GUI
+   will send the value if different from the default value.
+
+   The payload is a string with the value, and optionally a string with a display
+   value if this is different from the value. This two string values are separated
+   by a null character.
+
+   Valid Commands: Set selected value, Add value, Remove value, Enable, Disable.
+
+   If value is empty the Remove command will remove all entries.
+
+ * STRING - This provides a text edit line with the possibility to set a string or any
+   value which can be represented in a string (integer, float, date, etc.).
+
+   The extcap utility can set a default string value at startup, and can change (set) and
+   receive value changes while capturing. When starting a capture the GUI will send the
+   value if different from the default value.
+
+   The payload is a string with the value. Maximum length is 32767 bytes.
+
+   Valid Commands: Set value, Enable, Disable.
+
+   The element VALIDATION allows to provide a regular expression string, which is used
+   to check the user input for validity beyond normal data type or range checks.
+   Back-slashes must be escaped (as in \\b for \b).
+
+
+MESSAGES
+========
+In addition to the controls it's possible to send a single message from the extcap
+utility to the user.  This message can be put in the status bar or displayed in a
+information, warning or error dialog which must be accepted by the user.  This message
+does not use the NUMBER argument so this can have any value.
+
+
+CONTROL PROTOCOL
+================
+The protocol used to communicate over the control pipes has a fixed size header of
+6 bytes and a payload with 0 - 65535 bytes.
+
+Control packet:
+
+  +----+----+----+----+----+----+----+----+
+  |     Sync Pipe Indication (1 byte)     |
+  +----+----+----+----+----+----+----+----+
+  |            Message Length             |
+  |        (3 bytes network order)        |
+  +----+----+----+----+----+----+----+----+
+  |        Control Number (1 byte)        |
+  +----+----+----+----+----+----+----+----+
+  |           Command (1 byte)            |
+  +----+----+----+----+----+----+----+----+
+  |                Payload                |
+  |           (0 - 65535 bytes)           |
+  +----+----+----+----+----+----+----+----+
+
+ Sync Pipe Indication:
+  The common sync pipe indication. This protocol uses the value 'T'.
+
+ Message Length:
+  Payload length + 2 bytes for argument number and command.
+
+ Control Number:
+   Unique number to identify the control.  This number also gives the order of
+   the controls in the interface toolbar.
+
+ Command:                  Control type:
+   0 = Initialized           none
+   1 = Set                   boolean / button / logger / selector / string
+   2 = Add                   logger / selector
+   3 = Remove                selector
+   4 = Enable                boolean / button / selector / string
+   5 = Disable               boolean / button / selector / string
+   6 = Statusbar message     none
+   7 = Information message   none
+   8 = Warning message       none
+   9 = Error message         none
+
+ Payload Length:
+   The length of the following payload.  Maximum length is 65535 bytes.
+
+The Initialized command will be sent from the GUI to the extcap utility when all
+initial control values are sent after starting a capture. This is an indication
+that the GUI is ready to receive control values.
+
+The GUI will only send Initialized and Set commands.  The extcap utility shall not
+send the Initialized command.
+
+Messages with unknown control number or command will be silently ignored.
+
+
 DEVELOPMENT
 ===========
 To have extcap support, extcap must be enabled. Moreover the specific extcap must

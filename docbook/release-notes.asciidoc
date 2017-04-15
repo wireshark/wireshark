@@ -48,6 +48,8 @@ since version 2.2.0:
 * You can move back and forth in the selection history in the Qt UI.
 * IEEE 802.15.4 dissector now uses an UAT for decryption keys. The original
   decryption key preference has been obsoleted.
+* Extcap utilities can now provide configuration for a GUI interface toolbar to
+  control the extcap utility while capturing.
 
 //=== Removed Dissectors
 

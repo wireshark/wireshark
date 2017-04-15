@@ -68,6 +68,8 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->default_options.extcap_args     = NULL;
     capture_opts->default_options.extcap_userdata = NULL;
     capture_opts->default_options.extcap_pid      = INVALID_EXTCAP_PID;
+    capture_opts->default_options.extcap_control_in  = NULL;
+    capture_opts->default_options.extcap_control_out = NULL;
 #endif
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     capture_opts->default_options.buffer_size     = DEFAULT_CAPTURE_BUFFER_SIZE;
@@ -702,6 +704,8 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.extcap_args = NULL;
     interface_opts.extcap_pid = INVALID_EXTCAP_PID;
     interface_opts.extcap_userdata = NULL;
+    interface_opts.extcap_control_in = g_strdup(capture_opts->default_options.extcap_control_in);
+    interface_opts.extcap_control_out = g_strdup(capture_opts->default_options.extcap_control_out);
 #endif
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     interface_opts.buffer_size = capture_opts->default_options.buffer_size;
@@ -1129,6 +1133,8 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
     if (interface_opts.extcap_pid != INVALID_EXTCAP_PID)
         g_spawn_close_pid(interface_opts.extcap_pid);
     g_free(interface_opts.extcap_userdata);
+    g_free(interface_opts.extcap_control_in);
+    g_free(interface_opts.extcap_control_out);
 #endif
 #ifdef HAVE_PCAP_REMOTE
     if (interface_opts.src_type == CAPTURE_IFREMOTE) {
@@ -1180,6 +1186,8 @@ collect_ifaces(capture_options *capture_opts)
             if (interface_opts.extcap_args)
                 g_hash_table_ref(interface_opts.extcap_args);
             interface_opts.extcap_userdata = NULL;
+            interface_opts.extcap_control_in = NULL;
+            interface_opts.extcap_control_out = NULL;
 #endif
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
             interface_opts.buffer_size =  device.buffer;

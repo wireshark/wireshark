@@ -33,6 +33,7 @@
 #include <epan/export_object.h>
 
 #include "ui/commandline.h"
+#include "ui/iface_toolbar.h"
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
@@ -61,6 +62,7 @@
 #include "file_set_dialog.h"
 #include "funnel_statistics.h"
 #include "import_text_dialog.h"
+#include "interface_toolbar.h"
 #include "packet_list.h"
 #include "proto_tree.h"
 #include "simple_dialog.h"
@@ -205,6 +207,23 @@ static void plugin_if_mainwindow_update_toolbars(gconstpointer user_data)
     if (g_hash_table_lookup_extended(data_set, "toolbar_name", NULL, NULL)) {
         QString toolbarName((const char *)g_hash_table_lookup(data_set, "toolbar_name"));
         gbl_cur_main_window_->removeAdditionalToolbar(toolbarName);
+
+    }
+}
+
+static void mainwindow_add_toolbar(const iface_toolbar *toolbar_entry)
+{
+    if (gbl_cur_main_window_ && toolbar_entry)
+    {
+        gbl_cur_main_window_->addInterfaceToolbar(toolbar_entry);
+    }
+}
+
+static void mainwindow_remove_toolbar(const gchar *menu_title)
+{
+    if (gbl_cur_main_window_ && menu_title)
+    {
+        gbl_cur_main_window_->removeInterfaceToolbar(menu_title);
     }
 }
 
@@ -759,6 +778,17 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
     plugin_if_register_gui_cb(PLUGIN_IF_REMOVE_TOOLBAR, plugin_if_mainwindow_update_toolbars);
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0) && !defined(_WIN32)
+    // Register Interface Toolbar callbacks
+    //
+    // Qt version must be 5.2 or higher because the use of
+    // QThread::requestInterruption() in interface_toolbar.cpp and
+    // QThread::isInterruptionRequested() in interface_toolbar_reader.cpp
+    //
+    // The toolbar in/out control pipes are not supported on WIN32 yet.
+    iface_toolbar_register_cb(mainwindow_add_toolbar, mainwindow_remove_toolbar);
+#endif
+
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
 
@@ -779,6 +809,13 @@ QMenu *MainWindow::createPopupMenu()
     menu->addAction(main_ui_->actionViewFilterToolbar);
     menu->addAction(main_ui_->actionViewWirelessToolbar);
 
+    if (!main_ui_->menuInterfaceToolbars->actions().isEmpty()) {
+        QMenu *submenu = menu->addMenu(main_ui_->menuInterfaceToolbars->title());
+        foreach (QAction *action, main_ui_->menuInterfaceToolbars->actions()) {
+            submenu->addAction(action);
+        }
+    }
+
     if (!main_ui_->menuAdditionalToolbars->actions().isEmpty()) {
         QMenu *subMenu = menu->addMenu(main_ui_->menuAdditionalToolbars->title());
         foreach (QAction *action, main_ui_->menuAdditionalToolbars->actions()) {
@@ -793,6 +830,76 @@ QMenu *MainWindow::createPopupMenu()
     menu->addAction(main_ui_->actionViewPacketDetails);
     menu->addAction(main_ui_->actionViewPacketBytes);
     return menu;
+}
+
+void MainWindow::addInterfaceToolbar(const iface_toolbar *toolbar_entry)
+{
+    QMenu *menu = main_ui_->menuInterfaceToolbars;
+    bool visible = g_list_find_custom(recent.interface_toolbars, toolbar_entry->menu_title, (GCompareFunc) strcmp) ? true : false;
+
+    QString title = QString().fromUtf8(toolbar_entry->menu_title);
+    QAction *action = new QAction(title, menu);
+    action->setEnabled(true);
+    action->setCheckable(true);
+    action->setChecked(visible);
+    action->setToolTip(tr("Show or hide the toolbar"));
+
+    QAction *before = NULL;
+    foreach (QAction *action, menu->actions()) {
+        // Ensure we add the menu entries in sorted order
+        if (action->text().compare(title, Qt::CaseInsensitive) > 0) {
+            before = action;
+            break;
+        }
+    }
+    menu->insertAction(before, action);
+
+    InterfaceToolbar *interface_toolbar = new InterfaceToolbar(this, toolbar_entry);
+
+    QToolBar *toolbar = new QToolBar(this);
+    toolbar->addWidget(interface_toolbar);
+    toolbar->setMovable(false);
+    toolbar->setVisible(visible);
+
+    action->setData(qVariantFromValue(toolbar));
+
+    addToolBar(Qt::TopToolBarArea, toolbar);
+    insertToolBarBreak(toolbar);
+
+    if (show_hide_actions_) {
+        show_hide_actions_->addAction(action);
+    }
+
+    menu->menuAction()->setVisible(true);
+}
+
+void MainWindow::removeInterfaceToolbar(const gchar *menu_title)
+{
+    QMenu *menu = main_ui_->menuInterfaceToolbars;
+    QAction *action = NULL;
+    QMap<QAction *, QWidget *>::iterator i;
+
+    QString title = QString().fromUtf8(menu_title);
+    foreach (action, menu->actions()) {
+        if (title.compare(action->text()) == 0) {
+            break;
+        }
+    }
+
+    if (action) {
+        if (show_hide_actions_) {
+            show_hide_actions_->removeAction(action);
+        }
+        menu->removeAction(action);
+
+        QToolBar *toolbar = action->data().value<QToolBar *>();
+        removeToolBar(toolbar);
+
+        delete action;
+        delete toolbar;
+    }
+
+    menu->menuAction()->setVisible(!menu->actions().isEmpty());
 }
 
 void MainWindow::setPipeInputHandler(gint source, gpointer user_data, ws_process_id *child_process, pipe_input_cb_t input_cb)
@@ -1895,6 +2002,9 @@ void MainWindow::initShowHideMainWidgets()
         showHideMainWidgets(shmwa);
     }
 
+    // Initial hide the Interface Toolbar submenu
+    main_ui_->menuInterfaceToolbars->menuAction()->setVisible(false);
+
     /* Initially hide the additional toolbars menus */
     main_ui_->menuAdditionalToolbars->menuAction()->setVisible(false);
 
@@ -2356,7 +2466,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 }
 
 /* Update main window items based on whether there's a capture in progress. */
-void MainWindow::setForCaptureInProgress(bool capture_in_progress)
+void MainWindow::setForCaptureInProgress(bool capture_in_progress, GArray *ifaces)
 {
     setMenusForCaptureInProgress(capture_in_progress);
 
@@ -2367,6 +2477,20 @@ void MainWindow::setForCaptureInProgress(bool capture_in_progress)
     packet_list_->setVerticalAutoScroll(capture_in_progress && main_ui_->actionGoAutoScroll->isChecked());
 
 //    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
+#endif
+
+#ifdef HAVE_EXTCAP
+    QList<InterfaceToolbar *> toolbars = findChildren<InterfaceToolbar *>();
+    foreach (InterfaceToolbar *toolbar, toolbars) {
+        if (capture_in_progress && ifaces) {
+            for (guint i = 0; i < ifaces->len; i++) {
+                interface_options interface_opts = g_array_index(ifaces, interface_options, i);
+                toolbar->startCapture(interface_opts.name, interface_opts.extcap_control_in, interface_opts.extcap_control_out);
+            }
+        } else {
+            toolbar->stopCapture();
+        }
+    }
 #endif
 }
 

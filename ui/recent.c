@@ -75,6 +75,7 @@
 #define RECENT_GUI_RLC_PDUS_FROM_MAC_FRAMES   "gui.rlc_pdus_from_mac_frames"
 #define RECENT_GUI_CUSTOM_COLORS              "gui.custom_colors"
 #define RECENT_GUI_TOOLBAR_SHOW               "gui.additional_toolbar_show"
+#define RECENT_GUI_INTERFACE_TOOLBAR_SHOW     "gui.interface_toolbar_show"
 
 #define RECENT_GUI_GEOMETRY                   "gui.geom."
 
@@ -866,6 +867,12 @@ write_profile_recent(void)
   fprintf(rf, RECENT_GUI_TOOLBAR_SHOW ": %s\n", string_list);
   g_free(string_list);
 
+  fprintf(rf, "\n# Interface Toolbars show.\n");
+  fprintf(rf, "# List of interface toolbars to show.\n");
+  string_list = join_string_list(recent.interface_toolbars);
+  fprintf(rf, RECENT_GUI_INTERFACE_TOOLBAR_SHOW ": %s\n", string_list);
+  g_free(string_list);
+
   fclose(rf);
 
   /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
@@ -1121,6 +1128,8 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
     recent.gui_fileopen_remembered_dir = g_strdup(value);
   } else if (strcmp(key, RECENT_GUI_TOOLBAR_SHOW) == 0) {
       recent.gui_additional_toolbars = prefs_get_string_list(value);
+  } else if (strcmp(key, RECENT_GUI_INTERFACE_TOOLBAR_SHOW) == 0) {
+      recent.interface_toolbars = prefs_get_string_list(value);
   }
 
   return PREFS_SET_OK;
@@ -1292,6 +1301,11 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
   if (recent.gui_additional_toolbars) {
       g_list_free_full (recent.gui_additional_toolbars, g_free);
       recent.gui_additional_toolbars = NULL;
+  }
+
+  if (recent.interface_toolbars) {
+      g_list_free_full (recent.interface_toolbars, g_free);
+      recent.interface_toolbars = NULL;
   }
 
   /* Construct the pathname of the user's profile recent file. */

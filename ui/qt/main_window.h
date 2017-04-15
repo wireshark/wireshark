@@ -31,6 +31,7 @@
 #include "file.h"
 
 #include "ui/ui_util.h"
+#include "ui/iface_toolbar.h"
 
 #include <epan/prefs.h>
 #include <epan/plugin_if.h>
@@ -99,6 +100,9 @@ public:
     CaptureFile *captureFile() { return &capture_file_; }
 
     void removeAdditionalToolbar(QString toolbarName);
+
+    void addInterfaceToolbar(const iface_toolbar *toolbar_entry);
+    void removeInterfaceToolbar(const gchar *menu_title);
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
@@ -224,7 +228,7 @@ private:
 
     void externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth);
 
-    void setForCaptureInProgress(bool capture_in_progress = false);
+    void setForCaptureInProgress(bool capture_in_progress = false, GArray *ifaces = NULL);
     QMenu* findOrAddMenu(QMenu *parent_menu, QString& menu_text);
 
     void recursiveCopyProtoTreeItems(QTreeWidgetItem *item, QString &clip, int ident_level);

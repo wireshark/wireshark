@@ -51,13 +51,38 @@ import struct
 import binascii
 from threading import Thread
 
-ERROR_USAGE		= 0
-ERROR_ARG 		= 1
-ERROR_INTERFACE	= 2
-ERROR_FIFO 		= 3
-ERROR_DELAY		= 4
+ERROR_USAGE          = 0
+ERROR_ARG            = 1
+ERROR_INTERFACE      = 2
+ERROR_FIFO           = 3
+ERROR_DELAY          = 4
 
-globalinterface = 0
+CTRL_CMD_INITIALIZED = 0
+CTRL_CMD_SET         = 1
+CTRL_CMD_ADD         = 2
+CTRL_CMD_REMOVE      = 3
+CTRL_CMD_ENABLE      = 4
+CTRL_CMD_DISABLE     = 5
+CTRL_CMD_STATUSBAR   = 6
+CTRL_CMD_INFORMATION = 7
+CTRL_CMD_WARNING     = 8
+CTRL_CMD_ERROR       = 9
+
+CTRL_ARG_MESSAGE     = 0
+CTRL_ARG_DELAY       = 1
+CTRL_ARG_VERIFY      = 2
+CTRL_ARG_BUTTON      = 3
+CTRL_ARG_HELP        = 4
+CTRL_ARG_RESET       = 5
+CTRL_ARG_LOGGER      = 6
+CTRL_ARG_NONE        = 255
+
+initialized = False
+message = ''
+delay = 0.0
+verify = False
+button = False
+button_disabled = False
 
 """
 This code has been taken from http://stackoverflow.com/questions/5943249/python-argparse-and-controlling-overriding-the-exit-status-code - originally developed by Rob Cowie http://stackoverflow.com/users/46690/rob-cowie
@@ -128,12 +153,29 @@ def extcap_config(interface):
 
 
 def extcap_interfaces():
-	print ("extcap {version=1.0}{help=http://www.wireshark.org}")
-	print ("interface {value=example1}{display=Example interface usage for extcap}")
+	print ("extcap {version=1.0}{help=http://www.wireshark.org}{display=Example extcap interface}")
+	print ("interface {value=example1}{display=Example interface 1 for extcap}")
+	print ("interface {value=example2}{display=Example interface 2 for extcap}")
+	print ("control {number=%d}{type=string}{display=Message}{tooltip=Package message content. Must start with a capital letter.}{placeholder=Enter package message content here ...}{validation=^[A-Z]+}" % CTRL_ARG_MESSAGE)
+	print ("control {number=%d}{type=selector}{display=Time delay}{tooltip=Time delay between packages}" % CTRL_ARG_DELAY)
+	print ("control {number=%d}{type=boolean}{display=Verify}{default=true}{tooltip=Verify package content}" % CTRL_ARG_VERIFY)
+	print ("control {number=%d}{type=button}{display=Turn on}{tooltip=Turn on or off}" % CTRL_ARG_BUTTON)
+	print ("control {number=%d}{type=button}{role=help}{display=Help}{tooltip=Show help}" % CTRL_ARG_HELP)
+	print ("control {number=%d}{type=button}{role=reset}{display=Reset}{tooltip=Restore default values}" % CTRL_ARG_RESET)
+	print ("control {number=%d}{type=button}{role=logger}{display=Log}{tooltip=Show capture log}" % CTRL_ARG_LOGGER)
+	print ("value {control=%d}{value=1}{display=1}" % CTRL_ARG_DELAY)
+	print ("value {control=%d}{value=2}{display=2}" % CTRL_ARG_DELAY)
+	print ("value {control=%d}{value=3}{display=3}" % CTRL_ARG_DELAY)
+	print ("value {control=%d}{value=4}{display=4}" % CTRL_ARG_DELAY)
+	print ("value {control=%d}{value=5}{display=5}{default=true}" % CTRL_ARG_DELAY)
+	print ("value {control=%d}{value=60}{display=60}" % CTRL_ARG_DELAY)
+
 
 def extcap_dlts(interface):
 	if ( interface == '1' ):
 		print ("dlt {number=147}{name=USER0}{display=Demo Implementation for Extcap}")
+	elif ( interface == '2' ):
+		print ("dlt {number=148}{name=USER1}{display=Demo Implementation for Extcap}")
 
 """
 
@@ -216,20 +258,125 @@ def pcap_fake_package ( message, fake_ip ):
 	pcap += message
 	return pcap
 
-def extcap_capture(interface, fifo, delay, verify, message, remote, fake_ip):
-	tdelay = delay if delay != 0 else 5
+def control_read(fn):
+	try:
+		header = fn.read(6)
+		sp, _, length, arg, typ = struct.unpack('>sBHBB', header)
+		if length > 2:
+			payload = fn.read(length - 2)
+		else:
+			payload = ''
+		return arg, typ, payload
+	except:
+		return None, None, None
+
+def control_read_thread(control_in, fn_out):
+	global initialized, message, delay, verify, button, button_disabled
+	with open(control_in, 'rb', 0 ) as fn:
+	        arg = 0
+		while arg != None:
+			arg, typ, payload = control_read(fn)
+			log = ''
+			if typ == CTRL_CMD_INITIALIZED:
+				initialized = True
+			elif arg == CTRL_ARG_MESSAGE:
+				message = payload
+				log = "Message = " + payload
+			elif arg == CTRL_ARG_DELAY:
+				delay = float(payload)
+				log = "Time delay = " + payload
+			elif arg == CTRL_ARG_VERIFY:
+				# Only read this after initialized
+				if initialized:
+					verify = (payload[0] != '\0')
+					log = "Verify = " + str(verify)
+					control_write(fn_out, CTRL_ARG_NONE, CTRL_CMD_STATUSBAR, "Verify changed")
+			elif arg == CTRL_ARG_BUTTON:
+				control_write(fn_out, CTRL_ARG_BUTTON, CTRL_CMD_DISABLE, "")
+				button_disabled = True
+				if button == True:
+					control_write(fn_out, CTRL_ARG_BUTTON, CTRL_CMD_SET, "Turn on")
+					button = False
+					log = "Button turned off"
+				else:
+					control_write(fn_out, CTRL_ARG_BUTTON, CTRL_CMD_SET, "Turn off")
+					button = True
+					log = "Button turned on"
+
+			if len(log) > 0:
+				control_write(fn_out, CTRL_ARG_LOGGER, CTRL_CMD_ADD, log + "\n")
+
+def control_write(fn, arg, typ, payload):
+	packet = bytearray()
+	packet += struct.pack('>sBHBB', 'T', 0, len(payload) + 2, arg, typ)
+	packet += payload
+	fn.write(packet)
+
+def control_write_defaults(fn_out):
+	global initialized, message, delay, verify
+
+	while not initialized:
+		time.sleep(.1)  # Wait for initial control values
+
+	# Write startup configuration to Toolbar controls
+	control_write(fn_out, CTRL_ARG_MESSAGE, CTRL_CMD_SET, message)
+	control_write(fn_out, CTRL_ARG_DELAY, CTRL_CMD_SET, str(delay))
+	control_write(fn_out, CTRL_ARG_VERIFY, CTRL_CMD_SET, struct.pack('B', verify))
+
+	for i in range(1,16):
+		item = bytearray()
+		item += str(i) + struct.pack('B', 0) + str(i) + " sec"
+		control_write(fn_out, CTRL_ARG_DELAY, CTRL_CMD_ADD, item)
+
+	control_write(fn_out, CTRL_ARG_DELAY, CTRL_CMD_REMOVE, str(60))
+
+def extcap_capture(interface, fifo, control_in, control_out, in_delay, in_verify, in_message, remote, fake_ip):
+	global message, delay, verify, button_disabled
+	delay = in_delay if in_delay != 0 else 5
+	message = in_message
+	verify = in_verify
+	counter = 1
 
 	if not os.path.exists(fifo):
 		print ( "Fifo does not exist, exiting!", file=sys.stderr )
 		sys.exit(1)
 
+	fn_out = None
+	if control_out != None:
+		fn_out = open(control_out, 'wb', 0)
+		control_write(fn_out, CTRL_ARG_LOGGER, CTRL_CMD_SET, "Log started at " + time.strftime("%c") + "\n")
+
+
+	if control_in != None:
+		# Start reading thread
+		thread = Thread(target = control_read_thread, args = (control_in, fn_out))
+		thread.start()
+
+
+	if fn_out != None:
+		control_write_defaults(fn_out)
+
 	with open(fifo, 'wb', 0 ) as fh:
 		fh.write (pcap_fake_header())
 
 		while True:
+			if fn_out != None:
+				log = "Received packet #" + str(counter) + "\n"
+				control_write(fn_out, CTRL_ARG_LOGGER, CTRL_CMD_ADD, log)
+				counter = counter + 1
+
+				if button_disabled == True:
+					control_write(fn_out, CTRL_ARG_BUTTON, CTRL_CMD_ENABLE, "")
+					control_write(fn_out, CTRL_ARG_NONE, CTRL_CMD_INFORMATION, "Turn action finished.")
+					button_disabled = False
+
 			out = ("%s|%04X%s|%s" % ( remote.strip(), len(message), message, verify )).encode("utf8")
 			fh.write (pcap_fake_package(out, fake_ip))
-			time.sleep(tdelay)
+			time.sleep(delay)
+
+	thread.join()
+	if fn_out != None:
+	        fn_out.close()
 
 def extcap_close_fifo(fifo):
 	if not os.path.exists(fifo):
@@ -268,6 +415,8 @@ if __name__ == '__main__':
 	parser.add_argument("--extcap-config", help="Provide a list of configurations for the given interface", action="store_true")
 	parser.add_argument("--extcap-capture-filter", help="Used together with capture to provide a capture filter")
 	parser.add_argument("--fifo", help="Use together with capture to provide the fifo to dump data to")
+	parser.add_argument("--extcap-control-in", help="Use together with capture to provide the fifo to dump data to")
+	parser.add_argument("--extcap-control-out", help="Use together with capture to provide the fifo to dump data to")
 
 	# Interface Arguments
 	parser.add_argument("--verify", help="Demonstrates a verification bool flag", action="store_true" )
@@ -334,7 +483,7 @@ if __name__ == '__main__':
 			sys.exit(ERROR_DELAY)
 
 		try:
-			extcap_capture(interface, args.fifo, args.delay, args.verify, message, args.remote, fake_ip)
+			extcap_capture(interface, args.fifo, args.extcap_control_in, args.extcap_control_out, args.delay, args.verify, message, args.remote, fake_ip)
 		except KeyboardInterrupt:
 			pass
 	else:

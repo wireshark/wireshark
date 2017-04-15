@@ -60,6 +60,7 @@ WIRESHARK_UI_SRC = \
 	failure_message.c	\
 	filter_files.c		\
 	firewall_rules.c	\
+	iface_toolbar.c		\
 	iface_lists.c		\
 	io_graph_item.c		\
 	language.c		\
@@ -109,6 +110,7 @@ WIRESHARK_UI_INCLUDES = \
 	help_url.h		\
 	packet_list_utils.h	\
 	firewall_rules.h	\
+	iface_toolbar.h		\
 	iface_lists.h		\
 	io_graph_item.h		\
 	language.h		\

@@ -226,6 +226,8 @@ typedef struct interface_options_tag {
     GPid              extcap_pid;           /* pid of running process or INVALID_EXTCAP_PID */
     gpointer          extcap_userdata;
     guint             extcap_child_watch;
+    gchar            *extcap_control_in;
+    gchar            *extcap_control_out;
 #endif
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     int               buffer_size;

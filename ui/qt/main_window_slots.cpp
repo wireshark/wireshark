@@ -119,6 +119,7 @@
 #include "funnel_statistics.h"
 #include "gsm_map_summary_dialog.h"
 #include "iax2_analysis_dialog.h"
+#include "interface_toolbar.h"
 #include "io_graph_dialog.h"
 #include <additional_toolbar.h>
 #include "lbm_stream_dialog.h"
@@ -486,6 +487,15 @@ void MainWindow::layoutToolbars()
     main_ui_->wirelessToolBar->setVisible(recent.wireless_toolbar_show);
     main_ui_->statusBar->setVisible(recent.statusbar_show);
 
+    foreach (QAction *action, main_ui_->menuInterfaceToolbars->actions()) {
+        QToolBar *toolbar = action->data().value<QToolBar *>();
+        if (g_list_find_custom(recent.interface_toolbars, action->text().toUtf8(), (GCompareFunc) strcmp)) {
+            toolbar->setVisible(true);
+        } else {
+            toolbar->setVisible(false);
+        }
+    }
+
     QList<QToolBar *> toolbars = findChildren<QToolBar *>();
     foreach (QToolBar *bar, toolbars) {
         AdditionalToolBar *iftoolbar = dynamic_cast<AdditionalToolBar *>(bar);
@@ -495,6 +505,7 @@ void MainWindow::layoutToolbars()
                 visible = true;
 
             iftoolbar->setVisible(visible);
+
         }
     }
 }
@@ -522,6 +533,14 @@ void MainWindow::updateRecentActions()
     main_ui_->actionViewPacketList->setChecked(recent.packet_list_show && prefs_has_layout_pane_content(layout_pane_content_plist));
     main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show && prefs_has_layout_pane_content(layout_pane_content_pdetails));
     main_ui_->actionViewPacketBytes->setChecked(recent.byte_view_show && prefs_has_layout_pane_content(layout_pane_content_pbytes));
+
+    foreach (QAction *action, main_ui_->menuInterfaceToolbars->actions()) {
+        if (g_list_find_custom(recent.interface_toolbars, action->text().toUtf8(), (GCompareFunc) strcmp)) {
+            action->setChecked(true);
+        } else {
+            action->setChecked(false);
+        }
+    }
 
     foreach (QAction * action, main_ui_->menuAdditionalToolbars->actions()) {
         ext_toolbar_t * toolbar = VariantPointer<ext_toolbar_t>::asPtr(action->data());
@@ -628,7 +647,7 @@ void MainWindow::queuedFilterAction(QString action_filter, FilterAction::Action 
 
 // Capture callbacks
 
-void MainWindow::captureCapturePrepared(capture_session *) {
+void MainWindow::captureCapturePrepared(capture_session *session) {
 #ifdef HAVE_LIBPCAP
     setTitlebarForCaptureInProgress();
 
@@ -636,7 +655,7 @@ void MainWindow::captureCapturePrepared(capture_session *) {
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
-    setForCaptureInProgress(true);
+    setForCaptureInProgress(true, session->capture_opts->ifaces);
 //    set_capture_if_dialog_for_capture_in_progress(TRUE);
 
 //    /* Don't set up main window for a capture file. */
@@ -645,14 +664,14 @@ void MainWindow::captureCapturePrepared(capture_session *) {
 #endif // HAVE_LIBPCAP
 }
 
-void MainWindow::captureCaptureUpdateStarted(capture_session *) {
+void MainWindow::captureCaptureUpdateStarted(capture_session *session) {
 #ifdef HAVE_LIBPCAP
 
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
     setTitlebarForCaptureInProgress();
 
-    setForCaptureInProgress(true);
+    setForCaptureInProgress(true, session->capture_opts->ifaces);
 
     setForCapturedPackets(true);
 #endif // HAVE_LIBPCAP
@@ -2257,6 +2276,19 @@ void MainWindow::showHideMainWidgets(QAction *action)
         recent.byte_view_show = show;
         main_ui_->actionViewPacketBytes->setChecked(show);
     } else {
+        foreach (QAction *action, main_ui_->menuInterfaceToolbars->actions()) {
+            QToolBar *toolbar = action->data().value<QToolBar *>();
+            if (widget == toolbar) {
+                GList *entry = g_list_find_custom(recent.interface_toolbars, action->text().toUtf8(), (GCompareFunc) strcmp);
+                if (show && !entry) {
+                    recent.interface_toolbars = g_list_append(recent.interface_toolbars, g_strdup(action->text().toUtf8()));
+                } else if (!show && entry) {
+                    recent.interface_toolbars = g_list_remove(recent.interface_toolbars, entry->data);
+                }
+                action->setChecked(show);
+            }
+        }
+
         ext_toolbar_t * toolbar = VariantPointer<ext_toolbar_t>::asPtr(action->data());
         if (toolbar) {
             GList *entry = g_list_find_custom(recent.gui_additional_toolbars, toolbar->name, (GCompareFunc) strcmp);

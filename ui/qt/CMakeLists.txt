@@ -87,6 +87,9 @@ set(WIRESHARK_QT_HEADERS
 	gsm_map_summary_dialog.h
 	iax2_analysis_dialog.h
 	import_text_dialog.h
+	interface_toolbar.h
+	interface_toolbar_reader.h
+	interface_toolbar_lineedit.h
 	interface_tree_model.h
 	interface_tree_cache_model.h
 	interface_sort_filter_model.h
@@ -257,6 +260,9 @@ set(WIRESHARK_QT_SRC
 	geometry_state_dialog.cpp
 	iax2_analysis_dialog.cpp
 	import_text_dialog.cpp
+	interface_toolbar.cpp
+	interface_toolbar_reader.cpp
+	interface_toolbar_lineedit.cpp
 	interface_tree_model.cpp
 	interface_tree_cache_model.cpp
 	interface_sort_filter_model.cpp
@@ -418,6 +424,7 @@ set(WIRESHARK_QT_UI
 	iax2_analysis_dialog.ui
 	import_text_dialog.ui
 	interface_frame.ui
+	interface_toolbar.ui
 	io_graph_dialog.ui
 	layout_preferences_frame.ui
 	lbm_lbtrm_transport_dialog.ui

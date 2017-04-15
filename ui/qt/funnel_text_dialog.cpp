@@ -47,6 +47,7 @@ FunnelTextDialog::FunnelTextDialog(const QString &title) :
     if (!title.isEmpty()) {
         loadGeometry(0, 0, QString("Funnel %1").arg(title));
     }
+    setWindowTitle(wsApp->windowTitleString(title));
 
     funnel_text_window_.funnel_text_dialog = this;
 
@@ -75,7 +76,6 @@ void FunnelTextDialog::reject()
 struct _funnel_text_window_t *FunnelTextDialog::textWindowNew(const QString title)
 {
     FunnelTextDialog *ftd = new FunnelTextDialog(title);
-    ftd->setWindowTitle(wsApp->windowTitleString(title));
     ftd->show();
     return &ftd->funnel_text_window_;
 }
