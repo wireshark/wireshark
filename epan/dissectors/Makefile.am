@@ -560,6 +560,7 @@ DISSECTOR_SRC = \
 	packet-enrp.c		\
 	packet-enttec.c		\
 	packet-epl.c		\
+	packet-epl-profile-parser.c		\
 	packet-epl_v1.c		\
 	packet-epmd.c		\
 	packet-epon.c		\
@@ -1543,6 +1544,7 @@ DISSECTOR_INCLUDES = \
 	packet-eapol.h		\
 	packet-edonkey.h	\
 	packet-eigrp.h		\
+	packet-epl.h		\
 	packet-epmd.h		\
 	packet-ess.h		\
 	packet-eth.h		\

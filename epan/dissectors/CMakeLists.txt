@@ -538,6 +538,7 @@ set(DISSECTOR_SRC
 	packet-enrp.c
 	packet-enttec.c
 	packet-epl.c
+	packet-epl-profile-parser.c
 	packet-epl_v1.c
 	packet-epmd.c
 	packet-epon.c
