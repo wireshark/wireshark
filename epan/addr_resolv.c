@@ -659,6 +659,7 @@ initialize_services(void)
         /* Check profile directory before personal configuration */
         g_pservices_path = get_persconffile_path(ENAME_SERVICES, TRUE);
         if (!parse_services_file(g_pservices_path)) {
+            g_free(g_pservices_path);
             g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE);
         } else {
             parse_file = FALSE;
