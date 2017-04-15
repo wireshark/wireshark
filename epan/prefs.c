@@ -594,6 +594,8 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
         prefs_register_modules();
     }
     protocol = find_protocol_by_id(id);
+    if (protocol == NULL)
+        g_error("Protocol preferences being registered with an invalid protocol ID");
     return prefs_register_module(protocols_module,
                                  proto_get_protocol_filter_name(id),
                                  proto_get_protocol_short_name(protocol),
@@ -604,6 +606,8 @@ void
 prefs_deregister_protocol (int id)
 {
     protocol_t *protocol = find_protocol_by_id(id);
+    if (protocol == NULL)
+        g_error("Protocol preferences being de-registered with an invalid protocol ID");
     prefs_deregister_module (protocols_module,
                              proto_get_protocol_filter_name(id),
                              proto_get_protocol_short_name(protocol));
@@ -662,6 +666,8 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
     }
 
     protocol = find_protocol_by_id(id);
+    if (protocol == NULL)
+        g_error("Protocol subtree being registered with an invalid protocol ID");
     return prefs_register_module(subtree_module,
                                  proto_get_protocol_filter_name(id),
                                  proto_get_protocol_short_name(protocol),
@@ -691,6 +697,8 @@ prefs_register_protocol_obsolete(int id)
         prefs_register_modules();
     }
     protocol = find_protocol_by_id(id);
+    if (protocol == NULL)
+        g_error("Protocol being registered with an invalid protocol ID");
     module = prefs_register_module(protocols_module,
                                    proto_get_protocol_filter_name(id),
                                    proto_get_protocol_short_name(protocol),
