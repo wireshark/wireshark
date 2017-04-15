@@ -171,12 +171,12 @@ static struct action *Action_new(void);
 static struct action *Action_sort(struct action *);
 
 /********** From the file "build.h" ************************************/
-void FindRulePrecedences(struct lemon *);
-void FindFirstSets(struct lemon *);
-void FindStates(struct lemon *);
-void FindLinks(struct lemon *);
-void FindFollowSets(struct lemon *);
-void FindActions(struct lemon *);
+void FindRulePrecedences(struct lemon*);
+void FindFirstSets(struct lemon*);
+void FindStates(struct lemon*);
+void FindLinks(struct lemon*);
+void FindFollowSets(struct lemon*);
+void FindActions(struct lemon*);
 
 /********* From the file "configlist.h" *********************************/
 void Configlist_init(void);
