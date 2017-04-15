@@ -823,7 +823,7 @@ main(int argc, char *argv[])
                     ret =  FORMAT_ERROR;
                     goto clean_exit;
                 }
-                bytes_left -= bytes;
+                bytes_left -= (unsigned int)bytes;
             }
         }
 
@@ -904,7 +904,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
             *err_info = NULL;
             return FALSE;
         }
-        bytes_needed -= bytes_read;
+        bytes_needed -= (unsigned int)bytes_read;
         *data_offset += bytes_read;
         ptr += bytes_read;
     }
@@ -950,7 +950,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
             *err_info = NULL;
             return FALSE;
         }
-        bytes_needed -= bytes_read;
+        bytes_needed -= (unsigned int)bytes_read;
         *data_offset += bytes_read;
         ptr += bytes_read;
     }
