@@ -302,6 +302,7 @@ add_selection(char *sel, guint* max_selection)
         if (verbose)
             fprintf(stderr, "Inclusive ...");
 
+        *locn = '\0';    /* split the range */
         next = locn + 1;
         selectfrm[max_selected].inclusive = TRUE;
         selectfrm[max_selected].first = get_guint32(sel, "beginning of packet range");
