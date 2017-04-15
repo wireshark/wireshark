@@ -608,7 +608,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                 uncompr_tvb_offset += 4;
                 i=0;
-                proto_tree_add_item_ret_uint(slsk_compr_packet_tree, hf_slsk_num_files, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j2);
+                proto_tree_add_item_ret_uint(slsk_compr_packet_tree, hf_slsk_num_files, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j);
                 uncompr_tvb_offset += 4;
                 while (i<j){
                   if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "bsiisi*")) {
