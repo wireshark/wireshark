@@ -488,6 +488,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  epan_dissect_packet_contains_field@Base 1.12.0~rc1
  epan_dissect_prime_with_dfilter@Base 2.3.0
  epan_dissect_prime_with_hfid@Base 2.3.0
+ epan_dissect_prime_with_hfid_array@Base 2.3.0
  epan_dissect_reset@Base 1.12.0~rc1
  epan_dissect_run@Base 1.9.1
  epan_dissect_run_with_taps@Base 1.9.1
@@ -1000,7 +1001,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_register_stat@Base 1.9.1
  prefs_register_static_text_preference@Base 1.9.1
  prefs_register_string_preference@Base 1.9.1
- prefs_register_subtree@Base 2.1.0
  prefs_register_uat_preference@Base 1.9.1
  prefs_register_uat_preference_qt@Base 1.12.0~rc1
  prefs_register_uint_preference@Base 1.9.1
@@ -1016,6 +1016,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_set_stashed_range_value@Base 2.3.0
  prefs_set_string_value@Base 2.3.0
  prefs_set_uint_value@Base 2.3.0
+ prime_epan_dissect_with_postdissector_wanted_fields@Base 2.3.0
  print_bookmark@Base 1.12.0~rc1
  print_finale@Base 1.12.0~rc1
  print_hex_data@Base 1.12.0~rc1
@@ -1721,6 +1722,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_khz@Base 2.3.0
  units_kibps@Base 2.3.0
  units_kmh@Base 2.3.0
+ units_mbm@Base 2.3.0
  units_meter_meters@Base 2.3.0
  units_meter_sec@Base 2.3.0
  units_meter_sec_squared@Base 2.3.0
