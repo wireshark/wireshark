@@ -98,13 +98,13 @@ CLEANFILES = \
 DISTCLEANFILES = \
 	mate_grammar.out \
 	$(NODIST_SRC_FILES) \
-	$(NODIST_HEADER_FILES)
+	$(NODIST_HEADER_FILES) \
+	plugin.c
 
 MAINTAINERCLEANFILES = \
 	Makefile.in \
 	$(GENERATED_SRC_FILES) \
-	$(GENERATED_HEADER_FILES) \
-	plugin.c
+	$(GENERATED_HEADER_FILES)
 
 EXTRA_DIST = \
 	mate_grammar.lemon	\

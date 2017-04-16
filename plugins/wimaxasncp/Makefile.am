@@ -78,11 +78,13 @@ CLEANFILES = \
 	wimaxasncp \
 	*~
 
+DISTCLEANFILES = \
+	plugin.c
+
 MAINTAINERCLEANFILES = \
 	Makefile.in	      \
 	$(GENERATED_SRC_FILES) \
-	$(GENERATED_HEADER_FILES) \
-	plugin.c
+	$(GENERATED_HEADER_FILES)
 
 EXTRA_DIST = \
 	plugin.rc.in		\

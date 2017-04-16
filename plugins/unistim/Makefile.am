@@ -66,9 +66,11 @@ CLEANFILES = \
 	unistim \
 	*~
 
-MAINTAINERCLEANFILES = \
-	Makefile.in	\
+DISTCLEANFILES = \
 	plugin.c
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
 
 EXTRA_DIST = \
 	plugin.rc.in		\
