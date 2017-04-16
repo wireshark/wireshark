@@ -108,6 +108,9 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	mate_grammar.lemon	\
+	mate_grammar.c		\
+	mate_grammar.h		\
+	mate_grammar.out	\
 	mate_parser.l		\
 	plugin.rc.in		\
 	CMakeLists.txt		\
