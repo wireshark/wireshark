@@ -602,9 +602,9 @@ static const value_string info_element_values [] = {
     { CONTROL_FUNCTION_ELEMENT, "Control function element" },
     { CONTROL_FUNCTION_ID,      "Control function ID" },
     { ENABLE_METERING,          "Enable metering" },
-    { VARIANT,                  "Variant" },
+/*    { VARIANT,                  "Variant" },  XXX - Duplicate value of ENABLE_METERING */
     { METERING_REPORT,          "Metering report" },
-    { INTERFACE_ID,             "Interface ID" },
+/*    { INTERFACE_ID,             "Interface ID" }, XXX - Duplicate value of METERING_REPORT */
     { ATTENUATION,              "Attenuation" },
     { LINK_CONTROL_FUNCTION,    "Link control function" },
     { USER_PORT_ID,             "User port ID" },
