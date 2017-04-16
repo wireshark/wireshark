@@ -465,7 +465,7 @@ static const value_string nfq_ctinfo_vals[] = {
 	{ WS_IP_CT_RELATED,             "RELATED" },
 	{ WS_IP_CT_NEW,                 "NEW" },
 	{ WS_IP_CT_IS_REPLY,            "IS_REPLY" },
-	{ WS_IP_CT_ESTABLISHED_REPLY,   "ESTABLISHED_REPLY" },
+/*	{ WS_IP_CT_ESTABLISHED_REPLY,   "ESTABLISHED_REPLY" }, XXX - duplicate of WS_IP_CT_ESTABLISHED */
 	{ WS_IP_CT_RELATED_REPLY,       "RELATED_REPLY" },
 	{ WS_IP_CT_NUMBER,              "NUMBER" },
 	{ 0, NULL }
