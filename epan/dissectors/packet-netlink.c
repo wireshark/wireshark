@@ -348,7 +348,7 @@ dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding
 	proto_tree *fh_hdr;
 	proto_item *pi;
 
-	fh_hdr = proto_tree_add_subtree(tree, tvb, offset, 16, ett_netlink_msghdr, NULL, "Header");
+	fh_hdr = proto_tree_add_subtree(tree, tvb, offset, 16, ett_netlink_msghdr, NULL, "Netlink message header");
 
 	proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_len, tvb, offset, 4, encoding);
 	offset += 4;
@@ -497,7 +497,7 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 			 */
 			proto_tree *fh_hdr;
 
-			fh_hdr = proto_tree_add_subtree(tree, tvb, offset, 4, ett_netlink_msghdr, NULL, "Header");
+			fh_hdr = proto_tree_add_subtree(tree, tvb, offset, 4, ett_netlink_msghdr, NULL, "Netlink message header");
 
 			proto_tree_add_item(fh_hdr, &hfi_netlink_hdr_len, tvb, offset, 4, encoding);
 			/* XXX invalid expert */

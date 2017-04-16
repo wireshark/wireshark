@@ -135,9 +135,13 @@ typedef struct {
 	struct packet_netlink_data *data;
 	int             encoding; /* copy of data->encoding */
 
+	/* For internal use by genl. */
+	proto_tree     *genl_tree;
+
 	/* fields from genlmsghdr */
 	guint8 	        cmd; /* Command number */
-	proto_item     *cmd_pi; /* Field for command, for appending protocol-specific name. */
 } genl_info_t;
+
+int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, header_field_info *hfi_cmd);
 
 #endif /* __PACKET_NETLINK_H__ */
