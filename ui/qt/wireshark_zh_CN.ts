@@ -1351,15 +1351,13 @@
         <translation>管理捕获筛选器</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="515"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>无法保存捕获筛选器设置。</translation>
+        <translation type="vanished">无法保存捕获筛选器设置。</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="516"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation>未能保存您的捕获过滤器文件
+        <translation type="vanished">未能保存您的捕获过滤器文件
 “%1”：%2。</translation>
     </message>
 </context>
@@ -2202,15 +2200,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>管理过滤器表达式</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="546"/>
         <source>Unable to save display filter settings.</source>
-        <translation>无法保存显示过滤器设置。</translation>
+        <translation type="vanished">无法保存显示过滤器设置。</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="547"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation>未能保存您的显示过滤器文件
+        <translation type="vanished">未能保存您的显示过滤器文件
 “%1”：%2。</translation>
     </message>
     <message>
@@ -2942,41 +2938,35 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>新建显示过滤器</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="213"/>
         <source>Unable to create profile directory.</source>
-        <translation>无法创建配置文件目录。</translation>
+        <translation type="vanished">无法创建配置文件目录。</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="214"/>
         <source>Unable to create directory
 &quot;%1&quot;
 for filter files: %2.</source>
-        <translation>无法创建目录
+        <translation type="vanished">无法创建目录
 “%1”
 为过滤器文件: %2。</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="228"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>无法保存捕获过滤器设置。</translation>
+        <translation type="vanished">无法保存捕获过滤器设置。</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="229"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation>未能保存您的捕获过滤器文件
+        <translation type="vanished">未能保存您的捕获过滤器文件
 “%1”：%2。</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="232"/>
         <source>Unable to save display filter settings.</source>
-        <translation>无法保存显示过滤器设置。</translation>
+        <translation type="vanished">无法保存显示过滤器设置。</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="233"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation>未能保存您的显示过滤器文件
+        <translation type="vanished">未能保存您的显示过滤器文件
 “%1”：%2。</translation>
     </message>
 </context>

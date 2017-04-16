@@ -1351,15 +1351,13 @@
         <translation>キャプチャフィルタ管理</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="515"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>キャプチャフィルタ設定を保存できません</translation>
+        <translation type="vanished">キャプチャフィルタ設定を保存できません</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="516"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished">キャプチャフィルタファイルを保存できません &quot;%1&quot;: %2.</translation>
+        <translation type="obsolete">キャプチャフィルタファイルを保存できません &quot;%1&quot;: %2.</translation>
     </message>
 </context>
 <context>
@@ -2200,15 +2198,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>フィルタ表示式を管理</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="546"/>
         <source>Unable to save display filter settings.</source>
-        <translation>表示フィルタ設定を保存できません</translation>
+        <translation type="vanished">表示フィルタ設定を保存できません</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="547"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished">表示フィルタファイルへ保存できません。&quot;%1&quot;: %2</translation>
+        <translation type="obsolete">表示フィルタファイルへ保存できません。&quot;%1&quot;: %2</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="363"/>
@@ -2939,38 +2935,32 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>新規表示フィルタ</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="213"/>
         <source>Unable to create profile directory.</source>
-        <translation>プロファイルのディレクトリを作成できません</translation>
+        <translation type="vanished">プロファイルのディレクトリを作成できません</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="214"/>
         <source>Unable to create directory
 &quot;%1&quot;
 for filter files: %2.</source>
-        <translation>ディレクトリを作成できません。&quot;%1&quot; フィルタファイル: %2</translation>
+        <translation type="vanished">ディレクトリを作成できません。&quot;%1&quot; フィルタファイル: %2</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="228"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>キャプチャフィルタ設定を保存できません。</translation>
+        <translation type="vanished">キャプチャフィルタ設定を保存できません。</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="229"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation>キャプチャフィルタファイルを保存できません &quot;%1&quot;: %2.</translation>
+        <translation type="vanished">キャプチャフィルタファイルを保存できません &quot;%1&quot;: %2.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="232"/>
         <source>Unable to save display filter settings.</source>
-        <translation>表示フィルタ設定を保存できません</translation>
+        <translation type="vanished">表示フィルタ設定を保存できません</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="233"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation>表示フィルタファイルへ保存できません。&quot;%1&quot;: %2</translation>
+        <translation type="vanished">表示フィルタファイルへ保存できません。&quot;%1&quot;: %2</translation>
     </message>
 </context>
 <context>

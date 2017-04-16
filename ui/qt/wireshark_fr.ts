@@ -1356,15 +1356,13 @@
         <translation>Gérer les Filtres de Capture</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="515"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>Impossible d&apos;enregistrer les paramètres du filtre de capture.</translation>
+        <translation type="vanished">Impossible d&apos;enregistrer les paramètres du filtre de capture.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="516"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Ne peut sauvegarder dans votre dossier de filtre de capture
+        <translation type="vanished">Ne peut sauvegarder dans votre dossier de filtre de capture
 &quot;%1&quot;: %2.</translation>
     </message>
 </context>
@@ -2207,15 +2205,13 @@ si vous voulez utiliser des fichiers multiples.</translation>
         <translation>Gérer des Expressions de Filtre</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="546"/>
         <source>Unable to save display filter settings.</source>
-        <translation>Impossible d&apos;enregistrer les paramètres de filtre d&apos;affichage.</translation>
+        <translation type="vanished">Impossible d&apos;enregistrer les paramètres de filtre d&apos;affichage.</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="547"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Impossible de sauvegarder dans votre dossier de filtre d&apos;affichage
+        <translation type="vanished">Impossible de sauvegarder dans votre dossier de filtre d&apos;affichage
 &quot;%1&quot;: %2.</translation>
     </message>
     <message>
@@ -2948,41 +2944,35 @@ si vous voulez utiliser des fichiers multiples.</translation>
         <translation>Nouveau filtre d&apos;affichage</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="213"/>
         <source>Unable to create profile directory.</source>
-        <translation>Impossible de créer le répertoire de profil.</translation>
+        <translation type="vanished">Impossible de créer le répertoire de profil.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="214"/>
         <source>Unable to create directory
 &quot;%1&quot;
 for filter files: %2.</source>
-        <translation>Impossible de créer répertoire
+        <translation type="vanished">Impossible de créer répertoire
 &quot;%1&quot;
 pour fichiers de filtre : %2.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="228"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>impossible d&apos;enregistrer les paramètres de filtre de capture.</translation>
+        <translation type="vanished">impossible d&apos;enregistrer les paramètres de filtre de capture.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="229"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Ne peut enregistrer votre fichier de filtre de capture
+        <translation type="vanished">Ne peut enregistrer votre fichier de filtre de capture
 &quot;%1&quot;: %2.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="232"/>
         <source>Unable to save display filter settings.</source>
-        <translation>Impossible d&apos;enregistrer les paramètres de filtre d&apos;affichage.</translation>
+        <translation type="vanished">Impossible d&apos;enregistrer les paramètres de filtre d&apos;affichage.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="233"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Ne peut enregistrer votre fichier de filtre d&apos;affichage
+        <translation type="vanished">Ne peut enregistrer votre fichier de filtre d&apos;affichage
 &quot;%1&quot;: %2.
 </translation>
     </message>

@@ -1293,17 +1293,6 @@
         <source>Manage Capture Filters</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="capture_filter_edit.cpp" line="515"/>
-        <source>Unable to save capture filter settings.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="capture_filter_edit.cpp" line="516"/>
-        <source>Could not save to your capture filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>CaptureInterfacesDialog</name>
@@ -2137,17 +2126,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="546"/>
-        <source>Unable to save display filter settings.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="display_filter_edit.cpp" line="547"/>
-        <source>Could not save to your display filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="display_filter_edit.cpp" line="363"/>
         <source>Remove this filter</source>
         <translation type="unfinished"></translation>
@@ -2858,40 +2836,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="filter_dialog.cpp" line="168"/>
         <source>New display filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="filter_dialog.cpp" line="213"/>
-        <source>Unable to create profile directory.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="filter_dialog.cpp" line="214"/>
-        <source>Unable to create directory
-&quot;%1&quot;
-for filter files: %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="filter_dialog.cpp" line="228"/>
-        <source>Unable to save capture filter settings.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="filter_dialog.cpp" line="229"/>
-        <source>Could not save to your capture filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="filter_dialog.cpp" line="232"/>
-        <source>Unable to save display filter settings.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="filter_dialog.cpp" line="233"/>
-        <source>Could not save to your display filter file
-&quot;%1&quot;: %2.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

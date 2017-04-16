@@ -1357,15 +1357,13 @@
         <translation>Zarządzaj filtrami przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="515"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>Nie można zapisać ustawień filtru przechwytywania.</translation>
+        <translation type="vanished">Nie można zapisać ustawień filtru przechwytywania.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="516"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Nie można zapisać do pliku filtrów przechwytywania
+        <translation type="vanished">Nie można zapisać do pliku filtrów przechwytywania
 &quot;%1&quot;:%2.</translation>
     </message>
 </context>
@@ -2208,15 +2206,13 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation>Zarządzaj wyrażeniami filtrów</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="546"/>
         <source>Unable to save display filter settings.</source>
-        <translation>Nie można zapisać ustawień filtru wyświetlania.</translation>
+        <translation type="vanished">Nie można zapisać ustawień filtru wyświetlania.</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="547"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Nie można zapisać do pliku filtrów wyświetlania
+        <translation type="vanished">Nie można zapisać do pliku filtrów wyświetlania
 &quot;%1&quot;:%2.</translation>
     </message>
     <message>
@@ -2950,41 +2946,35 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation>Nowy filtr wyświetlania</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="213"/>
         <source>Unable to create profile directory.</source>
-        <translation>Nie można utworzyć katalogu profilu.</translation>
+        <translation type="vanished">Nie można utworzyć katalogu profilu.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="214"/>
         <source>Unable to create directory
 &quot;%1&quot;
 for filter files: %2.</source>
-        <translation>Nie można utworzyć katalogu
+        <translation type="vanished">Nie można utworzyć katalogu
 &quot;%1&quot;
 dla plików filtrów: %2.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="228"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>Nie można zapisać ustawień filtru przechwytywania.</translation>
+        <translation type="vanished">Nie można zapisać ustawień filtru przechwytywania.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="229"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Nie można zapisać do pliku filtrów przechwytywania
+        <translation type="vanished">Nie można zapisać do pliku filtrów przechwytywania
 &quot;%1&quot;:%2.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="232"/>
         <source>Unable to save display filter settings.</source>
-        <translation>Nie można zapisać ustawień filtru wyświetlania.</translation>
+        <translation type="vanished">Nie można zapisać ustawień filtru wyświetlania.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="233"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Nie można zapisać do pliku filtrów wyświetlania
+        <translation type="vanished">Nie można zapisać do pliku filtrów wyświetlania
 &quot;%1&quot;:%2.</translation>
     </message>
 </context>

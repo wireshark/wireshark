@@ -1356,15 +1356,13 @@
         <translation>Mitschnittfilter verwalten</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="515"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>Mitschnittfiltereinstellungen können nicht gespeichert werden.</translation>
+        <translation type="vanished">Mitschnittfiltereinstellungen können nicht gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="516"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Mitschnittfilterdatei kann nicht gespeichert werden
+        <translation type="vanished">Mitschnittfilterdatei kann nicht gespeichert werden
 &quot;%1&quot;: %2.</translation>
     </message>
 </context>
@@ -2206,15 +2204,13 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Filterausdrücke verwalten</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="546"/>
         <source>Unable to save display filter settings.</source>
-        <translation>Anzeigefiltereinstellungen können nicht gespeichert werden.</translation>
+        <translation type="vanished">Anzeigefiltereinstellungen können nicht gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="547"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Anzeigefilterdatei kann nicht gespeichert werden
+        <translation type="vanished">Anzeigefilterdatei kann nicht gespeichert werden
 &quot;%1&quot;: %2.</translation>
     </message>
     <message>
@@ -2947,42 +2943,36 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Neuer Anzeigefilter</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="213"/>
         <source>Unable to create profile directory.</source>
-        <translation>Profilverzeichnis kann nicht erstellt werden.</translation>
+        <translation type="vanished">Profilverzeichnis kann nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="214"/>
         <source>Unable to create directory
 &quot;%1&quot;
 for filter files: %2.</source>
-        <translation>Verzeichnis
+        <translation type="vanished">Verzeichnis
 &quot;%1&quot;
 für die Filterdateien kann nicht erstellt werden:
 %2.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="228"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>Einstellungen für die Mitschnittfilter konnten nicht gespeichert werden.</translation>
+        <translation type="vanished">Einstellungen für die Mitschnittfilter konnten nicht gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="229"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Ihre Mitschnittfilterdatei konnte nicht gespeichert werden
+        <translation type="vanished">Ihre Mitschnittfilterdatei konnte nicht gespeichert werden
 &quot;%1&quot;: %2.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="232"/>
         <source>Unable to save display filter settings.</source>
-        <translation>Einstellungen für die Anzeigenfilter konnten nicht gespeichert werden.</translation>
+        <translation type="vanished">Einstellungen für die Anzeigenfilter konnten nicht gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="233"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Ihre Anzeigefilterdatei konnte nicht gespeichert werden
+        <translation type="vanished">Ihre Anzeigefilterdatei konnte nicht gespeichert werden
 &quot;%1&quot;: %2.</translation>
     </message>
 </context>

@@ -1356,15 +1356,13 @@
         <translation>Gestisci fltri di cattura</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="515"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>Impossibile salvare le impostazioni del filtro di cattura.</translation>
+        <translation type="vanished">Impossibile salvare le impostazioni del filtro di cattura.</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="516"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Impossibile salvare il file del filtro di cattura
+        <translation type="vanished">Impossibile salvare il file del filtro di cattura
 &quot;%1&quot;: %2.</translation>
     </message>
 </context>
@@ -2206,15 +2204,13 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Gestisci espressioni di filtro</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="546"/>
         <source>Unable to save display filter settings.</source>
-        <translation>Impossibile salvare le impostazioni del filtro di visualizzazione.</translation>
+        <translation type="vanished">Impossibile salvare le impostazioni del filtro di visualizzazione.</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="547"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Impossibile salvare il file del filtro di visualizzazione
+        <translation type="vanished">Impossibile salvare il file del filtro di visualizzazione
 &quot;%1&quot;: %2.</translation>
     </message>
     <message>
@@ -2947,41 +2943,35 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Nuovo filtro di visualizzazione</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="213"/>
         <source>Unable to create profile directory.</source>
-        <translation>Impossibile creare la cartella del profilo.</translation>
+        <translation type="vanished">Impossibile creare la cartella del profilo.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="214"/>
         <source>Unable to create directory
 &quot;%1&quot;
 for filter files: %2.</source>
-        <translation>Impossibile creare la cartella
+        <translation type="vanished">Impossibile creare la cartella
 &quot;%1&quot;
 per i file di filtro: %2.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="228"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>Impossibile salvare le impostazioni del filtro di cattura.</translation>
+        <translation type="vanished">Impossibile salvare le impostazioni del filtro di cattura.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="229"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Impossibile salvare il file del filtro di cattura
+        <translation type="vanished">Impossibile salvare il file del filtro di cattura
 &quot;%1&quot;: %2.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="232"/>
         <source>Unable to save display filter settings.</source>
-        <translation>Impossibile salvare le impostazioni del filtro di visualizzazione.</translation>
+        <translation type="vanished">Impossibile salvare le impostazioni del filtro di visualizzazione.</translation>
     </message>
     <message>
-        <location filename="filter_dialog.cpp" line="233"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation>Impossibile salvare il file del filtro di visualizzazione
+        <translation type="vanished">Impossibile salvare il file del filtro di visualizzazione
 &quot;%1&quot;: %2.</translation>
     </message>
 </context>
