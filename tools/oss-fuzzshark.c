@@ -139,7 +139,9 @@ fuzz_init(int argc _U_, char **argv)
 	e_prefs             *prefs_p;
 	int                  ret = EXIT_SUCCESS;
 
-	const char          *dis_name;
+#if defined(FUZZ_DISSECTOR_TARGET)
+	dissector_handle_t fuzz_handle = NULL;
+#endif
 
 	cmdarg_err_init(failure_warning_message, failure_message_cont);
 
@@ -223,8 +225,33 @@ fuzz_init(int argc _U_, char **argv)
 	/* Build the column format array */
 	build_column_format_array(&fuzz_cinfo, prefs_p->num_cols, TRUE);
 
-#ifdef FUZZ_DISSECTOR_TARGET
-	register_postdissector(find_dissector(FUZZ_DISSECTOR_TARGET));
+#if defined(FUZZ_DISSECTOR_TABLE) && defined(FUZZ_DISSECTOR_TARGET)
+# define FUZZ_EPAN 1
+	fprintf(stderr, "oss-fuzz configured for dissector: %s in table: %s\n", FUZZ_DISSECTOR_TARGET, FUZZ_DISSECTOR_TABLE);
+
+	/* search for handle, cannot use dissector_table_get_dissector_handle() cause it's using short-name, and I already used filter name in samples ;/ */
+	{
+		GSList *handle_list = dissector_table_get_dissector_handles(find_dissector_table(FUZZ_DISSECTOR_TABLE));
+		while (handle_list)
+		{
+			dissector_handle_t handle = (dissector_handle_t) handle_list->data;
+			const char *handle_filter_name = proto_get_protocol_filter_name(dissector_handle_get_protocol_index(handle));
+
+			if (!strcmp(handle_filter_name, FUZZ_DISSECTOR_TARGET))
+				fuzz_handle = handle;
+			handle_list = handle_list->next;
+		}
+	}
+
+#elif defined(FUZZ_DISSECTOR_TARGET)
+# define FUZZ_EPAN 2
+	fprintf(stderr, "oss-fuzz configured for dissector: %s\n", FUZZ_DISSECTOR_TARGET);
+	fuzz_handle = find_dissector(FUZZ_DISSECTOR_TARGET);
+#endif
+
+#ifdef FUZZ_EPAN
+	g_assert(fuzz_handle != NULL);
+	register_postdissector(fuzz_handle);
 #endif
 
 	fuzz_epan = fuzzshark_epan_new();
@@ -240,7 +267,7 @@ clean_exit:
 	return ret;
 }
 
-#ifdef FUZZ_DISSECTOR_TARGET
+#ifdef FUZZ_EPAN
 int
 LLVMFuzzerTestOneInput(guint8 *buf, size_t real_len)
 {
@@ -272,7 +299,7 @@ LLVMFuzzerTestOneInput(guint8 *buf, size_t real_len)
 }
 
 #else
-# error "Missing fuzz target -DFUZZ_DISSECTOR_TARGET=\"dissector\""
+# error "Missing fuzz target."
 #endif
 
 int
