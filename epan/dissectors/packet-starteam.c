@@ -89,7 +89,7 @@ static gboolean starteam_desegment = TRUE;
 #define STARTEAM_PROJ_CMD_MAIL_LIST_ITEMS                      1018
 #define STARTEAM_PROJ_CMD_LIST_ANY_NEWITEMS                    1020
 #define STARTEAM_PROJ_CMD_LIST_GET_NEWITEMS                    1021
-#define STARTEAM_SRVR_CMD_RELEASE_CLIENT                       1021 /* XXX: ?? */
+/* #define STARTEAM_SRVR_CMD_RELEASE_CLIENT                       1021 XXX: ?? */
 #define STARTEAM_SRVR_CMD_UPDATE_SERVER_INFO                   1022
 #define STARTEAM_SRVR_CMD_GET_USAGE_DATA                       1023
 #define STARTEAM_SRVR_CMD_GET_LICENSE_INFO                     1024
@@ -116,10 +116,10 @@ static gboolean starteam_desegment = TRUE;
 #define STARTEAM_PROJ_CMD_MODIFY_FIELD_CLASS_INFO              1162
 #define STARTEAM_PROJ_CMD_ADD_CUSTOM_FIELD_CLASS_INFO_EX       1163
 #define STARTEAM_PROJ_CMD_GET_FOLDER_ITEMS                     2001
-#define STARTEAM_SRVR_CMD_GET_USERS_AND_GROUPS                 2001 /* XXX: ?? */
+/* #define STARTEAM_SRVR_CMD_GET_USERS_AND_GROUPS                 2001 XXX: ?? */
 #define STARTEAM_PROJ_CMD_REFRESH_ITEMS                        2002
 #define STARTEAM_PROJ_CMD_GET_ITEM                             2003
-#define STARTEAM_SRVR_CMD_GET_EMAIL_USERS                      2003 /* XXX: ?? */
+/* #define STARTEAM_SRVR_CMD_GET_EMAIL_USERS                      2003  XXX: ?? */
 #define STARTEAM_PROJ_CMD_UPDATE_ITEM                          2004
 #define STARTEAM_PROJ_CMD_DELETE_ITEM                          2005
 #define STARTEAM_PROJ_CMD_SET_ITEM_LOCK                        2006
@@ -130,11 +130,11 @@ static gboolean starteam_desegment = TRUE;
 #define STARTEAM_SRVR_CMD_SET_USER_PASSWORD                    2013
 #define STARTEAM_PROJ_CMD_MOVE_ITEMS                           2020
 #define STARTEAM_PROJ_CMD_MOVE_TREE_ITEMS                      2021
-#define STARTEAM_SRVR_CMD_GET_GROUP_INFO                       2021 /* XXX: ?? */
+/* #define STARTEAM_SRVR_CMD_GET_GROUP_INFO                       2021 XXX: ?? */
 #define STARTEAM_PROJ_CMD_SHARE_ITEMS                          2022
-#define STARTEAM_SRVR_CMD_ADD_EDIT_GROUP_INFO                  2022 /* XXX: ?? */
+/* #define STARTEAM_SRVR_CMD_ADD_EDIT_GROUP_INFO                  2022 XXX: ?? */
 #define STARTEAM_PROJ_CMD_SHARE_TREE_ITEMS                     2023
-#define STARTEAM_SRVR_CMD_DROP_GROUP                           2023 /* XXX: ?? */
+/* #define STARTEAM_SRVR_CMD_DROP_GROUP                           2023 XXX: ?? */
 #define STARTEAM_SRVR_CMD_GET_USER_INFO                        2024
 #define STARTEAM_SRVR_CMD_ADD_EDIT_USER_INFO                   2025
 #define STARTEAM_SRVR_CMD_DROP_USER                            2026
@@ -142,9 +142,9 @@ static gboolean starteam_desegment = TRUE;
 #define STARTEAM_SRVR_CMD_USER_ADMIN_OPERATION                 2028
 #define STARTEAM_SRVR_CMD_ACCESS_CHECK                         2029
 #define STARTEAM_PROJ_CMD_GET_COMMON_ANCESTOR_ITEM             2030
-#define STARTEAM_SRVR_CMD_ACCESS_TEST                          2030 /* XXX: ?? */
+/* #define STARTEAM_SRVR_CMD_ACCESS_TEST                          2030 XXX: ?? */
 #define STARTEAM_PROJ_CMD_UPDATE_REVISION_COMMENT              2031
-#define STARTEAM_SRVR_CMD_GET_MAIN_LOG_LAST64K                 2031 /* XXX: ?? */
+/* #define STARTEAM_SRVR_CMD_GET_MAIN_LOG_LAST64K                 2031  XXX: ?? */
 #define STARTEAM_SRVR_CMD_GET_SERVER_CONFIG                    2032
 #define STARTEAM_SRVR_CMD_SET_SERVER_CONFIG                    2033
 #define STARTEAM_SRVR_CMD_GET_SERVER_ACL                       2034
@@ -293,7 +293,7 @@ static const value_string starteam_opcode_vals[] = {
   { STARTEAM_PROJ_CMD_MAIL_LIST_ITEMS,                      "PROJ_CMD_MAIL_LIST_ITEMS" },
   { STARTEAM_PROJ_CMD_LIST_ANY_NEWITEMS,                    "PROJ_CMD_LIST_ANY_NEWITEMS" },
   { STARTEAM_PROJ_CMD_LIST_GET_NEWITEMS,                    "PROJ_CMD_LIST_GET_NEWITEMS" },
-  { STARTEAM_SRVR_CMD_RELEASE_CLIENT,                       "SRVR_CMD_RELEASE_CLIENT" },
+/*  { STARTEAM_SRVR_CMD_RELEASE_CLIENT,                       "SRVR_CMD_RELEASE_CLIENT" }, */
   { STARTEAM_SRVR_CMD_UPDATE_SERVER_INFO,                   "SRVR_CMD_UPDATE_SERVER_INFO" },
   { STARTEAM_SRVR_CMD_GET_USAGE_DATA,                       "SRVR_CMD_GET_USAGE_DATA" },
   { STARTEAM_SRVR_CMD_GET_LICENSE_INFO,                     "SRVR_CMD_GET_LICENSE_INFO" },
@@ -320,10 +320,10 @@ static const value_string starteam_opcode_vals[] = {
   { STARTEAM_PROJ_CMD_MODIFY_FIELD_CLASS_INFO,              "PROJ_CMD_MODIFY_FIELD_CLASS_INFO" },
   { STARTEAM_PROJ_CMD_ADD_CUSTOM_FIELD_CLASS_INFO_EX,       "PROJ_CMD_ADD_CUSTOM_FIELD_CLASS_INFO_EX" },
   { STARTEAM_PROJ_CMD_GET_FOLDER_ITEMS,                     "PROJ_CMD_GET_FOLDER_ITEMS" },
-  { STARTEAM_SRVR_CMD_GET_USERS_AND_GROUPS,                 "SRVR_CMD_GET_USERS_AND_GROUPS" },
+/*  { STARTEAM_SRVR_CMD_GET_USERS_AND_GROUPS,                 "SRVR_CMD_GET_USERS_AND_GROUPS" }, */
   { STARTEAM_PROJ_CMD_REFRESH_ITEMS,                        "PROJ_CMD_REFRESH_ITEMS" },
   { STARTEAM_PROJ_CMD_GET_ITEM,                             "PROJ_CMD_GET_ITEM" },
-  { STARTEAM_SRVR_CMD_GET_EMAIL_USERS,                      "SRVR_CMD_GET_EMAIL_USERS" },
+/*  { STARTEAM_SRVR_CMD_GET_EMAIL_USERS,                      "SRVR_CMD_GET_EMAIL_USERS" }, */
   { STARTEAM_PROJ_CMD_UPDATE_ITEM,                          "PROJ_CMD_UPDATE_ITEM" },
   { STARTEAM_PROJ_CMD_DELETE_ITEM,                          "PROJ_CMD_DELETE_ITEM" },
   { STARTEAM_PROJ_CMD_SET_ITEM_LOCK,                        "PROJ_CMD_SET_ITEM_LOCK" },
@@ -334,11 +334,11 @@ static const value_string starteam_opcode_vals[] = {
   { STARTEAM_SRVR_CMD_SET_USER_PASSWORD,                    "SRVR_CMD_SET_USER_PASSWORD" },
   { STARTEAM_PROJ_CMD_MOVE_ITEMS,                           "PROJ_CMD_MOVE_ITEMS" },
   { STARTEAM_PROJ_CMD_MOVE_TREE_ITEMS,                      "PROJ_CMD_MOVE_TREE_ITEMS" },
-  { STARTEAM_SRVR_CMD_GET_GROUP_INFO,                       "SRVR_CMD_GET_GROUP_INFO" },
+/*  { STARTEAM_SRVR_CMD_GET_GROUP_INFO,                       "SRVR_CMD_GET_GROUP_INFO" }, */
   { STARTEAM_PROJ_CMD_SHARE_ITEMS,                          "PROJ_CMD_SHARE_ITEMS" },
-  { STARTEAM_SRVR_CMD_ADD_EDIT_GROUP_INFO,                  "SRVR_CMD_ADD_EDIT_GROUP_INFO" },
+/*  { STARTEAM_SRVR_CMD_ADD_EDIT_GROUP_INFO,                  "SRVR_CMD_ADD_EDIT_GROUP_INFO" }, */
   { STARTEAM_PROJ_CMD_SHARE_TREE_ITEMS,                     "PROJ_CMD_SHARE_TREE_ITEMS" },
-  { STARTEAM_SRVR_CMD_DROP_GROUP,                           "SRVR_CMD_DROP_GROUP" },
+/*  { STARTEAM_SRVR_CMD_DROP_GROUP,                           "SRVR_CMD_DROP_GROUP" }, */
   { STARTEAM_SRVR_CMD_GET_USER_INFO,                        "SRVR_CMD_GET_USER_INFO" },
   { STARTEAM_SRVR_CMD_ADD_EDIT_USER_INFO,                   "SRVR_CMD_ADD_EDIT_USER_INFO" },
   { STARTEAM_SRVR_CMD_DROP_USER,                            "SRVR_CMD_DROP_USER" },
@@ -346,9 +346,9 @@ static const value_string starteam_opcode_vals[] = {
   { STARTEAM_SRVR_CMD_USER_ADMIN_OPERATION,                 "SRVR_CMD_USER_ADMIN_OPERATION" },
   { STARTEAM_SRVR_CMD_ACCESS_CHECK,                         "SRVR_CMD_ACCESS_CHECK" },
   { STARTEAM_PROJ_CMD_GET_COMMON_ANCESTOR_ITEM,             "PROJ_CMD_GET_COMMON_ANCESTOR_ITEM" },
-  { STARTEAM_SRVR_CMD_ACCESS_TEST,                          "SRVR_CMD_ACCESS_TEST" },
+/*  { STARTEAM_SRVR_CMD_ACCESS_TEST,                          "SRVR_CMD_ACCESS_TEST" }, */
   { STARTEAM_PROJ_CMD_UPDATE_REVISION_COMMENT,              "PROJ_CMD_UPDATE_REVISION_COMMENT" },
-  { STARTEAM_SRVR_CMD_GET_MAIN_LOG_LAST64K,                 "SRVR_CMD_GET_MAIN_LOG_LAST64K" },
+/*  { STARTEAM_SRVR_CMD_GET_MAIN_LOG_LAST64K,                 "SRVR_CMD_GET_MAIN_LOG_LAST64K" }, */
   { STARTEAM_SRVR_CMD_GET_SERVER_CONFIG,                    "SRVR_CMD_GET_SERVER_CONFIG" },
   { STARTEAM_SRVR_CMD_SET_SERVER_CONFIG,                    "SRVR_CMD_SET_SERVER_CONFIG" },
   { STARTEAM_SRVR_CMD_GET_SERVER_ACL,                       "SRVR_CMD_GET_SERVER_ACL" },
