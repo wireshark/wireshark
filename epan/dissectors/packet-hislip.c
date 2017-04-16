@@ -296,7 +296,7 @@ static const value_string vendorID[] =
         { 0x4153, "ASCOR Incorporated" },
         { 0x4154, "Thurlby Thandar Instruments Limited" },
         { 0x4155, "Anritsu Company" },
-        { 0x4155, "Serendipity Systems, Inc." },
+/*        { 0x4155, "Serendipity Systems, Inc." }, XXX - duplicate of "Anritsu Company" */
         { 0x4156, "Advantest Corporation" },
         { 0x4241, "BAE Systems" },
         { 0x4242, "B&B Technologies" },
@@ -346,7 +346,7 @@ static const value_string vendorID[] =
         { 0x5343, "Scicom" },
         { 0x534C, "Schlumberger Technologies" },
         { 0x5352, "Scientific Research Corporation" },
-        { 0x5352, "Sony/Tektronix Corporation" },
+/*        { 0x5352, "Sony/Tektronix Corporation" }, XXX - duplicate of "Scientific Research Corporation" */
         { 0x5353, "Spectrum Signal Processing, Inc." },
         { 0x5441, "Talon Instruments" },
         { 0x5445, "Teradyne" },
