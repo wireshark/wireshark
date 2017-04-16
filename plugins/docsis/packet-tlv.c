@@ -611,7 +611,7 @@ const value_string docsis_conf_code[] = {
   {205, "Reject: Primary Service Flow Error"},
   {206, "Reject: Message Too Big"},
   {207, "Reject: Invalid Modem Capabilities"},
-  {209, "Reject: Bad RCC"},
+  {208, "Reject: Bad RCC"},
   {209, "Reject: Bad TCC"},
   {210, "Reject: Dynamic Range Window Violation"},
   {211, "Reject: Unable to support Queue Depth"},
