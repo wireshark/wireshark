@@ -24,6 +24,12 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+/*
+ * XXX - there's a Lemon bug where this grammar produces a parser that
+ * fails assertions; to work around it, we disable assert() failures.
+ */
+#define NDEBUG
+
 #include "mate.h"
 #include "mate_grammar.h"
 #include <wsutil/file_util.h>
