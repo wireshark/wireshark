@@ -51,8 +51,6 @@ static expert_field ei_mate_undefined_attribute = EI_INIT;
 static const gchar* pref_mate_config_filename = "";
 static const gchar* current_mate_config_filename = NULL;
 
-static proto_item *mate_i = NULL;
-
 static dissector_handle_t mate_handle;
 
 static void
@@ -261,7 +259,7 @@ mate_gop_tree(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, mate_gop* gop
 
 
 static void
-mate_pdu_tree(mate_pdu *pdu, packet_info *pinfo, tvbuff_t *tvb, proto_tree* tree)
+mate_pdu_tree(mate_pdu *pdu, packet_info *pinfo, tvbuff_t *tvb, proto_item *item, proto_tree* tree)
 {
 	proto_item *pdu_item;
 	proto_tree *pdu_tree;
@@ -269,16 +267,16 @@ mate_pdu_tree(mate_pdu *pdu, packet_info *pinfo, tvbuff_t *tvb, proto_tree* tree
 	if ( ! pdu ) return;
 
 	if (pdu->gop && pdu->gop->gog) {
-		proto_item_append_text(mate_i," %s:%d->%s:%d->%s:%d",
+		proto_item_append_text(item," %s:%d->%s:%d->%s:%d",
 				       pdu->cfg->name,pdu->id,
 				       pdu->gop->cfg->name,pdu->gop->id,
 				       pdu->gop->gog->cfg->name,pdu->gop->gog->id);
 	} else if (pdu->gop) {
-		proto_item_append_text(mate_i," %s:%d->%s:%d",
+		proto_item_append_text(item," %s:%d->%s:%d",
 				       pdu->cfg->name,pdu->id,
 				       pdu->gop->cfg->name,pdu->gop->id);
 	} else {
-		proto_item_append_text(mate_i," %s:%d",pdu->cfg->name,pdu->id);
+		proto_item_append_text(item," %s:%d",pdu->cfg->name,pdu->id);
 	}
 
 	pdu_item = proto_tree_add_uint(tree,pdu->cfg->hfid,tvb,0,0,pdu->id);
@@ -302,6 +300,7 @@ static int
 mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	mate_pdu* pdus;
+	proto_item *mate_i;
 	proto_tree *mate_t;
 
 	/* If there is no MATE configuration, don't claim the packet */
@@ -318,7 +317,7 @@ mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		for ( ; pdus; pdus = pdus->next_in_frame) {
 			mate_i = proto_tree_add_protocol_format(tree,mc->hfid_mate,tvb,0,0,"MATE");
 			mate_t = proto_item_add_subtree(mate_i, mc->ett_root);
-			mate_pdu_tree(pdus,pinfo,tvb,mate_t);
+			mate_pdu_tree(pdus,pinfo,tvb,mate_i,mate_t);
 		}
 	}
 	return tvb_captured_length(tvb);
