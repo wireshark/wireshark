@@ -83,6 +83,7 @@ static int hf_http_request_query = -1;
 static int hf_http_request_query_parameter = -1;
 static int hf_http_version = -1;
 static int hf_http_response_code = -1;
+static int hf_http_response_code_desc = -1;
 static int hf_http_response_phrase = -1;
 static int hf_http_authorization = -1;
 static int hf_http_proxy_authenticate = -1;
@@ -395,6 +396,7 @@ const value_string vals_http_status_code[] = {
 	{ 205, "Reset Content"},
 	{ 206, "Partial Content"},
 	{ 207, "Multi-Status"},                    /* RFC 4918 */
+	{ 208, "Already Reported"},                /* RFC 5842 */
 	{ 226, "IM Used"},                         /* RFC 3229 */
 	{ 299, "Success - Others"},
 
@@ -405,6 +407,7 @@ const value_string vals_http_status_code[] = {
 	{ 304, "Not Modified"},
 	{ 305, "Use Proxy"},
 	{ 307, "Temporary Redirect"},
+	{ 308, "Permanent Redirect"},              /* RFC 7538 */
 	{ 399, "Redirection - Others"},
 
 	{ 400, "Bad Request"},
@@ -426,6 +429,7 @@ const value_string vals_http_status_code[] = {
 	{ 416, "Requested Range Not Satisfiable"},
 	{ 417, "Expectation Failed"},
 	{ 418, "I'm a teapot"},                    /* RFC 2324 */
+	{ 421, "Misdirected Request"},             /* RFC 7540 */
 	{ 422, "Unprocessable Entity"},            /* RFC 4918 */
 	{ 423, "Locked"},                          /* RFC 4918 */
 	{ 424, "Failed Dependency"},               /* RFC 4918 */
@@ -433,6 +437,7 @@ const value_string vals_http_status_code[] = {
 	{ 428, "Precondition Required"},           /* RFC 6585 */
 	{ 429, "Too Many Requests"},               /* RFC 6585 */
 	{ 431, "Request Header Fields Too Large"}, /* RFC 6585 */
+	{ 451, "Unavailable For Legal Reasons"},   /* RFC 7725 */
 	{ 499, "Client Error - Others"},
 
 	{ 500, "Internal Server Error"},
@@ -441,7 +446,10 @@ const value_string vals_http_status_code[] = {
 	{ 503, "Service Unavailable"},
 	{ 504, "Gateway Time-out"},
 	{ 505, "HTTP Version not supported"},
+	{ 506, "Variant Also Negotiates"},         /* RFC 2295 */
 	{ 507, "Insufficient Storage"},            /* RFC 4918 */
+	{ 508, "Loop Detected"},                   /* RFC 5842 */
+	{ 510, "Not Extended"},                    /* RFC 2774 */
 	{ 511, "Network Authentication Required"}, /* RFC 6585 */
 	{ 599, "Server Error - Others"},
 
@@ -1725,6 +1733,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	const guchar *next_token;
 	int tokenlen;
 	gchar response_code_chars[4];
+	proto_item *r_ti;
 
 	/*
 	 * The first token is the HTTP Version.
@@ -1757,6 +1766,12 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	proto_tree_add_uint(tree, hf_http_response_code, tvb, offset, 3,
 			    stat_info->response_code);
 
+	r_ti = proto_tree_add_string(tree, hf_http_response_code_desc,
+		tvb, offset, 3, val_to_str(stat_info->response_code,
+		vals_http_status_code, "Unknown (%d)"));
+
+	PROTO_ITEM_SET_GENERATED(r_ti);
+
 	/* Advance to the start of the next token. */
 	offset += (int) (next_token - line);
 	line = next_token;
@@ -1765,11 +1780,10 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	 * The remaining tokens in the line comprise the Reason Phrase.
 	 */
 	tokenlen = (int) (lineend - line);
-	if (tokenlen < 1)
-		return;
-	proto_tree_add_item(tree, hf_http_response_phrase, tvb, offset,
+	if (tokenlen >= 1) {
+		proto_tree_add_item(tree, hf_http_response_phrase, tvb, offset,
 				tokenlen, ENC_ASCII|ENC_NA);
-
+	}
 }
 
 #if 0 /* XXX: Replaced by code creating the "Dechunked" tvb O(N) rather than O(N^2) */
@@ -3390,6 +3404,10 @@ proto_register_http(void)
 	      { "Status Code",	"http.response.code",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
 		"HTTP Response Status Code", HFILL }},
+	    { &hf_http_response_code_desc,
+	      { "Status Code Description", "http.response.code.desc",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Response Status Code Description", HFILL }},
 		{ &hf_http_response_phrase,
 		  { "Response Phrase", "http.response.phrase",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
