@@ -1001,6 +1001,11 @@ static value_string_ext gtpv2_message_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv
 #define NO_TFT_OPERATION                    0XC0
 #define RESERVED                            0XE0
 
+/* SRVCC PS-to-CS Transparent Container Preference */
+#define PREF_DECODE_SRVCC_P2C_TRANS_CONT_NO            0
+#define PREF_DECODE_SRVCC_P2C_TRANS_CONT_TARGET_UTRAN  1
+static gint pref_decode_srvcc_p2c_trans_cont = PREF_DECODE_SRVCC_P2C_TRANS_CONT_NO;
+
 
 /* Table 8.1-1: Information Element types for GTPv2 */
 static const value_string gtpv2_element_type_vals[] = {
@@ -1489,8 +1494,6 @@ dissect_gtpv2_stn_sr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 static void
 dissect_gtpv2_src_tgt_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    tvbuff_t   *new_tvb;
-    proto_tree *sub_tree;
     int offset = 0;
 
     proto_tree_add_item(tree, hf_gtpv2_len_trans_con, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1508,7 +1511,10 @@ dissect_gtpv2_src_tgt_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     * bssmap_old_bss_to_new_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo);
     * dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU
     */
-    if (message_type == GTPV2_SRVCC_PS_TO_CS_REQUEST) {
+    if ((message_type == GTPV2_SRVCC_PS_TO_CS_REQUEST) && (pref_decode_srvcc_p2c_trans_cont == PREF_DECODE_SRVCC_P2C_TRANS_CONT_TARGET_UTRAN)) {
+        tvbuff_t   *new_tvb;
+        proto_tree *sub_tree;
+
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, length-1, ett_gtpv2_utran_con, NULL, "Source RNC to Target RNC Transparent Container");
         new_tvb = tvb_new_subset_remaining(tvb, offset);
         dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
@@ -1527,8 +1533,8 @@ dissect_gtpv2_tgt_src_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* Transparent Container */
     proto_tree_add_item(tree, hf_gtpv2_transparent_container, tvb, offset, length-1, ENC_NA);
-#if 0
-    /* It's to hard to figure out the content...
+
+    /* It's too hard to figure out the content...
     6.4 Target to Source Transparent Container
 
     The Target to Source Transparent Container contains information that shall be transferred transparently by CN entities
@@ -1552,7 +1558,7 @@ dissect_gtpv2_tgt_src_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     transparent container if the size of the container is smaller or equal to 255 octets, and to the value "255" otherwise.
 
     */
-    if (message_type == GTPV2_SRVCC_PS_TO_CS_RESPONSE) {
+    if ((message_type == GTPV2_SRVCC_PS_TO_CS_RESPONSE) && (pref_decode_srvcc_p2c_trans_cont == PREF_DECODE_SRVCC_P2C_TRANS_CONT_TARGET_UTRAN)) {
         tvbuff_t   *new_tvb;
         proto_tree *sub_tree;
 
@@ -1560,7 +1566,7 @@ dissect_gtpv2_tgt_src_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         new_tvb = tvb_new_subset_remaining(tvb, offset);
         dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
     }
-#endif
+
 }
 
 /* 6.5 MM Context for E-UTRAN SRVCC */
@@ -9315,8 +9321,23 @@ void proto_register_gtpv2(void)
     };
 
     expert_module_t* expert_gtpv2;
+    module_t *gtpv2_module;
+
+    static const enum_val_t decode_srvcc_ps_to_cs_trans_cont_vals[] = {
+        {"no", "Don't decode", PREF_DECODE_SRVCC_P2C_TRANS_CONT_NO},
+        {"utran", "Assume UTRAN target", PREF_DECODE_SRVCC_P2C_TRANS_CONT_TARGET_UTRAN},
+        {NULL, NULL, -1}
+    };
 
     proto_gtpv2 = proto_register_protocol("GPRS Tunneling Protocol V2", "GTPv2", "gtpv2");
+
+    gtpv2_module = prefs_register_protocol(proto_gtpv2, NULL);
+    prefs_register_enum_preference(gtpv2_module, "decode_srvcc_p2c_trans_cont_target",
+        "Decode SRVCC PS-to-CS Transparent Containers",
+        "Use this setting to decode the Transparent Containers in the SRVCC PS-to-CS messages.\n"
+        "This is needed until there's a reliable way to determine the contents of the transparent containers.",
+        &pref_decode_srvcc_p2c_trans_cont, decode_srvcc_ps_to_cs_trans_cont_vals, FALSE);
+
     proto_register_field_array(proto_gtpv2, hf_gtpv2, array_length(hf_gtpv2));
     proto_register_subtree_array(ett_gtpv2_array, array_length(ett_gtpv2_array));
     expert_gtpv2 = expert_register_protocol(proto_gtpv2);
