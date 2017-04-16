@@ -662,6 +662,10 @@ static expert_field ei_gtpv2_int_size_not_handled = EI_INIT;
 
 #define GTPV2_SRVCC_PS_TO_CS_REQUEST     25
 #define GTPV2_SRVCC_PS_TO_CS_RESPONSE    26
+#define GTPV2_SRVCC_PS_TO_CS_COMPLETE_NOTIFICATION 27
+#define GTPV2_SRVCC_PS_TO_CS_COMPLETE_ACKNOWLEDGE  28
+#define GTPV2_SRVCC_PS_TO_CS_CANCEL_NOTIFICATION   29
+#define GTPV2_SRVCC_PS_TO_CS_CANCEL_ACKNOWLEDGE    30
 #define GTPV2_CREATE_SESSION_REQUEST     32
 #define GTPV2_CREATE_SESSION_RESPONSE    33
 #define GTPV2_MODIFY_BEARER_REQUEST      34
@@ -6680,6 +6684,9 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
     case GTPV2_MODIFY_BEARER_COMMAND:
     case GTPV2_DELETE_BEARER_COMMAND:
     case GTPV2_BEARER_RESOURCE_COMMAND:
+    case GTPV2_SRVCC_PS_TO_CS_REQUEST:
+    case GTPV2_SRVCC_PS_TO_CS_COMPLETE_NOTIFICATION:
+    case GTPV2_SRVCC_PS_TO_CS_CANCEL_NOTIFICATION:
         gcr.is_request = TRUE;
         gcr.req_frame = pinfo->num;
         gcr.rep_frame = 0;
@@ -6693,6 +6700,10 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
     case GTPV2_MODIFY_BEARER_FAILURE_INDICATION:
     case GTPV2_DELETE_BEARER_FAILURE_INDICATION:
     case GTPV2_BEARER_RESOURCE_FAILURE_INDICATION:
+    case GTPV2_SRVCC_PS_TO_CS_RESPONSE:
+    case GTPV2_SRVCC_PS_TO_CS_COMPLETE_ACKNOWLEDGE:
+    case GTPV2_SRVCC_PS_TO_CS_CANCEL_ACKNOWLEDGE:
+
         gcr.is_request = FALSE;
         gcr.req_frame = 0;
         gcr.rep_frame = pinfo->num;
@@ -6720,6 +6731,10 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
         case GTPV2_MODIFY_BEARER_COMMAND:
         case GTPV2_DELETE_BEARER_COMMAND:
         case GTPV2_BEARER_RESOURCE_COMMAND:
+        case GTPV2_SRVCC_PS_TO_CS_REQUEST:
+        case GTPV2_SRVCC_PS_TO_CS_COMPLETE_NOTIFICATION:
+        case GTPV2_SRVCC_PS_TO_CS_CANCEL_NOTIFICATION:
+
             gcr.seq_nr = seq_nr;
 
             gcrp = (gtpv2_msg_hash_t *)wmem_map_lookup(gtpv2_info->unmatched, &gcr);
@@ -6739,15 +6754,19 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
             wmem_map_insert(gtpv2_info->unmatched, gcrp, gcrp);
             return NULL;
             break;
-    case GTPV2_CREATE_SESSION_RESPONSE:
-    case GTPV2_CREATE_BEARER_RESPONSE:
-    case GTPV2_UPDATE_BEARER_RESPONSE:
-    case GTPV2_MODIFY_BEARER_RESPONSE:
-    case GTPV2_DELETE_BEARER_RESPONSE:
-    case GTPV2_DELETE_SESSION_RESPONSE:
-    case GTPV2_MODIFY_BEARER_FAILURE_INDICATION:
-    case GTPV2_DELETE_BEARER_FAILURE_INDICATION:
-    case GTPV2_BEARER_RESOURCE_FAILURE_INDICATION:
+        case GTPV2_CREATE_SESSION_RESPONSE:
+        case GTPV2_CREATE_BEARER_RESPONSE:
+        case GTPV2_UPDATE_BEARER_RESPONSE:
+        case GTPV2_MODIFY_BEARER_RESPONSE:
+        case GTPV2_DELETE_BEARER_RESPONSE:
+        case GTPV2_DELETE_SESSION_RESPONSE:
+        case GTPV2_MODIFY_BEARER_FAILURE_INDICATION:
+        case GTPV2_DELETE_BEARER_FAILURE_INDICATION:
+        case GTPV2_BEARER_RESOURCE_FAILURE_INDICATION:
+        case GTPV2_SRVCC_PS_TO_CS_RESPONSE:
+        case GTPV2_SRVCC_PS_TO_CS_COMPLETE_ACKNOWLEDGE:
+        case GTPV2_SRVCC_PS_TO_CS_CANCEL_ACKNOWLEDGE:
+
             gcr.seq_nr = seq_nr;
             gcrp = (gtpv2_msg_hash_t *)wmem_map_lookup(gtpv2_info->unmatched, &gcr);
 
