@@ -35,7 +35,6 @@
 void proto_register_mate(void);
 void proto_reg_handoff_mate(void);
 
-static int mate_tap_data = 0;
 static mate_config* mc = NULL;
 
 static int proto_mate = -1;
@@ -323,13 +322,6 @@ mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	return tvb_captured_length(tvb);
 }
 
-static int
-mate_packet(void *prs _U_,  packet_info* tree _U_, epan_dissect_t *edt _U_, const void *dummy _U_)
-{
-	/* nothing to do yet */
-	return 0;
-}
-
 static void
 initialize_mate(void)
 {
@@ -340,8 +332,6 @@ extern
 void
 proto_reg_handoff_mate(void)
 {
-	GString* tap_error = NULL;
-
 	if ( *pref_mate_config_filename != '\0' ) {
 
 		if (current_mate_config_filename) {
@@ -364,20 +354,6 @@ proto_reg_handoff_mate(void)
 				 */
 				set_postdissector_wanted_hfids(mate_handle,
 				    mc->wanted_hfids);
-
-				tap_error = register_tap_listener("frame", &mate_tap_data,
-				    (char*) mc->tap_filter,
-				    0,
-				    (tap_reset_cb) NULL,
-				    mate_packet,
-				    (tap_draw_cb) NULL);
-
-				if ( tap_error ) {
-					ws_g_warning("mate: couldn't (re)register tap: %s",tap_error->str);
-					g_string_free(tap_error, TRUE);
-					mate_tap_data = 0;
-					return;
-				}
 
 				initialize_mate_runtime(mc);
 			}

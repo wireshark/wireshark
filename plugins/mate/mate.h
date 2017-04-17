@@ -47,7 +47,6 @@
 #include <epan/prefs.h>
 #include <epan/proto.h>
 #include <epan/epan_dissect.h>
-#include <epan/tap.h>
 #include <wsutil/filesystem.h>
 
 #include "mate_util.h"
@@ -197,11 +196,8 @@ typedef struct _mate_config {
 
 	int hfid_mate;
 
-	GArray *wanted_hfids;   /* hfids of protocols and fields MATE needs */
-
-	GString* fields_filter; /* "ip.addr || dns.id || ... " for the tap */
-	GString* protos_filter; /* "dns || ftp || ..." for the tap */
-	gchar* tap_filter;
+	GArray *wanted_hfids;    /* hfids of protocols and fields MATE needs */
+	guint num_fields_wanted; /* number of fields MATE will look at */
 
 	FILE* dbg_facility; /* where to dump dbgprint output g_message if null */
 

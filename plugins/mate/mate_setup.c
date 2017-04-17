@@ -204,7 +204,6 @@ extern gchar* add_ranges(mate_config* mc, gchar* range,GPtrArray* range_ptr_arr)
 				hfidp = (int *)g_malloc(sizeof(int));
 				*hfidp = hfi->id;
 				g_ptr_array_add(range_ptr_arr,(gpointer)hfidp);
-				g_string_append_printf(mc->fields_filter, "||%s",ranges[i]);
 			} else {
 				g_strfreev(ranges);
 				return g_strdup_printf("no such proto: '%s'",ranges[i]);
@@ -239,14 +238,6 @@ static void new_attr_hfri(mate_config* mc, gchar* item_name, GHashTable* hfids, 
 
 }
 
-static const gchar* my_protoname(int proto_id) {
-	if (proto_id) {
-		return proto_registrar_get_abbrev(proto_id);
-	} else {
-		return "*";
-	}
-}
-
 typedef struct {
 	mate_config* mc;
 	mate_cfg_pdu* cfg;
@@ -262,8 +253,7 @@ static void analyze_pdu_hfids(gpointer k, gpointer v, gpointer p) {
 	 * Add this hfid to our table of wanted hfids.
 	 */
 	mc->wanted_hfids = g_array_append_val(mc->wanted_hfids, *(int *)k);
-
-	g_string_append_printf(mc->fields_filter,"||%s",my_protoname(*(int*)k));
+	mc->num_fields_wanted++;
 }
 
 static void analyze_transform_hfrs(mate_config* mc, gchar* name, GPtrArray* transforms, GHashTable* hfids) {
@@ -595,9 +585,7 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 	mc->hfid_mate = mate_hfid;
 
 	mc->wanted_hfids = g_array_new(FALSE, FALSE, (guint)sizeof(int));
-
-	mc->fields_filter = g_string_new("");
-	mc->protos_filter = g_string_new("");
+	mc->num_fields_wanted = 0;
 
 	mc->dbg_facility = NULL;
 
@@ -658,16 +646,12 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 		return NULL;
 	}
 
-	if (mc->fields_filter->len > 1) {
-		g_string_erase(mc->fields_filter,0,2);
-		g_string_erase(mc->protos_filter,0,2);
-	} else {
+	if (mc->num_fields_wanted == 0) {
+		/* We have no interest in any fields, so we have no
+		   work to do. */
 		/*destroy_mate_config(mc,FALSE);*/
-		mc = NULL;
 		return NULL;
 	}
-
-	mc->tap_filter = g_strdup_printf("(%s) && (%s)",mc->protos_filter->str,mc->fields_filter->str);
 
 	return mc;
 }

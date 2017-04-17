@@ -440,8 +440,6 @@ pdu_decl ::=
 	 */
 	mc->wanted_hfids = g_array_append_val(mc->wanted_hfids, Field->id);
 
-	g_string_append_printf(mc->protos_filter,"||%s",Field->abbrev);
-
 	/* flip the transport_stack */
 	for (i = Stack->len - 1; Stack->len; i--) {
 		g_ptr_array_add(transport_stack,g_ptr_array_remove_index(Stack,i));
@@ -509,8 +507,6 @@ last_extracted_statement(A) ::= . { A = mc->defaults.pdu.last_extracted; }
 proto_stack(A) ::= proto_stack(B) SLASH field(C). {
 	int* hfidp = (int *)g_malloc(sizeof(int));
 
-	g_string_append_printf(mc->fields_filter,"||%s",C->abbrev);
-
 	*hfidp = C->id;
 	g_ptr_array_add(B,hfidp);
 	A = B;
@@ -519,8 +515,6 @@ proto_stack(A) ::= proto_stack(B) SLASH field(C). {
 proto_stack(A) ::= field(B). {
 	int* hfidp = (int *)g_malloc(sizeof(int));
 	*hfidp = B->id;
-
-	g_string_append_printf(mc->fields_filter,"||%s",B->abbrev);
 
 	A = g_ptr_array_new();
 	g_ptr_array_add(A,hfidp);
