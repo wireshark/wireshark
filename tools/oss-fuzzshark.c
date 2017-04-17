@@ -151,7 +151,9 @@ fuzz_init(int argc _U_, char **argv)
 	 * Let the user know if anything happened.
 	 */
 	init_process_policies();
+#if 0 /* disable setresgid(), it fails with -EINVAL https://github.com/google/oss-fuzz/pull/532#issuecomment-294515463 */
 	relinquish_special_privs_perm();
+#endif
 
 	/*
 	 * Attempt to get the pathname of the executable file.
