@@ -1285,8 +1285,8 @@ dissector_reset_uint(const char *name, const guint32 pattern)
 }
 
 /* Look for a given value in a given uint dissector table and, if found,
-   call the dissector with the arguments supplied, and return TRUE,
-   otherwise return FALSE. */
+   call the dissector with the arguments supplied, and return the number
+   of bytes consumed by the dissector, otherwise return 0. */
 
 int
 dissector_try_uint_new(dissector_table_t sub_dissectors, const guint32 uint_val,
