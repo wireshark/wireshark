@@ -1299,46 +1299,50 @@ dissector_try_uint_new(dissector_table_t sub_dissectors, const guint32 uint_val,
 	int len;
 
 	dtbl_entry = find_uint_dtbl_entry(sub_dissectors, uint_val);
-	if (dtbl_entry != NULL) {
+	if (dtbl_entry == NULL) {
 		/*
-		 * Is there currently a dissector handle for this entry?
+		 * There's no entry in the table for our value.
 		 */
-		handle = dtbl_entry->current;
-		if (handle == NULL) {
-			/*
-			 * No - pretend this dissector didn't exist,
-			 * so that other dissectors might have a chance
-			 * to dissect this packet.
-			 */
-			return 0;
-		}
-
-		/*
-		 * Save the current value of "pinfo->match_uint",
-		 * set it to the uint_val that matched, call the
-		 * dissector, and restore "pinfo->match_uint".
-		 */
-		saved_match_uint  = pinfo->match_uint;
-		pinfo->match_uint = uint_val;
-		len = call_dissector_work(handle, tvb, pinfo, tree, add_proto_name, data);
-		pinfo->match_uint = saved_match_uint;
-
-		/*
-		 * If a new-style dissector returned 0, it means that
-		 * it didn't think this tvbuff represented a packet for
-		 * its protocol, and didn't dissect anything.
-		 *
-		 * Old-style dissectors can't reject the packet.
-		 *
-		 * 0 is also returned if the protocol wasn't enabled.
-		 *
-		 * If the packet was rejected, we return 0, so that
-		 * other dissectors might have a chance to dissect this
-		 * packet, otherwise we return the dissected length.
-		 */
-		return len;
+		return 0;
 	}
-	return 0;
+
+	/*
+	 * Is there currently a dissector handle for this entry?
+	 */
+	handle = dtbl_entry->current;
+	if (handle == NULL) {
+		/*
+		 * No - pretend this dissector didn't exist,
+		 * so that other dissectors might have a chance
+		 * to dissect this packet.
+		 */
+		return 0;
+	}
+
+	/*
+	 * Save the current value of "pinfo->match_uint",
+	 * set it to the uint_val that matched, call the
+	 * dissector, and restore "pinfo->match_uint".
+	 */
+	saved_match_uint  = pinfo->match_uint;
+	pinfo->match_uint = uint_val;
+	len = call_dissector_work(handle, tvb, pinfo, tree, add_proto_name, data);
+	pinfo->match_uint = saved_match_uint;
+
+	/*
+	 * If a new-style dissector returned 0, it means that
+	 * it didn't think this tvbuff represented a packet for
+	 * its protocol, and didn't dissect anything.
+	 *
+	 * Old-style dissectors can't reject the packet.
+	 *
+	 * 0 is also returned if the protocol wasn't enabled.
+	 *
+	 * If the packet was rejected, we return 0, so that
+	 * other dissectors might have a chance to dissect this
+	 * packet, otherwise we return the dissected length.
+	 */
+	return len;
 }
 
 int
