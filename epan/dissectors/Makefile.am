@@ -1657,6 +1657,7 @@ DISSECTOR_INCLUDES = \
 	packet-nfs.h		\
 	packet-nisplus.h	\
 	packet-nlm.h		\
+	packet-nsh.h		\
 	packet-ntlmssp.h	\
 	packet-ntp.h		\
 	packet-nvme.h		\

@@ -1,39 +1,35 @@
-/*Routines for Network Service Header
- *draft-ietf-sfc-nsh-01
- *Author: Chidambaram Arunachalam <carunach@cisco.com>
- *Copyright 2016, ciscoSystems Inc.
+/* packet-nsh.c
+ * Routines for Network Service Header
+ * draft-ietf-sfc-nsh-01
+ * Author: Chidambaram Arunachalam <carunach@cisco.com>
+ * Copyright 2016, ciscoSystems Inc.
  *
+ * (c) Copyright 2016, Sumit Kumar Jha <sjha3@ncsu.edu>
+ * Support for VXLAN GPE encapsulation
  *
- *Wireshark - Network traffic analyzer
- *By Gerald Combs <gerald@wireshark.org>
- *Copyright 1998 Gerald Combs
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
  *
- *(c) Copyright 2016, Sumit Kumar Jha <sjha3@ncsu.edu>
- *Support for VXLAN GPE encapsulation
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- *This program is free software; you can redistribute it and/or
- *modify it under the terms of the GNU General Public License
- *as published by the Free Software Foundation; either version 2
- *of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *This program is distributed in the hope that it will be useful,
- *but WITHOUT ANY WARRANTY; without even the implied warranty of
- *MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *GNU General Public License for more details.
- *
- *You should have received a copy of the GNU General Public License
- *along with this program; if not, write to the Free Software
- *Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "config.h"
 #include <epan/packet.h>
-#include <epan/expert.h>
-#include <epan/ppptypes.h>
 #include <epan/etypes.h>
-#include <epan/prefs.h>
-#include <epan/ipproto.h>
-#include <epan/decode_as.h>
+#include "packet-nsh.h"
 #include "packet-vxlan.h"
 
 #define MD_TYPE_1 1
@@ -42,18 +38,6 @@
 /* Prototypes */
 void proto_reg_handoff_nsh(void);
 void proto_register_nsh(void);
-
-/*Network Service Header (NSH) Next Protocol field values */
-
-enum {
-	NSH_IPV4 = 1,
-	NSH_IPV6,
-	NSH_ETHERNET,
-	NSH_NSH,
-	NSH_MPLS,
-	NSH_EXPERIMENT_1 = 254,
-	NSH_EXPERIMENT_2,
-};
 
 static const value_string nsh_next_protocols[] = {
 	{ NSH_IPV4, "IPv4" },
@@ -86,11 +70,7 @@ static int hf_nsh_metadata = -1;
 
 static gint ett_nsh = -1;
 
-static dissector_handle_t nsh_handle;
-static dissector_handle_t dissector_ipv6;
-static dissector_handle_t dissector_ip;
-static dissector_handle_t dissector_eth;
-static dissector_handle_t dissector_mpls;
+static dissector_table_t subdissector_table;
 
 /*
  *Dissect Fixed Length Context headers
@@ -219,28 +199,8 @@ dissect_nsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		if (captured_length > (nsh_bytes_len)) {
 
 			next_tvb = tvb_new_subset_remaining(tvb, nsh_bytes_len);
-			switch (nsh_next_proto) {
-
-			case NSH_IPV4:
-				call_dissector(dissector_ip, next_tvb, pinfo, tree);
-				break;
-
-			case NSH_IPV6:
-				call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
-				break;
-
-			case NSH_ETHERNET:
-				call_dissector(dissector_eth, next_tvb, pinfo, tree);
-				break;
-
-			case NSH_NSH:
-				call_dissector(nsh_handle, next_tvb, pinfo, tree);
-				break;
-
-			case NSH_MPLS:
-				call_dissector(dissector_mpls, next_tvb, pinfo, tree);
-				break;
-
+			if (!dissector_try_uint(subdissector_table, nsh_next_proto, tvb, pinfo, tree)) {
+				call_data_dissector(next_tvb, pinfo, tree);
 			}
 		}
 	}
@@ -370,22 +330,20 @@ proto_register_nsh(void)
 	proto_register_field_array(proto_nsh, nsh_info, array_length(nsh_info));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	subdissector_table = register_dissector_table("nsh.next_proto", "NSH Next Protocol", proto_nsh, FT_UINT32, BASE_DEC);
+
 }
 
 void
 proto_reg_handoff_nsh(void)
 {
+	static dissector_handle_t nsh_handle;
 
 	nsh_handle = create_dissector_handle(dissect_nsh, proto_nsh);
 	dissector_add_uint("ethertype", ETHERTYPE_NSH, nsh_handle);
 	dissector_add_uint("gre.proto", ETHERTYPE_NSH, nsh_handle);
 	dissector_add_uint("vxlan.next_proto", VXLAN_NSH, nsh_handle);
-
-	dissector_ip = find_dissector_add_dependency("ip", proto_nsh);
-	dissector_ipv6 = find_dissector_add_dependency("ipv6", proto_nsh);
-	dissector_eth = find_dissector_add_dependency("eth_maybefcs", proto_nsh);
-	dissector_mpls = find_dissector_add_dependency("mpls", proto_nsh);
-
+	dissector_add_uint("nsh.next_proto", NSH_NSH, nsh_handle);
 
 }
 
