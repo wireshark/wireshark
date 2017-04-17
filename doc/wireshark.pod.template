@@ -49,6 +49,10 @@ S<[ B<-X> E<lt>eXtension optionE<gt> ]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
 S<[ B<-Y> E<lt>displaY filterE<gt> ]>
 S<[ B<-z> E<lt>statisticsE<gt> ]>
+S<[ B<--enable-protocol> E<lt>proto_nameE<gt> ]>
+S<[ B<--disable-protocol> E<lt>proto_nameE<gt> ]>
+S<[ B<--enable-heuristic> E<lt>short_nameE<gt> ]>
+S<[ B<--disable-heuristic> E<lt>short_nameE<gt> ]>
 S<[ E<lt>infileE<gt> ]>
 
 =head1 DESCRIPTION
@@ -962,6 +966,12 @@ Show IEEE 802.11 network and station statistics.
 
 Show WSP packet counters.
 
+=back
+
+=item --enable-protocol E<lt>proto_nameE<gt>
+
+Enable dissection of proto_name.
+
 =item --disable-protocol E<lt>proto_nameE<gt>
 
 Disable dissection of proto_name.
@@ -973,8 +983,6 @@ Enable dissection of heuristic protocol.
 =item --disable-heuristic E<lt>short_nameE<gt>
 
 Disable dissection of heuristic protocol.
-
-=back
 
 =back
 

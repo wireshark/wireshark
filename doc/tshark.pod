@@ -54,6 +54,10 @@ S<[ B<-Y> E<lt>displaY filterE<gt> ]>
 S<[ B<-z> E<lt>statisticsE<gt> ]>
 S<[ B<--capture-comment> E<lt>commentE<gt> ]>
 S<[ B<--export-objects> E<lt>protocolE<gt>,E<lt>destdirE<gt> ]>
+S<[ B<--enable-protocol> E<lt>proto_nameE<gt> ]>
+S<[ B<--disable-protocol> E<lt>proto_nameE<gt> ]>
+S<[ B<--enable-heuristic> E<lt>short_nameE<gt> ]>
+S<[ B<--disable-heuristic> E<lt>short_nameE<gt> ]>
 S<[ E<lt>capture filterE<gt> ]>
 
 B<tshark>
@@ -1588,6 +1592,8 @@ on those calls that match that filter.
 Example: B<-z "smb,srt,ip.addr==1.2.3.4"> will only collect stats for
 SMB packets exchanged by the host at IP address 1.2.3.4 .
 
+=back
+
 =item --capture-comment E<lt>commentE<gt>
 
 Add a capture comment to the output file.
@@ -1607,6 +1613,10 @@ before the file extension.
 
 This interface is subject to change, adding the possibility to filter on files.
 
+=item --enable-protocol E<lt>proto_nameE<gt>
+
+Enable dissection of proto_name.
+
 =item --disable-protocol E<lt>proto_nameE<gt>
 
 Disable dissection of proto_name.
@@ -1618,8 +1628,6 @@ Enable dissection of heuristic protocol.
 =item --disable-heuristic E<lt>short_nameE<gt>
 
 Disable dissection of heuristic protocol.
-
-=back
 
 =back
 

@@ -135,6 +135,8 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "  -d %s ...\n", DECODE_AS_ARG_TEMPLATE);
     fprintf(output, "                           \"Decode As\", see the man page for details\n");
     fprintf(output, "                           Example: tcp.port==8888,http\n");
+    fprintf(output, "  --enable-protocol <proto_name>\n");
+    fprintf(output, "                           enable dissection of proto_name\n");
     fprintf(output, "  --disable-protocol <proto_name>\n");
     fprintf(output, "                           disable dissection of proto_name\n");
     fprintf(output, "  --enable-heuristic <short_name>\n");
