@@ -194,8 +194,6 @@ static const value_string rrdp_calculation_vals[] = {
     { NULL, NULL, 0}
 };*/
 
-static int fake_tap = 0xa7a7a7a7;
-
 void add_detected_tcp_svc(guint16 port)
 {
     wmem_map_insert(detected_tcp_svc, GUINT_TO_POINTER(port), GUINT_TO_POINTER(port));
@@ -703,16 +701,6 @@ gboolean is_dcerpc_req_pkt_type(guint32 pkt_type)
  */
 static void init_globals(void)
 {
-    /* The following achives two things; a) we avoid double registering the fake tap
-       and b) we discard the fake tap when the "TRANSUM enabled" preference is changed.
-
-       We remove the tap when it is not needed as it has a performance impact.
-
-       It's safe to call remove_tap_listener even if the tap listener doesn't exist.
-       If it doesn't find &fake_tap on the queue of listeners it calls the actual freeing
-       function with a pointer of NULL and the called function just returns. */
-    remove_tap_listener(&fake_tap);
-
     if (!proto_is_protocol_enabled(find_protocol_by_id(proto_transum)))
         return;
 
@@ -728,32 +716,6 @@ static void init_globals(void)
         g_array_append_val(wanted_fields, hf_of_interest[i].hf);
     }
     set_postdissector_wanted_hfids(transum_handle, wanted_fields);
-
-    GString* fake_tap_filter = g_string_new("frame || eth.type");
-
-    for (int i = 0; i < HF_INTEREST_END_OF_LIST; i++)
-    {
-        g_string_append_printf(fake_tap_filter, " || %s", hf_of_interest[i].proto_name);
-    }
-
-
-    /* this fake tap is needed to force WS to pass a tree to the dissectors on
-       the first scan which causes the dissectors to create display filter values
-       which are then available to TRANSUM during the first scan */
-    GString* error = register_tap_listener("frame",
-        &fake_tap,
-        fake_tap_filter->str,
-        TL_REQUIRES_NOTHING,
-        NULL, NULL, NULL); /* NULL pointers as this is a fake tap */
-
-    g_string_free(fake_tap_filter, TRUE);
-
-    if (error)
-    {
-        report_failure("register_tap_listener() failed - %s", error->str);
-        g_string_free(error, TRUE);
-        return;
-    }
 
     preferences.tcp_svc_ports = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
     preferences.udp_svc_ports = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
