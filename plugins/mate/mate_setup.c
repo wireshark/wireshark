@@ -259,9 +259,9 @@ static void analyze_pdu_hfids(gpointer k, gpointer v, gpointer p) {
 	new_attr_hfri(mc, cfg->name,cfg->my_hfids,(gchar*) v);
 
 	/*
-	 * Add this hfid to our table of hfids.
+	 * Add this hfid to our table of wanted hfids.
 	 */
-	mc->wanted_fields = g_array_append_val(mc->wanted_fields, *(int *)k);
+	mc->wanted_hfids = g_array_append_val(mc->wanted_hfids, *(int *)k);
 
 	g_string_append_printf(mc->fields_filter,"||%s",my_protoname(*(int*)k));
 }
@@ -594,7 +594,7 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 
 	mc->hfid_mate = mate_hfid;
 
-	mc->wanted_fields = g_array_new(FALSE, FALSE, (guint)sizeof(int));
+	mc->wanted_hfids = g_array_new(FALSE, FALSE, (guint)sizeof(int));
 
 	mc->fields_filter = g_string_new("");
 	mc->protos_filter = g_string_new("");

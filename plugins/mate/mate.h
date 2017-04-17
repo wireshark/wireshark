@@ -197,7 +197,7 @@ typedef struct _mate_config {
 
 	int hfid_mate;
 
-	GArray *wanted_fields;  /* hfids of fields MATE needs */
+	GArray *wanted_hfids;   /* hfids of protocols and fields MATE needs */
 
 	GString* fields_filter; /* "ip.addr || dns.id || ... " for the tap */
 	GString* protos_filter; /* "dns || ftp || ..." for the tap */

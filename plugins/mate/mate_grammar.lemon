@@ -435,6 +435,11 @@ pdu_decl ::=
 	cfg->discard = DistcardPduData;
 	cfg->drop_unassigned = DropUnassigned;
 
+	/*
+	 * Add this protocol to our table of wanted hfids.
+	 */
+	mc->wanted_hfids = g_array_append_val(mc->wanted_hfids, Field->id);
+
 	g_string_append_printf(mc->protos_filter,"||%s",Field->abbrev);
 
 	/* flip the transport_stack */
