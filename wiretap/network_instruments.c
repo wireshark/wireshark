@@ -70,10 +70,11 @@ typedef struct {
 static const time_t ansi_to_observer_epoch_offset = 946684800;
 static time_t gmt_to_localtime_offset = (time_t) -1;
 
-static void init_gmt_to_localtime_offset(void)
+static const char *init_gmt_to_localtime_offset(void)
 {
     if (gmt_to_localtime_offset == (time_t) -1) {
         time_t ansi_epoch_plus_one_day = 86400;
+        struct tm *tm;
         struct tm gmt_tm;
         struct tm local_tm;
 
@@ -86,11 +87,18 @@ static void init_gmt_to_localtime_offset(void)
          * back to time_t as if they were both local times, resulting in the
          * time zone offset being the difference between them.
          */
-        gmt_tm = *gmtime(&ansi_epoch_plus_one_day);
-        local_tm = *localtime(&ansi_epoch_plus_one_day);
+        tm = gmtime(&ansi_epoch_plus_one_day);
+        if (tm == NULL)
+            return "gmtime(one day past the Epoch) fails (this \"shouldn't happen\")";
+        gmt_tm = *tm;
+        if (tm == NULL)
+            return "localtime(one day past the Epoch) fails (this \"shouldn't happen\")";
+        tm = localtime(&ansi_epoch_plus_one_day);
+        local_tm = *tm;
         local_tm.tm_isdst = 0;
         gmt_to_localtime_offset = mktime(&gmt_tm) - mktime(&local_tm);
     }
+    return NULL;
 }
 
 static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
@@ -237,7 +245,17 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
     if (file_seek(wth->fh, header_offset, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
 
-    init_gmt_to_localtime_offset();
+    if (init_gmt_to_localtime_offset() != NULL) {
+        *err = WTAP_ERR_INTERNAL;
+        /*
+         * XXX - we should return the error string, so the caller
+         * can report the details of the internal error, but that
+         * would require plugin file readers to do so for internal
+         * errors as well, which could break binary compatibility;
+         * we'll do that in the next release.
+         */
+        return WTAP_OPEN_ERROR;
+    }
 
     return WTAP_OPEN_MINE;
 }
