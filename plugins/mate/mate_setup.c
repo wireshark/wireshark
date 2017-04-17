@@ -24,11 +24,8 @@
 
 #include "mate.h"
 
-/* the current mate_config */
-static mate_config* matecfg = NULL;
-
 /* appends the formatted string to the current error log */
-static void report_error(const gchar* fmt, ...) {
+static void report_error(mate_config* matecfg, const gchar* fmt, ...) {
 	static gchar error_buffer[DEBUG_BUFFER_SIZE];
 
 	va_list list;
@@ -45,7 +42,7 @@ static void report_error(const gchar* fmt, ...) {
 /* creates a blank pdu config
      is going to be called only by the grammar
 	 which will set all those elements that aren't set here */
-extern mate_cfg_pdu* new_pducfg(gchar* name) {
+extern mate_cfg_pdu* new_pducfg(mate_config* matecfg, gchar* name) {
 	mate_cfg_pdu* cfg = (mate_cfg_pdu *)g_malloc(sizeof(mate_cfg_pdu));
 
 	cfg->name = g_strdup(name);
@@ -76,7 +73,7 @@ extern mate_cfg_pdu* new_pducfg(gchar* name) {
 	return cfg;
 }
 
-extern mate_cfg_gop* new_gopcfg(gchar* name) {
+extern mate_cfg_gop* new_gopcfg(mate_config* matecfg, gchar* name) {
 	mate_cfg_gop* cfg = (mate_cfg_gop *)g_malloc(sizeof(mate_cfg_gop));
 
 	cfg->name = g_strdup(name);
@@ -111,7 +108,7 @@ extern mate_cfg_gop* new_gopcfg(gchar* name) {
 	return cfg;
 }
 
-extern mate_cfg_gog* new_gogcfg(gchar* name) {
+extern mate_cfg_gog* new_gogcfg(mate_config* matecfg, gchar* name) {
 	mate_cfg_gog* cfg = (mate_cfg_gog *)g_malloc(sizeof(mate_cfg_gop));
 
 	cfg->name = g_strdup(name);
@@ -145,7 +142,7 @@ extern mate_cfg_gog* new_gogcfg(gchar* name) {
 	return cfg;
 }
 
-extern gboolean add_hfid(header_field_info*  hfi, gchar* how, GHashTable* where) {
+extern gboolean add_hfid(mate_config* matecfg, header_field_info*  hfi, gchar* how, GHashTable* where) {
 	header_field_info*  first_hfi = NULL;
 	gboolean exists = FALSE;
 	gchar* as;
@@ -168,8 +165,9 @@ extern gboolean add_hfid(header_field_info*  hfi, gchar* how, GHashTable* where)
 		if (( as = (gchar *)g_hash_table_lookup(where,ip) )) {
 			g_free(ip);
 			if (! g_str_equal(as,how)) {
-				report_error("MATE Error: add field to Pdu: attempt to add %s(%i) as %s"
-						  " failed: field already added as '%s'",hfi->abbrev,hfi->id,how,as);
+				report_error(matecfg,
+				    "MATE Error: add field to Pdu: attempt to add %s(%i) as %s"
+				    " failed: field already added as '%s'",hfi->abbrev,hfi->id,how,as);
 				return FALSE;
 			}
 		} else {
@@ -182,7 +180,7 @@ extern gboolean add_hfid(header_field_info*  hfi, gchar* how, GHashTable* where)
 	}
 
 	if (! exists) {
-		report_error("MATE Error: cannot find field for attribute %s",how);
+		report_error(matecfg, "MATE Error: cannot find field for attribute %s",how);
 	}
 	return exists;
 }
@@ -191,7 +189,7 @@ extern gboolean add_hfid(header_field_info*  hfi, gchar* how, GHashTable* where)
 /*
  * XXX - where is this suposed to be used?
  */
-extern gchar* add_ranges(gchar* range,GPtrArray* range_ptr_arr) {
+extern gchar* add_ranges(mate_config* matecfg, gchar* range,GPtrArray* range_ptr_arr) {
 	gchar**  ranges;
 	guint i;
 	header_field_info* hfi;
@@ -220,7 +218,7 @@ extern gchar* add_ranges(gchar* range,GPtrArray* range_ptr_arr) {
 }
 #endif
 
-static void new_attr_hfri(gchar* item_name, GHashTable* hfids, gchar* name) {
+static void new_attr_hfri(mate_config* matecfg, gchar* item_name, GHashTable* hfids, gchar* name) {
 	int* p_id = (int *)g_malloc(sizeof(int));
 	hf_register_info hfri;
 
@@ -249,9 +247,16 @@ static const gchar* my_protoname(int proto_id) {
 	}
 }
 
+typedef struct {
+	mate_config* matecfg;
+	mate_cfg_pdu* cfg;
+} analyze_pdu_hfids_arg;
+
 static void analyze_pdu_hfids(gpointer k, gpointer v, gpointer p) {
-	mate_cfg_pdu* cfg = (mate_cfg_pdu *)p;
-	new_attr_hfri(cfg->name,cfg->my_hfids,(gchar*) v);
+	analyze_pdu_hfids_arg* argp = (analyze_pdu_hfids_arg*)p;
+	mate_config* matecfg = argp->matecfg;
+	mate_cfg_pdu* cfg = argp->cfg;
+	new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,(gchar*) v);
 
 	/*
 	 * Add this hfid to our table of hfids.
@@ -261,7 +266,7 @@ static void analyze_pdu_hfids(gpointer k, gpointer v, gpointer p) {
 	g_string_append_printf(matecfg->fields_filter,"||%s",my_protoname(*(int*)k));
 }
 
-static void analyze_transform_hfrs(gchar* name, GPtrArray* transforms, GHashTable* hfids) {
+static void analyze_transform_hfrs(mate_config* matecfg, gchar* name, GPtrArray* transforms, GHashTable* hfids) {
 	guint i;
 	void* cookie = NULL;
 	AVPL_Transf* t;
@@ -272,16 +277,17 @@ static void analyze_transform_hfrs(gchar* name, GPtrArray* transforms, GHashTabl
 			cookie = NULL;
 			while(( avp = get_next_avp(t->replace,&cookie) )) {
 				if (! g_hash_table_lookup(hfids,avp->n))  {
-					new_attr_hfri(name,hfids,avp->n);
+					new_attr_hfri(matecfg, name,hfids,avp->n);
 				}
 			}
 		}
 	}
 }
 
-static void analyze_pdu_config(mate_cfg_pdu* cfg) {
+static void analyze_pdu_config(mate_config* matecfg, mate_cfg_pdu* cfg) {
 	hf_register_info hfri = { NULL, {NULL, NULL, FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}};
 	gint* ett;
+	analyze_pdu_hfids_arg arg;
 
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup(cfg->name);
@@ -310,7 +316,9 @@ static void analyze_pdu_config(mate_cfg_pdu* cfg) {
 
 	g_array_append_val(matecfg->hfrs,hfri);
 
-	g_hash_table_foreach(cfg->hfids_attr,analyze_pdu_hfids,cfg);
+	arg.matecfg = matecfg;
+	arg.cfg = cfg;
+	g_hash_table_foreach(cfg->hfids_attr,analyze_pdu_hfids,&arg);
 
 	ett = &cfg->ett;
 	g_array_append_val(matecfg->ett,ett);
@@ -318,10 +326,11 @@ static void analyze_pdu_config(mate_cfg_pdu* cfg) {
 	ett = &cfg->ett_attr;
 	g_array_append_val(matecfg->ett,ett);
 
-	analyze_transform_hfrs(cfg->name,cfg->transforms,cfg->my_hfids);
+	analyze_transform_hfrs(matecfg, cfg->name,cfg->transforms,cfg->my_hfids);
 }
 
-static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
+static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p) {
+	mate_config* matecfg = (mate_config*)p;
 	mate_cfg_gop* cfg = (mate_cfg_gop *)v;
 	void* cookie = NULL;
 	AVP* avp;
@@ -387,7 +396,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	while(( avp = get_next_avp(cfg->key,&cookie) )) {
 		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-			new_attr_hfri(cfg->name,cfg->my_hfids,avp->n);
+			new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,avp->n);
 		}
 	}
 
@@ -395,7 +404,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 		cookie = NULL;
 		while(( avp = get_next_avp(cfg->start,&cookie) )) {
 			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-				new_attr_hfri(cfg->name,cfg->my_hfids,avp->n);
+				new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,avp->n);
 			}
 		}
 	}
@@ -404,7 +413,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 		cookie = NULL;
 		while(( avp = get_next_avp(cfg->stop,&cookie) )) {
 			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-				new_attr_hfri(cfg->name,cfg->my_hfids,avp->n);
+				new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,avp->n);
 			}
 		}
 	}
@@ -412,11 +421,11 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	cookie = NULL;
 	while(( avp = get_next_avp(cfg->extra,&cookie) )) {
 		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-			new_attr_hfri(cfg->name,cfg->my_hfids,avp->n);
+			new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,avp->n);
 		}
 	}
 
-	analyze_transform_hfrs(cfg->name,cfg->transforms,cfg->my_hfids);
+	analyze_transform_hfrs(matecfg, cfg->name,cfg->transforms,cfg->my_hfids);
 
 	ett = &cfg->ett;
 	g_array_append_val(matecfg->ett,ett);
@@ -433,7 +442,8 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	g_hash_table_insert(matecfg->gops_by_pduname,cfg->name,cfg);
 }
 
-static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
+static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
+	mate_config* matecfg = (mate_config*)p;
 	mate_cfg_gog* cfg = (mate_cfg_gog *)v;
 	void* avp_cookie;
 	void* avpl_cookie;
@@ -525,7 +535,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 		avp_cookie = NULL;
 		while (( avp = get_next_avp(avpl,&avp_cookie) )) {
 			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-				new_attr_hfri(cfg->name,cfg->my_hfids,avp->n);
+				new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,avp->n);
 				insert_avp(key_avps,avp);
 			}
 		}
@@ -535,7 +545,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	avp_cookie = NULL;
 	while (( avp = get_next_avp(cfg->extra,&avp_cookie) )) {
 		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-			new_attr_hfri(cfg->name,cfg->my_hfids,avp->n);
+			new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,avp->n);
 		}
 	}
 
@@ -544,7 +554,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	merge_avpl(cfg->extra,key_avps,TRUE);
 
 
-	analyze_transform_hfrs(cfg->name,cfg->transforms,cfg->my_hfids);
+	analyze_transform_hfrs(matecfg, cfg->name,cfg->transforms,cfg->my_hfids);
 
 	ett = &cfg->ett;
 	g_array_append_val(matecfg->ett,ett);
@@ -563,11 +573,11 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 }
 
-static void analyze_config(void) {
+static void analyze_config(mate_config* matecfg) {
 	guint i;
 
 	for (i=0; i < matecfg->pducfglist->len; i++) {
-		analyze_pdu_config((mate_cfg_pdu*) g_ptr_array_index(matecfg->pducfglist,i));
+		analyze_pdu_config(matecfg, (mate_cfg_pdu*) g_ptr_array_index(matecfg->pducfglist,i));
 	}
 
 	g_hash_table_foreach(matecfg->gopcfgs,analyze_gop_config,matecfg);
@@ -575,11 +585,8 @@ static void analyze_config(void) {
 
 }
 
-extern mate_config* mate_cfg(void) {
-	return matecfg;
-}
-
 extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
+	mate_config* matecfg;
 	gint* ett;
 	avp_init();
 
@@ -641,14 +648,13 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 	g_array_append_val(matecfg->ett,ett);
 
 	if ( mate_load_config(filename,matecfg) ) {
-		analyze_config();
+		analyze_config(matecfg);
 	} else {
 		report_failure("MATE failed to configure!\n"
 					   "It is recommended that you fix your config and restart Wireshark.\n"
 					   "The reported error is:\n%s\n",matecfg->config_error->str);
 
 		/* if (matecfg) destroy_mate_config(matecfg,FALSE); */
-		matecfg = NULL;
 		return NULL;
 	}
 

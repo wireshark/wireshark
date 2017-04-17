@@ -311,7 +311,7 @@ mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	if ( tree == NULL)
 		return tvb_captured_length(tvb);
 
-	mate_analyze_frame(pinfo,tree);
+	mate_analyze_frame(mc, pinfo,tree);
 
 	if (( pdus = mate_get_pdus(pinfo->num) )) {
 		for ( ; pdus; pdus = pdus->next_in_frame) {
@@ -328,6 +328,12 @@ mate_packet(void *prs _U_,  packet_info* tree _U_, epan_dissect_t *edt _U_, cons
 {
 	/* nothing to do yet */
 	return 0;
+}
+
+static void
+initialize_mate(void)
+{
+	initialize_mate_runtime(mc);
 }
 
 extern
@@ -351,7 +357,7 @@ proto_reg_handoff_mate(void)
 				/* XXX: alignment warnings, what do they mean? */
 				proto_register_field_array(proto_mate, (hf_register_info*)(void *)mc->hfrs->data, mc->hfrs->len );
 				proto_register_subtree_array((gint**)(void*)mc->ett->data, mc->ett->len);
-				register_init_routine(initialize_mate_runtime);
+				register_init_routine(initialize_mate);
 
 				/*
 				 * Set the list of fields we want.
@@ -373,7 +379,7 @@ proto_reg_handoff_mate(void)
 					return;
 				}
 
-				initialize_mate_runtime();
+				initialize_mate_runtime(mc);
 			}
 
 			current_mate_config_filename = pref_mate_config_filename;

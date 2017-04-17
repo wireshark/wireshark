@@ -366,19 +366,18 @@ typedef union _mate_max_size {
 } mate_max_size;
 
 /* from mate_runtime.c */
-extern void initialize_mate_runtime(void);
+extern void initialize_mate_runtime(mate_config* mc);
 extern mate_pdu* mate_get_pdus(guint32 framenum);
-extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree);
+extern void mate_analyze_frame(mate_config *mc, packet_info *pinfo, proto_tree* tree);
 
 /* from mate_setup.c */
 extern mate_config* mate_make_config(const gchar* filename, int mate_hfid);
 
-extern mate_config* mate_cfg(void);
-extern mate_cfg_pdu* new_pducfg(gchar* name);
-extern mate_cfg_gop* new_gopcfg(gchar* name);
-extern mate_cfg_gog* new_gogcfg(gchar* name);
+extern mate_cfg_pdu* new_pducfg(mate_config* matecfg, gchar* name);
+extern mate_cfg_gop* new_gopcfg(mate_config* matecfg, gchar* name);
+extern mate_cfg_gog* new_gogcfg(mate_config* matecfg, gchar* name);
 
-extern gboolean add_hfid(header_field_info*  hfi, gchar* as, GHashTable* where);
+extern gboolean add_hfid(mate_config* matecfg, header_field_info*  hfi, gchar* as, GHashTable* where);
 extern gchar* add_ranges(gchar* range, GPtrArray* range_ptr_arr);
 
 

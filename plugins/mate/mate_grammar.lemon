@@ -422,7 +422,7 @@ pdu_decl ::=
 		CLOSE_BRACE SEMICOLON.
 {
 
-	mate_cfg_pdu* cfg  = new_pducfg(Name);
+	mate_cfg_pdu* cfg  = new_pducfg(mc, Name);
 	extraction_t *extraction, *next_extraction;
 	GPtrArray* transport_stack = g_ptr_array_new();
 	int i;
@@ -458,7 +458,7 @@ pdu_decl ::=
 	for (extraction = Extraction; extraction; extraction = next_extraction) {
 		next_extraction = extraction->next;
 
-		if ( ! add_hfid(extraction->hfi, extraction->as, cfg->hfids_attr) ) {
+		if ( ! add_hfid(mc, extraction->hfi, extraction->as, cfg->hfids_attr) ) {
 			configuration_error(mc,"MATE: failed to create extraction rule '%s'",extraction->as);
 		}
 
@@ -545,7 +545,7 @@ gop_decl(A) ::= GOP_KW NAME(Name) ON_KW pdu_name(PduName) MATCH_KW avpl(Key) OPE
 	if (g_hash_table_lookup(mc->gopcfgs,Name)) configuration_error(mc,"A Gop Named '%s' exists already.",Name);
 	if (g_hash_table_lookup(mc->gops_by_pduname,PduName) ) configuration_error(mc,"Gop for Pdu '%s' exists already",PduName);
 
-	cfg = new_gopcfg(Name);
+	cfg = new_gopcfg(mc, Name);
 	g_hash_table_insert(mc->gops_by_pduname,PduName,cfg);
 	g_hash_table_insert(mc->gopcfgs,cfg->name,cfg);
 
@@ -632,7 +632,7 @@ gog_decl ::= GOG_KW NAME(Name) OPEN_BRACE
 			configuration_error(mc,"Gog '%s' exists already ",Name);
 		}
 
-		cfg = new_gogcfg(Name);
+		cfg = new_gogcfg(mc, Name);
 
 		cfg->expiration = Expiration;
 		cfg->gop_tree_mode = Tree;
