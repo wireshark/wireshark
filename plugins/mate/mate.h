@@ -373,11 +373,11 @@ extern void mate_analyze_frame(mate_config *mc, packet_info *pinfo, proto_tree* 
 /* from mate_setup.c */
 extern mate_config* mate_make_config(const gchar* filename, int mate_hfid);
 
-extern mate_cfg_pdu* new_pducfg(mate_config* matecfg, gchar* name);
-extern mate_cfg_gop* new_gopcfg(mate_config* matecfg, gchar* name);
-extern mate_cfg_gog* new_gogcfg(mate_config* matecfg, gchar* name);
+extern mate_cfg_pdu* new_pducfg(mate_config* mc, gchar* name);
+extern mate_cfg_gop* new_gopcfg(mate_config* mc, gchar* name);
+extern mate_cfg_gog* new_gogcfg(mate_config* mc, gchar* name);
 
-extern gboolean add_hfid(mate_config* matecfg, header_field_info*  hfi, gchar* as, GHashTable* where);
+extern gboolean add_hfid(mate_config* mc, header_field_info*  hfi, gchar* as, GHashTable* where);
 extern gchar* add_ranges(gchar* range, GPtrArray* range_ptr_arr);
 
 

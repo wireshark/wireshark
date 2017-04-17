@@ -25,7 +25,7 @@
 #include "mate.h"
 
 /* appends the formatted string to the current error log */
-static void report_error(mate_config* matecfg, const gchar* fmt, ...) {
+static void report_error(mate_config* mc, const gchar* fmt, ...) {
 	static gchar error_buffer[DEBUG_BUFFER_SIZE];
 
 	va_list list;
@@ -34,15 +34,15 @@ static void report_error(mate_config* matecfg, const gchar* fmt, ...) {
 	g_vsnprintf(error_buffer,DEBUG_BUFFER_SIZE,fmt,list);
 	va_end( list );
 
-	g_string_append(matecfg->config_error,error_buffer);
-	g_string_append_c(matecfg->config_error,'\n');
+	g_string_append(mc->config_error,error_buffer);
+	g_string_append_c(mc->config_error,'\n');
 
 }
 
 /* creates a blank pdu config
      is going to be called only by the grammar
 	 which will set all those elements that aren't set here */
-extern mate_cfg_pdu* new_pducfg(mate_config* matecfg, gchar* name) {
+extern mate_cfg_pdu* new_pducfg(mate_config* mc, gchar* name) {
 	mate_cfg_pdu* cfg = (mate_cfg_pdu *)g_malloc(sizeof(mate_cfg_pdu));
 
 	cfg->name = g_strdup(name);
@@ -65,15 +65,15 @@ extern mate_cfg_pdu* new_pducfg(mate_config* matecfg, gchar* name) {
 	cfg->criterium_match_mode = AVPL_NO_MATCH;
 	cfg->criterium_accept_mode = ACCEPT_MODE;
 
-	g_ptr_array_add(matecfg->pducfglist,(gpointer) cfg);
-	g_hash_table_insert(matecfg->pducfgs,(gpointer) cfg->name,(gpointer) cfg);
+	g_ptr_array_add(mc->pducfglist,(gpointer) cfg);
+	g_hash_table_insert(mc->pducfgs,(gpointer) cfg->name,(gpointer) cfg);
 
 	cfg->hfids_attr = g_hash_table_new(g_int_hash,g_int_equal);
 
 	return cfg;
 }
 
-extern mate_cfg_gop* new_gopcfg(mate_config* matecfg, gchar* name) {
+extern mate_cfg_gop* new_gopcfg(mate_config* mc, gchar* name) {
 	mate_cfg_gop* cfg = (mate_cfg_gop *)g_malloc(sizeof(mate_cfg_gop));
 
 	cfg->name = g_strdup(name);
@@ -103,12 +103,12 @@ extern mate_cfg_gop* new_gopcfg(mate_config* matecfg, gchar* name) {
 	cfg->gop_index = g_hash_table_new(g_str_hash,g_str_equal);
 	cfg->gog_index = g_hash_table_new(g_str_hash,g_str_equal);
 
-	g_hash_table_insert(matecfg->gopcfgs,(gpointer) cfg->name, (gpointer) cfg);
+	g_hash_table_insert(mc->gopcfgs,(gpointer) cfg->name, (gpointer) cfg);
 
 	return cfg;
 }
 
-extern mate_cfg_gog* new_gogcfg(mate_config* matecfg, gchar* name) {
+extern mate_cfg_gog* new_gogcfg(mate_config* mc, gchar* name) {
 	mate_cfg_gog* cfg = (mate_cfg_gog *)g_malloc(sizeof(mate_cfg_gop));
 
 	cfg->name = g_strdup(name);
@@ -137,12 +137,12 @@ extern mate_cfg_gog* new_gogcfg(mate_config* matecfg, gchar* name) {
 	cfg->hfid_stop_time = -1;
 	cfg->hfid_last_time = -1;
 
-	g_hash_table_insert(matecfg->gogcfgs,(gpointer) cfg->name, (gpointer) cfg);
+	g_hash_table_insert(mc->gogcfgs,(gpointer) cfg->name, (gpointer) cfg);
 
 	return cfg;
 }
 
-extern gboolean add_hfid(mate_config* matecfg, header_field_info*  hfi, gchar* how, GHashTable* where) {
+extern gboolean add_hfid(mate_config* mc, header_field_info*  hfi, gchar* how, GHashTable* where) {
 	header_field_info*  first_hfi = NULL;
 	gboolean exists = FALSE;
 	gchar* as;
@@ -165,7 +165,7 @@ extern gboolean add_hfid(mate_config* matecfg, header_field_info*  hfi, gchar* h
 		if (( as = (gchar *)g_hash_table_lookup(where,ip) )) {
 			g_free(ip);
 			if (! g_str_equal(as,how)) {
-				report_error(matecfg,
+				report_error(mc,
 				    "MATE Error: add field to Pdu: attempt to add %s(%i) as %s"
 				    " failed: field already added as '%s'",hfi->abbrev,hfi->id,how,as);
 				return FALSE;
@@ -180,7 +180,7 @@ extern gboolean add_hfid(mate_config* matecfg, header_field_info*  hfi, gchar* h
 	}
 
 	if (! exists) {
-		report_error(matecfg, "MATE Error: cannot find field for attribute %s",how);
+		report_error(mc, "MATE Error: cannot find field for attribute %s",how);
 	}
 	return exists;
 }
@@ -189,7 +189,7 @@ extern gboolean add_hfid(mate_config* matecfg, header_field_info*  hfi, gchar* h
 /*
  * XXX - where is this suposed to be used?
  */
-extern gchar* add_ranges(mate_config* matecfg, gchar* range,GPtrArray* range_ptr_arr) {
+extern gchar* add_ranges(mate_config* mc, gchar* range,GPtrArray* range_ptr_arr) {
 	gchar**  ranges;
 	guint i;
 	header_field_info* hfi;
@@ -204,7 +204,7 @@ extern gchar* add_ranges(mate_config* matecfg, gchar* range,GPtrArray* range_ptr
 				hfidp = (int *)g_malloc(sizeof(int));
 				*hfidp = hfi->id;
 				g_ptr_array_add(range_ptr_arr,(gpointer)hfidp);
-				g_string_append_printf(matecfg->fields_filter, "||%s",ranges[i]);
+				g_string_append_printf(mc->fields_filter, "||%s",ranges[i]);
 			} else {
 				g_strfreev(ranges);
 				return g_strdup_printf("no such proto: '%s'",ranges[i]);
@@ -218,7 +218,7 @@ extern gchar* add_ranges(mate_config* matecfg, gchar* range,GPtrArray* range_ptr
 }
 #endif
 
-static void new_attr_hfri(mate_config* matecfg, gchar* item_name, GHashTable* hfids, gchar* name) {
+static void new_attr_hfri(mate_config* mc, gchar* item_name, GHashTable* hfids, gchar* name) {
 	int* p_id = (int *)g_malloc(sizeof(int));
 	hf_register_info hfri;
 
@@ -235,7 +235,7 @@ static void new_attr_hfri(mate_config* matecfg, gchar* item_name, GHashTable* hf
 
 	*p_id = -1;
 	g_hash_table_insert(hfids,name,p_id);
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 }
 
@@ -248,25 +248,25 @@ static const gchar* my_protoname(int proto_id) {
 }
 
 typedef struct {
-	mate_config* matecfg;
+	mate_config* mc;
 	mate_cfg_pdu* cfg;
 } analyze_pdu_hfids_arg;
 
 static void analyze_pdu_hfids(gpointer k, gpointer v, gpointer p) {
 	analyze_pdu_hfids_arg* argp = (analyze_pdu_hfids_arg*)p;
-	mate_config* matecfg = argp->matecfg;
+	mate_config* mc = argp->mc;
 	mate_cfg_pdu* cfg = argp->cfg;
-	new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,(gchar*) v);
+	new_attr_hfri(mc, cfg->name,cfg->my_hfids,(gchar*) v);
 
 	/*
 	 * Add this hfid to our table of hfids.
 	 */
-	matecfg->wanted_fields = g_array_append_val(matecfg->wanted_fields, *(int *)k);
+	mc->wanted_fields = g_array_append_val(mc->wanted_fields, *(int *)k);
 
-	g_string_append_printf(matecfg->fields_filter,"||%s",my_protoname(*(int*)k));
+	g_string_append_printf(mc->fields_filter,"||%s",my_protoname(*(int*)k));
 }
 
-static void analyze_transform_hfrs(mate_config* matecfg, gchar* name, GPtrArray* transforms, GHashTable* hfids) {
+static void analyze_transform_hfrs(mate_config* mc, gchar* name, GPtrArray* transforms, GHashTable* hfids) {
 	guint i;
 	void* cookie = NULL;
 	AVPL_Transf* t;
@@ -277,14 +277,14 @@ static void analyze_transform_hfrs(mate_config* matecfg, gchar* name, GPtrArray*
 			cookie = NULL;
 			while(( avp = get_next_avp(t->replace,&cookie) )) {
 				if (! g_hash_table_lookup(hfids,avp->n))  {
-					new_attr_hfri(matecfg, name,hfids,avp->n);
+					new_attr_hfri(mc, name,hfids,avp->n);
 				}
 			}
 		}
 	}
 }
 
-static void analyze_pdu_config(mate_config* matecfg, mate_cfg_pdu* cfg) {
+static void analyze_pdu_config(mate_config* mc, mate_cfg_pdu* cfg) {
 	hf_register_info hfri = { NULL, {NULL, NULL, FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}};
 	gint* ett;
 	analyze_pdu_hfids_arg arg;
@@ -296,7 +296,7 @@ static void analyze_pdu_config(mate_config* matecfg, mate_cfg_pdu* cfg) {
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_pdu_rel_time);
 	hfri.hfinfo.name = g_strdup_printf("%s time",cfg->name);
@@ -305,7 +305,7 @@ static void analyze_pdu_config(mate_config* matecfg, mate_cfg_pdu* cfg) {
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = "Seconds passed since the start of capture";
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_pdu_time_in_gop);
 	hfri.hfinfo.name = g_strdup_printf("%s time since beginning of Gop",cfg->name);
@@ -314,23 +314,23 @@ static void analyze_pdu_config(mate_config* matecfg, mate_cfg_pdu* cfg) {
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = "Seconds passed since the start of the GOP";
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
-	arg.matecfg = matecfg;
+	arg.mc = mc;
 	arg.cfg = cfg;
 	g_hash_table_foreach(cfg->hfids_attr,analyze_pdu_hfids,&arg);
 
 	ett = &cfg->ett;
-	g_array_append_val(matecfg->ett,ett);
+	g_array_append_val(mc->ett,ett);
 
 	ett = &cfg->ett_attr;
-	g_array_append_val(matecfg->ett,ett);
+	g_array_append_val(mc->ett,ett);
 
-	analyze_transform_hfrs(matecfg, cfg->name,cfg->transforms,cfg->my_hfids);
+	analyze_transform_hfrs(mc, cfg->name,cfg->transforms,cfg->my_hfids);
 }
 
 static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p) {
-	mate_config* matecfg = (mate_config*)p;
+	mate_config* mc = (mate_config*)p;
 	mate_cfg_gop* cfg = (mate_cfg_gop *)v;
 	void* cookie = NULL;
 	AVP* avp;
@@ -344,7 +344,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p) {
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_start_time);
 	hfri.hfinfo.name = g_strdup_printf("%s start time",cfg->name);
@@ -353,21 +353,21 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p) {
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = g_strdup_printf("Seconds passed since the beginning of capture to the start of this %s",cfg->name);
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_stop_time);
 	hfri.hfinfo.name = g_strdup_printf("%s hold time",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Time",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("Duration in seconds from start to stop of this %s",cfg->name);
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_last_time);
 	hfri.hfinfo.name = g_strdup_printf("%s duration",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Duration",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("Time passed between the start of this %s and the last pdu assigned to it",cfg->name);
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_gop_num_pdus);
 	hfri.hfinfo.name = g_strdup_printf("%s number of PDUs",cfg->name);
@@ -376,7 +376,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p) {
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_gop_pdu);
 	hfri.hfinfo.name = g_strdup_printf("A PDU of %s",cfg->name);
@@ -386,17 +386,17 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p) {
 	if (cfg->pdu_tree_mode == GOP_FRAME_TREE) {
 		hfri.hfinfo.type = FT_FRAMENUM;
 		hfri.hfinfo.display = BASE_NONE;
-		g_array_append_val(matecfg->hfrs,hfri);
+		g_array_append_val(mc->hfrs,hfri);
 	} else 	if (cfg->pdu_tree_mode == GOP_PDU_TREE) {
 		hfri.hfinfo.type = FT_UINT32;
-		g_array_append_val(matecfg->hfrs,hfri);
+		g_array_append_val(mc->hfrs,hfri);
 	} else {
 		cfg->pdu_tree_mode = GOP_NO_TREE;
 	}
 
 	while(( avp = get_next_avp(cfg->key,&cookie) )) {
 		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-			new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,avp->n);
+			new_attr_hfri(mc, cfg->name,cfg->my_hfids,avp->n);
 		}
 	}
 
@@ -404,7 +404,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p) {
 		cookie = NULL;
 		while(( avp = get_next_avp(cfg->start,&cookie) )) {
 			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-				new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,avp->n);
+				new_attr_hfri(mc, cfg->name,cfg->my_hfids,avp->n);
 			}
 		}
 	}
@@ -413,7 +413,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p) {
 		cookie = NULL;
 		while(( avp = get_next_avp(cfg->stop,&cookie) )) {
 			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-				new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,avp->n);
+				new_attr_hfri(mc, cfg->name,cfg->my_hfids,avp->n);
 			}
 		}
 	}
@@ -421,29 +421,29 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p) {
 	cookie = NULL;
 	while(( avp = get_next_avp(cfg->extra,&cookie) )) {
 		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-			new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,avp->n);
+			new_attr_hfri(mc, cfg->name,cfg->my_hfids,avp->n);
 		}
 	}
 
-	analyze_transform_hfrs(matecfg, cfg->name,cfg->transforms,cfg->my_hfids);
+	analyze_transform_hfrs(mc, cfg->name,cfg->transforms,cfg->my_hfids);
 
 	ett = &cfg->ett;
-	g_array_append_val(matecfg->ett,ett);
+	g_array_append_val(mc->ett,ett);
 
 	ett = &cfg->ett_attr;
-	g_array_append_val(matecfg->ett,ett);
+	g_array_append_val(mc->ett,ett);
 
 	ett = &cfg->ett_times;
-	g_array_append_val(matecfg->ett,ett);
+	g_array_append_val(mc->ett,ett);
 
 	ett = &cfg->ett_children;
-	g_array_append_val(matecfg->ett,ett);
+	g_array_append_val(mc->ett,ett);
 
-	g_hash_table_insert(matecfg->gops_by_pduname,cfg->name,cfg);
+	g_hash_table_insert(mc->gops_by_pduname,cfg->name,cfg);
 }
 
 static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
-	mate_config* matecfg = (mate_config*)p;
+	mate_config* mc = (mate_config*)p;
 	mate_cfg_gog* cfg = (mate_cfg_gog *)v;
 	void* avp_cookie;
 	void* avpl_cookie;
@@ -463,7 +463,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_gog_num_of_gops);
 	hfri.hfinfo.name = "number of GOPs";
@@ -472,7 +472,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 	hfri.hfinfo.display = BASE_DEC;
 	hfri.hfinfo.blurb = g_strdup_printf("Number of GOPs assigned to this %s",cfg->name);
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_gog_gopstart);
 	hfri.hfinfo.name = "GopStart frame";
@@ -481,7 +481,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = g_strdup("The start frame of a GOP");
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_gog_gopstop);
 	hfri.hfinfo.name = "GopStop frame";
@@ -490,7 +490,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = g_strdup("The stop frame of a GOP");
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_start_time);
 	hfri.hfinfo.name = g_strdup_printf("%s start time",cfg->name);
@@ -498,14 +498,14 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 	hfri.hfinfo.type = FT_FLOAT;
 	hfri.hfinfo.blurb = g_strdup_printf("Seconds passed since the beginning of capture to the start of this %s",cfg->name);
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_last_time);
 	hfri.hfinfo.name = g_strdup_printf("%s duration",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Duration",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("Time passed between the start of this %s and the last pdu assigned to it",cfg->name);
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	/* this might become mate.gogname.gopname */
 	hfri.p_id = &(cfg->hfid_gog_gop);
@@ -515,7 +515,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = g_strdup_printf("a GOPs assigned to this %s",cfg->name);
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	g_array_append_val(mc->hfrs,hfri);
 
 	/*  index the keys of gog for every gop
 		and insert the avps of the keys to the hfarray */
@@ -524,9 +524,9 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 	avpl_cookie = NULL;
 	while (( avpl = get_next_avpl(cfg->keys,&avpl_cookie) )) {
 
-		if (! ( gog_keys = (LoAL *)g_hash_table_lookup(matecfg->gogs_by_gopname,avpl->name))) {
+		if (! ( gog_keys = (LoAL *)g_hash_table_lookup(mc->gogs_by_gopname,avpl->name))) {
 			gog_keys = new_loal(avpl->name);
-			g_hash_table_insert(matecfg->gogs_by_gopname,gog_keys->name,gog_keys);
+			g_hash_table_insert(mc->gogs_by_gopname,gog_keys->name,gog_keys);
 		}
 
 		gopkey_avpl = new_avpl_from_avpl(cfg->name, avpl, TRUE);
@@ -535,7 +535,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 		avp_cookie = NULL;
 		while (( avp = get_next_avp(avpl,&avp_cookie) )) {
 			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-				new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,avp->n);
+				new_attr_hfri(mc, cfg->name,cfg->my_hfids,avp->n);
 				insert_avp(key_avps,avp);
 			}
 		}
@@ -545,7 +545,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 	avp_cookie = NULL;
 	while (( avp = get_next_avp(cfg->extra,&avp_cookie) )) {
 		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-			new_attr_hfri(matecfg, cfg->name,cfg->my_hfids,avp->n);
+			new_attr_hfri(mc, cfg->name,cfg->my_hfids,avp->n);
 		}
 	}
 
@@ -554,122 +554,122 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 	merge_avpl(cfg->extra,key_avps,TRUE);
 
 
-	analyze_transform_hfrs(matecfg, cfg->name,cfg->transforms,cfg->my_hfids);
+	analyze_transform_hfrs(mc, cfg->name,cfg->transforms,cfg->my_hfids);
 
 	ett = &cfg->ett;
-	g_array_append_val(matecfg->ett,ett);
+	g_array_append_val(mc->ett,ett);
 
 	ett = &cfg->ett_attr;
-	g_array_append_val(matecfg->ett,ett);
+	g_array_append_val(mc->ett,ett);
 
 	ett = &cfg->ett_children;
-	g_array_append_val(matecfg->ett,ett);
+	g_array_append_val(mc->ett,ett);
 
 	ett = &cfg->ett_times;
-	g_array_append_val(matecfg->ett,ett);
+	g_array_append_val(mc->ett,ett);
 
 	ett = &cfg->ett_gog_gop;
-	g_array_append_val(matecfg->ett,ett);
+	g_array_append_val(mc->ett,ett);
 
 }
 
-static void analyze_config(mate_config* matecfg) {
+static void analyze_config(mate_config* mc) {
 	guint i;
 
-	for (i=0; i < matecfg->pducfglist->len; i++) {
-		analyze_pdu_config(matecfg, (mate_cfg_pdu*) g_ptr_array_index(matecfg->pducfglist,i));
+	for (i=0; i < mc->pducfglist->len; i++) {
+		analyze_pdu_config(mc, (mate_cfg_pdu*) g_ptr_array_index(mc->pducfglist,i));
 	}
 
-	g_hash_table_foreach(matecfg->gopcfgs,analyze_gop_config,matecfg);
-	g_hash_table_foreach(matecfg->gogcfgs,analyze_gog_config,matecfg);
+	g_hash_table_foreach(mc->gopcfgs,analyze_gop_config,mc);
+	g_hash_table_foreach(mc->gogcfgs,analyze_gog_config,mc);
 
 }
 
 extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
-	mate_config* matecfg;
+	mate_config* mc;
 	gint* ett;
 	avp_init();
 
-	matecfg = (mate_config *)g_malloc(sizeof(mate_config));
+	mc = (mate_config *)g_malloc(sizeof(mate_config));
 
-	matecfg->hfid_mate = mate_hfid;
+	mc->hfid_mate = mate_hfid;
 
-	matecfg->wanted_fields = g_array_new(FALSE, FALSE, (guint)sizeof(int));
+	mc->wanted_fields = g_array_new(FALSE, FALSE, (guint)sizeof(int));
 
-	matecfg->fields_filter = g_string_new("");
-	matecfg->protos_filter = g_string_new("");
+	mc->fields_filter = g_string_new("");
+	mc->protos_filter = g_string_new("");
 
-	matecfg->dbg_facility = NULL;
+	mc->dbg_facility = NULL;
 
-	matecfg->mate_lib_path = g_strdup_printf("%s%c%s%c",get_datafile_dir(),DIR_SEP,DEFAULT_MATE_LIB_PATH,DIR_SEP);
+	mc->mate_lib_path = g_strdup_printf("%s%c%s%c",get_datafile_dir(),DIR_SEP,DEFAULT_MATE_LIB_PATH,DIR_SEP);
 
-	matecfg->pducfgs = g_hash_table_new(g_str_hash,g_str_equal);
-	matecfg->gopcfgs = g_hash_table_new(g_str_hash,g_str_equal);
-	matecfg->gogcfgs = g_hash_table_new(g_str_hash,g_str_equal);
-	matecfg->transfs = g_hash_table_new(g_str_hash,g_str_equal);
+	mc->pducfgs = g_hash_table_new(g_str_hash,g_str_equal);
+	mc->gopcfgs = g_hash_table_new(g_str_hash,g_str_equal);
+	mc->gogcfgs = g_hash_table_new(g_str_hash,g_str_equal);
+	mc->transfs = g_hash_table_new(g_str_hash,g_str_equal);
 
-	matecfg->pducfglist = g_ptr_array_new();
-	matecfg->gops_by_pduname = g_hash_table_new(g_str_hash,g_str_equal);
-	matecfg->gogs_by_gopname = g_hash_table_new(g_str_hash,g_str_equal);
+	mc->pducfglist = g_ptr_array_new();
+	mc->gops_by_pduname = g_hash_table_new(g_str_hash,g_str_equal);
+	mc->gogs_by_gopname = g_hash_table_new(g_str_hash,g_str_equal);
 
-	matecfg->ett_root = -1;
+	mc->ett_root = -1;
 
-	matecfg->hfrs = g_array_new(FALSE,FALSE,sizeof(hf_register_info));
-	matecfg->ett  = g_array_new(FALSE,FALSE,sizeof(gint*));
+	mc->hfrs = g_array_new(FALSE,FALSE,sizeof(hf_register_info));
+	mc->ett  = g_array_new(FALSE,FALSE,sizeof(gint*));
 
-	matecfg->defaults.pdu.drop_unassigned = FALSE;
-	matecfg->defaults.pdu.discard = FALSE;
-	matecfg->defaults.pdu.last_extracted = FALSE;
-	matecfg->defaults.pdu.match_mode = AVPL_STRICT;
-	matecfg->defaults.pdu.replace_mode = AVPL_INSERT;
+	mc->defaults.pdu.drop_unassigned = FALSE;
+	mc->defaults.pdu.discard = FALSE;
+	mc->defaults.pdu.last_extracted = FALSE;
+	mc->defaults.pdu.match_mode = AVPL_STRICT;
+	mc->defaults.pdu.replace_mode = AVPL_INSERT;
 
 		/* gop prefs */
-	matecfg->defaults.gop.expiration = -1.0f;
-	matecfg->defaults.gop.idle_timeout = -1.0f;
-	matecfg->defaults.gop.lifetime = -1.0f;
-	matecfg->defaults.gop.pdu_tree_mode = GOP_FRAME_TREE;
-	matecfg->defaults.gop.show_times = TRUE;
-	matecfg->defaults.gop.drop_unassigned = FALSE;
+	mc->defaults.gop.expiration = -1.0f;
+	mc->defaults.gop.idle_timeout = -1.0f;
+	mc->defaults.gop.lifetime = -1.0f;
+	mc->defaults.gop.pdu_tree_mode = GOP_FRAME_TREE;
+	mc->defaults.gop.show_times = TRUE;
+	mc->defaults.gop.drop_unassigned = FALSE;
 
 		/* gog prefs */
-	matecfg->defaults.gog.expiration = 5.0f;
-	matecfg->defaults.gog.show_times = TRUE;
-	matecfg->defaults.gog.gop_tree_mode = GOP_BASIC_TREE;
+	mc->defaults.gog.expiration = 5.0f;
+	mc->defaults.gog.show_times = TRUE;
+	mc->defaults.gog.gop_tree_mode = GOP_BASIC_TREE;
 
 	/* what to dbgprint */
-	matecfg->dbg_lvl = 0;
-	matecfg->dbg_pdu_lvl = 0;
-	matecfg->dbg_gop_lvl = 0;
-	matecfg->dbg_gog_lvl = 0;
+	mc->dbg_lvl = 0;
+	mc->dbg_pdu_lvl = 0;
+	mc->dbg_gop_lvl = 0;
+	mc->dbg_gog_lvl = 0;
 
-	matecfg->config_error = g_string_new("");
+	mc->config_error = g_string_new("");
 
-	ett = &matecfg->ett_root;
-	g_array_append_val(matecfg->ett,ett);
+	ett = &mc->ett_root;
+	g_array_append_val(mc->ett,ett);
 
-	if ( mate_load_config(filename,matecfg) ) {
-		analyze_config(matecfg);
+	if ( mate_load_config(filename,mc) ) {
+		analyze_config(mc);
 	} else {
 		report_failure("MATE failed to configure!\n"
 					   "It is recommended that you fix your config and restart Wireshark.\n"
-					   "The reported error is:\n%s\n",matecfg->config_error->str);
+					   "The reported error is:\n%s\n",mc->config_error->str);
 
-		/* if (matecfg) destroy_mate_config(matecfg,FALSE); */
+		/* if (mc) destroy_mate_config(mc,FALSE); */
 		return NULL;
 	}
 
-	if (matecfg->fields_filter->len > 1) {
-		g_string_erase(matecfg->fields_filter,0,2);
-		g_string_erase(matecfg->protos_filter,0,2);
+	if (mc->fields_filter->len > 1) {
+		g_string_erase(mc->fields_filter,0,2);
+		g_string_erase(mc->protos_filter,0,2);
 	} else {
-		/*destroy_mate_config(matecfg,FALSE);*/
-		matecfg = NULL;
+		/*destroy_mate_config(mc,FALSE);*/
+		mc = NULL;
 		return NULL;
 	}
 
-	matecfg->tap_filter = g_strdup_printf("(%s) && (%s)",matecfg->protos_filter->str,matecfg->fields_filter->str);
+	mc->tap_filter = g_strdup_printf("(%s) && (%s)",mc->protos_filter->str,mc->fields_filter->str);
 
-	return matecfg;
+	return mc;
 }
 
 /*

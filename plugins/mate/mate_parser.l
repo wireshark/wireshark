@@ -89,7 +89,7 @@
 #pragma warning (disable:4018)
 #endif
 
-	void MateParser(void*,int, gchar*, mate_config* matecfg);
+	void MateParser(void*, int, gchar*, mate_config*);
 #if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 16))
 	void *MateParserAlloc(void *(*)(gsize));
 #else
