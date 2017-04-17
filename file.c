@@ -572,11 +572,12 @@ cf_read(capture_file *cf, gboolean reloading)
    *
    *    one of the tap listeners requires a protocol tree;
    *
-   *    a postdissector wants field values on the first pass.
+   *    a postdissector wants field values or protocols on
+   *    the first pass.
    */
   create_proto_tree =
     (dfcode != NULL || have_filtering_tap_listeners() ||
-     (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_fields());
+     (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids());
 
   reset_tap_listeners();
 
@@ -812,11 +813,12 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
    *
    *    one of the tap listeners requires a protocol tree;
    *
-   *    a postdissector wants field values on the first pass.
+   *    a postdissector wants field values or protocols on
+   *    the first pass.
    */
   create_proto_tree =
     (dfcode != NULL || have_filtering_tap_listeners() ||
-     (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_fields());
+     (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids());
 
   *err = 0;
 
@@ -957,11 +959,12 @@ cf_finish_tail(capture_file *cf, int *err)
    *
    *    one of the tap listeners requires a protocol tree;
    *
-   *    a postdissector wants field values on the first pass.
+   *    a postdissector wants field values or protocols on
+   *    the first pass.
    */
   create_proto_tree =
     (dfcode != NULL || have_filtering_tap_listeners() ||
-     (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_fields());
+     (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids());
 
   if (cf->wth == NULL) {
     cf_close(cf);
@@ -1165,8 +1168,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   if (fdata->flags.visited) {
     /* This is the first pass, so prime the epan_dissect_t with the
-       fields postdissectors want on the first pass. */
-    prime_epan_dissect_with_postdissector_wanted_fields(edt);
+       hfids postdissectors want on the first pass. */
+    prime_epan_dissect_with_postdissector_wanted_hfids(edt);
   }
 
   /* Dissect the frame. */
@@ -1640,12 +1643,12 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
    *    one of the tap listeners requires a protocol tree;
    *
    *    we're redissecting and a postdissector wants field
-   *    values on the first pass.
+   *    values or protocols on the first pass.
    */
   create_proto_tree =
     (dfcode != NULL || have_filtering_tap_listeners() ||
      (tap_flags & TL_REQUIRES_PROTO_TREE) ||
-     (redissect && postdissectors_want_fields()));
+     (redissect && postdissectors_want_hfids()));
 
   reset_tap_listeners();
   /* Which frame, if any, is the currently selected frame?

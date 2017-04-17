@@ -2586,14 +2586,15 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
      *
      *    one of the tap listeners requires a protocol tree;
      *
-     *    a postdissector wants field values on the first pass;
+     *    a postdissector wants field values or protocols
+     *    on the first pass;
      *
      *    we have custom columns (which require field values, which
      *    currently requires that we build a protocol tree).
      */
     create_proto_tree =
       (cf->rfcode || cf->dfcode || print_details || filtering_tap_listeners ||
-        (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_fields() ||
+        (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids() ||
         have_custom_cols(&cf->cinfo));
 
     /* The protocol tree will be "visible", i.e., printed, only if we're
@@ -2822,8 +2823,8 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
       epan_dissect_prime_with_dfilter(edt, cf->dfcode);
 
     /* This is the first pass, so prime the epan_dissect_t with the
-       fields postdissectors want on the first pass. */
-    prime_epan_dissect_with_postdissector_wanted_fields(edt);
+       hfids postdissectors want on the first pass. */
+    prime_epan_dissect_with_postdissector_wanted_hfids(edt);
 
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
                                   &ref, prev_dis);
@@ -3104,10 +3105,11 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
        *
        *    we're going to apply a display filter;
        *
-       *    a postdissector wants field values on the first pass.
+       *    a postdissector wants field values or protocols
+       *    on the first pass.
        */
       create_proto_tree =
-        (cf->rfcode != NULL || cf->dfcode != NULL || postdissectors_want_fields());
+        (cf->rfcode != NULL || cf->dfcode != NULL || postdissectors_want_hfids());
 
       tshark_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
 
@@ -3306,14 +3308,15 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
        *
        *    one of the tap listeners requires a protocol tree;
        *
-       *    a postdissector wants field values on the first pass;
+       *    a postdissector wants field values or protocols
+       *    on the first pass;
        *
        *    we have custom columns (which require field values, which
        *    currently requires that we build a protocol tree).
        */
       create_proto_tree =
         (cf->rfcode || cf->dfcode || print_details || filtering_tap_listeners ||
-          (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_fields() ||
+          (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids() ||
           have_custom_cols(&cf->cinfo))
 
       tshark_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
@@ -3556,8 +3559,8 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
       epan_dissect_prime_with_dfilter(edt, cf->dfcode);
 
     /* This is the first and only pass, so prime the epan_dissect_t
-       with the fields postdissectors want on the first pass. */
-    prime_epan_dissect_with_postdissector_wanted_fields(edt);
+       with the hfids postdissectors want on the first pass. */
+    prime_epan_dissect_with_postdissector_wanted_hfids(edt);
 
     col_custom_prime_edt(edt, &cf->cinfo);
 

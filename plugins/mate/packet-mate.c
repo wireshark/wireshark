@@ -362,7 +362,7 @@ proto_reg_handoff_mate(void)
 				/*
 				 * Set the list of hfids we want.
 				 */
-				set_postdissector_wanted_fields(mate_handle,
+				set_postdissector_wanted_hfids(mate_handle,
 				    mc->wanted_hfids);
 
 				tap_error = register_tap_listener("frame", &mate_tap_data,

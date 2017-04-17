@@ -133,7 +133,7 @@ static GSList *postseq_cleanup_routines;
  */
 typedef struct {
 	dissector_handle_t handle;
-	GArray *wanted_fields;
+	GArray *wanted_hfids;
 } postdissector;
 
 /*
@@ -3274,12 +3274,12 @@ register_postdissector(dissector_handle_t handle)
 		postdissectors = g_array_sized_new(FALSE, FALSE, (guint)sizeof(postdissector), 1);
 
 	p.handle = handle;
-	p.wanted_fields = NULL;
+	p.wanted_hfids = NULL;
 	postdissectors = g_array_append_val(postdissectors, p);
 }
 
 void
-set_postdissector_wanted_fields(dissector_handle_t handle, GArray *wanted_fields)
+set_postdissector_wanted_hfids(dissector_handle_t handle, GArray *wanted_hfids)
 {
     guint i;
 
@@ -3287,7 +3287,7 @@ set_postdissector_wanted_fields(dissector_handle_t handle, GArray *wanted_fields
 
     for (i = 0; i < postdissectors->len; i++) {
         if (POSTDISSECTORS(i).handle == handle) {
-            POSTDISSECTORS(i).wanted_fields = wanted_fields;
+            POSTDISSECTORS(i).wanted_hfids = wanted_hfids;
             break;
         }
     }
@@ -3338,34 +3338,34 @@ call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 gboolean
-postdissectors_want_fields(void)
+postdissectors_want_hfids(void)
 {
 	guint i;
 
 	for (i = 0; i < postdissectors->len; i++) {
-		if (POSTDISSECTORS(i).wanted_fields != NULL &&
-		    POSTDISSECTORS(i).wanted_fields->len != 0)
+		if (POSTDISSECTORS(i).wanted_hfids != NULL &&
+		    POSTDISSECTORS(i).wanted_hfids->len != 0)
 			return TRUE;
 	}
 	return FALSE;
 }
 
 void
-prime_epan_dissect_with_postdissector_wanted_fields(epan_dissect_t *edt)
+prime_epan_dissect_with_postdissector_wanted_hfids(epan_dissect_t *edt)
 {
 	guint i;
 
 	if (postdissectors == NULL) {
 		/*
-		 * No postdissector expressed an interest in any fields.
+		 * No postdissector expressed an interest in any hfids.
 		 */
 		return;
 	}
 	for (i = 0; i < postdissectors->len; i++) {
-		if (POSTDISSECTORS(i).wanted_fields != NULL &&
-		    POSTDISSECTORS(i).wanted_fields->len != 0)
+		if (POSTDISSECTORS(i).wanted_hfids != NULL &&
+		    POSTDISSECTORS(i).wanted_hfids->len != 0)
 			epan_dissect_prime_with_hfid_array(edt,
-			    POSTDISSECTORS(i).wanted_fields);
+			    POSTDISSECTORS(i).wanted_hfids);
 	}
 }
 

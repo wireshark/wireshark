@@ -308,8 +308,8 @@ process_packet(capture_file *cf, epan_dissect_t *edt,
       epan_dissect_prime_with_dfilter(edt, cf->dfcode);
 
     /* This is the first and only pass, so prime the epan_dissect_t
-       with the fields postdissectors want on the first pass. */
-    prime_epan_dissect_with_postdissector_wanted_fields(edt);
+       with the hfids postdissectors want on the first pass. */
+    prime_epan_dissect_with_postdissector_wanted_hfids(edt);
 
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
                                   &ref, prev_dis);
@@ -378,10 +378,11 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
        *
        *    we're going to apply a display filter;
        *
-       *    a postdissector wants field values on the first pass.
+       *    a postdissector wants field values or protocols
+       *    on the first pass.
        */
       create_proto_tree =
-        (cf->rfcode != NULL || cf->dfcode != NULL || postdissectors_want_fields());
+        (cf->rfcode != NULL || cf->dfcode != NULL || postdissectors_want_hfids());
 
       /* We're not going to display the protocol tree on this pass,
          so it's not going to be "visible". */

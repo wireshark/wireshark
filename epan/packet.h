@@ -776,11 +776,11 @@ WS_DLL_PUBLIC void dissector_dump_heur_decodes(void);
 WS_DLL_PUBLIC void register_postdissector(dissector_handle_t handle);
 
 /*
- * Specify a set of fields that the postdissector will need.
+ * Specify a set of hfids that the postdissector will need.
  * The GArray is an array of hfids.
  */
-WS_DLL_PUBLIC void set_postdissector_wanted_fields(dissector_handle_t handle,
-    GArray *wanted_fields);
+WS_DLL_PUBLIC void set_postdissector_wanted_hfids(dissector_handle_t handle,
+    GArray *wanted_hfids);
 
 /*
  * Deregister a postdissector.  Not for use in (post)dissectors or
@@ -803,15 +803,16 @@ extern gboolean have_postdissector(void);
 extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /*
- * Return TRUE if at least one postdissector wants fields, FALSE otherwise.
+ * Return TRUE if at least one postdissector needs at least one hfid,
+ * FALSE otherwise.
  */
-WS_DLL_PUBLIC gboolean postdissectors_want_fields(void);
+WS_DLL_PUBLIC gboolean postdissectors_want_hfids(void);
 
 /*
- * Prime an epan_dissect_t with all the fields wanted by postdissectors.
+ * Prime an epan_dissect_t with all the hfids wanted by postdissectors.
  */
 WS_DLL_PUBLIC void
-prime_epan_dissect_with_postdissector_wanted_fields(epan_dissect_t *edt);
+prime_epan_dissect_with_postdissector_wanted_hfids(epan_dissect_t *edt);
 
 /** @} */
 

@@ -727,7 +727,7 @@ static void init_globals(void)
     {
         g_array_append_val(wanted_fields, hf_of_interest[i].hf);
     }
-    set_postdissector_wanted_fields(transum_handle, wanted_fields);
+    set_postdissector_wanted_hfids(transum_handle, wanted_fields);
 
     GString* fake_tap_filter = g_string_new("frame || eth.type");
 
