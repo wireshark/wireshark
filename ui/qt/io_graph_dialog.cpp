@@ -2186,17 +2186,17 @@ double IOGraph::getItemValue(int idx, const capture_file *cap_file) const
     case FT_FLOAT:
         switch (val_units_) {
         case IOG_ITEM_UNIT_CALC_SUM:
-            value = (guint64)item->float_tot;
+            value = item->float_tot;
             break;
         case IOG_ITEM_UNIT_CALC_MAX:
-            value = (guint64)item->float_max;
+            value = item->float_max;
             break;
         case IOG_ITEM_UNIT_CALC_MIN:
-            value = (guint64)item->float_min;
+            value = item->float_min;
             break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {
-                value = (guint64)item->float_tot / item->fields;
+                value = item->float_tot / item->fields;
             } else {
                 value = 0;
             }
@@ -2208,17 +2208,17 @@ double IOGraph::getItemValue(int idx, const capture_file *cap_file) const
     case FT_DOUBLE:
         switch (val_units_) {
         case IOG_ITEM_UNIT_CALC_SUM:
-            value = (guint64)item->double_tot;
+            value = item->double_tot;
             break;
         case IOG_ITEM_UNIT_CALC_MAX:
-            value = (guint64)item->double_max;
+            value = item->double_max;
             break;
         case IOG_ITEM_UNIT_CALC_MIN:
-            value = (guint64)item->double_min;
+            value = item->double_min;
             break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {
-                value = (guint64)item->double_tot / item->fields;
+                value = item->double_tot / item->fields;
             } else {
                 value = 0;
             }
