@@ -155,6 +155,7 @@ GENERATOR_FILES =
 MOC_HDRS = \
 	about_dialog.h					\
 	accordion_frame.h				\
+	additional_toolbar.h				\
 	address_editor_frame.h				\
 	apply_line_edit.h				\
 	bluetooth_att_server_attributes_dialog.h	\
@@ -214,7 +215,6 @@ MOC_HDRS = \
 	iax2_analysis_dialog.h				\
 	import_text_dialog.h				\
 	interface_frame.h				\
-	additional_toolbar.h				\
 	interface_tree_model.h				\
 	interface_tree_cache_model.h			\
 	interface_sort_filter_model.h			\
@@ -442,6 +442,7 @@ QM_FILES = $(TS_FILES:.ts=.qm)
 WIRESHARK_QT_SRC = \
 	about_dialog.cpp				\
 	accordion_frame.cpp				\
+	additional_toolbar.cpp				\
 	address_editor_frame.cpp			\
 	apply_line_edit.cpp				\
 	bluetooth_att_server_attributes_dialog.cpp	\
@@ -498,7 +499,6 @@ WIRESHARK_QT_SRC = \
 	iax2_analysis_dialog.cpp			\
 	import_text_dialog.cpp				\
 	interface_frame.cpp				\
-	additional_toolbar.cpp				\
 	interface_tree_model.cpp			\
 	interface_tree_cache_model.cpp			\
 	interface_sort_filter_model.cpp			\

@@ -26,6 +26,7 @@ ADD_CUSTOM_CMAKE_INCLUDE()
 set(WIRESHARK_QT_HEADERS
 	about_dialog.h
 	accordion_frame.h
+	additional_toolbar.h
 	address_editor_frame.h
 	apply_line_edit.h
 	bluetooth_att_server_attributes_dialog.h
@@ -86,7 +87,6 @@ set(WIRESHARK_QT_HEADERS
 	gsm_map_summary_dialog.h
 	iax2_analysis_dialog.h
 	import_text_dialog.h
-	additional_toolbar.h
 	interface_tree_model.h
 	interface_tree_cache_model.h
 	interface_sort_filter_model.h
@@ -201,6 +201,7 @@ file(GLOB EXTRA_QT_HEADERS
 set(WIRESHARK_QT_SRC
 	about_dialog.cpp
 	accordion_frame.cpp
+	additional_toolbar.cpp
 	address_editor_frame.cpp
 	apply_line_edit.cpp
 	bluetooth_att_server_attributes_dialog.cpp
@@ -256,7 +257,6 @@ set(WIRESHARK_QT_SRC
 	geometry_state_dialog.cpp
 	iax2_analysis_dialog.cpp
 	import_text_dialog.cpp
-	additional_toolbar.cpp
 	interface_tree_model.cpp
 	interface_tree_cache_model.cpp
 	interface_sort_filter_model.cpp
