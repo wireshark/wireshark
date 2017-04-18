@@ -894,9 +894,8 @@ dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
 static int
 dissect_rtcp_rtpfb_tmmbr( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci, int is_notification)
 {
-    int         bitrate;
-    int         exp;
-    guint32     mantissa;
+    guint8  exp;
+    guint32 mantissa;
     proto_tree *fci_tree;
 
     if (is_notification == 1) {
@@ -911,18 +910,17 @@ dissect_rtcp_rtpfb_tmmbr( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, prot
     /* Exp 6 bit*/
     proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_exp, tvb, offset, 1, ENC_BIG_ENDIAN );
     exp = (tvb_get_guint8(tvb, offset) & 0xfc) >> 2;
-        /* Mantissa 17 bit*/
+    /* Mantissa 17 bit*/
     proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_mantissa, tvb, offset, 3, ENC_BIG_ENDIAN );
     mantissa = (tvb_get_ntohl( tvb, offset) & 0x3fffe00) >> 9;
-    bitrate = mantissa << exp;
-    proto_tree_add_string_format_value( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_bitrate, tvb, offset, 3, "", "%u", bitrate);
+    proto_tree_add_string_format_value( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_bitrate, tvb, offset, 3, "", "%u*2^%u", mantissa, exp);
     offset += 3;
     /* Overhead */
     proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_measuredoverhead, tvb, offset, 1, ENC_BIG_ENDIAN );
     offset += 1;
 
     if (top_item != NULL) {
-          proto_item_append_text(top_item, ": TMMBR: %u", bitrate);
+          proto_item_append_text(top_item, ": TMMBR: %u*2^%u", mantissa, exp);
       }
 
     return offset;
