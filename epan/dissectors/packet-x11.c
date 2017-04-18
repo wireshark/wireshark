@@ -518,7 +518,23 @@ static const value_string grab_status_vals[] = {
       {  0, NULL }
 };
 
-static const value_string gravity_vals[] = {
+static const value_string bit_gravity_vals[] = {
+      {  0, "Forget" },
+      {  1, "NorthWest" },
+      {  2, "North" },
+      {  3, "NorthEast" },
+      {  4, "West" },
+      {  5, "Center" },
+      {  6, "East" },
+      {  7, "SouthWest" },
+      {  8, "South" },
+      {  9, "SouthEast" },
+      { 10, "Static" },
+      {  0, NULL }
+};
+
+static const value_string win_gravity_vals[] = {
+      {  0, "Unmap" },
       {  1, "NorthWest" },
       {  2, "North" },
       {  3, "NorthEast" },
@@ -1062,10 +1078,6 @@ static const value_string zero_is_none_vals[] = {
       { 0, NULL }
 };
 
-/* we have not seen packet before. */
-#define PACKET_IS_NEW(pinfo) \
-      (!((pinfo)->fd->flags.visited))
-
 /************************************************************************
  ***                                                                  ***
  ***           F I E L D   D E C O D I N G   M A C R O S              ***
@@ -1083,20 +1095,6 @@ static const value_string zero_is_none_vals[] = {
 #define FIELD16(name) (field16(tvb, offsetp, t, hf_x11_##name, byte_order))
 #define FIELD32(name) (field32(tvb, offsetp, t, hf_x11_##name, byte_order))
 
-#define BITFIELD(TYPE, position, name) {        \
-      int unused;                                                 \
-      int save = *offsetp;                                              \
-      proto_tree_add_item(bitmask_tree, hf_x11_##position##_##name, tvb, bitmask_offset, \
-                          bitmask_size, byte_order);                    \
-      if (bitmask_value & proto_registrar_get_nth(hf_x11_##position##_##name) -> bitmask) { \
-            TYPE(name);                                                 \
-            unused = save + 4 - *offsetp;                               \
-            if (unused)                                                 \
-                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, unused, ENC_NA); \
-            *offsetp = save + 4;                                        \
-      }                                                                 \
-}
-
 #define FLAG(position, name) {\
       proto_tree_add_boolean(bitmask_tree, hf_x11_##position##_mask##_##name, tvb, bitmask_offset, bitmask_size, bitmask_value); }
 
@@ -1105,25 +1103,6 @@ static const value_string zero_is_none_vals[] = {
             proto_tree_add_boolean(bitmask_tree, hf_x11_##position##_mask##_##name, tvb, bitmask_offset, bitmask_size, bitmask_value); } while (0)
 
 #define ATOM(name)     { atom(tvb, offsetp, t, hf_x11_##name, byte_order); }
-#define BITGRAVITY(name) { gravity(tvb, offsetp, t, hf_x11_##name, "Forget"); }
-#define BITMASK(name, size) {\
-      proto_item *bitmask_ti; \
-      guint32 bitmask_value; \
-      int bitmask_offset; \
-      int bitmask_size; \
-      proto_tree *bitmask_tree; \
-      bitmask_value = ((size == 1) ? (guint32)VALUE8(tvb, *offsetp) : \
-                       ((size == 2) ? (guint32)VALUE16(tvb, *offsetp) : \
-                                      (guint32)VALUE32(tvb, *offsetp))); \
-      bitmask_offset = *offsetp; \
-      bitmask_size = size; \
-      bitmask_ti = proto_tree_add_uint(t, hf_x11_##name##_mask, tvb, *offsetp, size, bitmask_value); \
-      bitmask_tree = proto_item_add_subtree(bitmask_ti, ett_x11_##name##_mask); \
-      *offsetp += size;
-#define ENDBITMASK      }
-#define BITMASK8(name)  BITMASK(name, 1);
-#define BITMASK16(name) BITMASK(name, 2);
-#define BITMASK32(name) BITMASK(name, 4);
 #define BOOL(name)     (add_boolean(tvb, offsetp, t, hf_x11_##name))
 #define BUTTON(name)   FIELD8(name)
 #define CARD8(name)    FIELD8(name)
@@ -1213,7 +1192,6 @@ static const value_string zero_is_none_vals[] = {
 #define UNUSED(x)      { proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp,  x, ENC_NA); *offsetp += x; }
 #define PAD()          { if (next_offset - *offsetp > 0) proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, next_offset - *offsetp, ENC_NA); *offsetp = next_offset; }
 #define WINDOW(name)   { FIELD32(name); }
-#define WINGRAVITY(name) { gravity(tvb, offsetp, t, hf_x11_##name, "Unmap"); }
 
 #define VISUALID(name) { gint32 v = VALUE32(tvb, *offsetp); \
     proto_tree_add_uint_format(t, hf_x11_##name, tvb, *offsetp, 4, v, "Visualid: 0x%08x%s", v, \
@@ -1406,20 +1384,6 @@ static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       } else
             proto_tree_add_uint_format(t, hf_x11_coloritem_flags, tvb, *offsetp, 1, do_red_green_blue,
                                        "flags: none");
-      *offsetp += 1;
-}
-
-static void gravity(tvbuff_t *tvb, int *offsetp, proto_tree *t,
-                    int hf, const char *nullInterpretation)
-{
-      guint8 v = VALUE8(tvb, *offsetp);
-
-      if (!v)
-            proto_tree_add_uint_format(t, hf, tvb, *offsetp, 1, v, "%s: 0 (%s)",
-                                       proto_registrar_get_nth(hf) -> name,
-                                       nullInterpretation);
-      else
-            proto_tree_add_uint(t, hf, tvb, *offsetp, 1, v);
       *offsetp += 1;
 }
 
@@ -2436,64 +2400,172 @@ static guint32 field32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       return v;
 }
 
+static const int * gc_mask_attributes[] = {
+    &hf_x11_gc_value_mask_function,
+    &hf_x11_gc_value_mask_plane_mask,
+    &hf_x11_gc_value_mask_foreground,
+    &hf_x11_gc_value_mask_background,
+    &hf_x11_gc_value_mask_line_width,
+    &hf_x11_gc_value_mask_line_style,
+    &hf_x11_gc_value_mask_cap_style,
+    &hf_x11_gc_value_mask_join_style,
+    &hf_x11_gc_value_mask_fill_style,
+    &hf_x11_gc_value_mask_fill_rule,
+    &hf_x11_gc_value_mask_tile,
+    &hf_x11_gc_value_mask_stipple,
+    &hf_x11_gc_value_mask_tile_stipple_x_origin,
+    &hf_x11_gc_value_mask_tile_stipple_y_origin,
+    &hf_x11_gc_value_mask_font,
+    &hf_x11_gc_value_mask_subwindow_mode,
+    &hf_x11_gc_value_mask_graphics_exposures,
+    &hf_x11_gc_value_mask_clip_x_origin,
+    &hf_x11_gc_value_mask_clip_y_origin,
+    &hf_x11_gc_value_mask_clip_mask,
+    &hf_x11_gc_value_mask_dash_offset,
+    &hf_x11_gc_value_mask_gc_dashes,
+    &hf_x11_gc_value_mask_arc_mode,
+    NULL
+};
+
 static void gcAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t,
                          guint byte_order)
 {
-      BITMASK32(gc_value);
-      BITFIELD(ENUM8,  gc_value_mask, function);
-      BITFIELD(CARD32, gc_value_mask, plane_mask);
-      BITFIELD(CARD32, gc_value_mask, foreground);
-      BITFIELD(CARD32, gc_value_mask, background);
-      BITFIELD(CARD16, gc_value_mask, line_width);
-      BITFIELD(ENUM8,  gc_value_mask, line_style);
-      BITFIELD(ENUM8,  gc_value_mask, cap_style);
-      BITFIELD(ENUM8,  gc_value_mask, join_style);
-      BITFIELD(ENUM8,  gc_value_mask, fill_style);
-      BITFIELD(ENUM8,  gc_value_mask, fill_rule);
-      BITFIELD(PIXMAP, gc_value_mask, tile);
-      BITFIELD(PIXMAP, gc_value_mask, stipple);
-      BITFIELD(INT16,  gc_value_mask, tile_stipple_x_origin);
-      BITFIELD(INT16,  gc_value_mask, tile_stipple_y_origin);
-      BITFIELD(FONT,   gc_value_mask, font);
-      BITFIELD(ENUM8,  gc_value_mask, subwindow_mode);
-      BITFIELD(BOOL,   gc_value_mask, graphics_exposures);
-      BITFIELD(INT16,  gc_value_mask, clip_x_origin);
-      BITFIELD(INT16,  gc_value_mask, clip_y_origin);
-      BITFIELD(PIXMAP, gc_value_mask, clip_mask);
-      BITFIELD(CARD16, gc_value_mask, dash_offset);
-      BITFIELD(CARD8,  gc_value_mask, gc_dashes);
-      BITFIELD(ENUM8,  gc_value_mask, arc_mode);
-      ENDBITMASK;
+      guint32 bitmask;
+      bitmask = tvb_get_guint32(tvb, *offsetp, byte_order);
+      proto_tree_add_bitmask(t, tvb, *offsetp, hf_x11_gc_value_mask, ett_x11_gc_value_mask, gc_mask_attributes, byte_order);
+      *offsetp += 4;
+
+      if (bitmask & 0x00000001) {
+          proto_tree_add_item(t, hf_x11_function, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00000002) {
+          proto_tree_add_item(t, hf_x11_plane_mask, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00000004) {
+          proto_tree_add_item(t, hf_x11_foreground, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00000008) {
+          proto_tree_add_item(t, hf_x11_background, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00000010) {
+          proto_tree_add_item(t, hf_x11_line_width, tvb, *offsetp, 2, byte_order);
+          *offsetp += 2;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+          *offsetp += 2;
+      }
+      if (bitmask & 0x00000020) {
+          proto_tree_add_item(t, hf_x11_line_style, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00000040) {
+          proto_tree_add_item(t, hf_x11_cap_style, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00000080) {
+          proto_tree_add_item(t, hf_x11_join_style, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00000100) {
+          proto_tree_add_item(t, hf_x11_fill_style, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00000200) {
+          proto_tree_add_item(t, hf_x11_fill_rule, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00000400) {
+          proto_tree_add_item(t, hf_x11_tile, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00000800) {
+          proto_tree_add_item(t, hf_x11_stipple, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00001000) {
+          proto_tree_add_item(t, hf_x11_tile_stipple_x_origin, tvb, *offsetp, 2, byte_order);
+          *offsetp += 2;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+          *offsetp += 2;
+      }
+      if (bitmask & 0x00002000) {
+          proto_tree_add_item(t, hf_x11_tile_stipple_y_origin, tvb, *offsetp, 2, byte_order);
+          *offsetp += 2;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+          *offsetp += 2;
+      }
+      if (bitmask & 0x00004000) {
+          proto_tree_add_item(t, hf_x11_font, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00008000) {
+          proto_tree_add_item(t, hf_x11_subwindow_mode, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00010000) {
+          proto_tree_add_item(t, hf_x11_graphics_exposures, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00020000) {
+          proto_tree_add_item(t, hf_x11_clip_x_origin, tvb, *offsetp, 2, byte_order);
+          *offsetp += 2;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+          *offsetp += 2;
+      }
+      if (bitmask & 0x00040000) {
+          proto_tree_add_item(t, hf_x11_clip_y_origin, tvb, *offsetp, 2, byte_order);
+          *offsetp += 2;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+          *offsetp += 2;
+      }
+      if (bitmask & 0x00080000) {
+          proto_tree_add_item(t, hf_x11_clip_mask, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00100000) {
+          proto_tree_add_item(t, hf_x11_dash_offset, tvb, *offsetp, 2, byte_order);
+          *offsetp += 2;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+          *offsetp += 2;
+      }
+      if (bitmask & 0x00200000) {
+          proto_tree_add_item(t, hf_x11_gc_dashes, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00400000) {
+          proto_tree_add_item(t, hf_x11_arc_mode, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
 }
 
 static void gcMask(tvbuff_t *tvb, int *offsetp, proto_tree *t,
                    guint byte_order)
 {
-      BITMASK32(gc_value);
-      FLAG(gc_value, function);
-      FLAG(gc_value, plane_mask);
-      FLAG(gc_value, foreground);
-      FLAG(gc_value, background);
-      FLAG(gc_value, line_width);
-      FLAG(gc_value, line_style);
-      FLAG(gc_value, cap_style);
-      FLAG(gc_value, join_style);
-      FLAG(gc_value, fill_style);
-      FLAG(gc_value, fill_rule);
-      FLAG(gc_value, tile);
-      FLAG(gc_value, stipple);
-      FLAG(gc_value, tile_stipple_x_origin);
-      FLAG(gc_value, tile_stipple_y_origin);
-      FLAG(gc_value, font);
-      FLAG(gc_value, subwindow_mode);
-      FLAG(gc_value, graphics_exposures);
-      FLAG(gc_value, clip_x_origin);
-      FLAG(gc_value, clip_y_origin);
-      FLAG(gc_value, clip_mask);
-      FLAG(gc_value, dash_offset);
-      FLAG(gc_value, gc_dashes);
-      FLAG(gc_value, arc_mode);
-      ENDBITMASK;
+      proto_tree_add_bitmask(t, tvb, *offsetp, hf_x11_gc_value_mask, ett_x11_gc_value_mask, gc_mask_attributes, byte_order);
+      *offsetp += 4;
 }
 
 static guint32 requestLength(tvbuff_t *tvb, int *offsetp, proto_tree *t,
@@ -2508,53 +2580,59 @@ static guint32 requestLength(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 static void setOfEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
                        guint byte_order)
 {
-      BITMASK32(event);
-      FLAG(event, KeyPress);
-      FLAG(event, KeyRelease);
-      FLAG(event, ButtonPress);
-      FLAG(event, ButtonRelease);
-      FLAG(event, EnterWindow);
-      FLAG(event, LeaveWindow);
-      FLAG(event, PointerMotion);
-      FLAG(event, PointerMotionHint);
-      FLAG(event, Button1Motion);
-      FLAG(event, Button2Motion);
-      FLAG(event, Button3Motion);
-      FLAG(event, Button4Motion);
-      FLAG(event, Button5Motion);
-      FLAG(event, ButtonMotion);
-      FLAG(event, KeymapState);
-      FLAG(event, Exposure);
-      FLAG(event, VisibilityChange);
-      FLAG(event, StructureNotify);
-      FLAG(event, ResizeRedirect);
-      FLAG(event, SubstructureNotify);
-      FLAG(event, SubstructureRedirect);
-      FLAG(event, FocusChange);
-      FLAG(event, PropertyChange);
-      FLAG(event, ColormapChange);
-      FLAG(event, OwnerGrabButton);
-      FLAG_IF_NONZERO(event, erroneous_bits);
-      ENDBITMASK;
+      static const int * events[] = {
+            &hf_x11_event_mask_KeyPress,
+            &hf_x11_event_mask_KeyRelease,
+            &hf_x11_event_mask_ButtonPress,
+            &hf_x11_event_mask_ButtonRelease,
+            &hf_x11_event_mask_EnterWindow,
+            &hf_x11_event_mask_LeaveWindow,
+            &hf_x11_event_mask_PointerMotion,
+            &hf_x11_event_mask_PointerMotionHint,
+            &hf_x11_event_mask_Button1Motion,
+            &hf_x11_event_mask_Button2Motion,
+            &hf_x11_event_mask_Button3Motion,
+            &hf_x11_event_mask_Button4Motion,
+            &hf_x11_event_mask_Button5Motion,
+            &hf_x11_event_mask_ButtonMotion,
+            &hf_x11_event_mask_KeymapState,
+            &hf_x11_event_mask_Exposure,
+            &hf_x11_event_mask_VisibilityChange,
+            &hf_x11_event_mask_StructureNotify,
+            &hf_x11_event_mask_ResizeRedirect,
+            &hf_x11_event_mask_SubstructureNotify,
+            &hf_x11_event_mask_SubstructureRedirect,
+            &hf_x11_event_mask_FocusChange,
+            &hf_x11_event_mask_PropertyChange,
+            &hf_x11_event_mask_ColormapChange,
+            &hf_x11_event_mask_OwnerGrabButton,
+            NULL
+      };
+
+      proto_tree_add_bitmask(t, tvb, *offsetp, hf_x11_event_mask, ett_x11_event_mask, events, byte_order);
+      *offsetp += 4;
 }
 
 static void setOfDeviceEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
                              guint byte_order)
 {
-      BITMASK32(do_not_propagate);
-      FLAG(do_not_propagate, KeyPress);
-      FLAG(do_not_propagate, KeyRelease);
-      FLAG(do_not_propagate, ButtonPress);
-      FLAG(do_not_propagate, ButtonRelease);
-      FLAG(do_not_propagate, PointerMotion);
-      FLAG(do_not_propagate, Button1Motion);
-      FLAG(do_not_propagate, Button2Motion);
-      FLAG(do_not_propagate, Button3Motion);
-      FLAG(do_not_propagate, Button4Motion);
-      FLAG(do_not_propagate, Button5Motion);
-      FLAG(do_not_propagate, ButtonMotion);
-      FLAG_IF_NONZERO(do_not_propagate, erroneous_bits);
-      ENDBITMASK;
+      static const int * do_not_propagate_events[] = {
+            &hf_x11_do_not_propagate_mask_KeyPress,
+            &hf_x11_do_not_propagate_mask_KeyRelease,
+            &hf_x11_do_not_propagate_mask_ButtonPress,
+            &hf_x11_do_not_propagate_mask_ButtonRelease,
+            &hf_x11_do_not_propagate_mask_PointerMotion,
+            &hf_x11_do_not_propagate_mask_Button1Motion,
+            &hf_x11_do_not_propagate_mask_Button2Motion,
+            &hf_x11_do_not_propagate_mask_Button3Motion,
+            &hf_x11_do_not_propagate_mask_Button4Motion,
+            &hf_x11_do_not_propagate_mask_Button5Motion,
+            &hf_x11_do_not_propagate_mask_ButtonMotion,
+            NULL
+      };
+
+      proto_tree_add_bitmask(t, tvb, *offsetp, hf_x11_do_not_propagate_mask, ett_x11_do_not_propagate_mask, do_not_propagate_events, byte_order);
+      *offsetp += 4;
 }
 
 
@@ -2606,22 +2684,24 @@ static void setOfKeyButMask(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 static void setOfPointerEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
                               guint byte_order)
 {
-      BITMASK16(pointer_event);
-      FLAG(pointer_event, ButtonPress);
-      FLAG(pointer_event, ButtonRelease);
-      FLAG(pointer_event, EnterWindow);
-      FLAG(pointer_event, LeaveWindow);
-      FLAG(pointer_event, PointerMotion);
-      FLAG(pointer_event, PointerMotionHint);
-      FLAG(pointer_event, Button1Motion);
-      FLAG(pointer_event, Button2Motion);
-      FLAG(pointer_event, Button3Motion);
-      FLAG(pointer_event, Button4Motion);
-      FLAG(pointer_event, Button5Motion);
-      FLAG(pointer_event, ButtonMotion);
-      FLAG(pointer_event, KeymapState);
-      FLAG_IF_NONZERO(pointer_event, erroneous_bits);
-      ENDBITMASK;
+      static const int * pointer_events[] = {
+            &hf_x11_pointer_event_mask_ButtonRelease,
+            &hf_x11_pointer_event_mask_EnterWindow,
+            &hf_x11_pointer_event_mask_LeaveWindow,
+            &hf_x11_pointer_event_mask_PointerMotion,
+            &hf_x11_pointer_event_mask_PointerMotionHint,
+            &hf_x11_pointer_event_mask_Button1Motion,
+            &hf_x11_pointer_event_mask_Button2Motion,
+            &hf_x11_pointer_event_mask_Button3Motion,
+            &hf_x11_pointer_event_mask_Button4Motion,
+            &hf_x11_pointer_event_mask_Button5Motion,
+            &hf_x11_pointer_event_mask_ButtonMotion,
+            &hf_x11_pointer_event_mask_KeymapState,
+            NULL
+      };
+
+      proto_tree_add_bitmask(t, tvb, *offsetp, hf_x11_pointer_event_mask, ett_x11_pointer_event_mask, pointer_events, byte_order);
+      *offsetp += 2;
 }
 
 static void string8(tvbuff_t *tvb, int *offsetp, proto_tree *t,
@@ -2664,23 +2744,98 @@ static void timestamp(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 static void windowAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t,
                              guint byte_order)
 {
-      BITMASK32(window_value);
-      BITFIELD(PIXMAP, window_value_mask, background_pixmap);
-      BITFIELD(CARD32, window_value_mask, background_pixel);
-      BITFIELD(PIXMAP, window_value_mask, border_pixmap);
-      BITFIELD(CARD32, window_value_mask, border_pixel);
-      BITFIELD(BITGRAVITY, window_value_mask, bit_gravity);
-      BITFIELD(WINGRAVITY, window_value_mask, win_gravity);
-      BITFIELD(ENUM8, window_value_mask, backing_store);
-      BITFIELD(CARD32, window_value_mask, backing_planes);
-      BITFIELD(CARD32, window_value_mask, backing_pixel);
-      BITFIELD(BOOL,   window_value_mask, override_redirect);
-      BITFIELD(BOOL,   window_value_mask, save_under);
-      BITFIELD(SETofEVENT, window_value_mask, event_mask);
-      BITFIELD(SETofDEVICEEVENT, window_value_mask, do_not_propagate_mask);
-      BITFIELD(COLORMAP, window_value_mask, colormap);
-      BITFIELD(CURSOR, window_value_mask, cursor);
-      ENDBITMASK;
+      guint32 bitmask;
+      static const int * window_attributes_flags[] = {
+            &hf_x11_window_value_mask_background_pixmap,
+            &hf_x11_window_value_mask_background_pixel,
+            &hf_x11_window_value_mask_border_pixmap,
+            &hf_x11_window_value_mask_border_pixel,
+            &hf_x11_window_value_mask_bit_gravity,
+            &hf_x11_window_value_mask_win_gravity,
+            &hf_x11_window_value_mask_backing_store,
+            &hf_x11_window_value_mask_backing_planes,
+            &hf_x11_window_value_mask_backing_pixel,
+            &hf_x11_window_value_mask_override_redirect,
+            &hf_x11_window_value_mask_save_under,
+            &hf_x11_window_value_mask_event_mask,
+            &hf_x11_window_value_mask_do_not_propagate_mask,
+            &hf_x11_window_value_mask_colormap,
+            &hf_x11_window_value_mask_cursor,
+            NULL
+      };
+
+      bitmask = tvb_get_guint32(tvb, *offsetp, byte_order);
+      proto_tree_add_bitmask(t, tvb, *offsetp, hf_x11_window_value_mask, ett_x11_window_value_mask, window_attributes_flags, byte_order);
+      *offsetp += 4;
+
+      if (bitmask & 0x00000001) {
+          proto_tree_add_item(t, hf_x11_background_pixmap, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00000002) {
+          proto_tree_add_item(t, hf_x11_background_pixel, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00000004) {
+          proto_tree_add_item(t, hf_x11_border_pixmap, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00000008) {
+          proto_tree_add_item(t, hf_x11_border_pixel, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00000010) {
+          proto_tree_add_item(t, hf_x11_bit_gravity, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00000020) {
+          proto_tree_add_item(t, hf_x11_win_gravity, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00000040) {
+          proto_tree_add_item(t, hf_x11_backing_store, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00000080) {
+          proto_tree_add_item(t, hf_x11_backing_planes, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00000100) {
+          proto_tree_add_item(t, hf_x11_backing_pixel, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00000200) {
+          proto_tree_add_item(t, hf_x11_override_redirect, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00000400) {
+          proto_tree_add_item(t, hf_x11_save_under, tvb, *offsetp, 1, byte_order);
+          *offsetp += 1;
+          proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+          *offsetp += 3;
+      }
+      if (bitmask & 0x00000800) {
+          setOfEvent(tvb, offsetp, t, byte_order);
+      }
+      if (bitmask & 0x00001000) {
+          setOfDeviceEvent(tvb, offsetp, t, byte_order);
+      }
+      if (bitmask & 0x00002000) {
+          proto_tree_add_item(t, hf_x11_colormap, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
+      if (bitmask & 0x00004000) {
+          proto_tree_add_item(t, hf_x11_cursor, tvb, *offsetp, 4, byte_order);
+          *offsetp += 4;
+      }
 }
 
 /************************************************************************
@@ -3350,7 +3505,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, ENC_NA);
       t = proto_item_add_subtree(ti, ett_x11);
 
-      if (PACKET_IS_NEW(pinfo))
+      if (!pinfo->fd->flags.visited)
             ++state->sequencenumber;
 
       OPCODE();
@@ -3471,7 +3626,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_CreateWindow:
             CARD8(depth);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(wid);
             WINDOW(parent);
             INT16(x);
@@ -3486,7 +3641,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_ChangeWindowAttributes:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             windowAttributes(tvb, offsetp, t, byte_order);
             break;
@@ -3495,19 +3650,19 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       case X_DestroyWindow:
       case X_DestroySubwindows:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             break;
 
       case X_ChangeSaveSet:
             ENUM8(save_set_mode);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             break;
 
       case X_ReparentWindow:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             WINDOW(parent);
             INT16(x);
@@ -3519,43 +3674,104 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       case X_UnmapWindow:
       case X_UnmapSubwindows:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             break;
 
       case X_ConfigureWindow:
-            UNUSED(1);
-            REQUEST_LENGTH();
-            WINDOW(window);
-            BITMASK16(configure_window);
-            UNUSED(2);
-            BITFIELD(INT16,  configure_window_mask, x);
-            BITFIELD(INT16,  configure_window_mask, y);
-            BITFIELD(CARD16, configure_window_mask, width);
-            BITFIELD(CARD16, configure_window_mask, height);
-            BITFIELD(CARD16, configure_window_mask, border_width);
-            BITFIELD(WINDOW, configure_window_mask, sibling);
-            BITFIELD(ENUM8,  configure_window_mask, stack_mode);
-            ENDBITMASK;
-            PAD();
+            {
+            guint16 bitmask16;
+            static const int * window_attributes_flags[] = {
+                  &hf_x11_window_value_mask_background_pixmap,
+                  &hf_x11_window_value_mask_background_pixel,
+                  &hf_x11_window_value_mask_border_pixmap,
+                  &hf_x11_window_value_mask_border_pixel,
+                  &hf_x11_window_value_mask_bit_gravity,
+                  &hf_x11_window_value_mask_win_gravity,
+                  &hf_x11_window_value_mask_backing_store,
+                  &hf_x11_window_value_mask_backing_planes,
+                  &hf_x11_window_value_mask_backing_pixel,
+                  &hf_x11_window_value_mask_override_redirect,
+                  &hf_x11_window_value_mask_save_under,
+                  &hf_x11_window_value_mask_event_mask,
+                  &hf_x11_window_value_mask_do_not_propagate_mask,
+                  &hf_x11_window_value_mask_colormap,
+                  &hf_x11_window_value_mask_cursor,
+                  NULL
+            };
+
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
+            requestLength(tvb, offsetp, t, byte_order);
+            proto_tree_add_item(t, hf_x11_window, tvb, *offsetp, 1, byte_order);
+            *offsetp += 4;
+            bitmask16 = tvb_get_guint16(tvb, *offsetp, byte_order);
+            proto_tree_add_bitmask(t, tvb, *offsetp, hf_x11_configure_window_mask, ett_x11_configure_window_mask, window_attributes_flags, byte_order);
+            *offsetp += 2;
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
+            if (bitmask16 & 0x0001) {
+                proto_tree_add_item(t, hf_x11_x, tvb, *offsetp, 2, byte_order);
+                *offsetp += 2;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+                *offsetp += 2;
+            }
+            if (bitmask16 & 0x0002) {
+                proto_tree_add_item(t, hf_x11_y, tvb, *offsetp, 2, byte_order);
+                *offsetp += 2;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+                *offsetp += 2;
+            }
+            if (bitmask16 & 0x0004) {
+                proto_tree_add_item(t, hf_x11_width, tvb, *offsetp, 2, byte_order);
+                *offsetp += 2;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+                *offsetp += 2;
+            }
+            if (bitmask16 & 0x0008) {
+                proto_tree_add_item(t, hf_x11_height, tvb, *offsetp, 2, byte_order);
+                *offsetp += 2;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+                *offsetp += 2;
+            }
+            if (bitmask16 & 0x0010) {
+                proto_tree_add_item(t, hf_x11_border_width, tvb, *offsetp, 2, byte_order);
+                *offsetp += 2;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+                *offsetp += 2;
+            }
+            if (bitmask16 & 0x0020) {
+                proto_tree_add_item(t, hf_x11_sibling, tvb, *offsetp, 4, byte_order);
+                *offsetp += 4;
+            }
+            if (bitmask16 & 0x0040) {
+                proto_tree_add_item(t, hf_x11_stack_mode, tvb, *offsetp, 1, byte_order);
+                *offsetp += 1;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+                *offsetp += 3;
+            }
+            if (next_offset - *offsetp > 0)
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, next_offset - *offsetp, ENC_NA);
+                *offsetp = next_offset;
+            }
             break;
 
       case X_CirculateWindow:
             ENUM8(direction);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             break;
 
       case X_GetGeometry:
       case X_QueryTree:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             break;
 
       case X_InternAtom:
             BOOL(only_if_exists);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             v16 = FIELD16(name_length);
             UNUSED(2);
             STRING8(name, v16);
@@ -3564,13 +3780,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_GetAtomName:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             ATOM(atom);
             break;
 
       case X_ChangeProperty:
             ENUM8(mode);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             ATOM(property);
             ATOM(type);
@@ -3599,14 +3815,14 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_DeleteProperty:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             ATOM(property);
             break;
 
       case X_GetProperty:
             BOOL(delete);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             ATOM(property);
             ATOM(get_property_type);
@@ -3616,13 +3832,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_ListProperties:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             break;
 
       case X_SetSelectionOwner:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(owner);
             ATOM(selection);
             TIMESTAMP(time);
@@ -3630,13 +3846,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_GetSelectionOwner:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             ATOM(selection);
             break;
 
       case X_ConvertSelection:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(requestor);
             ATOM(selection);
             ATOM(target);
@@ -3646,7 +3862,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_SendEvent:
             BOOL(propagate);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(destination);
             SETofEVENT(event_mask);
             EVENT();
@@ -3654,7 +3870,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_GrabPointer:
             BOOL(owner_events);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(grab_window);
             SETofPOINTEREVENT(pointer_event_mask);
             ENUM8(pointer_mode);
@@ -3666,13 +3882,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_UngrabPointer:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             TIMESTAMP(time);
             break;
 
       case X_GrabButton:
             BOOL(owner_events);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(grab_window);
             SETofPOINTEREVENT(event_mask);
             ENUM8(pointer_mode);
@@ -3686,7 +3902,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_UngrabButton:
             BUTTON(button);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(grab_window);
             SETofKEYMASK(modifiers);
             UNUSED(2);
@@ -3694,7 +3910,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_ChangeActivePointerGrab:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             CURSOR(cursor);
             TIMESTAMP(time);
             SETofPOINTEREVENT(event_mask);
@@ -3703,7 +3919,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_GrabKeyboard:
             BOOL(owner_events);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(grab_window);
             TIMESTAMP(time);
             ENUM8(pointer_mode);
@@ -3713,13 +3929,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_UngrabKeyboard:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             TIMESTAMP(time);
             break;
 
       case X_GrabKey:
             BOOL(owner_events);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(grab_window);
             SETofKEYMASK(modifiers);
             KEYCODE(key);
@@ -3730,7 +3946,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_UngrabKey:
             KEYCODE(key);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(grab_window);
             SETofKEYMASK(modifiers);
             UNUSED(2);
@@ -3738,29 +3954,29 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_AllowEvents:
             ENUM8(allow_events_mode);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             TIMESTAMP(time);
             break;
 
       case X_GrabServer:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_UngrabServer:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_QueryPointer:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             break;
 
       case X_GetMotionEvents:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             TIMESTAMP(start);
             TIMESTAMP(stop);
@@ -3768,7 +3984,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_TranslateCoords:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(src_window);
             WINDOW(dst_window);
             INT16(src_x);
@@ -3777,7 +3993,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_WarpPointer:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(warp_pointer_src_window);
             WINDOW(warp_pointer_dst_window);
             INT16(src_x);
@@ -3790,24 +4006,24 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_SetInputFocus:
             ENUM8(revert_to);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(focus);
             TIMESTAMP(time);
             break;
 
       case X_GetInputFocus:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_QueryKeymap:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_OpenFont:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             FONT(fid);
             v16 = FIELD16(name_length);
             UNUSED(2);
@@ -3817,19 +4033,19 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_CloseFont:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             FONT(font);
             break;
 
       case X_QueryFont:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             FONTABLE(font);
             break;
 
       case X_QueryTextExtents:
             v8 = BOOL(odd_length);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             FONTABLE(font);
             STRING16(string16, (next_offset - offset - (v8 ? 2 : 0)) / 2);
             PAD();
@@ -3837,7 +4053,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_ListFonts:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             CARD16(max_names);
             v16 = FIELD16(pattern_length);
             STRING8(pattern, v16);
@@ -3846,7 +4062,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_ListFontsWithInfo:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             CARD16(max_names);
             v16 = FIELD16(pattern_length);
             STRING8(pattern, v16);
@@ -3855,7 +4071,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_SetFontPath:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             v16 = CARD16(str_number_in_path);
             UNUSED(2);
             LISTofSTRING8(path, v16);
@@ -3864,12 +4080,12 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_GetFontPath:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_CreatePixmap:
             CARD8(depth);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             PIXMAP(pid);
             DRAWABLE(drawable);
             CARD16(width);
@@ -3878,13 +4094,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_FreePixmap:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             PIXMAP(pixmap);
             break;
 
       case X_CreateGC:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             GCONTEXT(cid);
             DRAWABLE(drawable);
             gcAttributes(tvb, offsetp, t, byte_order);
@@ -3892,14 +4108,14 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_ChangeGC:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             GCONTEXT(gc);
             gcAttributes(tvb, offsetp, t, byte_order);
             break;
 
       case X_CopyGC:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             GCONTEXT(src_gc);
             GCONTEXT(dst_gc);
             gcMask(tvb, offsetp, t, byte_order);
@@ -3907,7 +4123,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_SetDashes:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             GCONTEXT(gc);
             CARD16(dash_offset);
             v16 = FIELD16(dashes_length);
@@ -3917,7 +4133,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_SetClipRectangles:
             ENUM8(ordering);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             GCONTEXT(gc);
             INT16(clip_x_origin);
             INT16(clip_y_origin);
@@ -3926,13 +4142,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_FreeGC:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             GCONTEXT(gc);
             break;
 
       case X_ClearArea:
             BOOL(exposures);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             INT16(x);
             INT16(y);
@@ -3942,7 +4158,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_CopyArea:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(src_drawable);
             DRAWABLE(dst_drawable);
             GCONTEXT(gc);
@@ -3956,7 +4172,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_CopyPlane:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(src_drawable);
             DRAWABLE(dst_drawable);
             GCONTEXT(gc);
@@ -3971,7 +4187,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_PolyPoint:
             ENUM8(coordinate_mode);
-            v16 = REQUEST_LENGTH();
+            v16 = requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             LISTofPOINT(points, v16 - 12);
@@ -3979,7 +4195,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_PolyLine:
             ENUM8(coordinate_mode);
-            v16 = REQUEST_LENGTH();
+            v16 = requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             LISTofPOINT(points, v16 - 12);
@@ -3987,7 +4203,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_PolySegment:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             LISTofSEGMENT(segments);
@@ -3995,7 +4211,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_PolyRectangle:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             LISTofRECTANGLE(rectangles);
@@ -4003,7 +4219,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_PolyArc:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             LISTofARC(arcs);
@@ -4011,7 +4227,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_FillPoly:
             UNUSED(1);
-            v16 = REQUEST_LENGTH();
+            v16 = requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             ENUM8(shape);
@@ -4022,7 +4238,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_PolyFillRectangle:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             LISTofRECTANGLE(rectangles);
@@ -4030,7 +4246,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_PolyFillArc:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             LISTofARC(arcs);
@@ -4038,7 +4254,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_PutImage:
             ENUM8(image_format);
-            v16 = REQUEST_LENGTH();
+            v16 = requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             CARD16(width);
@@ -4054,7 +4270,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_GetImage:
             ENUM8(image_pixmap_format);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             INT16(x);
             INT16(y);
@@ -4065,7 +4281,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_PolyText8:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             INT16(x);
@@ -4076,7 +4292,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_PolyText16:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             INT16(x);
@@ -4087,7 +4303,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_ImageText8:
             v8 = FIELD8(string_length);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             INT16(x);
@@ -4098,7 +4314,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_ImageText16:
             v8 = FIELD8(string_length);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             INT16(x);
@@ -4109,7 +4325,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_CreateColormap:
             ENUM8(alloc);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(mid);
             WINDOW(window);
             VISUALID(visual);
@@ -4117,38 +4333,38 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_FreeColormap:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             break;
 
       case X_CopyColormapAndFree:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(mid);
             COLORMAP(src_cmap);
             break;
 
       case X_InstallColormap:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             break;
 
       case X_UninstallColormap:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             break;
 
       case X_ListInstalledColormaps:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             break;
 
       case X_AllocColor:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             CARD16(red);
             CARD16(green);
@@ -4158,7 +4374,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_AllocNamedColor:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             v16 = FIELD16(name_length);
             UNUSED(2);
@@ -4168,7 +4384,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_AllocColorCells:
             BOOL(contiguous);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             CARD16(colors);
             CARD16(planes);
@@ -4176,7 +4392,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_AllocColorPlanes:
             BOOL(contiguous);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             CARD16(colors);
             CARD16(reds);
@@ -4186,7 +4402,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_FreeColors:
             UNUSED(1);
-            v16 = REQUEST_LENGTH();
+            v16 = requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             CARD32(plane_mask);
             LISTofCARD32(pixels, v16 - 12);
@@ -4194,14 +4410,14 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_StoreColors:
             UNUSED(1);
-            v16 = REQUEST_LENGTH();
+            v16 = requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             LISTofCOLORITEM(color_items, v16 - 8);
             break;
 
       case X_StoreNamedColor:
             COLOR_FLAGS(color);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             CARD32(pixel);
             v16 = FIELD16(name_length);
@@ -4212,14 +4428,14 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_QueryColors:
             UNUSED(1);
-            v16 = REQUEST_LENGTH();
+            v16 = requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             LISTofCARD32(pixels, v16 - 8);
             break;
 
       case X_LookupColor:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             v16 = FIELD16(name_length);
             UNUSED(2);
@@ -4229,7 +4445,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_CreateCursor:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             CURSOR(cid);
             PIXMAP(source_pixmap);
             PIXMAP(mask);
@@ -4245,7 +4461,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_CreateGlyphCursor:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             CURSOR(cid);
             FONT(source_font);
             FONT(mask_font);
@@ -4261,13 +4477,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_FreeCursor:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             CURSOR(cursor);
             break;
 
       case X_RecolorCursor:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             CURSOR(cursor);
             CARD16(fore_red);
             CARD16(fore_green);
@@ -4279,7 +4495,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_QueryBestSize:
             ENUM8(class);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             CARD16(width);
             CARD16(height);
@@ -4287,7 +4503,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_QueryExtension:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             v16 = FIELD16(name_length);
             UNUSED(2);
             STRING8(name, v16);
@@ -4296,12 +4512,12 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_ListExtensions:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_ChangeKeyboardMapping:
             v8 = FIELD8(keycode_count);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             v8_2 = KEYCODE(first_keycode);
             v8_3 = FIELD8(keysyms_per_keycode);
             UNUSED(2);
@@ -4310,7 +4526,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_GetKeyboardMapping:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             state->request.GetKeyboardMapping.first_keycode
             = KEYCODE(first_keycode);
             FIELD8(count);
@@ -4318,33 +4534,90 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_ChangeKeyboardControl:
-            UNUSED(1);
-            REQUEST_LENGTH();
-            BITMASK32(keyboard_value);
-            BITFIELD(INT8, keyboard_value_mask, key_click_percent);
-            BITFIELD(INT8, keyboard_value_mask, bell_percent);
-            BITFIELD(INT16, keyboard_value_mask, bell_pitch);
-            BITFIELD(INT16, keyboard_value_mask, bell_duration);
-            BITFIELD(INT16, keyboard_value_mask, led);
-            BITFIELD(ENUM8, keyboard_value_mask, led_mode);
-            BITFIELD(KEYCODE, keyboard_value_mask, keyboard_key);
-            BITFIELD(ENUM8, keyboard_value_mask, auto_repeat_mode);
-            ENDBITMASK;
+            {
+            guint32 bitmask32;
+            static const int * keyboard_value_flags[] = {
+                  &hf_x11_keyboard_value_mask_key_click_percent,
+                  &hf_x11_keyboard_value_mask_bell_percent,
+                  &hf_x11_keyboard_value_mask_bell_pitch,
+                  &hf_x11_keyboard_value_mask_bell_duration,
+                  &hf_x11_keyboard_value_mask_led,
+                  &hf_x11_keyboard_value_mask_led_mode,
+                  &hf_x11_keyboard_value_mask_keyboard_key,
+                  &hf_x11_keyboard_value_mask_auto_repeat_mode,
+                  NULL
+            };
+
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
+            requestLength(tvb, offsetp, t, byte_order);
+            bitmask32 = tvb_get_guint32(tvb, *offsetp, byte_order);
+            proto_tree_add_bitmask(t, tvb, *offsetp, hf_x11_keyboard_value_mask, ett_x11_keyboard_value_mask, keyboard_value_flags, byte_order);
+            *offsetp += 4;
+            if (bitmask32 & 0x00000001) {
+                proto_tree_add_item(t, hf_x11_key_click_percent, tvb, *offsetp, 1, byte_order);
+                *offsetp += 1;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+                *offsetp += 3;
+            }
+            if (bitmask32 & 0x00000002) {
+                proto_tree_add_item(t, hf_x11_bell_percent, tvb, *offsetp, 1, byte_order);
+                *offsetp += 1;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+                *offsetp += 3;
+            }
+            if (bitmask32 & 0x00000004) {
+                proto_tree_add_item(t, hf_x11_bell_pitch, tvb, *offsetp, 2, byte_order);
+                *offsetp += 2;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+                *offsetp += 2;
+            }
+            if (bitmask32 & 0x00000008) {
+                proto_tree_add_item(t, hf_x11_bell_duration, tvb, *offsetp, 2, byte_order);
+                *offsetp += 2;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+                *offsetp += 2;
+            }
+            if (bitmask32 & 0x00000010) {
+                proto_tree_add_item(t, hf_x11_led, tvb, *offsetp, 2, byte_order);
+                *offsetp += 2;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+                *offsetp += 2;
+            }
+            if (bitmask32 & 0x00000020) {
+                proto_tree_add_item(t, hf_x11_led_mode, tvb, *offsetp, 1, byte_order);
+                *offsetp += 1;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+                *offsetp += 3;
+            }
+            if (bitmask32 & 0x00000040) {
+                proto_tree_add_item(t, hf_x11_keyboard_key, tvb, *offsetp, 1, byte_order);
+                *offsetp += 1;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+                *offsetp += 3;
+            }
+            if (bitmask32 & 0x00000080) {
+                proto_tree_add_item(t, hf_x11_auto_repeat_mode, tvb, *offsetp, 1, byte_order);
+                *offsetp += 1;
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+                *offsetp += 3;
+            }
+            }
             break;
 
       case X_GetKeyboardControl:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_Bell:
             INT8(percent);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_ChangePointerControl:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             INT16(acceleration_numerator);
             INT16(acceleration_denominator);
             INT16(threshold);
@@ -4354,12 +4627,12 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_GetPointerControl:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_SetScreenSaver:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             INT16(timeout);
             INT16(interval);
             ENUM8(prefer_blanking);
@@ -4369,12 +4642,12 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_GetScreenSaver:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_ChangeHosts:
             ENUM8(change_host_mode);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             v8 = ENUM8(family);
             UNUSED(1);
             v16 = CARD16(address_length);
@@ -4391,28 +4664,28 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_ListHosts:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_SetAccessControl:
             ENUM8(access_mode);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_SetCloseDownMode:
             ENUM8(close_down_mode);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_KillClient:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             CARD32(resource);
             break;
 
       case X_RotateProperties:
             UNUSED(1);
-            v16 = REQUEST_LENGTH();
+            v16 = requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             CARD16(property_number);
             INT16(delta);
@@ -4421,35 +4694,35 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_ForceScreenSaver:
             ENUM8(screen_saver_mode);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_SetPointerMapping:
             v8 = FIELD8(map_length);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             LISTofCARD8(map, v8);
             PAD();
             break;
 
       case X_GetPointerMapping:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_SetModifierMapping:
             v8 = FIELD8(keycodes_per_modifier);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             LISTofKEYCODE(state->modifiermap, keycodes, v8);
             break;
 
       case X_GetModifierMapping:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_NoOperation:
             UNUSED(1);
-            REQUEST_LENGTH();
+            requestLength(tvb, offsetp, t, byte_order);
             break;
       default:
             tryExtension(opcode, tvb, pinfo, offsetp, t, state, byte_order);

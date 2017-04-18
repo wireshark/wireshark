@@ -66,7 +66,7 @@ backing-store	UINT8	DEC	VALS
 bell-duration	INT16	DEC
 bell-percent	INT8	DEC
 bell-pitch	INT16	DEC
-bit-gravity	UINT8	DEC	VALS(gravity)
+bit-gravity	UINT8	DEC	VALS(bit_gravity)
 bit-plane	UINT32	HEX
 blue		UINT16	DEC
 blues		UINT16	DEC
@@ -535,7 +535,7 @@ warp-pointer-dst-window	UINT32	HEX	VALS(zero_is_none)
 warp-pointer-src-window	UINT32	HEX	VALS(zero_is_none)
 wid		UINT32	HEX		Window id
 width		UINT16	DEC
-win-gravity	UINT8	DEC	VALS(gravity)
+win-gravity	UINT8	DEC	VALS(win_gravity)
 win-x		INT16	DEC
 win-y		INT16	DEC
 window		UINT32	HEX
