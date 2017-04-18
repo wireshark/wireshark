@@ -89,6 +89,7 @@ const value_string special_labels[] = {
     {MPLS_LABEL_IMPLICIT_NULL,       "Implicit-Null"},
     {MPLS_LABEL_OAM_ALERT,           "OAM Alert"},
     {MPLS_LABEL_GACH,                "Generic Associated Channel Label (GAL)"},
+    {MPLS_LABEL_ELI,                 "Entropy Label Indicator (ELI)"},
     {0, NULL }
 };
 

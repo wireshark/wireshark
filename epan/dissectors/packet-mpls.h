@@ -36,6 +36,7 @@ enum {
     MPLS_LABEL_ROUTER_ALERT,
     MPLS_LABEL_IP6_EXPLICIT_NULL,
     MPLS_LABEL_IMPLICIT_NULL,
+    MPLS_LABEL_ELI               = 7,
     MPLS_LABEL_GACH              = 13, /* aka GAL */
     MPLS_LABEL_OAM_ALERT         = 14,
     MPLS_LABEL_MAX_RESERVED      = 15,
