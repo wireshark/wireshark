@@ -132,9 +132,6 @@ static gboolean find_packet(capture_file *cf,
 
 static const char *cf_get_user_packet_comment(capture_file *cf, const frame_data *fd);
 
-static void cf_open_failure_alert_box(const char *filename, int err,
-                      gchar *err_info, gboolean for_writing,
-                      int file_type);
 static void cf_rename_failure_alert_box(const char *filename, int err);
 static void cf_close_failure_alert_box(const char *filename, int err);
 static void ref_time_packets(capture_file *cf);
@@ -376,7 +373,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   return CF_OK;
 
 fail:
-  cf_open_failure_alert_box(fname, *err, err_info, FALSE, 0);
+  cfile_open_failure_alert_box(fname, *err, err_info, FALSE, 0);
   return CF_ERROR;
 }
 
@@ -1417,13 +1414,13 @@ cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
       break;
 
     case MERGE_ERR_CANT_OPEN_INFILE:
-      cf_open_failure_alert_box(in_filenames[err_fileno], err, err_info,
-                                FALSE, 0);
+      cfile_open_failure_alert_box(in_filenames[err_fileno], err, err_info,
+                                   FALSE, 0);
       break;
 
     case MERGE_ERR_CANT_OPEN_OUTFILE:
-      cf_open_failure_alert_box(*out_filenamep, err, err_info, TRUE,
-                                file_type);
+      cfile_open_failure_alert_box(*out_filenamep, err, err_info, TRUE,
+                                   file_type);
       break;
 
     case MERGE_ERR_CANT_READ_INFILE:      /* fall through */
@@ -4313,7 +4310,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
      sense for now. */
   cf->wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, err, &err_info, TRUE);
   if (cf->wth == NULL) {
-    cf_open_failure_alert_box(fname, *err, err_info, FALSE, 0);
+    cfile_open_failure_alert_box(fname, *err, err_info, FALSE, 0);
     return CF_READ_ERROR;
   }
 
@@ -4622,7 +4619,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
     idb_inf = NULL;
 
     if (pdh == NULL) {
-      cf_open_failure_alert_box(fname, err, NULL, TRUE, save_format);
+      cfile_open_failure_alert_box(fname, err, NULL, TRUE, save_format);
       goto fail;
     }
 
@@ -4724,7 +4721,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
       cf->open_type = WTAP_TYPE_AUTO;
       cf->wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
       if (cf->wth == NULL) {
-        cf_open_failure_alert_box(fname, err, err_info, FALSE, 0);
+        cfile_open_failure_alert_box(fname, err, err_info, FALSE, 0);
         cf_close(cf);
       } else {
         g_free(cf->filename);
@@ -4854,7 +4851,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   idb_inf = NULL;
 
   if (pdh == NULL) {
-    cf_open_failure_alert_box(fname, err, NULL, TRUE, save_format);
+    cfile_open_failure_alert_box(fname, err, NULL, TRUE, save_format);
     goto fail;
   }
 
@@ -4931,141 +4928,6 @@ fail:
   }
   cf_callback_invoke(cf_cb_file_export_specified_packets_failed, NULL);
   return CF_WRITE_ERROR;
-}
-
-static void
-cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
-                          gboolean for_writing, int file_type)
-{
-  gchar *display_basename;
-
-  if (err < 0) {
-    /* Wiretap error. */
-    display_basename = g_filename_display_basename(filename);
-    switch (err) {
-
-    case WTAP_ERR_NOT_REGULAR_FILE:
-      simple_error_message_box(
-            "The file \"%s\" is a \"special file\" or socket or other non-regular file.",
-            display_basename);
-      break;
-
-    case WTAP_ERR_RANDOM_OPEN_PIPE:
-      /* Seen only when opening a capture file for reading. */
-      simple_error_message_box(
-            "The file \"%s\" is a pipe or FIFO; Wireshark can't read pipe or FIFO files.\n"
-            "To capture from a pipe or FIFO use wireshark -i -",
-            display_basename);
-      break;
-
-    case WTAP_ERR_FILE_UNKNOWN_FORMAT:
-      /* Seen only when opening a capture file for reading. */
-      simple_error_message_box(
-            "The file \"%s\" isn't a capture file in a format Wireshark understands.",
-            display_basename);
-      break;
-
-    case WTAP_ERR_UNSUPPORTED:
-      /* Seen only when opening a capture file for reading. */
-      simple_error_message_box(
-            "The file \"%s\" contains record data that Wireshark doesn't support.\n"
-            "(%s)",
-            display_basename,
-            err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    case WTAP_ERR_CANT_WRITE_TO_PIPE:
-      /* Seen only when opening a capture file for writing. */
-      simple_error_message_box(
-            "The file \"%s\" is a pipe, and %s capture files can't be "
-            "written to a pipe.",
-            display_basename, wtap_file_type_subtype_string(file_type));
-      break;
-
-    case WTAP_ERR_UNWRITABLE_FILE_TYPE:
-      /* Seen only when opening a capture file for writing. */
-      simple_error_message_box(
-            "Wireshark doesn't support writing capture files in that format.");
-      break;
-
-    case WTAP_ERR_UNWRITABLE_ENCAP:
-      /* Seen only when opening a capture file for writing. */
-      simple_error_message_box("Wireshark can't save this capture in that format.");
-      break;
-
-    case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-      if (for_writing) {
-        simple_error_message_box(
-              "Wireshark can't save this capture in that format.");
-      } else {
-        simple_error_message_box(
-              "The file \"%s\" is a capture for a network type that Wireshark doesn't support.",
-              display_basename);
-      }
-      break;
-
-    case WTAP_ERR_BAD_FILE:
-      /* Seen only when opening a capture file for reading. */
-      simple_error_message_box(
-            "The file \"%s\" appears to be damaged or corrupt.\n"
-            "(%s)",
-            display_basename,
-            err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    case WTAP_ERR_CANT_OPEN:
-      if (for_writing) {
-        simple_error_message_box(
-              "The file \"%s\" could not be created for some unknown reason.",
-              display_basename);
-      } else {
-        simple_error_message_box(
-              "The file \"%s\" could not be opened for some unknown reason.",
-              display_basename);
-      }
-      break;
-
-    case WTAP_ERR_SHORT_READ:
-      simple_error_message_box(
-            "The file \"%s\" appears to have been cut short"
-            " in the middle of a packet or other data.",
-            display_basename);
-      break;
-
-    case WTAP_ERR_SHORT_WRITE:
-      simple_error_message_box(
-            "A full header couldn't be written to the file \"%s\".",
-            display_basename);
-      break;
-
-    case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
-      simple_error_message_box(
-            "This file type cannot be written as a compressed file.");
-      break;
-
-    case WTAP_ERR_DECOMPRESS:
-      simple_error_message_box(
-            "The compressed file \"%s\" appears to be damaged or corrupt.\n"
-            "(%s)", display_basename,
-            err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    default:
-      simple_error_message_box(
-            "The file \"%s\" could not be %s: %s.",
-            display_basename,
-            for_writing ? "created" : "opened",
-            wtap_strerror(err));
-      break;
-    }
-    g_free(display_basename);
-  } else {
-    /* OS error. */
-    open_failure_alert_box(filename, err, for_writing);
-  }
 }
 
 /*

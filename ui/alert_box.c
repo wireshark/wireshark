@@ -59,6 +59,156 @@ vwarning_alert_box(const char *msg_format, va_list ap)
 }
 
 /*
+ * Alert box for a failed attempt to open or create a capture file.
+ * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
+ * "err_info" is assumed to be a string giving further information for
+ * some WTAP_ERR_ values; "for_writing" is TRUE if the file is being
+ * opened for writing and FALSE if it's being opened for reading;
+ * "file_type" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type of
+ * file being written (it's ignored for opening-for-reading errors).
+ *
+ * XXX - add explanatory secondary text for at least some of the errors;
+ * various HIGs suggest that you should, for example, suggest that the
+ * user remove files if the file system is full.  Perhaps that's because
+ * they're providing guidelines for people less sophisticated than the
+ * typical Wireshark user is, but....
+ */
+void
+cfile_open_failure_alert_box(const char *filename, int err, gchar *err_info,
+                             gboolean for_writing, int file_type)
+{
+    gchar *display_basename;
+
+    if (err < 0) {
+        /* Wiretap error. */
+        display_basename = g_filename_display_basename(filename);
+        switch (err) {
+
+        case WTAP_ERR_NOT_REGULAR_FILE:
+            simple_error_message_box(
+                        "The file \"%s\" is a \"special file\" or socket or other non-regular file.",
+                        display_basename);
+            break;
+
+        case WTAP_ERR_RANDOM_OPEN_PIPE:
+            /* Seen only when opening a capture file for reading. */
+            simple_error_message_box(
+                        "The file \"%s\" is a pipe or FIFO; Wireshark can't read pipe or FIFO files.\n"
+                        "To capture from a pipe or FIFO use wireshark -i -",
+                        display_basename);
+            break;
+
+        case WTAP_ERR_FILE_UNKNOWN_FORMAT:
+            /* Seen only when opening a capture file for reading. */
+            simple_error_message_box(
+                        "The file \"%s\" isn't a capture file in a format Wireshark understands.",
+                        display_basename);
+            break;
+
+        case WTAP_ERR_UNSUPPORTED:
+            /* Seen only when opening a capture file for reading. */
+            simple_error_message_box(
+                        "The file \"%s\" contains record data that Wireshark doesn't support.\n"
+                        "(%s)",
+                        display_basename,
+                        err_info != NULL ? err_info : "no information supplied");
+            g_free(err_info);
+            break;
+
+        case WTAP_ERR_CANT_WRITE_TO_PIPE:
+            /* Seen only when opening a capture file for writing. */
+            simple_error_message_box(
+                        "The file \"%s\" is a pipe, and %s capture files can't be "
+                        "written to a pipe.",
+                        display_basename, wtap_file_type_subtype_string(file_type));
+            break;
+
+        case WTAP_ERR_UNWRITABLE_FILE_TYPE:
+            /* Seen only when opening a capture file for writing. */
+            simple_error_message_box(
+                        "Wireshark doesn't support writing capture files in that format.");
+            break;
+
+        case WTAP_ERR_UNWRITABLE_ENCAP:
+            /* Seen only when opening a capture file for writing. */
+            simple_error_message_box("Wireshark can't save this capture in that format.");
+            break;
+
+        case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
+            if (for_writing) {
+                simple_error_message_box(
+                            "Wireshark can't save this capture in that format.");
+            } else {
+                simple_error_message_box(
+                            "The file \"%s\" is a capture for a network type that Wireshark doesn't support.",
+                            display_basename);
+            }
+            break;
+
+        case WTAP_ERR_BAD_FILE:
+            /* Seen only when opening a capture file for reading. */
+            simple_error_message_box(
+                        "The file \"%s\" appears to be damaged or corrupt.\n"
+                        "(%s)",
+                        display_basename,
+                        err_info != NULL ? err_info : "no information supplied");
+            g_free(err_info);
+            break;
+
+        case WTAP_ERR_CANT_OPEN:
+            if (for_writing) {
+                simple_error_message_box(
+                            "The file \"%s\" could not be created for some unknown reason.",
+                            display_basename);
+            } else {
+                simple_error_message_box(
+                            "The file \"%s\" could not be opened for some unknown reason.",
+                            display_basename);
+            }
+            break;
+
+        case WTAP_ERR_SHORT_READ:
+            simple_error_message_box(
+                        "The file \"%s\" appears to have been cut short"
+                        " in the middle of a packet or other data.",
+                        display_basename);
+            break;
+
+        case WTAP_ERR_SHORT_WRITE:
+            simple_error_message_box(
+                        "A full header couldn't be written to the file \"%s\".",
+                        display_basename);
+            break;
+
+        case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
+            simple_error_message_box(
+                        "This file type cannot be written as a compressed file.");
+            break;
+
+        case WTAP_ERR_DECOMPRESS:
+            simple_error_message_box(
+                        "The compressed file \"%s\" appears to be damaged or corrupt.\n"
+                        "(%s)", display_basename,
+                        err_info != NULL ? err_info : "no information supplied");
+            g_free(err_info);
+            break;
+
+        default:
+            simple_error_message_box(
+                        "The file \"%s\" could not be %s: %s.",
+                        display_basename,
+                        for_writing ? "created" : "opened",
+                        wtap_strerror(err));
+            break;
+        }
+        g_free(display_basename);
+    } else {
+        /* OS error. */
+        open_failure_alert_box(filename, err, for_writing);
+    }
+}
+
+/*
  * Alert box for a failed attempt to open or create a file.
  * "err" is assumed to be a UNIX-style errno; "for_writing" is TRUE if
  * the file is being opened for writing and FALSE if it's being opened
