@@ -188,7 +188,7 @@ static const value_string ns_rpc_errcode_vals[] = {
 	{ 0x153, "NOCODE" },
 	{ 0x154, "NOT SUPERUSER" },
 	{ 0x155, "LARGE DATA"},
-	{ 0x155, "SMALL DATA" },
+	{ 0x156, "SMALL DATA" },
 	{ 0x160, "LOGIN REQD" },
 	{ 0x161, "INVALID ARG" },
 	{ 0x162, "INVALID USER/ PASSWD" },
