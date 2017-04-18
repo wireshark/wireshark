@@ -347,20 +347,9 @@ static gboolean logcat_binary_dump(wtap_dumper *wdh,
     return TRUE;
 }
 
-gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err)
+gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err _U_)
 {
     wdh->subtype_write = logcat_binary_dump;
-
-    switch (wdh->encap) {
-        case WTAP_ENCAP_LOGCAT:
-        case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
-            wdh->tsprecision = WTAP_TSPREC_USEC;
-            break;
-
-        default:
-            *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-            return FALSE;
-    }
 
     return TRUE;
 }

@@ -838,18 +838,15 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417:	/* modified, but with the old magic, sigh */
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA:	/* Nokia libpcap of some sort */
 		magic = PCAP_MAGIC;
-		wdh->tsprecision = WTAP_TSPREC_USEC;
 		break;
 
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915:	/* new magic, extra crap */
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029:
 		magic = PCAP_MODIFIED_MAGIC;
-		wdh->tsprecision = WTAP_TSPREC_USEC;
 		break;
 
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC:		/* same as WTAP_FILE_TYPE_SUBTYPE_PCAP, but nsec precision */
 		magic = PCAP_NSEC_MAGIC;
-		wdh->tsprecision = WTAP_TSPREC_NSEC;
 		break;
 
 	default:
@@ -914,12 +911,6 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		return FALSE;
 	}
 
-	rec_hdr.hdr.ts_sec = (guint32) phdr->ts.secs;
-	if(wdh->tsprecision == WTAP_TSPREC_NSEC) {
-		rec_hdr.hdr.ts_usec = phdr->ts.nsecs;
-	} else {
-		rec_hdr.hdr.ts_usec = phdr->ts.nsecs / 1000;
-	}
 	rec_hdr.hdr.incl_len = phdr->caplen + phdrsize;
 	rec_hdr.hdr.orig_len = phdr->len + phdrsize;
 
@@ -931,12 +922,21 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	switch (wdh->file_type_subtype) {
 
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP:
+		rec_hdr.hdr.ts_sec = (guint32) phdr->ts.secs;
+		rec_hdr.hdr.ts_usec = phdr->ts.nsecs / 1000;
+		hdr_size = sizeof (struct pcaprec_hdr);
+		break;
+
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC:
+		rec_hdr.hdr.ts_sec = (guint32) phdr->ts.secs;
+		rec_hdr.hdr.ts_usec = phdr->ts.nsecs;
 		hdr_size = sizeof (struct pcaprec_hdr);
 		break;
 
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417:	/* modified, but with the old magic, sigh */
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029:
+		rec_hdr.hdr.ts_sec = (guint32) phdr->ts.secs;
+		rec_hdr.hdr.ts_usec = phdr->ts.nsecs / 1000;
 		/* XXX - what should we supply here?
 
 		   Alexey's "libpcap" looks up the interface in the system's
@@ -963,6 +963,8 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		break;
 
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915:	/* new magic, extra crap at the end */
+		rec_hdr.hdr.ts_sec = (guint32) phdr->ts.secs;
+		rec_hdr.hdr.ts_usec = phdr->ts.nsecs / 1000;
 		rec_hdr.ifindex = 0;
 		rec_hdr.protocol = 0;
 		rec_hdr.pkt_type = 0;
@@ -972,6 +974,8 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		break;
 
 	case WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA:	/* old magic, extra crap at the end */
+		rec_hdr.hdr.ts_sec = (guint32) phdr->ts.secs;
+		rec_hdr.hdr.ts_usec = phdr->ts.nsecs / 1000;
 		/* restore the "mysterious stuff" that came with the packet */
 		memcpy(&rec_hdr.ifindex, pseudo_header->nokia.stuff, 4);
 		/* not written */

@@ -402,19 +402,6 @@ gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, int *err)
     wdh->subtype_write = btsnoop_dump_h1;
 
     /* Write the file header. */
-    switch (wdh->file_type_subtype) {
-
-    case WTAP_FILE_TYPE_SUBTYPE_BTSNOOP:
-        wdh->tsprecision = WTAP_TSPREC_USEC;
-        break;
-
-    default:
-        /* We should never get here - our open routine
-           should only get called for the types above. */
-        *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-        return FALSE;
-    }
-
     if (!wtap_dump_file_write(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
         return FALSE;
 
@@ -443,19 +430,6 @@ gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, int *err)
     wdh->subtype_write = btsnoop_dump_h4;
 
     /* Write the file header. */
-    switch (wdh->file_type_subtype) {
-
-    case WTAP_FILE_TYPE_SUBTYPE_BTSNOOP:
-        wdh->tsprecision = WTAP_TSPREC_USEC;
-        break;
-
-    default:
-        /* We should never get here - our open routine
-           should only get called for the types above. */
-        *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-        return FALSE;
-    }
-
     if (!wtap_dump_file_write(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
         return FALSE;
 

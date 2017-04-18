@@ -924,19 +924,9 @@ int erf_dump_can_write_encap(int encap)
   return 0;
 }
 
-int erf_dump_open(wtap_dumper *wdh, int *err)
+int erf_dump_open(wtap_dumper *wdh, int *err _U_)
 {
   wdh->subtype_write = erf_dump;
-
-  switch(wdh->file_type_subtype){
-    case WTAP_FILE_TYPE_SUBTYPE_ERF:
-      wdh->tsprecision = WTAP_TSPREC_NSEC;
-      break;
-    default:
-      *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-      return FALSE;
-      break;
-  }
 
   return TRUE;
 }

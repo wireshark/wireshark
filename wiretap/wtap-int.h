@@ -109,9 +109,6 @@ struct wtap_dumper {
     subtype_write_func      subtype_write;  /* write out a record */
     subtype_finish_func     subtype_finish; /* write out information to finish writing file */
 
-    int                     tsprecision;    /**< timestamp precision of the lower 32bits
-                                             * e.g. WTAP_TSPREC_USEC
-                                             */
     addrinfo_lists_t        *addrinfo_lists; /**< Struct containing lists of resolved addresses */
     GArray                  *shb_hdrs;
     GArray                  *nrb_hdrs;        /**< name resolution comment/custom_opt, or NULL */
