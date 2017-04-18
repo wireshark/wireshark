@@ -516,7 +516,9 @@ file_import_open(text_import_info_t *info)
                                            shb_hdrs, idb_inf, NULL, &err);
     capfile_name = g_strdup(tmpname);
     if (info->wdh == NULL) {
-        open_failure_alert_box(tmpname ? tmpname : "temporary file", err, TRUE);
+        cfile_open_failure_alert_box(tmpname ? tmpname : "temporary file",
+                                     err, NULL, TRUE,
+                                     WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
         fclose(info->import_text_file);
         goto end;
     }
@@ -533,7 +535,7 @@ file_import_open(text_import_info_t *info)
     }
 
     if (!wtap_dump_close(info->wdh, &err)) {
-        write_failure_alert_box(capfile_name, err);
+        cfile_close_failure_alert_box(capfile_name, err);
     }
 
     if (cf_open(&cfile, capfile_name, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {

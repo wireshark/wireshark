@@ -134,7 +134,7 @@ void ImportTextDialog::convertTextFile() {
     capfile_name_.append(tmpname ? tmpname : "temporary file");
     qDebug() << capfile_name_ << ":" << import_info_.wdh << import_info_.encapsulation << import_info_.max_frame_length;
     if (import_info_.wdh == NULL) {
-        open_failure_alert_box(capfile_name_.toUtf8().constData(), err, TRUE);
+        cfile_open_failure_alert_box(capfile_name_.toUtf8().constData(), err, NULL, TRUE, WTAP_FILE_TYPE_SUBTYPE_PCAP);
         fclose(import_info_.import_text_file);
         setResult(QDialog::Rejected);
         return;
@@ -155,7 +155,7 @@ void ImportTextDialog::convertTextFile() {
 
     if (!wtap_dump_close(import_info_.wdh, &err))
     {
-        write_failure_alert_box(capfile_name_.toUtf8().constData(), err);
+        cfile_close_failure_alert_box(capfile_name_.toUtf8().constData(), err);
     }
 }
 

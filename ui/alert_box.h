@@ -53,6 +53,35 @@ extern void cfile_open_failure_alert_box(const char *filename, int err,
                                          int file_type);
 
 /*
+ * Alert box for a failed attempt to close a capture file.
+ * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
+ * "err_info" is assumed to be a string giving further information for
+ * some WTAP_ERR_ values; "for_writing" is TRUE if the file is being
+ * opened for writing and FALSE if it's being opened for reading;
+ * "file_type" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type of
+ * file being written (it's ignored for opening-for-reading errors).
+ *
+ * When closing a capture file:
+ *
+ *    some information in the file that can't be determined until
+ *    all packets have been written might be written to the file
+ *    (such as a table of the file offsets of all packets);
+ *
+ *    data buffered in the low-level file writing code might be
+ *    flushed to the file;
+ *
+ *    for remote file systems, data written to the file but not
+ *    yet sent to the server might be sent to the server or, if
+ *    that data was sent asynchronously, "out of space", "disk
+ *    quota exceeded", or "I/O error" indications might have
+ *    been received but not yet delivered, and the close operation
+ *    could deliver them;
+ *
+ * so we have to check for write errors here.
+ */
+extern void cfile_close_failure_alert_box(const char *filename, int err);
+
+/*
  * Alert box for a failed attempt to open or create a file.
  * "err" is assumed to be a UNIX-style errno; "for_writing" is TRUE if
  * the file is being opened for writing and FALSE if it's being opened

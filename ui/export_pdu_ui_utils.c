@@ -68,7 +68,7 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 
     err = exp_pdu_close(exp_pdu_tap_data);
     if (err!= 0) {
-        write_failure_alert_box(capfile_name, err);
+        cfile_close_failure_alert_box(capfile_name, err);
     }
 
     /* XXX: should this use the open_routine type in the cfile instead of WTAP_TYPE_AUTO? */

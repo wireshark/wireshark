@@ -133,7 +133,6 @@ static gboolean find_packet(capture_file *cf,
 static const char *cf_get_user_packet_comment(capture_file *cf, const frame_data *fd);
 
 static void cf_rename_failure_alert_box(const char *filename, int err);
-static void cf_close_failure_alert_box(const char *filename, int err);
 static void ref_time_packets(capture_file *cf);
 
 /* Seconds spent processing packets between pushing UI updates. */
@@ -4658,7 +4657,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
     }
 
     if (!wtap_dump_close(pdh, &err)) {
-      cf_close_failure_alert_box(fname, err);
+      cfile_close_failure_alert_box(fname, err);
       goto fail;
     }
 
@@ -4897,7 +4896,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   }
 
   if (!wtap_dump_close(pdh, &err)) {
-    cf_close_failure_alert_box(fname, err);
+    cfile_close_failure_alert_box(fname, err);
     goto fail;
   }
 
@@ -4966,46 +4965,6 @@ cf_rename_failure_alert_box(const char *filename, int err)
     break;
   }
   g_free(display_basename);
-}
-
-/* Check for write errors - if the file is being written to an NFS server,
-   a write error may not show up until the file is closed, as NFS clients
-   might not send writes to the server until the "write()" call finishes,
-   so that the write may fail on the server but the "write()" may succeed. */
-static void
-cf_close_failure_alert_box(const char *filename, int err)
-{
-  gchar *display_basename;
-
-  if (err < 0) {
-    /* Wiretap error. */
-    display_basename = g_filename_display_basename(filename);
-    switch (err) {
-
-    case WTAP_ERR_CANT_CLOSE:
-      simple_error_message_box(
-            "The file \"%s\" couldn't be closed for some unknown reason.",
-            display_basename);
-      break;
-
-    case WTAP_ERR_SHORT_WRITE:
-      simple_error_message_box(
-            "Not all the packets could be written to the file \"%s\".",
-                    display_basename);
-      break;
-
-    default:
-      simple_error_message_box(
-            "An error occurred while closing the file \"%s\": %s.",
-            display_basename, wtap_strerror(err));
-      break;
-    }
-    g_free(display_basename);
-  } else {
-    /* OS error.
-       We assume that a close error from the OS is really a write error. */
-    write_failure_alert_box(filename, err);
-  }
 }
 
 /* Reload the current capture file. */
