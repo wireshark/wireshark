@@ -44,19 +44,23 @@ static void mesa_CallLists(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     switch(type) {
     case 0x1400: /* BYTE */
         listOfByte(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists_signed, n, byte_order);
-        UNUSED(length - 8 - n);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - 8 - n), ENC_NA);
+        *offsetp += (length - 8 - n);
         break;
     case 0x1401: /* UNSIGNED_BYTE */
         listOfByte(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists_unsigned, n, byte_order);
-        UNUSED(length - 8 - n);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - 8 - n), ENC_NA);
+        *offsetp += (length - 8 - n);
         break;
     case 0x1402: /* SHORT */
         listOfInt16(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, hf_x11_glx_render_CallLists_lists_item_int16, n, byte_order);
-        UNUSED(length - 8 - 2 * n);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - 8 - 2 * n), ENC_NA);
+        *offsetp += (length - 8 - 2 * n);
         break;
     case 0x1403: /* UNSIGNED_SHORT */
         listOfCard16(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, hf_x11_glx_render_CallLists_lists_item_card16, n, byte_order);
-        UNUSED(length - 8 - 2 * n);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - 8 - 2 * n), ENC_NA);
+        *offsetp += (length - 8 - 2 * n);
         break;
     case 0x1404: /* INT */
         listOfInt32(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, hf_x11_glx_render_CallLists_lists_item_int32, n, byte_order);
@@ -69,18 +73,21 @@ static void mesa_CallLists(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         break;
     case 0x1407: /* 2_BYTES */
         listOfCard16(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, hf_x11_glx_render_CallLists_lists_item_card16, n, ENC_BIG_ENDIAN);
-        UNUSED(length - 8 - 2 * n);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - 8 - 2 * n), ENC_NA);
+        *offsetp += (length - 8 - 2 * n);
         break;
     case 0x1408: /* 3_BYTES */
         UNDECODED(3 * n);
-        UNUSED(length - 8 - 3 * n);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - 8 - 3 * n), ENC_NA);
+        *offsetp += (length - 8 - 3 * n);
         break;
     case 0x1409: /* 4_BYTES */
         listOfCard32(tvb, offsetp, t, hf_x11_glx_render_CallLists_lists, hf_x11_glx_render_CallLists_lists_item_card32, n, ENC_BIG_ENDIAN);
         break;
     case 0x140B: /* HALF_FLOAT */
         UNDECODED(2 * n);
-        UNUSED(length - 8 - 2 * n);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - 8 - 2 * n), ENC_NA);
+        *offsetp += (length - 8 - 2 * n);
         break;
     default:     /* Unknown */
         UNDECODED(length - 8);
@@ -106,7 +113,8 @@ static void mesa_Bitmap(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_o
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_Bitmap_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_Bitmap_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_Bitmap_skiprows, tvb, *offsetp, 4, byte_order);
@@ -693,7 +701,8 @@ static void mesa_PolygonStipple(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_PolygonStipple_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_PolygonStipple_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_PolygonStipple_skiprows, tvb, *offsetp, 4, byte_order);
@@ -767,7 +776,8 @@ static void mesa_TexImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_TexImage1D_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_TexImage1D_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_TexImage1D_skiprows, tvb, *offsetp, 4, byte_order);
@@ -799,7 +809,8 @@ static void mesa_TexImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_TexImage2D_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_TexImage2D_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_TexImage2D_skiprows, tvb, *offsetp, 4, byte_order);
@@ -1379,7 +1390,8 @@ static void mesa_DrawPixels(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_DrawPixels_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_DrawPixels_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_DrawPixels_skiprows, tvb, *offsetp, 4, byte_order);
@@ -1651,7 +1663,8 @@ static void mesa_TexSubImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage1D_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage1D_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage1D_skiprows, tvb, *offsetp, 4, byte_order);
@@ -1683,7 +1696,8 @@ static void mesa_TexSubImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage2D_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage2D_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage2D_skiprows, tvb, *offsetp, 4, byte_order);
@@ -1760,7 +1774,8 @@ static void mesa_ColorTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_ColorTable_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_ColorTable_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_ColorTable_skiprows, tvb, *offsetp, 4, byte_order);
@@ -1820,7 +1835,8 @@ static void mesa_ColorSubTable(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_ColorSubTable_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_ColorSubTable_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_ColorSubTable_skiprows, tvb, *offsetp, 4, byte_order);
@@ -1862,7 +1878,8 @@ static void mesa_ConvolutionFilter1D(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_ConvolutionFilter1D_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_ConvolutionFilter1D_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_ConvolutionFilter1D_skiprows, tvb, *offsetp, 4, byte_order);
@@ -1890,7 +1907,8 @@ static void mesa_ConvolutionFilter2D(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_ConvolutionFilter2D_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_ConvolutionFilter2D_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_ConvolutionFilter2D_skiprows, tvb, *offsetp, 4, byte_order);
@@ -2040,7 +2058,8 @@ static void mesa_TexImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_TexImage3D_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_TexImage3D_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_TexImage3D_skiprows, tvb, *offsetp, 4, byte_order);
@@ -2076,7 +2095,8 @@ static void mesa_TexSubImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage3D_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage3D_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage3D_skiprows, tvb, *offsetp, 4, byte_order);
@@ -2786,7 +2806,8 @@ static void mesa_TexImage4DSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_TexImage4DSGIS_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_TexImage4DSGIS_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_TexImage4DSGIS_skiprows, tvb, *offsetp, 4, byte_order);
@@ -2824,7 +2845,8 @@ static void mesa_TexSubImage4DSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, g
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage4DSGIS_lsbfirst, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage4DSGIS_rowlength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_TexSubImage4DSGIS_skiprows, tvb, *offsetp, 4, byte_order);
@@ -4878,7 +4900,8 @@ static void bigreqEnable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-Enable");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (bigreq-Enable)", sequence_number);
@@ -5011,7 +5034,8 @@ static void struct_render_PICTFORMINFO(tvbuff_t *tvb, int *offsetp, proto_tree *
         field8(tvb, offsetp, t, hf_x11_struct_render_PICTFORMINFO_type, byte_order);
         proto_tree_add_item(t, hf_x11_struct_render_PICTFORMINFO_depth, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+        *offsetp += 2;
         struct_render_DIRECTFORMAT(tvb, offsetp, t, byte_order, 1);
         proto_tree_add_item(t, hf_x11_struct_render_PICTFORMINFO_colormap, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
@@ -5055,11 +5079,13 @@ static void struct_render_PICTDEPTH(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         proto_tree_add_item(t, hf_x11_struct_render_PICTDEPTH_depth, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
         f_num_visuals = VALUE16(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_struct_render_PICTDEPTH_num_visuals, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
-        UNUSED(4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+        *offsetp += 4;
         struct_render_PICTVISUAL(tvb, offsetp, t, byte_order, f_num_visuals);
     }
 }
@@ -5317,7 +5343,8 @@ static void compositeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (composite-QueryVersion)", sequence_number);
@@ -5328,7 +5355,8 @@ static void compositeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_composite_QueryVersion_reply_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
 }
 
 static void compositeRedirectWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -5336,7 +5364,8 @@ static void compositeRedirectWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     proto_tree_add_item(t, hf_x11_composite_RedirectWindow_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_composite_RedirectWindow_update, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void compositeRedirectSubwindows(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -5344,7 +5373,8 @@ static void compositeRedirectSubwindows(tvbuff_t *tvb, packet_info *pinfo _U_, i
     proto_tree_add_item(t, hf_x11_composite_RedirectSubwindows_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_composite_RedirectSubwindows_update, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void compositeUnredirectWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -5352,7 +5382,8 @@ static void compositeUnredirectWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int
     proto_tree_add_item(t, hf_x11_composite_UnredirectWindow_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_composite_UnredirectWindow_update, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void compositeUnredirectSubwindows(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -5360,7 +5391,8 @@ static void compositeUnredirectSubwindows(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item(t, hf_x11_composite_UnredirectSubwindows_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_composite_UnredirectSubwindows_update, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void compositeCreateRegionFromBorderClip(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -5391,7 +5423,8 @@ static void compositeGetOverlayWindow_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetOverlayWindow");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (composite-GetOverlayWindow)", sequence_number);
@@ -5400,7 +5433,8 @@ static void compositeGetOverlayWindow_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_composite_GetOverlayWindow_reply_overlay_win, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static void compositeReleaseOverlayWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -5490,7 +5524,8 @@ static void damageQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (damage-QueryVersion)", sequence_number);
@@ -5501,7 +5536,8 @@ static void damageQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_damage_QueryVersion_reply_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
 }
 
 static void damageCreate(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -5511,7 +5547,8 @@ static void damageCreate(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pr
     proto_tree_add_item(t, hf_x11_damage_Create_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_damage_Create_level, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void damageDestroy(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -5600,7 +5637,8 @@ static void dpmsGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dpms-GetVersion)", sequence_number);
@@ -5623,7 +5661,8 @@ static void dpmsCapable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     col_append_fstr(pinfo->cinfo, COL_INFO, "-Capable");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dpms-Capable)", sequence_number);
@@ -5632,7 +5671,8 @@ static void dpmsCapable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_dpms_Capable_reply_capable, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 static void dpmsGetTimeouts(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
@@ -5645,7 +5685,8 @@ static void dpmsGetTimeouts_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTimeouts");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dpms-GetTimeouts)", sequence_number);
@@ -5658,7 +5699,8 @@ static void dpmsGetTimeouts_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_dpms_GetTimeouts_reply_off_timeout, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(18);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 18, ENC_NA);
+    *offsetp += 18;
 }
 
 static void dpmsSetTimeouts(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -5694,7 +5736,8 @@ static void dpmsInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     col_append_fstr(pinfo->cinfo, COL_INFO, "-Info");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dpms-Info)", sequence_number);
@@ -5704,7 +5747,8 @@ static void dpmsInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     field16(tvb, offsetp, t, hf_x11_dpms_Info_reply_power_level, byte_order);
     proto_tree_add_item(t, hf_x11_dpms_Info_reply_state, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(21);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 21, ENC_NA);
+    *offsetp += 21;
 }
 static const value_string dpms_extension_minor[] = {
     { 0, "GetVersion" },
@@ -5822,7 +5866,8 @@ static void dri2QueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-QueryVersion)", sequence_number);
@@ -5850,7 +5895,8 @@ static void dri2Connect_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     col_append_fstr(pinfo->cinfo, COL_INFO, "-Connect");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-Connect)", sequence_number);
@@ -5863,7 +5909,8 @@ static void dri2Connect_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     f_device_name_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_dri2_Connect_reply_device_name_length, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
     listOfByte(tvb, offsetp, t, hf_x11_dri2_Connect_reply_driver_name, f_driver_name_length, byte_order);
     listOfByte(tvb, offsetp, t, hf_x11_dri2_Connect_reply_alignment_pad, (((f_driver_name_length + 3) & (~3)) - f_driver_name_length), byte_order);
     listOfByte(tvb, offsetp, t, hf_x11_dri2_Connect_reply_device_name, f_device_name_length, byte_order);
@@ -5883,7 +5930,8 @@ static void dri2Authenticate_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-Authenticate");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-Authenticate)", sequence_number);
@@ -5922,7 +5970,8 @@ static void dri2GetBuffers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetBuffers");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-GetBuffers)", sequence_number);
@@ -5936,7 +5985,8 @@ static void dri2GetBuffers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     f_count = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_dri2_GetBuffers_reply_count, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     struct_dri2_DRI2Buffer(tvb, offsetp, t, byte_order, f_count);
 }
 
@@ -5958,7 +6008,8 @@ static void dri2CopyRegion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-CopyRegion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-CopyRegion)", sequence_number);
@@ -5983,7 +6034,8 @@ static void dri2GetBuffersWithFormat_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetBuffersWithFormat");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-GetBuffersWithFormat)", sequence_number);
@@ -5997,7 +6049,8 @@ static void dri2GetBuffersWithFormat_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     f_count = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_dri2_GetBuffersWithFormat_reply_count, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     struct_dri2_DRI2Buffer(tvb, offsetp, t, byte_order, f_count);
 }
 
@@ -6025,7 +6078,8 @@ static void dri2SwapBuffers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-SwapBuffers");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-SwapBuffers)", sequence_number);
@@ -6050,7 +6104,8 @@ static void dri2GetMSC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMSC");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-GetMSC)", sequence_number);
@@ -6095,7 +6150,8 @@ static void dri2WaitMSC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     col_append_fstr(pinfo->cinfo, COL_INFO, "-WaitMSC");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-WaitMSC)", sequence_number);
@@ -6132,7 +6188,8 @@ static void dri2WaitSBC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     col_append_fstr(pinfo->cinfo, COL_INFO, "-WaitSBC");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-WaitSBC)", sequence_number);
@@ -6191,7 +6248,8 @@ static void dri2GetParam_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
 
 static void dri2InvalidateBuffers(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
 {
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     CARD16(event_sequencenumber);
     proto_tree_add_item(t, hf_x11_dri2_InvalidateBuffers_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -6309,7 +6367,8 @@ static void dri3QueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri3-QueryVersion)", sequence_number);
@@ -6344,7 +6403,8 @@ static void dri3Open_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
 }
 
 static void dri3PixmapFromBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -6399,7 +6459,8 @@ static void dri3BufferFromPixmap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_dri3_BufferFromPixmap_reply_bpp, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
 }
 
 static void dri3FenceFromFD(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -6410,7 +6471,8 @@ static void dri3FenceFromFD(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_dri3_FenceFromFD_initially_triggered, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void dri3FDFromFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -6435,7 +6497,8 @@ static void dri3FDFromFence_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
 }
 static const value_string dri3_extension_minor[] = {
     { 0, "QueryVersion" },
@@ -6509,7 +6572,8 @@ static void geQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (ge-QueryVersion)", sequence_number);
@@ -6520,7 +6584,8 @@ static void geQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_ge_QueryVersion_reply_minor_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 static const value_string ge_extension_minor[] = {
     { 0, "QueryVersion" },
@@ -6559,11 +6624,13 @@ static void register_ge(void)
 
 static void glxBufferSwapComplete(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
 {
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     CARD16(event_sequencenumber);
     proto_tree_add_item(t, hf_x11_glx_BufferSwapComplete_event_type, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_BufferSwapComplete_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_BufferSwapComplete_ust_hi, tvb, *offsetp, 4, byte_order);
@@ -6614,7 +6681,8 @@ static void glxCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_CreateContext_is_direct, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void glxDestroyContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -6639,7 +6707,8 @@ static void glxMakeCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-MakeCurrent");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-MakeCurrent)", sequence_number);
@@ -6648,7 +6717,8 @@ static void glxMakeCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_MakeCurrent_reply_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static void glxIsDirect(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -6663,7 +6733,8 @@ static void glxIsDirect_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     col_append_fstr(pinfo->cinfo, COL_INFO, "-IsDirect");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-IsDirect)", sequence_number);
@@ -6672,7 +6743,8 @@ static void glxIsDirect_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_IsDirect_reply_is_direct, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 static void glxQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -6689,7 +6761,8 @@ static void glxQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-QueryVersion)", sequence_number);
@@ -6700,7 +6773,8 @@ static void glxQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_QueryVersion_reply_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
 }
 
 static void glxWaitGL(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -6774,7 +6848,8 @@ static void glxGetVisualConfigs_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetVisualConfigs");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetVisualConfigs)", sequence_number);
@@ -6786,7 +6861,8 @@ static void glxGetVisualConfigs_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetVisualConfigs_reply_num_properties, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GetVisualConfigs_reply_property_list, hf_x11_glx_GetVisualConfigs_reply_property_list_item, f_length, byte_order);
 }
 
@@ -6821,7 +6897,8 @@ static void glxVendorPrivateWithReply_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     col_append_fstr(pinfo->cinfo, COL_INFO, "-VendorPrivateWithReply");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-VendorPrivateWithReply)", sequence_number);
@@ -6847,17 +6924,20 @@ static void glxQueryExtensionsString_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryExtensionsString");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-QueryExtensionsString)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_QueryExtensionsString_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
 }
 
 static void glxQueryServerString(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -6875,18 +6955,21 @@ static void glxQueryServerString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryServerString");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-QueryServerString)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_str_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_QueryServerString_reply_str_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
     listOfByte(tvb, offsetp, t, hf_x11_glx_QueryServerString_reply_string, f_str_len, byte_order);
 }
 
@@ -6917,7 +7000,8 @@ static void glxGetFBConfigs_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetFBConfigs");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetFBConfigs)", sequence_number);
@@ -6929,7 +7013,8 @@ static void glxGetFBConfigs_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetFBConfigs_reply_num_properties, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GetFBConfigs_reply_property_list, hf_x11_glx_GetFBConfigs_reply_property_list_item, f_length, byte_order);
 }
 
@@ -6971,7 +7056,8 @@ static void glxCreateNewContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_CreateNewContext_is_direct, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void glxQueryContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -6987,7 +7073,8 @@ static void glxQueryContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-QueryContext)", sequence_number);
@@ -6997,7 +7084,8 @@ static void glxQueryContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     f_num_attribs = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_QueryContext_reply_num_attribs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_QueryContext_reply_attribs, hf_x11_glx_QueryContext_reply_attribs_item, (f_num_attribs * 2), byte_order);
 }
 
@@ -7019,7 +7107,8 @@ static void glxMakeContextCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-MakeContextCurrent");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-MakeContextCurrent)", sequence_number);
@@ -7028,7 +7117,8 @@ static void glxMakeContextCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_MakeContextCurrent_reply_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static void glxCreatePbuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -7066,7 +7156,8 @@ static void glxGetDrawableAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetDrawableAttributes");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetDrawableAttributes)", sequence_number);
@@ -7076,7 +7167,8 @@ static void glxGetDrawableAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     f_num_attribs = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetDrawableAttributes_reply_num_attribs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GetDrawableAttributes_reply_attribs, hf_x11_glx_GetDrawableAttributes_reply_attribs_item, (f_num_attribs * 2), byte_order);
 }
 
@@ -7155,7 +7247,8 @@ static void glxCreateContextAttribsARB(tvbuff_t *tvb, packet_info *pinfo _U_, in
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_CreateContextAttribsARB_is_direct, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     f_num_attribs = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_CreateContextAttribsARB_num_attribs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -7229,7 +7322,8 @@ static void glxGenLists_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GenLists");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GenLists)", sequence_number);
@@ -7273,7 +7367,8 @@ static void glxRenderMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-RenderMode");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-RenderMode)", sequence_number);
@@ -7287,7 +7382,8 @@ static void glxRenderMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_RenderMode_reply_new_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_RenderMode_reply_data, hf_x11_glx_RenderMode_reply_data_item, f_n, byte_order);
 }
 
@@ -7303,7 +7399,8 @@ static void glxFinish_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     col_append_fstr(pinfo->cinfo, COL_INFO, "-Finish");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-Finish)", sequence_number);
@@ -7361,7 +7458,8 @@ static void glxReadPixels_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-ReadPixels");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-ReadPixels)", sequence_number);
@@ -7369,7 +7467,8 @@ static void glxReadPixels_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
     listOfByte(tvb, offsetp, t, hf_x11_glx_ReadPixels_reply_data, (f_length * 4), byte_order);
 }
 
@@ -7388,20 +7487,23 @@ static void glxGetBooleanv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetBooleanv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetBooleanv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetBooleanv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetBooleanv_reply_datum, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(15);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 15, ENC_NA);
+    *offsetp += 15;
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetBooleanv_reply_data, f_n, byte_order);
 }
 
@@ -7420,7 +7522,8 @@ static void glxGetClipPlane_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetClipPlane");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetClipPlane)", sequence_number);
@@ -7428,7 +7531,8 @@ static void glxGetClipPlane_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_GetClipPlane_reply_data, hf_x11_glx_GetClipPlane_reply_data_item, (f_length / 2), byte_order);
 }
 
@@ -7447,20 +7551,23 @@ static void glxGetDoublev_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetDoublev");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetDoublev)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetDoublev_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetDoublev_reply_datum, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_GetDoublev_reply_data, hf_x11_glx_GetDoublev_reply_data_item, f_n, byte_order);
 }
 
@@ -7476,7 +7583,8 @@ static void glxGetError_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetError");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetError)", sequence_number);
@@ -7502,20 +7610,23 @@ static void glxGetFloatv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetFloatv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetFloatv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetFloatv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetFloatv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetFloatv_reply_data, hf_x11_glx_GetFloatv_reply_data_item, f_n, byte_order);
 }
 
@@ -7534,20 +7645,23 @@ static void glxGetIntegerv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetIntegerv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetIntegerv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetIntegerv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetIntegerv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetIntegerv_reply_data, hf_x11_glx_GetIntegerv_reply_data_item, f_n, byte_order);
 }
 
@@ -7568,20 +7682,23 @@ static void glxGetLightfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetLightfv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetLightfv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetLightfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetLightfv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetLightfv_reply_data, hf_x11_glx_GetLightfv_reply_data_item, f_n, byte_order);
 }
 
@@ -7602,20 +7719,23 @@ static void glxGetLightiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetLightiv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetLightiv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetLightiv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetLightiv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetLightiv_reply_data, hf_x11_glx_GetLightiv_reply_data_item, f_n, byte_order);
 }
 
@@ -7636,20 +7756,23 @@ static void glxGetMapdv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMapdv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMapdv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetMapdv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMapdv_reply_datum, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_GetMapdv_reply_data, hf_x11_glx_GetMapdv_reply_data_item, f_n, byte_order);
 }
 
@@ -7670,20 +7793,23 @@ static void glxGetMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMapfv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMapfv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetMapfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMapfv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetMapfv_reply_data, hf_x11_glx_GetMapfv_reply_data_item, f_n, byte_order);
 }
 
@@ -7704,20 +7830,23 @@ static void glxGetMapiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMapiv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMapiv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetMapiv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMapiv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetMapiv_reply_data, hf_x11_glx_GetMapiv_reply_data_item, f_n, byte_order);
 }
 
@@ -7738,20 +7867,23 @@ static void glxGetMaterialfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMaterialfv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMaterialfv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetMaterialfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMaterialfv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetMaterialfv_reply_data, hf_x11_glx_GetMaterialfv_reply_data_item, f_n, byte_order);
 }
 
@@ -7772,20 +7904,23 @@ static void glxGetMaterialiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMaterialiv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMaterialiv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetMaterialiv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMaterialiv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetMaterialiv_reply_data, hf_x11_glx_GetMaterialiv_reply_data_item, f_n, byte_order);
 }
 
@@ -7804,20 +7939,23 @@ static void glxGetPixelMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetPixelMapfv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetPixelMapfv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapfv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetPixelMapfv_reply_data, hf_x11_glx_GetPixelMapfv_reply_data_item, f_n, byte_order);
 }
 
@@ -7836,20 +7974,23 @@ static void glxGetPixelMapuiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetPixelMapuiv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetPixelMapuiv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapuiv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapuiv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GetPixelMapuiv_reply_data, hf_x11_glx_GetPixelMapuiv_reply_data_item, f_n, byte_order);
 }
 
@@ -7868,20 +8009,23 @@ static void glxGetPixelMapusv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetPixelMapusv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetPixelMapusv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapusv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapusv_reply_datum, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
     listOfCard16(tvb, offsetp, t, hf_x11_glx_GetPixelMapusv_reply_data, hf_x11_glx_GetPixelMapusv_reply_data_item, f_n, byte_order);
 }
 
@@ -7900,7 +8044,8 @@ static void glxGetPolygonStipple_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetPolygonStipple");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetPolygonStipple)", sequence_number);
@@ -7908,7 +8053,8 @@ static void glxGetPolygonStipple_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetPolygonStipple_reply_data, (f_length * 4), byte_order);
 }
 
@@ -7927,18 +8073,21 @@ static void glxGetString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetString");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetString)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetString_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetString_reply_string, f_n, byte_order);
 }
 
@@ -7959,20 +8108,23 @@ static void glxGetTexEnvfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexEnvfv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexEnvfv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetTexEnvfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexEnvfv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetTexEnvfv_reply_data, hf_x11_glx_GetTexEnvfv_reply_data_item, f_n, byte_order);
 }
 
@@ -7993,20 +8145,23 @@ static void glxGetTexEnviv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexEnviv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexEnviv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetTexEnviv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexEnviv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetTexEnviv_reply_data, hf_x11_glx_GetTexEnviv_reply_data_item, f_n, byte_order);
 }
 
@@ -8027,20 +8182,23 @@ static void glxGetTexGendv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexGendv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexGendv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetTexGendv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexGendv_reply_datum, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_GetTexGendv_reply_data, hf_x11_glx_GetTexGendv_reply_data_item, f_n, byte_order);
 }
 
@@ -8061,20 +8219,23 @@ static void glxGetTexGenfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexGenfv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexGenfv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetTexGenfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexGenfv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetTexGenfv_reply_data, hf_x11_glx_GetTexGenfv_reply_data_item, f_n, byte_order);
 }
 
@@ -8095,20 +8256,23 @@ static void glxGetTexGeniv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexGeniv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexGeniv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetTexGeniv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexGeniv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetTexGeniv_reply_data, hf_x11_glx_GetTexGeniv_reply_data_item, f_n, byte_order);
 }
 
@@ -8135,7 +8299,8 @@ static void glxGetTexImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexImage");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexImage)", sequence_number);
@@ -8143,14 +8308,16 @@ static void glxGetTexImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     proto_tree_add_item(t, hf_x11_glx_GetTexImage_reply_width, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexImage_reply_height, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexImage_reply_depth, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetTexImage_reply_data, (f_length * 4), byte_order);
 }
 
@@ -8171,20 +8338,23 @@ static void glxGetTexParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexParameterfv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexParameterfv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetTexParameterfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexParameterfv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetTexParameterfv_reply_data, hf_x11_glx_GetTexParameterfv_reply_data_item, f_n, byte_order);
 }
 
@@ -8205,20 +8375,23 @@ static void glxGetTexParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexParameteriv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexParameteriv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetTexParameteriv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexParameteriv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetTexParameteriv_reply_data, hf_x11_glx_GetTexParameteriv_reply_data_item, f_n, byte_order);
 }
 
@@ -8241,20 +8414,23 @@ static void glxGetTexLevelParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexLevelParameterfv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexLevelParameterfv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetTexLevelParameterfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexLevelParameterfv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetTexLevelParameterfv_reply_data, hf_x11_glx_GetTexLevelParameterfv_reply_data_item, f_n, byte_order);
 }
 
@@ -8277,20 +8453,23 @@ static void glxGetTexLevelParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexLevelParameteriv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexLevelParameteriv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetTexLevelParameteriv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexLevelParameteriv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetTexLevelParameteriv_reply_data, hf_x11_glx_GetTexLevelParameteriv_reply_data_item, f_n, byte_order);
 }
 
@@ -8308,7 +8487,8 @@ static void glxIsEnabled_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-IsEnabled");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-IsEnabled)", sequence_number);
@@ -8333,7 +8513,8 @@ static void glxIsList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     col_append_fstr(pinfo->cinfo, COL_INFO, "-IsList");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-IsList)", sequence_number);
@@ -8369,7 +8550,8 @@ static void glxAreTexturesResident_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-AreTexturesResident");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-AreTexturesResident)", sequence_number);
@@ -8379,7 +8561,8 @@ static void glxAreTexturesResident_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_AreTexturesResident_reply_ret_val, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_glx_AreTexturesResident_reply_data, (f_length * 4), byte_order);
 }
 
@@ -8410,7 +8593,8 @@ static void glxGenTextures_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GenTextures");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GenTextures)", sequence_number);
@@ -8418,7 +8602,8 @@ static void glxGenTextures_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GenTextures_reply_data, hf_x11_glx_GenTextures_reply_data_item, f_length, byte_order);
 }
 
@@ -8436,7 +8621,8 @@ static void glxIsTexture_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-IsTexture");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-IsTexture)", sequence_number);
@@ -8468,7 +8654,8 @@ static void glxGetColorTable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetColorTable");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetColorTable)", sequence_number);
@@ -8476,10 +8663,12 @@ static void glxGetColorTable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     proto_tree_add_item(t, hf_x11_glx_GetColorTable_reply_width, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetColorTable_reply_data, (f_length * 4), byte_order);
 }
 
@@ -8500,20 +8689,23 @@ static void glxGetColorTableParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetColorTableParameterfv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetColorTableParameterfv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetColorTableParameterfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetColorTableParameterfv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetColorTableParameterfv_reply_data, hf_x11_glx_GetColorTableParameterfv_reply_data_item, f_n, byte_order);
 }
 
@@ -8534,20 +8726,23 @@ static void glxGetColorTableParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetColorTableParameteriv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetColorTableParameteriv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetColorTableParameteriv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetColorTableParameteriv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetColorTableParameteriv_reply_data, hf_x11_glx_GetColorTableParameteriv_reply_data_item, f_n, byte_order);
 }
 
@@ -8572,7 +8767,8 @@ static void glxGetConvolutionFilter_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetConvolutionFilter");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetConvolutionFilter)", sequence_number);
@@ -8580,12 +8776,14 @@ static void glxGetConvolutionFilter_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionFilter_reply_width, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionFilter_reply_height, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetConvolutionFilter_reply_data, (f_length * 4), byte_order);
 }
 
@@ -8606,20 +8804,23 @@ static void glxGetConvolutionParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetConvolutionParameterfv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetConvolutionParameterfv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionParameterfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionParameterfv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetConvolutionParameterfv_reply_data, hf_x11_glx_GetConvolutionParameterfv_reply_data_item, f_n, byte_order);
 }
 
@@ -8640,20 +8841,23 @@ static void glxGetConvolutionParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetConvolutionParameteriv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetConvolutionParameteriv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionParameteriv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionParameteriv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetConvolutionParameteriv_reply_data, hf_x11_glx_GetConvolutionParameteriv_reply_data_item, f_n, byte_order);
 }
 
@@ -8678,7 +8882,8 @@ static void glxGetSeparableFilter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetSeparableFilter");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetSeparableFilter)", sequence_number);
@@ -8686,12 +8891,14 @@ static void glxGetSeparableFilter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     proto_tree_add_item(t, hf_x11_glx_GetSeparableFilter_reply_row_w, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetSeparableFilter_reply_col_h, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetSeparableFilter_reply_rows_and_cols, (f_length * 4), byte_order);
 }
 
@@ -8718,7 +8925,8 @@ static void glxGetHistogram_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetHistogram");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetHistogram)", sequence_number);
@@ -8726,10 +8934,12 @@ static void glxGetHistogram_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     proto_tree_add_item(t, hf_x11_glx_GetHistogram_reply_width, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetHistogram_reply_data, (f_length * 4), byte_order);
 }
 
@@ -8750,20 +8960,23 @@ static void glxGetHistogramParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetHistogramParameterfv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetHistogramParameterfv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetHistogramParameterfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetHistogramParameterfv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetHistogramParameterfv_reply_data, hf_x11_glx_GetHistogramParameterfv_reply_data_item, f_n, byte_order);
 }
 
@@ -8784,20 +8997,23 @@ static void glxGetHistogramParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetHistogramParameteriv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetHistogramParameteriv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetHistogramParameteriv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetHistogramParameteriv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetHistogramParameteriv_reply_data, hf_x11_glx_GetHistogramParameteriv_reply_data_item, f_n, byte_order);
 }
 
@@ -8824,7 +9040,8 @@ static void glxGetMinmax_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMinmax");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMinmax)", sequence_number);
@@ -8832,7 +9049,8 @@ static void glxGetMinmax_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetMinmax_reply_data, (f_length * 4), byte_order);
 }
 
@@ -8853,20 +9071,23 @@ static void glxGetMinmaxParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMinmaxParameterfv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMinmaxParameterfv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetMinmaxParameterfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMinmaxParameterfv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_GetMinmaxParameterfv_reply_data, hf_x11_glx_GetMinmaxParameterfv_reply_data_item, f_n, byte_order);
 }
 
@@ -8887,20 +9108,23 @@ static void glxGetMinmaxParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMinmaxParameteriv");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMinmaxParameteriv)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetMinmaxParameteriv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMinmaxParameteriv_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetMinmaxParameteriv_reply_data, hf_x11_glx_GetMinmaxParameteriv_reply_data_item, f_n, byte_order);
 }
 
@@ -8921,7 +9145,8 @@ static void glxGetCompressedTexImageARB_Reply(tvbuff_t *tvb, packet_info *pinfo,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetCompressedTexImageARB");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetCompressedTexImageARB)", sequence_number);
@@ -8929,10 +9154,12 @@ static void glxGetCompressedTexImageARB_Reply(tvbuff_t *tvb, packet_info *pinfo,
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     proto_tree_add_item(t, hf_x11_glx_GetCompressedTexImageARB_reply_size, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfByte(tvb, offsetp, t, hf_x11_glx_GetCompressedTexImageARB_reply_data, (f_length * 4), byte_order);
 }
 
@@ -8963,7 +9190,8 @@ static void glxGenQueriesARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GenQueriesARB");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GenQueriesARB)", sequence_number);
@@ -8971,7 +9199,8 @@ static void glxGenQueriesARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GenQueriesARB_reply_data, hf_x11_glx_GenQueriesARB_reply_data_item, f_length, byte_order);
 }
 
@@ -8989,7 +9218,8 @@ static void glxIsQueryARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-IsQueryARB");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-IsQueryARB)", sequence_number);
@@ -9017,20 +9247,23 @@ static void glxGetQueryivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetQueryivARB");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetQueryivARB)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetQueryivARB_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetQueryivARB_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetQueryivARB_reply_data, hf_x11_glx_GetQueryivARB_reply_data_item, f_n, byte_order);
 }
 
@@ -9051,20 +9284,23 @@ static void glxGetQueryObjectivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetQueryObjectivARB");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetQueryObjectivARB)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetQueryObjectivARB_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetQueryObjectivARB_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfInt32(tvb, offsetp, t, hf_x11_glx_GetQueryObjectivARB_reply_data, hf_x11_glx_GetQueryObjectivARB_reply_data_item, f_n, byte_order);
 }
 
@@ -9085,20 +9321,23 @@ static void glxGetQueryObjectuivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetQueryObjectuivARB");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetQueryObjectuivARB)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_n = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_GetQueryObjectuivARB_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetQueryObjectuivARB_reply_datum, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_GetQueryObjectuivARB_reply_data, hf_x11_glx_GetQueryObjectuivARB_reply_data_item, f_n, byte_order);
 }
 static const value_string glx_extension_minor[] = {
@@ -9734,7 +9973,8 @@ static void struct_randr_CrtcChange(tvbuff_t *tvb, int *offsetp, proto_tree *roo
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_randr_CrtcChange_rotation, ett_x11_rectangle, rotation_bits, byte_order);
         }
         *offsetp += 2;
-        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+        *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_x, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_randr_CrtcChange_y, tvb, *offsetp, 2, byte_order);
@@ -9802,7 +10042,8 @@ static void struct_randr_OutputProperty(tvbuff_t *tvb, int *offsetp, proto_tree 
         proto_tree_add_item(t, hf_x11_struct_randr_OutputProperty_timestamp, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         field8(tvb, offsetp, t, hf_x11_struct_randr_OutputProperty_status, byte_order);
-        UNUSED(11);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 11, ENC_NA);
+        *offsetp += 11;
     }
 }
 
@@ -9821,7 +10062,8 @@ static void struct_randr_ProviderChange(tvbuff_t *tvb, int *offsetp, proto_tree 
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_struct_randr_ProviderChange_provider, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        UNUSED(16);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+        *offsetp += 16;
     }
 }
 
@@ -9844,7 +10086,8 @@ static void struct_randr_ProviderProperty(tvbuff_t *tvb, int *offsetp, proto_tre
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_struct_randr_ProviderProperty_state, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(11);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 11, ENC_NA);
+        *offsetp += 11;
     }
 }
 
@@ -9861,7 +10104,8 @@ static void struct_randr_ResourceChange(tvbuff_t *tvb, int *offsetp, proto_tree 
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_struct_randr_ResourceChange_window, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        UNUSED(20);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+        *offsetp += 20;
     }
 }
 
@@ -9953,7 +10197,8 @@ static void struct_sync_SYSTEMCOUNTER(tvbuff_t *tvb, int *offsetp, proto_tree *r
         *offsetp += 2;
         listOfByte(tvb, offsetp, t, hf_x11_struct_sync_SYSTEMCOUNTER_name, f_name_len, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
     }
 }
@@ -10019,7 +10264,8 @@ static void presentQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (present-QueryVersion)", sequence_number);
@@ -10056,7 +10302,8 @@ static void presentPixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, p
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_present_Pixmap_options, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     proto_tree_add_item(t, hf_x11_present_Pixmap_target_msc, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
     proto_tree_add_item(t, hf_x11_present_Pixmap_divisor, tvb, *offsetp, 8, byte_order);
@@ -10072,7 +10319,8 @@ static void presentNotifyMSC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_present_NotifyMSC_serial, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     proto_tree_add_item(t, hf_x11_present_NotifyMSC_target_msc, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
     proto_tree_add_item(t, hf_x11_present_NotifyMSC_divisor, tvb, *offsetp, 8, byte_order);
@@ -10111,7 +10359,8 @@ static void presentQueryCapabilities_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryCapabilities");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (present-QueryCapabilities)", sequence_number);
@@ -10145,7 +10394,8 @@ static void presentIdleNotify(tvbuff_t *tvb, int length _U_, int *offsetp, proto
 {
     proto_tree_add_uint_format_value(t, hf_x11_minor_opcode, tvb, *offsetp, 2, 2,
                                "IdleNotify (2)");
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_present_IdleNotify_event, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_present_IdleNotify_window, tvb, *offsetp, 4, byte_order);
@@ -10165,7 +10415,8 @@ static void presentRedirectNotify(tvbuff_t *tvb, int length _U_, int *offsetp, p
                                "RedirectNotify (3)");
     proto_tree_add_item(t, hf_x11_present_RedirectNotify_update_window, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_present_RedirectNotify_event, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_present_RedirectNotify_event_window, tvb, *offsetp, 4, byte_order);
@@ -10194,7 +10445,8 @@ static void presentRedirectNotify(tvbuff_t *tvb, int length _U_, int *offsetp, p
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_present_RedirectNotify_options, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     proto_tree_add_item(t, hf_x11_present_RedirectNotify_target_msc, tvb, *offsetp, 8, byte_order);
     *offsetp += 8;
     proto_tree_add_item(t, hf_x11_present_RedirectNotify_divisor, tvb, *offsetp, 8, byte_order);
@@ -10277,7 +10529,8 @@ static void randrQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-QueryVersion)", sequence_number);
@@ -10288,7 +10541,8 @@ static void randrQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_QueryVersion_reply_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
 }
 
 static void randrSetScreenConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -10315,7 +10569,8 @@ static void randrSetScreenConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_randr_SetScreenConfig_rate, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void randrSetScreenConfig_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -10338,7 +10593,8 @@ static void randrSetScreenConfig_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     proto_tree_add_item(t, hf_x11_randr_SetScreenConfig_reply_root, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field16(tvb, offsetp, t, hf_x11_randr_SetScreenConfig_reply_subpixel_order, byte_order);
-    UNUSED(10);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 10, ENC_NA);
+    *offsetp += 10;
 }
 
 static void randrSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -10358,7 +10614,8 @@ static void randrSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_SelectInput_enable, ett_x11_rectangle, enable_bits, byte_order);
     }
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 
 static void randrGetScreenInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -10421,7 +10678,8 @@ static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     f_nInfo = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_GetScreenInfo_reply_nInfo, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     struct_randr_ScreenSize(tvb, offsetp, t, byte_order, f_nSizes);
     struct_randr_RefreshRates(tvb, offsetp, t, byte_order, (f_nInfo - f_nSizes));
 }
@@ -10438,7 +10696,8 @@ static void randrGetScreenSizeRange_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetScreenSizeRange");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetScreenSizeRange)", sequence_number);
@@ -10453,7 +10712,8 @@ static void randrGetScreenSizeRange_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_randr_GetScreenSizeRange_reply_max_height, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
 }
 
 static void randrSetScreenSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -10486,7 +10746,8 @@ static void randrGetScreenResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetScreenResources");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetScreenResources)", sequence_number);
@@ -10509,7 +10770,8 @@ static void randrGetScreenResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     f_names_len = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_GetScreenResources_reply_names_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     listOfCard32(tvb, offsetp, t, hf_x11_randr_GetScreenResources_reply_crtcs, hf_x11_randr_GetScreenResources_reply_crtcs_item, f_num_crtcs, byte_order);
     listOfCard32(tvb, offsetp, t, hf_x11_randr_GetScreenResources_reply_outputs, hf_x11_randr_GetScreenResources_reply_outputs_item, f_num_outputs, byte_order);
     struct_randr_ModeInfo(tvb, offsetp, t, byte_order, f_num_modes);
@@ -10584,7 +10846,8 @@ static void randrListOutputProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     col_append_fstr(pinfo->cinfo, COL_INFO, "-ListOutputProperties");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-ListOutputProperties)", sequence_number);
@@ -10594,7 +10857,8 @@ static void randrListOutputProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     f_num_atoms = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_ListOutputProperties_reply_num_atoms, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     listOfCard32(tvb, offsetp, t, hf_x11_randr_ListOutputProperties_reply_atoms, hf_x11_randr_ListOutputProperties_reply_atoms_item, f_num_atoms, byte_order);
 }
 
@@ -10613,7 +10877,8 @@ static void randrQueryOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryOutputProperty");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-QueryOutputProperty)", sequence_number);
@@ -10627,7 +10892,8 @@ static void randrQueryOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_randr_QueryOutputProperty_reply_immutable, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(21);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 21, ENC_NA);
+    *offsetp += 21;
     listOfInt32(tvb, offsetp, t, hf_x11_randr_QueryOutputProperty_reply_validValues, hf_x11_randr_QueryOutputProperty_reply_validValues_item, f_length, byte_order);
 }
 
@@ -10641,7 +10907,8 @@ static void randrConfigureOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, 
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_randr_ConfigureOutputProperty_range, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfInt32(tvb, offsetp, t, hf_x11_randr_ConfigureOutputProperty_values, hf_x11_randr_ConfigureOutputProperty_values_item, (length - 16) / 4, byte_order);
 }
 
@@ -10659,7 +10926,8 @@ static void randrChangeOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int
     proto_tree_add_item(t, hf_x11_randr_ChangeOutputProperty_format, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_randr_ChangeOutputProperty_mode, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     f_num_units = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_ChangeOutputProperty_num_units, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -10690,7 +10958,8 @@ static void randrGetOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_randr_GetOutputProperty_pending, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void randrGetOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -10716,7 +10985,8 @@ static void randrGetOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     f_num_items = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_GetOutputProperty_reply_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfByte(tvb, offsetp, t, hf_x11_randr_GetOutputProperty_reply_data, (f_num_items * (f_format / 8)), byte_order);
 }
 
@@ -10734,7 +11004,8 @@ static void randrCreateMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-CreateMode");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-CreateMode)", sequence_number);
@@ -10743,7 +11014,8 @@ static void randrCreateMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_CreateMode_reply_mode, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static void randrDestroyMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -10863,7 +11135,8 @@ static void randrSetCrtcConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_SetCrtcConfig_rotation, ett_x11_rectangle, rotation_bits, byte_order);
     }
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfCard32(tvb, offsetp, t, hf_x11_randr_SetCrtcConfig_outputs, hf_x11_randr_SetCrtcConfig_outputs_item, (length - 28) / 4, byte_order);
 }
 static void randrSetCrtcConfig_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
@@ -10882,7 +11155,8 @@ static void randrSetCrtcConfig_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_SetCrtcConfig_reply_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static void randrGetCrtcGammaSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -10897,7 +11171,8 @@ static void randrGetCrtcGammaSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetCrtcGammaSize");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetCrtcGammaSize)", sequence_number);
@@ -10906,7 +11181,8 @@ static void randrGetCrtcGammaSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetCrtcGammaSize_reply_size, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
 }
 
 static void randrGetCrtcGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -10922,7 +11198,8 @@ static void randrGetCrtcGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetCrtcGamma");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetCrtcGamma)", sequence_number);
@@ -10932,7 +11209,8 @@ static void randrGetCrtcGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     f_size = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_GetCrtcGamma_reply_size, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     listOfCard16(tvb, offsetp, t, hf_x11_randr_GetCrtcGamma_reply_red, hf_x11_randr_GetCrtcGamma_reply_red_item, f_size, byte_order);
     listOfCard16(tvb, offsetp, t, hf_x11_randr_GetCrtcGamma_reply_green, hf_x11_randr_GetCrtcGamma_reply_green_item, f_size, byte_order);
     listOfCard16(tvb, offsetp, t, hf_x11_randr_GetCrtcGamma_reply_blue, hf_x11_randr_GetCrtcGamma_reply_blue_item, f_size, byte_order);
@@ -10946,7 +11224,8 @@ static void randrSetCrtcGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     f_size = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_SetCrtcGamma_size, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfCard16(tvb, offsetp, t, hf_x11_randr_SetCrtcGamma_red, hf_x11_randr_SetCrtcGamma_red_item, f_size, byte_order);
     length -= f_size * 2;
     listOfCard16(tvb, offsetp, t, hf_x11_randr_SetCrtcGamma_green, hf_x11_randr_SetCrtcGamma_green_item, f_size, byte_order);
@@ -10971,7 +11250,8 @@ static void randrGetScreenResourcesCurrent_Reply(tvbuff_t *tvb, packet_info *pin
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetScreenResourcesCurrent");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetScreenResourcesCurrent)", sequence_number);
@@ -10994,7 +11274,8 @@ static void randrGetScreenResourcesCurrent_Reply(tvbuff_t *tvb, packet_info *pin
     f_names_len = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_GetScreenResourcesCurrent_reply_names_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     listOfCard32(tvb, offsetp, t, hf_x11_randr_GetScreenResourcesCurrent_reply_crtcs, hf_x11_randr_GetScreenResourcesCurrent_reply_crtcs_item, f_num_crtcs, byte_order);
     listOfCard32(tvb, offsetp, t, hf_x11_randr_GetScreenResourcesCurrent_reply_outputs, hf_x11_randr_GetScreenResourcesCurrent_reply_outputs_item, f_num_outputs, byte_order);
     struct_randr_ModeInfo(tvb, offsetp, t, byte_order, f_num_modes);
@@ -11010,11 +11291,13 @@ static void randrSetCrtcTransform(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     f_filter_len = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_SetCrtcTransform_filter_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_randr_SetCrtcTransform_filter_name, f_filter_len, byte_order);
     length -= f_filter_len * 1;
     if (*offsetp % 4) {
-        UNUSED(4 - *offsetp % 4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+        *offsetp += (4 - *offsetp % 4);
     }
     length = ((length + 3) & ~3);
     listOfInt32(tvb, offsetp, t, hf_x11_randr_SetCrtcTransform_filter_params, hf_x11_randr_SetCrtcTransform_filter_params_item, (length - 48) / 4, byte_order);
@@ -11036,7 +11319,8 @@ static void randrGetCrtcTransform_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetCrtcTransform");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetCrtcTransform)", sequence_number);
@@ -11046,9 +11330,11 @@ static void randrGetCrtcTransform_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     struct_render_TRANSFORM(tvb, offsetp, t, byte_order, 1);
     proto_tree_add_item(t, hf_x11_randr_GetCrtcTransform_reply_has_transforms, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     struct_render_TRANSFORM(tvb, offsetp, t, byte_order, 1);
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     f_pending_len = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_GetCrtcTransform_reply_pending_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -11063,12 +11349,14 @@ static void randrGetCrtcTransform_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_randr_GetCrtcTransform_reply_pending_filter_name, f_pending_len, byte_order);
     if (*offsetp % 4) {
-        UNUSED(4 - *offsetp % 4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+        *offsetp += (4 - *offsetp % 4);
     }
     listOfInt32(tvb, offsetp, t, hf_x11_randr_GetCrtcTransform_reply_pending_params, hf_x11_randr_GetCrtcTransform_reply_pending_params_item, f_pending_nparams, byte_order);
     listOfByte(tvb, offsetp, t, hf_x11_randr_GetCrtcTransform_reply_current_filter_name, f_current_len, byte_order);
     if (*offsetp % 4) {
-        UNUSED(4 - *offsetp % 4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+        *offsetp += (4 - *offsetp % 4);
     }
     listOfInt32(tvb, offsetp, t, hf_x11_randr_GetCrtcTransform_reply_current_params, hf_x11_randr_GetCrtcTransform_reply_current_params_item, f_current_nparams, byte_order);
 }
@@ -11189,7 +11477,8 @@ static void randrGetOutputPrimary_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetOutputPrimary");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetOutputPrimary)", sequence_number);
@@ -11213,7 +11502,8 @@ static void randrGetProviders_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetProviders");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetProviders)", sequence_number);
@@ -11225,7 +11515,8 @@ static void randrGetProviders_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     f_num_providers = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_GetProviders_reply_num_providers, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(18);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 18, ENC_NA);
+    *offsetp += 18;
     listOfCard32(tvb, offsetp, t, hf_x11_randr_GetProviders_reply_providers, hf_x11_randr_GetProviders_reply_providers_item, f_num_providers, byte_order);
 }
 
@@ -11279,7 +11570,8 @@ static void randrGetProviderInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     f_name_len = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_GetProviderInfo_reply_name_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     listOfCard32(tvb, offsetp, t, hf_x11_randr_GetProviderInfo_reply_crtcs, hf_x11_randr_GetProviderInfo_reply_crtcs_item, f_num_crtcs, byte_order);
     listOfCard32(tvb, offsetp, t, hf_x11_randr_GetProviderInfo_reply_outputs, hf_x11_randr_GetProviderInfo_reply_outputs_item, f_num_outputs, byte_order);
     listOfCard32(tvb, offsetp, t, hf_x11_randr_GetProviderInfo_reply_associated_providers, hf_x11_randr_GetProviderInfo_reply_associated_providers_item, f_num_associated_providers, byte_order);
@@ -11320,7 +11612,8 @@ static void randrListProviderProperties_Reply(tvbuff_t *tvb, packet_info *pinfo,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-ListProviderProperties");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-ListProviderProperties)", sequence_number);
@@ -11330,7 +11623,8 @@ static void randrListProviderProperties_Reply(tvbuff_t *tvb, packet_info *pinfo,
     f_num_atoms = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_ListProviderProperties_reply_num_atoms, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     listOfCard32(tvb, offsetp, t, hf_x11_randr_ListProviderProperties_reply_atoms, hf_x11_randr_ListProviderProperties_reply_atoms_item, f_num_atoms, byte_order);
 }
 
@@ -11349,7 +11643,8 @@ static void randrQueryProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryProviderProperty");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-QueryProviderProperty)", sequence_number);
@@ -11363,7 +11658,8 @@ static void randrQueryProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_randr_QueryProviderProperty_reply_immutable, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(21);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 21, ENC_NA);
+    *offsetp += 21;
     listOfInt32(tvb, offsetp, t, hf_x11_randr_QueryProviderProperty_reply_valid_values, hf_x11_randr_QueryProviderProperty_reply_valid_values_item, f_length, byte_order);
 }
 
@@ -11377,7 +11673,8 @@ static void randrConfigureProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_randr_ConfigureProviderProperty_range, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfInt32(tvb, offsetp, t, hf_x11_randr_ConfigureProviderProperty_values, hf_x11_randr_ConfigureProviderProperty_values_item, (length - 16) / 4, byte_order);
 }
 
@@ -11396,7 +11693,8 @@ static void randrChangeProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, i
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_randr_ChangeProviderProperty_mode, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     f_num_items = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_ChangeProviderProperty_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11428,7 +11726,8 @@ static void randrGetProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_randr_GetProviderProperty_pending, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void randrGetProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -11455,7 +11754,8 @@ static void randrGetProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     f_num_items = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_GetProviderProperty_reply_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfByte(tvb, offsetp, t, hf_x11_randr_GetProviderProperty_reply_data, (f_num_items * (f_format / 8)), byte_order);
 }
 
@@ -11509,7 +11809,8 @@ static void randrGetMonitors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMonitors");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetMonitors)", sequence_number);
@@ -11523,7 +11824,8 @@ static void randrGetMonitors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetMonitors_reply_nOutputs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     struct_randr_MonitorInfo(tvb, offsetp, t, byte_order, f_nMonitors);
 }
 
@@ -11880,7 +12182,8 @@ static void recordQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (record-QueryVersion)", sequence_number);
@@ -11901,7 +12204,8 @@ static void recordCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_record_CreateContext_element_header, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     f_num_client_specs = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_record_CreateContext_num_client_specs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11922,7 +12226,8 @@ static void recordRegisterClients(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_record_RegisterClients_element_header, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     f_num_client_specs = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_record_RegisterClients_num_client_specs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -11970,11 +12275,13 @@ static void recordGetContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_record_GetContext_reply_element_header, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     f_num_intercepted_clients = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_record_GetContext_reply_num_intercepted_clients, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
     struct_record_ClientInfo(tvb, offsetp, t, byte_order, f_num_intercepted_clients);
 }
 
@@ -12004,14 +12311,16 @@ static void recordEnableContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_record_EnableContext_reply_client_swapped, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_record_EnableContext_reply_xid_base, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_record_EnableContext_reply_server_time, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_record_EnableContext_reply_rec_sequence_num, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     listOfByte(tvb, offsetp, t, hf_x11_record_EnableContext_reply_data, (f_length * 4), byte_order);
 }
 
@@ -12105,7 +12414,8 @@ static void renderQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (render-QueryVersion)", sequence_number);
@@ -12116,7 +12426,8 @@ static void renderQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_QueryVersion_reply_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
 }
 
 static void renderQueryPictFormats(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
@@ -12132,7 +12443,8 @@ static void renderQueryPictFormats_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryPictFormats");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (render-QueryPictFormats)", sequence_number);
@@ -12152,7 +12464,8 @@ static void renderQueryPictFormats_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     f_num_subpixel = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_render_QueryPictFormats_reply_num_subpixel, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     struct_render_PICTFORMINFO(tvb, offsetp, t, byte_order, f_num_formats);
     struct_render_PICTSCREEN(tvb, offsetp, t, byte_order, f_num_screens);
     listOfCard32(tvb, offsetp, t, hf_x11_render_QueryPictFormats_reply_subpixels, hf_x11_render_QueryPictFormats_reply_subpixels_item, f_num_subpixel, byte_order);
@@ -12171,7 +12484,8 @@ static void renderQueryPictIndexValues_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryPictIndexValues");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (render-QueryPictIndexValues)", sequence_number);
@@ -12181,7 +12495,8 @@ static void renderQueryPictIndexValues_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     f_num_values = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_render_QueryPictIndexValues_reply_num_values, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_render_INDEXVALUE(tvb, offsetp, t, byte_order, f_num_values);
 }
 
@@ -12359,7 +12674,8 @@ static void renderFreePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
 static void renderComposite(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_Composite_op, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_render_Composite_src, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field32(tvb, offsetp, t, hf_x11_render_Composite_mask, byte_order);
@@ -12386,7 +12702,8 @@ static void renderComposite(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
 static void renderTrapezoids(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_Trapezoids_op, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_render_Trapezoids_src, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_Trapezoids_dst, tvb, *offsetp, 4, byte_order);
@@ -12403,7 +12720,8 @@ static void renderTrapezoids(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
 static void renderTriangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_Triangles_op, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_render_Triangles_src, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_Triangles_dst, tvb, *offsetp, 4, byte_order);
@@ -12420,7 +12738,8 @@ static void renderTriangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
 static void renderTriStrip(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_TriStrip_op, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_render_TriStrip_src, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_TriStrip_dst, tvb, *offsetp, 4, byte_order);
@@ -12437,7 +12756,8 @@ static void renderTriStrip(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
 static void renderTriFan(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_TriFan_op, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_render_TriFan_src, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_TriFan_dst, tvb, *offsetp, 4, byte_order);
@@ -12498,7 +12818,8 @@ static void renderFreeGlyphs(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
 static void renderCompositeGlyphs8(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_CompositeGlyphs8_op, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_render_CompositeGlyphs8_src, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_CompositeGlyphs8_dst, tvb, *offsetp, 4, byte_order);
@@ -12517,7 +12838,8 @@ static void renderCompositeGlyphs8(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
 static void renderCompositeGlyphs16(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_CompositeGlyphs16_op, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_render_CompositeGlyphs16_src, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_CompositeGlyphs16_dst, tvb, *offsetp, 4, byte_order);
@@ -12536,7 +12858,8 @@ static void renderCompositeGlyphs16(tvbuff_t *tvb, packet_info *pinfo _U_, int *
 static void renderCompositeGlyphs32(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_CompositeGlyphs32_op, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_render_CompositeGlyphs32_src, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_CompositeGlyphs32_dst, tvb, *offsetp, 4, byte_order);
@@ -12555,7 +12878,8 @@ static void renderCompositeGlyphs32(tvbuff_t *tvb, packet_info *pinfo _U_, int *
 static void renderFillRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_render_FillRectangles_op, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_render_FillRectangles_dst, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_render_COLOR(tvb, offsetp, t, byte_order, 1);
@@ -12595,7 +12919,8 @@ static void renderQueryFilters_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryFilters");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (render-QueryFilters)", sequence_number);
@@ -12608,7 +12933,8 @@ static void renderQueryFilters_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     f_num_filters = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_render_QueryFilters_reply_num_filters, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
     listOfCard16(tvb, offsetp, t, hf_x11_render_QueryFilters_reply_aliases, hf_x11_render_QueryFilters_reply_aliases_item, f_num_aliases, byte_order);
     struct_xproto_STR(tvb, offsetp, t, byte_order, f_num_filters);
 }
@@ -12621,11 +12947,13 @@ static void renderSetPictureFilter(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     f_filter_len = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_render_SetPictureFilter_filter_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_render_SetPictureFilter_filter, f_filter_len, byte_order);
     length -= f_filter_len * 1;
     if (*offsetp % 4) {
-        UNUSED(4 - *offsetp % 4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+        *offsetp += (4 - *offsetp % 4);
     }
     length = ((length + 3) & ~3);
     listOfInt32(tvb, offsetp, t, hf_x11_render_SetPictureFilter_values, hf_x11_render_SetPictureFilter_values_item, (length - 12) / 4, byte_order);
@@ -13023,7 +13351,8 @@ static void resQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (res-QueryVersion)", sequence_number);
@@ -13047,7 +13376,8 @@ static void resQueryClients_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryClients");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (res-QueryClients)", sequence_number);
@@ -13057,7 +13387,8 @@ static void resQueryClients_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     f_num_clients = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_res_QueryClients_reply_num_clients, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_res_Client(tvb, offsetp, t, byte_order, f_num_clients);
 }
 
@@ -13074,7 +13405,8 @@ static void resQueryClientResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryClientResources");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (res-QueryClientResources)", sequence_number);
@@ -13084,7 +13416,8 @@ static void resQueryClientResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     f_num_types = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_res_QueryClientResources_reply_num_types, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_res_Type(tvb, offsetp, t, byte_order, f_num_types);
 }
 
@@ -13100,7 +13433,8 @@ static void resQueryClientPixmapBytes_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryClientPixmapBytes");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (res-QueryClientPixmapBytes)", sequence_number);
@@ -13130,7 +13464,8 @@ static void resQueryClientIds_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryClientIds");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (res-QueryClientIds)", sequence_number);
@@ -13140,7 +13475,8 @@ static void resQueryClientIds_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     f_num_ids = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_res_QueryClientIds_reply_num_ids, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_res_ClientIdValue(tvb, offsetp, t, byte_order, f_num_ids);
 }
 
@@ -13163,7 +13499,8 @@ static void resQueryResourceBytes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryResourceBytes");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (res-QueryResourceBytes)", sequence_number);
@@ -13173,7 +13510,8 @@ static void resQueryResourceBytes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     f_num_sizes = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_res_QueryResourceBytes_reply_num_sizes, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_res_ResourceSizeValue(tvb, offsetp, t, byte_order, f_num_sizes);
 }
 static const value_string res_extension_minor[] = {
@@ -13242,7 +13580,8 @@ static void screensaverQueryVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_screensaver_QueryVersion_client_minor_version, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void screensaverQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -13251,7 +13590,8 @@ static void screensaverQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (screensaver-QueryVersion)", sequence_number);
@@ -13262,7 +13602,8 @@ static void screensaverQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_screensaver_QueryVersion_reply_server_minor_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static void screensaverQueryInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -13294,7 +13635,8 @@ static void screensaverQueryInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     proto_tree_add_item(t, hf_x11_screensaver_QueryInfo_reply_event_mask, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_screensaver_QueryInfo_reply_kind, byte_order);
-    UNUSED(7);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 7, ENC_NA);
+    *offsetp += 7;
 }
 
 static void screensaverSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -13476,7 +13818,8 @@ static void screensaverSuspend(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
 {
     proto_tree_add_item(t, hf_x11_screensaver_Suspend_suspend, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static const value_string screensaver_extension_minor[] = {
     { 0, "QueryVersion" },
@@ -13544,7 +13887,8 @@ static void shapeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (shape-QueryVersion)", sequence_number);
@@ -13562,7 +13906,8 @@ static void shapeRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     field8(tvb, offsetp, t, hf_x11_shape_Rectangles_operation, byte_order);
     field8(tvb, offsetp, t, hf_x11_shape_Rectangles_destination_kind, byte_order);
     field8(tvb, offsetp, t, hf_x11_shape_Rectangles_ordering, byte_order);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_shape_Rectangles_destination_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_shape_Rectangles_x_offset, tvb, *offsetp, 2, byte_order);
@@ -13576,7 +13921,8 @@ static void shapeMask(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
 {
     field8(tvb, offsetp, t, hf_x11_shape_Mask_operation, byte_order);
     field8(tvb, offsetp, t, hf_x11_shape_Mask_destination_kind, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_shape_Mask_destination_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_shape_Mask_x_offset, tvb, *offsetp, 2, byte_order);
@@ -13591,7 +13937,8 @@ static void shapeCombine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pr
     field8(tvb, offsetp, t, hf_x11_shape_Combine_operation, byte_order);
     field8(tvb, offsetp, t, hf_x11_shape_Combine_destination_kind, byte_order);
     field8(tvb, offsetp, t, hf_x11_shape_Combine_source_kind, byte_order);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_shape_Combine_destination_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_shape_Combine_x_offset, tvb, *offsetp, 2, byte_order);
@@ -13605,7 +13952,8 @@ static void shapeCombine(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pr
 static void shapeOffset(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field8(tvb, offsetp, t, hf_x11_shape_Offset_destination_kind, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_shape_Offset_destination_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_shape_Offset_x_offset, tvb, *offsetp, 2, byte_order);
@@ -13626,7 +13974,8 @@ static void shapeQueryExtents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryExtents");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (shape-QueryExtents)", sequence_number);
@@ -13637,7 +13986,8 @@ static void shapeQueryExtents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_shape_QueryExtents_reply_clip_shaped, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_shape_QueryExtents_reply_bounding_shape_extents_x, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_shape_QueryExtents_reply_bounding_shape_extents_y, tvb, *offsetp, 2, byte_order);
@@ -13662,7 +14012,8 @@ static void shapeSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_shape_SelectInput_enable, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void shapeInputSelected(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -13692,7 +14043,8 @@ static void shapeGetRectangles(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     proto_tree_add_item(t, hf_x11_shape_GetRectangles_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_shape_GetRectangles_source_kind, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void shapeGetRectangles_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -13712,7 +14064,8 @@ static void shapeGetRectangles_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     f_rectangles_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_shape_GetRectangles_reply_rectangles_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_xproto_RECTANGLE(tvb, offsetp, t, byte_order, f_rectangles_len);
 }
 static const value_string shape_extension_minor[] = {
@@ -13813,7 +14166,8 @@ static void shmQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_shm_QueryVersion_reply_pixmap_format, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(15);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 15, ENC_NA);
+    *offsetp += 15;
 }
 
 static void shmAttach(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -13824,7 +14178,8 @@ static void shmAttach(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_shm_Attach_read_only, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void shmDetach(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -13861,7 +14216,8 @@ static void shmPutImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_shm_PutImage_send_event, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_shm_PutImage_shmseg, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_shm_PutImage_offset, tvb, *offsetp, 4, byte_order);
@@ -13884,7 +14240,8 @@ static void shmGetImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_shm_GetImage_format, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_shm_GetImage_shmseg, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_shm_GetImage_offset, tvb, *offsetp, 4, byte_order);
@@ -13923,7 +14280,8 @@ static void shmCreatePixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_shm_CreatePixmap_depth, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_shm_CreatePixmap_shmseg, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_shm_CreatePixmap_offset, tvb, *offsetp, 4, byte_order);
@@ -13936,7 +14294,8 @@ static void shmAttachFd(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_shm_AttachFd_read_only, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void shmCreateSegment(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -13947,7 +14306,8 @@ static void shmCreateSegment(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_shm_CreateSegment_read_only, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void shmCreateSegment_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -13964,7 +14324,8 @@ static void shmCreateSegment_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
 }
 static const value_string shm_extension_minor[] = {
     { 0, "QueryVersion" },
@@ -14045,7 +14406,8 @@ static void syncInitialize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-Initialize");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (sync-Initialize)", sequence_number);
@@ -14056,7 +14418,8 @@ static void syncInitialize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_sync_Initialize_reply_minor_version, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
 }
 
 static void syncListSystemCounters(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp _U_, proto_tree *t _U_, guint byte_order _U_, int length _U_)
@@ -14070,7 +14433,8 @@ static void syncListSystemCounters_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-ListSystemCounters");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (sync-ListSystemCounters)", sequence_number);
@@ -14080,7 +14444,8 @@ static void syncListSystemCounters_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     f_counters_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_sync_ListSystemCounters_reply_counters_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_sync_SYSTEMCOUNTER(tvb, offsetp, t, byte_order, f_counters_len);
 }
 
@@ -14109,7 +14474,8 @@ static void syncQueryCounter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryCounter");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (sync-QueryCounter)", sequence_number);
@@ -14236,7 +14602,8 @@ static void syncQueryAlarm_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryAlarm");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (sync-QueryAlarm)", sequence_number);
@@ -14248,7 +14615,8 @@ static void syncQueryAlarm_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     proto_tree_add_item(t, hf_x11_sync_QueryAlarm_reply_events, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_sync_QueryAlarm_reply_state, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 
 static void syncSetPriority(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -14271,7 +14639,8 @@ static void syncGetPriority_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetPriority");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (sync-GetPriority)", sequence_number);
@@ -14322,7 +14691,8 @@ static void syncQueryFence_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryFence");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (sync-QueryFence)", sequence_number);
@@ -14331,7 +14701,8 @@ static void syncQueryFence_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_sync_QueryFence_reply_triggered, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 static void syncAwaitFence(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -14351,7 +14722,8 @@ static void syncAlarmNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint by
     proto_tree_add_item(t, hf_x11_sync_AlarmNotify_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_sync_AlarmNotify_state, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static const value_string sync_extension_minor[] = {
@@ -14485,7 +14857,8 @@ static void xc_miscGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xc_misc-GetVersion)", sequence_number);
@@ -14508,7 +14881,8 @@ static void xc_miscGetXIDRange_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetXIDRange");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xc_misc-GetXIDRange)", sequence_number);
@@ -14534,7 +14908,8 @@ static void xc_miscGetXIDList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetXIDList");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xc_misc-GetXIDList)", sequence_number);
@@ -14544,7 +14919,8 @@ static void xc_miscGetXIDList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     f_ids_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xc_misc_GetXIDList_reply_ids_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfCard32(tvb, offsetp, t, hf_x11_xc_misc_GetXIDList_reply_ids, hf_x11_xc_misc_GetXIDList_reply_ids_item, f_ids_len, byte_order);
 }
 static const value_string xc_misc_extension_minor[] = {
@@ -14606,7 +14982,8 @@ static void xevieQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xevie-QueryVersion)", sequence_number);
@@ -14617,7 +14994,8 @@ static void xevieQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xevie_QueryVersion_reply_server_minor_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static void xevieStart(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -14632,14 +15010,16 @@ static void xevieStart_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     col_append_fstr(pinfo->cinfo, COL_INFO, "-Start");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xevie-Start)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
 }
 
 static void xevieEnd(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -14654,14 +15034,16 @@ static void xevieEnd_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     col_append_fstr(pinfo->cinfo, COL_INFO, "-End");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xevie-End)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
 }
 
 static void struct_xevie_Event(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
@@ -14673,7 +15055,8 @@ static void struct_xevie_Event(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
 
         item = proto_tree_add_item(root, hf_x11_struct_xevie_Event, tvb, *offsetp, 32, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-        UNUSED(32);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 32, ENC_NA);
+        *offsetp += 32;
     }
 }
 
@@ -14682,7 +15065,8 @@ static void xevieSend(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     struct_xevie_Event(tvb, offsetp, t, byte_order, 1);
     proto_tree_add_item(t, hf_x11_xevie_Send_data_type, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(64);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 64, ENC_NA);
+    *offsetp += 64;
 }
 static void xevieSend_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -14691,14 +15075,16 @@ static void xevieSend_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     col_append_fstr(pinfo->cinfo, COL_INFO, "-Send");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xevie-Send)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
 }
 
 static void xevieSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -14713,14 +15099,16 @@ static void xevieSelectInput_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-SelectInput");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xevie-SelectInput)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
 }
 static const value_string xevie_extension_minor[] = {
     { 0, "QueryVersion" },
@@ -14807,7 +15195,8 @@ static void xf86driQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-QueryVersion)", sequence_number);
@@ -14834,7 +15223,8 @@ static void xf86driQueryDirectRenderingCapable_Reply(tvbuff_t *tvb, packet_info 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryDirectRenderingCapable");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-QueryDirectRenderingCapable)", sequence_number);
@@ -14858,7 +15248,8 @@ static void xf86driOpenConnection_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-OpenConnection");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-OpenConnection)", sequence_number);
@@ -14872,7 +15263,8 @@ static void xf86driOpenConnection_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     f_bus_id_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86dri_OpenConnection_reply_bus_id_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfByte(tvb, offsetp, t, hf_x11_xf86dri_OpenConnection_reply_bus_id, f_bus_id_len, byte_order);
 }
 
@@ -14895,7 +15287,8 @@ static void xf86driGetClientDriverName_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetClientDriverName");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-GetClientDriverName)", sequence_number);
@@ -14911,7 +15304,8 @@ static void xf86driGetClientDriverName_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     f_client_driver_name_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86dri_GetClientDriverName_reply_client_driver_name_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     listOfByte(tvb, offsetp, t, hf_x11_xf86dri_GetClientDriverName_reply_client_driver_name, f_client_driver_name_len, byte_order);
 }
 
@@ -14931,7 +15325,8 @@ static void xf86driCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-CreateContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-CreateContext)", sequence_number);
@@ -14964,7 +15359,8 @@ static void xf86driCreateDrawable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-CreateDrawable");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-CreateDrawable)", sequence_number);
@@ -14999,7 +15395,8 @@ static void xf86driGetDrawableInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetDrawableInfo");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-GetDrawableInfo)", sequence_number);
@@ -15045,7 +15442,8 @@ static void xf86driGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetDeviceInfo");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-GetDeviceInfo)", sequence_number);
@@ -15082,7 +15480,8 @@ static void xf86driAuthConnection_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-AuthConnection");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-AuthConnection)", sequence_number);
@@ -15208,7 +15607,8 @@ static void struct_xf86vidmode_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_vtotal, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
-        UNUSED(4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+        *offsetp += 4;
         {
             const int* flags_bits [] = {
                 &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Positive_HSync,
@@ -15228,7 +15628,8 @@ static void struct_xf86vidmode_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xf86vidmode_ModeInfo_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
         *offsetp += 4;
-        UNUSED(12);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+        *offsetp += 12;
         proto_tree_add_item(t, hf_x11_struct_xf86vidmode_ModeInfo_privsize, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
@@ -15244,7 +15645,8 @@ static void xf86vidmodeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-QueryVersion)", sequence_number);
@@ -15261,7 +15663,8 @@ static void xf86vidmodeGetModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetModeLine_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xf86vidmodeGetModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -15271,7 +15674,8 @@ static void xf86vidmodeGetModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetModeLine");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetModeLine)", sequence_number);
@@ -15298,7 +15702,8 @@ static void xf86vidmodeGetModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetModeLine_reply_vtotal, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* flags_bits [] = {
         &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Positive_HSync,
@@ -15318,7 +15723,8 @@ static void xf86vidmodeGetModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_GetModeLine_reply_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     f_privsize = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetModeLine_reply_privsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -15348,7 +15754,8 @@ static void xf86vidmodeModModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xf86vidmode_ModModeLine_vtotal, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* flags_bits [] = {
         &hf_x11_xf86vidmode_ModModeLine_flags_mask_Positive_HSync,
@@ -15368,7 +15775,8 @@ static void xf86vidmodeModModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_ModModeLine_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     f_privsize = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_ModModeLine_privsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -15388,7 +15796,8 @@ static void xf86vidmodeGetMonitor(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetMonitor_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xf86vidmodeGetMonitor_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -15401,7 +15810,8 @@ static void xf86vidmodeGetMonitor_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMonitor");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetMonitor)", sequence_number);
@@ -15420,7 +15830,8 @@ static void xf86vidmodeGetMonitor_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     f_num_vsync = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetMonitor_reply_num_vsync, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfCard32(tvb, offsetp, t, hf_x11_xf86vidmode_GetMonitor_reply_hsync, hf_x11_xf86vidmode_GetMonitor_reply_hsync_item, f_num_hsync, byte_order);
     listOfCard32(tvb, offsetp, t, hf_x11_xf86vidmode_GetMonitor_reply_vsync, hf_x11_xf86vidmode_GetMonitor_reply_vsync_item, f_num_vsync, byte_order);
     listOfByte(tvb, offsetp, t, hf_x11_xf86vidmode_GetMonitor_reply_vendor, f_vendor_length, byte_order);
@@ -15440,7 +15851,8 @@ static void xf86vidmodeGetAllModeLines(tvbuff_t *tvb, packet_info *pinfo _U_, in
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetAllModeLines_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xf86vidmodeGetAllModeLines_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -15450,7 +15862,8 @@ static void xf86vidmodeGetAllModeLines_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetAllModeLines");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetAllModeLines)", sequence_number);
@@ -15460,7 +15873,8 @@ static void xf86vidmodeGetAllModeLines_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     f_modecount = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetAllModeLines_reply_modecount, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_xf86vidmode_ModeInfo(tvb, offsetp, t, byte_order, f_modecount);
 }
 
@@ -15489,7 +15903,8 @@ static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xf86vidmode_AddModeLine_vtotal, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* flags_bits [] = {
         &hf_x11_xf86vidmode_AddModeLine_flags_mask_Positive_HSync,
@@ -15509,7 +15924,8 @@ static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_AddModeLine_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     f_privsize = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_AddModeLine_privsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -15533,7 +15949,8 @@ static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xf86vidmode_AddModeLine_after_vtotal, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* after_flags_bits [] = {
         &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Positive_HSync,
@@ -15553,7 +15970,8 @@ static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_AddModeLine_after_flags, ett_x11_rectangle, after_flags_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfByte(tvb, offsetp, t, hf_x11_xf86vidmode_AddModeLine_private, f_privsize, byte_order);
     length -= f_privsize * 1;
 }
@@ -15583,7 +16001,8 @@ static void xf86vidmodeDeleteModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xf86vidmode_DeleteModeLine_vtotal, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* flags_bits [] = {
         &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Positive_HSync,
@@ -15603,7 +16022,8 @@ static void xf86vidmodeDeleteModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_DeleteModeLine_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     f_privsize = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_DeleteModeLine_privsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -15636,7 +16056,8 @@ static void xf86vidmodeValidateModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, i
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xf86vidmode_ValidateModeLine_vtotal, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* flags_bits [] = {
         &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Positive_HSync,
@@ -15656,7 +16077,8 @@ static void xf86vidmodeValidateModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, i
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_ValidateModeLine_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     f_privsize = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_ValidateModeLine_privsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -15670,7 +16092,8 @@ static void xf86vidmodeValidateModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-ValidateModeLine");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-ValidateModeLine)", sequence_number);
@@ -15679,7 +16102,8 @@ static void xf86vidmodeValidateModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86vidmode_ValidateModeLine_reply_status, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static void xf86vidmodeSwitchToMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -15707,7 +16131,8 @@ static void xf86vidmodeSwitchToMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xf86vidmode_SwitchToMode_vtotal, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* flags_bits [] = {
         &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Positive_HSync,
@@ -15727,7 +16152,8 @@ static void xf86vidmodeSwitchToMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_SwitchToMode_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     f_privsize = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_SwitchToMode_privsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -15739,7 +16165,8 @@ static void xf86vidmodeGetViewPort(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetViewPort_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xf86vidmodeGetViewPort_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -15748,7 +16175,8 @@ static void xf86vidmodeGetViewPort_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetViewPort");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetViewPort)", sequence_number);
@@ -15759,14 +16187,16 @@ static void xf86vidmodeGetViewPort_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetViewPort_reply_y, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
 }
 
 static void xf86vidmodeSetViewPort(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetViewPort_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetViewPort_x, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetViewPort_y, tvb, *offsetp, 4, byte_order);
@@ -15777,7 +16207,8 @@ static void xf86vidmodeGetDotClocks(tvbuff_t *tvb, packet_info *pinfo _U_, int *
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetDotClocks_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xf86vidmodeGetDotClocks_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -15788,7 +16219,8 @@ static void xf86vidmodeGetDotClocks_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetDotClocks");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetDotClocks)", sequence_number);
@@ -15808,7 +16240,8 @@ static void xf86vidmodeGetDotClocks_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetDotClocks_reply_maxclocks, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfCard32(tvb, offsetp, t, hf_x11_xf86vidmode_GetDotClocks_reply_clock, hf_x11_xf86vidmode_GetDotClocks_reply_clock_item, ((1 - (f_flags & 1)) * f_clocks), byte_order);
 }
 
@@ -15824,21 +16257,24 @@ static void xf86vidmodeSetGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetGamma_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetGamma_red, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetGamma_green, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetGamma_blue, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
 }
 
 static void xf86vidmodeGetGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetGamma_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(26);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 26, ENC_NA);
+    *offsetp += 26;
 }
 static void xf86vidmodeGetGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -15847,7 +16283,8 @@ static void xf86vidmodeGetGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetGamma");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetGamma)", sequence_number);
@@ -15860,7 +16297,8 @@ static void xf86vidmodeGetGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetGamma_reply_blue, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
 }
 
 static void xf86vidmodeGetGammaRamp(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -15878,7 +16316,8 @@ static void xf86vidmodeGetGammaRamp_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetGammaRamp");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetGammaRamp)", sequence_number);
@@ -15888,7 +16327,8 @@ static void xf86vidmodeGetGammaRamp_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     f_size = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetGammaRamp_reply_size, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     listOfCard16(tvb, offsetp, t, hf_x11_xf86vidmode_GetGammaRamp_reply_red, hf_x11_xf86vidmode_GetGammaRamp_reply_red_item, ((f_size + 1) & (~1)), byte_order);
     listOfCard16(tvb, offsetp, t, hf_x11_xf86vidmode_GetGammaRamp_reply_green, hf_x11_xf86vidmode_GetGammaRamp_reply_green_item, ((f_size + 1) & (~1)), byte_order);
     listOfCard16(tvb, offsetp, t, hf_x11_xf86vidmode_GetGammaRamp_reply_blue, hf_x11_xf86vidmode_GetGammaRamp_reply_blue_item, ((f_size + 1) & (~1)), byte_order);
@@ -15914,7 +16354,8 @@ static void xf86vidmodeGetGammaRampSize(tvbuff_t *tvb, packet_info *pinfo _U_, i
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetGammaRampSize_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xf86vidmodeGetGammaRampSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -15923,7 +16364,8 @@ static void xf86vidmodeGetGammaRampSize_Reply(tvbuff_t *tvb, packet_info *pinfo,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetGammaRampSize");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetGammaRampSize)", sequence_number);
@@ -15932,14 +16374,16 @@ static void xf86vidmodeGetGammaRampSize_Reply(tvbuff_t *tvb, packet_info *pinfo,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetGammaRampSize_reply_size, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
 }
 
 static void xf86vidmodeGetPermissions(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetPermissions_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xf86vidmodeGetPermissions_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -15948,7 +16392,8 @@ static void xf86vidmodeGetPermissions_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetPermissions");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetPermissions)", sequence_number);
@@ -15963,7 +16408,8 @@ static void xf86vidmodeGetPermissions_Reply(tvbuff_t *tvb, packet_info *pinfo, i
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_GetPermissions_reply_permissions, ett_x11_rectangle, permissions_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 static const value_string xf86vidmode_extension_minor[] = {
     { 0, "QueryVersion" },
@@ -16104,7 +16550,8 @@ static void xfixesQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xfixes-QueryVersion)", sequence_number);
@@ -16115,7 +16562,8 @@ static void xfixesQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xfixes_QueryVersion_reply_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
 }
 
 static void xfixesChangeSaveSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -16123,7 +16571,8 @@ static void xfixesChangeSaveSet(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     field8(tvb, offsetp, t, hf_x11_xfixes_ChangeSaveSet_mode, byte_order);
     field8(tvb, offsetp, t, hf_x11_xfixes_ChangeSaveSet_target, byte_order);
     field8(tvb, offsetp, t, hf_x11_xfixes_ChangeSaveSet_map, byte_order);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xfixes_ChangeSaveSet_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
@@ -16156,7 +16605,8 @@ static void xfixesCursorNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     proto_tree_add_item(t, hf_x11_xfixes_CursorNotify_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field32(tvb, offsetp, t, hf_x11_xfixes_CursorNotify_name, byte_order);
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
 }
 
 
@@ -16185,7 +16635,8 @@ static void xfixesGetCursorImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetCursorImage");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xfixes-GetCursorImage)", sequence_number);
@@ -16208,7 +16659,8 @@ static void xfixesGetCursorImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorImage_reply_cursor_serial, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     listOfCard32(tvb, offsetp, t, hf_x11_xfixes_GetCursorImage_reply_cursor_image, hf_x11_xfixes_GetCursorImage_reply_cursor_image_item, (f_width * f_height), byte_order);
 }
 
@@ -16234,7 +16686,8 @@ static void xfixesCreateRegionFromWindow(tvbuff_t *tvb, packet_info *pinfo _U_, 
     proto_tree_add_item(t, hf_x11_xfixes_CreateRegionFromWindow_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xfixes_CreateRegionFromWindow_kind, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void xfixesCreateRegionFromGC(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -16344,7 +16797,8 @@ static void xfixesFetchRegion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-FetchRegion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xfixes-FetchRegion)", sequence_number);
@@ -16353,7 +16807,8 @@ static void xfixesFetchRegion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_xproto_RECTANGLE(tvb, offsetp, t, byte_order, 1);
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
     struct_xproto_RECTANGLE(tvb, offsetp, t, byte_order, (f_length / 2));
 }
 
@@ -16373,7 +16828,8 @@ static void xfixesSetWindowShapeRegion(tvbuff_t *tvb, packet_info *pinfo _U_, in
     proto_tree_add_item(t, hf_x11_xfixes_SetWindowShapeRegion_dest, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xfixes_SetWindowShapeRegion_dest_kind, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_xfixes_SetWindowShapeRegion_x_offset, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xfixes_SetWindowShapeRegion_y_offset, tvb, *offsetp, 2, byte_order);
@@ -16400,7 +16856,8 @@ static void xfixesSetCursorName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     f_nbytes = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xfixes_SetCursorName_nbytes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_xfixes_SetCursorName_name, f_nbytes, byte_order);
     length -= f_nbytes * 1;
 }
@@ -16418,7 +16875,8 @@ static void xfixesGetCursorName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetCursorName");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xfixes-GetCursorName)", sequence_number);
@@ -16429,7 +16887,8 @@ static void xfixesGetCursorName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     f_nbytes = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorName_reply_nbytes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(18);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 18, ENC_NA);
+    *offsetp += 18;
     listOfByte(tvb, offsetp, t, hf_x11_xfixes_GetCursorName_reply_name, f_nbytes, byte_order);
 }
 
@@ -16446,7 +16905,8 @@ static void xfixesGetCursorImageAndName_Reply(tvbuff_t *tvb, packet_info *pinfo,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetCursorImageAndName");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xfixes-GetCursorImageAndName)", sequence_number);
@@ -16473,7 +16933,8 @@ static void xfixesGetCursorImageAndName_Reply(tvbuff_t *tvb, packet_info *pinfo,
     f_nbytes = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorImageAndName_reply_nbytes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfCard32(tvb, offsetp, t, hf_x11_xfixes_GetCursorImageAndName_reply_cursor_image, hf_x11_xfixes_GetCursorImageAndName_reply_cursor_image_item, (f_width * f_height), byte_order);
     listOfByte(tvb, offsetp, t, hf_x11_xfixes_GetCursorImageAndName_reply_name, f_nbytes, byte_order);
 }
@@ -16494,7 +16955,8 @@ static void xfixesChangeCursorByName(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     f_nbytes = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xfixes_ChangeCursorByName_nbytes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_xfixes_ChangeCursorByName_name, f_nbytes, byte_order);
     length -= f_nbytes * 1;
 }
@@ -16552,7 +17014,8 @@ static void xfixesCreatePointerBarrier(tvbuff_t *tvb, packet_info *pinfo _U_, in
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xfixes_CreatePointerBarrier_directions, ett_x11_rectangle, directions_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     f_num_devices = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xfixes_CreatePointerBarrier_num_devices, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -16767,7 +17230,8 @@ static void xineramaQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinerama-QueryVersion)", sequence_number);
@@ -16842,7 +17306,8 @@ static void xineramaGetScreenSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetScreenSize");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinerama-GetScreenSize)", sequence_number);
@@ -16869,7 +17334,8 @@ static void xineramaIsActive_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-IsActive");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinerama-IsActive)", sequence_number);
@@ -16891,7 +17357,8 @@ static void xineramaQueryScreens_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryScreens");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinerama-QueryScreens)", sequence_number);
@@ -16901,7 +17368,8 @@ static void xineramaQueryScreens_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     f_number = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinerama_QueryScreens_reply_number, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_xinerama_ScreenInfo(tvb, offsetp, t, byte_order, f_number);
 }
 static const value_string xinerama_extension_minor[] = {
@@ -16986,7 +17454,8 @@ static void xinputGetExtensionVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int
     f_name_len = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_GetExtensionVersion_name_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_xinput_GetExtensionVersion_name, f_name_len, byte_order);
     length -= f_name_len * 1;
 }
@@ -17011,7 +17480,8 @@ static void xinputGetExtensionVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xinput_GetExtensionVersion_reply_present, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(19);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 19, ENC_NA);
+    *offsetp += 19;
 }
 
 static void struct_xinput_DeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
@@ -17030,7 +17500,8 @@ static void struct_xinput_DeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         proto_tree_add_item(t, hf_x11_struct_xinput_DeviceInfo_num_class_info, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         field8(tvb, offsetp, t, hf_x11_struct_xinput_DeviceInfo_device_use, byte_order);
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
     }
 }
 
@@ -17078,7 +17549,8 @@ static void struct_xinput_InputInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
             *offsetp += 1;
             proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Key_num_keys, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
         }
         if (f_class_id == 1) {
             proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Button_num_buttons, tvb, *offsetp, 2, byte_order);
@@ -17120,12 +17592,14 @@ static void xinputListInputDevices_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     f_devices_len = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_ListInputDevices_reply_devices_len, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
     struct_xinput_DeviceInfo(tvb, offsetp, t, byte_order, f_devices_len);
     struct_xinput_InputInfo(tvb, offsetp, t, byte_order, sumof_devices);
     struct_xproto_STR(tvb, offsetp, t, byte_order, f_devices_len);
     if (*offsetp % 4) {
-        UNUSED(4 - *offsetp % 4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+        *offsetp += (4 - *offsetp % 4);
     }
 }
 
@@ -17148,7 +17622,8 @@ static void xinputOpenDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
 {
     proto_tree_add_item(t, hf_x11_xinput_OpenDevice_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void xinputOpenDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -17169,10 +17644,12 @@ static void xinputOpenDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     f_num_classes = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_OpenDevice_reply_num_classes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
     struct_xinput_InputClassInfo(tvb, offsetp, t, byte_order, f_num_classes);
     if (*offsetp % 4) {
-        UNUSED(4 - *offsetp % 4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+        *offsetp += (4 - *offsetp % 4);
     }
 }
 
@@ -17180,7 +17657,8 @@ static void xinputCloseDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
 {
     proto_tree_add_item(t, hf_x11_xinput_CloseDevice_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void xinputSetDeviceMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -17188,7 +17666,8 @@ static void xinputSetDeviceMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceMode_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_xinput_SetDeviceMode_mode, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xinputSetDeviceMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -17206,7 +17685,8 @@ static void xinputSetDeviceMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_SetDeviceMode_reply_status, byte_order);
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 static void xinputSelectExtensionEvent(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -17217,7 +17697,8 @@ static void xinputSelectExtensionEvent(tvbuff_t *tvb, packet_info *pinfo _U_, in
     f_num_classes = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_SelectExtensionEvent_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_SelectExtensionEvent_classes, hf_x11_xinput_SelectExtensionEvent_classes_item, f_num_classes, byte_order);
     length -= f_num_classes * 4;
 }
@@ -17250,7 +17731,8 @@ static void xinputGetSelectedExtensionEvents_Reply(tvbuff_t *tvb, packet_info *p
     f_num_all_classes = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_GetSelectedExtensionEvents_reply_num_all_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_GetSelectedExtensionEvents_reply_this_classes, hf_x11_xinput_GetSelectedExtensionEvents_reply_this_classes_item, f_num_this_classes, byte_order);
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_GetSelectedExtensionEvents_reply_all_classes, hf_x11_xinput_GetSelectedExtensionEvents_reply_all_classes_item, f_num_all_classes, byte_order);
 }
@@ -17264,7 +17746,8 @@ static void xinputChangeDeviceDontPropagateList(tvbuff_t *tvb, packet_info *pinf
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceDontPropagateList_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field8(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceDontPropagateList_mode, byte_order);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceDontPropagateList_classes, hf_x11_xinput_ChangeDeviceDontPropagateList_classes_item, f_num_classes, byte_order);
     length -= f_num_classes * 4;
 }
@@ -17293,7 +17776,8 @@ static void xinputGetDeviceDontPropagateList_Reply(tvbuff_t *tvb, packet_info *p
     f_num_classes = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceDontPropagateList_reply_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_GetDeviceDontPropagateList_reply_classes, hf_x11_xinput_GetDeviceDontPropagateList_reply_classes_item, f_num_classes, byte_order);
 }
 
@@ -17326,7 +17810,8 @@ static void xinputGetDeviceMotionEvents(tvbuff_t *tvb, packet_info *pinfo _U_, i
     field32(tvb, offsetp, t, hf_x11_xinput_GetDeviceMotionEvents_stop, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceMotionEvents_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void xinputGetDeviceMotionEvents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -17352,7 +17837,8 @@ static void xinputGetDeviceMotionEvents_Reply(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceMotionEvents_reply_num_axes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_xinput_GetDeviceMotionEvents_reply_device_mode, byte_order);
-    UNUSED(18);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 18, ENC_NA);
+    *offsetp += 18;
     struct_xinput_DeviceTimeCoord(tvb, offsetp, t, byte_order, f_num_events, f_num_axes);
 }
 
@@ -17360,7 +17846,8 @@ static void xinputChangeKeyboardDevice(tvbuff_t *tvb, packet_info *pinfo _U_, in
 {
     proto_tree_add_item(t, hf_x11_xinput_ChangeKeyboardDevice_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void xinputChangeKeyboardDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -17378,7 +17865,8 @@ static void xinputChangeKeyboardDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_ChangeKeyboardDevice_reply_status, byte_order);
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 static void xinputChangePointerDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -17389,7 +17877,8 @@ static void xinputChangePointerDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_ChangePointerDevice_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
 }
 static void xinputChangePointerDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -17407,7 +17896,8 @@ static void xinputChangePointerDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_ChangePointerDevice_reply_status, byte_order);
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 static void xinputGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -17425,7 +17915,8 @@ static void xinputGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_GrabDevice_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_GrabDevice_classes, hf_x11_xinput_GrabDevice_classes_item, f_num_classes, byte_order);
     length -= f_num_classes * 4;
 }
@@ -17445,7 +17936,8 @@ static void xinputGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_GrabDevice_reply_status, byte_order);
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 static void xinputUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -17453,7 +17945,8 @@ static void xinputUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     field32(tvb, offsetp, t, hf_x11_xinput_UngrabDevice_time, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_UngrabDevice_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void xinputGrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -17487,7 +17980,8 @@ static void xinputGrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     field8(tvb, offsetp, t, hf_x11_xinput_GrabDeviceKey_other_device_mode, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GrabDeviceKey_owner_events, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_GrabDeviceKey_classes, hf_x11_xinput_GrabDeviceKey_classes_item, f_num_classes, byte_order);
     length -= f_num_classes * 4;
 }
@@ -17548,7 +18042,8 @@ static void xinputGrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     field8(tvb, offsetp, t, hf_x11_xinput_GrabDeviceButton_button, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GrabDeviceButton_owner_events, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_GrabDeviceButton_classes, hf_x11_xinput_GrabDeviceButton_classes_item, f_num_classes, byte_order);
     length -= f_num_classes * 4;
 }
@@ -17576,7 +18071,8 @@ static void xinputUngrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     field8(tvb, offsetp, t, hf_x11_xinput_UngrabDeviceButton_button, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_UngrabDeviceButton_grabbed_device, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void xinputAllowDeviceEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -17585,14 +18081,16 @@ static void xinputAllowDeviceEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     field8(tvb, offsetp, t, hf_x11_xinput_AllowDeviceEvents_mode, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_AllowDeviceEvents_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 
 static void xinputGetDeviceFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceFocus_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void xinputGetDeviceFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -17613,7 +18111,8 @@ static void xinputGetDeviceFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceFocus_reply_time, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_GetDeviceFocus_reply_revert_to, byte_order);
-    UNUSED(15);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 15, ENC_NA);
+    *offsetp += 15;
 }
 
 static void xinputSetDeviceFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -17623,7 +18122,8 @@ static void xinputSetDeviceFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     field8(tvb, offsetp, t, hf_x11_xinput_SetDeviceFocus_revert_to, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceFocus_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 
 static int struct_size_xinput_FeedbackState(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
@@ -17662,11 +18162,13 @@ static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree 
             *offsetp += 1;
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_percent, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackState_Keyboard_auto_repeats, 32, byte_order);
         }
         if (f_class_id == 1) {
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Pointer_accel_num, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Pointer_accel_denom, tvb, *offsetp, 2, byte_order);
@@ -17700,7 +18202,8 @@ static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree 
         if (f_class_id == 5) {
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Bell_percent, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
-            UNUSED(3);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+            *offsetp += 3;
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Bell_pitch, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Bell_duration, tvb, *offsetp, 2, byte_order);
@@ -17713,7 +18216,8 @@ static void xinputGetFeedbackControl(tvbuff_t *tvb, packet_info *pinfo _U_, int 
 {
     proto_tree_add_item(t, hf_x11_xinput_GetFeedbackControl_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void xinputGetFeedbackControl_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -17734,7 +18238,8 @@ static void xinputGetFeedbackControl_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     f_num_feedbacks = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_GetFeedbackControl_reply_num_feedbacks, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     struct_xinput_FeedbackState(tvb, offsetp, t, byte_order, f_num_feedbacks);
 }
 
@@ -17778,7 +18283,8 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
             *offsetp += 4;
         }
         if (f_class_id == 1) {
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Pointer_num, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Pointer_denom, tvb, *offsetp, 2, byte_order);
@@ -17788,7 +18294,8 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
         }
         if (f_class_id == 2) {
             int f_num_keysyms;
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             f_num_keysyms = VALUE16(tvb, *offsetp);
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_String_num_keysyms, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
@@ -17807,7 +18314,8 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
         if (f_class_id == 5) {
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Bell_percent, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
-            UNUSED(3);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+            *offsetp += 3;
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Bell_pitch, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Bell_duration, tvb, *offsetp, 2, byte_order);
@@ -17836,7 +18344,8 @@ static void xinputChangeFeedbackControl(tvbuff_t *tvb, packet_info *pinfo _U_, i
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_ChangeFeedbackControl_feedback_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     struct_xinput_FeedbackCtl(tvb, offsetp, t, byte_order, 1);
 }
 
@@ -17848,7 +18357,8 @@ static void xinputGetDeviceKeyMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceKeyMapping_count, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
 }
 static void xinputGetDeviceKeyMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -17869,7 +18379,8 @@ static void xinputGetDeviceKeyMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceKeyMapping_reply_keysyms_per_keycode, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_GetDeviceKeyMapping_reply_keysyms, hf_x11_xinput_GetDeviceKeyMapping_reply_keysyms_item, f_length, byte_order);
 }
 
@@ -17895,7 +18406,8 @@ static void xinputGetDeviceModifierMapping(tvbuff_t *tvb, packet_info *pinfo _U_
 {
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceModifierMapping_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void xinputGetDeviceModifierMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -17916,7 +18428,8 @@ static void xinputGetDeviceModifierMapping_Reply(tvbuff_t *tvb, packet_info *pin
     f_keycodes_per_modifier = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceModifierMapping_reply_keycodes_per_modifier, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
     listOfByte(tvb, offsetp, t, hf_x11_xinput_GetDeviceModifierMapping_reply_keymaps, (f_keycodes_per_modifier * 8), byte_order);
 }
 
@@ -17928,7 +18441,8 @@ static void xinputSetDeviceModifierMapping(tvbuff_t *tvb, packet_info *pinfo _U_
     f_keycodes_per_modifier = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceModifierMapping_keycodes_per_modifier, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_xinput_SetDeviceModifierMapping_keymaps, (f_keycodes_per_modifier * 8), byte_order);
     length -= (f_keycodes_per_modifier * 8) * 1;
 }
@@ -17948,14 +18462,16 @@ static void xinputSetDeviceModifierMapping_Reply(tvbuff_t *tvb, packet_info *pin
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_SetDeviceModifierMapping_reply_status, byte_order);
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 static void xinputGetDeviceButtonMapping(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceButtonMapping_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void xinputGetDeviceButtonMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -17976,10 +18492,12 @@ static void xinputGetDeviceButtonMapping_Reply(tvbuff_t *tvb, packet_info *pinfo
     f_map_size = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceButtonMapping_reply_map_size, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
     listOfByte(tvb, offsetp, t, hf_x11_xinput_GetDeviceButtonMapping_reply_map, f_map_size, byte_order);
     if (*offsetp % 4) {
-        UNUSED(4 - *offsetp % 4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+        *offsetp += (4 - *offsetp % 4);
     }
 }
 
@@ -17991,7 +18509,8 @@ static void xinputSetDeviceButtonMapping(tvbuff_t *tvb, packet_info *pinfo _U_, 
     f_map_size = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceButtonMapping_map_size, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_xinput_SetDeviceButtonMapping_map, f_map_size, byte_order);
     length -= f_map_size * 1;
 }
@@ -18011,7 +18530,8 @@ static void xinputSetDeviceButtonMapping_Reply(tvbuff_t *tvb, packet_info *pinfo
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_SetDeviceButtonMapping_reply_status, byte_order);
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 static int struct_size_xinput_InputState(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
@@ -18036,13 +18556,15 @@ static void struct_xinput_InputState(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         if (f_class_id == 0) {
             proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Key_num_keys, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_InputState_Key_keys, 32, byte_order);
         }
         if (f_class_id == 1) {
             proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Button_num_buttons, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_InputState_Button_buttons, 32, byte_order);
         }
         if (f_class_id == 2) {
@@ -18067,7 +18589,8 @@ static void xinputQueryDeviceState(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
 {
     proto_tree_add_item(t, hf_x11_xinput_QueryDeviceState_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void xinputQueryDeviceState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -18088,7 +18611,8 @@ static void xinputQueryDeviceState_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     f_num_classes = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_QueryDeviceState_reply_num_classes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
     struct_xinput_InputState(tvb, offsetp, t, byte_order, f_num_classes);
 }
 
@@ -18114,7 +18638,8 @@ static void xinputSetDeviceValuators(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     f_num_valuators = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceValuators_num_valuators, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     listOfInt32(tvb, offsetp, t, hf_x11_xinput_SetDeviceValuators_valuators, hf_x11_xinput_SetDeviceValuators_valuators_item, f_num_valuators, byte_order);
     length -= f_num_valuators * 4;
 }
@@ -18134,7 +18659,8 @@ static void xinputSetDeviceValuators_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_SetDeviceValuators_reply_status, byte_order);
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 static int struct_size_xinput_DeviceState(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
@@ -18188,12 +18714,14 @@ static void struct_xinput_DeviceState(tvbuff_t *tvb, int *offsetp, proto_tree *r
             *offsetp += 1;
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_core_iscore, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
         }
         if (f_control_id == 4) {
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_enable_enable, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
-            UNUSED(3);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+            *offsetp += 3;
         }
         if (f_control_id == 5) {
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_offset_x, tvb, *offsetp, 4, byte_order);
@@ -18217,7 +18745,8 @@ static void xinputGetDeviceControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     field16(tvb, offsetp, t, hf_x11_xinput_GetDeviceControl_control_id, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceControl_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
 }
 static void xinputGetDeviceControl_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -18235,7 +18764,8 @@ static void xinputGetDeviceControl_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_GetDeviceControl_reply_status, byte_order);
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
     struct_xinput_DeviceState(tvb, offsetp, t, byte_order, 1);
 }
 
@@ -18265,7 +18795,8 @@ static void struct_xinput_DeviceCtl(tvbuff_t *tvb, int *offsetp, proto_tree *roo
             f_num_valuators = VALUE8(tvb, *offsetp);
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_resolution_num_valuators, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceCtl_resolution_resolution_values, hf_x11_struct_xinput_DeviceCtl_resolution_resolution_values_item, f_num_valuators, byte_order);
         }
         if (f_control_id == 2) {
@@ -18289,12 +18820,14 @@ static void struct_xinput_DeviceCtl(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         if (f_control_id == 3) {
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_core_status, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
-            UNUSED(3);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+            *offsetp += 3;
         }
         if (f_control_id == 4) {
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_enable_enable, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
-            UNUSED(3);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+            *offsetp += 3;
         }
         if (f_control_id == 5) {
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_offset_x, tvb, *offsetp, 4, byte_order);
@@ -18318,7 +18851,8 @@ static void xinputChangeDeviceControl(tvbuff_t *tvb, packet_info *pinfo _U_, int
     field16(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceControl_control_id, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceControl_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     struct_xinput_DeviceCtl(tvb, offsetp, t, byte_order, 1);
 }
 static void xinputChangeDeviceControl_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
@@ -18337,14 +18871,16 @@ static void xinputChangeDeviceControl_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceControl_reply_status, byte_order);
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 static void xinputListDeviceProperties(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xinput_ListDeviceProperties_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void xinputListDeviceProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -18365,7 +18901,8 @@ static void xinputListDeviceProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     f_num_atoms = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_ListDeviceProperties_reply_num_atoms, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_ListDeviceProperties_reply_atoms, hf_x11_xinput_ListDeviceProperties_reply_atoms_item, f_num_atoms, byte_order);
 }
 
@@ -18381,7 +18918,8 @@ static void xinputChangeDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, in
     *offsetp += 1;
     f_format = field8(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceProperty_format, byte_order);
     field8(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceProperty_mode, byte_order);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     f_num_items = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceProperty_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -18389,7 +18927,8 @@ static void xinputChangeDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, in
         listOfByte(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceProperty_8Bits_data8, f_num_items, byte_order);
         length -= f_num_items * 1;
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         length = ((length + 3) & ~3);
     }
@@ -18397,7 +18936,8 @@ static void xinputChangeDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, in
         listOfCard16(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceProperty_16Bits_data16, hf_x11_xinput_ChangeDeviceProperty_16Bits_data16_item, f_num_items, byte_order);
         length -= f_num_items * 2;
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         length = ((length + 3) & ~3);
     }
@@ -18413,7 +18953,8 @@ static void xinputDeleteDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, in
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_DeleteDeviceProperty_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void xinputGetDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -18430,7 +18971,8 @@ static void xinputGetDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceProperty_delete, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xinputGetDeviceProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -18459,17 +19001,20 @@ static void xinputGetDeviceProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     f_format = field8(tvb, offsetp, t, hf_x11_xinput_GetDeviceProperty_reply_format, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceProperty_reply_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(10);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 10, ENC_NA);
+    *offsetp += 10;
     if (f_format == 8) {
         listOfByte(tvb, offsetp, t, hf_x11_xinput_GetDeviceProperty_reply_8Bits_data8, f_num_items, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
     }
     if (f_format == 16) {
         listOfCard16(tvb, offsetp, t, hf_x11_xinput_GetDeviceProperty_reply_16Bits_data16, hf_x11_xinput_GetDeviceProperty_reply_16Bits_data16_item, f_num_items, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
     }
     if (f_format == 32) {
@@ -18522,7 +19067,8 @@ static void xinputXIQueryPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     proto_tree_add_item(t, hf_x11_xinput_XIQueryPointer_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field16(tvb, offsetp, t, hf_x11_xinput_XIQueryPointer_deviceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xinputXIQueryPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -18532,7 +19078,8 @@ static void xinputXIQueryPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-XIQueryPointer");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIQueryPointer)", sequence_number);
@@ -18553,7 +19100,8 @@ static void xinputXIQueryPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_XIQueryPointer_reply_same_screen, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     f_buttons_len = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_XIQueryPointer_reply_buttons_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -18581,7 +19129,8 @@ static void xinputXIWarpPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     proto_tree_add_item(t, hf_x11_xinput_XIWarpPointer_dst_y, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field16(tvb, offsetp, t, hf_x11_xinput_XIWarpPointer_deviceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 
 static void xinputXIChangeCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -18591,7 +19140,8 @@ static void xinputXIChangeCursor(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     proto_tree_add_item(t, hf_x11_xinput_XIChangeCursor_cursor, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field16(tvb, offsetp, t, hf_x11_xinput_XIChangeCursor_deviceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 
 static int struct_size_xinput_HierarchyChange(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
@@ -18624,13 +19174,15 @@ static void struct_xinput_HierarchyChange(tvbuff_t *tvb, int *offsetp, proto_tre
             *offsetp += 1;
             listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_AddMaster_name, f_name_len, byte_order);
             if (*offsetp % 4) {
-                UNUSED(4 - *offsetp % 4);
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+                *offsetp += (4 - *offsetp % 4);
             }
         }
         if (f_type == 2) {
             field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_deviceid, byte_order);
             field8(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_return_mode, byte_order);
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_return_pointer, byte_order);
             field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_return_keyboard, byte_order);
         }
@@ -18640,7 +19192,8 @@ static void struct_xinput_HierarchyChange(tvbuff_t *tvb, int *offsetp, proto_tre
         }
         if (f_type == 4) {
             field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_DetachSlave_deviceid, byte_order);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
         }
     }
 }
@@ -18651,7 +19204,8 @@ static void xinputXIChangeHierarchy(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     f_num_changes = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_XIChangeHierarchy_num_changes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     struct_xinput_HierarchyChange(tvb, offsetp, t, byte_order, f_num_changes);
     length -= f_num_changes * 0;
 }
@@ -18661,7 +19215,8 @@ static void xinputXISetClientPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     proto_tree_add_item(t, hf_x11_xinput_XISetClientPointer_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field16(tvb, offsetp, t, hf_x11_xinput_XISetClientPointer_deviceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 
 static void xinputXIGetClientPointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -18676,7 +19231,8 @@ static void xinputXIGetClientPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     col_append_fstr(pinfo->cinfo, COL_INFO, "-XIGetClientPointer");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIGetClientPointer)", sequence_number);
@@ -18685,9 +19241,11 @@ static void xinputXIGetClientPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_XIGetClientPointer_reply_set, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     field16(tvb, offsetp, t, hf_x11_xinput_XIGetClientPointer_reply_deviceid, byte_order);
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static int struct_size_xinput_EventMask(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
@@ -18725,7 +19283,8 @@ static void xinputXISelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     f_num_mask = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_XISelectEvents_num_mask, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     struct_xinput_EventMask(tvb, offsetp, t, byte_order, f_num_mask);
     length -= f_num_mask * 0;
 }
@@ -18744,7 +19303,8 @@ static void xinputXIQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-XIQueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIQueryVersion)", sequence_number);
@@ -18755,7 +19315,8 @@ static void xinputXIQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xinput_XIQueryVersion_reply_minor_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static int struct_size_xinput_DeviceClass(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_)
@@ -18805,13 +19366,15 @@ static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *r
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Valuator_resolution, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
             field8(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Valuator_mode, byte_order);
-            UNUSED(3);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+            *offsetp += 3;
         }
         if (f_type == 3) {
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Scroll_number, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
             field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Scroll_scroll_type, byte_order);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             {
                 const int* flags_bits [] = {
                         &hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_NoEmulation,
@@ -18869,10 +19432,12 @@ static void struct_xinput_XIDeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_xinput_XIDeviceInfo_enabled, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_name, f_name_len, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         struct_xinput_DeviceClass(tvb, offsetp, t, byte_order, f_num_classes);
     }
@@ -18881,7 +19446,8 @@ static void struct_xinput_XIDeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *
 static void xinputXIQueryDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field16(tvb, offsetp, t, hf_x11_xinput_XIQueryDevice_deviceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xinputXIQueryDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -18891,7 +19457,8 @@ static void xinputXIQueryDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     col_append_fstr(pinfo->cinfo, COL_INFO, "-XIQueryDevice");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIQueryDevice)", sequence_number);
@@ -18901,7 +19468,8 @@ static void xinputXIQueryDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     f_num_infos = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_XIQueryDevice_reply_num_infos, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     struct_xinput_XIDeviceInfo(tvb, offsetp, t, byte_order, f_num_infos);
 }
 
@@ -18911,13 +19479,15 @@ static void xinputXISetFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 4;
     field32(tvb, offsetp, t, hf_x11_xinput_XISetFocus_time, byte_order);
     field16(tvb, offsetp, t, hf_x11_xinput_XISetFocus_deviceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 
 static void xinputXIGetFocus(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field16(tvb, offsetp, t, hf_x11_xinput_XIGetFocus_deviceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xinputXIGetFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -18926,7 +19496,8 @@ static void xinputXIGetFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-XIGetFocus");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIGetFocus)", sequence_number);
@@ -18935,7 +19506,8 @@ static void xinputXIGetFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_XIGetFocus_reply_focus, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static void xinputXIGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -18950,7 +19522,8 @@ static void xinputXIGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     field8(tvb, offsetp, t, hf_x11_xinput_XIGrabDevice_mode, byte_order);
     field8(tvb, offsetp, t, hf_x11_xinput_XIGrabDevice_paired_device_mode, byte_order);
     field8(tvb, offsetp, t, hf_x11_xinput_XIGrabDevice_owner_events, byte_order);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     f_mask_len = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_XIGrabDevice_mask_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
@@ -18964,7 +19537,8 @@ static void xinputXIGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     col_append_fstr(pinfo->cinfo, COL_INFO, "-XIGrabDevice");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIGrabDevice)", sequence_number);
@@ -18972,14 +19546,16 @@ static void xinputXIGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_XIGrabDevice_reply_status, byte_order);
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 static void xinputXIUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field32(tvb, offsetp, t, hf_x11_xinput_XIUngrabDevice_time, byte_order);
     field16(tvb, offsetp, t, hf_x11_xinput_XIUngrabDevice_deviceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 
 static void xinputXIAllowEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -18987,7 +19563,8 @@ static void xinputXIAllowEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     field32(tvb, offsetp, t, hf_x11_xinput_XIAllowEvents_time, byte_order);
     field16(tvb, offsetp, t, hf_x11_xinput_XIAllowEvents_deviceid, byte_order);
     field8(tvb, offsetp, t, hf_x11_xinput_XIAllowEvents_event_mode, byte_order);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_XIAllowEvents_touchid, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_XIAllowEvents_grab_window, tvb, *offsetp, 4, byte_order);
@@ -19005,7 +19582,8 @@ static void struct_xinput_GrabModifierInfo(tvbuff_t *tvb, int *offsetp, proto_tr
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field32(tvb, offsetp, t, hf_x11_struct_xinput_GrabModifierInfo_modifiers, byte_order);
         field8(tvb, offsetp, t, hf_x11_struct_xinput_GrabModifierInfo_status, byte_order);
-        UNUSED(3);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+        *offsetp += 3;
     }
 }
 
@@ -19031,7 +19609,8 @@ static void xinputXIPassiveGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int
     field8(tvb, offsetp, t, hf_x11_xinput_XIPassiveGrabDevice_grab_mode, byte_order);
     field8(tvb, offsetp, t, hf_x11_xinput_XIPassiveGrabDevice_paired_device_mode, byte_order);
     field8(tvb, offsetp, t, hf_x11_xinput_XIPassiveGrabDevice_owner_events, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIPassiveGrabDevice_mask, hf_x11_xinput_XIPassiveGrabDevice_mask_item, f_mask_len, byte_order);
     length -= f_mask_len * 4;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIPassiveGrabDevice_modifiers, hf_x11_xinput_XIPassiveGrabDevice_modifiers_item, f_num_modifiers, byte_order);
@@ -19045,7 +19624,8 @@ static void xinputXIPassiveGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     col_append_fstr(pinfo->cinfo, COL_INFO, "-XIPassiveGrabDevice");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIPassiveGrabDevice)", sequence_number);
@@ -19055,7 +19635,8 @@ static void xinputXIPassiveGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     f_num_modifiers = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_XIPassiveGrabDevice_reply_num_modifiers, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     struct_xinput_GrabModifierInfo(tvb, offsetp, t, byte_order, f_num_modifiers);
 }
 
@@ -19071,7 +19652,8 @@ static void xinputXIPassiveUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, i
     proto_tree_add_item(t, hf_x11_xinput_XIPassiveUngrabDevice_num_modifiers, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field8(tvb, offsetp, t, hf_x11_xinput_XIPassiveUngrabDevice_grab_type, byte_order);
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIPassiveUngrabDevice_modifiers, hf_x11_xinput_XIPassiveUngrabDevice_modifiers_item, f_num_modifiers, byte_order);
     length -= f_num_modifiers * 4;
 }
@@ -19079,7 +19661,8 @@ static void xinputXIPassiveUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, i
 static void xinputXIListProperties(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field16(tvb, offsetp, t, hf_x11_xinput_XIListProperties_deviceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xinputXIListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -19089,7 +19672,8 @@ static void xinputXIListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-XIListProperties");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIListProperties)", sequence_number);
@@ -19099,7 +19683,8 @@ static void xinputXIListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     f_num_properties = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_XIListProperties_reply_num_properties, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIListProperties_reply_properties, hf_x11_xinput_XIListProperties_reply_properties_item, f_num_properties, byte_order);
 }
 
@@ -19121,7 +19706,8 @@ static void xinputXIChangeProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
         listOfByte(tvb, offsetp, t, hf_x11_xinput_XIChangeProperty_8Bits_data8, f_num_items, byte_order);
         length -= f_num_items * 1;
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         length = ((length + 3) & ~3);
     }
@@ -19129,7 +19715,8 @@ static void xinputXIChangeProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
         listOfCard16(tvb, offsetp, t, hf_x11_xinput_XIChangeProperty_16Bits_data16, hf_x11_xinput_XIChangeProperty_16Bits_data16_item, f_num_items, byte_order);
         length -= f_num_items * 2;
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         length = ((length + 3) & ~3);
     }
@@ -19142,7 +19729,8 @@ static void xinputXIChangeProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
 static void xinputXIDeleteProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     field16(tvb, offsetp, t, hf_x11_xinput_XIDeleteProperty_deviceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xinput_XIDeleteProperty_property, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
@@ -19152,7 +19740,8 @@ static void xinputXIGetProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     field16(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_deviceid, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIGetProperty_delete, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_XIGetProperty_property, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_XIGetProperty_type, tvb, *offsetp, 4, byte_order);
@@ -19171,7 +19760,8 @@ static void xinputXIGetProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     col_append_fstr(pinfo->cinfo, COL_INFO, "-XIGetProperty");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIGetProperty)", sequence_number);
@@ -19186,17 +19776,20 @@ static void xinputXIGetProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     proto_tree_add_item(t, hf_x11_xinput_XIGetProperty_reply_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     f_format = field8(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_reply_format, byte_order);
-    UNUSED(11);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 11, ENC_NA);
+    *offsetp += 11;
     if (f_format == 8) {
         listOfByte(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_reply_8Bits_data8, f_num_items, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
     }
     if (f_format == 16) {
         listOfCard16(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_reply_16Bits_data16, hf_x11_xinput_XIGetProperty_reply_16Bits_data16_item, f_num_items, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
     }
     if (f_format == 32) {
@@ -19217,7 +19810,8 @@ static void xinputXIGetSelectedEvents_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     col_append_fstr(pinfo->cinfo, COL_INFO, "-XIGetSelectedEvents");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIGetSelectedEvents)", sequence_number);
@@ -19227,7 +19821,8 @@ static void xinputXIGetSelectedEvents_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     f_num_masks = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_XIGetSelectedEvents_reply_num_masks, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     struct_xinput_EventMask(tvb, offsetp, t, byte_order, f_num_masks);
 }
 
@@ -19242,7 +19837,8 @@ static void struct_xinput_BarrierReleasePointerInfo(tvbuff_t *tvb, int *offsetp,
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         proto_tree_add_item(t, hf_x11_struct_xinput_BarrierReleasePointerInfo_deviceid, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
-        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+        *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_xinput_BarrierReleasePointerInfo_barrier, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_struct_xinput_BarrierReleasePointerInfo_eventid, tvb, *offsetp, 4, byte_order);
@@ -19317,7 +19913,8 @@ static void xinputDeviceFocusIn(tvbuff_t *tvb, int *offsetp, proto_tree *t, guin
     field8(tvb, offsetp, t, hf_x11_xinput_DeviceFocusIn_mode, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_DeviceFocusIn_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(18);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 18, ENC_NA);
+    *offsetp += 18;
 }
 
 
@@ -19361,10 +19958,12 @@ static void xinputDeviceMappingNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_DeviceMappingNotify_count, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_DeviceMappingNotify_time, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 
@@ -19376,7 +19975,8 @@ static void xinputChangeDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceNotify_time, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceNotify_request, byte_order);
-    UNUSED(23);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+    *offsetp += 23;
 }
 
 
@@ -19400,7 +20000,8 @@ static void xinputDeviceButtonStateNotify(tvbuff_t *tvb, int *offsetp, proto_tre
 
 static void xinputDevicePresenceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
 {
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     CARD16(event_sequencenumber);
     proto_tree_add_item(t, hf_x11_xinput_DevicePresenceNotify_time, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -19409,7 +20010,8 @@ static void xinputDevicePresenceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_DevicePresenceNotify_control, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 
@@ -19421,7 +20023,8 @@ static void xinputDevicePropertyNotify(tvbuff_t *tvb, int *offsetp, proto_tree *
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_DevicePropertyNotify_property, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(19);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 19, ENC_NA);
+    *offsetp += 19;
     proto_tree_add_item(t, hf_x11_xinput_DevicePropertyNotify_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
@@ -19439,7 +20042,8 @@ static void xinputDeviceChanged(tvbuff_t *tvb, int length _U_, int *offsetp, pro
     *offsetp += 2;
     field16(tvb, offsetp, t, hf_x11_xinput_DeviceChanged_sourceid, byte_order);
     field8(tvb, offsetp, t, hf_x11_xinput_DeviceChanged_reason, byte_order);
-    UNUSED(11);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 11, ENC_NA);
+    *offsetp += 11;
     struct_xinput_DeviceClass(tvb, offsetp, t, byte_order, f_num_classes);
 }
 
@@ -19476,7 +20080,8 @@ static void xinputKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tr
     proto_tree_add_item(t, hf_x11_xinput_KeyPress_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field16(tvb, offsetp, t, hf_x11_xinput_KeyPress_sourceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* flags_bits [] = {
         &hf_x11_xinput_KeyPress_flags_mask_KeyRepeat,
@@ -19530,7 +20135,8 @@ static void xinputButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
     proto_tree_add_item(t, hf_x11_xinput_ButtonPress_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field16(tvb, offsetp, t, hf_x11_xinput_ButtonPress_sourceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* flags_bits [] = {
         &hf_x11_xinput_ButtonPress_flags_mask_PointerEmulated,
@@ -19603,7 +20209,8 @@ static void struct_xinput_HierarchyInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
         field8(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyInfo_type, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyInfo_enabled, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+        *offsetp += 2;
         {
             const int* flags_bits [] = {
                 &hf_x11_struct_xinput_HierarchyInfo_flags_mask_MasterAdded,
@@ -19645,7 +20252,8 @@ static void xinputHierarchy(tvbuff_t *tvb, int length _U_, int *offsetp, proto_t
     f_num_infos = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_Hierarchy_num_infos, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(10);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 10, ENC_NA);
+    *offsetp += 10;
     struct_xinput_HierarchyInfo(tvb, offsetp, t, byte_order, f_num_infos);
 }
 
@@ -19659,7 +20267,8 @@ static void xinputProperty(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tr
     proto_tree_add_item(t, hf_x11_xinput_Property_property, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_xinput_Property_what, byte_order);
-    UNUSED(11);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 11, ENC_NA);
+    *offsetp += 11;
 }
 
 
@@ -19685,7 +20294,8 @@ static void xinputRawKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_RawKeyPress_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     {
         int i;
         for (i = 0; i < f_valuators_len; i++) {
@@ -19720,7 +20330,8 @@ static void xinputRawButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, pr
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_RawButtonPress_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     {
         int i;
         for (i = 0; i < f_valuators_len; i++) {
@@ -19765,7 +20376,8 @@ static void xinputTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_
     proto_tree_add_item(t, hf_x11_xinput_TouchBegin_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field16(tvb, offsetp, t, hf_x11_xinput_TouchBegin_sourceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* flags_bits [] = {
         &hf_x11_xinput_TouchBegin_flags_mask_TouchPendingEnd,
@@ -19803,9 +20415,11 @@ static void xinputTouchOwnership(tvbuff_t *tvb, int length _U_, int *offsetp, pr
     proto_tree_add_item(t, hf_x11_xinput_TouchOwnership_child, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field16(tvb, offsetp, t, hf_x11_xinput_TouchOwnership_sourceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     field32(tvb, offsetp, t, hf_x11_xinput_TouchOwnership_flags, byte_order);
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
 }
 
 
@@ -19832,7 +20446,8 @@ static void xinputRawTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, pro
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_RawTouchBegin_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     {
         int i;
         for (i = 0; i < f_valuators_len; i++) {
@@ -19870,7 +20485,8 @@ static void xinputBarrierHit(tvbuff_t *tvb, int length _U_, int *offsetp, proto_
     }
     *offsetp += 4;
     field16(tvb, offsetp, t, hf_x11_xinput_BarrierHit_sourceid, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xinput_BarrierHit_root_x, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_BarrierHit_root_y, tvb, *offsetp, 4, byte_order);
@@ -19896,7 +20512,8 @@ static void xinputSendExtensionEvent(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     f_num_events = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_SendExtensionEvent_num_events, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     length -= f_num_events * 1;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_SendExtensionEvent_classes, hf_x11_xinput_SendExtensionEvent_classes_item, f_num_classes, byte_order);
     length -= f_num_classes * 4;
@@ -20504,7 +21121,8 @@ static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root,
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KTMapEntry_mods_vmods, ett_x11_rectangle, mods_vmods_bits, byte_order);
         }
         *offsetp += 2;
-        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+        *offsetp += 2;
     }
 }
 
@@ -20591,7 +21209,8 @@ static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
         f_hasPreserve = VALUE8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_hasPreserve, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
         struct_xkb_KTMapEntry(tvb, offsetp, t, byte_order, f_nMapEntries);
         struct_xkb_ModDef(tvb, offsetp, t, byte_order, (f_hasPreserve * f_nMapEntries));
     }
@@ -20655,7 +21274,8 @@ static void struct_xkb_DefaultBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         proto_tree_add_item(t, hf_x11_struct_xkb_DefaultBehavior_type, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
     }
 }
 
@@ -20741,7 +21361,8 @@ static void struct_xkb_SetBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root
         proto_tree_add_item(t, hf_x11_struct_xkb_SetBehavior_keycode, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         struct_xkb_Behavior(tvb, offsetp, t, byte_order, 1);
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
     }
 }
 
@@ -20813,7 +21434,8 @@ static void struct_xkb_KeyVModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         proto_tree_add_item(t, hf_x11_struct_xkb_KeyVModMap_keycode, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
         {
             const int* vmods_bits [] = {
                 &hf_x11_struct_xkb_KeyVModMap_vmods_mask_0,
@@ -20973,7 +21595,8 @@ static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         f_preserve = VALUE8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_preserve, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
         struct_xkb_KTSetMapEntry(tvb, offsetp, t, byte_order, f_nMapEntries);
         struct_xkb_KTSetMapEntry(tvb, offsetp, t, byte_order, (f_preserve * f_nMapEntries));
     }
@@ -21006,7 +21629,8 @@ static void struct_xkb_Listing(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
         *offsetp += 2;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_Listing_string, f_length, byte_order);
         if (*offsetp % 2) {
-            UNUSED(2 - *offsetp % 2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (2 - *offsetp % 2), ENC_NA);
+            *offsetp += (2 - *offsetp % 2);
         }
     }
 }
@@ -21061,7 +21685,8 @@ static void struct_xkb_SANoAction(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SANoAction, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SANoAction_type, byte_order);
-        UNUSED(7);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 7, ENC_NA);
+        *offsetp += 7;
     }
 }
 
@@ -21142,7 +21767,8 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetMods_vmodsLow, ett_x11_rectangle, vmodsLow_bits, byte_order);
         }
         *offsetp += 1;
-        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+        *offsetp += 2;
     }
 }
 
@@ -21167,7 +21793,8 @@ static void struct_xkb_SASetGroup(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SASetGroup_group, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(5);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 5, ENC_NA);
+        *offsetp += 5;
     }
 }
 
@@ -21198,7 +21825,8 @@ static void struct_xkb_SAMovePtr(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SAMovePtr_yLow, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+        *offsetp += 2;
     }
 }
 
@@ -21218,7 +21846,8 @@ static void struct_xkb_SAPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SAPtrBtn_button, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+        *offsetp += 4;
     }
 }
 
@@ -21234,10 +21863,12 @@ static void struct_xkb_SALockPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SALockPtrBtn_type, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xkb_SALockPtrBtn_flags, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SALockPtrBtn_button, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+        *offsetp += 4;
     }
 }
 
@@ -21269,7 +21900,8 @@ static void struct_xkb_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SASetPtrDflt_value, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+        *offsetp += 4;
     }
 }
 
@@ -21376,7 +22008,8 @@ static void struct_xkb_SATerminate(tvbuff_t *tvb, int *offsetp, proto_tree *root
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SATerminate, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SATerminate_type, byte_order);
-        UNUSED(7);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 7, ENC_NA);
+        *offsetp += 7;
     }
 }
 
@@ -21394,7 +22027,8 @@ static void struct_xkb_SASwitchScreen(tvbuff_t *tvb, int *offsetp, proto_tree *r
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SASwitchScreen_newScreen, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(5);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 5, ENC_NA);
+        *offsetp += 5;
     }
 }
 
@@ -21408,7 +22042,8 @@ static void struct_xkb_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         item = proto_tree_add_item(root, hf_x11_struct_xkb_SASetControls, tvb, *offsetp, 8, ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field8(tvb, offsetp, t, hf_x11_struct_xkb_SASetControls_type, byte_order);
-        UNUSED(3);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+        *offsetp += 3;
         {
             const int* boolCtrlsHigh_bits [] = {
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_AccessXFeedback,
@@ -21434,7 +22069,8 @@ static void struct_xkb_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *ro
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetControls_boolCtrlsLow, ett_x11_rectangle, boolCtrlsLow_bits, byte_order);
         }
         *offsetp += 1;
-        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+        *offsetp += 2;
     }
 }
 
@@ -21580,7 +22216,8 @@ static void struct_xkb_SADeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SADeviceBtn_device, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(3);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+        *offsetp += 3;
     }
 }
 
@@ -21602,12 +22239,14 @@ static void struct_xkb_SALockDeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SALockDeviceBtn_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
         *offsetp += 1;
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SALockDeviceBtn_button, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_SALockDeviceBtn_device, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(3);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+        *offsetp += 3;
     }
 }
 
@@ -21782,7 +22421,8 @@ static void xkbUseExtension_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_UseExtension_reply_serverMinor, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -22115,12 +22755,14 @@ static void xkbBell(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_t
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_Bell_eventOnly, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_Bell_pitch, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_Bell_duration, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_Bell_name, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_Bell_window, tvb, *offsetp, 4, byte_order);
@@ -22131,7 +22773,8 @@ static void xkbGetState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
 {
     proto_tree_add_item(t, hf_x11_xkb_GetState_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -22289,7 +22932,8 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_compatLookupMods, ett_x11_rectangle, compatLookupMods_bits, byte_order);
     }
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     {
         const int* ptrBtnState_bits [] = {
         &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Shift,
@@ -22309,7 +22953,8 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_ptrBtnState, ett_x11_rectangle, ptrBtnState_bits, byte_order);
     }
     *offsetp += 2;
-    UNUSED(6);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 6, ENC_NA);
+    *offsetp += 6;
 }
 
 static void xkbLatchLockState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -22364,8 +23009,10 @@ static void xkbLatchLockState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_LatchLockState_affectModLatches, ett_x11_rectangle, affectModLatches_bits, byte_order);
     }
     *offsetp += 1;
-    UNUSED(1);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_LatchLockState_latchGroup, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_LatchLockState_groupLatch, tvb, *offsetp, 2, byte_order);
@@ -22376,7 +23023,8 @@ static void xkbGetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
 {
     proto_tree_add_item(t, hf_x11_xkb_GetControls_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -22459,7 +23107,8 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods, ett_x11_rectangle, ignoreLockModsRealMods_bits, byte_order);
     }
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     {
         const int* internalModsVmods_bits [] = {
         &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_0,
@@ -22578,7 +23227,8 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues, ett_x11_rectangle, accessXTimeoutOptionsValues_bits, byte_order);
     }
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* accessXTimeoutMask_bits [] = {
         &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_RepeatKeys,
@@ -22813,7 +23463,8 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_accessXOptions, ett_x11_rectangle, accessXOptions_bits, byte_order);
     }
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* affectEnabledControls_bits [] = {
         &hf_x11_xkb_SetControls_affectEnabledControls_mask_RepeatKeys,
@@ -23043,7 +23694,8 @@ static void xkbGetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_nVModMapKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -23070,7 +23722,8 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_minKeyCode, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_maxKeyCode, tvb, *offsetp, 1, byte_order);
@@ -23140,7 +23793,8 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     f_totalVModMapKeys = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_totalVModMapKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     f_virtualMods = VALUE16(tvb, *offsetp);
     {
         const int* virtualMods_bits [] = {
@@ -23173,7 +23827,8 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     if (f_present & (1U << 4)) {
         listOfByte(tvb, offsetp, t, hf_x11_xkb_GetMap_reply_KeyActions_acts_rtrn_count, f_nKeyActions, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         struct_xkb_Action(tvb, offsetp, t, byte_order, f_totalActions);
     }
@@ -23183,19 +23838,22 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     if (f_present & (1U << 6)) {
         listOfByte(tvb, offsetp, t, hf_x11_xkb_GetMap_reply_VirtualMods_vmods_rtrn, popcount(f_virtualMods), byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
     }
     if (f_present & (1U << 3)) {
         struct_xkb_SetExplicit(tvb, offsetp, t, byte_order, f_totalKeyExplicit);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
     }
     if (f_present & (1U << 2)) {
         struct_xkb_KeyModMap(tvb, offsetp, t, byte_order, f_totalModMapKeys);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
     }
     if (f_present & (1U << 7)) {
@@ -23327,7 +23985,8 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
         listOfByte(tvb, offsetp, t, hf_x11_xkb_SetMap_KeyActions_actionsCount, f_nKeyActions, byte_order);
         length -= f_nKeyActions * 1;
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         length = ((length + 3) & ~3);
         struct_xkb_Action(tvb, offsetp, t, byte_order, f_totalActions);
@@ -23341,7 +24000,8 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
         listOfByte(tvb, offsetp, t, hf_x11_xkb_SetMap_VirtualMods_vmods, popcount(f_virtualMods), byte_order);
         length -= popcount(f_virtualMods) * 1;
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         length = ((length + 3) & ~3);
     }
@@ -23408,7 +24068,8 @@ static void xkbGetCompatMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetCompatMap_reply_groupsRtrn, ett_x11_rectangle, groupsRtrn_bits, byte_order);
     }
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_reply_firstSIRtrn, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     f_nSIRtrn = VALUE16(tvb, *offsetp);
@@ -23416,7 +24077,8 @@ static void xkbGetCompatMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_reply_nTotalSI, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
     struct_xkb_SymInterpret(tvb, offsetp, t, byte_order, f_nSIRtrn);
     struct_xkb_ModDef(tvb, offsetp, t, byte_order, popcount(f_groupsRtrn));
 }
@@ -23427,7 +24089,8 @@ static void xkbSetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     int f_nSI;
     proto_tree_add_item(t, hf_x11_xkb_SetCompatMap_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetCompatMap_recomputeActions, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetCompatMap_truncateSI, tvb, *offsetp, 1, byte_order);
@@ -23448,7 +24111,8 @@ static void xkbSetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     f_nSI = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetCompatMap_nSI, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     struct_xkb_SymInterpret(tvb, offsetp, t, byte_order, f_nSI);
     length -= f_nSI * 16;
     struct_xkb_ModDef(tvb, offsetp, t, byte_order, popcount(f_groups));
@@ -23459,7 +24123,8 @@ static void xkbGetIndicatorState(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
 {
     proto_tree_add_item(t, hf_x11_xkb_GetIndicatorState_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 static void xkbGetIndicatorState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -23478,14 +24143,16 @@ static void xkbGetIndicatorState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_GetIndicatorState_reply_state, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
 }
 
 static void xkbGetIndicatorMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
 {
     proto_tree_add_item(t, hf_x11_xkb_GetIndicatorMap_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetIndicatorMap_which, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
@@ -23512,7 +24179,8 @@ static void xkbGetIndicatorMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_GetIndicatorMap_reply_nIndicators, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(15);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 15, ENC_NA);
+    *offsetp += 15;
     struct_xkb_IndicatorMap(tvb, offsetp, t, byte_order, popcount(f_which));
 }
 
@@ -23521,7 +24189,8 @@ static void xkbSetIndicatorMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     int f_which;
     proto_tree_add_item(t, hf_x11_xkb_SetIndicatorMap_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     f_which = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetIndicatorMap_which, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -23535,7 +24204,8 @@ static void xkbGetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 2;
     field16(tvb, offsetp, t, hf_x11_xkb_GetNamedIndicator_ledClass, byte_order);
     field16(tvb, offsetp, t, hf_x11_xkb_GetNamedIndicator_ledID, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_indicator, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
 }
@@ -23675,7 +24345,8 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_supported, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -23684,7 +24355,8 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 2;
     field16(tvb, offsetp, t, hf_x11_xkb_SetNamedIndicator_ledClass, byte_order);
     field16(tvb, offsetp, t, hf_x11_xkb_SetNamedIndicator_ledID, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_SetNamedIndicator_indicator, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_SetNamedIndicator_setState, tvb, *offsetp, 1, byte_order);
@@ -23695,7 +24367,8 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetNamedIndicator_createMap, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     {
         const int* map_flags_bits [] = {
         &hf_x11_xkb_SetNamedIndicator_map_flags_mask_LEDDrivesKB,
@@ -23796,7 +24469,8 @@ static void xkbGetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
 {
     proto_tree_add_item(t, hf_x11_xkb_GetNames_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* which_bits [] = {
         &hf_x11_xkb_GetNames_which_mask_Keycodes,
@@ -23919,7 +24593,8 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_nKTLevels, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
     if (f_which & (1U << 0)) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_Keycodes_keycodesName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
@@ -23957,7 +24632,8 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         }
         listOfByte(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_KTLevelNames_nLevelsPerType, f_nTypes, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_KTLevelNames_ktLevelNames, hf_x11_xkb_GetNames_reply_KTLevelNames_ktLevelNames_item, sumof_nLevelsPerType, byte_order);
     }
@@ -24071,7 +24747,8 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     f_nKeyAliases = VALUE8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetNames_nKeyAliases, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetNames_totalKTLevelNames, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     if (f_which & (1U << 0)) {
@@ -24113,7 +24790,8 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
         listOfByte(tvb, offsetp, t, hf_x11_xkb_SetNames_KTLevelNames_nLevelsPerType, f_nTypes, byte_order);
         length -= f_nTypes * 1;
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         length = ((length + 3) & ~3);
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_KTLevelNames_ktLevelNames, hf_x11_xkb_SetNames_KTLevelNames_ktLevelNames_item, sumof_nLevelsPerType, byte_order);
@@ -24149,7 +24827,8 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
 {
     proto_tree_add_item(t, hf_x11_xkb_PerClientFlags_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* change_bits [] = {
         &hf_x11_xkb_PerClientFlags_change_mask_DetectableAutoRepeat,
@@ -24305,7 +24984,8 @@ static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues, ett_x11_rectangle, autoCtrlsValues_bits, byte_order);
     }
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
 }
 
 static void xkbListComponents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -24356,7 +25036,8 @@ static void xkbListComponents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_ListComponents_reply_extra, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(10);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 10, ENC_NA);
+    *offsetp += 10;
     struct_xkb_Listing(tvb, offsetp, t, byte_order, f_nKeymaps);
     struct_xkb_Listing(tvb, offsetp, t, byte_order, f_nKeycodes);
     struct_xkb_Listing(tvb, offsetp, t, byte_order, f_nTypes);
@@ -24399,7 +25080,8 @@ static void xkbGetKbdByName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_load, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
 }
 static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -24454,7 +25136,8 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_reported, ett_x11_rectangle, reported_bits, byte_order);
     }
     *offsetp += 2;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
     if ((f_reported & (1U << 0)) || (f_reported & (1U << 2)) || (f_reported & (1U << 3))) {
         int f_present;
         int f_nTypes;
@@ -24474,7 +25157,8 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_getmap_length, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+        *offsetp += 2;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_typeMinKeyCode, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_typeMaxKeyCode, tvb, *offsetp, 1, byte_order);
@@ -24544,7 +25228,8 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         f_totalVModMapKeys = VALUE8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_totalVModMapKeys, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
         f_virtualMods = VALUE16(tvb, *offsetp);
         {
             const int* virtualMods_bits [] = {
@@ -24577,7 +25262,8 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         if (f_present & (1U << 4)) {
             listOfByte(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_Types_KeyActions_acts_rtrn_count, f_nKeyActions, byte_order);
             if (*offsetp % 4) {
-                UNUSED(4 - *offsetp % 4);
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+                *offsetp += (4 - *offsetp % 4);
             }
             struct_xkb_Action(tvb, offsetp, t, byte_order, f_totalActions);
         }
@@ -24587,19 +25273,22 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         if (f_present & (1U << 6)) {
             listOfByte(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_Types_VirtualMods_vmods_rtrn, popcount(f_virtualMods), byte_order);
             if (*offsetp % 4) {
-                UNUSED(4 - *offsetp % 4);
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+                *offsetp += (4 - *offsetp % 4);
             }
         }
         if (f_present & (1U << 3)) {
             struct_xkb_SetExplicit(tvb, offsetp, t, byte_order, f_totalKeyExplicit);
             if (*offsetp % 4) {
-                UNUSED(4 - *offsetp % 4);
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+                *offsetp += (4 - *offsetp % 4);
             }
         }
         if (f_present & (1U << 2)) {
             struct_xkb_KeyModMap(tvb, offsetp, t, byte_order, f_totalModMapKeys);
             if (*offsetp % 4) {
-                UNUSED(4 - *offsetp % 4);
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+                *offsetp += (4 - *offsetp % 4);
             }
         }
         if (f_present & (1U << 7)) {
@@ -24628,7 +25317,8 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn, ett_x11_rectangle, groupsRtrn_bits, byte_order);
         }
         *offsetp += 1;
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_CompatMap_firstSIRtrn, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         f_nSIRtrn = VALUE16(tvb, *offsetp);
@@ -24636,7 +25326,8 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_CompatMap_nTotalSI, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
-        UNUSED(16);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+        *offsetp += 16;
         struct_xkb_SymInterpret(tvb, offsetp, t, byte_order, f_nSIRtrn);
         struct_xkb_ModDef(tvb, offsetp, t, byte_order, popcount(f_groupsRtrn));
     }
@@ -24657,7 +25348,8 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         f_nIndicators = VALUE8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_IndicatorMaps_nIndicators, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(15);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 15, ENC_NA);
+        *offsetp += 15;
         struct_xkb_IndicatorMap(tvb, offsetp, t, byte_order, f_nIndicators);
     }
     if ((f_reported & (1U << 5)) || (f_reported & (1U << 7))) {
@@ -24755,7 +25447,8 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_nKTLevels, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
-        UNUSED(4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+        *offsetp += 4;
         if (f_which & (1U << 0)) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_Keycodes_keycodesName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
@@ -24793,7 +25486,8 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
             }
             listOfByte(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_KTLevelNames_nLevelsPerType, f_nTypes, byte_order);
             if (*offsetp % 4) {
-                UNUSED(4 - *offsetp % 4);
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+                *offsetp += (4 - *offsetp % 4);
             }
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_KTLevelNames_ktLevelNames, hf_x11_xkb_GetKbdByName_reply_KeyNames_KTLevelNames_ktLevelNames_item, sumof_nLevelsPerType, byte_order);
         }
@@ -24829,7 +25523,8 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Geometry_geometryFound, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Geometry_widthMM, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Geometry_heightMM, tvb, *offsetp, 2, byte_order);
@@ -24875,7 +25570,8 @@ static void xkbGetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_nButtons, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     field16(tvb, offsetp, t, hf_x11_xkb_GetDeviceInfo_ledClass, byte_order);
     field16(tvb, offsetp, t, hf_x11_xkb_GetDeviceInfo_ledID, byte_order);
 }
@@ -24948,7 +25644,8 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 1;
     field16(tvb, offsetp, t, hf_x11_xkb_GetDeviceInfo_reply_dfltKbdFB, byte_order);
     field16(tvb, offsetp, t, hf_x11_xkb_GetDeviceInfo_reply_dfltLedFB, byte_order);
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_reply_devType, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     f_nameLen = VALUE16(tvb, *offsetp);
@@ -24956,7 +25653,8 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_xkb_GetDeviceInfo_reply_name, f_nameLen, byte_order);
     if (*offsetp % 4) {
-        UNUSED(4 - *offsetp % 4);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+        *offsetp += (4 - *offsetp % 4);
     }
     struct_xkb_Action(tvb, offsetp, t, byte_order, f_nBtnsRtrn);
     struct_xkb_DeviceLedInfo(tvb, offsetp, t, byte_order, f_nDeviceLedFBs);
@@ -24999,7 +25697,8 @@ static void xkbSetDebuggingFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     f_msgLength = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetDebuggingFlags_msgLength, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_SetDebuggingFlags_affectFlags, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_SetDebuggingFlags_flags, tvb, *offsetp, 4, byte_order);
@@ -25018,7 +25717,8 @@ static void xkbSetDebuggingFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-SetDebuggingFlags");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-SetDebuggingFlags)", sequence_number);
@@ -25033,7 +25733,8 @@ static void xkbSetDebuggingFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_SetDebuggingFlags_reply_supportedCtrls, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
 }
 
 static void xkbMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
@@ -25115,7 +25816,8 @@ static void xkbMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_MapNotify_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 
 
@@ -25330,7 +26032,8 @@ static void xkbControlsNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint 
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_ControlsNotify_numGroups, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     {
         const int* changedControls_bits [] = {
         &hf_x11_xkb_ControlsNotify_changedControls_mask_GroupsWrap,
@@ -25388,7 +26091,8 @@ static void xkbControlsNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint 
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_ControlsNotify_requestMinor, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
 }
 
 
@@ -25401,12 +26105,14 @@ static void xkbIndicatorStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_IndicatorStateNotify_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_xkb_IndicatorStateNotify_state, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_IndicatorStateNotify_stateChanged, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
 }
 
 
@@ -25419,12 +26125,14 @@ static void xkbIndicatorMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, gu
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_IndicatorMapNotify_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     proto_tree_add_item(t, hf_x11_xkb_IndicatorMapNotify_state, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_IndicatorMapNotify_mapChanged, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
 }
 
 
@@ -25437,7 +26145,8 @@ static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_NamesNotify_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     {
         const int* changed_bits [] = {
         &hf_x11_xkb_NamesNotify_changed_mask_Keycodes,
@@ -25466,7 +26175,8 @@ static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_NamesNotify_nLevelNames, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_NamesNotify_nRadioGroups, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_NamesNotify_nKeyAliases, tvb, *offsetp, 1, byte_order);
@@ -25509,7 +26219,8 @@ static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_NamesNotify_changedIndicators, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(4);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+    *offsetp += 4;
 }
 
 
@@ -25538,7 +26249,8 @@ static void xkbCompatMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_CompatMapNotify_nTotalSI, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
 }
 
 
@@ -25566,7 +26278,8 @@ static void xkbBellNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_BellNotify_eventOnly, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(7);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 7, ENC_NA);
+    *offsetp += 7;
 }
 
 
@@ -25602,7 +26315,8 @@ static void xkbActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_xkb_ActionMessage_group, byte_order);
     listOfByte(tvb, offsetp, t, hf_x11_xkb_ActionMessage_message, 8, byte_order);
-    UNUSED(10);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 10, ENC_NA);
+    *offsetp += 10;
 }
 
 
@@ -25634,7 +26348,8 @@ static void xkbAccessXNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_AccessXNotify_debounceDelay, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
 }
 
 
@@ -25647,7 +26362,8 @@ static void xkbExtensionDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_ExtensionDeviceNotify_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     {
         const int* reason_bits [] = {
         &hf_x11_xkb_ExtensionDeviceNotify_reason_mask_Keyboards,
@@ -25692,7 +26408,8 @@ static void xkbExtensionDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t,
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ExtensionDeviceNotify_unsupported, ett_x11_rectangle, unsupported_bits, byte_order);
     }
     *offsetp += 2;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
 }
 
 static const value_string xkb_extension_minor[] = {
@@ -25876,14 +26593,16 @@ static void struct_xprint_PRINTER(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         *offsetp += 4;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xprint_PRINTER_name, f_nameLen, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         f_descLen = VALUE32(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_struct_xprint_PRINTER_descLen, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xprint_PRINTER_description, f_descLen, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
     }
 }
@@ -25898,7 +26617,8 @@ static void xprintPrintQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-PrintQueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintQueryVersion)", sequence_number);
@@ -25934,7 +26654,8 @@ static void xprintPrintGetPrinterList_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     col_append_fstr(pinfo->cinfo, COL_INFO, "-PrintGetPrinterList");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetPrinterList)", sequence_number);
@@ -25944,7 +26665,8 @@ static void xprintPrintGetPrinterList_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     f_listCount = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xprint_PrintGetPrinterList_reply_listCount, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_xprint_PRINTER(tvb, offsetp, t, byte_order, f_listCount);
 }
 
@@ -25986,7 +26708,8 @@ static void xprintPrintGetContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-PrintGetContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetContext)", sequence_number);
@@ -26013,7 +26736,8 @@ static void xprintPrintGetScreenOfContext_Reply(tvbuff_t *tvb, packet_info *pinf
     col_append_fstr(pinfo->cinfo, COL_INFO, "-PrintGetScreenOfContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetScreenOfContext)", sequence_number);
@@ -26087,7 +26811,8 @@ static void xprintPrintGetDocumentData_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-PrintGetDocumentData");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetDocumentData)", sequence_number);
@@ -26101,7 +26826,8 @@ static void xprintPrintGetDocumentData_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     f_dataLen = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xprint_PrintGetDocumentData_reply_dataLen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintGetDocumentData_reply_data, f_dataLen, byte_order);
 }
 
@@ -26115,7 +26841,8 @@ static void xprintPrintEndPage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
 {
     proto_tree_add_item(t, hf_x11_xprint_PrintEndPage_cancel, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void xprintPrintSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -26138,7 +26865,8 @@ static void xprintPrintInputSelected_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     col_append_fstr(pinfo->cinfo, COL_INFO, "-PrintInputSelected");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintInputSelected)", sequence_number);
@@ -26157,7 +26885,8 @@ static void xprintPrintGetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xprint_PrintGetAttributes_pool, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void xprintPrintGetAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -26167,7 +26896,8 @@ static void xprintPrintGetAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     col_append_fstr(pinfo->cinfo, COL_INFO, "-PrintGetAttributes");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetAttributes)", sequence_number);
@@ -26177,7 +26907,8 @@ static void xprintPrintGetAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     f_stringLen = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xprint_PrintGetAttributes_reply_stringLen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintGetAttributes_reply_attributes, f_stringLen, byte_order);
 }
 
@@ -26191,7 +26922,8 @@ static void xprintPrintGetOneAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, i
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xprint_PrintGetOneAttributes_pool, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintGetOneAttributes_name, f_nameLen, byte_order);
     length -= f_nameLen * 1;
 }
@@ -26203,7 +26935,8 @@ static void xprintPrintGetOneAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-PrintGetOneAttributes");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetOneAttributes)", sequence_number);
@@ -26213,7 +26946,8 @@ static void xprintPrintGetOneAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo,
     f_valueLen = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xprint_PrintGetOneAttributes_reply_valueLen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintGetOneAttributes_reply_value, f_valueLen, byte_order);
 }
 
@@ -26227,7 +26961,8 @@ static void xprintPrintSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xprint_PrintSetAttributes_rule, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintSetAttributes_attributes, (length - 16) / 1, byte_order);
 }
 
@@ -26243,7 +26978,8 @@ static void xprintPrintGetPageDimensions_Reply(tvbuff_t *tvb, packet_info *pinfo
     col_append_fstr(pinfo->cinfo, COL_INFO, "-PrintGetPageDimensions");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetPageDimensions)", sequence_number);
@@ -26275,7 +27011,8 @@ static void xprintPrintQueryScreens_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-PrintQueryScreens");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintQueryScreens)", sequence_number);
@@ -26285,7 +27022,8 @@ static void xprintPrintQueryScreens_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     f_listCount = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xprint_PrintQueryScreens_reply_listCount, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfCard32(tvb, offsetp, t, hf_x11_xprint_PrintQueryScreens_reply_roots, hf_x11_xprint_PrintQueryScreens_reply_roots_item, f_listCount, byte_order);
 }
 
@@ -26327,7 +27065,8 @@ static void xprintPrintGetImageResolution_Reply(tvbuff_t *tvb, packet_info *pinf
     col_append_fstr(pinfo->cinfo, COL_INFO, "-PrintGetImageResolution");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetImageResolution)", sequence_number);
@@ -26504,7 +27243,8 @@ static void xselinuxQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-QueryVersion)", sequence_number);
@@ -26538,7 +27278,8 @@ static void xselinuxGetDeviceCreateContext_Reply(tvbuff_t *tvb, packet_info *pin
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetDeviceCreateContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetDeviceCreateContext)", sequence_number);
@@ -26548,7 +27289,8 @@ static void xselinuxGetDeviceCreateContext_Reply(tvbuff_t *tvb, packet_info *pin
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetDeviceCreateContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetDeviceCreateContext_reply_context, f_context_len, byte_order);
 }
 
@@ -26577,7 +27319,8 @@ static void xselinuxGetDeviceContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetDeviceContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetDeviceContext)", sequence_number);
@@ -26587,7 +27330,8 @@ static void xselinuxGetDeviceContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetDeviceContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetDeviceContext_reply_context, f_context_len, byte_order);
 }
 
@@ -26612,7 +27356,8 @@ static void xselinuxGetWindowCreateContext_Reply(tvbuff_t *tvb, packet_info *pin
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetWindowCreateContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetWindowCreateContext)", sequence_number);
@@ -26622,7 +27367,8 @@ static void xselinuxGetWindowCreateContext_Reply(tvbuff_t *tvb, packet_info *pin
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetWindowCreateContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetWindowCreateContext_reply_context, f_context_len, byte_order);
 }
 
@@ -26639,7 +27385,8 @@ static void xselinuxGetWindowContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetWindowContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetWindowContext)", sequence_number);
@@ -26649,7 +27396,8 @@ static void xselinuxGetWindowContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetWindowContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetWindowContext_reply_context, f_context_len, byte_order);
 }
 
@@ -26688,11 +27436,13 @@ static void struct_xselinux_ListItem(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         *offsetp += 4;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xselinux_ListItem_object_context, f_object_context_len, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         listOfByte(tvb, offsetp, t, hf_x11_struct_xselinux_ListItem_data_context, f_data_context_len, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
     }
 }
@@ -26718,7 +27468,8 @@ static void xselinuxGetPropertyCreateContext_Reply(tvbuff_t *tvb, packet_info *p
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetPropertyCreateContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetPropertyCreateContext)", sequence_number);
@@ -26728,7 +27479,8 @@ static void xselinuxGetPropertyCreateContext_Reply(tvbuff_t *tvb, packet_info *p
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetPropertyCreateContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetPropertyCreateContext_reply_context, f_context_len, byte_order);
 }
 
@@ -26753,7 +27505,8 @@ static void xselinuxGetPropertyUseContext_Reply(tvbuff_t *tvb, packet_info *pinf
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetPropertyUseContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetPropertyUseContext)", sequence_number);
@@ -26763,7 +27516,8 @@ static void xselinuxGetPropertyUseContext_Reply(tvbuff_t *tvb, packet_info *pinf
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetPropertyUseContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetPropertyUseContext_reply_context, f_context_len, byte_order);
 }
 
@@ -26782,7 +27536,8 @@ static void xselinuxGetPropertyContext_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetPropertyContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetPropertyContext)", sequence_number);
@@ -26792,7 +27547,8 @@ static void xselinuxGetPropertyContext_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetPropertyContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetPropertyContext_reply_context, f_context_len, byte_order);
 }
 
@@ -26811,7 +27567,8 @@ static void xselinuxGetPropertyDataContext_Reply(tvbuff_t *tvb, packet_info *pin
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetPropertyDataContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetPropertyDataContext)", sequence_number);
@@ -26821,7 +27578,8 @@ static void xselinuxGetPropertyDataContext_Reply(tvbuff_t *tvb, packet_info *pin
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetPropertyDataContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetPropertyDataContext_reply_context, f_context_len, byte_order);
 }
 
@@ -26838,7 +27596,8 @@ static void xselinuxListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-ListProperties");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-ListProperties)", sequence_number);
@@ -26848,7 +27607,8 @@ static void xselinuxListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     f_properties_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_ListProperties_reply_properties_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_xselinux_ListItem(tvb, offsetp, t, byte_order, f_properties_len);
 }
 
@@ -26873,7 +27633,8 @@ static void xselinuxGetSelectionCreateContext_Reply(tvbuff_t *tvb, packet_info *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetSelectionCreateContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetSelectionCreateContext)", sequence_number);
@@ -26883,7 +27644,8 @@ static void xselinuxGetSelectionCreateContext_Reply(tvbuff_t *tvb, packet_info *
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetSelectionCreateContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetSelectionCreateContext_reply_context, f_context_len, byte_order);
 }
 
@@ -26908,7 +27670,8 @@ static void xselinuxGetSelectionUseContext_Reply(tvbuff_t *tvb, packet_info *pin
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetSelectionUseContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetSelectionUseContext)", sequence_number);
@@ -26918,7 +27681,8 @@ static void xselinuxGetSelectionUseContext_Reply(tvbuff_t *tvb, packet_info *pin
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetSelectionUseContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetSelectionUseContext_reply_context, f_context_len, byte_order);
 }
 
@@ -26935,7 +27699,8 @@ static void xselinuxGetSelectionContext_Reply(tvbuff_t *tvb, packet_info *pinfo,
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetSelectionContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetSelectionContext)", sequence_number);
@@ -26945,7 +27710,8 @@ static void xselinuxGetSelectionContext_Reply(tvbuff_t *tvb, packet_info *pinfo,
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetSelectionContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetSelectionContext_reply_context, f_context_len, byte_order);
 }
 
@@ -26962,7 +27728,8 @@ static void xselinuxGetSelectionDataContext_Reply(tvbuff_t *tvb, packet_info *pi
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetSelectionDataContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetSelectionDataContext)", sequence_number);
@@ -26972,7 +27739,8 @@ static void xselinuxGetSelectionDataContext_Reply(tvbuff_t *tvb, packet_info *pi
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetSelectionDataContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetSelectionDataContext_reply_context, f_context_len, byte_order);
 }
 
@@ -26987,7 +27755,8 @@ static void xselinuxListSelections_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-ListSelections");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-ListSelections)", sequence_number);
@@ -26997,7 +27766,8 @@ static void xselinuxListSelections_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     f_selections_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_ListSelections_reply_selections_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_xselinux_ListItem(tvb, offsetp, t, byte_order, f_selections_len);
 }
 
@@ -27014,7 +27784,8 @@ static void xselinuxGetClientContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetClientContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetClientContext)", sequence_number);
@@ -27024,7 +27795,8 @@ static void xselinuxGetClientContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     f_context_len = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xselinux_GetClientContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_GetClientContext_reply_context, f_context_len, byte_order);
 }
 static const value_string xselinux_extension_minor[] = {
@@ -27169,7 +27941,8 @@ static void xtestGetVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
 {
     proto_tree_add_item(t, hf_x11_xtest_GetVersion_major_version, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xtest_GetVersion_minor_version, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
 }
@@ -27222,17 +27995,20 @@ static void xtestFakeInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xtest_FakeInput_detail, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    UNUSED(2);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+    *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xtest_FakeInput_time, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xtest_FakeInput_root, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(8);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+    *offsetp += 8;
     proto_tree_add_item(t, hf_x11_xtest_FakeInput_rootX, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xtest_FakeInput_rootY, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(7);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 7, ENC_NA);
+    *offsetp += 7;
     proto_tree_add_item(t, hf_x11_xtest_FakeInput_deviceid, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
 }
@@ -27241,7 +28017,8 @@ static void xtestGrabControl(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
 {
     proto_tree_add_item(t, hf_x11_xtest_GrabControl_impervious, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static const value_string xtest_extension_minor[] = {
     { 0, "GetVersion" },
@@ -27320,7 +28097,8 @@ static void struct_xv_Format(tvbuff_t *tvb, int *offsetp, proto_tree *root, guin
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_struct_xv_Format_depth, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(3);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+        *offsetp += 3;
     }
 }
 
@@ -27369,10 +28147,12 @@ static void struct_xv_AdaptorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xv_AdaptorInfo_type, ett_x11_rectangle, type_bits, byte_order);
         }
         *offsetp += 1;
-        UNUSED(1);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+        *offsetp += 1;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xv_AdaptorInfo_name, f_name_size, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
         struct_xv_Format(tvb, offsetp, t, byte_order, f_num_formats);
     }
@@ -27407,11 +28187,13 @@ static void struct_xv_EncodingInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_height, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
-        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+        *offsetp += 2;
         struct_xv_Rational(tvb, offsetp, t, byte_order, 1);
         listOfByte(tvb, offsetp, t, hf_x11_struct_xv_EncodingInfo_name, f_name_size, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
     }
 }
@@ -27453,7 +28235,8 @@ static void struct_xv_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         *offsetp += 4;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xv_AttributeInfo_name, f_size, byte_order);
         if (*offsetp % 4) {
-            UNUSED(4 - *offsetp % 4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
+            *offsetp += (4 - *offsetp % 4);
         }
     }
 }
@@ -27471,16 +28254,19 @@ static void struct_xv_ImageFormatInfo(tvbuff_t *tvb, int *offsetp, proto_tree *r
         *offsetp += 4;
         field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_type, byte_order);
         field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_byte_order, byte_order);
-        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+        *offsetp += 2;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_guid, 16, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_bpp, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_num_planes, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(2);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+        *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_depth, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        UNUSED(3);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+        *offsetp += 3;
         proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_red_mask, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_green_mask, tvb, *offsetp, 4, byte_order);
@@ -27488,7 +28274,8 @@ static void struct_xv_ImageFormatInfo(tvbuff_t *tvb, int *offsetp, proto_tree *r
         proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_blue_mask, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_format, byte_order);
-        UNUSED(3);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+        *offsetp += 3;
         proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_y_sample_bits, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_struct_xv_ImageFormatInfo_u_sample_bits, tvb, *offsetp, 4, byte_order);
@@ -27509,13 +28296,15 @@ static void struct_xv_ImageFormatInfo(tvbuff_t *tvb, int *offsetp, proto_tree *r
         *offsetp += 4;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_vcomp_order, 32, byte_order);
         field8(tvb, offsetp, t, hf_x11_struct_xv_ImageFormatInfo_vscanline_order, byte_order);
-        UNUSED(11);
+        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 11, ENC_NA);
+        *offsetp += 11;
     }
 }
 
 static void xvPortNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order)
 {
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     CARD16(event_sequencenumber);
     proto_tree_add_item(t, hf_x11_xv_PortNotify_time, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
@@ -27538,7 +28327,8 @@ static void xvQueryExtension_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryExtension");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-QueryExtension)", sequence_number);
@@ -27564,7 +28354,8 @@ static void xvQueryAdaptors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryAdaptors");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-QueryAdaptors)", sequence_number);
@@ -27574,7 +28365,8 @@ static void xvQueryAdaptors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     f_num_adaptors = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xv_QueryAdaptors_reply_num_adaptors, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     struct_xv_AdaptorInfo(tvb, offsetp, t, byte_order, f_num_adaptors);
 }
 
@@ -27591,7 +28383,8 @@ static void xvQueryEncodings_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryEncodings");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-QueryEncodings)", sequence_number);
@@ -27601,7 +28394,8 @@ static void xvQueryEncodings_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     f_num_encodings = VALUE16(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xv_QueryEncodings_reply_num_encodings, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(22);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+    *offsetp += 22;
     struct_xv_EncodingInfo(tvb, offsetp, t, byte_order, f_num_encodings);
 }
 
@@ -27752,7 +28546,8 @@ static void xvSelectVideoNotify(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xv_SelectVideoNotify_onoff, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void xvSelectPortNotify(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -27761,7 +28556,8 @@ static void xvSelectPortNotify(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xv_SelectPortNotify_onoff, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 
 static void xvQueryBestSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, guint byte_order, int length _U_)
@@ -27778,7 +28574,8 @@ static void xvQueryBestSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xv_QueryBestSize_motion, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static void xvQueryBestSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order)
 {
@@ -27787,7 +28584,8 @@ static void xvQueryBestSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryBestSize");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-QueryBestSize)", sequence_number);
@@ -27824,7 +28622,8 @@ static void xvGetPortAttribute_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetPortAttribute");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-GetPortAttribute)", sequence_number);
@@ -27848,7 +28647,8 @@ static void xvQueryPortAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryPortAttributes");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-QueryPortAttributes)", sequence_number);
@@ -27860,7 +28660,8 @@ static void xvQueryPortAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xv_QueryPortAttributes_reply_text_size, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(16);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+    *offsetp += 16;
     struct_xv_AttributeInfo(tvb, offsetp, t, byte_order, f_num_attributes);
 }
 
@@ -27877,7 +28678,8 @@ static void xvListImageFormats_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     col_append_fstr(pinfo->cinfo, COL_INFO, "-ListImageFormats");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-ListImageFormats)", sequence_number);
@@ -27887,7 +28689,8 @@ static void xvListImageFormats_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     f_num_formats = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xv_ListImageFormats_reply_num_formats, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_xv_ImageFormatInfo(tvb, offsetp, t, byte_order, f_num_formats);
 }
 
@@ -27910,7 +28713,8 @@ static void xvQueryImageAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryImageAttributes");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-QueryImageAttributes)", sequence_number);
@@ -27926,7 +28730,8 @@ static void xvQueryImageAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xv_QueryImageAttributes_reply_height, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfCard32(tvb, offsetp, t, hf_x11_xv_QueryImageAttributes_reply_pitches, hf_x11_xv_QueryImageAttributes_reply_pitches_item, f_num_planes, byte_order);
     listOfCard32(tvb, offsetp, t, hf_x11_xv_QueryImageAttributes_reply_offsets, hf_x11_xv_QueryImageAttributes_reply_offsets_item, f_num_planes, byte_order);
 }
@@ -28000,7 +28805,8 @@ static void xvShmPutImage(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, p
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xv_ShmPutImage_send_event, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    UNUSED(3);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+    *offsetp += 3;
 }
 static const value_string xv_extension_minor[] = {
     { 0, "QueryExtension" },
@@ -28162,7 +28968,8 @@ static void xvmcQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     col_append_fstr(pinfo->cinfo, COL_INFO, "-QueryVersion");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xvmc-QueryVersion)", sequence_number);
@@ -28188,7 +28995,8 @@ static void xvmcListSurfaceTypes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-ListSurfaceTypes");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xvmc-ListSurfaceTypes)", sequence_number);
@@ -28198,7 +29006,8 @@ static void xvmcListSurfaceTypes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     f_num = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xvmc_ListSurfaceTypes_reply_num, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_xvmc_SurfaceInfo(tvb, offsetp, t, byte_order, f_num);
 }
 
@@ -28225,7 +29034,8 @@ static void xvmcCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-CreateContext");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xvmc-CreateContext)", sequence_number);
@@ -28239,7 +29049,8 @@ static void xvmcCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xvmc_CreateContext_reply_flags_return, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     listOfCard32(tvb, offsetp, t, hf_x11_xvmc_CreateContext_reply_priv_data, hf_x11_xvmc_CreateContext_reply_priv_data_item, f_length, byte_order);
 }
 
@@ -28264,7 +29075,8 @@ static void xvmcCreateSurface_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     col_append_fstr(pinfo->cinfo, COL_INFO, "-CreateSurface");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xvmc-CreateSurface)", sequence_number);
@@ -28272,7 +29084,8 @@ static void xvmcCreateSurface_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     f_length = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(24);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+    *offsetp += 24;
     listOfCard32(tvb, offsetp, t, hf_x11_xvmc_CreateSurface_reply_priv_data, hf_x11_xvmc_CreateSurface_reply_priv_data_item, f_length, byte_order);
 }
 
@@ -28303,7 +29116,8 @@ static void xvmcCreateSubpicture_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     col_append_fstr(pinfo->cinfo, COL_INFO, "-CreateSubpicture");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xvmc-CreateSubpicture)", sequence_number);
@@ -28320,7 +29134,8 @@ static void xvmcCreateSubpicture_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     proto_tree_add_item(t, hf_x11_xvmc_CreateSubpicture_reply_entry_bytes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_xvmc_CreateSubpicture_reply_component_order, 4, byte_order);
-    UNUSED(12);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+    *offsetp += 12;
     listOfCard32(tvb, offsetp, t, hf_x11_xvmc_CreateSubpicture_reply_priv_data, hf_x11_xvmc_CreateSubpicture_reply_priv_data_item, f_length, byte_order);
 }
 
@@ -28345,7 +29160,8 @@ static void xvmcListSubpictureTypes_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     col_append_fstr(pinfo->cinfo, COL_INFO, "-ListSubpictureTypes");
 
     REPLY(reply);
-    UNUSED(1);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+    *offsetp += 1;
     sequence_number = VALUE16(tvb, *offsetp);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xvmc-ListSubpictureTypes)", sequence_number);
@@ -28355,7 +29171,8 @@ static void xvmcListSubpictureTypes_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     f_num = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xvmc_ListSubpictureTypes_reply_num, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    UNUSED(20);
+    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+    *offsetp += 20;
     struct_xv_ImageFormatInfo(tvb, offsetp, t, byte_order, f_num);
 }
 static const value_string xvmc_extension_minor[] = {

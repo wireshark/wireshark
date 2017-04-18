@@ -1189,7 +1189,6 @@ static const value_string zero_is_none_vals[] = {
 #define STRING16(name, length)  { string16(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_bytes, length, byte_order); }
 #define TIMESTAMP(name){ timestamp(tvb, offsetp, t, hf_x11_##name, byte_order); }
 #define UNDECODED(x)   { proto_tree_add_item(t, hf_x11_undecoded, tvb, *offsetp,  x, ENC_NA); *offsetp += x; }
-#define UNUSED(x)      { proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp,  x, ENC_NA); *offsetp += x; }
 #define PAD()          { if (next_offset - *offsetp > 0) proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, next_offset - *offsetp, ENC_NA); *offsetp = next_offset; }
 #define WINDOW(name)   { FIELD32(name); }
 
@@ -3210,12 +3209,14 @@ static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
       t = proto_item_add_subtree(ti, ett_x11);
 
       CARD8(byte_order);
-      UNUSED(1);
+      proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+      *offsetp += 1;
       CARD16(protocol_major_version);
       CARD16(protocol_minor_version);
       auth_proto_name_length = CARD16(authorization_protocol_name_length);
       auth_proto_data_length = CARD16(authorization_protocol_data_length);
-      UNUSED(2);
+      proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+      *offsetp += 2;
 
       if (auth_proto_name_length != 0) {
             STRING8(authorization_protocol_name, auth_proto_name_length);
@@ -3265,7 +3266,8 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
       state->iconn_reply = pinfo->num;
       success = INT8(success);
       if (success) {
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             length_of_reason = 0;
       }
       else {
@@ -3290,11 +3292,14 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
             INT8(bitmap_format_scanline_pad);
             INT8(min_keycode);
             INT8(max_keycode);
-            UNUSED(4);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+            *offsetp += 4;
             STRING8(vendor, length_of_vendor);
             unused = (4 - (length_of_vendor % 4)) % 4;
-            if (unused > 0)
-                UNUSED(unused);
+            if (unused > 0) {
+                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, unused, ENC_NA);
+                *offsetp += unused;
+            }
             LISTofPIXMAPFORMAT(pixmap_format, number_of_formats_in_pixmap_formats);
             LISTofSCREEN(screen, number_of_screens_in_roots);
       } else {
@@ -3640,7 +3645,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_ChangeWindowAttributes:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             windowAttributes(tvb, offsetp, t, byte_order);
@@ -3649,7 +3655,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       case X_GetWindowAttributes:
       case X_DestroyWindow:
       case X_DestroySubwindows:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             break;
@@ -3661,7 +3668,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_ReparentWindow:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             WINDOW(parent);
@@ -3673,7 +3681,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       case X_MapSubwindows:
       case X_UnmapWindow:
       case X_UnmapSubwindows:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             break;
@@ -3765,7 +3774,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_GetGeometry:
       case X_QueryTree:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             break;
@@ -3774,13 +3784,15 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             BOOL(only_if_exists);
             requestLength(tvb, offsetp, t, byte_order);
             v16 = FIELD16(name_length);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             STRING8(name, v16);
             PAD();
             break;
 
       case X_GetAtomName:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             ATOM(atom);
             break;
@@ -3792,7 +3804,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             ATOM(property);
             ATOM(type);
             v8 = CARD8(format);
-            UNUSED(3);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+            *offsetp += 3;
             v32 = CARD32(data_length);
             switch (v8) {
             case 8:
@@ -3815,7 +3828,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_DeleteProperty:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             ATOM(property);
@@ -3832,13 +3846,15 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_ListProperties:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             break;
 
       case X_SetSelectionOwner:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(owner);
             ATOM(selection);
@@ -3846,13 +3862,15 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_GetSelectionOwner:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             ATOM(selection);
             break;
 
       case X_ConvertSelection:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(requestor);
             ATOM(selection);
@@ -3882,7 +3900,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_UngrabPointer:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             TIMESTAMP(time);
             break;
@@ -3897,7 +3916,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             WINDOW(confine_to);
             CURSOR(cursor);
             BUTTON(button);
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             SETofKEYMASK(modifiers);
             break;
 
@@ -3906,16 +3926,19 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(grab_window);
             SETofKEYMASK(modifiers);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             break;
 
       case X_ChangeActivePointerGrab:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             CURSOR(cursor);
             TIMESTAMP(time);
             SETofPOINTEREVENT(event_mask);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             break;
 
       case X_GrabKeyboard:
@@ -3925,11 +3948,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             TIMESTAMP(time);
             ENUM8(pointer_mode);
             ENUM8(keyboard_mode);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             break;
 
       case X_UngrabKeyboard:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             TIMESTAMP(time);
             break;
@@ -3942,7 +3967,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             KEYCODE(key);
             ENUM8(pointer_mode);
             ENUM8(keyboard_mode);
-            UNUSED(3);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
+            *offsetp += 3;
             break;
 
       case X_UngrabKey:
@@ -3950,7 +3976,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(grab_window);
             SETofKEYMASK(modifiers);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             break;
 
       case X_AllowEvents:
@@ -3960,23 +3987,27 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_GrabServer:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_UngrabServer:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_QueryPointer:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             break;
 
       case X_GetMotionEvents:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             TIMESTAMP(start);
@@ -3984,7 +4015,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_TranslateCoords:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(src_window);
             WINDOW(dst_window);
@@ -3993,7 +4025,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_WarpPointer:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(warp_pointer_src_window);
             WINDOW(warp_pointer_dst_window);
@@ -4013,33 +4046,39 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_GetInputFocus:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_QueryKeymap:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_OpenFont:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             FONT(fid);
             v16 = FIELD16(name_length);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             STRING8(name, v16);
             PAD();
             break;
 
       case X_CloseFont:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             FONT(font);
             break;
 
       case X_QueryFont:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             FONTABLE(font);
             break;
@@ -4053,7 +4092,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_ListFonts:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             CARD16(max_names);
             v16 = FIELD16(pattern_length);
@@ -4062,7 +4102,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_ListFontsWithInfo:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             CARD16(max_names);
             v16 = FIELD16(pattern_length);
@@ -4071,16 +4112,19 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_SetFontPath:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             v16 = CARD16(str_number_in_path);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             LISTofSTRING8(path, v16);
             PAD();
             break;
 
       case X_GetFontPath:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
 
@@ -4094,13 +4138,15 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_FreePixmap:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             PIXMAP(pixmap);
             break;
 
       case X_CreateGC:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             GCONTEXT(cid);
             DRAWABLE(drawable);
@@ -4108,14 +4154,16 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_ChangeGC:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             GCONTEXT(gc);
             gcAttributes(tvb, offsetp, t, byte_order);
             break;
 
       case X_CopyGC:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             GCONTEXT(src_gc);
             GCONTEXT(dst_gc);
@@ -4123,7 +4171,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_SetDashes:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             GCONTEXT(gc);
             CARD16(dash_offset);
@@ -4142,7 +4191,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_FreeGC:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             GCONTEXT(gc);
             break;
@@ -4158,7 +4208,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_CopyArea:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(src_drawable);
             DRAWABLE(dst_drawable);
@@ -4172,7 +4223,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_CopyPlane:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(src_drawable);
             DRAWABLE(dst_drawable);
@@ -4203,7 +4255,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_PolySegment:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
@@ -4211,7 +4264,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_PolyRectangle:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
@@ -4219,7 +4273,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_PolyArc:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
@@ -4227,18 +4282,21 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_FillPoly:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             v16 = requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
             ENUM8(shape);
             ENUM8(coordinate_mode);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             LISTofPOINT(points, v16 - 16);
             break;
 
       case X_PolyFillRectangle:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
@@ -4246,7 +4304,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_PolyFillArc:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
@@ -4264,7 +4323,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             INT16(dst_y);
             CARD8(left_pad);
             CARD8(depth);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             LISTofBYTE(data, v16 - 24);
             PAD();
             break;
@@ -4281,7 +4341,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_PolyText8:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
@@ -4292,7 +4353,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_PolyText16:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             DRAWABLE(drawable);
             GCONTEXT(gc);
@@ -4333,52 +4395,61 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_FreeColormap:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             break;
 
       case X_CopyColormapAndFree:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(mid);
             COLORMAP(src_cmap);
             break;
 
       case X_InstallColormap:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             break;
 
       case X_UninstallColormap:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             break;
 
       case X_ListInstalledColormaps:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             break;
 
       case X_AllocColor:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             CARD16(red);
             CARD16(green);
             CARD16(blue);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             break;
 
       case X_AllocNamedColor:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             v16 = FIELD16(name_length);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             STRING8(name, v16);
             PAD();
             break;
@@ -4402,7 +4473,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_FreeColors:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             v16 = requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             CARD32(plane_mask);
@@ -4410,7 +4482,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_StoreColors:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             v16 = requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             LISTofCOLORITEM(color_items, v16 - 8);
@@ -4422,30 +4495,35 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             COLORMAP(cmap);
             CARD32(pixel);
             v16 = FIELD16(name_length);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             STRING8(name, v16);
             PAD();
             break;
 
       case X_QueryColors:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             v16 = requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             LISTofCARD32(pixels, v16 - 8);
             break;
 
       case X_LookupColor:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             COLORMAP(cmap);
             v16 = FIELD16(name_length);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             STRING8(name, v16);
             PAD();
             break;
 
       case X_CreateCursor:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             CURSOR(cid);
             PIXMAP(source_pixmap);
@@ -4461,7 +4539,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_CreateGlyphCursor:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             CURSOR(cid);
             FONT(source_font);
@@ -4477,13 +4556,15 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_FreeCursor:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             CURSOR(cursor);
             break;
 
       case X_RecolorCursor:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             CURSOR(cursor);
             CARD16(fore_red);
@@ -4503,16 +4584,19 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_QueryExtension:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             v16 = FIELD16(name_length);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             STRING8(name, v16);
             PAD();
             break;
 
       case X_ListExtensions:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
 
@@ -4521,17 +4605,20 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             requestLength(tvb, offsetp, t, byte_order);
             v8_2 = KEYCODE(first_keycode);
             v8_3 = FIELD8(keysyms_per_keycode);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             LISTofKEYSYM(keysyms, state->keycodemap, v8_2, v8, v8_3);
             break;
 
       case X_GetKeyboardMapping:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             state->request.GetKeyboardMapping.first_keycode
             = KEYCODE(first_keycode);
             FIELD8(count);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             break;
 
       case X_ChangeKeyboardControl:
@@ -4607,7 +4694,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_GetKeyboardControl:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
 
@@ -4617,7 +4705,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_ChangePointerControl:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             INT16(acceleration_numerator);
             INT16(acceleration_denominator);
@@ -4627,22 +4716,26 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_GetPointerControl:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_SetScreenSaver:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             INT16(timeout);
             INT16(interval);
             ENUM8(prefer_blanking);
             ENUM8(allow_exposures);
-            UNUSED(2);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+            *offsetp += 2;
             break;
 
       case X_GetScreenSaver:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
 
@@ -4650,7 +4743,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             ENUM8(change_host_mode);
             requestLength(tvb, offsetp, t, byte_order);
             v8 = ENUM8(family);
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             v16 = CARD16(address_length);
             if (v8 == FAMILY_INTERNET && v16 == 4) {
                   /*
@@ -4664,7 +4758,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_ListHosts:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
 
@@ -4679,13 +4774,15 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_KillClient:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             CARD32(resource);
             break;
 
       case X_RotateProperties:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             v16 = requestLength(tvb, offsetp, t, byte_order);
             WINDOW(window);
             CARD16(property_number);
@@ -4706,7 +4803,8 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_GetPointerMapping:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
 
@@ -4717,12 +4815,14 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
       case X_GetModifierMapping:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
 
       case X_NoOperation:
-            UNUSED(1);
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+            *offsetp += 1;
             requestLength(tvb, offsetp, t, byte_order);
             break;
       default:
@@ -5316,7 +5416,8 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   CARD16(width);
                   CARD16(height);
                   CARD16(border_width);
-                  UNUSED(10);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 10, ENC_NA);
+                  *offsetp += 10;
                   break;
 
             case X_QueryTree:
@@ -5325,11 +5426,13 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             case X_InternAtom:
                   REPLY(reply);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
                   ATOM(atom);
-                  UNUSED(20);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+                  *offsetp += 20;
                   break;
 
             case X_GetAtomName:
@@ -5344,26 +5447,31 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   ATOM(get_property_type);
                   CARD32(bytes_after);
                   CARD32(valuelength);
-                  UNUSED(12);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+                  *offsetp += 12;
                   break;
 
             case X_ListProperties:
                   REPLY(reply);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
                   length = CARD16(property_number);
-                  UNUSED(22);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
+                  *offsetp += 22;
                   LISTofATOM(properties, length*4);
                   break;
 
             case X_GetSelectionOwner:
                   REPLY(reply);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
                   WINDOW(owner);
-                  UNUSED(20);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+                  *offsetp += 20;
                   break;
 
             case X_GrabPointer:
@@ -5372,7 +5480,8 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   ENUM8(grab_status);
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
-                  UNUSED(24);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+                  *offsetp += 24;
                   break;
 
             case X_QueryPointer:
@@ -5387,7 +5496,8 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   INT16(win_x);
                   INT16(win_y);
                   SETofKEYBUTMASK(mask);
-                  UNUSED(6);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 6, ENC_NA);
+                  *offsetp += 6;
                   break;
 
             case X_GetMotionEvents:
@@ -5402,7 +5512,8 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   WINDOW(childwindow);
                   INT16(dst_x);
                   INT16(dst_y);
-                  UNUSED(16);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+                  *offsetp += 16;
                   break;
 
             case X_GetInputFocus:
@@ -5411,12 +5522,14 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
                   WINDOW(focus);
-                  UNUSED(20);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+                  *offsetp += 20;
                   break;
 
             case X_QueryKeymap:
                   REPLY(reply);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
                   LISTofCARD8(keys, 32);
@@ -5432,15 +5545,18 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             case X_AllocColor:
                   REPLY(reply);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
                   CARD16(red);
                   CARD16(green);
                   CARD16(blue);
-                  UNUSED(2);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
+                  *offsetp += 2;
                   CARD32(pixel);
-                  UNUSED(12);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+                  *offsetp += 12;
                   break;
 
             case X_QueryColors:
@@ -5449,7 +5565,8 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             case X_LookupColor:
                   REPLY(reply);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
                   CARD16(exact_red);
@@ -5458,29 +5575,34 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   CARD16(visual_red);
                   CARD16(visual_green);
                   CARD16(visual_blue);
-                  UNUSED(12);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
+                  *offsetp += 12;
                   break;
 
             case X_QueryBestSize:
                   REPLY(reply);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
                   CARD16(width);
                   CARD16(height);
-                  UNUSED(20);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+                  *offsetp += 20;
                   break;
 
             case X_QueryExtension:
                   REPLY(reply);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
                   BOOL(present);
                   CARD8(major_opcode);
                   CARD8(first_event);
                   CARD8(first_error);
-                  UNUSED(20);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+                  *offsetp += 20;
                   break;
 
             case X_ListExtensions:
@@ -5495,7 +5617,8 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         FIELD8(keysyms_per_keycode);
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   length = REPLYLENGTH(replylength);
-                  UNUSED(24);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+                  *offsetp += 24;
                   LISTofKEYSYM(keysyms, state->keycodemap,
                                state->request.GetKeyboardMapping.first_keycode,
                                /* XXX - length / state->keysyms_per_keycode can raise a division by zero,
@@ -5510,25 +5633,29 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             case X_GetPointerControl:
                   REPLY(reply);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
                   CARD16(acceleration_numerator);
                   CARD16(acceleration_denominator);
                   CARD16(threshold);
-                  UNUSED(18);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 18, ENC_NA);
+                  *offsetp += 18;
                   break;
 
             case X_GetScreenSaver:
                   REPLY(reply);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
                   CARD16(timeout);
                   CARD16(interval);
                   ENUM8(prefer_blanking);
                   ENUM8(allow_exposures);
-                  UNUSED(18);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 18, ENC_NA);
+                  *offsetp += 18;
                   break;
 
             case X_ListHosts:
@@ -5544,7 +5671,8 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         FIELD8(keycodes_per_modifier);
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   REPLYLENGTH(replylength);
-                  UNUSED(24);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
+                  *offsetp += 24;
                   LISTofKEYCODE(state->modifiermap, keycodes,
                                 state->keycodes_per_modifier);
                   break;
@@ -5645,7 +5773,8 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
                   CARD16(event_sequencenumber);
                   EVENTCONTENTS_COMMON();
                   BOOL(same_screen);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   break;
             }
 
@@ -5655,7 +5784,8 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
                   CARD16(event_sequencenumber);
                   EVENTCONTENTS_COMMON();
                   BOOL(same_screen);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   break;
 
             case MotionNotify:
@@ -5663,7 +5793,8 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
                   CARD16(event_sequencenumber);
                   EVENTCONTENTS_COMMON();
                   BOOL(same_screen);
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   break;
 
             case EnterNotify:
@@ -5681,14 +5812,16 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   ENUM8(focus_mode);
-                  UNUSED(23);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+                  *offsetp += 23;
                   break;
 
             case KeymapNotify:
                   break;
 
             case Expose:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   INT16(x);
@@ -5696,11 +5829,13 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
                   CARD16(width);
                   CARD16(height);
                   CARD16(count);
-                  UNUSED(14);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 14, ENC_NA);
+                  *offsetp += 14;
                   break;
 
             case GraphicsExpose:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   DRAWABLE(drawable);
                   CARD16(x);
@@ -5710,28 +5845,34 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
                   CARD16(minor_opcode);
                   CARD16(count);
                   CARD8(major_opcode);
-                  UNUSED(11);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 11, ENC_NA);
+                  *offsetp += 11;
                   break;
 
             case NoExpose:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   DRAWABLE(drawable);
                   CARD16(minor_opcode);
                   CARD8(major_opcode);
-                  UNUSED(21);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 21, ENC_NA);
+                  *offsetp += 21;
                   break;
 
             case VisibilityNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   ENUM8(visibility_state);
-                  UNUSED(23);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
+                  *offsetp += 23;
                   break;
 
             case CreateNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(parent);
                   WINDOW(eventwindow);
@@ -5741,45 +5882,55 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
                   CARD16(height);
                   CARD16(border_width);
                   BOOL(override_redirect);
-                  UNUSED(9);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 9, ENC_NA);
+                  *offsetp += 9;
                   break;
 
             case DestroyNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   WINDOW(window);
-                  UNUSED(20);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+                  *offsetp += 20;
                   break;
 
             case UnmapNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   WINDOW(window);
                   BOOL(from_configure);
-                  UNUSED(19);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 19, ENC_NA);
+                  *offsetp += 19;
                   break;
 
             case MapNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   WINDOW(window);
                   BOOL(override_redirect);
-                  UNUSED(19);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 19, ENC_NA);
+                  *offsetp += 19;
                   break;
 
             case MapRequest:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(parent);
                   WINDOW(eventwindow);
-                  UNUSED(20);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+                  *offsetp += 20;
                   break;
 
             case ReparentNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   WINDOW(window);
@@ -5787,11 +5938,13 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
                   INT16(x);
                   INT16(y);
                   BOOL(override_redirect);
-                  UNUSED(11);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 11, ENC_NA);
+                  *offsetp += 11;
                   break;
 
             case ConfigureNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   WINDOW(window);
@@ -5802,72 +5955,88 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
                   CARD16(height);
                   CARD16(border_width);
                   BOOL(override_redirect);
-                  UNUSED(5);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 5, ENC_NA);
+                  *offsetp += 5;
                   break;
 
             case ConfigureRequest:
                   break;
 
             case GravityNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   WINDOW(window);
                   INT16(x);
                   INT16(y);
-                  UNUSED(16);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+                  *offsetp += 16;
                   break;
 
             case ResizeRequest:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   CARD16(width);
                   CARD16(height);
-                  UNUSED(20);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
+                  *offsetp += 20;
                   break;
 
             case CirculateNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   WINDOW(window);
-                  UNUSED(4);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+                  *offsetp += 4;
                   ENUM8(place);
-                  UNUSED(15);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 15, ENC_NA);
+                  *offsetp += 15;
                   break;
 
             case CirculateRequest:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(parent);
                   WINDOW(eventwindow);
-                  UNUSED(4);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+                  *offsetp += 4;
                   ENUM8(place);
-                  UNUSED(15);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 15, ENC_NA);
+                  *offsetp += 15;
                   break;
 
             case PropertyNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   ATOM(atom);
                   TIMESTAMP(time);
                   ENUM8(property_state);
-                  UNUSED(15);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 15, ENC_NA);
+                  *offsetp += 15;
                   break;
 
             case SelectionClear:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   TIMESTAMP(time);
                   WINDOW(owner);
                   ATOM(selection);
-                  UNUSED(16);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
+                  *offsetp += 16;
                   break;
 
             case SelectionRequest:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   TIMESTAMP(time);
                   WINDOW(owner);
@@ -5875,28 +6044,33 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
                   ATOM(selection);
                   ATOM(target);
                   ATOM(property);
-                  UNUSED(4);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
+                  *offsetp += 4;
                   break;
 
             case SelectionNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   TIMESTAMP(time);
                   WINDOW(requestor);
                   ATOM(selection);
                   ATOM(target);
                   ATOM(property);
-                  UNUSED(8);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
+                  *offsetp += 8;
                   break;
 
             case ColormapNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   WINDOW(eventwindow);
                   COLORMAP(cmap);
                   BOOL(new);
                   ENUM8(colormap_state);
-                  UNUSED(18);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 18, ENC_NA);
+                  *offsetp += 18;
                   break;
 
             case ClientMessage:
@@ -5908,12 +6082,14 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
                   break;
 
             case MappingNotify:
-                  UNUSED(1);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
+                  *offsetp += 1;
                   CARD16(event_sequencenumber);
                   ENUM8(mapping_request);
                   CARD8(first_keycode);
                   CARD8(count);
-                  UNUSED(25);
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 25, ENC_NA);
+                  *offsetp += 25;
                   break;
 
             case GenericEvent:
@@ -5927,8 +6103,6 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
 
       if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
             UNDECODED(left);
-
-      return;
 }
 
 static void

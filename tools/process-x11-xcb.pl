@@ -375,7 +375,8 @@ eot
             print $impl "    *offsetp += 1;\n";
             $length += 1;
         }
-        print $impl "    UNUSED(2);\n";
+        print $impl "    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);\n";
+        print $impl "    *offsetp += 2;\n";
         $length += 2;
         foreach my $wholename (('row length', 'skip rows', 'skip pixels', 'alignment')) {
             # Integer values
@@ -431,19 +432,23 @@ eot
                     say $impl "    switch($variable_param) {";
                     say $impl "    case 0x1400: /* BYTE */";
                     say $impl "        listOfByte(tvb, offsetp, t, ${regname}_signed, $count, byte_order);";
-                    say $impl "        UNUSED(length - $length - $count);";
+                    say $impl "        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - $length - $count), ENC_NA);";
+                    say $impl "        *offsetp += (length - $length - $count);";
                     say $impl "        break;";
                     say $impl "    case 0x1401: /* UNSIGNED_BYTE */";
                     say $impl "        listOfByte(tvb, offsetp, t, ${regname}_unsigned, $count, byte_order);";
-                    say $impl "        UNUSED(length - $length - $count);";
+                    say $impl "        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - $length - $count), ENC_NA);";
+                    say $impl "        *offsetp += (length - $length - $count);";
                     say $impl "        break;";
                     say $impl "    case 0x1402: /* SHORT */";
                     say $impl "        listOfInt16(tvb, offsetp, t, $regname, ${regname}_item_int16, $count, byte_order);";
-                    say $impl "        UNUSED(length - $length - 2 * $count);";
+                    say $impl "        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - $length - 2 * $count), ENC_NA);";
+                    say $impl "        *offsetp += (length - $length - 2 * $count);";
                     say $impl "        break;";
                     say $impl "    case 0x1403: /* UNSIGNED_SHORT */";
                     say $impl "        listOfCard16(tvb, offsetp, t, $regname, ${regname}_item_card16, $count, byte_order);";
-                    say $impl "        UNUSED(length - $length - 2 * $count);";
+                    say $impl "        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - $length - 2 * $count), ENC_NA);";
+                    say $impl "        *offsetp += (length - $length - 2 * $count);";
                     say $impl "        break;";
                     say $impl "    case 0x1404: /* INT */";
                     say $impl "        listOfInt32(tvb, offsetp, t, $regname, ${regname}_item_int32, $count, byte_order);";
@@ -456,18 +461,21 @@ eot
                     say $impl "        break;";
                     say $impl "    case 0x1407: /* 2_BYTES */";
                     say $impl "        listOfCard16(tvb, offsetp, t, $regname, ${regname}_item_card16, $count, ENC_BIG_ENDIAN);";
-                    say $impl "        UNUSED(length - $length - 2 * $count);";
+                    say $impl "        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - $length - 2 * $count), ENC_NA);";
+                    say $impl "        *offsetp += (length - $length - 2 * $count);";
                     say $impl "        break;";
                     say $impl "    case 0x1408: /* 3_BYTES */";
                     say $impl "        UNDECODED(3 * $count);";
-                    say $impl "        UNUSED(length - $length - 3 * $count);";
+                    say $impl "        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - $length - 3 * $count), ENC_NA);";
+                    say $impl "        *offsetp += (length - $length - 3 * $count);";
                     say $impl "        break;";
                     say $impl "    case 0x1409: /* 4_BYTES */";
                     say $impl "        listOfCard32(tvb, offsetp, t, $regname, ${regname}_item_card32, $count, ENC_BIG_ENDIAN);";
                     say $impl "        break;";
                     say $impl "    case 0x140B: /* HALF_FLOAT */";
                     say $impl "        UNDECODED(2 * $count);";
-                    say $impl "        UNUSED(length - $length - 2 * $count);";
+                    say $impl "        proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (length - $length - 2 * $count), ENC_NA);";
+                    say $impl "        *offsetp += (length - $length - 2 * $count);";
                     say $impl "        break;";
                     say $impl "    default:     /* Unknown */";
                     say $impl "        UNDECODED(length - $length);";
@@ -760,11 +768,13 @@ sub dissect_element($$$$$;$$)
             my $bytes = $e->att('bytes');
             my $align = $e->att('align');
             if (defined $bytes) {
-                print $impl $indent."UNUSED($bytes);\n";
+                print $impl $indent."proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, $bytes, ENC_NA);\n";
+                print $impl $indent."*offsetp += $bytes;\n";
                 $length += $bytes;
             } else {
                 say $impl $indent.'if (*offsetp % '.$align.') {';
-                say $impl $indent."    UNUSED($align - *offsetp % $align);";
+                say $impl $indent."    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, ($align - *offsetp % $align), ENC_NA);";
+                say $impl $indent."    *offsetp += ($align - *offsetp % $align);";
                 say $impl $indent."}";
                 if ($length % $align != 0) {
                     $length += $align - $length % $align;
