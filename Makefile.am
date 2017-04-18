@@ -84,6 +84,7 @@ dist_diameter_DATA = $(_CUSTOM_diameter_xml_files_) \
 	diameter/eap.xml \
 	diameter/Ericsson.xml \
 	diameter/etsie2e4.xml \
+	diameter/Juniper.xml \
 	diameter/mobileipv4.xml \
 	diameter/mobileipv6.xml \
 	diameter/nasreq.xml \

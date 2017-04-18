@@ -27,6 +27,7 @@
 	<!ENTITY HP			SYSTEM "HP.xml">
 	<!ENTITY CiscoSystems			SYSTEM "CiscoSystems.xml">
 	<!ENTITY Oracle			SYSTEM "Oracle.xml">
+	<!ENTITY Juniper		SYSTEM "Juniper.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
 ]>
 <dictionary>
@@ -7620,5 +7621,6 @@
 	&HP;
 	&Oracle;
 	&CiscoSystems;
+	&Juniper;
 	&Custom;
 </dictionary>
