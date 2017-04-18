@@ -2279,7 +2279,7 @@ static int      dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinf
 static int      dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
                                     int offset, int len, hdrinfo_t *hdrinfo_p, guint16 flowset_id);
 
-static const gchar *getprefix(const guint32 *address, int prefix);
+static const gchar *getprefix(const guint32 *address, unsigned prefix);
 
 static int      flow_process_ints(proto_tree *pdutree, tvbuff_t *tvb,
                                   int offset);
@@ -7670,12 +7670,18 @@ dissect_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree, int offs
 }
 
 static const gchar   *
-getprefix(const guint32 *addr, int prefix)
+getprefix(const guint32 *addr, unsigned prefix)
 {
     guint32 gprefix;
     address prefix_addr;
 
-    gprefix = *addr & g_htonl((0xffffffff << (32 - prefix)));
+    if (prefix == 0) {
+        gprefix = 0;
+    } else if (prefix < 32) {
+        gprefix = *addr & g_htonl((0xffffffff << (32 - prefix)));
+    } else {
+        gprefix = *addr;
+    }
 
     set_address(&prefix_addr, AT_IPv4, 4, &gprefix);
     return address_to_str(wmem_packet_scope(), &prefix_addr);
