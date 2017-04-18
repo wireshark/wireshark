@@ -536,19 +536,17 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
 
     case VP_RES_ERROR:
       s = tvb_get_guint8(tvb, offset);
-      proto_tree_add_uint_format(tree, hf_cotp_res_error_rate_target_value, tvb, offset, 1,
-                          s, "Residual error rate, target value: 10^%u", s);
+      proto_tree_add_uint_format_value(tree, hf_cotp_res_error_rate_target_value, tvb, offset, 1, s, "10^%u", s);
       offset += 1;
       vp_length -= 1;
 
       s = tvb_get_guint8(tvb, offset);
-      proto_tree_add_uint_format(tree, hf_cotp_res_error_rate_min_accept, tvb, offset, 1,
-                          s, "Residual error rate, minimum acceptable: 10^%u", s);
+      proto_tree_add_uint_format_value(tree, hf_cotp_res_error_rate_min_accept, tvb, offset, 1, s, "10^%u", s);
       offset += 1;
       vp_length -= 1;
 
       s = tvb_get_guint8(tvb, offset);
-      proto_tree_add_uint(tree,hf_cotp_res_error_rate_tdsu, tvb, offset, 1, 1 << s);
+      proto_tree_add_uint_format_value(tree, hf_cotp_res_error_rate_tdsu, tvb, offset, 1, s, "2^%u", s);
       offset += 1;
       vp_length -= 1;
       break;
