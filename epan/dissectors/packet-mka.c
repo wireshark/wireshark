@@ -69,6 +69,9 @@ static int hf_mka_cak_name = -1;
 
 static int hf_mka_padding = -1;
 
+static int hf_mka_peer_mi = -1;
+static int hf_mka_peer_mn = -1;
+
 static int hf_mka_latest_key_an = -1;
 static int hf_mka_latest_key_tx = -1;
 static int hf_mka_latest_key_rx = -1;
@@ -253,11 +256,11 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *
   offset += 2;
 
   while (peer_list_len >= 16) {
-    proto_tree_add_item(peer_list_set_tree, hf_mka_actor_mi,
+    proto_tree_add_item(peer_list_set_tree, hf_mka_peer_mi,
                         tvb, offset, 12, ENC_NA);
     offset += 12;
 
-    proto_tree_add_item(peer_list_set_tree, hf_mka_actor_mn,
+    proto_tree_add_item(peer_list_set_tree, hf_mka_peer_mn,
                         tvb, offset, 4, ENC_NA);
     offset += 4;
 
@@ -822,6 +825,16 @@ proto_register_mka(void)
 
     { &hf_mka_padding, {
         "Padding", "mka.padding",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_mka_peer_mi, {
+        "Peer Member Identifier", "mka.peer_mi",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_mka_peer_mn, {
+        "Peer Message Number", "mka.peer_mn",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
