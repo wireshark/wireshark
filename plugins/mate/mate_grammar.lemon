@@ -28,7 +28,9 @@
  * XXX - there's a Lemon bug where this grammar produces a parser that
  * fails assertions; to work around it, we disable assert() failures.
  */
+#ifndef NDEBUG
 #define NDEBUG
+#endif
 
 #include "mate.h"
 #include "mate_grammar.h"
