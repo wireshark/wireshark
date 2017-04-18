@@ -42,8 +42,8 @@ extern int access(const char *path, int mode);
 #include <unistd.h>
 #endif
 
-/* #define PRIVATE static */
-#define PRIVATE
+#define PRIVATE static
+/* #define PRIVATE */
 
 #ifdef TEST
 #define MAXRHS 5       /* Set low to exercise exception code */
@@ -530,7 +530,7 @@ static struct action *Action_sort(
   return ap;
 }
 
-void Action_add(
+PRIVATE void Action_add(
   struct action **app,
   enum e_action type,
   struct symbol *sp,
@@ -602,14 +602,16 @@ struct acttab {
 #define acttab_yylookahead(X,N)  ((X)->aAction[N].lookahead)
 
 /* Free all memory associated with the given acttab */
-void acttab_free(acttab *p){
+#if 0
+PRIVATE void acttab_free(acttab *p){
   free( p->aAction );
   free( p->aLookahead );
   free( p );
 }
+#endif
 
 /* Allocate a new acttab structure */
-acttab *acttab_alloc(void){
+PRIVATE acttab *acttab_alloc(void){
   acttab *p = (acttab *) calloc( 1, sizeof(*p) );
   if( p==0 ){
     fprintf(stderr,"Unable to allocate memory for a new acttab.");
@@ -624,7 +626,7 @@ acttab *acttab_alloc(void){
 ** This routine is called once for each lookahead for a particular
 ** state.
 */
-void acttab_action(acttab *p, int lookahead, int action){
+PRIVATE void acttab_action(acttab *p, int lookahead, int action){
   if( p->nLookahead>=p->nLookaheadAlloc ){
     p->nLookaheadAlloc += 25;
     p->aLookahead = (struct lookahead_action *) realloc( p->aLookahead,
@@ -654,7 +656,7 @@ void acttab_action(acttab *p, int lookahead, int action){
 **
 ** Return the offset into the action table of the new transaction.
 */
-int acttab_insert(acttab *p){
+PRIVATE int acttab_insert(acttab *p){
   int i, j, k, n;
   assert( p->nLookahead>0 );
 
@@ -956,7 +958,7 @@ PRIVATE struct state *getstate(struct lemon *lemp)
 /*
 ** Return true if two symbols are the same.
 */
-int same_symbol(struct symbol *a, struct symbol *b)
+PRIVATE int same_symbol(struct symbol *a, struct symbol *b)
 {
   int i;
   if( a==b ) return 1;
@@ -1870,7 +1872,7 @@ static char *merge(
 **   The "next" pointers for elements in list are changed.
 */
 #define LISTSIZE 30
-static char *msort(
+PRIVATE char *msort(
   char *list,
   char **next,
   int (*cmp)(const char*,const char*)
@@ -3109,7 +3111,7 @@ void Reprint(struct lemon *lemp)
 
 /* Print a single rule.
 */
-void RulePrint(FILE *fp, struct rule *rp, int iCursor){
+PRIVATE void RulePrint(FILE *fp, struct rule *rp, int iCursor){
   struct symbol *sp;
   int i, j;
   fprintf(fp,"%s ::=",rp->lhs->name);
@@ -3130,7 +3132,7 @@ void RulePrint(FILE *fp, struct rule *rp, int iCursor){
 
 /* Print the rule for a configuration.
 */
-void ConfigPrint(FILE *fp, struct config *cfp){
+PRIVATE void ConfigPrint(FILE *fp, struct config *cfp){
   RulePrint(fp, cfp->rp, cfp->dot);
 }
 
@@ -3173,7 +3175,7 @@ char *tag;
 /* Print an action to the given file descriptor.  Return FALSE if
 ** nothing was actually printed.
 */
-int PrintAction(
+PRIVATE int PrintAction(
   struct action *ap,          /* The action to print */
   FILE *fp,                   /* Print the action here */
   int indent                  /* Indent by this amount */
@@ -3500,7 +3502,7 @@ PRIVATE void tplt_print(FILE *out, struct lemon *lemp, char *str, int *lineno)
 ** The following routine emits code for the destructor for the
 ** symbol sp
 */
-void emit_destructor_code(
+PRIVATE void emit_destructor_code(
   FILE *out,
   struct symbol *sp,
   struct lemon *lemp,
@@ -3546,7 +3548,7 @@ void emit_destructor_code(
 /*
 ** Return TRUE (non-zero) if the given symbol has a destructor.
 */
-int has_destructor(struct symbol *sp, struct lemon *lemp)
+PRIVATE int has_destructor(struct symbol *sp, struct lemon *lemp)
 {
   int ret;
   if( sp->type==TERMINAL ){
@@ -3864,7 +3866,7 @@ PRIVATE void emit_code(
 ** union, also set the ".dtnum" field of every terminal and nonterminal
 ** symbol.
 */
-void print_stack_union(
+PRIVATE void print_stack_union(
   FILE *out,                  /* The output stream */
   struct lemon *lemp,         /* The main info structure for this parser */
   int *plineno,               /* Pointer to the line number */
