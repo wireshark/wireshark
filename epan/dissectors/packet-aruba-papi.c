@@ -387,8 +387,8 @@ static const value_string papi_port_vals[] = {
     { STATION_MANAGEMENT_LOPRI_AP, "STATION_MANAGEMENT_LOPRI_AP" },
     { CPSEC, "CPSEC" },
     { P8MGR, "P8MGR" },
-    { LAST_SERVICE, "LAST_SERVICE" },
-    { MESSAGE_HANDLER, "MESSAGE_HANDLER" },
+    { LAST_SERVICE, "LAST_SERVICE / MESSAGE_HANDLER" },
+    //{ MESSAGE_HANDLER, "MESSAGE_HANDLER" },
     { PAPI_EPHEMERAL, "PAPI_EPHEMERAL" },
     { 0,     NULL     }
 };
