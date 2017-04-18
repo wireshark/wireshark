@@ -2410,7 +2410,6 @@ wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
 	if (new_fd == -1) {
 		/* dup failed */
 		*err = errno;
-		ws_close(new_fd);
 		return NULL;
 	}
 #ifdef _WIN32
