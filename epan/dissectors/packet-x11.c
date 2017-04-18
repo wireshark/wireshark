@@ -124,17 +124,16 @@ Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask };
 #define NoSymbol             0L /* special KeySym */
 
 typedef struct _x11_conv_data {
-      struct _x11_conv_data *next;
-      GHashTable *seqtable;            /* hashtable of sequencenumber <-> opcode. */
-      GHashTable *valtable;            /* hashtable of sequencenumber <-> &opcode_vals */
+      wmem_map_t *seqtable;            /* hashtable of sequencenumber <-> opcode. */
+      wmem_map_t *valtable;            /* hashtable of sequencenumber <-> &opcode_vals */
       /* major opcodes including extensions (NULL terminated) */
       value_string opcode_vals[MAX_OPCODES+1];
       /* error codes including extensions (NULL terminated) */
       value_string errorcode_vals[LastExtensionError + 2];
       /* event codes including extensions (NULL terminated) */
       value_string eventcode_vals[LastExtensionEvent + 2];
-      GHashTable *eventcode_funcs;      /* hashtable of eventcode <-> dissect_event() */
-      GHashTable *reply_funcs;          /* hashtable of opcode <-> dissect_reply() */
+      wmem_map_t *eventcode_funcs;      /* hashtable of eventcode <-> dissect_event() */
+      wmem_map_t *reply_funcs;          /* hashtable of opcode <-> dissect_reply() */
 
       int       sequencenumber;   /* sequencenumber of current packet.       */
       guint32   iconn_frame;      /* frame # of initial connection request   */
@@ -155,13 +154,11 @@ typedef struct _x11_conv_data {
       } request;
 } x11_conv_data_t;
 
-static x11_conv_data_t *x11_conv_data_list = NULL;
-
-static GHashTable *extension_table; /* hashtable of extension name <-> dispatch function */
-static GHashTable *event_table;     /* hashtable of extension name <-> event info list */
-static GHashTable *genevent_table;     /* hashtable of extension name <-> generic event info list */
-static GHashTable *error_table;     /* hashtable of extension name <-> error list */
-static GHashTable *reply_table;     /* hashtable of extension name <-> reply list */
+static wmem_map_t *extension_table; /* hashtable of extension name <-> dispatch function */
+static wmem_map_t *event_table;     /* hashtable of extension name <-> event info list */
+static wmem_map_t *genevent_table;     /* hashtable of extension name <-> generic event info list */
+static wmem_map_t *error_table;     /* hashtable of extension name <-> error list */
+static wmem_map_t *reply_table;     /* hashtable of extension name <-> reply list */
 
 /* Initialize the protocol and registered fields */
 static int proto_x11 = -1;
@@ -1935,18 +1932,15 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
       for (m = 0; m < array_length(modifiers);
         ++m, *offsetp += keycodes_per_modifier) {
-            const guint8 *p;
             proto_item *tikc;
             int i;
 
-            p = tvb_get_ptr(tvb, *offsetp, keycodes_per_modifier);
-            modifiermap[m] = (int *)
-                g_malloc(sizeof(*modifiermap[m]) * keycodes_per_modifier);
-
             tikc = proto_tree_add_bytes_format(tt, hf_x11_keycodes_item, tvb,
-                *offsetp, keycodes_per_modifier, p, "item: ");
+                *offsetp, keycodes_per_modifier, NULL, "item: ");
+            modifiermap[m] = (int *)
+                wmem_alloc(wmem_file_scope(), sizeof(*modifiermap[m]) * keycodes_per_modifier);
             for(i = 0; i < keycodes_per_modifier; ++i) {
-                guchar c = p[i];
+                guchar c = tvb_get_guint8(tvb, (*offsetp) + i);
 
                 if (c)
                     proto_item_append_text(tikc, " %s=%d", modifiers[m], c);
@@ -1985,7 +1979,7 @@ static void listOfKeysyms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
 
             tvb_ensure_bytes_exist(tvb, *offsetp, 4 * keysyms_per_keycode);
             keycodemap[keycode]
-                  =  (int *)g_malloc(sizeof(*keycodemap[keycode]) * keysyms_per_keycode);
+                  =  (int *)wmem_alloc(wmem_file_scope(), sizeof(*keycodemap[keycode]) * keysyms_per_keycode);
 
             for(i = 0; i < keysyms_per_keycode; ++i) {
                   /* keysymvalue = byte3 * 256 + byte4. */
@@ -2689,26 +2683,6 @@ static void windowAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t,
       ENDBITMASK;
 }
 
-static void x11_cleanup(void)
-{
-      x11_conv_data_t *state;
-
-      for (state = x11_conv_data_list; state != NULL; ) {
-            x11_conv_data_t *last;
-
-            g_hash_table_destroy(state->eventcode_funcs);
-            g_hash_table_destroy(state->reply_funcs);
-
-            g_hash_table_destroy(state->seqtable);
-            g_hash_table_destroy(state->valtable);
-
-            last = state;
-            state = state->next;
-            g_free(last);
-      }
-      x11_conv_data_list = NULL;
-}
-
 /************************************************************************
  ***                                                                  ***
  ***         G U E S S I N G   T H E   B Y T E   O R D E R I N G      ***
@@ -3111,7 +3085,7 @@ static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
        * ...and we're expecting a reply to it.
        */
       state->sequencenumber = 0;
-      g_hash_table_insert(state->seqtable, GINT_TO_POINTER(state->sequencenumber),
+      wmem_map_insert(state->seqtable, GINT_TO_POINTER(state->sequencenumber),
                           (int *)INITIAL_CONN);
 }
 
@@ -3198,12 +3172,12 @@ static void set_handler(const char *name, void (*func)(tvbuff_t *tvb, packet_inf
                         const x11_generic_event_info *genevent_info,
                         const x11_reply_info *reply_info)
 {
-      g_hash_table_insert(extension_table, (gpointer)name, (gpointer)func);
-      g_hash_table_insert(error_table, (gpointer)name, (gpointer)errors);
-      g_hash_table_insert(event_table, (gpointer)name, (gpointer)event_info);
+      wmem_map_insert(extension_table, (gpointer)name, (gpointer)func);
+      wmem_map_insert(error_table, (gpointer)name, (gpointer)errors);
+      wmem_map_insert(event_table, (gpointer)name, (gpointer)event_info);
       if (genevent_info)
-          g_hash_table_insert(genevent_table, (gpointer)name, (gpointer)genevent_info);
-      g_hash_table_insert(reply_table, (gpointer)name, (gpointer)reply_info);
+          wmem_map_insert(genevent_table, (gpointer)name, (gpointer)genevent_info);
+      wmem_map_insert(reply_table, (gpointer)name, (gpointer)reply_info);
 }
 
 #include "x11-extension-errors.h"
@@ -3219,7 +3193,7 @@ static void tryExtension(int opcode, tvbuff_t *tvb, packet_info *pinfo, int *off
       if (!extension)
             return;
 
-      func = (void (*)(tvbuff_t *, packet_info *, int *, proto_tree *, guint))g_hash_table_lookup(extension_table, extension);
+      func = (void (*)(tvbuff_t *, packet_info *, int *, proto_tree *, guint))wmem_map_lookup(extension_table, extension);
       if (func)
             func(tvb, pinfo, offsetp, t, byte_order);
 }
@@ -3229,7 +3203,7 @@ static void tryExtensionReply(int opcode, tvbuff_t *tvb, packet_info *pinfo, int
 {
       void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order);
 
-      func = (void (*)(tvbuff_t *, packet_info *, int *, proto_tree *, guint))g_hash_table_lookup(state->reply_funcs, GINT_TO_POINTER(opcode));
+      func = (void (*)(tvbuff_t *, packet_info *, int *, proto_tree *, guint))wmem_map_lookup(state->reply_funcs, GINT_TO_POINTER(opcode));
       if (func)
             func(tvb, pinfo, offsetp, t, byte_order);
       else
@@ -3241,7 +3215,7 @@ static void tryExtensionEvent(int event, tvbuff_t *tvb, int *offsetp, proto_tree
 {
       void (*func)(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order);
 
-      func = (void (*)(tvbuff_t *, int *, proto_tree *, guint))g_hash_table_lookup(state->eventcode_funcs, GINT_TO_POINTER(event));
+      func = (void (*)(tvbuff_t *, int *, proto_tree *, guint))wmem_map_lookup(state->eventcode_funcs, GINT_TO_POINTER(event));
       if (func)
             func(tvb, offsetp, t, byte_order);
 }
@@ -3270,7 +3244,7 @@ static void tryGenericExtensionEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 
       if (extname) {
           x11_generic_event_info *info;
-          info = (x11_generic_event_info *)g_hash_table_lookup(genevent_table, extname);
+          info = (x11_generic_event_info *)wmem_map_lookup(genevent_table, extname);
 
           if (info) {
               int i;
@@ -3299,7 +3273,7 @@ static void register_extension(x11_conv_data_t *state, value_string *vals_p,
 
       vals_p->value = major_opcode;
 
-      error_string = (const char **)g_hash_table_lookup(error_table, vals_p->strptr);
+      error_string = (const char **)wmem_map_lookup(error_table, vals_p->strptr);
       while (error_string && *error_string && first_error <= LastExtensionError) {
             /* store string of extension error */
             for (i = 0; i <= LastExtensionError; i++) {
@@ -3317,7 +3291,7 @@ static void register_extension(x11_conv_data_t *state, value_string *vals_p,
             error_string++;
       }
 
-      event_info = (x11_event_info *)g_hash_table_lookup(event_table, vals_p->strptr);
+      event_info = (x11_event_info *)wmem_map_lookup(event_table, vals_p->strptr);
       while (event_info && event_info->name && first_event <= LastExtensionEvent) {
             /* store string of extension event */
             for (i = 0; i <= LastExtensionEvent; i++) {
@@ -3333,16 +3307,16 @@ static void register_extension(x11_conv_data_t *state, value_string *vals_p,
             }
 
             /* store event decode function */
-            g_hash_table_insert(state->eventcode_funcs, GINT_TO_POINTER(first_event), (gpointer)event_info->dissect);
+            wmem_map_insert(state->eventcode_funcs, GINT_TO_POINTER(first_event), (gpointer)event_info->dissect);
 
             first_event++;
             event_info++;
       }
 
-      reply_info = (x11_reply_info *)g_hash_table_lookup(reply_table, vals_p->strptr);
+      reply_info = (x11_reply_info *)wmem_map_lookup(reply_table, vals_p->strptr);
       if (reply_info)
             for (i = 0; reply_info[i].dissect; i++)
-                  g_hash_table_insert(state->reply_funcs,
+                  wmem_map_insert(state->reply_funcs,
                                       GINT_TO_POINTER(major_opcode | (reply_info[i].minor << 8)),
                                       (gpointer)reply_info[i].dissect);
 }
@@ -3407,13 +3381,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
                         if (state->opcode_vals[i].strptr == NULL) {
                               state->opcode_vals[i].strptr = name;
                               state->opcode_vals[i].value = -1;
-                              g_hash_table_insert(state->valtable,
+                              wmem_map_insert(state->valtable,
                                                   GINT_TO_POINTER(state->sequencenumber),
                                                   (int *)&state->opcode_vals[i]);
                               break;
                         } else if (strcmp(state->opcode_vals[i].strptr,
                                           name) == 0) {
-                              g_hash_table_insert(state->valtable,
+                              wmem_map_insert(state->valtable,
                                                   GINT_TO_POINTER(state->sequencenumber),
                                                   (int *)&state->opcode_vals[i]);
                               break;
@@ -3465,7 +3439,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
             /*
              * Those requests expect a reply.
              */
-            g_hash_table_insert(state->seqtable,
+            wmem_map_insert(state->seqtable,
                                 GINT_TO_POINTER(state->sequencenumber),
                                 GINT_TO_POINTER(opcode));
 
@@ -3479,7 +3453,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
                   guint32 minor;
                   minor = tvb_get_guint8(tvb, 1);
 
-                  g_hash_table_insert(state->seqtable,
+                  wmem_map_insert(state->seqtable,
                                       GINT_TO_POINTER(state->sequencenumber),
                                       GINT_TO_POINTER(opcode | (minor << 8)));
             }
@@ -4566,7 +4540,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
             }
 
             if (state->iconn_frame == pinfo->num ||
-                (g_hash_table_lookup(state->seqtable,
+                (wmem_map_lookup(state->seqtable,
                 GINT_TO_POINTER(state->sequencenumber)) == (int *)NOTHING_SEEN &&
                  (opcode == 'B' || opcode == 'l') &&
                  (plen == 11 || plen == 2816))) {
@@ -4761,10 +4735,8 @@ x11_stateinit(conversation_t *conversation)
       static x11_conv_data_t stateinit;
       int i;
 
-      state = (x11_conv_data_t *)g_malloc(sizeof (x11_conv_data_t));
+      state = wmem_new(wmem_file_scope(), x11_conv_data_t);
       *state = stateinit;
-      state->next = x11_conv_data_list;
-      x11_conv_data_list = state;
 
       /* initialise opcodes */
       for (i = 0; opcode_vals[i].strptr != NULL; i++) {
@@ -4795,12 +4767,12 @@ x11_stateinit(conversation_t *conversation)
             state->eventcode_vals[i].value = 0;
             state->eventcode_vals[i].strptr = NULL;
       }
-      state->eventcode_funcs = g_hash_table_new(g_direct_hash, g_direct_equal);
-      state->reply_funcs = g_hash_table_new(g_direct_hash, g_direct_equal);
+      state->eventcode_funcs = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+      state->reply_funcs = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
-      state->seqtable = g_hash_table_new(g_direct_hash, g_direct_equal);
-      state->valtable = g_hash_table_new(g_direct_hash, g_direct_equal);
-      g_hash_table_insert(state->seqtable, (int *)0, (int *)NOTHING_SEEN);
+      state->seqtable = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+      state->valtable = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+      wmem_map_insert(state->seqtable, (int *)0, (int *)NOTHING_SEEN);
       state->byte_order = BYTE_ORDER_UNKNOWN; /* don't know yet*/
       conversation_add_proto_data(conversation, proto_x11, state);
       return state;
@@ -4876,7 +4848,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              *  - requestreply (reply to a request)
              *  - event (some event occurred)
              */
-            if (g_hash_table_lookup(state->seqtable,
+            if (wmem_map_lookup(state->seqtable,
                                     GINT_TO_POINTER(state->sequencenumber)) == (int *)INITIAL_CONN
                 || (state->iconn_reply == pinfo->num)) {
                   /*
@@ -4975,7 +4947,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        */
 
       sequence_number = VALUE16(tvb, offset + 2);
-      opcode = GPOINTER_TO_INT(g_hash_table_lookup(state->seqtable,
+      opcode = GPOINTER_TO_INT(wmem_map_lookup(state->seqtable,
                                                    GINT_TO_POINTER(sequence_number)));
 
       if (state->iconn_frame == 0 &&  state->resync == FALSE) {
@@ -5030,7 +5002,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         break;
                   }
 
-                  vals_p = (value_string *)g_hash_table_lookup(state->valtable,
+                  vals_p = (value_string *)wmem_map_lookup(state->valtable,
                                                GINT_TO_POINTER(sequence_number));
                   if (vals_p != NULL) {
                         major_opcode = VALUE8(tvb, offset + 9);
@@ -5038,7 +5010,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         first_error = VALUE8(tvb, offset + 11);
 
                         register_extension(state, vals_p, major_opcode, first_event, first_error);
-                        g_hash_table_remove(state->valtable,
+                        wmem_map_remove(state->valtable,
                                             GINT_TO_POINTER(sequence_number));
                   }
                   break;
@@ -5768,16 +5740,6 @@ dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       return tvb_captured_length(tvb);
 }
 
-static void
-x11_shutdown(void)
-{
-      g_hash_table_destroy(extension_table);
-      g_hash_table_destroy(error_table);
-      g_hash_table_destroy(event_table);
-      g_hash_table_destroy(genevent_table);
-      g_hash_table_destroy(reply_table);
-}
-
 /* Register the protocol with Wireshark */
 void proto_register_x11(void)
 {
@@ -5849,13 +5811,11 @@ void proto_register_x11(void)
       expert_x11 = expert_register_protocol(proto_x11);
       expert_register_field_array(expert_x11, ei, array_length(ei));
 
-      register_cleanup_routine(x11_cleanup);
-
-      extension_table = g_hash_table_new(g_str_hash, g_str_equal);
-      error_table = g_hash_table_new(g_str_hash, g_str_equal);
-      event_table = g_hash_table_new(g_str_hash, g_str_equal);
-      genevent_table = g_hash_table_new(g_str_hash, g_str_equal);
-      reply_table = g_hash_table_new(g_str_hash, g_str_equal);
+      extension_table = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+      error_table = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+      event_table = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+      genevent_table = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+      reply_table = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
       register_x11_extensions();
 
       x11_module = prefs_register_protocol(proto_x11, NULL);
@@ -5864,8 +5824,6 @@ void proto_register_x11(void)
             "Whether the X11 dissector should reassemble messages spanning multiple TCP segments. "
             "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
             &x11_desegment);
-
-      register_shutdown_routine(x11_shutdown);
 }
 
 void
