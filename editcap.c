@@ -1906,7 +1906,8 @@ clean_exit:
     wtap_block_array_free(shb_hdrs);
     wtap_block_array_free(nrb_hdrs);
     g_free(idb_inf);
-    wtap_close(wth);
+    if (wth != NULL)
+        wtap_close(wth);
     wtap_cleanup();
     free_progdirs();
 #ifdef HAVE_PLUGINS
