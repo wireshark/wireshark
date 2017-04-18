@@ -166,6 +166,10 @@ static header_field_info hfi_netlink_hdr_pid NETLINK_HFI_INIT =
 	{ "Port ID", "netlink.hdr_pid", FT_UINT32, BASE_DEC,
 		NULL, 0x00, "Sender port ID", HFILL };
 
+static header_field_info hfi_netlink_attr_len NETLINK_HFI_INIT =
+	{ "Len", "netlink.attr_len", FT_UINT16, BASE_DEC,
+		NULL, 0x00, NULL, HFILL };
+
 static header_field_info hfi_netlink_attr_type NETLINK_HFI_INIT =
 	{ "Type", "netlink.attr_type", FT_UINT16, BASE_HEX,
 		NULL, 0x0000, "Netlink Attribute type", HFILL };
@@ -182,8 +186,8 @@ static header_field_info hfi_netlink_attr_index NETLINK_HFI_INIT =
 	{ "Index", "netlink.attr_index", FT_UINT16, BASE_DEC,
 		NULL, 0x0000, "Netlink Attribute type (array index)", HFILL };
 
-static header_field_info hfi_netlink_attr_len NETLINK_HFI_INIT =
-	{ "Len", "netlink.attr_len", FT_UINT16, BASE_DEC,
+static header_field_info hfi_netlink_attr_data NETLINK_HFI_INIT =
+	{ "Data", "netlink.attr_data", FT_BYTES, BASE_NONE,
 		NULL, 0x00, NULL, HFILL };
 
 /* TODO add a value_string for errno. */
@@ -309,7 +313,7 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, in
 			}
 
 			if (!cb(tvb, data, attr_tree, rta_type, offset, rta_len - 4)) {
-				/* not handled */
+				proto_tree_add_item(attr_tree, &hfi_netlink_attr_data, tvb, offset, rta_len - 4, encoding);
 			}
 		} else {
 			/*
@@ -597,6 +601,7 @@ proto_register_netlink(void)
 		&hfi_netlink_attr_type_nested,
 		&hfi_netlink_attr_type_net_byteorder,
 		&hfi_netlink_attr_index,
+		&hfi_netlink_attr_data,
 
 	/* Netlink message payloads */
 		&hfi_netlink_error,
