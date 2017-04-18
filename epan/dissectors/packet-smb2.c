@@ -9280,7 +9280,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_msg_id,
-			{ "Message ID", "smb2.msg_id", FT_UINT64, BASE_DEC|BASE_VAL64_STRING|BASE_VALS_NO_UNKNOWN,
+			{ "Message ID", "smb2.msg_id", FT_UINT64, BASE_DEC|BASE_VAL64_STRING|BASE_SPECIAL_VALS,
 			VALS64(unique_unsolicited_response), 0, NULL, HFILL }
 		},
 

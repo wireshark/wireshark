@@ -837,7 +837,7 @@ proto_register_iso7816(void)
         },
         { &hf_iso7816_cla_channel,
             { "Logical channel number", "iso7816.apdu.cla.channel",
-                FT_UINT8, BASE_HEX|BASE_VALS_NO_UNKNOWN, VALS(unique_or_unused), 0x03, NULL , HFILL }
+                FT_UINT8, BASE_HEX|BASE_SPECIAL_VALS, VALS(unique_or_unused), 0x03, NULL , HFILL }
         },
         { &hf_iso7816_ins,
             { "Instruction", "iso7816.apdu.ins",
@@ -857,7 +857,7 @@ proto_register_iso7816(void)
         },
         { &hf_iso7816_le,
             { "Expected response length Le", "iso7816.apdu.le",
-                FT_UINT8, BASE_HEX|BASE_VALS_NO_UNKNOWN, VALS(unique_max_num_available_bytes), 0, NULL, HFILL }
+                FT_UINT8, BASE_HEX|BASE_SPECIAL_VALS, VALS(unique_max_num_available_bytes), 0, NULL, HFILL }
         },
         { &hf_iso7816_body,
             { "APDU Body", "iso7816.apdu.body",

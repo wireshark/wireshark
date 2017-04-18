@@ -950,7 +950,7 @@ proto_register_docsis (void)
     },
     {&hf_docsis_ehdr_phsi,
      {"Payload Header Suppression Index", "docsis.ehdr.phsi",
-      FT_UINT8, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_phs), 0x0,
+      FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_no_phs), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_ehdr_qind,

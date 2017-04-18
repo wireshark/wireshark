@@ -2484,7 +2484,7 @@ proto_register_btavrcp(void)
         },
         { &hf_btavrcp_number_of_attributes,
             { "Number of Attributes",            "btavrcp.number_of_attributes",
-            FT_UINT8, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_all_supported_attributes), 0x00,
+            FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_all_supported_attributes), 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_attribute_count,

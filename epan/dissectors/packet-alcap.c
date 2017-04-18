@@ -1586,12 +1586,12 @@ proto_register_alcap(void)
 
     { &hf_alcap_ceid_pathid,
       { "Path ID", "alcap.ceid.pathid",
-        FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(all_paths_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(all_paths_vals), 0,
         NULL, HFILL }
     },
     { &hf_alcap_ceid_cid,
       { "CID", "alcap.ceid.cid",
-        FT_UINT8, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(all_cids_vals), 0,
+        FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(all_cids_vals), 0,
         NULL, HFILL }
     },
 

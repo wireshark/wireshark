@@ -1473,13 +1473,13 @@ proto_register_pim(void)
             },
             { &hf_pim_holdtime,
               { "Holdtime", "pim.holdtime",
-                FT_UINT16, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_infinity), 0x0,
+                FT_UINT16, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_infinity), 0x0,
                 "The amount of time a receiver must keep the neighbor "
                 "reachable, in seconds.", HFILL }
             },
             { &hf_pim_holdtime_t,
               { "Holdtime", "pim.holdtime",
-                FT_UINT16, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_infinity_t), 0x0,
+                FT_UINT16, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_infinity_t), 0x0,
                 "The amount of time a receiver must keep the neighbor "
                 "reachable, in seconds.", HFILL }
             },

@@ -2973,19 +2973,19 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_rospec,
-        { "ROSpec ID", "llrp.rospec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_all_rospecs), 0,
+        { "ROSpec ID", "llrp.rospec", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_all_rospecs), 0,
           NULL, HFILL }},
 
         { &hf_llrp_antenna_id,
-        { "Antenna ID", "llrp.antenna_id", FT_UINT16, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_all_antenna), 0,
+        { "Antenna ID", "llrp.antenna_id", FT_UINT16, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_all_antenna), 0,
           NULL, HFILL }},
 
         { &hf_llrp_gpi_port,
-        { "GPI Port Number", "llrp.gpi_port", FT_UINT16, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_all_gpi_ports), 0,
+        { "GPI Port Number", "llrp.gpi_port", FT_UINT16, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_all_gpi_ports), 0,
           NULL, HFILL }},
 
         { &hf_llrp_gpo_port,
-        { "GPO Port Number", "llrp.gpo_port", FT_UINT16, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_all_gpo_ports), 0,
+        { "GPO Port Number", "llrp.gpo_port", FT_UINT16, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_all_gpo_ports), 0,
           NULL, HFILL }},
 
         { &hf_llrp_rest_fact,
@@ -2993,7 +2993,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_accessspec,
-        { "Access Spec ID", "llrp.accessspec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_all_access_specs), 0,
+        { "Access Spec ID", "llrp.accessspec", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_all_access_specs), 0,
           NULL, HFILL }},
 
         { &hf_llrp_vendor,
@@ -3113,23 +3113,23 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_max_num_rospec,
-        { "Maximum number of ROSpecs", "llrp.param.max_num_rospec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0,
+        { "Maximum number of ROSpecs", "llrp.param.max_num_rospec", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_no_limit), 0,
           NULL, HFILL }},
 
         { &hf_llrp_max_num_spec_per_rospec,
-        { "Maximum number of spec per ROSpec", "llrp.param.max_num_spec_per_rospec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0,
+        { "Maximum number of spec per ROSpec", "llrp.param.max_num_spec_per_rospec", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_no_limit), 0,
           NULL, HFILL }},
 
         { &hf_llrp_max_num_inventory_per_aispec,
-        { "Maximum number of Inventory Spec per AISpec", "llrp.param.max_num_inventory_per_aispec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0,
+        { "Maximum number of Inventory Spec per AISpec", "llrp.param.max_num_inventory_per_aispec", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_no_limit), 0,
           NULL, HFILL }},
 
         { &hf_llrp_max_num_accessspec,
-        { "Maximum number of AccessSpec", "llrp.param.max_num_accessspec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0,
+        { "Maximum number of AccessSpec", "llrp.param.max_num_accessspec", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_no_limit), 0,
           NULL, HFILL }},
 
         { &hf_llrp_max_num_opspec_per_accressspec,
-        { "Maximum number of OpSpec per AccessSpec", "llrp.param.max_num_opspec_per_accressspec", FT_UINT32, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0,
+        { "Maximum number of OpSpec per AccessSpec", "llrp.param.max_num_opspec_per_accressspec", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_no_limit), 0,
           NULL, HFILL }},
 
         /* TODO add translation */
@@ -3514,7 +3514,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_max_num_filter_per_query,
-        { "Maximum number of select filters per query", "llrp.param.max_num_filter_per_query", FT_UINT16, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0,
+        { "Maximum number of select filters per query", "llrp.param.max_num_filter_per_query", FT_UINT16, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_no_limit), 0,
           NULL, HFILL }},
 
         { &hf_llrp_mode_ident,

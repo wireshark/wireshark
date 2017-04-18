@@ -740,7 +740,7 @@ void proto_register_mac_mgmt_msg_reg_req(void)
 			&hf_reg_dsx_flow_control,
 			{
 				"DSx flow control", "wmx.reg.dsx_flow_control",
-				FT_UINT8, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0x0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_no_limit), 0x0, NULL, HFILL
 			}
 		},
 		/* When REG-REQ TLV 7 is length 2 */
@@ -1072,7 +1072,7 @@ void proto_register_mac_mgmt_msg_reg_req(void)
 			&hf_reg_mca_flow_control,
 			{
 				"MCA flow control", "wmx.reg.mca_flow_control",
-				FT_UINT8, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_no_limit), 0x0, NULL, HFILL
+				FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_no_limit), 0x0, NULL, HFILL
 			}
 		},
 		{

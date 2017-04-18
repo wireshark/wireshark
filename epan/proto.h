@@ -604,7 +604,7 @@ typedef enum {
 #define BASE_NO_DISPLAY_VALUE   0x2000  /**< Just display the field name with no value.  Intended for
                                              byte arrays or header fields above a subtree */
 #define BASE_PROTOCOL_INFO      0x4000  /**< protocol_t in [FIELDCONVERT].  Internal use only. */
-#define BASE_VALS_NO_UNKNOWN    0x8000  /**< field will not display "Unknown" if value_string match is not found */
+#define BASE_SPECIAL_VALS    0x8000  /**< field will not display "Unknown" if value_string match is not found */
 
 /** BASE_ values that cause the field value to be displayed twice */
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)

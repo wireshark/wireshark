@@ -7118,10 +7118,10 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 							hfinfo->name, hfinfo->abbrev,
 							ftype_name(hfinfo->type));
 					}
-					if (hfinfo->display & BASE_VALS_NO_UNKNOWN) {
+					if (hfinfo->display & BASE_SPECIAL_VALS) {
 						g_error("Field '%s' (%s) is an integral value (%s)"
 							" that is being displayed as BASE_NONE but"
-							" with BASE_VALS_NO_UNKNOWN",
+							" with BASE_SPECIAL_VALS",
 							hfinfo->name, hfinfo->abbrev,
 							ftype_name(hfinfo->type));
 					}
@@ -8279,7 +8279,7 @@ fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed)
 		const char *val_str = hf_try_val_to_str(value, hfinfo);
 
 		out = hfinfo_number_vals_format(hfinfo, buf, value);
-		if (hfinfo->display & BASE_VALS_NO_UNKNOWN) {
+		if (hfinfo->display & BASE_SPECIAL_VALS) {
 			/*
 			 * Unique values only display value_string string
 			 * if there is a match.  Otherwise it's just a number

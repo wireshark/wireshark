@@ -773,7 +773,7 @@ void proto_register_docsis_mdd (void)
     },
     {&hf_docsis_mdd_maximum_number_of_reports_per_event,
      {"Maximum Number of Reports per Event", "docsis_mdd.maximum_number_of_reports_per_event",
-      FT_UINT8, BASE_DEC|BASE_VALS_NO_UNKNOWN, VALS(unique_unlimited), 0x0,
+      FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_unlimited), 0x0,
       "Mdd Maximum Number of Reports per Event", HFILL}
     },
     {&hf_docsis_mdd_upstream_transmit_power_reporting,
