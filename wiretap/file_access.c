@@ -1227,32 +1227,32 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  pcapng_dump_can_write_encap, pcapng_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC */
-	{ "Wireshark - nanosecond libpcap", "nseclibpcap", "pcap", "cap;dmp",
+	{ "Wireshark/tcpdump/... - nanosecond pcap", "nsecpcap", "pcap", "cap;dmp",
 	  FALSE, FALSE, 0,
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX */
-	{ "AIX tcpdump - libpcap", "aixlibpcap", "pcap", "cap;dmp",
+	{ "AIX tcpdump - pcap", "aixpcap", "pcap", "cap;dmp",
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029 */
-	{ "Modified tcpdump - libpcap", "modlibpcap", "pcap", "cap;dmp",
+	{ "Modified tcpdump - pcap", "modpcap", "pcap", "cap;dmp",
 	  FALSE, FALSE, 0,
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA */
-	{ "Nokia tcpdump - libpcap ", "nokialibpcap", "pcap", "cap;dmp",
+	{ "Nokia tcpdump - pcap ", "nokiapcap", "pcap", "cap;dmp",
 	  FALSE, FALSE, 0,
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417 */
-	{ "RedHat 6.1 tcpdump - libpcap", "rh6_1libpcap", "pcap", "cap;dmp",
+	{ "RedHat 6.1 tcpdump - pcap", "rh6_1pcap", "pcap", "cap;dmp",
 	  FALSE, FALSE, 0,
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915 */
-	{ "SuSE 6.3 tcpdump - libpcap", "suse6_3libpcap", "pcap", "cap;dmp",
+	{ "SuSE 6.3 tcpdump - pcap", "suse6_3pcap", "pcap", "cap;dmp",
 	  FALSE, FALSE, 0,
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
 
@@ -1986,12 +1986,25 @@ wtap_short_string_to_file_type_subtype(const char *short_name)
 	}
 
 	/*
-	 * We now call the "libpcap" file format just "pcap", but we
-	 * allow it to be specified as "libpcap" as well, for
-	 * backwards compatibility.
+	 * We now call the libpcap file format just pcap, but we allow
+	 * the various variants of it to be specified using names
+	 * containing "libpcap" as well as "pcap", for backwards
+	 * compatibility.
 	 */
 	if (strcmp(short_name, "libpcap") == 0)
 		return WTAP_FILE_TYPE_SUBTYPE_PCAP;
+	else if (strcmp(short_name, "nseclibpcap") == 0)
+		return WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC;
+	else if (strcmp(short_name, "aixlibpcap") == 0)
+		return WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX;
+	else if (strcmp(short_name, "modlibpcap") == 0)
+		return WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029;
+	else if (strcmp(short_name, "nokialibpcap") == 0)
+		return WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA;
+	else if (strcmp(short_name, "rh6_1libpcap") == 0)
+		return WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417;
+	else if (strcmp(short_name, "suse6_3libpcap") == 0)
+		return WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915;
 
 	return -1;	/* no such file type, or we can't write it */
 }
