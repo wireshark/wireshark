@@ -3750,9 +3750,10 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
                 *offsetp += 3;
             }
-            if (next_offset - *offsetp > 0)
+            if (next_offset - *offsetp > 0) {
                 proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, next_offset - *offsetp, ENC_NA);
                 *offsetp = next_offset;
+            }
             }
             break;
 
