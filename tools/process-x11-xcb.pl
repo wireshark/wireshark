@@ -177,26 +177,12 @@ my @mesas = ($srcdir . '/mesa/src/mapi/glapi/gen',  # 2010-04-26
              $srcdir . '/mesa/src/mesa/glapi');     # 2004-05-18
 my $mesadir = (grep { -d } @mesas)[0];
 
-sub mesa_category_start {
-    my ($t, $elt) = @_;
-    my $name = $elt->att('name');
-    my $comment;
-    if ($name =~ /^\d\.\d$/) {
-        $comment = "version $name";
-    } else {
-        $comment = "extension $name";
-    }
-
-    print $enum "/* OpenGL $comment */\n";
-    print(" - $comment\n");
-}
-
 sub mesa_category {
     my ($t, $elt) = @_;
     $t->purge;
 }
 
-#used to prevent value_string duplication
+#used to prevent duplication and sort enumerated values
 my %mesa_enum_hash = ();
 
 sub mesa_enum {
@@ -208,7 +194,6 @@ sub mesa_enum {
     #make sure value isn't already in the hash, to prevent duplication in value_string
     if (!exists($mesa_enum_hash{$hex_value})) {
         $mesa_enum_hash{$hex_value} = $name;
-        print $enum "  { $value, \"$name\" },\n" if (length($value) > 3 && length($value) < 10);
     }
     $t->purge;
 }
@@ -226,9 +211,9 @@ sub mesa_type {
 
     if($name eq 'enum') {
         # enum does not have a direct X equivalent
-        $gltype{'GLenum'} = { size => 4, encoding => 'byte_order', type => 'FT_UINT32', base => 'BASE_HEX',
+        $gltype{'GLenum'} = { size => 4, encoding => 'byte_order', type => 'FT_UINT32', base => 'BASE_HEX|BASE_EXT_STRING',
                               get => 'VALUE32', list => 'listOfCard32',
-                              val => 'VALS(mesa_enum)', };
+                              val => '&mesa_enum_ext', };
         return;
     }
 
@@ -1823,7 +1808,6 @@ if (-e "$mesadir/gl_API.xml") {
 
     my $xml = XML::Twig->new(
                 start_tag_handlers => {
-                    'category' => \&mesa_category_start,
                 },
                 twig_roots => {
                     'category' => \&mesa_category,
@@ -1833,6 +1817,9 @@ if (-e "$mesadir/gl_API.xml") {
                 });
     $xml->parsefile("$mesadir/gl_API.xml") or die ("Cannot open gl_API\n");
 
+    for my $enum_key ( sort {$a<=>$b} keys %mesa_enum_hash) {
+        say $enum sprintf("  { 0x%04x, \"%s\" },", $enum_key, $mesa_enum_hash{$enum_key});
+    }
     print $enum "    { 0, NULL }\n";
     print $enum "};\n";
     $enum->close();
@@ -1845,6 +1832,7 @@ if (-e "$mesadir/gl_API.xml") {
     }
     print $impl "    { 0, NULL }\n";
     print $impl "};\n";
+    print $impl "static value_string_ext mesa_enum_ext = VALUE_STRING_EXT_INIT(mesa_enum);\n";
 
     print $reg "{ &hf_x11_glx_render_op_name, { \"render op\", \"x11.glx.render.op\", FT_UINT16, BASE_DEC, VALS(glx_render_op_name), 0, NULL, HFILL }},\n\n";
 

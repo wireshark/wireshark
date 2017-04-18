@@ -3741,6 +3741,7 @@ static const value_string glx_render_op_name[] = {
     { 4329, "glCurrentPaletteMatrixARB" },
     { 0, NULL }
 };
+static value_string_ext mesa_enum_ext = VALUE_STRING_EXT_INIT(mesa_enum);
 
 static void dispatch_glx_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order, int length)
 {
