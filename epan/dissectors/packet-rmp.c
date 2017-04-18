@@ -93,7 +93,7 @@ const value_string rmp_error_vals[] = {
 	{ RMP_E_NODFLT,       "Default File Does Not Exist" },
 	{ RMP_E_OPENDFLT,     "Default File Open Failed" },
 	{ RMP_E_BADSID,       "Bad Session Id" },
-	{ RMP_E_OPENDFLT,     "Bad Packet Detected" },
+	{ RMP_E_BADPACKET,    "Bad Packet Detected" },
 	{ 0x00,               NULL }
 };
 
