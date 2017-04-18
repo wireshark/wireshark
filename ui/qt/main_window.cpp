@@ -779,9 +779,9 @@ QMenu *MainWindow::createPopupMenu()
     menu->addAction(main_ui_->actionViewFilterToolbar);
     menu->addAction(main_ui_->actionViewWirelessToolbar);
 
-    if (!main_ui_->actionViewAdditionalToolbars->actions().isEmpty()) {
-        QMenu *subMenu = menu->addMenu(main_ui_->actionViewAdditionalToolbars->title());
-        foreach (QAction *action, main_ui_->actionViewAdditionalToolbars->actions()) {
+    if (!main_ui_->menuAdditionalToolbars->actions().isEmpty()) {
+        QMenu *subMenu = menu->addMenu(main_ui_->menuAdditionalToolbars->title());
+        foreach (QAction *action, main_ui_->menuAdditionalToolbars->actions()) {
             subMenu->addAction(action);
         }
     }
@@ -1896,7 +1896,7 @@ void MainWindow::initShowHideMainWidgets()
     }
 
     /* Initially hide the additional toolbars menus */
-    main_ui_->actionViewAdditionalToolbars->menuAction()->setVisible(false);
+    main_ui_->menuAdditionalToolbars->menuAction()->setVisible(false);
 
     connect(show_hide_actions_, SIGNAL(triggered(QAction*)), this, SLOT(showHideMainWidgets(QAction*)));
 }
@@ -2642,7 +2642,7 @@ void MainWindow::addPluginIFStructures()
 
     int cntToolbars = 0;
 
-    QMenu *tbMenu = main_ui_->actionViewAdditionalToolbars;
+    QMenu *tbMenu = main_ui_->menuAdditionalToolbars;
     GList *if_toolbars = ext_toolbar_get_entries();
     while (if_toolbars && if_toolbars->data) {
         ext_toolbar_t *toolbar = (ext_toolbar_t*) if_toolbars->data;
@@ -2709,13 +2709,13 @@ void MainWindow::removeAdditionalToolbar(QString toolbarName)
             if (entry) {
                 recent.gui_additional_toolbars = g_list_remove(recent.gui_additional_toolbars, entry->data);
             }
-            QList<QAction *> actions = main_ui_->actionViewAdditionalToolbars->actions();
+            QList<QAction *> actions = main_ui_->menuAdditionalToolbars->actions();
             foreach(QAction *action, actions) {
                 ext_toolbar_t *item = VariantPointer<ext_toolbar_t>::asPtr(action->data());
                 if (item && ifToolBar->menuName().compare(item->name)) {
                     if (show_hide_actions_)
                         show_hide_actions_->removeAction(action);
-                    main_ui_->actionViewAdditionalToolbars->removeAction(action);
+                    main_ui_->menuAdditionalToolbars->removeAction(action);
                 }
             }
             break;

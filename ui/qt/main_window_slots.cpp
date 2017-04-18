@@ -523,7 +523,7 @@ void MainWindow::updateRecentActions()
     main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show && prefs_has_layout_pane_content(layout_pane_content_pdetails));
     main_ui_->actionViewPacketBytes->setChecked(recent.byte_view_show && prefs_has_layout_pane_content(layout_pane_content_pbytes));
 
-    foreach (QAction * action, main_ui_->actionViewAdditionalToolbars->actions()) {
+    foreach (QAction * action, main_ui_->menuAdditionalToolbars->actions()) {
         ext_toolbar_t * toolbar = VariantPointer<ext_toolbar_t>::asPtr(action->data());
         bool checked = false;
         if (toolbar && g_list_find_custom(recent.gui_additional_toolbars, toolbar->name, (GCompareFunc) strcmp))
