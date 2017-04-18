@@ -2659,7 +2659,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			 * Save the parameter descriptor for future use.
 			 */
 			DISSECTOR_ASSERT(trp->param_descrip == NULL);
-			trp->param_descrip = g_strdup(param_descrip);
+			trp->param_descrip = wmem_strdup(wmem_file_scope(), param_descrip);
 		}
 		offset += descriptor_len;
 
@@ -2672,7 +2672,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			 * Save the return descriptor for future use.
 			 */
 			DISSECTOR_ASSERT(trp->data_descrip == NULL);
-			trp->data_descrip = g_strdup(data_descrip);
+			trp->data_descrip = wmem_strdup(wmem_file_scope(), data_descrip);
 		}
 		offset += descriptor_len;
 
@@ -2699,7 +2699,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 				 */
 				DISSECTOR_ASSERT(trp->aux_data_descrip == NULL);
 				trp->aux_data_descrip =
-				    g_strdup(aux_data_descrip);
+				    wmem_strdup(wmem_file_scope(), aux_data_descrip);
 			}
 		}
 
