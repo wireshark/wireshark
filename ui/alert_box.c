@@ -210,12 +210,7 @@ cfile_open_failure_alert_box(const char *filename, int err, gchar *err_info,
 
 /*
  * Alert box for a failed attempt to close a capture file.
- * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
- * "err_info" is assumed to be a string giving further information for
- * some WTAP_ERR_ values; "for_writing" is TRUE if the file is being
- * opened for writing and FALSE if it's being opened for reading;
- * "file_type" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type of
- * file being written (it's ignored for opening-for-reading errors).
+ * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value.
  *
  * When closing a capture file:
  *
