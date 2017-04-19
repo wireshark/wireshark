@@ -1650,6 +1650,9 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
     }
     if (ret == -1)
         *pf_dir_path_return = pf_dir_path;
+    else
+        g_free(pf_dir_path);
+
     return ret;
 }
 
