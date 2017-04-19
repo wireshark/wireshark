@@ -602,7 +602,7 @@ static int  hf_noe_property_item_u16    = -1;
 static int  hf_noe_property_item_u24    = -1;
 static int  hf_noe_property_item_u32    = -1;
 static int  hf_noe_property_item_bytes  = -1;
-static int  hf_event_value_u8           = -1;
+static int  hf_event_bt_key             = -1;
 static int  hf_event_context_switch     = -1;
 static int  hf_evt_locappl_enable       = -1;
 static int  hf_evt_locappl_interruptible= -1;
@@ -773,12 +773,6 @@ static const value_string str_key_name[] = {
     {0, NULL}
 };
 static value_string_ext str_key_name_ext = VALUE_STRING_EXT_INIT(str_key_name);
-
-static const value_string noe_event_str_struct[] = {
-    {0x00, "RJ9 Plug"},
-    {0x01, "BT Handset Link"},
-    {0, NULL}
-    };
 
 static const value_string noe_evt_context_switch_str_vals[] = {
     {1, "Call Server"},
@@ -1087,7 +1081,6 @@ static void decode_evt(proto_tree  *tree,
                        guint        offset,
                        guint        length)
 {
-    proto_item *ti;
     guint8 event = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_noe_event, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1107,11 +1100,7 @@ static void decode_evt(proto_tree  *tree,
     case OPCODE_EVT_BT_KEY_SHORTPRESS:
     case OPCODE_EVT_BT_KEY_LONGPRESS:
     case OPCODE_EVT_BT_KEY_VERYLONGPRESS:
-    case OPCODE_EVT_KEY_LINE:
-    case OPCODE_EVT_ONHOOK:
-    case OPCODE_EVT_OFFHOOK:
-        ti = proto_tree_add_item(tree, hf_event_value_u8, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_item_set_len(ti, length);
+        proto_tree_add_item(tree, hf_event_bt_key, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     case OPCODE_EVT_KEY_PRESS:
     case OPCODE_EVT_KEY_RELEASE:
@@ -1173,11 +1162,17 @@ static void decode_evt(proto_tree  *tree,
             proto_tree_add_item(tree, hf_evt_locappl_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         }
+    case OPCODE_EVT_KEY_LINE:
+    case OPCODE_EVT_ONHOOK:
+    case OPCODE_EVT_OFFHOOK:
     case OPCODE_EVT_DEVICE_PRESENCE:
         {
             proto_tree_add_item(tree, hf_evt_dev_presence_value, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            proto_tree_add_item(tree, hf_evt_dev_presence_state, tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (OPCODE_EVT_DEVICE_PRESENCE == event)
+            {
+                offset += 1;
+                proto_tree_add_item(tree, hf_evt_dev_presence_state, tvb, offset, 1, ENC_BIG_ENDIAN);
+            }
             break;
         }
     case OPCODE_EVT_SUCCESS_CREATE:
@@ -1615,13 +1610,13 @@ void proto_register_noe(void)
                   HFILL
               }
             },
-            { &hf_event_value_u8,
+            { &hf_event_bt_key,
               {
                   "Value",
-                  "noe.event_value.uint",
+                  "noe.event_bt_key.value",
                   FT_UINT8,
                   BASE_DEC,
-                  VALS(noe_event_str_struct),
+                  NULL,
                   0x0,
                   NULL,
                   HFILL
