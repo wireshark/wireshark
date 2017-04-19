@@ -162,6 +162,7 @@ install_xz() {
     if [ "$XZ_VERSION" -a ! -f xz-$XZ_VERSION-done ] ; then
         echo "Downloading, building, and installing xz:"
         [ -f xz-$XZ_VERSION.tar.bz2 ] || curl -L -O http://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2 || exit 1
+        $no_build && echo "Skipping installation" && return
         bzcat xz-$XZ_VERSION.tar.bz2 | tar xf - || exit 1
         cd xz-$XZ_VERSION
         CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
@@ -197,6 +198,7 @@ install_snappy() {
     if [ "$SNAPPY_VERSION" -a ! -f snappy-$SNAPPY_VERSION-done ] ; then
         echo "Downloading, building, and installing snappy:"
         [ -f snappy-$SNAPPY_VERSION.tar.gz ] || curl -L -O https://github.com/google/snappy/releases/download/$SNAPPY_VERSION/snappy-$SNAPPY_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
         gzcat snappy-$SNAPPY_VERSION.tar.gz | tar xf - || exit 1
         cd snappy-$SNAPPY_VERSION
         CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
@@ -232,6 +234,7 @@ install_libxml2() {
     if [ "$LIBXML2_VERSION" -a ! -f libxml2-$LIBXML2_VERSION-done ] ; then
         echo "Downloading, building, and installing libxml2:"
         [ -f libxml2-$LIBXML2_VERSION.tar.gz ] || curl -L -O ftp://xmlsoft.org/libxml2/libxml2-$LIBXML2_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
         gzcat libxml2-$LIBXML2_VERSION.tar.gz | tar xf - || exit 1
         cd libxml2-$LIBXML2_VERSION
         CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
@@ -267,6 +270,7 @@ install_lz4() {
     if [ "$LZ4_VERSION" -a ! -f lz4-$LZ4_VERSION-done ] ; then
         echo "Downloading, building, and installing lz4:"
         [ -f lz4-$LZ4_VERSION.tar.gz ] || curl -L -o lz4-$LZ4_VERSION.tar.gz https://github.com/lz4/lz4/archive/$LZ4_VERSION.tar.gz  || exit 1
+        $no_build && echo "Skipping installation" && return
         gzcat lz4-$LZ4_VERSION.tar.gz | tar xf - || exit 1
         cd lz4-$LZ4_VERSION
         # CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
@@ -302,6 +306,7 @@ install_sbc() {
     if [ "$SBC_VERSION" -a ! -f sbc-$SBC_VERSION-done ] ; then
         echo "Downloading, building, and installing sbc:"
         [ -f sbc-$SBC_VERSION.tar.gz ] || curl -L -O https://www.kernel.org/pub/linux/bluetooth/sbc-$SBC_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
         gzcat sbc-$SBC_VERSION.tar.gz | tar xf - || exit 1
         cd sbc-$SBC_VERSION
         CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure --disable-tools --disable-tester --disable-shared || exit 1
@@ -337,6 +342,7 @@ install_autoconf() {
     if [ "$AUTOCONF_VERSION" -a ! -f autoconf-$AUTOCONF_VERSION-done ] ; then
         echo "Downloading, building and installing GNU autoconf..."
         [ -f autoconf-$AUTOCONF_VERSION.tar.xz ] || curl -L -O ftp://ftp.gnu.org/gnu/autoconf/autoconf-$AUTOCONF_VERSION.tar.xz || exit 1
+        $no_build && echo "Skipping installation" && return
         xzcat autoconf-$AUTOCONF_VERSION.tar.xz | tar xf - || exit 1
         cd autoconf-$AUTOCONF_VERSION
         ./configure || exit 1
@@ -378,6 +384,7 @@ install_automake() {
     if [ "$AUTOMAKE_VERSION" -a ! -f automake-$AUTOMAKE_VERSION-done ] ; then
         echo "Downloading, building and installing GNU automake..."
         [ -f automake-$AUTOMAKE_VERSION.tar.xz ] || curl -L -O ftp://ftp.gnu.org/gnu/automake/automake-$AUTOMAKE_VERSION.tar.xz || exit 1
+        $no_build && echo "Skipping installation" && return
         xzcat automake-$AUTOMAKE_VERSION.tar.xz | tar xf - || exit 1
         cd automake-$AUTOMAKE_VERSION
         ./configure || exit 1
@@ -418,6 +425,7 @@ install_libtool() {
     if [ "$LIBTOOL_VERSION" -a ! -f libtool-$LIBTOOL_VERSION-done ] ; then
         echo "Downloading, building and installing GNU libtool..."
         [ -f libtool-$LIBTOOL_VERSION.tar.xz ] || curl -L -O ftp://ftp.gnu.org/gnu/libtool/libtool-$LIBTOOL_VERSION.tar.xz || exit 1
+        $no_build && echo "Skipping installation" && return
         xzcat libtool-$LIBTOOL_VERSION.tar.xz | tar xf - || exit 1
         cd libtool-$LIBTOOL_VERSION
         ./configure || exit 1
@@ -476,6 +484,7 @@ install_cmake() {
             # Download the DMG, run the installer.
             #
             [ -f cmake-$CMAKE_VERSION-Darwin64-universal.dmg ] || curl -L -O https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
+            $no_build && echo "Skipping installation" && return
             sudo hdiutil attach cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
             sudo installer -target / -pkg /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal/cmake-$CMAKE_VERSION-Darwin64-universal.pkg || exit 1
             sudo hdiutil detach /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal
@@ -498,6 +507,7 @@ install_cmake() {
                 type="Darwin-x86_64"
             fi
             [ -f cmake-$CMAKE_VERSION-$type.dmg ] || curl -L -O https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-$type.dmg || exit 1
+            $no_build && echo "Skipping installation" && return
             sudo hdiutil attach cmake-$CMAKE_VERSION-$type.dmg || exit 1
             sudo ditto /Volumes/cmake-$CMAKE_VERSION-$type/CMake.app /Applications/CMake.app || exit 1
 
@@ -573,6 +583,7 @@ install_gettext() {
     if [ ! -f gettext-$GETTEXT_VERSION-done ] ; then
         echo "Downloading, building, and installing GNU gettext:"
         [ -f gettext-$GETTEXT_VERSION.tar.gz ] || curl -L -O http://ftp.gnu.org/pub/gnu/gettext/gettext-$GETTEXT_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
         gzcat gettext-$GETTEXT_VERSION.tar.gz | tar xf - || exit 1
         cd gettext-$GETTEXT_VERSION
         CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -613,6 +624,7 @@ install_pkg_config() {
     if [ ! -f pkg-config-$PKG_CONFIG_VERSION-done ] ; then
         echo "Downloading, building, and installing pkg-config:"
         [ -f pkg-config-$PKG_CONFIG_VERSION.tar.gz ] || curl -L -O https://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
         gzcat pkg-config-$PKG_CONFIG_VERSION.tar.gz | tar xf - || exit 1
         cd pkg-config-$PKG_CONFIG_VERSION
         ./configure --with-internal-glib || exit 1
@@ -659,9 +671,11 @@ install_glib() {
             # Starting with GLib 2.28.8, xz-compressed tarballs are available.
             #
             [ -f glib-$GLIB_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz || exit 1
+            $no_build && echo "Skipping installation" && return
             xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
         else
             [ -f glib-$GLIB_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.bz2 || exit 1
+            $no_build && echo "Skipping installation" && return
             bzcat glib-$GLIB_VERSION.tar.bz2 | tar xf - || exit 1
         fi
         cd glib-$GLIB_VERSION
@@ -761,6 +775,7 @@ install_qt() {
             QT_VOLUME=qt-opensource-mac-$QT_VERSION
         fi
         [ -f $QT_VOLUME.dmg ] || curl -L -O http://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg || exit 1
+        $no_build && echo "Skipping installation" && return
         sudo hdiutil attach $QT_VOLUME.dmg || exit 1
 
         if [ "$QT_MAJOR_VERSION" -ge 5 ]
@@ -826,6 +841,7 @@ install_libpng() {
         #
         subdir=`echo $PNG_VERSION | sed 's/\([1-9][0-9]*\)\.\([1-9][0-9]*\).*/libpng\1\2'/`
         [ -f libpng-$PNG_VERSION.tar.xz ] || curl -L -O ftp://ftp.simplesystems.org/pub/libpng/png/src/$subdir/libpng-$PNG_VERSION.tar.xz
+        $no_build && echo "Skipping installation" && return
         xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
         cd libpng-$PNG_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -866,6 +882,7 @@ install_pixman() {
     if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
         echo "Downloading, building, and installing pixman:"
         [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -L -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
+        $no_build && echo "Skipping installation" && return
         gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
         cd pixman-$PIXMAN_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -917,9 +934,11 @@ install_cairo() {
             # xz rather than gzip.
             #
             [ -f cairo-$CAIRO_VERSION.tar.xz ] || curl -L -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
+            $no_build && echo "Skipping installation" && return
             xzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
         else
             [ -f cairo-$CAIRO_VERSION.tar.gz ] || curl -L -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.gz || exit 1
+            $no_build && echo "Skipping installation" && return
             gzcat cairo-$CAIRO_VERSION.tar.gz | tar xf - || exit 1
         fi
         cd cairo-$CAIRO_VERSION
@@ -981,9 +1000,11 @@ install_atk() {
             # Starting with ATK 2.0.1, xz-compressed tarballs are available.
             #
             [ -f atk-$ATK_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.xz || exit 1
+            $no_build && echo "Skipping installation" && return
             xzcat atk-$ATK_VERSION.tar.xz | tar xf - || exit 1
         else
             [ -f atk-$ATK_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.bz2 || exit 1
+            $no_build && echo "Skipping installation" && return
             bzcat atk-$ATK_VERSION.tar.bz2 | tar xf - || exit 1
         fi
         cd atk-$ATK_VERSION
@@ -1035,9 +1056,11 @@ install_pango() {
             # xz rather than bzip2.
             #
             [ -f pango-$PANGO_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.xz || exit 1
+            $no_build && echo "Skipping installation" && return
             xzcat pango-$PANGO_VERSION.tar.xz | tar xf - || exit 1
         else
             [ -f pango-$PANGO_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.bz2 || exit 1
+            $no_build && echo "Skipping installation" && return
             bzcat pango-$PANGO_VERSION.tar.bz2 | tar xf - || exit 1
         fi
         cd pango-$PANGO_VERSION
@@ -1080,6 +1103,7 @@ install_gdk_pixbuf() {
         echo "Downloading, building, and installing gdk-pixbuf:"
         gdk_pixbuf_dir=`expr $GDK_PIXBUF_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
         [ -f gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/$gdk_pixbuf_dir/gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz || exit 1
+        $no_build && echo "Skipping installation" && return
         xzcat gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz | tar xf - || exit 1
         cd gdk-pixbuf-$GDK_PIXBUF_VERSION
         #
@@ -1146,9 +1170,11 @@ install_gtk() {
             # bzip2 so the tarballs take less time to download.
             #
             [ -f gtk+-$GTK_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.xz || exit 1
+            $no_build && echo "Skipping installation" && return
             xzcat gtk+-$GTK_VERSION.tar.xz | tar xf - || exit 1
         else
             [ -f gtk+-$GTK_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.bz2 || exit 1
+            $no_build && echo "Skipping installation" && return
             bzcat gtk+-$GTK_VERSION.tar.bz2 | tar xf - || exit 1
         fi
         cd gtk+-$GTK_VERSION
@@ -1202,6 +1228,7 @@ install_libsmi() {
     if [ "$LIBSMI_VERSION" -a ! -f libsmi-$LIBSMI_VERSION-done ] ; then
         echo "Downloading, building, and installing libsmi:"
         [ -f libsmi-$LIBSMI_VERSION.tar.gz ] || curl -L -O https://www.ibr.cs.tu-bs.de/projects/libsmi/download/libsmi-$LIBSMI_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
         gzcat libsmi-$LIBSMI_VERSION.tar.gz | tar xf - || exit 1
         cd libsmi-$LIBSMI_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -1237,6 +1264,7 @@ install_libgpg_error() {
     if [ "$LIBGPG_ERROR_VERSION" -a ! -f libgpg-error-$LIBGPG_ERROR_VERSION-done ] ; then
         echo "Downloading, building, and installing libgpg-error:"
         [ -f libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 ] || curl -L -O ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 || exit 1
+        $no_build && echo "Skipping installation" && return
         bzcat libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 | tar xf - || exit 1
         cd libgpg-error-$LIBGPG_ERROR_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -1286,6 +1314,7 @@ install_libgcrypt() {
 
         echo "Downloading, building, and installing libgcrypt:"
         [ -f libgcrypt-$LIBGCRYPT_VERSION.tar.gz ] || curl -L -O ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-$LIBGCRYPT_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
         gzcat libgcrypt-$LIBGCRYPT_VERSION.tar.gz | tar xf - || exit 1
         cd libgcrypt-$LIBGCRYPT_VERSION
         #
@@ -1344,6 +1373,7 @@ install_gnutls() {
 
         echo "Downloading, building, and installing GnuTLS:"
         [ -f gnutls-$GNUTLS_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnu.org/gnu/gnutls/gnutls-$GNUTLS_VERSION.tar.bz2 || exit 1
+        $no_build && echo "Skipping installation" && return
         bzcat gnutls-$GNUTLS_VERSION.tar.bz2 | tar xf - || exit 1
         cd gnutls-$GNUTLS_VERSION
         #
@@ -1394,6 +1424,7 @@ install_lua() {
     if [ "$LUA_VERSION" -a ! -f lua-$LUA_VERSION-done ] ; then
         echo "Downloading, building, and installing Lua:"
         [ -f lua-$LUA_VERSION.tar.gz ] || curl -L -O http://www.lua.org/ftp/lua-$LUA_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
         gzcat lua-$LUA_VERSION.tar.gz | tar xf - || exit 1
         cd lua-$LUA_VERSION
         make MYCFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" MYLDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" $MAKE_BUILD_OPTS macosx || exit 1
@@ -1440,6 +1471,7 @@ install_portaudio() {
     if [ "$PORTAUDIO_VERSION" -a ! -f portaudio-$PORTAUDIO_VERSION-done ] ; then
         echo "Downloading, building, and installing PortAudio:"
         [ -f $PORTAUDIO_VERSION.tgz ] || curl -L -O http://www.portaudio.com/archives/$PORTAUDIO_VERSION.tgz || exit 1
+        $no_build && echo "Skipping installation" && return
         gzcat $PORTAUDIO_VERSION.tgz | tar xf - || exit 1
         cd portaudio
         #
@@ -1512,6 +1544,7 @@ install_geoip() {
         else
             [ -f GeoIP-$GEOIP_VERSION.tar.gz ] || curl -L -O http://geolite.maxmind.com/download/geoip/api/c/GeoIP-$GEOIP_VERSION.tar.gz || exit 1
         fi
+        $no_build && echo "Skipping installation" && return
         gzcat GeoIP-$GEOIP_VERSION.tar.gz | tar xf - || exit 1
         cd GeoIP-$GEOIP_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -1562,6 +1595,7 @@ install_c_ares() {
     if [ "$CARES_VERSION" -a ! -f c-ares-$CARES_VERSION-done ] ; then
         echo "Downloading, building, and installing C-Ares API:"
         [ -f c-ares-$CARES_VERSION.tar.gz ] || curl -L -O https://c-ares.haxx.se/download/c-ares-$CARES_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
         gzcat c-ares-$CARES_VERSION.tar.gz | tar xf - || exit 1
         cd c-ares-$CARES_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS"  LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -1597,6 +1631,7 @@ install_libssh() {
     if [ "$LIBSSH_VERSION" -a ! -f libssh-$LIBSSH_VERSION-done ] ; then
         echo "Downloading, building, and installing libssh:"
         [ -f libssh-$LIBSSH_VERSION.tar.xz ] || curl -L -O https://red.libssh.org/attachments/download/195/libssh-$LIBSSH_VERSION.tar.xz || exit 1
+        $no_build && echo "Skipping installation" && return
         xzcat libssh-$LIBSSH_VERSION.tar.xz | tar xf - || exit 1
         cd libssh-$LIBSSH_VERSION
         mkdir build
@@ -1619,6 +1654,7 @@ install_nghttp2() {
     if [ "$NGHTTP2_VERSION" -a ! -f nghttp2-$NGHTTP2_VERSION-done ] ; then
         echo "Downloading, building, and installing nghttp2:"
         [ -f nghttp2-$NGHTTP2_VERSION.tar.xz ] || curl -L -O https://github.com/nghttp2/nghttp2/releases/download/v$NGHTTP2_VERSION/nghttp2-$NGHTTP2_VERSION.tar.xz || exit 1
+        $no_build && echo "Skipping installation" && return
         xzcat nghttp2-$NGHTTP2_VERSION.tar.xz | tar xf - || exit 1
         cd nghttp2-$NGHTTP2_VERSION
         ./configure || exit 1
@@ -2255,18 +2291,25 @@ done
 # -t <target> - build libraries so that they'll work on the specified
 # version of macOS and later versions.
 # -u - do an uninstall.
+# -n - download all packages, but don't build or install.
 #
-while getopts ht:u name
+
+no_build=false
+
+while getopts ht:un name
 do
     case $name in
     u)
         do_uninstall=yes
         ;;
+    n)
+        no_build=true
+        ;;
     t)
         min_osx_target="$OPTARG"
         ;;
     h|?)
-        echo "Usage: macosx-setup.sh [ -t <target> ] [ -u ]" 1>&1
+        echo "Usage: macosx-setup.sh [ -t <target> ] [ -u ] [ -n ]" 1>&1
         exit 0
         ;;
     esac
@@ -2657,6 +2700,11 @@ if [ "$QT_VERSION" ]; then
     CMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH":"$qt_base_path/lib/cmake"
 fi
 pkg_config_path="$pkg_config_path":/usr/X11/lib/pkgconfig
+
+if $no_build; then
+    echo "All required dependencies downloaded. Run without -n to install them."
+    exit 0
+fi
 
 echo "You are now prepared to build Wireshark."
 echo
