@@ -878,6 +878,7 @@ static void destroy_dtd_data(dtd_build_data_t *dtd_data)
     while(dtd_data->elements->len) {
         dtd_named_list_t *nl = (dtd_named_list_t *)g_ptr_array_remove_index_fast(dtd_data->elements, 0);
         g_ptr_array_free(nl->list, TRUE);
+        g_free(nl->name);
         g_free(nl);
     }
 
@@ -886,6 +887,7 @@ static void destroy_dtd_data(dtd_build_data_t *dtd_data)
     while(dtd_data->attributes->len) {
         dtd_named_list_t *nl = (dtd_named_list_t *)g_ptr_array_remove_index_fast(dtd_data->attributes, 0);
         g_ptr_array_free(nl->list, TRUE);
+        g_free(nl->name);
         g_free(nl);
     }
 
@@ -1053,7 +1055,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         if (root_name == NULL)
             root_name = wmem_strdup(wmem_epan_scope(), nl->name);
 
-        element->name          = nl->name;
+        element->name          = wmem_strdup(wmem_epan_scope(), nl->name);
         element->element_names = nl->list;
         element->hf_tag        = -1;
         element->hf_cdata      = -1;
@@ -1069,6 +1071,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
             g_ptr_array_add(element_names, wmem_strdup(wmem_epan_scope(), element->name));
         }
 
+        g_free(nl->name);
         g_free(nl);
     }
 
@@ -1083,8 +1086,8 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
                 int   *id_p = wmem_new(wmem_epan_scope(), int);
 
                 *id_p = -1;
-                wmem_map_insert(element->attributes, name, id_p);
-            }
+                wmem_map_insert(element->attributes, wmem_strdup(wmem_epan_scope(), name), id_p);
+                g_free(name);            }
         }
         else {
             g_string_append_printf(errors, "element %s is not defined\n", nl->name);
@@ -1232,8 +1235,8 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         proto_register_subtree_array((gint **)g_array_data(etts), etts->len);
 
         if (dtd_data->media_type) {
-            wmem_map_insert(media_types, dtd_data->media_type, root_element);
-            dtd_data->media_type = NULL;
+            gchar* media_type = wmem_strdup(wmem_epan_scope(), dtd_data->media_type);
+            wmem_map_insert(media_types, media_type, root_element);
         }
 
         g_array_free(etts, TRUE);
