@@ -25,7 +25,6 @@
 
 #include <string.h>
 
-
 #include <wiretap/wtap.h>
 #include <wsutil/filesystem.h>
 
@@ -206,6 +205,69 @@ cfile_open_failure_alert_box(const char *filename, int err, gchar *err_info,
         /* OS error. */
         open_failure_alert_box(filename, err, for_writing);
     }
+}
+
+/*
+ * Alert box for a failed attempt to read from a capture file.
+ * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
+ * "err_info" is assumed to be a string giving further information for
+ * some WTAP_ERR_ values.
+ */
+void
+cfile_read_failure_alert_box(const char *filename, int err, gchar *err_info)
+{
+    gchar *display_name;
+
+    if (filename == NULL)
+        display_name = g_strdup("capture file");
+    else {
+        gchar *display_basename;
+
+        display_basename = g_filename_display_basename(filename);
+        display_name = g_strdup_printf("capture file %s", display_basename);
+        g_free(display_basename);
+    }
+
+    switch (err) {
+
+    case WTAP_ERR_UNSUPPORTED:
+        simple_error_message_box(
+                    "The %s contains record data that Wireshark doesn't support.\n(%s)",
+		    display_name,
+                    err_info != NULL ? err_info : "no information supplied");
+        g_free(err_info);
+        break;
+
+    case WTAP_ERR_SHORT_READ:
+        simple_error_message_box(
+                    "The %s appears to have been cut short in the middle of a packet.",
+                    display_name);
+        break;
+
+    case WTAP_ERR_BAD_FILE:
+        simple_error_message_box(
+                    "The %s appears to be damaged or corrupt.\n(%s)",
+                    display_name,
+                    err_info != NULL ? err_info : "no information supplied");
+        g_free(err_info);
+        break;
+
+    case WTAP_ERR_DECOMPRESS:
+        simple_error_message_box(
+                    "The compressed %s appears to be damaged or corrupt.\n(%s)",
+                    display_name,
+                    err_info != NULL ? err_info : "no information supplied");
+        g_free(err_info);
+        break;
+
+    default:
+        simple_error_message_box(
+                    "An error occurred while reading the %s: %s.",
+                    display_name,
+                    wtap_strerror(err));
+        break;
+    }
+    g_free(display_name);
 }
 
 /*

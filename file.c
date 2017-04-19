@@ -737,41 +737,7 @@ cf_read(capture_file *cf, gboolean reloading)
     /* Put up a message box noting that the read failed somewhere along
        the line.  Don't throw out the stuff we managed to read, though,
        if any. */
-    switch (err) {
-
-    case WTAP_ERR_UNSUPPORTED:
-      simple_error_message_box(
-                 "The capture file contains record data that Wireshark doesn't support.\n(%s)",
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    case WTAP_ERR_SHORT_READ:
-      simple_error_message_box(
-                 "The capture file appears to have been cut short"
-                 " in the middle of a packet.");
-      break;
-
-    case WTAP_ERR_BAD_FILE:
-      simple_error_message_box(
-                 "The capture file appears to be damaged or corrupt.\n(%s)",
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    case WTAP_ERR_DECOMPRESS:
-      simple_error_message_box(
-                 "The compressed capture file appears to be damaged or corrupt.\n(%s)",
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    default:
-      simple_error_message_box(
-                 "An error occurred while reading the"
-                 " capture file: %s.", wtap_strerror(err));
-      break;
-    }
+    cfile_read_failure_alert_box(NULL, err, err_info);
     return CF_READ_ERROR;
   } else
     return CF_READ_OK;
@@ -1531,7 +1497,6 @@ cf_read_record_r(capture_file *cf, const frame_data *fdata,
 {
   int    err;
   gchar *err_info;
-  gchar *display_basename;
 
 #ifdef WANT_PACKET_EDITOR
   /* if fdata->file_off == -1 it means packet was edited, and we must find data inside edited_frames tree */
@@ -1551,23 +1516,7 @@ cf_read_record_r(capture_file *cf, const frame_data *fdata,
 #endif
 
   if (!wtap_seek_read(cf->wth, fdata->file_off, phdr, buf, &err, &err_info)) {
-    display_basename = g_filename_display_basename(cf->filename);
-    switch (err) {
-
-    case WTAP_ERR_BAD_FILE:
-      simple_error_message_box("An error occurred while reading from the file \"%s\": %s.\n(%s)",
-                 display_basename, wtap_strerror(err),
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    default:
-      simple_error_message_box(
-                 "An error occurred while reading from the file \"%s\": %s.",
-                 display_basename, wtap_strerror(err));
-      break;
-    }
-    g_free(display_basename);
+    cfile_read_failure_alert_box(cf->filename, err, err_info);
     return FALSE;
   }
   return TRUE;
@@ -4282,9 +4231,10 @@ cf_has_unsaved_data(capture_file *cf)
  * Quick scan to find packet offsets.
  */
 static cf_read_status_t
-rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
+rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
 {
   const struct wtap_pkthdr *phdr;
+  int                  err;
   gchar               *err_info;
   gchar               *name_ptr;
   gint64               data_offset;
@@ -4307,9 +4257,9 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
      format than the original, and the user is not given a choice of which
      reader to use (only which format to save it in), so doing this makes
      sense for now. */
-  cf->wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, err, &err_info, TRUE);
+  cf->wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
   if (cf->wth == NULL) {
-    cfile_open_failure_alert_box(fname, *err, err_info, FALSE, 0);
+    cfile_open_failure_alert_box(fname, err, err_info, FALSE, 0);
     return CF_READ_ERROR;
   }
 
@@ -4357,7 +4307,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   framenum = 0;
   phdr = wtap_phdr(cf->wth);
-  while ((wtap_read(cf->wth, err, &err_info, &data_offset))) {
+  while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
     framenum++;
     fdata = frame_data_sequence_find(cf->frames, framenum);
     fdata->file_off = data_offset;
@@ -4433,46 +4383,11 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
     return CF_READ_ABORTED;
   }
 
-  if (*err != 0) {
+  if (err != 0) {
     /* Put up a message box noting that the read failed somewhere along
        the line.  Don't throw out the stuff we managed to read, though,
        if any. */
-    switch (*err) {
-
-    case WTAP_ERR_UNSUPPORTED:
-      simple_error_message_box(
-                 "The capture file contains record data that Wireshark doesn't support.\n(%s)",
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    case WTAP_ERR_SHORT_READ:
-      simple_error_message_box(
-                 "The capture file appears to have been cut short"
-                 " in the middle of a packet.");
-      break;
-
-    case WTAP_ERR_BAD_FILE:
-      simple_error_message_box(
-                 "The capture file appears to be damaged or corrupt.\n(%s)",
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    case WTAP_ERR_DECOMPRESS:
-      simple_error_message_box(
-                 "The compressed capture file appears to be damaged or corrupt.\n"
-                 "(%s)",
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    default:
-      simple_error_message_box(
-                 "An error occurred while reading the"
-                 " capture file: %s.", wtap_strerror(*err));
-      break;
-    }
+    cfile_read_failure_alert_box(NULL, err, err_info);
     return CF_READ_ERROR;
   } else
     return CF_READ_OK;
@@ -4752,7 +4667,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
       /* rescan_file will cause us to try all open_routines, so
          reset cfile's open_type */
       cf->open_type = WTAP_TYPE_AUTO;
-      if (rescan_file(cf, fname, FALSE, &err) != CF_READ_OK) {
+      if (rescan_file(cf, fname, FALSE) != CF_READ_OK) {
         /* The rescan failed; just close the file.  Either
            a dialog was popped up for the failure, so the
            user knows what happened, or they stopped the

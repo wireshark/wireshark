@@ -53,6 +53,15 @@ extern void cfile_open_failure_alert_box(const char *filename, int err,
                                          int file_type);
 
 /*
+ * Alert box for a failed attempt to read from a capture file.
+ * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
+ * "err_info" is assumed to be a string giving further information for
+ * some WTAP_ERR_ values.
+ */
+extern void cfile_read_failure_alert_box(const char *filename, int err,
+                                         gchar *err_info);
+
+/*
  * Alert box for a failed attempt to close a capture file.
  * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value.
  *
