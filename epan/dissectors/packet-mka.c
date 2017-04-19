@@ -129,7 +129,7 @@ static const value_string param_set_type_vals[] = {
   { KMD_TYPE,                  "KMD" },
   { ANNOUNCEMENT_TYPE,         "Announcement" },
   { XPN_TYPE,                  "XPN" },
-  { ICV_TYPE,                  "ICV" },
+  { ICV_TYPE,                  "ICV Indicator" },
   { 0, NULL }
 };
 
@@ -164,7 +164,7 @@ static const val64_string macsec_cipher_suite_vals[] = {
 };
 
 static void
-dissect_basic_paramset(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
+dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
   proto_tree *basic_param_set_tree;
@@ -190,6 +190,11 @@ dissect_basic_paramset(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
                       tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(basic_param_set_tree, hf_mka_macsec_capability,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
+
+  if (tvb_get_guint8(tvb, offset) & 0x80)
+  {
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Key Server");
+  }
 
   proto_tree_add_uint(basic_param_set_tree, hf_mka_param_body_length,
                       tvb, offset, 2, basic_param_set_len);
@@ -276,7 +281,7 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *
 }
 
 static void
-dissect_sak_use(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
+dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
   proto_tree *sak_use_set_tree;
@@ -421,7 +426,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
 }
 
 static void
-dissect_distributed_cak(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
+dissect_distributed_cak(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
   guint16 distributed_cak_len;
@@ -463,7 +468,7 @@ dissect_distributed_cak(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
 }
 
 static void
-dissect_kmd(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
+dissect_kmd(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
   guint16 kmd_len;
@@ -519,7 +524,7 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
 }
 
 static void
-dissect_xpn(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
+dissect_xpn(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
   guint16 xpn_len;
@@ -554,7 +559,7 @@ dissect_xpn(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
 }
 
 static void
-dissect_icv(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr, guint16 *icv_len)
+dissect_icv(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr, guint16 *icv_len)
 {
   int offset = *offset_ptr;
   proto_tree *icv_set_tree;
@@ -576,7 +581,7 @@ dissect_icv(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr, guint16 *icv_l
 }
 
 static void
-dissect_unknown_param_set(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
+dissect_unknown_param_set(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
   guint16 param_set_len;
@@ -639,9 +644,11 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   /*
    * Basic Parameter set is always the first parameter set, dissect it first !
    */
-  dissect_basic_paramset(mka_tree, tvb, &offset);
+  dissect_basic_paramset(mka_tree, pinfo, tvb, &offset);
 
   while(tvb_reported_length_remaining(tvb, offset) > icv_len) {
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+                        val_to_str_const(tvb_get_guint8(tvb, offset), param_set_type_vals, "Unknown"));
     switch (tvb_get_guint8(tvb, offset)) {
     case LIVE_PEER_LIST_TYPE:
     case POTENTIAL_PEER_LIST_TYPE:
@@ -649,7 +656,7 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       break;
 
     case MACSEC_SAK_USE_TYPE:
-      dissect_sak_use(mka_tree, tvb, &offset);
+      dissect_sak_use(mka_tree, pinfo, tvb, &offset);
       break;
 
     case DISTRIBUTED_SAK_TYPE:
@@ -657,11 +664,11 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       break;
 
     case DISTRIBUTED_CAK_TYPE:
-      dissect_distributed_cak(mka_tree, tvb, &offset);
+      dissect_distributed_cak(mka_tree, pinfo, tvb, &offset);
       break;
 
     case KMD_TYPE:
-      dissect_kmd(mka_tree, tvb, &offset);
+      dissect_kmd(mka_tree, pinfo, tvb, &offset);
       break;
 
     case ANNOUNCEMENT_TYPE:
@@ -669,16 +676,16 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       break;
 
     case XPN_TYPE:
-      dissect_xpn(mka_tree, tvb, &offset);
+      dissect_xpn(mka_tree, pinfo, tvb, &offset);
       break;
 
     case ICV_TYPE:
       // This ICV indicator does not include the ICV itself, see IEEE 802.1X-2010, Section 11.11.1
-      dissect_icv(mka_tree, tvb, &offset, &icv_len);
+      dissect_icv(mka_tree, pinfo, tvb, &offset, &icv_len);
       break;
 
     default:
-      dissect_unknown_param_set(mka_tree, tvb, &offset);
+      dissect_unknown_param_set(mka_tree, pinfo, tvb, &offset);
       break;
     }
   }
