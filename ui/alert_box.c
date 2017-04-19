@@ -63,8 +63,9 @@ vwarning_alert_box(const char *msg_format, va_list ap)
  * "err_info" is assumed to be a string giving further information for
  * some WTAP_ERR_ values; "for_writing" is TRUE if the file is being
  * opened for writing and FALSE if it's being opened for reading;
- * "file_type" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type of
- * file being written (it's ignored for opening-for-reading errors).
+ * "file_type_subtype" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type
+ * and subtype of file being opened for writing (it's ignored for
+ * opening-for-reading errors).
  *
  * XXX - add explanatory secondary text for at least some of the errors;
  * various HIGs suggest that you should, for example, suggest that the
@@ -74,7 +75,7 @@ vwarning_alert_box(const char *msg_format, va_list ap)
  */
 void
 cfile_open_failure_alert_box(const char *filename, int err, gchar *err_info,
-                             gboolean for_writing, int file_type)
+                             gboolean for_writing, int file_type_subtype)
 {
     gchar *display_basename;
 
@@ -119,7 +120,7 @@ cfile_open_failure_alert_box(const char *filename, int err, gchar *err_info,
             simple_error_message_box(
                         "The file \"%s\" is a pipe, and %s capture files can't be "
                         "written to a pipe.",
-                        display_basename, wtap_file_type_subtype_string(file_type));
+                        display_basename, wtap_file_type_subtype_string(file_type_subtype));
             break;
 
         case WTAP_ERR_UNWRITABLE_FILE_TYPE:
@@ -268,6 +269,85 @@ cfile_read_failure_alert_box(const char *filename, int err, gchar *err_info)
         break;
     }
     g_free(display_name);
+}
+
+/*
+ * Alert box for a failed attempt to write to a capture file.
+ * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
+ * "err_info" is assumed to be a string giving further information for
+ * some WTAP_ERR_ values; "framenum" is the frame number of the record
+ * on which the error occurred; "file_type_subtype" is a
+ * WTAP_FILE_TYPE_SUBTYPE_ value for the type and subtype of file being
+ * written.
+ */
+void
+cfile_write_failure_alert_box(const char *filename, int err, gchar *err_info,
+                              guint32 framenum, int file_type_subtype)
+{
+    char *display_basename;
+
+    if (err < 0) {
+        /* Wiretap error. */
+        switch (err) {
+
+        case WTAP_ERR_UNWRITABLE_ENCAP:
+            /*
+             * This is a problem with the particular frame we're writing and
+             * the file type and subtype we're writing; note that, and report
+             * the frame number and file type/subtype.
+             */
+            simple_error_message_box(
+                        "Frame %u has a network type that can't be saved in a \"%s\" file.",
+                        framenum, wtap_file_type_subtype_string(file_type_subtype));
+            break;
+
+        case WTAP_ERR_PACKET_TOO_LARGE:
+            /*
+             * This is a problem with the particular frame we're writing and
+             * the file type and subtype we're writing; note that, and report
+             * the frame number and file type/subtype.
+             */
+            simple_error_message_box(
+                        "Frame %u is larger than Wireshark supports in a \"%s\" file.",
+                        framenum, wtap_file_type_subtype_string(file_type_subtype));
+            break;
+
+        case WTAP_ERR_UNWRITABLE_REC_TYPE:
+            /*
+             * This is a problem with the particular record we're writing and
+             * the file type and subtype we're writing; note that, and report
+             * the record number and file type/subtype.
+             */
+            simple_error_message_box(
+                        "Record %u has a record type that can't be saved in a \"%s\" file.",
+                        framenum, wtap_file_type_subtype_string(file_type_subtype));
+            break;
+
+        case WTAP_ERR_UNWRITABLE_REC_DATA:
+            /*
+             * This is a problem with the particular frame we're writing and
+             * the file type and subtype we're writing; note that, and report
+             * the frame number and file type/subtype.
+             */
+            simple_error_message_box(
+                        "Record %u has data that can't be saved in a \"%s\" file.\n(%s)",
+                        framenum, wtap_file_type_subtype_string(file_type_subtype),
+                        err_info != NULL ? err_info : "no information supplied");
+            g_free(err_info);
+            break;
+
+        default:
+            display_basename = g_filename_display_basename(filename);
+            simple_error_message_box(
+                        "An error occurred while writing to the file \"%s\": %s.",
+                        display_basename, wtap_strerror(err));
+            g_free(display_basename);
+            break;
+       }
+    } else {
+        /* OS error. */
+        write_failure_alert_box(filename, err);
+    }
 }
 
 /*

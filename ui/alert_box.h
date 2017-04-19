@@ -45,12 +45,13 @@ extern void vwarning_alert_box(const char *msg_format, va_list ap);
  * "err_info" is assumed to be a string giving further information for
  * some WTAP_ERR_ values; "for_writing" is TRUE if the file is being
  * opened for writing and FALSE if it's being opened for reading;
- * "file_type" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type of
- * file being written (it's ignored for opening-for-reading errors).
+ * "file_type_subtype" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type
+ * and subtype of file being opened for writing (it's ignored for
+ * opening-for-reading errors).
  */
 extern void cfile_open_failure_alert_box(const char *filename, int err,
                                          gchar *err_info, gboolean for_writing,
-                                         int file_type);
+                                         int file_type_subtype);
 
 /*
  * Alert box for a failed attempt to read from a capture file.
@@ -60,6 +61,19 @@ extern void cfile_open_failure_alert_box(const char *filename, int err,
  */
 extern void cfile_read_failure_alert_box(const char *filename, int err,
                                          gchar *err_info);
+
+/*
+ * Alert box for a failed attempt to write to a capture file.
+ * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
+ * "err_info" is assumed to be a string giving further information for
+ * some WTAP_ERR_ values; "framenum" is the frame number of the record
+ * on which the error occurred; "file_type_subtype" is a
+ * WTAP_FILE_TYPE_SUBTYPE_ value for the type and subtype of file being
+ * written.
+ */
+extern void cfile_write_failure_alert_box(const char *filename, int err,
+                                          gchar *err_info, guint32 framenum,
+                                          int file_type_subtype);
 
 /*
  * Alert box for a failed attempt to close a capture file.
