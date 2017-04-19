@@ -4011,6 +4011,8 @@ static int hf_ieee80211_vht_membership_status_field = -1;
 static int hf_ieee80211_vht_user_position_field = -1;
 static int hf_ieee80211_vht_mu_exclusive_beamforming_report = -1;
 static int hf_ieee80211_vht_mu_Exclusive_beamforming_delta_snr = -1;
+static int hf_ieee80211_vht_compressed_beamforming_phi_angle = -1;
+static int hf_ieee80211_vht_compressed_beamforming_psi_angle = -1;
 
 static int hf_ieee80211_tag_neighbor_report_bssid = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info = -1;
@@ -4918,6 +4920,7 @@ static gint ett_vht_ndp_annc_sta_info_tree = -1;
 static gint ett_ff_vhtmimo_cntrl = -1;
 static gint ett_ff_vhtmimo_beamforming_report = -1;
 static gint ett_ff_vhtmimo_beamforming_report_snr = -1;
+static gint ett_ff_vhtmimo_beamforming_angle = -1;
 static gint ett_ff_vhtmimo_beamforming_report_feedback_matrices = -1;
 static gint ett_ff_vhtmu_exclusive_beamforming_report_matrices = -1;
 
@@ -9240,11 +9243,12 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
   guint8 grouping;
   gboolean codebook_info;
   gboolean feedback_type;
-  proto_item *vht_beam_item, *vht_excl_beam_item;
-  proto_tree *vht_beam_tree, *subtree, *vht_excl_beam_tree;
+  proto_item *vht_beam_item, *vht_excl_beam_item, *phi_angle, *psi_angle;
+  proto_tree *vht_beam_tree, *subtree, *vht_excl_beam_tree, *angletree;
   int i, matrix_size, len, pos, ns, scidx = 0, matrix_len;
   guint8 phi, psi, carry;
   int j, ic, off_len = 0, sscidx = 0, xnsc;
+  int ir, off_pos, angle_val;
   /* Table 8-53d Order of angles in the Compressed Beamforming Feedback
    * Matrix subfield, IEEE Std 802.11ac-2013 amendment */
   static const guint8 na_arr[8][8] = { {  0,  0,  0,  0,  0,  0,  0,  0 },
@@ -9317,6 +9321,41 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
   }
 
   matrix_size = na_arr[nr - 1][nc -1] * (psi + phi)/2;
+  if (matrix_size % 8) {
+    carry = 1;
+  } else {
+    carry = 0;
+  }
+  off_len = (matrix_size/8) + carry;
+  angletree = proto_tree_add_subtree_format(vht_beam_tree, tvb, offset, off_len,
+                        ett_ff_vhtmimo_beamforming_angle, NULL,"PHI and PSI Angle Decode");
+
+  off_pos = offset*8;
+  phi_angle = proto_tree_add_none_format(angletree, hf_ieee80211_vht_compressed_beamforming_phi_angle, tvb, offset, 0, "PHI(%u bits):    ", phi);
+  for (ic = 1; ic <= nc; ic++) {
+      for (ir = 1; ir < nr; ir++) {
+          if (ir >= ic) {
+              angle_val = (int) tvb_get_bits16(tvb, off_pos, phi, ENC_BIG_ENDIAN);
+              if ((ir+1 < nr) || (ic+1 <= nc))
+                proto_item_append_text(phi_angle, "PHI%d%d: %d, ", ir, ic, angle_val);
+              else
+                proto_item_append_text(phi_angle, "PHI%d%d: %d", ir, ic, angle_val);
+              off_pos = off_pos + phi;
+          }
+      }
+  }
+
+  psi_angle = proto_tree_add_none_format(angletree, hf_ieee80211_vht_compressed_beamforming_psi_angle, tvb, offset, 0, "PSI(%u bits):    ", psi);
+  for (ic = 1; ic <= nc; ic++)
+      for (ir = 2; ir <= nr; ir++)
+          if (ir > ic) {
+              angle_val = (int) tvb_get_bits8(tvb, off_pos, psi);
+              if ((ir+1 <= nr) || (ic+1 <= nc))
+                proto_item_append_text(psi_angle, "PSI%d%d: %d, ", ir, ic, angle_val);
+              else
+                proto_item_append_text(psi_angle, "PSI%d%d: %d", ir, ic, angle_val);
+              off_pos = off_pos + psi;
+          }
 
   /* Table 8-53c Subfields of the VHT MIMO Control field (802.11ac-2013)
    * reserves value 3 of the Grouping subfield. */
@@ -21437,6 +21476,16 @@ proto_register_ieee80211(void)
        FT_UINT8, BASE_HEX, NULL, 0,
        NULL, HFILL }},
 
+    {&hf_ieee80211_vht_compressed_beamforming_phi_angle,
+      {"PHI", "wlan.vht.compressed_beamforming_report.phi",
+       FT_NONE, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_vht_compressed_beamforming_psi_angle,
+      {"PSI", "wlan.vht.compressed_beamforming_report.psi",
+       FT_NONE, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
     {&hf_ieee80211_vht_compressed_beamforming_feedback_matrix,
       {"Compressed Beamforming Feedback Matrix", "wlan.vht.compressed_beamforming_report.feedback_matrix",
        FT_NONE, BASE_NONE, NULL, 0,
@@ -27746,6 +27795,7 @@ proto_register_ieee80211(void)
     &ett_ff_vhtmimo_cntrl,
     &ett_ff_vhtmimo_beamforming_report,
     &ett_ff_vhtmimo_beamforming_report_snr,
+    &ett_ff_vhtmimo_beamforming_angle,
     &ett_ff_vhtmimo_beamforming_report_feedback_matrices,
     &ett_ff_vhtmu_exclusive_beamforming_report_matrices,
 
