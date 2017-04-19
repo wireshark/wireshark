@@ -54,7 +54,7 @@ TARGET_PLATFORM=macx-clang
 # While tar, in newer versions of macOS, can uncompress xz'ed tarballs,
 # it can't do so in older versions, and xz isn't provided with macOS.
 #
-XZ_VERSION=5.0.8
+XZ_VERSION=5.2.3
 
 #
 # Some packages need lzip to unpack their current source.
@@ -69,9 +69,9 @@ CMAKE_VERSION=${CMAKE_VERSION-2.8.12.2}
 #
 # The following libraries and tools are required even to build only TShark.
 #
-GETTEXT_VERSION=0.18.2
+GETTEXT_VERSION=0.19.8.1
 GLIB_VERSION=2.36.0
-PKG_CONFIG_VERSION=0.28
+PKG_CONFIG_VERSION=0.29.2
 #
 # libgpg-error is required for libgcrypt.
 #
@@ -150,15 +150,19 @@ fi
 # scripts to work with 5.1, 5.2, and 5.3, as long as they only use Lua
 # features present in all three versions)
 LUA_VERSION=5.2.4
-PORTAUDIO_VERSION=pa_stable_v19_20111121
-SNAPPY_VERSION=1.1.3
+PORTAUDIO_VERSION=pa_stable_v190600_20161030
+SNAPPY_VERSION=1.1.4
 LIBXML2_VERSION=2.9.4
-LZ4_VERSION=r131
+LZ4_VERSION=1.7.5
 SBC_VERSION=1.3
 GEOIP_VERSION=1.6.10
 CARES_VERSION=1.12.0
-LIBSSH_VERSION=0.7.3
-NGHTTP2_VERSION=1.14.0
+# Redmine used by libssh.org numbers the files available for download,
+# so using version only isn't enough
+LIBSSH_VERSION=0.7.4
+LIBSSH_FILENUM=210
+
+NGHTTP2_VERSION=1.21.0
 SPANDSP_VERSION=0.0.6
 if [ "$SPANDSP_VERSION" ]; then
     #
@@ -176,7 +180,7 @@ DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 # current Wireshark, so we install them unconditionally.
 #
 AUTOCONF_VERSION=2.69
-AUTOMAKE_VERSION=1.13.3
+AUTOMAKE_VERSION=1.15
 LIBTOOL_VERSION=2.4.6
 
 install_xz() {
@@ -1588,7 +1592,7 @@ uninstall_libxml2() {
 install_lz4() {
     if [ "$LZ4_VERSION" -a ! -f lz4-$LZ4_VERSION-done ] ; then
         echo "Downloading, building, and installing lz4:"
-        [ -f lz4-$LZ4_VERSION.tar.gz ] || curl -L -o lz4-$LZ4_VERSION.tar.gz https://github.com/lz4/lz4/archive/$LZ4_VERSION.tar.gz  || exit 1
+        [ -f lz4-$LZ4_VERSION.tar.gz ] || curl -L -o lz4-$LZ4_VERSION.tar.gz https://github.com/lz4/lz4/archive/v$LZ4_VERSION.tar.gz  || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat lz4-$LZ4_VERSION.tar.gz | tar xf - || exit 1
         cd lz4-$LZ4_VERSION
@@ -1769,7 +1773,7 @@ uninstall_c_ares() {
 install_libssh() {
     if [ "$LIBSSH_VERSION" -a ! -f libssh-$LIBSSH_VERSION-done ] ; then
         echo "Downloading, building, and installing libssh:"
-        [ -f libssh-$LIBSSH_VERSION.tar.xz ] || curl -L -O https://red.libssh.org/attachments/download/195/libssh-$LIBSSH_VERSION.tar.xz || exit 1
+        [ -f libssh-$LIBSSH_VERSION.tar.xz ] || curl -L -O https://red.libssh.org/attachments/download/$LIBSSH_FILENUM/libssh-$LIBSSH_VERSION.tar.xz || exit 1
         $no_build && echo "Skipping installation" && return
         xzcat libssh-$LIBSSH_VERSION.tar.xz | tar xf - || exit 1
         cd libssh-$LIBSSH_VERSION
