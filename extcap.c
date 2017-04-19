@@ -1388,7 +1388,7 @@ static void remove_extcap_entry(gpointer entry, gpointer data _U_)
     extcap_interface *int_iter = (extcap_interface*)entry;
 
     if (int_iter->if_type == EXTCAP_SENTENCE_EXTCAP)
-        g_free(int_iter);
+        extcap_free_interface(entry);
 }
 
 static gboolean cb_load_interfaces(extcap_callback_info_t cb_info)
