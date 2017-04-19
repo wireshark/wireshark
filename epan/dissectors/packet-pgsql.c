@@ -379,6 +379,8 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
             n += 4;
             siz = (i == 4 ? 2 : 4);
             proto_tree_add_item(tree, hf_salt, tvb, n, siz, ENC_NA);
+        }else if (i == 8) {
+            proto_tree_add_item(tree, hf_salt, tvb, n, length-8, ENC_NA);
         }
         break;
 
