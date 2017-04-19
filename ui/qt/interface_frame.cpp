@@ -113,7 +113,7 @@ InterfaceFrame::~InterfaceFrame()
 
 QMenu * InterfaceFrame::getSelectionMenu()
 {
-    QMenu * contextMenu = new QMenu();
+    QMenu * contextMenu = new QMenu(this);
     QList<int> typesDisplayed = proxyModel->typesDisplayed();
 
     QMap<int, QString>::const_iterator it = ifTypeDescription.constBegin();

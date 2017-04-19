@@ -131,7 +131,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     if (!plain_) {
         bookmark_button_ = new StockIconToolButton(this, "x-capture-filter-bookmark");
         bookmark_button_->setCursor(Qt::ArrowCursor);
-        bookmark_button_->setMenu(new QMenu());
+        bookmark_button_->setMenu(new QMenu(bookmark_button_));
         bookmark_button_->setPopupMode(QToolButton::InstantPopup);
         bookmark_button_->setToolTip(tr("Manage saved bookmarks."));
         bookmark_button_->setIconSize(QSize(14, 14));
