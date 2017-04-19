@@ -54,13 +54,6 @@ void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const 
 #define DUMP_MACRO(m)
 #endif
 
-static gboolean free_value(gpointer k _U_, gpointer v, gpointer u _U_) {
-	fvt_cache_entry_t* e = (fvt_cache_entry_t*)v;
-	wmem_free(NULL, e->repr);
-	g_free(e);
-	return TRUE;
-}
-
 static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
 	field_info* finfo = PNODE_FINFO(node);
 	fvt_cache_entry_t* e;
@@ -86,8 +79,15 @@ static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
 	return FALSE;
 }
 
+static void dfilter_free_fvt_entry(gpointer v)
+{
+	fvt_cache_entry_t* e = (fvt_cache_entry_t*)v;
+	wmem_free(NULL, e->repr);
+	g_free(e);
+}
+
 void dfilter_macro_build_ftv_cache(void* tree_root) {
-	g_hash_table_foreach_remove(fvt_cache,free_value,NULL);
+	g_hash_table_remove_all(fvt_cache);
 	proto_tree_traverse_post_order((proto_tree *)tree_root, fvt_cache_cb, NULL);
 }
 
@@ -587,7 +587,7 @@ void dfilter_macro_init(void) {
 				    NULL,
 				    uat_fields);
 
-	fvt_cache = g_hash_table_new(g_str_hash,g_str_equal);
+	fvt_cache = g_hash_table_new_full(g_str_hash,g_str_equal, NULL, dfilter_free_fvt_entry);
 }
 
 void dfilter_macro_get_uat(uat_t **dfmu_ptr_ptr) {
