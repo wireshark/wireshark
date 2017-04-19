@@ -353,6 +353,7 @@ save_decode_as_entries(gchar** err)
 
     dissector_all_tables_foreach_changed(decode_as_write_entry, da_file);
     fclose(da_file);
+    g_free(daf_path);
     return 0;
 }
 
