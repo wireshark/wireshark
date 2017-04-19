@@ -148,6 +148,12 @@ static const value_string auth_types[] = {
     { 4, "crypt()ed password" },
     { 5, "MD5 password" },
     { 6, "SCM credentials" },
+    { 7, "GSSAPI" },
+    { 8, "GSSAPI/SSPI continue" },
+    { 9, "SSPI" },
+    {10, "SASL" },
+    {11, "SASL continue" },
+    {12, "SASL complete" },
     { 0, NULL }
 };
 
