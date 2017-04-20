@@ -85,20 +85,15 @@ static expert_field ei_quakeworld_connectionless_command_invalid = EI_INIT;
 
 #define MAX_TEXT_SIZE	2048
 
-static	char	com_token[MAX_TEXT_SIZE+1];
-static	int	com_token_start;
-static	int	com_token_length;
-
 static const char *
-COM_Parse (const char *data)
+COM_Parse (const char *data, int data_len, int* token_start, int* token_len)
 {
-	int	c;
-	int	len;
+	int c;
+	char* com_token = (char*)wmem_alloc(wmem_packet_scope(), data_len+1);
 
-	len = 0;
 	com_token[0] = '\0';
-	com_token_start = 0;
-	com_token_length = 0;
+	*token_start = 0;
+	*token_len = 0;
 
 	if (data == NULL)
 		return NULL;
@@ -112,14 +107,14 @@ skipwhite:
 		if ((c != ' ') && (!g_ascii_iscntrl(c)))
 		    break;
 		data++;
-		com_token_start++;
+		(*token_start)++;
 	}
 
 	/* skip // comments */
 	if ((c=='/') && (data[1]=='/')) {
 		while (*data && *data != '\n'){
 			data++;
-			com_token_start++;
+			(*token_start)++;
 		}
 		goto skipwhite;
 	}
@@ -127,36 +122,39 @@ skipwhite:
 	/* handle quoted strings specially */
 	if (c == '\"') {
 		data++;
-		com_token_start++;
-		while (TRUE) {
+		(*token_start)++;
+		while (*token_len < data_len) {
 			c = *data++;
 			if ((c=='\"') || (c=='\0')) {
-				com_token[len] = '\0';
+				com_token[*token_len] = '\0';
 				return data;
 			}
-			com_token[len] = c;
-			len++;
-			com_token_length++;
+			com_token[*token_len] = c;
+			(*token_len)++;
 		}
+	}
+
+	if (*token_len == data_len) {
+		com_token[*token_len] = '\0';
+		return data;
 	}
 
 	/* parse a regular word */
 	do {
-		com_token[len] = c;
+		com_token[*token_len] = c;
 		data++;
-		len++;
-		com_token_length++;
+		(*token_len)++;
 		c = *data;
-	} while (( c != ' ') && (!g_ascii_iscntrl(c)));
+	} while (( c != ' ') && (!g_ascii_iscntrl(c)) && (*token_len < data_len));
 
-	com_token[len] = '\0';
+	com_token[*token_len] = '\0';
 	return data;
 }
 
 
 #define			MAX_ARGS 80
 static	int		cmd_argc = 0;
-static	char		*cmd_argv[MAX_ARGS];
+static	const char	*cmd_argv[MAX_ARGS];
 static	const char	*cmd_null_string = "";
 static	int		cmd_argv_start[MAX_ARGS];
 static	int		cmd_argv_length[MAX_ARGS];
@@ -198,17 +196,18 @@ Cmd_Argv_length(int arg)
 
 
 static void
-Cmd_TokenizeString(const char* text)
+Cmd_TokenizeString(const char* text, int text_len)
 {
 	int start;
-
+	int com_token_start;
+	int com_token_length;
 	cmd_argc = 0;
 
 	start = 0;
-	while (TRUE) {
+	while (start < text_len) {
 
 		/* skip whitespace up to a \n */
-		while (*text && *text <= ' ' && *text != '\n') {
+		while (*text && *text <= ' ' && *text != '\n' && start < text_len) {
 			text++;
 			start++;
 		}
@@ -219,15 +218,15 @@ Cmd_TokenizeString(const char* text)
 			break;
 		}
 
-		if (!*text)
+		if ((!*text) || (start == text_len))
 			return;
 
-		text = COM_Parse (text);
+		text = COM_Parse (text, text_len-start, &com_token_start, &com_token_length);
 		if (!text)
 			return;
 
 		if (cmd_argc < MAX_ARGS) {
-			cmd_argv[cmd_argc] = wmem_strdup(wmem_packet_scope(), com_token);
+			cmd_argv[cmd_argc] = (char*)text;
 			cmd_argv_start[cmd_argc] = start + com_token_start;
 			cmd_argv_length[cmd_argc] = com_token_length;
 			cmd_argc++;
@@ -381,7 +380,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 		/* client to server commands */
 		const char *c;
 
-		Cmd_TokenizeString(text);
+		Cmd_TokenizeString(text, len);
 		c = Cmd_Argv(0);
 
 		/* client to sever commands */
