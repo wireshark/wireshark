@@ -82,6 +82,7 @@
 #endif
 #include "ui/util.h"
 #include "ui/dissect_opts.h"
+#include "ui/failure_message.h"
 #include "register.h"
 #include "conditions.h"
 #include "capture_stop_conditions.h"
@@ -983,39 +984,7 @@ load_cap_file(capture_file *cf)
     g_free(pd);
     if (err != 0) {
         /* Print a message noting that the read failed somewhere along the line. */
-        switch (err) {
-
-            case WTAP_ERR_UNSUPPORTED:
-                cmdarg_err("The file \"%s\" contains record data that Rawshark doesn't support.\n(%s)",
-                           cf->filename,
-                           err_info != NULL ? err_info : "no information supplied");
-                g_free(err_info);
-                break;
-
-            case WTAP_ERR_SHORT_READ:
-                cmdarg_err("The file \"%s\" appears to have been cut short in the middle of a packet.",
-                           cf->filename);
-                break;
-
-            case WTAP_ERR_BAD_FILE:
-                cmdarg_err("The file \"%s\" appears to be damaged or corrupt.\n(%s)",
-                           cf->filename,
-                           err_info != NULL ? err_info : "no information supplied");
-                g_free(err_info);
-                break;
-
-            case WTAP_ERR_DECOMPRESS:
-                cmdarg_err("The compressed file \"%s\" appears to be damaged or corrupt.\n(%s)",
-                           cf->filename,
-                           err_info != NULL ? err_info : "no information supplied");
-                g_free(err_info);
-                break;
-
-            default:
-                cmdarg_err("An error occurred while reading the file \"%s\": %s.",
-                           cf->filename, wtap_strerror(err));
-                break;
-        }
+        cfile_read_failure_message("Rawshark", cf->filename, err, err_info);
         return FALSE;
     }
 

@@ -61,6 +61,7 @@
 #include "ui/decode_as_utils.h"
 #include "ui/filter_files.h"
 #include "ui/tap_export_pdu.h"
+#include "ui/failure_message.h"
 #include "register.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
@@ -86,9 +87,6 @@ static const frame_data *ref;
 static frame_data ref_frame;
 static frame_data *prev_dis;
 static frame_data *prev_cap;
-
-static const char *cf_open_error_message(int err, gchar *err_info,
-    gboolean for_writing, int file_type);
 
 static void failure_warning_message(const char *msg_format, va_list ap);
 static void open_failure_message(const char *filename, int err,
@@ -425,39 +423,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
   }
 
   if (err != 0) {
-    switch (err) {
-
-    case WTAP_ERR_UNSUPPORTED:
-      cmdarg_err("The file \"%s\" contains record data that sharkd doesn't support.\n(%s)",
-                 cf->filename,
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    case WTAP_ERR_SHORT_READ:
-      cmdarg_err("The file \"%s\" appears to have been cut short in the middle of a packet.",
-                 cf->filename);
-      break;
-
-    case WTAP_ERR_BAD_FILE:
-      cmdarg_err("The file \"%s\" appears to be damaged or corrupt.\n(%s)",
-                 cf->filename,
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    case WTAP_ERR_DECOMPRESS:
-      cmdarg_err("The compressed file \"%s\" appears to be damaged or corrupt.\n"
-                 "(%s)", cf->filename,
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    default:
-      cmdarg_err("An error occurred while reading the file \"%s\": %s.",
-                 cf->filename, wtap_strerror(err));
-      break;
-    }
+    cfile_read_failure_message("sharkd", cf->filename, err, err_info);
   }
 
   return err;
@@ -468,7 +434,6 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
 {
   wtap  *wth;
   gchar *err_info;
-  char   err_msg[2048+1];
 
   wth = wtap_open_offline(fname, type, err, &err_info, TRUE);
   if (wth == NULL)
@@ -519,129 +484,8 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   return CF_OK;
 
 fail:
-  g_snprintf(err_msg, sizeof err_msg,
-             cf_open_error_message(*err, err_info, FALSE, cf->cd_t), fname);
-  cmdarg_err("%s", err_msg);
+  cfile_open_failure_message("sharkd", fname, *err, err_info, FALSE, cf->cd_t);
   return CF_ERROR;
-}
-
-static const char *
-cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
-                      int file_type)
-{
-  const char *errmsg;
-  static char errmsg_errno[1024+1];
-
-  if (err < 0) {
-    /* Wiretap error. */
-    switch (err) {
-
-    case WTAP_ERR_NOT_REGULAR_FILE:
-      errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
-      break;
-
-    case WTAP_ERR_RANDOM_OPEN_PIPE:
-      /* Seen only when opening a capture file for reading. */
-      errmsg = "The file \"%s\" is a pipe or FIFO; sharkd can't read pipe or FIFO files in two-pass mode.";
-      break;
-
-    case WTAP_ERR_FILE_UNKNOWN_FORMAT:
-      /* Seen only when opening a capture file for reading. */
-      errmsg = "The file \"%s\" isn't a capture file in a format sharkd understands.";
-      break;
-
-    case WTAP_ERR_UNSUPPORTED:
-      /* Seen only when opening a capture file for reading. */
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The file \"%%s\" contains record data that sharkd doesn't support.\n"
-                 "(%s)",
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      errmsg = errmsg_errno;
-      break;
-
-    case WTAP_ERR_CANT_WRITE_TO_PIPE:
-      /* Seen only when opening a capture file for writing. */
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The file \"%%s\" is a pipe, and \"%s\" capture files can't be "
-                 "written to a pipe.", wtap_file_type_subtype_short_string(file_type));
-      errmsg = errmsg_errno;
-      break;
-
-    case WTAP_ERR_UNWRITABLE_FILE_TYPE:
-      /* Seen only when opening a capture file for writing. */
-      errmsg = "sharkd doesn't support writing capture files in that format.";
-      break;
-
-    case WTAP_ERR_UNWRITABLE_ENCAP:
-      /* Seen only when opening a capture file for writing. */
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "sharkd can't save this capture as a \"%s\" file.",
-                 wtap_file_type_subtype_short_string(file_type));
-      errmsg = errmsg_errno;
-      break;
-
-    case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-      if (for_writing) {
-        g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                   "sharkd can't save this capture as a \"%s\" file.",
-                   wtap_file_type_subtype_short_string(file_type));
-        errmsg = errmsg_errno;
-      } else
-        errmsg = "The file \"%s\" is a capture for a network type that sharkd doesn't support.";
-      break;
-
-    case WTAP_ERR_BAD_FILE:
-      /* Seen only when opening a capture file for reading. */
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The file \"%%s\" appears to be damaged or corrupt.\n"
-                 "(%s)",
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      errmsg = errmsg_errno;
-      break;
-
-    case WTAP_ERR_CANT_OPEN:
-      if (for_writing)
-        errmsg = "The file \"%s\" could not be created for some unknown reason.";
-      else
-        errmsg = "The file \"%s\" could not be opened for some unknown reason.";
-      break;
-
-    case WTAP_ERR_SHORT_READ:
-      errmsg = "The file \"%s\" appears to have been cut short"
-               " in the middle of a packet or other data.";
-      break;
-
-    case WTAP_ERR_SHORT_WRITE:
-      errmsg = "A full header couldn't be written to the file \"%s\".";
-      break;
-
-    case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
-      errmsg = "This file type cannot be written as a compressed file.";
-      break;
-
-    case WTAP_ERR_DECOMPRESS:
-      /* Seen only when opening a capture file for reading. */
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The compressed file \"%%s\" appears to be damaged or corrupt.\n"
-                 "(%s)",
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      errmsg = errmsg_errno;
-      break;
-
-    default:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The file \"%%s\" could not be %s: %s.",
-                 for_writing ? "created" : "opened",
-                 wtap_strerror(err));
-      errmsg = errmsg_errno;
-      break;
-    }
-  } else
-    errmsg = file_open_error_message(err, for_writing);
-  return errmsg;
 }
 
 /*

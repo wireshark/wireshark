@@ -31,6 +31,7 @@ set(COMMON_UI_SRC
 	export_object_ui.c
 	export_pdu_ui_utils.c
 	help_url.c
+	failure_message.c
 	filter_files.c
 	firewall_rules.c
 	iface_lists.c

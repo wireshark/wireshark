@@ -92,6 +92,8 @@
 #include <wiretap/wtap_opttypes.h>
 #include <wiretap/pcapng.h>
 
+#include "ui/failure_message.h"
+
 #include "ringbuffer.h" /* For RINGBUFFER_MAX_NUM_FILES */
 
 #define INVALID_OPTION 1
@@ -1349,12 +1351,8 @@ main(int argc, char *argv[])
     wth = wtap_open_offline(argv[optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, FALSE);
 
     if (!wth) {
-        fprintf(stderr, "editcap: Can't open %s: %s\n", argv[optind],
-                wtap_strerror(read_err));
-        if (read_err_info != NULL) {
-            fprintf(stderr, "(%s)\n", read_err_info);
-            g_free(read_err_info);
-        }
+        cfile_open_failure_message("editap", argv[optind], read_err,
+                                   read_err_info, FALSE, WTAP_TYPE_AUTO);
         ret = INVALID_FILE;
         goto clean_exit;
     }
@@ -1777,66 +1775,10 @@ main(int argc, char *argv[])
 
                 /* Attempt to dump out current frame to the output file */
                 if (!wtap_dump(pdh, phdr, buf, &write_err, &write_err_info)) {
-                    switch (write_err) {
-                    case WTAP_ERR_UNWRITABLE_ENCAP:
-                        /*
-                         * This is a problem with the particular frame we're
-                         * writing and the file type and subtype we're
-                         * writing; note that, and report the frame number
-                         * and file type/subtype.
-                         */
-                        fprintf(stderr,
-                                "editcap: Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
-                                read_count, argv[optind],
-                                wtap_file_type_subtype_string(out_file_type_subtype));
-                        break;
-
-                    case WTAP_ERR_PACKET_TOO_LARGE:
-                        /*
-                         * This is a problem with the particular frame we're
-                         * writing and the file type and subtype we're
-                         * writing; note that, and report the frame number
-                         * and file type/subtype.
-                         */
-                        fprintf(stderr,
-                                "editcap: Frame %u of \"%s\" is too large for a \"%s\" file.\n",
-                                read_count, argv[optind],
-                                wtap_file_type_subtype_string(out_file_type_subtype));
-                        break;
-
-                    case WTAP_ERR_UNWRITABLE_REC_TYPE:
-                        /*
-                         * This is a problem with the particular record we're
-                         * writing and the file type and subtype we're
-                         * writing; note that, and report the record number
-                         * and file type/subtype.
-                         */
-                        fprintf(stderr,
-                                "editcap: Record %u of \"%s\" has a record type that can't be saved in a \"%s\" file.\n",
-                                read_count, argv[optind],
-                                wtap_file_type_subtype_string(out_file_type_subtype));
-                        break;
-
-                    case WTAP_ERR_UNWRITABLE_REC_DATA:
-                        /*
-                         * This is a problem with the particular record we're
-                         * writing and the file type and subtype we're
-                         * writing; note that, and report the record number
-                         * and file type/subtype.
-                         */
-                        fprintf(stderr,
-                                "editcap: Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
-                                read_count, argv[optind],
-                                wtap_file_type_subtype_string(out_file_type_subtype),
-                                write_err_info != NULL ? write_err_info : "no information supplied");
-                        g_free(write_err_info);
-                        break;
-
-                    default:
-                        fprintf(stderr, "editcap: Error writing to %s: %s\n",
-                                filename, wtap_strerror(write_err));
-                        break;
-                    }
+                    cfile_write_failure_message(argv[optind], filename,
+                                                write_err, write_err_info,
+                                                read_count,
+                                                out_file_type_subtype);
                     ret = DUMP_ERROR;
                     goto clean_exit;
                 }

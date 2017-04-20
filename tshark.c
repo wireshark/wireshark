@@ -89,6 +89,7 @@
 #include "ui/cli/tap-exportobject.h"
 #include "ui/tap_export_pdu.h"
 #include "ui/dissect_opts.h"
+#include "ui/failure_message.h"
 #if defined(HAVE_LIBSMI)
 #include "epan/oids.h"
 #endif
@@ -231,15 +232,12 @@ static int load_cap_file(capture_file *, char *, int, gboolean, int, gint64);
 static gboolean process_packet_single_pass(capture_file *cf,
     epan_dissect_t *edt, gint64 offset, struct wtap_pkthdr *whdr,
     const guchar *pd, guint tap_flags);
-static void show_capture_file_io_error(const char *, int, gboolean);
 static void show_print_file_io_error(int err);
 static gboolean write_preamble(capture_file *cf);
 static gboolean print_packet(capture_file *cf, epan_dissect_t *edt);
 static gboolean write_finale(void);
 
 static void failure_warning_message(const char *msg_format, va_list ap);
-static void cfile_open_failure_message(const char *filename, int err,
-     gchar *err_info, gboolean for_writing, int file_type);
 static void open_failure_message(const char *filename, int err,
     gboolean for_writing);
 static void read_failure_message(const char *filename, int err);
@@ -500,22 +498,6 @@ tshark_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
 
   g_log_default_handler(log_domain, log_level, message, user_data);
 
-}
-
-static char *
-output_file_description(const char *fname)
-{
-  char *save_file_string;
-
-  /* Get a string that describes what we're writing to */
-  if (strcmp(fname, "-") == 0) {
-    /* We're writing to to the standard output */
-    save_file_string = g_strdup("standard output");
-  } else {
-    /* We're writing to a file with the name in save_file */
-    save_file_string = g_strdup_printf("file \"%s\"", fname);
-  }
-  return save_file_string;
 }
 
 static void
@@ -1928,8 +1910,8 @@ main(int argc, char *argv[])
       comment = g_strdup_printf("Dump of PDUs from %s", cf_name);
       err = exp_pdu_open(&exp_pdu_tap_data, exp_fd, comment);
       if (err != 0) {
-          cfile_open_failure_message(exp_pdu_filename, err, NULL, TRUE,
-                                     WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
+          cfile_open_failure_message("TShark", exp_pdu_filename, err, NULL,
+                                     TRUE, WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
           g_free(comment);
           exit_status = INVALID_EXPORT;
           goto clean_exit;
@@ -3039,7 +3021,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     if (pdh == NULL) {
       /* We couldn't set up to write to the capture file. */
-      cfile_open_failure_message(save_file, err, NULL, TRUE, out_file_type);
+      cfile_open_failure_message("TShark", save_file, err, NULL, TRUE,
+                                 out_file_type);
       goto out;
     }
   } else {
@@ -3173,74 +3156,12 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
             if (!wtap_dump(pdh, &phdr, ws_buffer_start_ptr(&buf), &err, &err_info)) {
               /* Error writing to a capture file */
               tshark_debug("tshark: error writing to a capture file (%d)", err);
-              switch (err) {
 
-              case WTAP_ERR_UNWRITABLE_ENCAP:
-                /*
-                 * This is a problem with the particular frame we're writing
-                 * and the file type and subtype we're writing; note that,
-                 * and report the frame number and file type/subtype.
-                 *
-                 * XXX - framenum is not necessarily the frame number in
-                 * the input file if there was a read filter.
-                 */
-                fprintf(stderr,
-                        "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
-                        framenum, cf->filename,
-                        wtap_file_type_subtype_short_string(out_file_type));
-                break;
-
-              case WTAP_ERR_PACKET_TOO_LARGE:
-                /*
-                 * This is a problem with the particular frame we're writing
-                 * and the file type and subtype we're writing; note that,
-                 * and report the frame number and file type/subtype.
-                 *
-                 * XXX - framenum is not necessarily the frame number in
-                 * the input file if there was a read filter.
-                 */
-                fprintf(stderr,
-                        "Frame %u of \"%s\" is too large for a \"%s\" file.\n",
-                        framenum, cf->filename,
-                        wtap_file_type_subtype_short_string(out_file_type));
-                break;
-
-              case WTAP_ERR_UNWRITABLE_REC_TYPE:
-                /*
-                 * This is a problem with the particular record we're writing
-                 * and the file type and subtype we're writing; note that,
-                 * and report the record number and file type/subtype.
-                 *
-                 * XXX - framenum is not necessarily the record number in
-                 * the input file if there was a read filter.
-                 */
-                fprintf(stderr,
-                        "Record %u of \"%s\" has a record type that can't be saved in a \"%s\" file.\n",
-                        framenum, cf->filename,
-                        wtap_file_type_subtype_short_string(out_file_type));
-                break;
-
-              case WTAP_ERR_UNWRITABLE_REC_DATA:
-                /*
-                 * This is a problem with the particular record we're writing
-                 * and the file type and subtype we're writing; note that,
-                 * and report the record number and file type/subtype.
-                 *
-                 * XXX - framenum is not necessarily the record number in
-                 * the input file if there was a read filter.
-                 */
-                fprintf(stderr,
-                        "Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
-                        framenum, cf->filename,
-                        wtap_file_type_subtype_short_string(out_file_type),
-                        err_info != NULL ? err_info : "no information supplied");
-                g_free(err_info);
-                break;
-
-              default:
-                show_capture_file_io_error(save_file, err, FALSE);
-                break;
-              }
+              /* Report the error.
+                 XXX - framenum is not necessarily the frame number in
+                 the input file if there was a read filter. */
+              cfile_write_failure_message(cf->filename, save_file, err,
+                                          err_info, framenum, out_file_type);
               wtap_dump_close(pdh, &err);
               wtap_block_array_free(shb_hdrs);
               wtap_block_array_free(nrb_hdrs);
@@ -3318,62 +3239,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
           if (!wtap_dump(pdh, wtap_phdr(cf->wth), wtap_buf_ptr(cf->wth), &err, &err_info)) {
             /* Error writing to a capture file */
             tshark_debug("tshark: error writing to a capture file (%d)", err);
-            switch (err) {
-
-            case WTAP_ERR_UNWRITABLE_ENCAP:
-              /*
-               * This is a problem with the particular frame we're writing
-               * and the file type and subtype we're writing; note that,
-               * and report the frame number and file type/subtype.
-               */
-              fprintf(stderr,
-                      "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
-                      framenum, cf->filename,
-                      wtap_file_type_subtype_short_string(out_file_type));
-              break;
-
-            case WTAP_ERR_PACKET_TOO_LARGE:
-              /*
-               * This is a problem with the particular frame we're writing
-               * and the file type and subtype we're writing; note that,
-               * and report the frame number and file type/subtype.
-               */
-              fprintf(stderr,
-                      "Frame %u of \"%s\" is too large for a \"%s\" file.\n",
-                      framenum, cf->filename,
-                      wtap_file_type_subtype_short_string(out_file_type));
-              break;
-
-            case WTAP_ERR_UNWRITABLE_REC_TYPE:
-              /*
-               * This is a problem with the particular record we're writing
-               * and the file type and subtype we're writing; note that,
-               * and report the record number and file type/subtype.
-               */
-              fprintf(stderr,
-                      "Record %u of \"%s\" has a record type that can't be saved in a \"%s\" file.\n",
-                      framenum, cf->filename,
-                      wtap_file_type_subtype_short_string(out_file_type));
-              break;
-
-            case WTAP_ERR_UNWRITABLE_REC_DATA:
-              /*
-               * This is a problem with the particular record we're writing
-               * and the file type and subtype we're writing; note that,
-               * and report the record number and file type/subtype.
-               */
-              fprintf(stderr,
-                      "Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
-                      framenum, cf->filename,
-                      wtap_file_type_subtype_short_string(out_file_type),
-                      err_info != NULL ? err_info : "no information supplied");
-              g_free(err_info);
-              break;
-
-            default:
-              show_capture_file_io_error(save_file, err, FALSE);
-              break;
-            }
+            cfile_write_failure_message(cf->filename, save_file, err, err_info,
+                                        framenum, out_file_type);
             wtap_dump_close(pdh, &err);
             wtap_block_array_free(shb_hdrs);
             wtap_block_array_free(nrb_hdrs);
@@ -3428,43 +3295,11 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       }
     }
 #endif
-    switch (err) {
-
-    case WTAP_ERR_UNSUPPORTED:
-      cmdarg_err("The file \"%s\" contains record data that TShark doesn't support.\n(%s)",
-                 cf->filename,
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    case WTAP_ERR_SHORT_READ:
-      cmdarg_err("The file \"%s\" appears to have been cut short in the middle of a packet.",
-                 cf->filename);
-      break;
-
-    case WTAP_ERR_BAD_FILE:
-      cmdarg_err("The file \"%s\" appears to be damaged or corrupt.\n(%s)",
-                 cf->filename,
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    case WTAP_ERR_DECOMPRESS:
-      cmdarg_err("The compressed file \"%s\" appears to be damaged or corrupt.\n"
-                 "(%s)", cf->filename,
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    default:
-      cmdarg_err("An error occurred while reading the file \"%s\": %s.",
-                 cf->filename, wtap_strerror(err));
-      break;
-    }
+    cfile_read_failure_message("TShark", cf->filename, err, err_info);
     if (save_file != NULL) {
       /* Now close the capture file. */
       if (!wtap_dump_close(pdh, &err))
-        show_capture_file_io_error(save_file, err, TRUE);
+        cfile_close_failure_message(save_file, err);
     }
   } else {
     if (save_file != NULL) {
@@ -3476,7 +3311,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       }
       /* Now close the capture file. */
       if (!wtap_dump_close(pdh, &err))
-        show_capture_file_io_error(save_file, err, TRUE);
+        cfile_close_failure_message(save_file, err);
     } else {
       if (print_packet_info) {
         if (!write_finale()) {
@@ -4103,54 +3938,8 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   return CF_OK;
 
 fail:
-  cfile_open_failure_message(fname, *err, err_info, FALSE, cf->cd_t);
+  cfile_open_failure_message("TShark", fname, *err, err_info, FALSE, cf->cd_t);
   return CF_ERROR;
-}
-
-static void
-show_capture_file_io_error(const char *fname, int err, gboolean is_close)
-{
-  char *save_file_string;
-
-  save_file_string = output_file_description(fname);
-
-  switch (err) {
-
-  case ENOSPC:
-    cmdarg_err("Not all the packets could be written to the %s because there is "
-               "no space left on the file system.",
-               save_file_string);
-    break;
-
-#ifdef EDQUOT
-  case EDQUOT:
-    cmdarg_err("Not all the packets could be written to the %s because you are "
-               "too close to, or over your disk quota.",
-               save_file_string);
-  break;
-#endif
-
-  case WTAP_ERR_CANT_CLOSE:
-    cmdarg_err("The %s couldn't be closed for some unknown reason.",
-               save_file_string);
-    break;
-
-  case WTAP_ERR_SHORT_WRITE:
-    cmdarg_err("Not all the packets could be written to the %s.",
-               save_file_string);
-    break;
-
-  default:
-    if (is_close) {
-      cmdarg_err("The %s could not be closed: %s.", save_file_string,
-                 wtap_strerror(err));
-    } else {
-      cmdarg_err("An error occurred while writing to the %s: %s.",
-                 save_file_string, wtap_strerror(err));
-    }
-    break;
-  }
-  g_free(save_file_string);
 }
 
 static void
@@ -4193,132 +3982,6 @@ failure_warning_message(const char *msg_format, va_list ap)
  * Open/create errors are reported with an console message in TShark.
  */
 static void
-cfile_open_failure_message(const char *filename, int err, gchar *err_info,
-                           gboolean for_writing, int file_type)
-{
-  char *file_description;
-
-  /* Get a string that describes what we're opening */
-  if (strcmp(filename, "-") == 0) {
-    /* We're opening the standard input/output */
-    file_description = g_strdup(for_writing ? "standard output" : "standard input");
-  } else {
-    /* We're opening a file with the name in filename */
-    file_description = g_strdup_printf("file \"%s\"", filename);
-  }
-  if (err < 0) {
-    /* Wiretap error. */
-    switch (err) {
-
-    case WTAP_ERR_NOT_REGULAR_FILE:
-      cmdarg_err("The %s is a \"special file\" or socket or other non-regular file.",
-                 file_description);
-      break;
-
-    case WTAP_ERR_RANDOM_OPEN_PIPE:
-      /* Seen only when opening a capture file for reading. */
-      cmdarg_err("The %s is a pipe or FIFO; TShark can't read pipe or FIFO files in two-pass mode.",
-                 file_description);
-      break;
-
-    case WTAP_ERR_FILE_UNKNOWN_FORMAT:
-      /* Seen only when opening a capture file for reading. */
-      cmdarg_err("The %s isn't a capture file in a format TShark understands.",
-                 file_description);
-      break;
-
-    case WTAP_ERR_UNSUPPORTED:
-      /* Seen only when opening a capture file for reading. */
-      cmdarg_err("The %s contains record data that TShark doesn't support.\n"
-                 "(%s)",
-                 file_description,
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    case WTAP_ERR_CANT_WRITE_TO_PIPE:
-      /* Seen only when opening a capture file for writing. */
-      cmdarg_err("The %s is a pipe, and \"%s\" capture files can't be written to a pipe.",
-                 file_description,
-                 wtap_file_type_subtype_short_string(file_type));
-      break;
-
-    case WTAP_ERR_UNWRITABLE_FILE_TYPE:
-      /* Seen only when opening a capture file for writing. */
-      cmdarg_err("TShark doesn't support writing capture files in that format.");
-      break;
-
-    case WTAP_ERR_UNWRITABLE_ENCAP:
-      /* Seen only when opening a capture file for writing. */
-      cmdarg_err("The capture file being read can't be written as a \"%s\" file.",
-                 wtap_file_type_subtype_short_string(file_type));
-      break;
-
-    case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-      if (for_writing) {
-        cmdarg_err("The capture file being read can't be written as a \"%s\" file.",
-                   wtap_file_type_subtype_short_string(file_type));
-      } else {
-        cmdarg_err("The %s is a capture for a network type that TShark doesn't support.",
-                   file_description);
-      }
-      break;
-
-    case WTAP_ERR_BAD_FILE:
-      /* Seen only when opening a capture file for reading. */
-      cmdarg_err("The %s appears to be damaged or corrupt.\n"
-                 "(%s)",
-                 file_description,
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    case WTAP_ERR_CANT_OPEN:
-      if (for_writing) {
-        cmdarg_err("The %s could not be created for some unknown reason.",
-                   file_description);
-      } else {
-        cmdarg_err("The %s could not be opened for some unknown reason.",
-                   file_description);
-      }
-      break;
-
-    case WTAP_ERR_SHORT_READ:
-      cmdarg_err("The %s appears to have been cut short in the middle of a packet or other data.",
-                 file_description);
-      break;
-
-    case WTAP_ERR_SHORT_WRITE:
-      cmdarg_err("A full header couldn't be written to the %s.",
-                 file_description);
-      break;
-
-    case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
-      cmdarg_err("This file type cannot be written as a compressed file.");
-      break;
-
-    case WTAP_ERR_DECOMPRESS:
-      /* Seen only when opening a capture file for reading. */
-      cmdarg_err("The %s is compressed and appears to be damaged or corrupt.\n"
-                 "(%s)",
-                 file_description,
-                 err_info != NULL ? err_info : "no information supplied");
-      g_free(err_info);
-      break;
-
-    default:
-      cmdarg_err("The %s could not be %s: %s.",
-                 file_description,
-                 for_writing ? "created" : "opened",
-                 wtap_strerror(err));
-      break;
-    }
-    g_free(file_description);
-  } else
-    cmdarg_err(file_open_error_message(err, for_writing), filename);
-}
-
-static void
 open_failure_message(const char *filename, int err, gboolean for_writing)
 {
   fprintf(stderr, "tshark: ");
@@ -4333,7 +3996,7 @@ static void
 read_failure_message(const char *filename, int err)
 {
   cmdarg_err("An error occurred while reading from the file \"%s\": %s.",
-          filename, g_strerror(err));
+             filename, g_strerror(err));
 }
 
 /*
