@@ -641,8 +641,7 @@ gboolean randpkt_example_close(randpkt_example* example)
 	gboolean ok = TRUE;
 
 	if (!wtap_dump_close(example->dump, &err)) {
-		fprintf(stderr, "Error writing to %s: %s\n",
-			example->filename, wtap_strerror(err));
+		cfile_close_failure_message(example->filename, err);
 		ok = FALSE;
 	}
 
@@ -675,7 +674,8 @@ int randpkt_example_init(randpkt_example* example, char* produce_filename, int p
 		example->filename = produce_filename;
 	}
 	if (!example->dump) {
-		fprintf(stderr, "randpkt: Error writing to %s\n", example->filename);
+		cfile_dump_open_failure_message("randpkt", produce_filename,
+			err, WTAP_FILE_TYPE_SUBTYPE_PCAP);
 		return WRITE_ERROR;
 	}
 
