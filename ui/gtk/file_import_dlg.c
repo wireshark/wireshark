@@ -537,24 +537,24 @@ file_import_open(text_import_info_t *info)
     }
 
     if (cf_open(&cfile, capfile_name, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
-        open_failure_alert_box(capfile_name, err, FALSE);
+        /* cf_open() put up a dialog box here */
         goto end;
     }
 
     switch (cf_read(&cfile, FALSE)) {
     case CF_READ_OK:
     case CF_READ_ERROR:
-    /* Just because we got an error, that doesn't mean we were unable
-       to read any of the file; we handle what we could get from the
-       file. */
-    break;
+        /* Just because we got an error, that doesn't mean we were unable
+           to read any of the file; we handle what we could get from the
+           file. */
+        break;
 
     case CF_READ_ABORTED:
-    /* The user bailed out of re-reading the capture file; the
-       capture file has been closed - just free the capture file name
-       string and return (without changing the last containing
-       directory). */
-    break;
+        /* The user bailed out of re-reading the capture file; the
+           capture file has been closed - just free the capture file name
+           string and return (without changing the last containing
+           directory). */
+        break;
     }
 
 end:
