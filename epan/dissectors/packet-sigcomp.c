@@ -159,6 +159,7 @@ static gint ett_raw_text            = -1;
 
 static expert_field ei_sigcomp_nack_failed_op_code = EI_INIT;
 static expert_field ei_sigcomp_invalid_instruction = EI_INIT;
+static expert_field ei_sigcomp_invalid_shift_value = EI_INIT;
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_sigcomp_tcp_fragment = EI_INIT;
 static expert_field ei_sigcomp_decompression_failure = EI_INIT;
@@ -1788,7 +1789,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
     guint8        *sha1buff;
     unsigned char  sha1_digest_buf[STATE_BUFFER_SIZE];
     sha1_context   ctx;
-    proto_item    *addr_item = NULL;
+    proto_item    *addr_item = NULL, *ti = NULL;
 
 
     /* UDVM operand variables */
@@ -2114,8 +2115,12 @@ execute_next_instruction:
         /* %operand_2*/
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
+            ti = proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
                                 "Addr: %u      operand_2 %u", operand_address, operand_2);
+        }
+        if (operand_2 > 15) {
+            expert_add_info(pinfo, ti, &ei_sigcomp_invalid_shift_value);
+            break;
         }
         offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
@@ -2155,8 +2160,12 @@ execute_next_instruction:
         /* %operand_2*/
         next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
         if (show_instr_detail_level == 2 ) {
-            proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
+            ti = proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_2, bytecode_tvb, offset, (next_operand_address-operand_address), operand_2,
                                 "Addr: %u      operand_2 %u", operand_address, operand_2);
+        }
+        if (operand_2 > 15) {
+            expert_add_info(pinfo, ti, &ei_sigcomp_invalid_shift_value);
+            break;
         }
         offset += (next_operand_address-operand_address);
         if (show_instr_detail_level == 1)
@@ -6658,6 +6667,7 @@ proto_register_sigcomp(void)
     static ei_register_info ei[] = {
         { &ei_sigcomp_nack_failed_op_code, { "sigcomp.nack.failed_op_code.expert", PI_SEQUENCE, PI_WARN, "SigComp NACK", EXPFILL }},
         { &ei_sigcomp_invalid_instruction, { "sigcomp.invalid_instruction", PI_PROTOCOL, PI_WARN, "Invalid instruction", EXPFILL }},
+        { &ei_sigcomp_invalid_shift_value, { "sigcomp.invalid_shift_value", PI_PROTOCOL, PI_WARN, "Invalid shift value", EXPFILL }},
         /* Generated from convert_proto_tree_add_text.pl */
         { &ei_sigcomp_sigcomp_message_decompression_failure, { "sigcomp.message_decompression_failure", PI_PROTOCOL, PI_WARN, "SigComp message Decompression failure", EXPFILL }},
         { &ei_sigcomp_execution_of_this_instruction_is_not_implemented, { "sigcomp.execution_of_this_instruction_is_not_implemented", PI_UNDECODED, PI_WARN, "Execution of this instruction is NOT implemented", EXPFILL }},
