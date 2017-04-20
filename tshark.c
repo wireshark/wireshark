@@ -643,7 +643,6 @@ main(int argc, char *argv[])
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;
-  const char          *exp_pdu_filename = NULL;
 
 #ifdef _WIN32
   int                  result;
@@ -681,6 +680,7 @@ main(int argc, char *argv[])
   int                  log_flags;
   gchar               *output_only = NULL;
   gchar               *volatile pdu_export_arg = NULL;
+  const char          *volatile exp_pdu_filename = NULL;
   exp_pdu_t            exp_pdu_tap_data;
 
 /*
