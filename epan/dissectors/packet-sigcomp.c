@@ -1716,7 +1716,7 @@ decomp_dispatch_get_bits(
         *input_bits &= 0x00FF;                 /* Leave just the remaining bits */
     }
 
-    if (bit_order != 0)
+    if ((bit_order != 0) && (length <= 16))
     {
         /* Bit reverse the entire word. */
         guint16 lsb = reverse[(value >> 8) & 0xFF];
