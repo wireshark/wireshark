@@ -63,27 +63,20 @@ output_file_description(const char *fname)
 }
 
 /*
- * Error message for a failed attempt to open or create a capture file.
- * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
- * "err_info" is assumed to be a string giving further information for
- * some WTAP_ERR_ values; "for_writing" is TRUE if the file is being
- * opened for writing and FALSE if it's being opened for reading;
- * "file_type_subtype" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type
- * and subtype of file being opened for writing (it's ignored for
- * opening-for-reading errors).
+ * Error message for a failed attempt to open a capture file for reading.
+ * "progname" is the name of the program trying to open the file;
+ * "filename" is the name of the file being opened; "err" is assumed
+ * to be a UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed
+ * to be a string giving further information for some WTAP_ERR_ values.
  */
 void
 cfile_open_failure_message(const char *progname, const char *filename,
-                           int err, gchar *err_info, gboolean for_writing,
-                           int file_type)
+                           int err, gchar *err_info)
 {
     char *file_description;
 
     /* Get a string that describes what we're opening */
-    if (for_writing)
-        file_description = output_file_description(filename);
-    else
-        file_description = input_file_description(filename);
+    file_description = input_file_description(filename);
 
     if (err < 0) {
         /* Wiretap error. */
@@ -95,19 +88,16 @@ cfile_open_failure_message(const char *progname, const char *filename,
             break;
 
         case WTAP_ERR_RANDOM_OPEN_PIPE:
-            /* Seen only when opening a capture file for reading. */
             cmdarg_err("The %s is a pipe or FIFO; %s can't read pipe or FIFO files in two-pass mode.",
                        file_description, progname);
             break;
 
         case WTAP_ERR_FILE_UNKNOWN_FORMAT:
-            /* Seen only when opening a capture file for reading. */
             cmdarg_err("The %s isn't a capture file in a format %s understands.",
                        file_description, progname);
             break;
 
         case WTAP_ERR_UNSUPPORTED:
-            /* Seen only when opening a capture file for reading. */
             cmdarg_err("The %s contains record data that %s doesn't support.\n"
                        "(%s)",
                        file_description, progname,
@@ -115,37 +105,12 @@ cfile_open_failure_message(const char *progname, const char *filename,
             g_free(err_info);
             break;
 
-        case WTAP_ERR_CANT_WRITE_TO_PIPE:
-            /* Seen only when opening a capture file for writing. */
-            cmdarg_err("The %s is a pipe, and \"%s\" capture files can't be written to a pipe.",
-                       file_description,
-                       wtap_file_type_subtype_short_string(file_type));
-            break;
-
-        case WTAP_ERR_UNWRITABLE_FILE_TYPE:
-            /* Seen only when opening a capture file for writing. */
-            cmdarg_err("%s doesn't support writing capture files in that format.",
-                       progname);
-            break;
-
-        case WTAP_ERR_UNWRITABLE_ENCAP:
-            /* Seen only when opening a capture file for writing. */
-            cmdarg_err("The capture file being read can't be written as a \"%s\" file.",
-                       wtap_file_type_subtype_short_string(file_type));
-            break;
-
         case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-            if (for_writing) {
-                cmdarg_err("The capture file being read can't be written as a \"%s\" file.",
-                           wtap_file_type_subtype_short_string(file_type));
-            } else {
-                cmdarg_err("The %s is a capture for a network type that %s doesn't support.",
-                           file_description, progname);
-            }
+            cmdarg_err("The %s is a capture for a network type that %s doesn't support.",
+                       file_description, progname);
             break;
 
         case WTAP_ERR_BAD_FILE:
-            /* Seen only when opening a capture file for reading. */
             cmdarg_err("The %s appears to be damaged or corrupt.\n"
                        "(%s)",
                        file_description,
@@ -154,17 +119,83 @@ cfile_open_failure_message(const char *progname, const char *filename,
             break;
 
         case WTAP_ERR_CANT_OPEN:
-            if (for_writing) {
-                cmdarg_err("The %s could not be created for some unknown reason.",
-                           file_description);
-            } else {
-                cmdarg_err("The %s could not be opened for some unknown reason.",
-                           file_description);
-            }
+            cmdarg_err("The %s could not be opened for some unknown reason.",
+                       file_description);
             break;
 
         case WTAP_ERR_SHORT_READ:
             cmdarg_err("The %s appears to have been cut short in the middle of a packet or other data.",
+                       file_description);
+            break;
+
+        case WTAP_ERR_DECOMPRESS:
+            cmdarg_err("The %s cannot be decompressed; it may be damaged or corrupt."
+                       "(%s)",
+                       file_description,
+                       err_info != NULL ? err_info : "no information supplied");
+            g_free(err_info);
+            break;
+
+        default:
+            cmdarg_err("The %s could not be opened: %s.",
+                       file_description,
+                       wtap_strerror(err));
+            break;
+        }
+        g_free(file_description);
+    } else
+        cmdarg_err(file_open_error_message(err, FALSE), filename);
+}
+
+/*
+ * Error message for a failed attempt to open a capture file for writing.
+ * "progname" is the name of the program trying to open the file;
+ * "filename" is the name of the file being opened; "err" is assumed
+ * to be a UNIX-style errno or a WTAP_ERR_ value; "file_type_subtype" is
+ * a WTAP_FILE_TYPE_SUBTYPE_ value for the type and subtype of file being
+ * opened.
+ */
+void
+cfile_dump_open_failure_message(const char *progname, const char *filename,
+                                int err, int file_type_subtype)
+{
+    char *file_description;
+
+    /* Get a string that describes what we're opening */
+    file_description = output_file_description(filename);
+
+    if (err < 0) {
+        /* Wiretap error. */
+        switch (err) {
+
+        case WTAP_ERR_NOT_REGULAR_FILE:
+            cmdarg_err("The %s is a \"special file\" or socket or other non-regular file.",
+                       file_description);
+            break;
+
+        case WTAP_ERR_CANT_WRITE_TO_PIPE:
+            cmdarg_err("The %s is a pipe, and \"%s\" capture files can't be written to a pipe.",
+                       file_description,
+                       wtap_file_type_subtype_short_string(file_type_subtype));
+            break;
+
+        case WTAP_ERR_UNWRITABLE_FILE_TYPE:
+            cmdarg_err("%s doesn't support writing capture files in that format.",
+                       progname);
+            break;
+
+        case WTAP_ERR_UNWRITABLE_ENCAP:
+            cmdarg_err("The capture file being read can't be written as a \"%s\" file.",
+                       wtap_file_type_subtype_short_string(file_type_subtype));
+            break;
+
+        case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
+            cmdarg_err("The capture file being read can't be written as a \"%s\" file.",
+                       wtap_file_type_subtype_short_string(file_type_subtype));
+            break;
+
+        case WTAP_ERR_CANT_OPEN:
+            cmdarg_err("The %s could not be created for some unknown reason.",
                        file_description);
             break;
 
@@ -177,32 +208,23 @@ cfile_open_failure_message(const char *progname, const char *filename,
             cmdarg_err("This file type cannot be written as a compressed file.");
             break;
 
-        case WTAP_ERR_DECOMPRESS:
-            /* Seen only when opening a capture file for reading. */
-            cmdarg_err("The %s cannot be decompressed; it may be damaged or corrupt."
-                       "(%s)",
-                       file_description,
-                       err_info != NULL ? err_info : "no information supplied");
-            g_free(err_info);
-            break;
-
         default:
-            cmdarg_err("The %s could not be %s: %s.",
+            cmdarg_err("The %s could not be created: %s.",
                        file_description,
-                       for_writing ? "created" : "opened",
                        wtap_strerror(err));
             break;
         }
         g_free(file_description);
     } else
-        cmdarg_err(file_open_error_message(err, for_writing), filename);
+        cmdarg_err(file_open_error_message(err, TRUE), filename);
 }
 
 /*
  * Error message for a failed attempt to read from a capture file.
- * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
- * "err_info" is assumed to be a string giving further information for
- * some WTAP_ERR_ values.
+ * "progname" is the name of the program trying to open the file;
+ * "filename" is the name of the file being opened; "err" is assumed
+ * to be a UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed
+ * to be a string giving further information for some WTAP_ERR_ values.
  */
 void
 cfile_read_failure_message(const char *progname, const char *filename,
@@ -254,12 +276,15 @@ cfile_read_failure_message(const char *progname, const char *filename,
 
 /*
  * Error message for a failed attempt to write to a capture file.
- * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
- * "err_info" is assumed to be a string giving further information for
- * some WTAP_ERR_ values; "framenum" is the frame number of the record
- * on which the error occurred; "file_type_subtype" is a
- * WTAP_FILE_TYPE_SUBTYPE_ value for the type and subtype of file being
- * written.
+ * "progname" is the name of the program trying to open the file;
+ * "in_filename" is the name of the file from which the record
+ * being written came; "out_filename" is the name of the file to
+ * which we're writing; "err" is assumed "err" is assumed to be a
+ * UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed to be
+ * a string giving further information for some WTAP_ERR_ values;
+ * "framenum" is the frame number of the record on which the error
+ * occurred; "file_type_subtype" is a WTAP_FILE_TYPE_SUBTYPE_ value
+ * for the type and subtype of file being written.
  */
 void
 cfile_write_failure_message(const char *progname, const char *in_filename,
@@ -354,7 +379,8 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
 
 /*
  * Error message for a failed attempt to close a capture file.
- * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value.
+ * "filename" is the name of the file being closed; "err" is assumed
+ * to be a UNIX-style errno or a WTAP_ERR_ value.
  *
  * When closing a capture file:
  *

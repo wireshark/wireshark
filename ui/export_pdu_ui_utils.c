@@ -57,9 +57,8 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
     err = exp_pdu_open(exp_pdu_tap_data, import_file_fd, comment);
     if (err != 0) {
         g_free(comment);
-        cfile_open_failure_alert_box(capfile_name ? capfile_name : "temporary file",
-                                     err, NULL, TRUE,
-                                     WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
+        cfile_dump_open_failure_alert_box(capfile_name ? capfile_name : "temporary file",
+                                          err, WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
         goto end;
     }
 

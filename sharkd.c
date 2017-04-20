@@ -484,7 +484,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   return CF_OK;
 
 fail:
-  cfile_open_failure_message("sharkd", fname, *err, err_info, FALSE, cf->cd_t);
+  cfile_open_failure_message("sharkd", fname, *err, err_info);
   return CF_ERROR;
 }
 

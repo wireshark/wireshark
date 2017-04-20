@@ -29,25 +29,34 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
- * Error message for a failed attempt to open or create a capture file.
- * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
- * "err_info" is assumed to be a string giving further information for
- * some WTAP_ERR_ values; "for_writing" is TRUE if the file is being
- * opened for writing and FALSE if it's being opened for reading;
- * "file_type_subtype" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type
- * and subtype of file being opened for writing (it's ignored for
- * opening-for-reading errors).
+ * Error message for a failed attempt to open a capture file for input.
+ * "progname" is the name of the program trying to open the file;
+ * "filename" is the name of the file being opened; "err" is assumed
+ * to be a UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed
+ * to be a string giving further information for some WTAP_ERR_ values.
  */
 extern void cfile_open_failure_message(const char *progname,
                                        const char *filename, int err,
-                                       gchar *err_info, gboolean for_writing,
-                                       int file_type);
+                                       gchar *err_info);
+
+/*
+ * Error message for a failed attempt to open a capture file for writing.
+ * "progname" is the name of the program trying to open the file;
+ * "filename" is the name of the file being opened; "err" is assumed
+ * to be a UNIX-style errno or a WTAP_ERR_ value; "file_type_subtype" is
+ * a WTAP_FILE_TYPE_SUBTYPE_ value for the type and subtype of file being
+ * opened.
+ */
+extern void cfile_dump_open_failure_message(const char *progname,
+                                            const char *filename, int err,
+                                            int file_type_subtype);
 
 /*
  * Error message for a failed attempt to read from a capture file.
- * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
- * "err_info" is assumed to be a string giving further information for
- * some WTAP_ERR_ values.
+ * "progname" is the name of the program trying to open the file;
+ * "filename" is the name of the file being opened; "err" is assumed
+ * to be a UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed
+ * to be a string giving further information for some WTAP_ERR_ values.
  */
 extern void cfile_read_failure_message(const char *progname,
                                        const char *filename, int err,
@@ -55,12 +64,15 @@ extern void cfile_read_failure_message(const char *progname,
 
 /*
  * Error message for a failed attempt to write to a capture file.
- * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
- * "err_info" is assumed to be a string giving further information for
- * some WTAP_ERR_ values; "framenum" is the frame number of the record
- * on which the error occurred; "file_type_subtype" is a
- * WTAP_FILE_TYPE_SUBTYPE_ value for the type and subtype of file being
- * written.
+ * "progname" is the name of the program trying to open the file;
+ * "in_filename" is the name of the file from which the record
+ * being written came; "out_filename" is the name of the file to
+ * which we're writing; "err" is assumed "err" is assumed to be a
+ * UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed to be
+ * a string giving further information for some WTAP_ERR_ values;
+ * "framenum" is the frame number of the record on which the error
+ * occurred; "file_type_subtype" is a WTAP_FILE_TYPE_SUBTYPE_ value
+ * for the type and subtype of file being written.
  */
 extern void cfile_write_failure_message(const char *progname,
                                         const char *in_filename,
@@ -71,7 +83,8 @@ extern void cfile_write_failure_message(const char *progname,
 
 /*
  * Error message for a failed attempt to close a capture file.
- * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value.
+ * "filename" is the name of the file being closed; "err" is assumed
+ * to be a UNIX-style errno or a WTAP_ERR_ value.
  *
  * When closing a capture file:
  *

@@ -219,8 +219,7 @@ main(int argc, char *argv[])
       if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT)
         printf("%s: unknown\n", argv[i]);
       else {
-        cfile_open_failure_message("captype", argv[i], err, err_info, FALSE,
-                                   WTAP_TYPE_AUTO);
+        cfile_open_failure_message("captype", argv[i], err, err_info);
         overall_error_status = 2; /* remember that an error has occurred */
       }
     }

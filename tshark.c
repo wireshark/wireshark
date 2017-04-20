@@ -1910,8 +1910,8 @@ main(int argc, char *argv[])
       comment = g_strdup_printf("Dump of PDUs from %s", cf_name);
       err = exp_pdu_open(&exp_pdu_tap_data, exp_fd, comment);
       if (err != 0) {
-          cfile_open_failure_message("TShark", exp_pdu_filename, err, NULL,
-                                     TRUE, WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
+          cfile_dump_open_failure_message("TShark", exp_pdu_filename, err,
+                                          WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
           g_free(comment);
           exit_status = INVALID_EXPORT;
           goto clean_exit;
@@ -3021,8 +3021,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     if (pdh == NULL) {
       /* We couldn't set up to write to the capture file. */
-      cfile_open_failure_message("TShark", save_file, err, NULL, TRUE,
-                                 out_file_type);
+      cfile_dump_open_failure_message("TShark", save_file, err, out_file_type);
       goto out;
     }
   } else {
@@ -3939,7 +3938,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   return CF_OK;
 
 fail:
-  cfile_open_failure_message("TShark", fname, *err, err_info, FALSE, cf->cd_t);
+  cfile_open_failure_message("TShark", fname, *err, err_info);
   return CF_ERROR;
 }
 

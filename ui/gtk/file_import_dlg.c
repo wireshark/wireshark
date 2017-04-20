@@ -516,9 +516,8 @@ file_import_open(text_import_info_t *info)
                                            shb_hdrs, idb_inf, NULL, &err);
     capfile_name = g_strdup(tmpname);
     if (info->wdh == NULL) {
-        cfile_open_failure_alert_box(tmpname ? tmpname : "temporary file",
-                                     err, NULL, TRUE,
-                                     WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
+        cfile_dump_open_failure_alert_box(tmpname ? tmpname : "temporary file",
+                                          err, WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
         fclose(info->import_text_file);
         goto end;
     }

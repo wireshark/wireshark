@@ -40,18 +40,23 @@ extern void vfailure_alert_box(const char *msg_format, va_list ap);
 extern void vwarning_alert_box(const char *msg_format, va_list ap);
 
 /*
- * Alert box for a failed attempt to open or create a capture file.
- * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
- * "err_info" is assumed to be a string giving further information for
- * some WTAP_ERR_ values; "for_writing" is TRUE if the file is being
- * opened for writing and FALSE if it's being opened for reading;
- * "file_type_subtype" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type
- * and subtype of file being opened for writing (it's ignored for
- * opening-for-reading errors).
+ * Alert box for a failed attempt to open a capture file for reading.
+ * "filename" is the name of the file being opened; "err" is assumed
+ * to be a UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed
+ * to be a string giving further information for some WTAP_ERR_ values..
  */
 extern void cfile_open_failure_alert_box(const char *filename, int err,
-                                         gchar *err_info, gboolean for_writing,
-                                         int file_type_subtype);
+                                         gchar *err_info);
+
+/*
+ * Alert box for a failed attempt to open a capture file for writing.
+ * "filename" is the name of the file being opened; "err" is assumed
+ * to be a UNIX-style errno or a WTAP_ERR_ value; "file_type_subtype"
+ * is a WTAP_FILE_TYPE_SUBTYPE_ value for the type and subtype of file
+ * being opened.
+ */
+extern void cfile_dump_open_failure_alert_box(const char *filename, int err,
+                                              int file_type_subtype);
 
 /*
  * Alert box for a failed attempt to read from a capture file.

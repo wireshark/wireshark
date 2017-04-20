@@ -1351,8 +1351,8 @@ main(int argc, char *argv[])
     wth = wtap_open_offline(argv[optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, FALSE);
 
     if (!wth) {
-        cfile_open_failure_message("editap", argv[optind], read_err,
-                                   read_err_info, FALSE, WTAP_TYPE_AUTO);
+        cfile_open_failure_message("editcap", argv[optind], read_err,
+                                   read_err_info);
         ret = INVALID_FILE;
         goto clean_exit;
     }
@@ -1423,9 +1423,8 @@ main(int argc, char *argv[])
                                         shb_hdrs, idb_inf, nrb_hdrs, &write_err);
 
                 if (pdh == NULL) {
-                    cfile_open_failure_message("editcap", filename,
-                                               write_err, NULL, TRUE,
-                                               out_frame_type);
+                    cfile_dump_open_failure_message("editcap", filename,
+                                                    write_err, out_frame_type);
                     ret = INVALID_FILE;
                     goto clean_exit;
                 }
@@ -1465,9 +1464,9 @@ main(int argc, char *argv[])
                                                 shb_hdrs, idb_inf, nrb_hdrs, &write_err);
 
                         if (pdh == NULL) {
-                            cfile_open_failure_message("editcap", filename,
-                                                       write_err, NULL, TRUE,
-                                                       out_frame_type);
+                            cfile_dump_open_failure_message("editcap", filename,
+                                                            write_err,
+                                                            out_frame_type);
                             ret = INVALID_FILE;
                             goto clean_exit;
                         }
@@ -1495,9 +1494,9 @@ main(int argc, char *argv[])
                                             snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
                                             shb_hdrs, idb_inf, nrb_hdrs, &write_err);
                     if (pdh == NULL) {
-                        cfile_open_failure_message("editcap", filename,
-                                                   write_err, NULL, TRUE,
-                                                   out_frame_type);
+                        cfile_dump_open_failure_message("editcap", filename,
+                                                        write_err,
+                                                        out_frame_type);
                         ret = INVALID_FILE;
                         goto clean_exit;
                     }
@@ -1809,9 +1808,9 @@ main(int argc, char *argv[])
                                     snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
                                     shb_hdrs, idb_inf, nrb_hdrs, &write_err);
             if (pdh == NULL) {
-                cfile_open_failure_message("editcap", filename,
-                                           write_err, NULL, TRUE,
-                                           out_frame_type);
+                cfile_dump_open_failure_message("editcap", filename,
+                                                write_err,
+                                                out_frame_type);
                 ret = INVALID_FILE;
                 goto clean_exit;
             }

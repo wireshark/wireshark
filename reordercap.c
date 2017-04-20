@@ -295,8 +295,7 @@ main(int argc, char *argv[])
        open_routine reader to use, then the following needs to change. */
     wth = wtap_open_offline(infile, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
     if (wth == NULL) {
-        cfile_open_failure_message("reordercap", infile, err, err_info,
-                                   FALSE, WTAP_TYPE_AUTO);
+        cfile_open_failure_message("reordercap", infile, err, err_info);
         ret = OPEN_ERROR;
         goto clean_exit;
     }
@@ -318,8 +317,8 @@ main(int argc, char *argv[])
     idb_inf = NULL;
 
     if (pdh == NULL) {
-        cfile_open_failure_message("reordercap", outfile, err, err_info, TRUE,
-                                   wtap_file_type_subtype(wth));
+        cfile_dump_open_failure_message("reordercap", outfile, err,
+                                        wtap_file_type_subtype(wth));
         wtap_block_array_free(shb_hdrs);
         wtap_block_array_free(nrb_hdrs);
         ret = OUTPUT_FILE_ERROR;

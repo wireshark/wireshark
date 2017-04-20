@@ -1725,8 +1725,7 @@ main(int argc, char *argv[])
     wth = wtap_open_offline(argv[opt], WTAP_TYPE_AUTO, &err, &err_info, FALSE);
 
     if (!wth) {
-      cfile_open_failure_message("capinfos", argv[opt], err, err_info, FALSE,
-                                 WTAP_TYPE_AUTO);
+      cfile_open_failure_message("capinfos", argv[opt], err, err_info);
       overall_error_status = 2; /* remember that an error has occurred */
       if (!continue_after_wtap_open_offline_failure)
         goto exit;

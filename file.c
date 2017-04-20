@@ -372,7 +372,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   return CF_OK;
 
 fail:
-  cfile_open_failure_alert_box(fname, *err, err_info, FALSE, 0);
+  cfile_open_failure_alert_box(fname, *err, err_info);
   return CF_ERROR;
 }
 
@@ -1379,13 +1379,11 @@ cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
       break;
 
     case MERGE_ERR_CANT_OPEN_INFILE:
-      cfile_open_failure_alert_box(in_filenames[err_fileno], err, err_info,
-                                   FALSE, 0);
+      cfile_open_failure_alert_box(in_filenames[err_fileno], err, err_info);
       break;
 
     case MERGE_ERR_CANT_OPEN_OUTFILE:
-      cfile_open_failure_alert_box(*out_filenamep, err, err_info, TRUE,
-                                   file_type);
+      cfile_dump_open_failure_alert_box(*out_filenamep, err, file_type);
       break;
 
     case MERGE_ERR_CANT_READ_INFILE:      /* fall through */
@@ -4198,7 +4196,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
      sense for now. */
   cf->wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
   if (cf->wth == NULL) {
-    cfile_open_failure_alert_box(fname, err, err_info, FALSE, 0);
+    cfile_open_failure_alert_box(fname, err, err_info);
     return CF_READ_ERROR;
   }
 
@@ -4472,7 +4470,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
     idb_inf = NULL;
 
     if (pdh == NULL) {
-      cfile_open_failure_alert_box(fname, err, NULL, TRUE, save_format);
+      cfile_dump_open_failure_alert_box(fname, err, save_format);
       goto fail;
     }
 
@@ -4574,7 +4572,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
       cf->open_type = WTAP_TYPE_AUTO;
       cf->wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
       if (cf->wth == NULL) {
-        cfile_open_failure_alert_box(fname, err, err_info, FALSE, 0);
+        cfile_open_failure_alert_box(fname, err, err_info);
         cf_close(cf);
       } else {
         g_free(cf->filename);
@@ -4704,7 +4702,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   idb_inf = NULL;
 
   if (pdh == NULL) {
-    cfile_open_failure_alert_box(fname, err, NULL, TRUE, save_format);
+    cfile_dump_open_failure_alert_box(fname, err, save_format);
     goto fail;
   }
 
