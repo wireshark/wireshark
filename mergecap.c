@@ -63,6 +63,8 @@
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
+#include "ui/failure_message.h"
+
 /*
  * Show the usage
  */
@@ -262,6 +264,7 @@ main(int argc, char *argv[])
   int                 err                = 0;
   gchar              *err_info           = NULL;
   int                 err_fileno;
+  guint32             err_framenum;
   char               *out_filename       = NULL;
   merge_result        status             = MERGE_OK;
   idb_merge_mode      mode               = IDB_MERGE_MODE_MAX;
@@ -441,13 +444,13 @@ main(int argc, char *argv[])
                                    (const char *const *) &argv[optind],
                                    in_file_count, do_append, mode, snaplen,
                                    "mergecap", verbose ? &cb : NULL,
-                                   &err, &err_info, &err_fileno);
+                                   &err, &err_info, &err_fileno, &err_framenum);
   } else {
     /* merge the files to the outfile */
     status = merge_files(out_filename, file_type,
                          (const char *const *) &argv[optind], in_file_count,
                          do_append, mode, snaplen, "mergecap", verbose ? &cb : NULL,
-                         &err, &err_info, &err_fileno);
+                         &err, &err_info, &err_fileno, &err_framenum);
   }
 
   switch (status) {
@@ -460,26 +463,36 @@ main(int argc, char *argv[])
       break;
 
     case MERGE_ERR_CANT_OPEN_INFILE:
-      fprintf(stderr, "mergecap: Can't open %s: %s (%s)\n", argv[optind + err_fileno],
-              wtap_strerror(err), err_info ? err_info : "no more information");
+      cfile_open_failure_message("mergecap", argv[optind + err_fileno],
+                                 err, err_info);
       break;
 
     case MERGE_ERR_CANT_OPEN_OUTFILE:
-      if (use_stdout) {
-        fprintf(stderr, "mergecap: Can't set up the standard output: %s\n",
-                    wtap_strerror(err));
-      } else {
-        fprintf(stderr, "mergecap: Can't open or create %s: %s\n", out_filename,
-                    wtap_strerror(err));
-      }
+      cfile_dump_open_failure_message("mergecap", out_filename, err, file_type);
       break;
 
-    case MERGE_ERR_CANT_READ_INFILE:      /* fall through */
+    case MERGE_ERR_CANT_READ_INFILE:
+      cfile_read_failure_message("mergecap", argv[optind + err_fileno],
+                                 err, err_info);
+      break;
+
     case MERGE_ERR_BAD_PHDR_INTERFACE_ID:
+      cmdarg_err("Record %u of \"%s\" has an interface ID that does not match any IDB in its file.",
+                 err_framenum, argv[optind + err_fileno]);
+      break;
+
     case MERGE_ERR_CANT_WRITE_OUTFILE:
+       cfile_write_failure_message("mergecap", argv[optind + err_fileno],
+                                   out_filename, err, err_info, err_framenum,
+                                   file_type);
+       break;
+
     case MERGE_ERR_CANT_CLOSE_OUTFILE:
+        cfile_close_failure_message(out_filename, err);
+        break;
+
     default:
-      fprintf(stderr, "mergecap: %s\n", err_info ? err_info : "unknown error");
+      cmdarg_err("Unknown merge_files error %d", status);
       break;
   }
 

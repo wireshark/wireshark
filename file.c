@@ -1349,6 +1349,7 @@ cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
   int                        err      = 0;
   gchar                     *err_info = NULL;
   guint                      err_fileno;
+  guint32                    err_framenum;
   merge_result               status;
   merge_progress_callback_t  cb;
   callback_data_t           *cb_data = g_new0(callback_data_t, 1);
@@ -1366,7 +1367,7 @@ cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
                                    in_file_count, do_append,
                                    IDB_MERGE_MODE_ALL_SAME, 0 /* snaplen */,
                                    "Wireshark", &cb, &err, &err_info,
-                                   &err_fileno);
+                                   &err_fileno, &err_framenum);
 
   g_free(cb.data);
 
@@ -1386,12 +1387,27 @@ cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
       cfile_dump_open_failure_alert_box(*out_filenamep, err, file_type);
       break;
 
-    case MERGE_ERR_CANT_READ_INFILE:      /* fall through */
+    case MERGE_ERR_CANT_READ_INFILE:
+      cfile_read_failure_alert_box(in_filenames[err_fileno], err, err_info);
+      break;
+
     case MERGE_ERR_BAD_PHDR_INTERFACE_ID:
+      simple_error_message_box("Record %u of \"%s\" has an interface ID that does not match any IDB in its file.",
+                               err_framenum, in_filenames[err_fileno]);
+      break;
+
     case MERGE_ERR_CANT_WRITE_OUTFILE:
+       cfile_write_failure_alert_box(in_filenames[err_fileno],
+                                     *out_filenamep, err, err_info,
+                                     err_framenum, file_type);
+       break;
+
     case MERGE_ERR_CANT_CLOSE_OUTFILE:
+        cfile_close_failure_alert_box(*out_filenamep, err);
+        break;
+
     default:
-      simple_error_message_box("%s", err_info ? err_info : "unknown error");
+      simple_error_message_box("Unknown merge_files error %d", status);
       break;
   }
 
@@ -4050,7 +4066,7 @@ save_record(capture_file *cf, frame_data *fdata,
 #endif
   /* and save the packet */
   if (!wtap_dump(args->pdh, &hdr, pd, &err, &err_info)) {
-    cfile_write_failure_alert_box(args->fname, err, err_info, fdata->num,
+    cfile_write_failure_alert_box(NULL, args->fname, err, err_info, fdata->num,
                                   args->file_type);
     return FALSE;
   }

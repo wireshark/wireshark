@@ -630,6 +630,7 @@ mergecap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
 # Libraries with which to link mergecap.
 mergecap_LDADD = \
+	ui/libui.a			\
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@

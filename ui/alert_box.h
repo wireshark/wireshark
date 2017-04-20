@@ -69,15 +69,19 @@ extern void cfile_read_failure_alert_box(const char *filename, int err,
 
 /*
  * Alert box for a failed attempt to write to a capture file.
- * "err" is assumed to be a UNIX-style errno or a WTAP_ERR_ value;
- * "err_info" is assumed to be a string giving further information for
- * some WTAP_ERR_ values; "framenum" is the frame number of the record
- * on which the error occurred; "file_type_subtype" is a
- * WTAP_FILE_TYPE_SUBTYPE_ value for the type and subtype of file being
- * written.
+ * "in_filename" is the name of the file from which the record being
+ * written came; "out_filename" is the name of the file to which we're
+ * writing; "err" is assumed "err" is assumed to be a UNIX-style errno
+ * or a WTAP_ERR_ value; "err_info" is assumed to be a string giving
+ * further information for some WTAP_ERR_ values; "framenum" is the frame
+ * number of the record on which the error occurred; "file_type_subtype"
+ * is a WTAP_FILE_TYPE_SUBTYPE_ value for the type and subtype of file
+ * being written.
  */
-extern void cfile_write_failure_alert_box(const char *filename, int err,
-                                          gchar *err_info, guint32 framenum,
+extern void cfile_write_failure_alert_box(const char *in_filename,
+                                          const char *out_filename,
+                                          int err, gchar *err_info,
+                                          guint32 framenum,
                                           int file_type_subtype);
 
 /*

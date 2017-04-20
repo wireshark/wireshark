@@ -2407,6 +2407,7 @@ endif()
 
 if(BUILD_mergecap)
 	set(mergecap_LIBS
+		ui
 		wiretap
 		${ZLIB_LIBRARIES}
 		${CMAKE_DL_LIBS}

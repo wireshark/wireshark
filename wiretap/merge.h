@@ -135,8 +135,13 @@ typedef struct {
  * @param app_name The application name performing the merge, used in SHB info
  * @param cb The callback information to use during execution
  * @param[out] err Set to the internal WTAP_ERR_XXX error code if it failed
- * @param[out] err_info Set to a descriptive error string, which must be g_free'd
- * @param[out] err_fileno Set to the input file number which failed, if it failed
+ *   with MERGE_ERR_CANT_OPEN_INFILE, MERGE_ERR_CANT_OPEN_OUTFILE,
+ *   MERGE_ERR_CANT_READ_INFILE, MERGE_ERR_CANT_WRITE_OUTFILE, or
+ *   MERGE_ERR_CANT_CLOSE_OUTFILE
+ * @param[out] err_info Additional information for some WTAP_ERR_XXX codes
+ * @param[out] err_fileno Set to the input file number which failed, if it
+ *   failed
+ * @param[out] err_framenum Set to the input frame number if it failed
  * @return the frame type
  */
 WS_DLL_PUBLIC merge_result
@@ -144,7 +149,8 @@ merge_files(const gchar* out_filename, const int file_type,
             const char *const *in_filenames, const guint in_file_count,
             const gboolean do_append, const idb_merge_mode mode,
             guint snaplen, const gchar *app_name, merge_progress_callback_t* cb,
-            int *err, gchar **err_info, guint *err_fileno);
+            int *err, gchar **err_info, guint *err_fileno,
+            guint32 *err_framenum);
 
 /** Merge the given input files to a temporary file
  *
@@ -160,8 +166,13 @@ merge_files(const gchar* out_filename, const int file_type,
  * @param app_name The application name performing the merge, used in SHB info
  * @param cb The callback information to use during execution
  * @param[out] err Set to the internal WTAP_ERR_XXX error code if it failed
- * @param[out] err_info Set to a descriptive error string, which must be g_free'd
- * @param[out] err_fileno Set to the input file number which failed, if it failed
+ *   with MERGE_ERR_CANT_OPEN_INFILE, MERGE_ERR_CANT_OPEN_OUTFILE,
+ *   MERGE_ERR_CANT_READ_INFILE, MERGE_ERR_CANT_WRITE_OUTFILE, or
+ *   MERGE_ERR_CANT_CLOSE_OUTFILE
+ * @param[out] err_info Additional information for some WTAP_ERR_XXX codes
+ * @param[out] err_fileno Set to the input file number which failed, if it
+ *   failed
+ * @param[out] err_framenum Set to the input frame number if it failed
  * @return the frame type
  */
 WS_DLL_PUBLIC merge_result
@@ -170,7 +181,8 @@ merge_files_to_tempfile(gchar **out_filenamep, const char *pfx,
                         const guint in_file_count, const gboolean do_append,
                         const idb_merge_mode mode, guint snaplen,
                         const gchar *app_name, merge_progress_callback_t* cb,
-                        int *err, gchar **err_info, guint *err_fileno);
+                        int *err, gchar **err_info, guint *err_fileno,
+                        guint32 *err_framenum);
 
 /** Merge the given input files to the standard output
  *
@@ -183,8 +195,13 @@ merge_files_to_tempfile(gchar **out_filenamep, const char *pfx,
  * @param app_name The application name performing the merge, used in SHB info
  * @param cb The callback information to use during execution
  * @param[out] err Set to the internal WTAP_ERR_XXX error code if it failed
- * @param[out] err_info Set to a descriptive error string, which must be g_free'd
- * @param[out] err_fileno Set to the input file number which failed, if it failed
+ *   with MERGE_ERR_CANT_OPEN_INFILE, MERGE_ERR_CANT_OPEN_OUTFILE,
+ *   MERGE_ERR_CANT_READ_INFILE, MERGE_ERR_CANT_WRITE_OUTFILE, or
+ *   MERGE_ERR_CANT_CLOSE_OUTFILE
+ * @param[out] err_info Additional information for some WTAP_ERR_XXX codes
+ * @param[out] err_fileno Set to the input file number which failed, if it
+ *   failed
+ * @param[out] err_framenum Set to the input frame number if it failed
  * @return the frame type
  */
 WS_DLL_PUBLIC merge_result
@@ -192,7 +209,8 @@ merge_files_to_stdout(const int file_type, const char *const *in_filenames,
                       const guint in_file_count, const gboolean do_append,
                       const idb_merge_mode mode, guint snaplen,
                       const gchar *app_name, merge_progress_callback_t* cb,
-                      int *err, gchar **err_info, guint *err_fileno);
+                      int *err, gchar **err_info, guint *err_fileno,
+                      guint32 *err_framenum);
 
 #ifdef __cplusplus
 }
