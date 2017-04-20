@@ -698,6 +698,7 @@ randpkt_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 # Libraries with which to link randpkt.
 randpkt_LDADD = \
 	randpkt_core/librandpkt_core.a	\
+	ui/libui.a			\
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\

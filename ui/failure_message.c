@@ -292,10 +292,18 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
                             guint32 framenum, int file_type_subtype)
 {
     char *in_file_string;
+    char *in_frame_string;
     char *out_file_string;
 
     /* Get a string that describes what we're reading from */
-    in_file_string = input_file_description(in_filename);
+    if (in_filename == NULL) {
+        in_frame_string = g_strdup("");
+    } else {
+        in_file_string = input_file_description(in_filename);
+        in_frame_string = g_strdup_printf(" %u of %s", framenum,
+                                          in_file_string);
+        g_free(in_file_string);
+    }
 
     /* Get a string that describes what we're writing to */
     out_file_string = output_file_description(out_filename);
@@ -308,8 +316,8 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
          * and the file type and subtype we're writing; note that,
          * and report the frame number and file type/subtype.
          */
-        cmdarg_err("Frame %u of %s has a network type that can't be saved in a \"%s\" file.",
-                   framenum, in_file_string,
+        cmdarg_err("Frame%s has a network type that can't be saved in a \"%s\" file.",
+                   in_frame_string,
                    wtap_file_type_subtype_short_string(file_type_subtype));
         break;
 
@@ -319,8 +327,8 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
          * and the file type and subtype we're writing; note that,
          * and report the frame number and file type/subtype.
          */
-        cmdarg_err("Frame %u of %s is larger than %s supports in a \"%s\" file.",
-                   framenum, in_file_string, progname,
+        cmdarg_err("Frame%s is larger than %s supports in a \"%s\" file.",
+                   in_frame_string, progname,
                    wtap_file_type_subtype_short_string(file_type_subtype));
         break;
 
@@ -330,8 +338,8 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
          * and the file type and subtype we're writing; note that,
          * and report the record number and file type/subtype.
          */
-        cmdarg_err("Record %u of %s has a record type that can't be saved in a \"%s\" file.",
-                   framenum, in_file_string,
+        cmdarg_err("Record%s has a record type that can't be saved in a \"%s\" file.",
+                   in_frame_string,
                    wtap_file_type_subtype_short_string(file_type_subtype));
         break;
 
@@ -341,9 +349,9 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
          * and the file type and subtype we're writing; note that,
          * and report the record number and file type/subtype.
          */
-        cmdarg_err("Record %u of %s has data that can't be saved in a \"%s\" file.\n"
+        cmdarg_err("Record%s has data that can't be saved in a \"%s\" file.\n"
                    "(%s)",
-                   framenum, in_file_string,
+                   in_frame_string,
                    wtap_file_type_subtype_short_string(file_type_subtype),
                    err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
@@ -373,7 +381,7 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
                    out_file_string, wtap_strerror(err));
         break;
     }
-    g_free(in_file_string);
+    g_free(in_frame_string);
     g_free(out_file_string);
 }
 

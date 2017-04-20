@@ -2362,6 +2362,7 @@ endif()
 if(BUILD_randpkt)
 	set(randpkt_LIBS
 		randpkt_core
+		ui
 		wiretap
 		wsutil
 		${M_LIBRARIES}
@@ -2686,6 +2687,7 @@ endif()
 if(ENABLE_EXTCAP AND BUILD_randpktdump)
 	set(randpktdump_LIBS
 		randpkt_core
+		ui
 		wiretap
 		${GLIB2_LIBRARIES}
 		${CMAKE_DL_LIBS}
