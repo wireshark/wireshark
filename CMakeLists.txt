@@ -2482,6 +2482,7 @@ endif()
 
 if(BUILD_editcap)
 	set(editcap_LIBS
+		ui
 		wiretap
 		${ZLIB_LIBRARIES}
 		${GCRYPT_LIBRARIES}
