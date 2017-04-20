@@ -41,7 +41,7 @@ dissect_uleb128(tvbuff_t *tvb, gint offset, guint64 *value)
 
         *value |= ((guint64)(byte & 0x7F) << shift);
         shift += 7;
-    } while (byte & 0x80);
+    } while ((byte & 0x80) && (shift < 64));
 
     return offset - start_offset;
 }
@@ -61,7 +61,7 @@ dissect_leb128(tvbuff_t *tvb, gint offset, gint64 *value)
 
         *value |= ((guint64)(byte & 0x7F) << shift);
         shift += 7;
-    } while (byte & 0x80);
+    } while ((byte & 0x80) && (shift < 64));
 
     if (shift < 64 && byte & 0x40)
         *value |= - ((gint64)1 << shift);
