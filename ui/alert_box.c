@@ -187,7 +187,7 @@ cfile_open_failure_alert_box(const char *filename, int err, gchar *err_info,
 
         case WTAP_ERR_DECOMPRESS:
             simple_error_message_box(
-                        "The compressed file \"%s\" appears to be damaged or corrupt.\n"
+                        "The file \"%s\" cannot be decompressed; it may be damaged or corrupt.\n"
                         "(%s)", display_basename,
                         err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
@@ -225,7 +225,7 @@ cfile_read_failure_alert_box(const char *filename, int err, gchar *err_info)
         gchar *display_basename;
 
         display_basename = g_filename_display_basename(filename);
-        display_name = g_strdup_printf("capture file %s", display_basename);
+        display_name = g_strdup_printf("capture file \"%s\"", display_basename);
         g_free(display_basename);
     }
 
@@ -233,7 +233,8 @@ cfile_read_failure_alert_box(const char *filename, int err, gchar *err_info)
 
     case WTAP_ERR_UNSUPPORTED:
         simple_error_message_box(
-                    "The %s contains record data that Wireshark doesn't support.\n(%s)",
+                    "The %s contains record data that Wireshark doesn't support.\n"
+                    "(%s)",
 		    display_name,
                     err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
@@ -247,7 +248,8 @@ cfile_read_failure_alert_box(const char *filename, int err, gchar *err_info)
 
     case WTAP_ERR_BAD_FILE:
         simple_error_message_box(
-                    "The %s appears to be damaged or corrupt.\n(%s)",
+                    "The %s appears to be damaged or corrupt.\n"
+                    "(%s)",
                     display_name,
                     err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
@@ -255,7 +257,8 @@ cfile_read_failure_alert_box(const char *filename, int err, gchar *err_info)
 
     case WTAP_ERR_DECOMPRESS:
         simple_error_message_box(
-                    "The compressed %s appears to be damaged or corrupt.\n(%s)",
+                    "The %s cannot be decompressed; it may be damaged or corrupt.\n"
+                    "(%s)",
                     display_name,
                     err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
@@ -330,10 +333,19 @@ cfile_write_failure_alert_box(const char *filename, int err, gchar *err_info,
              * the frame number and file type/subtype.
              */
             simple_error_message_box(
-                        "Record %u has data that can't be saved in a \"%s\" file.\n(%s)",
+                        "Record %u has data that can't be saved in a \"%s\" file.\n"
+                        "(%s)",
                         framenum, wtap_file_type_subtype_string(file_type_subtype),
                         err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
+            break;
+
+        case WTAP_ERR_SHORT_WRITE:
+            display_basename = g_filename_display_basename(filename);
+            simple_error_message_box(
+                        "A full write couldn't be done to the file \"%s\".",
+                        display_basename);
+            g_free(display_basename);
             break;
 
         default:
@@ -396,7 +408,7 @@ cfile_close_failure_alert_box(const char *filename, int err)
 
         case WTAP_ERR_SHORT_WRITE:
             simple_error_message_box(
-                        "Not all the packets could be written to the file \"%s\".",
+                        "A full write couldn't be done to the file \"%s\".",
                         display_basename);
             break;
 

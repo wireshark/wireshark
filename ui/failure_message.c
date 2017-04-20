@@ -179,7 +179,7 @@ cfile_open_failure_message(const char *progname, const char *filename,
 
         case WTAP_ERR_DECOMPRESS:
             /* Seen only when opening a capture file for reading. */
-            cmdarg_err("The %s is compressed and appears to be damaged or corrupt.\n"
+            cmdarg_err("The %s cannot be decompressed; it may be damaged or corrupt."
                        "(%s)",
                        file_description,
                        err_info != NULL ? err_info : "no information supplied");
@@ -216,7 +216,8 @@ cfile_read_failure_message(const char *progname, const char *filename,
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED:
-        cmdarg_err("The %s contains record data that %s doesn't support.\n(%s)",
+        cmdarg_err("The %s contains record data that %s doesn't support.\n"
+                   "(%s)",
                    file_string, progname,
                    err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
@@ -228,15 +229,17 @@ cfile_read_failure_message(const char *progname, const char *filename,
         break;
 
     case WTAP_ERR_BAD_FILE:
-        cmdarg_err("The %s appears to be damaged or corrupt.\n(%s)",
+        cmdarg_err("The %s appears to be damaged or corrupt.\n"
+                   "(%s)",
                    file_string,
                    err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
         break;
 
     case WTAP_ERR_DECOMPRESS:
-        cmdarg_err("The %s is compressed and appears to be damaged or corrupt.\n"
-                   "(%s)", file_string,
+        cmdarg_err("The %s cannot be decompressed; it may be damaged or corrupt.\n"
+                   "(%s)",
+                   file_string,
                    err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
         break;
@@ -259,9 +262,9 @@ cfile_read_failure_message(const char *progname, const char *filename,
  * written.
  */
 void
-cfile_write_failure_message(const char *in_filename, const char *out_filename,
-                            int err, gchar *err_info, guint32 framenum,
-                            int file_type_subtype)
+cfile_write_failure_message(const char *progname, const char *in_filename,
+                            const char *out_filename, int err, gchar *err_info,
+                            guint32 framenum, int file_type_subtype)
 {
     char *in_file_string;
     char *out_file_string;
@@ -280,7 +283,7 @@ cfile_write_failure_message(const char *in_filename, const char *out_filename,
          * and the file type and subtype we're writing; note that,
          * and report the frame number and file type/subtype.
          */
-        cmdarg_err("Frame %u of %s has a network type that can't be saved in a \"%s\" file.\n",
+        cmdarg_err("Frame %u of %s has a network type that can't be saved in a \"%s\" file.",
                    framenum, in_file_string,
                    wtap_file_type_subtype_short_string(file_type_subtype));
         break;
@@ -291,8 +294,8 @@ cfile_write_failure_message(const char *in_filename, const char *out_filename,
          * and the file type and subtype we're writing; note that,
          * and report the frame number and file type/subtype.
          */
-        cmdarg_err("Frame %u of %s is too large for a \"%s\" file.\n",
-                   framenum, in_file_string,
+        cmdarg_err("Frame %u of %s is larger than %s supports in a \"%s\" file.",
+                   framenum, in_file_string, progname,
                    wtap_file_type_subtype_short_string(file_type_subtype));
         break;
 
@@ -302,7 +305,7 @@ cfile_write_failure_message(const char *in_filename, const char *out_filename,
          * and the file type and subtype we're writing; note that,
          * and report the record number and file type/subtype.
          */
-        cmdarg_err("Record %u of %s has a record type that can't be saved in a \"%s\" file.\n",
+        cmdarg_err("Record %u of %s has a record type that can't be saved in a \"%s\" file.",
                    framenum, in_file_string,
                    wtap_file_type_subtype_short_string(file_type_subtype));
         break;
@@ -313,7 +316,8 @@ cfile_write_failure_message(const char *in_filename, const char *out_filename,
          * and the file type and subtype we're writing; note that,
          * and report the record number and file type/subtype.
          */
-        cmdarg_err("Record %u of %s has data that can't be saved in a \"%s\" file.\n(%s)\n",
+        cmdarg_err("Record %u of %s has data that can't be saved in a \"%s\" file.\n"
+                   "(%s)",
                    framenum, in_file_string,
                    wtap_file_type_subtype_short_string(file_type_subtype),
                    err_info != NULL ? err_info : "no information supplied");
@@ -405,8 +409,8 @@ cfile_close_failure_message(const char *filename, int err)
         break;
 
     default:
-        cmdarg_err("The %s could not be closed: %s.", file_string,
-                   wtap_strerror(err));
+        cmdarg_err("An error occurred while closing the file %s: %s.",
+                   file_string, wtap_strerror(err));
         break;
     }
     g_free(file_string);

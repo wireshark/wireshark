@@ -62,7 +62,8 @@ extern void cfile_read_failure_message(const char *progname,
  * WTAP_FILE_TYPE_SUBTYPE_ value for the type and subtype of file being
  * written.
  */
-extern void cfile_write_failure_message(const char *in_filename,
+extern void cfile_write_failure_message(const char *progname,
+                                        const char *in_filename,
                                         const char *out_filename,
                                         int err, gchar *err_info,
                                         guint32 framenum,

@@ -123,8 +123,9 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
 
     /* Dump frame to outfile */
     if (!wtap_dump(pdh, phdr, ws_buffer_start_ptr(buf), &err, &err_info)) {
-        cfile_write_failure_message(infile, outfile, err, err_info,
-                                    frame->num, wtap_file_type_subtype(wth));
+        cfile_write_failure_message("reordercap", infile, outfile, err,
+                                    err_info, frame->num,
+                                    wtap_file_type_subtype(wth));
         exit(1);
     }
 }

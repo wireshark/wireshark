@@ -1776,7 +1776,8 @@ main(int argc, char *argv[])
 
                 /* Attempt to dump out current frame to the output file */
                 if (!wtap_dump(pdh, phdr, buf, &write_err, &write_err_info)) {
-                    cfile_write_failure_message(argv[optind], filename,
+                    cfile_write_failure_message("editcap", argv[optind],
+                                                filename,
                                                 write_err, write_err_info,
                                                 read_count,
                                                 out_file_type_subtype);

@@ -3160,8 +3160,9 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
               /* Report the error.
                  XXX - framenum is not necessarily the frame number in
                  the input file if there was a read filter. */
-              cfile_write_failure_message(cf->filename, save_file, err,
-                                          err_info, framenum, out_file_type);
+              cfile_write_failure_message("TShark", cf->filename, save_file,
+                                          err, err_info, framenum,
+                                          out_file_type);
               wtap_dump_close(pdh, &err);
               wtap_block_array_free(shb_hdrs);
               wtap_block_array_free(nrb_hdrs);
@@ -3239,8 +3240,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
           if (!wtap_dump(pdh, wtap_phdr(cf->wth), wtap_buf_ptr(cf->wth), &err, &err_info)) {
             /* Error writing to a capture file */
             tshark_debug("tshark: error writing to a capture file (%d)", err);
-            cfile_write_failure_message(cf->filename, save_file, err, err_info,
-                                        framenum, out_file_type);
+            cfile_write_failure_message("TShark", cf->filename, save_file,
+                                        err, err_info, framenum, out_file_type);
             wtap_dump_close(pdh, &err);
             wtap_block_array_free(shb_hdrs);
             wtap_block_array_free(nrb_hdrs);
