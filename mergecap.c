@@ -268,7 +268,6 @@ main(int argc, char *argv[])
   char               *out_filename       = NULL;
   merge_result        status             = MERGE_OK;
   idb_merge_mode      mode               = IDB_MERGE_MODE_MAX;
-  gboolean            use_stdout         = FALSE;
   merge_progress_callback_t cb;
 
   cmdarg_err_init(mergecap_cmdarg_err, mergecap_cmdarg_err_cont);
@@ -439,7 +438,6 @@ main(int argc, char *argv[])
   /* open the outfile */
   if (strcmp(out_filename, "-") == 0) {
     /* merge the files to the standard output */
-    use_stdout = TRUE;
     status = merge_files_to_stdout(file_type,
                                    (const char *const *) &argv[optind],
                                    in_file_count, do_append, mode, snaplen,
