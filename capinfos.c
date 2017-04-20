@@ -71,6 +71,7 @@
 
 #include <wiretap/wtap.h>
 
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
@@ -94,6 +95,8 @@
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
+
+#include "ui/failure_message.h"
 
 #define INVALID_OPTION 1
 #define BAD_FLAG 1
@@ -1219,8 +1222,9 @@ process_cap_file(wtap *wth, const char *filename)
 
   if (err != 0) {
     fprintf(stderr,
-        "capinfos: An error occurred after reading %u packets from \"%s\": %s.\n",
-        packet, filename, wtap_strerror(err));
+        "capinfos: An error occurred after reading %u packets from \"%s\".\n",
+        packet, filename);
+    cfile_read_failure_message("capinfos", filename, err, err_info);
     if (err == WTAP_ERR_SHORT_READ) {
         /* Don't give up completely with this one. */
         status = 1;
@@ -1376,7 +1380,6 @@ print_usage(FILE *output)
   fprintf(output, "output format.\n");
 }
 
-#ifdef HAVE_PLUGINS
 /*
  * General errors and warnings are reported with an console message
  * in capinfos.
@@ -1388,7 +1391,16 @@ failure_warning_message(const char *msg_format, va_list ap)
   vfprintf(stderr, msg_format, ap);
   fprintf(stderr, "\n");
 }
-#endif
+
+/*
+ * Report additional information for an error in command-line arguments.
+ */
+static void
+failure_message_cont(const char *msg_format, va_list ap)
+{
+  vfprintf(stderr, msg_format, ap);
+  fprintf(stderr, "\n");
+}
 
 static void
 hash_to_str(const unsigned char *hash, size_t length, char *str) {
@@ -1424,6 +1436,8 @@ main(int argc, char *argv[])
 
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
+
+  cmdarg_err_init(failure_warning_message, failure_message_cont);
 
   /* Get the decimal point. */
   decimal_point = g_strdup(localeconv()->decimal_point);
@@ -1711,12 +1725,8 @@ main(int argc, char *argv[])
     wth = wtap_open_offline(argv[opt], WTAP_TYPE_AUTO, &err, &err_info, FALSE);
 
     if (!wth) {
-      fprintf(stderr, "capinfos: Can't open %s: %s\n", argv[opt],
-          wtap_strerror(err));
-      if (err_info != NULL) {
-        fprintf(stderr, "(%s)\n", err_info);
-        g_free(err_info);
-      }
+      cfile_open_failure_message("capinfos", argv[opt], err, err_info, FALSE,
+                                 WTAP_TYPE_AUTO);
       overall_error_status = 2; /* remember that an error has occurred */
       if (!continue_after_wtap_open_offline_failure)
         goto exit;

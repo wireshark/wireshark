@@ -51,6 +51,8 @@
 
 #include <wsutil/report_message.h>
 
+#include "ui/failure_message.h"
+
 #define INVALID_OPTION 1
 #define OPEN_ERROR 2
 #define OUTPUT_FILE_ERROR 1
@@ -92,7 +94,8 @@ typedef struct FrameRecord_t {
 
 static void
 frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
-            struct wtap_pkthdr *phdr, Buffer *buf, const char *infile)
+            struct wtap_pkthdr *phdr, Buffer *buf, const char *infile,
+            const char *outfile)
 {
     int    err;
     gchar  *err_info;
@@ -106,12 +109,9 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
         if (err != 0) {
             /* Print a message noting that the read failed somewhere along the line. */
             fprintf(stderr,
-                    "reordercap: An error occurred while re-reading \"%s\": %s.\n",
-                    infile, wtap_strerror(err));
-            if (err_info != NULL) {
-                fprintf(stderr, "(%s)\n", err_info);
-                g_free(err_info);
-            }
+                    "reordercap: An error occurred while re-reading \"%s\".\n",
+                    infile);
+            cfile_read_failure_message("reordercap", infile, err, err_info);
             exit(1);
         }
     }
@@ -123,12 +123,8 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
 
     /* Dump frame to outfile */
     if (!wtap_dump(pdh, phdr, ws_buffer_start_ptr(buf), &err, &err_info)) {
-        fprintf(stderr, "reordercap: Error (%s) writing frame to outfile\n",
-                wtap_strerror(err));
-        if (err_info != NULL) {
-            fprintf(stderr, "(%s)\n", err_info);
-            g_free(err_info);
-        }
+        cfile_write_failure_message(infile, outfile, err, err_info,
+                                    frame->num, wtap_file_type_subtype(wth));
         exit(1);
     }
 }
@@ -298,12 +294,8 @@ main(int argc, char *argv[])
        open_routine reader to use, then the following needs to change. */
     wth = wtap_open_offline(infile, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
     if (wth == NULL) {
-        fprintf(stderr, "reordercap: Can't open %s: %s\n", infile,
-                wtap_strerror(err));
-        if (err_info != NULL) {
-            fprintf(stderr, "(%s)\n", err_info);
-            g_free(err_info);
-        }
+        cfile_open_failure_message("reordercap", infile, err, err_info,
+                                   FALSE, WTAP_TYPE_AUTO);
         ret = OPEN_ERROR;
         goto clean_exit;
     }
@@ -317,7 +309,6 @@ main(int argc, char *argv[])
     if (strcmp(outfile, "-") == 0) {
       pdh = wtap_dump_open_stdout_ng(wtap_file_type_subtype(wth), wtap_file_encap(wth),
                                      wtap_snapshot_length(wth), FALSE, shb_hdrs, idb_inf, nrb_hdrs, &err);
-      outfile = "standard output";
     } else {
       pdh = wtap_dump_open_ng(outfile, wtap_file_type_subtype(wth), wtap_file_encap(wth),
                               wtap_snapshot_length(wth), FALSE, shb_hdrs, idb_inf, nrb_hdrs, &err);
@@ -326,8 +317,8 @@ main(int argc, char *argv[])
     idb_inf = NULL;
 
     if (pdh == NULL) {
-        fprintf(stderr, "reordercap: Failed to open output file: (%s) - error %s\n",
-                outfile, wtap_strerror(err));
+        cfile_open_failure_message("reordercap", outfile, err, err_info, TRUE,
+                                   wtap_file_type_subtype(wth));
         wtap_block_array_free(shb_hdrs);
         wtap_block_array_free(nrb_hdrs);
         ret = OUTPUT_FILE_ERROR;
@@ -361,13 +352,7 @@ main(int argc, char *argv[])
     }
     if (err != 0) {
       /* Print a message noting that the read failed somewhere along the line. */
-      fprintf(stderr,
-              "reordercap: An error occurred while reading \"%s\": %s.\n",
-              infile, wtap_strerror(err));
-      if (err_info != NULL) {
-          fprintf(stderr, "(%s)\n", err_info);
-          g_free(err_info);
-      }
+      cfile_read_failure_message("reordercap", infile, err, err_info);
     }
 
     printf("%u frames, %u out of order\n", frames->len, wrong_order_count);
@@ -385,7 +370,7 @@ main(int argc, char *argv[])
 
         /* Avoid writing if already sorted and configured to */
         if (write_output_regardless || (wrong_order_count > 0)) {
-            frame_write(frame, wth, pdh, &dump_phdr, &buf, infile);
+            frame_write(frame, wth, pdh, &dump_phdr, &buf, infile, outfile);
         }
         g_slice_free(FrameRecord_t, frame);
     }
@@ -401,8 +386,7 @@ main(int argc, char *argv[])
 
     /* Close outfile */
     if (!wtap_dump_close(pdh, &err)) {
-        fprintf(stderr, "reordercap: Error closing %s: %s\n", outfile,
-                wtap_strerror(err));
+        cfile_close_failure_message(outfile, err);
         wtap_block_array_free(shb_hdrs);
         wtap_block_array_free(nrb_hdrs);
         ret = OUTPUT_FILE_ERROR;

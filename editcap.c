@@ -930,8 +930,8 @@ failure_warning_message(const char *msg_format, va_list ap)
 static void
 failure_message_cont(const char *msg_format, va_list ap)
 {
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
+  vfprintf(stderr, msg_format, ap);
+  fprintf(stderr, "\n");
 }
 
 static wtap_dumper *
@@ -1423,8 +1423,9 @@ main(int argc, char *argv[])
                                         shb_hdrs, idb_inf, nrb_hdrs, &write_err);
 
                 if (pdh == NULL) {
-                    fprintf(stderr, "editcap: Can't open or create %s: %s\n",
-                            filename, wtap_strerror(write_err));
+                    cfile_open_failure_message("editcap", filename,
+                                               write_err, NULL, TRUE,
+                                               out_frame_type);
                     ret = INVALID_FILE;
                     goto clean_exit;
                 }
@@ -1447,8 +1448,7 @@ main(int argc, char *argv[])
                                && phdr->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
 
                         if (!wtap_dump_close(pdh, &write_err)) {
-                            fprintf(stderr, "editcap: Error writing to %s: %s\n",
-                                    filename, wtap_strerror(write_err));
+                            cfile_close_failure_message(filename, write_err);
                             ret = WRITE_ERROR;
                             goto clean_exit;
                         }
@@ -1465,8 +1465,9 @@ main(int argc, char *argv[])
                                                 shb_hdrs, idb_inf, nrb_hdrs, &write_err);
 
                         if (pdh == NULL) {
-                            fprintf(stderr, "editcap: Can't open or create %s: %s\n",
-                                    filename, wtap_strerror(write_err));
+                            cfile_open_failure_message("editcap", filename,
+                                                       write_err, NULL, TRUE,
+                                                       out_frame_type);
                             ret = INVALID_FILE;
                             goto clean_exit;
                         }
@@ -1478,8 +1479,7 @@ main(int argc, char *argv[])
                 /* time for the next file? */
                 if (written_count > 0 && (written_count % split_packet_count) == 0) {
                     if (!wtap_dump_close(pdh, &write_err)) {
-                        fprintf(stderr, "editcap: Error writing to %s: %s\n",
-                                filename, wtap_strerror(write_err));
+                        cfile_close_failure_message(filename, write_err);
                         ret = WRITE_ERROR;
                         goto clean_exit;
                     }
@@ -1495,8 +1495,9 @@ main(int argc, char *argv[])
                                             snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
                                             shb_hdrs, idb_inf, nrb_hdrs, &write_err);
                     if (pdh == NULL) {
-                        fprintf(stderr, "editcap: Can't open or create %s: %s\n",
-                                filename, wtap_strerror(write_err));
+                        cfile_open_failure_message("editcap", filename,
+                                                   write_err, NULL, TRUE,
+                                                   out_frame_type);
                         ret = INVALID_FILE;
                         goto clean_exit;
                     }
@@ -1793,13 +1794,8 @@ main(int argc, char *argv[])
         if (read_err != 0) {
             /* Print a message noting that the read failed somewhere along the
              * line. */
-            fprintf(stderr,
-                    "editcap: An error occurred while reading \"%s\": %s.\n",
-                    argv[optind], wtap_strerror(read_err));
-            if (read_err_info != NULL) {
-                fprintf(stderr, "(%s)\n", read_err_info);
-                g_free(read_err_info);
-            }
+            cfile_read_failure_message("editcap", argv[optind], read_err,
+                                       read_err_info);
         }
 
         if (!pdh) {
@@ -1812,16 +1808,16 @@ main(int argc, char *argv[])
                                     snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
                                     shb_hdrs, idb_inf, nrb_hdrs, &write_err);
             if (pdh == NULL) {
-                fprintf(stderr, "editcap: Can't open or create %s: %s\n",
-                        filename, wtap_strerror(write_err));
+                cfile_open_failure_message("editcap", filename,
+                                           write_err, NULL, TRUE,
+                                           out_frame_type);
                 ret = INVALID_FILE;
                 goto clean_exit;
             }
         }
 
         if (!wtap_dump_close(pdh, &write_err)) {
-            fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
-                    wtap_strerror(write_err));
+            cfile_close_failure_message(filename, write_err);
             ret = WRITE_ERROR;
             goto clean_exit;
         }

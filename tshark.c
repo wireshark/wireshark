@@ -643,6 +643,7 @@ main(int argc, char *argv[])
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;
+  const char          *exp_pdu_filename = NULL;
 
 #ifdef _WIN32
   int                  result;
@@ -1864,7 +1865,6 @@ main(int argc, char *argv[])
   /* PDU export requested. Take the ownership of the '-w' file, apply tap
   * filters and start tapping. */
   if (pdu_export_arg) {
-      const char *exp_pdu_filename;
       const char *exp_pdu_tap_name = pdu_export_arg;
       const char *exp_pdu_filter = dfilter; /* may be NULL to disable filter */
       char       *exp_pdu_error;
@@ -1978,7 +1978,7 @@ main(int argc, char *argv[])
     if (pdu_export_arg) {
         err = exp_pdu_close(&exp_pdu_tap_data);
         if (err) {
-            cmdarg_err("%s", wtap_strerror(err));
+            cfile_close_failure_message(exp_pdu_filename, err);
             exit_status = 2;
         }
         g_free(pdu_export_arg);

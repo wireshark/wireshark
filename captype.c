@@ -40,6 +40,7 @@
 
 #include <wiretap/wtap.h>
 
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
@@ -61,6 +62,8 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
+#include "ui/failure_message.h"
+
 static void
 print_usage(FILE *output)
 {
@@ -68,7 +71,6 @@ print_usage(FILE *output)
   fprintf(output, "Usage: captype <infile> ...\n");
 }
 
-#ifdef HAVE_PLUGINS
 /*
  * General errors and warnings are reported with an console message
  * in captype.
@@ -80,7 +82,16 @@ failure_warning_message(const char *msg_format, va_list ap)
   vfprintf(stderr, msg_format, ap);
   fprintf(stderr, "\n");
 }
-#endif
+
+/*
+ * Report additional information for an error in command-line arguments.
+ */
+static void
+failure_message_cont(const char *msg_format, va_list ap)
+{
+  vfprintf(stderr, msg_format, ap);
+  fprintf(stderr, "\n");
+}
 
 int
 main(int argc, char *argv[])
@@ -102,6 +113,8 @@ main(int argc, char *argv[])
 
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
+
+  cmdarg_err_init(failure_warning_message, failure_message_cont);
 
   /* Get the compile-time version information string */
   comp_info_str = get_compiled_version_info(NULL, NULL);
@@ -206,12 +219,8 @@ main(int argc, char *argv[])
       if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT)
         printf("%s: unknown\n", argv[i]);
       else {
-        fprintf(stderr, "captype: Can't open %s: %s\n", argv[i],
-                wtap_strerror(err));
-        if (err_info != NULL) {
-          fprintf(stderr, "(%s)\n", err_info);
-          g_free(err_info);
-        }
+        cfile_open_failure_message("captype", argv[i], err, err_info, FALSE,
+                                   WTAP_TYPE_AUTO);
         overall_error_status = 2; /* remember that an error has occurred */
       }
     }

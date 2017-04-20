@@ -2425,6 +2425,7 @@ endif()
 
 if(BUILD_reordercap)
 	set(reordercap_LIBS
+		ui
 		wiretap
 		${ZLIB_LIBRARIES}
 		${CMAKE_DL_LIBS}
@@ -2443,6 +2444,7 @@ endif()
 
 if(BUILD_capinfos)
 	set(capinfos_LIBS
+		ui
 		wiretap
 		wsutil
 		${ZLIB_LIBRARIES}
@@ -2463,6 +2465,7 @@ endif()
 
 if(BUILD_captype)
 	set(captype_LIBS
+		ui
 		wiretap
 		wsutil
 		${ZLIB_LIBRARIES}
