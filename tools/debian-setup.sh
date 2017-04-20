@@ -23,6 +23,23 @@
 # that way.
 #
 
+if [ "$1" = "--help" ]
+then
+	echo "\nUtility to setup a debian-based system for Wireshark Development.\n"
+	echo "The basic usage installs the needed software\n\n"
+	echo "Usage: $0 [--install-optional] [...other options...]\n"
+	echo "\t--install-optional: install optional software as well"
+	echo "\t[other]: other options are passed as-is to apt\n"
+	exit 1
+fi
+
+# Check if the user is root
+if [ $(id -u) -ne 0 ]
+then
+	echo "You must be root."
+	exit 1
+fi
+
 for op in $@
 do
 	if [ "$op" = "--install-optional" ]
@@ -74,13 +91,21 @@ add_package ADDITIONAL_LIST libgnutls28-dev ||
 add_package ADDITIONAL_LIST libgnutls-dev ||
 echo "libgnutls28-dev and libgnutls-dev are unavailable" >&2
 
-# Install basic packages
-apt-get install $BASIC_LIST $OPTIONS
+ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries
+if [ $ADDITIONAL ]
+then
+	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
+fi
+
+apt-get install $ACTUAL_LIST $OPTIONS
+if [ $? != 0 ]
+then
+	exit 2
+fi
+
 if [ ! $ADDITIONAL ]
 then
 	echo "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
-else
-	apt-get install $ADDITIONAL_LIST $OPTIONS
 fi
