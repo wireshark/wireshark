@@ -178,7 +178,7 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 
     /* XXX: should this use the open_routine type in the cfile instead of WTAP_TYPE_AUTO? */
     if (cf_open(&cfile, capfile_name, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
-        open_failure_alert_box(capfile_name, err, FALSE);
+        /* cf_open() has put up a dialog box for the error */
         goto end;
     }
 
