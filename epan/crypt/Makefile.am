@@ -21,7 +21,7 @@
 
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
+AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
 noinst_LTLIBRARIES = libairpdcap.la
 
