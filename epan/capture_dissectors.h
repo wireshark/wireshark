@@ -25,7 +25,6 @@
 
 #include "ws_symbol_export.h"
 #include <wiretap/wtap.h>
-#include <capture_info.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,6 +32,17 @@ extern "C" {
 
 /** @file
  */
+
+/** Table of counts of packets of various types. */
+typedef struct {
+    GHashTable*       counts_hash; /* packet counters keyed by proto */
+    gint              other;       /* Packets not counted in the hash total */
+    gint              total;       /* Cache of total packets */
+} packet_counts;
+
+typedef struct _capture_packet_info {
+    GHashTable *counts;
+} capture_packet_info_t;
 
 typedef struct capture_dissector_handle* capture_dissector_handle_t;
 

@@ -38,17 +38,11 @@
 
 #include "capture_opts.h"
 #include <capchild/capture_session.h>
+#include <epan/capture_dissectors.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-typedef struct {
-    GHashTable*       counts_hash; /* packet counters keyed by proto */
-    gint              other;      /* Packets not counted in the hash total */
-    gint              total;      /* Cache of total packets */
-
-} packet_counts;
 
 /** Current Capture info. */
 typedef struct {

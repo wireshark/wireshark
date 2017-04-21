@@ -58,10 +58,6 @@ struct epan_range;
 	((guint)(offset) + (guint)(len) > (guint)(offset) && \
 	 (guint)(offset) + (guint)(len) <= (guint)(captured_len))
 
-typedef struct _capture_packet_info {
-    GHashTable *counts;
-} capture_packet_info_t;
-
 extern void packet_init(void);
 extern void packet_cache_proto_handles(void);
 extern void packet_cleanup(void);
