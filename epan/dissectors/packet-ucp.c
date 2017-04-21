@@ -641,6 +641,7 @@ static const value_string vals_parm_SSTAT[] = {
 };
 
 static const value_string vals_xser_service[] = {
+    {  0, "Not Used" },
     {  1, "GSM UDH information" },
     {  2, "GSM DCS information" },
     {  3, "[Message Type]            TDMA information exchange" },
@@ -654,6 +655,12 @@ static const value_string vals_xser_service[] = {
     { 11, "[Teleservice ID]          TDMA information exchange" },
     { 12, "Billing identifier" },
     { 13, "Single shot indicator" },
+    { 14, "Originator TON" },
+    { 15, "Originator NPI" },
+    { 16, "Recipient TON" },
+    { 17, "Recipient NPI" },
+    { 18, "Message Original Submission Time" },
+    { 19, "Destination Network Type" },
     {  0, NULL },
 };
 static value_string_ext vals_xser_service_ext = VALUE_STRING_EXT_INIT(vals_xser_service);
