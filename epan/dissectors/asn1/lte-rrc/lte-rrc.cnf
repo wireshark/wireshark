@@ -1258,230 +1258,230 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
 #.FN_HDR MasterInformationBlock
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MasterInformationBlock");
 
 #.FN_HDR SystemInformation
 
   if (private_data_get_bcch_dl_sch_msg_br(actx) == FALSE) {
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation [ ");
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformation [");
   }
 
 #.FN_BODY SystemInformation
 
 %(DEFAULT_BODY)s
   if (private_data_get_bcch_dl_sch_msg_br(actx) == FALSE) {
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "]");
+    col_append_str(actx->pinfo->cinfo, COL_INFO, " ]");
   }
 
 #.FN_HDR SystemInformationBlockType1
 
   if (private_data_get_bcch_dl_sch_msg_br(actx) == FALSE) {
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1");
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformationBlockType1");
     }
 
 #.FN_HDR SystemInformation-BR-r13
 
   private_data_set_bcch_dl_sch_msg_br(actx, TRUE);
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation-BR-r13 [ ");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformation-BR-r13 [");
 
 #.FN_BODY SystemInformation-BR-r13
 
 %(DEFAULT_BODY)s
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "]");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " ]");
 
 #.FN_HDR SystemInformationBlockType1-BR-r13
 
   private_data_set_bcch_dl_sch_msg_br(actx, TRUE);
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1-BR-r13");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformationBlockType1-BR-r13");
 
 #.FN_HDR SystemInformationBlockType2
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB2 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB2");
 
 #.FN_HDR SystemInformationBlockType3
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB3 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB3");
 
 #.FN_HDR SystemInformationBlockType4
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB4 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB4");
 
 #.FN_HDR SystemInformationBlockType5
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB5 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB5");
 
 #.FN_HDR SystemInformationBlockType6
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB6 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB6");
 
 #.FN_HDR SystemInformationBlockType7
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB7 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB7");
 
 #.FN_HDR SystemInformationBlockType8
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB8 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB8");
 
 #.FN_HDR SystemInformationBlockType9
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB9 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB9");
 
 #.FN_HDR SystemInformationBlockType10
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB10 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB10");
 
 #.FN_HDR SystemInformationBlockType11
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB11 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB11");
 
 #.FN_HDR SystemInformationBlockType12-r9
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB12 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB12");
 
 #.FN_HDR SystemInformationBlockType13-r9
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB13 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB13");
 
 #.FN_HDR SystemInformationBlockType14-r11
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB14 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB14");
 
 #.FN_HDR SystemInformationBlockType15-r11
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB15 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB15");
 
 #.FN_HDR SystemInformationBlockType16-r11
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB16 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB16");
 
 #.FN_HDR SystemInformationBlockType17-r12
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB17 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB17");
 
 #.FN_HDR SystemInformationBlockType18-r12
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB18 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB18");
 
 #.FN_HDR SystemInformationBlockType19-r12
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB19 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB19");
 
 #.FN_HDR SystemInformationBlockType20-r13
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB20 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB20");
 
 #.FN_HDR MBSFNAreaConfiguration-r9
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBSFNAreaConfiguration-r9");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBSFNAreaConfiguration-r9");
 
 #.FN_HDR MBMSCountingRequest-r10
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCountingRequest-r10");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBMSCountingRequest-r10");
 
 #.FN_HDR Paging
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "Paging");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Paging");
 
 #.FN_HDR RRCConnectionReestablishment
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishment");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishment");
 
 #.FN_HDR RRCConnectionReestablishmentReject
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentReject");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishmentReject");
 
 #.FN_HDR RRCConnectionReject
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReject");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReject");
 
 #.FN_HDR RRCConnectionSetup
   mac_lte_info* p_mac_lte_info;
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionSetup");
 
 #.FN_HDR CSFBParametersResponseCDMA2000
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "CSFBParametersResponseCDMA2000");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CSFBParametersResponseCDMA2000");
 
 #.FN_HDR DLInformationTransfer
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "DLInformationTransfer");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DLInformationTransfer");
 
 #.FN_HDR HandoverFromEUTRAPreparationRequest
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromEUTRAPreparationRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverFromEUTRAPreparationRequest");
 
 #.FN_HDR MobilityFromEUTRACommand
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MobilityFromEUTRACommand");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MobilityFromEUTRACommand");
 
 #.FN_HDR RRCConnectionReconfiguration
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReconfiguration");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReconfiguration");
 
 #.FN_HDR RRCConnectionRelease
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRelease");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionRelease");
 
 #.FN_HDR SecurityModeCommand
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeCommand");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecurityModeCommand");
 
 #.FN_HDR UECapabilityEnquiry
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityEnquiry");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UECapabilityEnquiry");
 
 #.FN_HDR CounterCheck
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheck");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CounterCheck");
 
 #.FN_HDR UEInformationRequest-r9
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UEInformationRequest-r9");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEInformationRequest-r9");
 
 #.FN_HDR LoggedMeasurementConfiguration-r10
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "LoggedMeasurementConfiguration-r10");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LoggedMeasurementConfiguration-r10");
 
 #.FN_HDR RNReconfiguration-r10
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RNReconfiguration-r10");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RNReconfiguration-r10");
 
 #.FN_HDR RRCConnectionResume-r13
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResume-r13");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResume-r13");
 
 #.FN_HDR RRCConnectionReestablishmentRequest
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishmentRequest");
 
 #.FN_HDR RRCConnectionRequest
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionRequest");
 
 #.FN_HDR CSFBParametersRequestCDMA2000
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "CSFBParametersRequestCDMA2000");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CSFBParametersRequestCDMA2000");
 
 #.FN_HDR MeasurementReport
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MeasurementReport");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MeasurementReport");
 
 #.FN_HDR RRCConnectionReconfigurationComplete
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReconfigurationComplete");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReconfigurationComplete");
 
 #.FN_HDR RRCConnectionReestablishmentComplete
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentComplete");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishmentComplete");
 
 #.FN_HDR RRCConnectionSetupComplete
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetupComplete");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionSetupComplete");
 
 #.FN_HDR SecurityModeComplete
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeComplete");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecurityModeComplete");
 
 #.FN_BODY SecurityModeFailure
   mac_lte_info *p_mac_lte_info;
@@ -1494,76 +1494,76 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     set_pdcp_lte_security_algorithms_failed(p_mac_lte_info->ueid);
   }
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecurityModeFailure");
 
 
 #.FN_HDR UECapabilityInformation
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityInformation");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UECapabilityInformation");
 
 #.FN_HDR ULHandoverPreparationTransfer
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "ULHandoverPreparationTransfer");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ULHandoverPreparationTransfer");
 
 #.FN_HDR ULInformationTransfer
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "ULInformationTransfer");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ULInformationTransfer");
 
 #.FN_HDR CounterCheckResponse
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheckResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CounterCheckResponse");
 
 #.FN_HDR UEInformationResponse-r9
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UEInformationResponse-r9");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEInformationResponse-r9");
 
 #.FN_HDR ProximityIndication-r9
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "ProximityIndication-r9");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ProximityIndication-r9");
 
 #.FN_HDR RNReconfigurationComplete-r10
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RNReconfigurationComplete-r10");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RNReconfigurationComplete-r10");
 
 #.FN_HDR MBMSCountingResponse-r10
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCountingResponse-r10");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBMSCountingResponse-r10");
 
 #.FN_HDR InterFreqRSTDMeasurementIndication-r10
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "InterFreqRSTDMeasurementIndication-r10");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InterFreqRSTDMeasurementIndication-r10");
 
 #.FN_HDR UEAssistanceInformation-r11
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UEAssistanceInformation-r11");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEAssistanceInformation-r11");
 
 #.FN_HDR InDeviceCoexIndication-r11
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "InDeviceCoexIndication-r11");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InDeviceCoexIndication-r11");
 
 #.FN_HDR MBMSInterestIndication-r11
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSInterestIndication-r11");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBMSInterestIndication-r11");
 
 #.FN_HDR SCGFailureInformation-r12
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SCGFailureInformation-r12");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCGFailureInformation-r12");
 
 #.FN_HDR SidelinkUEInformation-r12
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SidelinkUEInformation-r12");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SidelinkUEInformation-r12");
 
 #.FN_HDR WLANConnectionStatusReport-r13
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "WLANConnectionStatusReport-r13");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WLANConnectionStatusReport-r13");
 
 #.FN_HDR RRCConnectionResumeComplete-r13
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResumeComplete-r13");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResumeComplete-r13");
 
 #.FN_HDR SCPTMConfiguration-r13
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SCPTMConfiguration-r13");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCPTMConfiguration-r13");
 
 #.FN_BODY Paging/systemInfoModification
 %(DEFAULT_BODY)s
@@ -2190,7 +2190,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 #
 
 #.FN_HDR MasterInformationBlock-SL
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock-SL");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MasterInformationBlock-SL");
 
 #
 # NBIOT-RRC-Definitions
@@ -2203,86 +2203,86 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
   actx->pinfo->link_dir = P2P_DIR_DL;
 
 #.FN_HDR MasterInformationBlock-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MasterInformationBlock-NB");
 
 #.FN_HDR SystemInformation-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation-NB [ ");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformation-NB [");
 
 #.FN_BODY SystemInformation-NB
 %(DEFAULT_BODY)s
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "]");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " ]");
 
 #.FN_HDR SystemInformationBlockType1-NB
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1-NB");
 
 #.FN_HDR SystemInformationBlockType2-NB-r13
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB2 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB2");
 
 #.FN_HDR SystemInformationBlockType3-NB-r13
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB3 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB3");
 
 #.FN_HDR SystemInformationBlockType4-NB-r13
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB4 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB4");
 
 #.FN_HDR SystemInformationBlockType5-NB-r13
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB5 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB5");
 
 #.FN_HDR SystemInformationBlockType14-NB-r13
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB14 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB14");
 
 #.FN_HDR Paging-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "Paging-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Paging-NB");
 
 #.FN_HDR RRCConnectionReestablishment-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishment-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishment-NB");
 
 #.FN_HDR RRCConnectionReject-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReject-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReject-NB");
 
 #.FN_HDR RRCConnectionSetup-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionSetup-NB");
 
 #.FN_HDR DLInformationTransfer-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "DLInformationTransfer-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DLInformationTransfer-NB");
 
 #.FN_HDR RRCConnectionReconfiguration-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReconfiguration-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReconfiguration-NB");
 
 #.FN_HDR RRCConnectionRelease-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRelease-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionRelease-NB");
 
 #.FN_HDR UECapabilityEnquiry-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityEnquiry-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UECapabilityEnquiry-NB");
 
 #.FN_HDR RRCConnectionResume-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResume-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResume-NB");
 
 #.FN_HDR RRCConnectionReestablishmentRequest-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentRequest-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishmentRequest-NB");
 
 #.FN_HDR RRCConnectionRequest-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRequest-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionRequest-NB");
 
 #.FN_HDR RRCConnectionResumeRequest-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResumeRequest-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResumeRequest-NB");
 
 #.FN_HDR RRCConnectionReconfigurationComplete-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReconfigurationComplete-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReconfigurationComplete-NB");
 
 #.FN_HDR RRCConnectionReestablishmentComplete-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentComplete-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishmentComplete-NB");
 
 #.FN_HDR RRCConnectionSetupComplete-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetupComplete-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionSetupComplete-NB");
 
 #.FN_HDR UECapabilityInformation-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityInformation-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UECapabilityInformation-NB");
 
 #.FN_HDR ULInformationTransfer-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "ULInformationTransfer-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ULInformationTransfer-NB");
 
 #.FN_HDR RRCConnectionResumeComplete-NB
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResumeComplete-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResumeComplete-NB");
 
 #.TYPE_ATTR
 MasterInformationBlock-NB/schedulingInfoSIB1-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_schedulingInfoSIB1_NB_r13_vals_ext

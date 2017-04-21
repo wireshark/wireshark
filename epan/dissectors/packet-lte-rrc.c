@@ -25709,7 +25709,7 @@ static const per_sequence_t MasterInformationBlock_sequence[] = {
 static int
 dissect_lte_rrc_MasterInformationBlock(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MasterInformationBlock");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_MasterInformationBlock, MasterInformationBlock_sequence);
@@ -26840,7 +26840,7 @@ static int
 dissect_lte_rrc_SystemInformationBlockType1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
   if (private_data_get_bcch_dl_sch_msg_br(actx) == FALSE) {
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1");
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformationBlockType1");
     }
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -29883,7 +29883,7 @@ static const per_sequence_t SystemInformationBlockType2_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB2 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB2");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType2, SystemInformationBlockType2_sequence);
@@ -36556,7 +36556,7 @@ static const per_sequence_t SystemInformationBlockType3_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB3 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB3");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType3, SystemInformationBlockType3_sequence);
@@ -36619,7 +36619,7 @@ static const per_sequence_t SystemInformationBlockType4_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB4 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB4");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType4, SystemInformationBlockType4_sequence);
@@ -37182,7 +37182,7 @@ static const per_sequence_t SystemInformationBlockType5_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB5 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB5");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType5, SystemInformationBlockType5_sequence);
@@ -37553,7 +37553,7 @@ static const per_sequence_t SystemInformationBlockType6_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB6 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB6");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType6, SystemInformationBlockType6_sequence);
@@ -37631,7 +37631,7 @@ static const per_sequence_t SystemInformationBlockType7_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType7(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB7 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB7");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType7, SystemInformationBlockType7_sequence);
@@ -38362,7 +38362,7 @@ static const per_sequence_t SystemInformationBlockType8_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB8 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB8");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType8, SystemInformationBlockType8_sequence);
@@ -38395,7 +38395,7 @@ static const per_sequence_t SystemInformationBlockType9_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB9 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB9");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType9, SystemInformationBlockType9_sequence);
@@ -38485,7 +38485,7 @@ static const per_sequence_t SystemInformationBlockType10_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB10 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB10");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType10, SystemInformationBlockType10_sequence);
@@ -38636,7 +38636,7 @@ static const per_sequence_t SystemInformationBlockType11_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB11 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB11");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType11, SystemInformationBlockType11_sequence);
@@ -38787,7 +38787,7 @@ static const per_sequence_t SystemInformationBlockType12_r9_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType12_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB12 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB12");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType12_r9, SystemInformationBlockType12_r9_sequence);
@@ -38975,7 +38975,7 @@ static const per_sequence_t SystemInformationBlockType13_r9_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType13_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB13 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB13");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType13_r9, SystemInformationBlockType13_r9_sequence);
@@ -39068,7 +39068,7 @@ static const per_sequence_t SystemInformationBlockType14_r11_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType14_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB14 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB14");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType14_r11, SystemInformationBlockType14_r11_sequence);
@@ -39182,7 +39182,7 @@ static const per_sequence_t SystemInformationBlockType15_r11_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType15_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB15 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB15");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType15_r11, SystemInformationBlockType15_r11_sequence);
@@ -39276,7 +39276,7 @@ static const per_sequence_t SystemInformationBlockType16_r11_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType16_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB16 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB16");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType16_r11, SystemInformationBlockType16_r11_sequence);
@@ -39323,7 +39323,7 @@ static const per_sequence_t SystemInformationBlockType17_r12_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType17_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB17 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB17");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType17_r12, SystemInformationBlockType17_r12_sequence);
@@ -39594,7 +39594,7 @@ static const per_sequence_t SystemInformationBlockType18_r12_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType18_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB18 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB18");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType18_r12, SystemInformationBlockType18_r12_sequence);
@@ -40175,7 +40175,7 @@ static const per_sequence_t SystemInformationBlockType19_r12_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType19_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB19 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB19");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType19_r12, SystemInformationBlockType19_r12_sequence);
@@ -40269,7 +40269,7 @@ static const per_sequence_t SystemInformationBlockType20_r13_sequence[] = {
 static int
 dissect_lte_rrc_SystemInformationBlockType20_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB20 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB20");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType20_r13, SystemInformationBlockType20_r13_sequence);
@@ -40435,7 +40435,7 @@ static int
 dissect_lte_rrc_SystemInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
   if (private_data_get_bcch_dl_sch_msg_br(actx) == FALSE) {
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation [ ");
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformation [");
   }
 
 
@@ -40443,7 +40443,7 @@ dissect_lte_rrc_SystemInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                    ett_lte_rrc_SystemInformation, SystemInformation_sequence);
 
   if (private_data_get_bcch_dl_sch_msg_br(actx) == FALSE) {
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "]");
+    col_append_str(actx->pinfo->cinfo, COL_INFO, " ]");
   }
 
 
@@ -40527,12 +40527,12 @@ static int
 dissect_lte_rrc_SystemInformation_BR_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
   private_data_set_bcch_dl_sch_msg_br(actx, TRUE);
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation-BR-r13 [ ");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformation-BR-r13 [");
 
 
   offset = dissect_lte_rrc_SystemInformation(tvb, offset, actx, tree, hf_index);
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "]");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " ]");
 
 
   return offset;
@@ -40544,7 +40544,7 @@ static int
 dissect_lte_rrc_SystemInformationBlockType1_BR_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
   private_data_set_bcch_dl_sch_msg_br(actx, TRUE);
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1-BR-r13");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformationBlockType1-BR-r13");
 
   offset = dissect_lte_rrc_SystemInformationBlockType1(tvb, offset, actx, tree, hf_index);
 
@@ -40986,7 +40986,7 @@ static const per_sequence_t MBSFNAreaConfiguration_r9_sequence[] = {
 static int
 dissect_lte_rrc_MBSFNAreaConfiguration_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBSFNAreaConfiguration-r9");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBSFNAreaConfiguration-r9");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_MBSFNAreaConfiguration_r9, MBSFNAreaConfiguration_r9_sequence);
@@ -41066,7 +41066,7 @@ static const per_sequence_t MBMSCountingRequest_r10_sequence[] = {
 static int
 dissect_lte_rrc_MBMSCountingRequest_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCountingRequest-r10");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBMSCountingRequest-r10");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_MBMSCountingRequest_r10, MBMSCountingRequest_r10_sequence);
@@ -41487,7 +41487,7 @@ static const per_sequence_t Paging_sequence[] = {
 static int
 dissect_lte_rrc_Paging(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "Paging");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Paging");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_Paging, Paging_sequence);
@@ -41707,7 +41707,7 @@ static const per_sequence_t RRCConnectionReestablishment_sequence[] = {
 static int
 dissect_lte_rrc_RRCConnectionReestablishment(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishment");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishment");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReestablishment, RRCConnectionReestablishment_sequence);
@@ -41801,7 +41801,7 @@ static const per_sequence_t RRCConnectionReestablishmentReject_sequence[] = {
 static int
 dissect_lte_rrc_RRCConnectionReestablishmentReject(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentReject");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishmentReject");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReestablishmentReject, RRCConnectionReestablishmentReject_sequence);
@@ -42041,7 +42041,7 @@ static const per_sequence_t RRCConnectionReject_sequence[] = {
 static int
 dissect_lte_rrc_RRCConnectionReject(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReject");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReject");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReject, RRCConnectionReject_sequence);
@@ -42172,7 +42172,7 @@ static int
 dissect_lte_rrc_RRCConnectionSetup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   mac_lte_info* p_mac_lte_info;
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionSetup");
 
   /* Look for UE identifier */
   p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
@@ -42381,7 +42381,7 @@ static const per_sequence_t CSFBParametersResponseCDMA2000_sequence[] = {
 static int
 dissect_lte_rrc_CSFBParametersResponseCDMA2000(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "CSFBParametersResponseCDMA2000");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CSFBParametersResponseCDMA2000");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_CSFBParametersResponseCDMA2000, CSFBParametersResponseCDMA2000_sequence);
@@ -42555,7 +42555,7 @@ static const per_sequence_t DLInformationTransfer_sequence[] = {
 static int
 dissect_lte_rrc_DLInformationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "DLInformationTransfer");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DLInformationTransfer");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_DLInformationTransfer, DLInformationTransfer_sequence);
@@ -42725,7 +42725,7 @@ static const per_sequence_t HandoverFromEUTRAPreparationRequest_sequence[] = {
 static int
 dissect_lte_rrc_HandoverFromEUTRAPreparationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromEUTRAPreparationRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverFromEUTRAPreparationRequest");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_HandoverFromEUTRAPreparationRequest, HandoverFromEUTRAPreparationRequest_sequence);
@@ -43318,7 +43318,7 @@ static const per_sequence_t MobilityFromEUTRACommand_sequence[] = {
 static int
 dissect_lte_rrc_MobilityFromEUTRACommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MobilityFromEUTRACommand");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MobilityFromEUTRACommand");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_MobilityFromEUTRACommand, MobilityFromEUTRACommand_sequence);
@@ -44436,7 +44436,7 @@ static const per_sequence_t RRCConnectionReconfiguration_sequence[] = {
 static int
 dissect_lte_rrc_RRCConnectionReconfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReconfiguration");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReconfiguration");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReconfiguration, RRCConnectionReconfiguration_sequence);
@@ -45220,7 +45220,7 @@ static const per_sequence_t RRCConnectionRelease_sequence[] = {
 static int
 dissect_lte_rrc_RRCConnectionRelease(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRelease");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionRelease");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionRelease, RRCConnectionRelease_sequence);
@@ -45356,7 +45356,7 @@ static const per_sequence_t SecurityModeCommand_sequence[] = {
 static int
 dissect_lte_rrc_SecurityModeCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeCommand");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecurityModeCommand");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SecurityModeCommand, SecurityModeCommand_sequence);
@@ -45595,7 +45595,7 @@ static const per_sequence_t UECapabilityEnquiry_sequence[] = {
 static int
 dissect_lte_rrc_UECapabilityEnquiry(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityEnquiry");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UECapabilityEnquiry");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UECapabilityEnquiry, UECapabilityEnquiry_sequence);
@@ -45757,7 +45757,7 @@ static const per_sequence_t CounterCheck_sequence[] = {
 static int
 dissect_lte_rrc_CounterCheck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheck");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CounterCheck");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_CounterCheck, CounterCheck_sequence);
@@ -45970,7 +45970,7 @@ static const per_sequence_t UEInformationRequest_r9_sequence[] = {
 static int
 dissect_lte_rrc_UEInformationRequest_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UEInformationRequest-r9");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEInformationRequest-r9");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UEInformationRequest_r9, UEInformationRequest_r9_sequence);
@@ -46369,7 +46369,7 @@ static const per_sequence_t LoggedMeasurementConfiguration_r10_sequence[] = {
 static int
 dissect_lte_rrc_LoggedMeasurementConfiguration_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "LoggedMeasurementConfiguration-r10");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LoggedMeasurementConfiguration-r10");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_LoggedMeasurementConfiguration_r10, LoggedMeasurementConfiguration_r10_sequence);
@@ -46877,7 +46877,7 @@ static const per_sequence_t RNReconfiguration_r10_sequence[] = {
 static int
 dissect_lte_rrc_RNReconfiguration_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RNReconfiguration-r10");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RNReconfiguration-r10");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RNReconfiguration_r10, RNReconfiguration_r10_sequence);
@@ -47004,7 +47004,7 @@ static const per_sequence_t RRCConnectionResume_r13_sequence[] = {
 static int
 dissect_lte_rrc_RRCConnectionResume_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResume-r13");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResume-r13");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionResume_r13, RRCConnectionResume_r13_sequence);
@@ -47207,7 +47207,7 @@ static const per_sequence_t RRCConnectionReestablishmentRequest_sequence[] = {
 static int
 dissect_lte_rrc_RRCConnectionReestablishmentRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishmentRequest");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReestablishmentRequest, RRCConnectionReestablishmentRequest_sequence);
@@ -47329,7 +47329,7 @@ static const per_sequence_t RRCConnectionRequest_sequence[] = {
 static int
 dissect_lte_rrc_RRCConnectionRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionRequest");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionRequest, RRCConnectionRequest_sequence);
@@ -47646,7 +47646,7 @@ static const per_sequence_t CSFBParametersRequestCDMA2000_sequence[] = {
 static int
 dissect_lte_rrc_CSFBParametersRequestCDMA2000(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "CSFBParametersRequestCDMA2000");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CSFBParametersRequestCDMA2000");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_CSFBParametersRequestCDMA2000, CSFBParametersRequestCDMA2000_sequence);
@@ -49008,7 +49008,7 @@ static const per_sequence_t MeasurementReport_sequence[] = {
 static int
 dissect_lte_rrc_MeasurementReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MeasurementReport");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MeasurementReport");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_MeasurementReport, MeasurementReport_sequence);
@@ -49209,7 +49209,7 @@ static const per_sequence_t RRCConnectionReconfigurationComplete_sequence[] = {
 static int
 dissect_lte_rrc_RRCConnectionReconfigurationComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReconfigurationComplete");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReconfigurationComplete");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReconfigurationComplete, RRCConnectionReconfigurationComplete_sequence);
@@ -49424,7 +49424,7 @@ static const per_sequence_t RRCConnectionReestablishmentComplete_sequence[] = {
 static int
 dissect_lte_rrc_RRCConnectionReestablishmentComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentComplete");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishmentComplete");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReestablishmentComplete, RRCConnectionReestablishmentComplete_sequence);
@@ -49848,7 +49848,7 @@ static const per_sequence_t RRCConnectionSetupComplete_sequence[] = {
 static int
 dissect_lte_rrc_RRCConnectionSetupComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetupComplete");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionSetupComplete");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionSetupComplete, RRCConnectionSetupComplete_sequence);
@@ -49943,7 +49943,7 @@ static const per_sequence_t SecurityModeComplete_sequence[] = {
 static int
 dissect_lte_rrc_SecurityModeComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeComplete");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecurityModeComplete");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SecurityModeComplete, SecurityModeComplete_sequence);
@@ -50049,7 +50049,7 @@ dissect_lte_rrc_SecurityModeFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
     set_pdcp_lte_security_algorithms_failed(p_mac_lte_info->ueid);
   }
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecurityModeFailure");
 
 
 
@@ -50278,7 +50278,7 @@ static const per_sequence_t UECapabilityInformation_sequence[] = {
 static int
 dissect_lte_rrc_UECapabilityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityInformation");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UECapabilityInformation");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UECapabilityInformation, UECapabilityInformation_sequence);
@@ -50411,7 +50411,7 @@ static const per_sequence_t ULHandoverPreparationTransfer_sequence[] = {
 static int
 dissect_lte_rrc_ULHandoverPreparationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "ULHandoverPreparationTransfer");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ULHandoverPreparationTransfer");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_ULHandoverPreparationTransfer, ULHandoverPreparationTransfer_sequence);
@@ -50556,7 +50556,7 @@ static const per_sequence_t ULInformationTransfer_sequence[] = {
 static int
 dissect_lte_rrc_ULInformationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "ULInformationTransfer");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ULInformationTransfer");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_ULInformationTransfer, ULInformationTransfer_sequence);
@@ -50692,7 +50692,7 @@ static const per_sequence_t CounterCheckResponse_sequence[] = {
 static int
 dissect_lte_rrc_CounterCheckResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheckResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CounterCheckResponse");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_CounterCheckResponse, CounterCheckResponse_sequence);
@@ -51890,7 +51890,7 @@ static const per_sequence_t UEInformationResponse_r9_sequence[] = {
 static int
 dissect_lte_rrc_UEInformationResponse_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UEInformationResponse-r9");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEInformationResponse-r9");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UEInformationResponse_r9, UEInformationResponse_r9_sequence);
@@ -52052,7 +52052,7 @@ static const per_sequence_t ProximityIndication_r9_sequence[] = {
 static int
 dissect_lte_rrc_ProximityIndication_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "ProximityIndication-r9");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ProximityIndication-r9");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_ProximityIndication_r9, ProximityIndication_r9_sequence);
@@ -52159,7 +52159,7 @@ static const per_sequence_t RNReconfigurationComplete_r10_sequence[] = {
 static int
 dissect_lte_rrc_RNReconfigurationComplete_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RNReconfigurationComplete-r10");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RNReconfigurationComplete-r10");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RNReconfigurationComplete_r10, RNReconfigurationComplete_r10_sequence);
@@ -52315,7 +52315,7 @@ static const per_sequence_t MBMSCountingResponse_r10_sequence[] = {
 static int
 dissect_lte_rrc_MBMSCountingResponse_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCountingResponse-r10");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBMSCountingResponse-r10");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_MBMSCountingResponse_r10, MBMSCountingResponse_r10_sequence);
@@ -52501,7 +52501,7 @@ static const per_sequence_t InterFreqRSTDMeasurementIndication_r10_sequence[] = 
 static int
 dissect_lte_rrc_InterFreqRSTDMeasurementIndication_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "InterFreqRSTDMeasurementIndication-r10");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InterFreqRSTDMeasurementIndication-r10");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_InterFreqRSTDMeasurementIndication_r10, InterFreqRSTDMeasurementIndication_r10_sequence);
@@ -52674,7 +52674,7 @@ static const per_sequence_t UEAssistanceInformation_r11_sequence[] = {
 static int
 dissect_lte_rrc_UEAssistanceInformation_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UEAssistanceInformation-r11");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEAssistanceInformation-r11");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UEAssistanceInformation_r11, UEAssistanceInformation_r11_sequence);
@@ -53220,7 +53220,7 @@ static const per_sequence_t InDeviceCoexIndication_r11_sequence[] = {
 static int
 dissect_lte_rrc_InDeviceCoexIndication_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "InDeviceCoexIndication-r11");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InDeviceCoexIndication-r11");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_InDeviceCoexIndication_r11, InDeviceCoexIndication_r11_sequence);
@@ -53400,7 +53400,7 @@ static const per_sequence_t MBMSInterestIndication_r11_sequence[] = {
 static int
 dissect_lte_rrc_MBMSInterestIndication_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSInterestIndication-r11");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBMSInterestIndication-r11");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_MBMSInterestIndication_r11, MBMSInterestIndication_r11_sequence);
@@ -53608,7 +53608,7 @@ static const per_sequence_t SCGFailureInformation_r12_sequence[] = {
 static int
 dissect_lte_rrc_SCGFailureInformation_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SCGFailureInformation-r12");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCGFailureInformation-r12");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SCGFailureInformation_r12, SCGFailureInformation_r12_sequence);
@@ -54055,7 +54055,7 @@ static const per_sequence_t SidelinkUEInformation_r12_sequence[] = {
 static int
 dissect_lte_rrc_SidelinkUEInformation_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SidelinkUEInformation-r12");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SidelinkUEInformation-r12");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SidelinkUEInformation_r12, SidelinkUEInformation_r12_sequence);
@@ -54180,7 +54180,7 @@ static const per_sequence_t WLANConnectionStatusReport_r13_sequence[] = {
 static int
 dissect_lte_rrc_WLANConnectionStatusReport_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "WLANConnectionStatusReport-r13");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WLANConnectionStatusReport-r13");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_WLANConnectionStatusReport_r13, WLANConnectionStatusReport_r13_sequence);
@@ -54362,7 +54362,7 @@ static const per_sequence_t RRCConnectionResumeComplete_r13_sequence[] = {
 static int
 dissect_lte_rrc_RRCConnectionResumeComplete_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResumeComplete-r13");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResumeComplete-r13");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionResumeComplete_r13, RRCConnectionResumeComplete_r13_sequence);
@@ -54830,7 +54830,7 @@ static const per_sequence_t SCPTMConfiguration_r13_sequence[] = {
 static int
 dissect_lte_rrc_SCPTMConfiguration_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SCPTMConfiguration-r13");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCPTMConfiguration-r13");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SCPTMConfiguration_r13, SCPTMConfiguration_r13_sequence);
@@ -62689,7 +62689,7 @@ static const per_sequence_t MasterInformationBlock_SL_sequence[] = {
 
 static int
 dissect_lte_rrc_MasterInformationBlock_SL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock-SL");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MasterInformationBlock-SL");
 
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -65230,7 +65230,7 @@ static const per_sequence_t MasterInformationBlock_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_MasterInformationBlock_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MasterInformationBlock-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_MasterInformationBlock_NB, MasterInformationBlock_NB_sequence);
@@ -66282,7 +66282,7 @@ static const per_sequence_t SystemInformationBlockType2_NB_r13_sequence[] = {
 
 static int
 dissect_lte_rrc_SystemInformationBlockType2_NB_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB2 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB2");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType2_NB_r13, SystemInformationBlockType2_NB_r13_sequence);
@@ -66482,7 +66482,7 @@ static const per_sequence_t SystemInformationBlockType3_NB_r13_sequence[] = {
 
 static int
 dissect_lte_rrc_SystemInformationBlockType3_NB_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB3 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB3");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType3_NB_r13, SystemInformationBlockType3_NB_r13_sequence);
@@ -66500,7 +66500,7 @@ static const per_sequence_t SystemInformationBlockType4_NB_r13_sequence[] = {
 
 static int
 dissect_lte_rrc_SystemInformationBlockType4_NB_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB4 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB4");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType4_NB_r13, SystemInformationBlockType4_NB_r13_sequence);
@@ -66624,7 +66624,7 @@ static const per_sequence_t SystemInformationBlockType5_NB_r13_sequence[] = {
 
 static int
 dissect_lte_rrc_SystemInformationBlockType5_NB_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB5 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB5");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType5_NB_r13, SystemInformationBlockType5_NB_r13_sequence);
@@ -66733,7 +66733,7 @@ static const per_sequence_t SystemInformationBlockType14_NB_r13_sequence[] = {
 
 static int
 dissect_lte_rrc_SystemInformationBlockType14_NB_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB14 ");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " SIB14");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType14_NB_r13, SystemInformationBlockType14_NB_r13_sequence);
@@ -66866,12 +66866,12 @@ static const per_sequence_t SystemInformation_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_SystemInformation_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation-NB [ ");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformation-NB [");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformation_NB, SystemInformation_NB_sequence);
 
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "]");
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " ]");
 
 
   return offset;
@@ -67441,7 +67441,7 @@ static const per_sequence_t Paging_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_Paging_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "Paging-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Paging-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_Paging_NB, Paging_NB_sequence);
@@ -67614,7 +67614,7 @@ static const per_sequence_t RRCConnectionReestablishment_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_RRCConnectionReestablishment_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishment-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishment-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReestablishment_NB, RRCConnectionReestablishment_NB_sequence);
@@ -67732,7 +67732,7 @@ static const per_sequence_t RRCConnectionReject_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_RRCConnectionReject_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReject-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReject-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReject_NB, RRCConnectionReject_NB_sequence);
@@ -67835,7 +67835,7 @@ static const per_sequence_t RRCConnectionSetup_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_RRCConnectionSetup_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionSetup-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionSetup_NB, RRCConnectionSetup_NB_sequence);
@@ -68021,7 +68021,7 @@ static const per_sequence_t DLInformationTransfer_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_DLInformationTransfer_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "DLInformationTransfer-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DLInformationTransfer-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_DLInformationTransfer_NB, DLInformationTransfer_NB_sequence);
@@ -68155,7 +68155,7 @@ static const per_sequence_t RRCConnectionReconfiguration_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_RRCConnectionReconfiguration_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReconfiguration-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReconfiguration-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReconfiguration_NB, RRCConnectionReconfiguration_NB_sequence);
@@ -68288,7 +68288,7 @@ static const per_sequence_t RRCConnectionRelease_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_RRCConnectionRelease_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRelease-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionRelease-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionRelease_NB, RRCConnectionRelease_NB_sequence);
@@ -68390,7 +68390,7 @@ static const per_sequence_t UECapabilityEnquiry_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_UECapabilityEnquiry_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityEnquiry-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UECapabilityEnquiry-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UECapabilityEnquiry_NB, UECapabilityEnquiry_NB_sequence);
@@ -68510,7 +68510,7 @@ static const per_sequence_t RRCConnectionResume_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_RRCConnectionResume_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResume-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResume-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionResume_NB, RRCConnectionResume_NB_sequence);
@@ -68680,7 +68680,7 @@ static const per_sequence_t RRCConnectionReestablishmentRequest_NB_sequence[] = 
 
 static int
 dissect_lte_rrc_RRCConnectionReestablishmentRequest_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentRequest-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishmentRequest-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReestablishmentRequest_NB, RRCConnectionReestablishmentRequest_NB_sequence);
@@ -68811,7 +68811,7 @@ static const per_sequence_t RRCConnectionRequest_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_RRCConnectionRequest_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRequest-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionRequest-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionRequest_NB, RRCConnectionRequest_NB_sequence);
@@ -68879,7 +68879,7 @@ static const per_sequence_t RRCConnectionResumeRequest_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_RRCConnectionResumeRequest_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResumeRequest-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResumeRequest-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionResumeRequest_NB, RRCConnectionResumeRequest_NB_sequence);
@@ -69034,7 +69034,7 @@ static const per_sequence_t RRCConnectionReconfigurationComplete_NB_sequence[] =
 
 static int
 dissect_lte_rrc_RRCConnectionReconfigurationComplete_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReconfigurationComplete-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReconfigurationComplete-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReconfigurationComplete_NB, RRCConnectionReconfigurationComplete_NB_sequence);
@@ -69114,7 +69114,7 @@ static const per_sequence_t RRCConnectionReestablishmentComplete_NB_sequence[] =
 
 static int
 dissect_lte_rrc_RRCConnectionReestablishmentComplete_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentComplete-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionReestablishmentComplete-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionReestablishmentComplete_NB, RRCConnectionReestablishmentComplete_NB_sequence);
@@ -69230,7 +69230,7 @@ static const per_sequence_t RRCConnectionSetupComplete_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_RRCConnectionSetupComplete_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetupComplete-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionSetupComplete-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionSetupComplete_NB, RRCConnectionSetupComplete_NB_sequence);
@@ -69341,7 +69341,7 @@ static const per_sequence_t UECapabilityInformation_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_UECapabilityInformation_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityInformation-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UECapabilityInformation-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UECapabilityInformation_NB, UECapabilityInformation_NB_sequence);
@@ -69421,7 +69421,7 @@ static const per_sequence_t ULInformationTransfer_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_ULInformationTransfer_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "ULInformationTransfer-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ULInformationTransfer-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_ULInformationTransfer_NB, ULInformationTransfer_NB_sequence);
@@ -69503,7 +69503,7 @@ static const per_sequence_t RRCConnectionResumeComplete_NB_sequence[] = {
 
 static int
 dissect_lte_rrc_RRCConnectionResumeComplete_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionResumeComplete-NB");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCConnectionResumeComplete-NB");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionResumeComplete_NB, RRCConnectionResumeComplete_NB_sequence);
