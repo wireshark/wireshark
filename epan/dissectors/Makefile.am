@@ -22,7 +22,7 @@ include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) -I$(top_srcdir)/epan $(WS_CPPFLAGS) \
 	$(GLIB_CFLAGS) $(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) \
-	$(KRB5_CFLAGS) $(LIBXML2_CFLAGS)
+	$(LIBGEOIP_CFLAGS) $(KRB5_CFLAGS) $(LIBXML2_CFLAGS)
 
 include Custom.common
 
