@@ -37,7 +37,7 @@ void proto_reg_handoff_netsync(void);
 /*
  * See
  *
- *	http://www.venge.net/monotone/
+ *	http://www.monotone.ca
  */
 
 /* Define TCP ports for Monotone netsync */
