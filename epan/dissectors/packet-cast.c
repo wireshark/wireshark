@@ -123,8 +123,7 @@ static const value_string  message_id[] = {
 };
 
 static const value_string  audioCodecTypes[] = {
-  {1  , "G711"},
-  {1  , "G729"},
+  {1  , "G711/G729"},
   {2  , "GSM"},
   {3  , "G723"},
   {4  , "G722"},
