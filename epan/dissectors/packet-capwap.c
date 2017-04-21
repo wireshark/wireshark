@@ -547,7 +547,7 @@ static int hf_capwap_cisco_ap_static_ip_reserved = -1;
 static int hf_capwap_cisco_ap_uptime_current = -1;
 static int hf_capwap_cisco_ap_uptime_last = -1;
 static int hf_capwap_cisco_ap_group_name = -1;
-static int hf_capwap_cisco_spam_ap_led_state = -1;
+static int hf_capwap_cisco_ap_led_state = -1;
 static int hf_capwap_cisco_ap_timesync = -1;
 static int hf_capwap_cisco_ap_timesync_type = -1;
 static int hf_capwap_cisco_board_data_options_ant_type = -1;
@@ -1932,12 +1932,11 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
 #define VSP_CISCO_AP_UPTIME                 108
 
 #define VSP_CISCO_AP_GROUP_NAME             123
-#define VSP_CISCO_SPAM_AP_LED_STATE         125
-#define VSP_CISCO_AP_MODEL                  127
-#define VSP_CISCO_AP_RESET_BUTTON_STATE     128
 
 #define VSP_CISCO_AP_LED_STATE_CONFIG       125
 #define VSP_CISCO_AP_REGULATORY_DOMAIN      126
+#define VSP_CISCO_AP_MODEL                  127
+#define VSP_CISCO_AP_RESET_BUTTON_STATE     128
 
 #define VSP_CISCO_LWAPP_CHANNEL_POWER       134
 #define VSP_CISCO_AP_PRE_STD_SWITCH_CONFIG  137
@@ -2003,7 +2002,6 @@ static const value_string cisco_element_id_vals[] = {
     { VSP_CISCO_AP_UPTIME, "AP Uptime" },
 
     { VSP_CISCO_AP_GROUP_NAME, "AP Group Name" },
-    { VSP_CISCO_SPAM_AP_LED_STATE, "SPAM AP Led State" },
     { VSP_CISCO_AP_MODEL, "AP Model" },
     { VSP_CISCO_AP_RESET_BUTTON_STATE, "AP reset button state" },
 
@@ -2110,8 +2108,8 @@ dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_group_name, tvb, offset, optlen, ENC_ASCII|ENC_NA);
             offset += optlen;
         break;
-        case VSP_CISCO_SPAM_AP_LED_STATE: /* SPAM AP Led State (125) */
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_spam_ap_led_state, tvb, offset, 2, ENC_NA);
+        case VSP_CISCO_AP_LED_STATE_CONFIG: /* AP Led State (125) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_led_state, tvb, offset, 2, ENC_NA);
             offset += 2;
         break;
         case VSP_CISCO_AP_TIMESYNC: /* AP Timesync (151) */
@@ -5608,8 +5606,8 @@ proto_register_capwap_control(void)
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_capwap_cisco_spam_ap_led_state,
-            { "Led State", "capwap.control.cisco.spam_ap_led_state",
+        { &hf_capwap_cisco_ap_led_state,
+            { "Led State", "capwap.control.cisco.ap_led_state",
               FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
