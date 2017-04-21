@@ -32,6 +32,9 @@
 #include <time.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/cmdarg_err.h>
+
+#include "ui/failure_message.h"
 
 #ifdef HAVE_NETINET_IN_H
 #    include <netinet/in.h>
@@ -260,6 +263,19 @@ static inline int is_specified_interface(char *interface, const char *interface_
     return !strncmp(interface, interface_prefix, strlen(interface_prefix));
 }
 
+/*
+ * General errors and warnings are reported through g_warning() in
+ * androiddump.
+ *
+ * Unfortunately, g_warning() may be a macro, so we do it by calling
+ * g_logv() with the appropriate arguments.
+ */
+static void
+failure_warning_message(const char *msg_format, va_list ap)
+{
+    g_logv(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, msg_format, ap);
+}
+
 static void useSndTimeout(socket_handle_t  sock) {
     int res;
 #ifdef _WIN32
@@ -347,11 +363,14 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     pcap = pcap_open_dead_with_tstamp_precision(encap_ext, PACKET_LENGTH, PCAP_TSTAMP_PRECISION_NANO);
     extcap_dumper.dumper.pcap = pcap_dump_open(pcap, fifo);
     if (!extcap_dumper.dumper.pcap) {
-        g_warning("Cannot save lipcap dump file");
+        g_warning("Can't open %s for saving packets: %s", pcap_geterr(pcap));
+        pcap_close(pcap);
         exit(EXIT_CODE_CANNOT_SAVE_LIBPCAP_DUMP);
     }
     extcap_dumper.encap = encap;
-    pcap_dump_flush(extcap_dumper.dumper.pcap);
+    if (pcap_dump_flush(extcap_dumper.dumper.pcap) == -1) {
+        g_warning("Write to %s failed: %s", g_strerror(errno));
+    }
 #else
     int err = 0;
 
@@ -373,7 +392,7 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
 
     extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, encap_ext, PACKET_LENGTH, FALSE, &err);
     if (!extcap_dumper.dumper.wtap) {
-        g_warning("Cannot save dump file");
+        cfile_dump_open_failure_message("androiddump", fifo, err, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);
     }
     extcap_dumper.encap = encap;
@@ -383,7 +402,8 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     return extcap_dumper;
 }
 
-static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper, char *buffer,
+static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper,
+        char *fifo, char *buffer,
         gssize captured_length, gssize reported_length,
         time_t seconds, int nanoseconds) {
 #ifdef ANDROIDDUMP_USE_LIBPCAP
@@ -395,7 +415,9 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper, char *buf
     pcap_header.ts.tv_usec = nanoseconds / 1000;
 
     pcap_dump((u_char *) extcap_dumper.dumper.pcap, &pcap_header, buffer);
-    pcap_dump_flush(extcap_dumper.dumper.pcap);
+    if (pcap_dump_flush(extcap_dumper.dumper.pcap) == -1) {
+        g_warning("Write to %s failed: %s", g_strerror(errno));
+    }
 #else
     int                 err = 0;
     char               *err_info;
@@ -436,7 +458,8 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper, char *buf
     }
 
     if (!wtap_dump(extcap_dumper.dumper.wtap, &hdr, (const guint8 *) buffer, &err, &err_info)) {
-        g_warning("Cannot dump: %s", err_info);
+        cfile_write_failure_message("androiddump", NULL, fifo, err, err_info,
+                                    0, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
         return FALSE;
     }
 
@@ -1523,7 +1546,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 
             h4_header->direction = GINT32_TO_BE(direction_character == '>');
 
-            endless_loop = extcap_dumper_dump(extcap_dumper, packet,
+            endless_loop = extcap_dumper_dump(extcap_dumper, fifo, packet,
                     captured_length + sizeof(own_pcap_bluetooth_h4_header),
                     captured_length + sizeof(own_pcap_bluetooth_h4_header),
                     ts,
@@ -1822,7 +1845,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
 
             ts -= BLUEDROID_TIMESTAMP_BASE;
 
-            endless_loop = extcap_dumper_dump(extcap_dumper, packet,
+            endless_loop = extcap_dumper_dump(extcap_dumper, fifo, packet,
                     captured_length,
                     captured_length,
                     (uint32_t)(ts / 1000000),
@@ -1970,7 +1993,8 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
             direction = GINT32_FROM_BE(*flags) & 0x01;
             h4_header->direction = GINT32_TO_BE(direction);
 
-            endless_loop = extcap_dumper_dump(extcap_dumper, payload - sizeof(own_pcap_bluetooth_h4_header),
+            endless_loop = extcap_dumper_dump(extcap_dumper, fifo,
+                    payload - sizeof(own_pcap_bluetooth_h4_header),
                     GINT32_FROM_BE(*captured_length) + sizeof(own_pcap_bluetooth_h4_header),
                     GINT32_FROM_BE(*reported_length) + sizeof(own_pcap_bluetooth_h4_header),
                     (uint32_t)(ts / 1000000),
@@ -2178,7 +2202,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
                 nsecs = (int) (ms * 1e6);
             }
 
-            endless_loop = extcap_dumper_dump(extcap_dumper, packet,
+            endless_loop = extcap_dumper_dump(extcap_dumper, fifo, packet,
                     length,
                     length,
                     secs, nsecs);
@@ -2405,7 +2429,7 @@ static int capture_android_logcat(char *interface, char *fifo,
         length = (*payload_length) + header_size + (gssize)exported_pdu_headers_size;
 
         while (used_buffer_length >= exported_pdu_headers_size + header_size && (size_t)length <= used_buffer_length) {
-            endless_loop = extcap_dumper_dump(extcap_dumper, packet,
+            endless_loop = extcap_dumper_dump(extcap_dumper, fifo, packet,
                     length,
                     length,
                     *timestamp_secs, *timestamp_nsecs);
@@ -2602,7 +2626,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
                      * So to avoid this error we are checking for length of packet before passing it to dumper.
                      */
                     if (p_header.incl_len > 0) {
-                        endless_loop = extcap_dumper_dump(extcap_dumper , filter_buffer + read_offset+ PCAP_RECORD_HEADER_LENGTH,
+                        endless_loop = extcap_dumper_dump(extcap_dumper, fifo, filter_buffer + read_offset+ PCAP_RECORD_HEADER_LENGTH,
                         p_header.incl_len , p_header.orig_len , p_header.ts_sec , p_header.ts_usec);
                     }
                     frame_length = p_header.incl_len + PCAP_RECORD_HEADER_LENGTH;
@@ -2684,6 +2708,8 @@ int main(int argc, char **argv) {
 
     attach_parent_console();
 #endif  /* _WIN32 */
+
+    cmdarg_err_init(failure_warning_message, failure_warning_message);
 
     extcap_conf = g_new0(extcap_parameters, 1);
 

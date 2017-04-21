@@ -2590,6 +2590,7 @@ if(ENABLE_EXTCAP AND BUILD_androiddump)
 	if(EXTCAP_ANDROIDDUMP_LIBPCAP)
 		if(HAVE_LIBPCAP)
 			set(androiddump_LIBS
+				ui
 				${GLIB2_LIBRARIES}
 				${PCAP_LIBRARIES}
 			)
@@ -2598,6 +2599,7 @@ if(ENABLE_EXTCAP AND BUILD_androiddump)
 		endif()
 	else()
 		set(androiddump_LIBS
+			ui
 			wiretap
 			${GLIB2_LIBRARIES}
 			${CMAKE_DL_LIBS}

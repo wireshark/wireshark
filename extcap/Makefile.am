@@ -50,6 +50,7 @@ endif
 
 # Libraries and plugin flags with which to link androiddump.
 androiddump_LDADD = \
+	../ui/libui.a			\
 	../wiretap/libwiretap.la	\
 	../wsutil/libwsutil.la		\
 	@GLIB_LIBS@
