@@ -1,6 +1,7 @@
 /* packet-ua3g.c
- * Routines for UA/UDP (Universal Alcatel over UDP) packet dissection.
+ * Routines for UA3G (Universal Alcatel) packet dissection.
  * Copyright 2012, Alcatel-Lucent Enterprise <lars.ruoff@alcatel-lucent.com>
+ * Copyright 2017, Alcatel-Lucent Enterprise <nicolas.bertin@al-enterprise.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -2851,10 +2852,15 @@ static const value_string str_command_cs_ip_device_routing[] = {
 };
 
 static const value_string str_cs_ip_device_routing_vta_type[] = {
-    {0x20, "NOE A"},
-    {0x21, "NOE B"},
-    {0x22, "NOE C"},
-    {0x23, "NOE D"},
+    {0x20, "4018"},
+    {0x21, "4028/8028/8028S"},
+    {0x22, "4038/8038"},
+    {0x23, "4068/8068/8082/8068S"},
+    {0x24, "mipt"},
+    {0x25, "4008"},
+    {0x32, "8058S"},
+    {0x34, "8078S"},
+    {0x35, "8088"},
     {0, NULL}
 };
 
