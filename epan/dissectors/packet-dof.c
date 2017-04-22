@@ -3851,6 +3851,14 @@ typedef struct DOFObjectIDAttribute_t
     const guint8 *data;                         /**< Attribute data. **/
 } DOFObjectIDAttribute;
 
+/**
+* Read variable-length value from buffer.
+*
+* @param maxSize   [in]        Maximum size of value to be read
+* @param bufLength [in,out]    Input: size of buffer, output: size of value in buffer
+* @param buffer    [in]        Actual buffer
+* @return                      Uncompressed value if buffer size is valid (or 0 on error)
+*/
 static guint32 OALMarshal_UncompressValue(guint8 maxSize, guint32 *bufLength, const guint8 *buffer)
 {
     guint32 value = 0;
@@ -3884,6 +3892,10 @@ static guint32 OALMarshal_UncompressValue(guint8 maxSize, guint32 *bufLength, co
         break;
     }
 
+    /* Sanity check */
+    if (size > *bufLength)
+        return 0;
+
     value = buffer[used++] & mask;
     while (used < size)
         value = (value << 8) | buffer[used++];
@@ -3892,18 +3904,13 @@ static guint32 OALMarshal_UncompressValue(guint8 maxSize, guint32 *bufLength, co
     return (value);
 }
 
-static guint32 DOFObjectID_GetClassSize_Bytes(const guint8 *pBytes)
-{
-    guint32 size = 4;
-
-    (void)OALMarshal_UncompressValue(DOFOBJECTID_MAX_CLASS_SIZE, &size, pBytes);
-
-    return size;
-}
-
 static guint32 DOFObjectID_GetClassSize(DOFObjectID self)
 {
-    return DOFObjectID_GetClassSize_Bytes(self->oid);
+    guint32 size = self->len;
+
+    (void)OALMarshal_UncompressValue(DOFOBJECTID_MAX_CLASS_SIZE, &size, self->oid);
+
+    return size;
 }
 
 static guint32 DOFObjectID_GetDataSize(const DOFObjectID self)
