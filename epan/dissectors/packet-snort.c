@@ -184,7 +184,8 @@ typedef struct Alert_t {
     guint32       gen;             /* Which engine generated alert (not often interesting) */
     int           prio;            /* Priority as reported in alert (not usually interesting) */
 
-    const char *raw_alert;         /* The whole alert string as reported by snort */
+    char       *raw_alert;         /* The whole alert string as reported by snort */
+    gboolean   raw_alert_ts_fixed; /* Set when correct timestamp is restored before displaying */
 
     char       *msg;               /* Rule msg/description as it appears in the alert */
     char       *classification;    /* Classification type of rule */
@@ -793,8 +794,17 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
         expert_add_info_format(pinfo, alert_ti, &ei_snort_alert, "Alert %u: \"%s\"", alert->sid, alert->msg);
     }
 
-    /* Show the raw alert string. */
+    /* Show the 'raw' alert string. */
     if (rule) {
+        /* Fix up alert->raw_alert if not already done so first. */
+        if (!alert->raw_alert_ts_fixed) {
+            /* Write 6 figures to position after decimal place in timestamp. Must have managed to
+               parse out fields already, so will definitely be long enough for memcpy() to succeed. */
+            char digits[7];
+            g_snprintf(digits, 7, "%06u", pinfo->abs_ts.nsecs / 1000);
+            memcpy(alert->raw_alert+18, digits, 6);
+            alert->raw_alert_ts_fixed = TRUE;
+        }
         ti = proto_tree_add_string(snort_tree, hf_snort_raw_alert, tvb, 0, 0, alert->raw_alert);
         PROTO_ITEM_SET_GENERATED(ti);
     }
@@ -954,8 +964,6 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                                               content_text_template,
                                               rule->contents[n].str);
             if (!attempt_match) {
-                /* TODO: for pcre could try to use same library used by
-                   display filter 'matches' operator? */
                 proto_item_append_text(ti, " (no match attempt made)");
             }
 
